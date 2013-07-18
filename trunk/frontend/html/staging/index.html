@@ -1,0 +1,15 @@
+<html>
+	<head>
+		<script src="../include/jquery/js/jquery.js"></script>
+	</head>
+	<body>
+		<div id="events"></div>
+		<script type="text/javascript">
+			$.getJSON( 
+				'https://localhost/cgi-bin/freescore/rest/aau-states-2013/events',
+				function( data ) {
+					$( '#events' ).html( data.join( "<br>" ));
+				});
+		</script>
+	</body>
+</html>

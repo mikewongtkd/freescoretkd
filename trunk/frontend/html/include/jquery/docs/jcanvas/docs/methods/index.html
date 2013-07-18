@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8' />
+<!-- Ensure page sizes properly on mobile devices -->
+<meta name='viewport' content='width=device-width' />
+
+<!-- Styles -->
+<link href='http://fonts.googleapis.com/css?family=Oxygen+Mono' rel='stylesheet' />
+<link href='http://fonts.googleapis.com/css?family=Ubuntu:300,300italic,400' rel='stylesheet' />
+<link href='../../resources/styles/css/site-global.css' rel='stylesheet' />
+<link href='../../resources/styles/css/global.css' rel='stylesheet' />
+<link href='../../resources/images/favicon.ico' rel='shortcut icon' />
+
+<link href='../../resources/styles/css/docs.css' rel='stylesheet' />
+<link href='../../resources/styles/css/syntax.css' rel='stylesheet' />
+
+<!-- SEO Info -->
+<meta name='description' content='Documentation for jCanvas, the jQuery HTML5 canvas plugin.' />
+
+<title>Methods | jCanvas Docs</title></head>
+<body>
+
+<!-- Main header & navigation -->
+<div class='header box'>
+	<ul class='nav'>
+		<li class='logo'><a href='../../'>j<span class='c'>C</span>anvas</a></li>
+		<li class='author'><a href='/'>by Caleb Evans</a></li>
+		<li><a href='../../downloads/'>Downloads</a></li>
+		<li><a href='../../docs/'>Docs</a></li>
+		<li><a href='../../sandbox/'>Sandbox</a></li>
+		<li><a href='../../support/'>Support</a></li>
+	</ul>
+</div>
+<div class='content'>
+
+<h1 class='drawer-toggle'>
+	Documentation
+	<span class='arrow'></span>	
+</h1>
+<div class='subtitle'>Click a code snippet to see a demo</div>
+
+<div id='sections' class='box drawer'>
+
+<input type='text' id='search' placeholder='Search' />
+
+<h3>jCanvas</h3><ul>
+			<li class='match' data-keywords='jcanvas introduction '>
+				<a href='../../docs/introduction/'>Introduction</a>
+			</li>
+			<li class='match' data-keywords='jcanvas syntax '>
+				<a href='../../docs/syntax/'>Syntax</a>
+			</li>
+			<li class='match' data-keywords='jcanvas object '>
+				<a href='../../docs/object/'>Object</a>
+			</li>
+			<li class='match' data-keywords='jcanvas preferences defaults'>
+				<a href='../../docs/preferences/'>Preferences</a>
+			</li>
+			<li class='match' data-keywords='jcanvas extending plugin'>
+				<a href='../../docs/extending/'>Extending</a>
+			</li>
+			<li class='match' data-keywords='jcanvas properties '>
+				<a href='../../docs/properties/'>Properties</a>
+			</li>
+			<li class='match' data-keywords='jcanvas methods '>
+				<a href='../../docs/methods/'>Methods</a>
+			</li></ul><h3>Canvas</h3><ul>
+			<li class='match' data-keywords='canvas clearcanvas '>
+				<a href='../../docs/clearCanvas/'>Clear Canvas</a>
+			</li>
+			<li class='match' data-keywords='canvas translatecanvas '>
+				<a href='../../docs/translateCanvas/'>Translate Canvas</a>
+			</li>
+			<li class='match' data-keywords='canvas rotatecanvas '>
+				<a href='../../docs/rotateCanvas/'>Rotate Canvas</a>
+			</li>
+			<li class='match' data-keywords='canvas scalecanvas '>
+				<a href='../../docs/scaleCanvas/'>Scale Canvas</a>
+			</li>
+			<li class='match' data-keywords='canvas savecanvas '>
+				<a href='../../docs/saveCanvas/'>Save Canvas</a>
+			</li>
+			<li class='match' data-keywords='canvas restorecanvas '>
+				<a href='../../docs/restoreCanvas/'>Restore Canvas</a>
+			</li>
+			<li class='match' data-keywords='canvas pixelmanipulation set pixels'>
+				<a href='../../docs/pixelManipulation/'>Pixel Manipulation</a>
+			</li>
+			<li class='match' data-keywords='canvas getcanvasimage data url base64'>
+				<a href='../../docs/getCanvasImage/'>Get Canvas Image</a>
+			</li>
+			<li class='match' data-keywords='canvas drawmanually '>
+				<a href='../../docs/drawManually/'>Draw Manually</a>
+			</li>
+			<li class='match' data-keywords='canvas detectpixelratio detectpixelratio density screen retina display'>
+				<a href='../../docs/detectPixelRatio/'>Detect Pixel Ratio</a>
+			</li></ul><h3>Drawings</h3><ul>
+			<li class='match' data-keywords='drawings arcs drawarc circles'>
+				<a href='../../docs/arcs/'>Arcs</a>
+			</li>
+			<li class='match' data-keywords='drawings ellipses drawellipse'>
+				<a href='../../docs/ellipses/'>Ellipses</a>
+			</li>
+			<li class='match' data-keywords='drawings rectangles drawrect'>
+				<a href='../../docs/rectangles/'>Rectangles</a>
+			</li>
+			<li class='match' data-keywords='drawings lines drawline paths'>
+				<a href='../../docs/lines/'>Lines</a>
+			</li>
+			<li class='match' data-keywords='drawings curves drawquadratic drawbezier paths'>
+				<a href='../../docs/curves/'>Curves</a>
+			</li>
+			<li class='match' data-keywords='drawings vectors drawvector vectors'>
+				<a href='../../docs/vectors/'>Vectors</a>
+			</li>
+			<li class='match' data-keywords='drawings text drawtext'>
+				<a href='../../docs/text/'>Text</a>
+			</li>
+			<li class='match' data-keywords='drawings images drawimage'>
+				<a href='../../docs/images/'>Images</a>
+			</li>
+			<li class='match' data-keywords='drawings polygons drawpolygon'>
+				<a href='../../docs/polygons/'>Polygons</a>
+			</li>
+			<li class='match' data-keywords='drawings masking clipping'>
+				<a href='../../docs/masking/'>Masking</a>
+			</li></ul><h3>Layers</h3><ul>
+			<li class='match' data-keywords='layers layerapi layers api'>
+				<a href='../../docs/layerAPI/'>Layer API</a>
+			</li>
+			<li class='match' data-keywords='layers addlayers addlayer'>
+				<a href='../../docs/addLayers/'>Add Layers</a>
+			</li>
+			<li class='match' data-keywords='layers retrievelayers '>
+				<a href='../../docs/retrieveLayers/'>Retrieve Layers</a>
+			</li>
+			<li class='match' data-keywords='layers drawlayers drawlayers'>
+				<a href='../../docs/drawLayers/'>Draw Layers</a>
+			</li>
+			<li class='match' data-keywords='layers manipulatelayers '>
+				<a href='../../docs/manipulateLayers/'>Manipulate Layers</a>
+			</li>
+			<li class='match' data-keywords='layers animatelayers animatelayer'>
+				<a href='../../docs/animateLayers/'>Animate Layers</a>
+			</li>
+			<li class='match' data-keywords='layers events click drag and drop touch'>
+				<a href='../../docs/events/'>Events</a>
+			</li></ul><h3>Styles</h3><ul>
+			<li class='match' data-keywords='styles colors names hexadecimal values rgb rgba'>
+				<a href='../../docs/colors/'>Colors</a>
+			</li>
+			<li class='match' data-keywords='styles shadows blur'>
+				<a href='../../docs/shadows/'>Shadows</a>
+			</li>
+			<li class='match' data-keywords='styles gradients linear radial'>
+				<a href='../../docs/gradients/'>Gradients</a>
+			</li>
+			<li class='match' data-keywords='styles patterns repeating'>
+				<a href='../../docs/patterns/'>Patterns</a>
+			</li>
+			<li class='match' data-keywords='styles functions '>
+				<a href='../../docs/functions/'>Functions</a>
+			</li></ul>
+</div>
+
+<div id='section'>
+
+<h2>Methods</h2>
+
+<p>This is a reference of every jCanvas method, for quick access.</p>
+
+<p>Click a method name to see information about that method.</p>
+
+<ul id='methods' class='accordion'>
+	<li id='addLayer'><h3><a href='#addLayer' class='subsection'>addLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/addLayers#adding-layers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>addLayer( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='animateLayer'><h3><a href='#animateLayer' class='subsection'>animateLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/animateLayers#animating-layers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>animateLayer( layerId, properties [, duration ] [, easing ] [, callback ] )</code></li>
+						<li><code>animateLayer( layerId, properties, options )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='animateLayerGroup'><h3><a href='#animateLayerGroup' class='subsection'>animateLayerGroup( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/animateLayers#animating-layer-groups'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>animateLayerGroup( groupId, properties [, duration ] [, easing ] [, callback ] )</code></li>
+						<li><code>animateLayerGroup( groupId, properties, options )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='clearCanvas'><h3><a href='#clearCanvas' class='subsection'>clearCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/clearCanvas'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>clearCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='createGradient'><h3><a href='#createGradient' class='subsection'>createGradient( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/gradients'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>createGradient( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>CanvasGradient</code></li>
+		</ul>
+	</li>
+	<li id='createPattern'><h3><a href='#createPattern' class='subsection'>createPattern( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/patterns'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>createPattern( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>CanvasPattern</code></li>
+		</ul>
+	</li>
+	<li id='delayLayer'><h3><a href='#delayLayer' class='subsection'>delayLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/animatingLayers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>delayLayer( layerId [, duration ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='delayLayerGroup'><h3><a href='#delayLayerGroup' class='subsection'>delayLayerGroup( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/animatingLayers#delaying-animation'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>delayLayerGroup( groupId [, clearQueue ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='detectPixelRatio'><h3><a href='#detectPixelRatio' class='subsection'>detectPixelRatio( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/detectPixelRatio'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>detectPixelRatio( [ callback ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='draw'><h3><a href='#draw' class='subsection'>draw( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/drawManually'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>draw( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawArc'><h3><a href='#drawArc' class='subsection'>drawArc( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/arcs'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawArc( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawBezier'><h3><a href='#drawBezier' class='subsection'>drawBezier( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/curves#bezier-curves'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawBezier( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawEllipse'><h3><a href='#drawEllipse' class='subsection'>drawEllipse( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/ellipses'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawEllipse( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawImage'><h3><a href='#drawImage' class='subsection'>drawImage( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/images'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawImage( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawLayers'><h3><a href='#drawLayers' class='subsection'>drawLayers( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/layers#drawing-layers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawLayers( )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawLine'><h3><a href='#drawLine' class='subsection'>drawLine( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/lines'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawLine( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawPolygon'><h3><a href='#drawPolygon' class='subsection'>drawPolygon( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/polygons'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawPolygon( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawQuadratic'><h3><a href='#drawQuadratic' class='subsection'>drawQuadratic( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/curves#quadratic-curves'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawQuadratic( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawRect'><h3><a href='#drawRect' class='subsection'>drawRect( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/rectangles'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawRect( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawText'><h3><a href='#drawText' class='subsection'>drawText( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/text'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawText( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='drawVector'><h3><a href='#drawVector' class='subsection'>drawVector( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/vectors'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>drawVector( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='getCanvasImage'><h3><a href='#getCanvasImage' class='subsection'>getCanvasImage( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/getCanvasImage'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>getCanvasImage( [ imageType ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>String</code></li>
+		</ul>
+	</li>
+	<li id='getLayer'><h3><a href='#getLayer' class='subsection'>getLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/retrieveLayers#retrieving-a-single-layer'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>getLayer( layerId )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>Layer</code></li>
+		</ul>
+	</li>
+	<li id='getLayerGroup'><h3><a href='#getLayerGroup' class='subsection'>getLayerGroup( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/retrieveLayers#retrieving-layer-groups'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>getLayerGroup( groupId )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>Layer</code></li>
+		</ul>
+	</li>
+	<li id='getLayerIndex'><h3><a href='#getLayerIndex' class='subsection'>getLayerIndex( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/retrieveLayers#retrieving-layer-indices'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>getLayerIndex( layerId )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>Number</code></li>
+		</ul>
+	</li>
+	<li id='getLayers'><h3><a href='#getLayers' class='subsection'>getLayers( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/retrieveLayers#retrieving-all-layers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>getLayers( )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='jCanvas'><h3><a href='#jCanvas' class='subsection'>jCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/preferences'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>jCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='jCanvas.extend'><h3><a href='#jCanvas_extend' class='subsection'>jCanvas.extend( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/extending'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>jCanvas.extend( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>Function</code></li>
+		</ul>
+	</li>
+	<li id='measureText'><h3><a href='#measureText' class='subsection'>measureText( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/text#measuring-text'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>measureText( [ properties ] )</code></li>
+						<li><code>measureText( layerId )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>Object</code></li>
+		</ul>
+	</li>
+	<li id='removeLayer'><h3><a href='#removeLayer' class='subsection'>removeLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/manipulateLayers#removing-layers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>removeLayer( layerId )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='removeLayerGroup'><h3><a href='#removeLayerGroup' class='subsection'>removeLayerGroup( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/manipulateLayers#removing-layer-groups'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>removeLayerGroup( groupId )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='removeLayers'><h3><a href='#removeLayers' class='subsection'>removeLayers( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/manipulateLayers#removing-layers'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>removeLayers( )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='restoreCanvas'><h3><a href='#restoreCanvas' class='subsection'>restoreCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/restoreCanvas'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>restoreCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='restoreCanvasOnRedraw'><h3><a href='#restoreCanvasOnRedraw' class='subsection'>restoreCanvasOnRedraw( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/masking#masking-draggable-shapes'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>restoreCanvasOnRedraw( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='rotateCanvas'><h3><a href='#rotateCanvas' class='subsection'>rotateCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/rotateCanvas'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>rotateCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='saveCanvas'><h3><a href='#saveCanvas' class='subsection'>saveCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/saveCanvas'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>saveCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='scaleCanvas'><h3><a href='#scaleCanvas' class='subsection'>scaleCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/scaleCanvas'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>scaleCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='setLayer'><h3><a href='#setLayer' class='subsection'>setLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/manipulateLayers#setting-layer-properties'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>setLayer( layerId,  [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='setLayerGroup'><h3><a href='#setLayerGroup' class='subsection'>setLayerGroup( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/manipulateLayers#setting-layer-group-properties'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>setLayerGroup(  groupId, [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='setLayers'><h3><a href='#setLayers' class='subsection'>setLayers( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/manipulateLayers#setting-layer-properties'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>setLayers( properties )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='setPixels'><h3><a href='#setPixels' class='subsection'>setPixels( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/setPixels'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>setPixels( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='stopLayer'><h3><a href='#stopLayer' class='subsection'>stopLayer( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/animatingLayers#stopping-animation'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>stopLayer( layerId [, clearQueue ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='stopLayerGroup'><h3><a href='#stopLayerGroup' class='subsection'>stopLayerGroup( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/animatingLayers#stopping-animation'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>stopLayerGroup( groupId [, clearQueue ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li>
+	<li id='translateCanvas'><h3><a href='#translateCanvas' class='subsection'>translateCanvas( )</a></h3>
+		<ul class='box'>
+			<li><dfn><a href='../../docs/translateCanvas'>Method Usage</a></dfn></li>
+			<li><dfn>Syntax</dfn>
+					<ul class='syntax'>
+						<li><code>translateCanvas( [ properties ] )</code></li>
+					</ul>
+				</li>
+			<li><dfn>Returns:</dfn> <code>jQuery</code></li>
+		</ul>
+	</li></ul>
+</div>
+
+<div class='clearfix'></div>
+
+</div>
+
+<script src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'></script>
+<script src='../../resources/scripts/global.min.js'></script>
+
+<!-- Google AdSense -->
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-1901180034197863";
+// Determine ad using media query
+if (matchMedia('(max-width: 800px)').matches) {
+	/* jCanvas (mobile) */
+	google_ad_slot = "2390606865";
+	google_ad_width = 320;
+	google_ad_height = 50;
+} else {
+	/* jCanvas (vertical) */
+	google_ad_slot = "9309404860";
+	google_ad_width = 160;
+	google_ad_height = 600;
+}
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<!-- Google Analytics -->
+<script>
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32407194-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script><script src='../../resources/scripts/prettify.min.js'></script>
+<script src='../../resources/scripts/docs.min.js'></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+@media screen {
+	body {
+		font-family: Calibri, Helvetica, Arial, sans-serif;
+		color: #000;
+		background-color: #eee;
+	}
+
+	h1 {
+		font-size: 24pt;
+		color: white;
+		border-radius: 8px;
+		background-color: #333;
+		padding-left: 20px;
+	}
+
+	h2 {
+		page-break-before: always;
+		font-size: 18pt;
+		border-radius: 8px;
+		color: #666;
+		padding-left: 20px;
+		background-color: #ccc;
+	}
+
+	.athlete {
+		background-color: #fff;
+		color: #333;
+		padding-left: 20px;
+	}
+
+	.athlete-id {
+		color: #ccc;
+	}
+
+	.divisions .ui-selecting .division .description { background: #f60; }
+	.divisions .ui-selecting .division { background: #fc0; }
+	.divisions .ui-selected  .division .description { background: #f30; }
+	.divisions .ui-selected  { background: #f90; }
+
+	.division {
+		padding: 0 0 12px 0;
+		page-break-inside: avoid;
+		background-color: #fff;
+		border: 1px solid #ccc;
+		border-radius: 8px;
+		margin: 20px 4px 20px 4px;
+	}
+
+	.description {
+		background-color: #ccc;
+		border-radius: 8px 8px 0 0 ;
+		color: #333;
+		font-size: 9pt;
+		padding: 0 0 0 10px;
+	}
+
+	.subdivision {
+		float: right;
+		padding-right: 12px;
+	}
+
+	.age-weight {
+		color: #666;
+		float: right;
+		padding-right: 12px;
+	}
+}
+
+@media print {
+	body {
+		font-family: Calibri, Helvetica, Arial, sans-serif;
+	}
+
+	h1 {
+		font-size: 24pt;
+		border-top: 4px solid black;
+	}
+
+	h2 {
+		page-break-before: always;
+		font-size: 18pt;
+		border-top: 2px solid #666;
+	}
+
+	.athlete {
+		padding-left: 20px;
+	}
+
+	.athlete-id {
+		color: #999;
+	}
+
+	.division {
+		padding: 0 0 12px 0;
+		page-break-inside: avoid;
+	}
+
+	.description {
+		color: #333;
+		font-size: 9pt;
+		padding: 0 0 0 4px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.subdivision {
+		float: right;
+		padding-right: 12px;
+	}
+
+	.age-weight {
+		color: #666;
+		float: right;
+		padding-right: 12px;
+	}
+}

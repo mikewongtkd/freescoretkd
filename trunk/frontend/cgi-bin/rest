@@ -1,0 +1,111 @@
+#! /Users/mikewong899/bin/perly
+
+use Mojolicious::Lite;
+
+our $freescore_dir = "/Users/mikewong899/devel/freescore/backend/data";
+
+get '/:tournament/*object' => sub { 
+	my $self = shift;
+	my ($type, $data) = retrieve( $self );
+	$self->render( $type => $data );
+};
+
+post '/' => sub {
+	my $self = shift;
+	my $id   = $self->param( 'id' );
+	$self->render( text => ' Data posted ' . $id );
+};
+
+any '*' => sub {
+	my $self = shift;
+	$self->render( text => ' Unknown command ' );
+};
+
+app->start( 'cgi' );
+
+# ============================================================
+sub retrieve {
+# ============================================================
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $object     = $self->param( 'object' );
+	$tournament    =~ s/[^\w\-\.]/_/g;
+	$object        =~ s/[^\w\-\.\/]/_/g;
+
+	my $db = "$freescore_dir/$tournament/freescore.db";
+	if( -e $db ) {
+		# ===== OBJECT LISTS
+		local $_ = $object;
+		if      ( /^events$/ ) {
+			return ( 'json', events( $db ));
+		} elsif ( /^divisions\/(.*)$/ ) {
+			my $event = $1;
+			$event = join " ", map { ucfirst( $_ ); } split( /\-/, $event );
+			return ( 'json', divisions( $db, $event ));
+
+		} else {
+			my $id = $self->param( 'id' );
+			if      ( /^division$/ ) {
+				return ( 'json', division( $db, $id ));
+
+			} elsif ( /^bracket\/(.*)$/ ) {
+				my $event = $1;
+				$event = join " ", map { ucfirst( $_ ); } split( /\-/, $event );
+				return ( 'json', bracket( $db, $event, $id ));
+
+			} else {
+				return ( 'text', "$object not found in $tournament" );
+			}
+		}
+	} else {
+		return ( 'text', "$tournament not found" );
+	}
+}
+
+# ============================================================
+sub divisions {
+# ============================================================
+	my $db    = shift;
+	my $event = shift;
+	my $selection = `/usr/bin/sqlite3 $db 'select * from divisions where event="$event";'`;
+	my $divisions = [];
+	foreach ( split /\n/, $selection ) {
+		chomp;
+		my ($id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, $time, $rest, $contact, $note, $replaced_by) = split /\|/, $selection;
+		push @$divisions, { id => $id, event => $event, gender => $gender, age => $age, rank => $rank, weight => $weight, rounds => $rounds, 'time' => $time, rest => $rest, contact => $contact, exhibition => $exhibition, note => $note, replacedBy => $replaced_by };
+	}
+	return $divisions;
+}
+
+# ============================================================
+sub division {
+# ============================================================
+	my $db   = shift;
+	my $id   = shift;
+	my $selection = `/usr/bin/sqlite3 $db 'select * from divisions where id=$id;'`;
+	chomp $selection;
+	my ($id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, $time, $rest, $contact, $note, $replaced_by) = split /\|/, $selection;
+	my $division = { id => $id, event => $event, gender => $gender, age => $age, rank => $rank, weight => $weight, rounds => $rounds, 'time' => $time, rest => $rest, contact => $contact, exhibition => $exhibition, note => $note, replacedBy => $replaced_by };
+
+	my $athletes = [];
+	$selection = `/usr/bin/sqlite3 $db 'select athletes.* from contestants, athletes where division=$id and contestants.athlete = athletes.id order by contestants.sequence;'`;
+	foreach ( split /\n/, $selection ) {
+		chomp;
+		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|/;
+		push @$athletes, { id => $id, fname => $fname, lname => $lname, gender => $gender, age => $age, belt => $belt, weight => $weight };
+	}
+
+	$division->{ athletes } = $athletes;
+
+	return $division;
+}
+
+# ============================================================
+sub events {
+# ============================================================
+	my $db    = shift;
+	my $event = shift;
+	my $selection = `/usr/bin/sqlite3 $db 'select distinct event from divisions;'`;
+
+	return [ split /\n/, $selection ];
+}

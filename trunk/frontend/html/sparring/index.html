@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<link href="/freescore/include/css/list-divisions.css" rel="stylesheet" />
+		<script src="../include/jquery/js/jquery.js"></script>
+		<script src="../include/jquery/js/jquery-ui.min.js"></script>
+	</head>
+	<body>
+		<div id="tournament"></div>
+		<div id="event"></div>
+		<div id="meta"></div>
+		<div id="division" class="division ui-widget-content">
+		</div>
+		<script type="text/javascript">
+			$.getJSON( 
+				'https://localhost/cgi-bin/freescore/rest/aau-states-2013/division?id=2067',
+				function( division ) {
+					division.tournament = "2013 AAU California State Championships";
+					division.description = division.gender + " " + division.age + " " + division.rank;
+					counting = [ 'No', 'One', 'Two', 'Three', 'Four' ];
+					$( '#tournament' ).append( '<h1>' + division.tournament + '</h1>' );
+					$( '#event' ).append( '<h2>' + division.event + '</h2>' );
+					$( '#meta' )
+						.append( '<div class="keyword">Division</div><div class="value">' + division.description + '</div>' )
+						.append( '<div class="keyword">Weight Class</div><div class="value">' + division.weight + '</div>' )
+						.append( '<div class="keyword">Regulation Time</div><div class="value">' + counting[ division.rounds ] + ' ' + division.time + ' second rounds, with ' + division.rest + ' second rests in between</div>' )
+						.append( '<div class="keyword">Head Contact</div><div class="value">' + division.contact + '</div>' );
+					if( division.exhibition ) { $( '#meta' ).append( '<div class="keyword">Exhibition Match</div><div class="value">Yes</div>' ); }
+					if( division.note       ) { $( '#meta' ).append( '<div class="keyword">Notes</div><div class="value">' + division.note + '</div>' ); }
+
+					$( '#division' ).append( '<div class="description"><span class="division-description">ID, Name</span><span class="subdivision">Rank, Age, Weight</span>' );
+					for (var i = 0; i < division.athletes.length; i++ ) {
+						var athlete = division.athletes[ i ];
+						$( '#division' )
+							.append( '<div class="athlete"><span class="athlete-id">' + athlete.id + '</span> <span class="athlete-name">' + athlete.fname + " " + athlete.lname + '</span><span class="age-weight">' + athlete.belt + ', ' + athlete.age + ' yo, ' + athlete.weight + ' lbs.</span></div>' );
+					}
+				});
+		</script>
+	</body>
+</html>

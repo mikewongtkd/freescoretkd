@@ -1,0 +1,261 @@
+@media screen {
+	body {
+		font-family: Calibri, Helvetica, Arial, sans-serif;
+		color: #000;
+		background-color: #eee;
+	}
+
+	h1 {
+		font-size: 24pt;
+		color: white;
+		border-radius: 8px;
+		background-color: #333;
+		padding-left: 20px;
+	}
+
+	h2 {
+		clear: both;
+		font-size: 18pt;
+		border-radius: 8px;
+		color: #666;
+		padding-left: 20px;
+		background-color: #ccc;
+	}
+
+	.meta {
+		clear: both;
+		margin-left: 20px;
+	}
+
+	.meta .keyword {
+		float: left;
+		width: 120px;
+		font-weight: bold;
+	}
+
+	.meta .value .reference {
+		color: #999;
+	}
+
+	.division {
+		position: relative;
+	}
+
+	.match {
+		position: absolute;
+		page-break-inside: avoid;
+		background-color: #fff;
+		border: 1px solid #ccc;
+		border-radius: 8px;
+		width: 224px;
+	}
+
+	.match .athlete {
+		clear: both;
+		background-color: #fff;
+		color: #333;
+		padding-left: 20px;
+		width: 200px;
+	}
+
+	.match .athlete .id {
+		float: left;
+		color: #ccc;
+		width: 40px;
+	}
+
+	.match .athlete .age-weight {
+		display: none;
+		color: #666;
+	}
+
+	.match .bye .name {
+		color: #ccc;
+	}
+
+	.match .meta {
+		clear: both;
+		font-size: 6pt;
+		color: #ccc;
+		border-radius: 8px;
+		margin: 0;
+	}
+
+	.match .meta .color {
+		float: left;
+		width: 80px;
+		padding-left: 60px;
+		border-right: 1px solid #ccc;
+	}
+
+	.match .meta .chung {
+		border-bottom: 1px solid #ccc;
+	}
+
+	.match .meta .hong {
+		border-top: 1px solid #ccc;
+	}
+	
+	.match .meta .score {
+		float: left;
+		width: 63px;
+		padding-left: 20px;
+	}
+
+	#Q101 {
+		top:  0;
+		left: 0;
+	}
+
+	#Q102 {
+		top:  320px;
+		left:  0;
+	}
+
+	#Q103 {
+		top:  0;
+		left: 1020px;
+	}
+
+	#Q104 {
+		top:  320px;
+		left: 1020px;
+	}
+
+	#S201 {
+		top:  160px;
+		left: 240px;
+	}
+
+	#S202 {
+		top:  160px;
+		left: 780px;
+	}
+}
+
+@media print {
+	@page { size: landscape; }
+	body {
+		font-family: Calibri, Helvetica, Arial, sans-serif;
+	}
+
+	h1 {
+		font-size: 24pt;
+		border-top: 4px solid black;
+	}
+
+	h2 {
+		font-size: 18pt;
+		border-top: 2px solid #666;
+	}
+
+	.meta {
+		clear: both;
+		margin-left: 20px;
+	}
+
+	.meta .keyword {
+		float: left;
+		width: 120px;
+		font-weight: bold;
+	}
+
+	.meta .value .reference {
+		color: #eee;
+	}
+
+	.division {
+		position: relative;
+	}
+
+	.athlete {
+		background-color: #fff;
+		color: #333;
+		padding-left: 20px;
+		width: 200px;
+	}
+
+	.athlete .id {
+		display: inline;
+		float: left;
+		color: #ccc;
+		width: 40px;
+	}
+
+	.athlete .age-weight {
+		display: none;
+		color: #666;
+	}
+
+	.bye .name {
+		color: #ccc;
+	}
+
+	.match {
+		position: absolute;
+		page-break-inside: avoid;
+		background-color: #fff;
+		border: 1px solid black;
+		border-radius: 8px;
+	}
+
+	.match .meta {
+		clear: both;
+		font-size: 6pt;
+		color: #ccc;
+		border-radius: 8px;
+	}
+
+	.match .meta .color {
+		float: left;
+		width: 60px;
+		padding-left: 40px;
+		border-right: 1px solid #ccc;
+		border-radius: 8px;
+	}
+
+	.match .meta .chung {
+		border-bottom: 1px solid #ccc;
+	}
+
+	.match .meta .hong {
+		border-top: 1px solid #ccc;
+	}
+	
+	.match .meta .score {
+		float: left;
+		width: 80px;
+		padding-left: 20px;
+		border-radius: 8px;
+	}
+
+	#Q101 {
+		left: 0;
+		top:  0;
+	}
+
+	#Q102 {
+		left:  0;
+		top:  320px;
+	}
+
+	#Q103 {
+		left: 1020px;
+		top:  0;
+	}
+
+	#Q104 {
+		left: 1020px;
+		top:  320px;
+	}
+
+	#S201 {
+		left: 240px;
+		top:  160px;
+	}
+
+	#S202 {
+		left: 780px;
+		top:  160px;
+	}
+}
