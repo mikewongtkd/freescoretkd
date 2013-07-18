@@ -13,7 +13,7 @@
 		</div>
 		<script type="text/javascript">
 			var db = $.url().param( 'tournament' );
-			var id = $.url().param( 'division' );
+			var id = $.url().param( 'id' );
 			$.getJSON( 
 				'https://localhost/cgi-bin/freescore/rest/' + db + '/division?id=' + id,
 				function( division ) {
