@@ -21,6 +21,15 @@
 		background-color: #ccc;
 	}
 
+	h2 .event {
+		float: left;
+	}
+
+	h2 .division-id {
+		float: right;
+		margin-right: 40px;
+	}
+
 	#meta {
 		clear: both;
 		margin-left: 20px;
@@ -95,12 +104,20 @@
 		border-top: 2px solid #666;
 	}
 
+	h2 .event {
+		float: left;
+	}
+
+	h2 .division-id {
+		float: right;
+	}
+
  	#meta {
 		clear: both;
 		margin-left: 20px;
 		border-radius: 8px;
 		border: solid 1px black;
-		padding: 4px;
+		padding: 8px;
 		margin-bottom: 20px;
 	}
 
