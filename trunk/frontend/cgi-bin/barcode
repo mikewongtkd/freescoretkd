@@ -1,0 +1,28 @@
+#! /usr/bin/perl
+use strict;
+use warnings;
+
+use CGI;
+use GD::Barcode::UPCE;
+
+my $cgi  = new CGI;
+my $id   = sprintf( "%06d", (int( $cgi->param( 'id' )) || 0));
+my $size = $cgi->param( 'size' ) || 'medium';
+
+binmode( STDOUT );
+print "Content-Type: image/png\n\n";
+
+my @options = ();
+if     ( $size eq 'small' ) {
+	@options = ( Height => 16, NoText => 1 );
+} elsif( $size eq 'medium' ) {
+	@options = ( Height => 32, NoText => 0 );
+}
+
+my $barcode = new GD::Barcode::UPCE( $id );
+die $GD::Barcode::UPCE::errStr if $GD::Barcode::UPCE::errStr;
+my $gd = $barcode->plot( @options );
+my $white = $gd->colorClosest( 255, 255, 255 );
+$gd->transparent( $white );
+
+print $gd->png();

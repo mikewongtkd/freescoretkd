@@ -3,22 +3,24 @@
 		font-family: Calibri, Helvetica, Arial, sans-serif;
 		color: #000;
 		background-color: #eee;
+		background-image: url( '/freescore/images/subtlepatterns.com/witewall_3.png' );
 	}
 
 	h1 {
 		font-size: 24pt;
 		color: white;
 		border-radius: 8px;
-		background-color: #333;
+		background: linear-gradient(to bottom, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%); /* W3C -- http://www.colorzilla.com/gradient-editor */
 		padding-left: 20px;
 	}
 
 	h2 {
 		font-size: 18pt;
 		border-radius: 8px;
-		color: #666;
+		color: #333;
 		padding-left: 20px;
-		background-color: #ccc;
+		background-color: #fff;
+		border: 1px solid #333;
 	}
 
 	h2 .event {
@@ -30,18 +32,22 @@
 		margin-right: 40px;
 	}
 
-	#meta {
+	h2 .division-id .barcode {
+		display: none;
+	}
+
+	.meta {
 		clear: both;
 		margin-left: 20px;
 	}
 
-	#meta .keyword {
+	.meta .keyword {
 		float: left;
 		width: 120px;
 		font-weight: bold;
 	}
 
-	#meta .value .reference {
+	.meta .value .reference {
 		color: #999;
 	}
 
@@ -51,14 +57,22 @@
 		padding-left: 20px;
 	}
 
-	.athlete-id {
+	.athlete .id {
+		display: inline-block;
 		color: #ccc;
+		width: 32px;
 	}
 
-	.divisions .ui-selecting .division .description { background: #f60; }
-	.divisions .ui-selecting .division { background: #fc0; }
-	.divisions .ui-selected  .division .description { background: #f30; }
-	.divisions .ui-selected  { background: #f90; }
+	.athlete .name {
+		display: inline-block;
+	}
+
+	.athlete .age-weight {
+		display: inline-block;
+		color: #666;
+		float: right;
+		padding-right: 12px;
+	}
 
 	.division {
 		padding: 0 0 12px 0;
@@ -78,12 +92,6 @@
 	}
 
 	.subdivision {
-		float: right;
-		padding-right: 12px;
-	}
-
-	.age-weight {
-		color: #666;
 		float: right;
 		padding-right: 12px;
 	}
@@ -112,9 +120,17 @@
 		float: right;
 	}
 
+	h2 .division-id .id {
+		vertical-align: top;
+	}
+
+	h2 .division-id .barcode {
+		margin-left: 20px;
+	}
+
  	#meta {
 		clear: both;
-		margin-left: 20px;
+		margin: 0 20px 0 20px;
 		border-radius: 8px;
 		border: solid 1px black;
 		padding: 8px;
@@ -135,8 +151,14 @@
 		padding-left: 20px;
 	}
 
-	.athlete-id {
+	.athlete .id {
 		color: #999;
+	}
+
+	.athlete .age-weight {
+		color: #666;
+		float: right;
+		padding-right: 12px;
 	}
 
 	.division {
@@ -152,12 +174,6 @@
 	}
 
 	.subdivision {
-		float: right;
-		padding-right: 12px;
-	}
-
-	.age-weight {
-		color: #666;
 		float: right;
 		padding-right: 12px;
 	}

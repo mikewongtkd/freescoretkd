@@ -3,6 +3,7 @@
 use lib qw( ./lib );
 use MemberSolutions::Registration;
 use AAU::Tournament;
+use YAML;
 use List::Util qw( shuffle );
 
 my $file = shift;
@@ -10,6 +11,7 @@ my $file = shift;
 my @path = split /\//, $file;
 pop @path;
 my $output = join "/", @path, "freescore.sql";
+my $info   = YAML::LoadFile( join( "/", @path, "tournament.yaml" ));
 
 my $registration     = new MemberSolutions::Registration( $file );
 my $tournament       = new AAU::Tournament();
@@ -51,15 +53,28 @@ foreach my $event (sort keys %$divisions) {
 		my $rest    = 0;
 		my $contact = '';
 		if( $event =~ /sparring/i ) {
-			$rounds = 2;
-			$rest   = 30;
-			$time   = ($rank =~ /black/i) ? 120 : 90;
-			if     ( $event =~ /olympic/i ) { 
-				$contact = ($rank =~ /black/i && int( $age ) >= 15) || (int( $age ) >= 18) ? 'Full Contact' : 'Junior Safety Rules';
-			} elsif( $event =~ /point/i ) {
-				$contact = 'Light Head Contact Only';
+			foreach my $rule (@{$info->{ rules }}) {
+				# ===== APPLY EVENT CONDITION
+				next unless $event =~ /$rule->{ event }/i;
+				
+				# ===== APPLY AGE CONDITION
+				if   ( $rule->{ age } =~ /and over/i )  { next unless $age >= int( $rule->{ age } ); }
+				elsif( $rule->{ age } =~ /and under/i ) { next unless $age <= int( $rule->{ age } ); }
+				elsif( $rule->{ age } =~ /all/i )       { }
+				else                                    { die "Ambiguous age rule in 'tournament.yaml':\n  $rule->{ age }\n $!"; }
+
+				# ===== APPLY BELT CONDITION
+				my $black_belt = ($rule->{ belt } =~ /black/i && $rank =~ /black/i);
+				my $color_belt = ($rule->{ belt } =~ /color/i && !($rank =~ /black/i));
+				next unless( $black_belt || $color_belt );
+
+				$rounds  = $rule->{ rounds };
+				$rest    = $rule->{ rest };
+				$time    = $rule->{ 'time' };
+				$contact = $rule->{ contact };
 			}
 		}
+
 		push @divisions_sql, sprintf "\t( \"%04d\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d, \"%s\" )", $id, $event, $gender, $age, $rank, $weight, $rounds, $time, $rest, $contact;
 		my $sequence = 1;
 		foreach my $athlete (shuffle @{ $division->{ athletes }}) {
@@ -101,6 +116,9 @@ CREATE TABLE IF NOT EXISTS divisions (
 	rest        INTEGER,
 	contact     TEXT,
 	note        TEXT,
+	staged		INTEGER,
+	started		INTEGER,
+	finished	INTEGER,
 	replacedBy  INTEGER REFERENCES divisions (id)
 );
 
@@ -134,5 +152,7 @@ CREATE TABLE IF NOT EXISTS results (
 	match       INTEGER REFERENCES matches (id),
 	sequence    INTEGER,
 	points      REAL,
-	penalties   REAL
+	penalties   REAL,
+	started		INTEGER,
+	finished	INTEGER
 );

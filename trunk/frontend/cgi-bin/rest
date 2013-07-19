@@ -1,6 +1,8 @@
-#! /Users/mikewong899/bin/perly
+#! /usr/local/bin/perl
+# NOTE: This perl needs to be >= 5.12.0 for Mojolicious; Mac OS X perl at /usr/bin/perl is 5.10.0
 
 use Mojolicious::Lite;
+use YAML;
 
 our $freescore_dir = "/Users/mikewong899/devel/freescore/backend/data";
 
@@ -32,7 +34,8 @@ sub retrieve {
 	$tournament    =~ s/[^\w\-\.]/_/g;
 	$object        =~ s/[^\w\-\.\/]/_/g;
 
-	my $db = "$freescore_dir/$tournament/freescore.db";
+	my $db   = "$freescore_dir/$tournament/freescore.db";
+	my $info = YAML::LoadFile( "$freescore_dir/$tournament/tournament.yaml" );
 	if( -e $db ) {
 		# ===== OBJECT LISTS
 		local $_ = $object;
@@ -41,12 +44,12 @@ sub retrieve {
 		} elsif ( /^divisions\/(.*)$/ ) {
 			my $event = $1;
 			$event = join " ", map { ucfirst( $_ ); } split( /\-/, $event );
-			return ( 'json', divisions( $db, $event ));
+			return ( 'json', divisions( $info, $db, $event ));
 
 		} else {
 			my $id = $self->param( 'id' );
 			if      ( /^division$/ ) {
-				return ( 'json', division( $db, $id ));
+				return ( 'json', division( $info, $db, $id ));
 
 			} elsif ( /^bracket\/(.*)$/ ) {
 				my $event = $1;
@@ -65,37 +68,25 @@ sub retrieve {
 # ============================================================
 sub divisions {
 # ============================================================
-	my $db    = shift;
-	my $event = shift;
-	my $selection = `/usr/bin/sqlite3 $db 'select * from divisions where event="$event";'`;
-	my $divisions = [];
-	foreach ( split /\n/, $selection ) {
-		chomp;
-		my ($id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, $time, $rest, $contact, $note, $replaced_by) = split /\|/, $selection;
-		push @$divisions, { id => $id, event => $event, gender => $gender, age => $age, rank => $rank, weight => $weight, rounds => $rounds, 'time' => $time, rest => $rest, contact => $contact, exhibition => $exhibition, note => $note, replacedBy => $replaced_by };
-	}
+	my $info      = shift;
+	my $db        = shift;
+	my $event     = shift;
+	my $divisions = parse_divisions( $db, "select * from divisions where event=\"$event\";" );
 	return $divisions;
 }
 
 # ============================================================
 sub division {
 # ============================================================
-	my $db   = shift;
-	my $id   = shift;
-	my $selection = `/usr/bin/sqlite3 $db 'select * from divisions where id=$id;'`;
-	chomp $selection;
-	my ($id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, $time, $rest, $contact, $note, $replaced_by) = split /\|/, $selection;
-	my $division = { id => $id, event => $event, gender => $gender, age => $age, rank => $rank, weight => $weight, rounds => $rounds, 'time' => $time, rest => $rest, contact => $contact, exhibition => $exhibition, note => $note, replacedBy => $replaced_by };
+	my $info      = shift;
+	my $db        = shift;
+	my $id        = shift;
 
-	my $athletes = [];
-	$selection = `/usr/bin/sqlite3 $db 'select athletes.* from contestants, athletes where division=$id and contestants.athlete = athletes.id order by contestants.sequence;'`;
-	foreach ( split /\n/, $selection ) {
-		chomp;
-		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|/;
-		push @$athletes, { id => $id, fname => $fname, lname => $lname, gender => $gender, age => $age, belt => $belt, weight => $weight };
-	}
-
-	$division->{ athletes } = $athletes;
+	my $divisions = parse_divisions( $db, "select * from divisions where id=$id;" );
+	my $division  = shift @$divisions;
+	my $athletes  = parse_athletes( $db, "select athletes.* from contestants, athletes where division=$id and contestants.athlete = athletes.id order by contestants.sequence;" );
+	$division->{ athletes }   = $athletes;
+	$division->{ tournament } = $info->{ name };
 
 	return $division;
 }
@@ -108,4 +99,60 @@ sub events {
 	my $selection = `/usr/bin/sqlite3 $db 'select distinct event from divisions;'`;
 
 	return [ split /\n/, $selection ];
+}
+
+# ============================================================
+sub sql {
+# ============================================================
+	my $db  = shift;
+	my $sql = shift;
+	return `/usr/bin/sqlite3 $db '$sql'`;
+}
+
+# ============================================================
+sub parse_athletes {
+# ============================================================
+	my $db = shift;
+	my $sql = shift;
+	my $selection = sql( $db, $sql );
+	my $athletes = [];
+	foreach ( split /\n/, $selection ) {
+		chomp;
+		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|/;
+		push @$athletes, { 
+			id => $id, fname => $fname, lname => $lname, gender => $gender, age => $age, 
+			belt => $belt, weight => $weight 
+		};
+	}
+	return $athletes;
+}
+
+# ============================================================
+sub parse_divisions {
+# ============================================================
+	my $db = shift;
+	my $sql = shift;
+	my $selection = sql( $db, $sql );
+	my $divisions = [];
+	foreach ( split /\n/, $selection ) {
+		chomp;
+		my (
+				$id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, 
+				$time, $rest, $contact, $note, $staged, $started, $finished, $replaced_by
+		) = split /\|/, $selection;
+
+		foreach my $time ( \$staged, \$started, \$finished ) {
+			next unless $$time;
+			$$time = $$time * 1000; # JavaScript Date() objects uses milliseconds, not seconds
+		}
+
+		push @$divisions, { 
+				id => $id, event => $event, gender => $gender, age => $age, rank => $rank, 
+				weight => $weight, rounds => $rounds, 'time' => $time, rest => $rest, 
+				contact => $contact, exhibition => $exhibition, note => $note, 
+				staged => $staged, started => $started, finished => $finished, 
+				replacedBy => $replaced_by 
+		};
+	}
+	return $divisions;
 }
