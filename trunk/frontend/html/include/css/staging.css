@@ -23,19 +23,6 @@
 		border: 1px solid #333;
 	}
 
-	h2 .event {
-		float: left;
-	}
-
-	h2 .division-id {
-		float: right;
-		margin-right: 40px;
-	}
-
-	h2 .division-id .barcode {
-		display: none;
-	}
-
 	.meta {
 		clear: both;
 		margin-left: 20px;
@@ -52,7 +39,6 @@
 	}
 
 	.athlete {
-		background-color: #fff;
 		color: #333;
 		padding-left: 20px;
 	}
@@ -76,22 +62,44 @@
 
 	.division {
 		padding: 0 0 12px 0;
-		page-break-inside: avoid;
 		background-color: #fff;
-		border: 1px solid #ccc;
+		page-break-inside: avoid;
+		border: 4px solid #ccc;
 		border-radius: 8px;
 		margin: 20px 4px 20px 4px;
 	}
 
-	.description {
-		background-color: #ccc;
-		border-radius: 8px 8px 0 0 ;
-		color: #333;
-		font-size: 9pt;
-		padding: 0 0 0 10px;
+	.ui-selecting { 
+		border: 4px solid green;
 	}
 
-	.subdivision {
+	.ui-selected {
+		border: 4px solid blue;
+	}
+
+	.division .description {
+		color: #333;
+		font-size: 9pt;
+		padding: 0 10px 0 10px;
+	}
+
+	.division .description .ui-icon {
+		float: left;
+	}
+
+	.division .description .ui-icon-custom-error     { background-image: url( '../jquery/css/smoothness/images/ui-icons_cd0a0a_256x240.png' ); }
+	.division .description .ui-icon-custom-warning   { background-image: url( '../jquery/css/smoothness/images/ui-icons_222222_256x240.png' ); }
+	.division .description .ui-icon-custom-ok        { background-image: url( '../jquery/css/smoothness/images/ui-icons_454545_256x240.png' ); }
+
+	.error                    { border-color: #f66; }
+	.warning                  { border-color: #ff6; }
+	.ok                       { border-color: #999; }
+
+	.division .error          { background-color: #f99; }
+	.division .warning        { background-color: #ff9; }
+	.division .ok             { background-color: #ccc; }
+
+	.division .weight {
 		float: right;
 		padding-right: 12px;
 	}
@@ -110,22 +118,6 @@
 	h2 {
 		font-size: 18pt;
 		border-top: 2px solid #666;
-	}
-
-	h2 .event {
-		float: left;
-	}
-
-	h2 .division-id {
-		float: right;
-	}
-
-	h2 .division-id .id {
-		vertical-align: top;
-	}
-
-	h2 .division-id .barcode {
-		margin-left: 20px;
 	}
 
  	.meta {
@@ -173,14 +165,14 @@
 		page-break-inside: avoid;
 	}
 
-	.description {
+	.division .description {
 		color: #333;
 		font-size: 9pt;
 		padding: 0 0 0 4px;
 		border-bottom: 1px solid #ddd;
 	}
 
-	.subdivision {
+	.division .weight {
 		float: right;
 		padding-right: 12px;
 	}

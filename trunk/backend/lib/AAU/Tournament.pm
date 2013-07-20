@@ -1,4 +1,5 @@
 package AAU::Tournament;
+use YAML;
 
 our $YEAR = 2013;
 
@@ -15,8 +16,14 @@ sub new {
 sub init {
 # ============================================================
 	my $self = shift;
-	$self->{ events } = {};
-	my $context;
+	my $file = shift;
+
+	$self->{ _events } = {};
+	
+	if( -e $file ) {
+		my $info = YAML::LoadFile( $file );
+		foreach my $key (keys %$info) { $self->{ $key } = $info->{ $key }; }
+	}
 
 	# ===== PARSE DIVISION INFORMATION
 	my $header = <DATA>;
@@ -30,7 +37,7 @@ sub init {
 
 		# ===== CREATE PLACEHOLDERS FOR DIVISIONS
 		foreach my $belt_group (@belt_groups) {
-			$self->{ events }{ $event }{ $gender }{ $age_group }{ $belt_group }{ $weight_group } = [];
+			$self->{ _events }{ $event }{ $gender }{ $age_group }{ $belt_group }{ $weight_group } = [];
 		}
 	}
 }
@@ -47,11 +54,7 @@ sub add {
 	my $weight = $athlete->weight();
 
 	EVENT: foreach my $event ($athlete->events()) {
-		my @genders = sort keys %{$self->{ events }};
-		my $gender  = 'All';
-		if( @genders > 1 ) {
-			$gender  = ($athlete->{ Gender } =~ /^M/) ? 'Male' : 'Female';
-		}
+		$gender  = ($athlete->{ Gender } =~ /^M/) ? 'Male' : 'Female';
 
 		# ===== AGE GROUPS
 		my $age_group  = undef;
@@ -84,7 +87,7 @@ sub add {
 		}
 
 		next EVENT unless( defined $age_group && defined $belt_group && defined $weight_group );
-		push @{ $self->{ events }{ $event }{ $gender }{ $age_group }{ $belt_group }{ $weight_group }}, $athlete;
+		push @{ $self->{ _events }{ $event }{ $gender }{ $age_group }{ $belt_group }{ $weight_group }}, $athlete;
 	}
 }
 
@@ -94,7 +97,7 @@ sub ages {
 	my $self   = shift;
 	my $event  = shift;
 	my $gender = shift;
-	return sort { $a <=> $b } keys %{ $self->{ events }{ $event }{ $gender }};
+	return sort { $a <=> $b } keys %{ $self->{ _events }{ $event }{ $gender }};
 }
 
 # ============================================================
@@ -106,7 +109,7 @@ sub athletes {
 	my $age_group    = shift;
 	my $belt_group   = shift;
 	my $weight_group = shift;
-	return @{ $self->{ events }{ $event }{ $gender }{ $age_group }{ $belt_group }{ $weight_group }};
+	return @{ $self->{ _events }{ $event }{ $gender }{ $age_group }{ $belt_group }{ $weight_group }};
 }
 
 # ============================================================
@@ -119,7 +122,7 @@ sub belts {
 	my $sequence  = { Novice => 1, Intermediate => 2, Advanced => 3, Black => 4, Black1 => 5, Black2 => 6, Black2up => 7, Black3 => 8, Black3up => 9, Black4up => 10 };
 	return sort {
 		$sequence->{ $a } <=> $sequence->{ $b };
-	} keys %{ $self->{ events }{ $event }{ $gender }{ $age_group }};
+	} keys %{ $self->{ _events }{ $event }{ $gender }{ $age_group }};
 }
 
 # ============================================================
@@ -168,7 +171,7 @@ sub belt_groups {
 sub events {
 # ============================================================
 	my $self = shift;
-	return sort keys %{ $self->{ events }};
+	return sort keys %{ $self->{ _events }};
 }
 
 # ============================================================
@@ -176,7 +179,7 @@ sub genders {
 # ============================================================
 	my $self   = shift;
 	my $event = shift;
-	return sort keys %{ $self->{ events }{ $event }};
+	return sort keys %{ $self->{ _events }{ $event }};
 }
 
 # ============================================================
@@ -191,7 +194,7 @@ sub weights {
 		my ($a_min) = $a =~ /\((\d+(?:\.\d+)?)/;
 		my ($b_min) = $b =~ /\((\d+(?:\.\d+)?)/;
 		$a_min <=> $b_min;
-	} keys %{ $self->{ events }{ $event }{ $gender }{ $age_group }{ $belt_group }};
+	} keys %{ $self->{ _events }{ $event }{ $gender }{ $age_group }{ $belt_group }};
 }
 
 # ============================================================

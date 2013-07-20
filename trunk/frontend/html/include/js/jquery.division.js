@@ -1,7 +1,5 @@
-/* rename to jquery.divisionViewer.js */
-
 (function( $ ) {
-	$.widget( "freescore.divisionViewer", {
+	$.widget( "freescore.division", {
 		options: {
 			autoShow: true,
 		},

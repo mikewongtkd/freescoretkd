@@ -41,6 +41,7 @@ sub retrieve {
 		local $_ = $object;
 		if      ( /^events$/ ) {
 			return ( 'json', events( $db ));
+
 		} elsif ( /^divisions\/(.*)$/ ) {
 			my $event = $1;
 			$event = join " ", map { ucfirst( $_ ); } split( /\-/, $event );
@@ -72,7 +73,12 @@ sub divisions {
 	my $db        = shift;
 	my $event     = shift;
 	my $divisions = parse_divisions( $db, "select * from divisions where event=\"$event\";" );
-	return $divisions;
+	foreach my $division (@$divisions) {
+		my $id                  = $division->{ id };
+		my $athletes            = parse_athletes( $db, "select athletes.* from staging, athletes where division=$id and staging.athlete = athletes.id order by staging.sequence;" );
+		$division->{ athletes } = $athletes;
+	}
+	return { name => $info->{ name }, event => $event, divisions => $divisions };
 }
 
 # ============================================================
@@ -84,7 +90,7 @@ sub division {
 
 	my $divisions = parse_divisions( $db, "select * from divisions where id=$id;" );
 	my $division  = shift @$divisions;
-	my $athletes  = parse_athletes( $db, "select athletes.* from contestants, athletes where division=$id and contestants.athlete = athletes.id order by contestants.sequence;" );
+	my $athletes  = parse_athletes( $db, "select athletes.* from staging, athletes where division=$id and staging.athlete = athletes.id order by staging.sequence;" );
 	$division->{ athletes }   = $athletes;
 	$division->{ tournament } = $info->{ name };
 
@@ -106,7 +112,7 @@ sub sql {
 # ============================================================
 	my $db  = shift;
 	my $sql = shift;
-	return `/usr/bin/sqlite3 $db '$sql'`;
+	return split /\n/, `/usr/bin/sqlite3 $db '$sql'`;
 }
 
 # ============================================================
@@ -114,9 +120,8 @@ sub parse_athletes {
 # ============================================================
 	my $db = shift;
 	my $sql = shift;
-	my $selection = sql( $db, $sql );
 	my $athletes = [];
-	foreach ( split /\n/, $selection ) {
+	foreach ( sql( $db, $sql )) {
 		chomp;
 		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|/;
 		push @$athletes, { 
@@ -132,14 +137,13 @@ sub parse_divisions {
 # ============================================================
 	my $db = shift;
 	my $sql = shift;
-	my $selection = sql( $db, $sql );
 	my $divisions = [];
-	foreach ( split /\n/, $selection ) {
+	foreach ( sql( $db, $sql )) {
 		chomp;
 		my (
 				$id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, 
 				$time, $rest, $contact, $note, $staged, $started, $finished, $replaced_by
-		) = split /\|/, $selection;
+		) = split /\|/;
 
 		foreach my $time ( \$staged, \$started, \$finished ) {
 			next unless $$time;
