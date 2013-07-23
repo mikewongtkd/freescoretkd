@@ -3,7 +3,7 @@
 		font-family: Calibri, Helvetica, Arial, sans-serif;
 		color: #000;
 		background-color: #eee;
-		background-image: url( '/freescore/images/subtlepatterns.com/witewall_3.png' );
+		background-image: url( '/freescore/images/subtlepatterns.com/slate_dust_scratch.png' );
 	}
 
 	h1 {
@@ -46,7 +46,7 @@
 	.athlete .id {
 		display: inline-block;
 		color: #ccc;
-		width: 32px;
+		width: 48px;
 	}
 
 	.athlete .name {
@@ -58,6 +58,70 @@
 		color: #666;
 		float: right;
 		padding-right: 12px;
+	}
+
+	.staging-header {
+		height: 120;
+	}
+
+	.staging {
+		position: absolute;
+		left: 40px;
+		top: 120px;
+		right: 40px;
+		bottom: 40px;
+		border: 6px solid #336;
+		border-radius: 16px;
+		margin: 0 40px 0 40px;
+		background-image: url( '/freescore/images/subtlepatterns.com/witewall_3.png' );
+	}
+
+	.staging .buttons {
+	}
+
+	.staging .buttons .button {
+		float: left;
+		font-weight: bold;
+		font-size: 24pt;
+		color: #999;
+		width: 33.333%;
+		text-align: center;
+		background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+		/* background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%); // Active */
+		border-bottom: 2px solid #336;
+		height: 40px;
+	}
+
+	.staging .buttons .split {
+		border-radius: 8px 0 0 0;
+	}
+
+	.staging .buttons .assign {
+		border-radius: 0 8px 0 0;
+	}
+
+	.staging .divisions {
+		position: absolute;
+		left: 18px;
+		top: 42px;
+		right: 0px;
+		bottom: 28px;
+		clear: both;
+		margin: 0 auto;
+		padding-right: 18px;
+		overflow-y: scroll;
+	}
+
+	.staging .user-message {
+		left: 0px;
+		right: 0px;
+		position: absolute;
+		color: #333;
+		background: #eee;
+		border-top: 2px solid #336;
+		border-radius: 0 0 8px 8px;
+		padding: 4px 8px 4px 8px;
+		bottom: 0px;
 	}
 
 	.division {
@@ -69,111 +133,57 @@
 		margin: 20px 4px 20px 4px;
 	}
 
-	.ui-selecting { 
-		border: 4px solid green;
-	}
-
-	.ui-selected {
-		border: 4px solid blue;
-	}
-
-	.division .description {
+	.division .header {
+		clear: both;
 		color: #333;
 		font-size: 9pt;
 		padding: 0 10px 0 10px;
-	}
-
-	.division .description .ui-icon {
-		float: left;
-	}
-
-	.division .description .ui-icon-custom-error     { background-image: url( '../jquery/css/smoothness/images/ui-icons_cd0a0a_256x240.png' ); }
-	.division .description .ui-icon-custom-warning   { background-image: url( '../jquery/css/smoothness/images/ui-icons_222222_256x240.png' ); }
-	.division .description .ui-icon-custom-ok        { background-image: url( '../jquery/css/smoothness/images/ui-icons_454545_256x240.png' ); }
-
-	.error                    { border-color: #f66; }
-	.warning                  { border-color: #ff6; }
-	.ok                       { border-color: #999; }
-
-	.division .error          { background-color: #f99; }
-	.division .warning        { background-color: #ff9; }
-	.division .ok             { background-color: #ccc; }
-
-	.division .weight {
-		float: right;
-		padding-right: 12px;
-	}
-}
-
-@media print {
-	body {
-		font-family: Calibri, Helvetica, Arial, sans-serif;
-	}
-
-	h1 {
-		font-size: 24pt;
-		border-top: 4px solid black;
-	}
-
-	h2 {
-		font-size: 18pt;
-		border-top: 2px solid #666;
-	}
-
- 	.meta {
-		clear: both;
-		margin: 0 20px 0 20px;
-		border-radius: 8px;
-		border: solid 1px black;
-		padding: 8px;
-		margin-bottom: 20px;
-	}
-
-	.meta .keyword {
-		float: left;
-		width: 120px;
-		font-weight: bold;
-	}
-
-	.meta .value .reference {
-		color: #999;
-	}
-
-	.athlete {
-		padding-left: 20px;
-	}
-
-	.athlete .id {
-		display: inline-block;
-		color: #999;
-		width: 32px;
-	}
-
-	.athlete .name {
-		display: inline-block;
-	}
-
-	.athlete .age-weight {
-		display: inline-block;
-		color: #666;
-		float: right;
-		padding-right: 12px;
-	}
-
-	.division {
-		padding: 0 0 12px 0;
-		page-break-inside: avoid;
+		margin-bottom: 4px;
+		border-radius: 4px 4px 0 0;
 	}
 
 	.division .description {
-		color: #333;
-		font-size: 9pt;
-		padding: 0 0 0 4px;
-		border-bottom: 1px solid #ddd;
+		float: left;
+		width: 360px;
 	}
 
-	.division .weight {
+	.division .header .message {
+		display: inline-block;
+		width: 360px;
+	}
+
+	.division .header .ui-icon {
+		margin-right: 8px;
+		float: left;
+	}
+
+	.division .header .ui-icon-custom-error     { background-image: url( '../jquery/css/smoothness/images/ui-icons_cd0a0a_256x240.png' ); }
+	.division .header .ui-icon-custom-warning   { background-image: url( '../jquery/css/smoothness/images/ui-icons_222222_256x240.png' ); }
+	.division .header .ui-icon-custom-ok        { background-image: url( '../jquery/css/smoothness/images/ui-icons_454545_256x240.png' ); }
+
+	.error                    { border-color: #f66; }
+	.warning                  { border-color: #ff6; }
+	.ok                       { border-color: #9c9; }
+
+	.division .error          { background-color: #f99; }
+	.division .warning        { background-color: #ff9; }
+	.division .ok             { background-color: #cfc; }
+
+	.division .header .weight {
 		float: right;
 		padding-right: 12px;
 	}
+
+	.division .athletes {
+		clear: both;
+	}
+
+	.selecting-error          { border-color: red; }
+	.selecting-header-error   { background-color: red; color: white; }
+	.selecting-warning        { border-color: yellow; }
+	.selecting-ok             { border-color: green;  color: white; }
+	.selected-error           { border-color: blue;   color: white; }
+	.selected-warning         { border-color: blue;  }
+	.selected-ok              { border-color: blue;   color: white; }
+
 }
