@@ -48,6 +48,7 @@ body {
   .staging .buttons .assign {
     border-radius: 0 8px 0 0; }
   .staging .buttons .state-enabled {
+    cursor: hand;
     color: #ccc;
     background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
     /* W3C -- http://www.colorzilla.com/gradient-editor */
@@ -56,6 +57,33 @@ body {
     color: #fff;
     background: linear-gradient(to bottom, #1e5799 0%, #2989d8 50%, #207cca 51%, #7db9e8 100%);
     /* W3C */
+    transition: all 0.5s ease; }
+  .staging .dialog {
+    position: absolute;
+    width: 100%;
+    opacity: 0.0;
+    transition: all 0.5s ease; }
+  .staging .merge-dialog {
+    left: 33.33%;
+    width: 33.33%; }
+    .staging .merge-dialog .division-visualization {
+      height: 100%;
+      width: 100%; }
+  .staging .split-dialog {
+    left: 0px;
+    width: 33.33%; }
+  .staging .assign-dialog {
+    left: 66.66%;
+    width: 33.33%; }
+  .staging .state-show-dialog {
+    position: absolute;
+    left: 0;
+    top: 42px;
+    right: 0px;
+    bottom: 28px;
+    width: 100%;
+    background-color: #fff;
+    opacity: 1.0;
     transition: all 0.5s ease; }
   .staging .divisions {
     position: absolute;
@@ -68,6 +96,7 @@ body {
     padding-right: 18px;
     overflow-y: scroll; }
     .staging .divisions .division {
+      cursor: hand;
       padding: 0 0 12px 0;
       background-color: #fff;
       page-break-inside: avoid;

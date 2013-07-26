@@ -58,6 +58,7 @@ body {
 		}
 
 		.state-enabled {
+			cursor: hand;
 			color: #ccc;
 			background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%); /* W3C -- http://www.colorzilla.com/gradient-editor */
 			transition: all 0.5s ease;
@@ -70,6 +71,44 @@ body {
 		}
 	}
 
+	.dialog {
+		position: absolute;
+		width: 100%;
+		opacity: 0.0;
+		transition: all 0.5s ease;
+	}
+
+	.merge-dialog {
+		left: 33.33%;
+		width: 33.33%;
+
+		.division-visualization {
+			height: 100%;
+			width: 100%;
+		}
+	}
+
+	.split-dialog {
+		left: 0px;
+		width: 33.33%
+	}
+
+	.assign-dialog {
+		left: 66.66%;
+		width: 33.33%
+	}
+
+	.state-show-dialog {
+		position: absolute;
+		left: 0;
+		top: 42px;
+		right: 0px;
+		bottom: 28px;
+		width: 100%;
+		background-color: #fff;
+		opacity: 1.0;
+		transition: all 0.5s ease;
+	}
 
 	.divisions {
 		position: absolute;
@@ -83,6 +122,7 @@ body {
 		overflow-y: scroll;
 
 		.division {
+			cursor: hand;
 			padding: 0 0 12px 0;
 			background-color: #fff;
 			page-break-inside: avoid;
