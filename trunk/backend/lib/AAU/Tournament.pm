@@ -363,6 +363,7 @@ sub divisions {
 					$vector->{ weight } =  - int(( 1 + @weight_groups )/2);
 					foreach my $weight_group ( @weight_groups ) {
 						my @athletes = $self->athletes( $event, $gender, $age_group, $belt_group, $weight_group );
+						$vector->{ weight }++;
 						next unless @athletes;
 						push @{ $divisions->{ $event }}, {
 							id          => $id,
@@ -374,7 +375,6 @@ sub divisions {
 							vector      => sprintf( "%d, %d, %d", @$vector{ qw( age belt weight ) } ),
 							athletes    => \@athletes
 						};
-						$vector->{ weight }++;
 						$id++;
 					}
 					$vector->{ belt }++;

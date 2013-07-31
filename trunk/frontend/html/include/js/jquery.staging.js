@@ -27,8 +27,9 @@
 					green  : { stroke : '#090', fill : '#9f9' },
 					yellow : { stroke : '#980', fill : '#fe9' }
 				};
-				var color    = { stroke : undefined, fill : undefined };
-				var hexagons = [];
+				var hexagons  = [];
+				var hexagons1 = [];
+				var hexagons2 = [];
 				for( var i in divisions ) {
 					var division = divisions[ i ];
 					var vector   = division.vector.split( ", " ).map( function( x ) { return parseInt( x ); });
@@ -38,14 +39,29 @@
 					var distance = Math.abs( dAge ) + Math.abs( dBelt ) + Math.abs( dWeight );
 
 					if( division.gender != selection.gender ) { continue; }
-					if     ( distance == 0 ) { color.stroke = c.blue.stroke;   color.fill = c.blue.fill;   } 
-					else if( distance == 1 ) { color.stroke = c.green.stroke;  color.fill = c.green.fill;  } 
-					else if( distance == 2 ) { color.stroke = c.yellow.stroke; color.fill = c.yellow.fill; } 
-					else                     { continue; } // Skip divisions that are more than 2 categories away; differences too great to be safe
+
 					var rank   = division.rank.replace( /Black Belt \((... Dan.*)\)/, "$1" );
 					var weight = division.weight.replace( /\(.*\)/, "weight" );
-					hexagons.push({ x : dAge, y : dBelt, z : dWeight, size : 64, stroke : color.stroke, fill: color.fill, description : division.id + "\n" + division.age + "\n" + division.gender + " " + rank + "\n" + weight });
+					var hexagon = { x : dAge, y : dBelt, z : dWeight, size : 64, description : division.age + "\n" + division.gender + " " + rank + "\n" + weight };
+
+					if     ( distance == 0 ) { 
+						hexagon.stroke = c.blue.stroke;
+						hexagon.fill   = c.blue.fill;   
+						hexagons.push( hexagon );
+
+					} else if( distance == 1 ) { 
+						hexagon.stroke = c.green.stroke;
+						hexagon.fill   = c.green.fill;
+						hexagons1.push( hexagon );
+
+					} else if( distance == 2 ) { 
+						hexagon.stroke = c.yellow.stroke; 
+						hexagon.fill   = c.yellow.fill; 
+						hexagons2.push( hexagon );
+
+					} else { continue; } // Skip divisions that are more than 2 categories away; differences too great to be safe
 				};
+				if( hexagons1.length > 0 ) { hexagons = hexagons.concat( hexagons1 ); } else { hexagons = hexagons.concat( hexagons2 ); }
 				return hexagons;
 			};
 			var drawHexagon = function( canvas, hexagon ) {
