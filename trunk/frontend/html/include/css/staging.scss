@@ -81,10 +81,9 @@ body {
 	.merge-dialog {
 		left: 33.33%;
 		width: 33.33%;
+		overflow: scroll;
 
 		.division-visualization {
-			height: 100%;
-			width: 100%;
 		}
 	}
 

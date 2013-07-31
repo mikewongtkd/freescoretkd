@@ -65,6 +65,7 @@ sub sql_for_divisions {
 			my $age     = $division->{ age };
 			my $rank    = $division->{ belt };
 			my $weight  = $division->{ weight };
+			my $vector  = $division->{ vector };
 			my $rounds  = 0;
 			my $time    = 0;
 			my $rest    = 0;
@@ -95,7 +96,7 @@ sub sql_for_divisions {
 				}
 			}
 
-			push @divisions_sql, sprintf "\t( \"%04d\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d, \"%s\" )", $id, $event, $gender, $age, $rank, $weight, $rounds, $time, $rest, $contact;
+			push @divisions_sql, sprintf "\t( \"%04d\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d, \"%s\" )", $id, $event, $gender, $age, $rank, $weight, $vector, $rounds, $time, $rest, $contact;
 			my $sequence = 1;
 			foreach my $athlete (shuffle @{ $division->{ athletes }}) {
 				push @staging_sql, sprintf "\t( \"%04d\", \"\%04d\", \"%04d\", \"%d\" )", $staging_id, $athlete->id(), $id, $sequence;
@@ -104,7 +105,7 @@ sub sql_for_divisions {
 			}
 		}
 	}
-	$sql .= "\nINSERT INTO divisions ( id, event, gender, age, rank, weight, rounds, time, rest, contact ) VALUES\n";
+	$sql .= "\nINSERT INTO divisions ( id, event, gender, age, rank, weight, vector, rounds, time, rest, contact ) VALUES\n";
 	$sql .= join( ",\n", @divisions_sql ) . ";\n";
 
 	$sql .= "\nINSERT INTO staging ( id, athlete, division, sequence ) VALUES\n";
@@ -134,6 +135,7 @@ CREATE TABLE IF NOT EXISTS divisions (
 	age         TEXT,
 	rank        TEXT,
 	weight      TEXT,
+	vector      TEXT,
 	exhibition  INTEGER,
 	rounds      INTEGER,
 	time        INTEGER,

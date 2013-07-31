@@ -141,7 +141,7 @@ sub parse_divisions {
 	foreach ( sql( $db, $sql )) {
 		chomp;
 		my (
-				$id, $event, $gender, $age, $rank, $weight, $exhibition, $rounds, 
+				$id, $event, $gender, $age, $rank, $weight, $vector, $exhibition, $rounds, 
 				$time, $rest, $contact, $note, $staged, $started, $finished, $replaced_by
 		) = split /\|/;
 
@@ -152,10 +152,10 @@ sub parse_divisions {
 
 		push @$divisions, { 
 				id => $id, event => $event, gender => $gender, age => $age, rank => $rank, 
-				weight => $weight, rounds => $rounds, 'time' => $time, rest => $rest, 
-				contact => $contact, exhibition => $exhibition, note => $note, 
-				staged => $staged, started => $started, finished => $finished, 
-				replacedBy => $replaced_by 
+				weight => $weight, vector => $vector, rounds => $rounds, 'time' => $time, 
+				rest => $rest, contact => $contact, exhibition => $exhibition, 
+				note => $note, staged => $staged, started => $started, 
+				finished => $finished, replacedBy => $replaced_by 
 		};
 	}
 	return $divisions;

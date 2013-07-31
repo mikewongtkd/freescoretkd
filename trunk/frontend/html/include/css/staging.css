@@ -65,10 +65,8 @@ body {
     transition: all 0.5s ease; }
   .staging .merge-dialog {
     left: 33.33%;
-    width: 33.33%; }
-    .staging .merge-dialog .division-visualization {
-      height: 100%;
-      width: 100%; }
+    width: 33.33%;
+    overflow: scroll; }
   .staging .split-dialog {
     left: 0px;
     width: 33.33%; }

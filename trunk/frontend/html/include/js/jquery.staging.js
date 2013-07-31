@@ -13,22 +13,58 @@
 			autoShow: true,
 		},
 		_create: function() {
+			var selection = this.options.selection;
+			var divisions = this.options.divisions;
 			var div       = $( "<div />" );
-			var canvas    = $( "<canvas />" ) .attr( 'width', this.options.width) .attr( 'height', this.options.height) .addClass( 'division-visualization' );
+			var canvas    = $( "<canvas />" ) .attr( 'width', 2048 ) .attr( 'height', 1024 ) .addClass( 'division-visualization' );
 
-			this.element.append( canvas );
-			var hexagon = function( canvas, x, y, z, size, color ) {
-				var origin  = { 'x': (canvas.width() / 2),  'y': (canvas.height() / 2) };
+			this.element .append( canvas );
+			this.element .scrollLeft( 512 ) .scrollTop( 512 );
+			var divisionsToHexagons = function( selection, divisions ) {
+				var origin = selection.vector.split( ", " ).map( function( x ) { return parseInt( x ); });
+				var c = {
+					blue   : { stroke : '#009', fill : '#99f' },
+					green  : { stroke : '#090', fill : '#9f9' },
+					yellow : { stroke : '#980', fill : '#fe9' }
+				};
+				var color    = { stroke : undefined, fill : undefined };
+				var hexagons = [];
+				for( var i in divisions ) {
+					var division = divisions[ i ];
+					var vector   = division.vector.split( ", " ).map( function( x ) { return parseInt( x ); });
+					var dAge     = origin[ 0 ] - vector[ 0 ];
+					var dBelt    = origin[ 1 ] - vector[ 1 ];
+					var dWeight  = origin[ 2 ] - vector[ 2 ];
+					var distance = Math.abs( dAge ) + Math.abs( dBelt ) + Math.abs( dWeight );
+
+					if( division.gender != selection.gender ) { continue; }
+					if     ( distance == 0 ) { color.stroke = c.blue.stroke;   color.fill = c.blue.fill;   } 
+					else if( distance == 1 ) { color.stroke = c.green.stroke;  color.fill = c.green.fill;  } 
+					else if( distance == 2 ) { color.stroke = c.yellow.stroke; color.fill = c.yellow.fill; } 
+					else                     { continue; } // Skip divisions that are more than 2 categories away; differences too great to be safe
+					var rank   = division.rank.replace( /Black Belt \((... Dan.*)\)/, "$1" );
+					var weight = division.weight.replace( /\(.*\)/, "weight" );
+					hexagons.push({ x : dAge, y : dBelt, z : dWeight, size : 64, stroke : color.stroke, fill: color.fill, description : division.id + "\n" + division.age + "\n" + division.gender + " " + rank + "\n" + weight });
+				};
+				return hexagons;
+			};
+			var drawHexagon = function( canvas, hexagon ) {
+				var angle   = Math.PI/6;
+				var radius  = Math.cos( Math.PI/12 ) * 2;
+				var origin  = { 
+					x : (canvas.width()/2) + (Math.cos( angle ) * hexagon.x * radius * hexagon.size) - (Math.cos( angle ) * hexagon.z * radius * hexagon.size),
+					y : (canvas.height()/2) + (hexagon.y * radius * hexagon.size) + (Math.sin( angle ) * hexagon.x * radius * hexagon.size ) + (Math.sin( angle ) * hexagon.z * radius * hexagon.size )
+				};
 
 				var points = [];
 				for (var i = 1; i <= 6; i += 1) {
-					points.push( [ origin.x + size * Math.cos(i * 2 * Math.PI / 6), origin.y + size * Math.sin(i * 2 * Math.PI / 6) ]);
+					points.push( [ origin.x + hexagon.size * Math.cos(i * 2 * angle), origin.y + hexagon.size * Math.sin(i * 2 * angle) ]);
 				}
 
 				canvas.drawLine( {
 					closed: true,
-					fillStyle: color.fill,
-					strokeStyle: color.stroke,
+					fillStyle: hexagon.fill,
+					strokeStyle: hexagon.stroke,
 					strokeWidth: 1,	
 					x1: points[ 0 ][ 0 ], y1: points[ 0 ][ 1 ],
 					x2: points[ 1 ][ 0 ], y2: points[ 1 ][ 1 ],
@@ -37,16 +73,19 @@
 					x5: points[ 4 ][ 0 ], y5: points[ 4 ][ 1 ],
 					x6: points[ 5 ][ 0 ], y6: points[ 5 ][ 1 ],
 				});
+				canvas.drawText({
+					x : origin.x,
+					y : origin.y,
+					fillStyle : "#000",
+					strokeStyle : "#000",
+					fontSize : "9pt",
+					fontFamily: "Calibri, Arial, sans-serif",
+					text : hexagon.description,
+					fromCenter : true,
+				});
 			};
-			// var positions = [[ -1, 0, 0 ], [ 0, -1, 0 ], [ 0, 0, -1 ], [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ]];
-			var positions = [[ 0, 0, 0 ]];
-			for( var i in positions ) {
-				var x     = positions[ i ][ 0 ];
-				var y     = positions[ i ][ 1 ];
-				var z     = positions[ i ][ 2 ];
-				var color = { 'stroke' : '#090', 'fill' : '#9f9' };
-				hexagon( canvas, x, y, z, 64, color );
-			}
+			var hexagons = divisionsToHexagons( selection, divisions );
+			for( var i in hexagons ) { var hexagon = hexagons[ i ]; drawHexagon( canvas, hexagon ); }
 		},
 		_init: function() {
 			var divisions = this.options.divisions;
@@ -59,8 +98,8 @@
 			autoShow: true,
 		},
 		_init: function() {
-			var div     = $( "<div />" );
-			var divinfo = this.options.division;
+			var div       = $( "<div />" );
+			var divinfo   = this.options.division;
 			divinfo.description = divinfo.gender + " " + divinfo.age + " " + divinfo.rank;
 			var division    = div.clone() .addClass( 'division' ) .addClass( 'subscribers-selection' ) .disableSelection();
 			var header      = div.clone() .addClass( 'header' ) .disableSelection();

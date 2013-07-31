@@ -346,17 +346,21 @@ sub divisions {
 	my $belt_description = { Black => "Black Belt (1st Dan & higher)", Black1 => "Black Belt (1st Dan)", Black2 => "Black Belt (2nd Dan)", Black2up => "Black Belt (2nd Dan & higher)", Black3 => "Black Belt (3rd Dan)", Black3up => "Black Belt (3rd Dan & higher)", Black4up => "Black Belt (4th Dan & higher)" };
 	my $divisions        = {};
 
-	my $id = 1000;
+	my $id     = 1000;
 	foreach my $event ( $self->events() ) {
 		my @genders = $self->genders( $event );
+		my $vector  = { age => 0, belt => 0, weight => 0 };
 		foreach my $gender (@genders) {
 			my @age_groups = $self->ages( $event, $gender );
+			$vector->{ age } =  - int(( 1 + @age_groups )/2);
 			foreach my $age_group (@age_groups) {
 				my @belt_groups = $self->belts( $event, $gender, $age_group );
+				$vector->{ belt } =  - int(( 1 + @belt_groups )/2);
 				foreach my $belt_group (@belt_groups) {
 					my $belt = exists $belt_description->{ $belt_group } ? $belt_description->{ $belt_group } : $belt_group;
 
 					my @weight_groups = $self->weights( $event, $gender, $age_group, $belt_group );
+					$vector->{ weight } =  - int(( 1 + @weight_groups )/2);
 					foreach my $weight_group ( @weight_groups ) {
 						my @athletes = $self->athletes( $event, $gender, $age_group, $belt_group, $weight_group );
 						next unless @athletes;
@@ -367,11 +371,15 @@ sub divisions {
 							age         => $age_group,
 							belt        => $belt,
 							weight      => ($weight_group eq 'All weights' ? '' : $weight_group),
+							vector      => sprintf( "%d, %d, %d", @$vector{ qw( age belt weight ) } ),
 							athletes    => \@athletes
 						};
+						$vector->{ weight }++;
 						$id++;
 					}
+					$vector->{ belt }++;
 				}
+				$vector->{ age }++;
 			}
 		}
 		$id = (1000 * (int($id/1000) + 1));
