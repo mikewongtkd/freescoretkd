@@ -29,7 +29,7 @@ body {
 .staging {
 	position: absolute;
 	left: 40px;
-	top: 120px;
+	top: 80px;
 	right: 40px;
 	bottom: 40px;
 	border: 6px solid #336;
@@ -37,64 +37,18 @@ body {
 	margin: 0 40px 0 40px;
 	background-image: url( '/freescore/images/subtlepatterns.com/witewall_3.png' );
 
-	.buttons {
-		.button {
-			float: left;
-			font-weight: bold;
-			font-size: 24pt;
-			color: #666;
-			width: 33.333%;
-			text-align: center;
-			background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%); /* W3C -- http://www.colorzilla.com/gradient-editor */
-			border-bottom: 2px solid #336;
-			height: 40px;
-			transition: all 0.5s ease;
-		}
-		.split {
-			border-radius: 8px 0 0 0;
-		}
-		.assign {
-			border-radius: 0 8px 0 0;
-		}
-
-		.state-enabled {
-			cursor: hand;
-			color: #ccc;
-			background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%); /* W3C -- http://www.colorzilla.com/gradient-editor */
-			transition: all 0.5s ease;
-		}
-
-		.state-hover {
-			color: #fff;
-			background: linear-gradient(to bottom, #1e5799 0%,#2989d8 50%,#207cca 51%,#7db9e8 100%); /* W3C */
-			transition: all 0.5s ease;
-		}
-	}
-
-	.dialog {
-		position: absolute;
+	.title {
+		float: left;
+		font-weight: bold;
+		font-size: 24pt;
 		width: 100%;
-		opacity: 0.0;
-		transition: all 0.5s ease;
-	}
-
-	.merge-dialog {
-		left: 33.33%;
-		width: 33.33%;
-		overflow: scroll;
-
-		.division-visualization {
-		}
-	}
-
-	.split-dialog {
-		left: 0px;
-		width: 33.33%
-	}
-
-	.assign-dialog {
-		left: 66.66%;
-		width: 33.33%
+		text-align: center;
+		/* background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%); */
+		color: #fff;
+		background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%); /* W3C -- http://www.colorzilla.com/gradient-editor */
+		border-bottom: 2px solid #336;
+		border-radius: 8px 8px 0 0;
+		height: 40px;
 	}
 
 	.state-show-dialog {
@@ -132,10 +86,12 @@ body {
 			.header {
 				clear: both;
 				color: #333;
+				background-color: #ddd;
 				font-size: 9pt;
 				padding: 0 12px 0 20px;
 				margin-bottom: 4px;
 				border-radius: 4px 4px 0 0;
+				transition: all 0.25s ease;
 
 				.id {
 					float: left;
@@ -284,6 +240,12 @@ body {
 			transition: all 0.25s ease;
 			.header {
 				background-color: #33f;
+				color: #fff;
+				.message {
+					.ui-icon {
+						background-image: url( '../jquery/css/smoothness/images/ui-icons_2e83ff_256x240.png' );
+					}
+				}
 			}
 		}
 	}

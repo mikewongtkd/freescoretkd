@@ -24,55 +24,26 @@ body {
 .staging {
   position: absolute;
   left: 40px;
-  top: 120px;
+  top: 80px;
   right: 40px;
   bottom: 40px;
   border: 6px solid #336;
   border-radius: 16px;
   margin: 0 40px 0 40px;
   background-image: url("/freescore/images/subtlepatterns.com/witewall_3.png"); }
-  .staging .buttons .button {
+  .staging .title {
     float: left;
     font-weight: bold;
     font-size: 24pt;
-    color: #666;
-    width: 33.333%;
+    width: 100%;
     text-align: center;
-    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    /* W3C -- http://www.colorzilla.com/gradient-editor */
-    border-bottom: 2px solid #336;
-    height: 40px;
-    transition: all 0.5s ease; }
-  .staging .buttons .split {
-    border-radius: 8px 0 0 0; }
-  .staging .buttons .assign {
-    border-radius: 0 8px 0 0; }
-  .staging .buttons .state-enabled {
-    cursor: hand;
-    color: #ccc;
+    /* background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%); */
+    color: #fff;
     background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
     /* W3C -- http://www.colorzilla.com/gradient-editor */
-    transition: all 0.5s ease; }
-  .staging .buttons .state-hover {
-    color: #fff;
-    background: linear-gradient(to bottom, #1e5799 0%, #2989d8 50%, #207cca 51%, #7db9e8 100%);
-    /* W3C */
-    transition: all 0.5s ease; }
-  .staging .dialog {
-    position: absolute;
-    width: 100%;
-    opacity: 0.0;
-    transition: all 0.5s ease; }
-  .staging .merge-dialog {
-    left: 33.33%;
-    width: 33.33%;
-    overflow: scroll; }
-  .staging .split-dialog {
-    left: 0px;
-    width: 33.33%; }
-  .staging .assign-dialog {
-    left: 66.66%;
-    width: 33.33%; }
+    border-bottom: 2px solid #336;
+    border-radius: 8px 8px 0 0;
+    height: 40px; }
   .staging .state-show-dialog {
     position: absolute;
     left: 0;
@@ -104,10 +75,12 @@ body {
       .staging .divisions .division .header {
         clear: both;
         color: #333;
+        background-color: #ddd;
         font-size: 9pt;
         padding: 0 12px 0 20px;
         margin-bottom: 4px;
-        border-radius: 4px 4px 0 0; }
+        border-radius: 4px 4px 0 0;
+        transition: all 0.25s ease; }
         .staging .divisions .division .header .id {
           float: left;
           width: 48px; }
@@ -194,7 +167,10 @@ body {
       background-color: #ccf;
       transition: all 0.25s ease; }
       .staging .divisions .state-selected-selecting .header {
-        background-color: #33f; }
+        background-color: #33f;
+        color: #fff; }
+        .staging .divisions .state-selected-selecting .header .message .ui-icon {
+          background-image: url("../jquery/css/smoothness/images/ui-icons_2e83ff_256x240.png"); }
   .staging .user-message {
     left: 0px;
     right: 0px;
