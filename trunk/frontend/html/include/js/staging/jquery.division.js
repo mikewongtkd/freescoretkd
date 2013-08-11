@@ -5,7 +5,7 @@
 			var div       = $( "<div />" );
 			var model     = this.options.model;
 			model.description = model.gender + " " + model.age + " " + model.rank;
-			var division    = div.clone() .addClass( 'division' )    .addClass( 'subscribers-selection' ) .disableSelection();
+			var division    = div.clone() .addClass( 'division' )    .disableSelection();
 			var header      = div.clone() .addClass( 'header' )      .disableSelection();
 			var id          = div.clone() .addClass( 'id' )          .append( model.id );
 			var description = div.clone() .addClass( 'description' ) .append( model.description );
@@ -20,22 +20,27 @@
 			division .append( header );
 			division .append( athletes );
 
-			// ===== 
+			// ===== SUBSCRIBE TO EVENTS
+			division
+				.addClass( 'subscribers-selection' )
+				.addClass( 'subscribers-split' )
+				.addClass( 'subscribers-merge' )
+
+			athletes .sortable( { update : function( event, ui ) {
+			}});
+
+			// ===== GIVE USERS FEEDBACK ON DIVISION STATE
 			var icon;
 			var text;
 			if(        model.athletes.length == 1 ) {
 				icon = div .clone() .addClass( 'ui-icon' ) .addClass( 'ui-icon-alert' );
 				text = div .clone() .append( ' <b>Alert!</b> Not enough athletes' );
-				// division .addClass( 'state-error' );
-
 			} else if( model.exhibition ) {
 				icon = div .clone() .addClass( 'ui-icon' ) .addClass( 'ui-icon-check' );
 				text = div .clone() .append( ' Ready to assign to a ring as an <b>Exhibition Match</b>' );
-				// division .addClass( 'state-warning' );
 			} else {
 				icon = div .clone() .addClass( 'ui-icon' ) .addClass( 'ui-icon-check' );
 				text = div .clone() .append( ' Ready to assign to a ring as a <b>Regulation Division</b>' );
-				// division .addClass( 'state-ok' );
 			}
 			message .append( icon ) .append( text );
 
@@ -58,17 +63,13 @@
 			division.click( function() {
 				$( this ).toggleClass( 'state-selected' );
 				var isSelected = $( this ).hasClass( 'state-selected' );
-				$( '.subscribers-selection' ).trigger( 'selected', [ model, isSelected ] );
-				$( '.staging' ).trigger( 'selected', [ model, isSelected ] );
+				$( '.subscribers-selection' ).trigger( 'event-selection', [ model, isSelected ] );
+				$( '.staging' ).trigger( 'event-selection', [ model, isSelected ] );
 			});
 
-			division.on( 'selected', function( event, sender, isSelected ) {
+			division.on( 'event-selection', function( event, sender, isSelected ) {
 				var id = $( this ).children( '.header' ).children( '.id' ).text();
-				
-				if( sender.id == id ) {
-				} else {
-					$( this ).removeClass( 'state-selected' );
-				}
+				if( sender.id != id ) { $( this ).removeClass( 'state-selected' ); }
 				return false;
 			});
 

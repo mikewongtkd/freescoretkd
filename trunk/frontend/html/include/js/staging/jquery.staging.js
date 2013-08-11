@@ -42,7 +42,7 @@
 				}
 			);
 
-			staging.on( 'selected', function( event, sender, isSelected ) {
+			staging.on( 'event-selection', function( event, sender, isSelected ) {
 				if( isSelected ) {
 					selection = sender;
 					if( selection.athletes.length > 1 ) {

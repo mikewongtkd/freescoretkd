@@ -19,9 +19,10 @@
 			splitHere.append( div.clone() .addClass( 'text' ) .append( 'Split Here' ) );
 			splitHere.append( hr.clone());
 
+			var division = $( this.element ).parent();
 			athlete.hover(
 				function() {
-					if( ! athleteModel.last ) { athlete .append( splitHere ); }
+					if( division .hasClass( 'state-selected' ) && ! athleteModel.last ) { athlete .append( splitHere ); }
 				},
 				function() {
 					if( ! athleteModel.last ) { splitHere .remove(); }
@@ -29,7 +30,10 @@
 			);
 			athlete.click(
 				function() {
-					alert( "Splitting division at " + athleteModel.fname + ' ' + athleteModel.lname );
+					alert( divParent.attr( 'class' ) );
+					if( divisionSelected ) {
+						alert( "Splitting division at " + athleteModel.fname + ' ' + athleteModel.lname );
+					}
 				}
 			);
 		}
