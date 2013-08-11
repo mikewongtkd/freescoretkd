@@ -1,5 +1,5 @@
 (function( $ ) {
-	$.widget( "freescore.staging", {
+	$.widget( "freescore.showStaging", {
 		options: {
 			autoShow: true,
 		},
@@ -36,8 +36,8 @@
 					tournamentTitle.append( tournament.name );
 					title .append( 'Staging ' ) .append( tournament.event ) .append( ' Divisions' );
 					for ( var i = 0; i < tournament.divisions.length; i++ ) {
-						var division = tournament.divisions[ i ];
-						divisions.division( { 'info' : division } );
+						var divisionModel = tournament.divisions[ i ];
+						divisions.showDivision( { 'model' : divisionModel } );
 					}
 				}
 			);

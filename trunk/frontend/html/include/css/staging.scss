@@ -142,6 +142,34 @@ body {
 						padding-right: 12px;
 					}
 				}
+
+				.split-here {
+					color: #00f;
+					text-align: center;
+					width: 95%;
+					height: 14.4px;
+
+					hr {
+						display: inline-block;
+						position: relative;
+						width: 40%;
+						background-color: #00f;
+						border-width: 0;
+						height: 2px;
+					}
+
+					.text {
+						position: relative;
+						top: -4px;
+						display: inline-block;
+						margin: 0 20px 0 20px;
+					}
+				}
+
+				.state-selected {
+					background-color: inherit;
+					border-bottom: 4px solid #00f; // MW -- Finish highlighting division separator at selected athlete
+				}
 			}
 		}
 

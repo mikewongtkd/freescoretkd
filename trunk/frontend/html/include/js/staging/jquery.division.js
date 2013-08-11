@@ -1,23 +1,17 @@
 (function( $ ) {
-	$.widget( "freescore.division", {
-		options: {
-			autoShow: true,
-		},
+	$.widget( "freescore.showDivision", {
+		options: { autoShow: true },
 		_init: function() {
 			var div       = $( "<div />" );
-			var divinfo   = this.options.info;
-			divinfo.description = divinfo.gender + " " + divinfo.age + " " + divinfo.rank;
-			var division    = div.clone() .addClass( 'division' ) .addClass( 'subscribers-selection' ) .disableSelection();
-			var header      = div.clone() .addClass( 'header' ) .disableSelection();
-			var id          = div.clone() .addClass( 'id' ) .append( divinfo.id );
-			var description = div.clone() .addClass( 'description' ) .append( divinfo.description );
+			var model     = this.options.model;
+			model.description = model.gender + " " + model.age + " " + model.rank;
+			var division    = div.clone() .addClass( 'division' )    .addClass( 'subscribers-selection' ) .disableSelection();
+			var header      = div.clone() .addClass( 'header' )      .disableSelection();
+			var id          = div.clone() .addClass( 'id' )          .append( model.id );
+			var description = div.clone() .addClass( 'description' ) .append( model.description );
 			var message     = div.clone() .addClass( 'message' );
-			var weight      = div.clone() .addClass( 'weight' ) .append( divinfo.weight );
+			var weight      = div.clone() .addClass( 'weight' )      .append( model.weight );
 			var athletes    = div.clone() .addClass( 'athletes' );
-
-			this.division = division;
-			this.header   = header;
-			this.message  = message;
 
 			header   .append( id );
 			header   .append( description );
@@ -29,12 +23,12 @@
 			// ===== 
 			var icon;
 			var text;
-			if(        divinfo.athletes.length == 1 ) {
+			if(        model.athletes.length == 1 ) {
 				icon = div .clone() .addClass( 'ui-icon' ) .addClass( 'ui-icon-alert' );
 				text = div .clone() .append( ' <b>Alert!</b> Not enough athletes' );
 				// division .addClass( 'state-error' );
 
-			} else if( divinfo.exhibition ) {
+			} else if( model.exhibition ) {
 				icon = div .clone() .addClass( 'ui-icon' ) .addClass( 'ui-icon-check' );
 				text = div .clone() .append( ' Ready to assign to a ring as an <b>Exhibition Match</b>' );
 				// division .addClass( 'state-warning' );
@@ -64,8 +58,8 @@
 			division.click( function() {
 				$( this ).toggleClass( 'state-selected' );
 				var isSelected = $( this ).hasClass( 'state-selected' );
-				$( '.subscribers-selection' ).trigger( 'selected', [ divinfo, isSelected ] );
-				$( '.staging' ).trigger( 'selected', [ divinfo, isSelected ] );
+				$( '.subscribers-selection' ).trigger( 'selected', [ model, isSelected ] );
+				$( '.staging' ).trigger( 'selected', [ model, isSelected ] );
 			});
 
 			division.on( 'selected', function( event, sender, isSelected ) {
@@ -79,16 +73,11 @@
 			});
 
 			// ===== ASSIGN ATHLETE DATA
-			for (var i = 0; i < divinfo.athletes.length; i++ ) {
-				var athleteInfo = divinfo.athletes[ i ];
-				var athlete = div.clone() .addClass( 'athlete' );
-				athletes
-					.append( 
-						athlete
-							.append( div.clone() .addClass( 'id' )         .append( athleteInfo.id ))
-							.append( div.clone() .addClass( 'name' )       .append( athleteInfo.fname + ' ' + athleteInfo.lname ) )
-							.append( div.clone() .addClass( 'age-weight' ) .append( athleteInfo.belt + ', ' + athleteInfo.age + 'yo, ' + athleteInfo.weight + ' lbs.' ))
-					);
+			for (var i = 0; i < model.athletes.length; i++ ) {
+				var modelAthlete = model.athletes[ i ];
+				if( i == model.athletes.length -1 ) { modelAthlete.last = true;  }
+				else                                { modelAthlete.last = false; }
+				athletes.showAthlete( { 'model' : modelAthlete });
 			}
 			this.element .append( division );
 		},
