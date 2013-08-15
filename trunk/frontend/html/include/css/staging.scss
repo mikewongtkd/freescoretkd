@@ -95,7 +95,7 @@ body {
 
 				.id {
 					float: left;
-					width: 48px;
+					width: 64px;
 				}
 
 				.description {
@@ -129,6 +129,13 @@ body {
 						display: inline-block;
 						color: #ccc;
 						width: 48px;
+					}
+
+					.ui-icon {
+						vertical-align: bottom;
+						display: inline-block;
+						background-image: url( '../jquery/css/smoothness/images/ui-icons_888888_256x240.png' );
+						width: 16px;
 					}
 
 					.name {
@@ -173,87 +180,6 @@ body {
 			}
 		}
 
-		.state-error { 
-			border-color: #f66; 
-			transition: all 0.25s ease;
-			.header {
-				background-color: #f99;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_cd0a0a_256x240.png' );
-					}
-				}
-			}
-		}
-
-		.state-error-selecting {
-			border-color: #f00; 
-			background-color: #fcc;
-			transition: all 0.25s ease;
-			.header {
-				background-color: #f66;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_cd0a0a_256x240.png' );
-					}
-				}
-			}
-		}
-
-		.state-warning { 
-			border-color: #ff6; 
-			transition: all 0.25s ease;
-			.header {
-				background-color: #ff9;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_222222_256x240.png' );
-					}
-				}
-			}
-		}
-
-		.state-warning-selecting { 
-			border-color: #ff0; 
-			background-color: #ffc;
-			transition: all 0.25s ease;
-			.header {
-				background-color: #ff6;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_222222_256x240.png' );
-					}
-				}
-			}
-		}
-
-		.state-ok { 
-			border-color: #9c9; 
-			transition: all 0.25s ease;
-			.header {
-				background-color: #cfc;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_454545_256x240.png' );
-					}
-				}
-			}
-		}
-
-		.state-ok-selecting { 
-			border-color: #0c0; 
-			background-color: #cfc;
-			transition: all 0.25s ease;
-			.header {
-				background-color: #3f3;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_454545_256x240.png' );
-					}
-				}
-			}
-		}
-
 		.state-selected { 
 			border-color: #66f; 
 			background-color: #fff;
@@ -262,6 +188,7 @@ body {
 				background-color: #99f;
 			}
 		}
+
 		.state-selected-selecting { 
 			border-color: #00f; 
 			background-color: #ccf;
@@ -272,6 +199,21 @@ body {
 				.message {
 					.ui-icon {
 						background-image: url( '../jquery/css/smoothness/images/ui-icons_2e83ff_256x240.png' );
+					}
+				}
+			}
+		}
+
+		.state-dropping {
+			border-color: #0f0;
+			background-color: #cfc;
+			transition: all 0.25s ease;
+			.header {
+				background-color: #3f3;
+				color: #fff;
+				.message {
+					.ui-icon {
+						background-image: url( '../jquery/css/smoothness/images/ui-icons_ffffff_256x240.png' );
 					}
 				}
 			}

@@ -26,8 +26,15 @@
 				.addClass( 'subscribers-split' )
 				.addClass( 'subscribers-merge' )
 
-			athletes .sortable( { update : function( event, ui ) {
-			}});
+			athletes .sortable( {
+				stop: function( event, ui ) {
+					var order = [];
+					$( '.id', athletes ).each( function( i, id ) {
+						order.push( $(id).text() );
+					})
+					$( '.subscribers-division-reorder' ).trigger( 'event-division-reorder', [ order ] );
+				}
+			});
 
 			// ===== GIVE USERS FEEDBACK ON DIVISION STATE
 			var icon;
@@ -45,19 +52,16 @@
 			message .append( icon ) .append( text );
 
 			// ===== HANDLE INTERACTIVITY BEHAVIOR
-			division.hover(
-				function() {
-					if     ( $( this ).hasClass( 'state-error' ))   { $( this ).addClass( 'state-error-selecting' );       }
-					else if( $( this ).hasClass( 'state-warning' )) { $( this ).addClass( 'state-warning-selecting' );     } 
-					else if( $( this ).hasClass( 'state-ok' ))      { $( this ).addClass( 'state-ok-selecting' );          }
-					else                                            { $( this ).addClass( 'state-selected-selecting' );    }
+			division.draggable();
+			division.droppable({
+				drop: function( event, ui ) {
 				},
-				function() {
-					if     ( $( this ).hasClass( 'state-error' ))   { $( this ).removeClass( 'state-error-selecting' );    }
-					else if( $( this ).hasClass( 'state-warning' )) { $( this ).removeClass( 'state-warning-selecting' );  }
-					else if( $( this ).hasClass( 'state-ok' ))      { $( this ).removeClass( 'state-ok-selecting' );       }
-					else                                            { $( this ).removeClass( 'state-selected-selecting' ); }
-				}
+				out:  function( event, ui ) { $( this ).removeClass( 'state-dropping' ); },
+				over: function( event, ui ) { $( this ).addClass( 'state-dropping' ); }
+			});
+			division.hover(
+				function() { $( this ).addClass( 'state-selected-selecting' );    },
+				function() { $( this ).removeClass( 'state-selected-selecting' ); }
 			);
 
 			division.click( function() {
@@ -72,7 +76,7 @@
 				if( sender.id != id ) { $( this ).removeClass( 'state-selected' ); }
 				return false;
 			});
-
+	
 			// ===== ASSIGN ATHLETE DATA
 			for (var i = 0; i < model.athletes.length; i++ ) {
 				var modelAthlete = model.athletes[ i ];

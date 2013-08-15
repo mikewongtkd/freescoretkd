@@ -9,8 +9,10 @@
 			this.element .append( athlete );
 			athlete
 				.append( div.clone() .addClass( 'id' )         .append( athleteModel.id ))
-				.append( div.clone() .addClass( 'name' )       .append( athleteModel.fname + ' ' + athleteModel.lname ) )
+				.append( div.clone() .addClass( 'ui-icon' )    .addClass( 'ui-icon-arrowthick-2-n-s' ))
+				.append( div.clone() .addClass( 'name' )       .append( athleteModel.fname + ' ' + athleteModel.lname ))
 				.append( div.clone() .addClass( 'age-weight' ) .append( athleteModel.belt + ', ' + athleteModel.age + 'yo, ' + athleteModel.weight + ' lbs.' ))
+			athlete.attr( 'id', athleteModel.id );
 
 			var splitHere = div.clone() .addClass( 'split-here' );
 			var hr        = $( '<hr />' );
@@ -30,9 +32,8 @@
 			);
 			athlete.click(
 				function() {
-					alert( divParent.attr( 'class' ) );
-					if( divisionSelected ) {
-						alert( "Splitting division at " + athleteModel.fname + ' ' + athleteModel.lname );
+					if( division .hasClass( 'state-selected' )) {
+						$( this.element ).trigger( 'event-split', [ athleteModel ] );
 					}
 				}
 			);
