@@ -21,10 +21,7 @@
 			division .append( athletes );
 
 			// ===== SUBSCRIBE TO EVENTS
-			division
-				.addClass( 'subscribers-selection' )
-				.addClass( 'subscribers-split' )
-				.addClass( 'subscribers-merge' )
+			division .addClass( 'subscribers-selection' );
 
 			athletes .sortable( {
 				stop: function( event, ui ) {
@@ -32,7 +29,7 @@
 					$( '.id', athletes ).each( function( i, id ) {
 						order.push( $(id).text() );
 					})
-					$( '.subscribers-division-reorder' ).trigger( 'event-division-reorder', [ order ] );
+					$( '.subscribers-division-reorder' ).trigger( 'event-division-reorder', [ model.id, order ] );
 				}
 			});
 
@@ -52,12 +49,24 @@
 			message .append( icon ) .append( text );
 
 			// ===== HANDLE INTERACTIVITY BEHAVIOR
-			division.draggable();
-			division.droppable({
-				drop: function( event, ui ) {
+			division.draggable( {
+				axis: 'y', 
+				cursor: 'ns-resize',
+				revert: true,
+				drag: function( event, ui ) {
+					division.addClass( 'state-dropped' );
 				},
-				out:  function( event, ui ) { $( this ).removeClass( 'state-dropping' ); },
-				over: function( event, ui ) { $( this ).addClass( 'state-dropping' ); }
+			});
+			division.droppable({
+				accept: '.division',
+				drop: function( event, ui ) {
+					var dropped = ui.draggable .children( '.header' ) .children( '.id' ) .text();
+					var target  = division .children( '.header' ) .children( '.id' ) .text();
+					division.trigger( 'event-division-merge', [ target, dropped ] );
+					division.removeClass( 'state-dropped' );
+				},
+				out:  function( event, ui ) { $( this ).removeClass( 'state-dropped' ); },
+				over: function( event, ui ) { $( this ).addClass( 'state-dropped' ); }
 			});
 			division.hover(
 				function() { $( this ).addClass( 'state-selected-selecting' );    },
@@ -67,7 +76,15 @@
 			division.click( function() {
 				$( this ).toggleClass( 'state-selected' );
 				var isSelected = $( this ).hasClass( 'state-selected' );
+				var message;
+				if( model.athletes.length > 1 ) {
+					message = 'Division #' + model.id + ' <b>' + model.description + ', ' + model.weight + '</b> is ready to be assigned to a ring.';
+				} else {
+					message = 'Drag division #' + model.id + ' <b>' + model.description + ', ' + model.weight + '</b> and drop it on another division to merge them.';
+				}
+
 				$( '.subscribers-selection' ).trigger( 'event-selection', [ model, isSelected ] );
+				$( '.subscribers-user-message' ).trigger( 'event-user-message', [ message ] );
 				$( '.staging' ).trigger( 'event-selection', [ model, isSelected ] );
 			});
 

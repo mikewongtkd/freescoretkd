@@ -1,5 +1,4 @@
-#! /usr/local/bin/perl
-# NOTE: This perl needs to be >= 5.12.0 for Mojolicious; Mac OS X perl at /usr/bin/perl is 5.10.0
+#! /usr/bin/perl
 
 use Mojolicious::Lite;
 use YAML;
@@ -10,6 +9,12 @@ get '/:tournament/*object' => sub {
 	my $self = shift;
 	my ($type, $data) = retrieve( $self );
 	$self->render( $type => $data );
+};
+
+del '/:tournament/*object' => sub {
+	my $self = shift;
+	my ($response) = remove( $self );
+	$self->render( text => $response );
 };
 
 post '/' => sub {
@@ -24,6 +29,17 @@ any '*' => sub {
 };
 
 app->start( 'cgi' );
+
+# ============================================================
+sub remove {
+# ============================================================
+	my $self = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $object     = $self->param( 'object' );
+	my $id         = $self->param( 'id' );
+	$tournament    =~ s/[^\w\-\.]/_/g;
+	$object        =~ s/[^\w\-\.\/]/_/g;
+}
 
 # ============================================================
 sub retrieve {

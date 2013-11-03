@@ -14,12 +14,12 @@
 			var db = $.url().param( 'tournament' );
 			var id = $.url().param( 'id' );
 			$.getJSON( 
-				'https://localhost/cgi-bin/freescore/rest/' + db + '/division?id=' + id,
+				'http://localhost/cgi-bin/freescore/rest/' + db + '/division?id=' + id,
 				function( division ) {
 					division.description = division.gender + " " + division.age + " " + division.rank;
 					counting = [ 'No', 'One', 'Two', 'Three', 'Four' ];
 					tournament_title.append( '<h1>' + division.tournament + '</h1>' );
-					event_name.append( '<h2><div class="event">' + division.event + '</div>&nbsp;<div class="division-id"><span class="id">Division ' + division.id + '</span><span class="barcode">&nbsp;<img src="https://localhost/cgi-bin/freescore/barcode?id=' + division.id + '" /></span></div></h2>' );
+					event_name.append( '<h2><div class="event">' + division.event + '</div>&nbsp;<div class="division-id"><span class="id">Division ' + division.id + '</span><span class="barcode">&nbsp;<img src="http://localhost/cgi-bin/freescore/barcode?id=' + division.id + '" /></span></div></h2>' );
 					meta.append( '<div class="keyword">Division</div><div class="value">' + division.id + ' - ' + division.description + '</div>' );
 					if( division.staged ) {
 						meta.append( '<div class="keyword">Staging Time</div><div class="value">' + Date( division.staged ).toUTCString() + '</div>' )

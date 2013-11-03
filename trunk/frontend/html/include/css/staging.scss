@@ -180,6 +180,15 @@ body {
 			}
 		}
 
+		.state-dragged {
+			border-color: #f6f; 
+			background-color: #fff;
+			transition: all 0.25s ease;
+			.header {
+				background-color: #f9f;
+			}
+		}
+
 		.state-selected { 
 			border-color: #66f; 
 			background-color: #fff;
@@ -204,18 +213,13 @@ body {
 			}
 		}
 
-		.state-dropping {
+		.state-dropped {
 			border-color: #0f0;
 			background-color: #cfc;
 			transition: all 0.25s ease;
 			.header {
 				background-color: #3f3;
 				color: #fff;
-				.message {
-					.ui-icon {
-						background-image: url( '../jquery/css/smoothness/images/ui-icons_ffffff_256x240.png' );
-					}
-				}
 			}
 		}
 	}
