@@ -3,6 +3,8 @@
 use Mojolicious::Lite;
 use YAML;
 
+srand();
+
 our $freescore_dir = "/Users/mikewong899/devel/freescore/backend/data";
 
 get '/:tournament/*object' => sub { 
@@ -73,6 +75,12 @@ sub retrieve {
 				$event = join " ", map { ucfirst( $_ ); } split( /\-/, $event );
 				return ( 'json', bracket( $db, $event, $id ));
 
+			} elsif ( /^forms\/grassroots\/division(\d+)\/judge(\d)/ ) {
+				my $division = $1;
+				my $judge    = $2;
+
+				return ( 'json', form_score( $db, $division, $judge ));
+
 			} else {
 				return ( 'text', "$object not found in $tournament" );
 			}
@@ -121,6 +129,17 @@ sub events {
 	my $selection = `/usr/bin/sqlite3 $db 'select distinct event from divisions;'`;
 
 	return [ split /\n/, $selection ];
+}
+
+# ============================================================
+sub form_score {
+# ============================================================
+	my $db       = shift;
+	my $division = shift;
+	my $judge    = shift;
+
+	my $score = sprintf( "%3.1f", (int( rand() * 30 ) + 71)/10);
+	return $score;
 }
 
 # ============================================================
