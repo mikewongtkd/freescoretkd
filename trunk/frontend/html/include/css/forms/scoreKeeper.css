@@ -3,7 +3,8 @@ body {
   /* W3C */ }
 
 .scoreKeeper {
-  font-family: Optima; }
+  font-family: Optima;
+  display: none; }
   .scoreKeeper .judgeScores {
     width: 1000px;
     height: 180px;
@@ -66,7 +67,8 @@ body {
     .scoreKeeper .totalScores .blue, .scoreKeeper .totalScores .chung {
       color: blue; }
     .scoreKeeper .totalScores .athlete {
-      height: 140px;
+      margin: 20px 0 0 0;
+      height: 120px;
       font-size: 72pt;
       line-height: 72pt; }
     .scoreKeeper .totalScores .score {

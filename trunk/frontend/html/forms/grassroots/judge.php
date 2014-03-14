@@ -9,7 +9,6 @@
 	</head>
 	<body>
 		<div id="scoreKeeperController"></div>
-		<div id="scoreKeeperController"></div>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
 			$( '#scoreKeeperController' ).scoreKeeper();

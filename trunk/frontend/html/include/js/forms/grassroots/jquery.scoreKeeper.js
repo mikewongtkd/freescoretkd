@@ -4,17 +4,15 @@ $.widget( "freescore.scoreKeeper", {
 	options: { autoShow: true, numJudges: 3 },
 	_create: function() {
 		var html = { div : $( "<div />" ) };
+		var e = this.options.elements = {};
 
-		var judgeScores = html.div.clone() .addClass( "judgeScores" );
-		var judges      = new Array();
-		var judgeEditor = html.div.clone();
-		var totalScore  = html.div.clone() .addClass( "totalScores" );
-		var athlete     = html.div.clone() .addClass( "athlete chung" );
-		var score       = html.div.clone() .addClass( "score" );
+		var judgeScores = e.judgeScores = html.div.clone() .addClass( "judgeScores" );
+		var judges      = e.judges      = new Array();
+		var totalScore  = e.totalScore  = html.div.clone() .addClass( "totalScores" );
+		var athlete     = e.athlete     = html.div.clone() .addClass( "athlete" );
+		var score       = e.score       = html.div.clone() .addClass( "score" );
 		totalScore.append( score );
 		totalScore.append( athlete );
-
-		athlete.html( "M. Wong" );
 
 		var k = this.options.numJudges;
 		for( var i = 0; i < k; i++ ) {
@@ -26,14 +24,38 @@ $.widget( "freescore.scoreKeeper", {
 			else if( i == k-1 ) { judge.addClass( "right" ); }
 			else                { judge.addClass( "middle" ); }
 			judge.judgeScore( { num: j } ); // Instantiate a new Judge Score widget for each judge
+			judges[ i ] = judge;
 			judgeScores.append( judge );
 		}
 		
 		this.element .addClass( "scoreKeeper" );
 		this.element .append( judgeScores );
 		this.element .append( totalScore );
+		var widget = this.element;
+
+		var url = {
+			tournament : $.url().param( 'tournament' ),
+			division   : $.url().param( 'division' ),
+			athlete    : $.url().param( 'athlete' )
+		}
 
 		var refresh = function() {
+			if( url.tournament === undefined || url.division === undefined ) {alert( "Need tournament and division" ); }
+			$.getJSON(
+				'http://localhost/cgi-bin/freescore/forms/grassroots/' + url.tournament + '/' + url.division + '/' + url.athlete,
+				function( current ) {
+					athlete .html( current.athlete.name );
+					for( var i = 0; i < k; i++ ) {
+						var s = current.athlete.scores[ i ];
+						judges[ i ].judgeScore( { score : s } );
+					}
+					widget .fadeIn( 1000 );
+				}
+			);
+
+			if( url.athlete % 2 ) { athlete.addClass( "chung" ); } 
+			else                  { athlete.addClass( "hong" ); }
+
 			var scores = new Array();
 			var min    = undefined;
 			var max    = undefined;
@@ -62,9 +84,9 @@ $.widget( "freescore.scoreKeeper", {
 
 			sum = Math.round( sum * 10 )/10;
 
-			score.html( sum.toFixed( 1 ));
+			if( sum > 0.0 ) { score.html( sum.toFixed( 1 )); }
 		}
-
-		window.setInterval( refresh, 2000 );
+		refresh();
+		window.setInterval( refresh, 1000 );
 	}
 });

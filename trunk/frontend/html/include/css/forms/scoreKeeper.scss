@@ -5,6 +5,7 @@ body {
 
 .scoreKeeper {
 	font-family: Optima;
+	display: none;
 
 	.judgeScores {
 		width: 1000px;
@@ -70,7 +71,8 @@ body {
 		.blue, .chung { color: blue; }
 
 		.athlete {
-			height: 140px;
+			margin: 20px 0 0 0;
+			height: 120px;
 			font-size: 72pt;
 			line-height: 72pt;
 		}

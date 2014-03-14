@@ -81,25 +81,45 @@
 		margin: 0;
 	}
 
-	.match .meta .color {
+	.match .meta .name-chung {
 		float: left;
 		width: 80px;
 		padding-left: 60px;
+		background-color: #99f;
 		border-right: 1px solid #ccc;
-	}
-
-	.match .meta .chung {
 		border-bottom: 1px solid #ccc;
+		border-radius: 8px 0 0 0;
+		color: #009;
 	}
 
-	.match .meta .hong {
+	.match .meta .name-hong {
+		float: left;
+		width: 80px;
+		padding-left: 60px;
+		background-color: #f99;
 		border-top: 1px solid #ccc;
+		border-radius: 0 0 0 8px;
+		color: #900;
 	}
 	
-	.match .meta .score {
+	.match .meta .score-chung {
 		float: left;
 		width: 63px;
 		padding-left: 20px;
+		background-color: #99f;
+		border-bottom: 1px solid #ccc;
+		border-radius: 0 8px 0 0;
+		color: #009;
+	}
+
+	.match .meta .score-hong {
+		float: left;
+		width: 63px;
+		padding-left: 20px;
+		background-color: #f99;
+		border-bottom: 1px solid #ccc;
+		border-radius: 0 0 8px 0;
+		color: #900;
 	}
 
 	#Q101 {

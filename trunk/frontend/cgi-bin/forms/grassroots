@@ -1,0 +1,91 @@
+#! /usr/bin/perl
+
+use lib qw( /Users/mikewong899/devel/freescore/backend/lib );
+use Mojolicious::Lite;
+use YAML;
+use FreeScore::Forms::GrassRoots;
+
+srand();
+
+# ============================================================
+# GRASSROOTS FORMS
+# ============================================================
+
+
+# ------------------------------------------------------------
+# DIVISION LIST
+# ------------------------------------------------------------
+get '/:tournament/:division' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $division   = $self->param( 'division' );
+	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	if( ! $forms->is_ready() ) {
+		$forms->ready();
+		$forms->write();
+	}
+	$self->render( json => $forms->{ division } );
+};
+
+# ------------------------------------------------------------
+# ADVANCE 
+# ------------------------------------------------------------
+get '/:tournament/:division/next' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $division   = $self->param( 'division' );
+	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	$forms->next();
+	$forms->write();
+	$self->render( json => { 'next' => $forms->is_next() } );
+};
+
+# ------------------------------------------------------------
+# ATHLETE INFORMATION AND CURRENT DIVISION STATE
+# ------------------------------------------------------------
+get '/:tournament/:division/:athlete' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $division   = $self->param( 'division' );
+	my $i          = $self->param( 'athlete' );
+	my $forms      = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $athlete    = $forms->{ division }[ $i ];
+	$self->render( json => { athlete => $athlete, 'next' => $forms->is_next() } );
+};
+
+# ------------------------------------------------------------
+# READ JUDGE SCORE FOR ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:division/:athlete/:judge' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $division   = $self->param( 'division' );
+	my $athlete    = $self->param( 'athlete' );
+	my $judge      = $self->param( 'judge' );
+	my $forms      = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	$self->render( json => $forms->{ division }[ $athlete ]{ scores }[ $judge ] );
+};
+
+# ------------------------------------------------------------
+# WRITE JUDGE SCORE FOR ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:division/:athlete/:judge/:score' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $division   = $self->param( 'division' );
+	my $athlete    = $self->param( 'athlete' );
+	my $judge      = $self->param( 'judge' );
+	my $score      = $self->param( 'score' ) / 10;
+	my $forms      = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
+	$forms->write();
+	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+};
+
+any '*' => sub {
+	my $self = shift;
+	$self->render( text => 'Unknown command' );
+};
+
+
+app->start( 'cgi' );
