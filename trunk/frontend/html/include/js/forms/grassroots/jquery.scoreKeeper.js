@@ -49,7 +49,7 @@ $.widget( "freescore.scoreKeeper", {
 						var s = current.athlete.scores[ i ];
 						judges[ i ].judgeScore( { score : s } );
 					}
-					widget .fadeIn( 1000 );
+					widget .addClass( "leave-up-bounce" );
 				}
 			);
 

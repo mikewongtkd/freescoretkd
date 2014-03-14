@@ -2,9 +2,14 @@ body {
   background: linear-gradient(to bottom, #45484d 0%, black 100%);
   /* W3C */ }
 
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear; }
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear; }
+
 .scoreKeeper {
-  font-family: Optima;
-  display: none; }
+  font-family: Optima; }
   .scoreKeeper .judgeScores {
     width: 1000px;
     height: 180px;
@@ -75,3 +80,34 @@ body {
       height: 400px;
       font-size: 360pt;
       line-height: 360pt; }
+
+@-webkit-keyframes enterDownBounce {
+  0% {
+    -webkit-transform: translateY(-600px);
+    opacity: 0.25; }
+
+  50% {
+    -webkit-transform: translateY(0px); }
+
+  70% {
+    -webkit-transform: translateY(-50px); }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; } }
+
+@-webkit-keyframes leaveUpBounce {
+  0% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; }
+
+  10% {
+    -webkit-transform: translateY(50px);
+    opacity: 1; }
+
+  25% {
+    -webkit-transform: translateY(0px); }
+
+  100% {
+    -webkit-transform: translateY(-900px);
+    opacity: 0; } }
