@@ -1,5 +1,5 @@
 $.widget( "freescore.grassroots", {
-	options: { autoShow: true },
+	options: { autoShow: true, server: 'localhost' },
 	_create: function() {
 		var options     = this.options;
 		var e           = this.options.elements = {};
@@ -24,7 +24,7 @@ $.widget( "freescore.grassroots", {
 
 		var refresh = function() {
 			$.getJSON(
-				'http://localhost/cgi-bin/freescore/forms/grassroots/' + url.tournament + '/' + url.division,
+				'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + url.tournament + '/' + url.division,
 				function( division ) {
 					var athlete = division.athletes[ division.current ];
 					if( division.state == 'display' ) {

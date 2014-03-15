@@ -1,17 +1,18 @@
+<?php include( "../../include/php/config.php" ); ?>
 <html>
 	<head>
-		<link href="../../include/css/forms/scoreKeeper.css" rel="stylesheet" />
+		<link rel="stylesheet" href="../../include/jquery/css/smoothness/jquery-ui-1.10.3.custom.min.css">
+		<link rel="stylesheet" href="../../include/jquery/css/smoothness/smoothness.min.css">
+		<link rel="stylesheet" href="../../include/css/forms/judgeController.css">
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.scoreKeeper.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.judgeController.js"></script>
 	</head>
 	<body>
-		<div id="scoreKeeperController"></div>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#scoreKeeperController' ).scoreKeeper();
+			$( '#judgeController' ).judgeController( { server : '<?php echo $host ?>' } );
 		</script>
 	</body>
 </html>

@@ -1,3 +1,4 @@
+<?php include( "../../include/php/config.php" ); ?>
 <html>
 	<head>
 		<link href="../../include/css/forms/grassrootsApp.css" rel="stylesheet" />

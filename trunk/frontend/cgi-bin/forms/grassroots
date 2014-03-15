@@ -3,7 +3,7 @@
 use lib qw( /Users/mikewong899/devel/freescore/backend/lib );
 use Mojolicious::Lite;
 use YAML;
-use FreeScore::Forms::GrassRoots;
+use FreeScore::Forms::GrassRoots::Division;
 
 srand();
 
@@ -14,13 +14,25 @@ srand();
 # ------------------------------------------------------------
 # DIVISION LIST
 # ------------------------------------------------------------
+get '/:tournament' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+};
+
+# ------------------------------------------------------------
+# DIVISION STATUS
+# ------------------------------------------------------------
 get '/:tournament/:division' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
-	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$self->render( json => { current => $forms->{ current }, state => $forms->{ state }, athletes => $forms->{ division } } );
 };
+
+# ============================================================
+# JUDGE INTERFACE
+# ============================================================
 
 # ------------------------------------------------------------
 # CHANGE STATE TO SCORE
@@ -29,7 +41,7 @@ get '/:tournament/:division/score' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
-	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->score();
 	$forms->write();
 	$self->render( json => { 'state' => 'score' } );
@@ -42,7 +54,7 @@ get '/:tournament/:division/display' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
-	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->display();
 	$forms->write();
 	$self->render( json => { 'state' => 'display' } );
@@ -55,7 +67,7 @@ get '/:tournament/:division/next' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
-	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->next();
 	$forms->write();
 	$self->render( json => { 'current' => $forms->{ current }, 'state' => $forms->{ state } } );
@@ -68,7 +80,7 @@ get '/:tournament/:division/previous' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
-	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->previous();
 	$forms->write();
 	$self->render( json => { 'current' => $forms->{ current }, 'state' => $forms->{ state } } );
@@ -84,7 +96,7 @@ get '/:tournament/:division/:athlete/:judge/:score' => sub {
 	my $athlete    = $self->param( 'athlete' );
 	my $judge      = $self->param( 'judge' );
 	my $score      = $self->param( 'score' ) / 10;
-	my $forms      = new FreeScore::Forms::GrassRoots( $tournament, $division );
+	my $forms      = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
 	$forms->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );

@@ -1,4 +1,4 @@
-package FreeScore::Forms::GrassRoots;
+package FreeScore::Forms::GrassRoots::Division;
 use FreeScore;
 
 # ============================================================
