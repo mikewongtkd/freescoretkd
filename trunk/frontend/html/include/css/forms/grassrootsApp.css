@@ -111,14 +111,14 @@ body {
         clear: both; }
         .grassroots .leaderboard .division .standings .athlete .name {
           float: left;
-          width: 260px;
+          width: 70%;
           font-weight: bold; }
         .grassroots .leaderboard .division .standings .athlete .score {
           float: left;
-          width: 60px; }
+          width: 20%; }
         .grassroots .leaderboard .division .standings .athlete .medal {
           float: left;
-          width: 40px; }
+          width: 10%; }
     .grassroots .leaderboard .division .pending {
       float: right;
       width: 400px;
@@ -131,9 +131,11 @@ body {
       border-radius: 24px;
       padding: 0 32px 8px 32px;
       margin: 0 auto 0 auto; }
-      .grassroots .leaderboard .division .pending ol li a {
-        text-decoration: none;
+      .grassroots .leaderboard .division .pending h2 {
         color: white; }
+      .grassroots .leaderboard .division .pending ol li b {
+        color: #ccc;
+        font-weight: bold; }
 
 .enter-down-bounce {
   -webkit-animation: enterDownBounce 1s linear; }

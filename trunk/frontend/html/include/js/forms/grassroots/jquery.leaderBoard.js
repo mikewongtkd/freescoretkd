@@ -14,17 +14,13 @@ $.widget( "freescore.leaderboard", {
 		this.element .append( division );
 	},
 	_init: function( ) {
-		var html       = { div : $("<div />"), ol : $("<ol />"), li : $("<li />") };
-		var e          = this.options.elements;
-		var o          = this.options;
-		var widget     = this.element;
-		var athletes   = this.options.division.athletes;
-		var pending    = { list: html.ol.clone(), athletes: new Array() };
+		var html      = { div : $("<div />"), ol : $("<ol />"), li : $("<li />") };
+		var e         = this.options.elements;
+		var o         = this.options;
+		var widget    = this.element;
+		var athletes  = this.options.division.athletes;
+		var pending   = { list: html.ol.clone(), athletes: new Array() };
 		var standings = { athletes: new Array() };
-		var url        = {
-			tournament : $.url().param( 'tournament' ),
-			division   : $.url().param( 'division' ),
-		}
 
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete = athletes[ i ];
@@ -40,6 +36,16 @@ $.widget( "freescore.leaderboard", {
 			else       { pending.athletes.push( athlete ); }
 		}
 
+		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
+		if( standings.athletes.length == 0 ) {
+			e.standings.css( 'display', 'none' );
+			e.pending.css( 'width', '900' );
+		} else {
+			e.standings.css( 'display', 'block' );
+			e.pending.css( 'width', '400' );
+		}
+
+		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
 		standings.athletes.sort( function( a, b ) { return parseFloat( b.score ) - parseFloat( a.score ); } );
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
@@ -50,13 +56,23 @@ $.widget( "freescore.leaderboard", {
 			e.standings.append(  "<div class=\"athlete\"><div class=\"name rank" + (i + 1) + "\">" + athlete.name + "</div><div class=\"score\">" + athlete.score.toFixed( 1 ) + "</div><div class=\"medal\"><img src=\"/freescore/images/medals/rank" + (i + 1) + ".png\" align=\"right\" /></div></div>" );
 		}
 		
+		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
+		if( pending.athletes.length == 0 ) { 
+			e.pending.css( 'display', 'none' ); 
+			e.standings.css( 'width', '900' );
+		} else {
+			e.pending.css( 'display', 'block' ); 
+			e.standings.css( 'width', '400' );
+		}
+
+		// ===== UPDATE THE 'NEXT UP' PANEL
 		e.pending.empty();
 		e.pending.append( "<h2>Next Up</h2>" );
 		e.pending.append( pending.list );
 		for( var i = 0; i < pending.athletes.length; i++ ) {
 			var athlete = pending.athletes[ i ];
 			var item    = html.li.clone();
-			item.append( athlete.name );
+			item.append( "<b>" + athlete.name + "</b>" );
 			pending.list.append( item );
 		}
 		widget.fadeIn( 500 );

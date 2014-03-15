@@ -34,16 +34,16 @@
 				clear: both;
 				.name {
 					float: left;
-					width: 260px;
+					width: 70%;
 					font-weight: bold;
 				}
 				.score {
 					float: left;
-					width: 60px;
+					width: 20%;
 				}
 				.medal {
 					float: left;
-					width: 40px;
+					width: 10%;
 				}
 			}
 		}
@@ -60,14 +60,8 @@
 			padding: 0 32px 8px 32px;
 			margin: 0 auto 0 auto;
 
-			ol {
-				li {
-					a {
-						text-decoration: none;
-						color: white;
-					}
-				}
-			}
+			h2 { color: white; }
+			ol { li { b { color: #ccc; font-weight: bold; } } }
 		}
 	}
 }
