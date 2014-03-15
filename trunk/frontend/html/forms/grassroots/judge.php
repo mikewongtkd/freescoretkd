@@ -12,7 +12,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?php echo $host ?>' } );
+			$( '#judgeController' ).judgeController( { server : '<?php echo $host ?>', tournament : '<?php echo $tournament ?>' } );
 		</script>
 	</body>
 </html>

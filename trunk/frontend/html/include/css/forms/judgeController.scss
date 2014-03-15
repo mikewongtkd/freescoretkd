@@ -1,0 +1,20 @@
+
+body {
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+}
+
+.judgeController {
+	font-family: Optima;
+	width: 800px;
+	height: 600px;
+	margin: 0 auto 0 auto;
+	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
+	border-radius: 24pt;
+	border: 4px solid white;
+
+	form {
+		select {
+			font-size: 48pt;
+		}
+	}
+}

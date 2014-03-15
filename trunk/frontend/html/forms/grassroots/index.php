@@ -13,7 +13,7 @@
 	<body>
 		<div id="grassroots"></div>
 		<script type="text/javascript">
-			$( '#grassroots' ).grassroots();
+			$( '#grassroots' ).grassroots( { tournament : '<?php echo $tournament ?>' });
 		</script>
 	</body>
 </html>

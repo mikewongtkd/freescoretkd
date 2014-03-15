@@ -13,10 +13,6 @@ $.widget( "freescore.grassroots", {
 	_init: function( ) {
 		var e = this.options.elements;
 		var o = this.options;
-		var url     = {
-			tournament : $.url().param( 'tournament' ),
-			division   : $.url().param( 'division' ),
-		}
 		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
 		e.scorekeeper.scorekeeper( { current : { athlete : { name : '', scores : new Array() }}} );
 		e.scorekeeper.scorekeeper( 'fadeout' );
@@ -24,7 +20,7 @@ $.widget( "freescore.grassroots", {
 
 		var refresh = function() {
 			$.getJSON(
-				'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + url.tournament + '/' + url.division,
+				'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
 				function( division ) {
 					var athlete = division.athletes[ division.current ];
 					if( division.state == 'display' ) {
