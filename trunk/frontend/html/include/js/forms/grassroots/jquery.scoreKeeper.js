@@ -46,8 +46,13 @@ $.widget( "freescore.scorekeeper", {
 			e.judges[ i ].judgeScore( { score : s } );
 		}
 
-		if( current.athlete.index % 2 ) { e.athlete.addClass( "chung" ); } 
-		else                            { e.athlete.addClass( "hong" ); }
+		if( parseInt( current.athlete.index ) % 2 ) { 
+			e.athlete.removeClass( "chung" ); 
+			e.athlete.addClass( "hong" ); 
+		} else { 
+			e.athlete.removeClass( "hong" ); 
+			e.athlete.addClass( "chung" ); 
+		}
 
 		// ============================================================
 		// SUM SCORES
@@ -81,5 +86,8 @@ $.widget( "freescore.scorekeeper", {
 
 		if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); }
 		widget .fadeIn( 500 );
+	},
+	fadeout: function() {
+		this.element.fadeOut( 500 );
 	}
 });

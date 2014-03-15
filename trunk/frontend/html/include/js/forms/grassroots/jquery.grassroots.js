@@ -1,5 +1,5 @@
 $.widget( "freescore.grassroots", {
-	options: { autoShow: true, current: 0 },
+	options: { autoShow: true },
 	_create: function() {
 		var options     = this.options;
 		var e           = this.options.elements = {};
@@ -12,24 +12,33 @@ $.widget( "freescore.grassroots", {
 	},
 	_init: function( ) {
 		var e = this.options.elements;
-		var i = this.options.current;
 		var o = this.options;
 		var url     = {
 			tournament : $.url().param( 'tournament' ),
 			division   : $.url().param( 'division' ),
 		}
+		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
+		e.scorekeeper.scorekeeper( { current : { athlete : { name : '', scores : new Array() }}} );
+		e.scorekeeper.scorekeeper( 'fadeout' );
+		e.leaderboard.leaderboard( 'fadeout' );
+
 		var refresh = function() {
 			$.getJSON(
 				'http://localhost/cgi-bin/freescore/forms/grassroots/' + url.tournament + '/' + url.division,
 				function( division ) {
+					var athlete = division.athletes[ division.current ];
 					if( division.state == 'display' ) {
+						e.scorekeeper.scorekeeper( 'fadeout' );
 						e.leaderboard.leaderboard( { division : division } );
+
 					} else if( division.state == 'score' ) {
-						e.scorekeeper.scorekeeper( { current: { index: i, athlete : division[ i ]}} );
+						e.leaderboard.leaderboard( 'fadeout' );
+						e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
 					}
 				}
 			);
 		}
 		refresh();
+		window.setInterval( refresh, 2000 );
 	}
 });
