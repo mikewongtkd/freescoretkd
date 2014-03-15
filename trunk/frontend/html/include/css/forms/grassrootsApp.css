@@ -79,12 +79,15 @@ body {
   font-family: Optima;
   color: white;
   display: none;
-  overflow: scroll; }
+  overflow: scroll;
+  position: fixed;
+  left: 50%;
+  margin-left: -500px; }
   .grassroots .leaderboard .division {
     width: 1000px;
     height: 680px;
     margin: 20px auto 20px auto; }
-    .grassroots .leaderboard .division .placements {
+    .grassroots .leaderboard .division .standings {
       float: left;
       width: 400px;
       height: 680px;
@@ -96,6 +99,26 @@ body {
       border-radius: 24px;
       padding: 0 32px 8px 32px;
       margin: 0 auto 0 auto; }
+      .grassroots .leaderboard .division .standings .rank1 {
+        color: #f90; }
+      .grassroots .leaderboard .division .standings .rank2 {
+        color: #ccc; }
+      .grassroots .leaderboard .division .standings .rank3 {
+        color: #930; }
+      .grassroots .leaderboard .division .standings .rank4 {
+        color: #930; }
+      .grassroots .leaderboard .division .standings .athlete {
+        clear: both; }
+        .grassroots .leaderboard .division .standings .athlete .name {
+          float: left;
+          width: 260px;
+          font-weight: bold; }
+        .grassroots .leaderboard .division .standings .athlete .score {
+          float: left;
+          width: 60px; }
+        .grassroots .leaderboard .division .standings .athlete .medal {
+          float: left;
+          width: 40px; }
     .grassroots .leaderboard .division .pending {
       float: right;
       width: 400px;

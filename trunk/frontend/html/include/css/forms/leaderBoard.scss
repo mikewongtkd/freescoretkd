@@ -4,13 +4,16 @@
 	color: white;
 	display: none;
 	overflow: scroll;
+	position: fixed;
+	left: 50%;
+	margin-left: -500px;
 
 	.division {
 		width: 1000px;
 		height: 680px;
 		margin: 20px auto 20px auto;
 
-		.placements {
+		.standings {
 			float: left;
 			width: 400px;
 			height: 680px;
@@ -21,6 +24,28 @@
 			border-radius: 24px;
 			padding: 0 32px 8px 32px;
 			margin: 0 auto 0 auto;
+
+			.rank1 { color: #f90; }
+			.rank2 { color: #ccc; }
+			.rank3 { color: #930; }
+			.rank4 { color: #930; }
+
+			.athlete {
+				clear: both;
+				.name {
+					float: left;
+					width: 260px;
+					font-weight: bold;
+				}
+				.score {
+					float: left;
+					width: 60px;
+				}
+				.medal {
+					float: left;
+					width: 40px;
+				}
+			}
 		}
 
 		.pending {
