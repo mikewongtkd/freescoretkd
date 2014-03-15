@@ -1,63 +1,54 @@
-body {
-  background: linear-gradient(to bottom, #45484d 0%, black 100%);
-  /* W3C */ }
-
-.enter-down-bounce {
-  -webkit-animation: enterDownBounce 1s linear; }
-
-.leave-up-bounce {
-  -webkit-animation: leaveUpBounce 1s linear; }
-
-.scoreKeeper {
-  font-family: Optima; }
-  .scoreKeeper .judgeScores {
+.scorekeeper {
+  font-family: Optima;
+  display: none; }
+  .scorekeeper .judgeScores {
     width: 1000px;
     height: 180px;
     margin: 0 auto 20px auto; }
-  .scoreKeeper .judges5 {
+  .scorekeeper .judges5 {
     width: 184px; }
-    .scoreKeeper .judges5 .judge {
+    .scorekeeper .judges5 .judge {
       font-size: 24pt; }
-    .scoreKeeper .judges5 .score {
+    .scorekeeper .judges5 .score {
       font-size: 72pt;
       line-height: 108pt; }
-  .scoreKeeper .judges3 {
+  .scorekeeper .judges3 {
     width: 320px; }
-    .scoreKeeper .judges3 .judge {
+    .scorekeeper .judges3 .judge {
       font-size: 24pt; }
-    .scoreKeeper .judges3 .score {
+    .scorekeeper .judges3 .score {
       font-size: 108pt;
       line-height: 108pt; }
-  .scoreKeeper .left {
+  .scorekeeper .left {
     margin: 0 10px 0 0; }
-  .scoreKeeper .middle {
+  .scorekeeper .middle {
     margin: 0 10px 0 10px; }
-  .scoreKeeper .right {
+  .scorekeeper .right {
     margin: 0 0 0 10px; }
-  .scoreKeeper .judgeScore {
+  .scorekeeper .judgeScore {
     display: inline-block;
     text-align: center;
     height: 180px;
     font-weight: bold; }
-    .scoreKeeper .judgeScore .judge {
+    .scorekeeper .judgeScore .judge {
       color: #666;
       font-weight: bold;
       border-radius: 0 0 24px 24px;
       background-color: black;
       margin: 0 auto 0 auto;
       height: 40px; }
-    .scoreKeeper .judgeScore .score {
+    .scorekeeper .judgeScore .score {
       color: white;
       font-weight: bold;
       border-radius: 24px 24px 0 0;
       background-color: black;
       margin: auto;
       height: 140px; }
-  .scoreKeeper .ignore .judge {
+  .scorekeeper .ignore .judge {
     color: #333; }
-  .scoreKeeper .ignore .score {
+  .scorekeeper .ignore .score {
     color: #333; }
-  .scoreKeeper .totalScores {
+  .scorekeeper .totalScores {
     text-align: center;
     height: 540px;
     width: 1000px;
@@ -67,47 +58,16 @@ body {
     background: linear-gradient(to top, #45484d 0%, black 100%);
     /* W3C */
     margin: 0 auto 0 auto; }
-    .scoreKeeper .totalScores .red, .scoreKeeper .totalScores .hong {
+    .scorekeeper .totalScores .red, .scorekeeper .totalScores .hong {
       color: red; }
-    .scoreKeeper .totalScores .blue, .scoreKeeper .totalScores .chung {
+    .scorekeeper .totalScores .blue, .scorekeeper .totalScores .chung {
       color: blue; }
-    .scoreKeeper .totalScores .athlete {
+    .scorekeeper .totalScores .athlete {
       margin: 20px 0 0 0;
       height: 120px;
       font-size: 72pt;
       line-height: 72pt; }
-    .scoreKeeper .totalScores .score {
+    .scorekeeper .totalScores .score {
       height: 400px;
       font-size: 360pt;
       line-height: 360pt; }
-
-@-webkit-keyframes enterDownBounce {
-  0% {
-    -webkit-transform: translateY(-600px);
-    opacity: 0.25; }
-
-  50% {
-    -webkit-transform: translateY(0px); }
-
-  70% {
-    -webkit-transform: translateY(-50px); }
-
-  100% {
-    -webkit-transform: translateY(0px);
-    opacity: 1; } }
-
-@-webkit-keyframes leaveUpBounce {
-  0% {
-    -webkit-transform: translateY(0px);
-    opacity: 1; }
-
-  10% {
-    -webkit-transform: translateY(50px);
-    opacity: 1; }
-
-  25% {
-    -webkit-transform: translateY(0px); }
-
-  100% {
-    -webkit-transform: translateY(-900px);
-    opacity: 0; } }

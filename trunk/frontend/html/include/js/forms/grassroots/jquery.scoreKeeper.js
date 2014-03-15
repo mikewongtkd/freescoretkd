@@ -1,6 +1,6 @@
 // Depends on jquery.judgeScore.js
 
-$.widget( "freescore.scoreKeeper", {
+$.widget( "freescore.scorekeeper", {
 	options: { autoShow: true, numJudges: 3 },
 	_create: function() {
 		var html = { div : $( "<div />" ) };
@@ -38,57 +38,48 @@ $.widget( "freescore.scoreKeeper", {
 		var options = this.options
 		var k       = this.options.numJudges;
 		var widget  = this.element;
-		var url     = {
-			tournament : $.url().param( 'tournament' ),
-			division   : $.url().param( 'division' ),
-			athlete    : $.url().param( 'athlete' )
+		var current = this.options.current;
+
+		e.athlete .html( current.athlete.name );
+		for( var i = 0; i < k; i++ ) {
+			var s = current.athlete.scores[ i ];
+			e.judges[ i ].judgeScore( { score : s } );
 		}
 
-		$.getJSON(
-			'http://localhost/cgi-bin/freescore/forms/grassroots/' + url.tournament + '/' + url.division + '/' + url.athlete,
-			function( current ) {
-				e.athlete .html( current.athlete.name );
-				for( var i = 0; i < k; i++ ) {
-					var s = current.athlete.scores[ i ];
-					e.judges[ i ].judgeScore( { score : s } );
-				}
+		if( current.athlete.index % 2 ) { e.athlete.addClass( "chung" ); } 
+		else                            { e.athlete.addClass( "hong" ); }
 
-				if( url.athlete % 2 ) { e.athlete.addClass( "chung" ); } 
-				else                  { e.athlete.addClass( "hong" ); }
+		// ============================================================
+		// SUM SCORES
+		// ============================================================
+		var scores = new Array();
+		var min    = undefined;
+		var max    = undefined;
+		for( var i = 0; i < k; i++ ) {
+			var j = i + 1;
+			scores[ i ] = parseFloat( $( '#judgeScore' + j ).html() );
+			if( isNaN( scores[ i ] )) { scores[ i ] = -1; }
+		}
 
-				// ============================================================
-				// SUM SCORES
-				// ============================================================
-				var scores = new Array();
-				var min    = undefined;
-				var max    = undefined;
-				for( var i = 0; i < k; i++ ) {
-					var j = i + 1;
-					scores[ i ] = parseFloat( $( '#judgeScore' + j ).html() );
-					if( isNaN( scores[ i ] )) { scores[ i ] = -1; }
-				}
-
-				// ===== SKIP MIN AND MAX FOR 5 JUDGES
-				if( k == 5 ) {
-					for( var i = 0; i < k; i++ ) {
-						if( min === undefined || scores[ min ] > scores[ i ] ) { min = i; }
-						if( max === undefined || scores[ max ] < scores[ i ] ) { max = i; }
-						e.judges.removeClass( "ignore" );
-					}
-				}
-
-				var sum = 0.0;
-				for( var i = 0; i < k; i++ ) {
-					if( i == min ) { e.judges.addClass( "ignore" ); continue; }
-					if( i == max ) { e.judges.addClass( "ignore" ); continue; }
-					if( scores[ i ] > 0 ) { sum += scores[ i ]; }
-				}
-
-				sum = Math.round( sum * 10 )/10;
-
-				if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); }
-				widget .addClass( "enter-down-bounce" );
+		// ===== SKIP MIN AND MAX FOR 5 JUDGES
+		if( k == 5 ) {
+			for( var i = 0; i < k; i++ ) {
+				if( min === undefined || scores[ min ] > scores[ i ] ) { min = i; }
+				if( max === undefined || scores[ max ] < scores[ i ] ) { max = i; }
+				e.judges.removeClass( "ignore" );
 			}
-		);
+		}
+
+		var sum = 0.0;
+		for( var i = 0; i < k; i++ ) {
+			if( i == min ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == max ) { e.judges.addClass( "ignore" ); continue; }
+			if( scores[ i ] > 0 ) { sum += scores[ i ]; }
+		}
+
+		sum = Math.round( sum * 10 )/10;
+
+		if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); }
+		widget .fadeIn( 500 );
 	}
 });

@@ -1,0 +1,150 @@
+body {
+  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  /* W3C */ }
+
+.grassroots .scorekeeper {
+  font-family: Optima;
+  display: none; }
+  .grassroots .scorekeeper .judgeScores {
+    width: 1000px;
+    height: 180px;
+    margin: 0 auto 20px auto; }
+  .grassroots .scorekeeper .judges5 {
+    width: 184px; }
+    .grassroots .scorekeeper .judges5 .judge {
+      font-size: 24pt; }
+    .grassroots .scorekeeper .judges5 .score {
+      font-size: 72pt;
+      line-height: 108pt; }
+  .grassroots .scorekeeper .judges3 {
+    width: 320px; }
+    .grassroots .scorekeeper .judges3 .judge {
+      font-size: 24pt; }
+    .grassroots .scorekeeper .judges3 .score {
+      font-size: 108pt;
+      line-height: 108pt; }
+  .grassroots .scorekeeper .left {
+    margin: 0 10px 0 0; }
+  .grassroots .scorekeeper .middle {
+    margin: 0 10px 0 10px; }
+  .grassroots .scorekeeper .right {
+    margin: 0 0 0 10px; }
+  .grassroots .scorekeeper .judgeScore {
+    display: inline-block;
+    text-align: center;
+    height: 180px;
+    font-weight: bold; }
+    .grassroots .scorekeeper .judgeScore .judge {
+      color: #666;
+      font-weight: bold;
+      border-radius: 0 0 24px 24px;
+      background-color: black;
+      margin: 0 auto 0 auto;
+      height: 40px; }
+    .grassroots .scorekeeper .judgeScore .score {
+      color: white;
+      font-weight: bold;
+      border-radius: 24px 24px 0 0;
+      background-color: black;
+      margin: auto;
+      height: 140px; }
+  .grassroots .scorekeeper .ignore .judge {
+    color: #333; }
+  .grassroots .scorekeeper .ignore .score {
+    color: #333; }
+  .grassroots .scorekeeper .totalScores {
+    text-align: center;
+    height: 540px;
+    width: 1000px;
+    font-weight: bold;
+    color: white;
+    border-radius: 24px;
+    background: linear-gradient(to top, #45484d 0%, black 100%);
+    /* W3C */
+    margin: 0 auto 0 auto; }
+    .grassroots .scorekeeper .totalScores .red, .grassroots .scorekeeper .totalScores .hong {
+      color: red; }
+    .grassroots .scorekeeper .totalScores .blue, .grassroots .scorekeeper .totalScores .chung {
+      color: blue; }
+    .grassroots .scorekeeper .totalScores .athlete {
+      margin: 20px 0 0 0;
+      height: 120px;
+      font-size: 72pt;
+      line-height: 72pt; }
+    .grassroots .scorekeeper .totalScores .score {
+      height: 400px;
+      font-size: 360pt;
+      line-height: 360pt; }
+.grassroots .leaderboard {
+  font-family: Optima;
+  color: white;
+  display: none;
+  overflow: scroll; }
+  .grassroots .leaderboard .division {
+    width: 1000px;
+    height: 680px;
+    margin: 20px auto 20px auto; }
+    .grassroots .leaderboard .division .placements {
+      float: left;
+      width: 400px;
+      height: 680px;
+      color: #999;
+      font-size: 24pt;
+      background: linear-gradient(to top, #45484d 0%, black 100%);
+      /* W3C */
+      border: 4px solid white;
+      border-radius: 24px;
+      padding: 0 32px 8px 32px;
+      margin: 0 auto 0 auto; }
+    .grassroots .leaderboard .division .pending {
+      float: right;
+      width: 400px;
+      height: 680px;
+      color: #999;
+      font-size: 24pt;
+      background: linear-gradient(to top, #45484d 0%, black 100%);
+      /* W3C */
+      border: 4px solid white;
+      border-radius: 24px;
+      padding: 0 32px 8px 32px;
+      margin: 0 auto 0 auto; }
+      .grassroots .leaderboard .division .pending ol li a {
+        text-decoration: none;
+        color: white; }
+
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear; }
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear; }
+
+@-webkit-keyframes enterDownBounce {
+  0% {
+    -webkit-transform: translateY(-600px);
+    opacity: 0.25; }
+
+  50% {
+    -webkit-transform: translateY(0px); }
+
+  70% {
+    -webkit-transform: translateY(-50px); }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; } }
+
+@-webkit-keyframes leaveUpBounce {
+  0% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; }
+
+  10% {
+    -webkit-transform: translateY(50px);
+    opacity: 1; }
+
+  25% {
+    -webkit-transform: translateY(0px); }
+
+  100% {
+    -webkit-transform: translateY(-900px);
+    opacity: 0; } }

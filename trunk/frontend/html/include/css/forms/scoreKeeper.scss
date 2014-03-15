@@ -1,18 +1,7 @@
 
-body {
-	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
-}
-
-.enter-down-bounce {
-	-webkit-animation: enterDownBounce 1s linear;
-}
-
-.leave-up-bounce {
-	-webkit-animation: leaveUpBounce 1s linear;
-}
-
-.scoreKeeper {
+.scorekeeper {
 	font-family: Optima;
+	display: none;
 
 	.judgeScores {
 		width: 1000px;
@@ -92,16 +81,3 @@ body {
 	}
 }
 
-@-webkit-keyframes enterDownBounce {
-	0%   { -webkit-transform: translateY( -600px ); opacity: 0.25; }
-	50%  { -webkit-transform: translateY( 0px ); }
-	70%  { -webkit-transform: translateY( -50px ); }
-	100% { -webkit-transform: translateY( 0px ); opacity: 1; }
-}
-
-@-webkit-keyframes leaveUpBounce {
-	0%   { -webkit-transform: translateY( 0px ); opacity: 1; }
-	10%  { -webkit-transform: translateY( 50px ); opacity: 1; }
-	25%  { -webkit-transform: translateY( 0px ); }
-	100% { -webkit-transform: translateY( -900px ); opacity: 0; }
-}

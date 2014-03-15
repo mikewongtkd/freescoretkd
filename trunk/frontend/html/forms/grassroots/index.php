@@ -1,17 +1,18 @@
 <html>
 	<head>
-		<link href="../../include/css/forms/scoreKeeper.css" rel="stylesheet" />
+		<link href="../../include/css/forms/grassrootsApp.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.grassroots.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.leaderBoard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.scoreKeeper.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
 	</head>
 	<body>
-		<div id="scoreKeeperController"></div>
-		<div id="judgeController"></div>
+		<div id="grassroots"></div>
 		<script type="text/javascript">
-			$( '#scoreKeeperController' ).scoreKeeper();
+			$( '#grassroots' ).grassroots();
 		</script>
 	</body>
 </html>

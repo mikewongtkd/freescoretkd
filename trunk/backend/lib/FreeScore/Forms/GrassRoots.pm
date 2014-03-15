@@ -17,7 +17,7 @@ sub init {
 	my $tournament = shift;
 	my $division   = shift;
 
-	$self->{ state } = 'ready';
+	$self->{ state } = 'display';
 
 	$self->{ file } = "$FreeScore::PATH/$tournament/forms-grassroots/div$division.txt";
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
@@ -60,10 +60,10 @@ sub write {
 	close FILE;
 }
 
-sub ready { my $self = shift; $self->{ state } = 'ready'; }
-sub next  { my $self = shift; $self->{ state } = 'next';  }
+sub display { my $self = shift; $self->{ state } = 'display'; }
+sub score   { my $self = shift; $self->{ state } = 'score';  }
 
-sub is_ready { my $self = shift; return $self->{ state } eq 'ready'; }
-sub is_next  { my $self = shift; return $self->{ state } eq 'next';  }
+sub is_display { my $self = shift; return $self->{ state } eq 'display'; }
+sub is_score   { my $self = shift; return $self->{ state } eq 'score';  }
 
 1;

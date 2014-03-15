@@ -11,7 +11,6 @@ srand();
 # GRASSROOTS FORMS
 # ============================================================
 
-
 # ------------------------------------------------------------
 # DIVISION LIST
 # ------------------------------------------------------------
@@ -20,11 +19,11 @@ get '/:tournament/:division' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
 	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
-	if( ! $forms->is_ready() ) {
-		$forms->ready();
+	if( ! $forms->is_display() ) {
+		$forms->display();
 		$forms->write();
 	}
-	$self->render( json => $forms->{ division } );
+	$self->render( json => { state => $forms->{ state }, athletes => $forms->{ division } } );
 };
 
 # ------------------------------------------------------------
@@ -35,35 +34,9 @@ get '/:tournament/:division/next' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $division   = $self->param( 'division' );
 	my $forms = new FreeScore::Forms::GrassRoots( $tournament, $division );
-	$forms->next();
+	$forms->score();
 	$forms->write();
-	$self->render( json => { 'next' => $forms->is_next() } );
-};
-
-# ------------------------------------------------------------
-# ATHLETE INFORMATION AND CURRENT DIVISION STATE
-# ------------------------------------------------------------
-get '/:tournament/:division/:athlete' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
-	my $i          = $self->param( 'athlete' );
-	my $forms      = new FreeScore::Forms::GrassRoots( $tournament, $division );
-	my $athlete    = $forms->{ division }[ $i ];
-	$self->render( json => { athlete => $athlete, 'next' => $forms->is_next() } );
-};
-
-# ------------------------------------------------------------
-# READ JUDGE SCORE FOR ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:division/:athlete/:judge' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
-	my $athlete    = $self->param( 'athlete' );
-	my $judge      = $self->param( 'judge' );
-	my $forms      = new FreeScore::Forms::GrassRoots( $tournament, $division );
-	$self->render( json => $forms->{ division }[ $athlete ]{ scores }[ $judge ] );
+	$self->render( json => { 'state' => 'score' } );
 };
 
 # ------------------------------------------------------------
