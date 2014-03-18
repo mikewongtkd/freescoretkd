@@ -19,9 +19,14 @@ $.widget( "freescore.grassroots", {
 		e.leaderboard.leaderboard( 'fadeout' );
 
 		var refresh = function() {
-			$.getJSON(
-				'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
-				function( division ) {
+			$.ajax({
+				type: "GET",
+				url: 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
+				async: true,
+				cache: false,
+				timeout: 60000,
+				complete: refresh,
+				success: function( division ) {
 					var athlete = division.athletes[ division.current ];
 					if( division.state == 'display' ) {
 						e.scorekeeper.scorekeeper( 'fadeout' );
@@ -32,9 +37,8 @@ $.widget( "freescore.grassroots", {
 						e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
 					}
 				}
-			);
-		}
+			})
+		};
 		refresh();
-		window.setInterval( refresh, 2000 );
 	}
 });

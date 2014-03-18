@@ -46,9 +46,14 @@ $.widget( "freescore.judgeController", {
 		var html    = { div : $( "<div />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
 		var refresh = function() {
-		$.getJSON(
-			'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
-			function( division ) { 
+		$.ajax({
+			type: "GET",
+			url: 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
+			async: true,
+			cache: false,
+			timeout: 60000,
+			complete: refresh,
+			success: function( division ) { 
 				e.navigation.empty();
 				e.mode.empty();
 				e.athlete.empty();
@@ -96,10 +101,9 @@ $.widget( "freescore.judgeController", {
 				var athlete = division.athletes[ division.current ];
 				e.athlete.append( "<h2>" + athlete.name + "</h2>" );
 
-			});
+			}});
 		};
 
 		refresh();
-		window.setInterval( refresh, 2000 );
 	}
 });

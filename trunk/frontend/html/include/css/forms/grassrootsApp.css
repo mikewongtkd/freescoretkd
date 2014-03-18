@@ -10,14 +10,14 @@ body {
     height: 180px;
     margin: 0 auto 20px auto; }
   .grassroots .scorekeeper .judges5 {
-    width: 184px; }
+    width: 176px; }
     .grassroots .scorekeeper .judges5 .judge {
       font-size: 24pt; }
     .grassroots .scorekeeper .judges5 .score {
       font-size: 72pt;
       line-height: 108pt; }
   .grassroots .scorekeeper .judges3 {
-    width: 320px; }
+    width: 312px; }
     .grassroots .scorekeeper .judges3 .judge {
       font-size: 24pt; }
     .grassroots .scorekeeper .judges3 .score {
@@ -32,8 +32,10 @@ body {
   .grassroots .scorekeeper .judgeScore {
     display: inline-block;
     text-align: center;
-    height: 180px;
-    font-weight: bold; }
+    height: 172px;
+    font-weight: bold;
+    border-radius: 24px;
+    border: 4px solid white; }
     .grassroots .scorekeeper .judgeScore .judge {
       color: #666;
       font-weight: bold;
@@ -47,25 +49,26 @@ body {
       border-radius: 24px 24px 0 0;
       background-color: black;
       margin: auto;
-      height: 140px; }
+      height: 132px; }
   .grassroots .scorekeeper .ignore .judge {
     color: #333; }
   .grassroots .scorekeeper .ignore .score {
     color: #333; }
   .grassroots .scorekeeper .totalScores {
     text-align: center;
-    height: 540px;
-    width: 1000px;
+    height: 532px;
+    width: 992px;
     font-weight: bold;
     color: white;
     border-radius: 24px;
+    border: 4px solid white;
     background: linear-gradient(to top, #45484d 0%, black 100%);
     /* W3C */
     margin: 0 auto 0 auto; }
     .grassroots .scorekeeper .totalScores .red, .grassroots .scorekeeper .totalScores .hong {
-      color: red; }
+      color: #f66; }
     .grassroots .scorekeeper .totalScores .blue, .grassroots .scorekeeper .totalScores .chung {
-      color: blue; }
+      color: #66f; }
     .grassroots .scorekeeper .totalScores .athlete {
       margin: 20px 0 0 0;
       height: 120px;

@@ -84,7 +84,7 @@ $.widget( "freescore.scorekeeper", {
 
 		sum = Math.round( sum * 10 )/10;
 
-		if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); }
+		if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); } else { e.score.empty(); }
 		widget .fadeIn( 500 );
 	},
 	fadeout: function() {
