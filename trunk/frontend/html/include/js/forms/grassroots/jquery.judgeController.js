@@ -45,65 +45,57 @@ $.widget( "freescore.judgeController", {
 		var widget  = this.element;
 		var html    = { div : $( "<div />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
-		var refresh = function() {
-		$.ajax({
-			type: "GET",
-			url: 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
-			async: true,
-			cache: false,
-			timeout: 60000,
-			complete: refresh,
-			success: function( division ) { 
-				e.navigation.empty();
-				e.mode.empty();
-				e.athlete.empty();
-				e.scoring.empty();
-				if( o.num == 1 ) {
-					// ============================================================
-					// THE NAVIGATION BUTTONS
-					// ============================================================
-					var prevAthlete = html.div.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Previous Athlete</span>" );
-					var prevDiv     = html.div.clone() .addClass( "button division" ) .html( "<span class=\"label\">Previous Division</span>" );
-					var nextDiv     = html.div.clone() .addClass( "button division" ) .html( "<span class=\"label\">Next Division</span>" );
-					var nextAthlete = html.div.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Next Athlete</span>" );
-
-					prevAthlete.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/previous', function( division ) {})});
-					nextAthlete.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/next', function( division ) {})});
-					prevDiv.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/previous', function( division ) {})});
-					nextDiv.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/next', function( division ) {})});
-
-					e.navigation.append( prevAthlete, prevDiv, nextDiv, nextAthlete );
-
-					// ============================================================
-					// THE MODE BUTTONS
-					// ============================================================
-					var scoreMode   = html.div.clone() .addClass( "button mode"  ) .html( "<span class=\"label\">Score</span>" );
-					var displayMode = html.div.clone() .addClass( "button mode"  ) .html( "<span class=\"label\">Display</span>" );
-
-					scoreMode   .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/score', function( division ) {})});
-					displayMode .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/display', function( division ) {})});
-
-					e.mode.append( scoreMode, displayMode );
-
-				}
+		function refresh( sse ) {
+			var division = JSON.parse( sse.data );
+			e.navigation.empty();
+			e.mode.empty();
+			e.athlete.empty();
+			e.scoring.empty();
+			if( o.num == 1 ) {
 				// ============================================================
-				// THE ACTION BUTTONS
+				// THE NAVIGATION BUTTONS
 				// ============================================================
-				var clearButton = html.div.clone() .addClass( "button action"  ) .html( "<span class=\"label\">Clear</span>" );
-				var scoreButton = html.div.clone() .addClass( "button action"  ) .html( "<span class=\"label\">Send</span>" );
-				clearButton .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/' + division.current + '/' + o.num + '/-10', function( division ) {})});
-				scoreButton .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/' + division.current + '/' + o.num + '/' + e.score.val(), function( division ) {})});
-				e.scoring.append( clearButton, scoreButton );
+				var prevAthlete = html.div.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Previous Athlete</span>" );
+				var prevDiv     = html.div.clone() .addClass( "button division" ) .html( "<span class=\"label\">Previous Division</span>" );
+				var nextDiv     = html.div.clone() .addClass( "button division" ) .html( "<span class=\"label\">Next Division</span>" );
+				var nextAthlete = html.div.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Next Athlete</span>" );
+
+				prevAthlete.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/previous', function( division ) {})});
+				nextAthlete.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/next', function( division ) {})});
+				prevDiv.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/previous', function( division ) {})});
+				nextDiv.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/next', function( division ) {})});
+
+				e.navigation.append( prevAthlete, prevDiv, nextDiv, nextAthlete );
 
 				// ============================================================
-				// THE ATHLETE
+				// THE MODE BUTTONS
 				// ============================================================
-				var athlete = division.athletes[ division.current ];
-				e.athlete.append( "<h2>" + athlete.name + "</h2>" );
+				var scoreMode   = html.div.clone() .addClass( "button mode"  ) .html( "<span class=\"label\">Score</span>" );
+				var displayMode = html.div.clone() .addClass( "button mode"  ) .html( "<span class=\"label\">Display</span>" );
 
-			}});
+				scoreMode   .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/score', function( division ) {})});
+				displayMode .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/display', function( division ) {})});
+
+				e.mode.append( scoreMode, displayMode );
+
+			}
+			// ============================================================
+			// THE ACTION BUTTONS
+			// ============================================================
+			var clearButton = html.div.clone() .addClass( "button action"  ) .html( "<span class=\"label\">Clear</span>" );
+			var scoreButton = html.div.clone() .addClass( "button action"  ) .html( "<span class=\"label\">Send</span>" );
+			clearButton .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/' + division.current + '/' + o.num + '/-10', function( division ) {})});
+			scoreButton .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/' + division.current + '/' + o.num + '/' + e.score.val(), function( division ) {})});
+			e.scoring.append( clearButton, scoreButton );
+
+			// ============================================================
+			// THE ATHLETE
+			// ============================================================
+			var athlete = division.athletes[ division.current ];
+			e.athlete.append( "<h2>" + athlete.name + "</h2>" );
+
 		};
-
-		refresh();
+		e.source = new EventSource( 'update.php' );
+		e.source.addEventListener( 'message', refresh, false );
 	}
 });

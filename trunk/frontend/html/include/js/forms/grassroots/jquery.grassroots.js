@@ -18,27 +18,21 @@ $.widget( "freescore.grassroots", {
 		e.scorekeeper.scorekeeper( 'fadeout' );
 		e.leaderboard.leaderboard( 'fadeout' );
 
-		var refresh = function() {
-			$.ajax({
-				type: "GET",
-				url: 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament,
-				async: true,
-				cache: false,
-				timeout: 60000,
-				complete: refresh,
-				success: function( division ) {
-					var athlete = division.athletes[ division.current ];
-					if( division.state == 'display' ) {
-						e.scorekeeper.scorekeeper( 'fadeout' );
-						e.leaderboard.leaderboard( { division : division } );
+		function refresh( sse ) {
+			var division = JSON.parse( sse.data );
+			var athlete = division.athletes[ division.current ];
+			if( division.state == 'display' ) {
+				e.scorekeeper.scorekeeper( 'fadeout' );
+				e.leaderboard.leaderboard( { division : division } );
 
-					} else if( division.state == 'score' ) {
-						e.leaderboard.leaderboard( 'fadeout' );
-						e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
-					}
-				}
-			})
+			} else if( division.state == 'score' ) {
+				e.leaderboard.leaderboard( 'fadeout' );
+				e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
+			}
 		};
-		refresh();
+
+		e.source = new EventSource( 'update.php' );
+		e.source.addEventListener( 'message', refresh, false );
+
 	}
 });

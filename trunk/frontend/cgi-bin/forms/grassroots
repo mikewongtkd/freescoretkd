@@ -103,34 +103,6 @@ get '/:tournament/:division/:athlete/:judge/:score' => sub {
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
 };
 
-# ============================================================
-# GRASSROOTS FORMS
-# ============================================================
-
-# ------------------------------------------------------------
-# DIVISION LIST
-# ------------------------------------------------------------
-get '/:tournament' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $division   = new FreeScore::Forms::GrassRoots( $tournament );
-	my $forms      = new FreeScore::Forms::GrassRoots::Division( $tournament, $division->current() );
-	
-	$self->render( json => { id => $division->current(), current => $forms->{ current }, state => $forms->{ state }, athletes => $forms->{ division } } );
-};
-
-# ------------------------------------------------------------
-# DIVISION STATUS
-# ------------------------------------------------------------
-get '/:tournament/:division' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
-	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
-	$self->render( json => { current => $forms->{ current }, state => $forms->{ state }, athletes => $forms->{ division } } );
-};
-
-
 any '*' => sub {
 	my $self = shift;
 	$self->render( text => 'Unknown command' );
