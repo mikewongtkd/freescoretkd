@@ -42,6 +42,7 @@ $.widget( "freescore.leaderboard", {
 			e.pending.css( 'width', '900' );
 		} else {
 			e.standings.css( 'display', 'block' );
+			e.standings.css( 'font-size', '48pt' );
 			e.pending.css( 'width', '400' );
 		}
 
