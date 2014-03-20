@@ -6,7 +6,7 @@
 		<link rel="stylesheet" href="../../include/css/forms/judgeController.css">
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
-		<script src="../../include/jquery/js/jquery.purl.js"></script>
+		<script src="../../include/jquery/js/jquery.chosen.min.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeController.js"></script>
 	</head>
 	<body>

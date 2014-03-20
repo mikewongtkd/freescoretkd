@@ -27,7 +27,7 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE SCORE DROP-DOWN
 		// ============================================================
-		var score = e.score = html.select.clone();
+		var score = e.score = html.select.clone() .addClass( 'chosen-select' );
 		for( var i = 75; i < 100; i++ ) {
 			var j = i / 10.0;
 			var option = html.option.clone() .prop( 'value', i ) .append( j.toFixed( 1 ) );

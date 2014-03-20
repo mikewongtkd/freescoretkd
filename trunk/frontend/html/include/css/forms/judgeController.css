@@ -2,6 +2,11 @@ body {
   background: linear-gradient(to bottom, #45484d 0%, black 100%);
   /* W3C */ }
 
+select {
+  width: 160px;
+  height: 60px;
+  font-size: 24pt; }
+
 .judgeController {
   font-family: Optima;
   width: 800px;
