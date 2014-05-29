@@ -18,8 +18,8 @@ $.widget( "freescore.grassroots", {
 		e.scorekeeper.scorekeeper( 'fadeout' );
 		e.leaderboard.leaderboard( 'fadeout' );
 
-		function refresh( sse ) {
-			var division = JSON.parse( sse.data );
+		function refresh( update ) {
+			var division = JSON.parse( update.data );
 			var athlete = division.athletes[ division.current ];
 			if( division.state == 'display' ) {
 				e.scorekeeper.scorekeeper( 'fadeout' );

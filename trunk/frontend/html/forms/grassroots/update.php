@@ -64,9 +64,9 @@
 			$progress[ 'current' ] = $divisions[ 0 ];
 		}
 		$division = read_division( $path, $progress[ 'current' ] );
-		$progress[ 'id' ]       = $progress[ 'current' ] ?: 0;
-		$progress[ 'current' ]  = $division[ 'current' ] ?: 0;
-		$progress[ 'state' ]    = $division[ 'state' ] ?: 'display';
+		$progress[ 'id' ]       = $progress[ 'current' ]  ?: 0;
+		$progress[ 'current' ]  = $division[ 'current' ]  ?: 0;
+		$progress[ 'state' ]    = $division[ 'state' ]    ?: 'display';
 		$progress[ 'athletes' ] = $division[ 'athletes' ];
 		return $progress;
 	}
@@ -74,7 +74,7 @@
 	// ============================================================
 	function update( $id, $data ) {
 	// ============================================================
-		echo "id: $id" . PHP_EOL;
+		echo "id: $id"     . PHP_EOL;
 		echo "data: $data" . PHP_EOL;
 		echo PHP_EOL;
 		ob_flush();
