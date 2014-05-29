@@ -12,7 +12,7 @@
 		$division = array();
 		$division[ 'athletes' ] = array();
 
-		$file = "$path/div$div_id.txt";
+		$file = "$path/div.$div_id.txt";
 		if( $handle = @fopen( $file, "r" )) {
 			while( $line = fgets( $handle )) {
 				rtrim( $line );
@@ -23,12 +23,14 @@
 				} else {
 					$athlete = array();
 					$data = preg_split( "/\t/", $line );
-					$athlete[ 'name' ]   = array_shift( $data );
-					$athlete[ 'belt' ]   = array_shift( $data );
-					$athlete[ 'scores' ] = $data;
+					$athlete[ 'name' ]        = array_shift( $data );
+					$athlete[ 'belt' ]        = array_shift( $data );
+					$athlete[ 'scores' ]      = $data;
 					$division[ 'athletes' ][] = $athlete;
 				}
 			}
+		} else {
+			$division[ 'error' ] = "<h1>Division Cache Not Initialized</h1><p>Can&rsquo;t read file:</p><code>$file</code>";
 		}
 
 		return $division;
@@ -43,7 +45,7 @@
 		$progress[ 'divisions' ] = array();
 		if( $handle = opendir( $path )) {
 			while( false !== ($entry = readdir( $handle ))) {
-				if( preg_match( '/^div(-?\w+)\.txt$/', $entry, $matches )) {
+				if( preg_match( '/^div\.(\w+)\.txt$/', $entry, $matches )) {
 					$progress[ 'divisions' ][] = $matches[ 1 ];
 				}
 			}
@@ -60,14 +62,17 @@
 					$progress[ $key ] = $value;
 				}
 			}
+
 		} else {
-			$progress[ 'current' ] = $divisions[ 0 ];
+			$progress[ 'current' ] = $progress[ 'divisions' ][ 0 ];
 		}
+
 		$division = read_division( $path, $progress[ 'current' ] );
 		$progress[ 'id' ]       = $progress[ 'current' ]  ?: 0;
 		$progress[ 'current' ]  = $division[ 'current' ]  ?: 0;
 		$progress[ 'state' ]    = $division[ 'state' ]    ?: 'display';
 		$progress[ 'athletes' ] = $division[ 'athletes' ];
+		$progress[ 'error' ]    = $progress[ 'error' ]    ?: $division[ 'error' ];
 		return $progress;
 	}
 

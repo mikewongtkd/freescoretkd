@@ -8,6 +8,25 @@ body {
 	@import 'leaderBoard';
 }
 
+.console {
+	font-family: Optima;
+	font-size: 24pt;
+	color: #ccc;
+	display: none;
+	border: 8px solid red;
+	border-radius: 24px;
+	width: 934px;
+	margin: 80px auto 80px auto;
+	padding: 0 32px 32px 32px;
+	h1 {
+		color: white;
+	}
+	code {
+		color: gold;
+		font-size: 18pt;
+	}
+}
+
 .enter-down-bounce {
 	-webkit-animation: enterDownBounce 1s linear;
 }
