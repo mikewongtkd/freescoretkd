@@ -3,7 +3,7 @@ $.widget( "freescore.judgeController", {
 	_create: function() {
 		var options = this.options;
 		var e       = this.options.elements = {};
-		var html    = { div : $( "<div />" ), select : $( "<select />" ), option : $( "<option />" ) };
+		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 		var login   = e.login = html.div.clone() .prop( 'id', 'login' );
 		
 		login.prop( 'title', 'Login' );
@@ -43,7 +43,7 @@ $.widget( "freescore.judgeController", {
 		var o       = this.options;
 		var e       = this.options.elements;
 		var widget  = this.element;
-		var html    = { div : $( "<div />" ), select : $( "<select />" ), option : $( "<option />" ) };
+		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
 		function refresh( sse ) {
 			var division = JSON.parse( sse.data );
@@ -55,15 +55,15 @@ $.widget( "freescore.judgeController", {
 				// ============================================================
 				// THE NAVIGATION BUTTONS
 				// ============================================================
-				var prevAthlete = html.div.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Previous Athlete</span>" );
-				var prevDiv     = html.div.clone() .addClass( "button division" ) .html( "<span class=\"label\">Previous Division</span>" );
-				var nextDiv     = html.div.clone() .addClass( "button division" ) .html( "<span class=\"label\">Next Division</span>" );
-				var nextAthlete = html.div.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Next Athlete</span>" );
+				var prevAthlete = html.a.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Previous Athlete</span>" );
+				var prevDiv     = html.a.clone() .addClass( "button division" ) .html( "<span class=\"label\">Previous Division</span>" );
+				var nextDiv     = html.a.clone() .addClass( "button division" ) .html( "<span class=\"label\">Next Division</span>" );
+				var nextAthlete = html.a.clone() .addClass( "button athlete"  ) .html( "<span class=\"label\">Next Athlete</span>" );
 
-				prevAthlete.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/previous', function( division ) {})});
-				nextAthlete.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/next', function( division ) {})});
-				prevDiv.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/previous', function( division ) {})});
-				nextDiv.click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/next', function( division ) {})});
+				prevAthlete .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/previous', function( division ) {})});
+				nextAthlete .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/' + division.id + '/next', function( division ) {})});
+				prevDiv     .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/previous', function( division ) {})});
+				nextDiv     .click( function() { $.getJSON( 'http://' + o.server + '/cgi-bin/freescore/forms/grassroots/' + o.tournament + '/next', function( division ) {})});
 
 				e.navigation.append( prevAthlete, prevDiv, nextDiv, nextAthlete );
 

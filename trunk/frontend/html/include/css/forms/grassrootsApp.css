@@ -140,7 +140,7 @@ body {
         color: #ccc;
         font-weight: bold; }
 
-.console {
+.usermessage {
   font-family: Optima;
   font-size: 24pt;
   color: #ccc;
@@ -150,9 +150,9 @@ body {
   width: 934px;
   margin: 80px auto 80px auto;
   padding: 0 32px 32px 32px; }
-  .console h1 {
+  .usermessage h1 {
     color: white; }
-  .console code {
+  .usermessage code {
     color: gold;
     font-size: 18pt; }
 

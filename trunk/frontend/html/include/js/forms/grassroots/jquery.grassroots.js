@@ -6,10 +6,10 @@ $.widget( "freescore.grassroots", {
 		var html        = { div : $( "<div />" ) };
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard" );
 		var scorekeeper = e.scorekeeper = html.div.clone() .addClass( "scorekeeper" );
-		var console     = e.console     = html.div.clone() .addClass( "console" );
+		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
 
 		this.element .addClass( "grassroots" );
-		this.element .append( leaderboard, scorekeeper, console );
+		this.element .append( leaderboard, scorekeeper, usermessage );
 	},
 	_init: function( ) {
 		var e = this.options.elements;
@@ -23,8 +23,8 @@ $.widget( "freescore.grassroots", {
 			if( division.error ) {
 				e.scorekeeper.scorekeeper( 'fadeout' );
 				e.leaderboard.leaderboard( 'fadeout' );
-				e.console.html( division.error );
-				e.console.fadeIn( 500 );
+				e.usermessage.html( division.error );
+				e.usermessage.fadeIn( 500 );
 				
 			} else if( division.state == 'display' ) {
 				e.scorekeeper.scorekeeper( 'fadeout' );

@@ -37,7 +37,7 @@ sub init {
 	}
 
 	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
-	my @divisions = map { /^div(-?\w+)\.txt$/; } grep { /^div-?\w+\.txt$/ } readdir DIR;
+	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
 	closedir DIR;
 
 	$self->{ divisions } = [ @divisions ];
