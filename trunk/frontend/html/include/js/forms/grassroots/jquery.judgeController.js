@@ -71,7 +71,9 @@ $.widget( "freescore.judgeController", {
 		function refresh( sse ) {
 			var division = JSON.parse( sse.data );
 			e.athlete.empty();
-			// ===== UPDATE SCORE BUTTON
+
+			// ===== UPDATE ACTION BUTTON
+			e.clearButton.ajaxbutton( { command : o.num + '/-10' } );
 			e.scoreButton.ajaxbutton( { command : o.num + '/' + e.score.val() } );
 
 			// ============================================================

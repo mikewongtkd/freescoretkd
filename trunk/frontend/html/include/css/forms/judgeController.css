@@ -20,37 +20,23 @@ select {
     width: 760px;
     height: 80px;
     margin: 20px auto 20px auto; }
-    .judgeController .controller .button {
-      float: left;
-      height: 60px;
-      border-radius: 12pt;
-      color: white;
-      text-align: center;
-      line-height: 60px;
-      margin: 0 10px 0 10px; }
-      .judgeController .controller .button .label {
-        vertical-align: middle; }
     .judgeController .controller .action {
       width: 160px;
       border: 4px solid orange;
-      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-      /* W3C */
+      background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
       color: black; }
     .judgeController .controller .division {
       width: 160px;
       border: 4px solid green;
-      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-      /* W3C */ }
+      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
     .judgeController .controller .athlete {
       width: 160px;
       border: 4px solid blue;
-      background: linear-gradient(to bottom, #1e5799 0%, #2989d8 50%, #207cca 51%, #7db9e8 100%);
-      /* W3C */ }
+      background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
     .judgeController .controller .mode {
       width: 160px;
-      border: 4px solid yellow;
-      background: linear-gradient(to bottom, #fefcea 0%, #f1da36 100%);
-      /* W3C */
+      border: 4px solid gold;
+      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
       color: black; }
   .judgeController .select {
     width: 600px;
