@@ -15,7 +15,7 @@ srand();
 # ------------------------------------------------------------
 # NEXT DIVISION
 # ------------------------------------------------------------
-get '/:tournament/next' => sub { 
+get '/:tournament/division/next' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $progress = new FreeScore::Forms::GrassRoots( $tournament );
@@ -27,7 +27,7 @@ get '/:tournament/next' => sub {
 # ------------------------------------------------------------
 # PREVIOUS DIVISION
 # ------------------------------------------------------------
-get '/:tournament/previous' => sub { 
+get '/:tournament/division/previous' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $progress = new FreeScore::Forms::GrassRoots( $tournament );
@@ -38,10 +38,11 @@ get '/:tournament/previous' => sub {
 # ------------------------------------------------------------
 # CHANGE CURRENT DIVISION STATE TO SCORE
 # ------------------------------------------------------------
-get '/:tournament/:division/score' => sub { 
+get '/:tournament/score' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament );
+	my $division   = $progress->current();
 	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->score();
 	$forms->write();
@@ -51,10 +52,11 @@ get '/:tournament/:division/score' => sub {
 # ------------------------------------------------------------
 # CHANGE CURRENT DIVISION STATE TO DISPLAY
 # ------------------------------------------------------------
-get '/:tournament/:division/display' => sub { 
+get '/:tournament/display' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament );
+	my $division   = $progress->current();
 	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->display();
 	$forms->write();
@@ -64,10 +66,11 @@ get '/:tournament/:division/display' => sub {
 # ------------------------------------------------------------
 # SCORE FOR NEXT ATHLETE
 # ------------------------------------------------------------
-get '/:tournament/:division/next' => sub { 
+get '/:tournament/athlete/next' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament );
+	my $division   = $progress->current();
 	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->next();
 	$forms->write();
@@ -77,10 +80,11 @@ get '/:tournament/:division/next' => sub {
 # ------------------------------------------------------------
 # SCORE FOR PREVIOUS ATHLETE
 # ------------------------------------------------------------
-get '/:tournament/:division/previous' => sub { 
+get '/:tournament/athlete/previous' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament );
+	my $division   = $progress->current();
 	my $forms = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
 	$forms->previous();
 	$forms->write();
@@ -90,14 +94,15 @@ get '/:tournament/:division/previous' => sub {
 # ------------------------------------------------------------
 # WRITE JUDGE SCORE FOR ATHLETE
 # ------------------------------------------------------------
-get '/:tournament/:division/:athlete/:judge/:score' => sub { 
+get '/:tournament/:judge/:score' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
-	my $division   = $self->param( 'division' );
-	my $athlete    = $self->param( 'athlete' );
 	my $judge      = $self->param( 'judge' );
 	my $score      = $self->param( 'score' ) / 10;
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament );
+	my $division   = $progress->current();
 	my $forms      = new FreeScore::Forms::GrassRoots::Division( $tournament, $division );
+	my $athlete    = $forms->{ current };
 	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
 	$forms->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
@@ -105,7 +110,7 @@ get '/:tournament/:division/:athlete/:judge/:score' => sub {
 
 any '*' => sub {
 	my $self = shift;
-	$self->render( text => 'Unknown command' );
+	$self->render( text => 'Forms::Grassroots: Unknown command' );
 };
 
 
