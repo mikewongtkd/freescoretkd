@@ -1,7 +1,7 @@
 <?php include( "../../include/php/config.php" ); ?>
 <html>
 	<head>
-		<link href="../../include/css/forms/grassrootsApp.css" rel="stylesheet" />
+		<link href="../../include/css/forms/grassroots/grassrootsApp.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
@@ -13,7 +13,7 @@
 	<body>
 		<div id="grassroots"></div>
 		<script type="text/javascript">
-			$( '#grassroots' ).grassroots( { tournament : '<?php echo $tournament ?>' });
+			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : '<?= $tournament ?>' });
 		</script>
 	</body>
 </html>

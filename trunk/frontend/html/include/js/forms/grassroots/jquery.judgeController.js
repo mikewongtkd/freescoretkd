@@ -1,6 +1,7 @@
 $.widget( "freescore.judgeController", {
 	options: { autoShow: true, num: 0 },
 	_create: function() {
+		var widget  = this.element;
 		var o       = this.options;
 		var e       = this.options.elements = {};
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
@@ -17,12 +18,14 @@ $.widget( "freescore.judgeController", {
 			}
 		} );
 
-		this.element.addClass( 'judgeController' );
-		var navigation  = e.navigation  = html.div.clone() .addClass( "controller" );
-		var mode        = e.mode        = html.div.clone() .addClass( "controller" );
+		widget.addClass( 'judgeController' );
+		var controller  = e.controller  = html.div.clone() .addClass( "controller" );
+		var navigation  = e.navigation  = html.div.clone() .addClass( "button-row" );
+		var controls    = e.controls    = html.div.clone() .addClass( "control-group" );
+		var notes       = e.notes       = html.div.clone();
+		var mode        = e.mode        = html.div.clone() .addClass( "button-row" );
 		var scoreSelect = e.scoreSelect = html.div.clone() .addClass( "select" );
-		var scoring     = e.scoring     = html.div.clone() .addClass( "controller" );
-		var athlete     = e.athlete     = html.div.clone() .addClass( "name" );
+		var scoring     = e.scoring     = html.div.clone() .addClass( "button-row" );
 
 		// ============================================================
 		// THE NAVIGATION BUTTONS
@@ -59,7 +62,9 @@ $.widget( "freescore.judgeController", {
 		var scoreButton = e.scoreButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'action',  app : 'forms/grassroots', command : o.num + '/8.0', label : 'Send'  });
 		e.scoring.append( clearButton, scoreButton );
 
-		this.element.append( navigation, mode, scoreSelect, scoring, athlete );
+		controller.append( navigation, controls, notes );
+		controls.append( mode, scoreSelect, scoring );
+		widget.append( controller );
 
 	},
 	_init: function( ) {
@@ -68,21 +73,13 @@ $.widget( "freescore.judgeController", {
 		var widget  = this.element;
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
-		function refresh( sse ) {
-			var division = JSON.parse( sse.data );
-			e.athlete.empty();
+		function refresh( update ) {
+			var division = JSON.parse( update.data );
+			e.notes.judgeNotes({ num : o.num, athletes : division.athletes, current : division.current });
 
 			// ===== UPDATE ACTION BUTTON
 			e.clearButton.ajaxbutton( { command : o.num + '/-10' } );
 			e.scoreButton.ajaxbutton( { command : o.num + '/' + e.score.val() } );
-
-			// ============================================================
-			// THE ATHLETE
-			// ============================================================
-			var athlete = division.athletes[ division.current ];
-			e.athlete.append( "<h2>" + athlete.name + "</h2>" );
-
-
 		};
 		e.source = new EventSource( 'update.php' );
 		e.source.addEventListener( 'message', refresh, false );

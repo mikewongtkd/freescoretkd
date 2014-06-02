@@ -5,15 +5,15 @@
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.grassroots.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.leaderBoard.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.scoreKeeper.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.worldclass.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.leaderBoard.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.scoreKeeper.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.judgeScore.js"></script>
 	</head>
 	<body>
-		<div id="grassroots"></div>
+		<div id="worldclass"></div>
 		<script type="text/javascript">
-			$( '#grassroots' ).grassroots( { tournament : '<?php echo $tournament ?>' });
+			$( '#worldclass' ).worldclass( { tournament : '<?php echo $tournament ?>' });
 		</script>
 	</body>
 </html>

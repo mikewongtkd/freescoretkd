@@ -1,5 +1,5 @@
 $.widget( "freescore.grassroots", {
-	options: { autoShow: true, server: 'localhost' },
+	options: { autoShow: true },
 	_create: function() {
 		var options     = this.options;
 		var e           = this.options.elements = {};

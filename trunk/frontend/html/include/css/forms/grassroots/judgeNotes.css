@@ -1,0 +1,35 @@
+.judgeNotes {
+  border: 4px solid #999;
+  border-radius: 8px;
+  color: #999;
+  font-size: 18pt;
+  width: 320px;
+  height: 320px;
+  overflow: hidden; }
+  .judgeNotes .view {
+    width: 320px;
+    height: 320px;
+    overflow-y: auto; }
+    .judgeNotes .view table {
+      border: 0;
+      border-spacing: 0;
+      border-collapse: collapse;
+      color: #999;
+      font-size: 18pt;
+      width: 100%; }
+      .judgeNotes .view table th {
+        color: #999;
+        text-align: left;
+        padding: 0 8px 8px 8px; }
+      .judgeNotes .view table td {
+        padding: 4px 8px 4px 8px;
+        font-size: 18pt; }
+      .judgeNotes .view table td-order {
+        width: 20%; }
+      .judgeNotes .view table td-name {
+        width: 50%; }
+      .judgeNotes .view table td-score {
+        width: 30%; }
+      .judgeNotes .view table .current {
+        background: #666;
+        color: white; }

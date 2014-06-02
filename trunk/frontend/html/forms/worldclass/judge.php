@@ -7,7 +7,7 @@
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.chosen.min.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.judgeController.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.judgeController.js"></script>
 	</head>
 	<body>
 		<div id="judgeController"></div>

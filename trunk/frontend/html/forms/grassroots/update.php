@@ -15,7 +15,7 @@
 		$file = "$path/div.$div_id.txt";
 		if( $handle = @fopen( $file, "r" )) {
 			while( $line = fgets( $handle )) {
-				rtrim( $line );
+				$line = trim( $line );
 				if( preg_match( '/^#\s+(\w+)=(.*)$/', $line, $matches )) {
 					$key   = $matches[ 1 ];
 					$value = $matches[ 2 ];
