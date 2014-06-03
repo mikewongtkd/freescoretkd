@@ -1,7 +1,21 @@
-database:
-	perl bin/divisions.pl data/2013-05-04.San-Francisco/aau-2013-cal-states-individual-all.csv
-	sqlite3 data/2013-05-04.San-Francisco/freescore.db < data/2013-05-04.San-Francisco/freescore.sql
+CACHE=/Volumes/ramdisk
 
+ifndef TOURNAMENT
+$(error TOURNAMENT is not set)
+endif
+
+.PHONY: all
+
+cache:
+	if [ ! -e $(CACHE) ] ; \
+	then \
+		ramdisk 128 MB ; \
+	fi
+	cp -Rf data/$(TOURNAMENT) /Volumes/ramdisk
+	for i in forms-grassroots forms-worldclass; do \
+		touch $(CACHE)/$(TOURNAMENT)/$$i/progress.txt; \
+	done
+	chmod -R a+w $(CACHE)/$(TOURNAMENT)
+	
 clean:
-	rm -f data/2013-05-04.San-Francisco/freescore.db
-	rm -f data/2013-05-04.San-Francisco/freescore.sql
+	umount $(CACHE)

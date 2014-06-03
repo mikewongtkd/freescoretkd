@@ -1,0 +1,29 @@
+.presentationBar {
+	font-family: Optima;
+	width: 396px;
+	height: 64px;
+	margin: 0 0 0 20px;
+
+	.label {
+		font-size: 12pt;
+		width: 400px;
+		color: #ccc;
+		line-height: 24pt;
+		margin-left: 20px;
+	}
+
+	.slider {
+		float: left;
+		width: 300px;
+	}
+
+	.value {
+		font-size: 24pt;
+		color: white;
+		float: left;
+		width: 64px;
+		text-align: center;
+		line-height: 14pt;
+		vertical-align: top;
+	}
+}

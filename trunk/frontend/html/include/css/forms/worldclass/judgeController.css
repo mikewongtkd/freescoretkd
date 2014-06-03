@@ -1,0 +1,112 @@
+body {
+  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  /* W3C */ }
+
+.deductions {
+  float: left;
+  font-family: Optima;
+  width: 180px;
+  height: 346px;
+  background: linear-gradient(to top, #45484d 0%, black 100%);
+  /* W3C */
+  border-radius: 16pt;
+  border: 4px solid white;
+  margin: 0 6px 0 6px; }
+  .deductions .button-small, .deductions .button-large {
+    font-size: 18pt;
+    width: 160px;
+    border-radius: 12px;
+    margin: 12px auto 12px auto;
+    text-align: center; }
+  .deductions .button-small {
+    height: 40px;
+    line-height: 32pt; }
+  .deductions .button-large {
+    height: 120px;
+    line-height: 92pt; }
+  .deductions .disabled {
+    border: 4px solid #666;
+    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    color: black; }
+  .deductions .remove-minor {
+    border: 4px solid green;
+    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    color: black; }
+  .deductions .add-minor {
+    border: 4px solid blue;
+    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
+  .deductions .remove-major {
+    border: 4px solid orange;
+    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    color: black; }
+  .deductions .add-major {
+    width: 160px;
+    border: 4px solid gold;
+    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    color: black; }
+  .deductions .label {
+    height: 32px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 14pt;
+    color: #ccc; }
+  .deductions .view {
+    height: 80px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 64pt;
+    line-height: 64pt;
+    color: white; }
+
+.presentationBar {
+  font-family: Optima;
+  width: 396px;
+  height: 64px;
+  margin: 0 0 0 20px; }
+  .presentationBar .label {
+    font-size: 12pt;
+    width: 400px;
+    color: #ccc;
+    line-height: 24pt;
+    margin-left: 20px; }
+  .presentationBar .slider {
+    float: left;
+    width: 300px; }
+  .presentationBar .value {
+    font-size: 24pt;
+    color: white;
+    float: left;
+    width: 64px;
+    text-align: center;
+    line-height: 14pt;
+    vertical-align: top; }
+
+.judgeController {
+  font-family: Optima;
+  width: 800px;
+  height: 600px;
+  margin: 0 auto 0 auto;
+  background: linear-gradient(to top, #45484d 0%, black 100%);
+  /* W3C */
+  border-radius: 24pt;
+  border: 4px solid white; }
+  .judgeController .presentation {
+    float: left;
+    width: 400px;
+    height: 280px;
+    margin: auto; }
+    .judgeController .presentation > .label {
+      font-size: 24pt;
+      color: #ccc;
+      margin: 12px 0 24px 64px; }
+    .judgeController .presentation .send {
+      font-size: 18pt;
+      line-height: 28pt;
+      height: 40px;
+      width: 300px;
+      color: white;
+      border: 4px solid red;
+      border-radius: 12px;
+      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+      margin: 12px 46px 12px 46px;
+      text-align: center; }
