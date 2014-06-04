@@ -1,6 +1,5 @@
 body {
-  background: linear-gradient(to bottom, #45484d 0%, black 100%);
-  /* W3C */ }
+  background: linear-gradient(to bottom, #45484d 0%, black 100%); }
 
 .deductions {
   float: left;
@@ -81,25 +80,92 @@ body {
     line-height: 14pt;
     vertical-align: top; }
 
+.judgeNotes {
+  border: 4px solid white;
+  border-radius: 24px;
+  background: linear-gradient(to top, #45484d 0%, black 100%);
+  color: #999;
+  font-size: 18pt;
+  width: 380px;
+  height: 200px;
+  overflow: hidden;
+  margin: 6px 6px 18px 6px;
+  float: left; }
+  .judgeNotes .view {
+    width: 380px;
+    height: 200px;
+    overflow-y: auto; }
+    .judgeNotes .view table {
+      border: 0;
+      border-spacing: 0;
+      border-collapse: collapse;
+      color: #999;
+      font-size: 18pt;
+      width: 100%; }
+      .judgeNotes .view table th {
+        color: #999;
+        font-size: 12pt;
+        text-align: left;
+        padding: 0 8px 8px 8px; }
+      .judgeNotes .view table td {
+        padding: 4px 8px 4px 8px;
+        font-size: 18pt; }
+      .judgeNotes .view table .order {
+        width: 20%; }
+      .judgeNotes .view table .name {
+        width: 40%; }
+      .judgeNotes .view table .accuracy {
+        width: 20%; }
+      .judgeNotes .view table .presentation {
+        width: 20%; }
+      .judgeNotes .view table .current {
+        background: #666;
+        color: white; }
+
 .judgeController {
   font-family: Optima;
   width: 800px;
   height: 600px;
   margin: 0 auto 0 auto;
   background: linear-gradient(to top, #45484d 0%, black 100%);
-  /* W3C */
   border-radius: 24pt;
   border: 4px solid white; }
-  .judgeController .presentation {
+  .judgeController .score {
+    width: 388px;
+    height: 208px;
+    border-radius: 24pt;
+    margin: 6px 6px 18px 6px;
+    float: left; }
+    .judgeController .score > .accuracy, .judgeController .score > .presentation {
+      width: 194px;
+      height: 160px;
+      float: left;
+      font-size: 72pt;
+      padding-top: 48px;
+      text-align: center; }
+    .judgeController .score > .accuracy {
+      border-radius: 18pt 0 0 18pt;
+      background: linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+      color: white; }
+      .judgeController .score > .accuracy span {
+        font-size: 18pt;
+        line-height: 18pt; }
+    .judgeController .score > .presentation {
+      border-radius: 0 18pt 18pt 0;
+      background: linear-gradient(to bottom, white 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%); }
+      .judgeController .score > .presentation span {
+        font-size: 18pt;
+        line-height: 18pt; }
+  .judgeController .controls {
     float: left;
     width: 400px;
     height: 280px;
     margin: auto; }
-    .judgeController .presentation > .label {
+    .judgeController .controls > .label {
       font-size: 24pt;
       color: #ccc;
       margin: 12px 0 24px 64px; }
-    .judgeController .presentation .send {
+    .judgeController .controls .send {
       font-size: 18pt;
       line-height: 28pt;
       height: 40px;

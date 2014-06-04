@@ -23,9 +23,14 @@ $.widget( "freescore.judgeController", {
 		var views        = e.views        = html.div.clone() .addClass( "control-group" );
 		var controllers  = e.controllers  = html.div.clone() .addClass( "control-group" );
 
+		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0 });
+		var score        = e.score        = html.div.clone() .addClass( "score" );
+		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
+		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
+
 		var major        = e.major        = html.div.clone() .deductions({ value : 0.3 });
 		var minor        = e.minor        = html.div.clone() .deductions({ value : 0.1 });
-		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
+		var controls     = e.controls     = html.div.clone() .addClass( "controls" );
 
 		var label        = e.label        = html.div.clone() .addClass( "label" ) .html( "Presentation Score" );
 		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Tempo' });
@@ -33,10 +38,11 @@ $.widget( "freescore.judgeController", {
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Ki' });
 		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, command : "forms/worldclass", label : "Send", type : "send" })
 
+		score.append( accuracy, presentation );
+		views.append( notes, score );
+		controls.append( label, rhythm, power, ki, send );
 
-		presentation.append( label, rhythm, power, ki, send );
-
-		controllers.append( major, presentation, minor );
+		controllers.append( major, controls, minor );
 		this.element.append( views, controllers );
 
 	},
@@ -49,16 +55,22 @@ $.widget( "freescore.judgeController", {
 		function refresh( update ) {
 			var division = JSON.parse( update.data );
 			var command      = function( judge, score ) {
-				score.precision = e.rhythm .presentationBar( 'option', 'value' ) +
-								  e.power  .presentationBar( 'option', 'value' ) +
-								  e.ki     .presentationBar( 'option', 'value' );
-				score.accuracy  = 4.0 -
-				                  e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) -
-								  e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' );
 
-				return "forms/worldclass/" + judge + "/" + score.precision.toFixed( 1 ) + "/" + score.accuracy.toFixed( 1 );
+				score.accuracy     = 4.0 -
+				                     e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) -
+								     e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' );
+
+				score.presentation = e.rhythm .presentationBar( 'option', 'value' ) +
+								     e.power  .presentationBar( 'option', 'value' ) +
+								     e.ki     .presentationBar( 'option', 'value' );
+
+				e.accuracy.html( score.accuracy.toFixed( 1 ) + "<br /><span>Accuracy</span>" );
+				e.presentation.html( score.presentation.toFixed( 1 ) + "<br /><span>Presentation</span>" );
+
+				return "forms/worldclass/" + judge + "/" + score.presentation.toFixed( 1 ) + "/" + score.accuracy.toFixed( 1 );
 			}
 			e.send .ajaxbutton({ command : command( o.num, o ) });
+			e.notes .judgeNotes({ athletes : division.athletes, current : division.current });
 
 		};
 		e.source = new EventSource( 'update.php' );
