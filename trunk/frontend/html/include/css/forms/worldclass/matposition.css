@@ -1,0 +1,43 @@
+.matposition {
+  font-family: Optima;
+  width: 180px;
+  height: 180px;
+  float: left;
+  margin: 16px 10px 42px 10px; }
+  .matposition .mat {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
+    border-radius: 12px; }
+  .matposition .center {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    top: 68px;
+    left: 68px;
+    border-radius: 12px;
+    background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
+  .matposition .label {
+    position: absolute;
+    font-size: 12pt;
+    color: #ccf;
+    top: 140px;
+    left: 18px;
+    text-align: center; }
+    .matposition .label span {
+      color: white; }
+  .matposition .start {
+    position: absolute;
+    color: yellow;
+    font-size: 18pt;
+    top: 0px;
+    left: 0px; }
+  .matposition .layer {
+    border: 3px solid #36c;
+    border-radius: 12px;
+    position: absolute;
+    width: 174px;
+    height: 174px;
+    top: 0px;
+    left: 0px; }

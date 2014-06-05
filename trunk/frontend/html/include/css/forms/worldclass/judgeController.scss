@@ -4,6 +4,7 @@ body {
 }
 
 @import 'deductions';
+@import 'matposition';
 @import 'presentationBar';
 @import 'judgeNotes';
 
@@ -22,7 +23,7 @@ body {
 		width: 388px;
 		height: 208px;
 		border-radius: 24pt;
-		margin: 6px 6px 18px 6px;
+		margin: 6px 0 18px 206px;
 		float: left;
 
 		& > .accuracy, & > .presentation {

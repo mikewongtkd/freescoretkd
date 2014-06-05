@@ -23,10 +23,10 @@ $.widget( "freescore.judgeController", {
 		var views        = e.views        = html.div.clone() .addClass( "control-group" );
 		var controllers  = e.controllers  = html.div.clone() .addClass( "control-group" );
 
-		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0 });
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
+		var matPosition  = e.matPosition  = html.div.clone() .matposition();
 
 		var major        = e.major        = html.div.clone() .deductions({ value : 0.3 });
 		var minor        = e.minor        = html.div.clone() .deductions({ value : 0.1 });
@@ -39,10 +39,13 @@ $.widget( "freescore.judgeController", {
 		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, command : "forms/worldclass", label : "Send", type : "send" })
 
 		score.append( accuracy, presentation );
-		views.append( notes, score );
+		views.append( score, matPosition );
 		controls.append( label, rhythm, power, ki, send );
 
 		controllers.append( major, controls, minor );
+
+		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0 });
+
 		this.element.append( views, controllers );
 
 	},
