@@ -4,7 +4,20 @@
 	header('Content-Type: text/event-stream');
 	header('Cache-Control: no-cache');
 
-	$source_path = "/Volumes/ramdisk/$tournament/forms-grassroots";
+	$source_path = "/Volumes/ramdisk/$tournament/forms-worldclass";
+
+	// ============================================================
+	function accuracy_presentation( $string ) {
+	// ============================================================
+		$score = array();
+		$score[ 'accuracy' ]     = -1.0;
+		$score[ 'presentation' ] = -1.0;
+		if( preg_match( '/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/', $string, $matches )) {
+			$score[ 'accuracy' ]     = $matches[ 1 ];
+			$score[ 'presentation' ] = $matches[ 2 ];
+		}
+		return $score;
+	}
 
 	// ============================================================
 	function read_division( $path, $div_id ) {
@@ -12,7 +25,7 @@
 		$division = array();
 		$division[ 'athletes' ] = array();
 
-		$file = "$path/div$div_id.txt";
+		$file = "$path/div.$div_id.txt";
 		if( $handle = @fopen( $file, "r" )) {
 			while( $line = fgets( $handle )) {
 				$line = trim( $line );
@@ -25,7 +38,7 @@
 					$data = preg_split( "/\t/", $line );
 					$athlete[ 'name' ]   = array_shift( $data );
 					$athlete[ 'belt' ]   = array_shift( $data );
-					$athlete[ 'scores' ] = $data;
+					$athlete[ 'scores' ] = array_map( 'accuracy_presentation', $data );
 					$division[ 'athletes' ][] = $athlete;
 				}
 			}
@@ -43,7 +56,7 @@
 		$progress[ 'divisions' ] = array();
 		if( $handle = opendir( $path )) {
 			while( false !== ($entry = readdir( $handle ))) {
-				if( preg_match( '/^div(-?\w+)\.txt$/', $entry, $matches )) {
+				if( preg_match( '/^div\.(-?\w+)\.txt$/', $entry, $matches )) {
 					$progress[ 'divisions' ][] = $matches[ 1 ];
 				}
 			}
@@ -61,7 +74,7 @@
 				}
 			}
 		} else {
-			$progress[ 'current' ] = $divisions[ 0 ];
+			$progress[ 'current' ] = $progress[ 'divisions' ][ 0 ];
 		}
 		$division = read_division( $path, $progress[ 'current' ] );
 		$progress[ 'id' ]       = $progress[ 'current' ]  ?: 0;

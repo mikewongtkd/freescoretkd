@@ -21,8 +21,8 @@ $.widget( "freescore.matposition", {
 		// ============================================================
 		layer.click( function( ev ) {
 			var position = widget.position();
-			var x = (ev.clientX - (position.left + 19)).toFixed( 0 );
-			var y = (ev.clientY - (position.top  + 29)).toFixed( 0 );
+			var x = (ev.clientX - (position.left + o.dx)).toFixed( 0 );
+			var y = (ev.clientY - (position.top  + o.dy)).toFixed( 0 );
 			e.start.fadeOut( 250, function() { 
 				e.start.css( 'left', x );
 				e.start.css( 'top', y );

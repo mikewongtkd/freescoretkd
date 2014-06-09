@@ -5,6 +5,7 @@ $.widget( "freescore.judgeController", {
 		var e      = this.options.elements = {};
 		var widget = this.element;
 		var html   = e.html  = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
+		/*
 		var login  = e.login = html.div.clone() .prop( 'id', 'login' );
 		
 		login.prop( 'title', 'Login' );
@@ -20,6 +21,8 @@ $.widget( "freescore.judgeController", {
 				'Operator' : function() { o.num = -1; $( this ).dialog( "close" ); },
 			}
 		} );
+		// Temporarily disabled for faster development
+		*/ o.num = 2;
 
 		// ===== UPDATE BEHAVIOR
 		o.updateScore = function( judge, score ) {
@@ -35,8 +38,9 @@ $.widget( "freescore.judgeController", {
 			e.presentation.html( score.presentation.toFixed( 1 ) + "<br /><span>Presentation</span>" );
 		}
 
-		widget.addClass( 'judgeController' );
+		widget.addClass( 'judgeController flippable' );
 
+		var card         = e.card         = html.div.clone() .addClass( "card" );
 		var front        = e.front        = html.div.clone() .addClass( "front" );
 		var views        = e.views        = html.div.clone() .addClass( "view control-group" );
 		var controllers  = e.controllers  = html.div.clone() .addClass( "controller control-group" );
@@ -46,7 +50,7 @@ $.widget( "freescore.judgeController", {
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
-		var matPosition  = e.matPosition  = html.div.clone() .matposition();
+		var matPosition  = e.matPosition  = html.div.clone() .matposition({ dx: 246, dy: 50 });
 
 		var major        = e.major        = html.div.clone() .deductions({ value : 0.3, controller : o });
 		var minor        = e.minor        = html.div.clone() .deductions({ value : 0.1, controller : o });
@@ -65,9 +69,16 @@ $.widget( "freescore.judgeController", {
 		controllers.append( major, controls, minor );
 
 		front.append( views, controllers );
-		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0 });
 
-		widget.append( front );
+		var back         = e.back        = html.div.clone() .addClass( "back" );
+		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0 });
+		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
+
+		back.append( notes, flipToFront );
+
+		card.append( front, back );
+
+		widget.append( card );
 		o.updateScore( o.num, o );
 
 		// ============================================================
@@ -75,7 +86,11 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		flipToBack.click( function() {
 			flipToBack.fadeTo( 50, 0.75, function() { flipToBack.fadeTo( 100, 1.0 ); } );
-			// Do flippy thing
+			card.toggleClass( 'flipped' );
+		});
+		flipToFront.click( function() {
+			flipToFront.fadeTo( 50, 0.75, function() { flipToFront.fadeTo( 100, 1.0 ); } );
+			card.toggleClass( 'flipped' );
 		});
 
 	},
@@ -87,13 +102,13 @@ $.widget( "freescore.judgeController", {
 
 		function refresh( update ) {
 			var division = JSON.parse( update.data );
+			var athlete  = division.athletes[ division.current ];
 			var command  = function( judge, score ) {
-
 				return "forms/worldclass/" + judge + "/" + score.presentation.toFixed( 1 ) + "/" + score.accuracy.toFixed( 1 );
 			}
 			e.send .ajaxbutton({ command : command( o.num, o ) });
 			e.notes .judgeNotes({ athletes : division.athletes, current : division.current });
-			e.athlete .html( "Athlete Name" );
+			e.athlete .html( athlete.name );
 
 		};
 		e.source = new EventSource( 'update.php' );

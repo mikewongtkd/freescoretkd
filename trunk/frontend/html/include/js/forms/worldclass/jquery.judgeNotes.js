@@ -31,8 +31,16 @@ $.widget( "freescore.judgeNotes", {
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr           = h.tr.clone();
 			var athlete      = athletes[ i ];
-			var accuracy     = athlete.scores[ o.num ].accuracy; accuracy = accuracy <= 0 ? "" : accuracy;
-			var presentation = athlete.scores[ o.num ].presentation; presentation = presentation <= 0 ? "" : presentation;
+			var score        = athlete.scores[ o.num ];
+
+			if( typeof( score ) === 'undefined' ) {
+				score              = {};
+				score.accuracy     = -1.0;
+				score.presentation = -1.0;
+			}
+
+			var accuracy     = score.accuracy;     accuracy     = accuracy <= 0 ? "" : accuracy;
+			var presentation = score.presentation; presentation = presentation <= 0 ? "" : presentation;
 			var isCurrent    = function() { if( i == current ) { return "current"; }}
 
 			tr

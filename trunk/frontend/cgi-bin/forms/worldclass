@@ -104,6 +104,7 @@ get '/:tournament/:judge/:accuracy/:presentation' => sub {
 	my $division     = $progress->current();
 	my $forms        = new FreeScore::Forms::WorldClass::Division( $tournament, $division );
 	my $athlete      = $forms->{ current };
+	my $score        = "$accuracy/$presentation";
 	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
 	$forms->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
