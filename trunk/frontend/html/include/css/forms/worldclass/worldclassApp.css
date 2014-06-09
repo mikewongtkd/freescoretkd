@@ -1,0 +1,194 @@
+body {
+  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  /* W3C */ }
+
+.worldclass .scorekeeper {
+  font-family: Optima;
+  display: none; }
+  .worldclass .scorekeeper .judgeScores {
+    width: 1000px;
+    height: 180px;
+    margin: 0 auto 20px auto; }
+  .worldclass .scorekeeper .judges5 {
+    width: 176px; }
+    .worldclass .scorekeeper .judges5 .judge {
+      font-size: 24pt; }
+    .worldclass .scorekeeper .judges5 .score {
+      font-size: 72pt;
+      line-height: 108pt; }
+  .worldclass .scorekeeper .judges3 {
+    width: 312px; }
+    .worldclass .scorekeeper .judges3 .judge {
+      font-size: 24pt; }
+    .worldclass .scorekeeper .judges3 .score {
+      font-size: 108pt;
+      line-height: 108pt; }
+  .worldclass .scorekeeper .left {
+    margin: 0 10px 0 0; }
+  .worldclass .scorekeeper .middle {
+    margin: 0 10px 0 10px; }
+  .worldclass .scorekeeper .right {
+    margin: 0 0 0 10px; }
+  .worldclass .scorekeeper .judgeScore {
+    display: inline-block;
+    text-align: center;
+    height: 172px;
+    font-weight: bold;
+    border-radius: 24px;
+    border: 4px solid white; }
+    .worldclass .scorekeeper .judgeScore .judge {
+      color: #666;
+      font-weight: bold;
+      border-radius: 0 0 24px 24px;
+      background-color: black;
+      margin: 0 auto 0 auto;
+      height: 40px; }
+    .worldclass .scorekeeper .judgeScore .score {
+      color: white;
+      font-weight: bold;
+      border-radius: 24px 24px 0 0;
+      background-color: black;
+      margin: auto;
+      height: 132px; }
+  .worldclass .scorekeeper .ignore .judge {
+    color: #333; }
+  .worldclass .scorekeeper .ignore .score {
+    color: #333; }
+  .worldclass .scorekeeper .totalScores {
+    text-align: center;
+    height: 532px;
+    width: 992px;
+    font-weight: bold;
+    color: white;
+    border-radius: 24px;
+    border: 4px solid white;
+    background: linear-gradient(to top, #45484d 0%, black 100%);
+    /* W3C */
+    margin: 0 auto 0 auto; }
+    .worldclass .scorekeeper .totalScores .red, .worldclass .scorekeeper .totalScores .hong {
+      color: #f66; }
+    .worldclass .scorekeeper .totalScores .blue, .worldclass .scorekeeper .totalScores .chung {
+      color: #66f; }
+    .worldclass .scorekeeper .totalScores .athlete {
+      margin: 20px 0 0 0;
+      height: 120px;
+      font-size: 72pt;
+      line-height: 72pt; }
+    .worldclass .scorekeeper .totalScores .score {
+      height: 400px;
+      font-size: 360pt;
+      line-height: 360pt; }
+.worldclass .leaderboard {
+  font-family: Optima;
+  color: white;
+  display: none;
+  overflow: scroll;
+  position: fixed;
+  left: 50%;
+  margin-left: -500px; }
+  .worldclass .leaderboard .division {
+    width: 1000px;
+    height: 680px;
+    margin: 20px auto 20px auto; }
+    .worldclass .leaderboard .division .standings {
+      float: left;
+      width: 400px;
+      height: 680px;
+      color: #999;
+      font-size: 24pt;
+      background: linear-gradient(to top, #45484d 0%, black 100%);
+      /* W3C */
+      border: 4px solid white;
+      border-radius: 24px;
+      padding: 0 32px 8px 32px;
+      margin: 0 auto 0 auto; }
+      .worldclass .leaderboard .division .standings .rank1 {
+        color: #f90; }
+      .worldclass .leaderboard .division .standings .rank2 {
+        color: #ccc; }
+      .worldclass .leaderboard .division .standings .rank3 {
+        color: #930; }
+      .worldclass .leaderboard .division .standings .rank4 {
+        color: #930; }
+      .worldclass .leaderboard .division .standings .athlete {
+        clear: both; }
+        .worldclass .leaderboard .division .standings .athlete .name {
+          float: left;
+          width: 70%;
+          font-weight: bold; }
+        .worldclass .leaderboard .division .standings .athlete .score {
+          float: left;
+          width: 20%; }
+        .worldclass .leaderboard .division .standings .athlete .medal {
+          float: left;
+          width: 10%; }
+    .worldclass .leaderboard .division .pending {
+      float: right;
+      width: 400px;
+      height: 680px;
+      color: #999;
+      font-size: 24pt;
+      background: linear-gradient(to top, #45484d 0%, black 100%);
+      /* W3C */
+      border: 4px solid white;
+      border-radius: 24px;
+      padding: 0 32px 8px 32px;
+      margin: 0 auto 0 auto; }
+      .worldclass .leaderboard .division .pending h2 {
+        color: white; }
+      .worldclass .leaderboard .division .pending ol li b {
+        color: #ccc;
+        font-weight: bold; }
+
+.usermessage {
+  font-family: Optima;
+  font-size: 24pt;
+  color: #ccc;
+  display: none;
+  border: 8px solid red;
+  border-radius: 24px;
+  width: 934px;
+  margin: 80px auto 80px auto;
+  padding: 0 32px 32px 32px; }
+  .usermessage h1 {
+    color: white; }
+  .usermessage code {
+    color: gold;
+    font-size: 18pt; }
+
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear; }
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear; }
+
+@-webkit-keyframes enterDownBounce {
+  0% {
+    -webkit-transform: translateY(-600px);
+    opacity: 0.25; }
+
+  50% {
+    -webkit-transform: translateY(0px); }
+
+  70% {
+    -webkit-transform: translateY(-50px); }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; } }
+
+@-webkit-keyframes leaveUpBounce {
+  0% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; }
+
+  10% {
+    -webkit-transform: translateY(50px);
+    opacity: 1; }
+
+  25% {
+    -webkit-transform: translateY(0px); }
+
+  100% {
+    -webkit-transform: translateY(-900px);
+    opacity: 0; } }

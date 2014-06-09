@@ -4,13 +4,13 @@
   background: linear-gradient(to top, #45484d 0%, black 100%);
   color: #999;
   font-size: 18pt;
-  width: 380px;
+  width: 572px;
   height: 580px;
   overflow: hidden;
   margin: 6px 6px 18px 6px; }
   .judgeNotes .view {
-    width: 380px;
-    height: 200px;
+    width: 572px;
+    height: 580px;
     overflow-y: auto; }
     .judgeNotes .view table {
       border: 0;
@@ -28,13 +28,15 @@
         padding: 4px 8px 4px 8px;
         font-size: 18pt; }
       .judgeNotes .view table .order {
-        width: 20%; }
+        width: 5%; }
       .judgeNotes .view table .name {
-        width: 40%; }
+        width: 50%; }
       .judgeNotes .view table .accuracy {
-        width: 20%; }
+        width: 15%; }
       .judgeNotes .view table .presentation {
-        width: 20%; }
+        width: 15%; }
+      .judgeNotes .view table .sum {
+        width: 15%; }
       .judgeNotes .view table .current {
         background: #666;
         color: white; }

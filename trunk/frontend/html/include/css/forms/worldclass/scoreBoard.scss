@@ -1,0 +1,86 @@
+
+.scorekeeper {
+	font-family: Optima;
+	display: none;
+
+	.judgeScores {
+		width: 1000px;
+		height: 180px;
+		margin: 0 auto 20px auto;
+	}
+
+	.judges5 { 
+		width: 176px; 
+		.judge { font-size: 24pt; }
+		.score { font-size: 72pt; line-height: 108pt; }
+	}
+	.judges3 { 
+		width: 312px; 
+		.judge { font-size: 24pt; }
+		.score { font-size: 108pt; line-height: 108pt; }
+	}
+	.left    { margin: 0 10px 0 0; }
+	.middle  { margin: 0 10px 0 10px; }
+	.right   { margin: 0 0 0 10px; }
+
+	.judgeScore {
+		display: inline-block;
+		text-align: center;
+		height: 172px;
+		font-weight: bold;
+		border-radius: 24px;
+		border: 4px solid white;
+
+		.judge {
+			color: #666;
+			font-weight: bold;
+			border-radius: 0 0 24px 24px;
+			background-color: black;
+			margin: 0 auto 0 auto;
+			height: 40px;
+		}
+
+		.score {
+			color: white;
+			font-weight: bold;
+			border-radius: 24px 24px 0 0;
+			background-color: black;
+			margin: auto;
+			height: 132px;
+		}
+	}
+
+	.ignore {
+		.judge { color: #333; }
+		.score { color: #333; }
+	}
+
+	.totalScores {
+		text-align: center;
+		height: 532px;
+		width: 992px;
+		font-weight: bold;
+		color: white;
+		border-radius: 24px;
+		border: 4px solid white;
+		background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
+		margin: 0 auto 0 auto;
+
+		.red,  .hong  { color: #f66; }
+		.blue, .chung { color: #66f; }
+
+		.athlete {
+			margin: 20px 0 0 0;
+			height: 120px;
+			font-size: 72pt;
+			line-height: 72pt;
+		}
+
+		.score {
+			height: 400px;
+			font-size: 360pt;
+			line-height: 360pt;
+		}
+	}
+}
+

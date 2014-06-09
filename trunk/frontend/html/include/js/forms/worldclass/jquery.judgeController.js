@@ -60,7 +60,7 @@ $.widget( "freescore.judgeController", {
 		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Tempo', controller: o });
 		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',  controller: o });
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Ki', controller: o });
-		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, command : "forms/worldclass", label : "Send", type : "send" })
+		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", label : "Send", type : "send" })
 
 		score.append( accuracy, presentation, athlete );
 		views.append( flipToBack, score, matPosition );
@@ -70,11 +70,16 @@ $.widget( "freescore.judgeController", {
 
 		front.append( views, controllers );
 
-		var back         = e.back        = html.div.clone() .addClass( "back" );
-		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0 });
+		var back         = e.back         = html.div.clone() .addClass( "back" );
+		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0, num : o.num });
 		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
+		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
+		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
+		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "division/previous", label : "Prev Division", type : "navigate prev division" });
+		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "division/next",     label : "Next Division", type : "navigate next division" });
+		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "display",           label : "Flip Display",  type : "navigate mode"          });
 
-		back.append( notes, flipToFront );
+		back.append( prevAthlete, nextAthlete, prevDivision, nextDivision, flipDisplay, notes, flipToFront );
 
 		card.append( front, back );
 
@@ -104,7 +109,10 @@ $.widget( "freescore.judgeController", {
 			var division = JSON.parse( update.data );
 			var athlete  = division.athletes[ division.current ];
 			var command  = function( judge, score ) {
-				return "forms/worldclass/" + judge + "/" + score.presentation.toFixed( 1 ) + "/" + score.accuracy.toFixed( 1 );
+				o.updateScore( judge, score );
+				var accuracy     = score.accuracy.toFixed( 1 ) * 10;
+				var presentation = score.presentation.toFixed( 1 ) * 10;
+				return judge + "/" + accuracy + "/" + presentation;
 			}
 			e.send .ajaxbutton({ command : command( o.num, o ) });
 			e.notes .judgeNotes({ athletes : division.athletes, current : division.current });

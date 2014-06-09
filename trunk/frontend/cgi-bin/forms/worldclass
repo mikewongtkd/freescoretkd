@@ -35,22 +35,9 @@ get '/:tournament/division/previous' => sub {
 	$progress->write();
 	$self->render( json => { 'current' => $progress->current() } );
 };
-# ------------------------------------------------------------
-# CHANGE CURRENT DIVISION STATE TO SCORE
-# ------------------------------------------------------------
-get '/:tournament/score' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $progress   = new FreeScore::Forms::WorldClass( $tournament );
-	my $division   = $progress->current();
-	my $forms = new FreeScore::Forms::WorldClass::Division( $tournament, $division );
-	$forms->score();
-	$forms->write();
-	$self->render( json => { 'state' => $forms->{ state } } );
-};
 
 # ------------------------------------------------------------
-# CHANGE CURRENT DIVISION STATE TO DISPLAY
+# TOGGLE CURRENT DIVISION STATE BETWEEN DISPLAY AND SCORE
 # ------------------------------------------------------------
 get '/:tournament/display' => sub { 
 	my $self       = shift;
@@ -58,7 +45,10 @@ get '/:tournament/display' => sub {
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament );
 	my $division   = $progress->current();
 	my $forms = new FreeScore::Forms::WorldClass::Division( $tournament, $division );
-	$forms->display();
+
+	if( $forms->is_display() ) { $forms->score();   } 
+	else                       { $forms->display(); }
+
 	$forms->write();
 	$self->render( json => { 'state' => $forms->{ state } } );
 };
@@ -98,13 +88,13 @@ get '/:tournament/:judge/:accuracy/:presentation' => sub {
 	my $self         = shift;
 	my $tournament   = $self->param( 'tournament' );
 	my $judge        = $self->param( 'judge' );
-	my $accuracy     = $self->param( 'accuracy' );
-	my $presentation = $self->param( 'presentation' );
+	my $accuracy     = $self->param( 'accuracy' )     / 10 || -1.0;
+	my $presentation = $self->param( 'presentation' ) / 10 || -1.0;
 	my $progress     = new FreeScore::Forms::WorldClass( $tournament );
 	my $division     = $progress->current();
 	my $forms        = new FreeScore::Forms::WorldClass::Division( $tournament, $division );
 	my $athlete      = $forms->{ current };
-	my $score        = "$accuracy/$presentation";
+	my $score        = { accuracy => sprintf( "%3.1f", $accuracy ), presentation => sprintf( "%3.1f", $presentation ) };
 	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
 	$forms->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
@@ -112,7 +102,7 @@ get '/:tournament/:judge/:accuracy/:presentation' => sub {
 
 any '*' => sub {
 	my $self = shift;
-	$self->render( text => 'Forms::Grassroots: Unknown command' );
+	$self->render( text => 'Forms::WorldClass: Unknown command' );
 };
 
 

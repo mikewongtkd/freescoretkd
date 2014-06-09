@@ -4,14 +4,14 @@
 	background: linear-gradient(to top, #45484d 0%,#000000 100%);
 	color: #999;
 	font-size: 18pt;
-	width: 380px;
+	width: 572px;
 	height: 580px;
 	overflow: hidden;
 	margin: 6px 6px 18px 6px;
 
 	.view {
-		width: 380px;
-		height: 200px;
+		width: 572px;
+		height: 580px;
 		overflow-y: auto;
 
 		table {
@@ -34,10 +34,11 @@
 				font-size: 18pt;
 			}
 
-			.order        { width: 20%; }
-			.name         { width: 40%; }
-			.accuracy     { width: 20%; }
-			.presentation { width: 20%; }
+			.order        { width:  5%; }
+			.name         { width: 50%; }
+			.accuracy     { width: 15%; }
+			.presentation { width: 15%; }
+			.sum          { width: 15%; }
 
 			.current {
 				background: #666;

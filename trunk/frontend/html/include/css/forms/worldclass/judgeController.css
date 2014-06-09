@@ -132,13 +132,13 @@ body {
   background: linear-gradient(to top, #45484d 0%, black 100%);
   color: #999;
   font-size: 18pt;
-  width: 380px;
+  width: 572px;
   height: 580px;
   overflow: hidden;
   margin: 6px 6px 18px 6px; }
   .judgeNotes .view {
-    width: 380px;
-    height: 200px;
+    width: 572px;
+    height: 580px;
     overflow-y: auto; }
     .judgeNotes .view table {
       border: 0;
@@ -156,13 +156,15 @@ body {
         padding: 4px 8px 4px 8px;
         font-size: 18pt; }
       .judgeNotes .view table .order {
-        width: 20%; }
+        width: 5%; }
       .judgeNotes .view table .name {
-        width: 40%; }
+        width: 50%; }
       .judgeNotes .view table .accuracy {
-        width: 20%; }
+        width: 15%; }
       .judgeNotes .view table .presentation {
-        width: 20%; }
+        width: 15%; }
+      .judgeNotes .view table .sum {
+        width: 15%; }
       .judgeNotes .view table .current {
         background: #666;
         color: white; }
@@ -192,10 +194,9 @@ body {
       border: 4px solid #93d;
       border-radius: 12px;
       background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-      margin: 12px 46px 12px 46px;
       text-align: center;
-      top: 8px;
-      left: -36px; }
+      top: 20px;
+      left: 10px; }
     .judgeController .front > .view, .judgeController .front > .controller {
       width: 800px;
       top: 8px; }
@@ -279,7 +280,36 @@ body {
       border: 4px solid #93d;
       border-radius: 12px;
       background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-      margin: 12px 46px 12px 46px;
       text-align: center;
-      top: 388px;
-      left: 556px; }
+      top: 400px;
+      left: 600px; }
+    .judgeController .back .navigate {
+      position: absolute;
+      font-size: 18pt;
+      line-height: 38pt;
+      height: 48px;
+      width: 172px;
+      text-align: center;
+      border-radius: 12px;
+      border: 4px solid white;
+      color: white;
+      left: 590px; }
+    .judgeController .back .division {
+      border-color: green;
+      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
+    .judgeController .back .athlete {
+      border-color: blue;
+      background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
+    .judgeController .back .mode {
+      border-color: gold;
+      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+      color: black;
+      top: 324px; }
+    .judgeController .back .prev.athlete {
+      top: 20px; }
+    .judgeController .back .next.athlete {
+      top: 96px; }
+    .judgeController .back .prev.division {
+      top: 172px; }
+    .judgeController .back .next.division {
+      top: 248px; }

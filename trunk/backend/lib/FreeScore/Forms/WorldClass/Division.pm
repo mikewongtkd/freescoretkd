@@ -43,8 +43,12 @@ sub init {
 		my $n       = $#columns < 2 ? 2 : $#columns;
 		my @scores  = ();
 		foreach my $i ( 0 .. $n ) {
-			my ($accuracy, $presentation) = split /\//, $columns[ $i ] || ( -1.0, -1.0 );
-			$scores[ $i ] = { accuracy => $accuracy, presentation => $presentation };
+			my $accuracy;
+			my $presentation;
+			($accuracy, $presentation) = split /\//, $columns[ $i ] if $columns[ $i ] =~ /\//;
+			$accuracy     ||= -1.0;
+			$presentation ||= -1.0;
+			$scores[ $i ] = { accuracy => sprintf( "%3.1f", $accuracy ), presentation => sprintf( "%3.1f", $presentation ) };
 		}
 		push @{ $self->{ division }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
 		$index++;
