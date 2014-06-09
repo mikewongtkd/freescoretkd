@@ -11,6 +11,9 @@ $.widget( "freescore.deductions", {
 
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
 
+		var judge  = o.controller.num;
+		var score  = o.controller;
+		var update = o.controller.updateScore;
 		var label  = e.label  = html.div.clone() .addClass( "label" ) .html( o.value == 0.1 ? "Minor Deductions" : "Major Deductions" );
 		var view   = e.view   = html.div.clone() .addClass( "view" ) .html( o.count );
 		var remove = e.remove = html.div.clone() .html( "Remove" );
@@ -40,6 +43,7 @@ $.widget( "freescore.deductions", {
 					if( o.value == 0.1 ) { e.remove.removeClass( 'remove-minor' ) .addClass( 'disabled' ); }
 					else                 { e.remove.removeClass( 'remove-major' ) .addClass( 'disabled' ); }
 				}
+				update( judge, score );
 				return;
 			}
 		});
@@ -49,6 +53,7 @@ $.widget( "freescore.deductions", {
 			e.view.html( o.count );
 			if( o.value == 0.1 ) { e.remove.removeClass( 'disabled' ) .addClass( 'remove-minor' ); }
 			else                 { e.remove.removeClass( 'disabled' ) .addClass( 'remove-major' ); }
+			update( judge, score );
 			return;
 		});
 

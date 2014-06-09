@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<link href="../../include/css/ajaxbutton.css" rel="stylesheet" />
+		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/judgeController.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />

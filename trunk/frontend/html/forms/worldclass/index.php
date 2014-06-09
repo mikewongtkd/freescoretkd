@@ -7,7 +7,7 @@
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.worldclass.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.leaderBoard.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.scoreKeeper.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.scoreBoard.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.judgeScore.js"></script>
 	</head>
 	<body>
