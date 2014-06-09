@@ -1,9 +1,11 @@
 .matposition {
+	position: absolute;
 	font-family: Optima;
 	width:  180px;
 	height: 180px;
-	float: left;
 	margin: 16px 10px 42px 10px;
+	top: 0;
+	left: 600px;
 
 	.mat {
 		position: absolute;
