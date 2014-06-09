@@ -1,0 +1,27 @@
+.flippable {
+  -webkit-perspective: 1000;
+  width: 40px;
+  height: 80px; }
+  .flippable .flipped {
+    -webkit-transform: rotateY(180deg); }
+  .flippable .front, .flippable .back {
+    width: 36px;
+    height: 74px;
+    border-radius: 8px;
+    border: 2px solid black;
+    padding: 2px; }
+  .flippable .card {
+    -webkit-transition: 0.6s;
+    -webkit-transform-style: preserve-3d;
+    position: relative; }
+    .flippable .card .front, .flippable .card .back {
+      -webkit-backface-visibility: hidden;
+      position: absolute;
+      top: 0;
+      left: 0; }
+    .flippable .card .front {
+      z-index: 2;
+      background: #ccf; }
+    .flippable .card .back {
+      -webkit-transform: rotateY(180deg);
+      background: yellow; }
