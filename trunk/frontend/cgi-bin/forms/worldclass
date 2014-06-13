@@ -84,17 +84,20 @@ get '/:tournament/athlete/previous' => sub {
 # ------------------------------------------------------------
 # WRITE JUDGE SCORE FOR ATHLETE
 # ------------------------------------------------------------
-get '/:tournament/:judge/:accuracy/:presentation' => sub { 
+get '/:tournament/:judge/:major/:minor/:rhythm/:power/:ki' => sub { 
 	my $self         = shift;
 	my $tournament   = $self->param( 'tournament' );
-	my $judge        = $self->param( 'judge' );
-	my $accuracy     = $self->param( 'accuracy' )     / 10 || -1.0;
-	my $presentation = $self->param( 'presentation' ) / 10 || -1.0;
+	my $judge        = $self->param( 'judge'      );
+	my $major        = get_score( $self, 'major'  );
+	my $minor        = get_score( $self, 'minor'  );
+	my $rhythm       = get_score( $self, 'rhythm' );
+	my $power        = get_score( $self, 'power'  );
+	my $ki           = get_score( $self, 'ki'     );
 	my $progress     = new FreeScore::Forms::WorldClass( $tournament );
 	my $division     = $progress->current();
 	my $forms        = new FreeScore::Forms::WorldClass::Division( $tournament, $division );
 	my $athlete      = $forms->{ current };
-	my $score        = { accuracy => sprintf( "%3.1f", $accuracy ), presentation => sprintf( "%3.1f", $presentation ) };
+	my $score        = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
 	$forms->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
@@ -107,3 +110,13 @@ any '*' => sub {
 
 
 app->start( 'cgi' );
+
+# ============================================================
+sub get_score {
+# ============================================================
+	my $ajax  = shift;
+	my $name  = shift;
+
+	my $score = $ajax->param( $name ) / 10 || -1.0;
+	return sprintf( "%.1f", $score );
+}

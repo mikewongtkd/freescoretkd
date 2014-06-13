@@ -7,14 +7,20 @@
 	$source_path = "/Volumes/ramdisk/$tournament/forms-worldclass";
 
 	// ============================================================
-	function accuracy_presentation( $string ) {
+	function criteria( $string ) {
 	// ============================================================
 		$score = array();
-		$score[ 'accuracy' ]     = -1.0;
-		$score[ 'presentation' ] = -1.0;
-		if( preg_match( '/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/', $string, $matches )) {
-			$score[ 'accuracy' ]     = $matches[ 1 ];
-			$score[ 'presentation' ] = $matches[ 2 ];
+		$score[ 'major'  ]  = -1.0;
+		$score[ 'minor'  ]  = -1.0;
+		$score[ 'rhythm' ]  = -1.0;
+		$score[ 'power'  ]  = -1.0;
+		$score[ 'ki'     ]  = -1.0;
+		if( $criteria = preg_split( '/\//', $string )) {
+			$score[ 'major'  ] = array_shift( $criteria );
+			$score[ 'minor'  ] = array_shift( $criteria );
+			$score[ 'rhythm' ] = array_shift( $criteria );
+			$score[ 'power'  ] = array_shift( $criteria );
+			$score[ 'ki'     ] = array_shift( $criteria );
 		}
 		return $score;
 	}
@@ -38,7 +44,7 @@
 					$data = preg_split( "/\t/", $line );
 					$athlete[ 'name' ]   = array_shift( $data );
 					$athlete[ 'belt' ]   = array_shift( $data );
-					$athlete[ 'scores' ] = array_map( 'accuracy_presentation', $data );
+					$athlete[ 'scores' ] = array_map( 'criteria', $data );
 					$division[ 'athletes' ][] = $athlete;
 				}
 			}

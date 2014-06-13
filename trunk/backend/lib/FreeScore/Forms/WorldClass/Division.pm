@@ -1,6 +1,8 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
 
+our @criteria = qw( major minor rhythm power ki );
+
 # ============================================================
 sub new {
 # ============================================================
@@ -37,18 +39,16 @@ sub init {
 		}
 
 		# ===== READ DIVISION ATHLETE INFORMATION
-		my @columns = split /\t/;
-		my $athlete = shift @columns;
-		my $rank    = shift @columns;
-		my $n       = $#columns < 2 ? 2 : $#columns;
-		my @scores  = ();
+		my @columns  = split /\t/;
+		my $athlete  = shift @columns;
+		my $rank     = shift @columns;
+		my $n        = $#columns < 2 ? 2 : $#columns;
+		my @scores    = ();
 		foreach my $i ( 0 .. $n ) {
-			my $accuracy;
-			my $presentation;
-			($accuracy, $presentation) = split /\//, $columns[ $i ] if $columns[ $i ] =~ /\//;
-			$accuracy     ||= -1.0;
-			$presentation ||= -1.0;
-			$scores[ $i ] = { accuracy => sprintf( "%3.1f", $accuracy ), presentation => sprintf( "%3.1f", $presentation ) };
+			my $score = {};
+			@{$score}{ @criteria } = map { sprintf "%.1f", $_; } split /\//, $columns[ $i ] if $columns[ $i ] =~ /\//;
+			$score->{ $_ } ||= -1.0 foreach (@criteria);
+			$scores[ $i ] = $score;
 		}
 		push @{ $self->{ division }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
 		$index++;
@@ -65,7 +65,8 @@ sub write {
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	foreach my $athlete (@{ $self->{ division }}) {
-		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, map { "$_->{ accuracy }/$_->{ presentation }"; } @{ $athlete->{ scores }} ), "\n";
+		my @scores = map { my $score = $_; my $string = join( "/", map { sprintf( "%.1f", $score->{ $_ }); } @criteria ); $string eq "-1.0/-1.0/-1.0/-1.0/-1.0" ? "" : $string } @{ $athlete->{ scores }};
+		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @scores), "\n";
 	}
 	close FILE;
 }

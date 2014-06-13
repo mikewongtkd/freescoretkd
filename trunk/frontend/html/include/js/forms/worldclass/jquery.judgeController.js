@@ -29,6 +29,7 @@ $.widget( "freescore.judgeController", {
 			score.accuracy     = 4.0 -
 								 e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) -
 								 e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' );
+			score.accuracy     = score.accuracy < 0 ? 0 : score.accuracy; // The accuracy score cannot be lower than 0
 
 			score.presentation = e.rhythm .presentationBar( 'option', 'value' ) +
 								 e.power  .presentationBar( 'option', 'value' ) +
@@ -109,10 +110,13 @@ $.widget( "freescore.judgeController", {
 			var division = JSON.parse( update.data );
 			var athlete  = division.athletes[ division.current ];
 			var command  = function( judge, score ) {
-				o.updateScore( judge, score );
-				var accuracy     = score.accuracy.toFixed( 1 ) * 10;
-				var presentation = score.presentation.toFixed( 1 ) * 10;
-				return judge + "/" + accuracy + "/" + presentation;
+				var major  = (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
+				var minor  = (e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
+				var rhythm = (e.rhythm .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
+				var power  = (e.power  .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
+				var ki     = (e.ki     .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
+
+				return judge + "/" + major + "/" + minor + "/" + rhythm + "/" + power + "/" + ki;
 			}
 			e.send .ajaxbutton({ command : command( o.num, o ) });
 			e.notes .judgeNotes({ athletes : division.athletes, current : division.current });
