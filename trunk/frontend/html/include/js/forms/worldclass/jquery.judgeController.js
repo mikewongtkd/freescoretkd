@@ -51,7 +51,7 @@ $.widget( "freescore.judgeController", {
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
-		var matPosition  = e.matPosition  = html.div.clone() .matposition({ dx: 246, dy: 50 });
+		var matPosition  = e.matPosition  = html.div.clone() .matposition();
 
 		var major        = e.major        = html.div.clone() .deductions({ value : 0.3, controller : o });
 		var minor        = e.minor        = html.div.clone() .deductions({ value : 0.1, controller : o });

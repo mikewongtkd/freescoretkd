@@ -1,15 +1,18 @@
 $.widget( "freescore.grassroots", {
 	options: { autoShow: true },
 	_create: function() {
-		var options     = this.options;
+		var o           = this.options;
 		var e           = this.options.elements = {};
+		var widget      = this.element;
 		var html        = { div : $( "<div />" ) };
-		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard" );
-		var scorekeeper = e.scorekeeper = html.div.clone() .addClass( "scorekeeper" );
+		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard back" );
+		var scorekeeper = e.scorekeeper = html.div.clone() .addClass( "scorekeeper front" );
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
+		var card        = e.card        = html.div.clone() .addClass( "card" );
 
-		this.element .addClass( "grassroots" );
-		this.element .append( leaderboard, scorekeeper, usermessage );
+		card .append( leaderboard, scorekeeper );
+		widget .addClass( "grassroots flippable" );
+		widget .append( card, usermessage );
 	},
 	_init: function( ) {
 		var e = this.options.elements;
@@ -21,17 +24,16 @@ $.widget( "freescore.grassroots", {
 			var division = JSON.parse( update.data );
 			var athlete = division.athletes[ division.current ];
 			if( division.error ) {
-				e.scorekeeper.scorekeeper( 'fadeout' );
-				e.leaderboard.leaderboard( 'fadeout' );
+				e.card.fadeOut();
 				e.usermessage.html( division.error );
 				e.usermessage.fadeIn( 500 );
 				
 			} else if( division.state == 'display' ) {
-				e.scorekeeper.scorekeeper( 'fadeout' );
+				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );
 
 			} else if( division.state == 'score' ) {
-				e.leaderboard.leaderboard( 'fadeout' );
+				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
 				e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
 			}
 		};

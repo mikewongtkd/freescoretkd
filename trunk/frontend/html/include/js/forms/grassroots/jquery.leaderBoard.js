@@ -27,9 +27,10 @@ $.widget( "freescore.leaderboard", {
 			var done    = 1;
 			var sum     = 0.0;
 			for( var j = 0; j < athlete.scores.length; j++ ) {
-				var score = parseFloat( athlete.scores[ j ] );
-				done &= (score > 0.0);
-				if( score > 0.0 ) { sum += score; }
+				var score = parseFloat( athlete.scores[ j ] ); score = isNaN( score ) ? 0 : score;
+				var valid = score > 0.0;
+				done &= valid;
+				if( valid ) { sum += score; }
 			}
 			athlete.score = sum;
 			if( done ) { standings.athletes.push( athlete ); }
@@ -39,11 +40,11 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
 		if( standings.athletes.length == 0 ) {
 			e.standings.css( 'display', 'none' );
-			e.pending.css( 'width', '900' );
+			e.pending.css( 'width', '928px' );
 		} else {
 			e.standings.css( 'display', 'block' );
 			e.standings.css( 'font-size', '48pt' );
-			e.pending.css( 'width', '400' );
+			e.pending.css( 'width', '400px' );
 		}
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
@@ -60,10 +61,10 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
 		if( pending.athletes.length == 0 ) { 
 			e.pending.css( 'display', 'none' ); 
-			e.standings.css( 'width', '900' );
+			e.standings.css( 'width', '928px' );
 		} else {
 			e.pending.css( 'display', 'block' ); 
-			e.standings.css( 'width', '400' );
+			e.standings.css( 'width', '400px' );
 		}
 
 		// ===== UPDATE THE 'NEXT UP' PANEL

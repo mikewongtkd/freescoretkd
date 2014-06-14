@@ -5,6 +5,10 @@
 		-webkit-transform: rotateY(180deg);
 	}
 
+	.spun {
+		-webkit-transform: rotateY(-180deg);
+	}
+
 	.card {
 		-webkit-transition: 0.6s;
 		-webkit-transform-style: preserve-3d;

@@ -6,6 +6,8 @@ body {
 .grassroots {
 	@import 'scoreKeeper';
 	@import 'leaderBoard';
+	margin: 0 auto 0 auto;
+	width: 1000px;
 }
 
 .usermessage {

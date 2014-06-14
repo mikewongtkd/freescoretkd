@@ -39,9 +39,8 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE MODE BUTTONS
 		// ============================================================
-		var scoreMode   = e.scoreMode   = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'mode',  app : 'forms/grassroots', command : 'score',   label : 'Score'   });
-		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'mode',  app : 'forms/grassroots', command : 'display', label : 'Display' });
-		e.mode.append( scoreMode, displayMode );
+		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'mode',  app : 'forms/grassroots', command : 'display', label : 'Flip Display' });
+		e.mode.append( displayMode );
 
 		// ============================================================
 		// THE SCORE DROP-DOWN

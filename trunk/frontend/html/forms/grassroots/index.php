@@ -1,6 +1,7 @@
 <?php include( "../../include/php/config.php" ); ?>
 <html>
 	<head>
+		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<link href="../../include/css/forms/grassroots/grassrootsApp.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
