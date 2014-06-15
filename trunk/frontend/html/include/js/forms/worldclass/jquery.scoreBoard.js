@@ -62,10 +62,10 @@ $.widget( "freescore.scorekeeper", {
 		var max    = { accuracy : -1, presentation : -1 };
 		for( var i = 0; i < k; i++ ) {
 			var j = i + 1;
-			var accuracy     = parseFloat( $( '#judgeScore' + j + ' > .accuracy' ).html());
-			var presentation = parseFloat( $( '#judgeScore' + j + ' > .accuracy' ).html());
-			if( isNaN( accuracy     ) { accuracy     = -1.0; }
-			if( isNaN( presentation ) { presentation = -1.0; }
+			var accuracy     = parseFloat( $( '#judgeScore' + j + ' .accuracy'     ).html());
+			var presentation = parseFloat( $( '#judgeScore' + j + ' .presentation' ).html());
+			if( isNaN( accuracy     )) { accuracy     = -1.0; }
+			if( isNaN( presentation )) { presentation = -1.0; }
 			scores[ i ]      = { accuracy : accuracy, presentation : presentation };
 		}
 
@@ -80,21 +80,20 @@ $.widget( "freescore.scorekeeper", {
 			}
 		}
 
-		var sum = 0.0;
+		var sum = { accuracy : 0.0, presentation : 0.0 };
 		for( var i = 0; i < k; i++ ) {
 			if( i == min.accuracy     ) { e.judges.addClass( "ignore" ); continue; }
 			if( i == max.accuracy     ) { e.judges.addClass( "ignore" ); continue; }
-			if( scores[ i ] > 0 ) { sum += scores[ i ]; }
+			if( scores[ i ].accuracy > 0 ) { sum.accuracy += scores[ i ].accuracy; }
 		}
 		for( var i = 0; i < k; i++ ) {
 			if( i == min.presentation ) { e.judges.addClass( "ignore" ); continue; }
 			if( i == max.presentation ) { e.judges.addClass( "ignore" ); continue; }
-			if( scores[ i ] > 0 ) { sum += scores[ i ]; }
+			if( scores[ i ].presentation > 0 ) { sum.presentation += scores[ i ].presentation; }
 		}
 
-		sum = Math.round( sum * 10 )/10;
-
-		if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); } else { e.score.empty(); }
+		if( sum.accuracy > 0.0 && sum.presentation > 0.0 ) { e.score.html( sum.accuracy.toFixed( 1 ) + ' ' + sum.presentation.toFixed( 1 )); } 
+		else                                               { e.score.empty(); }
 		widget .fadeIn( 500 );
 	},
 	fadeout: function() {
