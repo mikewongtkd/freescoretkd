@@ -80,20 +80,29 @@ $.widget( "freescore.scorekeeper", {
 			}
 		}
 
-		var sum = { accuracy : 0.0, presentation : 0.0 };
-		for( var i = 0; i < k; i++ ) {
-			if( i == min.accuracy     ) { e.judges.addClass( "ignore" ); continue; }
-			if( i == max.accuracy     ) { e.judges.addClass( "ignore" ); continue; }
-			if( scores[ i ].accuracy > 0 ) { sum.accuracy += scores[ i ].accuracy; }
-		}
-		for( var i = 0; i < k; i++ ) {
-			if( i == min.presentation ) { e.judges.addClass( "ignore" ); continue; }
-			if( i == max.presentation ) { e.judges.addClass( "ignore" ); continue; }
-			if( scores[ i ].presentation > 0 ) { sum.presentation += scores[ i ].presentation; }
-		}
+		var sum   = { accuracy : 0.0, presentation : 0.0 };
+		var count = { accuracy : 0,   presentation : 0   };
+		var mean  = { accuracy : 0.0, presentation : 0.0 };
 
-		if( sum.accuracy > 0.0 && sum.presentation > 0.0 ) { e.score.html( sum.accuracy.toFixed( 1 ) + ' ' + sum.presentation.toFixed( 1 )); } 
-		else                                               { e.score.empty(); }
+		for( var i = 0; i < k; i++ ) {
+			if( i == min.accuracy         ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == max.accuracy         ) { e.judges.addClass( "ignore" ); continue; }
+			if( scores[ i ].accuracy <= 0 ) { continue; }
+			sum.accuracy += scores[ i ].accuracy;
+			count.accuracy++;
+		}
+		for( var i = 0; i < k; i++ ) {
+			if( i == min.presentation         ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == max.presentation         ) { e.judges.addClass( "ignore" ); continue; }
+			if( scores[ i ].presentation <= 0 ) { continue; }
+			sum.presentation += scores[ i ].presentation;
+			count.presentation++;
+		}
+		mean.accuracy     = count.accuracy     == 0 ? 0.0 : (sum.accuracy     / count.accuracy)     .toFixed( 1 );
+		mean.presentation = count.presentation == 0 ? 0.0 : (sum.presentation / count.presentation) .toFixed( 1 );
+
+		if( mean.accuracy > 0.0 && mean.presentation > 0.0 ) { e.score.html( '<span class="accuracy">' + mean.accuracy + '</span>&nbsp;<span class="presentation">' + mean.presentation + '</span>' ); } 
+		else                                                 { e.score.empty(); }
 		widget .fadeIn( 500 );
 	},
 	fadeout: function() {

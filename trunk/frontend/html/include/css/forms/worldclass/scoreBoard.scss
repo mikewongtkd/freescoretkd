@@ -81,8 +81,11 @@
 
 		.score {
 			height: 400px;
-			font-size: 360pt;
+			font-size: 180pt;
 			line-height: 360pt;
+
+			.accuracy     { color: #f99; }
+			.presentation { color: #99f; }
 		}
 	}
 }

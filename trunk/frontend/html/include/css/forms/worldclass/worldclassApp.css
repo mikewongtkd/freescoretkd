@@ -78,8 +78,12 @@ body {
       line-height: 72pt; }
     .worldclass .scorekeeper .totalScores .score {
       height: 400px;
-      font-size: 360pt;
+      font-size: 180pt;
       line-height: 360pt; }
+      .worldclass .scorekeeper .totalScores .score .accuracy {
+        color: #f99; }
+      .worldclass .scorekeeper .totalScores .score .presentation {
+        color: #99f; }
 .worldclass .leaderboard {
   font-family: Optima;
   color: white;
