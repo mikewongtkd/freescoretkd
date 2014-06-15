@@ -1,5 +1,5 @@
 $.widget( "freescore.ajaxbutton", {
-	options: { autoShow: true, num: 0 },
+	options: { autoShow: true },
 	_create: function() {
 		var o        = this.options;
 		var e        = this.options.elements = {};

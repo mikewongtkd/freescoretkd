@@ -8,20 +8,20 @@ body {
   .worldclass .scorekeeper .judgeScores {
     width: 1000px;
     height: 180px;
-    margin: 0 auto 20px auto; }
+    margin: 0 0 20px 0; }
   .worldclass .scorekeeper .judges5 {
     width: 176px; }
     .worldclass .scorekeeper .judges5 .judge {
       font-size: 24pt; }
     .worldclass .scorekeeper .judges5 .score {
-      font-size: 72pt;
+      font-size: 48pt;
       line-height: 108pt; }
   .worldclass .scorekeeper .judges3 {
     width: 312px; }
     .worldclass .scorekeeper .judges3 .judge {
       font-size: 24pt; }
     .worldclass .scorekeeper .judges3 .score {
-      font-size: 108pt;
+      font-size: 64pt;
       line-height: 108pt; }
   .worldclass .scorekeeper .left {
     margin: 0 10px 0 0; }
@@ -44,12 +44,16 @@ body {
       margin: 0 auto 0 auto;
       height: 40px; }
     .worldclass .scorekeeper .judgeScore .score {
-      color: white;
+      color: #666;
       font-weight: bold;
       border-radius: 24px 24px 0 0;
       background-color: black;
       margin: auto;
       height: 132px; }
+      .worldclass .scorekeeper .judgeScore .score .accuracy {
+        color: #f99; }
+      .worldclass .scorekeeper .judgeScore .score .presentation {
+        color: #99f; }
   .worldclass .scorekeeper .ignore .judge {
     color: #333; }
   .worldclass .scorekeeper .ignore .score {
@@ -62,9 +66,7 @@ body {
     color: white;
     border-radius: 24px;
     border: 4px solid white;
-    background: linear-gradient(to top, #45484d 0%, black 100%);
-    /* W3C */
-    margin: 0 auto 0 auto; }
+    background: linear-gradient(to top, #45484d 0%, black 100%); }
     .worldclass .scorekeeper .totalScores .red, .worldclass .scorekeeper .totalScores .hong {
       color: #f66; }
     .worldclass .scorekeeper .totalScores .blue, .worldclass .scorekeeper .totalScores .chung {

@@ -13,10 +13,22 @@ $.widget( "freescore.judgeScore", {
 		this.element .append( score, name );
 	},
 	_init: function( ) {
-		var e     = this.options.elements;
-		var o     = this.options;
-		var score = o.score;
-		if( score >= 0 ) { e.view.html( score ); e.view.fadeIn(); }
-		else             { e.view.fadeOut( 500, function() { e.view .empty(); }); }
+		var e        = this.options.elements;
+		var o        = this.options;
+		var score    = o.score;
+		if( typeof( score ) === 'undefined' ) {
+			score = {};
+			score.major  = '';
+			score.minor  = '';
+			score.rhythm = '';
+			score.power  = '';
+			score.ki     = '';
+		}
+		var accuracy = 4.0 - (parseFloat( score.major ) + parseFloat( score.minor ));
+		accuracy = accuracy <= 0 ? 0.0 : accuracy;
+
+		var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
+		if( ! isNaN( accuracy ) && ! isNaN( presentation )) { e.view.html( "<span class=\"accuracy\">" + accuracy.toFixed( 1 ) + "</span>&nbsp;<span class=\"presentation\">" + presentation.toFixed( 1 ) + "</span>" ); e.view.fadeIn(); }
+		else                                                { e.view.fadeOut( 500, function() { e.view .empty(); }); }
 	}
 });

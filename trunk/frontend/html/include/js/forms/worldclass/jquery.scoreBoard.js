@@ -47,38 +47,48 @@ $.widget( "freescore.scorekeeper", {
 		}
 
 		if( parseInt( current.athlete.index ) % 2 ) { 
-			e.athlete.removeClass( "chung" ); 
-			e.athlete.addClass( "hong" ); 
+			e.athlete .removeClass( "chung" ); 
+			e.athlete .addClass( "hong" ); 
 		} else { 
-			e.athlete.removeClass( "hong" ); 
-			e.athlete.addClass( "chung" ); 
+			e.athlete .removeClass( "hong" ); 
+			e.athlete .addClass( "chung" ); 
 		}
 
 		// ============================================================
 		// SUM SCORES
 		// ============================================================
 		var scores = new Array();
-		var min    = undefined;
-		var max    = undefined;
+		var min    = { accuracy : -1, presentation : -1 };
+		var max    = { accuracy : -1, presentation : -1 };
 		for( var i = 0; i < k; i++ ) {
 			var j = i + 1;
-			scores[ i ] = parseFloat( $( '#judgeScore' + j ).html() );
-			if( isNaN( scores[ i ] )) { scores[ i ] = -1; }
+			var accuracy     = parseFloat( $( '#judgeScore' + j + ' > .accuracy' ).html());
+			var presentation = parseFloat( $( '#judgeScore' + j + ' > .accuracy' ).html());
+			if( isNaN( accuracy     ) { accuracy     = -1.0; }
+			if( isNaN( presentation ) { presentation = -1.0; }
+			scores[ i ]      = { accuracy : accuracy, presentation : presentation };
 		}
 
-		// ===== SKIP MIN AND MAX FOR 5 JUDGES
-		if( k == 5 ) {
+		// ===== SKIP MIN AND MAX FOR 5 OR 7 JUDGES
+		if( k == 5 || k == 7 ) {
 			for( var i = 0; i < k; i++ ) {
-				if( min === undefined || scores[ min ] > scores[ i ] ) { min = i; }
-				if( max === undefined || scores[ max ] < scores[ i ] ) { max = i; }
+				if( min.accuracy < 0     || scores[ min.accuracy ].accuracy         > scores[ i ].accuracy )     { min.accuracy     = i; }
+				if( max.accuracy < 0     || scores[ max.accuracy ].accuracy         < scores[ i ].accuracy )     { max.accuracy     = i; }
+				if( min.presentation < 0 || scores[ min.presentation ].presentation > scores[ i ].presentation ) { min.presentation = i; }
+				if( max.presentation < 0 || scores[ max.presentation ].presentation < scores[ i ].presentation ) { max.presentation = i; }
 				e.judges.removeClass( "ignore" );
 			}
 		}
 
 		var sum = 0.0;
 		for( var i = 0; i < k; i++ ) {
-			if( i == min ) { e.judges.addClass( "ignore" ); continue; }
-			if( i == max ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == min.accuracy     ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == max.accuracy     ) { e.judges.addClass( "ignore" ); continue; }
+			if( scores[ i ] > 0 ) { sum += scores[ i ]; }
+		}
+		for( var i = 0; i < k; i++ ) {
+			if( i == min.presentation ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == max.presentation ) { e.judges.addClass( "ignore" ); continue; }
 			if( scores[ i ] > 0 ) { sum += scores[ i ]; }
 		}
 

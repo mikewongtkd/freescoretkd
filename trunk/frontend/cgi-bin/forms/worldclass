@@ -117,6 +117,8 @@ sub get_score {
 	my $ajax  = shift;
 	my $name  = shift;
 
-	my $score = $ajax->param( $name ) / 10 || -1.0;
+	my $score = $ajax->param( $name );
+	if( not defined $score || $score eq '' ) { $score = -1.0; }
+	else                                     { $score /= 10;  }
 	return sprintf( "%.1f", $score );
 }
