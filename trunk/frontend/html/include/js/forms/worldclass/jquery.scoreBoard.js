@@ -1,7 +1,7 @@
 // Depends on jquery.judgeScore.js
 
 $.widget( "freescore.scorekeeper", {
-	options: { autoShow: true, numJudges: 3 },
+	options: { autoShow: true, judges: 3 },
 	_create: function() {
 		var html = { div : $( "<div />" ) };
 		var e = this.options.elements = {};
@@ -14,12 +14,13 @@ $.widget( "freescore.scorekeeper", {
 		totalScore.append( score );
 		totalScore.append( athlete );
 
-		var k = this.options.numJudges;
+		var k = this.options.judges;
 		for( var i = 0; i < k; i++ ) {
 			var j = i + 1;
 			var judge = html.div.clone() .prop( "id", "judge" + j );
 			if(      k == 3   ) { judge.addClass( "judges3" ); }
 			else if( k == 5   ) { judge.addClass( "judges5" ); }
+			else if( k == 7   ) { judge.addClass( "judges7" ); }
 			if     ( i == 0   ) { judge.addClass( "left" ); }
 			else if( i == k-1 ) { judge.addClass( "right" ); }
 			else                { judge.addClass( "middle" ); }
@@ -36,7 +37,7 @@ $.widget( "freescore.scorekeeper", {
 	_init: function() {
 		var e       = this.options.elements;
 		var options = this.options
-		var k       = this.options.numJudges;
+		var k       = this.options.judges;
 		var widget  = this.element;
 		var current = this.options.current;
 
@@ -76,7 +77,7 @@ $.widget( "freescore.scorekeeper", {
 				if( max.accuracy < 0     || scores[ max.accuracy ].accuracy         < scores[ i ].accuracy )     { max.accuracy     = i; }
 				if( min.presentation < 0 || scores[ min.presentation ].presentation > scores[ i ].presentation ) { min.presentation = i; }
 				if( max.presentation < 0 || scores[ max.presentation ].presentation < scores[ i ].presentation ) { max.presentation = i; }
-				e.judges.removeClass( "ignore" );
+				e.judges[ i ].removeClass( "ignore" );
 			}
 		}
 
@@ -85,15 +86,15 @@ $.widget( "freescore.scorekeeper", {
 		var mean  = { accuracy : 0.0, presentation : 0.0 };
 
 		for( var i = 0; i < k; i++ ) {
-			if( i == min.accuracy         ) { e.judges.addClass( "ignore" ); continue; }
-			if( i == max.accuracy         ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == min.accuracy         ) { e.judges[ i ].addClass( "ignore" ); continue; }
+			if( i == max.accuracy         ) { e.judges[ i ].addClass( "ignore" ); continue; }
 			if( scores[ i ].accuracy <= 0 ) { continue; }
 			sum.accuracy += scores[ i ].accuracy;
 			count.accuracy++;
 		}
 		for( var i = 0; i < k; i++ ) {
-			if( i == min.presentation         ) { e.judges.addClass( "ignore" ); continue; }
-			if( i == max.presentation         ) { e.judges.addClass( "ignore" ); continue; }
+			if( i == min.presentation         ) { e.judges[ i ].addClass( "ignore" ); continue; }
+			if( i == max.presentation         ) { e.judges[ i ].addClass( "ignore" ); continue; }
 			if( scores[ i ].presentation <= 0 ) { continue; }
 			sum.presentation += scores[ i ].presentation;
 			count.presentation++;

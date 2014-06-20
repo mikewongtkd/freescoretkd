@@ -9,10 +9,16 @@
 		margin: 0 0 20px 0;
 	}
 
+	.judges7 { 
+		width: 117px; 
+		.judge { font-size: 18pt; }
+		.score { font-size: 48pt; line-height: 48pt; }
+	}
+
 	.judges5 { 
 		width: 176px; 
 		.judge { font-size: 24pt; }
-		.score { font-size: 48pt; line-height: 108pt; }
+		.score { font-size: 48pt; line-height: 48pt; }
 	}
 
 	.judges3 { 

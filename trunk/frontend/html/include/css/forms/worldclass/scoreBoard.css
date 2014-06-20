@@ -5,13 +5,20 @@
     width: 1000px;
     height: 180px;
     margin: 0 0 20px 0; }
+  .scorekeeper .judges7 {
+    width: 117px; }
+    .scorekeeper .judges7 .judge {
+      font-size: 18pt; }
+    .scorekeeper .judges7 .score {
+      font-size: 48pt;
+      line-height: 48pt; }
   .scorekeeper .judges5 {
     width: 176px; }
     .scorekeeper .judges5 .judge {
       font-size: 24pt; }
     .scorekeeper .judges5 .score {
       font-size: 48pt;
-      line-height: 108pt; }
+      line-height: 48pt; }
   .scorekeeper .judges3 {
     width: 312px; }
     .scorekeeper .judges3 .judge {

@@ -13,7 +13,7 @@
 	<body>
 		<div id="worldclass"></div>
 		<script type="text/javascript">
-			$( '#worldclass' ).worldclass( { tournament : '<?php echo $tournament ?>' });
+			$( '#worldclass' ).worldclass({ tournament : '<?= $tournament ?>', judges : 5});
 		</script>
 	</body>
 </html>

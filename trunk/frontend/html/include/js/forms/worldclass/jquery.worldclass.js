@@ -1,5 +1,5 @@
 $.widget( "freescore.worldclass", {
-	options: { autoShow: true, server: 'localhost' },
+	options: { autoShow: true, server: 'localhost', judges: 3 },
 	_create: function() {
 		var options     = this.options;
 		var e           = this.options.elements = {};
@@ -15,7 +15,7 @@ $.widget( "freescore.worldclass", {
 		var e = this.options.elements;
 		var o = this.options;
 		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
-		e.scorekeeper.scorekeeper( { current : { athlete : { name : '', scores : new Array() }}} );
+		e.scorekeeper.scorekeeper( { judges: o.judges, current : { athlete : { name : '', scores : new Array() }}} );
 
 		function refresh( update ) {
 			var division = JSON.parse( update.data );

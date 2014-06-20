@@ -28,7 +28,7 @@ $.widget( "freescore.judgeScore", {
 		accuracy = accuracy <= 0 ? 0.0 : accuracy;
 
 		var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
-		if( ! isNaN( accuracy ) && ! isNaN( presentation )) { e.view.html( "<span class=\"accuracy\">" + accuracy.toFixed( 1 ) + "</span>&nbsp;<span class=\"presentation\">" + presentation.toFixed( 1 ) + "</span>" ); e.view.fadeIn(); }
+		if( ! isNaN( accuracy ) && ! isNaN( presentation )) { e.view.html( "<span class=\"accuracy\">" + accuracy.toFixed( 1 ) + "</span> <span class=\"presentation\">" + presentation.toFixed( 1 ) + "</span>" ); e.view.fadeIn(); }
 		else                                                { e.view.fadeOut( 500, function() { e.view .empty(); }); }
 	}
 });
