@@ -4,15 +4,15 @@
 <dict>
 	<key>ApplicationVersion</key>
 	<array>
-		<string>com.omnigroup.OmniGrafflePro</string>
-		<string>138.33.0.157554</string>
+		<string>com.omnigroup.OmniGraffle6</string>
+		<string>156.6.0.202882</string>
 	</array>
 	<key>CreationDate</key>
-	<string>2012-04-16 18:37:02 -0700</string>
+	<string>2012-04-17 01:37:02 +0000</string>
 	<key>Creator</key>
 	<string>Mike Wong</string>
 	<key>GraphDocumentVersion</key>
-	<integer>8</integer>
+	<integer>11</integer>
 	<key>GuidesLocked</key>
 	<string>NO</string>
 	<key>GuidesVisible</key>
@@ -36,7 +36,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2012-04-17 00:52:04 -0700</string>
+	<string>2014-06-20 08:00:48 +0000</string>
 	<key>Modifier</key>
 	<string>Mike Wong</string>
 	<key>NotesVisible</key>
@@ -52,6 +52,11 @@
 			<string>float</string>
 			<string>41</string>
 		</array>
+		<key>NSHorizonalPagination</key>
+		<array>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFxlwCG</string>
+		</array>
 		<key>NSLeftMargin</key>
 		<array>
 			<string>float</string>
@@ -59,8 +64,13 @@
 		</array>
 		<key>NSPaperSize</key>
 		<array>
+			<string>size</string>
+			<string>{612, 792}</string>
+		</array>
+		<key>NSPrintReverseOrientation</key>
+		<array>
 			<string>coded</string>
-			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAx7X05TU2l6ZT1mZn2WgRgDgWQChg==</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFxlwCG</string>
 		</array>
 		<key>NSRightMargin</key>
 		<array>
@@ -85,18 +95,13 @@
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {576, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
 				<integer>2</integer>
 				<key>Style</key>
 				<dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -104,6 +109,8 @@
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -111,12 +118,24 @@
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1 0/72 in</string>
+			<string>1 in = 1 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -132,8 +151,8 @@
 					<real>-1</real>
 					<key>Points</key>
 					<array>
-						<string>{148, 351.5}</string>
-						<string>{148, 393.5}</string>
+						<string>{58, 351.75}</string>
+						<string>{58, 393.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -141,6 +160,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -158,6 +179,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -173,8 +206,8 @@
 					<real>-1</real>
 					<key>Points</key>
 					<array>
-						<string>{457, 228.5}</string>
-						<string>{396, 228.5}</string>
+						<string>{367, 228.75}</string>
+						<string>{306, 228.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -182,6 +215,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -197,6 +232,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -211,11 +258,11 @@
 					<key>OrthogonalBarPoint</key>
 					<string>{0, 0}</string>
 					<key>OrthogonalBarPosition</key>
-					<real>13.600006103515625</real>
+					<real>13.600000000000023</real>
 					<key>Points</key>
 					<array>
-						<string>{378, 246.5}</string>
-						<string>{608, 297.5}</string>
+						<string>{288, 246.75}</string>
+						<string>{518, 297.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -223,6 +270,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -240,6 +289,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -254,11 +315,11 @@
 					<key>OrthogonalBarPoint</key>
 					<string>{0, 0}</string>
 					<key>OrthogonalBarPosition</key>
-					<real>13.600006103515625</real>
+					<real>13.600000000000023</real>
 					<key>Points</key>
 					<array>
-						<string>{378, 246.5}</string>
-						<string>{493, 297.5}</string>
+						<string>{288, 246.75}</string>
+						<string>{403, 297.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -266,6 +327,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -283,6 +346,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -297,11 +372,11 @@
 					<key>OrthogonalBarPoint</key>
 					<string>{0, 0}</string>
 					<key>OrthogonalBarPosition</key>
-					<real>13.600006103515625</real>
+					<real>13.600000000000023</real>
 					<key>Points</key>
 					<array>
-						<string>{378, 246.5}</string>
-						<string>{378, 297.5}</string>
+						<string>{288, 246.75}</string>
+						<string>{288, 297.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -309,6 +384,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -326,6 +403,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -340,11 +429,11 @@
 					<key>OrthogonalBarPoint</key>
 					<string>{0, 0}</string>
 					<key>OrthogonalBarPosition</key>
-					<real>13.600006103515625</real>
+					<real>13.600000000000023</real>
 					<key>Points</key>
 					<array>
-						<string>{378, 246.5}</string>
-						<string>{263, 297.5}</string>
+						<string>{288, 246.75}</string>
+						<string>{173, 297.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -352,6 +441,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -369,6 +460,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -383,11 +486,11 @@
 					<key>OrthogonalBarPoint</key>
 					<string>{0, 0}</string>
 					<key>OrthogonalBarPosition</key>
-					<real>13.600006103515625</real>
+					<real>13.600000000000023</real>
 					<key>Points</key>
 					<array>
-						<string>{378, 246.5}</string>
-						<string>{148, 297.5}</string>
+						<string>{288, 246.75}</string>
+						<string>{58, 297.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -395,6 +498,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -412,6 +517,18 @@
 				<dict>
 					<key>Class</key>
 					<string>LineGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
@@ -427,8 +544,8 @@
 					<real>-1</real>
 					<key>Points</key>
 					<array>
-						<string>{378, 159.5}</string>
-						<string>{378, 210.5}</string>
+						<string>{288, 159.75}</string>
+						<string>{288, 210.75}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -436,6 +553,8 @@
 						<dict>
 							<key>HeadArrow</key>
 							<string>FilledArrow</string>
+							<key>Legacy</key>
+							<true/>
 							<key>LineType</key>
 							<integer>2</integer>
 							<key>TailArrow</key>
@@ -452,9 +571,21 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{360, 210.5}, {36, 36}}</string>
+					<string>{{270, 210.75}, {36, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Color</key>
+						<dict>
+							<key>w</key>
+							<string>0</string>
+						</dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
 					<key>ID</key>
 					<integer>5</integer>
 					<key>Magnets</key>
@@ -477,7 +608,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{342, 105.5}, {72, 54}}</string>
+					<string>{{252, 105.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -502,7 +633,7 @@
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -515,7 +646,7 @@ Command Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{572, 297.5}, {72, 54}}</string>
+					<string>{{482, 297.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -540,7 +671,7 @@ Command Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -554,7 +685,7 @@ Command Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{457, 297.5}, {72, 54}}</string>
+					<string>{{367, 297.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -579,7 +710,7 @@ Command Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -592,7 +723,7 @@ Command Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{342, 297.5}, {72, 54}}</string>
+					<string>{{252, 297.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -617,7 +748,7 @@ Command Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -629,7 +760,7 @@ Command Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{227, 297.5}, {72, 54}}</string>
+					<string>{{137, 297.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -654,7 +785,7 @@ Command Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -666,7 +797,7 @@ Command Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{112, 393.5}, {72, 54}}</string>
+					<string>{{22, 393.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -691,7 +822,7 @@ Command Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -703,7 +834,7 @@ Command Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{112, 297.5}, {72, 54}}</string>
+					<string>{{22, 297.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -728,7 +859,7 @@ Command Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -742,7 +873,7 @@ Center}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{457, 201.5}, {72, 54}}</string>
+					<string>{{367, 201.75}, {72, 54}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -767,7 +898,7 @@ Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -807,6 +938,8 @@ Center}</string>
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -835,18 +968,13 @@ Center}</string>
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {1152, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
 				<integer>2</integer>
 				<key>Style</key>
 				<dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -854,6 +982,8 @@ Center}</string>
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -861,7 +991,7 @@ Center}</string>
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1.0000 in</string>
+			<string>1 in = 1.00000 in</string>
 			<key>ExportShapes</key>
 			<array>
 				<dict>
@@ -881,7 +1011,7 @@ Center}</string>
 								<key>element</key>
 								<string>MOVETO</string>
 								<key>point</key>
-								<string>{0.164534, -0.5}</string>
+								<string>{0.16453400000000001, -0.5}</string>
 							</dict>
 							<dict>
 								<key>element</key>
@@ -911,13 +1041,13 @@ Center}</string>
 								<key>element</key>
 								<string>LINETO</string>
 								<key>point</key>
-								<string>{0.164534, 0.5}</string>
+								<string>{0.16453400000000001, 0.5}</string>
 							</dict>
 							<dict>
 								<key>element</key>
 								<string>LINETO</string>
 								<key>point</key>
-								<string>{0.407291, 0.5}</string>
+								<string>{0.40729100000000001, 0.5}</string>
 							</dict>
 							<dict>
 								<key>element</key>
@@ -929,13 +1059,13 @@ Center}</string>
 								<key>element</key>
 								<string>LINETO</string>
 								<key>point</key>
-								<string>{0.407291, -0.5}</string>
+								<string>{0.40729100000000001, -0.5}</string>
 							</dict>
 							<dict>
 								<key>element</key>
 								<string>LINETO</string>
 								<key>point</key>
-								<string>{0.164534, -0.5}</string>
+								<string>{0.16453400000000001, -0.5}</string>
 							</dict>
 							<dict>
 								<key>element</key>
@@ -945,7 +1075,7 @@ Center}</string>
 								<key>element</key>
 								<string>MOVETO</string>
 								<key>point</key>
-								<string>{0.164534, -0.5}</string>
+								<string>{0.16453400000000001, -0.5}</string>
 							</dict>
 						</array>
 					</dict>
@@ -957,7 +1087,7 @@ Center}</string>
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{379.903, 383.135}, {100, 25}}</string>
+					<string>{{379.90300000000002, 383.13499999999999}, {100, 25}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1021,7 +1151,7 @@ Center}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -1032,7 +1162,7 @@ Edit Divisions}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{373.403, 377.472}, {113, 36.3267}}</string>
+					<string>{{373.40300000000002, 377.47199999999998}, {113, 36.326700000000002}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1096,7 +1226,7 @@ Edit Divisions}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{503.403, 383.135}, {100, 25}}</string>
+					<string>{{503.40300000000002, 383.13499999999999}, {100, 25}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1167,7 +1297,7 @@ Edit Divisions}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -1178,7 +1308,7 @@ Start a Match}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{497.403, 377.488}, {113, 36.3267}}</string>
+					<string>{{497.40300000000002, 377.488}, {113, 36.326700000000002}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1242,7 +1372,7 @@ Start a Match}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{138.097, 201.244}, {129.6, 43.2}}</string>
+					<string>{{138.09700000000001, 201.244}, {129.59999999999999, 43.200000000000003}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1315,17 +1445,17 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>10</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\fs26 \cf0 Edit Tournament Events}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{138.097, 244.444}, {143.519, 43.2}}</string>
+					<string>{{138.09700000000001, 244.44399999999999}, {143.51900000000001, 43.200000000000003}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1411,17 +1541,17 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>10</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\fs26 \cf1 Olympic Sparring}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{138.097, 158.044}, {129.6, 43.2}}</string>
+					<string>{{138.09700000000001, 158.04400000000001}, {129.59999999999999, 43.200000000000003}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1494,17 +1624,17 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>10</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\fs26 \cf0 Edit Tournament Rules}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{138.097, 287.644}, {129.6, 43.2}}</string>
+					<string>{{138.09700000000001, 287.64400000000001}, {129.59999999999999, 43.200000000000003}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1577,17 +1707,17 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>10</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\fs26 \cf0 Point Sparring}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{138.097, 374.044}, {129.6, 43.2}}</string>
+					<string>{{138.09700000000001, 374.04399999999998}, {129.59999999999999, 43.200000000000003}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1660,17 +1790,17 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>10</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\fs26 \cf0 Sport Poomsae}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{138.097, 330.844}, {129.6, 43.2}}</string>
+					<string>{{138.09700000000001, 330.84399999999999}, {129.59999999999999, 43.200000000000003}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1743,10 +1873,10 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>10</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 ArialMT;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\fs26 \cf0 Poomsae}</string>
 					</dict>
@@ -1768,8 +1898,8 @@ Start a Match}</string>
 									<integer>21682</integer>
 									<key>Points</key>
 									<array>
-										<string>{596.333, 142.959}</string>
-										<string>{591.293, 147.662}</string>
+										<string>{596.33299999999997, 142.959}</string>
+										<string>{591.29300000000001, 147.66200000000001}</string>
 									</array>
 									<key>Style</key>
 									<dict>
@@ -1788,6 +1918,8 @@ Start a Match}</string>
 											</dict>
 											<key>HeadArrow</key>
 											<string>0</string>
+											<key>Legacy</key>
+											<true/>
 											<key>TailArrow</key>
 											<string>0</string>
 											<key>Width</key>
@@ -1802,8 +1934,8 @@ Start a Match}</string>
 									<integer>21683</integer>
 									<key>Points</key>
 									<array>
-										<string>{591.293, 142.959}</string>
-										<string>{596.333, 147.662}</string>
+										<string>{591.29300000000001, 142.959}</string>
+										<string>{596.33299999999997, 147.66200000000001}</string>
 									</array>
 									<key>Style</key>
 									<dict>
@@ -1822,6 +1954,8 @@ Start a Match}</string>
 											</dict>
 											<key>HeadArrow</key>
 											<string>0</string>
+											<key>Legacy</key>
+											<true/>
 											<key>TailArrow</key>
 											<string>0</string>
 											<key>Width</key>
@@ -1835,7 +1969,7 @@ Start a Match}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{583.903, 139.246}, {19.8139, 12.1301}}</string>
+							<string>{{583.90300000000002, 139.24600000000001}, {19.8139, 12.130100000000001}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -1892,7 +2026,7 @@ Start a Match}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{152.615, 140.179}, {129, 10.2637}}</string>
+					<string>{{152.61500000000001, 140.179}, {129, 10.2637}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1931,7 +2065,7 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
@@ -1945,7 +2079,7 @@ Start a Match}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{139.588, 135.756}, {478.315, 19.2651}}</string>
+					<string>{{139.58799999999999, 135.756}, {478.315, 19.2651}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -1963,10 +2097,10 @@ Start a Match}</string>
 							<string>{0.5, -0.5}</string>
 							<string>{0.5, 0.5}</string>
 							<string>{0.5, 0.5}</string>
-							<string>{0.500001, 0.5}</string>
-							<string>{-0.5, 0.499981}</string>
-							<string>{-0.5, 0.499981}</string>
-							<string>{-0.5, 0.499981}</string>
+							<string>{0.50000100000000003, 0.5}</string>
+							<string>{-0.5, 0.49998100000000001}</string>
+							<string>{-0.5, 0.49998100000000001}</string>
+							<string>{-0.5, 0.49998100000000001}</string>
 							<string>{-0.5, -0.5}</string>
 						</array>
 					</dict>
@@ -2080,7 +2214,7 @@ Start a Match}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{268.403, 157.021}, {349.5, 260.222}}</string>
+					<string>{{268.40300000000002, 157.02099999999999}, {349.5, 260.22199999999998}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -2100,13 +2234,6 @@ Start a Match}</string>
 							<key>Draws</key>
 							<string>NO</string>
 						</dict>
-						<key>image fill</key>
-						<dict>
-							<key>ImageSizing</key>
-							<integer>0</integer>
-							<key>Scale</key>
-							<real>0.4896073043346405</real>
-						</dict>
 						<key>shadow</key>
 						<dict>
 							<key>Draws</key>
@@ -2123,7 +2250,7 @@ Start a Match}</string>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>KeepToScale</key>
 			<false/>
 			<key>Layers</key>
@@ -2149,6 +2276,8 @@ Start a Match}</string>
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -2177,18 +2306,13 @@ Start a Match}</string>
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {1152, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
 				<integer>2</integer>
 				<key>Style</key>
 				<dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -2196,6 +2320,8 @@ Start a Match}</string>
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -2203,7 +2329,7 @@ Start a Match}</string>
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1.0000 in</string>
+			<string>1 in = 1.00000 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
@@ -2244,12 +2370,12 @@ Start a Match}</string>
 						<key>Pad</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
-\f0\fs288 \cf1 6}</string>
+\f0\b\fs288 \cf1 6}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
@@ -2258,7 +2384,7 @@ Start a Match}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399.5, 195.5}, {32.9999, 20.0001}}</string>
+					<string>{{399.5, 195.5}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -2310,7 +2436,7 @@ Start a Match}</string>
 							<array>
 								<dict>
 									<key>Bounds</key>
-									<string>{{489.974, 187.338}, {6.37521, 15.9379}}</string>
+									<string>{{489.97399999999999, 187.33799999999999}, {6.37521, 15.937900000000001}}</string>
 									<key>Class</key>
 									<string>ShapedGraphic</string>
 									<key>ID</key>
@@ -2340,7 +2466,7 @@ Start a Match}</string>
 								</dict>
 								<dict>
 									<key>Bounds</key>
-									<string>{{481.299, 183.768}, {23.7264, 23.7264}}</string>
+									<string>{{481.29899999999998, 183.768}, {23.726400000000002, 23.726400000000002}}</string>
 									<key>Class</key>
 									<string>ShapedGraphic</string>
 									<key>ID</key>
@@ -2403,7 +2529,7 @@ Start a Match}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{467, 171.128}, {243.715, 48.9941}}</string>
+							<string>{{467, 171.12799999999999}, {243.715, 48.994100000000003}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -2414,27 +2540,27 @@ Start a Match}</string>
 							<dict>
 								<key>UnitPoints</key>
 								<array>
-									<string>{-0.455565, -0.500277}</string>
-									<string>{-0.455565, -0.500277}</string>
-									<string>{-0.455564, -0.187714}</string>
-									<string>{-0.455564, -0.187714}</string>
-									<string>{-0.455564, -0.187714}</string>
-									<string>{-0.521674, -0.0111046}</string>
-									<string>{-0.521674, -0.0111046}</string>
-									<string>{-0.521674, -0.0111046}</string>
-									<string>{-0.455922, 0.175142}</string>
-									<string>{-0.455922, 0.175142}</string>
-									<string>{-0.455922, 0.17514}</string>
-									<string>{-0.455559, 0.499998}</string>
-									<string>{-0.455559, 0.499998}</string>
-									<string>{-0.455559, 0.499998}</string>
+									<string>{-0.455565, -0.50027699999999997}</string>
+									<string>{-0.455565, -0.50027699999999997}</string>
+									<string>{-0.45556400000000002, -0.18771399999999999}</string>
+									<string>{-0.45556400000000002, -0.18771399999999999}</string>
+									<string>{-0.45556400000000002, -0.18771399999999999}</string>
+									<string>{-0.52167399999999997, -0.011104599999999999}</string>
+									<string>{-0.52167399999999997, -0.011104599999999999}</string>
+									<string>{-0.52167399999999997, -0.011104599999999999}</string>
+									<string>{-0.45592199999999999, 0.17514199999999999}</string>
+									<string>{-0.45592199999999999, 0.17514199999999999}</string>
+									<string>{-0.45592199999999999, 0.17513999999999999}</string>
+									<string>{-0.45555899999999999, 0.499998}</string>
+									<string>{-0.45555899999999999, 0.499998}</string>
+									<string>{-0.45555899999999999, 0.499998}</string>
 									<string>{0.499998, 0.499998}</string>
 									<string>{0.499998, 0.499998}</string>
-									<string>{0.499999, 0.499998}</string>
-									<string>{0.500001, -0.489874}</string>
-									<string>{0.5, -0.489874}</string>
-									<string>{0.500003, -0.489874}</string>
-									<string>{-0.455565, -0.500277}</string>
+									<string>{0.49999900000000003, 0.499998}</string>
+									<string>{0.50000100000000003, -0.48987399999999998}</string>
+									<string>{0.5, -0.48987399999999998}</string>
+									<string>{0.50000299999999998, -0.48987399999999998}</string>
+									<string>{-0.455565, -0.50027699999999997}</string>
 								</array>
 							</dict>
 							<key>Style</key>
@@ -2476,10 +2602,10 @@ Start a Match}</string>
 								<key>Align</key>
 								<integer>0</integer>
 								<key>Text</key>
-								<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+								<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red51\green51\blue51;}
-\pard\tx820\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li820\ql\qnatural\pardirnatural
+\pard\tx820\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li820\pardirnatural
 
 \f0\b\fs24 \cf2 Delete Penalty
 \b0 \
@@ -2535,19 +2661,19 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 \'bd}</string>
+\f0\b\fs36 \cf0 \'bd}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>AbsoluteRotation</key>
 					<string>YES</string>
 					<key>Bounds</key>
-					<string>{{430.125, 177.625}, {39.7501, 36}}</string>
+					<string>{{430.125, 177.625}, {39.750100000000003, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -2576,13 +2702,13 @@ Removes the last given penalty.}</string>
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499975, -0.131948}</string>
-							<string>{0.500022, 0.499996}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.499975, -0.13194800000000001}</string>
+							<string>{0.50002199999999997, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166668, 0.499996}</string>
-							<string>{-0.333351, 0.500013}</string>
+							<string>{0.16666800000000001, 0.499996}</string>
+							<string>{-0.33335100000000001, 0.50001300000000004}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -2611,19 +2737,19 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fnil\fcharset0 LucidaGrande;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 \uc0\u9003 }</string>
+\f0\fs36 \cf0 \uc0\u9003 }</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>AbsoluteRotation</key>
 					<string>YES</string>
 					<key>Bounds</key>
-					<string>{{430.062, 58.4377}, {39.8747, 36}}</string>
+					<string>{{430.06200000000001, 58.4377}, {39.874699999999997, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -2650,13 +2776,13 @@ Removes the last given penalty.}</string>
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -2685,12 +2811,12 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 1}</string>
+\f0\b\fs36 \cf0 1}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -2711,12 +2837,12 @@ Removes the last given penalty.}</string>
 							<string>{0.5, -0.5}</string>
 							<string>{0.5, -0.5}</string>
 							<string>{0.5, -0.5}</string>
-							<string>{0.5, 0.499995}</string>
-							<string>{0.5, 0.499995}</string>
-							<string>{0.166667, 0.499995}</string>
-							<string>{-0.333334, 0.500006}</string>
-							<string>{-0.5, 0.499995}</string>
-							<string>{-0.499999, 0.499995}</string>
+							<string>{0.5, 0.49999500000000002}</string>
+							<string>{0.5, 0.49999500000000002}</string>
+							<string>{0.16666700000000001, 0.49999500000000002}</string>
+							<string>{-0.33333400000000002, 0.50000599999999995}</string>
+							<string>{-0.5, 0.49999500000000002}</string>
+							<string>{-0.49999900000000003, 0.49999500000000002}</string>
 							<string>{-0.5, -0.5}</string>
 						</array>
 					</dict>
@@ -2743,10 +2869,10 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
 \f0\fs36 \cf1 \uc0\u9003 }</string>
 					</dict>
@@ -2755,7 +2881,7 @@ Removes the last given penalty.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{240, 56.4999}, {159, 159}}</string>
+					<string>{{240, 56.499899999999997}, {159, 159}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>HFlip</key>
@@ -2770,15 +2896,15 @@ Removes the last given penalty.}</string>
 						<array>
 							<string>{-0.5, 0.5}</string>
 							<string>{-0.5, 0.5}</string>
-							<string>{0.229561, 0.5}</string>
-							<string>{0.229561, 0.499999}</string>
-							<string>{0.479563, 0.499999}</string>
+							<string>{0.22956099999999999, 0.5}</string>
+							<string>{0.22956099999999999, 0.49999900000000003}</string>
+							<string>{0.47956300000000002, 0.49999900000000003}</string>
 							<string>{0.5, 0.375}</string>
 							<string>{0.5, -4.76837e-07}</string>
-							<string>{0.5, -0.374999}</string>
-							<string>{0.479561, -0.5}</string>
-							<string>{0.22956, -0.5}</string>
-							<string>{0.229563, -0.5}</string>
+							<string>{0.5, -0.37499900000000003}</string>
+							<string>{0.47956100000000002, -0.5}</string>
+							<string>{0.22955999999999999, -0.5}</string>
+							<string>{0.22956299999999999, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
@@ -2803,21 +2929,21 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red255\green102\blue102;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 6}</string>
+\f0\b\fs288 \cf2 6}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
 					<key>TextRelativeArea</key>
-					<string>{{0, 0.1}, {1, 0.8}}</string>
+					<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{333.5, 20.4997}, {32.4998, 36}}</string>
+					<string>{{333.5, 20.499700000000001}, {32.4998, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -2854,17 +2980,17 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf1 +3}</string>
+\f0\b\fs36 \cf1 +3}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{301, 20.4997}, {32.4998, 36}}</string>
+					<string>{{301, 20.499700000000001}, {32.4998, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -2901,17 +3027,17 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf1 +2}</string>
+\f0\b\fs36 \cf1 +2}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{366, 20.4999}, {32.9999, 36}}</string>
+					<string>{{366, 20.4999}, {32.999899999999997, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>HFlip</key>
@@ -2926,13 +3052,13 @@ Removes the last given penalty.}</string>
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -2961,17 +3087,17 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf1 +4}</string>
+\f0\b\fs36 \cf1 +4}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{269.5, 20.4997}, {32.9999, 36}}</string>
+					<string>{{269.5, 20.499700000000001}, {32.999899999999997, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -2984,13 +3110,13 @@ Removes the last given penalty.}</string>
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -3019,17 +3145,17 @@ Removes the last given penalty.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 +1}</string>
+\f0\b\fs36 \cf1 +1}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 422}, {32.9999, 20.0001}}</string>
+					<string>{{399, 422}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3071,7 +3197,7 @@ Removes the last given penalty.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 402.25}, {32.9999, 39.75}}</string>
+					<string>{{399, 402.25}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3108,7 +3234,7 @@ Removes the last given penalty.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 362.5}, {32.9999, 39.75}}</string>
+					<string>{{399, 362.5}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3145,7 +3271,7 @@ Removes the last given penalty.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 322.75}, {32.9999, 39.75}}</string>
+					<string>{{399, 322.75}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3182,7 +3308,7 @@ Removes the last given penalty.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 283}, {32.9999, 39.7499}}</string>
+					<string>{{399, 283}, {32.999899999999997, 39.749899999999997}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3255,10 +3381,10 @@ Removes the last given penalty.}</string>
 						<key>Pad</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\b\fs24 \cf0 Display Mode
 \b0 \
@@ -3285,15 +3411,15 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 						<array>
 							<string>{-0.5, 0.5}</string>
 							<string>{-0.5, 0.5}</string>
-							<string>{0.229561, 0.5}</string>
-							<string>{0.229561, 0.499999}</string>
-							<string>{0.479563, 0.499999}</string>
+							<string>{0.22956099999999999, 0.5}</string>
+							<string>{0.22956099999999999, 0.49999900000000003}</string>
+							<string>{0.47956300000000002, 0.49999900000000003}</string>
 							<string>{0.5, 0.375}</string>
 							<string>{0.5, -4.76837e-07}</string>
-							<string>{0.5, -0.374999}</string>
-							<string>{0.479561, -0.5}</string>
-							<string>{0.22956, -0.5}</string>
-							<string>{0.229563, -0.5}</string>
+							<string>{0.5, -0.37499900000000003}</string>
+							<string>{0.47956100000000002, -0.5}</string>
+							<string>{0.22955999999999999, -0.5}</string>
+							<string>{0.22956299999999999, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
@@ -3318,21 +3444,21 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf1 6}</string>
+\f0\b\fs288 \cf1 6}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
 					<key>TextRelativeArea</key>
-					<string>{{0, 0.1}, {1, 0.8}}</string>
+					<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 175.75}, {32.9999, 39.7498}}</string>
+					<string>{{399, 175.75}, {32.999899999999997, 39.7498}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3369,7 +3495,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 136}, {32.9999, 39.7498}}</string>
+					<string>{{399, 136}, {32.999899999999997, 39.7498}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3406,7 +3532,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 96.2503}, {32.9999, 39.75}}</string>
+					<string>{{399, 96.250299999999996}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3443,7 +3569,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{399, 56.5004}, {32.9999, 39.7499}}</string>
+					<string>{{399, 56.500399999999999}, {32.999899999999997, 39.749899999999997}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3480,7 +3606,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 402.25}, {32.9999, 39.75}}</string>
+					<string>{{181, 402.25}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3517,7 +3643,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 362.5}, {32.9999, 39.75}}</string>
+					<string>{{181, 362.5}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3554,7 +3680,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 322.75}, {32.9999, 39.75}}</string>
+					<string>{{181, 322.75}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3591,7 +3717,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 283}, {32.9999, 39.7499}}</string>
+					<string>{{181, 283}, {32.999899999999997, 39.749899999999997}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3628,7 +3754,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 134.25}, {32.9999, 39.75}}</string>
+					<string>{{181, 134.25}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3665,7 +3791,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 94.5001}, {32.9999, 39.75}}</string>
+					<string>{{181, 94.500100000000003}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3702,7 +3828,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 54.7501}, {32.9999, 39.75}}</string>
+					<string>{{181, 54.750100000000003}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3739,7 +3865,7 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{181, 15.0001}, {32.9999, 39.7499}}</string>
+					<string>{{181, 15.0001}, {32.999899999999997, 39.749899999999997}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -3812,10 +3938,10 @@ Clock is running with a penalty event. Penalty marker fades in once.}</string>
 						<key>Pad</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\b\fs24 \cf0 Display Mode
 \b0 \
@@ -3842,15 +3968,15 @@ Clock is running with a score event. Text jumps up and down for 5 seconds.}</str
 						<array>
 							<string>{-0.5, 0.5}</string>
 							<string>{-0.5, 0.5}</string>
-							<string>{0.229561, 0.5}</string>
-							<string>{0.229561, 0.499999}</string>
-							<string>{0.479563, 0.499999}</string>
+							<string>{0.22956099999999999, 0.5}</string>
+							<string>{0.22956099999999999, 0.49999900000000003}</string>
+							<string>{0.47956300000000002, 0.49999900000000003}</string>
 							<string>{0.5, 0.375}</string>
 							<string>{0.5, -4.76837e-07}</string>
-							<string>{0.5, -0.374999}</string>
-							<string>{0.479561, -0.5}</string>
-							<string>{0.22956, -0.5}</string>
-							<string>{0.229563, -0.5}</string>
+							<string>{0.5, -0.37499900000000003}</string>
+							<string>{0.47956100000000002, -0.5}</string>
+							<string>{0.22955999999999999, -0.5}</string>
+							<string>{0.22956299999999999, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
@@ -3875,17 +4001,17 @@ Clock is running with a score event. Text jumps up and down for 5 seconds.}</str
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red255\green102\blue102;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 6}</string>
+\f0\b\fs288 \cf2 6}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
 					<key>TextRelativeArea</key>
-					<string>{{0, 0.1}, {1, 0.8}}</string>
+					<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
@@ -3925,10 +4051,10 @@ Clock is running with a score event. Text jumps up and down for 5 seconds.}</str
 						<key>Pad</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\b\fs24 \cf0 Display Mode
 \b0 \
@@ -3940,7 +4066,7 @@ Clock is running.}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{487, 66.0003}, {223.715, 98}}</string>
+					<string>{{487, 66.000299999999996}, {223.715, 98}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FitText</key>
@@ -3976,7 +4102,7 @@ Clock is running.}</string>
 						<key>Pad</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
@@ -4008,15 +4134,15 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, 0.5}</string>
 							<string>{-0.5, 0.5}</string>
-							<string>{0.229561, 0.5}</string>
-							<string>{0.229561, 0.499999}</string>
-							<string>{0.479563, 0.499999}</string>
+							<string>{0.22956099999999999, 0.5}</string>
+							<string>{0.22956099999999999, 0.49999900000000003}</string>
+							<string>{0.47956300000000002, 0.49999900000000003}</string>
 							<string>{0.5, 0.375}</string>
 							<string>{0.5, -4.76837e-07}</string>
-							<string>{0.5, -0.374999}</string>
-							<string>{0.479561, -0.5}</string>
-							<string>{0.22956, -0.5}</string>
-							<string>{0.229563, -0.5}</string>
+							<string>{0.5, -0.37499900000000003}</string>
+							<string>{0.47956100000000002, -0.5}</string>
+							<string>{0.22955999999999999, -0.5}</string>
+							<string>{0.22956299999999999, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4041,23 +4167,23 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf1 6}</string>
+\f0\b\fs288 \cf1 6}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
 					<key>TextRelativeArea</key>
-					<string>{{0, 0.1}, {1, 0.8}}</string>
+					<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 				</dict>
 			</array>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>KeepToScale</key>
 			<false/>
 			<key>Layers</key>
@@ -4083,6 +4209,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -4111,18 +4239,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {1152, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
 				<integer>2</integer>
 				<key>Style</key>
 				<dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -4130,6 +4253,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -4137,12 +4262,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1.0000 in</string>
+			<string>1 in = 1.00000 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{479.244, 452.75}, {167.643, 57.2496}}</string>
+					<string>{{479.24400000000003, 452.75}, {167.643, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4179,19 +4304,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Start Rest Period}</string>
+\f0\b\fs36 \cf0 Start Rest Period}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{646.888, 452.75}, {85.1118, 57.2496}}</string>
+					<string>{{646.88800000000003, 452.75}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4218,13 +4343,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4253,19 +4378,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{398, 452.75}, {85.1118, 57.2496}}</string>
+					<string>{{398, 452.75}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4290,13 +4415,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4325,12 +4450,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
@@ -4374,17 +4499,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 0:00}</string>
+\f0\b\fs288 \cf1 0:00}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{479.244, 174.751}, {167.643, 57.2496}}</string>
+					<string>{{479.24400000000003, 174.751}, {167.643, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4421,19 +4546,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red153\green153\blue153;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 Shijak (Continue)}</string>
+\f0\b\fs36 \cf2 Shijak (Continue)}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{646.888, 174.751}, {85.1118, 57.2496}}</string>
+					<string>{{646.88800000000003, 174.751}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4460,13 +4585,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4495,19 +4620,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{398, 174.751}, {85.1118, 57.2496}}</string>
+					<string>{{398, 174.751}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4532,13 +4657,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4567,12 +4692,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
@@ -4616,17 +4741,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red128\green128\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 1:30}</string>
+\f0\b\fs288 \cf2 1:30}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{117.244, 174.751}, {167.643, 57.2496}}</string>
+					<string>{{117.244, 174.751}, {167.643, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4663,19 +4788,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Shigan (Pause)}</string>
+\f0\b\fs36 \cf0 Shigan (Pause)}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{284.888, 174.751}, {85.1118, 57.2496}}</string>
+					<string>{{284.88799999999998, 174.751}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4702,13 +4827,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4737,19 +4862,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{36.0002, 174.751}, {85.1118, 57.2496}}</string>
+					<string>{{36.0002, 174.751}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4774,13 +4899,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4809,19 +4934,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{117.244, 452.75}, {167.643, 57.2496}}</string>
+					<string>{{117.244, 452.75}, {167.643, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4858,19 +4983,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Shijak (Continue)}</string>
+\f0\b\fs36 \cf0 Shijak (Continue)}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{284.888, 452.75}, {85.1118, 57.2496}}</string>
+					<string>{{284.88799999999998, 452.75}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4897,13 +5022,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -4932,19 +5057,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{36.0002, 452.75}, {85.1118, 57.2496}}</string>
+					<string>{{36.0002, 452.75}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -4969,13 +5094,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -5004,19 +5129,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{201.066, 256}, {83.8219, 36}}</string>
+					<string>{{201.066, 256}, {83.821899999999999, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5053,17 +5178,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 +1}</string>
+\f0\b\fs36 \cf0 +1}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{117.244, 256}, {83.8219, 36}}</string>
+					<string>{{117.244, 256}, {83.821899999999999, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5100,17 +5225,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 -1}</string>
+\f0\b\fs36 \cf0 -1}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{284.888, 256}, {85.1118, 36}}</string>
+					<string>{{284.88799999999998, 256}, {85.111800000000002, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5137,13 +5262,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -5172,17 +5297,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 +5}</string>
+\f0\b\fs36 \cf0 +5}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{36, 256}, {85.1118, 36}}</string>
+					<string>{{36, 256}, {85.111800000000002, 36}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5207,13 +5332,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -5242,12 +5367,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf2 -5}</string>
+\f0\b\fs36 \cf0 -5}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -5289,12 +5414,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red128\green128\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 1:30}</string>
+\f0\b\fs288 \cf2 1:30}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -5336,19 +5461,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red128\green128\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 1:30}</string>
+\f0\b\fs288 \cf2 1:30}</string>
 					</dict>
 				</dict>
 			</array>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>KeepToScale</key>
 			<false/>
 			<key>Layers</key>
@@ -5374,6 +5499,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -5402,7 +5529,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {1152, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
@@ -5421,11 +5548,6 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 							<string>0</string>
 						</dict>
 					</dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -5433,6 +5555,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -5440,7 +5564,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1.0000 in</string>
+			<string>1 in = 1.00000 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
@@ -5461,12 +5585,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 							<string>{0.5, -0.5}</string>
 							<string>{0.5, -0.5}</string>
 							<string>{0.5, -0.5}</string>
-							<string>{0.5, 0.499995}</string>
-							<string>{0.5, 0.499995}</string>
-							<string>{0.166667, 0.499995}</string>
-							<string>{-0.333334, 0.500006}</string>
-							<string>{-0.5, 0.499995}</string>
-							<string>{-0.499999, 0.499995}</string>
+							<string>{0.5, 0.49999500000000002}</string>
+							<string>{0.5, 0.49999500000000002}</string>
+							<string>{0.16666700000000001, 0.49999500000000002}</string>
+							<string>{-0.33333400000000002, 0.50000599999999995}</string>
+							<string>{-0.5, 0.49999500000000002}</string>
+							<string>{-0.49999900000000003, 0.49999500000000002}</string>
 							<string>{-0.5, -0.5}</string>
 						</array>
 					</dict>
@@ -5493,17 +5617,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Round 1}</string>
+\f0\b\fs36 \cf0 Round 1}</string>
 					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 248.187}, {32.9999, 20.0001}}</string>
+					<string>{{545, 248.18700000000001}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5545,7 +5669,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 268.062}, {32.9999, 20.0001}}</string>
+					<string>{{545, 268.06200000000001}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5587,7 +5711,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 287.625}, {32.9999, 20.0001}}</string>
+					<string>{{545, 287.625}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5629,7 +5753,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 308.25}, {32.9999, 20.0001}}</string>
+					<string>{{545, 308.25}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5671,7 +5795,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{178, 306.5}, {32.9999, 20.0001}}</string>
+					<string>{{178, 306.5}, {32.999899999999997, 20.0001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5713,7 +5837,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 287.625}, {32.9999, 39.75}}</string>
+					<string>{{545, 287.625}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5752,7 +5876,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 247.875}, {32.9999, 39.75}}</string>
+					<string>{{545, 247.875}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5791,7 +5915,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 208.125}, {32.9999, 39.75}}</string>
+					<string>{{545, 208.125}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5830,7 +5954,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{545, 168.375}, {32.9999, 39.7499}}</string>
+					<string>{{545, 168.375}, {32.999899999999997, 39.749899999999997}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5882,15 +6006,15 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, 0.5}</string>
 							<string>{-0.5, 0.5}</string>
-							<string>{0.229561, 0.5}</string>
-							<string>{0.229561, 0.499999}</string>
-							<string>{0.479563, 0.499999}</string>
+							<string>{0.22956099999999999, 0.5}</string>
+							<string>{0.22956099999999999, 0.49999900000000003}</string>
+							<string>{0.47956300000000002, 0.49999900000000003}</string>
 							<string>{0.5, 0.375}</string>
 							<string>{0.5, -4.76837e-07}</string>
-							<string>{0.5, -0.374999}</string>
-							<string>{0.479561, -0.5}</string>
-							<string>{0.22956, -0.5}</string>
-							<string>{0.229563, -0.5}</string>
+							<string>{0.5, -0.37499900000000003}</string>
+							<string>{0.47956100000000002, -0.5}</string>
+							<string>{0.22955999999999999, -0.5}</string>
+							<string>{0.22956299999999999, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
@@ -5915,21 +6039,21 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf1 3}</string>
+\f0\b\fs288 \cf1 3}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
 					<key>TextRelativeArea</key>
-					<string>{{0, 0.1}, {1, 0.8}}</string>
+					<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{178, 286.75}, {32.9999, 39.75}}</string>
+					<string>{{178, 286.75}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -5966,7 +6090,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{178, 247}, {32.9999, 39.75}}</string>
+					<string>{{178, 247}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6003,7 +6127,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{178, 207.25}, {32.9999, 39.75}}</string>
+					<string>{{178, 207.25}, {32.999899999999997, 39.75}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6040,7 +6164,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{178, 167.5}, {32.9999, 39.7499}}</string>
+					<string>{{178, 167.5}, {32.999899999999997, 39.749899999999997}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6092,15 +6216,15 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, 0.5}</string>
 							<string>{-0.5, 0.5}</string>
-							<string>{0.229561, 0.5}</string>
-							<string>{0.229561, 0.499999}</string>
-							<string>{0.479563, 0.499999}</string>
+							<string>{0.22956099999999999, 0.5}</string>
+							<string>{0.22956099999999999, 0.49999900000000003}</string>
+							<string>{0.47956300000000002, 0.49999900000000003}</string>
 							<string>{0.5, 0.375}</string>
 							<string>{0.5, -4.76837e-07}</string>
-							<string>{0.5, -0.374999}</string>
-							<string>{0.479561, -0.5}</string>
-							<string>{0.22956, -0.5}</string>
-							<string>{0.229563, -0.5}</string>
+							<string>{0.5, -0.37499900000000003}</string>
+							<string>{0.47956100000000002, -0.5}</string>
+							<string>{0.22955999999999999, -0.5}</string>
+							<string>{0.22956299999999999, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
@@ -6125,21 +6249,21 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf1 6}</string>
+\f0\b\fs288 \cf1 6}</string>
 						<key>VerticalPad</key>
 						<integer>0</integer>
 					</dict>
 					<key>TextRelativeArea</key>
-					<string>{{0, 0.1}, {1, 0.8}}</string>
+					<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{292.244, 328.25}, {167.643, 57.2496}}</string>
+					<string>{{292.24400000000003, 328.25}, {167.643, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6176,19 +6300,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Shigan (Pause)}</string>
+\f0\b\fs36 \cf0 Shigan (Pause)}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{459.888, 328.25}, {85.1118, 57.2496}}</string>
+					<string>{{459.88799999999998, 328.25}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6215,13 +6339,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -6250,19 +6374,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{211, 328.25}, {85.1118, 57.2496}}</string>
+					<string>{{211, 328.25}, {85.111800000000002, 57.249600000000001}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6287,13 +6411,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						<array>
 							<string>{-0.5, -0.5}</string>
 							<string>{-0.5, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499985, -0.5}</string>
-							<string>{0.499976, -0.131948}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49998500000000001, -0.5}</string>
+							<string>{0.49997599999999998, -0.13194800000000001}</string>
 							<string>{0.500023, 0.499996}</string>
 							<string>{0.5, 0.499996}</string>
-							<string>{0.166669, 0.499996}</string>
-							<string>{-0.33335, 0.500014}</string>
+							<string>{0.16666900000000001, 0.499996}</string>
+							<string>{-0.33334999999999998, 0.50001399999999996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, 0.499996}</string>
 							<string>{-0.5, -0.5}</string>
@@ -6322,12 +6446,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs36 \cf0 Kyeshi}</string>
+\f0\b\fs36 \cf0 Kyeshi}</string>
 					</dict>
 					<key>VFlip</key>
 					<string>YES</string>
@@ -6371,19 +6495,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red128\green128\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs288 \cf2 1:30}</string>
+\f0\b\fs288 \cf2 1:30}</string>
 					</dict>
 				</dict>
 			</array>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>KeepToScale</key>
 			<false/>
 			<key>Layers</key>
@@ -6409,6 +6533,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -6437,7 +6563,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {1152, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
@@ -6456,11 +6582,6 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 							<string>0</string>
 						</dict>
 					</dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -6468,6 +6589,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -6475,12 +6598,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1.0000 in</string>
+			<string>1 in = 1.00000 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{297.793, 75.7028}, {164.241, 60}}</string>
+					<string>{{297.79300000000001, 75.702799999999996}, {164.24100000000001, 60}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -6517,12 +6640,12 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs96 \cf2 Round 1}</string>
+\f0\b\fs96 \cf0 Round 1}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -6532,7 +6655,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<array>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 195.922}, {49.7073, 30.1259}}</string>
+							<string>{{462.03399999999999, 195.922}, {49.707299999999996, 30.125900000000001}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6574,7 +6697,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 225.86}, {49.7073, 30.1259}}</string>
+							<string>{{462.03399999999999, 225.86000000000001}, {49.707299999999996, 30.125900000000001}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6616,7 +6739,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 255.327}, {49.7073, 30.1259}}</string>
+							<string>{{462.03399999999999, 255.327}, {49.707299999999996, 30.125900000000001}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6658,7 +6781,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 286.394}, {49.7073, 30.1259}}</string>
+							<string>{{462.03399999999999, 286.39400000000001}, {49.707299999999996, 30.125900000000001}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6700,7 +6823,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 255.327}, {49.7073, 59.8749}}</string>
+							<string>{{462.03399999999999, 255.327}, {49.707299999999996, 59.874899999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6739,7 +6862,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 195.452}, {49.7073, 59.8749}}</string>
+							<string>{{462.03399999999999, 195.452}, {49.707299999999996, 59.874899999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6778,7 +6901,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 135.578}, {49.7073, 59.8749}}</string>
+							<string>{{462.03399999999999, 135.578}, {49.707299999999996, 59.874899999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6817,7 +6940,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{462.034, 75.7028}, {49.7073, 59.8747}}</string>
+							<string>{{462.03399999999999, 75.702799999999996}, {49.707299999999996, 59.874699999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6856,7 +6979,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{511.742, 75.7027}, {239.499, 239.499}}</string>
+							<string>{{511.74200000000002, 75.702699999999993}, {239.499, 239.499}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -6869,15 +6992,15 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 								<array>
 									<string>{-0.5, 0.5}</string>
 									<string>{-0.5, 0.5}</string>
-									<string>{0.229561, 0.5}</string>
-									<string>{0.229561, 0.499999}</string>
-									<string>{0.479563, 0.499999}</string>
+									<string>{0.22956099999999999, 0.5}</string>
+									<string>{0.22956099999999999, 0.49999900000000003}</string>
+									<string>{0.47956300000000002, 0.49999900000000003}</string>
 									<string>{0.5, 0.375}</string>
 									<string>{0.5, -4.76837e-07}</string>
-									<string>{0.5, -0.374999}</string>
-									<string>{0.479561, -0.5}</string>
-									<string>{0.22956, -0.5}</string>
-									<string>{0.229563, -0.5}</string>
+									<string>{0.5, -0.37499900000000003}</string>
+									<string>{0.47956100000000002, -0.5}</string>
+									<string>{0.22955999999999999, -0.5}</string>
+									<string>{0.22956299999999999, -0.5}</string>
 									<string>{-0.5, -0.5}</string>
 									<string>{-0.5, -0.5}</string>
 									<string>{-0.5, -0.5}</string>
@@ -6902,17 +7025,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 							<key>Text</key>
 							<dict>
 								<key>Text</key>
-								<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+								<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs432 \cf1 3}</string>
+\f0\b\fs432 \cf1 3}</string>
 								<key>VerticalPad</key>
 								<integer>0</integer>
 							</dict>
 							<key>TextRelativeArea</key>
-							<string>{{0, 0.1}, {1, 0.8}}</string>
+							<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 						</dict>
 					</array>
 					<key>ID</key>
@@ -6925,7 +7048,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<array>
 						<dict>
 							<key>Bounds</key>
-							<string>{{248.086, 285.077}, {49.7073, 30.1259}}</string>
+							<string>{{248.08600000000001, 285.077}, {49.707299999999996, 30.125900000000001}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -6967,7 +7090,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{248.086, 255.327}, {49.7073, 59.8749}}</string>
+							<string>{{248.08600000000001, 255.327}, {49.707299999999996, 59.874899999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -7004,7 +7127,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{248.086, 195.453}, {49.7073, 59.8749}}</string>
+							<string>{{248.08600000000001, 195.453}, {49.707299999999996, 59.874899999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -7041,7 +7164,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{248.086, 135.578}, {49.7073, 59.8749}}</string>
+							<string>{{248.08600000000001, 135.578}, {49.707299999999996, 59.874899999999997}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -7078,7 +7201,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{248.086, 75.7028}, {49.7073, 59.8748}}</string>
+							<string>{{248.08600000000001, 75.702799999999996}, {49.707299999999996, 59.8748}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -7115,7 +7238,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{8.58613, 75.7028}, {239.5, 239.5}}</string>
+							<string>{{8.5861300000000007, 75.702799999999996}, {239.5, 239.5}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>HFlip</key>
@@ -7130,15 +7253,15 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 								<array>
 									<string>{-0.5, 0.5}</string>
 									<string>{-0.5, 0.5}</string>
-									<string>{0.229561, 0.5}</string>
-									<string>{0.229561, 0.499999}</string>
-									<string>{0.479563, 0.499999}</string>
+									<string>{0.22956099999999999, 0.5}</string>
+									<string>{0.22956099999999999, 0.49999900000000003}</string>
+									<string>{0.47956300000000002, 0.49999900000000003}</string>
 									<string>{0.5, 0.375}</string>
 									<string>{0.5, -4.76837e-07}</string>
-									<string>{0.5, -0.374999}</string>
-									<string>{0.479561, -0.5}</string>
-									<string>{0.22956, -0.5}</string>
-									<string>{0.229563, -0.5}</string>
+									<string>{0.5, -0.37499900000000003}</string>
+									<string>{0.47956100000000002, -0.5}</string>
+									<string>{0.22955999999999999, -0.5}</string>
+									<string>{0.22956299999999999, -0.5}</string>
 									<string>{-0.5, -0.5}</string>
 									<string>{-0.5, -0.5}</string>
 									<string>{-0.5, -0.5}</string>
@@ -7163,17 +7286,17 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 							<key>Text</key>
 							<dict>
 								<key>Text</key>
-								<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+								<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs432 \cf1 6}</string>
+\f0\b\fs432 \cf1 6}</string>
 								<key>VerticalPad</key>
 								<integer>0</integer>
 							</dict>
 							<key>TextRelativeArea</key>
-							<string>{{0, 0.1}, {1, 0.8}}</string>
+							<string>{{0, 0.10000000000000001}, {1, 0.80000000000000004}}</string>
 						</dict>
 					</array>
 					<key>ID</key>
@@ -7181,7 +7304,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{297.793, 137}, {164.241, 178.203}}</string>
+					<string>{{297.79300000000001, 137}, {164.24100000000001, 178.203}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -7218,19 +7341,19 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+						<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Impact;}
 {\colortbl;\red255\green255\blue255;\red128\green128\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
 
-\f0\fs144 \cf2 1:30}</string>
+\f0\b\fs144 \cf2 1:30}</string>
 					</dict>
 				</dict>
 			</array>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>KeepToScale</key>
 			<false/>
 			<key>Layers</key>
@@ -7256,6 +7379,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -7284,18 +7409,13 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>BackgroundGraphic</key>
 			<dict>
 				<key>Bounds</key>
-				<string>{{0, 0}, {756, 553}}</string>
+				<string>{{0, 0}, {1152, 733}}</string>
 				<key>Class</key>
 				<string>SolidGraphic</string>
 				<key>ID</key>
 				<integer>2</integer>
 				<key>Style</key>
 				<dict>
-					<key>shadow</key>
-					<dict>
-						<key>Draws</key>
-						<string>NO</string>
-					</dict>
 					<key>stroke</key>
 					<dict>
 						<key>Draws</key>
@@ -7303,6 +7423,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 					</dict>
 				</dict>
 			</dict>
+			<key>BaseZoom</key>
+			<integer>0</integer>
 			<key>CanvasOrigin</key>
 			<string>{0, 0}</string>
 			<key>ColumnAlign</key>
@@ -7310,7 +7432,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1.0000 in</string>
+			<string>1 in = 1.00000 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
@@ -7335,8 +7457,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 											<integer>22317</integer>
 											<key>Points</key>
 											<array>
-												<string>{596.333, 143.98}</string>
-												<string>{591.293, 149.02}</string>
+												<string>{596.33299999999997, 143.97999999999999}</string>
+												<string>{591.29300000000001, 149.02000000000001}</string>
 											</array>
 											<key>Style</key>
 											<dict>
@@ -7355,6 +7477,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 													</dict>
 													<key>HeadArrow</key>
 													<string>0</string>
+													<key>Legacy</key>
+													<true/>
 													<key>TailArrow</key>
 													<string>0</string>
 													<key>Width</key>
@@ -7369,8 +7493,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 											<integer>22318</integer>
 											<key>Points</key>
 											<array>
-												<string>{591.293, 143.98}</string>
-												<string>{596.333, 149.02}</string>
+												<string>{591.29300000000001, 143.97999999999999}</string>
+												<string>{596.33299999999997, 149.02000000000001}</string>
 											</array>
 											<key>Style</key>
 											<dict>
@@ -7389,6 +7513,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 													</dict>
 													<key>HeadArrow</key>
 													<string>0</string>
+													<key>Legacy</key>
+													<true/>
 													<key>TailArrow</key>
 													<string>0</string>
 													<key>Width</key>
@@ -7402,7 +7528,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 								</dict>
 								<dict>
 									<key>Bounds</key>
-									<string>{{583.903, 140}, {19.8139, 13.0003}}</string>
+									<string>{{583.90300000000002, 140}, {19.8139, 13.000299999999999}}</string>
 									<key>Class</key>
 									<string>ShapedGraphic</string>
 									<key>FontInfo</key>
@@ -7459,7 +7585,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{158.3, 141.496}, {91, 11}}</string>
+							<string>{{158.30000000000001, 141.49600000000001}, {91, 11}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FitText</key>
@@ -7502,10 +7628,10 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 								<key>Pad</key>
 								<integer>0</integer>
 								<key>Text</key>
-								<string>{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+								<string>{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf200
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
 \f0\b\fs18 \cf0 Blank Control Center}</string>
 								<key>VerticalPad</key>
@@ -7516,7 +7642,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{140.273, 136.756}, {477.63, 20.6472}}</string>
+							<string>{{140.273, 136.756}, {477.63, 20.647200000000002}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -7534,10 +7660,10 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 									<string>{0.5, -0.5}</string>
 									<string>{0.5, 0.5}</string>
 									<string>{0.5, 0.5}</string>
-									<string>{0.500001, 0.5}</string>
-									<string>{-0.5, 0.499981}</string>
-									<string>{-0.5, 0.499981}</string>
-									<string>{-0.5, 0.499981}</string>
+									<string>{0.50000100000000003, 0.5}</string>
+									<string>{-0.5, 0.49998100000000001}</string>
+									<string>{-0.5, 0.49998100000000001}</string>
+									<string>{-0.5, 0.49998100000000001}</string>
 									<string>{-0.5, -0.5}</string>
 								</array>
 							</dict>
@@ -7651,7 +7777,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{139.588, 135.756}, {478.315, 279.487}}</string>
+							<string>{{139.58799999999999, 135.756}, {478.315, 279.48700000000002}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -7784,7 +7910,7 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>KeepToScale</key>
 			<false/>
 			<key>Layers</key>
@@ -7810,6 +7936,8 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 				<real>0.0</real>
 				<key>layoutEngine</key>
 				<string>dot</string>
+				<key>neatoLineLength</key>
+				<real>0.20000000298023224</real>
 				<key>neatoSeparation</key>
 				<real>0.0</real>
 				<key>twopiSeparation</key>
@@ -7839,26 +7967,24 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 	<false/>
 	<key>WindowInfo</key>
 	<dict>
+		<key>BottomSlabHeight</key>
+		<real>363</real>
 		<key>CurrentSheet</key>
-		<integer>5</integer>
-		<key>ExpandedCanvases</key>
+		<integer>0</integer>
+		<key>Expanded_Canvases</key>
 		<array/>
 		<key>Frame</key>
-		<string>{{120, 42}, {890, 707}}</string>
-		<key>ListView</key>
+		<string>{{120, 42}, {1190, 707}}</string>
+		<key>ShowInfo</key>
 		<true/>
-		<key>OutlineWidth</key>
-		<integer>142</integer>
-		<key>RightSidebar</key>
-		<false/>
 		<key>ShowRuler</key>
 		<true/>
 		<key>Sidebar</key>
 		<true/>
 		<key>SidebarWidth</key>
-		<integer>147</integer>
+		<integer>230</integer>
 		<key>VisibleRegion</key>
-		<string>{{0, 0}, {714, 538}}</string>
+		<string>{{-26, 0}, {628, 565}}</string>
 		<key>Zoom</key>
 		<real>1</real>
 		<key>ZoomValues</key>
@@ -7900,7 +8026,5 @@ Clock is stopped. Mouse is hovering over the score control. Control elements rev
 			</array>
 		</array>
 	</dict>
-	<key>saveQuickLookFiles</key>
-	<string>YES</string>
 </dict>
 </plist>

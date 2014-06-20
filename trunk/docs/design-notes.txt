@@ -14,16 +14,16 @@ Design concepts
 
 Controls (for computer operator) & Devices (for judges)
 
-- Poomsae flipcard controller          Manages CO input from the Poomsae flipcard device
+- Poomsae flipcard controller          Manages input from the Poomsae flipcard device
 - Poomsae flipcard display             Shows a judge's score to the audience
 - Poomsae flipcard device              Allows judges to enter scores for Poomsae (iPod & iPad-enabled)
-- Sport poomsae scorecard controller   Manages CO input from Sport poomsae scorecard device
+- Sport poomsae scorecard controller   Manages input from Sport poomsae scorecard device
 - Sport poomsae scorecard display      Shows a judge's accuracy, presentation, and total scores to the audience
 - Sport poomsae scorecard device       Allows judges to enter scores for Sport Poomsae (iPod & iPad-enabled)
-- Poomsae vote controller              Manages CO input from Poomsae vote device
+- Poomsae vote controller              Manages input from Poomsae vote device
 - Poomsae vote display                 Shows a judge's vote for blue or red player
 - Poomsae vote device                  Allows judges to vote for Poomsae competitors (iPod & iPad-enabled)
-- Judge handset controller             Manages CO input from Judges handsets (keyboard)
+- Judge handset controller             Manages input from Judges handsets (keyboard)
 - Point sparring score controller      Manages adding points for a player for Point sparring
 - Time controller                      Manages the Round, Shigan, and Kyeshi clocks
 - Event Timeline controller            Displays the timeline for events
@@ -32,19 +32,31 @@ Controls (for computer operator) & Devices (for judges)
 - Sparring Player Name controller      Manages the Player's name and hogu color
 - Poomsae Player Name controller       Manages the Player's name
 - Match controller                     Manages the number of rounds, rest periods, and rulebook
-- Division List controller             Manages the list for a division, showing players and current status
-- Division Bracket controller          Manages the brackets for a division, showing players and current status
-- Division List display                Shows the list
-- Division Bracket display             Shows the brackets
+- Division controller                  Manages the players and byes in a division
 - Olympic Sparring Rules controller    Manages the rules in a rulebook for Olympic Sparring
 - Point Sparring Rules controller      Manages the rules in a rulebook for Point Sparring
 - Poomsae Rules controller             Manages the rules in a rulebook for Poomsae Sparring
 - Tournament controller                Manages the events and rulebooks for a Tournament
 
-Controllers
+Application
 
-Score Controller
-- Add points (+1 to +4)
-- Remove last score
-- Add penalties
+- Poomsae
+  Use case: User is at the Poomsae Command Center
+  * Before the match starts
+    - 
+  
+
+- Sport Poomsae
+  Use case: User is at the Sport Poomsae Command Center
+
+- Olympic Sparring
+  Use case: User is at the Match Command Center
+  * Before the match starts
+    - Start the Kyeshi clock for either player
+    - Award a penalty to either player
+    - End the match (DQ or withdrawal)
+  * During the match
+    - Change the score for either player
+    - Change the timer
+
 
