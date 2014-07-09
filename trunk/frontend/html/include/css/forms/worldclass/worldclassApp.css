@@ -94,18 +94,12 @@ body {
 .worldclass .leaderboard {
   font-family: Optima;
   color: white;
-  display: none;
-  overflow: scroll;
-  position: fixed;
-  left: 50%;
-  margin-left: -500px; }
+  overflow: scroll; }
   .worldclass .leaderboard .division {
     width: 1000px;
     height: 680px;
     margin: 20px auto 20px auto; }
     .worldclass .leaderboard .division .standings {
-      float: left;
-      width: 400px;
       height: 680px;
       color: #999;
       font-size: 24pt;
@@ -136,8 +130,6 @@ body {
           float: left;
           width: 10%; }
     .worldclass .leaderboard .division .pending {
-      float: right;
-      width: 400px;
       height: 680px;
       color: #999;
       font-size: 24pt;
@@ -145,13 +137,24 @@ body {
       /* W3C */
       border: 4px solid white;
       border-radius: 24px;
-      padding: 0 32px 8px 32px;
-      margin: 0 auto 0 auto; }
+      padding: 0 32px 8px 32px; }
       .worldclass .leaderboard .division .pending h2 {
         color: white; }
       .worldclass .leaderboard .division .pending ol li b {
         color: #ccc;
         font-weight: bold; }
+    .worldclass .leaderboard .division .hidden {
+      display: none; }
+    .worldclass .leaderboard .division .one-column {
+      width: 900px;
+      margin: 0 auto 0 auto; }
+    .worldclass .leaderboard .division .two-column {
+      width: 400px;
+      margin: 0 10px 0 10px;
+      left: 0;
+      float: left; }
+      .worldclass .leaderboard .division .two-column h1 {
+        font-size: 28pt; }
 
 .usermessage {
   font-family: Optima;

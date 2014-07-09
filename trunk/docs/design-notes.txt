@@ -5,38 +5,51 @@
 Design concepts
 
 - All controls are represented by single UI elements made of many UI elements.
-
 - Controls shall have up to four modes: docked, mini, normal, and full-screen. 
-
 - Applications shall be comprised of multiple controls.
-
 - Controls shall have 2 components: Logic and UI
 
-Controls (for computer operator) & Devices (for judges)
 
-- Poomsae flipcard controller          Manages input from the Poomsae flipcard device
-- Poomsae flipcard display             Shows a judge's score to the audience
-- Poomsae flipcard device              Allows judges to enter scores for Poomsae (iPod & iPad-enabled)
-- Sport poomsae scorecard controller   Manages input from Sport poomsae scorecard device
-- Sport poomsae scorecard display      Shows a judge's accuracy, presentation, and total scores to the audience
-- Sport poomsae scorecard device       Allows judges to enter scores for Sport Poomsae (iPod & iPad-enabled)
-- Poomsae vote controller              Manages input from Poomsae vote device
-- Poomsae vote display                 Shows a judge's vote for blue or red player
-- Poomsae vote device                  Allows judges to vote for Poomsae competitors (iPod & iPad-enabled)
-- Judge handset controller             Manages input from Judges handsets (keyboard)
-- Point sparring score controller      Manages adding points for a player for Point sparring
-- Time controller                      Manages the Round, Shigan, and Kyeshi clocks
+Controllers (for judges and computer operators)
+
+- Poomsae Grassroots Scoreboard        Shows a judge's score to the audience
+- Poomsae Grassroots Controller        Allows judges to enter scores for
+                                       Poomsae (iPod & iPad-enabled)
+- Poomsae Worldclass Scoreboard        Shows a judge's accuracy, presentation,
+                                       and total scores to the audience
+- Poomsae Worldclass Controller        Allows judges to enter scores for Sport
+                                       Poomsae (iPod & iPad-enabled)
+- Poomsae Vote Scoreboard              Shows a judge's vote for blue or red
+                                       player
+- Poomsae Vote Controller              Allows judges to vote for Poomsae
+                                       competitors (iPod & iPad-enabled)
+- PSS hogu controller                  Manages input from PSS e-hogu
+- Judge handset controller             Manages input from Judges handsets
+                                       (keyboard)
+- Point sparring score controller      Manages adding points for a player for
+                                       Point sparring
+- Time controller                      Manages the Round, Shigan, and Kyeshi
+                                       clocks
 - Event Timeline controller            Displays the timeline for events
-- Player Score controller              Manages the Player's scores and penalties
-- Player Score display                 Displays the Player's scores and penalties
+- Player Score controller              Manages the Player's scores and
+                                       penalties
+- Player Score display                 Displays the Player's scores and
+                                       penalties
 - Sparring Player Name controller      Manages the Player's name and hogu color
 - Poomsae Player Name controller       Manages the Player's name
-- Match controller                     Manages the number of rounds, rest periods, and rulebook
-- Division controller                  Manages the players and byes in a division
-- Olympic Sparring Rules controller    Manages the rules in a rulebook for Olympic Sparring
-- Point Sparring Rules controller      Manages the rules in a rulebook for Point Sparring
-- Poomsae Rules controller             Manages the rules in a rulebook for Poomsae Sparring
-- Tournament controller                Manages the events and rulebooks for a Tournament
+- Match controller                     Manages the number of rounds, rest
+                                       periods, and rulebook
+- Division controller                  Manages the players and byes in a
+                                       division
+- Olympic Sparring Rules controller    Manages the rules in a rulebook for
+                                       Olympic Sparring
+- Point Sparring Rules controller      Manages the rules in a rulebook for
+                                       Point Sparring
+- Poomsae Rules controller             Manages the rules in a rulebook for
+                                       Poomsae Sparring
+- Officials Command Center
+- Tournament controller                Manages the events and rulebooks for a
+                                       Tournament
 
 Application
 
