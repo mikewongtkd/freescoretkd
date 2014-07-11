@@ -7,7 +7,10 @@
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jQuery.js"></script>
+		<script src="../../include/jquery/js/jquery.touche.min.js"></script>
+		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.deductions.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.matposition.js"></script>

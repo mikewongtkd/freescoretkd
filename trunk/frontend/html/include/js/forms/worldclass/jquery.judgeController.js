@@ -5,6 +5,9 @@ $.widget( "freescore.judgeController", {
 		var e      = this.options.elements = {};
 		var widget = this.element;
 		var html   = e.html  = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
+
+		widget.nodoubletapzoom();
+
 		/*
 		var login  = e.login = html.div.clone() .prop( 'id', 'login' );
 		

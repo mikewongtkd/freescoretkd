@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../../include/css/ajaxbutton.css">
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeNotes.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeController.js"></script>
