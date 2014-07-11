@@ -13,10 +13,12 @@ sub new {
 # ============================================================
 sub init {
 # ============================================================
-	my $self = shift;
+	my $self       = shift;
 	my $tournament = shift;
+	my $ring       = shift;
 
-	$self->{ path } = "$FreeScore::PATH/$tournament/forms-worldclass";
+	if( $ring =~ /^\d+$/ ) { $ring = sprintf( "ring%02d", $ring ); }
+	$self->{ path } = "$FreeScore::PATH/$tournament/forms-worldclass/$ring";
 	$self->{ file } = "$self->{ path }/progress.txt";
 
 	if( -e $self->{ file } ) {

@@ -38,7 +38,7 @@ $.widget( "freescore.worldclass", {
 			}
 		};
 
-		e.source = new EventSource( 'update.php' );
+		e.source = new EventSource( 'update.php?ring=1' );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}

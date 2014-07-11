@@ -17,12 +17,15 @@ sub init {
 # ============================================================
 	my $self = shift;
 	my $tournament = shift;
+	my $ring       = shift;
 	my $division   = shift;
+
+	if( $ring =~ /^\d+$/ ) { $ring = sprintf( "ring%02d", $ring ); }
 
 	$self->{ current } = 0;
 	$self->{ state }   = 'display';
 
-	$self->{ file } = "$FreeScore::PATH/$tournament/forms-worldclass/div.$division.txt";
+	$self->{ file } = "$FreeScore::PATH/$tournament/forms-worldclass/$ring/div.$division.txt";
 
 	my $index = 0;
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";

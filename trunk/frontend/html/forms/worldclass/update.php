@@ -4,7 +4,8 @@
 	header('Content-Type: text/event-stream');
 	header('Cache-Control: no-cache');
 
-	$source_path = "/Volumes/ramdisk/$tournament/forms-worldclass";
+	$ring        = sprintf( "ring%02d", intval( $_GET[ "ring" ] ) ?: 1 );
+	$source_path = "/Volumes/ramdisk/$tournament/forms-worldclass/$ring";
 
 	// ============================================================
 	function criteria( $string ) {

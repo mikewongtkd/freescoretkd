@@ -25,7 +25,9 @@ $.widget( "freescore.judgeController", {
 			}
 		} );
 		// Temporarily disabled for faster development
-		*/ o.num = 2;
+		*/ 
+		o.num  = 2;
+		o.ring = 1;
 
 		// ===== UPDATE BEHAVIOR
 		o.updateScore = function( judge, score ) {
@@ -64,7 +66,7 @@ $.widget( "freescore.judgeController", {
 		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Tempo', controller: o });
 		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',  controller: o });
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Ki', controller: o });
-		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", label : "Send", type : "send" })
+		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, app : "forms/worldclass", label : "Send", type : "send" })
 
 		score.append( accuracy, presentation, athlete );
 		views.append( flipToBack, score, matPosition );
@@ -77,11 +79,11 @@ $.widget( "freescore.judgeController", {
 		var back         = e.back         = html.div.clone() .addClass( "back" );
 		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0, num : o.num });
 		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
-		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
-		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
-		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "division/previous", label : "Prev Division", type : "navigate prev division" });
-		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "division/next",     label : "Next Division", type : "navigate next division" });
-		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, app : "forms/worldclass", command : "display",           label : "Flip Display",  type : "navigate mode"          });
+		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, app : "forms/worldclass", command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
+		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, app : "forms/worldclass", command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
+		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, app : "forms/worldclass", command : "division/previous", label : "Prev Division", type : "navigate prev division" });
+		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, app : "forms/worldclass", command : "division/next",     label : "Next Division", type : "navigate next division" });
+		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, app : "forms/worldclass", command : "display",           label : "Flip Display",  type : "navigate mode"          });
 
 		back.append( prevAthlete, nextAthlete, prevDivision, nextDivision, flipDisplay, notes, flipToFront );
 
@@ -126,7 +128,7 @@ $.widget( "freescore.judgeController", {
 			e.athlete .html( athlete.name );
 
 		};
-		e.source = new EventSource( 'update.php' );
+		e.source = new EventSource( 'update.php?ring=' + o.ring );
 		e.source.addEventListener( 'message', refresh, false );
 	}
 });

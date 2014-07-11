@@ -12,7 +12,7 @@ $.widget( "freescore.ajaxbutton", {
 
 		o.clickUpdate = function() {
 			return function() {
-				var url = 'http://' + o.server + '/cgi-bin/freescore/' + o.app + '/' + o.tournament + '/' + o.command;
+				var url = 'http://' + o.server + '/cgi-bin/freescore/' + o.app + '/' + o.tournament + '/' + o.ring + '/' + o.command;
 				console.log( url );
 				$.ajax( {
 					type:    'GET',
