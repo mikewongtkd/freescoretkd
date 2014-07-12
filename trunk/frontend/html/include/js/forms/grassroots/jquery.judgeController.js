@@ -18,6 +18,8 @@ $.widget( "freescore.judgeController", {
 			}
 		} );
 
+		o.ring = 1;
+
 		widget.addClass( 'judgeController' );
 		var controller  = e.controller  = html.div.clone() .addClass( "controller" );
 		var navigation  = e.navigation  = html.div.clone() .addClass( "button-row" );
@@ -30,16 +32,16 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE NAVIGATION BUTTONS
 		// ============================================================
-		var prevAthlete = e.prevAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/previous',  label : 'Previous Athlete'  });
-		var prevDiv     = e.prevDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'division', app : 'forms/grassroots', command : 'division/previous', label : 'Previous Division' });
-		var nextDiv     = e.nextDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'division', app : 'forms/grassroots', command : 'division/next',     label : 'Next Division'     });
-		var nextAthlete = e.nextAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/next',      label : 'Next Athlete'     });
+		var prevAthlete = e.prevAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/previous',  label : 'Previous Athlete'  });
+		var prevDiv     = e.prevDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'division', app : 'forms/grassroots', command : 'division/previous', label : 'Previous Division' });
+		var nextDiv     = e.nextDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'division', app : 'forms/grassroots', command : 'division/next',     label : 'Next Division'     });
+		var nextAthlete = e.nextAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/next',      label : 'Next Athlete'     });
 		e.navigation.append( prevAthlete, prevDiv, nextDiv, nextAthlete );
 
 		// ============================================================
 		// THE MODE BUTTONS
 		// ============================================================
-		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'mode',  app : 'forms/grassroots', command : 'display', label : 'Flip Display' });
+		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'mode',  app : 'forms/grassroots', command : 'display', label : 'Flip Display' });
 		e.mode.append( displayMode );
 
 		// ============================================================
@@ -57,8 +59,8 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE ACTION BUTTONS
 		// ============================================================
-		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'action',  app : 'forms/grassroots', command : o.num + '/-10', label : 'Clear' });
-		var scoreButton = e.scoreButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, type : 'action',  app : 'forms/grassroots', command : o.num + '/8.0', label : 'Send'  });
+		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'action',  app : 'forms/grassroots', command : o.num + '/-10', label : 'Clear' });
+		var scoreButton = e.scoreButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'action',  app : 'forms/grassroots', command : o.num + '/8.0', label : 'Send'  });
 		e.scoring.append( clearButton, scoreButton );
 
 		controller.append( navigation, controls, notes );
@@ -80,7 +82,7 @@ $.widget( "freescore.judgeController", {
 			e.clearButton.ajaxbutton( { command : o.num + '/-10' } );
 			e.scoreButton.ajaxbutton( { command : o.num + '/' + e.score.val() } );
 		};
-		e.source = new EventSource( 'update.php' );
+		e.source = new EventSource( 'update.php?ring=' + o.ring );
 		e.source.addEventListener( 'message', refresh, false );
 	}
 });

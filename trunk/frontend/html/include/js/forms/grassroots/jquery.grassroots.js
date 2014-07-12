@@ -10,6 +10,8 @@ $.widget( "freescore.grassroots", {
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
+		o.ring = 1; // MW
+
 		card .append( leaderboard, scorekeeper );
 		widget .addClass( "grassroots flippable" );
 		widget .append( card, usermessage );
@@ -38,7 +40,7 @@ $.widget( "freescore.grassroots", {
 			}
 		};
 
-		e.source = new EventSource( 'update.php' );
+		e.source = new EventSource( 'update.php?ring=' + o.ring );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}
