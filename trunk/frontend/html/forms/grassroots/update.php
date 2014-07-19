@@ -4,9 +4,11 @@
 	header('Content-Type: text/event-stream');
 	header('Cache-Control: no-cache');
 
-	$ring = sprintf( "ring%02d", intval( $_GET[ "ring" ]));
+	$ring = sprintf( "ring%02d", intval( $_GET[ "ring" ] ?: 1 ));
+	$json = json_decode( $tournament );
+	$db   = $json->db;
 
-	$source_path = "/Volumes/ramdisk/$tournament/forms-grassroots/$ring";
+	$source_path = "/Volumes/ramdisk/$db/forms-grassroots/$ring";
 
 	// ============================================================
 	function read_division( $path, $div_id ) {

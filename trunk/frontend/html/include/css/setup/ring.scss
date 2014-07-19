@@ -1,0 +1,23 @@
+
+body {
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+	font-family: Optima;
+	font-size: 24pt;
+}
+
+.ring {
+	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
+	color: #ccc;
+	border: 4px solid white;
+	border-radius: 24px;
+	width: 934px;
+	margin: 20px auto 20px auto;
+	padding: 0 32px 32px 32px;
+	h1 {
+		color: gold;
+	}
+	code {
+		color: gold;
+		font-size: 18pt;
+	}
+}

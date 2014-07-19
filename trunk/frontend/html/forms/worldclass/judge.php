@@ -1,4 +1,7 @@
-<?php include( "../../include/php/config.php" ); ?>
+<?php 
+	if( ! isset( $_COOKIE[ 'ring' ]) ) { header( 'Location: ../../setup/ring.php?referer=../forms/worldclass/judge.php' ); exit(); }
+	include( "../../include/php/config.php" ); 
+?>
 <html>
 	<head>
 		<link href="http://192.168.1.112/freescore/images/icons/apps/forms-worldclass/apple-touch-icon.png"             rel="apple-touch-icon" />
@@ -25,9 +28,10 @@
 		<script src="../../include/js/forms/worldclass/jquery.judgeController.js"></script>
 	</head>
 	<body>
+		<?php print_r( $_COOKIE ) ?>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : '<?= $tournament ?>' });
+			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

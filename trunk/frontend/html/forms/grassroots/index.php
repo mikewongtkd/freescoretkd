@@ -14,7 +14,7 @@
 	<body>
 		<div id="grassroots"></div>
 		<script type="text/javascript">
-			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : '<?= $tournament ?>' });
+			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

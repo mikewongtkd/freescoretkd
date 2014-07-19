@@ -5,7 +5,9 @@
 	header('Cache-Control: no-cache');
 
 	$ring        = sprintf( "ring%02d", intval( $_GET[ "ring" ] ) ?: 1 );
-	$source_path = "/Volumes/ramdisk/$tournament/forms-worldclass/$ring";
+	$json        = json_decode( $tournament );
+	$db          = $json->db;
+	$source_path = "/Volumes/ramdisk/$db/forms-worldclass/$ring";
 
 	// ============================================================
 	function criteria( $string ) {

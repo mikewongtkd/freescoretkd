@@ -15,7 +15,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?php echo $host ?>', tournament : '<?php echo $tournament ?>' } );
+			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> } );
 		</script>
 	</body>
 </html>

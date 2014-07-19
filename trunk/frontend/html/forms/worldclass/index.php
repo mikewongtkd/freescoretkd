@@ -14,7 +14,7 @@
 	<body>
 		<div id="worldclass"></div>
 		<script type="text/javascript">
-			$( '#worldclass' ).worldclass({ tournament : '<?= $tournament ?>', judges : 5});
+			$( '#worldclass' ).worldclass({ tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>
