@@ -24,11 +24,6 @@ body {
 	.floorplan {
 		position: relative;
 
-		.row {
-		}
-		.column {
-		}
-
 		.mat {
 			position: absolute;
 			width:  180px;
@@ -50,6 +45,34 @@ body {
 				border-radius: 12px;
 				background: linear-gradient(to bottom, #f29696 0%,#e24848 100%);
 			}
+		}
+	}
+
+	.roles {
+		position: relative;
+		width:  800px;
+		height: 200px;
+
+		.role {
+			position: absolute;
+			width: 200px;
+			height: 200px;
+			color: white;
+			text-align: center;
+		}
+	}
+
+	.court {
+		position: relative;
+		height: 200px;
+
+		.judge {
+			position: absolute;
+			left: 200px;
+			width: 200px;
+			height: 200px;
+			color: white;
+			text-align: center;
 		}
 	}
 }

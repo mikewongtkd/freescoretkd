@@ -1,2 +1,4 @@
-Shreya	White/Yellow
-Fernanda	White/Yellow
+# state=score
+# current=0
+Shreya	White/Yellow	-1	-1	-1
+Fernanda	White/Yellow	0	-1	-1
