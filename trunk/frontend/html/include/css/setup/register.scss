@@ -21,58 +21,90 @@ body {
 		font-size: 18pt;
 	}
 
-	.floorplan {
-		position: relative;
+	.floorplan { position: relative; }
+	.mat {
+		position: absolute;
+		width:  180px;
+		height: 180px;
+		background: linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+		border-radius: 12px;
 
-		.mat {
+		.playing-field {
+			color: white;
+			font-weight: bold;
+			font-size: 48pt;
+			text-align: center;
+			padding: 32px;
 			position: absolute;
-			width:  180px;
-			height: 180px;
-			background: linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+			width:  76px;
+			height: 76px;
+			top: 20px;
+			left: 20px;
 			border-radius: 12px;
-
-			.playing-field {
-				color: white;
-				font-weight: bold;
-				font-size: 48pt;
-				text-align: center;
-				padding: 32px;
-				position: absolute;
-				width:  76px;
-				height: 76px;
-				top: 20px;
-				left: 20px;
-				border-radius: 12px;
-				background: linear-gradient(to bottom, #f29696 0%,#e24848 100%);
-			}
+			background: linear-gradient(to bottom, #f29696 0%,#e24848 100%);
 		}
 	}
+
 
 	.roles {
 		position: relative;
 		width:  800px;
 		height: 200px;
-
-		.role {
-			position: absolute;
-			width: 200px;
-			height: 200px;
-			color: white;
-			text-align: center;
-		}
 	}
+	.role {
+		position: absolute;
+		width: 200px;
+		height: 200px;
+		color: white;
+		text-align: center;
+	}
+
 
 	.court {
 		position: relative;
 		height: 200px;
+	}
+	.judge {
+		position: absolute;
+		left: 200px;
+		width: 200px;
+		height: 200px;
+		color: white;
+		text-align: center;
+	}
 
-		.judge {
-			position: absolute;
-			left: 200px;
-			width: 200px;
-			height: 200px;
+	.confirmation {
+		position: relative;
+		width:  800px;
+		height: 200px;
+
+		.ok {
 			color: white;
+			line-height: 48pt;
+			position: absolute;
+			top: 68px;
+			left: 400px;
+			width: 160px;
+			height: 64px;
+			border-radius: 24pt;
+			border: 4px solid green;
+			background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+			text-align: center;
+		}
+
+		.back {
+			color: white;
+			line-height: 48pt;
+			position: absolute;
+			top: 68px;
+			left: 600px;
+			width: 160px;
+			height: 64px;
+			border-radius: 24pt;
+			border: 4px solid orange;
+			background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
 			text-align: center;
 		}
 	}
 }
+

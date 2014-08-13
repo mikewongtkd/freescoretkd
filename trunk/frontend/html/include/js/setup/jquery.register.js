@@ -1,23 +1,38 @@
+String.prototype.capitalize = function() {
+	return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
+};
+
 $.widget( "freescore.register", {
 	options: { autoShow: true },
 	_create: function() {
-		var o          = this.options;
-		var e          = this.options.elements = {};
-		var w          = this.element;
-		var html       = o.html     = { div : $( "<div />" ), h1 : $( "<h1 />" ), p : $( "<p />" ), img : $( "<img />" ) };
-		var tournament = o.tournament;
+		var o            = this.options;
+		var e            = this.options.elements = {};
+		var w            = this.element;
+		var html         = o.html     = { div : $( "<div />" ), h1 : $( "<h1 />" ), p : $( "<p />" ), img : $( "<img />" ) };
+		var tournament   = o.tournament;
 
-		var h1         = html.h1.clone() .html( "Register" );
-		var text       = html.p.clone() .html( "Choose your ring number: " );
+		var h1           = html.h1.clone() .html( "Register" );
+		var text         = html.p.clone() .html( "Choose your ring number: " );
 
-		var rings      = o.rings   = [];
-		var roles      = o.roles   = [];
-		var judges     = o.judges  = [];
-		var width      = tournament.rings.width;
-		var height     = tournament.rings.height;
-		var floorplan  = html.div.clone() .addClass( "floorplan" ) .css( "width", width * 200 ) .css( "height", height * 200 );
-		var jobs       = html.div.clone() .addClass( "roles" ) .hide();
-		var court      = html.div.clone() .addClass( "court" ) .hide();
+		var rings        = o.rings   = [];
+		var roles        = o.roles   = [];
+		var judges       = o.judges  = [];
+		var width        = tournament.rings.width;
+		var height       = tournament.rings.height;
+		var floorplan    = html.div.clone() .addClass( "floorplan" ) .css( "width", width * 200 ) .css( "height", height * 200 );
+		var jobs         = html.div.clone() .addClass( "roles" ) .hide();
+		var court        = html.div.clone() .addClass( "court" ) .hide();
+		var confirmation = html.div.clone() .addClass( "confirmation" ) .hide();
+
+		// ===== REMOVE LOCAL COOKIES
+		$.removeCookie( 'ring'  );
+		$.removeCookie( 'role'  );
+		$.removeCookie( 'judge' );
+
+		// ===== REMOVE SITE COOKIES
+		$.removeCookie( 'ring',  { path: '/' });
+		$.removeCookie( 'role',  { path: '/' });
+		$.removeCookie( 'judge', { path: '/' });
 
 		// ====================
 		// REGISTER RING
@@ -39,7 +54,7 @@ $.widget( "freescore.register", {
 						var j    = ring.attr( "num" );
 						if( j == num ) { 
 							ring.animate( { left: gotoX, top: gotoY } );
-							$.cookie( "ring", num );
+							$.cookie( "ring", num, { path: '/' } );
 
 						} else { 
 							ring.fadeOut( 500, function() { 
@@ -52,7 +67,6 @@ $.widget( "freescore.register", {
 					}
 				};
 			}
-
 			mat.click( callback( num ) );
 			return mat;
 		}
@@ -106,7 +120,15 @@ $.widget( "freescore.register", {
 								});
 							} else {
 								role.animate( { left: 200 }, 400, 'swing', function() {
-									role .delay( 300 ) .fadeOut();
+									role .delay( 300 ) .fadeOut( 400, function () {
+										jobs .fadeOut( 400, function() {
+											$.cookie( "role", roleName.toLowerCase(), { path: '/' } );
+											updateConfirmation();
+											var ring = $.cookie( "ring" );
+											text.html( "Confirm Registration for " + roleName + " in Ring " + ring + ":" );
+											confirmation .fadeIn();
+										});
+									});
 								});
 							}
 						} else {
@@ -143,7 +165,12 @@ $.widget( "freescore.register", {
 							judge.children( "p" ).remove();
 							judge.children( "img" ).animate( { height: 200 }, 400, 'swing', function() {
 								court .delay( 300 ) .fadeOut( 400, function() {
-									text.html( "Confirm Registration" );
+									var ring = $.cookie( "ring" );
+									text.html( "Confirm Registration for Judge " + num + " in Ring " + ring + ":" );
+									$.cookie( "role", "judge", { path: '/' } );
+									$.cookie( "judge", num, { path: '/' } );
+									updateConfirmation();
+									confirmation .fadeIn();
 								});
 							});
 						} else {
@@ -155,15 +182,34 @@ $.widget( "freescore.register", {
 			judge.click( callback( num ));
 			return judge;
 		}
-
-		for( var i = 0; i < 3; i++ ) { var judge = addJudge( i+1 ); judges.push( judge ); court.append( judge ); }
+		for( var i = 0; i < 3; i++ ) { 
+			var judge = addJudge( i+1 ); 
+			judges.push( judge ); 
+			court.append( judge ); 
+		}
 
 		// ====================
 		// REGISTRATION CONFIRMATION
 		// ====================
-		// MW Add code here
+		var updateConfirmation = function() {
+			var ring  = addRing( parseInt( $.cookie( "ring" )), 0, 0 );
+			var role  = String( $.cookie( "role" ));
+			if( role == "judge" ) {
+				var num   = $.cookie( "judge" );
+				role = addJudge( num );
+				role.css( 'left', '200px' );
+			} else {
+				role = addRole( role.capitalize(), '200px' );
+			}
+			var url  = $.url().param( 'referer' );
+			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { location = url; } );
+			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { location.reload(); } );
+			confirmation.empty();
+			confirmation.append( ring, role, ok, back );
+		}
 
-		w.append( h1, text, floorplan, jobs, court );
+
+		w.append( h1, text, floorplan, jobs, court, confirmation );
 		w.addClass( "register" );
 	},
 	_init: function( ) {

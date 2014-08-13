@@ -1,5 +1,5 @@
 <?php 
-	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: ../../setup/register.php?referer=../forms/worldclass/judge.php' ); exit(); }
+	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: ../../setup/register.php?referer=/freescore/forms/worldclass/judge.php' ); exit(); }
 	include( "../../include/php/config.php" ); 
 ?>
 <html>
@@ -28,7 +28,6 @@
 		<script src="../../include/js/forms/worldclass/jquery.judgeController.js"></script>
 	</head>
 	<body>
-		<?php print_r( $_COOKIE ) ?>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
 			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
