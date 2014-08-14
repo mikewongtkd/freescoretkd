@@ -28,7 +28,7 @@ $.widget( "freescore.leaderboard", {
 				var score = scores[ j ];
 				if( typeof( score ) === 'undefined' ) { return -1.0; }
 				var major        = 0.3 * Number.parseInt( score.major );
-				var minor        = 0.1 * Nubmer.parseInt( score.minor );
+				var minor        = 0.1 * Number.parseInt( score.minor );
 				var accuracy     = major + minor;
 				var rhythm       = Number.parseFloat( score.rhythm );
 				var power        = Number.parseFloat( score.power );

@@ -20,6 +20,7 @@
 		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
+		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.deductions.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.matposition.js"></script>
