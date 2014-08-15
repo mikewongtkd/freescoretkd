@@ -135,12 +135,12 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
 		if( pending.athletes.length == 0 ) { 
 			e.pending.hide();
-			e.pending.removeClass( "one-column", "two-column", "left-column" );
+			e.pending.removeClass( "one-column", "two-column", "right-column" );
 
 		} else if( standings.athletes.length == 0 ) {
 			e.pending.show();
-			e.pending.addClass( "one-column" );
-			e.pending.removeClass( "two-column", "left-column" );
+			e.pending.addClass( "one-column left-column" );
+			e.pending.removeClass( "two-column", "right-column" );
 
 		} else {
 			e.pending.show();
