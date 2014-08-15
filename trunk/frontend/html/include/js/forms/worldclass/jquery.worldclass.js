@@ -7,7 +7,7 @@ $.widget( "freescore.worldclass", {
 		var html        = { div : $( "<div />" ) };
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard back" );
 		var scorekeeper = e.scorekeeper = html.div.clone() .addClass( "scorekeeper front" );
-		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
+		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" ) .hide();
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
 		card.append( leaderboard, scorekeeper );

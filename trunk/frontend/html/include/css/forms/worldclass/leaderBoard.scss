@@ -6,10 +6,10 @@
 
 	.division {
 		width: 1000px;
-		height: 680px;
-		margin: 20px auto 20px auto;
+		height: 720px;
 
 		.standings {
+			position: relative;
 			height: 680px;
 			color: #999;
 			font-size: 24pt;
@@ -17,7 +17,6 @@
 			border: 4px solid white;
 			border-radius: 24px;
 			padding: 0 32px 8px 32px;
-			margin: 0 auto 0 auto;
 
 			.rank1 { color: #f90; }
 			.rank2 { color: #ccc; }
@@ -25,21 +24,39 @@
 			.rank4 { color: #930; }
 
 			.athlete {
-				clear: both;
+				position: relative;
 				.name {
-					float: left;
+					position: absolute;
+					left: 0;
 					width: 70%;
 					font-weight: bold;
 				}
 				.score {
-					float: left;
+					position: absolute;
+					left: 70%;
 					width: 20%;
+
+					.tiebreaker {
+					}
 				}
 				.medal {
-					float: left;
+					position: absolute;
+					left: 90%;
 					width: 10%;
 				}
 			}
+
+			.notes {
+				font-size: 14pt;
+				position: relative;
+				color: white;
+				background: black;
+				border: 2px solid white;
+				border-radius: 8px;
+				padding: 8px;
+				opacity: 0.5;
+			}
+
 		}
 
 		.pending {
@@ -55,8 +72,9 @@
 			ol { li { b { color: #ccc; font-weight: bold; } } }
 		}
 
-		.hidden { display: none; }
-		.one-column { width: 900px; margin: 0 auto 0 auto; }
-		.two-column { width: 400px; margin: 0 10px 0 10px; left: 0; float: left; h1 { font-size: 28pt; } }
+		.one-column   { width: 900px; }
+		.two-column   { top: 0; width: 400px; h1 { font-size: 28pt; } }
+		.left-column  { position: absolute; top: 0; left: 0; }
+		.right-column { position: absolute; top: 0; left: 500px; }
 	}
 }
