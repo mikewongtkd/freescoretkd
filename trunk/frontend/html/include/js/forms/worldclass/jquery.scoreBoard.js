@@ -3,9 +3,10 @@
 $.widget( "freescore.scorekeeper", {
 	options: { autoShow: true, judges: 3 },
 	_create: function() {
-		var html = { div : $( "<div />" ) };
+		var o = this.options;
 		var e = this.options.elements = {};
 
+		var html = o.html = { div : $( "<div />" ), span : $( "<span />" ) };
 		var judgeScores = e.judgeScores = html.div.clone() .addClass( "judgeScores" );
 		var judges      = e.judges      = new Array();
 		var totalScore  = e.totalScore  = html.div.clone() .addClass( "totalScores" );
@@ -36,10 +37,10 @@ $.widget( "freescore.scorekeeper", {
 
 	_init: function() {
 		var e       = this.options.elements;
-		var options = this.options
-		var k       = this.options.judges;
+		var o       = this.options;
+		var k       = o.judges;
 		var widget  = this.element;
-		var current = this.options.current;
+		var current = o.current;
 
 		e.athlete .html( current.athlete.name );
 		for( var i = 0; i < k; i++ ) {
@@ -99,11 +100,19 @@ $.widget( "freescore.scorekeeper", {
 			sum.presentation += scores[ i ].presentation;
 			count.presentation++;
 		}
-		mean.accuracy     = count.accuracy     == 0 ? 0.0 : (sum.accuracy     / count.accuracy)     .toFixed( 1 );
-		mean.presentation = count.presentation == 0 ? 0.0 : (sum.presentation / count.presentation) .toFixed( 1 );
+		mean.accuracy     = count.accuracy     == 0 ? 0.0 : (sum.accuracy     / count.accuracy)     .toFixed( 2 );
+		mean.presentation = count.presentation == 0 ? 0.0 : (sum.presentation / count.presentation) .toFixed( 2 );
 
-		if( mean.accuracy > 0.0 && mean.presentation > 0.0 ) { e.score.html( '<span class="accuracy">' + mean.accuracy + '</span>&nbsp;<span class="presentation">' + mean.presentation + '</span>' ); } 
-		else                                                 { e.score.empty(); }
+		var display       = { 
+			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" ) .html( mean.accuracy )),
+			presentation: o.html.div.clone() .addClass( "presentation" ) .append( o.html.span.clone() .addClass( "mean" ) .html( mean.presentation )),
+			total:        o.html.div.clone() .addClass( "total" )        .append( o.html.span.clone() .addClass( "total" ) .html( (parseFloat( mean.accuracy ) + parseFloat( mean.presentation )).toFixed( 2 ) )),
+		};
+
+		e.score.empty();
+		if( mean.accuracy > 0.0 && mean.presentation > 0.0 ) { 
+			e.score.append( display.accuracy, display.presentation, display.total ); 
+		} 
 		widget .fadeIn( 500 );
 	},
 	fadeout: function() {

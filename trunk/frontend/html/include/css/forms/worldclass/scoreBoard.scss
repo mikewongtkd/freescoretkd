@@ -86,12 +86,41 @@
 		}
 
 		.score {
+			position: relative;
 			height: 400px;
-			font-size: 180pt;
-			line-height: 360pt;
+			width: 992px;
 
-			.accuracy     { color: #f99; }
-			.presentation { color: #99f; }
+			.accuracy     { 
+				position: absolute; 
+				top: 0;
+				left: 186px;
+				width: 248px;
+				height: 80px;
+				color: #600; 
+				font-size: 96pt;
+				line-height: 96pt;
+				.mean { color: #f99; }
+			}
+			.presentation { 
+				position: absolute; 
+				top: 0;
+				left: 558px;
+				width: 248px;
+				height: 80px;
+				color: #006; 
+				font-size: 96pt;
+				line-height: 96pt;
+				.mean { color: #99f; }
+			}
+			.total {
+				position: absolute;
+				top: 12px;
+				left: 0;
+				width: 992px;
+				height: 320px;
+				color: #ccc;
+				font-size: 300pt;
+			}
 		}
 	}
 }
