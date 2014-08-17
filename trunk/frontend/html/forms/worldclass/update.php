@@ -94,22 +94,35 @@
 	}
 
 	// ============================================================
-	function update( $id, $data ) {
+	function update( $id, $progress, $previous ) {
 	// ============================================================
+
+		// ===== COMPARE PREVIOUS UPDATE CYCLE DATA WITH CURRENT DATA
+		$copy    = $progress;
+		unset( $copy[ 'state' ] ); // Score/display state shouldn't affect current object state
+		$current = md5( json_encode( $copy ));
+		if( $current == $previous ) { $progress[ 'updated' ] = false; }
+		else                        { $progress[ 'updated' ] = true;  }
+
+		$data     = json_encode( $progress );
+		$previous = $current;
+
 		echo "id: $id"     . PHP_EOL;
 		echo "data: $data" . PHP_EOL;
 		echo PHP_EOL;
 		ob_flush();
 		flush();
+		return $current;
 	}
 
 	// ============================================================
 	// SERVER SENT EVENT LOOP
 	// ============================================================
-	while( true ) {
+	$state = null;
+	while( true ) { 
 		$id = time();
 		$progress = read_progress( $source_path );
-		update( $id, json_encode( $progress ) );
+		$state = update( $id, $progress, $state );
 		usleep( 500000 );
 	}
 ?>
