@@ -4,28 +4,32 @@
 	header('Content-Type: text/event-stream');
 	header('Cache-Control: no-cache');
 
-	$ring        = sprintf( "ring%02d", intval( $_GET[ "ring" ] ) ?: 1 );
+	$ring        = sprintf( "ring%02d", intval( $_COOKIE[ "ring" ] ) ?: 1 );
 	$json        = json_decode( $tournament );
 	$db          = $json->db;
 	$source_path = "/Volumes/ramdisk/$db/forms-worldclass/$ring";
 
 	// ============================================================
-	function criteria( $string ) {
+	function parse_scores( $string ) {
 	// ============================================================
 		$score = array();
-		$score[ 'major'  ]  = -1.0;
-		$score[ 'minor'  ]  = -1.0;
-		$score[ 'rhythm' ]  = -1.0;
-		$score[ 'power'  ]  = -1.0;
-		$score[ 'ki'     ]  = -1.0;
-		if( $criteria = preg_split( '/\//', $string )) {
-			$score[ 'major'  ] = array_shift( $criteria );
-			$score[ 'minor'  ] = array_shift( $criteria );
-			$score[ 'rhythm' ] = array_shift( $criteria );
-			$score[ 'power'  ] = array_shift( $criteria );
-			$score[ 'ki'     ] = array_shift( $criteria );
+		$scoring_criteria = preg_split( '/\//', $string );
+		$score[ 'major'  ] = array_shift( $scoring_criteria ) ?: null;
+		$score[ 'minor'  ] = array_shift( $scoring_criteria ) ?: null;
+		$score[ 'rhythm' ] = array_shift( $scoring_criteria ) ?: null;
+		$score[ 'power'  ] = array_shift( $scoring_criteria ) ?: null;
+		$score[ 'ki'     ] = array_shift( $scoring_criteria ) ?: null;
+		if( 
+			is_null( $score[ 'major'  ]) &&
+			is_null( $score[ 'minor'  ]) &&
+			is_null( $score[ 'rhythm' ]) &&
+			is_null( $score[ 'power'  ]) &&
+			is_null( $score[ 'ki'     ])
+		) {
+			return null;
+		} else {
+			return $score;
 		}
-		return $score;
 	}
 
 	// ============================================================
@@ -47,7 +51,7 @@
 					$data = preg_split( "/\t/", $line );
 					$athlete[ 'name' ]   = array_shift( $data );
 					$athlete[ 'belt' ]   = array_shift( $data );
-					$athlete[ 'scores' ] = array_map( 'criteria', $data );
+					$athlete[ 'scores' ] = array_map( 'parse_scores', $data );
 					$division[ 'athletes' ][] = $athlete;
 				}
 			}
@@ -86,43 +90,73 @@
 			$progress[ 'current' ] = $progress[ 'divisions' ][ 0 ];
 		}
 		$division = read_division( $path, $progress[ 'current' ] );
-		$progress[ 'id' ]       = $progress[ 'current' ]  ?: 0;
-		$progress[ 'current' ]  = $division[ 'current' ]  ?: 0;
+		$progress[ 'id' ]       = $progress[ 'current' ]  ?: null;
+		$progress[ 'current' ]  = $division[ 'current' ]  ?: "0";
 		$progress[ 'state' ]    = $division[ 'state' ]    ?: 'display';
 		$progress[ 'athletes' ] = $division[ 'athletes' ];
 		return $progress;
 	}
 
 	// ============================================================
-	function update( $id, $progress, $previous ) {
+	function update( $id, $progress, $previous_state ) {
 	// ============================================================
 
-		// ===== COMPARE PREVIOUS UPDATE CYCLE DATA WITH CURRENT DATA
-		$copy    = $progress;
-		unset( $copy[ 'state' ] ); // Score/display state shouldn't affect current object state
-		$current = md5( json_encode( $copy ));
-		if( $current == $previous ) { $progress[ 'updated' ] = false; }
-		else                        { $progress[ 'updated' ] = true;  }
+		// ===== KEEP TRACK OF UPDATES
+		$progress[ 'updates' ] = array();
+		$current_state         = array();
+
+		// ===== IDENTIFY CHANGE OF CURRENT DIVISION
+		$md5 = md5( $progess[ 'id' ]);
+		array_push( $current_state, array( 'event' => 'id', 'md5' => $md5 ));
+		foreach( $previous_state as $update ) {
+			if( $update[ 'event' ] != 'id' ) { continue; }
+			if( $update[ 'md5' ]   != $md5 ) { array_push( $progress[ 'updates' ], array( 'event' =>'id' )); }
+		}
+		// ===== IDENTIFY CHANGE OF CURRENT ATHLETE
+		$md5 = md5( $progress[ 'current' ]);
+		array_push( $current_state, array( 'event' => 'current', 'md5' => $md5 ));
+		foreach( $previous_state as $update ) {
+			if( $update[ 'event' ] != 'current' ) { continue; }
+			if( $update[ 'md5' ]   != $md5 ) { array_push( $progress[ 'updates' ], array( 'event' =>'current' )); }
+		}
+
+		// ===== IDENTIFY UPDATES TO ATHLETE SCORES
+		for( $i = 0; $i < count( $progress[ 'athletes' ]); $i++ ) {
+			$athlete = $progress[ 'athletes' ][ $i ];
+
+			for( $j = 0; $j < count( $athlete[ 'scores' ]); $j++ ) {
+				$judge = $athlete[ 'scores' ][ $j ];
+				if( is_null( $judge )) { $md5 = null; }
+				else                   { $md5 = md5( json_encode( $judge )); }
+				array_push( $current_state, array( 'event' => 'score', 'athlete' => $i, 'judge' => $j, 'md5' => $md5 ));
+
+				foreach( $previous_state as $update ) {
+					if( $update[ 'event' ]   != 'score' ) { continue; } // Ignore other update events
+					if( $update[ 'athlete' ] != $i      ) { continue; } // Ignore scores for other athletes
+					if( $update[ 'judge' ]   != $j      ) { continue; } // Ignore scores for other judges
+					if( $update[ 'md5' ]     != $md5    ) { array_push( $progress[ 'updates' ], array( 'event' => 'score', 'athlete' => $i, 'judge' => $j + 1 )); } 
+				}
+			}
+		}
 
 		$data     = json_encode( $progress );
-		$previous = $current;
 
 		echo "id: $id"     . PHP_EOL;
 		echo "data: $data" . PHP_EOL;
 		echo PHP_EOL;
 		ob_flush();
 		flush();
-		return $current;
+		return $current_state;
 	}
 
 	// ============================================================
 	// SERVER SENT EVENT LOOP
 	// ============================================================
-	$state = null;
+	$state = array();
 	while( true ) { 
-		$id = time();
+		$id       = time();
 		$progress = read_progress( $source_path );
-		$state = update( $id, $progress, $state );
+		$state    = update( $id, $progress, $state );
 		usleep( 500000 );
 	}
 ?>

@@ -1,5 +1,5 @@
 $.widget( "freescore.judgeController", {
-	options: { autoShow: true, num: 0 },
+	options: { autoShow: true },
 	_create: function() {
 		var o      = this.options;
 		var e      = this.options.elements = {};
@@ -108,9 +108,10 @@ $.widget( "freescore.judgeController", {
 			e.send .ajaxbutton({ command : command( o.num, o ) });
 			e.notes .judgeNotes({ athletes : division.athletes, current : division.current });
 			e.athlete .html( athlete.name );
+			if( division.updates.length ) { console.log( "Updates",  division.updates ) };
 
 		};
-		e.source = new EventSource( 'update.php?ring=' + o.ring );
+		e.source = new EventSource( 'update.php' );
 		e.source.addEventListener( 'message', refresh, false );
 	}
 });

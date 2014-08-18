@@ -1,7 +1,7 @@
 $.widget( "freescore.worldclass", {
 	options: { autoShow: true, server: 'localhost', judges: 3 },
 	_create: function() {
-		var options     = this.options;
+		var o           = this.options;
 		var e           = this.options.elements = {};
 		var widget      = this.element;
 		var html        = { div : $( "<div />" ) };
@@ -38,7 +38,7 @@ $.widget( "freescore.worldclass", {
 			}
 		};
 
-		e.source = new EventSource( 'update.php?ring=1' );
+		e.source = new EventSource( 'update.php' );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}
