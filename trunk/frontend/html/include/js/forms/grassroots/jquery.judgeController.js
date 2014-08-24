@@ -1,24 +1,13 @@
 $.widget( "freescore.judgeController", {
-	options: { autoShow: true, num: 0 },
+	options: { autoShow: true },
 	_create: function() {
 		var widget  = this.element;
 		var o       = this.options;
 		var e       = this.options.elements = {};
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
-		var login   = e.login = html.div.clone() .prop( 'id', 'login' );
-		
-		login.prop( 'title', 'Login' );
-		login.html( 'Please choose a role' );
-		login.dialog( { 
-			autoOpen: true, resizeable: false, modal: true, width: '400px', 
-			buttons: {
-				'Judge 1'    : function() { o.num = 0; $( this ).dialog( "close" ); },
-				'Center Ref' : function() { o.num = 1; $( this ).dialog( "close" ); },
-				'Judge 3'    : function() { o.num = 2; $( this ).dialog( "close" ); },
-			}
-		} );
 
-		o.ring = 1;
+		o.ring  = $.cookie( "ring" );
+		o.judge = Number($.cookie( "judge" )) - 1;
 
 		widget.addClass( 'judgeController' );
 		var controller  = e.controller  = html.div.clone() .addClass( "controller" );
@@ -32,16 +21,16 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE NAVIGATION BUTTONS
 		// ============================================================
-		var prevAthlete = e.prevAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/previous',  label : 'Previous Athlete'  });
-		var prevDiv     = e.prevDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'division', app : 'forms/grassroots', command : 'division/previous', label : 'Previous Division' });
-		var nextDiv     = e.nextDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'division', app : 'forms/grassroots', command : 'division/next',     label : 'Next Division'     });
-		var nextAthlete = e.nextAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/next',      label : 'Next Athlete'     });
+		var prevAthlete = e.prevAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/previous',  label : 'Previous Athlete'  });
+		var prevDiv     = e.prevDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'division', app : 'forms/grassroots', command : 'division/previous', label : 'Previous Division' });
+		var nextDiv     = e.nextDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'division', app : 'forms/grassroots', command : 'division/next',     label : 'Next Division'     });
+		var nextAthlete = e.nextAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'athlete',  app : 'forms/grassroots', command : 'athlete/next',      label : 'Next Athlete'     });
 		e.navigation.append( prevAthlete, prevDiv, nextDiv, nextAthlete );
 
 		// ============================================================
 		// THE MODE BUTTONS
 		// ============================================================
-		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'mode',  app : 'forms/grassroots', command : 'display', label : 'Flip Display' });
+		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'mode',  app : 'forms/grassroots', command : 'display', label : 'Flip Display' });
 		e.mode.append( displayMode );
 
 		// ============================================================
@@ -59,8 +48,8 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE ACTION BUTTONS
 		// ============================================================
-		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'action',  app : 'forms/grassroots', command : o.num + '/-10', label : 'Clear' });
-		var scoreButton = e.scoreButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament, ring : o.ring, type : 'action',  app : 'forms/grassroots', command : o.num + '/8.0', label : 'Send'  });
+		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action',  app : 'forms/grassroots', command : o.judge + '/-10', label : 'Clear' });
+		var scoreButton = e.scoreButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action',  app : 'forms/grassroots', command : o.judge + '/8.0', label : 'Send'  });
 		e.scoring.append( clearButton, scoreButton );
 
 		controller.append( navigation, controls, notes );
@@ -76,11 +65,11 @@ $.widget( "freescore.judgeController", {
 
 		function refresh( update ) {
 			var division = JSON.parse( update.data );
-			e.notes.judgeNotes({ num : o.num, athletes : division.athletes, current : division.current });
+			e.notes.judgeNotes({ num : o.judge, athletes : division.athletes, current : division.current });
 
 			// ===== UPDATE ACTION BUTTON
-			e.clearButton.ajaxbutton( { command : o.num + '/-10' } );
-			e.scoreButton.ajaxbutton( { command : o.num + '/' + e.score.val() } );
+			e.clearButton.ajaxbutton( { command : o.judge + '/-10' } );
+			e.scoreButton.ajaxbutton( { command : o.judge + '/' + e.score.val() } );
 		};
 		e.source = new EventSource( 'update.php?ring=' + o.ring );
 		e.source.addEventListener( 'message', refresh, false );

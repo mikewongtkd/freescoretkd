@@ -25,7 +25,7 @@ $.widget( "freescore.judgeNotes", {
 		table.append( h.tr.clone() 
 			.append( h.th.clone().html( "#" ))
 			.append( h.th.clone().html( "Name" ))
-			.append( h.th.clone().html( "Judge " + (o.num + 1))));
+			.append( h.th.clone().html( "Judge " + (Number( o.num ) + 1))));
 
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr        = h.tr.clone();

@@ -21,6 +21,42 @@ body {
 		font-size: 18pt;
 	}
 
+	.competition { 
+		position: relative; 
+		width: 400px;
+		height: 200px;
+	}
+	.event {
+		position: absolute;
+		top: 0;
+		width:  180px;
+		height: 180px;
+		border-radius: 12px;
+
+		.color, .greys {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 180px;
+			height: 180px;
+			border-radius: 12px;
+		}
+
+		.label {
+			font-size: 24pt;
+			color: #333;
+			top: 140px;
+			left: 0px;
+			position: absolute;
+			width: 180px;
+			height: 40px;
+			background: #fff;
+			opacity: 0.75;
+			text-align: center;
+			border-radius: 0 0 12px 12px;
+		}
+	}
+
 	.floorplan { position: relative; }
 	.mat {
 		position: absolute;
@@ -45,7 +81,6 @@ body {
 		}
 	}
 
-
 	.roles {
 		position: relative;
 		width:  800px;
@@ -58,7 +93,6 @@ body {
 		color: white;
 		text-align: center;
 	}
-
 
 	.court {
 		position: relative;
@@ -75,15 +109,15 @@ body {
 
 	.confirmation {
 		position: relative;
-		width:  800px;
+		width:  1000px;
 		height: 200px;
 
 		.ok {
 			color: white;
 			line-height: 48pt;
 			position: absolute;
-			top: 68px;
-			left: 400px;
+			top: 0;
+			left: 600px;
 			width: 160px;
 			height: 64px;
 			border-radius: 24pt;
@@ -96,7 +130,7 @@ body {
 			color: white;
 			line-height: 48pt;
 			position: absolute;
-			top: 68px;
+			top: 104px;
 			left: 600px;
 			width: 160px;
 			height: 64px;
