@@ -15,7 +15,7 @@ $.widget( "freescore.judgeController", {
 		var controls    = e.controls    = html.div.clone() .addClass( "control-group" );
 		var notes       = e.notes       = html.div.clone();
 		var mode        = e.mode        = html.div.clone() .addClass( "button-row" );
-		var scoreSelect = e.scoreSelect = html.div.clone() .addClass( "select" );
+		var score       = e.score       = html.div.clone();
 		var scoring     = e.scoring     = html.div.clone() .addClass( "button-row" );
 
 		// ============================================================
@@ -36,14 +36,7 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE SCORE DROP-DOWN
 		// ============================================================
-		var score = e.score = html.select.clone() .addClass( 'chosen-select' );
-		for( var i = 75; i < 100; i++ ) {
-			var j = i / 10.0;
-			var option = html.option.clone() .prop( 'value', i ) .append( j.toFixed( 1 ) );
-			if( i == 85 ) { option.prop( 'selected', 'true' ); }
-			score.append( option );
-		}
-		scoreSelect.append( score );
+		score.spinwheel() .css( "margin", "0 auto 0 auto" );
 
 		// ============================================================
 		// THE ACTION BUTTONS
@@ -53,7 +46,7 @@ $.widget( "freescore.judgeController", {
 		e.scoring.append( clearButton, scoreButton );
 
 		controller.append( navigation, controls, notes );
-		controls.append( mode, scoreSelect, scoring );
+		controls.append( mode, score, scoring );
 		widget.append( controller );
 
 	},
@@ -69,7 +62,7 @@ $.widget( "freescore.judgeController", {
 
 			// ===== UPDATE ACTION BUTTON
 			e.clearButton.ajaxbutton( { command : o.judge + '/-10' } );
-			e.scoreButton.ajaxbutton( { command : o.judge + '/' + e.score.val() } );
+			e.scoreButton.ajaxbutton( { command : o.judge + '/' + e.score.spinwheel( 'option', 'selected' ) } );
 		};
 		e.source = new EventSource( 'update.php?ring=' + o.ring );
 		e.source.addEventListener( 'message', refresh, false );
