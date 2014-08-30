@@ -1,14 +1,45 @@
 #! /usr/bin/perl
+use Try::Tiny;
+use CGI;
 use Time::HiRes qw( usleep );
+use Digest::MD5 qw( md5_hex );
+use JSON::XS;
 
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::WorldClass;
+
+use Data::Dumper;
+
+my $cgi        = new CGI();
+my $tournament = shift || $cgi->param( 'tournament' );
+my $ring       = shift || $cgi->param( 'ring' );
+my $json       = new JSON::XS();
+
+$json->convert_blessed( 1 );
+
+$| = 1;
 print "Content-Type: text/event-stream\n";
 print "Cache-Control: no-cache\n\n";
 
-$| = 1;
+my $last = undef;
 while( 1 ) {
-	my $id   = localtime();
-	my $data = "{\"fname\":\"Mike\",\"lname\":\"Wong\",\"time\":\"$id\"}";
+	my $data   = undef;
+	my $id     = time();
+	try {
+		$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	} catch {
+		$data = { error => $_ };
+	};
+	my $update = $json->encode( $data );
+	my $state  = md5_hex( $update );
+
+	next if $state eq $last;
 	print "id: $id\n";
-	print "data: $data\n\n";
+	print "data: '$update'\n\n";
 	usleep( 500000 );
+	$last = $state;
+}
+
+sub TO_JSON {
+	return { %{ shift }};
 }

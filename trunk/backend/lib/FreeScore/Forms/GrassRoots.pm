@@ -1,7 +1,7 @@
 package FreeScore::Forms::GrassRoots;
 use FreeScore;
 use FreeScore::Forms;
-our @ISA = qw( FreeScore::Forms );
+use base qw( FreeScore::Forms );
 
 # ============================================================
 sub init {

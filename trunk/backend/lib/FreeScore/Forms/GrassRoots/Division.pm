@@ -2,28 +2,9 @@ package FreeScore::Forms::GrassRoots::Division;
 use FreeScore;
 
 # ============================================================
-sub new {
+sub read {
 # ============================================================
-	my ($class) = map { ref || $_ } shift;
-	my $self = bless {}, $class;
-	$self->init( @_ );
-	return $self;
-}
-
-# ============================================================
-sub init {
-# ============================================================
-	my $self = shift;
-	my $tournament = shift;
-	my $ring       = shift;
-	my $division   = shift;
-
-	if( $ring =~ /^\d+$/ ) { $ring = sprintf( "ring%02d", $ring ); }
-	$self->{ current } = 0;
-	$self->{ state }   = 'display';
-
-	$self->{ file } = "$FreeScore::PATH/$tournament/forms-grassroots/$ring/div.$division.txt";
-
+	my $self  = shift;
 	my $index = 0;
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
@@ -66,13 +47,4 @@ sub write {
 	}
 	close FILE;
 }
-
-sub display  { my $self = shift; $self->{ state } = 'display'; }
-sub score    { my $self = shift; $self->{ state } = 'score';  }
-sub next     { my $self = shift; $self->{ state } = 'score'; $self->{ current } = ($self->{ current } + 1) % int(@{ $self->{ division }}); }
-sub previous { my $self = shift; $self->{ state } = 'score'; $self->{ current } = ($self->{ current } - 1) >= 0 ? ($self->{ current } -1) : $#{ $self->{ division }}; }
-
-sub is_display { my $self = shift; return $self->{ state } eq 'display'; }
-sub is_score   { my $self = shift; return $self->{ state } eq 'score';  }
-
 1;

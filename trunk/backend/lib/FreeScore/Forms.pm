@@ -70,5 +70,5 @@ sub find_current_index {
 sub current  { my $self = shift; return $self->{ current }; }
 sub next     { my $self = shift; my $i = $self->find_current_index; $i = ($i + 1) % int(@{ $self->{ divisions }}); $self->{ current } = $self->{ divisions }[ $i ]; }
 sub previous { my $self = shift; my $i = $self->find_current_index; $i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; $self->{ current } = $self->{ divisions }[ $i ]; }
-
+sub TO_JSON  { my $self = shift; return { %$self }; }
 1;
