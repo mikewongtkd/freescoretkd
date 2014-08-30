@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 
-use lib qw( /Users/mikewong899/devel/freescore/backend/lib );
+use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
 use YAML;
 use FreeScore::Forms::GrassRoots::Division;

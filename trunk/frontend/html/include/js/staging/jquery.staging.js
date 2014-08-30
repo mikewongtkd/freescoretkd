@@ -38,7 +38,7 @@
 			}
 
 			$.getJSON( 
-				'http://localhost/cgi-bin/freescore/rest/' + url.tournament + '/divisions/' + url.event,
+				'http://wong.net/cgi-bin/freescore/rest/tma-2014-spring/divisions/' + url.event,
 				function( data ) {
 					tournament = data;
 

@@ -1,0 +1,22 @@
+#! /usr/bin/perl
+use Time::HiRes qw( usleep );
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::Grassroots;
+use CGI;
+
+my $cgi        = new CGI();
+my $tournament = $cgi->param( 'tournament' );
+my $ring       = $cgi->param( 'ring' );
+my $grassroots = new FreeScore::Forms::Grassroots( $tournament, $ring );
+
+$| = 1;
+print "Content-Type: text/event-stream\n";
+print "Cache-Control: no-cache\n\n";
+
+while( 1 ) {
+	my $id   = localtime();
+	my $data = json_encode( $grassroots );
+	print "id: $id\n";
+	print "data: $data\n\n";
+	usleep( 500000 );
+}

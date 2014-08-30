@@ -1,0 +1,14 @@
+#! /usr/bin/perl
+use Time::HiRes qw( usleep );
+
+print "Content-Type: text/event-stream\n";
+print "Cache-Control: no-cache\n\n";
+
+$| = 1;
+while( 1 ) {
+	my $id   = localtime();
+	my $data = "{\"fname\":\"Mike\",\"lname\":\"Wong\",\"time\":\"$id\"}";
+	print "id: $id\n";
+	print "data: $data\n\n";
+	usleep( 500000 );
+}
