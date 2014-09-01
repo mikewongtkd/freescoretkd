@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+
+		<title>Neue Digitale / Razorfish GmbH - jGestures Demo</title>
+
+		<!-- meta -->
+		<meta name="language" content="en" />
+		<meta name="robots" content="index, follow" />
+
+		<!-- script -->
+		<script src="../../js/jquery-1.9.1.js"  type="text/javascript"></script>
+		<script src="../../js/jgestures.js"  type="text/javascript"></script>
+
+		<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		body {
+			font: arial normal 11px/1.5;
+
+		}
+		li {
+			list-style: none;
+		}
+
+		#logger {
+			position: absolute;
+			opacity: 0.75;
+			top:0;
+			left:0;
+			z-index:1;
+			background: #eee;
+			width: 200px;
+			padding: 5px;
+			-moz-box-shadow: 2px 2px 5px #000;
+			-webkit-box-shadow: 2px 2px 5px #000;
+
+		}
+
+		.gesturechange {
+			background: #eee;
+			border: 1px solid #ccc;
+			padding: 5px 2%;
+			width: 44%;
+			height: 175px;
+			position: absolute;
+			margin: 0 2% 0 1%;
+			left: 0%;
+			top:10px;
+			overflow: hidden;
+			-webkit-transition: all;
+		}
+
+		.gestureend {
+			background: #eee;
+			border: 1px solid #ccc;
+			padding: 5px 2%;
+			width: 44%;
+			height: 175px;
+			position: absolute;
+			margin: 0 2% 0 1%;
+			left: 50%;
+			top:10px;
+			-webkit-transition: all 1s ease-out;
+			overflow: hidden;
+
+		}
+		.swipe {
+			clear: left;
+			background: #ccc;
+			border: 1px solid #eee;
+			padding: 5px 2%; ;
+			width: 94%;
+			height: 150px;
+			position: absolute;
+			margin: 0 2% 0 1%;
+			left: 0%;
+			top:210px;
+
+		}
+		.tap {
+			clear: left;
+			background: #ccc;
+			border: 1px solid #eee;
+			padding: 5px 2%;
+			width: 94%;
+			height: 150px;
+			position: absolute;
+			margin: 0 2% 0 1%;
+			left: 0%;
+			top:390px;
+		}
+
+		code {
+			white-space: pre;
+			margin:0;
+			padding:0;
+			float: left;
+			width: 25%;
+		}
+
+
+		</style>
+
+ 	<script>jQuery(document).ready(function () {
+			 jQuery(window).bind('shakeupdown',function(event_,data_){
+				alert('shake: '+ data_.description)
+			})
+		})
+ 	</script>
+
+ <script>
+
+
+
+function log(event_, obj) {
+// ignore bubbled handlers
+//		if ( obj.originalEvent.currentTarget !== obj.originalEvent.target ) { return; }
+	obj.originalEvent.preventDefault();
+	jQuery('#logger')
+		.find('li')
+			.slice(1,jQuery('#logger').find('li').size()-8)
+				.animate({'opacity':'0', 'height':'0'},function(){jQuery(this).remove()})
+			.end()
+		.end()
+		.append('<li><b>'+jQuery(obj.originalEvent.currentTarget).attr('id')+'</b>: '+obj.description+ ' : '+obj.type +'</li>')
+
+}
+
+function manipulate(event_, obj) {
+// ignore bubbled handlers
+//		if ( obj.originalEvent.currentTarget !== obj.originalEvent.target ) { return; }
+	event_.preventDefault();
+	obj.originalEvent.preventDefault();
+	log(event_, obj)
+
+	var _a = obj.description.split(':');
+
+	jQuery(obj.originalEvent.currentTarget).css('zIndex','1000')
+	switch(_a[0]) {
+		case 'pinch':
+			//jQuery(obj.originalEvent.currentTarget).css('-webkit-transform','scale('+ ( obj.direction * obj.delta[0].moved ) +')');
+		break;
+		case  'rotate':
+ 			//jQuery(obj.originalEvent.currentTarget).css('-webkit-transform','rotate('+ (  obj.delta[0].moved ) +'deg)');
+		break;
+
+		case  'swipemove':
+			if(_a[1] != 1) {break;}
+			jQuery(obj.originalEvent.currentTarget).css('-webkit-transition','');
+ 			jQuery(obj.originalEvent.currentTarget).css('left', parseInt(jQuery(obj.originalEvent.currentTarget).css('left')) + obj.delta[0].startX );
+			jQuery(obj.originalEvent.currentTarget).css('top', parseInt(jQuery(obj.originalEvent.currentTarget).css('top')) + obj.delta[0].startY );
+//			jQuery(obj.originalEvent.currentTarget).data('moving',true)
+		break;
+
+		case 'swipe' :
+//			if(_a[1] != 1 || jQuery(obj.originalEvent.currentTarget).data('moving') } {break;}
+ 			jQuery(obj.originalEvent.currentTarget).css('-webkit-transition','all 1s ease-out').css('left', parseInt(jQuery(obj.originalEvent.currentTarget).css('left')) + obj.delta[0].startX );
+			jQuery(obj.originalEvent.currentTarget).css('-webkit-transition','all 1s ease-out').css('top', parseInt(jQuery(obj.originalEvent.currentTarget).css('top')) + obj.delta[0].startY );
+		break;
+	  }
+	  jQuery(obj.originalEvent.currentTarget).css('zIndex','')
+}
+
+	function BlockMove(event) {
+		// Tell Safari not to move the window.
+		event.preventDefault() ;
+	}
+
+
+jQuery(document).ready(function() {
+
+
+	jQuery('#tap').bind('tapone',log);
+	jQuery('#tap').bind('taptwo',log);
+	jQuery('#tap').bind('tapthree',log);
+	jQuery('#tap').bind('tapfour',log);
+
+
+	jQuery('#swipe').bind('swipeone',log);
+	jQuery('#swipe').bind('swipetwo',log);
+	jQuery('#swipe').bind('swipethree',log);
+	jQuery('#swipe').bind('swipefour',log);
+
+	jQuery('#swipe').bind('swipeup',log);
+	jQuery('#swipe').bind('swiperightup',log);
+	jQuery('#swipe').bind('swiperight',log);
+	jQuery('#swipe').bind('swiperightdown',log);
+
+	jQuery('#swipe').bind('swipedown',log);
+	jQuery('#swipe').bind('swipeleftdown',log);
+	jQuery('#swipe').bind('swipeleft',log);
+	jQuery('#swipe').bind('swipeleftup',log);
+
+	jQuery('#change').bind('pinchopen',manipulate);
+	jQuery('#change').bind('pinchclose',manipulate);
+	jQuery('#change').bind('rotatecw',manipulate);
+	jQuery('#change').bind('rotateccw',manipulate);
+ 	jQuery('#change').bind('swipeone',manipulate);
+
+	jQuery('#livechange').bind('swipeone',manipulate);
+	jQuery('#livechange').bind('swipemove',manipulate);
+	jQuery('#livechange').bind('pinch',manipulate);
+	jQuery('#livechange').bind('rotate',manipulate);
+
+})
+ </script>
+
+    </head>
+    <body>
+		<ul id="log2" style="position: absolute; right: 0; z-index:20000;" >
+ 		</ul>
+		<ul id="logger" >
+			<li>Description</li>
+		</ul>
+
+			<ul>
+				<li id="tap" class="tap">
+					<code>
+jQuery('#tap').bind('tapone',log);
+jQuery('#tap').bind('taptwo',log);
+jQuery('#tap').bind('tapthree',log);
+jQuery('#tap').bind('tapfour',log);
+ 					</code>
+				</li>
+				<li id="swipe" class="swipe">
+					<code>
+jQuery('#swipe').bind('swipeone',log);
+jQuery('#swipe').bind('swipetwo',log);
+jQuery('#swipe').bind('swipethree',log);
+jQuery('#swipe').bind('swipefour',log);
+ 					</code>
+					<code>
+jQuery('#swipe').bind('swipeup',log);
+jQuery('#swipe').bind('swiperightup',log);
+jQuery('#swipe').bind('swiperight',log);
+jQuery('#swipe').bind('swiperightdown',log);
+ 					</code>
+					<code>
+jQuery('#swipe').bind('swipedown',log);
+jQuery('#swipe').bind('swipeleftdown',log);
+jQuery('#swipe').bind('swipeleft',log);
+jQuery('#swipe').bind('swipeleftup',log);
+ 					</code>
+				</li>
+				<li id="change" class="gestureend">
+					<code>
+jQuery('#change').bind('pinchopen',manipulate);
+jQuery('#change').bind('pinchclose',manipulate);
+jQuery('#change').bind('rotatecw',manipulate);
+jQuery('#change').bind('rotateccw',manipulate);
+jQuery('#change').bind('swipeone',manipulate);
+
+
+ 					</code>
+				</li>
+				<li id="livechange" class="gesturechange">
+					<code>
+jQuery('#livechange').bind('swipemove',manipulate);
+jQuery('#livechange').bind('pinch',manipulate);
+jQuery('#livechange').bind('rotate',manipulate);
+jQuery('#livechange').bind('swipeone',manipulate);
+ 					</code>
+				</li>
+
+			</ul>
+
+
+
+	</body>
+</html>

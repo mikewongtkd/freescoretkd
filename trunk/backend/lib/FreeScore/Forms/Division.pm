@@ -14,17 +14,14 @@ sub new {
 sub init {
 # ============================================================
 	my $self = shift;
-	my $tournament = shift;
-	my $ring       = shift;
+	my $path       = shift;
 	my $division   = shift;
 
-	if( $ring =~ /^\d+$/ ) { $ring = sprintf( "ring%02d", $ring ); }
 	$self->{ current } = 0;
 	$self->{ state }   = 'display';
 
-	$self->{ file } = "$FreeScore::PATH/$tournament/forms-grassroots/$ring/div.$division.txt";
-
-	$self->read();
+	$self->{ path } = $path;
+	$self->{ file } = "$self->{ path }/$ring/div.$division.txt";
 }
 
 # ============================================================
@@ -82,7 +79,6 @@ sub previous   { my $self = shift; $self->{ state } = 'score'; $self->{ current 
 
 sub is_display { my $self = shift; return $self->{ state } eq 'display'; }
 sub is_score   { my $self = shift; return $self->{ state } eq 'score';  }
-
 sub TO_JSON    { my $self = shift; return { %$self }; }
 
 1;

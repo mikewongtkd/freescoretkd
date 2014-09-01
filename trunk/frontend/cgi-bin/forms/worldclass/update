@@ -33,9 +33,11 @@ while( 1 ) {
 	my $update = $json->encode( $data );
 	my $state  = md5_hex( $update );
 
+	$update =~ s/"/\\"/g;
+
 	next if $state eq $last;
 	print "id: $id\n";
-	print "data: '$update'\n\n";
+	print "data: \"$update\"\n\n";
 	usleep( 500000 );
 	$last = $state;
 }

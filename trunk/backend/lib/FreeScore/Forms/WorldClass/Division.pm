@@ -1,5 +1,6 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
+use FreeScore::Forms::Division;
 use base qw( FreeScore::Forms::Division );
 
 our @criteria = qw( major minor rhythm power ki );

@@ -1,5 +1,7 @@
 package FreeScore::Forms::GrassRoots::Division;
 use FreeScore;
+use FreeScore::Forms::Division;
+use base qw( FreeScore::Forms::Division );
 
 # ============================================================
 sub read {
