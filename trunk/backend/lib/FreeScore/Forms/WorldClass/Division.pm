@@ -35,7 +35,7 @@ sub read {
 			$score->{ $_ } ||= -1.0 foreach (@criteria);
 			$scores[ $i ] = $score;
 		}
-		push @{ $self->{ division }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
+		push @{ $self->{ athletes }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
 		$index++;
 	}
 	close FILE;
@@ -49,7 +49,7 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
-	foreach my $athlete (@{ $self->{ division }}) {
+	foreach my $athlete (@{ $self->{ athletes }}) {
 		my @scores = map { my $score = $_; my $string = join( "/", map { sprintf( "%.1f", $score->{ $_ }); } @criteria ); $string eq "-1.0/-1.0/-1.0/-1.0/-1.0" ? "" : $string } @{ $athlete->{ scores }};
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @scores), "\n";
 	}

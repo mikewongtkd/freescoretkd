@@ -20,8 +20,10 @@ $.widget( "freescore.worldclass", {
 		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
 		e.scorekeeper.scorekeeper( { judges: o.judges, current : { athlete : { name : '', scores : new Array() }}} );
 
+
 		function refresh( update ) {
 			var division = JSON.parse( update.data );
+			console.log( update );
 			var athlete = division.athletes[ division.current ];
 			if( division.error ) {
 				e.card.fadeOut();
@@ -38,7 +40,7 @@ $.widget( "freescore.worldclass", {
 			}
 		};
 
-		e.source = new EventSource( 'update.php' );
+		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db + '&ring=' + $.cookie( 'ring' ) );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}

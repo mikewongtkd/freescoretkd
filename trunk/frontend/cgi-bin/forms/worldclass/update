@@ -12,7 +12,7 @@ use Data::Dumper;
 
 my $cgi        = new CGI();
 my $tournament = shift || $cgi->param( 'tournament' );
-my $ring       = shift || $cgi->param( 'ring' );
+my $ring       = shift || $cgi->param( 'ring' ) || $cgi->cookie( 'ring' );
 my $json       = new JSON::XS();
 
 $json->convert_blessed( 1 );
@@ -33,11 +33,9 @@ while( 1 ) {
 	my $update = $json->encode( $data );
 	my $state  = md5_hex( $update );
 
-	$update =~ s/"/\\"/g;
-
 	next if $state eq $last;
 	print "id: $id\n";
-	print "data: \"$update\"\n\n";
+	print "data: $update\n\n";
 	usleep( 500000 );
 	$last = $state;
 }

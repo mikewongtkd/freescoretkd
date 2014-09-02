@@ -30,7 +30,7 @@ sub read {
 		foreach my $i ( 0 .. $n ) {
 			$scores[ $i ] = $columns[ $i ] eq '' ? -1.0 : $columns[ $i ];
 		}
-		push @{ $self->{ division }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
+		push @{ $self->{ athletes }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
 		$index++;
 	}
 	close FILE;
@@ -44,7 +44,7 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
-	foreach my $athlete (@{ $self->{ division }}) {
+	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }} ), "\n";
 	}
 	close FILE;

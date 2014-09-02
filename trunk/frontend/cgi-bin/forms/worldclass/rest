@@ -47,13 +47,12 @@ get '/:tournament/:ring/display' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	my $forms = new FreeScore::Forms::WorldClass::Division( $tournament, $ring, $division );
 
-	if( $forms->is_display() ) { $forms->score();   } 
-	else                       { $forms->display(); }
+	if( $division->is_display() ) { $division->score();   } 
+	else                          { $division->display(); }
 
-	$forms->write();
-	$self->render( json => { 'state' => $forms->{ state } } );
+	$division->write();
+	$self->render( json => { 'state' => $division->{ state } } );
 };
 
 # ------------------------------------------------------------
@@ -65,10 +64,9 @@ get '/:tournament/:ring/athlete/next' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	my $forms = new FreeScore::Forms::WorldClass::Division( $tournament, $ring, $division );
-	$forms->next();
-	$forms->write();
-	$self->render( json => { 'current' => $forms->{ current }, 'state' => $forms->{ state } } );
+	$division->next();
+	$division->write();
+	$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 };
 
 # ------------------------------------------------------------
@@ -80,10 +78,9 @@ get '/:tournament/:ring/athlete/previous' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	my $forms = new FreeScore::Forms::WorldClass::Division( $tournament, $ring, $division );
-	$forms->previous();
-	$forms->write();
-	$self->render( json => { 'current' => $forms->{ current }, 'state' => $forms->{ state } } );
+	$division->previous();
+	$division->write();
+	$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 };
 
 # ------------------------------------------------------------
@@ -101,11 +98,10 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	my $ki           = get_score( $self, 'ki'     );
 	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division     = $progress->current();
-	my $forms        = new FreeScore::Forms::WorldClass::Division( $tournament, $ring, $division );
-	my $athlete      = $forms->{ current };
+	my $athlete      = $division->{ current };
 	my $score        = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-	$forms->{ division }[ $athlete ]{ scores }[ $judge ] = $score;
-	$forms->write();
+	$division->{ athletes }[ $athlete ]{ scores }[ $judge ] = $score;
+	$division->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
 };
 

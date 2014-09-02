@@ -43,6 +43,8 @@ $.widget( "freescore.judgeNotes", {
 		var athletes = o.athletes;
 		var current  = o.current;
 
+		if( typeof athletes === 'undefined' ) { return; }
+
 		view.empty();
 		var table = h.table.clone();
 		table.append( h.tr.clone() 

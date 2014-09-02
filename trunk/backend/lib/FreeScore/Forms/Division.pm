@@ -21,7 +21,7 @@ sub init {
 	$self->{ state }   = 'display';
 
 	$self->{ path } = $path;
-	$self->{ file } = "$self->{ path }/$ring/div.$division.txt";
+	$self->{ file } = "$self->{ path }/div.$division.txt";
 }
 
 # ============================================================
@@ -51,7 +51,7 @@ sub read {
 		foreach my $i ( 0 .. $n ) {
 			$scores[ $i ] = $columns[ $i ] eq '' ? -1.0 : $columns[ $i ];
 		}
-		push @{ $self->{ division }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
+		push @{ $self->{ athletes }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
 		$index++;
 	}
 	close FILE;
@@ -66,7 +66,7 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
-	foreach my $athlete (@{ $self->{ division }}) {
+	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }} ), "\n";
 	}
 	close FILE;
@@ -74,8 +74,8 @@ sub write {
 
 sub display    { my $self = shift; $self->{ state } = 'display'; }
 sub score      { my $self = shift; $self->{ state } = 'score';  }
-sub next       { my $self = shift; $self->{ state } = 'score'; $self->{ current } = ($self->{ current } + 1) % int(@{ $self->{ division }}); }
-sub previous   { my $self = shift; $self->{ state } = 'score'; $self->{ current } = ($self->{ current } - 1) >= 0 ? ($self->{ current } -1) : $#{ $self->{ division }}; }
+sub next       { my $self = shift; $self->{ state } = 'score'; $self->{ current } = ($self->{ current } + 1) % int(@{ $self->{ athletes }}); }
+sub previous   { my $self = shift; $self->{ state } = 'score'; $self->{ current } = ($self->{ current } - 1) >= 0 ? ($self->{ current } -1) : $#{ $self->{ athletes }}; }
 
 sub is_display { my $self = shift; return $self->{ state } eq 'display'; }
 sub is_score   { my $self = shift; return $self->{ state } eq 'score';  }
