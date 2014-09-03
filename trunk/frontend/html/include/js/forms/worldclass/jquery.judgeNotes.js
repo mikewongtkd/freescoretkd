@@ -23,14 +23,19 @@ $.widget( "freescore.judgeNotes", {
 				score.accuracy = accuracy .toFixed( 1 );
 			}
 
-			if( typeof( score.rhythm ) === 'undefined' || typeof( score.power ) === 'undefined' || typeof( score.ki ) === 'undefined' ) {
+			if( 
+				typeof( score.rhythm ) === 'undefined' || 
+				typeof( score.power  ) === 'undefined' || 
+				typeof( score.ki     ) === 'undefined' 
+			) {
 				score.rhythm       =  0.0;
 				score.power        =  0.0;
 				score.ki           =  0.0;
 				score.presentation = -1.0;
+
 			} else {
 				var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
-				score.presentation =  presentation .toFixed( 1 );
+				score.presentation = presentation .toFixed( 1 );
 			}
 		}
 	},

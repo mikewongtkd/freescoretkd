@@ -8,13 +8,11 @@ $.widget( "freescore.presentationBar", {
 
 		o.value    = 1.2;
 
-		var judge     = o.controller.num;
-		var score     = o.controller;
-		var update    = o.controller.updateScore;
-		var label     = e.label     = html.div.clone() .addClass( "label" ) .html( o.label );
-		var value     = e.value     = html.div.clone() .addClass( "value" ) .html( o.value );
-		var slider    = e.slider    = html.div.clone() .addClass( "slider" ) .slider( { value : o.value, min : 0.5, max : 2.0, step : 0.1, slide: function( e, ui ) { o.value = ui.value; value.html( ui.value.toFixed( 1 )); }, change: function() { update( judge, score ) }});
-		e.buttons     = [];
+		var controller = o.controller;
+		var label      = e.label     = html.div.clone() .addClass( "label" ) .html( o.label );
+		var value      = e.value     = html.div.clone() .addClass( "value" ) .html( o.value );
+		var slider     = e.slider    = html.div.clone() .addClass( "slider" ) .slider( { value : o.value, min : 0.5, max : 2.0, step : 0.1, slide: function( e, ui ) { o.value = ui.value; value.html( ui.value.toFixed( 1 )); }, change: function() { $( controller.element ).trigger( { type : "updateRequest", score : controller.options } ); }});
+		e.buttons      = [];
 
 		widget.append( label, slider, value );
 		widget.addClass( "presentationBar" );
@@ -23,5 +21,9 @@ $.widget( "freescore.presentationBar", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements;
+		var judge  = o.controller.num;
+		var score  = o.controller;
+		e.slider.slider({ value : o.value });
+		e.value.html( o.value.toFixed( 1 ));
 	}
 });

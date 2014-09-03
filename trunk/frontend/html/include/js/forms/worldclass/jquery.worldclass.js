@@ -22,15 +22,15 @@ $.widget( "freescore.worldclass", {
 
 
 		function refresh( update ) {
-			var division = JSON.parse( update.data );
-			console.log( update );
-			var athlete = division.athletes[ division.current ];
-			if( division.error ) {
+			var forms    = JSON.parse( update.data );
+			var division = forms.divisions[ forms.current ];
+			var athlete  = division.athletes[ division.current ];
+			if( forms.error ) {
 				e.card.fadeOut();
-				e.usermessage.html( division.error );
+				e.usermessage.html( forms.error );
 				e.usermessage.fadeIn( 500 );
 				
-			} else if( division.state == 'display' ) {
+			} else if( forms.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );
 

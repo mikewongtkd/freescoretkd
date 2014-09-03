@@ -1,14 +1,14 @@
 $.widget( "freescore.judgeScore", {
 	options: { autoShow: true, num: 0 },
 	_create: function() {
-		var options = this.options;
+		var o       = this.options;
 		var e       = this.options.elements = {};
-		var html    = { div : $( "<div />" ) };
-		var score   = e.score = html.div.clone() .addClass( "score" ) .prop( "id", "judgeScore" + options.num );
+		var html    = o.html  = { div : $( "<div />" ), span : $( "<span />" ) };
+		var score   = e.score = html.div.clone() .addClass( "score" ) .prop( "id", "judgeScore" + o.num );
 		var name    = e.name  = html.div.clone() .addClass( "judge" );
 		var view    = e.view  = html.div.clone();
 		score.append( view );
-		name .html( "JUDGE " + options.num );
+		name .html( "JUDGE " + o.num );
 		this.element .addClass( "judgeScore" );
 		this.element .append( score, name );
 	},
@@ -24,11 +24,22 @@ $.widget( "freescore.judgeScore", {
 			score.power  = '';
 			score.ki     = '';
 		}
-		var accuracy = 4.0 - (parseFloat( score.major ) + parseFloat( score.minor ));
+		var penalties = (parseFloat( score.major ) + parseFloat( score.minor ));
+		var accuracy = 4.0 - penalties;
 		accuracy = accuracy <= 0 ? 0.0 : accuracy;
 
 		var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
-		if( ! isNaN( accuracy ) && ! isNaN( presentation )) { e.view.html( "<span class=\"accuracy\">" + accuracy.toFixed( 1 ) + "</span> <span class=\"presentation\">" + presentation.toFixed( 1 ) + "</span>" ); e.view.fadeIn(); }
-		else                                                { e.view.fadeOut( 500, function() { e.view .empty(); }); }
+		if( penalties >= 0 && presentation >= 1.5 ) { 
+			var span = {
+				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( accuracy.toFixed( 1 )),
+				presentation : o.html.span .clone() .addClass( "presentation" ) .html( presentation.toFixed( 1 ))
+			};
+			e.view.empty();
+			e.view.append( span.accuracy, "&nbsp;", span.presentation );
+			e.view.fadeIn(); 
+		} else {
+			e.view.empty();
+			e.view.fadeOut();
+		}
 	}
 });
