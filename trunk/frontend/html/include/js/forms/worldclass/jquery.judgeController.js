@@ -54,9 +54,9 @@ $.widget( "freescore.judgeController", {
 			                 e.minor .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' );
 			o.accuracy     = o.accuracy < 0 ? 0 : o.accuracy; // The accuracy score cannot be lower than 0
 
-			o.presentation = e.rhythm .presentationBar( 'option', 'value' ) +
-			                 e.power  .presentationBar( 'option', 'value' ) +
-			                 e.ki     .presentationBar( 'option', 'value' );
+			o.presentation = parseFloat( e.rhythm .presentationBar( 'option', 'value' )) +
+			                 parseFloat( e.power  .presentationBar( 'option', 'value' )) +
+			                 parseFloat( e.ki     .presentationBar( 'option', 'value' ));
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
@@ -115,18 +115,30 @@ $.widget( "freescore.judgeController", {
 				var athlete  = division.athletes[ parseInt( division.current ) ];
 				e.athlete .html( athlete.name );
 
-				// ===== RESTORE PREVIOUS SCORE IF RESCORING AN ATHLETE
+				// ===== CHECK IF RESCORING AN ATHLETE
 				if( division.current != o.currentAthlete ) {
-					var major  = { previous : parseFloat( athlete .scores[ o.num ] .major  ) / e.major.deductions( 'option', 'value' ), current : e.major.deductions( 'option', 'count' ) };
-					var minor  = { previous : parseFloat( athlete .scores[ o.num ] .minor  ) / e.minor.deductions( 'option', 'value' ), current : e.minor.deductions( 'option', 'count' ) };
-					var rhythm = { previous : parseFloat( athlete .scores[ o.num ] .rhythm ),                                           current : e.rhythm .presentationBar( 'option', 'value' ) };
-					var power  = { previous : parseFloat( athlete .scores[ o.num ] .power  ),                                           current : e.power  .presentationBar( 'option', 'value' ) };
-					var ki     = { previous : parseFloat( athlete .scores[ o.num ] .ki     ),                                           current : e.ki     .presentationBar( 'option', 'value' ) };
-					if( major.previous  != major.current  && major.previous  > 0) { o.major  = major.previous;  e.major.deductions( { count : Math.round( major.previous )}); }
-					if( minor.previous  != minor.current  && minor.previous  > 0) { o.minor  = minor.previous;  e.minor.deductions( { count : Math.round( minor.previous )}); }
-					if( rhythm.previous != rhythm.current && rhythm.previous > 0) { o.rhythm = rhythm.previous; e.rhythm .presentationBar( { value : rhythm.previous }); }
-					if( power.previous  != power.current  && power.previous  > 0) { o.power  = power.previous;  e.power  .presentationBar( { value : power.previous }); }
-					if( ki.previous     != ki.current     && ki.previous     > 0) { o.ki     = ki.previous;     e.ki     .presentationBar( { value : ki.previous }); }
+					var major  = { previous : (parseFloat( athlete .scores[ o.num ] .major  ) / e.major.deductions( 'option', 'value' )).toFixed( 0 ), current : e.major.deductions( 'option', 'count' ) };
+					var minor  = { previous : (parseFloat( athlete .scores[ o.num ] .minor  ) / e.minor.deductions( 'option', 'value' )).toFixed( 0 ), current : e.minor.deductions( 'option', 'count' ) };
+					var rhythm = { previous : (parseFloat( athlete .scores[ o.num ] .rhythm )).toFixed( 1 ),                                           current : e.rhythm .presentationBar( 'option', 'value' ) };
+					var power  = { previous : (parseFloat( athlete .scores[ o.num ] .power  )).toFixed( 1 ),                                           current : e.power  .presentationBar( 'option', 'value' ) };
+					var ki     = { previous : (parseFloat( athlete .scores[ o.num ] .ki     )).toFixed( 1 ),                                           current : e.ki     .presentationBar( 'option', 'value' ) };
+
+					// ===== RESET DEFAULTS WHEN THERE ARE NO PREVIOUS SCORES
+					if( major.previous < 0 || minor.previous < 0 || rhythm.previous < 0 || power.previous < 0 || ki.previous < 0 ) {
+						o.major  = 0.0; e.major  .deductions( { count : 0 });
+						o.minor  = 0.0; e.minor  .deductions( { count : 0 });
+						o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
+						o.power  = 1.2; e.power  .presentationBar( { value : 1.2 });
+						o.ki     = 1.2; e.ki     .presentationBar( { value : 1.2 });
+
+					// ===== RESTORE PREVIOUS SCORE IF RESCORING AN ATHLETE
+					} else {
+						if( major.previous  != major.current  ) { o.major  = major.previous;  e.major.deductions( { count : major.previous }); }
+						if( minor.previous  != minor.current  ) { o.minor  = minor.previous;  e.minor.deductions( { count : minor.previous }); }
+						if( rhythm.previous != rhythm.current ) { o.rhythm = rhythm.previous; e.rhythm .presentationBar( { value : rhythm.previous }); }
+						if( power.previous  != power.current  ) { o.power  = power.previous;  e.power  .presentationBar( { value : power.previous }); }
+						if( ki.previous     != ki.current     ) { o.ki     = ki.previous;     e.ki     .presentationBar( { value : ki.previous }); }
+					}
 					widget.trigger({ type : "updateRequest", score : o });
 				}
 			}

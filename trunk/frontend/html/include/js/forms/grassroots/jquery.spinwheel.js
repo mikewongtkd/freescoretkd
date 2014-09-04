@@ -2,14 +2,15 @@
 $.widget( "freescore.spinwheel", {
 	options : { autoShow : true, min : 7.5, max : 10.0, step : 0.1, selected: 8.0 },
 	_create : function() {
-		var o         = this.options;
-		var e         = this.options.elements = {};
-		var widget    = this.element;
-		var html      = o.html = { div : $( "<div />" ) };
-		var precision = Math.ceil( Math.abs( Math.log( o.step ) / Math.LN10 ));
-		var height    = o.height = 60;
-		var offset    = o.offset = o.height/2;
-		var dampen    = o.dampen = 5;
+		var o          = this.options;
+		var e          = this.options.elements = {};
+		var widget     = this.element;
+		var html       = o.html = { div : $( "<div />" ) };
+		var precision  = Math.ceil( Math.abs( Math.log( o.step ) / Math.LN10 ));
+		var height     = o.height = 60;
+		var offset     = o.offset = o.height/2;
+		var dampen     = o.dampen = 5;
+		var controller = o.controller;
 
 		var wheel     = html.div.clone() .addClass( "wheel" );
 		widget .addClass( "spinwheel" );
@@ -70,6 +71,7 @@ $.widget( "freescore.spinwheel", {
 					o.swipe.active = false;
 					o.selected = nearest();
 					widget.scrollTop( scrollTarget );
+					$( controller.element ).trigger( { type : "updateRequest", score : o.selected } );
 					$( window ).unbind( 'mousemove' );
 					$( window ).unbind( 'mouseup' );
 				});

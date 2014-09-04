@@ -30,7 +30,7 @@ $.widget( "freescore.judgeNotes", {
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr        = h.tr.clone();
 			var athlete   = athletes[ i ];
-			var score     = athlete.scores[ o.num ]; score = score <= 0 ? "" : score;
+			var score     = athlete.scores[ o.num ]; score = score <= 0 ? "" : parseFloat( score ).toFixed( 1 );
 			var isCurrent = function() { if( i == current ) { return "current"; }}
 
 			tr

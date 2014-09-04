@@ -23,7 +23,7 @@ $.widget( "freescore.presentationBar", {
 		var e      = this.options.elements;
 		var judge  = o.controller.num;
 		var score  = o.controller;
-		e.slider.slider({ value : o.value });
-		e.value.html( o.value.toFixed( 1 ));
+		e.slider.slider({ value : parseFloat( o.value )});
+		e.value.html( parseFloat( o.value ).toFixed( 1 ));
 	}
 });

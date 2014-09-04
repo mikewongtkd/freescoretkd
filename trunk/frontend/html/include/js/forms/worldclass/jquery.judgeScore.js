@@ -29,6 +29,8 @@ $.widget( "freescore.judgeScore", {
 		accuracy = accuracy <= 0 ? 0.0 : accuracy;
 
 		var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
+
+		// ===== DISPLAY VALID SCORES
 		if( penalties >= 0 && presentation >= 1.5 ) { 
 			var span = {
 				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( accuracy.toFixed( 1 )),
@@ -37,6 +39,8 @@ $.widget( "freescore.judgeScore", {
 			e.view.empty();
 			e.view.append( span.accuracy, "&nbsp;", span.presentation );
 			e.view.fadeIn(); 
+
+		// ===== HIDE INVALID SCORES
 		} else {
 			e.view.empty();
 			e.view.fadeOut();
