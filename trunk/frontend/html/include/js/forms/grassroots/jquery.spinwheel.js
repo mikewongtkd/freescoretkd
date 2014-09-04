@@ -57,8 +57,13 @@ $.widget( "freescore.spinwheel", {
 		};
 		o.swipe = { active : false, start : {}, stop : {} };
 
+		$( window ).swipe({ swipe : function( ev, direction, distance, duration, figerCount, fingerData ) {
+			console.log( direction, distance );
+		}, threshold : 0 });
+
 		widget
 		.mousedown( function( e ) {
+			console.log( e );
 			o.swipe.active = true;
 			o.swipe.start = { x : e.pageX, y : e.pageY, t : (new Date()).getTime() };
 			$( window ).mousemove( function( e ) {

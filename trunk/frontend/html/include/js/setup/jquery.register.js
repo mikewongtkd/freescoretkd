@@ -316,6 +316,12 @@ $.widget( "freescore.register", {
 			
 			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { location = url; } );
 			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { location.reload(); } );
+			ring.off();
+
+			event.off();
+			ring.off();
+			role.off();
+
 			confirmation.empty();
 			confirmation.append( event, ring, role, ok, back );
 		}
