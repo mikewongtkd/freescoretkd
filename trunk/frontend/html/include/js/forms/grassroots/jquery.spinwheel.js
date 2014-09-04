@@ -55,12 +55,25 @@ $.widget( "freescore.spinwheel", {
 
 			return { direction: dir, speed: v };
 		};
-		o.swipe = { active : false, start : {}, stop : {} };
+		o.swipe = { active : false, start : {}, stop : {}, last : 0 };
 
-		$( window ).swipe({ swipe : function( ev, direction, distance, duration, figerCount, fingerData ) {
-			console.log( direction, distance );
-		}, threshold : 0 });
+		widget.swipe({ 
+			swipeStatus : function( ev, phase, direction, distance, duration, fingers ) {
+				var v = { speed : distance - o.swipe.last, direction : 0 };
+				if     ( direction == 'up'   ) { v.direction =  1; } 
+				else if( direction == 'down' ) { v.direction = -1; }
+				scroll( v );
+				o.swipe.last = distance;
+			}, 
+			swipe : function( ev, direction, distance, duration, fingerCount, fingerData ) { 
+				o.selected = nearest();
+				widget.scrollTop( scrollTarget() );
 
+			}, 
+			threshold : 0 
+		});
+
+		/*
 		widget
 		.mousedown( function( e ) {
 			console.log( e );
@@ -82,6 +95,7 @@ $.widget( "freescore.spinwheel", {
 				});
 			});
 		});
+		*/
 
 		widget.append( wheel );
 		widget.animate({ scrollTop: scrollTarget() });

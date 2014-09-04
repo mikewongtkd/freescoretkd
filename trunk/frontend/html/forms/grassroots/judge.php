@@ -23,7 +23,6 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( window ).scrollTop( 20 );
 			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> } );
 		</script>
 	</body>
