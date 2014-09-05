@@ -31,7 +31,7 @@ $.widget( "freescore.deductions", {
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
-		remove.click( function() {
+		remove.on( 'tap', function() {
 			e.remove.fadeTo( 75, 0.75, function() { e.remove.fadeTo( 75, 1.0 ); } );
 			if( o.count == 0 ) { return; }
 			else {
@@ -45,7 +45,7 @@ $.widget( "freescore.deductions", {
 				return;
 			}
 		});
-		add.click( function() {
+		add.on( 'tap', function() {
 			e.add.fadeTo( 75, 0.75, function() { e.add.fadeTo( 75, 1.0 ); } );
 			o.count++;
 			e.view.html( o.count );
@@ -54,7 +54,6 @@ $.widget( "freescore.deductions", {
 			$( controller.element ).trigger({ type : "updateRequest", score : controller.options });
 			return;
 		});
-
 	},
 	_init: function( ) {
 		var widget = this.element;

@@ -12,21 +12,21 @@ $.widget( "freescore.matposition", {
 		var center = e.center = html.div.clone() .addClass( "center" );
 		var start  = e.start  = html.div.clone() .addClass( "start" ) .html( '&#x2715;' ) .hide();
 
-		o.dx = 12;
-		o.dy = 20;
-
 		widget.append( mat );
 		mat.append( center, label, start, layer );
 		widget.addClass( "matposition" );
+
+		o.dx = 5;
+		o.dy = 22;
 
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
 		layer.click( function( ev ) {
 			var position = widget.offset();
-			var x = (ev.clientX - (position.left + o.dx)).toFixed( 0 );
-			var y = (ev.clientY - (position.top  + o.dy)).toFixed( 0 );
-			console.log( ev, position );
+			var x = (ev.pageX - (position.left + o.dx)).toFixed( 0 );
+			var y = (ev.pageY - (position.top  + o.dy)).toFixed( 0 );
+			console.log( x, y );
 			e.start.fadeOut( 250, function() { 
 				e.start.css( 'left', x );
 				e.start.css( 'top', y );
