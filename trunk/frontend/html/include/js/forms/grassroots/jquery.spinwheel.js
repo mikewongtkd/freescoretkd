@@ -43,19 +43,7 @@ $.widget( "freescore.spinwheel", {
 			if( selected <  o.min ) { selected = o.min; }
 			return selected;
 		};
-		var velocity = function() {
-			var start = o.swipe.start;
-			var stop  = o.swipe.stop;
-			var dx    = (stop.x - start.x);
-			var dy    = (stop.y - start.y);
-			var dt    = (stop.t - start.t)/100;
-			var d     = Math.sqrt((dx * dx) + (dy * dy));
-			var v     = dt == 0 ? 5 : Math.round( d/dt );
-			var dir   = dy == 0 ? 0 : dy/Math.abs( dy );
-
-			return { direction: dir, speed: v };
-		};
-		o.swipe = { active : false, start : {}, stop : {}, last : 0 };
+		o.swipe = { last : 0 };
 
 		widget.swipe({ 
 			swipeStatus : function( ev, phase, direction, distance, duration, fingers ) {
@@ -72,30 +60,6 @@ $.widget( "freescore.spinwheel", {
 			}, 
 			threshold : 0 
 		});
-
-		/*
-		widget
-		.mousedown( function( e ) {
-			console.log( e );
-			o.swipe.active = true;
-			o.swipe.start = { x : e.pageX, y : e.pageY, t : (new Date()).getTime() };
-			$( window ).mousemove( function( e ) {
-				if( o.swipe.active ) {
-					o.swipe.stop = { x : e.pageX, y : e.pageY, t : (new Date()).getTime() };
-					v = velocity();
-					var p = scroll( v );
-				}
-				$( window ).mouseup( function( e ) {
-					o.swipe.active = false;
-					o.selected = nearest();
-					widget.scrollTop( scrollTarget );
-					$( controller.element ).trigger( { type : "updateRequest", score : o.selected } );
-					$( window ).unbind( 'mousemove' );
-					$( window ).unbind( 'mouseup' );
-				});
-			});
-		});
-		*/
 
 		widget.append( wheel );
 		widget.animate({ scrollTop: scrollTarget() });
