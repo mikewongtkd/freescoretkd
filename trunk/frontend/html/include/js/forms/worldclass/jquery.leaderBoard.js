@@ -28,14 +28,14 @@ $.widget( "freescore.leaderboard", {
 			var inf   = Infinity;
 			var min   = { accuracy: inf, presentation: inf };
 			var max   = { accuracy: 0.0, presentation: 0.0 };
-			var total = { score:    0.0, presentation: 0.0 }; // As of now, there is no need to record the total accuracy
+			var total = { score:    0.0, presentation: 0.0, count : 0 }; // As of now, there is no need to record the total accuracy
 
 			for( var j = 0; j < scores.length; j++ ) {
-				var score = scores[ j ];
-				if( typeof( score ) === 'undefined' ) { return { mean: -1.0, min: undefined, max: undefined }; }
+				var score        = scores[ j ];
 				var major        = Number.parseFloat( score.major );
 				var minor        = Number.parseFloat( score.minor );
-				var accuracy     = major + minor > 4.0 ? 0.0 : 4.0 - (major + minor);
+				var penalties    = major + minor;
+				var accuracy     = penalties > 4.0 ? 0.0 : 4.0 - (penalties);
 				var rhythm       = Number.parseFloat( score.rhythm );
 				var power        = Number.parseFloat( score.power );
 				var ki           = Number.parseFloat( score.ki );
@@ -47,21 +47,23 @@ $.widget( "freescore.leaderboard", {
 				max.accuracy     = max.accuracy     < accuracy     ? accuracy     : max.accuracy;
 				max.presentation = max.presentation < presentation ? presentation : max.presentation;
 
+				if( penalties < 0 || presentation < 0 ) { continue; }
 				total.score        += (accuracy + presentation);
 				total.presentation += presentation;
+				total.count++;
 			}
 			var mean = 0.0;
 			if     ( scores.length > 0 && scores.length <= 4 ) { 
-				mean = total.score / scores.length; 
+				mean = total.score / total.count;
 				min.accuracy     = 0.0;
 				min.presentation = 0.0;
 				max.accuracy     = 0.0;
 				max.presentation = 0.0;
 
 			} else if( scores.length >= 5 ) { 
-				mean = (total.score - (min.accuracy + min.presentation + max.accuracy + max.presentation)) / (scores.length - 2); 
+				mean = (total.score - (min.accuracy + min.presentation + max.accuracy + max.presentation)) / (total.count - 2); 
 			}
-			return { mean: mean.toFixed( 2 ), total: total.score, presentation: total.presentation, min: min, max: max, tiebreaker: "" };
+			return { mean: mean.toFixed( 2 ), total: total.score, presentation: total.presentation, min: min, max: max, tiebreaker: "", complete : total.count == scores.length };
 		}
 		// ------------------------------------------------------------
 
@@ -69,8 +71,8 @@ $.widget( "freescore.leaderboard", {
 			var athlete  = athletes[ i ];
 			athlete.score = calculateScores( athlete.scores );
 
-			if   ( athlete.score.mean > 0.0 ) { standings .athletes .push( athlete ); }
-			else                              { pending   .athletes .push( athlete ); }
+			if   ( athlete.score.complete ) { standings .athletes .push( athlete ); }
+			else                            { pending   .athletes .push( athlete ); }
 		}
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES

@@ -13,11 +13,9 @@ sub init {
 	my $subdir     = "forms-worldclass";
 	if( defined $ring ) { $self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); }
 	else                { $self->{ path } = sprintf( "%s/%s/%s",          $FreeScore::PATH, $tournament, $subdir        ); }
-	$self->SUPER::init( $tournament, $ring );
+	$self->pre_init( $tournament, $ring );
 	@{ $self->{ divisions }} = map {
-		my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $_ );
-		$division->read();
-		$division;
+		new FreeScore::Forms::WorldClass::Division( $self->{ path }, $_ );
 	} @{ $self->{ divisions }};
 }
 

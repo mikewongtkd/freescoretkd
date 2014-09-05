@@ -12,7 +12,7 @@ sub new {
 }
 
 # ============================================================
-sub init {
+sub pre_init {
 # ============================================================
 	my $self       = shift;
 	my $tournament = shift;
@@ -46,21 +46,17 @@ sub init {
 }
 
 # ============================================================
-sub read {
-# ============================================================
-	my $self = shift;
-	die "Abstract method $!";
-}
-
-# ============================================================
 sub write {
 # ============================================================
 	my $self = shift;
-	die "Abstract method $!";
+
+	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
+	print FILE "# current=$self->{ current }\n";
+	close FILE;
 }
 
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }
-sub next     { my $self = shift; my $i = $self->{ current }; $i = ($i + 1) % int(@{ $self->{ divisions }}); $self->{ current } = $self->{ divisions }[ $i ]; }
-sub previous { my $self = shift; my $i = $self->{ current }; $i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; $self->{ current } = $self->{ divisions }[ $i ]; }
+sub next     { my $self = shift; my $i = $self->{ current }; $i = ($i + 1) % int(@{ $self->{ divisions }}); $self->{ current } = $i; }
+sub previous { my $self = shift; my $i = $self->{ current }; $i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; $self->{ current } = $i; }
 sub TO_JSON  { my $self = shift; return { %$self }; }
 1;

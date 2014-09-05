@@ -3,7 +3,6 @@
 use lib qw( /Users/mikewong899/devel/freescore/backend/lib );
 use Mojolicious::Lite;
 use YAML;
-use FreeScore::Forms::WorldClass::Division;
 use FreeScore::Forms::WorldClass;
 
 srand();

@@ -24,13 +24,14 @@ $.widget( "freescore.worldclass", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ forms.current ];
-			var athlete  = division.athletes[ division.current ];
+			var current  = parseInt( division.current );
+			var athlete  = division.athletes[ current ];
 			if( forms.error ) {
 				e.card.fadeOut();
 				e.usermessage.html( forms.error );
 				e.usermessage.fadeIn( 500 );
 				
-			} else if( forms.state == 'display' ) {
+			} else if( division.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );
 
@@ -40,7 +41,7 @@ $.widget( "freescore.worldclass", {
 			}
 		};
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db + '&ring=' + $.cookie( 'ring' ) );
+		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}
