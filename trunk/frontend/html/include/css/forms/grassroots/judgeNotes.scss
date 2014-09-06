@@ -1,4 +1,6 @@
 .judgeNotes {
+	position: absolute;
+	left: 540px;
 	border: 4px solid #999;
 	border-radius: 8px;
 	color: #999;
@@ -11,6 +13,15 @@
 		width: 320px;
 		height: 320px;
 		overflow-y: auto;
+
+		.description {
+			font-size: 10pt;
+			color: #fff;
+			overflow-x: hidden;
+			padding: 4px;
+			background: #333;
+			text-align: center;
+		}
 
 		table {
 			border: 0;

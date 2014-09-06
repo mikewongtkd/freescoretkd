@@ -8,7 +8,7 @@ body {
 .judgeController {
 	font-family: Optima;
 	width: 800px;
-	height: 600px;
+	height: 480px;
 	margin: 0 auto 0 auto;
 	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
 	border-radius: 24pt;
@@ -31,11 +31,15 @@ body {
 		}
 
 		.action {
+			position: absolute;
 			width: 160px;
 			border: 4px solid orange;
 			background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
 			color: black;
 		}
+
+		.send  { top: 400px; }
+		.clear { top: 270px; }
 
 		.division {
 			width: 160px;
@@ -50,10 +54,17 @@ body {
 		}
 
 		.mode {
+			position: absolute;
 			width: 160px;
 			border: 4px solid gold;
 			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			color: black;
+		}
+
+		.spinwheel {
+			position: absolute;
+			top: 230px;
+			left: 372px;
 		}
 
 	}

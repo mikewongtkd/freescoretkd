@@ -1,7 +1,7 @@
 $.widget( "freescore.judgeNotes", {
 	options: { autoShow: true  },
 	_create: function() {
-		var options = this.options;
+		var o       = this.options;
 		var e       = this.options.elements = {};
 		var widget  = this.element;
 		var html    = e.html = { div : $( "<div />" ), a : $( "<a />" ), table : $( "<table />" ), tr : $( "<tr />" ), th : $( "<th />" ), td : $( "<td />" ) };
@@ -12,13 +12,17 @@ $.widget( "freescore.judgeNotes", {
 
 	},
 	_init: function( ) {
-		var e        = this.options.elements;
-		var h        = this.options.elements.html;
-		var o        = this.options;
-		var widget   = this.element;
-		var view     = e.view;
-		var athletes = o.athletes;
-		var current  = o.current;
+		var e           = this.options.elements;
+		var h           = this.options.elements.html;
+		var o           = this.options;
+		var widget      = this.element;
+		var description = h.div.clone() .addClass( "description" );
+		var view        = e.view;
+		var athletes    = o.athletes;
+		var current     = o.current;
+
+		if( typeof( o.description ) !== 'undefined' ) { description.html( 'Division ' + o.name.toUpperCase() + ': ' + o.description ); }
+		else                                          { description.html( 'Division ' + o.name.toUpperCase() ); }
 
 		view.empty();
 		var table = h.table.clone();
@@ -39,6 +43,6 @@ $.widget( "freescore.judgeNotes", {
 				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "td-score" ) .html( score ));
 			table.append( tr );
 		}
-		view.append( table );
+		view.append( description, table );
 	}
 });

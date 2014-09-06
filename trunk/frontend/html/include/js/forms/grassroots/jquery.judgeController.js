@@ -15,9 +15,7 @@ $.widget( "freescore.judgeController", {
 		var navigation  = e.navigation  = html.div.clone() .addClass( "button-row" );
 		var controls    = e.controls    = html.div.clone() .addClass( "control-group" );
 		var notes       = e.notes       = html.div.clone();
-		var mode        = e.mode        = html.div.clone() .addClass( "button-row" );
 		var score       = e.score       = html.div.clone();
-		var scoring     = e.scoring     = html.div.clone() .addClass( "button-row" );
 
 		// ============================================================
 		// THE NAVIGATION BUTTONS
@@ -33,19 +31,17 @@ $.widget( "freescore.judgeController", {
 		// THE MODE BUTTONS
 		// ============================================================
 		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'mode',  app : o.app, command : 'display', label : 'Flip Display' });
-		e.mode.append( displayMode );
 
 		// ============================================================
 		// THE SCORE DROP-DOWN
 		// ============================================================
-		score.spinwheel({ controller : this }) .css( "margin", "0 auto 0 auto" );
+		score.spinwheel({ controller : this });
 
 		// ============================================================
 		// THE ACTION BUTTONS
 		// ============================================================
-		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action',  app : o.app, command : o.judge + '/-10', label : 'Clear' });
-		var sendButton  = e.sendButton  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action',  app : o.app, command : o.judge + '/80', label : 'Send'  });
-		e.scoring.append( clearButton, sendButton );
+		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action clear',  app : o.app, command : o.judge + '/-10', label : 'Clear' });
+		var sendButton  = e.sendButton  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action send',  app : o.app, command : o.judge + '/80', label : 'Send'  });
 
 		// ============================================================
 		// UPDATE BEHAVIOR
@@ -58,7 +54,7 @@ $.widget( "freescore.judgeController", {
 		});
 
 		controller.append( navigation, controls, notes );
-		controls.append( mode, score, scoring );
+		controls.append( score, displayMode, clearButton, sendButton );
 		widget.append( controller );
 
 	},
@@ -72,7 +68,7 @@ $.widget( "freescore.judgeController", {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ forms.current ];
 			var athletes = division.athletes;
-			e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current });
+			e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
 
 			// ===== UPDATE ACTION BUTTON
 			var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );

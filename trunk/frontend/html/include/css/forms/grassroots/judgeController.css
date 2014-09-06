@@ -10,13 +10,15 @@ select {
 .judgeController {
   font-family: Optima;
   width: 800px;
-  height: 600px;
+  height: 480px;
   margin: 0 auto 0 auto;
   background: linear-gradient(to top, #45484d 0%, black 100%);
   /* W3C */
   border-radius: 24pt;
   border: 4px solid white; }
   .judgeController .judgeNotes {
+    position: absolute;
+    left: 540px;
     border: 4px solid #999;
     border-radius: 8px;
     color: #999;
@@ -28,6 +30,13 @@ select {
       width: 320px;
       height: 320px;
       overflow-y: auto; }
+      .judgeController .judgeNotes .view .description {
+        font-size: 10pt;
+        color: #fff;
+        overflow-x: hidden;
+        padding: 4px;
+        background: #333;
+        text-align: center; }
       .judgeController .judgeNotes .view table {
         border: 0;
         border-spacing: 0;
@@ -61,10 +70,15 @@ select {
       float: left;
       width: 420px; }
     .judgeController .controller .action {
+      position: absolute;
       width: 160px;
       border: 4px solid orange;
       background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
       color: black; }
+    .judgeController .controller .send {
+      top: 400px; }
+    .judgeController .controller .clear {
+      top: 270px; }
     .judgeController .controller .division {
       width: 160px;
       border: 4px solid green;
@@ -74,10 +88,15 @@ select {
       border: 4px solid blue;
       background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
     .judgeController .controller .mode {
+      position: absolute;
       width: 160px;
       border: 4px solid gold;
       background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
       color: black; }
+    .judgeController .controller .spinwheel {
+      position: absolute;
+      top: 230px;
+      left: 372px; }
   .judgeController .select {
     text-align: center; }
     .judgeController .select select {
