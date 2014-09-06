@@ -1,13 +1,13 @@
 <?php
-	if( ! isset( $_COOKIE[ 'ring' ]) ) { header( 'Location: setup/register.php?referer=../sse.php' ); exit(); }
-	include "include/php/config.php";
+	if( ! isset( $_COOKIE[ 'ring' ]) ) { header( 'Location: setup/register.php?referer=../test/sse.php' ); exit(); }
+	include "../include/php/config.php";
 	$ring = $_COOKIE[ 'ring' ] ?: 'undefined';
 ?>
 <html>
 	<head>
 		<title>Perl Server Sent Event test</title>
-		<script src="include/jquery/js/jQuery.js"></script>
-		<script src="include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../include/jquery/js/jQuery.js"></script>
+		<script src="../include/jquery/js/jquery-ui.min.js"></script>
 	</head>
 	<body>
 		<div id="sse"></div>
