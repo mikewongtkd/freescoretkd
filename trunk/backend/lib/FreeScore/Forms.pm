@@ -7,15 +7,15 @@ sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
 	my $self = bless {}, $class;
+	$self->{ divisions } = [];
 	$self->init( @_ );
 	return $self;
 }
 
 # ============================================================
-sub pre_init {
+sub load_ring {
 # ============================================================
 	my $self       = shift;
-	my $tournament = shift;
 	my $ring       = shift;
 
 	$self->{ file } = "$self->{ path }/progress.txt";
@@ -37,12 +37,29 @@ sub pre_init {
 		close FILE;
 	}
 
+	# ===== FIND ALL DIVISIONS
 	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
 	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
 	closedir DIR;
 
-	$self->{ divisions } = [ @divisions ];
 	$self->{ current } ||= 0;
+	return [ @divisions ];
+}
+
+# ============================================================
+sub load_all {
+# ============================================================
+	my $self = shift;
+	
+	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
+	my @contents = readdir DIR;
+	closedir DIR;
+
+	# ===== FIND ALL DIVISIONS AND RINGS
+	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } @contents;
+	my @rings     = map { /^ring(\d+)$/;       } grep { /^ring\d+$/       } @contents;
+
+	return ([ @divisions ], [ @rings ]);
 }
 
 # ============================================================

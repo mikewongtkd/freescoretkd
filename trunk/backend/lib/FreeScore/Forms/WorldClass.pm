@@ -11,12 +11,33 @@ sub init {
 	my $tournament = shift;
 	my $ring       = shift;
 	my $subdir     = "forms-worldclass";
-	if( defined $ring ) { $self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); }
-	else                { $self->{ path } = sprintf( "%s/%s/%s",          $FreeScore::PATH, $tournament, $subdir        ); }
-	$self->pre_init( $tournament, $ring );
-	@{ $self->{ divisions }} = map {
-		new FreeScore::Forms::WorldClass::Division( $self->{ path }, $_ );
-	} @{ $self->{ divisions }};
+
+	if( defined $ring ) { 
+		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+		my $divisions = $self->load_ring( $ring );
+		foreach my $id (@$divisions) {
+			push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id, $ring );
+		}
+
+	} else { 
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+		my ($divisions, $rings) = $self->load_all();
+		foreach my $id (@$divisions) {
+			push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+		}
+
+		# ===== LOAD EACH RING
+		foreach my $ring (@$rings) {
+			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+			my $ring_divisions = $self->load_ring( $ring );
+			foreach my $id (@$ring_divisions) {
+				push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id, $ring );
+			}
+		}
+
+		# ===== RESTORE THE CURRENT PATH
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+	}
 }
 
 1;

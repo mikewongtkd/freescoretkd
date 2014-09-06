@@ -13,14 +13,16 @@ sub new {
 # ============================================================
 sub init {
 # ============================================================
-	my $self = shift;
-	my $path       = shift;
-	my $division   = shift;
+	my $self     = shift;
+	my $path     = shift;
+	my $division = shift;
+	my $ring     = shift || 'unassigned';
 
 	$self->{ current } = 0;
 	$self->{ state }   = 'display';
 
 	$self->{ path } = $path;
+	$self->{ ring } = $ring;
 	$self->{ name } = $division;
 	$self->{ file } = "$self->{ path }/div.$division.txt";
 	$self->read();
