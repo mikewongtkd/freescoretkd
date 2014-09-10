@@ -7,7 +7,6 @@ sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
 	my $self = bless {}, $class;
-	$self->{ divisions } = [];
 	$self->init( @_ );
 	return $self;
 }
@@ -37,10 +36,22 @@ sub load_ring {
 		close FILE;
 	}
 
-	# ===== FIND ALL DIVISIONS
-	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
-	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
-	closedir DIR;
+	my @divisions = ();
+	if( exists $self->{ divisions } ) { 
+		if( ref $self->{ divisions } ) {
+			# ===== DIVISIONS PREVIOUSLY DEFINED
+			@divisions = @{ $self->{ divisions }};
+		} else {
+			# ===== DIVISIONS PROVIDED BY PROGRESS FILE
+			@divisions = split /,\s*/, $self->{ divisions };
+		}
+
+	# ===== FIND DIVISIONS
+	} else {
+		opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
+		@divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
+		closedir DIR;
+	}
 
 	$self->{ current } ||= 0;
 	return [ @divisions ];
@@ -68,7 +79,9 @@ sub write {
 	my $self = shift;
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
-	print FILE "# current=$self->{ current }\n";
+	foreach my $key (sort keys %$self) {
+		print FILE "# $key=$self->{ $key }\n";
+	}
 	close FILE;
 }
 

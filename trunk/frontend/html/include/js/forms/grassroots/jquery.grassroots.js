@@ -10,8 +10,6 @@ $.widget( "freescore.grassroots", {
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
-		o.ring = 1; // MW
-
 		card .append( leaderboard, scorekeeper );
 		widget .addClass( "grassroots flippable" );
 		widget .append( card, usermessage );
@@ -23,8 +21,9 @@ $.widget( "freescore.grassroots", {
 		e.scorekeeper.scorekeeper( { current : { athlete : { name : '', scores : new Array() }}} );
 
 		function refresh( update ) {
-			var division = JSON.parse( update.data );
-			var athlete = division.athletes[ division.current ];
+			var forms    = JSON.parse( update.data );
+			var division = forms.divisions[ parseInt( forms.current ) ];
+			var athlete  = division.athletes[ division.current ];
 			if( division.error ) {
 				e.card.fadeOut();
 				e.usermessage.html( division.error );
@@ -40,7 +39,7 @@ $.widget( "freescore.grassroots", {
 			}
 		};
 
-		e.source = new EventSource( 'update.php?ring=' + o.ring );
+		e.source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}

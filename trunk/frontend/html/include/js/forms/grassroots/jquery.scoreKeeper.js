@@ -87,7 +87,4 @@ $.widget( "freescore.scorekeeper", {
 		if( sum > 0.0 ) { e.score.html( sum.toFixed( 1 )); } else { e.score.empty(); }
 		widget .fadeIn( 500 );
 	},
-	fadeout: function() {
-		this.element.fadeOut( 500 );
-	}
 });
