@@ -1,3 +1,10 @@
-Aditi	White
-Darren	White
-Kai	White
+# description=6-7 Novice
+Ryan	White/Yellow
+Maya	White/Yellow
+Revati	White/Black
+Kaylee	White/Black
+Daniel	White/Black
+Nikhil	White/Black
+Samantha	White/Black
+Ava	White/Black
+Adena	White/Black

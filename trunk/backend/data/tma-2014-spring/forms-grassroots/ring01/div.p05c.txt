@@ -1,3 +1,4 @@
+# description=10-11 Intermediate
 Michael K.	Purple
 Gabriel	Purple
 Anke	Purple

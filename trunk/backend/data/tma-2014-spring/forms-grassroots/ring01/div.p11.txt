@@ -1,3 +1,4 @@
+# description=10-11 Weapons Poomsae
 Alice	Green
 Annabriza	Blue
 Oscarivan	Blue

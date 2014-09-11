@@ -1,2 +1,14 @@
+# description=6-7 Novice
 Ian	Yellow/White 
 Angelina	Yellow/White
+Frank W.	 Yellow/White
+Cole 	Yellow/White
+Anand	Yellow/White
+Nathan	Yellow/Orange
+Bowen	Yellow/Orange
+Samad	Yellow/Orange
+Gabriel B.	Yellow/Orange
+Antonio	Yellow/Orange
+Nirmal	Yellow/Orange
+Swati	Yellow/Orange
+Tharun	Yellow/Orange

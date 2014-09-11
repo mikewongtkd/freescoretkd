@@ -1,4 +1,8 @@
 # state=score
 # current=0
-Shreya	White/Yellow	-1	-1	-1
+# description=4-5 Novice
+Shreya	White/Yellow	0	-1	8.4
 Fernanda	White/Yellow	0	-1	-1
+Theo	White/Orange	9.4	-1	-1
+Srijith	White/Orange	0	-1	-1
+Giannina	White/Orange	-1	-1	-1

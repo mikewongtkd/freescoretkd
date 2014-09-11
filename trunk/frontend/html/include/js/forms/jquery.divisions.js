@@ -29,11 +29,10 @@ $.widget( "freescore.divisions", {
 			for( var id in e.division ) {
 				var division = e.division[ id ] .division( 'option', 'entry' );
 				var divisionMatches = division.name.match( search );
-				if( typeof( division.description ) !== 'undefined' ) { divisionMatches |= division.description.match( search ); }
+				if( typeof( division.description ) !== 'undefined' ) { divisionMatches = divisionMatches || division.description.match( search ); }
 				var athleteMatches  = false;
 				for( var i = 0; i < division.athletes.length; i++ ) {
 					var athlete = division.athletes[ i ];
-					console.log( athlete.name );
 					if( athlete.name.match( search )) { athleteMatches = true; break; }
 				}
 				if( divisionMatches || athleteMatches ) { e.division[ id ].show(); } 
