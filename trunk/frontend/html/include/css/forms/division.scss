@@ -44,8 +44,8 @@ body {
 
 		li.division {
 			position: relative;
-			background: linear-gradient(to bottom, #222426 0%, #111111 100%);
-			border: 1px solid #666;
+			border-top: 1px solid #666;
+			border-bottom: 1px solid #666;
 			position: relative;
 			font-size: 12pt;
 			line-height: 26pt;
@@ -60,21 +60,52 @@ body {
 					width: 18px;
 				}
 				.name {
-					color: #ccc;
 					position: absolute;
 					left: 24px;
 					top: 0;
 					width: 20px;
 				}
 				.description {
-					color: #999;
 					position: absolute;
 					left: 84px;
 					top: 0;
 					width: 300px;
 				}
+				.controls {
+					background: linear-gradient(to bottom, #ccc 0%, #999 100%);
+					position: absolute;
+					top: 4px;
+					left: 400px;
+					height: 23px;
+					width: 120px;
+					border-radius: 8px;
+					border: 1px solid #333;
+
+					.editButton {
+						position: absolute;
+						left: 0px;
+						height: 16px;
+						width: 16px;
+						margin: 3px 8px 0 12px;
+					}
+
+					.restageButton {
+						position: absolute;
+						left: 40px;
+						height: 16px;
+						width: 16px;
+						margin: 3px 8px 0 12px;
+					}
+
+					.stageButton {
+						position: absolute;
+						left: 80px;
+						height: 16px;
+						width: 16px;
+						margin: 3px 8px 0 12px;
+					}
+				}
 				.size {
-					color: #999;
 					position: absolute;
 					left: 544px;
 					top: 0;
@@ -82,17 +113,75 @@ body {
 					text-align: right;
 				}
 			}
+			.default { 
+				position: absolute;
+				left: 0;
+				top: 0;
+				height: 32px;
+				width: 600px;
+				background: linear-gradient(to bottom, #44484c 0%, #222222 100%);
+
+				.name        { color: #ccc; }
+				.description { color: #999; }
+				.size        { color: #999; }
+			}
+			.current { 
+				position: absolute;
+				left: 0;
+				top: 0;
+				height: 32px;
+				width: 600px;
+				background: linear-gradient(to bottom, #ccc 0%, #999 100%);
+
+				.name        { color: #000; font-weight: bold; }
+				.description { color: #000; font-weight: bold; }
+				.size        { color: #000; font-weight: bold; }
+			}
+
 
 			ul {
-				margin-top : 30px;
+				margin-top : 36px;
 				li {
-					font-size: 10pt;
 					position: relative;
 					height: 20px;
+					width: 600px;
+					
 					.name {
-						color: #ccc;
 						position: absolute;
 						left: 44px;
+						width: 200px;
+						font-size: 10pt;
+						line-height: 14pt;
+						color: #ccc;
+					}
+					.score {
+						position: absolute;
+						top: 0;
+						font-size: 9pt;
+						line-height: 9pt;
+						border: 1px solid #666;
+						border-radius: 8px;
+						height: 16px;
+						width: 32px;
+
+						.value {
+							position: absolute;
+							left: 0;
+							top: 3px;
+							height: 16px;
+							width: 32px;
+							text-align: center;
+						}
+					}
+					&.pendingAthlete {
+						background: linear-gradient( to bottom, #333 0%, #111 100%);
+						.name  { color: #ccc; }
+						.score { .value { color: #ccc; }}
+					}
+					&.currentAthlete {
+						background: linear-gradient( to bottom, #666 0%, #444 100%);
+						.name  { color: #fff; font-weight: bold }
+						.score { .value { color: #fff; }}
 					}
 				}
 			}

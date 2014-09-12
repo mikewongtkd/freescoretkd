@@ -15,7 +15,7 @@ $.widget( "freescore.divisions", {
 		var e       = this.options.elements = {};
 		var html    = e.html   = { div : $( "<div />" ), ul : $( "<ul />"), li : $( "<li />" ), input : $( "<input />" ), h1 : $( "<h1 />" ) };
 		var list    = e.list   = html.ul.clone() .sortable();
-		var title   = e.title  = html.h1.clone() .html( "Divisions" );
+		var title   = e.title  = html.h1.clone() .html( o.event.substr( 0, 1 ).toUpperCase() + o.event.substr( 1 ) + " Divisions" );
 		var search  = e.search = html.div.clone() .addClass( "search" );
 		var input   = e.input  = html.input.clone() .attr( "type", "search" ) .attr( "results", "0" ) .attr( "placeholder", " Search for athlete names or division name or descriptions" );
 
@@ -51,14 +51,13 @@ $.widget( "freescore.divisions", {
 
 		var refresh = function( update ) {
 			var forms    = JSON.parse( update.data );
-
-			e.title.html( o.tournament.name );
+			var current  = parseInt( forms.current );
 
 			o.input = [];
 			for( var i = 0; i < forms.divisions.length; i++ ) {
 				var division = forms.divisions[ i ];
 				if( typeof( e.division[ division.name ] ) === 'undefined' ) {
-					e.division[ division.name ] = h.li.clone() .division({ entry : division });
+					e.division[ division.name ] = h.li.clone() .division({ entry : division, isCurrent : i == current });
 					e.list.append( e.division[ division.name ] );
 
 					o.input[ division.name.toUpperCase() ] = 1;
