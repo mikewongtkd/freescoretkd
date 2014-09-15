@@ -22,54 +22,9 @@ $.widget( "freescore.leaderboard", {
 		var pending   = { list: html.ol.clone(), athletes: new Array() };
 		var standings = { athletes: new Array() };
 
-		// ============================================================
-		var calculateScores = function( scores ) {
-		// ============================================================
-			var inf   = Infinity;
-			var min   = { accuracy: inf, presentation: inf };
-			var max   = { accuracy: 0.0, presentation: 0.0 };
-			var total = { score:    0.0, presentation: 0.0, count : 0 }; // As of now, there is no need to record the total accuracy
-
-			for( var j = 0; j < scores.length; j++ ) {
-				var score        = scores[ j ];
-				var major        = Number.parseFloat( score.major );
-				var minor        = Number.parseFloat( score.minor );
-				var penalties    = major + minor;
-				var accuracy     = penalties > 4.0 ? 0.0 : 4.0 - (penalties);
-				var rhythm       = Number.parseFloat( score.rhythm );
-				var power        = Number.parseFloat( score.power );
-				var ki           = Number.parseFloat( score.ki );
-				var presentation = rhythm + power + ki;
-
-				// ===== RECORD THE LOWEST AND HIGHEST
-				min.accuracy     = min.accuracy     > accuracy     ? accuracy     : min.accuracy;
-				min.presentation = min.presentation > presentation ? presentation : min.presentation;
-				max.accuracy     = max.accuracy     < accuracy     ? accuracy     : max.accuracy;
-				max.presentation = max.presentation < presentation ? presentation : max.presentation;
-
-				if( penalties < 0 || presentation < 0 ) { continue; }
-				total.score        += (accuracy + presentation);
-				total.presentation += presentation;
-				total.count++;
-			}
-			var mean = 0.0;
-			if     ( scores.length > 0 && scores.length <= 4 ) { 
-				mean = total.score / total.count;
-				min.accuracy     = 0.0;
-				min.presentation = 0.0;
-				max.accuracy     = 0.0;
-				max.presentation = 0.0;
-
-			} else if( scores.length >= 5 ) { 
-				mean = (total.score - (min.accuracy + min.presentation + max.accuracy + max.presentation)) / (total.count - 2); 
-			}
-			return { mean: mean.toFixed( 2 ), total: total.score, presentation: total.presentation, min: min, max: max, tiebreaker: "", complete : total.count == scores.length };
-		}
-		// ------------------------------------------------------------
-
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
-			athlete.score = calculateScores( athlete.scores );
+			athlete.score = new FreeScore.Score( athlete.scores );
 
 			if   ( athlete.score.complete ) { standings .athletes .push( athlete ); }
 			else                            { pending   .athletes .push( athlete ); }
@@ -92,22 +47,7 @@ $.widget( "freescore.leaderboard", {
 		}
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
-		standings.athletes.sort( function( a, b ) { 
-			var criteria = { 
-				first:  parseFloat( b.score.mean )         - parseFloat( a.score.mean ),         // Mean scores, with highest and lowest accuracy and presentation dropped
-				second: parseFloat( b.score.presentation ) - parseFloat( a.score.presentation ), // Total presentation scores
-				third:  parseFloat( b.score.total )        - parseFloat( b.score.total )
-			};
-			if( criteria.first  != 0 ) { return criteria.first;  }
-			if( criteria.second != 0 ) { 
-				a.score.tiebreaker = "Presentation score: " + a.score.presentation.toFixed( 1 ); 
-				b.score.tiebreaker = "Presentation score: " + b.score.presentation.toFixed( 1 ); 
-				return criteria.second; 
-			}
-			a.score.tiebreaker = "Presentation tied. Total score: " + a.score.total.toFixed( 1 );
-			b.score.tiebreaker = "Presentation tied. Total score: " + b.score.total.toFixed( 1 );
-			return criteria.third;
-		});
+		standings.athletes.sort( function( a, b ) { return b.score.compare( a.score ); });
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k     = standings.athletes.length < 4 ? standings.athletes.length : 4;
@@ -119,7 +59,7 @@ $.widget( "freescore.leaderboard", {
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
 			var name       = html.div.clone()  .addClass( "name" ) .addClass( "rank" + j ) .html( athlete.name );
-			var score      = html.div.clone()  .addClass( "score" ) .html( athlete.score.mean );
+			var score      = html.div.clone()  .addClass( "score" ) .html( athlete.score.mean.toFixed( 2 ) );
 			var tiebreaker = html.span.clone() .addClass( "tiebreaker" ) .html( "*" );
 			var medal      = html.div.clone()  .addClass( "medal" ) .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 

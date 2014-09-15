@@ -11,6 +11,7 @@ body {
 	height: 800px;
 	border-radius: 24pt;
 	border: 3px solid #ccc;
+	background: black;
 	overflow-y: scroll;
 
 	h1 {
@@ -174,7 +175,7 @@ body {
 						}
 					}
 					&.pendingAthlete {
-						background: linear-gradient( to bottom, #333 0%, #111 100%);
+						background: none;
 						.name  { color: #ccc; }
 						.score { .value { color: #ccc; }}
 					}
