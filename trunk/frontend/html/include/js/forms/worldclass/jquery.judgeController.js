@@ -4,7 +4,7 @@ $.widget( "freescore.judgeController", {
 		var o      = this.options;
 		var e      = this.options.elements = {};
 		var widget = this.element;
-		var html   = e.html  = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
+		var html   = e.html  = { div : $( "<div />" ), ul : $( "<ul />" ), li : $( "<li />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
 		widget.nodoubletapzoom();
 
@@ -19,7 +19,7 @@ $.widget( "freescore.judgeController", {
 		var controllers  = e.controllers  = html.div.clone() .addClass( "controller control-group" );
 
 		var flipToBack   = e.fliptoBlack  = html.div.clone() .addClass( "flip" ) .html( "Division" );
-		var athlete      = e.athlete      = html.div.clone() .addClass( "athlete" );
+		var athlete      = e.athlete      = html.ul.clone() .addClass( "athlete" ) .totemticker({ row_height : '32px', interval : 2500 });
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
@@ -107,13 +107,18 @@ $.widget( "freescore.judgeController", {
 		var e       = this.options.elements;
 		var o       = this.options;
 		var html    = e.html;
+		var ordinal = [ '0th', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
 
 		function refresh( update ) {
-			var forms     = JSON.parse( update.data );
-			var division  = forms.divisions[ forms.current ];
+			var forms      = JSON.parse( update.data );
+			var division   = forms.divisions[ forms.current ];
+			var round      = ordinal[ division.round ];
+			var form_names = division.forms.split( "," );
+			var form_name  = form_names[ division.round - 1 ];
 			if( typeof( division.athletes ) !== 'undefined' ) {
 				var athlete  = division.athletes[ parseInt( division.current ) ];
-				e.athlete .html( athlete.name );
+				var items    = [ 'Judge ' + (o.num + 1), athlete.name, round + ' form', form_name, 'Finals' ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				e.athlete .append( items );
 
 				// ===== RESET DEFAULTS FOR A NEW ATHLETE
 				if( division.current != o.currentAthlete ) {

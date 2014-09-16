@@ -43,9 +43,9 @@ $.widget( "freescore.judgeNotes", {
 
 			} else {
 				var scores = new FreeScore.WorldClass.Score( athlete.scores, o.judges );
-				score.accuracy     = scores.form.map( function( form ) { return (form.judge[ o.num ].accuracy     ).toFixed( 1 ); }).join( "/" );
-				score.presentation = scores.form.map( function( form ) { return (form.judge[ o.num ].presentation ).toFixed( 1 ); }).join( "/" );
-				score.sum          = scores.form.map( function( form ) { return (form.judge[ o.num ].total        ).toFixed( 1 ); }).join( "/" );
+				score.accuracy     = scores.form.map( function( form ) { var x = (form.judge[ o.num ].accuracy     ); return x < 0 ? '&ndash;' : x.toFixed( 1 ); }).join( "/" );
+				score.presentation = scores.form.map( function( form ) { var x = (form.judge[ o.num ].presentation ); return x < 0 ? '&ndash;' : x.toFixed( 1 ); }).join( "/" );
+				score.sum          = scores.form.map( function( form ) { var x = (form.judge[ o.num ].total        ); return x < 0 ? '&ndash;' : x.toFixed( 1 ); }).join( "/" );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}

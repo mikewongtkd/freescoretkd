@@ -7,8 +7,13 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 	this.major        = defined ? Number.parseFloat( score.major )   : -1.0;
 	this.minor        = defined ? Number.parseFloat( score.minor )   : -1.0;
 	this.penalties    = defined ? this.major + this.minor            : -1.0;
-
-	var  accuracy     = parseFloat((this.penalties > 4.0 ? 0.0 : 4.0 - this.penalties).toFixed( 1 ));
+	var  accuracy;
+	if( this.penalties >= 0.0 ) {
+		if( this.penalties <= 4.0 ) { accuracy = parseFloat((4.0 - this.penalties).toFixed( 1 )); }
+		else                        { accuracy = 0.0; }
+	} else {
+		accuracy = -1.0;
+	}
 	this.accuracy     = defined ? accuracy                           : -1.0;
 
 	this.rhythm       = defined ? Number.parseFloat( score.rhythm )  : -1.0;
