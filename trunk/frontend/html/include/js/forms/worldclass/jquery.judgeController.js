@@ -112,16 +112,21 @@ $.widget( "freescore.judgeController", {
 		function refresh( update ) {
 			var forms      = JSON.parse( update.data );
 			var division   = forms.divisions[ forms.current ];
-			var round      = ordinal[ division.round ];
-			var form_names = division.forms.split( "," );
-			var form_name  = form_names[ division.round - 1 ];
+
+			if( typeof( division ) !== 'undefined' ) {
+				var round      = ordinal[ division.round ];
+				var form_names = division.forms.split( "," );
+				var form_name  = form_names[ division.round - 1 ];
+			}
 			if( typeof( division.athletes ) !== 'undefined' ) {
-				var athlete  = division.athletes[ parseInt( division.current ) ];
-				var items    = [ 'Judge ' + (o.num + 1), athlete.name, round + ' form', form_name, 'Finals' ].map( function( item ) { return e.html.li.clone() .html( item ); });
-				e.athlete .append( items );
 
 				// ===== RESET DEFAULTS FOR A NEW ATHLETE
 				if( division.current != o.currentAthlete ) {
+					var athlete  = division.athletes[ parseInt( division.current ) ];
+					var items    = [ 'Judge ' + (o.num + 1), athlete.name, round + ' form', form_name, 'Finals' ].map( function( item ) { return e.html.li.clone() .html( item ); });
+					e.athlete.empty();
+					e.athlete .append( items );
+
 					o.major  = 0.0; e.major  .deductions( { count : 0 });
 					o.minor  = 0.0; e.minor  .deductions( { count : 0 });
 					o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
