@@ -115,34 +115,18 @@ $.widget( "freescore.judgeController", {
 				var athlete  = division.athletes[ parseInt( division.current ) ];
 				e.athlete .html( athlete.name );
 
-				// ===== CHECK IF RESCORING AN ATHLETE
+				// ===== RESET DEFAULTS FOR A NEW ATHLETE
 				if( division.current != o.currentAthlete ) {
-					var major  = { previous : (parseFloat( athlete .scores[ o.num ] .major  ) / e.major.deductions( 'option', 'value' )).toFixed( 0 ), current : e.major.deductions( 'option', 'count' ) };
-					var minor  = { previous : (parseFloat( athlete .scores[ o.num ] .minor  ) / e.minor.deductions( 'option', 'value' )).toFixed( 0 ), current : e.minor.deductions( 'option', 'count' ) };
-					var rhythm = { previous : (parseFloat( athlete .scores[ o.num ] .rhythm )).toFixed( 1 ),                                           current : e.rhythm .presentationBar( 'option', 'value' ) };
-					var power  = { previous : (parseFloat( athlete .scores[ o.num ] .power  )).toFixed( 1 ),                                           current : e.power  .presentationBar( 'option', 'value' ) };
-					var ki     = { previous : (parseFloat( athlete .scores[ o.num ] .ki     )).toFixed( 1 ),                                           current : e.ki     .presentationBar( 'option', 'value' ) };
+					o.major  = 0.0; e.major  .deductions( { count : 0 });
+					o.minor  = 0.0; e.minor  .deductions( { count : 0 });
+					o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
+					o.power  = 1.2; e.power  .presentationBar( { value : 1.2 });
+					o.ki     = 1.2; e.ki     .presentationBar( { value : 1.2 });
 
-					// ===== RESET DEFAULTS WHEN THERE ARE NO PREVIOUS SCORES
-					if( major.previous < 0 || minor.previous < 0 || rhythm.previous < 0 || power.previous < 0 || ki.previous < 0 ) {
-						o.major  = 0.0; e.major  .deductions( { count : 0 });
-						o.minor  = 0.0; e.minor  .deductions( { count : 0 });
-						o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
-						o.power  = 1.2; e.power  .presentationBar( { value : 1.2 });
-						o.ki     = 1.2; e.ki     .presentationBar( { value : 1.2 });
-
-					// ===== RESTORE PREVIOUS SCORE IF RESCORING AN ATHLETE
-					} else {
-						if( major.previous  != major.current  ) { o.major  = major.previous;  e.major.deductions( { count : major.previous }); }
-						if( minor.previous  != minor.current  ) { o.minor  = minor.previous;  e.minor.deductions( { count : minor.previous }); }
-						if( rhythm.previous != rhythm.current ) { o.rhythm = rhythm.previous; e.rhythm .presentationBar( { value : rhythm.previous }); }
-						if( power.previous  != power.current  ) { o.power  = power.previous;  e.power  .presentationBar( { value : power.previous }); }
-						if( ki.previous     != ki.current     ) { o.ki     = ki.previous;     e.ki     .presentationBar( { value : ki.previous }); }
-					}
 					widget.trigger({ type : "updateRequest", score : o });
 				}
 			}
-			e.notes .judgeNotes({ athletes : division.athletes, current : division.current });
+			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current });
 
 
 			o.currentDivision = forms.current;

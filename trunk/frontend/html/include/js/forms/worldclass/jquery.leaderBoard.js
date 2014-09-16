@@ -18,13 +18,13 @@ $.widget( "freescore.leaderboard", {
 		var o         = this.options;
 		var html      = o.html;
 		var widget    = this.element;
-		var athletes  = this.options.division.athletes;
+		var athletes  = o.division.athletes;
 		var pending   = { list: html.ol.clone(), athletes: new Array() };
 		var standings = { athletes: new Array() };
 
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
-			athlete.score = new FreeScore.Score( athlete.scores );
+			athlete.score = new FreeScore.WorldClass.Score( athlete.scores, o.division.judges );
 
 			if   ( athlete.score.complete ) { standings .athletes .push( athlete ); }
 			else                            { pending   .athletes .push( athlete ); }
@@ -59,7 +59,7 @@ $.widget( "freescore.leaderboard", {
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
 			var name       = html.div.clone()  .addClass( "name" ) .addClass( "rank" + j ) .html( athlete.name );
-			var score      = html.div.clone()  .addClass( "score" ) .html( athlete.score.mean.toFixed( 2 ) );
+			var score      = html.div.clone()  .addClass( "score" ) .html( athlete.score.mean.toFixed( 1 ) );
 			var tiebreaker = html.span.clone() .addClass( "tiebreaker" ) .html( "*" );
 			var medal      = html.div.clone()  .addClass( "medal" ) .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 
@@ -102,7 +102,4 @@ $.widget( "freescore.leaderboard", {
 		}
 		widget.fadeIn( 500 );
 	},
-	fadeout: function() {
-		this.element.fadeOut( 500 );
-	}
 });

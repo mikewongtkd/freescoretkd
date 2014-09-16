@@ -10,34 +10,6 @@ $.widget( "freescore.judgeNotes", {
 		widget.addClass( 'judgeNotes' );
 		widget.append( view );
 
-		o.updateScore = function( score ) {
-			if( typeof( score.major ) === 'undefined' || typeof( score.minor ) === 'undefined' ) {
-				score.major    =  0.0;
-				score.minor    =  0.0;
-				score.accuracy = -1.0;
-
-			} else {
-				var accuracy = 4.0 - (parseFloat( score.major ) + parseFloat( score.minor ));
-				accuracy = accuracy < 0.0 ? 0.0 : accuracy;
-				accuracy = accuracy > 4.0 ? -1.0 : accuracy;
-				score.accuracy = accuracy .toFixed( 1 );
-			}
-
-			if( 
-				typeof( score.rhythm ) === 'undefined' || 
-				typeof( score.power  ) === 'undefined' || 
-				typeof( score.ki     ) === 'undefined' 
-			) {
-				score.rhythm       =  0.0;
-				score.power        =  0.0;
-				score.ki           =  0.0;
-				score.presentation = -1.0;
-
-			} else {
-				var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
-				score.presentation = presentation .toFixed( 1 );
-			}
-		}
 	},
 	_init: function( ) {
 		var widget   = this.element;
@@ -62,28 +34,28 @@ $.widget( "freescore.judgeNotes", {
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr           = h.tr.clone();
 			var athlete      = athletes[ i ];
-			var score        = athlete.scores[ o.num ];
+			var score        = {};
 
-			if( typeof( score ) === 'undefined' ) {
-				score              = {};
-				score.accuracy     = -1.0;
-				score.presentation = -1.0;
+			if( typeof( athlete.scores ) === 'undefined' ) {
+				score.accuracy     = '';
+				score.presentation = '';
+				score.sum          = '';
 
 			} else {
-				o.updateScore( score );
+				var scores = new FreeScore.WorldClass.Score( athlete.scores, o.judges );
+				score.accuracy     = scores.form.map( function( form ) { return (form.judge[ o.num ].accuracy     ).toFixed( 1 ); }).join( "/" );
+				score.presentation = scores.form.map( function( form ) { return (form.judge[ o.num ].presentation ).toFixed( 1 ); }).join( "/" );
+				score.sum          = scores.form.map( function( form ) { return (form.judge[ o.num ].total        ).toFixed( 1 ); }).join( "/" );
 			}
 
-			var accuracy     = score.accuracy;                                                  accuracy     = accuracy     <= 0 ? "" : parseFloat( accuracy     ) .toFixed( 1 );
-			var presentation = score.presentation;                                              presentation = presentation <= 0 ? "" : parseFloat( presentation ) .toFixed( 1 );
-			var sum          = parseFloat( score.accuracy ) + parseFloat( score.presentation ); sum          = sum          <= 0 ? "" : parseFloat( sum          ) .toFixed( 1 );
 			var isCurrent    = function() { if( i == current ) { return "current"; }}
 
 			tr
 				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "order" )        .html( i + 1 + "." ))
 				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "name"  )        .html( athlete.name ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "accuracy" )     .html( accuracy ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "presentation" ) .html( presentation ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "sum" )          .html( sum ));
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "accuracy" )     .html( score.accuracy ))
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "presentation" ) .html( score.presentation ))
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "sum" )          .html( score.sum ));
 			table.append( tr );
 		}
 		view.append( table );

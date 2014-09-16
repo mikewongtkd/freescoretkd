@@ -18,10 +18,10 @@
 			border-radius: 24px;
 			padding: 0 32px 8px 32px;
 
-			.rank1 { color: #f90; }
+			.rank1 { color: #fe0; }
 			.rank2 { color: #ccc; }
-			.rank3 { color: #930; }
-			.rank4 { color: #930; }
+			.rank3 { color: #f93; }
+			.rank4 { color: #f93; }
 
 			.athlete {
 				position: relative;
@@ -35,9 +35,7 @@
 					position: absolute;
 					left: 70%;
 					width: 20%;
-
-					.tiebreaker {
-					}
+					text-align: right;
 				}
 				.medal {
 					position: absolute;

@@ -99,7 +99,7 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	my $division     = $progress->current();
 	my $athlete      = $division->{ current };
 	my $score        = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-	$division->{ athletes }[ $athlete ]{ scores }[ $judge ] = $score;
+	$division->record_score( $judge, $score );
 	$division->write();
 	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
 };
