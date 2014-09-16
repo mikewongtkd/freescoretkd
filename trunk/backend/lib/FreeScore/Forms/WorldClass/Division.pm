@@ -34,6 +34,7 @@ sub read {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
 			$self->{ $key } = $value;
+			if( $key eq 'forms' ) { $self->{ $key } = [ split /,/, $value ]; }
 			next;
 		}
 
@@ -74,7 +75,7 @@ sub write {
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
-	print FILE "# forms=$self->{ forms }\n";
+	print FILE "# forms=" . join( ",", @{$self->{ forms }}) . "\n";
 	my $rounds = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		my $scores = $athlete->{ scores };
@@ -89,6 +90,42 @@ sub write {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @scores), "\n";
 	}
 	close FILE;
+}
+
+# ============================================================
+sub next {
+# ============================================================
+	my $self = shift;
+	$self->{ state } = 'score';
+
+	my $round = $self->{ round };
+	my $max   = $#{ $self->{ forms }};
+
+	if( $round < $max ) {
+		$self->{ round }++;
+	} else {
+		$self->{ current } = ($self->{ current } + 1) % int( @{ $self->{ athletes }});
+		$self->{ round } = 0;
+	}
+}
+
+# ============================================================
+sub previous {
+# ============================================================
+	my $self = shift;
+	$self->{ state } = 'score';
+
+	my $round        = $self->{ round };
+	my $max_round    = $#{ $self->{ forms }};
+	my $previous     = ($self->{ current } - 1);
+	my $max_athletes = $#{ $self->{ forms }};
+
+	if( $round > 0 ) {
+		$self->{ round }--;
+	} else {
+		$self->{ current } = $previous >= 0 ? $previous: $max_athletes;
+		$self->{ round }   = $max_round;
+	}
 }
 
 1;

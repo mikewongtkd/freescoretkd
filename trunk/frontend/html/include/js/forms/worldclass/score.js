@@ -26,20 +26,22 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 	this.total        = parseFloat((accuracy + presentation).toFixed( 1 ));
 }
 
-FreeScore.WorldClass.Score = function( scores, judges ) {
+FreeScore.WorldClass.Score = function( scores, judges, limit ) {
 	this.complete     = true;
-	this.mean         = 0.0;
 	this.form         = [];
-	this.total        = { accuracy : [], presentation : [], score : [] };
+	this.total        = { accuracy : 0.0, presentation : 0.0, score : 0.0 };
+	limit = typeof( limit ) === 'undefined' ? scores.length - 1 : limit;
 
 	// ===== FOR EACH FORM IN A GIVEN ROUND
 	// Usually 1 form Preliminary round, 1-2 forms Semi-Finals round, 2 forms Finals round.
-	for( var i = 0; i < scores.length; i++ ) {
+	for( var i = 0; i <= limit; i++ ) {
 		var form = this.form[ i ] = { 
-			judge : [], 
-			min   : { accuracy : 0,   presentation : 0 },
-			max   : { accuracy : 0,   presentation : 0 },
-			total : { accuracy : 0.0, presentation : 0.0, score : 0.0 },
+			judge   : [], 
+			mean    : 0.0,
+			min     : { accuracy : 0,   presentation : 0 },
+			max     : { accuracy : 0,   presentation : 0 },
+			dropped : { accuracy : 0.0, presentation : 0.0 },
+			total   : { accuracy : 0.0, presentation : 0.0, score : 0.0, count : 0 },
 		};
 
 		// ===== FOR EACH JUDGE SCORE PER FORM
@@ -63,22 +65,25 @@ FreeScore.WorldClass.Score = function( scores, judges ) {
 		}
 
 		// ===== CHECK IF ALL JUDGES HAVE SCORED
-		if( form.judge.length == form.total.count ) { form.complete = true; }
+		if( form.total.count == judges) { form.complete = true; }
 
 		// ===== CALCULATE SCORE MEAN
 		if       ( judges > 0 && judges <= 4 ) {
-			form.mean = form.total.score / form.total.count;
+			form.mean = form.total.score / judges;
 
 		} else if( judges >= 5 ) {
-			var dropped = form.judge[ form.min.accuracy ].accuracy + form.judge[ form.min.presentation ].presentation + form.judge[ form.max.accuracy ].accuracy + form.judge[ form.max.presentation ].presentation;
-			var total   = form.total.score - dropped;
-			form.mean   = total / form.total.count;
+			form.dropped.accuracy     = form.judge[ form.min.accuracy     ].accuracy     + form.judge[ form.max.accuracy     ].accuracy;
+			form.dropped.presentation = form.judge[ form.min.presentation ].presentation + form.judge[ form.max.presentation ].presentation;
+			var total   = form.total.score - (form.dropped.accuracy + form.dropped.presentation);
+			form.mean   = total / judges;
 
 		} else {
 			form.mean = 0.0;
 		}
 		this.complete = this.complete && form.complete;
-		this.mean += form.mean;
+		this.total.accuracy     += (form.total.accuracy - form.dropped.accuracy) / judges;
+		this.total.presentation += (form.total.presentation - form.dropped.presentation) / judges;
+		this.total.score        += form.mean;
 	}
 	this.complete = this.complete && (scores.length > 0); // At least one form must have been judged
 }

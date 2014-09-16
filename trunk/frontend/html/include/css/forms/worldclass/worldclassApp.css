@@ -5,70 +5,70 @@ body {
 .worldclass {
   margin: 0 auto 0 auto;
   width: 1000px; }
-  .worldclass .scorekeeper {
+  .worldclass .scoreboard {
     font-family: Optima;
     display: none; }
-    .worldclass .scorekeeper .judgeScores {
+    .worldclass .scoreboard .judgeScores {
       width: 1000px;
       height: 180px;
       margin: 0 0 20px 0; }
-    .worldclass .scorekeeper .judges7 {
+    .worldclass .scoreboard .judges7 {
       width: 117px; }
-      .worldclass .scorekeeper .judges7 .judge {
+      .worldclass .scoreboard .judges7 .judge {
         font-size: 18pt; }
-      .worldclass .scorekeeper .judges7 .score {
+      .worldclass .scoreboard .judges7 .score {
         font-size: 48pt;
         line-height: 48pt; }
-    .worldclass .scorekeeper .judges5 {
+    .worldclass .scoreboard .judges5 {
       width: 176px; }
-      .worldclass .scorekeeper .judges5 .judge {
+      .worldclass .scoreboard .judges5 .judge {
         font-size: 24pt; }
-      .worldclass .scorekeeper .judges5 .score {
+      .worldclass .scoreboard .judges5 .score {
         font-size: 48pt;
         line-height: 48pt; }
-    .worldclass .scorekeeper .judges3 {
+    .worldclass .scoreboard .judges3 {
       width: 312px; }
-      .worldclass .scorekeeper .judges3 .judge {
+      .worldclass .scoreboard .judges3 .judge {
         font-size: 24pt; }
-      .worldclass .scorekeeper .judges3 .score {
+      .worldclass .scoreboard .judges3 .score {
         font-size: 64pt;
         line-height: 108pt; }
-    .worldclass .scorekeeper .left {
+    .worldclass .scoreboard .left {
       margin: 0 10px 0 0; }
-    .worldclass .scorekeeper .middle {
+    .worldclass .scoreboard .middle {
       margin: 0 10px 0 10px; }
-    .worldclass .scorekeeper .right {
+    .worldclass .scoreboard .right {
       margin: 0 0 0 10px; }
-    .worldclass .scorekeeper .judgeScore {
+    .worldclass .scoreboard .judgeScore {
       display: inline-block;
       text-align: center;
       height: 172px;
       font-weight: bold;
       border-radius: 24px;
       border: 4px solid white; }
-      .worldclass .scorekeeper .judgeScore .judge {
+      .worldclass .scoreboard .judgeScore .judge {
         color: #666;
         font-weight: bold;
         border-radius: 0 0 24px 24px;
         background-color: black;
         margin: 0 auto 0 auto;
         height: 40px; }
-      .worldclass .scorekeeper .judgeScore .score {
+      .worldclass .scoreboard .judgeScore .score {
         color: #666;
         font-weight: bold;
         border-radius: 24px 24px 0 0;
         background-color: black;
         margin: auto;
         height: 132px; }
-        .worldclass .scorekeeper .judgeScore .score .accuracy {
+        .worldclass .scoreboard .judgeScore .score .accuracy {
           color: #f99; }
-        .worldclass .scorekeeper .judgeScore .score .presentation {
+        .worldclass .scoreboard .judgeScore .score .presentation {
           color: #99f; }
-    .worldclass .scorekeeper .ignore .judge {
+    .worldclass .scoreboard .ignore .judge {
       color: #333; }
-    .worldclass .scorekeeper .ignore .score {
+    .worldclass .scoreboard .ignore .score {
       color: #333; }
-    .worldclass .scorekeeper .totalScores {
+    .worldclass .scoreboard .totalScores {
       text-align: center;
       height: 532px;
       width: 992px;
@@ -77,20 +77,26 @@ body {
       border-radius: 24px;
       border: 4px solid white;
       background: linear-gradient(to top, #45484d 0%, black 100%); }
-      .worldclass .scorekeeper .totalScores .red, .worldclass .scorekeeper .totalScores .hong {
+      .worldclass .scoreboard .totalScores .red, .worldclass .scoreboard .totalScores .hong {
         color: #f66; }
-      .worldclass .scorekeeper .totalScores .blue, .worldclass .scorekeeper .totalScores .chung {
+      .worldclass .scoreboard .totalScores .blue, .worldclass .scoreboard .totalScores .chung {
         color: #66f; }
-      .worldclass .scorekeeper .totalScores .athlete {
-        margin: 20px 0 0 0;
-        height: 120px;
+      .worldclass .scoreboard .totalScores .athlete {
+        margin: 0;
+        height: 80px;
         font-size: 72pt;
         line-height: 72pt; }
-      .worldclass .scorekeeper .totalScores .score {
+      .worldclass .scoreboard .totalScores .round {
+        margin: 0;
+        color: #999;
+        height: 40px;
+        font-size: 24pt;
+        line-height: 40pt; }
+      .worldclass .scoreboard .totalScores .score {
         position: relative;
         height: 400px;
         width: 992px; }
-        .worldclass .scorekeeper .totalScores .score .accuracy {
+        .worldclass .scoreboard .totalScores .score .accuracy {
           position: absolute;
           top: 0;
           left: 186px;
@@ -99,9 +105,9 @@ body {
           color: #600;
           font-size: 96pt;
           line-height: 96pt; }
-          .worldclass .scorekeeper .totalScores .score .accuracy .mean {
+          .worldclass .scoreboard .totalScores .score .accuracy .mean {
             color: #f99; }
-        .worldclass .scorekeeper .totalScores .score .presentation {
+        .worldclass .scoreboard .totalScores .score .presentation {
           position: absolute;
           top: 0;
           left: 558px;
@@ -110,9 +116,9 @@ body {
           color: #006;
           font-size: 96pt;
           line-height: 96pt; }
-          .worldclass .scorekeeper .totalScores .score .presentation .mean {
+          .worldclass .scoreboard .totalScores .score .presentation .mean {
             color: #99f; }
-        .worldclass .scorekeeper .totalScores .score .total {
+        .worldclass .scoreboard .totalScores .score .total {
           position: absolute;
           top: 12px;
           left: 0;
@@ -138,13 +144,13 @@ body {
         border-radius: 24px;
         padding: 0 32px 8px 32px; }
         .worldclass .leaderboard .division .standings .rank1 {
-          color: #f90; }
+          color: #fe0; }
         .worldclass .leaderboard .division .standings .rank2 {
           color: #ccc; }
         .worldclass .leaderboard .division .standings .rank3 {
-          color: #930; }
+          color: #f93; }
         .worldclass .leaderboard .division .standings .rank4 {
-          color: #930; }
+          color: #f93; }
         .worldclass .leaderboard .division .standings .athlete {
           position: relative; }
           .worldclass .leaderboard .division .standings .athlete .name {
@@ -155,7 +161,8 @@ body {
           .worldclass .leaderboard .division .standings .athlete .score {
             position: absolute;
             left: 70%;
-            width: 20%; }
+            width: 20%;
+            text-align: right; }
           .worldclass .leaderboard .division .standings .athlete .medal {
             position: absolute;
             left: 90%;

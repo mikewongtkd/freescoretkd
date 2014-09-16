@@ -1,6 +1,6 @@
 // Depends on jquery.judgeScore.js
 
-$.widget( "freescore.scorekeeper", {
+$.widget( "freescore.scoreboard", {
 	options: { autoShow: true, judges: 3 },
 	_create: function() {
 		var o = this.options;
@@ -11,9 +11,9 @@ $.widget( "freescore.scorekeeper", {
 		var judges      = e.judges      = new Array();
 		var totalScore  = e.totalScore  = html.div.clone() .addClass( "totalScores" );
 		var athlete     = e.athlete     = html.div.clone() .addClass( "athlete" );
+		var round       = e.round       = html.div.clone() .addClass( "round" );
 		var score       = e.score       = html.div.clone() .addClass( "score" );
-		totalScore.append( score );
-		totalScore.append( athlete );
+		totalScore.append( score, athlete, round );
 
 		var k = this.options.judges;
 		for( var i = 0; i < k; i++ ) {
@@ -30,7 +30,7 @@ $.widget( "freescore.scorekeeper", {
 			judgeScores.append( judge );
 		}
 		
-		this.element .addClass( "scoreKeeper" );
+		this.element .addClass( "scoreboard" );
 		this.element .append( judgeScores );
 		this.element .append( totalScore );
 	},
@@ -41,11 +41,16 @@ $.widget( "freescore.scorekeeper", {
 		var k       = o.judges;
 		var widget  = this.element;
 		var current = o.current;
+		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
+		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
 
+		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, o.current.round );
 		e.athlete .html( current.athlete.name );
+		if( current.forms.length > 1 ) { e.round   .html( 'Final round &ndash; ' + ordinal[ current.round ] + ' form &ndash; ' + current.forms[ current.round ] ); } 
+		else                           { e.round   .html( 'Final round &ndash; ' + current.forms[ current.round ] ); }
+		
 		for( var i = 0; i < k; i++ ) {
-			var s = current.athlete.scores[ i ];
-			e.judges[ i ].judgeScore( { score : s } );
+			e.judges[ i ].judgeScore( { score : scores.form[ current.round ].judge[ i ] } );
 		}
 
 		if( parseInt( current.athlete.index ) % 2 ) { 
@@ -56,61 +61,14 @@ $.widget( "freescore.scorekeeper", {
 			e.athlete .addClass( "chung" ); 
 		}
 
-		// ============================================================
-		// SUM SCORES
-		// ============================================================
-		var scores = new Array();
-		var min    = { accuracy : -1, presentation : -1 };
-		var max    = { accuracy : -1, presentation : -1 };
-		for( var i = 0; i < k; i++ ) {
-			var j = i + 1;
-			var accuracy     = parseFloat( $( '#judgeScore' + j + ' .accuracy'     ).html());
-			var presentation = parseFloat( $( '#judgeScore' + j + ' .presentation' ).html());
-			if( isNaN( accuracy     )) { accuracy     = -1.0; }
-			if( isNaN( presentation )) { presentation = -1.0; }
-			scores[ i ]      = { accuracy : accuracy, presentation : presentation };
-		}
-
-		// ===== SKIP MIN AND MAX FOR 5 OR 7 JUDGES
-		if( k == 5 || k == 7 ) {
-			for( var i = 0; i < k; i++ ) {
-				if( min.accuracy < 0     || scores[ min.accuracy ].accuracy         > scores[ i ].accuracy )     { min.accuracy     = i; }
-				if( max.accuracy < 0     || scores[ max.accuracy ].accuracy         < scores[ i ].accuracy )     { max.accuracy     = i; }
-				if( min.presentation < 0 || scores[ min.presentation ].presentation > scores[ i ].presentation ) { min.presentation = i; }
-				if( max.presentation < 0 || scores[ max.presentation ].presentation < scores[ i ].presentation ) { max.presentation = i; }
-				e.judges[ i ].removeClass( "ignore" );
-			}
-		}
-
-		var sum   = { accuracy : 0.0, presentation : 0.0 };
-		var count = { accuracy : 0,   presentation : 0   };
-		var mean  = { accuracy : 0.0, presentation : 0.0 };
-
-		for( var i = 0; i < k; i++ ) {
-			if( i == min.accuracy         ) { e.judges[ i ].addClass( "ignore" ); continue; }
-			if( i == max.accuracy         ) { e.judges[ i ].addClass( "ignore" ); continue; }
-			if( scores[ i ].accuracy <= 0 ) { continue; }
-			sum.accuracy += scores[ i ].accuracy;
-			count.accuracy++;
-		}
-		for( var i = 0; i < k; i++ ) {
-			if( i == min.presentation         ) { e.judges[ i ].addClass( "ignore" ); continue; }
-			if( i == max.presentation         ) { e.judges[ i ].addClass( "ignore" ); continue; }
-			if( scores[ i ].presentation <= 0 ) { continue; }
-			sum.presentation += scores[ i ].presentation;
-			count.presentation++;
-		}
-		mean.accuracy     = count.accuracy     == 0 ? 0.0 : (sum.accuracy     / count.accuracy)     .toFixed( 2 );
-		mean.presentation = count.presentation == 0 ? 0.0 : (sum.presentation / count.presentation) .toFixed( 2 );
-
 		var display       = { 
-			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" ) .html( mean.accuracy )),
-			presentation: o.html.div.clone() .addClass( "presentation" ) .append( o.html.span.clone() .addClass( "mean" ) .html( mean.presentation )),
-			total:        o.html.div.clone() .addClass( "total" )        .append( o.html.span.clone() .addClass( "total" ) .html( (parseFloat( mean.accuracy ) + parseFloat( mean.presentation )).toFixed( 2 ) )),
+			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" )  .html( scores.total.accuracy.toFixed( 1 ) )),
+			presentation: o.html.div.clone() .addClass( "presentation" ) .append( o.html.span.clone() .addClass( "mean" )  .html( scores.total.presentation.toFixed( 1 ) )),
+			total:        o.html.div.clone() .addClass( "total" )        .append( o.html.span.clone() .addClass( "total" ) .html( scores.total.score.toFixed( 1 ))),
 		};
 
 		e.score.empty();
-		if( mean.accuracy > 0.0 && mean.presentation > 0.0 ) { 
+		if( true ) { 
 			e.score.append( display.accuracy, display.presentation, display.total ); 
 		} 
 		widget .fadeIn( 500 );

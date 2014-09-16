@@ -1,67 +1,67 @@
-.scorekeeper {
+.scoreboard {
   font-family: Optima;
   display: none; }
-  .scorekeeper .judgeScores {
+  .scoreboard .judgeScores {
     width: 1000px;
     height: 180px;
     margin: 0 0 20px 0; }
-  .scorekeeper .judges7 {
+  .scoreboard .judges7 {
     width: 117px; }
-    .scorekeeper .judges7 .judge {
+    .scoreboard .judges7 .judge {
       font-size: 18pt; }
-    .scorekeeper .judges7 .score {
+    .scoreboard .judges7 .score {
       font-size: 48pt;
       line-height: 48pt; }
-  .scorekeeper .judges5 {
+  .scoreboard .judges5 {
     width: 176px; }
-    .scorekeeper .judges5 .judge {
+    .scoreboard .judges5 .judge {
       font-size: 24pt; }
-    .scorekeeper .judges5 .score {
+    .scoreboard .judges5 .score {
       font-size: 48pt;
       line-height: 48pt; }
-  .scorekeeper .judges3 {
+  .scoreboard .judges3 {
     width: 312px; }
-    .scorekeeper .judges3 .judge {
+    .scoreboard .judges3 .judge {
       font-size: 24pt; }
-    .scorekeeper .judges3 .score {
+    .scoreboard .judges3 .score {
       font-size: 64pt;
       line-height: 108pt; }
-  .scorekeeper .left {
+  .scoreboard .left {
     margin: 0 10px 0 0; }
-  .scorekeeper .middle {
+  .scoreboard .middle {
     margin: 0 10px 0 10px; }
-  .scorekeeper .right {
+  .scoreboard .right {
     margin: 0 0 0 10px; }
-  .scorekeeper .judgeScore {
+  .scoreboard .judgeScore {
     display: inline-block;
     text-align: center;
     height: 172px;
     font-weight: bold;
     border-radius: 24px;
     border: 4px solid white; }
-    .scorekeeper .judgeScore .judge {
+    .scoreboard .judgeScore .judge {
       color: #666;
       font-weight: bold;
       border-radius: 0 0 24px 24px;
       background-color: black;
       margin: 0 auto 0 auto;
       height: 40px; }
-    .scorekeeper .judgeScore .score {
+    .scoreboard .judgeScore .score {
       color: #666;
       font-weight: bold;
       border-radius: 24px 24px 0 0;
       background-color: black;
       margin: auto;
       height: 132px; }
-      .scorekeeper .judgeScore .score .accuracy {
+      .scoreboard .judgeScore .score .accuracy {
         color: #f99; }
-      .scorekeeper .judgeScore .score .presentation {
+      .scoreboard .judgeScore .score .presentation {
         color: #99f; }
-  .scorekeeper .ignore .judge {
+  .scoreboard .ignore .judge {
     color: #333; }
-  .scorekeeper .ignore .score {
+  .scoreboard .ignore .score {
     color: #333; }
-  .scorekeeper .totalScores {
+  .scoreboard .totalScores {
     text-align: center;
     height: 532px;
     width: 992px;
@@ -70,20 +70,26 @@
     border-radius: 24px;
     border: 4px solid white;
     background: linear-gradient(to top, #45484d 0%, black 100%); }
-    .scorekeeper .totalScores .red, .scorekeeper .totalScores .hong {
+    .scoreboard .totalScores .red, .scoreboard .totalScores .hong {
       color: #f66; }
-    .scorekeeper .totalScores .blue, .scorekeeper .totalScores .chung {
+    .scoreboard .totalScores .blue, .scoreboard .totalScores .chung {
       color: #66f; }
-    .scorekeeper .totalScores .athlete {
-      margin: 20px 0 0 0;
-      height: 120px;
+    .scoreboard .totalScores .athlete {
+      margin: 0;
+      height: 80px;
       font-size: 72pt;
       line-height: 72pt; }
-    .scorekeeper .totalScores .score {
+    .scoreboard .totalScores .round {
+      margin: 0;
+      color: #999;
+      height: 40px;
+      font-size: 24pt;
+      line-height: 40pt; }
+    .scoreboard .totalScores .score {
       position: relative;
       height: 400px;
       width: 992px; }
-      .scorekeeper .totalScores .score .accuracy {
+      .scoreboard .totalScores .score .accuracy {
         position: absolute;
         top: 0;
         left: 186px;
@@ -92,9 +98,9 @@
         color: #600;
         font-size: 96pt;
         line-height: 96pt; }
-        .scorekeeper .totalScores .score .accuracy .mean {
+        .scoreboard .totalScores .score .accuracy .mean {
           color: #f99; }
-      .scorekeeper .totalScores .score .presentation {
+      .scoreboard .totalScores .score .presentation {
         position: absolute;
         top: 0;
         left: 558px;
@@ -103,9 +109,9 @@
         color: #006;
         font-size: 96pt;
         line-height: 96pt; }
-        .scorekeeper .totalScores .score .presentation .mean {
+        .scoreboard .totalScores .score .presentation .mean {
           color: #99f; }
-      .scorekeeper .totalScores .score .total {
+      .scoreboard .totalScores .score .total {
         position: absolute;
         top: 12px;
         left: 0;

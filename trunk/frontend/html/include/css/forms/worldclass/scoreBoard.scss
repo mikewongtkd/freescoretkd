@@ -1,5 +1,5 @@
 
-.scorekeeper {
+.scoreboard {
 	font-family: Optima;
 	display: none;
 
@@ -79,10 +79,18 @@
 		.blue, .chung { color: #66f; }
 
 		.athlete {
-			margin: 20px 0 0 0;
-			height: 120px;
+			margin: 0;
+			height: 80px;
 			font-size: 72pt;
 			line-height: 72pt;
+		}
+
+		.round {
+			margin: 0;
+			color: #999;
+			height: 40px;
+			font-size: 24pt;
+			line-height: 40pt;
 		}
 
 		.score {

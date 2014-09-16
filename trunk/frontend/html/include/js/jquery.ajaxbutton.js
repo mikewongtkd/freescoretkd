@@ -41,6 +41,8 @@ $.widget( "freescore.ajaxbutton", {
 		var e = this.options.elements;
 		var b = this.element;
 
+		e.button.html( o.label );
+
 		function refresh( update ) {
 			var division = JSON.parse( update.data );
 			b.click( o.clickUpdate() );

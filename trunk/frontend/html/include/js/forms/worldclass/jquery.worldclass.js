@@ -5,12 +5,12 @@ $.widget( "freescore.worldclass", {
 		var e           = this.options.elements = {};
 		var widget      = this.element;
 		var html        = { div : $( "<div />" ) };
-		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard back" );
-		var scorekeeper = e.scorekeeper = html.div.clone() .addClass( "scorekeeper front" );
+		var leaderboard = e.leaderboard = html.div.clone() .addClass( "back" );
+		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "front" );
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" ) .hide();
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
-		card.append( leaderboard, scorekeeper );
+		card.append( leaderboard, scoreboard );
 		widget .addClass( "worldclass flippable" );
 		widget .append( card, usermessage );
 	},
@@ -18,8 +18,7 @@ $.widget( "freescore.worldclass", {
 		var e = this.options.elements;
 		var o = this.options;
 		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
-		e.scorekeeper.scorekeeper( { judges: o.judges, current : { athlete : { name : '', scores : new Array() }}} );
-
+		e.scoreboard.scoreboard( { judges: o.judges, current : { round : 0, forms : [], athlete : { name : '', scores : undefined }}} );
 
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
@@ -37,7 +36,7 @@ $.widget( "freescore.worldclass", {
 
 			} else if( division.state == 'score' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
-				e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
+				e.scoreboard.scoreboard( { judges : o.judges, current: { round : division.round, forms : division.forms, athlete : athlete }} );
 			}
 		};
 
