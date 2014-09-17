@@ -46,7 +46,8 @@ FreeScore.WorldClass.Score = function( scores, judges, limit ) {
 
 		// ===== FOR EACH JUDGE SCORE PER FORM
 		for( var j = 0; j < judges; j++ ) {
-			var score = this.form[ i ].judge[ j ] = new FreeScore.WorldClass.JudgeScore( scores[ i ][ j ] );
+			if( typeof( scores[ i ] ) === 'undefined' || scores[ i ].length == 0 ) { continue; }
+			var score = form.judge[ j ] = new FreeScore.WorldClass.JudgeScore( scores[ i ][ j ] );
 
 			// ===== SKIP INCOMPLETE SCORES
 			if( score.penalties < 0 || score.presentation < 0 ) { form.complete = false; continue; }

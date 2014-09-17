@@ -17,8 +17,8 @@ $.widget( "freescore.worldclass", {
 	_init: function( ) {
 		var e = this.options.elements;
 		var o = this.options;
-		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
-		e.scoreboard.scoreboard( { judges: o.judges, current : { round : 0, forms : [], athlete : { name : '', scores : undefined }}} );
+		e.leaderboard.leaderboard();
+		e.scoreboard.scoreboard();
 
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );

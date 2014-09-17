@@ -5,8 +5,9 @@ $.widget( "freescore.scoreboard", {
 	_create: function() {
 		var o = this.options;
 		var e = this.options.elements = {};
+		var k = o.judges;
 
-		var html = o.html = { div : $( "<div />" ), span : $( "<span />" ) };
+		var html        = o.html = { div : $( "<div />" ), span : $( "<span />" ) };
 		var judgeScores = e.judgeScores = html.div.clone() .addClass( "judgeScores" );
 		var judges      = e.judges      = new Array();
 		var totalScore  = e.totalScore  = html.div.clone() .addClass( "totalScores" );
@@ -15,7 +16,6 @@ $.widget( "freescore.scoreboard", {
 		var score       = e.score       = html.div.clone() .addClass( "score" );
 		totalScore.append( score, athlete, round );
 
-		var k = this.options.judges;
 		for( var i = 0; i < k; i++ ) {
 			var j = i + 1;
 			var judge = html.div.clone() .prop( "id", "judge" + j );
@@ -42,13 +42,14 @@ $.widget( "freescore.scoreboard", {
 		var widget  = this.element;
 		var current = o.current;
 		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
-		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
+		if( typeof( current ) === 'undefined' ) { return; }
 
-		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, o.current.round );
 		e.athlete .html( current.athlete.name );
 		if( current.forms.length > 1 ) { e.round   .html( 'Final round &ndash; ' + ordinal[ current.round ] + ' form &ndash; ' + current.forms[ current.round ] ); } 
 		else                           { e.round   .html( 'Final round &ndash; ' + current.forms[ current.round ] ); }
 		
+		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
+		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, o.current.round );
 		for( var i = 0; i < k; i++ ) {
 			e.judges[ i ].judgeScore( { score : scores.form[ current.round ].judge[ i ] } );
 		}
@@ -60,11 +61,14 @@ $.widget( "freescore.scoreboard", {
 			e.athlete .removeClass( "hong" ); 
 			e.athlete .addClass( "chung" ); 
 		}
+		var accuracy      = scores.total.accuracy     > 0.0 ? scores.total.accuracy.toFixed( 1 )     : '';
+		var presentation  = scores.total.presentation > 0.0 ? scores.total.presentation.toFixed( 1 ) : '';
+		var score         = scores.total.score        > 0.0 ? scores.total.score.toFixed( 1 )        : '';
 
 		var display       = { 
-			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" )  .html( scores.total.accuracy.toFixed( 1 ) )),
-			presentation: o.html.div.clone() .addClass( "presentation" ) .append( o.html.span.clone() .addClass( "mean" )  .html( scores.total.presentation.toFixed( 1 ) )),
-			total:        o.html.div.clone() .addClass( "total" )        .append( o.html.span.clone() .addClass( "total" ) .html( scores.total.score.toFixed( 1 ))),
+			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" )  .html( accuracy )),
+			presentation: o.html.div.clone() .addClass( "presentation" ) .append( o.html.span.clone() .addClass( "mean" )  .html( presentation )),
+			total:        o.html.div.clone() .addClass( "total" )        .append( o.html.span.clone() .addClass( "total" ) .html( score )),
 		};
 
 		e.score.empty();

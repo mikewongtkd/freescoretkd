@@ -18,10 +18,11 @@ $.widget( "freescore.leaderboard", {
 		var o         = this.options;
 		var html      = o.html;
 		var widget    = this.element;
-		var athletes  = o.division.athletes;
 		var pending   = { list: html.ol.clone(), athletes: new Array() };
 		var standings = { athletes: new Array() };
 
+		if( typeof( o.division ) === 'undefined' ) { return; }
+		var athletes  = o.division.athletes;
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
 			athlete.score = new FreeScore.WorldClass.Score( athlete.scores, o.division.judges );
