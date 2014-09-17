@@ -68,13 +68,15 @@ FreeScore.WorldClass.Score = function( scores, judges, limit ) {
 		// ===== CHECK IF ALL JUDGES HAVE SCORED
 		if( form.total.count == judges) { form.complete = true; }
 
-		// ===== CALCULATE SCORE MEAN
+		// ===== CALCULATE ADJUSTED SCORE MEAN AND PRESENTATION
 		if       ( judges > 0 && judges <= 4 ) {
 			form.mean = form.total.score / judges;
 
 		} else if( judges >= 5 ) {
 			form.dropped.accuracy     = form.judge[ form.min.accuracy     ].accuracy     + form.judge[ form.max.accuracy     ].accuracy;
 			form.dropped.presentation = form.judge[ form.min.presentation ].presentation + form.judge[ form.max.presentation ].presentation;
+			form.total.accuracy       = form.total.accuracy     - form.dropped.accuracy;
+			form.total.presentation   = form.total.presentation - form.dropped.presentation;
 			var total   = form.total.score - (form.dropped.accuracy + form.dropped.presentation);
 			form.mean   = total / judges;
 

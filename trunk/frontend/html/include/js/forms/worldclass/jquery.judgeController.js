@@ -115,12 +115,12 @@ $.widget( "freescore.judgeController", {
 			var division   = forms.divisions[ forms.current ];
 			if( typeof( division ) === 'undefined' ) { return; }
 
-			var round      = ordinal[ division.round ];
+			var form       = ordinal[ division.form ];
 			var form_names = division.forms;
-			var form_name  = form_names[ division.round ];
+			var form_name  = form_names[ division.form ];
 
 			if( form_names.length > 1 ) {
-				if( division.round < (form_names.length - 1)) {
+				if( division.form < (form_names.length - 1)) {
 					e.prevAthlete.ajaxbutton({ label : "Prev Athlete" });
 					e.nextAthlete.ajaxbutton({ label : "Next Form" });
 				} else {
@@ -130,9 +130,9 @@ $.widget( "freescore.judgeController", {
 			}
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
-			if( division.current != o.current.athlete || division.round != o.current.round ) {
+			if( division.current != o.current.athlete || division.form != o.current.form ) {
 				var athlete  = division.athletes[ parseInt( division.current ) ];
-				var items    = [ 'Judge ' + (o.num + 1), athlete.name, round + ' form', form_name, 'Finals' ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				var items    = [ 'Judge ' + (o.num + 1), athlete.name, form + ' form', form_name, division.round ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( items );
 
@@ -149,7 +149,7 @@ $.widget( "freescore.judgeController", {
 
 			o.current.division = forms.current;
 			o.current.athlete  = division.current;
-			o.current.round    = division.round;
+			o.current.form     = division.form;
 		};
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );

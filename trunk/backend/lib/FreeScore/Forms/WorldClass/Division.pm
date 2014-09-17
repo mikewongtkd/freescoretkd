@@ -14,7 +14,7 @@ sub record_score {
 	my $score = shift;
 
 	my $i = $self->{ current };
-	my $j = $self->{ round } - 1;
+	my $j = $self->{ form } - 1;
 
 	$self->{ athletes }[ $i ]{ scores }[ $j ][ $judge ] = $score;
 }
@@ -44,9 +44,9 @@ sub read {
 		my $rank     = shift @columns;
 		my @scores   = ();
 		while( @columns ) {
-			my $round_scores = shift @columns || undef;
-			if( defined $round_scores ) {
-				my @judge_scores = split /;/, $round_scores;
+			my $form_scores = shift @columns || undef;
+			if( defined $form_scores ) {
+				my @judge_scores = split /;/, $form_scores;
 				my $score = [];
 				foreach my $judge_score (@judge_scores) {
 					my $individual_score = {};
@@ -73,10 +73,11 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
+	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# forms=" . join( ",", @{$self->{ forms }}) . "\n";
-	my $rounds = int( split /,/, $self->{ forms } );
+	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		my $scores = $athlete->{ scores };
 		my @scores = ();
@@ -93,19 +94,65 @@ sub write {
 }
 
 # ============================================================
+sub next_round {
+# ============================================================
+	my $self  = shift;
+	my $round = shift;
+	my $cut   = shift;
+	my $copy  = {};
+
+	foreach my $key (keys %$self) {
+		next if( $key =~ /^athletes|forms?|name|file$/ );
+		$copy->{ $key } = $self->{ $key };
+	}
+	$copy->{ name }  = "$self->{ name }." . lc( $round );
+	$copy->{ file }  = "$self->{ path }/div.$copy->{ name }..txt";
+	$copy->{ form }  = 0;
+	$copy->{ forms } = [ @{ $self->{ forms }} ];
+	$copy->{ round } = $round;
+
+	my @scores = ();
+	foreach my $athlete (@{ $self->{ athletes }}) {
+		my $scores = $athlete->{ scores };
+		foreach my $judge_scores (@$scores) {
+			my @judge_scores = ();
+			foreach my $judge_score (@$judge_scores) {
+				push @judge_scores, {(map { $_ => $judge_score->{ $_ }; } @criteria)};
+			}
+			push @scores, [ @judge_scores ];
+		}
+	}
+
+	# ===== TAKE THE TOP ATHLETES THAT MAKE THE CUT
+	@scores = sort { 
+		($a_mean, $a_presentation, $a_total) = _mean_score( $b );
+		($b_mean, $b_presentation, $b_total) = _mean_score( $a );
+
+		$a_mean         <=> $b_mean         ||
+		$a_presentation <=> $b_presentation ||
+		$a_total        <=> $b_total
+
+	} @scores;
+	@scores = splice( @scores, 0, $cut );
+	$copy->{ athletes } = [ @scores ];
+
+	return $copy;
+}
+
+# ============================================================
 sub next {
 # ============================================================
 	my $self = shift;
 	$self->{ state } = 'score';
 
-	my $round = $self->{ round };
+	my $form  = $self->{ form };
 	my $max   = $#{ $self->{ forms }};
 
-	if( $round < $max ) {
-		$self->{ round }++;
+	if( $form < $max ) {
+		$self->{ form }++;
 	} else {
 		$self->{ current } = ($self->{ current } + 1) % int( @{ $self->{ athletes }});
-		$self->{ round } = 0;
+		$self->{ form } = 0;
 	}
 }
 
@@ -115,17 +162,52 @@ sub previous {
 	my $self = shift;
 	$self->{ state } = 'score';
 
-	my $round        = $self->{ round };
-	my $max_round    = $#{ $self->{ forms }};
+	my $form         = $self->{ form };
+	my $max_forms    = $#{ $self->{ forms }};
 	my $previous     = ($self->{ current } - 1);
 	my $max_athletes = $#{ $self->{ forms }};
 
-	if( $round > 0 ) {
-		$self->{ round }--;
+	if( $form > 0 ) {
+		$self->{ form }--;
 	} else {
 		$self->{ current } = $previous >= 0 ? $previous: $max_athletes;
-		$self->{ round }   = $max_round;
+		$self->{ form }    = $max_forms;
 	}
+}
+
+# ============================================================
+sub _mean_score {
+# ============================================================
+	my $scores   = shift;
+	my $min      = { accuracy => undef, presentation => undef };
+	my $max      = { accuracy => undef, presentation => undef };
+	my $total    = { score => 0.0, presentation => 0.0, adjusted => 0.0 };
+	my $judges   = 1;
+
+	foreach my $form (@$scores) {
+		$judges = int( @$form );
+		foreach my $judge_score (@$form) {
+			my $penalties = $judge_score->{ minor } + $judge_score->{ major };
+			my $accuracy  = $penalties > 4.0 ? 0.0 : 4.0 - $penalties;
+			$min->{ accuracy } = (! defined $min->{ accuracy }) || ($min->{ accuracy } > $accuracy) ? $accuracy : $min->{ accuracy };
+			$max->{ accuracy } = (! defined $max->{ accuracy }) || ($max->{ accuracy } < $accuracy) ? $accuracy : $max->{ accuracy };
+
+			my $presentation = $judge_score->{ rhythm } + $judge_score->{ power } + $judge_score->{ ki };
+			$min->{ presentation } = (! defined $min->{ presentation }) || ($min->{ presentation } > $presentation) ? $presentation : $min->{ presentation };
+			$max->{ presentation } = (! defined $max->{ presentation }) || ($max->{ presentation } < $presentation) ? $presentation : $max->{ presentation };
+
+			$total->{ score } += $accuracy + $presentation;
+			$total->{ presentation } += $presentation;
+		}
+		my $dropped = {
+			accuracy     => $judges > 3 ? ($min->{ accuracy }     + $max->{ accuracy }    ) : 0.0,
+			presentation => $judges > 3 ? ($min->{ presentation } + $max->{ presentation }) : 0.0,
+		};
+		$total->{ adjusted }     += $total->{ score } - ($dropped->{ accuracy } + $dropped->{ presentation });
+		$total->{ presentation } += $presentation   - $dropped->{ presentation };
+	}
+
+	return (($adjusted/$judges), $total->{ presentation }, $total->{ score });
 }
 
 1;

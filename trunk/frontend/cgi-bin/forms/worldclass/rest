@@ -18,7 +18,21 @@ get '/:tournament/:ring/division/next' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $progress = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division   = $progress->current();
+	my $next;
+	if      ( $division->{ round } eq 'Preliminary' ) {
+		my $cut = int((int( @{$division->{ athletes }} )/2.0) + 0.5));
+		$next   = $division->next_round( 'Semi-Finals', $cut );
+		$next->write();
+		splice( @{ $progress->{ divisions }}, $progress->{ current } + 1, 0, $next ); 
+
+	} elsif ( $division->{ round } eq 'Semi-Finals' ) {
+		$next   = $division->next_round( 'Finals', 8 );
+		$next->write();
+		splice( @{ $progress->{ divisions }}, $progress->{ current } + 1, 0, $next ); 
+	}
+
 	$progress->next();
 	$progress->write();
 	$self->render( json => { 'current' => $progress->current() } );

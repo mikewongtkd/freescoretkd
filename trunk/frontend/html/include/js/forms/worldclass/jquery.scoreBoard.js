@@ -44,14 +44,16 @@ $.widget( "freescore.scoreboard", {
 		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
 		if( typeof( current ) === 'undefined' ) { return; }
 
-		e.athlete .html( current.athlete.name );
-		if( current.forms.length > 1 ) { e.round   .html( 'Final round &ndash; ' + ordinal[ current.round ] + ' form &ndash; ' + current.forms[ current.round ] ); } 
-		else                           { e.round   .html( 'Final round &ndash; ' + current.forms[ current.round ] ); }
+		var round_description;
+		if( current.forms.length > 1 ) { round_description = current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
+		else                           { round_description = current.round + ' round &ndash; ' + current.forms[ current.form ]; }
+		e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
+		e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
 		
 		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
-		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, o.current.round );
+		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, current.form );
 		for( var i = 0; i < k; i++ ) {
-			e.judges[ i ].judgeScore( { score : scores.form[ current.round ].judge[ i ] } );
+			e.judges[ i ].judgeScore( { score : scores.form[ current.form ].judge[ i ] } );
 		}
 
 		if( parseInt( current.athlete.index ) % 2 ) { 

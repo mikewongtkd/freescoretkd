@@ -166,7 +166,8 @@ body {
       .judgeNotes .view table .sum {
         width: 15%; }
       .judgeNotes .view table .current {
-        background: #666;
+        /* background: #09f; */
+        background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
         color: white; }
 
 .flippable .card, .flippable .front, .flippable .back {
