@@ -1,8 +1,0 @@
-# state=score
-# current=0
-Sonaal	Black			0.6/2.2/1.0/0.9/1.2
-Alexander	Black			0.6/1.2/1.2/1.4/1.4
-Steven	Black			0.6/1.5/1.3/1.5/1.6
-Cody	Black			
-Prabhat	Black			
-Yash	Black			

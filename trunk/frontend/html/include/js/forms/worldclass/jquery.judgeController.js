@@ -132,7 +132,7 @@ $.widget( "freescore.judgeController", {
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			if( division.current != o.current.athlete || division.form != o.current.form ) {
 				var athlete  = division.athletes[ parseInt( division.current ) ];
-				var items    = [ 'Judge ' + (o.num + 1), athlete.name, form + ' form', form_name, division.round ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				var items    = [ 'Judge ' + (o.num + 1), division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( items );
 

@@ -111,30 +111,30 @@ sub next_round {
 	$copy->{ forms } = [ @{ $self->{ forms }} ];
 	$copy->{ round } = $round;
 
-	my @scores = ();
+	my @athletes = ();
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $scores = $athlete->{ scores };
-		foreach my $judge_scores (@$scores) {
-			my @judge_scores = ();
-			foreach my $judge_score (@$judge_scores) {
-				push @judge_scores, {(map { $_ => $judge_score->{ $_ }; } @criteria)};
-			}
-			push @scores, [ @judge_scores ];
-		}
+		my $athlete_copy = _clone_athlete( $athlete );
+		push @athletes, $athlete_copy;
 	}
 
+	# ===== IN CASE OF TIE-BREAKER, PUT THE TIED ATHLETES INTO A NEW ROUND
+	if( defined $self->{ tiebreaker } ) {
+		@athletes = @{ $self->{ tiebreaker }};
+
 	# ===== TAKE THE TOP ATHLETES THAT MAKE THE CUT
-	@scores = sort { 
-		($a_mean, $a_presentation, $a_total) = _mean_score( $b );
-		($b_mean, $b_presentation, $b_total) = _mean_score( $a );
+	} else {
+		@athletes = sort { 
+			($a_mean, $a_presentation, $a_total) = _mean_score( $b->{ scores } );
+			($b_mean, $b_presentation, $b_total) = _mean_score( $a->{ scores } );
 
-		$a_mean         <=> $b_mean         ||
-		$a_presentation <=> $b_presentation ||
-		$a_total        <=> $b_total
+			$a_mean         <=> $b_mean         ||
+			$a_presentation <=> $b_presentation ||
+			$a_total        <=> $b_total
 
-	} @scores;
-	@scores = splice( @scores, 0, $cut );
-	$copy->{ athletes } = [ @scores ];
+		} @athletes;
+		@athletes = splice( @athletes, 0, $cut );
+	}
+	$copy->{ athletes } = [ @athletes ];
 
 	return $copy;
 }
@@ -208,6 +208,24 @@ sub _mean_score {
 	}
 
 	return (($adjusted/$judges), $total->{ presentation }, $total->{ score });
+}
+
+# ============================================================
+sub _clone_athlete {
+# ============================================================
+	my $athlete = shift;
+	my @scores = ();
+	my $scores = $athlete->{ scores };
+	foreach my $judge_scores (@$scores) {
+		my @judge_scores = ();
+		foreach my $judge_score (@$judge_scores) {
+			push @judge_scores, {(map { $_ => $judge_score->{ $_ }; } @criteria)};
+		}
+		push @scores, [ @judge_scores ];
+	}
+	my $athlete_copy = { %$athlete };
+	$athlete_copy->{ scores } = [ @scores ];
+	return $athlete_copy;
 }
 
 1;

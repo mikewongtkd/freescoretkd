@@ -26,15 +26,16 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 	this.total        = parseFloat((accuracy + presentation).toFixed( 1 ));
 }
 
-FreeScore.WorldClass.Score = function( scores, judges, limit ) {
+FreeScore.WorldClass.Score = function( scores, judges, max_forms ) {
 	this.complete     = true;
 	this.form         = [];
 	this.total        = { accuracy : 0.0, presentation : 0.0, score : 0.0 };
-	limit = typeof( limit ) === 'undefined' ? scores.length - 1 : limit;
+
+	max_forms = typeof( max_forms ) === 'undefined' ? scores.length - 1 : max_forms; 
 
 	// ===== FOR EACH FORM IN A GIVEN ROUND
 	// Usually 1 form Preliminary round, 1-2 forms Semi-Finals round, 2 forms Finals round.
-	for( var i = 0; i <= limit; i++ ) {
+	for( var i = 0; i <= max_forms; i++ ) {
 		var form = this.form[ i ] = { 
 			judge   : [], 
 			mean    : 0.0,

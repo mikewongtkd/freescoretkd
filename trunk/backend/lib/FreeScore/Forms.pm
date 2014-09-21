@@ -49,7 +49,7 @@ sub load_ring {
 	# ===== FIND DIVISIONS
 	} else {
 		opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
-		@divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
+		@divisions = map { /^div\.([\w\.]+)\.txt$/; } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
 		closedir DIR;
 	}
 
