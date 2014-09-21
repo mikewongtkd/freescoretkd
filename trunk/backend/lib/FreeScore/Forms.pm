@@ -80,9 +80,14 @@ sub write {
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	foreach my $key (sort keys %$self) {
-		print FILE "# $key=$self->{ $key }\n";
+		if ($key =~ /^divisions$/ ) {
+			print FILE "# $key=" . join( ",", map { $_->{ name } } @{ $self->{ divisions }}) . "\n";
+		} else {
+			print FILE "# $key=$self->{ $key }\n";
+		}
 	}
 	close FILE;
+
 }
 
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }

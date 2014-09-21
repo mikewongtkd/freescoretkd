@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 
 use lib qw( /Users/mikewong899/devel/freescore/backend/lib );
+use Try::Tiny;
 use Mojolicious::Lite;
 use YAML;
 use FreeScore::Forms::WorldClass;
@@ -38,9 +39,14 @@ get '/:tournament/:ring/division/next' => sub {
 		splice( @{ $progress->{ divisions }}, $progress->{ current } + 1, 0, $next ); 
 	}
 
-	$progress->next();
-	$progress->write();
-	$self->render( json => { 'current' => $progress->current() } );
+	try {
+		$progress->next();
+		$progress->write();
+		$self->render( json => { 'current' => $progress->current() });
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
 };
 
 # ------------------------------------------------------------
@@ -51,9 +57,15 @@ get '/:tournament/:ring/division/previous' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $progress = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	$progress->previous();
-	$progress->write();
-	$self->render( json => { 'current' => $progress->current() } );
+
+	try {
+		$progress->previous();
+		$progress->write();
+		$self->render( json => { 'current' => $progress->current() } );
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
 };
 
 # ------------------------------------------------------------
@@ -69,8 +81,13 @@ get '/:tournament/:ring/display' => sub {
 	if( $division->is_display() ) { $division->score();   } 
 	else                          { $division->display(); }
 
-	$division->write();
-	$self->render( json => { 'state' => $division->{ state } } );
+	try {
+		$division->write();
+		$self->render( json => { 'state' => $division->{ state } } );
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
 };
 
 # ------------------------------------------------------------
@@ -82,9 +99,15 @@ get '/:tournament/:ring/athlete/next' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	$division->next();
-	$division->write();
-	$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	try {
+		$division->next();
+		$division->write();
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
 };
 
 # ------------------------------------------------------------
@@ -96,9 +119,15 @@ get '/:tournament/:ring/athlete/previous' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	$division->previous();
-	$division->write();
-	$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	try {
+		$division->previous();
+		$division->write();
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
 };
 
 # ------------------------------------------------------------
@@ -118,9 +147,15 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	my $division     = $progress->current();
 	my $athlete      = $division->{ current };
 	my $score        = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-	$division->record_score( $judge, $score );
-	$division->write();
-	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+
+	try {
+		$division->record_score( $judge, $score );
+		$division->write();
+		$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
 };
 
 any '*' => sub {
