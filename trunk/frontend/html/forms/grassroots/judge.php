@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../../include/jquery/css/smoothness/jquery-ui-1.10.3.custom.min.css">
 		<link rel="stylesheet" href="../../include/jquery/css/smoothness/smoothness.min.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/spinwheel.css">
+		<link rel="stylesheet" href="../../include/css/forms/grassroots/tiebreaker.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/judgeController.css">
 		<link rel="stylesheet" href="../../include/css/ajaxbutton.css">
 		<script src="../../include/jquery/js/jQuery.js"></script>
@@ -17,6 +18,7 @@
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.spinwheel.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.tiebreaker.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeNotes.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeController.js"></script>
 	</head>

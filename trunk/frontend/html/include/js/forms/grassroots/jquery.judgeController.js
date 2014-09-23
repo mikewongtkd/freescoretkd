@@ -16,6 +16,7 @@ $.widget( "freescore.judgeController", {
 		var controls    = e.controls    = html.div.clone() .addClass( "control-group" );
 		var notes       = e.notes       = html.div.clone();
 		var score       = e.score       = html.div.clone();
+		var vote        = e.vote        = html.div.clone();
 
 		// ============================================================
 		// THE NAVIGATION BUTTONS
@@ -33,9 +34,10 @@ $.widget( "freescore.judgeController", {
 		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'mode',  app : o.app, command : 'display', label : 'Flip Display' });
 
 		// ============================================================
-		// THE SCORE DROP-DOWN
+		// THE SCORE DROP-DOWN AND VOTE
 		// ============================================================
-		score.spinwheel({ controller : this });
+		score.spinwheel();
+		vote.tiebreaker() .hide();
 
 		// ============================================================
 		// THE ACTION BUTTONS
@@ -54,7 +56,7 @@ $.widget( "freescore.judgeController", {
 		});
 
 		controller.append( navigation, controls, notes );
-		controls.append( score, displayMode, clearButton, sendButton );
+		controls.append( score, vote, displayMode, clearButton, sendButton );
 		widget.append( controller );
 
 	},
@@ -65,8 +67,9 @@ $.widget( "freescore.judgeController", {
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
 		function refresh( update ) {
-			var forms    = JSON.parse( update.data );
-			var division = forms.divisions[ forms.current ];
+			var forms    = JSON.parse( update.data );        if( typeof( forms    ) === 'undefined' ) { return; }
+			console.log( forms );
+			var division = forms.divisions[ forms.current ]; if( typeof( division ) === 'undefined' ) { return; }
 			var athletes = division.athletes;
 			e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
 

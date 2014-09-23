@@ -10,7 +10,6 @@ $.widget( "freescore.spinwheel", {
 		var height     = o.height = 60;
 		var offset     = o.offset = o.height/2;
 		var dampen     = o.dampen = 5;
-		var controller = o.controller;
 
 		var wheel     = html.div.clone() .addClass( "wheel" );
 		widget .addClass( "spinwheel" );
