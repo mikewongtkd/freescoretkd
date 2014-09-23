@@ -5,6 +5,7 @@ use Mojolicious::Lite;
 use YAML;
 use FreeScore::Forms::GrassRoots::Division;
 use FreeScore::Forms::GrassRoots;
+use Try::Tiny;
 
 srand();
 
@@ -20,9 +21,14 @@ get '/:tournament/:ring/division/next' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $progress = new FreeScore::Forms::GrassRoots( $tournament, $ring );
-	$progress->next();
-	$progress->write();
-	$self->render( json => { 'current' => $progress->current() } );
+	try {
+		$progress->next();
+		$progress->write();
+		$self->render( json => { 'current' => $progress->current() } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
 };
 
 # ------------------------------------------------------------
@@ -33,9 +39,14 @@ get '/:tournament/:ring/division/previous' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $progress = new FreeScore::Forms::GrassRoots( $tournament, $ring );
-	$progress->previous();
-	$progress->write();
-	$self->render( json => { 'current' => $progress->current() } );
+	try {
+		$progress->previous();
+		$progress->write();
+		$self->render( json => { 'current' => $progress->current() } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
 };
 
 # ------------------------------------------------------------
@@ -49,8 +60,14 @@ get '/:tournament/:ring/display' => sub {
 	my $division   = $progress->current();
 	if    ( $division->is_score()   ) { $division->display(); }
 	elsif ( $division->is_display() ) { $division->score();   }
-	$division->write();
-	$self->render( json => { 'state' => $division->{ state } } );
+
+	try {
+		$division->write();
+		$self->render( json => { 'state' => $division->{ state } } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
 };
 
 # ------------------------------------------------------------
@@ -62,9 +79,14 @@ get '/:tournament/:ring/athlete/next' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
-	$division->next();
-	$division->write();
-	$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+	try {
+		$division->next();
+		$division->write();
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
 };
 
 # ------------------------------------------------------------
@@ -76,9 +98,14 @@ get '/:tournament/athlete/previous' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
-	$division->previous();
-	$division->write();
-	$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+	try {
+		$division->previous();
+		$division->write();
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
 };
 
 # ------------------------------------------------------------
@@ -94,8 +121,14 @@ get '/:tournament/:ring/:judge/:score' => sub {
 	my $division   = $progress->current();
 	my $athlete    = $division->{ current };
 	$division->{ athletes }[ $athlete ]{ scores }[ $judge ] = $score;
-	$division->write();
-	$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+
+	try {
+		$division->write();
+		$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
 };
 
 any '*' => sub {

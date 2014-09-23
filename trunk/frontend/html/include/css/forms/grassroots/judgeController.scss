@@ -15,6 +15,7 @@ body {
 	@import 'judgeNotes';
 
 	.controller {
+		position: relative;
 		width: 760px;
 		margin: 0 auto 0 auto;
 
@@ -24,7 +25,7 @@ body {
 		}
 
 		.control-group {
-			float: left;
+			position: relative;
 			width: 420px;
 		}
 
@@ -36,8 +37,8 @@ body {
 			color: black;
 		}
 
-		.send  { top: 400px; }
-		.clear { top: 270px; }
+		.send  { top: 120px; }
+		.clear { top: 240px; }
 
 		.division {
 			width: 160px;
@@ -53,6 +54,8 @@ body {
 
 		.mode {
 			position: absolute;
+			left: 0;
+			top: 0;
 			width: 160px;
 			border: 4px solid gold;
 			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
@@ -61,10 +64,15 @@ body {
 
 		.spinwheel {
 			position: absolute;
-			top: 230px;
-			left: 372px;
+			top: 90px;
+			left: 248px;
 		}
 
+		.tiebreaker {
+			position: absolute;
+			top: 88px;
+			left: 196px;
+		}
 	}
 	.select {
 		select { font-size: 24pt; }
