@@ -5,8 +5,7 @@ $.widget( "freescore.ajaxbutton", {
 		var e        = this.options.elements = {};
 		var html     = o.html     = { div : $( "<div />" ), span : $( "<span />" ) };
 		var button   = e.button   = html.div.clone() .addClass( "button" ) .addClass( o.type ) .html( o.label );
-		var progress = e.progress = html.span.clone() .addClass( "progress" );
-		button.append( progress );
+		var progress = e.progress = html.span.clone() .addClass( "candycane" );
 		progress.hide();
 		this.element .append( button );
 
@@ -41,7 +40,8 @@ $.widget( "freescore.ajaxbutton", {
 		var e = this.options.elements;
 		var b = this.element;
 
-		e.button.html( o.label );
+		e.button.empty();
+		e.button.append( e.progress, o.label );
 
 		function refresh( update ) {
 			var division = JSON.parse( update.data );

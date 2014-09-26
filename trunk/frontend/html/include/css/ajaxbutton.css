@@ -10,7 +10,7 @@
   position: relative; }
   .button .label {
     vertical-align: middle; }
-  .button .progress {
+  .button .candycane {
     display: block;
     height: 100%;
     width: 100%;
@@ -22,7 +22,7 @@
     bottom: 0;
     z-index: 1;
     overflow: hidden; }
-    .button .progress:after {
+    .button .candycane:after {
       content: "";
       position: absolute;
       top: 0;
