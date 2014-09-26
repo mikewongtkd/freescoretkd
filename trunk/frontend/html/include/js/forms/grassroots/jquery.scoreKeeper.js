@@ -62,7 +62,7 @@ $.widget( "freescore.scorekeeper", {
 		var max    = undefined;
 		for( var i = 0; i < k; i++ ) {
 			var j = i + 1;
-			scores[ i ] = parseFloat( $( '#judgeScore' + j ).html() );
+			scores[ i ] = parseFloat( $( '#judgeScore' + j ).children( 'div' ).html() );
 			if( isNaN( scores[ i ] )) { scores[ i ] = -1; }
 		}
 
