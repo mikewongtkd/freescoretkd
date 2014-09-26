@@ -117,6 +117,7 @@ $.widget( "freescore.judgeController", {
 
 			var form       = ordinal[ division.form ];
 			var form_names = division.forms;
+			if( typeof( form_names ) === 'undefined' ) { return; }
 			var form_name  = form_names[ division.form ];
 
 			if( form_names.length > 1 ) {
