@@ -40,10 +40,11 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
 		if( standings.athletes.length == 0 ) {
 			e.standings.css( 'display', 'none' );
+			e.pending.css( 'font-size', '48pt' );
 			e.pending.css( 'width', '928px' );
 		} else {
 			e.standings.css( 'display', 'block' );
-			e.standings.css( 'font-size', '48pt' );
+			e.pending.css( 'font-size', '24pt' );
 			e.pending.css( 'width', '400px' );
 		}
 
@@ -61,9 +62,11 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
 		if( pending.athletes.length == 0 ) { 
 			e.pending.css( 'display', 'none' ); 
+			e.standings.css( 'font-size', '48pt' );
 			e.standings.css( 'width', '928px' );
 		} else {
 			e.pending.css( 'display', 'block' ); 
+			e.standings.css( 'font-size', '24pt' );
 			e.standings.css( 'width', '400px' );
 		}
 

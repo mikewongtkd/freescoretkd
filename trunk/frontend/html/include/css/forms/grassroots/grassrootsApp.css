@@ -91,7 +91,7 @@ body {
         float: left;
         width: 400px;
         height: 740px;
-        color: #999;
+        color: yellow;
         font-size: 24pt;
         background: linear-gradient(to top, #45484d 0%, black 100%);
         /* W3C */
@@ -130,10 +130,12 @@ body {
         border-radius: 24px;
         padding: 0 32px 8px 32px; }
         .grassroots .leaderboard .division .pending h2 {
-          color: white; }
-        .grassroots .leaderboard .division .pending ol li b {
-          color: #ccc;
-          font-weight: bold; }
+          color: yellow; }
+        .grassroots .leaderboard .division .pending ol li {
+          margin-left: 40px; }
+          .grassroots .leaderboard .division .pending ol li b {
+            color: lime;
+            font-weight: bold; }
 
 .usermessage {
   font-family: Optima;
