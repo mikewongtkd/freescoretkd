@@ -14,7 +14,7 @@ sub record_score {
 	my $score = shift;
 
 	my $i = $self->{ current };
-	my $j = $self->{ form } - 1;
+	my $j = $self->{ form };
 
 	$self->{ athletes }[ $i ]{ scores }[ $j ][ $judge ] = $score;
 }
