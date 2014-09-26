@@ -53,8 +53,8 @@ body {
         .judgeController .judgeNotes .view table td-score {
           width: 30%; }
         .judgeController .judgeNotes .view table .current {
-          background: #666;
-          color: white; }
+          background: linear-gradient(to bottom, #d2ff52 0%, #91e842 100%);
+          color: black; }
   .judgeController .controller {
     position: relative;
     width: 760px;

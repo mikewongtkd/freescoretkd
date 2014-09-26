@@ -7,6 +7,7 @@ use base qw( FreeScore::Forms::Division );
 sub read {
 # ============================================================
 	my $self  = shift;
+
 	my $index = 0;
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
 	while( <FILE> ) {

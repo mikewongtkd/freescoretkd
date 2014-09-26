@@ -92,7 +92,7 @@ get '/:tournament/:ring/athlete/next' => sub {
 # ------------------------------------------------------------
 # SCORE FOR PREVIOUS ATHLETE
 # ------------------------------------------------------------
-get '/:tournament/athlete/previous' => sub { 
+get '/:tournament/:ring/athlete/previous' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );

@@ -68,7 +68,6 @@ $.widget( "freescore.judgeController", {
 
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );        if( typeof( forms    ) === 'undefined' ) { return; }
-			console.log( forms );
 			var division = forms.divisions[ forms.current ]; if( typeof( division ) === 'undefined' ) { return; }
 			var athletes = division.athletes;
 			e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });

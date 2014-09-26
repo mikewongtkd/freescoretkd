@@ -21,7 +21,7 @@ $.widget( "freescore.judgeNotes", {
 		var athletes    = o.athletes;
 		var current     = o.current;
 
-		console.log( o );
+		if( typeof( athletes ) === 'undefined' ) { return; }
 
 		if( typeof( o.description ) !== 'undefined' ) { description.html( 'Division ' + o.name.toUpperCase() + ': ' + o.description ); }
 		else                                          { description.html( 'Division ' + o.name.toUpperCase() ); }

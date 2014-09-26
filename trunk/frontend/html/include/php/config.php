@@ -1,5 +1,6 @@
 <?php
-	$host = "wong.net";
+	# $host = "wong.net";
+	$host = "tmaopen.net";
 	$tournament = json_encode( [ 
 		"name" => "Tiger Martial Arts Spring Tournament 2014",
 		"db" => "tma-2014-spring", 

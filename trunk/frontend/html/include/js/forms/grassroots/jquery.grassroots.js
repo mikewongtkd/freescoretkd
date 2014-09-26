@@ -24,7 +24,7 @@ $.widget( "freescore.grassroots", {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ parseInt( forms.current ) ];
 			var athlete  = division.athletes[ division.current ];
-			if( division.error ) {
+			if( typeof( division.error ) !== 'undefined' ) {
 				e.card.fadeOut();
 				e.usermessage.html( division.error );
 				e.usermessage.fadeIn( 500 );

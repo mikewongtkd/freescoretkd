@@ -15,7 +15,8 @@ $.widget( "freescore.judgeScore", {
 	_init: function( ) {
 		var e     = this.options.elements;
 		var o     = this.options;
-		var score = parseInt( o.score ).toFixed( 1 );
+		var score = parseFloat( o.score ).toFixed( 1 );
 		if( score > 0 ) { e.view.html( score ); e.view.fadeIn(); }
+		else            { e.view.empty(); }
 	}
 });

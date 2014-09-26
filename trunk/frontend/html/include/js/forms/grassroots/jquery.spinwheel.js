@@ -37,7 +37,7 @@ $.widget( "freescore.spinwheel", {
 		}
 		var nearest   = function() { 
 			var dy = o.position;
-			var selected = (Math.round( dy/height ) * o.step) + o.min;
+			var selected = (Math.round( dy/o.height ) * o.step) + o.min;
 			if( selected >= o.max ) { selected = o.max - o.step; }
 			if( selected <  o.min ) { selected = o.min; }
 			return selected;
@@ -53,9 +53,10 @@ $.widget( "freescore.spinwheel", {
 				o.swipe.last = distance;
 			}, 
 			swipe : function( ev, direction, distance, duration, fingerCount, fingerData ) { 
-				o.selected = nearest();
-				widget.scrollTop( scrollTarget() );
-
+				o.selected = nearest();             // Get nearest value
+				widget.scrollTop( scrollTarget() ); // Scroll to it
+				o.selected = nearest();             // Get the updated value
+				widget.trigger( "updateRequest" );
 			}, 
 			threshold : 0 
 		});
