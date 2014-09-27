@@ -45,6 +45,7 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
+	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }} ), "\n";
 	}
