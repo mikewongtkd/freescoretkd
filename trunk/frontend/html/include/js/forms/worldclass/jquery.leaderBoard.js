@@ -56,11 +56,12 @@ $.widget( "freescore.leaderboard", {
 		for( var i = 0; i < k; i++ ) {
 			var item = html.li.clone();
 			var athlete    = standings.athletes[ i ];
+			var total      = athlete.score.form.map( function( score ) { return parseFloat( score.mean ); }).reduce( function( value, total ) { return total + value; }).toFixed( 1 );
 			var place      = html.div.clone() .addClass( "athlete" );
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
 			var name       = html.div.clone()  .addClass( "name" ) .addClass( "rank" + j ) .html( athlete.name );
-			var score      = html.div.clone()  .addClass( "score" ) .html( athlete.score.mean.toFixed( 1 ) );
+			var score      = html.div.clone()  .addClass( "score" ) .html( total );
 			var tiebreaker = html.span.clone() .addClass( "tiebreaker" ) .html( "*" );
 			var medal      = html.div.clone()  .addClass( "medal" ) .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 

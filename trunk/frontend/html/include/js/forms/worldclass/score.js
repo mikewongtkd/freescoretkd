@@ -4,9 +4,9 @@ if( typeof( FreeScore.WorldClass ) === 'undefined' ) { FreeScore.WorldClass = {}
 
 FreeScore.WorldClass.JudgeScore = function( score ) {
 	var defined       = typeof( score ) !== 'undefined';
-	this.major        = defined ? Number.parseFloat( score.major )   : -1.0;
-	this.minor        = defined ? Number.parseFloat( score.minor )   : -1.0;
-	this.penalties    = defined ? this.major + this.minor            : -1.0;
+	this.major        = defined ? parseFloat( score.major )   : -1.0;
+	this.minor        = defined ? parseFloat( score.minor )   : -1.0;
+	this.penalties    = defined ? this.major + this.minor     : -1.0;
 	var  accuracy;
 	if( this.penalties >= 0.0 ) {
 		if( this.penalties <= 4.0 ) { accuracy = parseFloat((4.0 - this.penalties).toFixed( 1 )); }
@@ -14,14 +14,14 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 	} else {
 		accuracy = -1.0;
 	}
-	this.accuracy     = defined ? accuracy                           : -1.0;
+	this.accuracy     = defined ? accuracy                    : -1.0;
 
-	this.rhythm       = defined ? Number.parseFloat( score.rhythm )  : -1.0;
-	this.power        = defined ? Number.parseFloat( score.power )   : -1.0;
-	this.ki           = defined ? Number.parseFloat( score.ki )      : -1.0;
+	this.rhythm       = defined ? parseFloat( score.rhythm )  : -1.0;
+	this.power        = defined ? parseFloat( score.power )   : -1.0;
+	this.ki           = defined ? parseFloat( score.ki )      : -1.0;
 
 	var  presentation = parseFloat((this.rhythm + this.power + this.ki).toFixed( 1 ));
-	this.presentation = defined ? presentation                       : -1.0;
+	this.presentation = defined ? presentation                : -1.0;
 
 	this.total        = parseFloat((accuracy + presentation).toFixed( 1 ));
 }

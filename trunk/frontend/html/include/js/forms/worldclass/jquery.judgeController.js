@@ -75,7 +75,7 @@ $.widget( "freescore.judgeController", {
 
 		o.app = "forms/worldclass/rest";
 		var back         = e.back         = html.div.clone() .addClass( "back" );
-		var notes        = e.notes        = html.div.clone() .judgeNotes({ athletes : [], current : 0, num : o.num });
+		var notes        = e.notes        = html.div.clone() .judgeNotes({ current : 0, num : o.num });
 		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
 		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
 		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });

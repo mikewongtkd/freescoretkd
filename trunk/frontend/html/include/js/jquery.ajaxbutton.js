@@ -17,11 +17,11 @@ $.widget( "freescore.ajaxbutton", {
 					type:    'GET',
 					url:     url,
 					data:    {},
-					success: function( response ) { console.log( response ); progress.fadeOut( 700 ); },
+					success: function( response ) { console.log( response ); progress.fadeOut( 350 ); },
 					xhr:     function() {
 						var xhr = new window.XMLHttpRequest();
 						xhr.addEventListener( "progress", function( e ) {
-							progress.fadeIn( 700 );
+							progress.fadeIn( 700, function() { progress.fadeOut( 1500 ) } );
 							if( e.lengthComputable ) {
 								var percent = (100 * (e.loaded / e.total)).toFixed( 0 ) + '%';
 								progress.css( 'width', percent );
