@@ -1,5 +1,5 @@
 $.widget( "freescore.judgeNotes", {
-	options: { autoShow: true  },
+	options: { autoShow: true, judges: 3  },
 	_create: function() {
 		var widget  = this.element;
 		var o       = this.options;

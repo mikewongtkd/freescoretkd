@@ -3,7 +3,7 @@ String.prototype.capitalize = function() {
 };
 
 $.widget( "freescore.register", {
-	options: { autoShow: true },
+	options: { autoShow: true, max_judges: 3 },
 	_create: function() {
 		var o            = this.options;
 		var e            = this.options.elements = {};
@@ -36,7 +36,6 @@ $.widget( "freescore.register", {
 		$.removeCookie( 'ring',  { path: '/' });
 		$.removeCookie( 'role',  { path: '/' });
 		$.removeCookie( 'judge', { path: '/' });
-
 
 		// ====================
 		// REGISTER EVENT
@@ -129,6 +128,14 @@ $.widget( "freescore.register", {
 							ring.animate( { left: gotoX, top: gotoY } );
 							$.cookie( "ring", num, { path: '/' } );
 
+							o.max_judges = tournament.ring[ (num-1) ].judges;
+
+							for( var k = 0; k < o.max_judges; k++ ) { 
+								var judge = addJudge( k+1 ); 
+								judges.push( judge ); 
+								court.append( judge ); 
+							}
+
 						} else { 
 							ring.fadeOut( 500, function() { 
 								floorplan.fadeOut( 500, function() {
@@ -142,9 +149,12 @@ $.widget( "freescore.register", {
 										if( url.match( /judge/ )       != null ) { 
 											text.html( "Which judge?" );
 											court.fadeIn( 500, function() {
+												var scale = 200;
+												if( o.judges.length == 5 ) { scale = 160; }
+												if( o.judges.length == 7 ) { scale = 120; }
 												for( var i = 0; i < o.judges.length; i++ ) {
 													var judge = o.judges[ i ];
-													judge.animate( { left: i * 200 } );
+													judge.animate( { left: i * scale } );
 												}
 											});
 
@@ -286,11 +296,6 @@ $.widget( "freescore.register", {
 			};
 			judge.click( callback( num ));
 			return judge;
-		}
-		for( var i = 0; i < 3; i++ ) { 
-			var judge = addJudge( i+1 ); 
-			judges.push( judge ); 
-			court.append( judge ); 
 		}
 
 		// ====================
