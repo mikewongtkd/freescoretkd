@@ -1,0 +1,4 @@
+# state=display
+# current=0
+# description=6-7yo Intermediate
+Suri	Purple/Green	8.3	8	8.2

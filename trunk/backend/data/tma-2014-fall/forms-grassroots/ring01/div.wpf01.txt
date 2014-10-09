@@ -1,0 +1,6 @@
+# state=display
+# current=0
+# judges=3
+# ring=1
+# description=Weapons Forms
+John	Black

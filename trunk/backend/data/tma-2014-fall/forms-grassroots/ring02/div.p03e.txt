@@ -1,0 +1,4 @@
+# state=score
+# current=0
+# description=4-7yo Novice
+Fernada	Yellow/White	8.6	8.2	8

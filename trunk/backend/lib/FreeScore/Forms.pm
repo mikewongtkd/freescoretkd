@@ -37,21 +37,15 @@ sub load_ring {
 	}
 
 	my @divisions = ();
-	if( exists $self->{ divisions } ) { 
-		if( ref $self->{ divisions } ) {
-			# ===== DIVISIONS PREVIOUSLY DEFINED
-			@divisions = @{ $self->{ divisions }};
-		} else {
-			# ===== DIVISIONS PROVIDED BY PROGRESS FILE
-			@divisions = split /,\s*/, $self->{ divisions };
-		}
+	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
+	my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
+	closedir DIR;
 
-	# ===== FIND DIVISIONS
-	} else {
-		opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
-		@divisions = map { /^div\.([\w\.]+)\.txt$/; } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
-		closedir DIR;
+	if( exists $self->{ divisions } ) { 
+		if( ref $self->{ divisions } ) { @divisions = @{ $self->{ divisions }}; }
+		foreach (@divisions) { delete $assigned{ $_ }; }
 	}
+	push @divisions, sort keys %assigned;
 
 	$self->{ current } ||= 0;
 	return [ @divisions ];

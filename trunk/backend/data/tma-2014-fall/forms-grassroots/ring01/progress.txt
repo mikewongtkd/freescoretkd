@@ -1,0 +1,4 @@
+# current=18
+# divisions=p01,p01c,p01gc1,p02,p02c,p04,p04b,p04c,p04gc,p05,p05b,p05c,p05d,p05gc,p07,p07b,p07c,p07gc,p09,wpf01
+# file=/Volumes/ramdisk/tma-2014-fall/forms-grassroots/ring01/progress.txt
+# path=/Volumes/ramdisk/tma-2014-fall/forms-grassroots/ring01

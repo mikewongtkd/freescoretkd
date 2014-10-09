@@ -1,0 +1,8 @@
+# state=display
+# current=4
+# description=Grand Championships
+Justin	Yellow/White	7.9	7.7	8.1
+Theo	Yellow/White	8.6	8	8.4
+Fernada	Yellow/White	8.7	8.1	8.2
+Ryan	Yellow/White	8.7	8.2	8.2
+Kaylee	Yellow/White	8.9	8.5	8.5

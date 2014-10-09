@@ -1,0 +1,6 @@
+# state=display
+# current=2
+# description=Grand Championships
+Angelina	Orange	9.4	9.2	8.9
+Samantha	Orange	9.3	9.3	9.1
+Gabriel	Orange	9.1	9.5	9.3

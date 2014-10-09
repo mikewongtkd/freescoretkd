@@ -1,0 +1,6 @@
+# state=score
+# current=2
+# description=Grand Championships
+Michael	Red	8.8	8.7	8.5
+Annabriza	Red	8	8.8	9
+Tia	Red	9.1	9.1	8.4

@@ -1,0 +1,5 @@
+# state=score
+# current=1
+# description=10-11yo Advanced
+Corey	Brown	8.6	8.2	8.3
+Cleo	Brown	8.7	8.3	8.4
