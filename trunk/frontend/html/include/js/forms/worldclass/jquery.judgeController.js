@@ -112,7 +112,7 @@ $.widget( "freescore.judgeController", {
 
 		function refresh( update ) {
 			var forms      = JSON.parse( update.data );
-			var division   = forms.divisions[ forms.current ];
+			var division   = forms.divisions[ 0 ];
 			if( typeof( division ) === 'undefined' ) { return; }
 
 			var form       = ordinal[ division.form ];

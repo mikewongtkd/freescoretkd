@@ -1,10 +1,33 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
+use FreeScore::Forms::WorldClass::Division::Round;
 use base qw( FreeScore::Forms::Division );
 use Data::Dumper;
 
 our @criteria = qw( major minor rhythm power ki );
+our @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
+
+# ============================================================
+sub get_only {
+# ============================================================
+	my $self  = shift;
+	my $judge = shift;
+
+	delete $self->{ results };
+	foreach my $athlete (@{ $self->{ athletes }}) {
+		my $scores = [];
+		my $forms  = [];
+		my $round  = $athlete->{ scores }{ $self->{ round } };
+		foreach my $form (@$round) {
+			my $score = $form->[ $judge ];
+			push @{$scores }, $score;
+			push $forms, { accuracy => $score->accuracy(), presentation => $score->presentation() };
+		}
+		$athlete->{ scores } = $scores;
+		$athlete->{ forms  } = $forms;
+	}
+}
 
 # ============================================================
 sub record_score {
@@ -14,16 +37,19 @@ sub record_score {
 	my $score = shift;
 
 	my $i = $self->{ current };
-	my $j = $self->{ form };
+	my $j = $self->{ round };
+	my $k = $self->{ form };
 
-	$self->{ athletes }[ $i ]{ scores }[ $j ][ $judge ] = $score;
+	$self->{ athletes }[ $i ]{ scores }{ $j }[ $k ][ $judge ] = $score;
 }
 
 # ============================================================
 sub read {
 # ============================================================
 	my $self  = shift;
-	my $index = 0;
+
+	my $athlete = {};
+	my $table   = { rounds => {}, forms => 0, judges => 0 };
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
@@ -36,33 +62,52 @@ sub read {
 			$self->{ $key } = $value;
 			if( $key eq 'forms' ) { $self->{ $key } = [ split /,/, $value ]; }
 			next;
-		}
 
 		# ===== READ DIVISION ATHLETE INFORMATION
-		my @columns  = split /\t/;
-		my $athlete  = shift @columns;
-		my $rank     = shift @columns;
-		my @scores   = ();
-		while( @columns ) {
-			my $form_scores = shift @columns || undef;
-			if( defined $form_scores ) {
-				my @judge_scores = split /;/, $form_scores;
-				my $score = [];
-				foreach my $judge_score (@judge_scores) {
-					my $individual_score = {};
-					@{$individual_score}{ @criteria } = map { sprintf "%.1f", $_; } split /\//, $judge_score;
-					push @$score, $individual_score;
-				}
-				push @scores, $score;
-
-			} else {
-				push @scores, [];
+		} elsif( /^\w/ ) {
+			if( $athlete->{ name } ) {
+				push @{ $self->{ athletes }}, $athlete;
+				$athlete = {};
 			}
+
+			my ($name, $rank, $age) = split /\t/;
+
+			$athlete->{ name }   = $name;
+			$athlete->{ rank }   = $rank;
+			$athlete->{ age }    = $age;
+			$athlete->{ scores } = {};
+
+		# ===== READ DIVISION ATHLETE SCORES
+		} elsif( /^\t/ ) {
+			s/^\t//;
+			my ($round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
+			$table->{ rounds }{ $round }++;
+			$table->{ forms }  = $table->{ forms }  > $form  ? $table->{ forms }  : $form;
+			$table->{ judges } = $table->{ judges } > $judge ? $table->{ judges } : $judge;
+			$form  =~ s/f//; $form  = int( $form )  - 1;
+			$judge =~ s/j//; $judge = int( $judge ) - 1;
+
+			$athlete->{ scores }{ $round }[ $form ][ $judge ] = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 		}
-		push @{ $self->{ athletes }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ] };
-		$index++;
 	}
+	push @{ $self->{ athletes }}, $athlete if( $athlete->{ name } );
 	close FILE;
+
+	# ===== COMPLETE THE TABLE OF SCORES
+	$table->{ judges } = $self->{ judges } if( exists $self->{ judges } );
+	$table->{ rounds } = [ grep { exists $table->{ rounds }{ $_ } } @round_order ];
+	foreach my $athlete (@{ $self->{ athletes }}) {
+		foreach my $round (@{ $table->{ rounds }}) {
+			foreach my $i ( 0 .. $table->{ forms } ) {
+				my $scores = $athlete->{ scores }{ $round }[ $i ];
+				foreach my $j ( 0 .. $table->{ judges } ) {
+					next if( ref $scores->[ $j ] );
+					$scores->[ $j ] = { major => -1.0, minor => -1.0, rhythm => -1.0, power => -1.0, ki => -1.0 };
+				}
+			}
+			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
+		}
+	}
 }
 
 # ============================================================
@@ -75,20 +120,22 @@ sub write {
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
-	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# forms=" . join( ",", @{$self->{ forms }}) . "\n";
 	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $scores = $athlete->{ scores };
-		my @scores = ();
-		foreach my $judge_scores (@$scores) {
-			my @judge_scores = ();
-			foreach my $judge_score (@$judge_scores) {
-				push @judge_scores, join( "/", (map { $judge_score->{ $_ }; } @criteria));
+		print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
+
+		foreach my $round (@round_order) {
+			next unless exists $athlete->{ scores }{ $round };
+			my $forms = $athlete->{ scores }{ $round };
+			for( my $i = 0; $i < $#$forms; $i++ ) {
+				my $judges = $forms->[ $i ];
+				foreach my $j (0 .. $#$judges) {
+					my $score = $judges->[ $j ];
+					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $score->{ judge } + 1, @{ $score }{ @criteria } if $score->valid;
+				}
 			}
-			push @scores, join( ";", @judge_scores );
 		}
-		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @scores), "\n";
 	}
 	close FILE;
 }
@@ -99,21 +146,9 @@ sub next_round {
 	my $self  = shift;
 	my $round = shift;
 	my $cut   = shift;
-	my $copy  = {};
-
-	foreach my $key (keys %$self) {
-		next if( $key =~ /^athletes|forms?|name|file$/ );
-		$copy->{ $key } = $self->{ $key };
-	}
-	$copy->{ name }  = "$self->{ name }." . lc( $round );
-	$copy->{ file }  = "$self->{ path }/div.$copy->{ name }..txt";
-	$copy->{ form }  = 0;
-	$copy->{ forms } = [ @{ $self->{ forms }} ];
-	$copy->{ round } = $round;
 
 	my @athletes = ();
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $athlete_copy = _clone_athlete( $athlete );
 		push @athletes, $athlete_copy;
 	}
 
@@ -208,24 +243,6 @@ sub _mean_score {
 	}
 
 	return (($adjusted/$judges), $total->{ presentation }, $total->{ score });
-}
-
-# ============================================================
-sub _clone_athlete {
-# ============================================================
-	my $athlete = shift;
-	my @scores = ();
-	my $scores = $athlete->{ scores };
-	foreach my $judge_scores (@$scores) {
-		my @judge_scores = ();
-		foreach my $judge_score (@$judge_scores) {
-			push @judge_scores, {(map { $_ => $judge_score->{ $_ }; } @criteria)};
-		}
-		push @scores, [ @judge_scores ];
-	}
-	my $athlete_copy = { %$athlete };
-	$athlete_copy->{ scores } = [ @scores ];
-	return $athlete_copy;
 }
 
 1;

@@ -1,4 +1,9 @@
-<?php include( "../../include/php/config.php" ); ?>
+<?php 
+	include( "../../include/php/config.php" ); 
+	if( isset( $_COOKIE[ 'judge' ] ) {
+		unset( $_COOKIE[ 'judge' ] );
+	}
+?>
 <html>
 	<head>
 		<link href="../../include/css/forms/worldclass/worldclassApp.css" rel="stylesheet" />

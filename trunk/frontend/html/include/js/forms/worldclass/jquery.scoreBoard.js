@@ -51,12 +51,12 @@ $.widget( "freescore.scoreboard", {
 		e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
 		
 		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
-		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, current.form );
+		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, current.round, current.form );
 		for( var i = 0; i < k; i++ ) {
 			e.judges[ i ].judgeScore( { score : scores.form[ current.form ].judge[ i ] } );
 		}
 
-		if( parseInt( current.athlete.index ) % 2 ) { 
+		if( parseInt( current.athlete.index ) % 2 ) { // MW This is broken for multiple rounds
 			e.athlete .removeClass( "chung" ); 
 			e.athlete .addClass( "hong" ); 
 		} else { 
