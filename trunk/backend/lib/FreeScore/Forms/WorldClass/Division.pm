@@ -2,11 +2,8 @@ package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
+use FreeScore::Forms::WorldClass::Division::Round::Score;
 use base qw( FreeScore::Forms::Division );
-use Data::Dumper;
-
-our @criteria = qw( major minor rhythm power ki );
-our @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
 # ============================================================
 sub get_only {
@@ -14,7 +11,6 @@ sub get_only {
 	my $self  = shift;
 	my $judge = shift;
 
-	delete $self->{ results };
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		my $scores = [];
 		my $forms  = [];
@@ -36,6 +32,7 @@ sub record_score {
 	my $judge = shift;
 	my $score = shift;
 
+	$score = new FreeScore::Forms::WorldClass::Division::Round::Score( {%$score} );
 	my $i = $self->{ current };
 	my $j = $self->{ round };
 	my $k = $self->{ form };
@@ -47,6 +44,7 @@ sub record_score {
 sub read {
 # ============================================================
 	my $self  = shift;
+	my @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
 	my $athlete = {};
 	my $table   = { rounds => {}, forms => 0, judges => 0 };
@@ -88,6 +86,9 @@ sub read {
 			$judge =~ s/j//; $judge = int( $judge ) - 1;
 
 			$athlete->{ scores }{ $round }[ $form ][ $judge ] = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+
+		} else {
+			die "Unknown line type '$_'\n";
 		}
 	}
 	push @{ $self->{ athletes }}, $athlete if( $athlete->{ name } );
@@ -114,12 +115,15 @@ sub read {
 sub write {
 # ============================================================
 	my $self = shift;
+	my @criteria = qw( major minor rhythm power ki );
+	my @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
+	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ",", @{$self->{ forms }}) . "\n";
 	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
@@ -128,11 +132,11 @@ sub write {
 		foreach my $round (@round_order) {
 			next unless exists $athlete->{ scores }{ $round };
 			my $forms = $athlete->{ scores }{ $round };
-			for( my $i = 0; $i < $#$forms; $i++ ) {
+			for( my $i = 0; $i <= $#$forms; $i++ ) {
 				my $judges = $forms->[ $i ];
 				foreach my $j (0 .. $#$judges) {
 					my $score = $judges->[ $j ];
-					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $score->{ judge } + 1, @{ $score }{ @criteria } if $score->valid;
+					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria } if $score->valid;
 				}
 			}
 		}

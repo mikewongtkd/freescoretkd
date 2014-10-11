@@ -17,15 +17,15 @@ sub new {
 sub accuracy {
 # ============================================================
 	my $self = shift;
-	return $self->{ rhythm } + $self->{ power } + $self->{ ki };
+	my $penalties = $self->{ major } + $self->{ minor };
+	return $penalties > 4.0 ? 0 : (4.0 - $penalties);
 }
 
 # ============================================================
 sub presentation {
 # ============================================================
 	my $self = shift;
-	my $penalties = $self->{ major } + $self->{ minor };
-	return $penalties > 4.0 ? 0 : (4.0 - $penalties);
+	return $self->{ rhythm } + $self->{ power } + $self->{ ki };
 }
 
 # ============================================================

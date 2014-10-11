@@ -36,16 +36,16 @@ $.widget( "freescore.judgeNotes", {
 			var athlete      = athletes[ i ];
 			var score        = {};
 
-			if( typeof( athlete.scores ) === 'undefined' ) {
+			if( typeof( athlete.scores ) === 'undefined' || athlete.scores.length == 0 ) {
 				score.accuracy     = '';
 				score.presentation = '';
 				score.sum          = '';
 
 			} else {
 				var forms = athlete.forms;
-				score.accuracy     = forms.map( function( form ) { return form.accuracy;     } ).join( '/' );
-				score.presentation = forms.map( function( form ) { return form.presentation; } ).join( '/' );
-				score.sum          = forms.map( function( form ) { return form.accuracy + form.presentation; } ).reduce( function( previous, current ) { return previous + current; } );
+				score.accuracy     = forms.map( function( form ) { return form.accuracy.toFixed( 1 );        } ).join( '/' );
+				score.presentation = forms.map( function( form ) { return form.presentation.toFixed( 1 );    } ).join( '/' );
+				score.sum          = forms.map( function( form ) { return form.accuracy + form.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 1 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}

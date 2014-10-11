@@ -145,13 +145,13 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	my $ki           = get_score( $self, 'ki'     );
 	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division     = $progress->current();
-	my $athlete      = $division->{ current };
+	my $athlete      = $division->{ athletes }[ $division->{ current } ];
 	my $score        = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 
 	try {
 		$division->record_score( $judge, $score );
 		$division->write();
-		$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+		$self->render( json => { athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
 
 	} catch {
 		$self->render( json => { error => $_ });

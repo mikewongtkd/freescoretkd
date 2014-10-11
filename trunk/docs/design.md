@@ -1,4 +1,4 @@
- FreeScore
+# FreeScore
 
 ## Design Documentation
 
@@ -12,8 +12,12 @@ FreeScore is designed for physical portability; laptops and tablets. It achieves
 
 The front-end architecture is currently Apache2 using and Mojolicious/CGI. As of late 2014, there doesn't seem to be any SSL-ready implementation of WebSockets (and network may be too intermittent for WebSockets anyway). So the architecture uses the following technologies:
 
-- Perl/Mojolicious for RESTful applications
-- CGI
+- Apache
+- Perl
+  - Mojolicious
+  - CGI
+  - JSON::XS
+  - Data::Structure::Util
 - Server Sent Events (SSE)
 - AJAX
 
@@ -22,6 +26,7 @@ This allows immediate implementation of the following technologies
 - SSL/TLS for security
 - mod_perl for application speed **or**
 - NGINX front-end server and server proxy with Mojolicious application server
+
 
 
 ##### Application Design

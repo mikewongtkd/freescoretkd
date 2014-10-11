@@ -1,6 +1,6 @@
 <?php 
 	include( "../../include/php/config.php" ); 
-	if( isset( $_COOKIE[ 'judge' ] ) {
+	if( isset( $_COOKIE[ 'judge' ] )) {
 		unset( $_COOKIE[ 'judge' ] );
 	}
 ?>
