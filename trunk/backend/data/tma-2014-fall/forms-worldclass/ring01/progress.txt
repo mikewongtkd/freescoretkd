@@ -1,4 +1,3 @@
 # current=6
-# divisions=p00,p11,p11b,p11c,p11d,p11e,p11gc,p12,p12b
 # file=/Volumes/ramdisk/tma-2014-fall/forms-worldclass/ring01/progress.txt
 # path=/Volumes/ramdisk/tma-2014-fall/forms-worldclass/ring01
