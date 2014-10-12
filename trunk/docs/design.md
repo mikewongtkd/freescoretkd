@@ -27,8 +27,6 @@ This allows immediate implementation of the following technologies
 - mod_perl for application speed **or**
 - NGINX front-end server and server proxy with Mojolicious application server
 
-
-
 ##### Application Design
 
 Applications are grouped together by events (e.g. Grass Roots Poomsae, World Class Poomsae, Device Registration). Each application is one custom jQuery widget comprised of multiple jQuery widgets. 
@@ -38,6 +36,8 @@ Applications are grouped together by events (e.g. Grass Roots Poomsae, World Cla
 The top-level widget retrieves division data from the server using the HTML 5 javascript object `EventSource`; the server responds using SSE. Currently the SSE is powered by CGI/Perl; it previously was using a PHP page. In the future, moving completely to Mojolicious may give better performance.
 
 Each subwidget then receives a subset of the division data; just enough for the subwidget to do its job. 
+
+The preference is to have the back-end do the heavy lifting of calculations to reduce client-side effort. This means that UI updates are handled client-side, wheras system information (judge voting, scoring, etc.) must be transmitted via AJAX and the underlying objects updated and re-broadcasted via SSE.
 
 #### Back-end Architecture
 

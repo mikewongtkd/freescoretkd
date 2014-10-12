@@ -51,9 +51,10 @@ $.widget( "freescore.scoreboard", {
 		e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
 		
 		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
-		var scores = new FreeScore.WorldClass.Score( current.athlete.scores, k, current.round, current.form );
+		var scores = new FreeScore.WorldClass.Score( current.athlete.scores[ current.round ][ current.form ] );
+		console.log( current );
 		for( var i = 0; i < k; i++ ) {
-			e.judges[ i ].judgeScore( { score : scores.form[ current.form ].judge[ i ] } );
+			e.judges[ i ].judgeScore( { score : scores.scores[ i ] } );
 		}
 
 		if( parseInt( current.athlete.index ) % 2 ) { // MW This is broken for multiple rounds
@@ -63,9 +64,9 @@ $.widget( "freescore.scoreboard", {
 			e.athlete .removeClass( "hong" ); 
 			e.athlete .addClass( "chung" ); 
 		}
-		var accuracy      = scores.total.accuracy     > 0.0 ? scores.total.accuracy.toFixed( 1 )     : '';
-		var presentation  = scores.total.presentation > 0.0 ? scores.total.presentation.toFixed( 1 ) : '';
-		var score         = scores.total.score        > 0.0 ? scores.total.score.toFixed( 1 )        : '';
+		var accuracy      = scores.mean.accuracy     > 0.0 ? scores.mean.accuracy.toFixed( 1 )     : '';
+		var presentation  = scores.mean.presentation > 0.0 ? scores.mean.presentation.toFixed( 1 ) : '';
+		var score         = scores.mean.total        > 0.0 ? scores.mean.total.toFixed( 1 )        : '';
 
 		var display       = { 
 			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" )  .html( accuracy )),

@@ -6,8 +6,6 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 	var defined       = typeof( score ) !== 'undefined';
 	if( ! defined ) {
 		this.round        = 'Unknown';
-		this.form         = 0;
-		this.judge        = 0;
 		this.major        = -1.0;
 		this.minor        = -1.0;
 		this.rhythm       = -1.0;
@@ -19,9 +17,6 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 		this.total        = -1.0;
 
 	} else {
-		this.round        = score.round;
-		this.form         = score.form;
-		this.judge        = score.judge;
 		this.major        = parseFloat( score.major );
 		this.minor        = parseFloat( score.minor );
 		this.penalties    = this.major + this.minor;
@@ -42,17 +37,24 @@ FreeScore.WorldClass.JudgeScore = function( score ) {
 	}
 }
 
+FreeScore.WorldClass.JudgeScore.prototype.valid = function() {
+	return (this.accuracy >=0 && this.presentation >= 0);
+}
+
 FreeScore.WorldClass.Score = function( scores ) {
 	this.complete     = true;
 	this.form         = [];
-	this.total        = { accuracy : 0.0, presentation : 0.0, score : 0.0 };
+	this.mean         = { accuracy : 0.0, presentation : 0.0, total : 0.0 };
 	this.scores       = [];
 
 	round     = typeof( round )     === 'undefined' ? 'Finals' : round;
-	max_forms = typeof( max_forms ) === 'undefined' ? 1        : max_forms; 
 
 	for( var i = 0; i < scores.length; i++ ) {
 		var score = new FreeScore.WorldClass.JudgeScore( scores[ i ] );
+		this.scores.push( score );
+		if( score.valid()) { this.mean.accuracy     += score.accuracy;                      }
+		if( score.valid()) { this.mean.presentation += score.presentation;                  }
+		if( score.valid()) { this.mean.total        += score.accuracy + score.presentation; }
 	}
 }
 

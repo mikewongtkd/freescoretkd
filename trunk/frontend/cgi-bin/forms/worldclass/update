@@ -15,6 +15,7 @@ my $cgi        = new CGI();
 my $tournament = shift || $cgi->param( 'tournament' );
 my $ring       = shift || $cgi->param( 'ring' )  || $cgi->cookie( 'ring' );
 my $judge      = shift || $cgi->param( 'judge' ) || $cgi->cookie( 'judge' );
+my $role       =          $cgi->param( 'role' )  || $cgi->cookie( 'role' );
 my $json       = new JSON::XS();
 
 $judge -= 1;
@@ -30,7 +31,7 @@ while( 1 ) {
 	my $id     = time();
 	try {
 		$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
-		$data->get_only( $judge ) if( $judge >= 0 );
+		$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
 		unbless( $data );
 	} catch {
 		$data = { error => $_ };

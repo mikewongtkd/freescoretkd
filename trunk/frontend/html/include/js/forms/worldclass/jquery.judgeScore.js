@@ -18,23 +18,15 @@ $.widget( "freescore.judgeScore", {
 		var score    = o.score;
 		if( typeof( score ) === 'undefined' ) {
 			score = {};
-			score.major  = '';
-			score.minor  = '';
-			score.rhythm = '';
-			score.power  = '';
-			score.ki     = '';
+			score.accuracy = '';
+			score.presentation = '';
 		}
-		var penalties = (parseFloat( score.major ) + parseFloat( score.minor ));
-		var accuracy = 4.0 - penalties;
-		accuracy = accuracy <= 0 ? 0.0 : accuracy;
-
-		var presentation = parseFloat( score.rhythm ) + parseFloat( score.power ) + parseFloat( score.ki );
 
 		// ===== DISPLAY VALID SCORES
-		if( penalties >= 0 && presentation >= 1.5 ) { 
+		if( score.accuracy >= 0 && score.presentation >= 0 ) { 
 			var span = {
-				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( accuracy.toFixed( 1 )),
-				presentation : o.html.span .clone() .addClass( "presentation" ) .html( presentation.toFixed( 1 ))
+				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy ),
+				presentation : o.html.span .clone() .addClass( "presentation" ) .html( score.presentation )
 			};
 			e.view.empty();
 			e.view.append( span.accuracy, "&nbsp;", span.presentation );
