@@ -42,3 +42,15 @@ The preference is to have the back-end do the heavy lifting of calculations to r
 #### Back-end Architecture
 
 Plain text files with a ramdisk cache. This could be improved by using a filesystem with triggers on write, or some form of `fswatch`. 
+
+#### Software Engineering
+
+##### Documentation
+
+We use the following toolchain for documentation:
+
+- MoU for simple documentation using Markdown
+- JSDoc for JavaScript documentation
+  - Node.js (JSDoc dependency)
+- Perl POD for Perl module documentation
+

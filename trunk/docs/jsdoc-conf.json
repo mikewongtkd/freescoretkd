@@ -1,0 +1,18 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+		"include": [ "../frontend/html/include/js" ],
+        "includePattern": ".+\\.js(doc)?$"
+    },
+    "plugins": [],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    },
+	"opts" : {
+		"destination" : "./html/",
+		"recurse" : true
+	}
+}
