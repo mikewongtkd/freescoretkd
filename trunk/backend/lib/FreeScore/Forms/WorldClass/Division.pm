@@ -38,7 +38,7 @@ sub record_score {
 	my $j = $self->{ round };
 	my $k = $self->{ form };
 
-	$self->{ athletes }[ $i ]{ scores }{ $j }[ $k ][ $judge ] = $score;
+	$self->{ athletes }[ $i ]{ scores }{ $j }[ $k ]{ judge }[ $judge ] = $score;
 }
 
 # ============================================================
@@ -48,7 +48,7 @@ sub read {
 	my @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
 	my $athlete = {};
-	my $table   = { rounds => {}, forms => 0, judges => 0 };
+	my $table   = { max_rounds => {}, max_forms => 0, max_judges => 0 };
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
@@ -58,17 +58,8 @@ sub read {
 		if( /^#/ ) {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
-			if( $key eq 'forms' ) { 
-				my @rounds = map { 
-					my ($round, $forms) = split /:/;
-					my @forms = split /,/, $forms;
-					$round => [ @forms ];
-				} split /;/, $value;
-				$self->{ $key } = { @rounds }; 
-
-			} else {
-				$self->{ $key } = $value;
-			}
+			if( $key eq 'forms' ) { $self->{ $key } = _parse_forms( $value ); }
+			else                  { $self->{ $key } = $value;                 }
 			next;
 
 		# ===== READ DIVISION ATHLETE INFORMATION
@@ -89,13 +80,14 @@ sub read {
 		} elsif( /^\t/ ) {
 			s/^\t//;
 			my ($round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
-			$table->{ rounds }{ $round }++;
-			$table->{ forms }  = $table->{ forms }  > $form  ? $table->{ forms }  : $form;
-			$table->{ judges } = $table->{ judges } > $judge ? $table->{ judges } : $judge;
+			$table->{ max_rounds }{ $round }++;
+			$table->{ max_forms }  = $table->{ max_forms }  > $form  ? $table->{ max_forms }  : $form;
+			$table->{ max_judges } = $table->{ max_judges } > $judge ? $table->{ max_judges } : $judge;
 			$form  =~ s/f//; $form  = int( $form )  - 1;
 			$judge =~ s/j//; $judge = int( $judge ) - 1;
 
-			$athlete->{ scores }{ $round }[ $form ][ $judge ] = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+			$athlete->{ scores }{ $round }[ $form ] = { judge => [] } unless exists $athlete->{ scores }{ $round }[ $form ]{ judge };
+			$athlete->{ scores }{ $round }[ $form ]{ judge }[ $judge ] = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 
 		} else {
 			die "Unknown line type '$_'\n";
@@ -105,15 +97,16 @@ sub read {
 	close FILE;
 
 	# ===== COMPLETE THE TABLE OF SCORES
-	$table->{ judges } = $self->{ judges } if( exists $self->{ judges } );
-	$table->{ rounds } = [ grep { exists $table->{ rounds }{ $_ } } @round_order ];
+	$table->{ max_judges } = $self->{ judges } if( exists $self->{ judges } );
+	$table->{ max_rounds } = [ grep { exists $table->{ max_rounds }{ $_ } } @round_order ];
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		foreach my $round (@{ $table->{ rounds }}) {
-			foreach my $i ( 0 .. $table->{ forms } ) {
-				my $scores = $athlete->{ scores }{ $round }[ $i ];
-				foreach my $j ( 0 .. $table->{ judges } ) {
-					next if( ref $scores->[ $j ] );
-					$scores->[ $j ] = { major => -1.0, minor => -1.0, rhythm => -1.0, power => -1.0, ki => -1.0 };
+		foreach my $round (@{ $table->{ max_rounds }}) {
+			foreach my $i ( 0 .. $table->{ max_forms } ) {
+				my $judge_scores = $athlete->{ scores }{ $round }[ $i ];
+				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
+				foreach my $j ( 0 .. $table->{ max_judges } ) {
+					next if( ref $judge_scores->{ judge }[ $j ] );
+					$judge_scores->{ judge }[ $j ] = { major => -1.0, minor => -1.0, rhythm => -1.0, power => -1.0, ki => -1.0 };
 				}
 			}
 			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
@@ -150,7 +143,7 @@ sub write {
 			next unless exists $athlete->{ scores }{ $round };
 			my $forms = $athlete->{ scores }{ $round };
 			for( my $i = 0; $i <= $#$forms; $i++ ) {
-				my $judges = $forms->[ $i ];
+				my $judges = $forms->[ $i ]{ judges };
 				foreach my $j (0 .. $#$judges) {
 					my $score = $judges->[ $j ];
 					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria } if $score->valid;
@@ -264,6 +257,19 @@ sub _mean_score {
 	}
 
 	return (($adjusted/$judges), $total->{ presentation }, $total->{ score });
+}
+
+# ============================================================
+sub _parse_forms {
+# ============================================================
+	my $value = shift;
+
+	my @rounds = map { 
+		my ($round, $forms) = split /:/;
+		my @forms = split /,/, $forms;
+		$round => [ @forms ];
+	} split /;/, $value;
+	return { @rounds }; 
 }
 
 1;

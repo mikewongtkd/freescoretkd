@@ -37,6 +37,7 @@ while( 1 ) {
 		$data = { error => $_ };
 	};
 	my $update = $json->encode( $data );
+	$update =~ s/"(-?\d(?:\.\d+)?)"/\1/g; # Convert strings of ints and floats to ints and floats
 	my $state  = md5_hex( $update );
 
 	next if $state eq $last;

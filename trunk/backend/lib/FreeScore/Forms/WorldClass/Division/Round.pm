@@ -16,40 +16,42 @@ sub new {
 sub init {
 # ============================================================
 	my $self = shift;
-	foreach my $round (@$self) {
-		foreach my $i (0 .. $#$round) {
-			$round->[ $i ] = new FreeScore::Forms::WorldClass::Division::Round::Score( $round->[ $i ] );
+	foreach my $form (@$self) {
+		foreach my $i (0 .. $#{ $form->{ judge }}) {
+			my $judge_score = $form->{ judge };
+			$judge_score->[ $i ] = new FreeScore::Forms::WorldClass::Division::Round::Score( $judge_score->[ $i ] );
 		}
 	}
+	$self->calculate_means();
 }
 
 # ============================================================
-sub means {
+sub calculate_means {
 # ============================================================
 	my $self   = shift;
 	my $means  = [];
 
 	return $means unless $self->valid();
 
-	foreach my $round (@$self) {
+	foreach my $form (@$self) {
 		my $stats  = {};
-		my $judges = int( @$round );
-		foreach my $score (@$round) {
-			my $precision = $score->precision();
-			my $accuracy  = $score->accuracy();
-			$stats->{ min }{ pre } = ! defined $stats->{ min }{ pre } || $stats->{ min }{ pre } > $precision ? $precision : $stats->{ min }{ pre };
-			$stats->{ max }{ pre } = ! defined $stats->{ max }{ pre } || $stats->{ max }{ pre } < $precision ? $precision : $stats->{ max }{ pre };
-			$stats->{ min }{ acc } = ! defined $stats->{ min }{ acc } || $stats->{ min }{ acc } > $accuracy  ? $accuracy  : $stats->{ min }{ acc };
-			$stats->{ max }{ acc } = ! defined $stats->{ max }{ acc } || $stats->{ max }{ acc } > $accuracy  ? $accuracy  : $stats->{ max }{ acc };
+		my $judges = $form->{ judge };
+		foreach my $score (@{ $form->{ judge }}) {
+			my $presentation = $score->presentation();
+			my $accuracy     = $score->accuracy();
+			$stats->{ min }{ pre } = ! defined $stats->{ min }{ pre } || $stats->{ min }{ pre } > $presentation ? $presentation : $stats->{ min }{ pre };
+			$stats->{ max }{ pre } = ! defined $stats->{ max }{ pre } || $stats->{ max }{ pre } < $presentation ? $presentation : $stats->{ max }{ pre };
+			$stats->{ min }{ acc } = ! defined $stats->{ min }{ acc } || $stats->{ min }{ acc } > $accuracy     ? $accuracy     : $stats->{ min }{ acc };
+			$stats->{ max }{ acc } = ! defined $stats->{ max }{ acc } || $stats->{ max }{ acc } > $accuracy     ? $accuracy     : $stats->{ max }{ acc };
 			$stats->{ sum }{ acc } += $accuracy;
-			$stats->{ sum }{ pre } += $precision;
+			$stats->{ sum }{ pre } += $presentation;
 		}
 		my @mean = (
 			accuracy     => sprintf( "%.2f", $stats->{ sum }{ acc } / $judges ),
 			presentation => sprintf( "%.2f", $stats->{ sum }{ pre } / $judges )
 		);
-		my $adjusted   = { @mean };
-		my $unadjusted = { @mean };
+		my $adjusted = { @mean };
+		my $complete = { @mean };
 
 		if( $judges >= 5 ) {
 			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc }) / $judges;
@@ -59,25 +61,20 @@ sub means {
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
 		}
 
-		push @$means, { adjusted => $adjusted, unadjusted => $unadjusted };
+		$form->{ adjusted_mean } = $adjusted;
+		$form->{ complete_mean } = $complete;
+		push @$means, { adjusted_mean => $adjusted, complete_mean => $complete };
 	}
 
 	return $means;
 }
 
 # ============================================================
-sub totals {
-# ============================================================
-	my $self   = shift;
-	my $rounds = shift;
-}
-
-# ============================================================
 sub valid {
 # ============================================================
 	my $self = shift;
-	foreach my $round (@$self) {
-		foreach my $score (@$round) {
+	foreach my $form (@$self) {
+		foreach my $score (@{ $form->{ judge }}) {
 			return 0 unless $score->valid();
 		}
 	}
