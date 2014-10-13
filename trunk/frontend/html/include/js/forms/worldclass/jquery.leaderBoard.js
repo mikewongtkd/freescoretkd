@@ -25,7 +25,8 @@ $.widget( "freescore.leaderboard", {
 		var athletes  = o.division.athletes;
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
-			athlete.score = new FreeScore.WorldClass.Score( athlete.scores, o.division.judges );
+			athlete.score = new FreeScore.WorldClass.Score( athlete.scores[ o.division.round ][ o.division.form ] );
+			console.log( athlete.score );
 
 			if   ( athlete.score.complete ) { standings .athletes .push( athlete ); }
 			else                            { pending   .athletes .push( athlete ); }

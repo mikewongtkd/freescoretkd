@@ -45,14 +45,14 @@ $.widget( "freescore.scoreboard", {
 		if( typeof( current ) === 'undefined' ) { return; }
 
 		var round_description;
-		if( current.forms.length > 1 ) { round_description = current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
-		else                           { round_description = current.round + ' round &ndash; ' + current.forms[ current.form ]; }
+		if( current.forms.length > 1 ) { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
+		else                           { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + current.forms[ current.form ]; }
 		e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
 		e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
 		
 		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
+		console.log( current.athlete.scores );
 		var scores = new FreeScore.WorldClass.Score( current.athlete.scores[ current.round ][ current.form ] );
-		console.log( current );
 		for( var i = 0; i < k; i++ ) {
 			e.judges[ i ].judgeScore( { score : scores.scores[ i ] } );
 		}

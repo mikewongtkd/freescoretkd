@@ -3,7 +3,7 @@
 # round=Finals
 # judges=5
 # description=Black Belt World Class
-# forms=Taegeuk Oh Jang,Koryo
+# forms=Finals:Taegeuk Oh Jang,Koryo
 Connor S.		
 	Finals	f1	j1	0.9	1.8	1.1	1.2	1.1
 	Finals	f1	j2	0.3	2.1	0.9	0.9	1.0

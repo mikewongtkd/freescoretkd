@@ -23,6 +23,7 @@ sub get_only {
 		$athlete->{ scores } = $scores;
 		$athlete->{ forms  } = $forms;
 	}
+	$self->{ forms } = $self->{ forms }{ $self->{ round }};
 }
 
 # ============================================================
@@ -57,8 +58,17 @@ sub read {
 		if( /^#/ ) {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
-			$self->{ $key } = $value;
-			if( $key eq 'forms' ) { $self->{ $key } = [ split /,/, $value ]; }
+			if( $key eq 'forms' ) { 
+				my @rounds = map { 
+					my ($round, $forms) = split /:/;
+					my @forms = split /,/, $forms;
+					$round => [ @forms ];
+				} split /;/, $value;
+				$self->{ $key } = { @rounds }; 
+
+			} else {
+				$self->{ $key } = $value;
+			}
 			next;
 
 		# ===== READ DIVISION ATHLETE INFORMATION
@@ -118,13 +128,20 @@ sub write {
 	my @criteria = qw( major minor rhythm power ki );
 	my @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
+	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
+	my @forms = ();
+	foreach my $round (@round_order) {
+		next unless exists $self->{ forms }{ $round };
+		push @forms, "$round:" . join( ",", @{$self->{ forms }{ $round }} );
+	}
+
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# description=$self->{ description }\n";
-	print FILE "# forms=" . join( ",", @{$self->{ forms }}) . "\n";
+	print FILE "# forms=" . join( ";", @forms ) . "\n";
 	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";

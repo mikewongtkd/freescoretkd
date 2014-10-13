@@ -5,7 +5,6 @@ if( typeof( FreeScore.WorldClass ) === 'undefined' ) { FreeScore.WorldClass = {}
 FreeScore.WorldClass.JudgeScore = function( score ) {
 	var defined       = typeof( score ) !== 'undefined';
 	if( ! defined ) {
-		this.round        = 'Unknown';
 		this.major        = -1.0;
 		this.minor        = -1.0;
 		this.rhythm       = -1.0;
@@ -41,13 +40,15 @@ FreeScore.WorldClass.JudgeScore.prototype.valid = function() {
 	return (this.accuracy >=0 && this.presentation >= 0);
 }
 
+/**
+ * Represents a set of scores from the judges for a given form in a given round
+ * @class 
+ * MW This needs to go away and its responsibility given to the backend.
+ **/
 FreeScore.WorldClass.Score = function( scores ) {
 	this.complete     = true;
-	this.form         = [];
 	this.mean         = { accuracy : 0.0, presentation : 0.0, total : 0.0 };
 	this.scores       = [];
-
-	round     = typeof( round )     === 'undefined' ? 'Finals' : round;
 
 	for( var i = 0; i < scores.length; i++ ) {
 		var score = new FreeScore.WorldClass.JudgeScore( scores[ i ] );
@@ -55,6 +56,7 @@ FreeScore.WorldClass.Score = function( scores ) {
 		if( score.valid()) { this.mean.accuracy     += score.accuracy;                      }
 		if( score.valid()) { this.mean.presentation += score.presentation;                  }
 		if( score.valid()) { this.mean.total        += score.accuracy + score.presentation; }
+		this.complete &= score.valid();
 	}
 }
 

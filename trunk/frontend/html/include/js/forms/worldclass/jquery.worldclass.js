@@ -36,7 +36,16 @@ $.widget( "freescore.worldclass", {
 
 			} else if( division.state == 'score' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
-				e.scoreboard.scoreboard( { judges : o.judges, current: { round : division.round, form : division.form, forms : division.forms, athlete : athlete }} );
+				e.scoreboard.scoreboard( { 
+					judges : o.judges, 
+					current: { 
+						name    : division.name, 
+						round   : division.round, 
+						form    : division.form, 
+						forms   : division.forms[ division.round ], 
+						athlete : athlete 
+					}
+				});
 			}
 		};
 
