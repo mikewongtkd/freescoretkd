@@ -25,6 +25,7 @@ $.widget( "freescore.worldclass", {
 			var division = forms.divisions[ forms.current ];
 			var current  = parseInt( division.current );
 			var athlete  = division.athletes[ current ];
+
 			if( forms.error ) {
 				e.card.fadeOut();
 				e.usermessage.html( forms.error );

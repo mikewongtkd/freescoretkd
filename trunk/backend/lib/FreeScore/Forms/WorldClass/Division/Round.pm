@@ -36,6 +36,7 @@ sub calculate_means {
 		foreach my $score (@{ $form->{ judge }}) {
 			$complete &&= $score->complete();
 		}
+		$form->{ complete } = $complete;
 		next unless $complete;
 
 		my $stats  = {};

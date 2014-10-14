@@ -1,4 +1,5 @@
 <?php 
+	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); }
 	include( "../../include/php/config.php" ); 
 ?>
 <html>
