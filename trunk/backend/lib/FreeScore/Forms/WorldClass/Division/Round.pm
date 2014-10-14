@@ -31,31 +31,35 @@ sub calculate_means {
 	my $self   = shift;
 	my $means  = [];
 
-	return $means unless $self->valid();
-
 	foreach my $form (@$self) {
-		my $stats  = {};
-		my $judges = $form->{ judge };
+		my $complete = 1;
 		foreach my $score (@{ $form->{ judge }}) {
-			my $presentation = $score->presentation();
-			my $accuracy     = $score->accuracy();
-			$stats->{ min }{ pre } = ! defined $stats->{ min }{ pre } || $stats->{ min }{ pre } > $presentation ? $presentation : $stats->{ min }{ pre };
-			$stats->{ max }{ pre } = ! defined $stats->{ max }{ pre } || $stats->{ max }{ pre } < $presentation ? $presentation : $stats->{ max }{ pre };
+			$complete &&= $score->complete();
+		}
+		next unless $complete;
+
+		my $stats  = {};
+		my $k = int @{$form->{ judge }};
+		foreach my $score (@{ $form->{ judge }}) {
+			my $accuracy     = $score->{ accuracy };
+			my $presentation = $score->{ presentation };
 			$stats->{ min }{ acc } = ! defined $stats->{ min }{ acc } || $stats->{ min }{ acc } > $accuracy     ? $accuracy     : $stats->{ min }{ acc };
 			$stats->{ max }{ acc } = ! defined $stats->{ max }{ acc } || $stats->{ max }{ acc } > $accuracy     ? $accuracy     : $stats->{ max }{ acc };
+			$stats->{ min }{ pre } = ! defined $stats->{ min }{ pre } || $stats->{ min }{ pre } > $presentation ? $presentation : $stats->{ min }{ pre };
+			$stats->{ max }{ pre } = ! defined $stats->{ max }{ pre } || $stats->{ max }{ pre } < $presentation ? $presentation : $stats->{ max }{ pre };
 			$stats->{ sum }{ acc } += $accuracy;
 			$stats->{ sum }{ pre } += $presentation;
 		}
 		my @mean = (
-			accuracy     => sprintf( "%.2f", $stats->{ sum }{ acc } / $judges ),
-			presentation => sprintf( "%.2f", $stats->{ sum }{ pre } / $judges )
+			accuracy     => sprintf( "%.2f", $stats->{ sum }{ acc } / $k ),
+			presentation => sprintf( "%.2f", $stats->{ sum }{ pre } / $k )
 		);
 		my $adjusted = { @mean };
 		my $complete = { @mean };
 
-		if( $judges >= 5 ) {
-			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc }) / $judges;
-			$adjusted->{ presentation } -= ($stats->{ min }{ pre } + $stats->{ max }{ pre }) / $judges;
+		if( $k >= 5 ) {
+			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc }) / $k;
+			$adjusted->{ presentation } -= ($stats->{ min }{ pre } + $stats->{ max }{ pre }) / $k;
 			
 			$adjusted->{ accuracy }     = sprintf( "%.2f", $adjusted->{ accuracy } );
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
@@ -67,18 +71,6 @@ sub calculate_means {
 	}
 
 	return $means;
-}
-
-# ============================================================
-sub valid {
-# ============================================================
-	my $self = shift;
-	foreach my $form (@$self) {
-		foreach my $score (@{ $form->{ judge }}) {
-			return 0 unless $score->valid();
-		}
-	}
-	return 1;
 }
 
 1;

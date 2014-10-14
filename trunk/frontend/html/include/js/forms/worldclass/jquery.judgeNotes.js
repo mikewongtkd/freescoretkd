@@ -42,10 +42,10 @@ $.widget( "freescore.judgeNotes", {
 				score.sum          = '';
 
 			} else {
-				var forms = athlete.forms;
-				score.accuracy     = forms.map( function( form ) { return form.accuracy.toFixed( 1 );        } ).join( '/' );
-				score.presentation = forms.map( function( form ) { return form.presentation.toFixed( 1 );    } ).join( '/' );
-				score.sum          = forms.map( function( form ) { return form.accuracy + form.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 1 );
+				var forms = athlete.scores;
+				score.accuracy     = forms.map( function( form ) { return form.adjusted_mean.accuracy.toFixed( 1 );        } ).join( '/' );
+				score.presentation = forms.map( function( form ) { return form.adjusted_mean.presentation.toFixed( 1 );    } ).join( '/' );
+				score.sum          = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 1 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}

@@ -12,18 +12,9 @@ sub get_only {
 	my $judge = shift;
 
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $scores = [];
-		my $forms  = [];
 		my $round  = $athlete->{ scores }{ $self->{ round } };
-		foreach my $form (@$round) {
-			my $score = $form->[ $judge ];
-			push @{$scores }, $score;
-			push $forms, { accuracy => $score->accuracy(), presentation => $score->presentation() };
-		}
-		$athlete->{ scores } = $scores;
-		$athlete->{ forms  } = $forms;
+		$athlete->{ scores } = $round;
 	}
-	$self->{ forms } = $self->{ forms }{ $self->{ round }};
 }
 
 # ============================================================
@@ -143,10 +134,11 @@ sub write {
 			next unless exists $athlete->{ scores }{ $round };
 			my $forms = $athlete->{ scores }{ $round };
 			for( my $i = 0; $i <= $#$forms; $i++ ) {
-				my $judges = $forms->[ $i ]{ judges };
+				my $form   = $forms->[ $i ];
+				my $judges = $form->{ judge };
 				foreach my $j (0 .. $#$judges) {
 					my $score = $judges->[ $j ];
-					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria } if $score->valid;
+					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria } if $score->complete();
 				}
 			}
 		}

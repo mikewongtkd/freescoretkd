@@ -23,13 +23,17 @@ $.widget( "freescore.leaderboard", {
 
 		if( typeof( o.division ) === 'undefined' ) { return; }
 		var athletes  = o.division.athletes;
+		console.log( athletes );
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
-			athlete.score = new FreeScore.WorldClass.Score( athlete.scores[ o.division.round ][ o.division.form ] );
-			console.log( athlete.score );
 
-			if   ( athlete.score.complete ) { standings .athletes .push( athlete ); }
-			else                            { pending   .athletes .push( athlete ); }
+			var valid = true;
+			for( var j = 0; j < athlete.scores[ o.division.round ].length ; j++ ) {
+				var form = athlete.scores[ o.division.round ][ j ];
+				valid &= form.complete;
+			}
+			if   ( valid ) { standings .athletes .push( athlete ); }
+			else           { pending   .athletes .push( athlete ); }
 		}
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
