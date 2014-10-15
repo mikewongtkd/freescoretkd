@@ -80,11 +80,10 @@ $.widget( "freescore.leaderboard", {
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k     = standings.athletes.length < 4 ? standings.athletes.length : 4;
-		var notes = html.div.clone() .addClass( "notes" ) .hide();
 		for( var i = 0; i < k; i++ ) {
 			var item = html.li.clone();
 			var athlete    = standings.athletes[ i ];
-			var total      = athlete.score.form.map( function( score ) { return parseFloat( score.mean ); }).reduce( function( value, total ) { return total + value; }).toFixed( 1 );
+			var total      = athlete.scores[ o.division.round ].map( function( form ) { if( ! form.complete ) { return 0; } else { return (form.adjusted_mean.accuracy + form.adjusted_mean.presentation); }} ).reduce( function( previous, current ) { return previous + current; } );
 			var place      = html.div.clone() .addClass( "athlete" );
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
@@ -93,16 +92,9 @@ $.widget( "freescore.leaderboard", {
 			var tiebreaker = html.span.clone() .addClass( "tiebreaker" ) .html( "*" );
 			var medal      = html.div.clone()  .addClass( "medal" ) .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 
-			if( athlete.score.tiebreaker ) { 
-				score.append( tiebreaker ); 
-				notes.append( athlete.score.tiebreaker + " for " + athlete.name + "<br />" );
-				notes.show();
-			}
 			entry.append( name, score, medal );
 			e.standings.append( entry );
 		}
-		notes.css( "top", 460 - notes.height() );
-		e.standings.append( notes );
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
 		if( pending.athletes.length == 0 ) { 
