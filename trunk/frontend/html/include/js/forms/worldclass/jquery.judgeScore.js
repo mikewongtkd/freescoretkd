@@ -18,14 +18,17 @@ $.widget( "freescore.judgeScore", {
 		var score    = o.score;
 		if( typeof( score ) === 'undefined' ) {
 			score = {};
-			score.accuracy = '';
+			score.accuracy     = '';
 			score.presentation = '';
+		} else {
+			score.accuracy     = score.accuracy.toFixed( 1 );
+			score.presentation = score.presentation.toFixed( 1 );
 		}
 
 		// ===== DISPLAY VALID SCORES
 		if( score.accuracy >= 0 && score.presentation >= 0 ) { 
 			var span = {
-				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy ),
+				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy     ),
 				presentation : o.html.span .clone() .addClass( "presentation" ) .html( score.presentation )
 			};
 			e.view.empty();

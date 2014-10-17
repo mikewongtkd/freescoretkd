@@ -186,10 +186,11 @@ sub next {
 	my $self = shift;
 	$self->{ state } = 'score';
 
-	my $form  = $self->{ form };
-	my $max   = $#{ $self->{ forms }};
+	my $round        = $self->{ round };
+	my $form      = $self->{ form };
+	my $max_forms = $#{ $self->{ forms }{ $round }};
 
-	if( $form < $max ) {
+	if( $form < $max_forms ) {
 		$self->{ form }++;
 	} else {
 		$self->{ current } = ($self->{ current } + 1) % int( @{ $self->{ athletes }});
@@ -203,10 +204,11 @@ sub previous {
 	my $self = shift;
 	$self->{ state } = 'score';
 
+	my $round        = $self->{ round };
 	my $form         = $self->{ form };
-	my $max_forms    = $#{ $self->{ forms }};
+	my $max_forms    = $#{ $self->{ forms }{ $round }};
 	my $previous     = ($self->{ current } - 1);
-	my $max_athletes = $#{ $self->{ forms }};
+	my $max_athletes = $#{ $self->{ athletes }};
 
 	if( $form > 0 ) {
 		$self->{ form }--;
