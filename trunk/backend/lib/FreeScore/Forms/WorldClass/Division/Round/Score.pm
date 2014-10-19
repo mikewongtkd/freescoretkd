@@ -1,12 +1,17 @@
 package FreeScore::Forms::WorldClass::Division::Round::Score;
 use FreeScore;
 
+our @criteria = qw( major minor rhythm power ki );
+
 # ============================================================
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift;
 	my $self = bless $data, $class;
+	foreach my $criteria (@FreeScore::Forms::WorldClass::Division::Round::Score::criteria) {
+		$data->{ $criteria } ||= undef;
+	}
 	$self->accuracy();
 	$self->presentation();
 	return $self;
@@ -41,9 +46,8 @@ sub complete {
 #-------------------------------------------------------------
 	my $self = shift;
 	my $complete = 1;
-	my @criteria = qw( major minor rhythm power ki );
 
-	$complete &&= (defined $_) foreach @{ $self }{ @criteria };
+	$complete &&= (defined $_) foreach @{ $self }{ @FreeScore::Forms::WorldClass::Division::Round::Score::criteria };
 	$self->{ complete } = $complete;
 	return $complete;
 }

@@ -7,8 +7,15 @@ sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift;
-	my $self = bless $data, $class;
-	$self->init();
+	my $judges  = shift;
+	my $self    = bless $data, $class; 
+	if( defined $judges ) {
+		my $judges = [];
+		push @$judges, {} foreach ( 1 .. $data ) ;
+		push @$self = { judges => $judges };
+	}
+
+	$self->init( @_ );
 	return $self;
 }
 
@@ -118,5 +125,4 @@ sub complete {
 	foreach my $form (@$self) { $complete &&= $form->{ complete }; }
 	return $complete;
 }
-
 1;

@@ -118,10 +118,14 @@ sub update_status {
 	# ===== ORGANIZE ATHLETES BY ROUND
 	my $tie        = 0; # a constant representing a tie
 	my $completed  = {};
+	my $resolved   = {};
 	my $k          = int( @ { $self->{ athletes }});
 	my $placement  = {};
 	my $tied       = {};
 	ROUND: foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+
+		# ===== ASSESS THAT THE ROUND IS RESOLVED
+		$resolved->{ $round } = $self->round_resolved( $round );
 
 		# ===== SORT THE ATHLETES AND DETECT TIES
 		my @unsorted = ( 0 .. $#{ $self->{ athletes }} );
@@ -149,7 +153,9 @@ sub update_status {
 		# Assign all athletes to the preliminary round, if not already assigned
 		if( $round eq 'prelim' ) {
 			if( $k >= 20 ) {
-				foreach my $athlete (@{ $self->{ athletes }} ) { $athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round }; }
+				foreach my $athlete (@{ $self->{ athletes }} ) { 
+					$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( [], $self->{ judges } ) unless exists $athlete->{ scores }{ $round }; 
+				}
 				next ROUND;
 			}
 		}
@@ -163,31 +169,7 @@ sub update_status {
 			my $n        = int( @{ $assigned } );
 			my $half     = int( ($n+1)/2 );
 
-			# Count number of places needed
-			my $places_needed = 0;
-			while( $places_needed < $half ) {
-				$places_needed++;
-				next unless exists $ties->{ $places_needed };
-				my $num_ties = int( @{ $ties->{ $places_needed }} );
-
-				# Deal with ties that cross the number of available places (e.g. 3 ties for 19th place out of 20 available places; 2 of 3 ties will advance)
-				if( $places_needed + $num_ties > $half ) {
-					my @athletes = map { my $i = $order->[ $_ ]; $self->{ athletes }[ $i ]; } ($places_needed, @{ $ties->{ $places_needed }});
-					foreach my $athlete (@athletes) {
-						$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
-					}
-				} else {
-					# Discard ties that are comfortably below the top half athletes
-					delete $ties->{ $places_needed };
-				}
-				$places_needed += $num_ties;
-			}
-			# Discard ties that are beyond the top half athletes
-			while( $places_needed < $n ) {
-				delete $ties->{ $places_needed } if exists $ties->{ $places_needed };
-				$places_needed++;
-			}
-
+			_filter_unimportant_ties( $assigned, $ties, $order, $half, $n );
 			next ROUND;
 		}
 
@@ -195,26 +177,91 @@ sub update_status {
 		# Assign all athletes to the preliminary round, if not already assigned
 		if( $round eq 'semfin' ) {
 			if(($k > 8 && $k < 20)) {
-				foreach my $athlete (@{ $self->{ athletes }} ) { $athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round }; }
+				foreach my $athlete (@{ $self->{ athletes }} ) { 
+					$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( [], $self->{ judges } ) unless exists $athlete->{ scores }{ $round }; 
+				}
 				next ROUND;
 
 			} elsif( $completed->{ 'prelim' } && $completed->{ 'pre-tb' } ) {
-				# TODO USE TIE-BREAKER RESULTS TO RESOLVE TIES IN THE PRELIMINARY ROUND
+				# USE TIE-BREAKER RESULTS TO RESOLVE TIES IN THE PRELIMINARY ROUND
 				my ($i) = keys %{ $tied->{ 'prelim' }};
 				my @tied = ($i, @{ $tied->{ 'prelim' }{ $i }});
+				my ($j) = keys %{ $tied->{ 'pre-tb' }};
+				my @tb_results = ($j, @{ $tied->{ 'pre-tb' }{ $j }});
+
+				if( $self->round_resolved( 'pre-tb' ) ) {
+					foreach my $i (@tied) {
+						my $j = shift @tb_results;
+						$placement->{ 'prelim' }[ $i ] = $placement->{ 'pre-tb' }[ $j ];
+					}
+					# TODO USE THE RESOLVED PRELIMINARY RESULTS TO MAKE ASSIGNMENTS TO THE SEMI-FINALS ROUND
+
+				# IF THERE ARE STILL TIES FROM THE TIE-BREAKER, ASSIGN ANOTHER TIE-BREAKER ROUND
+				} else {
+					foreach my $athlete (@{ $self->{ athletes }} ) { 
+						$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round }, $self->{ judges } );
+					}
+				}
 			}
 		}
+
+		# ===== SEMI-FINALS TIE-BREAKERS
+		# Assign players to a tie-breaker round unless there's enough places for top 8.
+		if( $round eq 'sem-tb' ) {
+			my $assigned = $athletes->{ 'semfin' };
+			my $ties     = $tied->{ 'semfin' };
+			my $order    = $placement->{ 'semfin' }; # Maps placement to athlete index (e.g. 1st place -> Athlete #3, 2nd place -> Athlete #1, etc.)
+			my $n        = int( @{ $assigned } );
+
+			_filter_unimportant_ties( $assigned, $ties, $order, 8, $n );
+			next ROUND;
+		}
+
+		# TODO STILL NEED TO TEST ALL THIS SHIT AND ALSO FINISH FINALS
 
 		# ===== ASSESS IF ROUND HAS BEEN COMPLETED
 		# Note that the assessment has to be after initialization; rounds that
 		# have no athletes are automatically completed.
-		my $complete = 1;
-		foreach my $athlete (@{$self->{ athletes }}) {
-			next unless exists $athlete->{ scores }{ $round };
-			$complete &&= $athlete->{ scores }{ $round }->complete();
-		}
-		$completed->{ $round } = $complete;
+		$completed->{ $round } = $self->round_complete( $round );
 	}
+
+	return $placement;
+}
+
+# ============================================================
+sub round_complete {
+# ============================================================
+	my $self  = shift;
+	my $round = shift;
+
+	my $complete = 1;
+	foreach my $athlete (@{$self->{ athletes }}) {
+		next unless exists $athlete->{ scores }{ $round };
+		$complete &&= $athlete->{ scores }{ $round }->complete();
+	}
+	return $complete;
+}
+
+# ============================================================
+sub round_resolved {
+# ============================================================
+	my $self  = shift;
+	my $round = shift;
+	my $tie   = 0;
+
+	foreach my $i ( 0 .. $#{ $self->{ athletes }} ) {
+		my $a = $self->{ athletes }[ $i ]{ scores };
+		next unless exists $a->{ $round };
+		$a = $a->{ $round };
+		foreach my $j ( $i + 1 .. $#{ $self->{ athletes }} ) {
+			my $b = $self->{ athletes }[ $j ]{ scores };
+			next unless exists $b->{ $round };
+			$b = $b->{ $round };
+			my $has_tie = FreeScore::Forms::WorldClass::Division::Round::_compare( $a, $b ) == $tie;
+			if( $has_tie ) { return 0; }
+		}
+	}
+	return 1;
 }
 
 # ============================================================
@@ -296,6 +343,41 @@ sub previous {
 }
 
 # ============================================================
+sub _filter_unimportant_ties {
+# ============================================================
+	my $assigned         = shift;
+	my $ties             = shift;
+	my $order            = shift;
+	my $places_available = shift;
+	my $n                = shift;
+
+	# Count number of places needed
+	my $places_needed = 0;
+	while( $places_needed < $places_available ) {
+		$places_needed++;
+		next unless exists $ties->{ $places_needed };
+		my $num_ties = int( @{ $ties->{ $places_needed }} );
+
+		# Deal with ties that cross the number of available places (e.g. 3 ties for 19th place out of 20 available places; 2 of 3 ties will advance)
+		if( $places_needed + $num_ties > $places_available ) {
+			my @athletes = map { my $i = $order->[ $_ ]; $self->{ athletes }[ $i ]; } ($places_needed, @{ $ties->{ $places_needed }});
+			foreach my $athlete (@athletes) {
+				$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
+			}
+		} else {
+			# Discard ties that are placed comfortably within the top athletes; they move on to the next round
+			delete $ties->{ $places_needed };
+		}
+		$places_needed += $num_ties;
+	}
+	# Discard ties that are placed past the top athletes; they don't move on to the next round
+	while( $places_needed < $n ) {
+		delete $ties->{ $places_needed } if exists $ties->{ $places_needed };
+		$places_needed++;
+	}
+}
+
+# ============================================================
 sub _parse_forms {
 # ============================================================
 	my $value = shift;
@@ -306,11 +388,6 @@ sub _parse_forms {
 		$round => [ @forms ];
 	} split /;/, $value;
 	return { @rounds }; 
-}
-
-# ============================================================
-sub _compare {
-# ============================================================
 }
 
 1;
