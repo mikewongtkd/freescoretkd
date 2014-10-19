@@ -5,6 +5,8 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use base qw( FreeScore::Forms::Division );
 
+our @round_order = ( qw( prelim pre-tb semfin sem-tb finals fin-tb ) );
+
 # ============================================================
 sub get_only {
 # ============================================================
@@ -30,13 +32,13 @@ sub record_score {
 	my $k = $self->{ form };
 
 	$self->{ athletes }[ $i ]{ scores }{ $j }[ $k ]{ judge }[ $judge ] = $score;
+	$self->update_status();
 }
 
 # ============================================================
 sub read {
 # ============================================================
 	my $self  = shift;
-	my @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
 	my $athlete = {};
 	my $table   = { max_rounds => {}, max_forms => 0, max_judges => 0 };
@@ -89,7 +91,7 @@ sub read {
 
 	# ===== COMPLETE THE TABLE OF SCORES
 	$table->{ max_judges } = $self->{ judges } if( exists $self->{ judges } );
-	$table->{ max_rounds } = [ grep { exists $table->{ max_rounds }{ $_ } } @round_order ];
+	$table->{ max_rounds } = [ grep { exists $table->{ max_rounds }{ $_ } } @FreeScore::Forms::WorldClass::Division::round_order ];
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		foreach my $round (@{ $table->{ max_rounds }}) {
 			foreach my $i ( 0 .. $table->{ max_forms } ) {
@@ -97,7 +99,7 @@ sub read {
 				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
 				foreach my $j ( 0 .. $table->{ max_judges } ) {
 					next if( ref $judge_scores->{ judge }[ $j ] );
-					$judge_scores->{ judge }[ $j ] = { major => -1.0, minor => -1.0, rhythm => -1.0, power => -1.0, ki => -1.0 };
+					$judge_scores->{ judge }[ $j ] = { major => undef, minor => undef, rhythm => undef, power => undef, ki => undef };
 				}
 			}
 			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
@@ -106,15 +108,121 @@ sub read {
 }
 
 # ============================================================
+sub update_status {
+# ============================================================
+	my $self  = shift;
+
+	# ===== ORGANIZE ATHLETES BY ROUND
+	my $tie        = 0; # a constant representing a tie
+	my $completed  = {};
+	my $k          = int( @ { $self->{ athletes }});
+	my $placement  = {};
+	my $tied       = {};
+	ROUND: foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+
+		# ===== SORT THE ATHLETES AND DETECT TIES
+		my @unsorted = ( 0 .. $#{ $self->{ athletes }} );
+		@{ $placement->{ $round }} = sort { 
+			my $x = exists $self->{ athletes }[ $a ]{ scores }{ $round } ? $self->{ athletes }[ $a ]{ scores }{ $round } : undef;
+			my $y = exists $self->{ athletes }[ $b ]{ scores }{ $round } ? $self->{ athletes }[ $b ]{ scores }{ $round } : undef;
+			Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		} @unsorted;
+		my $i = 0;
+		while( $i < $k ) {
+			my $a = $placement->{ $round }[ $i ];
+			my $x = exists $self->{ athletes }[ $a ]{ scores }{ $round } ? $self->{ athletes }[ $a ]{ scores }{ $round } : undef;
+			my $j = $i + 1;
+			while( $j < $k ) {
+				my $b = $placement->{ $round }[ $j ];
+				my $y = exists $self->{ athletes }[ $b ]{ scores }{ $round } ? $self->{ athletes }[ $b ]{ scores }{ $round } : undef;
+				last unless Forms::WorldClass::Division::Round::_compare( $x, $y ) == $tie;
+				push @{ $tied->{ $round }{ $i }}, $j; 
+				$j++;
+			}
+			$i = $j;
+		}
+
+		# ===== PRELIMINARY ROUND FOR 20 OR MORE ATHLETES
+		# Assign all athletes to the preliminary round, if not already assigned
+		if( $round eq 'prelim' ) {
+			if( $k >= 20 ) {
+				foreach my $athlete (@{ $self->{ athletes }} ) { $athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round }; }
+				next ROUND;
+			}
+		}
+
+		# ===== PRELIMINARY TIE-BREAKERS
+		# Assign players to a tie-breaker round unless there's enough places for top half.
+		if( $round eq 'pre-tb' ) {
+			my $assigned = $athletes->{ 'prelim' };
+			my $ties     = $tied->{ 'prelim' };
+			my $order    = $placement->{ 'prelim' }; # Maps placement to athlete index (e.g. 1st place -> Athlete #3, 2nd place -> Athlete #1, etc.)
+			my $n        = int( @{ $assigned } );
+			my $half     = int( ($n+1)/2 );
+
+			# Count number of places needed
+			my $places_needed = 0;
+			while( $places_needed < $half ) {
+				$places_needed++;
+				next unless exists $ties->{ $places_needed };
+				my $num_ties = int( @{ $ties->{ $places_needed }} );
+
+				# Deal with ties that cross the number of available places (e.g. 3 ties for 19th place out of 20 available places; 2 of 3 ties will advance)
+				if( $places_needed + $num_ties > $half ) {
+					my @athletes = map { my $i = $order->[ $_ ]; $self->{ athletes }[ $i ]; } ($places_needed, @{ $ties->{ $places_needed }});
+					foreach my $athlete (@athletes) {
+						$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
+					}
+				} else {
+					# Discard ties that are comfortably below the top half athletes
+					delete $ties->{ $places_needed };
+				}
+				$places_needed += $num_ties;
+			}
+			# Discard ties that are beyond the top half athletes
+			while( $places_needed < $n ) {
+				delete $ties->{ $places_needed } if exists $ties->{ $places_needed };
+				$places_needed++;
+			}
+
+			next ROUND;
+		}
+
+		# ===== SEMI-FINALS ROUND
+		# Assign all athletes to the preliminary round, if not already assigned
+		if( $round eq 'semfin' ) {
+			if(($k > 8 && $k < 20)) {
+				foreach my $athlete (@{ $self->{ athletes }} ) { $athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round }; }
+				next ROUND;
+
+			} elsif( $completed->{ 'prelim' } && $completed->{ 'pre-tb' } ) {
+				# TODO USE TIE-BREAKER RESULTS TO RESOLVE TIES IN THE PRELIMINARY ROUND
+				my ($i) = keys %{ $tied->{ 'prelim' }};
+				my @tied = ($i, @{ $tied->{ 'prelim' }{ $i }});
+			}
+		}
+
+		# ===== ASSESS IF ROUND HAS BEEN COMPLETED
+		# Note that the assessment has to be after initialization; rounds that
+		# have no athletes are automatically completed.
+		my $complete = 1;
+		foreach my $athlete (@{$self->{ athletes }}) {
+			next unless exists $athlete->{ scores }{ $round };
+			$complete &&= $athlete->{ scores }{ $round }->complete();
+		}
+		$completed->{ $round } = $complete;
+	}
+}
+
+# ============================================================
 sub write {
 # ============================================================
 	my $self = shift;
 	my @criteria = qw( major minor rhythm power ki );
-	my @round_order = ( qw( Preliminary Semi-Finals Finals Tiebreaker-1st Tiebreaker-2nd Tiebreaker-3rd ) );
 
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
-	foreach my $round (@round_order) {
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $self->{ forms }{ $round };
 		push @forms, "$round:" . join( ",", @{$self->{ forms }{ $round }} );
 	}
@@ -130,7 +238,7 @@ sub write {
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
 
-		foreach my $round (@round_order) {
+		foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 			next unless exists $athlete->{ scores }{ $round };
 			my $forms = $athlete->{ scores }{ $round };
 			for( my $i = 0; $i <= $#$forms; $i++ ) {
@@ -144,40 +252,6 @@ sub write {
 		}
 	}
 	close FILE;
-}
-
-# ============================================================
-sub next_round {
-# ============================================================
-	my $self  = shift;
-	my $round = shift;
-	my $cut   = shift;
-
-	my @athletes = ();
-	foreach my $athlete (@{ $self->{ athletes }}) {
-		push @athletes, $athlete_copy;
-	}
-
-	# ===== IN CASE OF TIE-BREAKER, PUT THE TIED ATHLETES INTO A NEW ROUND
-	if( defined $self->{ tiebreaker } ) {
-		@athletes = @{ $self->{ tiebreaker }};
-
-	# ===== TAKE THE TOP ATHLETES THAT MAKE THE CUT
-	} else {
-		@athletes = sort { 
-			($a_mean, $a_presentation, $a_total) = _mean_score( $b->{ scores } );
-			($b_mean, $b_presentation, $b_total) = _mean_score( $a->{ scores } );
-
-			$a_mean         <=> $b_mean         ||
-			$a_presentation <=> $b_presentation ||
-			$a_total        <=> $b_total
-
-		} @athletes;
-		@athletes = splice( @athletes, 0, $cut );
-	}
-	$copy->{ athletes } = [ @athletes ];
-
-	return $copy;
 }
 
 # ============================================================
@@ -219,41 +293,6 @@ sub previous {
 }
 
 # ============================================================
-sub _mean_score {
-# ============================================================
-	my $scores   = shift;
-	my $min      = { accuracy => undef, presentation => undef };
-	my $max      = { accuracy => undef, presentation => undef };
-	my $total    = { score => 0.0, presentation => 0.0, adjusted => 0.0 };
-	my $judges   = 1;
-
-	foreach my $form (@$scores) {
-		$judges = int( @$form );
-		foreach my $judge_score (@$form) {
-			my $penalties = $judge_score->{ minor } + $judge_score->{ major };
-			my $accuracy  = $penalties > 4.0 ? 0.0 : 4.0 - $penalties;
-			$min->{ accuracy } = (! defined $min->{ accuracy }) || ($min->{ accuracy } > $accuracy) ? $accuracy : $min->{ accuracy };
-			$max->{ accuracy } = (! defined $max->{ accuracy }) || ($max->{ accuracy } < $accuracy) ? $accuracy : $max->{ accuracy };
-
-			my $presentation = $judge_score->{ rhythm } + $judge_score->{ power } + $judge_score->{ ki };
-			$min->{ presentation } = (! defined $min->{ presentation }) || ($min->{ presentation } > $presentation) ? $presentation : $min->{ presentation };
-			$max->{ presentation } = (! defined $max->{ presentation }) || ($max->{ presentation } < $presentation) ? $presentation : $max->{ presentation };
-
-			$total->{ score } += $accuracy + $presentation;
-			$total->{ presentation } += $presentation;
-		}
-		my $dropped = {
-			accuracy     => $judges > 3 ? ($min->{ accuracy }     + $max->{ accuracy }    ) : 0.0,
-			presentation => $judges > 3 ? ($min->{ presentation } + $max->{ presentation }) : 0.0,
-		};
-		$total->{ adjusted }     += $total->{ score } - ($dropped->{ accuracy } + $dropped->{ presentation });
-		$total->{ presentation } += $presentation   - $dropped->{ presentation };
-	}
-
-	return (($adjusted/$judges), $total->{ presentation }, $total->{ score });
-}
-
-# ============================================================
 sub _parse_forms {
 # ============================================================
 	my $value = shift;
@@ -264,6 +303,11 @@ sub _parse_forms {
 		$round => [ @forms ];
 	} split /;/, $value;
 	return { @rounds }; 
+}
+
+# ============================================================
+sub _compare {
+# ============================================================
 }
 
 1;

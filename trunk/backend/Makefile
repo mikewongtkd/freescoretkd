@@ -4,7 +4,7 @@ ifndef TOURNAMENT
 $(error TOURNAMENT is not set)
 endif
 
-.PHONY: all
+.PHONY: all test
 
 cache:
 	if [ ! -e $(CACHE) ] ; \

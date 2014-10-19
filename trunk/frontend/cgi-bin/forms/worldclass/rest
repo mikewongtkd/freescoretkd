@@ -21,23 +21,6 @@ get '/:tournament/:ring/division/next' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	my $next;
-	if      ( $division->{ round } =~ /pre/i ) {
-		my $cut = int((int( @{$division->{ athletes }} )/2.0) + 0.5);
-		$next   = $division->next_round( 'Semi-Finals', $cut );
-		$next->write();
-		splice( @{ $progress->{ divisions }}, $progress->{ current } + 1, 0, $next ); 
-
-	} elsif ( $division->{ round } =~ /semi/i ) {
-		$next   = $division->next_round( 'Finals', 8 );
-		$next->write();
-		splice( @{ $progress->{ divisions }}, $progress->{ current } + 1, 0, $next ); 
-
-	} elsif ( $division->{ tiebreaker } ) {
-		$next   = $division->next_round( 'Tiebreaker' );
-		$next->write();
-		splice( @{ $progress->{ divisions }}, $progress->{ current } + 1, 0, $next ); 
-	}
 
 	try {
 		$progress->next();
@@ -103,7 +86,7 @@ get '/:tournament/:ring/athlete/next' => sub {
 	try {
 		$division->next();
 		$division->write();
-		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round } );
 
 	} catch {
 		$self->render( json => { error => $_ });

@@ -16,16 +16,18 @@ sub new {
 sub accuracy {
 # ============================================================
 	my $self = shift;
+	return undef unless $self->complete();
 	my $penalties = $self->{ major } + $self->{ minor };
 	my $accuracy  = $penalties > 4.0 ? 0 : (4.0 - $penalties);
 	$self->{ accuracy } = $accuracy;
-	return 
+	return $accuracy;
 }
 
 # ============================================================
 sub presentation {
 # ============================================================
 	my $self = shift;
+	return undef unless $self->complete();
 	my $presentation = $self->{ rhythm } + $self->{ power } + $self->{ ki };
 	$self->{ presentation } = $presentation;
 	return $presentation;
@@ -34,11 +36,14 @@ sub presentation {
 # ============================================================
 sub complete {
 # ============================================================
+# A score is complete when a judge has provided values for
+# all criteria
+#-------------------------------------------------------------
 	my $self = shift;
 	my $complete = 1;
 	my @criteria = qw( major minor rhythm power ki );
 
-	$complete &&= ($_ >= 0) foreach @{ $self }{ @criteria };
+	$complete &&= (defined $_) foreach @{ $self }{ @criteria };
 	$self->{ complete } = $complete;
 	return $complete;
 }

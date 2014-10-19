@@ -54,3 +54,15 @@ We use the following toolchain for documentation:
   - Node.js (JSDoc dependency)
 - Perl POD for Perl module documentation
 
+## World Class Poomsae Scoring System
+
+The header should store current state and initial non-athlete setup information for the division.
+
+### Round participation
+
+Situations:
+
+- A large division can be split across two rings for the preliminary round
+  - All athletes participate in the preliminary round
+  - The top half from each ring are then merged into a semi-finals round
+  

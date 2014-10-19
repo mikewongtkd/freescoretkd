@@ -31,13 +31,9 @@ sub calculate_means {
 	my $self   = shift;
 	my $means  = [];
 
+	$self->complete();
 	foreach my $form (@$self) {
-		my $complete = 1;
-		foreach my $score (@{ $form->{ judge }}) {
-			$complete &&= $score->complete();
-		}
-		$form->{ complete } = $complete;
-		next unless $complete;
+		next unless $form->{ complete };
 
 		my $stats  = {};
 		my $k = int @{$form->{ judge }};
@@ -61,6 +57,9 @@ sub calculate_means {
 		if( $k >= 5 ) {
 			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc }) / $k;
 			$adjusted->{ presentation } -= ($stats->{ min }{ pre } + $stats->{ max }{ pre }) / $k;
+
+			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
+			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
 			
 			$adjusted->{ accuracy }     = sprintf( "%.2f", $adjusted->{ accuracy } );
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
@@ -72,6 +71,52 @@ sub calculate_means {
 	}
 
 	return $means;
+}
+
+# ============================================================
+sub _compare {
+# ============================================================
+	my $a = shift;
+	my $b = shift;
+
+	if( ! defined $a && ! defined $b ) { return 0; }
+	if( ! defined $a ) { return  1; }
+	if( ! defined $b ) { return -1; }
+
+	my $sum_a = {};
+	my $sum_b = {};
+
+	foreach my $mean ( qw( adjusted_mean completed_mean )) {
+		foreach my $category ( qw( accuracy presentation )) {
+			$sum_a->{ $mean }{ $category } += $_->{ $mean }{ $category } foreach @$a;
+			$sum_b->{ $mean }{ $category } += $_->{ $mean }{ $category } foreach @$b;
+		}
+		$sum_a->{ $mean }{ total } += $_->{ $mean }{ accuracy } + $_->{ $mean }{ presentation } foreach @$a;
+		$sum_b->{ $mean }{ total } += $_->{ $mean }{ accuracy } + $_->{ $mean }{ presentation } foreach @$b;
+	}
+
+	return 
+		$sum_b->{ adjusted_mean }{ total }        <=> $sum_a->{ adjusted_mean }{ total }        ||
+		$sum_b->{ adjusted_mean }{ presentation } <=> $sum_a->{ adjusted_mean }{ presentation } ||
+		$sum_b->{ complete_mean }{ total }        <=> $sum_a->{ complete_mean }{ total };
+}
+
+# ============================================================
+sub complete {
+# ============================================================
+# An athlete's round is complete when all their forms are 
+# complete
+# ------------------------------------------------------------
+	my $self = shift;
+
+	foreach my $form (@$self) {
+		my $complete = 1;
+		$complete &&= $_->complete() foreach (@{ $form->{ judge }});
+		$form->{ complete } = $complete;
+	}
+	my $complete = 1;
+	foreach my $form (@$self) { $complete &&= $form->{ complete }; }
+	return $complete;
 }
 
 1;
