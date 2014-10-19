@@ -12,10 +12,13 @@ sub get_only {
 # ============================================================
 	my $self  = shift;
 	my $judge = shift;
+	my $round = $self->{ round };
 
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $round  = $athlete->{ scores }{ $self->{ round } };
-		$athlete->{ scores } = $round;
+		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } };
+		foreach my $form (@{$athlete->{ scores }{ $round }}) {
+			$form->{ judge } = [ $form->{ judge }[ $judge ] ];
+		}
 	}
 }
 

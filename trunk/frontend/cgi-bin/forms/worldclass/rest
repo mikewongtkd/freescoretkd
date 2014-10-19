@@ -86,7 +86,7 @@ get '/:tournament/:ring/athlete/next' => sub {
 	try {
 		$division->next();
 		$division->write();
-		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round } );
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round } });
 
 	} catch {
 		$self->render( json => { error => $_ });

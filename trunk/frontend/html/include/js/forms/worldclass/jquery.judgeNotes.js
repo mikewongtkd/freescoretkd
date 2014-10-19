@@ -19,8 +19,11 @@ $.widget( "freescore.judgeNotes", {
 		var view     = e.view;
 		var athletes = o.athletes;
 		var current  = o.current;
+		var round    = o.round;
 
 		if( typeof athletes === 'undefined' ) { return; }
+		if( typeof current  === 'undefined' ) { return; }
+		if( typeof round    === 'undefined' ) { return; }
 
 		view.empty();
 		var table = h.table.clone();
@@ -42,7 +45,7 @@ $.widget( "freescore.judgeNotes", {
 				score.sum          = '';
 
 			} else {
-				var forms = athlete.scores;
+				var forms = athlete.scores[ round ];
 				score.accuracy     = forms.map( function( form ) { return form.adjusted_mean.accuracy.toFixed( 1 );        } ).join( '/' );
 				score.presentation = forms.map( function( form ) { return form.adjusted_mean.presentation.toFixed( 1 );    } ).join( '/' );
 				score.sum          = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 1 );
