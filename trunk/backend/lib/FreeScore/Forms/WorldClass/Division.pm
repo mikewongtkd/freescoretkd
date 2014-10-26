@@ -34,7 +34,7 @@ sub assign {
 }
 
 # ============================================================
-sub sort_athletes {
+sub place_athletes {
 # ============================================================
 	my $self      = shift;
 	my $round     = shift;
@@ -170,6 +170,10 @@ sub update_status {
 # ============================================================
 	my $self  = shift;
 
+	# ==== SKIP STATUS UPDATE UNLESS ROUND IS NOT INITIALIZED OR ROUND IS COMPLETE
+	# This avoids unnecessary processing
+	return unless $self->round_complete( $self->{ round } );
+
 	# ===== ORGANIZE ATHLETES BY ROUND
 	my $tie        = 0; # a constant representing a tie
 	my $completed  = {};
@@ -182,8 +186,8 @@ sub update_status {
 		# ===== ASSESS THAT THE ROUND IS RESOLVED
 		$resolved->{ $round } = $self->round_resolved( $round );
 
-		# ===== SORT THE ATHLETES AND DETECT TIES
-		$self->sort_athletes( $round, $placement );
+		# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
+		$self->place_athletes( $round, $placement );
 
 		# ===== PRELIMINARY ROUND FOR 20 OR MORE ATHLETES
 		# Assign all athletes to the preliminary round, if not already assigned
@@ -337,7 +341,7 @@ sub write {
 				my $judges = $form->{ judge };
 				foreach my $j (0 .. $#$judges) {
 					my $score = $judges->[ $j ];
-					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria } if $score->complete();
+					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria };
 				}
 			}
 		}
