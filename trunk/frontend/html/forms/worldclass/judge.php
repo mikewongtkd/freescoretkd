@@ -15,6 +15,7 @@
 		<link href="../../include/css/forms/worldclass/judgeController.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
+		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
 		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>

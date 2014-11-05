@@ -16,13 +16,14 @@ $.widget( "freescore.judgeScore", {
 		var e        = this.options.elements;
 		var o        = this.options;
 		var score    = o.score;
-		if( typeof( score ) === 'undefined' ) {
+		if( defined( score )) {
+			score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';
+			score.presentation = defined( score.presentation ) ?  score.presentation.toFixed( 1 ) : '';
+
+		} else {
 			score = {};
 			score.accuracy     = '';
 			score.presentation = '';
-		} else {
-			score.accuracy     = score.accuracy.toFixed( 1 );
-			score.presentation = score.presentation.toFixed( 1 );
 		}
 
 		// ===== DISPLAY VALID SCORES

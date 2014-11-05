@@ -42,15 +42,21 @@ $.widget( "freescore.scoreboard", {
 		var widget  = this.element;
 		var current = o.current;
 		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
-		if( typeof( current ) === 'undefined' ) { return; }
+		if( ! defined( current )) { return; }
 
 		var round_description;
 		if( current.forms.length > 1 ) { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
 		else                           { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + current.forms[ current.form ]; }
-		e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
-		e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
+		if( ! defined( o.previous ) || (
+			current.athlete.name != o.previous.athlete.name &&
+			current.round != o.previous.round &&
+			current.form != o.previous.form
+		)) {
+			e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
+			e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
+		}
 		
-		if( typeof( current.athlete.scores ) === 'undefined' ) { return; }
+		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 		for( var i = 0; i < k; i++ ) {
 			e.judges[ i ].judgeScore( { score : judge_scores[ i ] } );
@@ -68,7 +74,8 @@ $.widget( "freescore.scoreboard", {
 		var score         = 0;
 		for( var i = 0; i <= current.form; i++ ) {
 			var form = current.athlete.scores[ current.round ][ i ];
-			var mean = form.adjusted_mean;
+			var mean      = form.adjusted_mean;
+			if( ! defined( mean )) { continue; }
 			accuracy     += mean.accuracy;
 			presentation += mean.presentation;
 			score        += mean.accuracy + mean.presentation;
@@ -88,6 +95,7 @@ $.widget( "freescore.scoreboard", {
 			e.score.append( display.accuracy, display.presentation, display.total ); 
 		} 
 		widget .fadeIn( 500 );
+		o.previous = current;
 	},
 	fadeout: function() {
 		this.element.fadeOut( 500 );

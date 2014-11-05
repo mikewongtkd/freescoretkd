@@ -39,6 +39,29 @@ Each subwidget then receives a subset of the division data; just enough for the 
 
 The preference is to have the back-end do the heavy lifting of calculations to reduce client-side effort. This means that UI updates are handled client-side, wheras system information (judge voting, scoring, etc.) must be transmitted via AJAX and the underlying objects updated and re-broadcasted via SSE.
 
+#### Apache Configuration
+On OS X Mavericks, the following lines of `/etc/apache2/httpd.conf` need to be modified.
+
+    LoadModule cgi_module libexec/apache2/mod_cgi.so
+    ...
+    <Directory "/">
+        Options FollowSymLinks
+        AllowOverride none
+        Require all denied
+    </Directory>
+    ...
+    <Directory "/Library/WebServer/CGI-Executables">
+        Options Includes FollowSymLinks ExecCGI
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+        Require all granted
+    </Directory>
+
+The `LoadModule` line is commented-out and must be uncommented to enable CGI.
+
+The first `Directory` directive must be modified to allow symbolic links. The second `Directory` directive must be modified to allow execution of CGI and to follow symbolic links
+
 #### Back-end Architecture
 
 Plain text files with a ramdisk cache. This could be improved by using a filesystem with triggers on write, or some form of `fswatch`. 
@@ -66,3 +89,16 @@ Situations:
   - All athletes participate in the preliminary round
   - The top half from each ring are then merged into a semi-finals round
   
+  
+#### Tablet Configuration
+
+##### Samsung Galaxy 4
+Disable sleep.
+
+    Settings > Apps > Development > Stay Awake
+
+##### Apple iPad
+Disable sleep.
+
+    Settings > General > Autolock > Never
+    

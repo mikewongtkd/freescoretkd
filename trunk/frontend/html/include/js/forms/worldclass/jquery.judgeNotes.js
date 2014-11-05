@@ -39,7 +39,12 @@ $.widget( "freescore.judgeNotes", {
 			var athlete      = athletes[ i ];
 			var score        = {};
 
-			if( typeof( athlete.scores ) === 'undefined' || athlete.scores.length == 0 ) {
+			if( 
+				! defined( athlete.scores ) || 
+				! defined( athlete.scores[ round ] ) || 
+				! defined( athlete.scores[ round ].adjusted_mean ) || 
+				athlete.scores.length == 0 
+			) {
 				score.accuracy     = '';
 				score.presentation = '';
 				score.sum          = '';
