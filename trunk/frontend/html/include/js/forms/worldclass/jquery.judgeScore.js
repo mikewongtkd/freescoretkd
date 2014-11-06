@@ -18,9 +18,11 @@ $.widget( "freescore.judgeScore", {
 		var w        = this.element;
 		var score    = o.score;
 
-		w.css( "top", (o.num - 1) * 92 );
-		if     ( o.num == 1     ) { w.css( "border-radius", "24px 0 0 0" ); e.name.css( "border-radius", "24px 0 0 0" );}
-		else if( o.num == o.max ) { w.css( "border-radius", "0 0 0 24px" ); e.name.css( "border-radius", "0 0 0 24px" );}
+		w.css( "top", (o.num - 1) * 103 );
+		if     ( o.num == 1 ) { w.css( "border-radius", "24px 0 0 0" ); e.name.css( "border-radius", "24px 0 0 0" );}
+		else if( o.num == 7 ) { w.css( "border-radius", "0 0 0 24px" ); e.name.css( "border-radius", "0 0 0 24px" );}
+
+		if( o.num > o.max ) { e.name.addClass( "ignore-judge" ); }
 		
 		if( defined( score )) {
 			score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';

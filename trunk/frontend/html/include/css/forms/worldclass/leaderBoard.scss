@@ -1,16 +1,19 @@
 
 .leaderboard {
+	width: 1000px;
+	height: 720px;
 	font-family: Optima;
 	color: white;
-	overflow: scroll;
+	overflow: hidden;
 
 	.division {
 		width: 1000px;
 		height: 720px;
+		overflow: hidden;
 
 		.standings {
 			position: relative;
-			height: 680px;
+			height: 704px;
 			color: #999;
 			font-size: 24pt;
 			background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
@@ -58,7 +61,7 @@
 		}
 
 		.pending {
-			height: 680px;
+			height: 704px;
 			color: #999;
 			font-size: 24pt;
 			background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
@@ -70,7 +73,7 @@
 			ol { li { b { color: #ccc; font-weight: bold; } } }
 		}
 
-		.one-column   { width: 900px; }
+		.one-column   { width: 928px; }
 		.two-column   { top: 0; width: 400px; h1 { font-size: 28pt; } }
 		.left-column  { position: absolute; top: 0; left: 0; }
 		.right-column { position: absolute; top: 0; left: 500px; }

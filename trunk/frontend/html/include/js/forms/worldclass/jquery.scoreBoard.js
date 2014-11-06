@@ -14,9 +14,10 @@ $.widget( "freescore.scoreboard", {
 		var athlete     = e.athlete     = html.div.clone() .addClass( "athlete" );
 		var round       = e.round       = html.div.clone() .addClass( "round" );
 		var score       = e.score       = html.div.clone() .addClass( "score" );
-		totalScore.append( athlete, score, round );
+		var forms       = e.forms       = html.div.clone() .addClass( "forms" );
+		totalScore.append( athlete, score, round, forms );
 
-		for( var i = 0; i < k; i++ ) {
+		for( var i = 0; i < 7; i++ ) {
 			var j = i + 1;
 			var judge = html.div.clone() .prop( "id", "judge" + j );
 			if     ( k == 3 ) { judge.addClass( "judges3" ); }
@@ -40,6 +41,40 @@ $.widget( "freescore.scoreboard", {
 		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
 		if( ! defined( current )) { return; }
 
+		var show_form_score = function( div ) {
+			var grand_total = 0.0;
+			for( var i = 0; i <= current.form; i++ ) {
+				var name  = current.forms[ i ];
+				var score = current.athlete.scores[ current.round ][ i ];
+				var mean  = score.adjusted_mean;
+				if( ! defined( mean )) { continue; }
+				var total = (mean.accuracy + mean.presentation).toFixed( 2 );
+				grand_total += parseFloat( total );
+				var form = {
+					display : o.html.div.clone() .addClass( "form" ),
+					name    : o.html.div.clone() .addClass( "name" ),
+					score   : o.html.div.clone() .addClass( "score" )
+				};
+				form.name.html( name );
+				form.score.html( total );
+				form.display.append( form.name, form.score );
+				form.display.css( "left", (i * 220) + 20 );
+				div.append( form.display );
+			}
+			var form = {
+				display : o.html.div.clone() .addClass( "form" ),
+				name    : o.html.div.clone() .addClass( "name" ),
+				score   : o.html.div.clone() .addClass( "score" )
+			};
+			form.name.html( "Current Total" );
+			form.score.html( grand_total.toFixed( 2 ));
+			form.display.append( form.name, form.score );
+			form.display.css( "left", 460 );
+			div.append( form.display );
+
+			return div;
+		};
+
 		var round_description;
 		if( current.forms.length > 1 ) { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
 		else                           { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + current.forms[ current.form ]; }
@@ -50,6 +85,7 @@ $.widget( "freescore.scoreboard", {
 		)) {
 			e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
 			e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
+			e.forms   .html( '' ) .fadeOut( 500, function() { show_form_score( e.forms )              .fadeIn(); });
 		}
 		
 		if( ! defined( current.athlete.scores )) { return; }
