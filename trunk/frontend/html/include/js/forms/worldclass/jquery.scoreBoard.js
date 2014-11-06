@@ -79,8 +79,8 @@ $.widget( "freescore.scoreboard", {
 		if( current.forms.length > 1 ) { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
 		else                           { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + current.forms[ current.form ]; }
 		if( ! defined( o.previous ) || (
-			current.athlete.name != o.previous.athlete.name &&
-			current.round != o.previous.round &&
+			current.athlete.name != o.previous.athlete.name ||
+			current.round != o.previous.round ||
 			current.form != o.previous.form
 		)) {
 			e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
