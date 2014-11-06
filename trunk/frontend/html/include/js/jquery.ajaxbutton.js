@@ -6,18 +6,23 @@ $.widget( "freescore.ajaxbutton", {
 		var html     = o.html     = { div : $( "<div />" ), span : $( "<span />" ) };
 		var button   = e.button   = html.div.clone() .addClass( "button" ) .addClass( o.type ) .html( o.label );
 		var progress = e.progress = html.span.clone() .addClass( "candycane" );
+		var sound    = e.sound    = {};
+
+		sound.ok    = new Audio( "/freescore/sounds/upload.ogg" );
+		sound.error = new Audio( "/freescore/sounds/quack.ogg" );
+
 		progress.hide();
 		this.element .append( button );
 
 		o.clickUpdate = function() {
 			return function() {
 				var url = 'http://' + o.server + '/cgi-bin/freescore/' + o.app + '/' + o.tournament + '/' + o.ring + '/' + o.command;
-				console.log( url );
 				$.ajax( {
 					type:    'GET',
 					url:     url,
 					data:    {},
-					success: function( response ) { console.log( response ); progress.fadeOut( 350 ); },
+					success: function( response ) { sound.ok.play(); progress.fadeOut( 350 ); },
+					error:   function( response ) { sound.error.play(); progress.fadeOut( 100 ); },
 					xhr:     function() {
 						var xhr = new window.XMLHttpRequest();
 						xhr.addEventListener( "progress", function( e ) {
