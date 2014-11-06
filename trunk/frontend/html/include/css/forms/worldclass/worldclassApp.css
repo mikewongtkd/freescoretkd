@@ -42,14 +42,14 @@ body {
       position: absolute;
       text-align: center;
       width: 300px;
-      height: 92px; }
+      height: 92px;
+      background: linear-gradient(to top, #45484d 0%, black 100%); }
       .worldclass .scoreboard .judgeScore .judge {
         position: absolute;
         top: 0;
         left: 0;
         padding: 20px 0 0 0;
         color: #666;
-        background-color: black;
         margin: 0 auto 0 auto;
         width: 40px;
         height: 72px; }
@@ -58,7 +58,6 @@ body {
         top: 0;
         left: 40px;
         color: #666;
-        background-color: black;
         margin: 0 auto 0 auto;
         width: 260px;
         height: 92px; }
