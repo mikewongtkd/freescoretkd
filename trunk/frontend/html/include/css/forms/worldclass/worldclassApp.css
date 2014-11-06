@@ -1,65 +1,62 @@
 body {
-  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */ }
 
 .worldclass {
   margin: 0 auto 0 auto;
   width: 1000px; }
   .worldclass .scoreboard {
-    font-family: Optima;
+    position: absolute;
+    font-family: HelveticaNeue-CondensedBold;
     display: none; }
     .worldclass .scoreboard .judgeScores {
-      width: 1000px;
-      height: 180px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 600px;
       margin: 0 0 20px 0; }
-    .worldclass .scoreboard .judges7 {
-      width: 117px; }
-      .worldclass .scoreboard .judges7 .judge {
-        font-size: 18pt; }
-      .worldclass .scoreboard .judges7 .score {
-        font-size: 48pt;
-        line-height: 48pt; }
-    .worldclass .scoreboard .judges5 {
-      width: 176px; }
-      .worldclass .scoreboard .judges5 .judge {
-        font-size: 24pt; }
-      .worldclass .scoreboard .judges5 .score {
-        font-size: 48pt;
-        line-height: 48pt; }
-    .worldclass .scoreboard .judges3 {
-      width: 312px; }
-      .worldclass .scoreboard .judges3 .judge {
-        font-size: 24pt; }
-      .worldclass .scoreboard .judges3 .score {
-        font-size: 64pt;
-        line-height: 108pt; }
-    .worldclass .scoreboard .left {
-      margin: 0 10px 0 0; }
-    .worldclass .scoreboard .middle {
-      margin: 0 10px 0 10px; }
-    .worldclass .scoreboard .right {
-      margin: 0 0 0 10px; }
+    .worldclass .scoreboard .judges7 .judge {
+      font-size: 24pt;
+      line-height: 24pt; }
+    .worldclass .scoreboard .judges7 .score {
+      font-size: 48pt;
+      line-height: 48pt; }
+    .worldclass .scoreboard .judges5 .judge {
+      font-size: 24pt;
+      line-height: 24pt; }
+    .worldclass .scoreboard .judges5 .score {
+      font-size: 48pt;
+      line-height: 48pt; }
+    .worldclass .scoreboard .judges3 .judge {
+      font-size: 36pt;
+      line-height: 36pt; }
+    .worldclass .scoreboard .judges3 .score {
+      font-size: 64pt;
+      line-height: 64pt; }
     .worldclass .scoreboard .judgeScore {
-      display: inline-block;
+      position: absolute;
       text-align: center;
-      height: 172px;
-      font-weight: bold;
-      border-radius: 24px;
-      border: 4px solid white; }
+      width: 240px;
+      height: 128px; }
       .worldclass .scoreboard .judgeScore .judge {
+        position: absolute;
+        top: 0;
+        left: 0;
         color: #666;
-        font-weight: bold;
-        border-radius: 0 0 24px 24px;
         background-color: black;
         margin: 0 auto 0 auto;
-        height: 40px; }
+        width: 40px;
+        height: 128px; }
       .worldclass .scoreboard .judgeScore .score {
+        position: absolute;
+        top: 0;
+        left: 40px;
         color: #666;
-        font-weight: bold;
-        border-radius: 24px 24px 0 0;
         background-color: black;
-        margin: auto;
-        height: 132px; }
+        margin: 0 auto 0 auto;
+        width: 200px;
+        height: 128px; }
         .worldclass .scoreboard .judgeScore .score .accuracy {
           color: #f99; }
         .worldclass .scoreboard .judgeScore .score .presentation {
@@ -69,14 +66,17 @@ body {
     .worldclass .scoreboard .ignore .score {
       color: #333; }
     .worldclass .scoreboard .totalScores {
+      position: absolute;
+      top: 0;
+      left: 300px;
       text-align: center;
-      height: 532px;
-      width: 992px;
+      height: 800px;
+      width: 792px;
       font-weight: bold;
       color: white;
       border-radius: 24px;
       border: 4px solid white;
-      background: linear-gradient(to top, #45484d 0%, black 100%); }
+      background: linear-gradient(to top, #45484d 0%, #000000 100%); }
       .worldclass .scoreboard .totalScores .red, .worldclass .scoreboard .totalScores .hong {
         color: #f66; }
       .worldclass .scoreboard .totalScores .blue, .worldclass .scoreboard .totalScores .chung {
@@ -93,7 +93,7 @@ body {
         font-size: 24pt;
         line-height: 40pt; }
       .worldclass .scoreboard .totalScores .score {
-        position: relative;
+        position: absolute;
         height: 400px;
         width: 992px; }
         .worldclass .scoreboard .totalScores .score .accuracy {
@@ -138,7 +138,7 @@ body {
         height: 680px;
         color: #999;
         font-size: 24pt;
-        background: linear-gradient(to top, #45484d 0%, black 100%);
+        background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
         border-radius: 24px;
@@ -180,7 +180,7 @@ body {
         height: 680px;
         color: #999;
         font-size: 24pt;
-        background: linear-gradient(to top, #45484d 0%, black 100%);
+        background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
         border-radius: 24px;
@@ -232,29 +232,24 @@ body {
   0% {
     -webkit-transform: translateY(-600px);
     opacity: 0.25; }
-
   50% {
     -webkit-transform: translateY(0px); }
-
   70% {
     -webkit-transform: translateY(-50px); }
-
   100% {
     -webkit-transform: translateY(0px);
     opacity: 1; } }
-
 @-webkit-keyframes leaveUpBounce {
   0% {
     -webkit-transform: translateY(0px);
     opacity: 1; }
-
   10% {
     -webkit-transform: translateY(50px);
     opacity: 1; }
-
   25% {
     -webkit-transform: translateY(0px); }
-
   100% {
     -webkit-transform: translateY(-900px);
     opacity: 0; } }
+
+/*# sourceMappingURL=worldclassApp.css.map */

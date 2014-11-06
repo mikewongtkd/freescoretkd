@@ -8,14 +8,17 @@ $.widget( "freescore.judgeScore", {
 		var name    = e.name  = html.div.clone() .addClass( "judge" );
 		var view    = e.view  = html.div.clone();
 		score.append( view );
-		name .html( "JUDGE " + o.num );
+		name .html( o.num );
 		this.element .addClass( "judgeScore" );
-		this.element .append( score, name );
+		this.element .append( name, score );
 	},
 	_init: function( ) {
 		var e        = this.options.elements;
 		var o        = this.options;
+		var w        = this.element;
 		var score    = o.score;
+
+		w.css( "top", (o.num - 1) * 128 );
 		if( defined( score )) {
 			score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';
 			score.presentation = defined( score.presentation ) ?  score.presentation.toFixed( 1 ) : '';

@@ -1,60 +1,59 @@
 
 .scoreboard {
-	font-family: Optima;
+	position: absolute;
+	font-family: HelveticaNeue-CondensedBold;
 	display: none;
 
 	.judgeScores {
-		width: 1000px;
-		height: 180px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 240px;
+		height: 600px;
 		margin: 0 0 20px 0;
 	}
 
 	.judges7 { 
-		width: 117px; 
-		.judge { font-size: 18pt; }
+		.judge { font-size: 24pt; line-height: 24pt; }
 		.score { font-size: 48pt; line-height: 48pt; }
 	}
 
 	.judges5 { 
-		width: 176px; 
-		.judge { font-size: 24pt; }
+		.judge { font-size: 24pt; line-height: 24pt; }
 		.score { font-size: 48pt; line-height: 48pt; }
 	}
 
 	.judges3 { 
-		width: 312px; 
-		.judge { font-size: 24pt; }
-		.score { font-size: 64pt; line-height: 108pt; }
+		.judge { font-size: 36pt; line-height: 36pt; }
+		.score { font-size: 64pt; line-height: 64pt; }
 	}
 
-	.left    { margin: 0 10px 0 0; }
-	.middle  { margin: 0 10px 0 10px; }
-	.right   { margin: 0 0 0 10px; }
-
 	.judgeScore {
-		display: inline-block;
+		position: absolute;
 		text-align: center;
-		height: 172px;
-		font-weight: bold;
-		border-radius: 24px;
-		border: 4px solid white;
+		width: 240px;
+		height: 128px;
 
 		.judge {
+			position: absolute;
+			top: 0;
+			left: 0;
 			color: #666;
-			font-weight: bold;
-			border-radius: 0 0 24px 24px;
 			background-color: black;
 			margin: 0 auto 0 auto;
-			height: 40px;
+			width: 40px;
+			height: 128px;
 		}
 
 		.score {
+			position: absolute;
+			top: 0;
+			left: 40px;
 			color: #666;
-			font-weight: bold;
-			border-radius: 24px 24px 0 0;
 			background-color: black;
-			margin: auto;
-			height: 132px;
+			margin: 0 auto 0 auto;
+			width: 200px;
+			height: 128px;
 			.accuracy     { color: #f99; }
 			.presentation { color: #99f; }
 		}
@@ -66,9 +65,12 @@
 	}
 
 	.totalScores {
+		position: absolute;
+		top: 0;
+		left: 300px;
 		text-align: center;
-		height: 532px;
-		width: 992px;
+		height: 800px;
+		width: 792px;
 		font-weight: bold;
 		color: white;
 		border-radius: 24px;
@@ -94,7 +96,7 @@
 		}
 
 		.score {
-			position: relative;
+			position: absolute;
 			height: 400px;
 			width: 992px;
 

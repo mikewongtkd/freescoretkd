@@ -14,25 +14,21 @@ $.widget( "freescore.scoreboard", {
 		var athlete     = e.athlete     = html.div.clone() .addClass( "athlete" );
 		var round       = e.round       = html.div.clone() .addClass( "round" );
 		var score       = e.score       = html.div.clone() .addClass( "score" );
-		totalScore.append( score, athlete, round );
+		totalScore.append( athlete, score, round );
 
 		for( var i = 0; i < k; i++ ) {
 			var j = i + 1;
 			var judge = html.div.clone() .prop( "id", "judge" + j );
-			if(      k == 3   ) { judge.addClass( "judges3" ); }
-			else if( k == 5   ) { judge.addClass( "judges5" ); }
-			else if( k == 7   ) { judge.addClass( "judges7" ); }
-			if     ( i == 0   ) { judge.addClass( "left" ); }
-			else if( i == k-1 ) { judge.addClass( "right" ); }
-			else                { judge.addClass( "middle" ); }
+			if     ( k == 3 ) { judge.addClass( "judges3" ); }
+			else if( k == 5 ) { judge.addClass( "judges5" ); }
+			else if( k == 7 ) { judge.addClass( "judges7" ); }
 			judge.judgeScore( { num: j } ); // Instantiate a new Judge Score widget for each judge
 			judges[ i ] = judge;
 			judgeScores.append( judge );
 		}
 		
 		this.element .addClass( "scoreboard" );
-		this.element .append( judgeScores );
-		this.element .append( totalScore );
+		this.element .append( judgeScores, totalScore );
 	},
 
 	_init: function() {

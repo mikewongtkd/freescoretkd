@@ -1,58 +1,55 @@
 .scoreboard {
-  font-family: Optima;
+  position: absolute;
+  font-family: HelveticaNeue-CondensedBold;
   display: none; }
   .scoreboard .judgeScores {
-    width: 1000px;
-    height: 180px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 600px;
     margin: 0 0 20px 0; }
-  .scoreboard .judges7 {
-    width: 117px; }
-    .scoreboard .judges7 .judge {
-      font-size: 18pt; }
-    .scoreboard .judges7 .score {
-      font-size: 48pt;
-      line-height: 48pt; }
-  .scoreboard .judges5 {
-    width: 176px; }
-    .scoreboard .judges5 .judge {
-      font-size: 24pt; }
-    .scoreboard .judges5 .score {
-      font-size: 48pt;
-      line-height: 48pt; }
-  .scoreboard .judges3 {
-    width: 312px; }
-    .scoreboard .judges3 .judge {
-      font-size: 24pt; }
-    .scoreboard .judges3 .score {
-      font-size: 64pt;
-      line-height: 108pt; }
-  .scoreboard .left {
-    margin: 0 10px 0 0; }
-  .scoreboard .middle {
-    margin: 0 10px 0 10px; }
-  .scoreboard .right {
-    margin: 0 0 0 10px; }
+  .scoreboard .judges7 .judge {
+    font-size: 24pt;
+    line-height: 24pt; }
+  .scoreboard .judges7 .score {
+    font-size: 48pt;
+    line-height: 48pt; }
+  .scoreboard .judges5 .judge {
+    font-size: 24pt;
+    line-height: 24pt; }
+  .scoreboard .judges5 .score {
+    font-size: 48pt;
+    line-height: 48pt; }
+  .scoreboard .judges3 .judge {
+    font-size: 36pt;
+    line-height: 36pt; }
+  .scoreboard .judges3 .score {
+    font-size: 64pt;
+    line-height: 64pt; }
   .scoreboard .judgeScore {
-    display: inline-block;
+    position: absolute;
     text-align: center;
-    height: 172px;
-    font-weight: bold;
-    border-radius: 24px;
-    border: 4px solid white; }
+    width: 240px;
+    height: 128px; }
     .scoreboard .judgeScore .judge {
+      position: absolute;
+      top: 0;
+      left: 0;
       color: #666;
-      font-weight: bold;
-      border-radius: 0 0 24px 24px;
       background-color: black;
       margin: 0 auto 0 auto;
-      height: 40px; }
+      width: 40px;
+      height: 128px; }
     .scoreboard .judgeScore .score {
+      position: absolute;
+      top: 0;
+      left: 40px;
       color: #666;
-      font-weight: bold;
-      border-radius: 24px 24px 0 0;
       background-color: black;
-      margin: auto;
-      height: 132px; }
+      margin: 0 auto 0 auto;
+      width: 200px;
+      height: 128px; }
       .scoreboard .judgeScore .score .accuracy {
         color: #f99; }
       .scoreboard .judgeScore .score .presentation {
@@ -62,14 +59,17 @@
   .scoreboard .ignore .score {
     color: #333; }
   .scoreboard .totalScores {
+    position: absolute;
+    top: 0;
+    left: 300px;
     text-align: center;
-    height: 532px;
-    width: 992px;
+    height: 800px;
+    width: 792px;
     font-weight: bold;
     color: white;
     border-radius: 24px;
     border: 4px solid white;
-    background: linear-gradient(to top, #45484d 0%, black 100%); }
+    background: linear-gradient(to top, #45484d 0%, #000000 100%); }
     .scoreboard .totalScores .red, .scoreboard .totalScores .hong {
       color: #f66; }
     .scoreboard .totalScores .blue, .scoreboard .totalScores .chung {
@@ -86,7 +86,7 @@
       font-size: 24pt;
       line-height: 40pt; }
     .scoreboard .totalScores .score {
-      position: relative;
+      position: absolute;
       height: 400px;
       width: 992px; }
       .scoreboard .totalScores .score .accuracy {
@@ -119,3 +119,5 @@
         height: 320px;
         color: white;
         font-size: 300pt; }
+
+/*# sourceMappingURL=scoreBoard.css.map */
