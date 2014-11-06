@@ -22,7 +22,7 @@ $.widget( "freescore.scoreboard", {
 			if     ( k == 3 ) { judge.addClass( "judges3" ); }
 			else if( k == 5 ) { judge.addClass( "judges5" ); }
 			else if( k == 7 ) { judge.addClass( "judges7" ); }
-			judge.judgeScore( { num: j } ); // Instantiate a new Judge Score widget for each judge
+			judge.judgeScore( { num: j, max: k } ); // Instantiate a new Judge Score widget for each judge
 			judges[ i ] = judge;
 			judgeScores.append( judge );
 		}
@@ -72,9 +72,9 @@ $.widget( "freescore.scoreboard", {
 			var form = current.athlete.scores[ current.round ][ i ];
 			var mean      = form.adjusted_mean;
 			if( ! defined( mean )) { continue; }
-			accuracy     += mean.accuracy;
-			presentation += mean.presentation;
-			score        += mean.accuracy + mean.presentation;
+			accuracy     = mean.accuracy;
+			presentation = mean.presentation;
+			score        = mean.accuracy + mean.presentation;
 		}
 		if( accuracy >= 0     ) { accuracy     = accuracy.toFixed( 2 );     } else { accuracy     = ''; }
 		if( presentation >= 0 ) { presentation = presentation.toFixed( 2 ); } else { presentation = ''; }

@@ -3,13 +3,17 @@
 	position: absolute;
 	font-family: HelveticaNeue-CondensedBold;
 	display: none;
+	width: 1000px;
+	height: 720px;
+	border-radius: 24px;
+	border: 4px solid white;
 
 	.judgeScores {
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 240px;
-		height: 600px;
+		width: 300px;
+		height: 720px;
 		margin: 0 0 20px 0;
 	}
 
@@ -31,18 +35,19 @@
 	.judgeScore {
 		position: absolute;
 		text-align: center;
-		width: 240px;
-		height: 128px;
+		width: 300px;
+		height: 92px;
 
 		.judge {
 			position: absolute;
 			top: 0;
 			left: 0;
+			padding: 20px 0 0 0;
 			color: #666;
 			background-color: black;
 			margin: 0 auto 0 auto;
 			width: 40px;
-			height: 128px;
+			height: 72px;
 		}
 
 		.score {
@@ -52,8 +57,8 @@
 			color: #666;
 			background-color: black;
 			margin: 0 auto 0 auto;
-			width: 200px;
-			height: 128px;
+			width: 260px;
+			height: 92px;
 			.accuracy     { color: #f99; }
 			.presentation { color: #99f; }
 		}
@@ -69,13 +74,12 @@
 		top: 0;
 		left: 300px;
 		text-align: center;
-		height: 800px;
-		width: 792px;
+		height: 720px;
+		width: 700px;
 		font-weight: bold;
 		color: white;
-		border-radius: 24px;
-		border: 4px solid white;
 		background: linear-gradient(to top, #45484d 0%,#000000 100%);
+		border-radius: 0 24px 24px 0;
 
 		.red,  .hong  { color: #f66; }
 		.blue, .chung { color: #66f; }
@@ -88,22 +92,28 @@
 		}
 
 		.round {
+			position: absolute;
+			top: 540px;
+			left: 0;
 			margin: 0;
 			color: #999;
 			height: 40px;
 			font-size: 24pt;
 			line-height: 40pt;
+			width: 700px;
 		}
 
 		.score {
 			position: absolute;
+			top: 80px;
+			left: 0;
 			height: 400px;
 			width: 992px;
 
 			.accuracy     { 
 				position: absolute; 
-				top: 0;
-				left: 186px;
+				top: 18px;
+				left: 52px;
 				width: 248px;
 				height: 80px;
 				color: #600; 
@@ -113,8 +123,8 @@
 			}
 			.presentation { 
 				position: absolute; 
-				top: 0;
-				left: 558px;
+				top: 18px;
+				left: 402px;
 				width: 248px;
 				height: 80px;
 				color: #006; 
@@ -124,11 +134,11 @@
 			}
 			.total {
 				position: absolute;
-				top: 12px;
+				top: 24px;
 				left: 0;
-				width: 992px;
+				width: 700px;
 				height: 320px;
-				color: white;
+				color: lime;
 				font-size: 300pt;
 			}
 		}

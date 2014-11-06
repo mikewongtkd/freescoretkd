@@ -1,5 +1,5 @@
 $.widget( "freescore.judgeScore", {
-	options: { autoShow: true, num: 0 },
+	options: { autoShow: true, num: 0, max: 3 },
 	_create: function() {
 		var o       = this.options;
 		var e       = this.options.elements = {};
@@ -18,7 +18,10 @@ $.widget( "freescore.judgeScore", {
 		var w        = this.element;
 		var score    = o.score;
 
-		w.css( "top", (o.num - 1) * 128 );
+		w.css( "top", (o.num - 1) * 92 );
+		if     ( o.num == 1     ) { w.css( "border-radius", "24px 0 0 0" ); e.name.css( "border-radius", "24px 0 0 0" );}
+		else if( o.num == o.max ) { w.css( "border-radius", "0 0 0 24px" ); e.name.css( "border-radius", "0 0 0 24px" );}
+		
 		if( defined( score )) {
 			score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';
 			score.presentation = defined( score.presentation ) ?  score.presentation.toFixed( 1 ) : '';
