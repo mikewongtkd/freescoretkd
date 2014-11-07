@@ -52,38 +52,43 @@ $.widget( "freescore.leaderboard", {
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
 		// This should be done server-side, as well as the creation of additional tiebreaker rounds
-		var compare = function( athlete_a, athlete_b, round ) {
-			return function( athlete_a, athlete_b ) {
-				var a       = athlete_a.score[ round ];
-				var b       = athlete_b.score[ round ];
-				var tie     = 0;
-				var compare = {
-					mean_score    : 0.0,
-					presentation  : 0.0,
-					total_score   : 0.0,
-				};
-
-				for( var i = 0; i < a.length; i++ ) {
-					var form_a = a[ i ];
-					var form_b = b[ i ];
-					compare.mean_score   += (form_a.adjusted_mean.accuracy + form_a.adjusted_mean.presentation) - (form_b.adjusted_mean.accuracy + form_b.adjusted_mean.presentation);
-					compare.presentation += form_a.adjusted_mean.presentation - form_b.adjusted_mean.presentation;
-					compare.total_score  += (form_a.complete_mean.accuracy + form_a.complete_mean.presentation) - (form_b.complete_mean.accuracy + form_b.complete_mean.presentation);
-				}
-				if( compare.mean_score   != tie ) { return compare.mean_score;   }
-				if( compare.presentation != tie ) { return compare.presentation; }
-				if( compare.total_score  != tie ) { return compare.total_score;  }
+		var compare = function( athlete_a, athlete_b ) {
+			var a       = athlete_a.scores[ o.division.round ];
+			var b       = athlete_b.scores[ o.division.round ];
+			var tie     = 0;
+			var compare = {
+				mean_score    : 0.0,
+				presentation  : 0.0,
+				total_score   : 0.0,
 			};
-		};
 
-		standings.athletes.sort( function( a, b ) { compare( a, b, o.division.round ) } );
+			for( var i = 0; i < a.length; i++ ) {
+				var form_a = a[ i ];
+				var form_b = b[ i ];
+				compare.mean_score   += (form_b.adjusted_mean.accuracy + form_b.adjusted_mean.presentation) - (form_a.adjusted_mean.accuracy + form_a.adjusted_mean.presentation);
+				compare.presentation += form_b.adjusted_mean.presentation - form_a.adjusted_mean.presentation;
+				compare.total_score  += (form_b.complete_mean.accuracy + form_b.complete_mean.presentation) - (form_a.complete_mean.accuracy + form_a.complete_mean.presentation);
+			}
+			if( compare.mean_score   != tie ) { return compare.mean_score;   }
+			if( compare.presentation != tie ) { return compare.presentation; }
+			if( compare.total_score  != tie ) { return compare.total_score;  }
+		};
+		var calculate_total = function( scores ) {
+			var total = scores.map( function( form ) { 
+				if( ! form.complete ) { return 0.0; } 
+				else                  { return (form.adjusted_mean.accuracy + form.adjusted_mean.presentation); }
+			} ).reduce( function( previous, current ) { return previous + current; } );
+			return total.toFixed( 2 );
+		}
+
+		standings.athletes = standings.athletes.sort( compare );
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k     = standings.athletes.length < 4 ? standings.athletes.length : 4;
 		for( var i = 0; i < k; i++ ) {
 			var item = html.li.clone();
 			var athlete    = standings.athletes[ i ];
-			var total      = athlete.scores[ o.division.round ].map( function( form ) { if( ! form.complete ) { return 0; } else { return (form.adjusted_mean.accuracy + form.adjusted_mean.presentation); }} ).reduce( function( previous, current ) { return previous + current; } );
+			var total      = calculate_total( athlete.scores[ o.division.round ] );
 			var place      = html.div.clone() .addClass( "athlete" );
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
