@@ -120,7 +120,7 @@
 				color: #600; 
 				font-size: 96pt;
 				line-height: 96pt;
-				.mean { color: #f99; }
+				color: #f99;
 			}
 			.presentation { 
 				position: absolute; 
@@ -131,14 +131,14 @@
 				color: #006; 
 				font-size: 96pt;
 				line-height: 96pt;
-				.mean { color: #99f; }
+				color: #99f;
 			}
 			.total {
 				position: absolute;
-				top: 24px;
+				top: 54px;
 				left: 0;
 				width: 700px;
-				height: 320px;
+				height: 290px;
 				color: lime;
 				font-size: 300pt;
 			}
@@ -158,11 +158,11 @@
 				width: 192px;
 				height: 72px;
 				background: linear-gradient(to top, #45484d 0%,#000000 100%);
-				border: 4px solid #ccc;
+				border: 4px solid #c96;
 				border-radius: 24px;
 
 				.name {
-					color: #999;
+					color: #996;
 					font-size: 14pt;
 					position: absolute;
 					top: 0;

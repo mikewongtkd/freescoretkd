@@ -118,9 +118,8 @@ body {
           height: 80px;
           color: #600;
           font-size: 96pt;
-          line-height: 96pt; }
-          .worldclass .scoreboard .totalScores .score .accuracy .mean {
-            color: #f99; }
+          line-height: 96pt;
+          color: #f99; }
         .worldclass .scoreboard .totalScores .score .presentation {
           position: absolute;
           top: 18px;
@@ -129,15 +128,14 @@ body {
           height: 80px;
           color: #006;
           font-size: 96pt;
-          line-height: 96pt; }
-          .worldclass .scoreboard .totalScores .score .presentation .mean {
-            color: #99f; }
+          line-height: 96pt;
+          color: #99f; }
         .worldclass .scoreboard .totalScores .score .total {
           position: absolute;
-          top: 24px;
+          top: 54px;
           left: 0;
           width: 700px;
-          height: 320px;
+          height: 290px;
           color: lime;
           font-size: 300pt; }
       .worldclass .scoreboard .totalScores .forms {
@@ -153,10 +151,10 @@ body {
           width: 192px;
           height: 72px;
           background: linear-gradient(to top, #45484d 0%, #000000 100%);
-          border: 4px solid #ccc;
+          border: 4px solid #c96;
           border-radius: 24px; }
           .worldclass .scoreboard .totalScores .forms .form .name {
-            color: #999;
+            color: #996;
             font-size: 14pt;
             position: absolute;
             top: 0;

@@ -7,15 +7,20 @@ $.widget( "freescore.scoreboard", {
 		var e = this.options.elements = {};
 		var k = o.judges;
 
-		var html        = o.html = { div : $( "<div />" ), span : $( "<span />" ) };
-		var judgeScores = e.judgeScores = html.div.clone() .addClass( "judgeScores" );
-		var judges      = e.judges      = new Array();
-		var totalScore  = e.totalScore  = html.div.clone() .addClass( "totalScores" );
-		var athlete     = e.athlete     = html.div.clone() .addClass( "athlete" );
-		var round       = e.round       = html.div.clone() .addClass( "round" );
-		var score       = e.score       = html.div.clone() .addClass( "score" );
-		var forms       = e.forms       = html.div.clone() .addClass( "forms" );
+		var html         = o.html = { div : $( "<div />" ), span : $( "<span />" ) };
+		var judgeScores  = e.judgeScores  = html.div.clone() .addClass( "judgeScores" );
+		var judges       = e.judges       = new Array();
+		var totalScore   = e.totalScore   = html.div.clone() .addClass( "totalScores" );
+		var athlete      = e.athlete      = html.div.clone() .addClass( "athlete" );
+		var round        = e.round        = html.div.clone() .addClass( "round" );
+		var score        = e.score        = html.div.clone() .addClass( "score" );
+		var forms        = e.forms        = html.div.clone() .addClass( "forms" );
+		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
+		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
+		var total        = e.total        = html.div.clone() .addClass( "total" );
+
 		totalScore.append( athlete, score, round, forms );
+		score.append( accuracy, presentation, total );
 
 		for( var i = 0; i < 7; i++ ) {
 			var j = i + 1;
@@ -41,7 +46,10 @@ $.widget( "freescore.scoreboard", {
 		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
 		if( ! defined( current )) { return; }
 
+		// ============================================================
 		var show_form_score = function( div ) {
+		// ============================================================
+			div.empty();
 			var grand_total = 0.0;
 			for( var i = 0; i <= current.form; i++ ) {
 				var name  = current.forms[ i ];
@@ -75,19 +83,44 @@ $.widget( "freescore.scoreboard", {
 			return div;
 		};
 
+		// ============================================================
+		var show_score = function() {
+		// ============================================================
+			var accuracy      = 0;
+			var presentation  = 0;
+			var score         = 0;
+
+			var form = current.athlete.scores[ current.round ][ current.form ];
+			var mean      = form.adjusted_mean;
+			if( defined( mean )) { 
+				accuracy     = mean.accuracy;
+				presentation = mean.presentation;
+				score        = mean.accuracy + mean.presentation;
+
+				accuracy     = accuracy     >= 0 ? accuracy     .toFixed( 2 ) : '';
+				presentation = presentation >= 0 ? presentation .toFixed( 2 ) : '';
+				score        = score        >= 0 ? score        .toFixed( 2 ) : '';
+
+				e.accuracy     .html( accuracy );
+				e.presentation .html( presentation );
+				e.total        .html( score );
+
+				e.score.fadeIn( 500 );
+
+			} else {
+				e.score.fadeOut( 500, function() { 
+					e.accuracy     .html( '' );
+					e.presentation .html( '' );
+					e.total        .html( '' );
+				});
+			}
+			show_form_score( e.forms );
+		};
+
 		var round_description;
 		if( current.forms.length > 1 ) { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + ordinal[ current.form ] + ' form &ndash; ' + current.forms[ current.form ]; } 
 		else                           { round_description = current.name.toUpperCase() + ' &ndash; ' + current.round + ' round &ndash; ' + current.forms[ current.form ]; }
-		if( ! defined( o.previous ) || (
-			current.athlete.name != o.previous.athlete.name ||
-			current.round != o.previous.round ||
-			current.form != o.previous.form
-		)) {
-			e.athlete .html( '' ) .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
-			e.round   .html( '' ) .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
-			e.forms   .html( '' ) .fadeOut( 500, function() { show_form_score( e.forms )              .fadeIn(); });
-		}
-		
+
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 		for( var i = 0; i < k; i++ ) {
@@ -101,31 +134,21 @@ $.widget( "freescore.scoreboard", {
 			e.athlete .removeClass( "hong" ); 
 			e.athlete .addClass( "chung" ); 
 		}
-		var accuracy      = 0;
-		var presentation  = 0;
-		var score         = 0;
-		for( var i = 0; i <= current.form; i++ ) {
-			var form = current.athlete.scores[ current.round ][ i ];
-			var mean      = form.adjusted_mean;
-			if( ! defined( mean )) { continue; }
-			accuracy     = mean.accuracy;
-			presentation = mean.presentation;
-			score        = mean.accuracy + mean.presentation;
+			
+		// ===== CHANGE OF PLAYER
+		if( ! defined( o.previous ) || (
+			current.athlete.name != o.previous.athlete.name ||
+			current.round != o.previous.round ||
+			current.form != o.previous.form
+		)) {
+			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
+			e.round   .empty() .fadeOut( 500, function() { e.round   .html( round_description )    .fadeIn(); });
+			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )              .fadeIn(); });
 		}
-		if( accuracy >= 0     ) { accuracy     = accuracy.toFixed( 2 );     } else { accuracy     = ''; }
-		if( presentation >= 0 ) { presentation = presentation.toFixed( 2 ); } else { presentation = ''; }
-		if( score >= 0        ) { score        = score.toFixed( 2 );        } else { score        = ''; }
 
-		var display       = { 
-			accuracy:     o.html.div.clone() .addClass( "accuracy" )     .append( o.html.span.clone() .addClass( "mean" )  .html( accuracy )),
-			presentation: o.html.div.clone() .addClass( "presentation" ) .append( o.html.span.clone() .addClass( "mean" )  .html( presentation )),
-			total:        o.html.div.clone() .addClass( "total" )        .append( o.html.span.clone() .addClass( "total" ) .html( score )),
-		};
+		// ===== CHANGE OF SCORE
+		show_score();
 
-		e.score.empty();
-		if( true ) { 
-			e.score.append( display.accuracy, display.presentation, display.total ); 
-		} 
 		widget .fadeIn( 500 );
 		o.previous = current;
 	},

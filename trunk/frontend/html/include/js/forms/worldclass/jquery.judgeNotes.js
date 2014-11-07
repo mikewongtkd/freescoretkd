@@ -42,8 +42,7 @@ $.widget( "freescore.judgeNotes", {
 			if( 
 				! defined( athlete.scores ) || 
 				! defined( athlete.scores[ round ] ) || 
-				! defined( athlete.scores[ round ].adjusted_mean ) || 
-				athlete.scores.length == 0 
+				athlete.scores[ round ].length == 0 
 			) {
 				score.accuracy     = '';
 				score.presentation = '';
@@ -53,7 +52,7 @@ $.widget( "freescore.judgeNotes", {
 				var forms = athlete.scores[ round ];
 				score.accuracy     = forms.map( function( form ) { return form.adjusted_mean.accuracy.toFixed( 1 );        } ).join( '/' );
 				score.presentation = forms.map( function( form ) { return form.adjusted_mean.presentation.toFixed( 1 );    } ).join( '/' );
-				score.sum          = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 1 );
+				score.sum          = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}
