@@ -1,7 +1,7 @@
 .judgeNotes {
   border: 4px solid white;
   border-radius: 24px;
-  background: linear-gradient(to top, #45484d 0%, black 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
   color: #999;
   font-size: 18pt;
   width: 572px;
@@ -31,13 +31,27 @@
         width: 5%; }
       .judgeNotes .view table .name {
         width: 50%; }
-      .judgeNotes .view table .accuracy {
+      .judgeNotes .view table .form1 {
         width: 15%; }
-      .judgeNotes .view table .presentation {
+        .judgeNotes .view table .form1 .accuracy {
+          color: #f99; }
+        .judgeNotes .view table .form1 .presentation {
+          color: #99f; }
+      .judgeNotes .view table .form2 {
         width: 15%; }
+        .judgeNotes .view table .form2 .accuracy {
+          color: #f99; }
+        .judgeNotes .view table .form2 .presentation {
+          color: #99f; }
       .judgeNotes .view table .sum {
         width: 15%; }
       .judgeNotes .view table .current {
         /* background: #09f; */
         background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
         color: white; }
+        .judgeNotes .view table .current .accuracy {
+          color: #fcc; }
+        .judgeNotes .view table .current .presentation {
+          color: #ccf; }
+
+/*# sourceMappingURL=judgeNotes.css.map */

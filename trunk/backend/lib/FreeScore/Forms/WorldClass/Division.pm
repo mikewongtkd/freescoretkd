@@ -435,4 +435,22 @@ sub _parse_forms {
 	return { @rounds }; 
 }
 
+# ============================================================
+sub _parse_round {
+# ============================================================
+	my $round  = shift;
+	my @text   = ();
+	my $order  = 0;
+	my @tokens = split //, lc( $round );
+	my $ordinal = { 1 => '1st', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th', 6 => '6th', 7 => '7th', 8 => '8th', 9 => 'Top Half' };
+	while (@tokens) {
+		local $_ = shift @tokens;
+		if    ( /p/ ) { push @text, 'Preliminary'; }
+		elsif ( /s/ ) { push @text, 'Semi-Final';  }
+		elsif ( /f/ ) { push @text, 'Final';       }
+		elsif ( /t/ ) { my $place = shift @tokens; push @text, "$ordinal->{ $place } Place"; push @text, 'Tie Breaker'; }
+	}
+	return join " ", @text;
+}
+
 1;

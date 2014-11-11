@@ -36,14 +36,16 @@
 
 			.order        { width:  5%; }
 			.name         { width: 50%; }
-			.accuracy     { width: 15%; }
-			.presentation { width: 15%; }
+			.form1        { width: 15%; .accuracy { color: #f99; } .presentation { color: #99f; }}
+			.form2        { width: 15%; .accuracy { color: #f99; } .presentation { color: #99f; }}
 			.sum          { width: 15%; }
 
 			.current {
 				/* background: #09f; */
 				background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
 				color: white;
+				.accuracy     { color: #fcc; }
+				.presentation { color: #ccf; }
 			}
 		}
 	}

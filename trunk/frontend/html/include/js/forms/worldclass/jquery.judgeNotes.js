@@ -4,7 +4,7 @@ $.widget( "freescore.judgeNotes", {
 		var widget  = this.element;
 		var o       = this.options;
 		var e       = this.options.elements = {};
-		var html    = e.html = { div : $( "<div />" ), a : $( "<a />" ), table : $( "<table />" ), tr : $( "<tr />" ), th : $( "<th />" ), td : $( "<td />" ) };
+		var html    = e.html = { div : $( "<div />" ), span : $( "<span />" ), a : $( "<a />" ), table : $( "<table />" ), tr : $( "<tr />" ), th : $( "<th />" ), td : $( "<td />" ) };
 		var view    = e.view = html.div.clone() .addClass( "view" );
 
 		widget.addClass( 'judgeNotes' );
@@ -28,11 +28,11 @@ $.widget( "freescore.judgeNotes", {
 		view.empty();
 		var table = h.table.clone();
 		table.append( h.tr.clone() 
-			.append( h.th.clone() .addClass( "order" )        .html( "#" ))
-			.append( h.th.clone() .addClass( "name" )         .html( "Name" ))
-			.append( h.th.clone() .addClass( "accuracy" )     .html( "Acc." ))
-			.append( h.th.clone() .addClass( "presentation" ) .html( "Pres." ))
-			.append( h.th.clone() .addClass( "sum" )          .html( "Sum" )));
+			.append( h.th.clone() .addClass( "order" ) .html( "#" ))
+			.append( h.th.clone() .addClass( "name" )  .html( "Name" ))
+			.append( h.th.clone() .addClass( "form1" ) .html( "Form 1" ))
+			.append( h.th.clone() .addClass( "form2" ) .html( "Form 2" ))
+			.append( h.th.clone() .addClass( "sum" )   .html( "Sum" )));
 
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr           = h.tr.clone();
@@ -44,25 +44,33 @@ $.widget( "freescore.judgeNotes", {
 				! defined( athlete.scores[ round ] ) || 
 				athlete.scores[ round ].length == 0 
 			) {
-				score.accuracy     = '';
-				score.presentation = '';
-				score.sum          = '';
+				score.form1 = '';
+				score.form2 = '';
+				score.sum   = '';
 
 			} else {
+				var summarize = function( form ) {
+					var score = form.adjusted_mean;
+					return [
+						e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy.toFixed( 1 ) ), '/',
+						e.html.span.clone() .addClass( "presentation" ) .html( score.presentation.toFixed( 1 ) ) ];
+				}
 				var forms = athlete.scores[ round ];
-				score.accuracy     = forms.map( function( form ) { return form.adjusted_mean.accuracy.toFixed( 1 );        } ).join( '/' );
-				score.presentation = forms.map( function( form ) { return form.adjusted_mean.presentation.toFixed( 1 );    } ).join( '/' );
-				score.sum          = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
+				score.form1 = summarize( forms[ 0 ] );
+				if( defined( forms[ 1 ] )) {
+					score.form2 = summarize( forms[ 1 ] );
+				}
+				score.sum   = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}
 
 			tr
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "order" )        .html( i + 1 + "." ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "name"  )        .html( athlete.name ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "accuracy" )     .html( score.accuracy ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "presentation" ) .html( score.presentation ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "sum" )          .html( score.sum ));
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "order" ) .html( i + 1 + "." ))
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "name"  ) .html( athlete.name ))
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "form1" ) .html( score.form1 ))
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "form2" ) .html( score.form2 ))
+				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "sum" )   .html( score.sum ));
 			table.append( tr );
 		}
 		view.append( table );
