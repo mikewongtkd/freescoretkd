@@ -71,6 +71,8 @@ sub calculate_means {
 			$adjusted->{ accuracy }     = sprintf( "%.2f", $adjusted->{ accuracy } );
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
 		}
+		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation };
+		$complete->{ total } = $complete->{ accuracy } + $complete->{ presentation };
 
 		$form->{ adjusted_mean } = $adjusted;
 		$form->{ complete_mean } = $complete;

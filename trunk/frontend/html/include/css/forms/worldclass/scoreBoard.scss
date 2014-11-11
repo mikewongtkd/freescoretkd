@@ -94,14 +94,23 @@
 
 		.round {
 			position: absolute;
-			top: 540px;
+			top: 520px;
 			left: 0;
 			margin: 0;
-			color: white;
+			color: #999;
 			height: 40px;
 			font-size: 24pt;
-			line-height: 40pt;
 			width: 700px;
+
+			ul {
+				list-style-type: none;
+				line-height: 24pt;
+				height: 36px;
+
+				b {
+					color: white;
+				}
+			}
 		}
 
 		.score {

@@ -52,10 +52,10 @@ $.widget( "freescore.leaderboard", {
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
 		// This should be done server-side, as well as the creation of additional tiebreaker rounds
-		var compare = function( athlete_a, athlete_b ) {
+		var _compare = function( athlete_a, athlete_b ) {
 			var a       = athlete_a.scores[ o.division.round ];
 			var b       = athlete_b.scores[ o.division.round ];
-			var tie     = 0;
+			var tie     = 0.005; // Tolerance for a tie
 			var compare = {
 				mean_score    : 0.0,
 				presentation  : 0.0,
@@ -65,13 +65,14 @@ $.widget( "freescore.leaderboard", {
 			for( var i = 0; i < a.length; i++ ) {
 				var form_a = a[ i ];
 				var form_b = b[ i ];
-				compare.mean_score   += (form_b.adjusted_mean.accuracy + form_b.adjusted_mean.presentation) - (form_a.adjusted_mean.accuracy + form_a.adjusted_mean.presentation);
+				compare.mean_score   += form_b.adjusted_mean.total        - form_a.adjusted_mean.total;
 				compare.presentation += form_b.adjusted_mean.presentation - form_a.adjusted_mean.presentation;
-				compare.total_score  += (form_b.complete_mean.accuracy + form_b.complete_mean.presentation) - (form_a.complete_mean.accuracy + form_a.complete_mean.presentation);
+				compare.total_score  += form_b.complete_mean.total        - form_a.complete_mean.total;
 			}
-			if( compare.mean_score   != tie ) { return compare.mean_score;   }
-			if( compare.presentation != tie ) { return compare.presentation; }
-			if( compare.total_score  != tie ) { return compare.total_score;  }
+
+			if( Math.abs( compare.mean_score   ) > tie ) { return compare.mean_score;   }
+			if( Math.abs( compare.presentation ) > tie ) { return compare.presentation; }
+			if( Math.abs( compare.total_score  ) > tie ) { return compare.total_score;  }
 		};
 		var calculate_total = function( scores ) {
 			var total = scores.map( function( form ) { 
@@ -81,7 +82,7 @@ $.widget( "freescore.leaderboard", {
 			return total.toFixed( 2 );
 		}
 
-		standings.athletes = standings.athletes.sort( compare );
+		standings.athletes.sort( _compare );
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k     = standings.athletes.length < 4 ? standings.athletes.length : 4;
@@ -93,8 +94,7 @@ $.widget( "freescore.leaderboard", {
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
 			var name       = html.div.clone()  .addClass( "name" ) .addClass( "rank" + j ) .html( athlete.name );
-			var score      = html.div.clone()  .addClass( "score" ) .html( total );
-			var tiebreaker = html.span.clone() .addClass( "tiebreaker" ) .html( "*" );
+			var score      = html.div.clone()  .addClass( "score" ) .html( total.toFixed( 2 ) );
 			var medal      = html.div.clone()  .addClass( "medal" ) .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 
 			entry.append( name, score, medal );

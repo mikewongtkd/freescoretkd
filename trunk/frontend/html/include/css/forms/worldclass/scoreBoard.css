@@ -89,14 +89,19 @@
       line-height: 72pt; }
     .scoreboard .totalScores .round {
       position: absolute;
-      top: 540px;
+      top: 520px;
       left: 0;
       margin: 0;
-      color: white;
+      color: #999;
       height: 40px;
       font-size: 24pt;
-      line-height: 40pt;
       width: 700px; }
+      .scoreboard .totalScores .round ul {
+        list-style-type: none;
+        line-height: 24pt;
+        height: 36px; }
+        .scoreboard .totalScores .round ul b {
+          color: white; }
     .scoreboard .totalScores .score {
       position: absolute;
       top: 80px;
