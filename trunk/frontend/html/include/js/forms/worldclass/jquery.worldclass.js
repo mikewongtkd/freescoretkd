@@ -40,11 +40,12 @@ $.widget( "freescore.worldclass", {
 				e.scoreboard.scoreboard( { 
 					judges : o.judges, 
 					current: { 
-						name    : division.name, 
-						round   : division.round, 
-						form    : division.form, 
-						forms   : division.forms[ division.round ], 
-						athlete : athlete 
+						name        : division.name, 
+						round       : division.round, 
+						description : division.description,
+						form        : division.form, 
+						forms       : division.forms[ division.round ], 
+						athlete     : athlete 
 					}
 				});
 			}

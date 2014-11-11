@@ -101,7 +101,7 @@
         line-height: 24pt;
         height: 36px; }
         .scoreboard .totalScores .round ul b {
-          color: white; }
+          color: orange; }
     .scoreboard .totalScores .score {
       position: absolute;
       top: 80px;
