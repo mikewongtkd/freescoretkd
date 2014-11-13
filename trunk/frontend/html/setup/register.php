@@ -14,7 +14,7 @@
 	<body>
 		<div id="setup"></div>
 		<script type="text/javascript">
-			$( '#setup' ).register({ tournament : <?= $tournament ?> });
+			$( '#setup' ).register({ server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

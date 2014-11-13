@@ -113,12 +113,12 @@ $.widget( "freescore.judgeController", {
 		function refresh( update ) {
 			var forms      = JSON.parse( update.data );
 			var division   = forms.divisions[ 0 ];
-			if( typeof( division ) === 'undefined' ) { return; }
+			if( ! defined( division )) { return; }
 
 			var form       = ordinal[ division.form ];
 			var form_names = division.forms[ division.round ];
-			if( typeof( form_names ) === 'undefined' ) { return; }
-			var form_name  = form_names[ division.form ];
+			if( ! defined( form_names )) { return; }
+			var form_name  = form_names[ division.form ].name;
 
 			if( form_names.length > 1 ) {
 				if( division.form < (form_names.length - 1)) {

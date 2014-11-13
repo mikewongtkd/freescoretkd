@@ -38,7 +38,7 @@ $.widget( "freescore.worldclass", {
 			} else if( division.state == 'score' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
 				e.scoreboard.scoreboard( { 
-					judges : o.judges, 
+					judges : division.judges,
 					current: { 
 						name        : division.name, 
 						round       : division.round, 

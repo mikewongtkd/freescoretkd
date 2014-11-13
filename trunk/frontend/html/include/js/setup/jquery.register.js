@@ -128,13 +128,25 @@ $.widget( "freescore.register", {
 							ring.animate( { left: gotoX, top: gotoY } );
 							$.cookie( "ring", num, { path: '/' } );
 
-							o.max_judges = tournament.ring[ (num-1) ].judges;
+							// ====================
+							// GET NUMBER OF JUDGES
+							// ====================
+							var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+							$.ajax( {
+								type:    'GET',
+								url:     url,
+								data:    {},
+								success: function( response ) { 
+									o.max_judges = response.judges;
 
-							for( var k = 0; k < o.max_judges; k++ ) { 
-								var judge = addJudge( k+1 ); 
-								judges.push( judge ); 
-								court.append( judge ); 
-							}
+									for( var k = 0; k < o.max_judges; k++ ) { 
+										var judge = addJudge( k+1 ); 
+										judges.push( judge ); 
+										court.append( judge ); 
+									}
+								},
+								error:   function( response ) { },
+							});
 
 						} else { 
 							ring.fadeOut( 500, function() { 

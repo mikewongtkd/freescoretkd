@@ -117,18 +117,18 @@ $.widget( "freescore.scoreboard", {
 			show_form_score( e.forms );
 		};
 
-		var round_names = { 'prelim' : 'Preliminaries', 'pre-tb': 'Preliminaries Tie Breaker', 'semfin' : 'Semi-Finals', 'sem-tb': 'Semi-Finals Tie Breaker', 'finals' : 'Finals', 'fin-tb' : 'Finals Tie Breaker' };
+		var round_names = { 'prelim' : 'Preliminaries', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
 		var round_description = o.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 });;
 
 		round_description.append( o.html.li.clone() .html( current.description ));
 		round_description.append( o.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round_names[ current.round ] + ' Round</b>'));
-		if( current.forms.length > 1 ) { round_description.append( o.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ] + '</b>' )); } 
+		if( current.forms.length > 1 ) { round_description.append( o.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ].name + '</b>' )); } 
 		else                           { round_description.append( o.html.li.clone() .html( '<b>' + current.forms[ current.form ] + '</b>' )); }
 
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 		for( var i = 0; i < k; i++ ) {
-			e.judges[ i ].judgeScore( { score : judge_scores[ i ] } );
+			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k } );
 		}
 
 		if( parseInt( current.athlete.index ) % 2 ) { // MW This is broken for multiple rounds

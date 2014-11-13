@@ -50,7 +50,10 @@ $.widget( "freescore.judgeNotes", {
 
 			} else {
 				var summarize = function( form ) {
-					var score = form.adjusted_mean;
+					var score;
+					if   ( defined( form.adjusted_mean )) { score = form.adjusted_mean; } 
+					else                                  { score = { accuracy : 0.0, presentation : 0.0 }; }
+
 					return [
 						e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy.toFixed( 1 ) ), '/',
 						e.html.span.clone() .addClass( "presentation" ) .html( score.presentation.toFixed( 1 ) ) ];
@@ -60,7 +63,7 @@ $.widget( "freescore.judgeNotes", {
 				if( defined( forms[ 1 ] )) {
 					score.form2 = summarize( forms[ 1 ] );
 				}
-				score.sum   = forms.map( function( form ) { return form.adjusted_mean.accuracy + form.adjusted_mean.presentation; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
+				score.sum   = forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}

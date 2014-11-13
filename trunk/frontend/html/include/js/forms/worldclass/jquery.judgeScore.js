@@ -22,7 +22,7 @@ $.widget( "freescore.judgeScore", {
 		if     ( o.num == 1 ) { w.css( "border-radius", "24px 0 0 0" ); e.name.css( "border-radius", "24px 0 0 0" );}
 		else if( o.num == 7 ) { w.css( "border-radius", "0 0 0 24px" ); e.name.css( "border-radius", "0 0 0 24px" );}
 
-		if( o.num > o.max ) { e.name.addClass( "ignore-judge" ); }
+		if( o.num > o.max ) { e.name.addClass( "ignore-judge" ); } else { e.name.removeClass( "ignore-judge" ); }
 		
 		if( defined( score )) {
 			score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';

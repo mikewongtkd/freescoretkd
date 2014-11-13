@@ -5,7 +5,7 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use base qw( FreeScore::Forms::Division );
 
-our @round_order = ( qw( prelim pre-tb semfin sem-tb finals fin-tb ) );
+our @round_order = ( qw( prelim semfin finals ) );
 
 # ============================================================
 sub append {
@@ -131,6 +131,8 @@ sub read {
 		} elsif( /^\t/ ) {
 			s/^\t//;
 			my ($round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
+			$self->{ rounds }{ $round } = 1;
+
 			$table->{ max_rounds }{ $round }++;
 			$table->{ max_forms }  = $table->{ max_forms }  > $form  ? $table->{ max_forms }  : $form;
 			$table->{ max_judges } = $table->{ max_judges } > $judge ? $table->{ max_judges } : $judge;
@@ -183,7 +185,7 @@ sub update_status {
 	my $tied       = {};
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 
-		# ===== ASSESS THAT THE ROUND IS RESOLVED
+		# ===== CHECK IF THE ROUND IS RESOLVED WITHOUT TIES
 		$resolved->{ $round } = $self->round_resolved( $round );
 
 		# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
@@ -191,11 +193,7 @@ sub update_status {
 
 		# ===== PRELIMINARY ROUND FOR 20 OR MORE ATHLETES
 		# Assign all athletes to the preliminary round, if not already assigned
-		if( $round eq 'prelim' ) {
-			if( $k >= 20 ) {
-				foreach my $athlete (@{ $self->{ athletes }} ) { $self->assign( $athlete, $round ); }
-			}
-		}
+		if( $round eq 'prelim' ) { $self->_handle_preliminary_round( $round ); }
 
 		# ===== PRELIMINARY TIE-BREAKERS
 		# Assign players to a tie-breaker round unless there's enough places for top half.
@@ -294,14 +292,12 @@ sub round_resolved {
 	my $round = shift;
 	my $tie   = 0;
 
-	foreach my $i ( 0 .. $#{ $self->{ athletes }} ) {
-		my $a = $self->{ athletes }[ $i ]{ scores };
-		next unless exists $a->{ $round };
-		$a = $a->{ $round };
-		foreach my $j ( $i + 1 .. $#{ $self->{ athletes }} ) {
-			my $b = $self->{ athletes }[ $j ]{ scores };
-			next unless exists $b->{ $round };
-			$b = $b->{ $round };
+	my $athletes = [ grep { exists $_->{ scores }{ $round } } @{ $self->{ athletes }} ];
+
+	foreach my $i ( 0 .. $#$athletes ) {
+		my $a = $athletes->[ $i ]{ scores }{ $round };
+		foreach my $j ( $i + 1 .. $#$athletes ) {
+			$b = $athletes->[ $j ]{ scores }{ $round };
 			my $has_tie = FreeScore::Forms::WorldClass::Division::Round::_compare( $a, $b ) == $tie;
 			if( $has_tie ) { return 0; }
 		}
@@ -319,7 +315,7 @@ sub write {
 	my @forms = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $self->{ forms }{ $round };
-		push @forms, "$round:" . join( ",", @{$self->{ forms }{ $round }} );
+		push @forms, "$round:" . join( ",", map { $_->{ type } eq 'tiebreaker' ? "$->{ name } ($_->{ type })" : $_->{ name }; } @{$self->{ forms }{ $round }} );
 	}
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
@@ -327,6 +323,7 @@ sub write {
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
+	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n";
 	my $forms = int( split /,/, $self->{ forms } );
@@ -390,10 +387,10 @@ sub previous {
 # ============================================================
 sub _filter_unimportant_ties {
 # ============================================================
-	my $assigned         = shift;
-	my $ties             = shift;
+	my $assigned         = shift; # Number of athletes in the round
+	my $ties             = shift; # 
 	my $order            = shift;
-	my $places_available = shift;
+	my $places_available = shift; # Places available
 	my $n                = shift;
 
 	# Count number of places needed
@@ -423,34 +420,30 @@ sub _filter_unimportant_ties {
 }
 
 # ============================================================
+sub _handle_preliminary_round {
+# ============================================================
+# If there are 20 or more athletes, assign them all to the
+# preliminary round.
+# ------------------------------------------------------------
+	my $self  = shift;
+	my $round = shift;
+	return unless ( int( @{ $self->{ athletes }} ) >= 20 );
+	foreach my $athlete ( @{ $self->{ athletes }} ) {
+		$self->assign( $athlete, $round );
+	}
+}
+
+# ============================================================
 sub _parse_forms {
 # ============================================================
 	my $value = shift;
 
 	my @rounds = map { 
 		my ($round, $forms) = split /:/;
-		my @forms = split /,/, $forms;
+		my @forms = map { my ($name, $type) = /^([\w\s]+)(?:\s\((compulsory|tiebreaker)\))?/; { name => $name, type => $type || 'compulsory' }; } split /,\s?/, $forms;
 		$round => [ @forms ];
 	} split /;/, $value;
 	return { @rounds }; 
-}
-
-# ============================================================
-sub _parse_round {
-# ============================================================
-	my $round  = shift;
-	my @text   = ();
-	my $order  = 0;
-	my @tokens = split //, lc( $round );
-	my $ordinal = { 1 => '1st', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th', 6 => '6th', 7 => '7th', 8 => '8th', 9 => 'Top Half' };
-	while (@tokens) {
-		local $_ = shift @tokens;
-		if    ( /p/ ) { push @text, 'Preliminary'; }
-		elsif ( /s/ ) { push @text, 'Semi-Final';  }
-		elsif ( /f/ ) { push @text, 'Final';       }
-		elsif ( /t/ ) { my $place = shift @tokens; push @text, "$ordinal->{ $place } Place"; push @text, 'Tie Breaker'; }
-	}
-	return join " ", @text;
 }
 
 1;

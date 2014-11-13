@@ -113,8 +113,7 @@ sub _compare {
 # ============================================================
 sub complete {
 # ============================================================
-# An athlete's round is complete when all their forms are 
-# complete
+# An athlete's round is complete when all their forms are complete
 # ------------------------------------------------------------
 	my $self = shift;
 
