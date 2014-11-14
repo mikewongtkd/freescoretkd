@@ -52,7 +52,7 @@ $.widget( "freescore.scoreboard", {
 			div.empty();
 			var grand_total = 0.0;
 			for( var i = 0; i <= current.form; i++ ) {
-				var name  = current.forms[ i ];
+				var name  = current.forms[ i ].name;
 				var score = current.athlete.scores[ current.round ][ i ];
 				var mean  = score.adjusted_mean;
 				if( ! defined( mean )) { continue; }
@@ -127,6 +127,7 @@ $.widget( "freescore.scoreboard", {
 
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
+
 		for( var i = 0; i < k; i++ ) {
 			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k } );
 		}

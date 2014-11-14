@@ -29,17 +29,21 @@ $.widget( "freescore.judgeScore", {
 			score.presentation = defined( score.presentation ) ?  score.presentation.toFixed( 1 ) : '';
 
 		} else {
-			score = {};
-			score.accuracy     = '';
-			score.presentation = '';
+			score = { accuracy : '', presentation : '' };
 		}
 
 		// ===== DISPLAY VALID SCORES
-		if( score.accuracy >= 0 && score.presentation >= 0 ) { 
+		if( score.accuracy >= 0 && score.presentation > 0 ) { 
 			var span = {
 				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy     ),
 				presentation : o.html.span .clone() .addClass( "presentation" ) .html( score.presentation )
 			};
+			var ignore = { 
+				accuracy     : o.max >= 5 && (defined( score.minacc ) || defined( score.maxacc )),
+				presentation : o.max >= 5 && (defined( score.minpre ) || defined( score.maxpre ))
+			};
+			if( ignore.accuracy     ) { span.accuracy     .addClass( "ignore-acc" ); } else { span.accuracy     .removeClass( "ignore-acc" ); }
+			if( ignore.presentation ) { span.presentation .addClass( "ignore-pre" ); } else { span.presentation .removeClass( "ignore-pre" ); }
 			e.view.empty();
 			e.view.append( span.accuracy, "&nbsp;", span.presentation );
 			e.view.fadeIn(); 

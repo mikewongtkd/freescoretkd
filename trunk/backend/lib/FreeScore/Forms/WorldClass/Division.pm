@@ -157,7 +157,7 @@ sub read {
 			foreach my $i ( 0 .. $table->{ max_forms } ) {
 				my $judge_scores = $athlete->{ scores }{ $round }[ $i ];
 				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
-				foreach my $j ( 0 .. $table->{ max_judges } ) {
+				foreach my $j ( 0 .. ($table->{ max_judges } - 1) ) {
 					next if( ref $judge_scores->{ judge }[ $j ] );
 					$judge_scores->{ judge }[ $j ] = { major => undef, minor => undef, rhythm => undef, power => undef, ki => undef };
 				}

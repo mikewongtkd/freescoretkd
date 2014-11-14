@@ -65,11 +65,31 @@ body {
         .worldclass .scoreboard .judgeScore .score .accuracy {
           color: #f99; }
         .worldclass .scoreboard .judgeScore .score .ignore-acc {
-          color: #333; }
+          opacity: 0.75;
+          position: relative;
+          color: #c66; }
+          .worldclass .scoreboard .judgeScore .score .ignore-acc::after {
+            opacity: 0.75;
+            border-bottom: 8px solid #c66;
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            right: 0; }
         .worldclass .scoreboard .judgeScore .score .presentation {
           color: #99f; }
         .worldclass .scoreboard .judgeScore .score .ignore-pre {
-          color: #333; }
+          opacity: 0.75;
+          position: relative;
+          color: #66c; }
+          .worldclass .scoreboard .judgeScore .score .ignore-pre::after {
+            opacity: 0.75;
+            border-bottom: 8px solid #66c;
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            right: 0; }
     .worldclass .scoreboard .ignore .judge {
       color: #333; }
     .worldclass .scoreboard .ignore .score {
