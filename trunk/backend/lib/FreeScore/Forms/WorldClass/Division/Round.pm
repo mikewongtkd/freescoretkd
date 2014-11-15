@@ -8,12 +8,15 @@ sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift;
+	my $forms   = shift;
 	my $judges  = shift;
 	my $self    = bless $data, $class; 
 	if( defined $judges ) {
-		my $judges = [];
-		push @$judges, {} foreach ( 1 .. $data ) ;
-		push @$self = { judges => $judges };
+		foreach ( 1 .. $forms ) {
+			my $scores = [];
+			push @$scores, {} foreach ( 1 .. $judges ) ;
+			push @$self, { judge => $scores };
+		}
 	}
 
 	$self->init( @_ );

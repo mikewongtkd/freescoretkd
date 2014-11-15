@@ -1,0 +1,29 @@
+# state=score
+# current=0
+# form=0
+# round=prelim
+# judges=5
+# description=Black Belt World Class Grand Championships
+# forms=prelim:Koomgang,Taegeuk Saa Jang;semfin:Taegeuk Oh Jang,Koryo;finals:Taegeuk Chil Jang,Taegeuk Yuk Jang
+Aditya	Black	
+Anika	Black	
+Piper	Black	
+Alexander	Black	
+Steven	Black	
+Chi-Ching	Black	
+Christian	Black	
+Jamsheed	Black	
+Thibault	Black	
+Yash	Black	
+Sean C.	Black	
+Sean O.	Black	
+Sujatha	Black	
+Jill	Black	
+Mike	Black	
+Carl	Black	
+Veronika	Black	
+Giovanni	Black	
+Katrina	Black	
+Cody	Black	
+Kaylee	Black	
+Jonathan	Black	

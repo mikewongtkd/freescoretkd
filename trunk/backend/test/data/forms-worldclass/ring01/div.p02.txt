@@ -1,0 +1,12 @@
+# state=score
+# current=0
+# form=0
+# round=finals
+# judges=5
+# description=Black Belt World Class Grand Championships
+# forms=finals:Taegeuk Chil Jang,Taegeuk Yuk Jang
+Aditya	Black	
+Anika	Black	
+Piper	Black	
+Alexander	Black	
+Steven	Black	

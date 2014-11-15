@@ -13,7 +13,7 @@ srand();
 # ============================================================
 
 # ------------------------------------------------------------
-# TOGGLE CURRENT DIVISION STATE BETWEEN DISPLAY AND SCORE
+# GET THE NUMBER OF JUDGES FOR THIS DIVISION
 # ------------------------------------------------------------
 get '/:tournament/:ring/judges' => sub { 
 	my $self       = shift;

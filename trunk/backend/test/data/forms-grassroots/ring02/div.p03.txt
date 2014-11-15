@@ -1,0 +1,5 @@
+# state=display
+# current=1
+# description=6-7yo Novice
+Nikil	Yellow/White 	8.3	8.3	8.2
+Justin	Yellow/White	8.2	8.4	8.3

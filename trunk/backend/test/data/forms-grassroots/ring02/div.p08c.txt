@@ -1,0 +1,4 @@
+# state=display
+# current=0
+# description=Seniors Advanced
+Aleks	Red	8.4	8.6	8.5

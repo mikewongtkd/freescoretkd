@@ -1,0 +1,5 @@
+# state=score
+# current=1
+# description=5yo Female Novice
+Erin	White/Purple	7.9	7.5	7.9
+Irina	White/Purple	8.1	7.9	8

@@ -8,19 +8,6 @@ use base qw( FreeScore::Forms::Division );
 our @round_order = ( qw( prelim semfin finals ) );
 
 # ============================================================
-sub append {
-# ============================================================
-# Appends the athlete to a round; if the athlete is already 
-# assigned to the round, the athlete gets another form
-# ------------------------------------------------------------
-	my $self    = shift;
-	my $athlete = shift;
-	my $round   = shift;
-
-	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
-}
-
-# ============================================================
 sub assign {
 # ============================================================
 # Assigns the athlete to a round; if the athlete is already 
@@ -28,10 +15,12 @@ sub assign {
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $athlete = shift;
-	my $round   = shift;
+	my $round   = $self->{ round };
+	my $forms   = exists $self->{ forms }{ $round } ? int(@{ $self->{ forms }{ $round }}) : 0;
+	my $judges  = $self->{ judges };
 
 	return if exists $athlete->{ scores }{ $round };
-	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( [], $self->{ judges } );
+	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( [], $forms, $judges );
 }
 
 # ============================================================
@@ -157,15 +146,15 @@ sub read {
 
 		if     ( /^prelim$/ ) { 
 			last ROUND_SETUP unless $n >= 20;
-			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
+			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 
 		} elsif( /^semfin$/ ) {
 			last ROUND_SETUP unless $n > 8 && $n < 20;
-			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
+			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 
 		} elsif( /^finals$/ ) {
 			last ROUND_SETUP unless $n <= 8;
-			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
+			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 		}
 	}
 
@@ -208,7 +197,7 @@ sub update_status {
 	return unless $self->round_complete( $round );
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
-	$self->place_athletes( $placement );
+	# $self->place_athletes( $placement );
 
 
 	return $placement;
