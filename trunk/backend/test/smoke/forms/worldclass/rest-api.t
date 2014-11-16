@@ -41,7 +41,7 @@ foreach my $athlete ( 0 .. 21 ) {
 }
 
 # ===== MOVE TO THE NEXT ROUND (SEMIFINALS)
-ok( $response = $test->worldclass( "round/next" ));
+ok( $response = $test->worldclass( "division/next" ));
 ok( $response->{ round } eq 'semfin' );
 
 

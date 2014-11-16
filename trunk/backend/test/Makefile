@@ -1,6 +1,8 @@
-.PHONY: all cache
+.PHONY: all cache test
 
-all: cache
+all: cache test
+
+test: 
 	./smoke/forms/worldclass/rest-api.t
 
 cache:
@@ -9,5 +11,3 @@ cache:
 	cp -Rf data/* /Volumes/ramdisk/test
 	find /Volumes/ramdisk/test -type f -exec chmod a+w {} \;
 	find /Volumes/ramdisk/test -type d -exec chmod a+w {} \;
-
-clean:
