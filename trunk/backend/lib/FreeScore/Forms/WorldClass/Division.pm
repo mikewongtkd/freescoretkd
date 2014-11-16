@@ -279,12 +279,39 @@ sub write {
 }
 
 # ============================================================
+sub next_round {
+# ============================================================
+	my $self   = shift;
+	my @rounds = @FreeScore::Forms::WorldClass::Division::round_order;
+	my @i      = (0 .. $#rounds);
+	my ($i)    = grep { $self->{ round } eq $rounds[ $_ ] } @i;
+	if( $i == $#rounds ) { $i = 0; }
+	else { $i++; }
+
+	$self->{ round } = $rounds[ $i ];
+}
+
+# ============================================================
+sub previous_round {
+# ============================================================
+	my $self   = shift;
+	my @rounds = @FreeScore::Forms::WorldClass::Division::round_order;
+	my @i      = (0 .. $#rounds);
+	my ($i)    = grep { $self->{ round } eq $rounds[ $_ ] } @i;
+	if( $i == 0 ) { $i = $#rounds; }
+	else { $i--; }
+
+	$self->{ round } = $rounds[ $i ];
+}
+
+
+# ============================================================
 sub next {
 # ============================================================
 	my $self = shift;
 	$self->{ state } = 'score';
 
-	my $round        = $self->{ round };
+	my $round     = $self->{ round };
 	my $form      = $self->{ form };
 	my $max_forms = $#{ $self->{ forms }{ $round }};
 
