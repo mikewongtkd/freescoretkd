@@ -1,0 +1,118 @@
+body {
+  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  /* W3C */
+  font-family: Optima;
+  font-size: 24pt; }
+
+.register {
+  background: linear-gradient(to top, #45484d 0%, black 100%);
+  /* W3C */
+  color: #ccc;
+  border: 4px solid white;
+  border-radius: 24px;
+  width: 934px;
+  margin: 20px auto 20px auto;
+  padding: 0 32px 32px 32px; }
+  .register h1 {
+    color: gold; }
+  .register code {
+    color: gold;
+    font-size: 18pt; }
+  .register .competition {
+    position: relative;
+    width: 400px;
+    height: 200px; }
+  .register .event {
+    position: absolute;
+    top: 0;
+    width: 180px;
+    height: 180px;
+    border-radius: 12px; }
+    .register .event .color, .register .event .greys {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 180px;
+      height: 180px;
+      border-radius: 12px; }
+    .register .event .label {
+      font-size: 24pt;
+      color: #333;
+      top: 140px;
+      left: 0px;
+      position: absolute;
+      width: 180px;
+      height: 40px;
+      background: #fff;
+      opacity: 0.75;
+      text-align: center;
+      border-radius: 0 0 12px 12px; }
+  .register .floorplan {
+    position: relative; }
+  .register .mat {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
+    border-radius: 12px; }
+    .register .mat .playing-field {
+      color: white;
+      font-weight: bold;
+      font-size: 48pt;
+      text-align: center;
+      padding: 32px;
+      position: absolute;
+      width: 76px;
+      height: 76px;
+      top: 20px;
+      left: 20px;
+      border-radius: 12px;
+      background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
+  .register .roles {
+    position: relative;
+    width: 800px;
+    height: 200px; }
+  .register .role {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    color: white;
+    text-align: center; }
+  .register .court {
+    position: relative;
+    height: 200px; }
+  .register .judge {
+    position: absolute;
+    left: 200px;
+    width: 200px;
+    height: 200px;
+    color: white;
+    text-align: center; }
+  .register .confirmation {
+    position: relative;
+    width: 1000px;
+    height: 200px; }
+    .register .confirmation .ok {
+      color: white;
+      line-height: 48pt;
+      position: absolute;
+      top: 0;
+      left: 600px;
+      width: 160px;
+      height: 64px;
+      border-radius: 24pt;
+      border: 4px solid green;
+      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+      text-align: center; }
+    .register .confirmation .back {
+      color: white;
+      line-height: 48pt;
+      position: absolute;
+      top: 104px;
+      left: 600px;
+      width: 160px;
+      height: 64px;
+      border-radius: 24pt;
+      border: 4px solid orange;
+      background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+      text-align: center; }

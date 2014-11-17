@@ -1,0 +1,30 @@
+.tiebreaker {
+  position: absolute;
+  height: 120px;
+  width: 200px; }
+  .tiebreaker .vote {
+    color: white;
+    position: relative;
+    text-align: center; }
+    .tiebreaker .vote .left {
+      top: 24px;
+      left: 0;
+      position: absolute;
+      height: 112px;
+      width: 92px;
+      border-radius: 24px 0 0 24px; }
+    .tiebreaker .vote .right {
+      top: 24px;
+      left: 100px;
+      position: absolute;
+      height: 112px;
+      width: 92px;
+      border-radius: 0 24px 24px 0; }
+    .tiebreaker .vote .blue {
+      background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+      border: 4px solid blue; }
+    .tiebreaker .vote .red {
+      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+      border: 4px solid red; }
+
+/*# sourceMappingURL=tiebreaker.css.map */

@@ -1,0 +1,163 @@
+body {
+  font-family: Optima, helvetica, sans-serif;
+  background: linear-gradient(to bottom, #44484d 0%, black 100%); }
+
+.divisions {
+  position: relative;
+  margin: 0 auto 0 auto;
+  width: 600px;
+  height: 800px;
+  border-radius: 24pt;
+  border: 3px solid #ccc;
+  background: black;
+  overflow-y: scroll; }
+  .divisions h1 {
+    color: #fff;
+    font-size: 18pt;
+    line-height: 18pt;
+    text-align: center; }
+  .divisions .search {
+    color: #ccc;
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 580px;
+    height: 20px;
+    padding: 0 0 16px 0; }
+    .divisions .search input {
+      margin-left: 48px;
+      border-radius: 8px;
+      width: 500px; }
+  .divisions ul {
+    position: relative;
+    list-style-type: none;
+    margin: 0;
+    padding: 0; }
+    .divisions ul li.division {
+      position: relative;
+      border-top: 1px solid #666;
+      border-bottom: 1px solid #666;
+      position: relative;
+      font-size: 12pt;
+      line-height: 26pt;
+      height: 32px;
+      margin-bottom: 4px; }
+      .divisions ul li.division .header .sort-icon {
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        width: 18px; }
+      .divisions ul li.division .header .name {
+        position: absolute;
+        left: 24px;
+        top: 0;
+        width: 20px; }
+      .divisions ul li.division .header .description {
+        position: absolute;
+        left: 84px;
+        top: 0;
+        width: 300px; }
+      .divisions ul li.division .header .controls {
+        background: linear-gradient(to bottom, #cccccc 0%, #999999 100%);
+        position: absolute;
+        top: 4px;
+        left: 400px;
+        height: 23px;
+        width: 120px;
+        border-radius: 8px;
+        border: 1px solid #333; }
+        .divisions ul li.division .header .controls .editButton {
+          position: absolute;
+          left: 0px;
+          height: 16px;
+          width: 16px;
+          margin: 3px 8px 0 12px; }
+        .divisions ul li.division .header .controls .restageButton {
+          position: absolute;
+          left: 40px;
+          height: 16px;
+          width: 16px;
+          margin: 3px 8px 0 12px; }
+        .divisions ul li.division .header .controls .stageButton {
+          position: absolute;
+          left: 80px;
+          height: 16px;
+          width: 16px;
+          margin: 3px 8px 0 12px; }
+      .divisions ul li.division .header .size {
+        position: absolute;
+        left: 544px;
+        top: 0;
+        width: 40px;
+        text-align: right; }
+      .divisions ul li.division .default {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 32px;
+        width: 600px;
+        background: linear-gradient(to bottom, #44484c 0%, #222222 100%); }
+        .divisions ul li.division .default .name {
+          color: #ccc; }
+        .divisions ul li.division .default .description {
+          color: #999; }
+        .divisions ul li.division .default .size {
+          color: #999; }
+      .divisions ul li.division .current {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 32px;
+        width: 600px;
+        background: linear-gradient(to bottom, #cccccc 0%, #999999 100%); }
+        .divisions ul li.division .current .name {
+          color: #000;
+          font-weight: bold; }
+        .divisions ul li.division .current .description {
+          color: #000;
+          font-weight: bold; }
+        .divisions ul li.division .current .size {
+          color: #000;
+          font-weight: bold; }
+      .divisions ul li.division ul {
+        margin-top: 36px; }
+        .divisions ul li.division ul li {
+          position: relative;
+          height: 20px;
+          width: 600px; }
+          .divisions ul li.division ul li .name {
+            position: absolute;
+            left: 44px;
+            width: 200px;
+            font-size: 10pt;
+            line-height: 14pt;
+            color: #ccc; }
+          .divisions ul li.division ul li .score {
+            position: absolute;
+            top: 0;
+            font-size: 9pt;
+            line-height: 9pt;
+            border: 1px solid #666;
+            border-radius: 8px;
+            height: 16px;
+            width: 32px; }
+            .divisions ul li.division ul li .score .value {
+              position: absolute;
+              left: 0;
+              top: 3px;
+              height: 16px;
+              width: 32px;
+              text-align: center; }
+          .divisions ul li.division ul li.pendingAthlete {
+            background: none; }
+            .divisions ul li.division ul li.pendingAthlete .name {
+              color: #ccc; }
+            .divisions ul li.division ul li.pendingAthlete .score .value {
+              color: #ccc; }
+          .divisions ul li.division ul li.currentAthlete {
+            background: linear-gradient(to bottom, #666666 0%, #444444 100%); }
+            .divisions ul li.division ul li.currentAthlete .name {
+              color: #fff;
+              font-weight: bold; }
+            .divisions ul li.division ul li.currentAthlete .score .value {
+              color: #fff; }
