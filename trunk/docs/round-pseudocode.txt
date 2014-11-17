@@ -1,0 +1,31 @@
+============================================================
+Division initialization
+============================================================
+if( 20 or more athletes and not already assigned to preliminary ) {
+	Assign all athletes to the preliminary round.
+
+} else if( more than 8 and less than 20 athletes and not already assigned to semi-finals ) {
+	Assign all athletes to the semi-finals round.
+
+} else if( 8 or fewer athletes and not already assigned to finals ) {
+	Assign all athletes to the finals round.
+}
+
+============================================================
+Judge updates a score
+============================================================
+If( current round not complete ) { Done (nothing to do yet) }
+
+Sort competitors
+Detect ties
+if( no ties detected ) { 
+	if     ( round is preliminary ) { Assign top 20 competitors to the semi-finals round } 
+	else if( round is semi-finals ) { Assign top 8 competitors to the finals round       } 
+	else if( round is finals )      { Award 1st, 2nd, and 3rd place winners              }
+
+} else {
+	Filter unimportant ties
+	if     ( round is preliminary ) { Assign tied competitors to preliminary tiebreaker form } 
+	else if( round is semi-finals ) { Assign tied competitors to semi-finals tiebreaker form }
+	else if( round is finals      ) { Assign tied competitors to finals tiebreaker form      }
+}
