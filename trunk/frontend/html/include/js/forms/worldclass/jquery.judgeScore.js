@@ -33,7 +33,7 @@ $.widget( "freescore.judgeScore", {
 		}
 
 		// ===== DISPLAY VALID SCORES
-		if( score.accuracy >= 0 && score.presentation > 0 ) { 
+		if( parseFloat( score.accuracy ) >= 0 && parseFloat( score.presentation ) > 0 ) { 
 			var span = {
 				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy     ),
 				presentation : o.html.span .clone() .addClass( "presentation" ) .html( score.presentation )

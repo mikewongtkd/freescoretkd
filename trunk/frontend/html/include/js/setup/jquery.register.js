@@ -128,26 +128,6 @@ $.widget( "freescore.register", {
 							ring.animate( { left: gotoX, top: gotoY } );
 							$.cookie( "ring", num, { path: '/' } );
 
-							// ====================
-							// GET NUMBER OF JUDGES
-							// ====================
-							var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
-							$.ajax( {
-								type:    'GET',
-								url:     url,
-								data:    {},
-								success: function( response ) { 
-									o.max_judges = response.judges;
-
-									for( var k = 0; k < o.max_judges; k++ ) { 
-										var judge = addJudge( k+1 ); 
-										judges.push( judge ); 
-										court.append( judge ); 
-									}
-								},
-								error:   function( response ) { },
-							});
-
 						} else { 
 							ring.fadeOut( 500, function() { 
 								floorplan.fadeOut( 500, function() {
@@ -160,15 +140,34 @@ $.widget( "freescore.register", {
 									) {
 										if( url.match( /judge/ )       != null ) { 
 											text.html( "Which judge?" );
-											court.fadeIn( 500, function() {
-												var scale = 200;
-												if( o.judges.length == 5 ) { scale = 160; }
-												if( o.judges.length == 7 ) { scale = 120; }
-												for( var i = 0; i < o.judges.length; i++ ) {
-													var judge = o.judges[ i ];
-													judge.animate( { left: i * scale } );
-												}
+											var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+											$.ajax( {
+												type:    'GET',
+												url:     url,
+												data:    {},
+												success: function( response ) { 
+													o.max_judges = response.judges;
+
+													for( var k = 0; k < o.max_judges; k++ ) { 
+														var judge = addJudge( k+1 ); 
+														o.judges.push( judge ); 
+														court.append( judge ); 
+													}
+
+													court.fadeIn( 500, function() {
+														var scale = 200;
+														if( o.judges.length == 5 ) { scale = 160; }
+														if( o.judges.length == 7 ) { scale = 120; }
+														for( var i = 0; i < o.judges.length; i++ ) {
+															var judge = o.judges[ i ];
+															judge.animate( { left: i * scale } );
+														}
+													});
+
+												},
+												error:   function( response ) { },
 											});
+
 
 										} else if( url.match( /index/ )       != null ) { 
 											$.cookie( "role", "display", { path: '/' } ); 
@@ -238,13 +237,34 @@ $.widget( "freescore.register", {
 								role.animate( { left: 200 }, 400, 'swing', function() {
 									jobs .delay( 300 ) .fadeOut( 500, function() { 
 										text.html( "Which judge?" );
-										court.fadeIn( 500, function() {
-										for( var i = 0; i < o.judges.length; i++ ) {
-											var judge = o.judges[ i ];
-											judge.animate( { left: i * 200 } );
-										}
+										var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+										$.ajax( {
+											type:    'GET',
+											url:     url,
+											data:    {},
+											success: function( response ) { 
+												o.max_judges = response.judges;
+
+												for( var k = 0; k < o.max_judges; k++ ) { 
+													var judge = addJudge( k+1 ); 
+													o.judges.push( judge ); 
+													court.append( judge ); 
+												}
+
+												court.fadeIn( 500, function() {
+													var scale = 200;
+													if( o.judges.length == 5 ) { scale = 160; }
+													if( o.judges.length == 7 ) { scale = 120; }
+													for( var i = 0; i < o.judges.length; i++ ) {
+														var judge = o.judges[ i ];
+														judge.animate( { left: i * scale } );
+													}
+												});
+
+											},
+											error:   function( response ) { },
+										});
 									});});
-								});
 							} else {
 								role.animate( { left: 200 }, 400, 'swing', function() {
 									role .delay( 300 ) .fadeOut( 400, function () {

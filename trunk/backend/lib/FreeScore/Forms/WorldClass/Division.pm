@@ -130,7 +130,7 @@ sub read {
 			$judge =~ s/j//; $judge = int( $judge ) - 1;
 
 			$athlete->{ scores }{ $round }[ $form ] = { judge => [] } unless exists $athlete->{ scores }{ $round }[ $form ]{ judge };
-			$athlete->{ scores }{ $round }[ $form ]{ judge }[ $judge ] = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+			$athlete->{ scores }{ $round }[ $form ]{ judge }[ $judge ] = { judge => $judge, major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 
 		} else {
 			die "Unknown line type '$_'\n";

@@ -94,7 +94,7 @@ $.widget( "freescore.leaderboard", {
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );
 			var name       = html.div.clone()  .addClass( "name" ) .addClass( "rank" + j ) .html( athlete.name );
-			var score      = html.div.clone()  .addClass( "score" ) .html( total.toFixed( 2 ) );
+			var score      = html.div.clone()  .addClass( "score" ) .html( total );
 			var medal      = html.div.clone()  .addClass( "medal" ) .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 
 			entry.append( name, score, medal );
