@@ -81,7 +81,7 @@ $.widget( "freescore.judgeController", {
 		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
 		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "division/previous", label : "Prev Division", type : "navigate prev division" });
 		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "division/next",     label : "Next Division", type : "navigate next division" });
-		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "display",           label : "Flip Display",  type : "navigate mode"          });
+		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "display",           label : "Leaderboard",   type : "navigate mode"          });
 
 		back.append( prevAthlete, nextAthlete, prevDivision, nextDivision, flipDisplay, notes, flipToFront );
 
@@ -104,11 +104,12 @@ $.widget( "freescore.judgeController", {
 
 	},
 	_init: function( ) {
-		var widget  = this.element;
-		var e       = this.options.elements;
-		var o       = this.options;
-		var html    = e.html;
-		var ordinal = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
+		var widget      = this.element;
+		var e           = this.options.elements;
+		var o           = this.options;
+		var html        = e.html;
+		var ordinal     = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
+		var round_order = { 'prelim' : 0, 'semfin' : 1, 'finals' : 2 };
 
 		function refresh( update ) {
 			var forms      = JSON.parse( update.data );
@@ -120,6 +121,12 @@ $.widget( "freescore.judgeController", {
 			if( ! defined( form_names )) { return; }
 			var form_name  = form_names[ division.form ].name;
 
+			if( division.state == 'score' ) {
+				e.flipDisplay.ajaxbutton({ label : "Leaderboard" });
+			} else {
+				e.flipDisplay.ajaxbutton({ label : "Athlete Score" });
+			}
+
 			if( form_names.length > 1 ) {
 				if( division.form < (form_names.length - 1)) {
 					e.prevAthlete.ajaxbutton({ label : "Prev Athlete" });
@@ -129,11 +136,22 @@ $.widget( "freescore.judgeController", {
 					e.nextAthlete.ajaxbutton({ label : "Next Athlete" });
 				}
 			}
+			var num_rounds = Object.keys( division.forms ).length;
+			if( num_rounds > 1 ) {
+				if( round_order[ division.round ] < round_order[ 'finals' ] ) {
+					e.prevDivision.ajaxbutton({ label : "Prev Division" });
+					e.nextDivision.ajaxbutton({ label : "Next Round" });
+				} else {
+					e.prevDivision.ajaxbutton({ label : "Prev Round" }); // MW LOGICAL BUG: Can only go back to semi-finals; need separate round and division buttons
+					e.nextDivision.ajaxbutton({ label : "Next Division" });
+				}
+			}
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			if( division.current != o.current.athlete || division.form != o.current.form ) {
-				var athlete  = division.athletes[ parseInt( division.current ) ];
-				var items    = [ 'Judge ' + (o.num + 1), division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
+				var athlete    = division.athletes[ parseInt( division.current ) ];
+				var items      = [ 'Judge ' + (o.num + 1), division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, round_name[ division.round ], form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( items );
 
