@@ -2,6 +2,7 @@
 # current=0
 # form=0
 # round=finals
+# judges=3
 # description=Black Belt World Class
 # forms=finals:Taegeuk Oh Jang,Koryo
 Anika W.		

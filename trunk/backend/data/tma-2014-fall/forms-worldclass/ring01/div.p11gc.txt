@@ -2,6 +2,7 @@
 # current=4
 # form=1
 # round=finals
+# judges=3
 # description=Black Belt World Class Grand Championships
 # forms=finals:Taegeuk Chil Jang,Taegeuk Yuk Jang
 Aditya	Black	

@@ -38,6 +38,47 @@ $.widget( "freescore.register", {
 		$.removeCookie( 'judge', { path: '/' });
 
 		// ====================
+		// SELECTION FUNCTIONS
+		// ====================
+
+		// ----------------------------------------
+		var selectRing = function() {
+		// ----------------------------------------
+			text.html( "Choose your ring number:" );
+			floorplan .fadeIn();
+			for( var j = 0; j < o.rings.length; j++ ) {
+				var mat = rings[ j ];
+				var x   = mat.attr( "goto-x" );
+				var y   = mat.attr( "goto-y" );
+				mat.animate( { left: x, top: y, opacity: 1.0 } );
+			}
+			floorplan .attr( "animate", "on-initialization" );
+		};
+
+		// ----------------------------------------
+		var selectJudge = function( options ) {
+		// ----------------------------------------
+			o.max_judges = options.judges || 3;
+
+			text.html( "Which judge?" );
+			for( var k = 0; k < o.max_judges; k++ ) { 
+				var judge = addJudge( k+1 ); 
+				o.judges.push( judge ); 
+				court.append( judge ); 
+			}
+
+			court.fadeIn( 500, function() {
+				var scale = 200;
+				if( o.judges.length == 5 ) { scale = 160; }
+				if( o.judges.length == 7 ) { scale = 120; }
+				for( var i = 0; i < o.judges.length; i++ ) {
+					var judge = o.judges[ i ];
+					judge.animate( { left: i * scale } );
+				}
+			});
+		};
+
+		// ====================
 		// REGISTER EVENT
 		// ====================
 		var addEvent   = function( name, image, url, x ) {
@@ -53,50 +94,37 @@ $.widget( "freescore.register", {
 			var label = html.div.clone() .addClass( "label" ) .html( name );
 			event.append( color, greys, label );
 			o.events.push( event );
-			var callback = function( name ) {
-				return function() {
-					for( var i = 0; i < o.events.length; i++ ) {
-						var event = o.events[ i ];
+			var callback = function( name ) { return function() {
+				for( var i = 0; i < o.events.length; i++ ) {
+					var event = o.events[ i ];
 
-						if( event.attr( "name" ) == name ) {
-							event.children( ".greys" ).fadeOut();
-							event.animate( { left: 100 } );
-							o.event = { name : event.attr( "name" ), image : event.attr( "image" ), url : event.attr( "url" ) };
+					if( event.attr( "name" ) == name ) {
+						event.children( ".greys" ).fadeOut();
+						event.animate( { left: 100 } );
+						o.event = { name : event.attr( "name" ), image : event.attr( "image" ), url : event.attr( "url" ) };
 
-						} else {
-							event.fadeOut( 500, function() {
-								competition .delay( 500 ) .fadeOut( 500, function() {
-									text.html( "Choose your ring number:" );
-									floorplan .fadeIn();
-									for( var j = 0; j < o.rings.length; j++ ) {
-										var mat = rings[ j ];
-										var x   = mat.attr( "goto-x" );
-										var y   = mat.attr( "goto-y" );
-										mat.animate( { left: x, top: y, opacity: 1.0 } );
-									}
-								});
-							});
-						}
+					} else {
+						event.fadeOut( 500, function() {
+							competition .delay( 500 ) .fadeOut( 500, selectRing );
+						});
 					}
 				}
-			};
+			}};
 			event.click( callback( name ));
 			return event;
 		};
 
-		if( typeof( url ) === 'undefined' ) {
+		if( defined( url ) ) {
+			o.event = {};
+			if( url.match( /grassroots/ ) != null ) { o.event.name = "Grassroots",  o.event.image = "grassroots-01", o.event.url = "../forms/grassroots/" }
+			if( url.match( /worldclass/ ) != null ) { o.event.name = "World Class", o.event.image = "poomsae-02",    o.event.url = "../forms/worldclass/" }
+			competition .fadeOut( 500, selectRing );
+
+		} else {
 			competition.append( 
 				addEvent( "Grassroots",  "grassroots-01", "../forms/grassroots/", 0 ),
 				addEvent( "World Class", "poomsae-02",    "../forms/worldclass/", 1 )
 			);
-		} else {
-			o.event = {};
-			if( url.match( /grassroots/ ) != null ) { o.event.name = "Grassroots",  o.event.image = "grassroots-01", o.event.url = "../forms/grassroots/" }
-			if( url.match( /worldclass/ ) != null ) { o.event.name = "World Class", o.event.image = "poomsae-02",    o.event.url = "../forms/worldclass/" }
-			text.html( "Choose your ring number:" );
-			competition .hide();
-			floorplan .show();
-			floorplan .attr( "animate", "on-initialization" );
 		}
 
 		// ====================
@@ -132,39 +160,19 @@ $.widget( "freescore.register", {
 							ring.fadeOut( 500, function() { 
 								floorplan.fadeOut( 500, function() {
 									if(
-										(typeof( url ) !== 'undefined') && (
+										defined( url ) && (
 											(url.match( /judge/ )       != null) ||
 											(url.match( /index/ )       != null) ||
 											(url.match( /coordinator/ ) != null)
 										)
 									) {
 										if( url.match( /judge/ )       != null ) { 
-											text.html( "Which judge?" );
 											var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 											$.ajax( {
 												type:    'GET',
 												url:     url,
 												data:    {},
-												success: function( response ) { 
-													o.max_judges = response.judges;
-
-													for( var k = 0; k < o.max_judges; k++ ) { 
-														var judge = addJudge( k+1 ); 
-														o.judges.push( judge ); 
-														court.append( judge ); 
-													}
-
-													court.fadeIn( 500, function() {
-														var scale = 200;
-														if( o.judges.length == 5 ) { scale = 160; }
-														if( o.judges.length == 7 ) { scale = 120; }
-														for( var i = 0; i < o.judges.length; i++ ) {
-															var judge = o.judges[ i ];
-															judge.animate( { left: i * scale } );
-														}
-													});
-
-												},
+												success: selectJudge,
 												error:   function( response ) { },
 											});
 
@@ -236,32 +244,12 @@ $.widget( "freescore.register", {
 							if( role.attr( "role" ) == "Judge" ) {
 								role.animate( { left: 200 }, 400, 'swing', function() {
 									jobs .delay( 300 ) .fadeOut( 500, function() { 
-										text.html( "Which judge?" );
 										var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 										$.ajax( {
 											type:    'GET',
 											url:     url,
 											data:    {},
-											success: function( response ) { 
-												o.max_judges = response.judges;
-
-												for( var k = 0; k < o.max_judges; k++ ) { 
-													var judge = addJudge( k+1 ); 
-													o.judges.push( judge ); 
-													court.append( judge ); 
-												}
-
-												court.fadeIn( 500, function() {
-													var scale = 200;
-													if( o.judges.length == 5 ) { scale = 160; }
-													if( o.judges.length == 7 ) { scale = 120; }
-													for( var i = 0; i < o.judges.length; i++ ) {
-														var judge = o.judges[ i ];
-														judge.animate( { left: i * scale } );
-													}
-												});
-
-											},
+											success: selectJudge,
 											error:   function( response ) { },
 										});
 									});});
@@ -343,10 +331,10 @@ $.widget( "freescore.register", {
 				var num   = $.cookie( "judge" );
 				role = addJudge( num );
 				role.css( 'left', '400px' );
-				if( typeof( o.event ) !== 'undefined' ) { url = o.event.url + "/judge.php"; }
+				if( defined( o.event ) ) { url = o.event.url + "/judge.php"; }
 			} else {
-				if      ( role == "display"     ) { if( typeof( url ) === 'undefined' ) { url = o.event.url + "/index.php"; } }
-				else if ( role == "coordinator" ) { if( typeof( url ) === 'undefined' ) { url = o.event.url + "/coordinator.php"; } }
+				if      ( role == "display"     ) { if( ! defined( url )) { url = o.event.url + "/index.php"; } }
+				else if ( role == "coordinator" ) { if( ! defined( url )) { url = o.event.url + "/coordinator.php"; } }
 				role = addRole( role.capitalize(), '400px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );

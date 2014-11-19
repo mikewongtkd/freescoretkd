@@ -9,6 +9,7 @@
 		<script src="../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../include/jquery/js/jquery.purl.js"></script>
+		<script src="../include/js/freescore.js"></script>
 		<script src="../include/js/setup/jquery.register.js"></script>
 	</head>
 	<body>
