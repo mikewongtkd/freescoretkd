@@ -1,0 +1,30 @@
+#! /usr/bin/perl
+use lib qw( ./lib ../lib );
+use Algorithm::Numerical::Shuffle qw( shuffle );
+use FreeScore::Test;
+use Data::Dumper;
+
+our $test  = new FreeScore::Test();
+
+$test->{ tournament }{ db } = 'tma-2014-fall';
+
+my $number = $test->worldclass( "judges" );
+my $judges = $number->{ judges } - 1;
+
+score( $judges );
+sleep( $judges );
+$test->worldclass( "athlete/next" );
+score( $judges );
+
+# ============================================================
+sub score {
+# ============================================================
+	my $k      = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $score       = score_worldclass();
+		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+		$test->worldclass( $judge_score );
+		sleep( 1 );
+	}
+}

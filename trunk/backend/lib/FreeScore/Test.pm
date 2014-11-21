@@ -3,7 +3,7 @@ use LWP::UserAgent;
 use JSON::XS;
 use parent qw( Exporter );
 
-our @EXPORT = qw( roll highest lowest sum );
+our @EXPORT = qw( roll highest lowest sum score_worldclass );
 
 # ============================================================
 sub new {
@@ -97,6 +97,24 @@ sub sum( @ ) {
 	my $sum = 0.0;
 	$sum += $_ foreach @_;
 	return $sum;
+}
+
+# ============================================================
+sub score_worldclass {
+# ============================================================
+	my $major  = ((sum lowest 1, roll "2d8")  - 1)/10;
+	my $minor  = ((sum lowest 2, roll "3d20") - 2)/10;
+	my $rhythm = ((sum lowest 5, roll "6d4")/10);
+	my $power  = ((sum lowest 5, roll "6d4")/10);
+	my $ki     = ((sum lowest 5, roll "6d4")/10);
+
+	$major = $major * 3;
+	$minor = $major + $minor > 40 ? (40 - $major) : $minor;
+
+	my $accuracy     = 4.0 - ($major + $minor);
+	my $presentation = $rhythm + $power + $ki;
+
+	return { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki, accuracy => $accuracy, presentation => $presentation };
 }
 
 1;

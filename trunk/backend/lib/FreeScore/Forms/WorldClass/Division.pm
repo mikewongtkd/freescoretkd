@@ -270,7 +270,8 @@ sub write {
 				my $judges = $form->{ judge };
 				foreach my $j (0 .. $#$judges) {
 					my $score = $judges->[ $j ];
-					printf FILE "\t%s\tf%d\tj%d\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n", $round, $i + 1, $j + 1, @{ $score }{ @criteria };
+					my @scores = map { defined $_ ? sprintf( "%.1f", $_ ) : '' } @{ $score }{ @criteria };
+					printf FILE "\t" . join( "\t", $round, 'f' . ($i + 1), 'j' . ($j + 1), @scores ) . "\n";
 				}
 			}
 		}

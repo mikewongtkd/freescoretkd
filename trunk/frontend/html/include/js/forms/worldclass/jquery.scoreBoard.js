@@ -129,7 +129,6 @@ $.widget( "freescore.scoreboard", {
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 
 		for( var i = 0; i < k; i++ ) {
-			console.log( judge_scores );
 			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k } );
 		}
 

@@ -22,18 +22,11 @@ ok( $response->{ state } eq 'display' );
 foreach my $athlete ( 0 .. 21 ) { 
 	foreach my $form ( 0 .. 1 ) {
 		foreach my $judge ( 0 .. ($judges - 1)) {
-			my $major  = (sum lowest 1, roll "2d8") - 1;
-			my $minor  = (sum lowest 2, roll "3d20") - 2;
-			my $rhythm = (sum lowest 5, roll "6d4");
-			my $power  = (sum lowest 5, roll "6d4");
-			my $ki     = (sum lowest 5, roll "6d4");
+			my $score = score_worldclass();
 
-			$major = $major * 3;
-			$minor = $major + $minor > 40 ? (40 - $major) : $minor;
-
-			$score = join( "/", $judge, $major, $minor, $rhythm, $power, $ki );
-			ok( $response = $test->worldclass( $score ) );
-			ok( $response->{ score }{ major } == $major/10 );
+			my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+			ok( $response = $test->worldclass( $judge_score ) );
+			ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
 		}
 		ok( $response = $test->worldclass( "athlete/next" ));
 		ok( $response->{ form } == ($form + 1)%2);

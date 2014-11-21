@@ -1,5 +1,7 @@
 <?php 
 	if( ! isset( $_COOKIE[ 'ring' ])) { header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); }
+	$an_hour_ago = time() - 3600;
+	setcookie( 'judge', '', $an_hour_ago, '/' );
 	setcookie( 'role', 'display', 0, '/' );
 	include( "../../include/php/config.php" ); 
 ?>

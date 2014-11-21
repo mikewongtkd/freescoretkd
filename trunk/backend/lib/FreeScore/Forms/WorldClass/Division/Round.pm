@@ -73,18 +73,16 @@ sub calculate_means {
 		$stats->{ max }{ pre } = $form->{ judge }[ $stats->{ max }{ pre } ]{ presentation };
 
 		my @mean = (
-			accuracy     => sprintf( "%.2f", $stats->{ sum }{ acc } / $k ),
-			presentation => sprintf( "%.2f", $stats->{ sum }{ pre } / $k )
+			accuracy     => sprintf( "%.2f", $stats->{ sum }{ acc }),
+			presentation => sprintf( "%.2f", $stats->{ sum }{ pre })
 		);
 		my $adjusted = { @mean };
 		my $complete = { @mean };
 
+		# ===== CALCULATE ADJUSTED MEANS
 		if( $k >= 5 ) {
-			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc }) / $k;
-			$adjusted->{ presentation } -= ($stats->{ min }{ pre } + $stats->{ max }{ pre }) / $k;
-
-			$adjusted->{ accuracy }     *= $k;
-			$adjusted->{ presentation } *= $k;
+			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc });
+			$adjusted->{ presentation } -= ($stats->{ min }{ pre } + $stats->{ max }{ pre });
 
 			$adjusted->{ accuracy }     /= ($k - 2);
 			$adjusted->{ presentation } /= ($k - 2);
@@ -95,6 +93,10 @@ sub calculate_means {
 			$adjusted->{ accuracy }     = sprintf( "%.2f", $adjusted->{ accuracy } );
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
 		}
+
+		# ===== CALCULATE COMPLETE MEANS
+		$complete = { map { ( $_ => sprintf( "%.2f", $complete->{ $_ } )) } keys %$complete };
+
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation };
 		$complete->{ total } = $complete->{ accuracy } + $complete->{ presentation };
 

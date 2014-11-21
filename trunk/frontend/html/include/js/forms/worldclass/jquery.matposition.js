@@ -26,7 +26,6 @@ $.widget( "freescore.matposition", {
 			var position = widget.offset();
 			var x = (ev.pageX - (position.left + o.dx)).toFixed( 0 );
 			var y = (ev.pageY - (position.top  + o.dy)).toFixed( 0 );
-			console.log( x, y );
 			e.start.fadeOut( 250, function() { 
 				e.start.css( 'left', x );
 				e.start.css( 'top', y );

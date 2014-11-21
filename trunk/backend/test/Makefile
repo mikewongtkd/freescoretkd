@@ -1,4 +1,4 @@
-.PHONY: all cache test
+.PHONY: all cache test ui
 
 all: cache test
 
@@ -11,3 +11,6 @@ cache:
 	cp -Rf data/* /Volumes/ramdisk/test
 	find /Volumes/ramdisk/test -type f -exec chmod a+w {} \;
 	find /Volumes/ramdisk/test -type d -exec chmod a+w {} \;
+
+ui:
+	./ui/forms/worldclass/judges
