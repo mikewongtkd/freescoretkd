@@ -35,7 +35,7 @@ $.widget( "freescore.worldclass", {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );
 
-			} else if( division.state == 'score' ) {
+			} else {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
 				e.scoreboard.scoreboard( { 
 					judges : division.judges,
