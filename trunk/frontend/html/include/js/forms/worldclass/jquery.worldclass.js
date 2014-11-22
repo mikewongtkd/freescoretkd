@@ -22,9 +22,14 @@ $.widget( "freescore.worldclass", {
 
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
-			var division = forms.divisions[ forms.current ];
-			var current  = parseInt( division.current );
-			var athlete  = division.athletes[ current ];
+			var division, current, athlete;
+			if( defined( forms.divisions ) && defined( forms.current )) {
+				division = forms.divisions[ forms.current ];
+				if( defined( division )) {
+					current = parseInt( division.current );
+					athlete = division.athletes[ current ];
+				}
+			}
 
 			if( forms.error ) {
 				e.card.fadeOut();

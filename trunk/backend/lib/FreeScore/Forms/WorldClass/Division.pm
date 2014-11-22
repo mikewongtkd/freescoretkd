@@ -29,13 +29,22 @@ sub place_athletes {
 	my $self      = shift;
 	my $round     = shift;
 	my $placement = shift;
+	my $tied      = {};
 
-	my @unsorted = ( 0 .. $#{ $self->{ athletes }} );
+	# ===== PLACE ATHLETES
+	my @athlete_indices = ( 0 .. $#{ $self->{ athletes }} );
 	@$placement = sort { 
+		# TODO Select compulsory rounds for x and y
 		my $x = exists $self->{ athletes }[ $a ]{ scores }{ $round } ? $self->{ athletes }[ $a ]{ scores }{ $round } : undef;
 		my $y = exists $self->{ athletes }[ $b ]{ scores }{ $round } ? $self->{ athletes }[ $b ]{ scores }{ $round } : undef;
 		Forms::WorldClass::Division::Round::_compare( $x, $y ); 
-	} @unsorted;
+	} @athlete_indices;
+
+	# ===== TIE DETECTION
+	# We could do tie detection during placement, but that would be inefficient
+	# (i.e. redundant detection for every pairwise comparison) and incomplete
+	# (i.e.  we don't know which place the athletes are tied for; two athletes
+	# tied for 1st place, for example)
 	my $i = 0;
 	while( $i < $k ) {
 		my $a = $placement->[ $i ];
@@ -87,6 +96,11 @@ sub record_score {
 sub read {
 # ============================================================
 	my $self  = shift;
+
+	# ===== DEFAULTS
+	$self->{ state }   = 'score';
+	$self->{ current } = 0;
+	$self->{ round }   = 'finals';
 
 	my $athlete = {};
 	my $table   = { max_rounds => {}, max_forms => 0, max_judges => 0 };
@@ -191,7 +205,6 @@ sub update_status {
 	my $resolved   = {};
 	my $n          = int( @ { $self->{ athletes }});
 	my $placement  = {};
-	my $tied       = {};
 	my $round      = $self->{ round };
 
 	return unless $self->round_complete( $round );
@@ -210,6 +223,7 @@ sub round_complete {
 	my $round = shift;
 
 	my $complete = 1;
+	my $compulsory_forms = grep { $_->{ type } eq 'compulsory' } @{$self->{ forms }{ $round }};
 	foreach my $athlete (@{$self->{ athletes }}) {
 		next unless exists $athlete->{ scores }{ $round };
 		$complete &&= $athlete->{ scores }{ $round }->complete();
@@ -382,6 +396,9 @@ sub _filter_unimportant_ties {
 # ============================================================
 sub _parse_forms {
 # ============================================================
+# Compulsory forms are optionally labeled. Tiebreaker forms 
+# must be labeled.
+# ------------------------------------------------------------
 	my $value = shift;
 
 	my @rounds = map { 

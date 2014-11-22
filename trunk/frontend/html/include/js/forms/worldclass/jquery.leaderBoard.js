@@ -23,6 +23,7 @@ $.widget( "freescore.leaderboard", {
 
 		if( typeof( o.division ) === 'undefined' ) { return; }
 		var athletes  = o.division.athletes;
+		console.log( athletes );
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
 			var valid = 1;
@@ -77,7 +78,7 @@ $.widget( "freescore.leaderboard", {
 		var calculate_total = function( scores ) {
 			var total = scores.map( function( form ) { 
 				if( ! form.complete ) { return 0.0; } 
-				else                  { return (form.adjusted_mean.accuracy + form.adjusted_mean.presentation); }
+				else                  { return form.adjusted_mean.total; }
 			} ).reduce( function( previous, current ) { return previous + current; } );
 			return total.toFixed( 2 );
 		}
@@ -87,9 +88,10 @@ $.widget( "freescore.leaderboard", {
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k     = standings.athletes.length < 4 ? standings.athletes.length : 4;
 		for( var i = 0; i < k; i++ ) {
-			var item = html.li.clone();
+			var forms      = athlete.scores[ o.division.round ];
+			var item       = html.li.clone();
 			var athlete    = standings.athletes[ i ];
-			var total      = calculate_total( athlete.scores[ o.division.round ] );
+			var total      = calculate_total( forms );
 			var place      = html.div.clone() .addClass( "athlete" );
 			var j          = i + 1;
 			var entry      = html.div.clone()  .addClass( "athlete" ) .css( "top", i * 48 );

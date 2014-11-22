@@ -2,7 +2,7 @@
 .leaderboard {
 	width: 1000px;
 	height: 720px;
-	font-family: Optima;
+	font-family: HelveticaNeue-CondensedBold;
 	color: white;
 	overflow: hidden;
 
@@ -14,12 +14,14 @@
 		.standings {
 			position: relative;
 			height: 704px;
-			color: #999;
+			color: lime;
 			font-size: 24pt;
 			background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
 			border: 4px solid white;
 			border-radius: 24px;
 			padding: 0 32px 8px 32px;
+
+			h2 { color: white; }
 
 			.rank1 { color: #fe0; }
 			.rank2 { color: #ccc; }
@@ -31,8 +33,22 @@
 				.name {
 					position: absolute;
 					left: 0;
-					width: 70%;
+					width: 40%;
 					font-weight: bold;
+				}
+				.form1 {
+					color: #999;
+					position: absolute;
+					left: 40%;
+					width: 15%;
+					text-align: right;
+				}
+				.form2 {
+					color: #999;
+					position: absolute;
+					left: 55%;
+					width: 15%;
+					text-align: right;
 				}
 				.score {
 					position: absolute;

@@ -92,10 +92,13 @@ sub calculate_means {
 			
 			$adjusted->{ accuracy }     = sprintf( "%.2f", $adjusted->{ accuracy } );
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
+
+		} else {
+			$adjusted = { map { ( $_ => sprintf( "%.2f", ($adjusted->{ $_ }/$k))) } keys %$adjusted };
 		}
 
 		# ===== CALCULATE COMPLETE MEANS
-		$complete = { map { ( $_ => sprintf( "%.2f", $complete->{ $_ } )) } keys %$complete };
+		$complete = { map { ( $_ => sprintf( "%.2f", ($complete->{ $_ }/$k))) } keys %$complete };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation };
 		$complete->{ total } = $complete->{ accuracy } + $complete->{ presentation };
@@ -122,15 +125,21 @@ sub _compare {
 	my $sum_b = {};
 
 	foreach my $mean ( qw( adjusted_mean completed_mean )) {
-		foreach my $category ( qw( accuracy presentation )) {
-			$sum_a->{ $mean }{ $category } += $_->{ $mean }{ $category } foreach @$a;
-			$sum_b->{ $mean }{ $category } += $_->{ $mean }{ $category } foreach @$b;
+		for my $i ( 0 .. $n ) {
+			my $score_a = $a->[ $i ];
+			my $score_b = $b->[ $i ];
+			next unless ($score_a->{ complete } && $score_b->{ complete });
+
+			foreach my $category ( qw( accuracy presentation )) {
+				$sum_a->{ $mean }{ $category } += $score_a->{ $mean }{ $category };
+				$sum_b->{ $mean }{ $category } += $score_b->{ $mean }{ $category };
+			}
+			$sum_a->{ $mean }{ total } += $score_a->{ $mean }{ accuracy } + $score_a->{ $mean }{ presentation };
+			$sum_b->{ $mean }{ total } += $score_b->{ $mean }{ accuracy } + $score_b->{ $mean }{ presentation };
 		}
-		$sum_a->{ $mean }{ total } += $_->{ $mean }{ accuracy } + $_->{ $mean }{ presentation } foreach @$a;
-		$sum_b->{ $mean }{ total } += $_->{ $mean }{ accuracy } + $_->{ $mean }{ presentation } foreach @$b;
 	}
 
-	return 
+	return
 		$sum_b->{ adjusted_mean }{ total }        <=> $sum_a->{ adjusted_mean }{ total }        ||
 		$sum_b->{ adjusted_mean }{ presentation } <=> $sum_a->{ adjusted_mean }{ presentation } ||
 		$sum_b->{ complete_mean }{ total }        <=> $sum_a->{ complete_mean }{ total };
@@ -139,17 +148,25 @@ sub _compare {
 # ============================================================
 sub complete {
 # ============================================================
-# An athlete's round is complete when all their forms are complete
+# An athlete's round is complete when all their compulsory forms are complete
 # ------------------------------------------------------------
 	my $self = shift;
+	my $n    = shift || int( @$self ) > 1 ? 2 : 1;
+	$n = $n - 1;
 
+	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
 	foreach my $form (@$self) {
 		my $complete = 1;
 		$complete &&= $_->complete() foreach (@{ $form->{ judge }});
 		$form->{ complete } = $complete;
 	}
+
+	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
 	my $complete = 1;
-	foreach my $form (@$self) { $complete &&= $form->{ complete }; }
+	foreach my $i ( 0 .. $n ) {
+		my $form = $self->[ $i ];
+		$complete &&= $form->{ complete };
+	}
 	return $complete;
 }
 1;
