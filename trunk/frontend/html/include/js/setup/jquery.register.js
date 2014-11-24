@@ -118,7 +118,8 @@ $.widget( "freescore.register", {
 			o.event = {};
 			if( url.match( /grassroots/ ) != null ) { o.event.name = "Grassroots",  o.event.image = "grassroots-01", o.event.url = "../forms/grassroots/" }
 			if( url.match( /worldclass/ ) != null ) { o.event.name = "World Class", o.event.image = "poomsae-02",    o.event.url = "../forms/worldclass/" }
-			competition .fadeOut( 500, selectRing );
+			competition .hide();
+			selectRing();
 
 		} else {
 			competition.append( 

@@ -27,38 +27,99 @@ sub assign {
 sub place_athletes {
 # ============================================================
 	my $self      = shift;
-	my $round     = shift;
-	my $placement = shift;
-	my $tied      = {};
+	my $round     = $self->{ round };
+	my $placement = [];
 
 	# ===== PLACE ATHLETES
 	my @athlete_indices = ( 0 .. $#{ $self->{ athletes }} );
+	my $scores = [ map {{
+		compulsory => $self->select_compulsory_round_scores( $_, $round ),
+		tiebreaker => $self->select_tiebreaker_round_scores( $_, $round )
+	}} @athlete_indices ];
+
 	@$placement = sort { 
-		# TODO Select compulsory rounds for x and y
-		my $x = exists $self->{ athletes }[ $a ]{ scores }{ $round } ? $self->{ athletes }[ $a ]{ scores }{ $round } : undef;
-		my $y = exists $self->{ athletes }[ $b ]{ scores }{ $round } ? $self->{ athletes }[ $b ]{ scores }{ $round } : undef;
-		Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		# ===== COMPARE BY COMPULSORY ROUND SCORES
+		my $x = $scores->[ $a ]{ compulsory };
+		my $y = $scores->[ $b ]{ compulsory };
+		my $comparison = Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+
+		# ===== COMPARE BY TIE-BREAKERS IF TIED
+		if( _is_tie( $comparison )) {
+			my $x = $scores->[ $a ]{ tiebreaker };
+			my $y = $scores->[ $b ]{ tiebreaker };
+			$comparison = Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		}
+
+		$comparison;
 	} @athlete_indices;
 
-	# ===== TIE DETECTION
-	# We could do tie detection during placement, but that would be inefficient
-	# (i.e. redundant detection for every pairwise comparison) and incomplete
-	# (i.e.  we don't know which place the athletes are tied for; two athletes
-	# tied for 1st place, for example)
+	return $placement;
+}
+
+# ============================================================
+sub detect_ties {
+# ============================================================
+	my $self      = shift;
+	my $placement = shift;
+	my $ties      = [];
+	my $round     = $self->{ round };
+
+	# ===== DETECT TIES BY LOOKING AT PAIRS OF SCORES
 	my $i = 0;
+	my $k = int( @$self->{ athletes });
 	while( $i < $k ) {
 		my $a = $placement->[ $i ];
-		my $x = exists $self->{ athletes }[ $a ]{ scores }{ $round } ? $self->{ athletes }[ $a ]{ scores }{ $round } : undef;
+		my $x = $self->select_compulsory_round_scores( $a, $round );
+
 		my $j = $i + 1;
 		while( $j < $k ) {
 			my $b = $placement->[ $j ];
-			my $y = exists $self->{ athletes }[ $b ]{ scores }{ $round } ? $self->{ athletes }[ $b ]{ scores }{ $round } : undef;
-			last unless abs( Forms::WorldClass::Division::Round::_compare( $x, $y )) >= 0.005;
-			push @{ $tied->{ $round }{ $i }}, $j; 
-			$j++;
+			my $y = $self->select_compulsory_round_scores( $b, $round );
+			my $comparison = Forms::WorldClass::Division::Round::_compare( $x, $y );
+
+			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
+			if( _is_tie( $comparison )) {
+				push @{ $ties->[ $i ]}, $j; 
+				$j++;
+
+			# ===== OTHERWISE LOOK AT NEXT PLACE
+			} else { last; }
 		}
 		$i = $j;
 	}
+
+	# ===== FILTER UNIMPORTANT TIES
+	my $places   = $self->{ places };
+	my $i        = 0;
+	my $medals   = $places->[ $i ];
+	my $athletes = 0;
+	while( $i < $k && $medals ) {
+		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
+		elsif ( $athletes == 0     ) { $athletes  = 1; }
+
+		my $gave = $medals >= $athletes ? $athletes : $medals;
+
+		# ===== IF THERE ARE ENOUGH MEDALS, EACH ATHLETE GETS ONE MEDAL
+		if( $medals >= $athletes ) {
+			$medals -= $athletes;
+			$athletes = 0;
+			$ties->[ $i ] = undef;
+
+		# ===== OTHERWISE GIVE AWAY ALL MEDALS; SOME ATHLETES WILL STILL NEED MEDALS
+		} else {
+			$athletes -= $medals;
+			$medals = 0;
+
+		}
+
+		$i += $gave;
+		$medals += $places->[ $i ];
+	}
+
+	# ===== IGNORE ALL OTHER TIES
+	splice( @$ties, $i);
+
+	return $ties;
 }
 
 # ============================================================
@@ -137,9 +198,7 @@ sub read {
 			my ($round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
 			$self->{ rounds }{ $round } = 1;
 
-			$table->{ max_rounds }{ $round }++;
 			$table->{ max_forms }  = $table->{ max_forms }  > $form  ? $table->{ max_forms }  : $form;
-			$table->{ max_judges } = $table->{ max_judges } > $judge ? $table->{ max_judges } : $judge;
 			$form  =~ s/f//; $form  = int( $form )  - 1;
 			$judge =~ s/j//; $judge = int( $judge ) - 1;
 
@@ -157,23 +216,27 @@ sub read {
 	ROUND_SETUP: {
 		my $round    = local $_ = $self->{ round };
 		my $n        = int( @{ $self->{ athletes }} );
+		my $half     = int( ($n+1)/2);
 
 		if     ( /^prelim$/ ) { 
 			last ROUND_SETUP unless $n >= 20;
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
+			$self->{ places } = [ $half ];
 
 		} elsif( /^semfin$/ ) {
 			last ROUND_SETUP unless $n > 8 && $n < 20;
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
+			$self->{ places } = [ 8 ];
 
 		} elsif( /^finals$/ ) {
 			last ROUND_SETUP unless $n <= 8;
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
+			$self->{ places } = [ 1, 1, 2 ];
 		}
 	}
 
 	# ===== COMPLETE THE TABLE OF SCORES
-	$table->{ max_judges } = $self->{ judges } if( exists $self->{ judges } );
+	$table->{ max_judges } = $self->{ judges };
 	$table->{ max_rounds } = [ grep { exists $table->{ max_rounds }{ $_ } } @FreeScore::Forms::WorldClass::Division::round_order ];
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		foreach my $round (@{ $table->{ max_rounds }}) {
@@ -199,19 +262,9 @@ sub update_status {
 	# This avoids unnecessary processing
 	return unless $self->round_complete( $self->{ round } );
 
-	# ===== ORGANIZE ATHLETES BY ROUND
-	my $tie        = 0; # a constant representing a tie
-	my $completed  = {};
-	my $resolved   = {};
-	my $n          = int( @ { $self->{ athletes }});
-	my $placement  = {};
-	my $round      = $self->{ round };
-
-	return unless $self->round_complete( $round );
-
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
-	# $self->place_athletes( $placement );
-
+	my $placement = $self->place_athletes();
+	my $ties      = $self->detect_ties( $placement );
 
 	return $placement;
 }
@@ -359,38 +412,58 @@ sub previous {
 }
 
 # ============================================================
-sub _filter_unimportant_ties {
+sub select_tiebreaker_round_scores {
 # ============================================================
-	my $assigned         = shift; # Number of athletes in the round
-	my $ties             = shift; # 
-	my $order            = shift;
-	my $places_available = shift; # Places available
-	my $n                = shift;
+	my $self    = shift;
+	my $i       = shift;
+	my $round   = shift;
 
-	# Count number of places needed
-	my $places_needed = 0;
-	while( $places_needed < $places_available ) {
-		$places_needed++;
-		next unless exists $ties->{ $places_needed };
-		my $num_ties = int( @{ $ties->{ $places_needed }} );
+	die "Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
+	die "Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
+	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
 
-		# Deal with ties that cross the number of available places (e.g. 3 ties for 19th place out of 20 available places; 2 of 3 ties will advance)
-		if( $places_needed + $num_ties > $places_available ) {
-			my @athletes = map { my $i = $order->[ $_ ]; $self->{ athletes }[ $i ]; } ($places_needed, @{ $ties->{ $places_needed }});
-			foreach my $athlete (@athletes) {
-				$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
-			}
-		} else {
-			# Discard ties that are placed comfortably within the top athletes; they move on to the next round
-			delete $ties->{ $places_needed };
-		}
-		$places_needed += $num_ties;
-	}
-	# Discard ties that are placed past the top athletes; they don't move on to the next round
-	while( $places_needed < $n ) {
-		delete $ties->{ $places_needed } if exists $ties->{ $places_needed };
-		$places_needed++;
-	}
+	my $athlete = $self->{ athletes }[ $i ]{ scores }{ $round };
+	my $forms   = $self->{ forms }{ $round };
+
+	my @form_indices = ( 0 .. $#$forms );
+	my @tiebreaker   = grep { $forms->[ $_ ]{ type } eq 'tiebreaker' } @form_indices;
+	
+	my $scores = [ grep { $athlete } @tiebreaker ];
+
+	return $scores;
+}
+
+# ============================================================
+sub select_compulsory_round_scores {
+# ============================================================
+	my $self    = shift;
+	my $i       = shift;
+	my $round   = shift;
+
+	die "Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
+	die "Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
+	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
+
+	my $athlete = $self->{ athletes }[ $i ]{ scores }{ $round };
+	my $forms   = $self->{ forms }{ $round };
+
+	my @form_indices = ( 0 .. $#$forms );
+	my @compulsory   = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
+	
+	my $scores = [ grep { $athlete } @compulsory ];
+	
+	return $scores;
+}
+
+# ============================================================
+sub _is_tie {
+# ============================================================
+# Smallest difference is 0.1 divided by 7 judges for complete
+# scores, or ~0.014; so we set the tie detection threshold to
+# 0.010 for convenience
+# ------------------------------------------------------------
+	my $comparison = shift;
+	return abs( $comparison ) < 0.010;
 }
 
 # ============================================================
