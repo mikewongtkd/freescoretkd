@@ -15,12 +15,39 @@ sub assign {
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $athlete = shift;
-	my $round   = $self->{ round };
-	my $forms   = exists $self->{ forms }{ $round } ? int(@{ $self->{ forms }{ $round }}) : 0;
+	my $round   = shift || $self->{ round };
 	my $judges  = $self->{ judges };
+	my $forms   = 0;
+
+	if( exists $self->{ forms }{ $round } ) {
+		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
+		$forms = int( @compulsory );
+	}
 
 	return if exists $athlete->{ scores }{ $round };
 	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( [], $forms, $judges );
+}
+
+# ============================================================
+sub assign_tiebreaker {
+# ============================================================
+# Assigns the athlete to a tiebreaker round; if the athlete is already assigned
+# to a tiebreaker round this function does nothing.
+# ------------------------------------------------------------
+	my $self    = shift;
+	my $athlete = shift;
+	my $round   = shift || $self->{ round };
+	my $judges  = $self->{ judges };
+
+	if( exists $self->{ forms }{ $round } ) {
+		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
+		my @tiebreaker = grep { $_->{ type } eq 'tiebreaker' } @{ $self->{ forms }{ $round }};
+		my $start = int( @compulsory );
+		my $stop  = int( @compulsory ) + int( @tiebreaker ) - 1;
+		for my $i ($start .. $stop) {
+			$athlete->{ scores }{ $round }->add_tiebreaker( $judges, $start, $stop );
+		}
+	}
 }
 
 # ============================================================
@@ -100,6 +127,7 @@ sub detect_ties {
 		my $gave = $medals >= $athletes ? $athletes : $medals;
 
 		# ===== IF THERE ARE ENOUGH MEDALS, EACH ATHLETE GETS ONE MEDAL
+		# No need for a tie breaker
 		if( $medals >= $athletes ) {
 			$medals -= $athletes;
 			$athletes = 0;
@@ -257,14 +285,22 @@ sub read {
 sub update_status {
 # ============================================================
 	my $self  = shift;
+	my $round = $self->{ round };
 
 	# ==== SKIP STATUS UPDATE UNLESS ROUND IS NOT INITIALIZED OR ROUND IS COMPLETE
 	# This avoids unnecessary processing
-	return unless $self->round_complete( $self->{ round } );
+	return unless $self->round_complete( $round );
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	my $placement = $self->place_athletes();
 	my $ties      = $self->detect_ties( $placement );
+
+	foreach my $tie (@$ties) {
+		next unless ref $tie;
+		foreach my $i (@$tie) {
+			my $athlete = $self->{ athletes }[ $i ]{ $round }
+		}
+	}
 
 	return $placement;
 }

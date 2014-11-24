@@ -37,6 +37,20 @@ sub init {
 }
 
 # ============================================================
+sub add_tiebreaker {
+# ============================================================
+	my $self   = shift;
+	my $judges = shift;
+	my $start  = shift;
+	my $stop   = shift;
+	foreach my $i ( $start .. $stop ) {
+		my $scores = [];
+		push @$scores, {} foreach( 1 .. $judges );
+		$self->[ $i ] = defined $self->[ $i ] ? $self->[ $i ] : { judge => $scores };
+	}
+}
+
+# ============================================================
 sub calculate_means {
 # ============================================================
 	my $self   = shift;
