@@ -2,7 +2,6 @@ package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
-use Data::Dumper;
 
 # ============================================================
 sub new {

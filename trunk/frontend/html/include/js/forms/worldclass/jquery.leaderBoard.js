@@ -23,7 +23,6 @@ $.widget( "freescore.leaderboard", {
 
 		if( typeof( o.division ) === 'undefined' ) { return; }
 		var athletes  = o.division.athletes;
-		console.log( athletes );
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete  = athletes[ i ];
 			var valid = 1;

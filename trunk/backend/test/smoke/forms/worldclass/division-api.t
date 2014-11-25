@@ -25,11 +25,11 @@ foreach my $i ( 0 .. 21 ) {
 			$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
 			$division->record_score( $judge, $score );
 			ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
+			$division->write();
 		}
 		$division->next();
 	}
 }
 
+$division->next_round();
 $division->write();
-
-print Dumper $division->place_athletes();

@@ -4,7 +4,6 @@ use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use base qw( FreeScore::Forms::Division );
-use Data::Dumper;
 
 our @round_order = ( qw( prelim semfin finals ) );
 
@@ -81,6 +80,10 @@ sub place_athletes {
 
 		$comparison;
 	} @athlete_indices;
+
+	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @$placement;
+
+	$self->{ placement }{ $round } = $placement;
 
 	return $placement;
 }
@@ -202,8 +205,9 @@ sub read {
 		if( /^#/ ) {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
-			if( $key eq 'forms' ) { $self->{ $key } = _parse_forms( $value ); }
-			else                  { $self->{ $key } = $value;                 }
+			if    ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
+			elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
+			else                          { $self->{ $key } = $value;                     }
 			next;
 
 		# ===== READ DIVISION ATHLETE INFORMATION
@@ -295,7 +299,6 @@ sub update_status {
 
 	# ==== SKIP STATUS UPDATE UNLESS ROUND IS NOT INITIALIZED OR ROUND IS COMPLETE
 	# This avoids unnecessary processing
-	return unless $self->round_complete( $round );
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	my $placement = $self->place_athletes();
@@ -310,14 +313,6 @@ sub update_status {
 		}
 	}
 
-	print STDERR map { 
-		my $athlete = $self->{ athletes }[ $_ ];
-		my $forms   = $athlete->{ scores }{ $round };
-		my $form1   = $forms->[ 0 ]{ adjusted_mean }{ total };
-		my $form2   = $forms->[ 1 ]{ adjusted_mean }{ total };
-		my $total   = $form1 + $form2;
-		"$_: $athlete->{ name } $form1 $form2 $total\n" 
-	} @$placement;
 	return $placement;
 }
 
@@ -341,11 +336,21 @@ sub write {
 	my $self = shift;
 	my @criteria = qw( major minor rhythm power ki );
 
+	$self->update_status();
+
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $self->{ forms }{ $round };
 		push @forms, "$round:" . join( ",", map { $_->{ type } eq 'tiebreaker' ? "$->{ name } ($_->{ type })" : $_->{ name }; } @{$self->{ forms }{ $round }} );
+	}
+
+	# ===== PREPARE THE PLACEMENTS
+	$self->{ placement } = {} unless defined $self->{ placement };
+	my @places = ();
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+		next unless exists $self->{ placement }{ $round };
+		push @places, "$round:" . join( ",", @{$self->{ placement }{ $round }} );
 	}
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
@@ -356,6 +361,7 @@ sub write {
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n";
+	print FILE "# placement=" . join( ";", @places ) . "\n";
 	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
@@ -511,6 +517,18 @@ sub _parse_forms {
 		$round => [ @forms ];
 	} split /;/, $value;
 	return { @rounds }; 
+}
+
+# ============================================================
+sub _parse_placement {
+# ============================================================
+	my $value = shift;
+	my @rounds = map {
+		my ($round, $list) = split /:/;
+		my @placements = split /,/, $list;
+		$round => [ @placements ];
+	} split /;/, $value;
+	return { @rounds };
 }
 
 1;
