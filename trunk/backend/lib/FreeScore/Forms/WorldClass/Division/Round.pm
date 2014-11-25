@@ -2,6 +2,7 @@ package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
+use Data::Dumper;
 
 # ============================================================
 sub new {
@@ -43,9 +44,10 @@ sub add_tiebreaker {
 	my $judges = shift;
 	my $start  = shift;
 	my $stop   = shift;
+
 	foreach my $i ( $start .. $stop ) {
 		my $scores = [];
-		push @$scores, {} foreach( 1 .. $judges );
+		push @$scores, new FreeScore::Forms::WorldClass::Division::Round::Score( {} ) foreach( 1 .. $judges );
 		$self->[ $i ] = defined $self->[ $i ] ? $self->[ $i ] : { judge => $scores };
 	}
 }
@@ -137,19 +139,17 @@ sub _compare {
 
 	my $sum_a = {};
 	my $sum_b = {};
+	my $n     = $#$a >= $#$b ? $#$a : $#$b;
 
-	foreach my $mean ( qw( adjusted_mean completed_mean )) {
+	foreach my $mean ( qw( adjusted_mean complete_mean )) {
 		for my $i ( 0 .. $n ) {
 			my $score_a = $a->[ $i ];
 			my $score_b = $b->[ $i ];
-			next unless ($score_a->{ complete } && $score_b->{ complete });
 
-			foreach my $category ( qw( accuracy presentation )) {
+			foreach my $category ( qw( accuracy presentation total )) {
 				$sum_a->{ $mean }{ $category } += $score_a->{ $mean }{ $category };
 				$sum_b->{ $mean }{ $category } += $score_b->{ $mean }{ $category };
 			}
-			$sum_a->{ $mean }{ total } += $score_a->{ $mean }{ accuracy } + $score_a->{ $mean }{ presentation };
-			$sum_b->{ $mean }{ total } += $score_b->{ $mean }{ accuracy } + $score_b->{ $mean }{ presentation };
 		}
 	}
 

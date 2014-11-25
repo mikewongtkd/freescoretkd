@@ -1,9 +1,12 @@
-.PHONY: all cache test ui
+.PHONY: all cache rest ui
 
-all: cache test
+all: unit rest
 
-test: 
+rest: cache
 	./smoke/forms/worldclass/rest-api.t
+
+unit: cache
+	./smoke/forms/worldclass/division-api.t
 
 cache:
 	mkdir -p /Volumes/ramdisk/test

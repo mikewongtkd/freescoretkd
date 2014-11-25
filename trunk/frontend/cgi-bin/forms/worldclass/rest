@@ -170,6 +170,7 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	try {
 		$division->record_score( $judge, $score );
 		$division->write();
+		$division->update_status();
 		$self->render( json => { athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
 
 	} catch {

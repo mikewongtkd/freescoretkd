@@ -3,7 +3,7 @@ use LWP::UserAgent;
 use JSON::XS;
 use parent qw( Exporter );
 
-our @EXPORT = qw( roll highest lowest sum score_worldclass );
+our @EXPORT_OK = qw( roll highest lowest sum score_worldclass );
 
 # ============================================================
 sub new {
