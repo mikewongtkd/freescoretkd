@@ -4,14 +4,14 @@ use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use base qw( FreeScore::Forms::Division );
+use Data::Dumper;
 
 our @round_order = ( qw( prelim semfin finals ) );
 
 # ============================================================
 sub assign {
 # ============================================================
-# Assigns the athlete to a round; if the athlete is already 
-# assigned to the round this function does nothing.
+# Assigns the athlete to a round
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $athlete = shift;
@@ -24,15 +24,14 @@ sub assign {
 		$forms = int( @compulsory );
 	}
 
-	return if exists $athlete->{ scores }{ $round };
-	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( [], $forms, $judges );
+	my $data = exists $athlete->{ scores }{ $round } ? $athlete->{ scores }{ $round } : [];
+	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $data, $forms, $judges );
 }
 
 # ============================================================
 sub assign_tiebreaker {
 # ============================================================
-# Assigns the athlete to a tiebreaker round; if the athlete is already assigned
-# to a tiebreaker round this function does nothing.
+# Assigns the athlete to a tiebreaker round
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $athlete = shift;
@@ -297,9 +296,6 @@ sub update_status {
 	my $self  = shift;
 	my $round = $self->{ round };
 
-	# ==== SKIP STATUS UPDATE UNLESS ROUND IS NOT INITIALIZED OR ROUND IS COMPLETE
-	# This avoids unnecessary processing
-
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	my $placement = $self->place_athletes();
 	my $ties      = $self->detect_ties( $placement );
@@ -313,19 +309,32 @@ sub update_status {
 		}
 	}
 
-	return $placement;
+	my $n        = int( @{ $self->{ athletes }} );
+	my $half     = int( ($n+1)/2);
+	my $k        = $n > 8 ? 7 : ($n - 1);
+	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
+		my @placed = map { $self->{ athletes }[ $_ ] } @{ $self->{ placement }{ 'prelim' }}[ 0 .. $half ];
+		$self->assign( $_, 'semfin' ) foreach @placed;
+
+	} elsif( $round eq 'finals' && $self->round_completed( 'semfin' )) { 
+		my @placed = map { $self->{ athletes }[ $_ ] } @{ $self->{ placement }{ 'semfin' }}[ 0 .. $k ];
+		$self->assign( $_, 'finals' ) foreach @placed;
+	}
 }
 
 # ============================================================
 sub round_complete {
 # ============================================================
 	my $self  = shift;
-	my $round = shift;
+	my $round = shift || $self->{ round };
 
-	my $complete = 1;
+	my $forms      = $self->{ forms }{ $round };
+	my @compulsory = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
+	my $n          = int( @compulsory );
+	my $complete   = 1;
 	foreach my $athlete (@{$self->{ athletes }}) {
 		next unless exists $athlete->{ scores }{ $round };
-		$complete &&= $athlete->{ scores }{ $round }->complete();
+		$complete &&= $athlete->{ scores }{ $round }->complete( $n );
 	}
 	return $complete;
 }
