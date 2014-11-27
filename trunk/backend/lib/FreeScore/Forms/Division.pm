@@ -18,7 +18,6 @@ sub init {
 	my $name = shift;
 	my $ring = shift || 'unassigned';
 
-	$self->{ current } = 0;
 	$self->{ state }   = 'display';
 
 	$self->{ path } = $path;

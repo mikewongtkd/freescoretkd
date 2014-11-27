@@ -25,6 +25,8 @@ sub assign {
 	}
 
 	my $data = exists $athlete->{ scores }{ $round } ? $athlete->{ scores }{ $round } : [];
+	my $k = int( @$data );
+	return if( int( @$data ) >= $forms );
 	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $data, $forms, $judges );
 }
 
@@ -191,7 +193,6 @@ sub read {
 
 	# ===== DEFAULTS
 	$self->{ state }   = 'score';
-	$self->{ current } = 0;
 	$self->{ round }   = 'finals';
 
 	my $athlete = {};
@@ -245,26 +246,23 @@ sub read {
 	# ===== INITIALIZE EACH ROUND (IF NOT ALREADY INITIALIZED)
 	my @rounds = ();
 	ROUND_SETUP: {
-		my $round    = local $_ = $self->{ round };
+		my $round    =  $self->{ round };
 		my $n        = int( @{ $self->{ athletes }} );
-		my $half     = int( ($n+1)/2);
+		my $half     = int( ($n-1)/2 );
 
 		push @rounds, 'prelim' if $n >= 20;
 		push @rounds, 'semfin' if $n >  8;
 		push @rounds, 'finals';
 
-		if     ( /^prelim$/ ) { 
-			last ROUND_SETUP unless $n >= 20;
+		if     ( $round eq 'prelim' && $n >= 20 ) { 
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 			$self->{ places } = [ $half ];
 
-		} elsif( /^semfin$/ ) {
-			last ROUND_SETUP unless $n > 8 && $n < 20;
+		} elsif( $round eq 'semfin' && $n > 8 && $n < 20 ) {
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 			$self->{ places } = [ 8 ];
 
-		} elsif( /^finals$/ ) {
-			last ROUND_SETUP unless $n <= 8;
+		} elsif( $round eq 'finals' && $n <= 8 ) {
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 			$self->{ places } = [ 1, 1, 2 ];
 		}
@@ -277,6 +275,7 @@ sub read {
 			my $athlete_forms = $#{ $athlete->{ scores }{ $round }};
 			my $forms         = $#compulsory > $athlete_forms ? $#compulsory : $athlete_forms;
 
+			next unless exists $athlete->{ scores }{ $round };
 			foreach my $i ( 0 .. $forms ) {
 				my $judge_scores = $athlete->{ scores }{ $round }[ $i ];
 				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
@@ -288,6 +287,8 @@ sub read {
 			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
 		}
 	}
+
+	$self->{ current } = $self->athletes_in_round( 'first' ) unless( $self->{ current } );
 }
 
 # ============================================================
@@ -310,13 +311,13 @@ sub update_status {
 	}
 
 	my $n        = int( @{ $self->{ athletes }} );
-	my $half     = int( ($n+1)/2);
+	my $half     = int( ($n-1)/2 );
 	my $k        = $n > 8 ? 7 : ($n - 1);
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
 		my @placed = map { $self->{ athletes }[ $_ ] } @{ $self->{ placement }{ 'prelim' }}[ 0 .. $half ];
 		$self->assign( $_, 'semfin' ) foreach @placed;
 
-	} elsif( $round eq 'finals' && $self->round_completed( 'semfin' )) { 
+	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
 		my @placed = map { $self->{ athletes }[ $_ ] } @{ $self->{ placement }{ 'semfin' }}[ 0 .. $k ];
 		$self->assign( $_, 'finals' ) foreach @placed;
 	}
@@ -332,7 +333,7 @@ sub round_complete {
 	my @compulsory = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
 	my $n          = int( @compulsory );
 	my $complete   = 1;
-	foreach my $athlete (@{$self->{ athletes }}) {
+	foreach my $athlete ($self->athletes_in_round( $round )) {
 		next unless exists $athlete->{ scores }{ $round };
 		$complete &&= $athlete->{ scores }{ $round }->complete( $n );
 	}
@@ -400,9 +401,14 @@ sub next_round {
 	my @i      = (0 .. $#rounds);
 	my ($i)    = grep { $self->{ round } eq $rounds[ $_ ] } @i;
 	if( $i == $#rounds ) { $i = 0; }
-	else { $i++; }
+	else                 { $i++; }
 
+	# ===== GO TO NEXT ROUND
 	$self->{ round } = $rounds[ $i ];
+	$self->update_status();
+
+	# ===== GO TO THE FIRST ATHLETE IN THAT ROUND
+	$self->{ current } = $self->athletes_in_round( 'first' );
 }
 
 # ============================================================
@@ -413,11 +419,15 @@ sub previous_round {
 	my @i      = (0 .. $#rounds);
 	my ($i)    = grep { $self->{ round } eq $rounds[ $_ ] } @i;
 	if( $i == 0 ) { $i = $#rounds; }
-	else { $i--; }
+	else          { $i--; }
 
+	# ===== GO TO PREVIOUS ROUND
 	$self->{ round } = $rounds[ $i ];
-}
+	$self->update_status();
 
+	# ===== GO TO THE LAST ATHLETE IN THAT ROUND
+	$self->{ current } = $self->athletes_in_round( 'last' );
+}
 
 # ============================================================
 sub next {
@@ -429,11 +439,14 @@ sub next {
 	my $form      = $self->{ form };
 	my $max_forms = $#{ $self->{ forms }{ $round }};
 
+	# ===== NEXT FORM; OR
 	if( $form < $max_forms ) {
 		$self->{ form }++;
+
+	# ===== NEXT ATHLETES IN THE CURRENT ROUND
 	} else {
-		$self->{ current } = ($self->{ current } + 1) % int( @{ $self->{ athletes }});
-		$self->{ form } = 0;
+		$self->{ current }    = $self->athletes_in_round( 'next' );
+		$self->{ form }       = 0;
 	}
 }
 
@@ -445,15 +458,16 @@ sub previous {
 
 	my $round        = $self->{ round };
 	my $form         = $self->{ form };
-	my $max_forms    = $#{ $self->{ forms }{ $round }};
-	my $previous     = ($self->{ current } - 1);
-	my $max_athletes = $#{ $self->{ athletes }};
 
+	# ===== PREVIOUS FORM; OR
 	if( $form > 0 ) {
 		$self->{ form }--;
+
+	# ===== PREVIOUS ATHLETES IN THE CURRENT ROUND
 	} else {
-		$self->{ current } = $previous >= 0 ? $previous: $max_athletes;
-		$self->{ form }    = $max_forms;
+		my $max_forms         = $#{ $self->{ forms }{ $round }};
+		$self->{ current }    = $self->athletes_in_round( 'prev' );
+		$self->{ form }       = $max_forms;
 	}
 }
 
@@ -502,6 +516,41 @@ sub select_compulsory_round_scores {
 }
 
 # ============================================================
+sub athletes_in_round {
+# ============================================================
+	my $self   = shift;
+	my $option = shift;
+
+	my $i      = undef;
+	my $find   = 0;
+	my $round  = $self->{ round };
+
+	if    ( $option eq 'first'   ) { $i     =  0; }
+	elsif ( $option eq 'last'    ) { $i     = -1; }
+	elsif ( $option eq 'next'    ) { $find  =  1; }
+	elsif ( $option eq 'prev'    ) { $find  = -1; }
+	elsif ( $option eq 'prelim'  ) { $round = $option; }
+	elsif ( $option eq 'semfin'  ) { $round = $option; }
+	elsif ( $option eq 'finals'  ) { $round = $option; }
+
+	my @athlete_indices   = ( 0 .. $#{ $self->{ athletes }} );
+	my @athletes_in_round = grep { @{$self->{ athletes }[ $_ ]{ scores }{ $round }} } @athlete_indices;
+
+	if( defined $i ) {
+		return $athletes_in_round[ $i ];
+
+	} elsif( $find ) {
+		my $j = (map { $athletes_in_round[ $_ ] == $self->{ current } ? $_ : () } ( 0 .. $#athletes_in_round ))[ 0 ];
+		my $k = ($j + $find) % int( @athletes_in_round );
+
+		return $athletes_in_round[ $k ];
+
+	} else {
+		return @athletes_in_round;
+	}
+}
+
+# ============================================================
 sub _is_tie {
 # ============================================================
 # Smallest difference is 0.1 divided by 7 judges for complete
@@ -539,5 +588,7 @@ sub _parse_placement {
 	} split /;/, $value;
 	return { @rounds };
 }
+
+	
 
 1;

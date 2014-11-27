@@ -16,4 +16,5 @@ cache:
 	find /Volumes/ramdisk/test -type d -exec chmod a+w {} \;
 
 ui:
+	cp data/forms-worldclass/ring01/div.p02.txt /Volumes/ramdisk/tma-2014-fall/forms-worldclass/ring01/div.p12.txt
 	./ui/forms/worldclass/judges

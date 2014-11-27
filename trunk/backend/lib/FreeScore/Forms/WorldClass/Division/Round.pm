@@ -171,6 +171,7 @@ sub complete {
 	foreach my $form (@$self) {
 		my $complete = 1;
 		$complete &&= $_->complete() foreach (@{ $form->{ judge }});
+
 		$form->{ complete } = $complete;
 	}
 
