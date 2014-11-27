@@ -22,7 +22,7 @@ sub score {
 	my $k      = shift;
 	my @judges = shuffle( 0 .. $k );
 	foreach my $judge (@judges) {
-		my $score       = score_worldclass();
+		my $score       = score_worldclass( 'good' );
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		$test->worldclass( $judge_score );
 		sleep( 1 );

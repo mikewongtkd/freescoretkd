@@ -7,6 +7,7 @@ use Data::Dumper;
 
 my $tournament = 'test';
 my $ring       = 1;
+my $skill      = get_skill_levels();
 
 my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 ok( $progress );
@@ -14,62 +15,77 @@ ok( $progress );
 my $division   = $progress->current();
 ok( $division );
 
-my $judges = $division->{ judges };
+score( $division, 22 ); # PRELIMINARY, 22 ATHLETES
+score( $division, 11 ); # SEMI-FINALS, 11 ATHLETES
+score( $division, 8 );  # FINALS,       8 ATHLETES
 
-foreach my $i ( 0 .. 21 ) {
-	my $j = $division->{ current };
-	my $athlete = $division->{ athletes }[ $j ]{ scores }{ $division->{ round }};
-	ok( $athlete );
-	foreach my $form( 0 .. 1 ) {
-		foreach my $judge ( 0 .. ($judges - 1)) {
-			my $score = score_worldclass();
-			$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
-			$division->record_score( $judge, $score );
-			ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
-			$division->write();
+# ============================================================
+sub score {
+# ============================================================
+ 	my $division = shift;
+	my $athletes = shift;
+
+	my $j = $division->{ judges } - 1;
+	my $n = $athletes - 1;
+	my $r = $division->{ round };
+
+	foreach ( 0 .. $n ) {
+		my $i = $division->{ current };
+		my $athlete = $division->{ athletes }[ $i ]{ scores }{ $r };
+		my $name    = $division->{ athletes }[ $i ]{ name };
+		ok( $athlete );
+		foreach my $form( 0 .. 1 ) {
+			foreach my $judge ( 0 .. $j ) {
+				my $level = $skill->{ $name };
+				my $score = score_worldclass( $level );
+				$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
+				$division->record_score( $judge, $score );
+				ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
+				$division->write();
+			}
+			$division->next();
 		}
-		$division->next();
 	}
+
+	$division->next_round();
+	$division->write();
 }
 
-$division->next_round();
-$division->write();
-
-foreach my $i ( 0 .. 10 ) {
-	my $j = $division->{ current };
-	my $athlete = $division->{ athletes }[ $j ]{ scores }{ $division->{ round }};
-	ok( $athlete );
-	foreach my $form( 0 .. 1 ) {
-		foreach my $judge ( 0 .. ($judges - 1)) {
-			my $score = score_worldclass();
-			$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
-			$division->record_score( $judge, $score );
-			ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
-			$division->write();
-		}
-		$division->next();
+# ============================================================
+sub get_skill_levels {
+# ============================================================
+# The names and skill levels are just for demonstration
+# purposes; they have no real or intended value.
+# ------------------------------------------------------------
+	my $skill = {};
+	while( <DATA> ) {
+		chomp;
+		my ($name, $level) = split /\t+/;
+		$skill->{ $name } = $level;
 	}
+	return $skill;
 }
 
-$division->next_round();
-$division->write();
-
-foreach my $i ( 0 .. 7 ) {
-	my $j = $division->{ current };
-	my $athlete = $division->{ athletes }[ $j ]{ scores }{ $division->{ round }};
-	ok( $athlete );
-	foreach my $form( 0 .. 1 ) {
-		foreach my $judge ( 0 .. ($judges - 1)) {
-			my $score = score_worldclass();
-			$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
-			$division->record_score( $judge, $score );
-			ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
-			$division->write();
-		}
-		$division->next();
-	}
-}
-
-$division->next_round();
-$division->write();
-
+__DATA__
+Aditya		good	
+Anika		better	
+Piper		best	
+Alexander	better	
+Steven		best	
+Sofia		better
+Christian	good	
+Jamsheed	ok	
+Thibault	good	
+Yash		ok	
+Sean C.		good	
+Sean O.		better	
+Sujatha		ok	
+Jill		ok	
+Mike		best	
+Carl		good	
+Veronika	better	
+Giovanni	ok	
+Katrina		good	
+Cody		better	
+Kaylee		ok	
+Jonathan	ok	

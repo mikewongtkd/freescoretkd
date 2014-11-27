@@ -3,14 +3,14 @@
 # form=0
 # round=prelim
 # judges=5
-# description=Black Belt World Class Grand Championships
+# description=World Class All Ages
 # forms=prelim:Koomgang,Taegeuk Saa Jang;semfin:Taegeuk Oh Jang,Koryo;finals:Taegeuk Chil Jang,Taegeuk Yuk Jang
 Aditya	Black	
 Anika	Black	
 Piper	Black	
 Alexander	Black	
 Steven	Black	
-Chi-Ching	Black	
+Sofia	Black	
 Christian	Black	
 Jamsheed	Black	
 Thibault	Black	

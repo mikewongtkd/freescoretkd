@@ -102,19 +102,63 @@ sub sum( @ ) {
 # ============================================================
 sub score_worldclass {
 # ============================================================
-	my $major  = ((sum lowest 1, roll "2d8")  - 1)/10;
-	my $minor  = ((sum lowest 2, roll "3d20") - 2)/10;
-	my $rhythm = ((sum lowest 5, roll "6d4")/10);
-	my $power  = ((sum lowest 5, roll "6d4")/10);
-	my $ki     = ((sum lowest 5, roll "6d4")/10);
+	my $performance = shift;
+	my $score       = undef;
 
-	$major = $major * 3;
-	$minor = $major + $minor > 40 ? (40 - $major) : $minor;
+	if     ( not defined $performance ) {
+		$score = {
+			major  => ((sum lowest 1, roll "2d8")  - 1)/10,
+			minor  => ((sum lowest 2, roll "3d20") - 2)/10,
+			rhythm => ((sum lowest 5, roll "6d4")/10),
+			power  => ((sum lowest 5, roll "6d4")/10),
+			ki     => ((sum lowest 5, roll "6d4")/10),
+		};
 
-	my $accuracy     = 4.0 - ($major + $minor);
-	my $presentation = $rhythm + $power + $ki;
+	} elsif( $performance eq 'best'   ) { # Mean = 7.28, SD = 0.53
+		$score = {
+			major  => ((sum lowest 2, roll "8d4") - 2)/10,
+			minor  => ((sum lowest 5, roll "8d6") - 5)/10,
+			rhythm => ((sum highest( 1, roll "2d6"), lowest( 2, roll "4d4"), + 6)/10),
+			power  => ((sum highest( 1, roll "2d6"), lowest( 2, roll "4d4"), + 6)/10),
+			ki     => ((sum highest( 1, roll "2d6"), lowest( 2, roll "4d4"), + 6)/10),
+		};
 
-	return { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki, accuracy => $accuracy, presentation => $presentation };
+	} elsif( $performance eq 'better' ) { # Mean = 6.29, SD = 0.66
+		$score = {
+			major  => ((sum lowest 3, roll "8d4") - 3)/10,
+			minor  => ((sum lowest 6, roll "8d6") - 6)/10,
+			rhythm => ((sum lowest( 2, roll "4d6" ), +8)/10),
+			power  => ((sum lowest( 2, roll "4d6" ), +8)/10),
+			ki     => ((sum lowest( 2, roll "4d6" ), +8)/10),
+		};
+
+	} elsif( $performance eq 'good'   ) { # Mean = 4.62, SD = 0.79
+		$score = {
+			major  => ((sum lowest 3, roll "8d6") - 3)/10,
+			minor  => ((sum lowest 6, roll "10d8") - 6)/10,
+			rhythm => ((sum lowest( 2, roll "6d4" ), +6)/10),
+			power  => ((sum lowest( 2, roll "6d4" ), +6)/10),
+			ki     => ((sum lowest( 2, roll "6d4" ), +6)/10),
+		};
+
+	} elsif( $performance eq 'ok'     ) { # Mean = 3.09, SD = 1.06
+		$score = {
+			major  => ((sum lowest 3, roll "5d6") - 3)/10,
+			minor  => ((sum lowest 6, roll "8d8"))/10,
+			rhythm => ((sum lowest 4, roll "8d6")/10),
+			power  => ((sum lowest 4, roll "8d6")/10),
+			ki     => ((sum lowest 4, roll "8d6")/10),
+		};
+
+	}
+
+	$score->{ major } = $score->{ major } * 3;
+	$score->{ minor } = $score->{ major } + $score->{ minor } > 40 ? (40 - $score->{ major }) : $score->{ minor };
+
+	$score->{ accuracy }     = 4.0 - ($score->{ major } + $score->{ minor });
+	$score->{ presentation } = $score->{ rhythm } + $score->{ power } + $score->{ ki };
+
+	return $score;
 }
 
 1;
