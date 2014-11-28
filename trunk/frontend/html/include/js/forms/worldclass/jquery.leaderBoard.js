@@ -54,8 +54,8 @@ $.widget( "freescore.leaderboard", {
 				var li         = html.li.clone();
 				var entry      = html.div.clone() .addClass( "athlete" );
 				var name       = html.div.clone() .addClass( "name" ) .html( athlete.name );
-				var form1      = html.div.clone() .addClass( "form1" ) .html( forms[ 0 ].adjusted_mean.total.toFixed( 2 ));
-				var form2      = html.div.clone() .addClass( "form2" ) .html( forms[ 1 ].adjusted_mean.total.toFixed( 2 ));
+				var form1      = defined( forms[ 0 ] ) ? html.div.clone() .addClass( "form1" ) .html( forms[ 0 ].adjusted_mean.total.toFixed( 2 )) : '';
+				var form2      = defined( forms[ 1 ] ) ? html.div.clone() .addClass( "form2" ) .html( forms[ 1 ].adjusted_mean.total.toFixed( 2 )) : '';
 				var score      = html.div.clone() .addClass( "score" ) .html( total );
 				var medal      = html.div.clone() .addClass( "medal" ) ;
 
