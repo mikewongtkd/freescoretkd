@@ -82,9 +82,13 @@ sub place_athletes {
 		$comparison;
 	} @athlete_indices;
 
+	# ===== FILTER ATHLETES THAT HAVE SCORES STILL PENDING
 	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @$placement;
 
+	my @athletes = $self->athletes_in_round();
+
 	$self->{ placement }{ $round } = $placement;
+	$self->{ pending }{ $round } = grep { my $found = 0; foreach my $i (@$placement) { if( $_ == $i ) { $found = 1; last; } $found }} @athletes;
 
 	return $placement;
 }
@@ -207,6 +211,7 @@ sub read {
 			my ($key, $value) = split /=/;
 			if    ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
 			elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
+			elsif ( $key eq 'pending'   ) { $self->{ $key } = _parse_pending( $value );   }
 			else                          { $self->{ $key } = $value;                     }
 			next;
 
@@ -355,12 +360,18 @@ sub write {
 		push @forms, "$round:" . join( ",", map { $_->{ type } eq 'tiebreaker' ? "$->{ name } ($_->{ type })" : $_->{ name }; } @{$self->{ forms }{ $round }} );
 	}
 
-	# ===== PREPARE THE PLACEMENTS
+	# ===== PREPARE THE PLACEMENTS AND PENDING ATHLETES
 	$self->{ placement } = {} unless defined $self->{ placement };
 	my @places = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $self->{ placement }{ $round };
 		push @places, "$round:" . join( ",", @{$self->{ placement }{ $round }} );
+	}
+	$self->{ pending } = {} unless defined $self->{ pending };
+	my @pending = ();
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+		next unless exists $self->{ pending }{ $round };
+		push @pending, "$round:" . join( ",", @{$self->{ pending }{ $round }} );
 	}
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
@@ -372,6 +383,7 @@ sub write {
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n";
 	print FILE "# placement=" . join( ";", @places ) . "\n";
+	print FILE "# pending=" . join( ";", @pending ) . "\n";
 	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
@@ -589,6 +601,17 @@ sub _parse_placement {
 	return { @rounds };
 }
 
-	
+# ============================================================
+sub _parse_pending {
+# ============================================================
+	my $value = shift;
+	my @rounds = map {
+		my ($round, $list) = split /:/;
+		my @placements = split /,/, $list;
+		$round => [ @placements ];
+	} split /;/, $value;
+	return { @rounds };
+}
+
 
 1;

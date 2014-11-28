@@ -11,7 +11,7 @@
 		height: 720px;
 		overflow: hidden;
 
-		.standings {
+		.placement {
 			position: relative;
 			height: 704px;
 			color: lime;
@@ -28,38 +28,44 @@
 			.rank3 { color: #f93; }
 			.rank4 { color: #f93; }
 
-			.athlete {
-				position: relative;
-				.name {
-					position: absolute;
-					left: 0;
-					width: 40%;
-					font-weight: bold;
-				}
-				.form1 {
-					color: #999;
-					position: absolute;
-					left: 40%;
-					width: 15%;
-					text-align: right;
-				}
-				.form2 {
-					color: #999;
-					position: absolute;
-					left: 55%;
-					width: 15%;
-					text-align: right;
-				}
-				.score {
-					position: absolute;
-					left: 70%;
-					width: 20%;
-					text-align: right;
-				}
-				.medal {
-					position: absolute;
-					left: 90%;
-					width: 10%;
+			li {
+				padding: 0;
+				margin: 0;
+
+				.athlete {
+					position: relative;
+					.name {
+						color: yellow;
+						position: absolute;
+						left: 0;
+						width: 40%;
+						font-weight: bold;
+					}
+					.form1 {
+						color: #999;
+						position: absolute;
+						left: 40%;
+						width: 15%;
+						text-align: right;
+					}
+					.form2 {
+						color: #999;
+						position: absolute;
+						left: 55%;
+						width: 15%;
+						text-align: right;
+					}
+					.score {
+						position: absolute;
+						left: 70%;
+						width: 20%;
+						text-align: right;
+					}
+					.medal {
+						position: absolute;
+						left: 90%;
+						width: 10%;
+					}
 				}
 			}
 
