@@ -7,7 +7,6 @@ use Data::Dumper;
 
 my $tournament = 'test';
 my $ring       = 1;
-my $skill      = get_skill_levels();
 
 my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 ok( $progress );
@@ -37,7 +36,7 @@ sub score {
 		foreach my $form( 0 .. 1 ) {
 			foreach my $judge ( 0 .. $j ) {
 				my $level = $skill->{ $name };
-				my $score = score_worldclass( $level );
+				my $score = score_worldclass( 'tie' );
 				$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
 				$division->record_score( $judge, $score );
 				ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
@@ -45,47 +44,11 @@ sub score {
 			}
 			$division->next();
 		}
+		$division->{ state } = 'display';
+		$division->write();
+		sleep( 3 );
 	}
 
 	$division->next_round();
 	$division->write();
 }
-
-# ============================================================
-sub get_skill_levels {
-# ============================================================
-# The names and skill levels are just for demonstration
-# purposes; they have no real or intended value.
-# ------------------------------------------------------------
-	my $skill = {};
-	while( <DATA> ) {
-		chomp;
-		my ($name, $level) = split /\t+/;
-		$skill->{ $name } = $level;
-	}
-	return $skill;
-}
-
-__DATA__
-Aditya		good	
-Anika		better	
-Piper		best	
-Alexander	better	
-Steven		best	
-Sofia		better
-Christian	good	
-Jamsheed	ok	
-Thibault	good	
-Yash		ok	
-Sean C.		good	
-Sean O.		better	
-Sujatha		ok	
-Jill		ok	
-Mike		best	
-Carl		good	
-Veronika	better	
-Giovanni	ok	
-Katrina		good	
-Cody		better	
-Kaylee		ok	
-Jonathan	ok	

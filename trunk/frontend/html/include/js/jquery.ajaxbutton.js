@@ -21,7 +21,16 @@ $.widget( "freescore.ajaxbutton", {
 					type:    'GET',
 					url:     url,
 					data:    {},
-					success: function( response ) { sound.ok.play(); progress.fadeOut( 350 ); },
+					success: function( response ) { 
+						if( defined( response.error )) {
+							sound.error.play();
+							progress.hide();
+							console.log( response );
+						} else {
+							sound.ok.play(); 
+							progress.fadeOut( 350 );
+						}
+					},
 					error:   function( response ) { sound.error.play(); progress.fadeOut( 100 ); },
 					xhr:     function() {
 						var xhr = new window.XMLHttpRequest();

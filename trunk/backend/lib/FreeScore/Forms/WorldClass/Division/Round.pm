@@ -75,6 +75,11 @@ sub calculate_means {
 			$stats->{ sum }{ acc } += $accuracy;
 			$stats->{ sum }{ pre } += $presentation;
 		}
+
+		# ===== IF ALL SCORES ARE THE SAME, THEN THE MIN AND MAX WILL BE THE SAME; DIFFERENTIATE THEM
+		if( $stats->{ min }{ acc } == $stats->{ max }{ acc } ) { $stats->{ max }{ acc }++; }
+		if( $stats->{ min }{ pre } == $stats->{ max }{ pre } ) { $stats->{ max }{ pre }++; }
+
 		# ===== MARK THE SCORES AS MIN OR MAX
 		$form->{ judge }[ $stats->{ min }{ acc } ]{ minacc } = JSON::XS::true;
 		$form->{ judge }[ $stats->{ max }{ acc } ]{ maxacc } = JSON::XS::true;
@@ -148,6 +153,15 @@ sub _compare {
 			foreach my $category ( qw( accuracy presentation total )) {
 				$sum_a->{ $mean }{ $category } += $score_a->{ $mean }{ $category };
 				$sum_b->{ $mean }{ $category } += $score_b->{ $mean }{ $category };
+			}
+		}
+	}
+
+	foreach my $mean ( qw( adjusted_mean complete_mean )) {
+		for my $i ( 0 .. $n ) {
+			foreach my $category ( qw( accuracy presentation total )) {
+				$sum_a->{ $mean }{ $category } = sprintf( "%5.2f", $sum_a->{ $mean }{ $category } );
+				$sum_b->{ $mean }{ $category } = sprintf( "%5.2f", $sum_b->{ $mean }{ $category } );
 			}
 		}
 	}

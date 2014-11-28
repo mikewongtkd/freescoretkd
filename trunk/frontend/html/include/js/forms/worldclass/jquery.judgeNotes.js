@@ -63,7 +63,7 @@ $.widget( "freescore.judgeNotes", {
 				if( defined( forms[ 1 ] )) {
 					score.form2 = summarize( forms[ 1 ] );
 				}
-				score.sum   = forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
+				score.sum   = forms.map( function( form ) { return defined( form.judge[ 0 ]) ? form.judge[ 0 ].accuracy + form.judge[ 0 ].presentation : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}

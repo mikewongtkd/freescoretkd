@@ -73,6 +73,31 @@ sub place_athletes {
 		my $y = $scores->[ $b ]{ compulsory };
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
+		my $x_stats = {};
+		$x_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$x;
+		$x_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$x;
+		$x_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$x;
+		$x_stats->{ $_ } = sprintf( "%5.2f", $x_stats->{ $_ } )    foreach (qw( sum pre all ));
+
+		my $y_stats = {};
+		$y_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$y;
+		$y_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$y;
+		$y_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$y;
+		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )    foreach (qw( sum pre all ));
+
+		if( $x_stats->{ sum } == $y_stats->{ sum } ) {
+			if    ( $x_stats->{ pre } > $y_stats->{ pre } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
+			elsif ( $x_stats->{ pre } < $y_stats->{ pre } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
+			else {
+				if    ( $x_stats->{ all } > $y_stats->{ all } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
+				elsif ( $x_stats->{ all } < $y_stats->{ all } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
+				else {
+					$self->{ athletes }[ $a ]{ notes } = 'TB';
+					$self->{ athletes }[ $b ]{ notes } = 'TB';
+				}
+			}
+		}
+
 		# ===== COMPARE BY TIE-BREAKERS IF TIED
 		if( _is_tie( $comparison )) {
 			my $x = $scores->[ $a ]{ tiebreaker };
@@ -294,6 +319,7 @@ sub read {
 	}
 
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless( $self->{ current } );
+	$self->update_status();
 }
 
 # ============================================================

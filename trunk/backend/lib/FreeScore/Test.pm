@@ -114,10 +114,19 @@ sub score_worldclass {
 			ki     => ((sum lowest 5, roll "6d4")/10),
 		};
 
+	} elsif( $performance eq 'tie'    ) { # Mean = 6.40, SD = 0.11
+		$score = {
+			major  => ((sum lowest( 2, roll "12d4"),  - 2)/10),
+			minor  => ((sum lowest( 2, roll "12d4"), + 10)/10),
+			rhythm => ((sum lowest( 2, roll "12d4"), + 10)/10),
+			power  => ((sum lowest( 2, roll "12d4"), + 10)/10),
+			ki     => ((sum lowest( 2, roll "12d4"), + 10)/10),
+		};
+
 	} elsif( $performance eq 'best'   ) { # Mean = 7.28, SD = 0.53
 		$score = {
-			major  => ((sum lowest 2, roll "8d4") - 2)/10,
-			minor  => ((sum lowest 5, roll "8d6") - 5)/10,
+			major  => ((sum lowest( 2, roll "8d4"), - 2)/10),
+			minor  => ((sum lowest( 5, roll "8d6"), - 5)/10),
 			rhythm => ((sum highest( 1, roll "2d6"), lowest( 2, roll "4d4"), + 6)/10),
 			power  => ((sum highest( 1, roll "2d6"), lowest( 2, roll "4d4"), + 6)/10),
 			ki     => ((sum highest( 1, roll "2d6"), lowest( 2, roll "4d4"), + 6)/10),
@@ -125,8 +134,8 @@ sub score_worldclass {
 
 	} elsif( $performance eq 'better' ) { # Mean = 6.29, SD = 0.66
 		$score = {
-			major  => ((sum lowest 3, roll "8d4") - 3)/10,
-			minor  => ((sum lowest 6, roll "8d6") - 6)/10,
+			major  => ((sum lowest( 3, roll "8d4" ), - 3)/10),
+			minor  => ((sum lowest( 6, roll "8d6" ), - 6)/10),
 			rhythm => ((sum lowest( 2, roll "4d6" ), +8)/10),
 			power  => ((sum lowest( 2, roll "4d6" ), +8)/10),
 			ki     => ((sum lowest( 2, roll "4d6" ), +8)/10),
@@ -134,8 +143,8 @@ sub score_worldclass {
 
 	} elsif( $performance eq 'good'   ) { # Mean = 4.62, SD = 0.79
 		$score = {
-			major  => ((sum lowest 3, roll "8d6") - 3)/10,
-			minor  => ((sum lowest 6, roll "10d8") - 6)/10,
+			major  => ((sum lowest( 3, roll "8d6" ) - 3)/10),
+			minor  => ((sum lowest( 6, roll "10d8") - 6)/10),
 			rhythm => ((sum lowest( 2, roll "6d4" ), +6)/10),
 			power  => ((sum lowest( 2, roll "6d4" ), +6)/10),
 			ki     => ((sum lowest( 2, roll "6d4" ), +6)/10),
@@ -143,11 +152,11 @@ sub score_worldclass {
 
 	} elsif( $performance eq 'ok'     ) { # Mean = 3.09, SD = 1.06
 		$score = {
-			major  => ((sum lowest 3, roll "5d6") - 3)/10,
-			minor  => ((sum lowest 6, roll "8d8"))/10,
-			rhythm => ((sum lowest 4, roll "8d6")/10),
-			power  => ((sum lowest 4, roll "8d6")/10),
-			ki     => ((sum lowest 4, roll "8d6")/10),
+			major  => ((sum lowest( 3, roll "5d6"), - 3)/10),
+			minor  => ((sum lowest( 6, roll "8d8"))/10),
+			rhythm => ((sum lowest( 4, roll "8d6"))/10),
+			power  => ((sum lowest( 4, roll "8d6"))/10),
+			ki     => ((sum lowest( 4, roll "8d6"))/10),
 		};
 
 	}

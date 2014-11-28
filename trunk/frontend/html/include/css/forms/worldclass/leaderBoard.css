@@ -55,19 +55,15 @@
           left: 70%;
           width: 20%;
           text-align: right; }
+          .leaderboard .division .placement .athlete .score .notes {
+            display: inline-block;
+            text-align: left;
+            width: 30px;
+            opacity: 0.5; }
         .leaderboard .division .placement .athlete .medal {
           position: absolute;
           left: 90%;
           width: 10%; }
-      .leaderboard .division .placement .notes {
-        font-size: 14pt;
-        position: relative;
-        color: white;
-        background: black;
-        border: 2px solid white;
-        border-radius: 8px;
-        padding: 8px;
-        opacity: 0.5; }
     .leaderboard .division .pending {
       height: 704px;
       color: #999;
