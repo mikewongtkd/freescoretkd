@@ -225,38 +225,37 @@ body {
           color: #f93; }
         .worldclass .leaderboard .division .placement .rank4 {
           color: #f93; }
-        .worldclass .leaderboard .division .placement li {
-          padding: 0;
-          margin: 0; }
-          .worldclass .leaderboard .division .placement li .athlete {
-            position: relative; }
-            .worldclass .leaderboard .division .placement li .athlete .name {
-              color: yellow;
-              position: absolute;
-              left: 0;
-              width: 40%;
-              font-weight: bold; }
-            .worldclass .leaderboard .division .placement li .athlete .form1 {
-              color: #999;
-              position: absolute;
-              left: 40%;
-              width: 15%;
-              text-align: right; }
-            .worldclass .leaderboard .division .placement li .athlete .form2 {
-              color: #999;
-              position: absolute;
-              left: 55%;
-              width: 15%;
-              text-align: right; }
-            .worldclass .leaderboard .division .placement li .athlete .score {
-              position: absolute;
-              left: 70%;
-              width: 20%;
-              text-align: right; }
-            .worldclass .leaderboard .division .placement li .athlete .medal {
-              position: absolute;
-              left: 90%;
-              width: 10%; }
+        .worldclass .leaderboard .division .placement .athlete {
+          position: relative;
+          height: 40px;
+          width: 100%; }
+          .worldclass .leaderboard .division .placement .athlete .name {
+            color: yellow;
+            position: absolute;
+            left: 0;
+            width: 40%;
+            font-weight: bold; }
+          .worldclass .leaderboard .division .placement .athlete .form1 {
+            color: #999;
+            position: absolute;
+            left: 40%;
+            width: 15%;
+            text-align: right; }
+          .worldclass .leaderboard .division .placement .athlete .form2 {
+            color: #999;
+            position: absolute;
+            left: 55%;
+            width: 15%;
+            text-align: right; }
+          .worldclass .leaderboard .division .placement .athlete .score {
+            position: absolute;
+            left: 70%;
+            width: 20%;
+            text-align: right; }
+          .worldclass .leaderboard .division .placement .athlete .medal {
+            position: absolute;
+            left: 90%;
+            width: 10%; }
         .worldclass .leaderboard .division .placement .notes {
           font-size: 14pt;
           position: relative;

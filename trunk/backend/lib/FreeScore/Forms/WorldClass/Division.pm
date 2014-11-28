@@ -57,6 +57,7 @@ sub place_athletes {
 	my $self      = shift;
 	my $round     = $self->{ round };
 	my $placement = [];
+	my $pending   = [];
 
 	# ===== PLACE ATHLETES
 	my @athlete_indices = ( 0 .. $#{ $self->{ athletes }} );
@@ -83,13 +84,12 @@ sub place_athletes {
 	} @athlete_indices;
 
 	# ===== FILTER ATHLETES THAT HAVE SCORES STILL PENDING
-	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @$placement;
-
 	my @athletes = $self->athletes_in_round();
+	@$pending   = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @athletes;
+	@$placement = grep {   $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @$placement;
 
 	$self->{ placement }{ $round } = $placement;
-	$self->{ pending }{ $round } = grep { my $found = 0; foreach my $i (@$placement) { if( $_ == $i ) { $found = 1; last; } $found }} @athletes;
-
+	$self->{ pending }{ $round }   = $pending;
 	return $placement;
 }
 

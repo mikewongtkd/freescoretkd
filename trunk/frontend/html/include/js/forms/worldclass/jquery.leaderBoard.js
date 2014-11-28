@@ -44,37 +44,47 @@ $.widget( "freescore.leaderboard", {
 			e.placement.removeClass( "one-column" );
 		}
 
-		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
-		var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Final Round', 'finals' : 'Final Round' };
-		e.placement.empty();
-		e.placement.append( "<h2>" + round_name[ o.division.round ] + " Standings</h2>" );
-		var k = placement.athletes.length;
-		if( o.division.round == 'finals' ) { 
-			k = k > 4 ? 4 : k; 
-
-			var j          = i + 1;
-			name  .addClass( "rank" + j );
-			medal .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
-
-		} else {
-			var list = html.ul.clone() .totemticker({ row_height : '32px', interval : 1500 });
-			e.placement.append( list );
+		// ===== UPDATE THE 'CURRENT PLACEMENT' PANEL
+		var update_placements = function( callback ) {
 			for( var i = 0; i < k; i++ ) {
 				var athlete    = placement.athletes[ i ];
 				var forms      = athlete.scores[ o.division.round ];
-				var item       = html.li.clone();
 				var athlete    = placement.athletes[ i ];
 				var total      = forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 				var li         = html.li.clone();
 				var entry      = html.div.clone() .addClass( "athlete" );
 				var name       = html.div.clone() .addClass( "name" ) .html( athlete.name );
+				var form1      = html.div.clone() .addClass( "form1" ) .html( forms[ 0 ].adjusted_mean.total.toFixed( 2 ));
+				var form2      = html.div.clone() .addClass( "form2" ) .html( forms[ 1 ].adjusted_mean.total.toFixed( 2 ));
 				var score      = html.div.clone() .addClass( "score" ) .html( total );
 				var medal      = html.div.clone() .addClass( "medal" ) ;
 
-				entry.append( name, score, medal );
-				li.append( entry );
-				list.append( li );
+				if( defined( callback )) { callback( i, name, medal ); }
+
+				entry.append( name, form1, form2, score, medal );
+				e.placement.append( entry );
 			}
+		};
+		var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Final Round', 'finals' : 'Final Round' };
+		e.placement.empty();
+		e.placement.append( "<h2>" + round_name[ o.division.round ] + " Standings</h2>" );
+		var half = Math.round( o.division.athletes.length / 2 );
+		var k    = placement.athletes.length;
+		if( o.division.round == 'finals' ) { 
+			k = k > 4 ? 4 : k; 
+
+			var callback = function( i, name, medal ) {
+				var j          = i + 1;
+				name  .addClass( "rank" + j );
+				medal .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
+			}
+
+			update_placements( callback );
+
+		} else {
+			if     ( o.division.round == 'prelim' ) { k = k > half ? half : k; }
+			else if( o.division.round == 'semfin' ) { k = k > 8 ? 8 : k; }
+			update_placements();
 		}
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES

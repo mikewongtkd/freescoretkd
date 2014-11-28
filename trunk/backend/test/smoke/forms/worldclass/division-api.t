@@ -45,6 +45,9 @@ sub score {
 			}
 			$division->next();
 		}
+		$division->{ state } = 'display';
+		$division->write();
+		sleep( 3 );
 	}
 
 	$division->next_round();
