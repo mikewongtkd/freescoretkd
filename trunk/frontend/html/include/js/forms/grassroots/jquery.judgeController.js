@@ -6,8 +6,8 @@ $.widget( "freescore.judgeController", {
 		var e       = this.options.elements = {};
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
-		o.ring  = $.cookie( "ring" );
-		o.judge = Number($.cookie( "judge" )) - 1;
+		o.ring  = parseInt($.cookie( "ring" ));
+		o.judge = parseInt($.cookie( "judge" )) - 1;
 
 		widget.nodoubletapzoom();
 		widget.addClass( 'judgeController' );
@@ -36,7 +36,7 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE SCORE DROP-DOWN AND VOTE
 		// ============================================================
-		score.spinwheel();
+		score.spinwheel() .show();
 		vote.tiebreaker() .hide();
 
 		// ============================================================

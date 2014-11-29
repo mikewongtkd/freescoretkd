@@ -31,7 +31,7 @@ while( 1 ) {
 	} catch {
 		$data = { error => $_ };
 	};
-	my $update = $json->encode( $data );
+	my $update = $json->encode( $data ); $update =~ s/"(\d+(?:\.\d+)?)"/$1/g;
 	my $state  = md5_hex( $update );
 
 

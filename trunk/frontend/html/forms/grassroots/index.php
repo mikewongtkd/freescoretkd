@@ -7,6 +7,7 @@
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
+		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.grassroots.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.leaderBoard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.scoreKeeper.js"></script>

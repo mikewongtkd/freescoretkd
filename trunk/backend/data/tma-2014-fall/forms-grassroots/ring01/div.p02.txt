@@ -1,5 +1,6 @@
 # state=display
 # current=1
+# judges=5
 # description=4-7yo Novice
 Roshan	White/Yellow	7.7	7.9	7.9
 Aiden	White/Yellow	7.6	7.6	8

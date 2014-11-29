@@ -138,11 +138,16 @@ $.widget( "freescore.judgeController", {
 			}
 			var num_rounds = Object.keys( division.forms ).length;
 			if( num_rounds > 1 ) {
-				if( round_order[ division.round ] < round_order[ 'finals' ] ) {
+				if       ( division.round == 'prelim' || (division.round == 'semfin' && num_rounds == 2 )) {
 					e.prevDivision.ajaxbutton({ label : "Prev Division" });
 					e.nextDivision.ajaxbutton({ label : "Next Round" });
-				} else {
-					e.prevDivision.ajaxbutton({ label : "Prev Round" }); // MW LOGICAL BUG: Can only go back to semi-finals; need separate round and division buttons
+
+				} else if( division.round == 'semfin' && num_rounds == 3 ) {
+					e.prevDivision.ajaxbutton({ label : "Prev Round" });
+					e.nextDivision.ajaxbutton({ label : "Next Round" });
+
+				} else if( division.round == 'finals' ) {
+					e.prevDivision.ajaxbutton({ label : "Prev Round" });
 					e.nextDivision.ajaxbutton({ label : "Next Division" });
 				}
 			}
@@ -163,8 +168,10 @@ $.widget( "freescore.judgeController", {
 
 				widget.trigger({ type : "updateRequest", score : o });
 			}
-			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current, round : division.round });
-
+			var in_round = [];
+			in_round = division.pending[ division.round ].concat( division.placement[ division.round ] );
+			in_round = in_round.sort( function( a, b ) { return a - b; });
+			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
 
 			o.current.division = forms.current;
 			o.current.athlete  = division.current;

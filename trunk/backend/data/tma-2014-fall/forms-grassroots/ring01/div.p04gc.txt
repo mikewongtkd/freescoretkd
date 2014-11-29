@@ -1,5 +1,6 @@
 # state=display
 # current=2
+# judges=5
 # description=Grand Championships
 Angelina	Orange	9.4	9.2	8.9
 Samantha	Orange	9.3	9.3	9.1

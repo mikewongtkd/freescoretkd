@@ -117,7 +117,7 @@ $.widget( "freescore.scoreboard", {
 			show_form_score( e.forms );
 		};
 
-		var round_names = { 'prelim' : 'Preliminaries', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
+		var round_names = { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Final', 'finals' : 'Final' };
 		var round_description = o.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 });;
 
 		round_description.append( o.html.li.clone() .html( current.description ));

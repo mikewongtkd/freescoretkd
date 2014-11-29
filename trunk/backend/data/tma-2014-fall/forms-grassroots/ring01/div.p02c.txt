@@ -1,5 +1,6 @@
 # state=display
 # current=1
+# judges=5
 # description=6-7yo Novice
 Ajay	White/Orange	9	8.2	8.3
 Suraj	White/Purple	8.1	8.3	8.4

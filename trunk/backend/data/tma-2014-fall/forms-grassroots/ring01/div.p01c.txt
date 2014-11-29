@@ -1,5 +1,6 @@
 # state=display
 # current=1
+# judges=5
 # description=6-7yo Female Novice
 Kavinaya	White/Orange	8.1	7.6	8.7
 Paige	White/Purple	7.9	7.9	8.4

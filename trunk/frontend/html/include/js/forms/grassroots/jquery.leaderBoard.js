@@ -24,17 +24,8 @@ $.widget( "freescore.leaderboard", {
 
 		for( var i = 0; i < athletes.length; i++ ) {
 			var athlete = athletes[ i ];
-			var done    = 1;
-			var sum     = 0.0;
-			for( var j = 0; j < athlete.scores.length; j++ ) {
-				var score = parseFloat( athlete.scores[ j ] ); score = isNaN( score ) ? 0 : score;
-				var valid = score > 0.0;
-				done &= valid;
-				if( valid ) { sum += score; }
-			}
-			athlete.score = sum;
-			if( done ) { standings.athletes.push( athlete ); }
-			else       { pending.athletes.push( athlete ); }
+			if( athlete.complete ) { standings.athletes.push( athlete ); }
+			else                   { pending.athletes.push( athlete ); }
 		}
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
@@ -49,7 +40,7 @@ $.widget( "freescore.leaderboard", {
 		}
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
-		standings.athletes.sort( function( a, b ) { return parseFloat( b.score ) - parseFloat( a.score ); } );
+		standings.athletes = standings.athletes.sort( function( a, b ) { return parseFloat( b.score ) - parseFloat( a.score ); } );
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k = standings.athletes.length < 4 ? standings.athletes.length : 4;

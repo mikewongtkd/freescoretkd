@@ -1,5 +1,6 @@
 # state=display
 # current=2
+# judges=5
 # description=10-11yo Intermediate
 Smrithi	Green	8.8	8.8	9
 Kanav	Green	9	8.4	8.4

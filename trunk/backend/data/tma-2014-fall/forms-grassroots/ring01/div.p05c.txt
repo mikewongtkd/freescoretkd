@@ -1,5 +1,6 @@
 # state=display
 # current=1
+# judges=5
 # description=8-9yo Intermediate
 Timothy	Green	8.1	8.1	8.3
 Max	Green	8.2	8.3	8.2

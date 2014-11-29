@@ -1,191 +1,96 @@
+
 body {
-  background: linear-gradient(to bottom, #45484d 0%, black 100%);
-  /* W3C */ }
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+}
 
-.grassroots {
-  margin: 0 auto 0 auto;
-  width: 1000px; }
-  .grassroots .scorekeeper {
-    font-family: Optima;
-    display: none; }
-    .grassroots .scorekeeper .judgeScores {
-      width: 1000px;
-      height: 180px;
-      margin: 0 0 20px 0; }
-    .grassroots .scorekeeper .judges5 {
-      width: 176px; }
-      .grassroots .scorekeeper .judges5 .judge {
-        font-size: 24pt; }
-      .grassroots .scorekeeper .judges5 .score {
-        font-size: 72pt;
-        line-height: 108pt; }
-    .grassroots .scorekeeper .judges3 {
-      width: 312px; }
-      .grassroots .scorekeeper .judges3 .judge {
-        font-size: 24pt; }
-      .grassroots .scorekeeper .judges3 .score {
-        font-size: 108pt;
-        line-height: 108pt; }
-    .grassroots .scorekeeper .left {
-      margin: 0 10px 0 0; }
-    .grassroots .scorekeeper .middle {
-      margin: 0 10px 0 10px; }
-    .grassroots .scorekeeper .right {
-      margin: 0 0 0 10px; }
-    .grassroots .scorekeeper .judgeScore {
-      display: inline-block;
-      text-align: center;
-      height: 172px;
-      font-weight: bold;
-      border-radius: 24px;
-      border: 4px solid white; }
-      .grassroots .scorekeeper .judgeScore .judge {
-        color: #666;
-        font-weight: bold;
-        border-radius: 0 0 24px 24px;
-        background-color: black;
-        margin: 0 auto 0 auto;
-        height: 40px; }
-      .grassroots .scorekeeper .judgeScore .score {
-        color: yellow;
-        font-weight: bold;
-        border-radius: 24px 24px 0 0;
-        background-color: black;
-        margin: auto;
-        height: 132px; }
-    .grassroots .scorekeeper .ignore .judge {
-      color: #333; }
-    .grassroots .scorekeeper .ignore .score {
-      color: #333; }
-    .grassroots .scorekeeper .totalScores {
-      text-align: center;
-      height: 532px;
-      width: 992px;
-      font-weight: bold;
-      color: lime;
-      border-radius: 24px;
-      border: 4px solid white;
-      background: linear-gradient(to top, #45484d 0%, black 100%); }
-      .grassroots .scorekeeper .totalScores .red, .grassroots .scorekeeper .totalScores .hong {
-        color: #f66; }
-      .grassroots .scorekeeper .totalScores .blue, .grassroots .scorekeeper .totalScores .chung {
-        color: #66f; }
-      .grassroots .scorekeeper .totalScores .athlete {
-        margin: 20px 0 0 0;
-        height: 120px;
-        font-size: 72pt;
-        line-height: 72pt; }
-      .grassroots .scorekeeper .totalScores .score {
-        height: 400px;
-        font-size: 360pt;
-        line-height: 360pt; }
-  .grassroots .leaderboard {
-    font-family: Optima;
-    color: white;
-    display: none;
-    overflow: scroll; }
-    .grassroots .leaderboard .division {
-      width: 1000px;
-      height: 740px; }
-      .grassroots .leaderboard .division .standings {
-        float: left;
-        width: 400px;
-        height: 740px;
-        color: yellow;
-        font-size: 24pt;
-        background: linear-gradient(to top, #45484d 0%, black 100%);
-        /* W3C */
-        border: 4px solid white;
-        border-radius: 24px;
-        padding: 0 32px 8px 32px; }
-        .grassroots .leaderboard .division .standings .rank1 {
-          color: #f90; }
-        .grassroots .leaderboard .division .standings .rank2 {
-          color: #ccc; }
-        .grassroots .leaderboard .division .standings .rank3 {
-          color: #930; }
-        .grassroots .leaderboard .division .standings .rank4 {
-          color: #930; }
-        .grassroots .leaderboard .division .standings .athlete {
-          clear: both; }
-          .grassroots .leaderboard .division .standings .athlete .name {
-            float: left;
-            width: 70%;
-            font-weight: bold; }
-          .grassroots .leaderboard .division .standings .athlete .score {
-            float: left;
-            width: 20%; }
-          .grassroots .leaderboard .division .standings .athlete .medal {
-            float: left;
-            width: 10%; }
-      .grassroots .leaderboard .division .pending {
-        float: right;
-        width: 400px;
-        height: 740px;
-        color: #999;
-        font-size: 24pt;
-        background: linear-gradient(to top, #45484d 0%, black 100%);
-        /* W3C */
-        border: 4px solid white;
-        border-radius: 24px;
-        padding: 0 32px 8px 32px; }
-        .grassroots .leaderboard .division .pending h2 {
-          color: yellow; }
-        .grassroots .leaderboard .division .pending ol li {
-          margin-left: 40px; }
-          .grassroots .leaderboard .division .pending ol li b {
-            color: lime;
-            font-weight: bold; }
+.judgeController {
+	font-family: Optima;
+	width: 800px;
+	height: 480px;
+	margin: 0 auto 0 auto;
+	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
+	border-radius: 24pt;
+	border: 4px solid white;
 
-.usermessage {
-  font-family: Optima;
-  font-size: 24pt;
-  color: #ccc;
-  display: none;
-  border: 8px solid red;
-  border-radius: 24px;
-  width: 934px;
-  margin: 80px auto 80px auto;
-  padding: 0 32px 32px 32px; }
-  .usermessage h1 {
-    color: white; }
-  .usermessage code {
-    color: gold;
-    font-size: 18pt; }
+	@import 'judgeNotes';
 
-.enter-down-bounce {
-  -webkit-animation: enterDownBounce 1s linear; }
+	.controller {
+		position: relative;
+		width: 760px;
+		margin: 0 auto 0 auto;
 
-.leave-up-bounce {
-  -webkit-animation: leaveUpBounce 1s linear; }
+		.button-row {
+			height: 100px;
+			margin: 20px 0 20px 0;
+		}
 
-@-webkit-keyframes enterDownBounce {
-  0% {
-    -webkit-transform: translateY(-600px);
-    opacity: 0.25; }
+		.control-group {
+			position: relative;
+			width: 420px;
+		}
 
-  50% {
-    -webkit-transform: translateY(0px); }
+		.action {
+			position: absolute;
+			width: 160px;
+			color: black;
+		}
 
-  70% {
-    -webkit-transform: translateY(-50px); }
+		.send  { 
+			border: 4px solid red;
+			background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+			top: 120px; 
+		}
+		.clear { 
+			border: 4px solid orange;
+			background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+			top: 240px; 
+		}
 
-  100% {
-    -webkit-transform: translateY(0px);
-    opacity: 1; } }
+		.division {
+			width: 160px;
+			border: 4px solid green;
+			background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+		}
 
-@-webkit-keyframes leaveUpBounce {
-  0% {
-    -webkit-transform: translateY(0px);
-    opacity: 1; }
+		.athlete {
+			width: 160px;
+			border: 4px solid blue;
+			background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+		}
 
-  10% {
-    -webkit-transform: translateY(50px);
-    opacity: 1; }
+		.mode {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 160px;
+			border: 4px solid gold;
+			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+			color: black;
+		}
 
-  25% {
-    -webkit-transform: translateY(0px); }
+		.spinwheel {
+			position: absolute;
+			top: 90px;
+			left: 248px;
+		}
 
-  100% {
-    -webkit-transform: translateY(-900px);
-    opacity: 0; } }
+		.tiebreaker {
+			position: absolute;
+			top: 88px;
+			left: 196px;
+		}
+	}
+	.select {
+		select { font-size: 24pt; }
+		text-align: center;
+	}
+	.name {
+		width: 760px;
+		height: 80px;
+		margin: 20px auto 20px auto;
+		text-align: center;
+		font-size: 48pt;
+		color: white;
+		
+	}
+}

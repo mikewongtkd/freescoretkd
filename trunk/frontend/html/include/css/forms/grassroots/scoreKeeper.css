@@ -1,6 +1,5 @@
 .scorekeeper {
-  font-family: Optima;
-  display: none; }
+  font-family: Optima; }
   .scorekeeper .judgeScores {
     width: 1000px;
     height: 180px;
@@ -58,7 +57,7 @@
     color: lime;
     border-radius: 24px;
     border: 4px solid white;
-    background: linear-gradient(to top, #45484d 0%, black 100%); }
+    background: linear-gradient(to top, #45484d 0%, #000000 100%); }
     .scorekeeper .totalScores .red, .scorekeeper .totalScores .hong {
       color: #f66; }
     .scorekeeper .totalScores .blue, .scorekeeper .totalScores .chung {
@@ -72,3 +71,5 @@
       height: 400px;
       font-size: 360pt;
       line-height: 360pt; }
+
+/*# sourceMappingURL=scoreKeeper.css.map */

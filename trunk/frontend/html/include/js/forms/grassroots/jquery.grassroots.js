@@ -17,8 +17,6 @@ $.widget( "freescore.grassroots", {
 	_init: function( ) {
 		var e = this.options.elements;
 		var o = this.options;
-		e.leaderboard.leaderboard( { division : { athletes : new Array() }} );
-		e.scorekeeper.scorekeeper( { current : { athlete : { name : '', scores : new Array() }}} );
 
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
@@ -35,7 +33,7 @@ $.widget( "freescore.grassroots", {
 
 			} else if( division.state == 'score' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
-				e.scorekeeper.scorekeeper( { current: { athlete : athlete }} );
+				e.scorekeeper.scorekeeper( { current: { athlete : athlete }, judges : division.judges } );
 			}
 		};
 

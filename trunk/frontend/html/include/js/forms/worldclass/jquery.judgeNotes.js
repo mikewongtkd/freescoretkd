@@ -34,35 +34,27 @@ $.widget( "freescore.judgeNotes", {
 			.append( h.th.clone() .addClass( "form2" ) .html( "Form 2" ))
 			.append( h.th.clone() .addClass( "sum" )   .html( "Sum" )));
 
-		for( var i = 0; i < athletes.length; i++ ) {
+		for( var i = 0; i < o.participants.length; i++ ) {
+			var j            = o.participants[ i ];
 			var tr           = h.tr.clone();
-			var athlete      = athletes[ i ];
-			var score        = {};
+			var athlete      = athletes[ j ];
+			var score        = { form1 : '', form2 : '', sum : '' };
 
-			if( 
-				! defined( athlete.scores ) || 
-				! defined( athlete.scores[ round ] ) || 
-				athlete.scores[ round ].length == 0 
-			) {
-				score.form1 = '';
-				score.form2 = '';
-				score.sum   = '';
-
-			} else {
+			if( athlete.scores[ round ].length > 0 ) {
 				var summarize = function( form ) {
-					var score;
-					if   ( defined( form.adjusted_mean )) { score = form.adjusted_mean; } 
-					else                                  { score = { accuracy : 0.0, presentation : 0.0 }; }
-
-					return [
-						e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy.toFixed( 1 ) ), '/',
-						e.html.span.clone() .addClass( "presentation" ) .html( score.presentation.toFixed( 1 ) ) ];
+					var score = { accuracy : 0.0, presentation : 0.0 };
+					if   ( defined( form.adjusted_mean ) && defined( form.adjusted_mean.accuracy )) { 
+						score = form.adjusted_mean; 
+						return [
+							e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy.toFixed( 1 ) ), '/',
+							e.html.span.clone() .addClass( "presentation" ) .html( score.presentation.toFixed( 1 ) ) 
+						];
+					} 
+					return [ e.html.span.clone() .addClass( "accuracy" ) .html( '&ndash;' ), '/', e.html.span.clone() .addClass( "presentation" ) .html( '&ndash;' ) ];
 				}
 				var forms = athlete.scores[ round ];
 				score.form1 = summarize( forms[ 0 ] );
-				if( defined( forms[ 1 ] )) {
-					score.form2 = summarize( forms[ 1 ] );
-				}
+				if( defined( forms[ 1 ] )) { score.form2 = summarize( forms[ 1 ] ); }
 				score.sum   = forms.map( function( form ) { return defined( form.judge[ 0 ]) ? form.judge[ 0 ].accuracy + form.judge[ 0 ].presentation : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
@@ -75,6 +67,7 @@ $.widget( "freescore.judgeNotes", {
 				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "form2" ) .html( score.form2 ))
 				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "sum" )   .html( score.sum ));
 			table.append( tr );
+			j++;
 		}
 		view.append( table );
 	}

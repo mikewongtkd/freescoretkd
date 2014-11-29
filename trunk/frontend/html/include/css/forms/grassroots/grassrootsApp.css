@@ -1,13 +1,12 @@
 body {
-  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */ }
 
 .grassroots {
   margin: 0 auto 0 auto;
   width: 1000px; }
   .grassroots .scorekeeper {
-    font-family: Optima;
-    display: none; }
+    font-family: Optima; }
     .grassroots .scorekeeper .judgeScores {
       width: 1000px;
       height: 180px;
@@ -65,7 +64,7 @@ body {
       color: lime;
       border-radius: 24px;
       border: 4px solid white;
-      background: linear-gradient(to top, #45484d 0%, black 100%); }
+      background: linear-gradient(to top, #45484d 0%, #000000 100%); }
       .grassroots .scorekeeper .totalScores .red, .grassroots .scorekeeper .totalScores .hong {
         color: #f66; }
       .grassroots .scorekeeper .totalScores .blue, .grassroots .scorekeeper .totalScores .chung {
@@ -93,7 +92,7 @@ body {
         height: 740px;
         color: yellow;
         font-size: 24pt;
-        background: linear-gradient(to top, #45484d 0%, black 100%);
+        background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
         border-radius: 24px;
@@ -113,6 +112,7 @@ body {
             width: 70%;
             font-weight: bold; }
           .grassroots .leaderboard .division .standings .athlete .score {
+            color: lime;
             float: left;
             width: 20%; }
           .grassroots .leaderboard .division .standings .athlete .medal {
@@ -124,7 +124,7 @@ body {
         height: 740px;
         color: #999;
         font-size: 24pt;
-        background: linear-gradient(to top, #45484d 0%, black 100%);
+        background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
         border-radius: 24px;
@@ -163,29 +163,24 @@ body {
   0% {
     -webkit-transform: translateY(-600px);
     opacity: 0.25; }
-
   50% {
     -webkit-transform: translateY(0px); }
-
   70% {
     -webkit-transform: translateY(-50px); }
-
   100% {
     -webkit-transform: translateY(0px);
     opacity: 1; } }
-
 @-webkit-keyframes leaveUpBounce {
   0% {
     -webkit-transform: translateY(0px);
     opacity: 1; }
-
   10% {
     -webkit-transform: translateY(50px);
     opacity: 1; }
-
   25% {
     -webkit-transform: translateY(0px); }
-
   100% {
     -webkit-transform: translateY(-900px);
     opacity: 0; } }
+
+/*# sourceMappingURL=grassrootsApp.css.map */
