@@ -53,9 +53,18 @@ body {
         margin: auto;
         height: 132px; }
     .grassroots .scorekeeper .ignore .judge {
-      color: #333; }
+      opacity: 0.25; }
     .grassroots .scorekeeper .ignore .score {
-      color: #333; }
+      position: relative;
+      opacity: 0.25; }
+      .grassroots .scorekeeper .ignore .score::after {
+        opacity: 0.75;
+        border-bottom: 8px solid yellow;
+        content: "";
+        position: absolute;
+        left: 10%;
+        top: 50%;
+        right: 10%; }
     .grassroots .scorekeeper .totalScores {
       text-align: center;
       height: 532px;
@@ -115,6 +124,11 @@ body {
             color: lime;
             float: left;
             width: 20%; }
+            .grassroots .leaderboard .division .standings .athlete .score .notes {
+              display: inline-block;
+              text-align: left;
+              width: 30px;
+              opacity: 0.5; }
           .grassroots .leaderboard .division .standings .athlete .medal {
             float: left;
             width: 10%; }

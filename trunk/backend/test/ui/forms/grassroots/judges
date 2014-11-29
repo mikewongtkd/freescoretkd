@@ -1,0 +1,31 @@
+#! /usr/bin/perl
+use lib qw( ./lib ../lib );
+use Algorithm::Numerical::Shuffle qw( shuffle );
+use FreeScore::Test qw( score_grassroots );
+use Data::Dumper;
+
+our $test  = new FreeScore::Test();
+
+my $number = $test->grassroots( "judges" );
+my $judges = $number->{ judges } - 1;
+
+for( 0 .. 7 ) {
+	score( $judges );
+	sleep( 2 );
+	$test->grassroots( "display" );
+	sleep( 4 );
+	$test->grassroots( "athlete/next" );
+}
+
+# ============================================================
+sub score {
+# ============================================================
+	my $k      = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $score       = score_grassroots( 'good' );
+		my $judge_score = "$judge/" . ($score * 10);
+		$test->grassroots( $judge_score );
+		sleep( 1 );
+	}
+}

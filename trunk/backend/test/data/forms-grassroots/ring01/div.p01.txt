@@ -4,9 +4,9 @@
 # description=6-7yo Novice
 Shreya	White/Purple
 Skylar	White/Yellow
-Roshan  White/Yellow
-Aiden   White/Yellow
-Genevieve       Orange
-Angelina        Orange
-Ian     Orange
-Suri    Purple/Green  
+Roshan	White/Yellow
+Aiden	White/Yellow
+Genevieve	Orange
+Angelina	Orange
+Ian	Orange
+Suri	Purple/Green

@@ -31,7 +31,7 @@ $.widget( "freescore.grassroots", {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );
 
-			} else if( division.state == 'score' ) {
+			} else {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
 				e.scorekeeper.scorekeeper( { current: { athlete : athlete }, judges : division.judges } );
 			}

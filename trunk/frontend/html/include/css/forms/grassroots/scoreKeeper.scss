@@ -52,8 +52,8 @@
 	}
 
 	.ignore {
-		.judge { color: #333; }
-		.score { color: #333; }
+		.judge { opacity: 0.25; }
+		.score { position: relative; opacity: 0.25; &::after { opacity: 0.75; border-bottom: 8px solid yellow; content: ""; position: absolute; left: 10%; top: 50%; right: 10%; }}
 	}
 
 	.totalScores {

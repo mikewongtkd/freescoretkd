@@ -46,9 +46,18 @@
       margin: auto;
       height: 132px; }
   .scorekeeper .ignore .judge {
-    color: #333; }
+    opacity: 0.25; }
   .scorekeeper .ignore .score {
-    color: #333; }
+    position: relative;
+    opacity: 0.25; }
+    .scorekeeper .ignore .score::after {
+      opacity: 0.75;
+      border-bottom: 8px solid yellow;
+      content: "";
+      position: absolute;
+      left: 10%;
+      top: 50%;
+      right: 10%; }
   .scorekeeper .totalScores {
     text-align: center;
     height: 532px;

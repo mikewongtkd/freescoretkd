@@ -36,6 +36,13 @@
 					color: lime;
 					float: left;
 					width: 20%;
+
+					.notes {
+						display: inline-block;
+						text-align: left;
+						width: 30px;
+						opacity: 0.5;
+					}
 				}
 				.medal {
 					float: left;
