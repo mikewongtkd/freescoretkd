@@ -14,6 +14,24 @@ srand();
 # ============================================================
 
 # ------------------------------------------------------------
+# GET THE NUMBER OF JUDGES FOR THIS DIVISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/judges' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	try {
+		$self->render( json => { 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
+
+	} catch {
+		$self->render( json => { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
 # NEXT DIVISION
 # ------------------------------------------------------------
 get '/:tournament/:ring/division/next' => sub { 
@@ -119,12 +137,12 @@ get '/:tournament/:ring/:judge/:score' => sub {
 	my $score      = $self->param( 'score' ) / 10;
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
-	my $athlete    = $division->{ current };
-	$division->{ athletes }[ $athlete ]{ scores }[ $judge ] = $score;
+
+	$division->record_score( $judge, $score );
 
 	try {
 		$division->write();
-		$self->render( json => { athlete => $athlete, judge => ($judge + 1), score => $score } );
+		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
 
 	} catch {
 		$self->render( json => { 'error' => $_ } );

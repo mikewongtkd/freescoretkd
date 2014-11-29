@@ -3,7 +3,7 @@ use LWP::UserAgent;
 use JSON::XS;
 use parent qw( Exporter );
 
-our @EXPORT_OK = qw( roll highest lowest sum score_worldclass );
+our @EXPORT_OK = qw( roll highest lowest sum score_grassroots score_worldclass );
 
 # ============================================================
 sub new {
@@ -26,6 +26,15 @@ sub init {
 		$self->{ json }       = $json;
 	}
 	$self->{ ua } = new LWP::UserAgent();
+}
+
+# ============================================================
+sub grassroots {
+# ============================================================
+	my $self    = shift;
+	my $command = shift;
+	my $ring    = shift || 1;
+	return $self->get( "forms/grassroots/rest", $command, $ring );
 }
 
 # ============================================================
@@ -100,6 +109,22 @@ sub sum( @ ) {
 }
 
 # ============================================================
+sub score_grassroots {
+# ============================================================
+	my $performance = shift;
+	my $score       = undef;
+
+	if   ( not defined $performance ) { $score = (sum 69, roll "5d6")/10; }
+	elsif( $performance eq 'tie'    ) { $score = (sum 83, lowest( 1, roll "20d6" ))/10; }
+	elsif( $performance eq 'best'   ) { $score = (sum 75, roll "1d6", highest( 3, roll "10d6"))/10; }
+	elsif( $performance eq 'better' ) { $score = (sum 69, roll "3d6", highest( 2, roll "4d6"))/10; }
+	elsif( $performance eq 'good'   ) { $score = (sum 69, roll "3d6", lowest( 2, roll "4d6"))/10; }
+	elsif( $performance eq 'ok'     ) { $score = (sum 72, lowest 3, roll "6d6")/10; }
+
+	return $score;
+}
+
+# ============================================================
 sub score_worldclass {
 # ============================================================
 	my $performance = shift;
@@ -169,5 +194,6 @@ sub score_worldclass {
 
 	return $score;
 }
+
 
 1;

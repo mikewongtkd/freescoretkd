@@ -1,6 +1,0 @@
-# state=display
-# current=2
-# description=6-7yo Novice
-Genevieve	Orange	8.6	8.2	8.4
-Angelina	Orange	9.3	9.1	8.7
-Ian	Orange	8.8	8.5	8.5

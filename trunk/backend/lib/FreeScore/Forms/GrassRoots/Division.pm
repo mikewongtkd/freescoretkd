@@ -84,6 +84,19 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub record_score {
+# ============================================================
+	my $self  = shift;
+	my $judge = shift;
+	my $score = shift;
+
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	$athlete->{ scores }[ $judge ] = $score;
+}
+
+# ============================================================
 sub write {
 # ============================================================
 	my $self = shift;
