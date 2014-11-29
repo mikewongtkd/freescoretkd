@@ -62,7 +62,6 @@ $.widget( "freescore.scorekeeper", {
 		for( var i = 0; i < k; i++ ) { e.judges[ i ].removeClass( "ignore" ); }
 
 		// ===== SKIP MIN AND MAX FOR 5 OR 7 JUDGES
-		console.log( current.athlete.notes );
 		if( current.athlete.complete ) {
 			if( defined( current.athlete.min   )) { e.judges[ current.athlete.min ].addClass( "ignore" ); }
 			if( defined( current.athlete.max   )) { e.judges[ current.athlete.max ].addClass( "ignore" ); }
