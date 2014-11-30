@@ -91,14 +91,15 @@ body {
     font-family: Optima;
     color: white;
     display: none;
-    overflow: scroll; }
+    overflow-x: hidden;
+    overflow-y: auto; }
     .grassroots .leaderboard .division {
-      width: 1000px;
-      height: 740px; }
+      width: 985px;
+      height: 709px; }
       .grassroots .leaderboard .division .standings {
         float: left;
         width: 400px;
-        height: 740px;
+        height: 709px;
         color: yellow;
         font-size: 24pt;
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -135,7 +136,7 @@ body {
       .grassroots .leaderboard .division .pending {
         float: right;
         width: 400px;
-        height: 740px;
+        height: 709px;
         color: #999;
         font-size: 24pt;
         background: linear-gradient(to top, #45484d 0%, #000000 100%);

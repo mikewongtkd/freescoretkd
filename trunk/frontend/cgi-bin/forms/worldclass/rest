@@ -178,9 +178,10 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	}
 };
 
-any '*' => sub {
+any '*command' => sub {
 	my $self = shift;
-	$self->render( text => 'Forms::WorldClass: Unknown command' );
+	my $command = $self->param( 'command' );
+	$self->render( json => { error => "Forms::WorldClass: Unknown command: $command" });
 };
 
 

@@ -1,19 +1,49 @@
 .PHONY: all cache rest ui
 
-all:
+all: grassroots worldclass
 
-grassroots-rest: cache
+grassroots: cache test-config grassroots-unit-test grassroots-rest-test restore-config
+
+grassroots-rest: cache test-config grassroots-rest-test restore-config
+grassroots-unit: cache test-config grassroots-unit-test restore-config
+grassroots-ui:   cache test-config grassroots-ui-test   restore-config
+
+grassroots-rest-test:
 	./smoke/forms/grassroots/rest-api.t
 
-worldclass-rest: cache
+grassroots-unit-test:
+	./smoke/forms/grassroots/division-api.t
+
+grassroots-ui-test:
+	./ui/forms/grassroots/judges
+	
+worldclass: cache test-config worldclass-unit-test worldclass-rest-test restore-config
+
+worldclass-rest: cache test-config worldclass-rest-test restore-config
+worldclass-unit: cache test-config worldclass-unit-test restore-config
+worldclass-ui:   cache test-config worldclass-ui-test   restore-config
+
+worldclass-rest-test:
 	./smoke/forms/worldclass/rest-api.t
 
-worldclass-unit: cache
+worldclass-unit-test:
 	./smoke/forms/worldclass/division-api.t
 
-worldclass-ui: cache
-	cp data/forms-worldclass/ring01/div.p02.txt /Volumes/ramdisk/tma-2014-fall/forms-worldclass/ring01/div.p12.txt
+worldclass-ui-test:
 	./ui/forms/worldclass/judges
+
+test-config:
+	test=$$(grep -c 'FreeScore Test' ../../frontend/html/include/php/config.php); \
+	if [ $$test -eq 0 ]; then \
+		cp ../../frontend/html/include/php/config.php config.bak; \
+		cp include/config.php ../../frontend/html/include/php/config.php; \
+	fi
+
+restore-config:
+	test=$$(grep -c 'FreeScore Test' ../../frontend/html/include/php/config.php); \
+	if [ $$test -eq 1 ]; then \
+		cp config.bak ../../frontend/html/include/php/config.php; \
+	fi
 
 cache:
 	mkdir -p /Volumes/ramdisk/test

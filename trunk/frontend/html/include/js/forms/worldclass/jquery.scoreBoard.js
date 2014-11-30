@@ -57,6 +57,7 @@ $.widget( "freescore.scoreboard", {
 				var mean  = score.adjusted_mean;
 				if( ! defined( mean )) { continue; }
 				var total = (mean.accuracy + mean.presentation).toFixed( 2 );
+				total = total == 'NaN' ? '' : total;
 				grand_total += parseFloat( total );
 				var form = {
 					display : o.html.div.clone() .addClass( "form" ),
@@ -74,8 +75,10 @@ $.widget( "freescore.scoreboard", {
 				name    : o.html.div.clone() .addClass( "name" ),
 				score   : o.html.div.clone() .addClass( "score" )
 			};
+			if( isNaN( grand_total )) { grand_total = ''; }
+			else                      { grand_total = grand_total.toFixed( 2 ); }
 			form.name.html( "Current Total" );
-			form.score.html( grand_total.toFixed( 2 ));
+			form.score.html( grand_total );
 			form.display.append( form.name, form.score );
 			form.display.css( "left", 460 );
 			div.append( form.display );

@@ -32,7 +32,7 @@ $.widget( "freescore.leaderboard", {
 		if( standings.athletes.length == 0 ) {
 			e.standings.css( 'display', 'none' );
 			e.pending.css( 'font-size', '48pt' );
-			e.pending.css( 'width', '928px' );
+			e.pending.css( 'width', '913px' );
 		} else {
 			e.standings.css( 'display', 'block' );
 			e.pending.css( 'font-size', '24pt' );
@@ -54,7 +54,7 @@ $.widget( "freescore.leaderboard", {
 		if( pending.athletes.length == 0 ) { 
 			e.pending.css( 'display', 'none' ); 
 			e.standings.css( 'font-size', '48pt' );
-			e.standings.css( 'width', '928px' );
+			e.standings.css( 'width', '913px' );
 		} else {
 			e.pending.css( 'display', 'block' ); 
 			e.standings.css( 'font-size', '24pt' );

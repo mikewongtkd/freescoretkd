@@ -6,7 +6,7 @@ use Data::Dumper;
 
 our $test  = new FreeScore::Test();
 
-$test->{ tournament }{ db } = 'tma-2014-fall';
+$test->worldclass( "division/next" );
 
 my $number = $test->worldclass( "judges" );
 my $judges = $number->{ judges } - 1;
@@ -27,4 +27,7 @@ sub score {
 		$test->worldclass( $judge_score );
 		sleep( 1 );
 	}
+	sleep( 2 );
+	$test->worldclass( "display" );
+	sleep( 4 );
 }

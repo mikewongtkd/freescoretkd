@@ -20,7 +20,8 @@ sub init {
 	my $self = shift;
 	{
 		my $json = new JSON::XS();
-		my ($host, $tournament) = @{ $json->decode( `php config.php` )};
+		my $php  = `cat include/config.php include/vars.php | php`;
+		my ($host, $tournament) = @{ $json->decode( $php )};
 		$self->{ host }       = $host;
 		$self->{ tournament } = $tournament;
 		$self->{ json }       = $json;
