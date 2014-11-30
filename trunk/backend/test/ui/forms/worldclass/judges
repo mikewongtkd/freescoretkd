@@ -6,28 +6,32 @@ use Data::Dumper;
 
 our $test  = new FreeScore::Test();
 
-$test->worldclass( "division/next" );
-
 my $number = $test->worldclass( "judges" );
 my $judges = $number->{ judges } - 1;
+my $skill  = [ qw( good better best better best better ) ];
 
-score( $judges );
-sleep( $judges );
-$test->worldclass( "athlete/next" );
-score( $judges );
+foreach my $athlete ( 0 .. 5 ) {
+	foreach my $form ( 0 .. 1 ) {
+		score( $skill->[ $athlete ], $judges );
+		$test->worldclass( "athlete/next" );
+	}
+
+	$test->worldclass( "display" );
+	sleep( 4 );
+	$test->worldclass( "display" ) unless $athlete == 5;
+}
 
 # ============================================================
 sub score {
 # ============================================================
+	my $skill  = shift;
 	my $k      = shift;
 	my @judges = shuffle( 0 .. $k );
 	foreach my $judge (@judges) {
-		my $score       = score_worldclass( 'good' );
+		my $score       = score_worldclass( $skill );
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		$test->worldclass( $judge_score );
 		sleep( 1 );
 	}
 	sleep( 2 );
-	$test->worldclass( "display" );
-	sleep( 4 );
 }

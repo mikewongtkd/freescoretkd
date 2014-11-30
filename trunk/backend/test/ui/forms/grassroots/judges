@@ -14,6 +14,7 @@ for( 0 .. 7 ) {
 	sleep( 2 );
 	$test->grassroots( "display" );
 	sleep( 4 );
+	$test->grassroots( "display" );
 	$test->grassroots( "athlete/next" );
 }
 
