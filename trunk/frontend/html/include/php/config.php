@@ -1,8 +1,8 @@
 <?php
 	$host = "tmaopen.net";
 	$tournament = json_encode( [ 
-		"name" => "Tiger Martial Arts Fall Open Taekwondo Championships 2014",
-		"db" => "tma-2014-fall", 
-		"rings" => [ "count" => 2, "width" => 2, "height" => 1, "formation" => "rows" ],
+		"name" => "FreeScore Test Data",
+		"db" => "test", 
+		"rings" => [ "count" => 2, "width" => 2, "height" => 1, "formation" => "rows" ]
 	]);
 ?>

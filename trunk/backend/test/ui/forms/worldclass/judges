@@ -13,8 +13,9 @@ my $skill  = [ qw( good better best better best better ) ];
 foreach my $athlete ( 0 .. 5 ) {
 	foreach my $form ( 0 .. 1 ) {
 		score( $skill->[ $athlete ], $judges );
-		$test->worldclass( "athlete/next" );
+		$test->worldclass( "form/next" );
 	}
+	$test->worldclass( "athlete/next" );
 
 	$test->worldclass( "display" );
 	sleep( 4 );

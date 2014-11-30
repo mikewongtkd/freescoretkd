@@ -42,11 +42,12 @@ sub score {
 				ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
 				$division->write();
 			}
-			$division->next();
+			$division->next_form() if( $form == 0 );
 		}
 		$division->{ state } = 'display';
 		$division->write();
 		sleep( 3 );
+		$division->next_athlete();
 	}
 
 	$division->next_round();

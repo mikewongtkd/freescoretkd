@@ -46,13 +46,21 @@ $.widget( "freescore.leaderboard", {
 
 		// ===== UPDATE THE 'CURRENT PLACEMENT' PANEL
 		var update_placements = function( callback ) {
+			var entry      = html.div.clone() .addClass( "athlete" ) .addClass( "header" );
+			var name       = html.div.clone() .addClass( "name" ) .html( 'Name' );
+			var form1      = html.div.clone() .addClass( "form1" ) .html( 'Form&nbsp;1' );
+			var form2      = html.div.clone() .addClass( "form2" ) .html( 'Form&nbsp;2' );
+			var score      = html.div.clone() .addClass( "score" ) .html( 'Total' );
+
+			entry.append( name, form1, form2, score, medal );
+			e.placement.append( entry );
+
 			for( var i = 0; i < k; i++ ) {
 				var athlete    = placement.athletes[ i ];
 				var forms      = athlete.scores[ o.division.round ];
 				var athlete    = placement.athletes[ i ];
 				var notes      = defined( athlete.notes ) ? athlete.notes : '';
 				var total      = forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
-				var li         = html.li.clone();
 				var entry      = html.div.clone() .addClass( "athlete" );
 				var name       = html.div.clone() .addClass( "name" ) .html( athlete.name );
 				var form1      = defined( forms[ 0 ] ) ? html.div.clone() .addClass( "form1" ) .html( forms[ 0 ].adjusted_mean.total.toFixed( 2 )) : '';

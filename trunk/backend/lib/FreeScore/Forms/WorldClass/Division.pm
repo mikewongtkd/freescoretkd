@@ -468,7 +468,16 @@ sub previous_round {
 }
 
 # ============================================================
-sub next {
+sub next_athlete {
+# ============================================================
+	my $self = shift;
+	$self->{ state }   = 'score';
+	$self->{ current } = $self->athletes_in_round( 'next' );
+	$self->{ form }    = 0;
+}
+
+# ============================================================
+sub next_form {
 # ============================================================
 	my $self = shift;
 	$self->{ state } = 'score';
@@ -477,19 +486,22 @@ sub next {
 	my $form      = $self->{ form };
 	my $max_forms = $#{ $self->{ forms }{ $round }};
 
-	# ===== NEXT FORM; OR
-	if( $form < $max_forms ) {
-		$self->{ form }++;
-
-	# ===== NEXT ATHLETES IN THE CURRENT ROUND
-	} else {
-		$self->{ current }    = $self->athletes_in_round( 'next' );
-		$self->{ form }       = 0;
-	}
+	return unless( $form < $max_forms );
+	$self->{ form }++;
 }
 
 # ============================================================
-sub previous {
+sub previous_athlete {
+# ============================================================
+	my $self = shift;
+	$self->{ state } = 'score';
+
+	$self->{ current }    = $self->athletes_in_round( 'prev' );
+	$self->{ form }       = 0;
+}
+
+# ============================================================
+sub previous_form {
 # ============================================================
 	my $self = shift;
 	$self->{ state } = 'score';
@@ -497,16 +509,8 @@ sub previous {
 	my $round        = $self->{ round };
 	my $form         = $self->{ form };
 
-	# ===== PREVIOUS FORM; OR
-	if( $form > 0 ) {
-		$self->{ form }--;
-
-	# ===== PREVIOUS ATHLETES IN THE CURRENT ROUND
-	} else {
-		my $max_forms         = $#{ $self->{ forms }{ $round }};
-		$self->{ current }    = $self->athletes_in_round( 'prev' );
-		$self->{ form }       = $max_forms;
-	}
+	return unless( $form > 0 );
+	$self->{ form }--;
 }
 
 # ============================================================

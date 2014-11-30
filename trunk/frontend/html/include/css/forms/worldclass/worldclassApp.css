@@ -236,13 +236,13 @@ body {
             width: 40%;
             font-weight: bold; }
           .worldclass .leaderboard .division .placement .athlete .form1 {
-            color: #999;
+            color: #939;
             position: absolute;
             left: 40%;
             width: 15%;
             text-align: right; }
           .worldclass .leaderboard .division .placement .athlete .form2 {
-            color: #999;
+            color: #399;
             position: absolute;
             left: 55%;
             width: 15%;
@@ -261,6 +261,11 @@ body {
             position: absolute;
             left: 90%;
             width: 10%; }
+        .worldclass .leaderboard .division .placement .header {
+          font-size: 14pt;
+          height: 20px;
+          opacity: 0.5;
+          border-bottom: 2px solid #333; }
       .worldclass .leaderboard .division .pending {
         height: 704px;
         color: #999;
@@ -269,11 +274,13 @@ body {
         /* W3C */
         border: 4px solid white;
         border-radius: 24px;
-        padding: 0 32px 8px 32px; }
+        padding: 0 32px 8px 32px;
+        overflow-x: hidden;
+        overflow-y: auto; }
         .worldclass .leaderboard .division .pending h2 {
           color: white; }
         .worldclass .leaderboard .division .pending ol li b {
-          color: #ccc;
+          color: lime;
           font-weight: bold; }
       .worldclass .leaderboard .division .one-column {
         width: 928px; }

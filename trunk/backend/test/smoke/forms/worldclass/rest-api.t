@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use lib qw( ./lib ../lib );
-use Test::Simple tests => 535;
+use Test::Simple tests => 579;
 use FreeScore::Test qw( score_worldclass );
 use Data::Dumper;
 
@@ -29,13 +29,15 @@ foreach my $athlete ( 0 .. 21 ) {
 			print STDERR Dumper $response if exists $response->{ error };
 			ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
 		}
-		ok( $response = $test->worldclass( "athlete/next" ));
-		ok( $response->{ form } == ($form + 1)%2);
+		ok( $response = $test->worldclass( "form/next" ));
+		ok( $response->{ form } == 1 );
 	}
+	ok( $response = $test->worldclass( "athlete/next" ));
+	ok( $response->{ athlete } == ($athlete + 1) % 22);
 }
 
 # ===== MOVE TO THE NEXT ROUND (SEMIFINALS)
-ok( $response = $test->worldclass( "division/next" ));
+ok( $response = $test->worldclass( "round/next" ));
 ok( $response->{ round } eq 'semfin' );
 
 

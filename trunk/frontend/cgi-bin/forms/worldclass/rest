@@ -33,59 +33,36 @@ get '/:tournament/:ring/judges' => sub {
 # ------------------------------------------------------------
 # NEXT ROUND OR DIVISION
 # ------------------------------------------------------------
-get '/:tournament/:ring/division/next' => sub { 
+get( '/:tournament/:ring/:object/:navigation' => [ 
+	object     => qr/(?:division|round|athlete|form)/, 
+	navigation => qr/(?:next|previous)/, 
+])->to( cb => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
+	my $object     = $self->param( 'object' );
+	my $navigation = $self->param( 'navigation' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
 
 	try {
-		# ===== LAST ROUND? GO TO NEXT DIVISION
-		if( $division->{ round } eq $FreeScore::Forms::WorldClass::Division::round_order[ -1 ] ) {
-			$progress->next();
-			$progress->write();
-			$self->render( json => { 'current' => $progress->current() });
-
-		# ===== NOT LAST ROUND? GO TO NEXT ROUND
+		if     ( $navigation eq 'next' ) {
+			if    ( $object eq 'division' ) { $progress->next();             $progress->write(); }
+			elsif ( $object eq 'round'    ) { $division->next_round();       $division->write(); }
+			elsif ( $object eq 'athlete'  ) { $division->next_athlete();     $division->write(); } 
+			elsif ( $object eq 'form'     ) { $division->next_form();        $division->write(); }
 		} else {
-			$division->next_round();
-			$division->write();
-			$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
+			if    ( $object eq 'division' ) { $progress->previous();         $progress->write(); } 
+			elsif ( $object eq 'round'    ) { $division->previous_round();   $division->write(); }
+			elsif ( $object eq 'athlete'  ) { $division->previous_athlete(); $division->write(); }
+			elsif ( $object eq 'form'     ) { $division->previous_form();    $division->write(); }
 		}
+		$self->render( json => { 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
 
 	} catch {
 		$self->render( json => { error => $_ });
 	}
-};
-
-# ------------------------------------------------------------
-# PREVIOUS ROUND OR DIVISION
-# ------------------------------------------------------------
-get '/:tournament/:ring/division/previous' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->current();
-
-	try {
-		# ===== FIRST ROUND? GO TO PREVIOUS DIVISION
-		if( $division->{ round } eq $FreeScore::Forms::WorldClass::Division::round_order[ 0 ] ) {
-			$progress->previous();
-			$progress->write();
-			$self->render( json => { 'current' => $progress->current() } );
-
-		# ===== NOT FIRST ROUND? GO TO PREVIOUS ROUND
-		} else {
-			$division->previous_round();
-			$division->write();
-			$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
-		}
-	} catch {
-		$self->render( json => { error => $_ });
-	}
-};
+});
 
 # ------------------------------------------------------------
 # TOGGLE CURRENT DIVISION STATE BETWEEN DISPLAY AND SCORE
@@ -103,46 +80,6 @@ get '/:tournament/:ring/display' => sub {
 	try {
 		$division->write();
 		$self->render( json => { 'state' => $division->{ state } } );
-
-	} catch {
-		$self->render( json => { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
-# SCORE FOR NEXT ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/athlete/next' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->current();
-
-	try {
-		$division->next();
-		$division->write();
-		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
-
-	} catch {
-		$self->render( json => { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
-# SCORE FOR PREVIOUS ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/athlete/previous' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->current();
-
-	try {
-		$division->previous();
-		$division->write();
-		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
 		$self->render( json => { error => $_ });

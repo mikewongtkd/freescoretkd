@@ -129,26 +129,26 @@ $.widget( "freescore.judgeController", {
 
 			if( form_names.length > 1 ) {
 				if( division.form < (form_names.length - 1)) {
-					e.prevAthlete.ajaxbutton({ label : "Prev Athlete" });
-					e.nextAthlete.ajaxbutton({ label : "Next Form" });
+					e.prevAthlete.ajaxbutton({ command : "athlete/previous", label : "Prev Athlete" });
+					e.nextAthlete.ajaxbutton({ command : "form/next",        label : "Next Form" });
 				} else {
-					e.prevAthlete.ajaxbutton({ label : "Prev Form" });
-					e.nextAthlete.ajaxbutton({ label : "Next Athlete" });
+					e.prevAthlete.ajaxbutton({ command : "form/previous",    label : "Prev Form" });
+					e.nextAthlete.ajaxbutton({ command : "athlete/next",     label : "Next Athlete" });
 				}
 			}
 			var num_rounds = Object.keys( division.forms ).length;
 			if( num_rounds > 1 ) {
 				if       ( division.round == 'prelim' || (division.round == 'semfin' && num_rounds == 2 )) {
-					e.prevDivision.ajaxbutton({ label : "Prev Division" });
-					e.nextDivision.ajaxbutton({ label : "Next Round" });
+					e.prevDivision.ajaxbutton({ command : "division/previous", label : "Prev Division" });
+					e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
 
 				} else if( division.round == 'semfin' && num_rounds == 3 ) {
-					e.prevDivision.ajaxbutton({ label : "Prev Round" });
-					e.nextDivision.ajaxbutton({ label : "Next Round" });
+					e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
+					e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
 
 				} else if( division.round == 'finals' ) {
-					e.prevDivision.ajaxbutton({ label : "Prev Round" });
-					e.nextDivision.ajaxbutton({ label : "Next Division" });
+					e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
+					e.nextDivision.ajaxbutton({ command : "division/next",     label : "Next Division" });
 				}
 			}
 
