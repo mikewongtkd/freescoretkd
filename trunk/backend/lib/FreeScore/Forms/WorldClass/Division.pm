@@ -432,6 +432,18 @@ sub write {
 }
 
 # ============================================================
+sub navigate {
+# ============================================================
+	my $self   = shift;
+	my $object = shift;
+	my $value  = shift;
+
+	if    ( $object eq 'round'   ) { $self->{ round }   = $value; }
+	elsif ( $object eq 'athlete' ) { $self->{ current } = $value; }
+	elsif ( $object eq 'form'    ) { $self->{ form }    = $value; }
+}
+
+# ============================================================
 sub next_round {
 # ============================================================
 	my $self   = shift;

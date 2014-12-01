@@ -33,29 +33,35 @@ get '/:tournament/:ring/judges' => sub {
 # ------------------------------------------------------------
 # NEXT ROUND OR DIVISION
 # ------------------------------------------------------------
-get( '/:tournament/:ring/:object/:navigation' => [ 
-	object     => qr/(?:division|round|athlete|form)/, 
-	navigation => qr/(?:next|previous)/, 
+get( '/:tournament/:ring/:object/:goto' => [ 
+	object => qr/(?:division|round|athlete|form)/, 
+	goto   => qr/(?:next|previous|\d+)/, 
 ])->to( cb => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $object     = $self->param( 'object' );
-	my $navigation = $self->param( 'navigation' );
+	my $goto       = $self->param( 'goto' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
 
 	try {
-		if     ( $navigation eq 'next' ) {
+		if      ( $goto eq 'next' ) {
 			if    ( $object eq 'division' ) { $progress->next();             $progress->write(); }
 			elsif ( $object eq 'round'    ) { $division->next_round();       $division->write(); }
 			elsif ( $object eq 'athlete'  ) { $division->next_athlete();     $division->write(); } 
 			elsif ( $object eq 'form'     ) { $division->next_form();        $division->write(); }
-		} else {
+
+		} elsif ( $goto eq 'previous' ) {
 			if    ( $object eq 'division' ) { $progress->previous();         $progress->write(); } 
 			elsif ( $object eq 'round'    ) { $division->previous_round();   $division->write(); }
 			elsif ( $object eq 'athlete'  ) { $division->previous_athlete(); $division->write(); }
 			elsif ( $object eq 'form'     ) { $division->previous_form();    $division->write(); }
+
+		} elsif ( $goto =~ /\d+/ ) {
+			if    ( $object eq 'division' ) { $progress->navigate( $goto ); }
+			else                            { $division->navigate( $object, $goto ); }
+			
 		}
 		$self->render( json => { 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
 
