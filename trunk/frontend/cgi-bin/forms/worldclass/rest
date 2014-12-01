@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 
-use lib qw( /Users/mikewong899/devel/freescore/backend/lib );
+use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use Mojolicious::Lite;
 use YAML;
