@@ -4,10 +4,14 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<script type="text/javascript" src="javascripts/jquery.js"></script>
+	<script type="text/javascript" src="javascripts/jquery.jcarousel.min.js"></script>
+	<script type="text/javascript" src="javascripts/freescore-carousel.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <link rel="stylesheet" type="text/css" href="stylesheets/jcarousel.css" media="screen">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -31,15 +35,23 @@
 
 <p>FreeScoreTKD provides software for "Grassroots" or traditional forms and for "World Class" or Sport poomsae.</p>
 
-<p><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/freescore-architecture.png" alt="image"></p>
+			<div class="jcarousel-wrapper">
+                <div class="jcarousel">
+                    <ul>
+						<li><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/freescore-architecture.png" alt="image"></li>
+						<li><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/worldclass-display.png" alt="image"></li>
+						<li><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/worldclass-judge.png" alt="image"></li>
+						<li><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/worldclass-leaderboard.png" alt="image"></li>
+						<li><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/grassroots-judge.png" alt="image"></li>
+						<li><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/grassroots-display.png" alt="image"></li>
+                    </ul>
+                </div>
 
-<p><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/display.png" alt="image"></p>
-
-<p><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/worldclass.png" alt="image"></p>
-
-<p><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/leaderboard.png" alt="image"></p>
-
-<p><img src="https://raw.githubusercontent.com/mikewongtkd/freescoretkd/master/trunk/docs/images/screenshots/grassroots.png" alt="image"></p>
+                <a href="#" class="jcarousel-control-prev">&lsaquo;</a>
+                <a href="#" class="jcarousel-control-next">&rsaquo;</a>
+                
+                <p class="jcarousel-pagination"></p>
+            </div>
         </section>
 
         <aside id="sidebar">
