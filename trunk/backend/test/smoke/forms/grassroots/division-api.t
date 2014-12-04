@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use lib qw( ./lib ../lib );
-use Test::Simple tests => 10;
+use Test::Simple tests => 50;
 use FreeScore::Forms::Grassroots;
 use FreeScore::Test qw( score_grassroots );
 use Data::Dumper;

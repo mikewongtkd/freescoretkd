@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<script type="text/javascript" src="../jquery-1.9.1.js" ></script>
+		<script type="text/javascript" src="html5-qrcode.min.js" ></script>
+	</head>
+	<body>
+		<div id="qrcode" style="width: 300px; height: 250px; border: 1px solid black;"></div>
+		<span id="read"></div>
+		<span id="error"></div>
+		<span id="vid_error"></div>
+		<script type="text/javascript">
+			$(document).ready( function() {
+				$('#qrcode').html5_qrcode( 
+					function( data ) {
+						$('#read').html( data );
+					},
+					function( error ) {
+						if( error == "Couldn't find enough finder patterns" ) {
+							$('#error').html( "Scanning..." );
+						} else {
+							$('#error').html( "Error: " + error );
+						}
+					},
+					function( videoError ) {
+						$('#vid_error').html( videoError );
+					}
+				);
+			});
+		</script>
+		</script>
+	</body>
+</html>
