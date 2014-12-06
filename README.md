@@ -3,6 +3,8 @@ FreeScoreTKD
 
 Open Source Taekwondo tournament software
 
-FreeScoreTKD provides software for "Grassroots" or traditional forms and for "World Class" or Sport poomsae.
+FreeScoreTKD is free and open source software for traditional and sport poomsae
+scoring on wireless tablets or smartphones.
 
-Please see the [project website](http://mikewongtkd.github.io/freescoretkd/) for more details.
+Please see the [project website](http://mikewongtkd.github.io/freescoretkd/)
+for more details.
