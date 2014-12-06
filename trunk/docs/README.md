@@ -8,22 +8,6 @@ This document highlights the core concepts behind the FreeScore Taekwondo tourna
 
 FreeScore is designed for physical portability; laptops and tablets. It achieves this by using software technology with relatively low computational overhead that can be run on limited hardware. Any system that can run Apache can be used as a server; any system that can run the latest version of Chrome can be used as a terminal or tablet interface for judges.
 
-## Installation
-
-### Pre-install instructions for Mac:
-Create symbolic links for the following:
-  - Frontend systems:
-    - /Library/WebServer/Documents -> /var/www/html
-    - /Library/WebServer/CGI-Executables -> /var/www/cgi-bin
-
-### Installation instructions
-Create symbolic links for the following:
-  - Frontend systems:
-    - ~/freescoretkd/frontend/html -> /var/www/html/freescore
-    - ~/freescoretkd/frontend/cgi-bin -> /var/www/cgi-bin/freescore
-  - Backend systems:
-    - ~/freescoretkd/backend -> /usr/local/freescore
-
 #### Front-end Architecture
 
 The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. As of late 2014, there doesn't seem to be any SSL-ready implementation of WebSockets (and network may be too intermittent for WebSockets anyway). So the architecture uses the following technologies:
