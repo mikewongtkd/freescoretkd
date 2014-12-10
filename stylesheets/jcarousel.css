@@ -122,3 +122,45 @@
     opacity: 1;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.75);
 }
+
+@media only screen 
+    and (min-device-width : 375px) 
+    and (max-device-width : 667px) 
+    and (orientation : portrait) 
+    and (-webkit-min-device-pixel-ratio : 2)
+{ 
+	header h1 {
+		font-size: 22pt;
+	}
+
+	header h2 {
+		font-size: 14pt;
+	}
+
+	.jcarousel-wrapper {
+		width: 280px;
+		height: 230px;
+	}
+
+	.jcarousel {
+		width: 280px;
+		height: 200px;
+	}
+
+	img {
+		width: 280px;
+		height: 200px;
+	}
+
+	.jcarousel-control-prev {
+    	top: 100px;
+		left: -40px;
+	}
+
+	.jcarousel-control-next {
+    	top: 100px;
+		right: -40px;
+	}
+}
+
+
