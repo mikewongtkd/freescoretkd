@@ -159,6 +159,7 @@ $.widget( "freescore.judgeController", {
 				var items      = [ 'Judge ' + (o.num + 1), division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, round_name[ division.round ], form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( items );
+				e.matPosition.matposition( 'option', 'reset' )();
 
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
 				o.minor  = 0.0; e.minor  .deductions( { count : 0 });
