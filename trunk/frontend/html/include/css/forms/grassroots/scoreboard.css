@@ -59,6 +59,7 @@
       top: 50%;
       right: 10%; }
   .scorekeeper .totalScores {
+    font-family: HelveticaNeue-CondensedBold;
     text-align: center;
     height: 532px;
     width: 992px;
@@ -80,5 +81,7 @@
       height: 400px;
       font-size: 360pt;
       line-height: 360pt; }
+    .scorekeeper .totalScores .notes {
+      font-size: 36pt; }
 
-/*# sourceMappingURL=scoreKeeper.css.map */
+/*# sourceMappingURL=scoreboard.css.map */

@@ -1,63 +1,203 @@
-/*
-Error: File to import not found or unreadable: leaderBoard.
-       Load paths:
-         
-        on line 8 of grassrootsApp.scss
+body {
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
 
-3: 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
-4: }
-5: 
-6: .grassroots {
-7: 	@import 'scoreboard';
-8: 	@import 'leaderBoard';
-9: 	margin: 0 auto 0 auto;
-10: 	width: 1000px;
-11: }
-12: 
-13: .usermessage {
+.grassroots {
+  margin: 0 auto 0 auto;
+  width: 1000px; }
+  .grassroots .scorekeeper {
+    font-family: Optima; }
+    .grassroots .scorekeeper .judgeScores {
+      width: 1000px;
+      height: 180px;
+      margin: 0 0 20px 0; }
+    .grassroots .scorekeeper .judges5 {
+      width: 176px; }
+      .grassroots .scorekeeper .judges5 .judge {
+        font-size: 24pt; }
+      .grassroots .scorekeeper .judges5 .score {
+        font-size: 72pt;
+        line-height: 108pt; }
+    .grassroots .scorekeeper .judges3 {
+      width: 312px; }
+      .grassroots .scorekeeper .judges3 .judge {
+        font-size: 24pt; }
+      .grassroots .scorekeeper .judges3 .score {
+        font-size: 108pt;
+        line-height: 108pt; }
+    .grassroots .scorekeeper .left {
+      margin: 0 10px 0 0; }
+    .grassroots .scorekeeper .middle {
+      margin: 0 10px 0 10px; }
+    .grassroots .scorekeeper .right {
+      margin: 0 0 0 10px; }
+    .grassroots .scorekeeper .judgeScore {
+      display: inline-block;
+      text-align: center;
+      height: 172px;
+      font-weight: bold;
+      border-radius: 24px;
+      border: 4px solid white; }
+      .grassroots .scorekeeper .judgeScore .judge {
+        color: #666;
+        font-weight: bold;
+        border-radius: 0 0 24px 24px;
+        background-color: black;
+        margin: 0 auto 0 auto;
+        height: 40px; }
+      .grassroots .scorekeeper .judgeScore .score {
+        color: yellow;
+        font-weight: bold;
+        border-radius: 24px 24px 0 0;
+        background-color: black;
+        margin: auto;
+        height: 132px; }
+    .grassroots .scorekeeper .ignore .judge {
+      opacity: 0.25; }
+    .grassroots .scorekeeper .ignore .score {
+      position: relative;
+      opacity: 0.25; }
+      .grassroots .scorekeeper .ignore .score::after {
+        opacity: 0.75;
+        border-bottom: 8px solid yellow;
+        content: "";
+        position: absolute;
+        left: 10%;
+        top: 50%;
+        right: 10%; }
+    .grassroots .scorekeeper .totalScores {
+      font-family: HelveticaNeue-CondensedBold;
+      text-align: center;
+      height: 532px;
+      width: 992px;
+      font-weight: bold;
+      color: lime;
+      border-radius: 24px;
+      border: 4px solid white;
+      background: linear-gradient(to top, #45484d 0%, #000000 100%); }
+      .grassroots .scorekeeper .totalScores .red, .grassroots .scorekeeper .totalScores .hong {
+        color: #f66; }
+      .grassroots .scorekeeper .totalScores .blue, .grassroots .scorekeeper .totalScores .chung {
+        color: #66f; }
+      .grassroots .scorekeeper .totalScores .athlete {
+        margin: 20px 0 0 0;
+        height: 120px;
+        font-size: 72pt;
+        line-height: 72pt; }
+      .grassroots .scorekeeper .totalScores .score {
+        height: 400px;
+        font-size: 360pt;
+        line-height: 360pt; }
+      .grassroots .scorekeeper .totalScores .notes {
+        font-size: 36pt; }
+  .grassroots .leaderboard {
+    font-family: Optima;
+    color: white;
+    display: none;
+    overflow-x: hidden;
+    overflow-y: auto; }
+    .grassroots .leaderboard .division {
+      width: 985px;
+      height: 709px; }
+      .grassroots .leaderboard .division .standings {
+        float: left;
+        width: 400px;
+        height: 709px;
+        color: yellow;
+        font-size: 24pt;
+        background: linear-gradient(to top, #45484d 0%, #000000 100%);
+        /* W3C */
+        border: 4px solid white;
+        border-radius: 24px;
+        padding: 0 32px 8px 32px; }
+        .grassroots .leaderboard .division .standings .rank1 {
+          color: #f90; }
+        .grassroots .leaderboard .division .standings .rank2 {
+          color: #ccc; }
+        .grassroots .leaderboard .division .standings .rank3 {
+          color: #930; }
+        .grassroots .leaderboard .division .standings .rank4 {
+          color: #930; }
+        .grassroots .leaderboard .division .standings .athlete {
+          clear: both; }
+          .grassroots .leaderboard .division .standings .athlete .name {
+            float: left;
+            width: 70%;
+            font-weight: bold; }
+          .grassroots .leaderboard .division .standings .athlete .score {
+            color: lime;
+            float: left;
+            width: 20%; }
+            .grassroots .leaderboard .division .standings .athlete .score .notes {
+              display: inline-block;
+              text-align: left;
+              width: 30px;
+              opacity: 0.5; }
+          .grassroots .leaderboard .division .standings .athlete .medal {
+            float: left;
+            width: 10%; }
+      .grassroots .leaderboard .division .pending {
+        float: right;
+        width: 400px;
+        height: 709px;
+        color: #999;
+        font-size: 24pt;
+        background: linear-gradient(to top, #45484d 0%, #000000 100%);
+        /* W3C */
+        border: 4px solid white;
+        border-radius: 24px;
+        padding: 0 32px 8px 32px; }
+        .grassroots .leaderboard .division .pending h2 {
+          color: yellow; }
+        .grassroots .leaderboard .division .pending ol li {
+          margin-left: 40px; }
+          .grassroots .leaderboard .division .pending ol li b {
+            color: lime;
+            font-weight: bold; }
 
-Backtrace:
-grassrootsApp.scss:8
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/import_node.rb:66:in `rescue in import'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/import_node.rb:45:in `import'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/import_node.rb:28:in `imported_file'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:107:in `rescue in invalid_import_parent?'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:101:in `invalid_import_parent?'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:175:in `try_send'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:12:in `visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:52:in `map'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:52:in `visit_children'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:49:in `visit_children'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:38:in `visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:15:in `visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:52:in `map'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:52:in `visit_children'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:49:in `visit_children'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:36:in `block in visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:57:in `visit_root'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:36:in `visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/check_nesting.rb:15:in `visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/visitors/base.rb:24:in `visit'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/root_node.rb:35:in `css_tree'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/engine.rb:368:in `_render_with_sourcemap'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/engine.rb:285:in `render_with_sourcemap'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/plugin/compiler.rb:489:in `update_stylesheet'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/plugin/compiler.rb:209:in `each'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/plugin/compiler.rb:469:in `on_file_changed'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/lib/sass/plugin/compiler.rb:328:in `block in watch'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/vendor/listen/lib/listen/listener.rb:252:in `call'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/vendor/listen/lib/listen/listener.rb:252:in `on_change'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/vendor/listen/lib/listen/listener.rb:290:in `block in initialize_adapter'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/vendor/listen/lib/listen/adapters/polling.rb:48:in `call'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/vendor/listen/lib/listen/adapters/polling.rb:48:in `poll_changed_directories'
-/Library/Ruby/Gems/2.0.0/gems/sass-3.4.6/vendor/listen/lib/listen/adapter.rb:299:in `block in start_poller'
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Error: File to import not found or unreadable: leaderBoard.\A        Load paths:\A          \A         on line 8 of grassrootsApp.scss\A \A 3: 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);\A 4: }\A 5: \A 6: .grassroots {\A 7: 	@import 'scoreboard';\A 8: 	@import 'leaderBoard';\A 9: 	margin: 0 auto 0 auto;\A 10: 	width: 1000px;\A 11: }\A 12: \A 13: .usermessage {"; }
+.usermessage {
+  font-family: Optima;
+  font-size: 24pt;
+  color: #ccc;
+  display: none;
+  border: 8px solid red;
+  border-radius: 24px;
+  width: 934px;
+  margin: 80px auto 80px auto;
+  padding: 0 32px 32px 32px; }
+  .usermessage h1 {
+    color: white; }
+  .usermessage code {
+    color: gold;
+    font-size: 18pt; }
+
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear; }
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear; }
+
+@-webkit-keyframes enterDownBounce {
+  0% {
+    -webkit-transform: translateY(-600px);
+    opacity: 0.25; }
+  50% {
+    -webkit-transform: translateY(0px); }
+  70% {
+    -webkit-transform: translateY(-50px); }
+  100% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; } }
+@-webkit-keyframes leaveUpBounce {
+  0% {
+    -webkit-transform: translateY(0px);
+    opacity: 1; }
+  10% {
+    -webkit-transform: translateY(50px);
+    opacity: 1; }
+  25% {
+    -webkit-transform: translateY(0px); }
+  100% {
+    -webkit-transform: translateY(-900px);
+    opacity: 0; } }
+
+/*# sourceMappingURL=grassrootsApp.css.map */
