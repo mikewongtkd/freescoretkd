@@ -1,6 +1,6 @@
 // Depends on jquery.judgeScore.js
 
-$.widget( "freescore.scorekeeper", {
+$.widget( "freescore.scoreboard", {
 	options: { autoShow: true, judges: 3 },
 	_create: function() {
 		var html = { div : $( "<div />" ) };
@@ -66,6 +66,7 @@ $.widget( "freescore.scorekeeper", {
 			if( defined( current.athlete.min   )) { e.judges[ current.athlete.min ].addClass( "ignore" ); }
 			if( defined( current.athlete.max   )) { e.judges[ current.athlete.max ].addClass( "ignore" ); }
 			if( defined( current.athlete.score )) { 
+				if( ! defined( current.athlete.notes )) { current.athlete.notes = ''; }
 				e.score.html( current.athlete.score.toFixed( 1 ) + "<span class=\"notes\">&nbsp;" + current.athlete.notes + "</span>" ); 
 				e.score.animate({ opacity : 1 }, 500 ); 
 			}
