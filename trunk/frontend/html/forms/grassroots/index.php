@@ -9,8 +9,8 @@
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.grassroots.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.leaderBoard.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.scoreKeeper.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.leaderboard.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.scoreboard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
 	</head>
 	<body>

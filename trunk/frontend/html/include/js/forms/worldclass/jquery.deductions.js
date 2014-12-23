@@ -4,7 +4,7 @@ $.widget( "freescore.deductions", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements = {};
-		var html   = e.html = { div : $( "<div />" ) };
+		var html   = e.html = FreeScore.html;
 
 		o.value    = (typeof o.value === 'undefined') ? 0.1 : o.value;
 		o.count    = 0;

@@ -4,7 +4,7 @@ $.widget( "freescore.judgeController", {
 		var o      = this.options;
 		var e      = this.options.elements = {};
 		var widget = this.element;
-		var html   = e.html  = { div : $( "<div />" ), ul : $( "<ul />" ), li : $( "<li />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
+		var html   = e.html  = FreeScore.html;
 
 		widget.nodoubletapzoom();
 

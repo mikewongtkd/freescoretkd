@@ -1,5 +1,5 @@
 <?php
-	$host = "tmaopen.net";
+	$host = "freescore.net";
 	$tournament = json_encode( [ 
 		"name" => "FreeScore Test Data",
 		"db" => "test", 

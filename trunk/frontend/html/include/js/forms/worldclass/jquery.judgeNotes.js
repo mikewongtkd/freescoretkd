@@ -4,7 +4,7 @@ $.widget( "freescore.judgeNotes", {
 		var widget  = this.element;
 		var o       = this.options;
 		var e       = this.options.elements = {};
-		var html    = e.html = { div : $( "<div />" ), span : $( "<span />" ), a : $( "<a />" ), table : $( "<table />" ), tr : $( "<tr />" ), th : $( "<th />" ), td : $( "<td />" ) };
+		var html    = e.html = FreeScore.html;
 		var view    = e.view = html.div.clone() .addClass( "view" );
 
 		widget.addClass( 'judgeNotes' );

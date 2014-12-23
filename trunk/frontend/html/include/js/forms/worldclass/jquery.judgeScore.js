@@ -3,7 +3,7 @@ $.widget( "freescore.judgeScore", {
 	_create: function() {
 		var o       = this.options;
 		var e       = this.options.elements = {};
-		var html    = o.html  = { div : $( "<div />" ), span : $( "<span />" ) };
+		var html    = e.html  = FreeScore.html;
 		var score   = e.score = html.div.clone() .addClass( "score" ) .prop( "id", "judgeScore" + o.num );
 		var name    = e.name  = html.div.clone() .addClass( "judge" );
 		var view    = e.view  = html.div.clone();
@@ -35,8 +35,8 @@ $.widget( "freescore.judgeScore", {
 		// ===== DISPLAY VALID SCORES
 		if( parseFloat( score.accuracy ) >= 0 && parseFloat( score.presentation ) > 0 ) { 
 			var span = {
-				accuracy     : o.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy     ),
-				presentation : o.html.span .clone() .addClass( "presentation" ) .html( score.presentation )
+				accuracy     : e.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy     ),
+				presentation : e.html.span .clone() .addClass( "presentation" ) .html( score.presentation )
 			};
 			var ignore = { 
 				accuracy     : o.max >= 5 && (defined( score.minacc ) || defined( score.maxacc )),

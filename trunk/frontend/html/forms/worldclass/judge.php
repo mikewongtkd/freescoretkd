@@ -15,7 +15,6 @@
 		<link href="../../include/css/forms/worldclass/judgeController.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
-		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
@@ -25,6 +24,7 @@
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
+		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.deductions.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.matposition.js"></script>

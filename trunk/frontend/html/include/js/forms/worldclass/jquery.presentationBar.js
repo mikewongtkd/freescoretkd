@@ -4,7 +4,7 @@ $.widget( "freescore.presentationBar", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements = {};
-		var html   = e.html = { div : $( "<div />" ) };
+		var html   = e.html = FreeScore.html;
 
 		o.value    = 1.2;
 

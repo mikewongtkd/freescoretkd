@@ -4,7 +4,7 @@ $.widget( "freescore.worldclass", {
 		var o           = this.options;
 		var e           = this.options.elements = {};
 		var widget      = this.element;
-		var html        = { div : $( "<div />" ) };
+		var html        = e.html        = FreeScore.html;
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "back" );
 		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "front" );
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" ) .hide();

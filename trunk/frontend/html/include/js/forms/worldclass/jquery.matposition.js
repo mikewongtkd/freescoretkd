@@ -18,14 +18,14 @@ $.widget( "freescore.matposition", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements = {};
-		var html   = e.html = { div : $( "<div />" ) };
+		var html   = e.html = FreeScore.html;
 
 		var mat    = e.mat    = html.div.clone() .addClass( "mat" );
 		var label  = e.label  = html.div.clone() .addClass( "label" ) .html( "Athlete Start Position" );
 		var layer  = e.layer  = html.div.clone() .addClass( "layer" );
 		var center = e.center = html.div.clone() .addClass( "center" );
 		var start  = e.start  = html.div.clone() .addClass( "start-position" ) .html( '&#x2715;' ) .hide();
-		var timer  = e.timer  = html.div.clone() .addClass( "timer" ) .html( "00:00.00" ) .hide();
+		var timer  = e.timer  = html.div.clone() .addClass( "timer" ) .html( "00:00.00" ) .css( "opacity", 0.1 );
 
 		widget.append( mat );
 		mat.append( center, label, start, layer, timer );
@@ -42,8 +42,7 @@ $.widget( "freescore.matposition", {
 			o.time.current = 0;
 			o.time.started = false;
 			e.timer.html( formatTime( o.time.current ));
-			e.timer.css( "opacity", 0.5 );
-			e.timer.hide();
+			e.timer.css( "opacity", 0.1 );
 			e.label.show();
 			e.start.hide();
 		}

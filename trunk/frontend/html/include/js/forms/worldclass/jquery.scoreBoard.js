@@ -7,7 +7,7 @@ $.widget( "freescore.scoreboard", {
 		var e = this.options.elements = {};
 		var k = o.judges;
 
-		var html         = o.html = { div : $( "<div />" ), span : $( "<span />" ), ul : $( "<ul />" ), li : $( "<li />" ) };
+		var html         = e.html = FreeScore.html;
 		var judgeScores  = e.judgeScores  = html.div.clone() .addClass( "judgeScores" );
 		var judges       = e.judges       = new Array();
 		var totalScore   = e.totalScore   = html.div.clone() .addClass( "totalScores" );
@@ -60,9 +60,9 @@ $.widget( "freescore.scoreboard", {
 				total = total == 'NaN' ? '' : total;
 				grand_total += parseFloat( total );
 				var form = {
-					display : o.html.div.clone() .addClass( "form" ),
-					name    : o.html.div.clone() .addClass( "name" ),
-					score   : o.html.div.clone() .addClass( "score" )
+					display : e.html.div.clone() .addClass( "form" ),
+					name    : e.html.div.clone() .addClass( "name" ),
+					score   : e.html.div.clone() .addClass( "score" )
 				};
 				form.name.html( name );
 				form.score.html( total );
@@ -71,9 +71,9 @@ $.widget( "freescore.scoreboard", {
 				div.append( form.display );
 			}
 			var form = {
-				display : o.html.div.clone() .addClass( "form" ),
-				name    : o.html.div.clone() .addClass( "name" ),
-				score   : o.html.div.clone() .addClass( "score" )
+				display : e.html.div.clone() .addClass( "form" ),
+				name    : e.html.div.clone() .addClass( "name" ),
+				score   : e.html.div.clone() .addClass( "score" )
 			};
 			if( isNaN( grand_total )) { grand_total = ''; }
 			else                      { grand_total = grand_total.toFixed( 2 ); }
@@ -121,12 +121,12 @@ $.widget( "freescore.scoreboard", {
 		};
 
 		var round_names = { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Final', 'finals' : 'Final' };
-		var round_description = o.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 });;
+		var round_description = e.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 });;
 
-		round_description.append( o.html.li.clone() .html( current.description ));
-		round_description.append( o.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round_names[ current.round ] + ' Round</b>'));
-		if( current.forms.length > 1 ) { round_description.append( o.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ].name + '</b>' )); } 
-		else                           { round_description.append( o.html.li.clone() .html( '<b>' + current.forms[ current.form ] + '</b>' )); }
+		round_description.append( e.html.li.clone() .html( current.description ));
+		round_description.append( e.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round_names[ current.round ] + ' Round</b>'));
+		if( current.forms.length > 1 ) { round_description.append( e.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ].name + '</b>' )); } 
+		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ] + '</b>' )); }
 
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;

@@ -6,11 +6,11 @@ $.widget( "freescore.grassroots", {
 		var widget      = this.element;
 		var html        = { div : $( "<div />" ) };
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard back" );
-		var scorekeeper = e.scorekeeper = html.div.clone() .addClass( "scorekeeper front" );
+		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "scoreboard front" );
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
-		card .append( leaderboard, scorekeeper );
+		card .append( leaderboard, scoreboard );
 		widget .addClass( "grassroots flippable" );
 		widget .append( card, usermessage );
 	},
@@ -33,7 +33,7 @@ $.widget( "freescore.grassroots", {
 
 			} else {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
-				e.scorekeeper.scorekeeper( { current: { athlete : athlete }, judges : division.judges } );
+				e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
 			}
 		};
 

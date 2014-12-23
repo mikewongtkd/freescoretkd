@@ -1,6 +1,5 @@
 body {
-  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
-  /* W3C */ }
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
 
 .grassroots {
   margin: 0 auto 0 auto;
@@ -66,6 +65,7 @@ body {
         top: 50%;
         right: 10%; }
     .grassroots .scorekeeper .totalScores {
+      font-family: HelveticaNeue-CondensedBold;
       text-align: center;
       height: 532px;
       width: 992px;
@@ -87,6 +87,8 @@ body {
         height: 400px;
         font-size: 360pt;
         line-height: 360pt; }
+      .grassroots .scorekeeper .totalScores .notes {
+        font-size: 36pt; }
   .grassroots .leaderboard {
     font-family: Optima;
     color: white;

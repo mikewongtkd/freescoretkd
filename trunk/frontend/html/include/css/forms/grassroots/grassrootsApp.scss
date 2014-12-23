@@ -1,10 +1,10 @@
 
 body {
-	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
 }
 
 .grassroots {
-	@import 'scoreKeeper';
+	@import 'scoreboard';
 	@import 'leaderBoard';
 	margin: 0 auto 0 auto;
 	width: 1000px;
