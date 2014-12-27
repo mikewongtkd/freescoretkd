@@ -31,9 +31,8 @@ while( 1 ) {
 	} catch {
 		$data = { error => $_ };
 	};
-	my $update = $json->encode( $data ); $update =~ s/"(\d+(?:\.\d+)?)"/$1/g;
+	my $update = $json->canonical( 1 )->encode( $data ); $update =~ s/"(\d+(?:\.\d+)?)"/$1/g;
 	my $state  = md5_hex( $update );
-
 
 	next if $state eq $last;
 	print "id: $id$eol";

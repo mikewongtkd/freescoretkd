@@ -10,6 +10,7 @@ sub read {
 
 	my $index = 0;
 	$self->{ judges } = 3; # Default value
+	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
 
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
@@ -20,7 +21,16 @@ sub read {
 		if( /^#/ ) {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
-			$self->{ $key } = $value;
+			if      ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; } 
+			elsif   ( $key eq 'places' ) {
+				my $places = [];
+				foreach my $entry (split /,/, $value) {
+					my ($place, $medals) = split /:/, $entry;
+					push @$places, { place => $place, medals => $medals };
+				}
+				$self->{ $key } = $places;
+ 
+			} else { $self->{ $key } = $value; }
 			next;
 		}
 
@@ -39,6 +49,46 @@ sub read {
 	close FILE;
 
 	$self->calculate_scores();
+	$self->calculate_placements();
+}
+
+# ============================================================
+sub calculate_placements {
+# ============================================================
+	my $self       = shift;
+	my $n          = $self->{ judges };
+	my @sorted     = sort { my $x = $self->{ athletes }[ $a ]; my $y = $self->{ athletes }[ $b ]; _compare( $x, $y, $n ); } ( 0 .. $#{ $self->{ athletes }});
+	my $tied       = [];
+	my $placements = [];
+	my $places     = [ @{ $self->{ places }} ];
+
+	for( my $i = 0; $i < $#sorted; $i++ ) {
+		my $place  = shift @$places;
+		my $medals = $place->{ medals };
+		my $a      = $sorted[ $i ];
+		my $x      = $self->{ athletes }[ $a ];
+
+		last unless defined $places;
+
+		push @$placements, $a;
+		my $place_ties = { place => $place->{ place }, tied => [ $a ] };
+		foreach my $j (($i + 1) .. ($i + $medals)) {
+			last if $j > $#sorted; # More medals than athletes, e.g. 2 person division
+			my $b = $sorted[ $j ];
+			my $y = $self->{ athletes }[ $b ];
+
+			push @$placements, $b;
+			push @{ $place_ties->{ tied }}, $b if( _compare( $x, $y, $n ) == 0 );
+		}
+
+		my $ties = $#{ $place_ties->{ tied }};
+		push @$tied, $place_ties if( $ties <= $medals && $ties > 0 );
+	}
+
+	if( $self->{ complete } ) {
+		if( @$tied ) { $self->{ tied }       = $tied;       } # Complete, unresolved
+		else         { $self->{ placements } = $placements; } # Complete, resolved
+	}
 }
 
 # ============================================================
@@ -77,46 +127,7 @@ sub calculate_scores {
 		}
 		$complete &&= $athlete->{ complete };
 	}
-
-	# ===== TIE DETECTION
-	my @sorted = sort { $self->{ athletes }[ $b ]{ score } <=> $self->{ athletes }[ $a ]{ score } } ( 0 .. $#{ $self->{ athletes }});
-	for( my $i = 0; $i < int(@sorted); $i++ ) {
-		my $a = $self->{ athletes }[ $sorted[ $i ]];
-		foreach my $j ( $i + 1 .. $#sorted ) {
-			my $b = $self->{ athletes }[ $sorted[ $j ]];
-			next unless $a->{ score } == $b->{ score };
-			if( $judges > 3 ) { _bring_back_high_and_low_scores( $a, $b, $sorted[ $j ] ); } 
-			else              { _mark_unresolved_ties( $a, $b, $sorted[ $j ] ); }
-			$i = $j;
-		}
-	}
-	if( $complete ) {
-		my @tied = ();
-		foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
-			my $athlete = $self->{ athletes }[ $i ];
-			if( defined $athlete->{ tied } ) {
-				unshift @{ $athlete->{ tied }}, $i; 
-				push @tied, $athlete->{ tied };
-				delete $athlete->{ tied };
-			}
-		}
-		if( @tied ) {
-			$self->{ tied } = join ";", (map { join( ",", @$_ ); } @tied);
-		} else {
-			my @sorted = sort { 
-				my $x = $self->{ athletes }[ $a ];
-				my $y = $self->{ athletes }[ $b ];
-				if( $x->{ score } == $y->{ score } ) {
-				}
-
-				$y->{ score }                <=> $x->{ score }                ||
-				$y->{ score }[ $y->{ max } ] <=> $x->{ score }[ $x->{ max } ] ||
-				$y->{ score }[ $y->{ min } ] <=> $x->{ score }[ $x->{ min } ] ||
-				$y->{ tb }                   <=> $x->{ tb };
-			} ( 0 .. $#{ $self->{ athletes }} );
-			$self->{ placements } = join ",", @sorted;
-		}
-	}
+	$self->{ complete } = $complete;
 }
 
 # ============================================================
@@ -135,15 +146,18 @@ sub record_score {
 # ============================================================
 sub write {
 # ============================================================
-	my $self = shift;
+	my $self   = shift;
+	my $tied   = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
+	my $places = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
-	print FILE "# tied=$self->{ tied }\n" if exists $self->{ tied };
-	print FILE "# placements=$self->{ placements }\n" if exists $self->{ placements };
+	print FILE "# places=$places\n" if exists $self->{ places };
+	print FILE "# tied=$tied\n" if exists $self->{ tied };
+	print FILE "# placements=" . join( ",", @{$self->{ placements }}) . "\n" if exists $self->{ placements };
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
@@ -151,43 +165,19 @@ sub write {
 }
 
 # ============================================================
-sub _bring_back_high_and_low_scores {
+sub _compare {
 # ============================================================
-	my $a = shift;
-	my $b = shift;
-	my $j = shift;
+	my $a      = shift;
+	my $b      = shift;
+	my $judges = shift;
 
-	# ===== BRING BACK THE HIGH SCORES
-	my $ha = $a->{ scores }[ $a->{ max }];
-	my $hb = $b->{ scores }[ $b->{ max }];
-	if( $ha >  $hb ) { $a->{ notes } = 'H'; }
-	if( $ha <  $hb ) { $b->{ notes } = 'H'; }
-	if( $ha == $hb ) { return _bring_back_low_scores( $a, $b, $j )};
-}
+	my $ha = $a->{ scores }[ $a->{ max } ]; # High scores
+	my $hb = $b->{ scores }[ $b->{ max } ];
+	my $la = $a->{ scores }[ $a->{ min } ]; # Low scores
+	my $lb = $b->{ scores }[ $b->{ min } ];
+	my $tb = $judges > 3 ? $hb <=> $ha || $lb <=> $la : 0; # Tiebreaker: check high scores, then low scores
 
-# ============================================================
-sub _bring_back_low_scores {
-# ============================================================
-	my $a = shift;
-	my $b = shift;
-	my $j = shift;
-
-	my $la = $a->{ scores }[ $a->{ min }];
-	my $lb = $b->{ scores }[ $b->{ min }];
-	if( $la >  $lb ) { $a->{ notes } = 'L'; }
-	if( $la <  $lb ) { $b->{ notes } = 'L'; }
-	if( $la == $lb ) { _mark_unresolved_ties( $a, $b, $j ); }
-}
-
-# ============================================================
-sub _mark_unresolved_ties {
-# ============================================================
-	my $a = shift;
-	my $b = shift;
-	my $j = shift;
-
-	push @{ $a->{ tied }}, $j; 
+	return $b->{ score } <=> $a->{ score } || $tb;
 }
 
 1;
-
