@@ -15,8 +15,6 @@ my $tournament = shift || $cgi->param( 'tournament' );
 my $ring       = shift || $cgi->param( 'ring' ) || $cgi->cookie( 'ring' );
 my $json       = new JSON::XS();
 
-$json->convert_blessed( 1 );
-
 $| = 1;
 print "Content-Type: text/event-stream\n";
 print "Cache-Control: no-cache\n\n";
@@ -31,7 +29,7 @@ while( 1 ) {
 	} catch {
 		$data = { error => $_ };
 	};
-	my $update = $json->canonical( 1 )->encode( $data ); $update =~ s/"(\d+(?:\.\d+)?)"/$1/g;
+	my $update = $json->convert_blessed()->canonical()->encode( $data ); $update =~ s/"(\d+(?:\.\d+)?)"/$1/g;
 	my $state  = md5_hex( $update );
 
 	next if $state eq $last;

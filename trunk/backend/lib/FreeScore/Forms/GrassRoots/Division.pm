@@ -98,10 +98,11 @@ sub calculate_scores {
 	my $judges   = $self->{ judges };
 	my $complete = 1;
 
-	# ===== CALCULATE SCORES
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		my $stats = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
 		my $done  = 0;
+
+		# ===== CALCULATE SCORES
 		foreach my $j (0 .. $#{ $athlete->{ scores }}) {
 			my $score = $athlete->{ scores }[ $j ];
 			$stats->{ sum } += $score;
@@ -109,15 +110,17 @@ sub calculate_scores {
 			$stats->{ max }  = $score > $athlete->{ scores }[ $stats->{ max }] ? $j : $stats->{ max };
 			$done++ if( $score > 0 );
 		}
+		$athlete->{ complete } = ($judges == $done);
 
+		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
+			my $score = $athlete->{ tiebreakers }[ $j ];
 			$stats->{ tb } += $athlete->{ tiebreakers }[ $j ];
 		}
+		$athlete->{ tb } = $stats->{ tb } || undef;
 
 		# ===== IF THE SCORES ARE ALL THE SAME, THEN THE MIN WILL EQUAL MAX, SO DIFFERENTIATE THEM
 		$stats->{ max }++ if( $stats->{ min } == $stats->{ max });
-		$athlete->{ complete } = ($judges == $done);
-		$athlete->{ tb }       = $stats->{ tb };
 
 		if( $judges == 3 ) { $athlete->{ score } = $stats->{ sum }; } 
 		else {
@@ -175,9 +178,10 @@ sub _compare {
 	my $hb = $b->{ scores }[ $b->{ max } ];
 	my $la = $a->{ scores }[ $a->{ min } ]; # Low scores
 	my $lb = $b->{ scores }[ $b->{ min } ];
-	my $tb = $judges > 3 ? $hb <=> $ha || $lb <=> $la : 0; # Tiebreaker: check high scores, then low scores
+	my $hl = ($judges > 3) ? $hb <=> $ha || $lb <=> $la : 0; # High-Low tiebreaker: check high scores, then low scores
+	my $tb = (defined $a->{ tb } && defined $b->{ tb }) ? $b->{ tb } <=> $a->{ tb } : 0; # Tiebreaker scores
 
-	return $b->{ score } <=> $a->{ score } || $tb;
+	return $b->{ score } <=> $a->{ score } || $hl || $tb;
 }
 
 1;

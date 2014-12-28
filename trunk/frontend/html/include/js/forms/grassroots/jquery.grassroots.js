@@ -22,10 +22,21 @@ $.widget( "freescore.grassroots", {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ parseInt( forms.current ) ];
 			var athlete  = division.athletes[ division.current ];
-			if( typeof( division.error ) !== 'undefined' ) {
+			if( defined( division.error )) {
 				e.card.fadeOut();
 				e.usermessage.html( division.error );
 				e.usermessage.fadeIn( 500 );
+
+			} else if( defined( division.tied )) {
+				var tied = division.tied.shift();
+				e.card.fadeOut();
+				e.usermessage.html( "Tie for " + tied.place );
+				e.usermessage.fadeIn( 500, function() {
+					e.usermessage.delay( 5000 ).fadeOut( 500, function() {
+						e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
+						e.card.fadeIn();
+					});
+				});
 				
 			} else if( division.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }

@@ -526,25 +526,37 @@ sub previous_form {
 }
 
 # ============================================================
-sub select_tiebreaker_round_scores {
+sub select_round_scores {
 # ============================================================
-	my $self    = shift;
-	my $i       = shift;
-	my $round   = shift;
+	my $self  = shift;
+	my $i     = shift;
+	my $round = shift;
+	my $type  = shift;
 
 	die "Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
 	die "Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
 	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
 
 	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
-	my $forms   = $self->{ forms }{ $round };
+	my $forms  = $self->{ forms }{ $round };
 
 	$scores->calculate_means();
 
 	my @form_indices = ( 0 .. $#$forms );
-	my @tiebreaker   = grep { $forms->[ $_ ]{ type } eq 'tiebreaker' } @form_indices;
+	my @selected     = grep { $forms->[ $_ ]{ type } eq $type } @form_indices;
 	
-	return [ map { $scores->[ $_ ] } @tiebreaker ];
+	return [ map { $scores->[ $_ ] } @selected   ];
+}
+
+
+# ============================================================
+sub select_tiebreaker_round_scores {
+# ============================================================
+	my $self  = shift;
+	my $i     = shift;
+	my $round = shift;
+
+	return $self->select_round_scores( $i, $round, 'tiebreaker' );
 }
 
 # ============================================================
@@ -554,19 +566,7 @@ sub select_compulsory_round_scores {
 	my $i       = shift;
 	my $round   = shift;
 
-	die "Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
-	die "Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
-	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
-
-	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
-	my $forms   = $self->{ forms }{ $round };
-
-	$scores->calculate_means();
-
-	my @form_indices = ( 0 .. $#$forms );
-	my @compulsory   = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
-	
-	return [ map { $scores->[ $_ ] } @compulsory ];
+	return $self->select_round_scores( $i, $round, 'compulsory' );
 }
 
 # ============================================================
