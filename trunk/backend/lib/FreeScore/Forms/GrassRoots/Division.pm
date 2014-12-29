@@ -22,7 +22,8 @@ sub read {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
 			if      ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; } 
-			elsif   ( $key eq 'places' ) {
+			elsif   ( $key eq 'tied' ) {} # Do nothing; better to calculate this fresh
+			elsif ( $key eq 'places' ) {
 				my $places = [];
 				foreach my $entry (split /,/, $value) {
 					my ($place, $medals) = split /:/, $entry;
@@ -62,28 +63,35 @@ sub calculate_placements {
 	my $placements = [];
 	my $places     = [ @{ $self->{ places }} ];
 
+	# ===== CALCULATE TIES
 	for( my $i = 0; $i < $#sorted; $i++ ) {
-		my $place  = shift @$places;
-		my $medals = $place->{ medals };
-		my $a      = $sorted[ $i ];
-		my $x      = $self->{ athletes }[ $a ];
-
-		last unless defined $places;
+		my $a = $sorted[ $i ];
+		my $x = $self->{ athletes }[ $a ];
 
 		push @$placements, $a;
-		my $place_ties = { place => $place->{ place }, tied => [ $a ] };
-		foreach my $j (($i + 1) .. ($i + $medals)) {
-			last if $j > $#sorted; # More medals than athletes, e.g. 2 person division
+		my $place_ties = { place => $i + 1, tied => [ $a ] };
+		for( my $j = ($i + 1); $j <= $#sorted; $j++ ) {
 			my $b = $sorted[ $j ];
 			my $y = $self->{ athletes }[ $b ];
+			last unless _compare( $x, $y, $n ) == 0;
 
 			push @$placements, $b;
-			push @{ $place_ties->{ tied }}, $b if( _compare( $x, $y, $n ) == 0 );
+			push @{ $place_ties->{ tied }}, $b;
+			$i = $j;
 		}
 
 		my $ties = $#{ $place_ties->{ tied }};
-		push @$tied, $place_ties if( $ties <= $medals && $ties > 0 );
+		push @$tied, $place_ties if($#{ $place_ties->{ tied }});
 	}
+
+	# ===== FILTER UNIMPORTANT TIES
+	@$tied = grep {
+		my $tie = $_;
+		my ($place) = grep { $_->{ place } == $tie->{ place } } @$places;
+		if( ! defined $place ) { (); }
+		elsif( $place->{ medals } < int( @{ $tie->{ tied }} )) { $tie; }
+		else { (); }
+	} @$tied;
 
 	if( $self->{ complete } ) {
 		if( @$tied ) { $self->{ tied }       = $tied;       } # Complete, unresolved
@@ -174,14 +182,13 @@ sub _compare {
 	my $b      = shift;
 	my $judges = shift;
 
-	my $ha = $a->{ scores }[ $a->{ max } ]; # High scores
-	my $hb = $b->{ scores }[ $b->{ max } ];
-	my $la = $a->{ scores }[ $a->{ min } ]; # Low scores
-	my $lb = $b->{ scores }[ $b->{ min } ];
-	my $hl = ($judges > 3) ? $hb <=> $ha || $lb <=> $la : 0; # High-Low tiebreaker: check high scores, then low scores
-	my $tb = (defined $a->{ tb } && defined $b->{ tb }) ? $b->{ tb } <=> $a->{ tb } : 0; # Tiebreaker scores
+	my $score = sprintf( "%.1f", $b->{ score } ) <=> sprintf( "%.1f", $a->{ score } );
+	my $high  = { a => $a->{ scores }[ $a->{ max } ], b => $b->{ scores }[ $b->{ max } ] };
+	my $low   = { a => $a->{ scores }[ $a->{ min } ], b => $b->{ scores }[ $b->{ min } ] };
+	my $hilo  = ($judges > 3) ? sprintf( "%.1f", $high->{ b } ) <=> sprintf( "%.1f", $high->{ a } ) || sprintf( "%.1f", $low->{ b } ) <=> sprintf( "%.1f", $low->{ a } ) : 0; # High-Low tiebreaker: check high scores, then low scores
+	my $tb    = (defined $a->{ tb } && defined $b->{ tb }) ? sprintf( "%.1f", $b->{ tb } ) <=> sprintf( "%.1f", $a->{ tb } ) : 0; # Tiebreaker scores
 
-	return $b->{ score } <=> $a->{ score } || $hl || $tb;
+	return $score || $hilo || $tb;
 }
 
 1;

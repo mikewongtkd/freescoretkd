@@ -71,11 +71,21 @@ $.widget( "freescore.judgeController", {
 			var division = forms.divisions[ forms.current ]; if( typeof( division ) === 'undefined' ) { return; }
 			var athletes = division.athletes;
 			e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
-
-			// ===== UPDATE ACTION BUTTON
-			var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
-			e.clearButton .ajaxbutton( { command : o.judge + '/-10' } );
-			e.sendButton  .ajaxbutton( { command : o.judge + '/' + score });
+			console.log( division );
+			if( defined( division.tied )) {
+				if( division.tied[ 0 ].tied.length == 2 ) {
+					e.score.hide();
+					e.vote.show();
+				} else {
+					e.score.show();
+					e.vote.hide();
+				}
+			}  else {
+				// ===== UPDATE ACTION BUTTON
+				var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
+				e.clearButton .ajaxbutton( { command : o.judge + '/-10' } );
+				e.sendButton  .ajaxbutton( { command : o.judge + '/' + score });
+			}
 		};
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + o.tournament.db );
