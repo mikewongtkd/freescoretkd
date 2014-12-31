@@ -11,6 +11,7 @@ sub read {
 	my $index = 0;
 	$self->{ judges } = 3; # Default value
 	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ round }  = 'fin';
 
 	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
@@ -94,8 +95,19 @@ sub calculate_placements {
 	} @$tied;
 
 	if( $self->{ complete } ) {
-		if( @$tied ) { $self->{ tied }       = $tied;       } # Complete, unresolved
-		else         { $self->{ placements } = $placements; } # Complete, resolved
+		# Complete, unresolved
+		if( @$tied ) { 
+			$self->{ tied } = $tied;       
+			if( $self->{ round } eq 'fin' ) {
+				my $first = $tied->[ 0 ]{ tied }[ 0 ];
+				$self->{ current } = $first;
+			}
+			$self->{ round } = 'tb';
+
+		# Complete, resolved
+		} else { 
+			$self->{ placements } = $placements; 
+		}
 	}
 }
 
@@ -164,6 +176,7 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
+	print FILE "# round=$self->{ round }\n" if exists $self->{ round };
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
 	print FILE "# places=$places\n" if exists $self->{ places };

@@ -3,9 +3,9 @@
 $.widget( "freescore.scoreboard", {
 	options: { autoShow: true, judges: 3 },
 	_create: function() {
-		var html = { div : $( "<div />" ) };
-		var e = this.options.elements = {};
 		var o = this.options;
+		var e = o.elements = {};
+		var html = e.html = FreeScore.html;
 
 		var judgeScores = e.judgeScores = html.div.clone() .addClass( "judgeScores" );
 		var judges      = e.judges      = [];
@@ -29,7 +29,7 @@ $.widget( "freescore.scoreboard", {
 			judgeScores.append( judge );
 		}
 		
-		this.element .addClass( "scoreKeeper" );
+		this.element .addClass( "scoreboard" );
 		this.element .append( judgeScores );
 		this.element .append( totalScore );
 	},

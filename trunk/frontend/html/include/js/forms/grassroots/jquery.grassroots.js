@@ -5,12 +5,13 @@ $.widget( "freescore.grassroots", {
 		var e           = this.options.elements = {};
 		var widget      = this.element;
 		var html        = { div : $( "<div />" ) };
-		var leaderboard = e.leaderboard = html.div.clone() .addClass( "leaderboard back" );
-		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "scoreboard front" );
+		var leaderboard = e.leaderboard = html.div.clone() .addClass( "back" );
+		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "front" );
+		var tiebreaker  = e.tiebreaker  = html.div.clone() .addClass( "front" );
 		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
-		card .append( leaderboard, scoreboard );
+		card .append( leaderboard, scoreboard, tiebreaker );
 		widget .addClass( "grassroots flippable" );
 		widget .append( card, usermessage );
 	},
@@ -21,6 +22,7 @@ $.widget( "freescore.grassroots", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ parseInt( forms.current ) ];
+			console.log( forms );
 			var athlete  = division.athletes[ division.current ];
 			if( defined( division.error )) {
 				e.card.fadeOut();
@@ -29,14 +31,7 @@ $.widget( "freescore.grassroots", {
 
 			} else if( defined( division.tied )) {
 				var tied = division.tied.shift();
-				e.card.fadeOut();
-				e.usermessage.html( "Tie for " + tied.place );
-				e.usermessage.fadeIn( 500, function() {
-					e.usermessage.delay( 5000 ).fadeOut( 500, function() {
-						e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
-						e.card.fadeIn();
-					});
-				});
+				e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
 				
 			} else if( division.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }

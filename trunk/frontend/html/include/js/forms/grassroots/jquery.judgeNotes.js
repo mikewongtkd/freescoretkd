@@ -20,6 +20,8 @@ $.widget( "freescore.judgeNotes", {
 		var view        = e.view;
 		var athletes    = o.athletes;
 		var current     = o.current;
+		var red         = o.red;
+		var blue        = o.blue;
 
 		if( typeof( athletes ) === 'undefined' ) { return; }
 
@@ -37,12 +39,12 @@ $.widget( "freescore.judgeNotes", {
 			var tr        = h.tr.clone();
 			var athlete   = athletes[ i ];
 			var score     = athlete.scores[ o.num ]; score = score <= 0 ? "" : parseFloat( score ).toFixed( 1 );
-			var isCurrent = function() { if( i == current ) { return "current"; }}
+			var getClass  = function() { if( i == current ) { return "current"; } else if( i == red ) { return "red"; } else if( i == blue ) { return "blue"; }};
 
 			tr
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "td-order" ) .html( i + 1 + "." ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "td-name"  ) .html( athlete.name ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "td-score" ) .html( score ));
+				.append( h.td.clone() .addClass( getClass() ) .addClass( "td-order" ) .html( i + 1 + "." ))
+				.append( h.td.clone() .addClass( getClass() ) .addClass( "td-name"  ) .html( athlete.name ))
+				.append( h.td.clone() .addClass( getClass() ) .addClass( "td-score" ) .html( score ));
 			table.append( tr );
 		}
 		view.append( description, table );

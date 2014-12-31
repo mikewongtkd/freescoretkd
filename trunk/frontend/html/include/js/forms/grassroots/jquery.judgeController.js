@@ -69,19 +69,35 @@ $.widget( "freescore.judgeController", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );        if( typeof( forms    ) === 'undefined' ) { return; }
 			var division = forms.divisions[ forms.current ]; if( typeof( division ) === 'undefined' ) { return; }
-			var athletes = division.athletes;
-			e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
-			console.log( division );
+
+			// ===== IF THERE IS A TIE IN THE DIVISION
 			if( defined( division.tied )) {
-				if( division.tied[ 0 ].tied.length == 2 ) {
+				var tiebreaker = division.tied[ 0 ]; // Resolve the first tie
+				var athletes   = tiebreaker.tied.map( function( i ) { return division.athletes[ i ]; } );
+
+				// ===== TIEBREAKER BY VOTE
+				if( tiebreaker.tied.length == 2 ) {
+					e.notes.judgeNotes({ num : o.judge, athletes : athletes, blue : 0, red : 1, name : division.name, description : 'Tiebreaker' });
 					e.score.hide();
 					e.vote.show();
+					var vote = e.vote.tiebreaker( 'option', 'vote' );
+					e.clearButton .ajaxbutton( { command : o.judge + '/tb/clear' } );
+					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + vote });
+
+				// ===== TIEBREAKER BY SCORE
 				} else {
+					e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : 'Tiebreaker' });
 					e.score.show();
 					e.vote.hide();
+					var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
+					e.clearButton .ajaxbutton( { command : o.judge + '/tb/-10' } );
+					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + score });
 				}
+
+			// ===== IF THERE IS NO TIE, THEN SIMPLY UPDATE THE UI FOR NORMAL SCORING
 			}  else {
-				// ===== UPDATE ACTION BUTTON
+				var athletes = division.athletes;
+				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
 				var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
 				e.clearButton .ajaxbutton( { command : o.judge + '/-10' } );
 				e.sendButton  .ajaxbutton( { command : o.judge + '/' + score });
