@@ -1,4 +1,12 @@
-function defined( x ) { return (typeof( x ) !== 'undefined'); }
+function defined( x ) { return ((typeof( x ) !== 'undefined') && (x != null)); }
+function ordinal( x ) {
+	var d = x % 10;
+	if      ( x > 10 && x < 14 ) { return x + 'th'; }
+	else if ( d == 1           ) { return x + 'st'; }
+	else if ( d == 2           ) { return x + 'nd'; }
+	else if ( d == 3           ) { return x + 'rd'; }
+	else                         { return x + 'th'; }
+}
 var FreeScore = { 
 	html : { 
 		a     : $( "<a />" ), 

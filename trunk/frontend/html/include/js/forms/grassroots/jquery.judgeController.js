@@ -45,14 +45,18 @@ $.widget( "freescore.judgeController", {
 		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action clear',  app : o.app, command : o.judge + '/-10', label : 'Clear' });
 		var sendButton  = e.sendButton  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action send',  app : o.app, command : o.judge + '/80', label : 'Send'  });
 
+		o.vote  = e.vote.tiebreaker( 'option', 'vote' );
+		o.score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
+
 		// ============================================================
 		// UPDATE BEHAVIOR
 		// ============================================================
 		widget.on( "updateRequest", function() {
 			// ===== UPDATE ACTION BUTTON
-			var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
+			o.vote  = e.vote.tiebreaker( 'option', 'vote' );
+			o.score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
 			e.clearButton .ajaxbutton( { command : o.judge + '/-10' } );
-			e.sendButton  .ajaxbutton( { command : o.judge + '/' + score });
+			e.sendButton  .ajaxbutton( { command : o.judge + '/' + o.score });
 		});
 
 		controller.append( navigation, controls, notes );
@@ -80,18 +84,16 @@ $.widget( "freescore.judgeController", {
 					e.notes.judgeNotes({ num : o.judge, athletes : athletes, blue : 0, red : 1, name : division.name, description : 'Tiebreaker' });
 					e.score.hide();
 					e.vote.show();
-					var vote = e.vote.tiebreaker( 'option', 'vote' );
-					e.clearButton .ajaxbutton( { command : o.judge + '/tb/clear' } );
-					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + vote });
+					e.clearButton .ajaxbutton( { command : o.judge + '/tb/-10' } );
+					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + o.vote });
 
 				// ===== TIEBREAKER BY SCORE
 				} else {
 					e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : 'Tiebreaker' });
 					e.score.show();
 					e.vote.hide();
-					var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
 					e.clearButton .ajaxbutton( { command : o.judge + '/tb/-10' } );
-					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + score });
+					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + o.score });
 				}
 
 			// ===== IF THERE IS NO TIE, THEN SIMPLY UPDATE THE UI FOR NORMAL SCORING

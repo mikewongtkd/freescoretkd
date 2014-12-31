@@ -36,6 +36,7 @@ $.widget( "freescore.tiebreaker", {
 				vote.fadeTo( 250, 1.00 );
 				other.fadeTo( 250, 0.25 );
 				o.vote = vote.prop( "vote" );
+				w.trigger( "updateRequest" );
 			};
 		};
 

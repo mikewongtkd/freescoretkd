@@ -22,16 +22,29 @@ $.widget( "freescore.grassroots", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ parseInt( forms.current ) ];
-			console.log( forms );
 			var athlete  = division.athletes[ division.current ];
 			if( defined( division.error )) {
 				e.card.fadeOut();
 				e.usermessage.html( division.error );
 				e.usermessage.fadeIn( 500 );
 
-			} else if( defined( division.tied )) {
-				var tied = division.tied.shift();
-				e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
+			} else if( defined( division.tied ) && division.state == 'score' ) {
+				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
+				var tie      = division.tied.shift();
+				var athletes = tie.tied.map( function( i ) { return division.athletes[ i ]; });
+				var title    = ordinal( tie.place ) + ' Place Tiebreaker';
+				// ===== SHOW TIEBREAKER BY VOTE
+				if( tie.tied.length == 2 ) {
+					e.scoreboard.hide();
+					e.tiebreaker.show();
+					e.tiebreaker.voteDisplay({ title: title, athletes : athletes, judges : division.judges });
+
+				// ===== SHOW TIEBREAKER BY SCORE
+				} else {
+					e.scoreboard.show();
+					e.tiebreaker.hide();
+					e.scoreboard.scoreboard( { title: title, current: { athlete : athlete }, judges : division.judges } );
+				}
 				
 			} else if( division.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
@@ -39,6 +52,8 @@ $.widget( "freescore.grassroots", {
 
 			} else {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
+				e.scoreboard.show();
+				e.tiebreaker.hide();
 				e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
 			}
 		};

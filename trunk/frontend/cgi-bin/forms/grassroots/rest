@@ -149,6 +149,31 @@ get '/:tournament/:ring/:judge/:score' => sub {
 	}
 };
 
+# ------------------------------------------------------------
+# WRITE JUDGE TIEBREAKER FOR ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:ring/:judge/tb/:score' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $judge      = $self->param( 'judge' );
+	my $score      = $self->param( 'score' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	$score /= 10 if( $score =~ /^\d+$/ );
+
+	$division->record_tiebreaker( $judge, $score );
+
+	try {
+		$division->write();
+		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
+
+	} catch {
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
 any '*' => sub {
 	my $self = shift;
 	$self->render( text => 'Forms::Grassroots: Unknown command' );

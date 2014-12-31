@@ -167,6 +167,34 @@ sub record_score {
 }
 
 # ============================================================
+sub record_tiebreaker {
+# ============================================================
+	my $self  = shift;
+	my $j     = shift;
+	my $score = shift;
+	my $judge = $j + $self->{ judges };
+	my $tie   = $self->{ tied }[ 0 ];
+
+	if( (int( @{ $tie->{ tied }}) == 2) && $score eq 'red' || $score eq 'blue' ) {
+		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
+		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
+		if      ( $score eq 'blue' ) { 
+			$blue->{ scores }[ $judge ] = 2;
+			$red->{ scores }[ $judge ]  = 1;
+
+		} elsif ( $score eq 'red'  ) {
+			$blue->{ scores }[ $judge ] = 1;
+			$red->{ scores }[ $judge ]  = 2;
+		}
+	} else {
+		$score      = sprintf( "%.1f", $score );
+		my $i       = $self->{ current };
+		my $athlete = $self->{ athletes }[ $i ];
+		$athlete->{ scores }[ $judge ] = $score;
+	}
+}
+
+# ============================================================
 sub write {
 # ============================================================
 	my $self   = shift;

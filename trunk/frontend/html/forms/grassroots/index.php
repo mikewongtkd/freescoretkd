@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
+		<link href="../../include/css/forms/grassroots/tiebreaker.css" rel="stylesheet" />
 		<link href="../../include/css/forms/grassroots/grassrootsApp.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jQuery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
@@ -9,6 +10,7 @@
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.grassroots.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.voteDisplay.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.leaderboard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.scoreboard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
