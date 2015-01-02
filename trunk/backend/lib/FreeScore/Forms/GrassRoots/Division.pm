@@ -119,8 +119,9 @@ sub calculate_scores {
 	my $complete = 1;
 
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $stats = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
-		my $done  = 0;
+		my $stats    = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
+		my $done     = 0;
+		my $resolved = 0;
 
 		# ===== CALCULATE SCORES
 		foreach my $j (0 .. $#{ $athlete->{ scores }}) {
@@ -134,10 +135,11 @@ sub calculate_scores {
 
 		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
-			my $score = $athlete->{ tiebreakers }[ $j ];
-			$stats->{ tb } += $athlete->{ tiebreakers }[ $j ];
+			my $score = $athlete->{ tiebreakers }[ $j ] == 2;
+			$stats->{ tb } += $score;
+			$resolved++ if( $score > 0 );
 		}
-		$athlete->{ tb } = $stats->{ tb } || undef;
+		$athlete->{ tb } = $resolved ? $stats->{ tb } : undef;
 
 		# ===== IF THE SCORES ARE ALL THE SAME, THEN THE MIN WILL EQUAL MAX, SO DIFFERENTIATE THEM
 		$stats->{ max }++ if( $stats->{ min } == $stats->{ max });
@@ -178,18 +180,18 @@ sub record_tiebreaker {
 		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
 		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
 		if      ( $score eq 'blue' ) { 
-			$blue->{ tiebreaker }[ $judge ] = 2;
-			$red->{ tiebreaker }[ $judge ]  = 1;
+			$blue->{ tiebreakers }[ $judge ] = 2;
+			$red->{ tiebreakers }[ $judge ]  = 1;
 
 		} elsif ( $score eq 'red'  ) {
-			$blue->{ tiebreaker }[ $judge ] = 1;
-			$red->{ tiebreaker }[ $judge ]  = 2;
+			$blue->{ tiebreakers }[ $judge ] = 1;
+			$red->{ tiebreakers }[ $judge ]  = 2;
 		}
 	} else {
 		$score      = sprintf( "%.1f", $score );
 		my $i       = $self->{ current };
 		my $athlete = $self->{ athletes }[ $i ];
-		$athlete->{ tiebreaker }[ $judge ] = $score;
+		$athlete->{ tiebreakers }[ $judge ] = $score;
 	}
 }
 
@@ -199,6 +201,7 @@ sub write {
 	my $self   = shift;
 	my $tied   = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
 	my $places = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
+	$self->{ state } = 'tiebreaker' if( exists $self->{ tied } && $self->{ state } eq 'score');
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";

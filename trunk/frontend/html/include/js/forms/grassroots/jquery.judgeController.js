@@ -89,7 +89,7 @@ $.widget( "freescore.judgeController", {
 
 				// ===== TIEBREAKER BY VOTE
 				if( tiebreaker.tied.length == 2 ) {
-					e.notes.judgeNotes({ num : o.judge, athletes : athletes, blue : 0, red : 1, name : division.name, description : 'Tiebreaker' });
+					e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : 0, red : 1, name : division.name, description : 'Tiebreaker' });
 					e.score.hide();
 					e.vote.show();
 					e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
@@ -97,7 +97,7 @@ $.widget( "freescore.judgeController", {
 
 				// ===== TIEBREAKER BY SCORE
 				} else {
-					e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : 'Tiebreaker' });
+					e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, blue: null, red: null, name : division.name, description : 'Tiebreaker' });
 					e.score.show();
 					e.vote.hide();
 					e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
@@ -108,8 +108,10 @@ $.widget( "freescore.judgeController", {
 			}  else {
 				o.command = o.judge;
 				var athletes = division.athletes;
-				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
+				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, blue: null, red: null, name : division.name, description : division.description });
 				var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
+				e.score.show();
+				e.vote.hide();
 				e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
 				e.sendButton  .ajaxbutton( { command : o.command + '/' + score });
 			}

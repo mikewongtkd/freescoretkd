@@ -78,6 +78,7 @@ get '/:tournament/:ring/display' => sub {
 	my $division   = $progress->current();
 	if    ( $division->is_score()   ) { $division->display(); }
 	elsif ( $division->is_display() ) { $division->score();   }
+	else                              { $division->display(); }
 
 	try {
 		$division->write();

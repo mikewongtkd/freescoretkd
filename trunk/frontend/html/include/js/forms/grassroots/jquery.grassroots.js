@@ -22,15 +22,18 @@ $.widget( "freescore.grassroots", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ parseInt( forms.current ) ];
+			console.log( division );
 			var athlete  = division.athletes[ division.current ];
+
+			o.tiecache   = defined( division.tied ) ? division.tied[ 0 ] : o.tiecache;
 			if( defined( division.error )) {
 				e.card.fadeOut();
 				e.usermessage.html( division.error );
 				e.usermessage.fadeIn( 500 );
 
-			} else if( defined( division.tied ) && division.state == 'score' ) {
+			} else if( division.state == 'tiebreaker' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
-				var tie      = division.tied.shift();
+				var tie      = defined( division.tied ) ? division.tied.shift() : o.tiecache;
 				var athletes = tie.tied.map( function( i ) { return division.athletes[ i ]; });
 				var title    = ordinal( tie.place ) + ' Place Tiebreaker';
 				// ===== SHOW TIEBREAKER BY VOTE
