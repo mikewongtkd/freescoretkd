@@ -68,6 +68,18 @@ sub load_all {
 }
 
 # ============================================================
+sub write_checksum {
+# ============================================================
+	my $self = shift;
+	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/.chk/;
+	my $divisions = join " ", map { 
+		my $division_checksum = "$self->{ path }/div.$_->{ name }.chk";
+		-e $division_checksum ? $division_checksum : ();
+	} @{ $self->{ divisions }};
+	`cat $self->{ file } $divisions | md5 -q > $checksum_file`;
+}
+
+# ============================================================
 sub write {
 # ============================================================
 	my $self = shift;
@@ -82,9 +94,7 @@ sub write {
 	}
 	close FILE;
 
-	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/.chk/;
-	my $divisions = join " ", map { "$self->{ path }/div.$_->{ name }.txt" } @{ $self->{ divisions }};
-	`cat $self->{ file } $divisions | md5 -q > $checksum_file`;
+	$self->write_checksum();
 }
 
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }
