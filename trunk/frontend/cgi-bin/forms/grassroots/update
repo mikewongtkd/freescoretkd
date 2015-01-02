@@ -7,8 +7,6 @@ use JSON::XS;
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::GrassRoots;
 
-use Data::Dumper;
-
 my $cgi        = new CGI();
 my $tournament = shift || $cgi->param( 'tournament' );
 my $ring       = shift || $cgi->param( 'ring' ) || $cgi->cookie( 'ring' );

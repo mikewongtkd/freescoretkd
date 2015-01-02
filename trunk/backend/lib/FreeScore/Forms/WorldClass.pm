@@ -7,14 +7,10 @@ use base qw( FreeScore::Forms );
 # ============================================================
 sub checksum {
 # ============================================================
-	my $tournament = shift;
-	my $ring       = shift;
-	my $subdir     = "forms-worldclass";
-	my $file       = sprintf( "%s/%s/%s/ring%02d/progress.chk", $FreeScore::PATH, $tournament, $subdir, $ring );
-	my $checksum   = -e $file ? `cat $file` : undef; 
-	chomp $checksum;
-
-	return $checksum;
+	my $tournament  = shift;
+	my $ring        = shift;
+	
+	return FreeScore::Forms::checksum( $tournament, "forms-worldclass", $ring );
 }
 
 # ============================================================

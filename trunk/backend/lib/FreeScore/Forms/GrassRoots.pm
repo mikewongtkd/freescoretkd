@@ -9,29 +9,8 @@ sub checksum {
 # ============================================================
 	my $tournament  = shift;
 	my $ring        = shift;
-	my $subdir      = "forms-grassroots";
-	my $path        = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring );
-	my $progress    = "$path/progress.txt";
-	my $progress_cs = "$path/progress.chk";
-	my $checksum    = undef;
 
-	if( -e $progress_cs ) {
-		$checksum = `cat $progress_cs`;
-		chomp $checksum;
-
-	} else {
-		my @divisions  = ();
-		opendir DIR, $path or die "Can't open directory '$path' $!";
-		my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
-		closedir DIR;
-		push @divisions, sort keys %assigned;
-		my $divisions = join " ", map { my $checksum_file = "$path/div.$_.chk"; -e $checksum_file ? $checksum_file : (); } @divisions;
-
-		$checksum = `cat $progress $divisions | md5 -q`;
-		chomp $checksum;
-	}
-
-	return $checksum;
+	return FreeScore::Forms::checksum( $tournament, "forms-grassroots", $ring );
 }
 
 # ============================================================
