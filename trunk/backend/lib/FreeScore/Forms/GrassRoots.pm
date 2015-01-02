@@ -5,6 +5,19 @@ use FreeScore::Forms::GrassRoots::Division;
 use base qw( FreeScore::Forms );
 
 # ============================================================
+sub checksum {
+# ============================================================
+	my $tournament = shift;
+	my $ring       = shift;
+	my $subdir     = "forms-grassroots";
+	my $file       = sprintf( "%s/%s/%s/ring%02d/progress.chk", $FreeScore::PATH, $tournament, $subdir, $ring );
+	my $checksum   = -e $file ? `cat $file` : undef; 
+	chomp $checksum;
+
+	return $checksum;
+}
+
+# ============================================================
 sub init {
 # ============================================================
 	my $self       = shift;

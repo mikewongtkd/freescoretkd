@@ -170,27 +170,26 @@ sub record_score {
 sub record_tiebreaker {
 # ============================================================
 	my $self  = shift;
-	my $j     = shift;
+	my $judge = shift;
 	my $score = shift;
-	my $judge = $j + $self->{ judges };
 	my $tie   = $self->{ tied }[ 0 ];
 
 	if( (int( @{ $tie->{ tied }}) == 2) && $score eq 'red' || $score eq 'blue' ) {
 		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
 		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
 		if      ( $score eq 'blue' ) { 
-			$blue->{ scores }[ $judge ] = 2;
-			$red->{ scores }[ $judge ]  = 1;
+			$blue->{ tiebreaker }[ $judge ] = 2;
+			$red->{ tiebreaker }[ $judge ]  = 1;
 
 		} elsif ( $score eq 'red'  ) {
-			$blue->{ scores }[ $judge ] = 1;
-			$red->{ scores }[ $judge ]  = 2;
+			$blue->{ tiebreaker }[ $judge ] = 1;
+			$red->{ tiebreaker }[ $judge ]  = 2;
 		}
 	} else {
 		$score      = sprintf( "%.1f", $score );
 		my $i       = $self->{ current };
 		my $athlete = $self->{ athletes }[ $i ];
-		$athlete->{ scores }[ $judge ] = $score;
+		$athlete->{ tiebreaker }[ $judge ] = $score;
 	}
 }
 
@@ -214,6 +213,9 @@ sub write {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
 	close FILE;
+
+	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/\.chk/;
+	`md5 -q $self->{ file } > $checksum_file`;
 }
 
 # ============================================================

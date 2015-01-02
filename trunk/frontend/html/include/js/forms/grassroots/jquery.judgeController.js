@@ -55,8 +55,15 @@ $.widget( "freescore.judgeController", {
 			// ===== UPDATE ACTION BUTTON
 			o.vote  = e.vote.tiebreaker( 'option', 'vote' );
 			o.score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
-			e.clearButton .ajaxbutton( { command : o.judge + '/-10' } );
-			e.sendButton  .ajaxbutton( { command : o.judge + '/' + o.score });
+			if( defined( o.vote )) {
+				console.log( o.command + '/' + o.vote );
+				e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
+				e.sendButton  .ajaxbutton( { command : o.command + '/' + o.vote });
+			} else {
+				console.log( o.command + '/' + o.score );
+				e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
+				e.sendButton  .ajaxbutton( { command : o.command + '/' + o.score });
+			}
 		});
 
 		controller.append( navigation, controls, notes );
@@ -76,6 +83,7 @@ $.widget( "freescore.judgeController", {
 
 			// ===== IF THERE IS A TIE IN THE DIVISION
 			if( defined( division.tied )) {
+				o.command = o.judge + '/tb';
 				var tiebreaker = division.tied[ 0 ]; // Resolve the first tie
 				var athletes   = tiebreaker.tied.map( function( i ) { return division.athletes[ i ]; } );
 
@@ -84,25 +92,26 @@ $.widget( "freescore.judgeController", {
 					e.notes.judgeNotes({ num : o.judge, athletes : athletes, blue : 0, red : 1, name : division.name, description : 'Tiebreaker' });
 					e.score.hide();
 					e.vote.show();
-					e.clearButton .ajaxbutton( { command : o.judge + '/tb/-10' } );
-					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + o.vote });
+					e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
+					e.sendButton  .ajaxbutton( { command : o.command + '/' + o.vote });
 
 				// ===== TIEBREAKER BY SCORE
 				} else {
 					e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : 'Tiebreaker' });
 					e.score.show();
 					e.vote.hide();
-					e.clearButton .ajaxbutton( { command : o.judge + '/tb/-10' } );
-					e.sendButton  .ajaxbutton( { command : o.judge + '/tb/' + o.score });
+					e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
+					e.sendButton  .ajaxbutton( { command : o.command + '/' + o.score });
 				}
 
 			// ===== IF THERE IS NO TIE, THEN SIMPLY UPDATE THE UI FOR NORMAL SCORING
 			}  else {
+				o.command = o.judge;
 				var athletes = division.athletes;
 				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : division.current, name : division.name, description : division.description });
 				var score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );
-				e.clearButton .ajaxbutton( { command : o.judge + '/-10' } );
-				e.sendButton  .ajaxbutton( { command : o.judge + '/' + score });
+				e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
+				e.sendButton  .ajaxbutton( { command : o.command + '/' + score });
 			}
 		};
 

@@ -28,6 +28,8 @@ $.widget( "freescore.ajaxbutton", {
 							console.log( response );
 						} else {
 							sound.ok.play(); 
+							console.log( url );
+							console.log( response );
 							progress.fadeOut( 350 );
 						}
 					},

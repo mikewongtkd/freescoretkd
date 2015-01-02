@@ -82,6 +82,9 @@ sub write {
 	}
 	close FILE;
 
+	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/.chk/;
+	my $divisions = join " ", map { "$self->{ path }/div.$_->{ name }.txt" } @{ $self->{ divisions }};
+	`cat $self->{ file } $divisions | md5 -q > $checksum_file`;
 }
 
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }

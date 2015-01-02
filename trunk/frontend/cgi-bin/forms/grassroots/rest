@@ -167,7 +167,7 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 
 	try {
 		$division->write();
-		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
+		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
 
 	} catch {
 		$self->render( json => { 'error' => $_ } );

@@ -2,7 +2,6 @@
 use Try::Tiny;
 use CGI;
 use Time::HiRes qw( usleep );
-use Digest::MD5 qw( md5_hex );
 use JSON::XS;
 
 use lib qw( /usr/local/freescore/lib );
@@ -24,17 +23,20 @@ my $last = undef;
 while( 1 ) {
 	my $data   = undef;
 	my $id     = time();
+
+	usleep( 250000 );
+
 	try {
+		my $checksum = FreeScore::Forms::GrassRoots::checksum( $tournament, $ring );
+		next if( defined $checksum && $checksum eq $last );
+
 		$data = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	} catch {
 		$data = { error => $_ };
 	};
 	my $update = $json->convert_blessed()->canonical()->encode( $data ); $update =~ s/"(\d+(?:\.\d+)?)"/$1/g;
-	my $state  = md5_hex( $update );
 
-	next if $state eq $last;
 	print "id: $id$eol";
 	print "data: $update$eol$eol";
-	usleep( 500000 );
 	$last = $state;
 }

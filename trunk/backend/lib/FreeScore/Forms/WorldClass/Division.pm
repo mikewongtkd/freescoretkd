@@ -429,6 +429,9 @@ sub write {
 		}
 	}
 	close FILE;
+
+	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/.chk/;
+	`md5 -q $self->{ file } > $checksum_file`;
 }
 
 # ============================================================
