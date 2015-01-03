@@ -65,7 +65,7 @@ sub calculate_placements {
 	my $places     = [ @{ $self->{ places }} ];
 
 	# ===== CALCULATE TIES
-	for( my $i = 0; $i < $#sorted; $i++ ) {
+	for( my $i = 0; $i <= $#sorted; $i++ ) {
 		my $a = $sorted[ $i ];
 		my $x = $self->{ athletes }[ $a ];
 

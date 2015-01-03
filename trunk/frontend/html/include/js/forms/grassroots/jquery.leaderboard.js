@@ -15,10 +15,10 @@ $.widget( "freescore.leaderboard", {
 	},
 	_init: function( ) {
 		var html      = { div : $("<div />"), ol : $("<ol />"), li : $("<li />") };
-		var e         = this.options.elements;
 		var o         = this.options;
+		var e         = o.elements;
 		var widget    = this.element;
-		var athletes  = this.options.division.athletes;
+		var athletes  = o.division.athletes;
 		var pending   = { list: html.ol.clone(), athletes: new Array() };
 		var standings = { athletes: new Array() };
 
@@ -40,7 +40,7 @@ $.widget( "freescore.leaderboard", {
 		}
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
-		standings.athletes = standings.athletes.sort( function( a, b ) { return parseFloat( b.score ) - parseFloat( a.score ); } );
+		standings.athletes = o.division.placements.map( function( i ) { return athletes[ i ]; } );
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k = standings.athletes.length < 4 ? standings.athletes.length : 4;

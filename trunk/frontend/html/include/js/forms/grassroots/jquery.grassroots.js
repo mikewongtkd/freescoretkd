@@ -22,7 +22,6 @@ $.widget( "freescore.grassroots", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
 			var division = forms.divisions[ parseInt( forms.current ) ];
-			console.log( division );
 			var athlete  = division.athletes[ division.current ];
 
 			o.tiecache   = defined( division.tied ) ? division.tied[ 0 ] : o.tiecache;

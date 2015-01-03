@@ -82,6 +82,7 @@ get '/:tournament/:ring/display' => sub {
 
 	try {
 		$division->write();
+		$progress->write();
 		$self->render( json => { 'state' => $division->{ state } } );
 
 	} catch {
@@ -101,6 +102,7 @@ get '/:tournament/:ring/athlete/next' => sub {
 	try {
 		$division->next();
 		$division->write();
+		$progress->write();
 		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
@@ -120,6 +122,7 @@ get '/:tournament/:ring/athlete/previous' => sub {
 	try {
 		$division->previous();
 		$division->write();
+		$progress->write();
 		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
@@ -143,6 +146,7 @@ get '/:tournament/:ring/:judge/:score' => sub {
 
 	try {
 		$division->write();
+		$progress->write();
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
 
 	} catch {
@@ -168,6 +172,7 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 
 	try {
 		$division->write();
+		$progress->write();
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
 
 	} catch {
