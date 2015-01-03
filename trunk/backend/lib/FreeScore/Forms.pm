@@ -70,13 +70,18 @@ sub load_all {
 # ============================================================
 sub write_checksum {
 # ============================================================
-	my $self = shift;
-	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/.chk/;
-	my $divisions = join " ", map { 
-		my $division_checksum = "$self->{ path }/div.$_->{ name }.chk";
-		-e $division_checksum ? $division_checksum : ();
-	} @{ $self->{ divisions }};
-	`cat $self->{ file } $divisions | md5 -q > $checksum_file`;
+	my $path        = shift;
+	my $progress    = "$path/progress.txt";
+	my $progress_cs = "$path/progress.chk";
+
+	my @divisions  = ();
+	opendir DIR, $path or die "Can't open directory '$path' $!";
+	my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
+	closedir DIR;
+	push @divisions, sort keys %assigned;
+	my $divisions = join " ", map { my $checksum_file = "$path/div.$_.chk"; -e $checksum_file ? $checksum_file : (); } @divisions;
+
+	my $checksum = `cat $progress $divisions | md5 -q > $progress_cs`;
 }
 
 # ============================================================
@@ -94,7 +99,7 @@ sub write {
 	}
 	close FILE;
 
-	$self->write_checksum();
+	write_checksum( $self->{ path } );
 }
 
 # ============================================================
@@ -109,16 +114,7 @@ sub checksum {
 	my $checksum    = undef;
 
 	# ===== PREPARE CHECKSUM IF IT DOESN'T ALREADY EXIST
-	if( ! -e $progress_cs ) {
-		my @divisions  = ();
-		opendir DIR, $path or die "Can't open directory '$path' $!";
-		my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
-		closedir DIR;
-		push @divisions, sort keys %assigned;
-		my $divisions = join " ", map { my $checksum_file = "$path/div.$_.chk"; -e $checksum_file ? $checksum_file : (); } @divisions;
-
-		`cat $progress $divisions | md5 -q > $progress_cs`;
-	}
+	write_checksum( $path ) if( ! -e $progress_cs );
 
 	$checksum = `cat $progress_cs`;
 	chomp $checksum;

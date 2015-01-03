@@ -447,6 +447,22 @@ sub navigate {
 }
 
 # ============================================================
+sub navigate_to_start {
+# ============================================================
+	my $self = shift;
+
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+		next unless exists $self->{ rounds }{ $round };
+		$self->{ round } = $round;
+		last;
+	}
+
+	$self->{ current } = 0;
+	$self->{ form }    = 0;
+}
+
+
+# ============================================================
 sub next_round {
 # ============================================================
 	my $self   = shift;

@@ -137,19 +137,22 @@ $.widget( "freescore.judgeController", {
 				}
 			}
 			var num_rounds = Object.keys( division.forms ).length;
-			if( num_rounds > 1 ) {
-				if       ( division.round == 'prelim' || (division.round == 'semfin' && num_rounds == 2 )) {
-					e.prevDivision.ajaxbutton({ command : "division/previous", label : "Prev Division" });
-					e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
+			if       ( num_rounds == 1 ) {
+				e.prevDivision.ajaxbutton({ command : "division/previous", label : "Prev Division" });
+				e.nextDivision.ajaxbutton({ command : "division/next",     label : "Next Division" });
 
-				} else if( division.round == 'semfin' && num_rounds == 3 ) {
-					e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
-					e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
+			} else if( division.round == 'prelim' || (division.round == 'semfin' && num_rounds == 2 )) {
+				e.prevDivision.ajaxbutton({ command : "division/previous", label : "Prev Division" });
+				e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
 
-				} else if( division.round == 'finals' ) {
-					e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
-					e.nextDivision.ajaxbutton({ command : "division/next",     label : "Next Division" });
-				}
+			} else if( division.round == 'semfin' && num_rounds == 3 ) {
+				e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
+				e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
+
+			} else if( division.round == 'finals' ) {
+				e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
+				e.nextDivision.ajaxbutton({ command : "division/next",     label : "Next Division" });
+
 			}
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE

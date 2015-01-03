@@ -1,0 +1,42 @@
+#! /usr/bin/perl
+use File::Find;
+
+my $tournament = shift;
+my $path       = "/Volumes/ramdisk/$tournament";
+
+find( \&paths,     $path );
+find( \&divisions, $path );
+find( \&progress,  $path );
+
+# ============================================================
+sub paths {
+# ============================================================
+	next unless -d;
+	chmod 0777, $_;
+}
+
+# ============================================================
+sub divisions {
+# ============================================================
+	next unless( /^div\.(\w+)\.txt$/ );
+	my $name = $1;
+	chmod 0666, $_;
+	my $checksum_file = "div.$name.chk";
+	`cat $_ | md5 -q > $checksum_file`;
+	chmod 0666, $checksum_file;
+}
+
+# ============================================================
+sub progress {
+# ============================================================
+	next unless /^progress.txt$/;
+
+	chmod 0666, $_;
+	opendir DIR, $File::Find::dir or die "Can't read '$File::Find::dir' $!";
+	my $divisions = join( " ", grep { /^div\.(\w+).chk$/ } readdir DIR );
+	closedir DIR;
+
+	my $checksum_file = "progress.chk";
+	`cat $_ $divisions | md5 -q > $checksum_file`;
+	chmod 0666, $checksum_file;
+}

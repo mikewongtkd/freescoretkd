@@ -23,7 +23,7 @@ get '/:tournament/:ring/judges' => sub {
 	my $division   = $progress->current();
 
 	try {
-		$self->render( json => { 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
+		$self->render( json => { 'description' => 'Number of Judges', 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
 
 	} catch {
 		$self->render( json => { error => $_ });
@@ -47,23 +47,31 @@ get( '/:tournament/:ring/:object/:goto' => [
 
 	try {
 		if      ( $goto eq 'next' ) {
-			if    ( $object eq 'division' ) { $progress->next();             $progress->write(); }
-			elsif ( $object eq 'round'    ) { $division->next_round();       $division->write(); }
-			elsif ( $object eq 'athlete'  ) { $division->next_athlete();     $division->write(); } 
-			elsif ( $object eq 'form'     ) { $division->next_form();        $division->write(); }
+			if    ( $object eq 'division' ) { $progress->next();             
+			                                  $division = $progress->current(); 
+			                                  $division->navigate_to_start();
+			                                }
+			elsif ( $object eq 'round'    ) { $division->next_round();       }
+			elsif ( $object eq 'athlete'  ) { $division->next_athlete();     } 
+			elsif ( $object eq 'form'     ) { $division->next_form();        }
 
 		} elsif ( $goto eq 'previous' ) {
-			if    ( $object eq 'division' ) { $progress->previous();         $progress->write(); } 
-			elsif ( $object eq 'round'    ) { $division->previous_round();   $division->write(); }
-			elsif ( $object eq 'athlete'  ) { $division->previous_athlete(); $division->write(); }
-			elsif ( $object eq 'form'     ) { $division->previous_form();    $division->write(); }
+			if    ( $object eq 'division' ) { $progress->previous();         
+			                                  $division = $progress->current(); 
+			                                  $division->navigate_to_start();
+			                                } 
+			elsif ( $object eq 'round'    ) { $division->previous_round();   }
+			elsif ( $object eq 'athlete'  ) { $division->previous_athlete(); }
+			elsif ( $object eq 'form'     ) { $division->previous_form();    }
 
 		} elsif ( $goto =~ /\d+/ ) {
 			if    ( $object eq 'division' ) { $progress->navigate( $goto ); }
 			else                            { $division->navigate( $object, $goto ); }
 			
 		}
-		$self->render( json => { 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
+		$division->write();
+		$progress->write();
+		$self->render( json => { 'description' => 'Navigation', 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
 
 	} catch {
 		$self->render( json => { error => $_ });
@@ -85,7 +93,8 @@ get '/:tournament/:ring/display' => sub {
 
 	try {
 		$division->write();
-		$self->render( json => { 'state' => $division->{ state } } );
+		$progress->write();
+		$self->render( json => { 'description' => 'Update Display State', 'state' => $division->{ state } } );
 
 	} catch {
 		$self->render( json => { error => $_ });
@@ -113,8 +122,9 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	try {
 		$division->record_score( $judge, $score );
 		$division->write();
+		$progress->write();
 		$division->update_status();
-		$self->render( json => { athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
+		$self->render( json => { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
 
 	} catch {
 		$self->render( json => { error => $_ });
