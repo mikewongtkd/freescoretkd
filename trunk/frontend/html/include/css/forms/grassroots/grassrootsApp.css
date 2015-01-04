@@ -110,13 +110,37 @@ body {
         border-radius: 24px;
         padding: 0 32px 8px 32px; }
         .grassroots .leaderboard .division .standings .rank1 {
-          color: #f90; }
+          color: rgba(255, 204, 0, 0.1);
+          background: #fc0 -webkit-gradient(linear, left top, right top, from(#fc0), to(#fc0), color-stop(0.5, #fff)) 0 0 no-repeat;
+          -webkit-background-size: 125px;
+          -webkit-background-clip: text;
+          -webkit-animation-name: shine;
+          -webkit-animation-duration: 2s;
+          -webkit-animation-iteration-count: infinite; }
         .grassroots .leaderboard .division .standings .rank2 {
-          color: #ccc; }
+          color: rgba(204, 204, 204, 0.1);
+          background: #ccc -webkit-gradient(linear, left top, right top, from(#ccc), to(#ccc), color-stop(0.5, #fff)) 0 0 no-repeat;
+          -webkit-background-size: 125px;
+          -webkit-background-clip: text;
+          -webkit-animation-name: shine;
+          -webkit-animation-duration: 1.5s;
+          -webkit-animation-iteration-count: infinite; }
         .grassroots .leaderboard .division .standings .rank3 {
-          color: #930; }
+          color: rgba(204, 102, 0, 0.1);
+          background: #c60 -webkit-gradient(linear, left top, right top, from(#c60), to(#c60), color-stop(0.5, #fff)) 0 0 no-repeat;
+          -webkit-background-size: 125px;
+          -webkit-background-clip: text;
+          -webkit-animation-name: shine;
+          -webkit-animation-duration: 2.5s;
+          -webkit-animation-iteration-count: infinite; }
         .grassroots .leaderboard .division .standings .rank4 {
-          color: #930; }
+          color: rgba(204, 102, 0, 0.1);
+          background: #c60 -webkit-gradient(linear, left top, right top, from(#c60), to(#c60), color-stop(0.5, #fff)) 0 0 no-repeat;
+          -webkit-background-size: 125px;
+          -webkit-background-clip: text;
+          -webkit-animation-name: shine;
+          -webkit-animation-duration: 3s;
+          -webkit-animation-iteration-count: infinite; }
         .grassroots .leaderboard .division .standings .athlete {
           clear: both; }
           .grassroots .leaderboard .division .standings .athlete .name {
@@ -153,7 +177,11 @@ body {
           .grassroots .leaderboard .division .pending ol li b {
             color: lime;
             font-weight: bold; }
-
+@-webkit-keyframes shine {
+  0% {
+    background-position: top left; }
+  100% {
+    background-position: top right; } }
 .usermessage {
   font-family: Optima;
   font-size: 24pt;

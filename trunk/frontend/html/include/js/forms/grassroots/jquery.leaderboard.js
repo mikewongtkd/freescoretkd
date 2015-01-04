@@ -3,7 +3,7 @@ $.widget( "freescore.leaderboard", {
 	_create: function() {
 		var options   = this.options;
 		var e         = this.options.elements = {};
-		var html      = { div : $( "<div />" ) };
+		var html      = e.html      = FreeScore.html;
 		var division  = e.division  = html.div.clone() .addClass( "division" );
 		var pending   = e.pending   = html.div.clone() .addClass( "pending" );
 		var standings = e.standings = html.div.clone() .addClass( "standings" );
@@ -14,9 +14,9 @@ $.widget( "freescore.leaderboard", {
 		this.element .append( division );
 	},
 	_init: function( ) {
-		var html      = { div : $("<div />"), ol : $("<ol />"), li : $("<li />") };
 		var o         = this.options;
 		var e         = o.elements;
+		var html      = e.html;
 		var widget    = this.element;
 		var athletes  = o.division.athletes;
 		var pending   = { list: html.ol.clone(), athletes: [] };
