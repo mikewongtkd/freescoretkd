@@ -116,7 +116,7 @@ sub score_grassroots {
 	my $score       = undef;
 
 	if   ( not defined $performance ) { $score = (sum 69, roll "5d6")/10; }
-	elsif( $performance eq 'tie'    ) { $score = (sum 83, lowest( 1, roll "20d6" ))/10; }
+	elsif( $performance eq 'tie'    ) { $score = (sum 87, lowest( 1, roll "20d6" ))/10; }
 	elsif( $performance eq 'best'   ) { $score = (sum 75, roll "1d6", highest( 3, roll "10d6"))/10; }
 	elsif( $performance eq 'better' ) { $score = (sum 69, roll "3d6", highest( 2, roll "4d6"))/10; }
 	elsif( $performance eq 'good'   ) { $score = (sum 69, roll "3d6", lowest( 2, roll "4d6"))/10; }

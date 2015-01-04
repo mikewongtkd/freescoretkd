@@ -1,0 +1,53 @@
+#! /usr/bin/perl
+use lib qw( ./lib ../lib );
+use Algorithm::Numerical::Shuffle qw( shuffle );
+use FreeScore::Test qw( score_grassroots );
+use Data::Dumper;
+
+our $test  = new FreeScore::Test();
+
+my $number = $test->grassroots( "judges" );
+my $judges = $number->{ judges } - 1;
+
+my @tied = (shuffle( 0 .. 7 ))[ 0, 1 ];
+
+for( 0 .. 7 ) {
+	if( $_ == $tied[0] || $_ == $tied[1] ) { score( $judges, 'tie'  ); }
+	else                                   { score( $judges, 'good' ); }
+	sleep( 2 );
+	$test->grassroots( "display" );
+	sleep( 4 );
+	$test->grassroots( "display" );
+	$test->grassroots( "athlete/next" ) unless( $_ == 7 );
+}
+sleep( 2 );
+tiebreaker( $judges );
+sleep( 4 );
+$test->grassroots( "display" );
+
+# ============================================================
+sub score {
+# ============================================================
+	my $k      = shift;
+	my $type   = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $score       = score_grassroots( $type );
+		my $judge_score = "$judge/" . ($score * 10);
+		$test->grassroots( $judge_score );
+		sleep( 1 );
+	}
+}
+
+# ============================================================
+sub tiebreaker {
+# ============================================================
+	my $k      = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $vote        = (qw( blue red ))[ int( rand() * 2 ) ];
+		my $judge_score = "$judge/tb/$vote";
+		$test->grassroots( $judge_score );
+		sleep( 1 );
+	}
+}

@@ -1,6 +1,6 @@
 # state=score
 # current=0
-# judges=5
+# judges=3
 # description=6-7yo Novice
 Shreya	White/Purple
 Skylar	White/Yellow

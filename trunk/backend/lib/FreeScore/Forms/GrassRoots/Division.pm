@@ -213,7 +213,7 @@ sub write {
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
 	print FILE "# places=$places\n" if exists $self->{ places };
-	print FILE "# tied=$tied\n" if exists $self->{ tied };
+	print FILE "# tied=$tied\n" if( exists $self->{ tied } && @{ $self->{ tied }});
 	print FILE "# placements=" . join( ",", @{$self->{ placements }}) . "\n" if( exists $self->{ placements } && @{ $self->{ placements }});
 	print FILE "# pending=" . join( ",", @{$self->{ pending }}) . "\n" if( exists $self->{ pending } && @{ $self->{ pending }});
 	foreach my $athlete (@{ $self->{ athletes }}) {

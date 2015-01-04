@@ -4,9 +4,10 @@ all: grassroots worldclass
 
 grassroots: cache test-config grassroots-unit-test grassroots-rest-test restore-config
 
-grassroots-rest: cache test-config grassroots-rest-test restore-config
-grassroots-unit: cache test-config grassroots-unit-test restore-config
-grassroots-ui:   cache test-config grassroots-ui-test   restore-config
+grassroots-rest:  cache test-config grassroots-rest-test  restore-config
+grassroots-unit:  cache test-config grassroots-unit-test  restore-config
+grassroots-ui:    cache test-config grassroots-ui-test    restore-config
+grassroots-tb-ui: cache test-config grassroots-tb-ui-test restore-config
 
 grassroots-rest-test:
 	./smoke/forms/grassroots/rest-api.t
@@ -16,6 +17,10 @@ grassroots-unit-test:
 
 grassroots-ui-test:
 	./ui/forms/grassroots/judges
+
+grassroots-tb-ui-test:
+	./ui/forms/grassroots/tiebreaker
+	
 	
 worldclass: cache test-config worldclass-unit-test worldclass-rest-test restore-config
 
