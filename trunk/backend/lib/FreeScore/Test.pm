@@ -58,6 +58,7 @@ sub get {
 
 	$ua->timeout( 5 );
 	my $url = "http://$self->{ host }/cgi-bin/freescore/$app/$self->{ tournament }{ db }/$ring/$command";
+
 	my $response = $ua->get( $url );
 	if( $response->is_success ) {
 		return $self->{ json }->decode( $response->decoded_content );

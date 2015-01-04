@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use lib qw( ./lib ../lib );
-use Test::Simple tests => 50;
+use Test::Simple tests => 68;
 use FreeScore::Forms::Grassroots;
 use FreeScore::Test qw( score_grassroots );
 use Data::Dumper;
@@ -12,28 +12,37 @@ my $skill      = get_skill_levels();
 my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 ok( $progress );
 
+my @divisions  = qw( p01 p02 );
 my $division   = $progress->current();
 ok( $division );
 
-my $j = $division->{ judges } - 1;
-my $n = $#{ $division->{ athletes }};
+foreach my $div ( @divisions ) {
+	ok( $division->{ name } eq $div );
+	my $j = $division->{ judges } - 1;
+	my $n = $#{ $division->{ athletes }};
 
-foreach ( 0 .. $n ) {
-	my $i = $division->{ current };
-	my $athlete = $division->{ athletes }[ $i ]{ scores };
-	my $name    = $division->{ athletes }[ $i ]{ name };
-	ok( $athlete );
-	foreach my $judge ( 0 .. $j ) {
-		my $level = $skill->{ $name };
-		my $score = score_grassroots( $level );
-		$division->record_score( $judge, $score );
-		ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
-		$division->write();
+	foreach ( 0 .. $n ) {
+		my $i = $division->{ current };
+		my $athlete = $division->{ athletes }[ $i ]{ scores };
+		my $name    = $division->{ athletes }[ $i ]{ name };
+		ok( $athlete );
+		foreach my $judge ( 0 .. $j ) {
+			my $level = $skill->{ $name };
+			my $score = score_grassroots( $level );
+			$division->record_score( $judge, $score );
+			ok( $athlete->[ $judge ] == $score );
+			$division->write();
+		}
+		$division->next();
 	}
-	$division->next();
-}
+	$division->write();
 
-$division->write();
+	if( $div ne $divisions[ -1 ] ) {
+		$progress->next();
+		$progress->write();
+		$division = $progress->current();
+	}
+}
 
 # ============================================================
 sub get_skill_levels {
@@ -59,3 +68,7 @@ Genevieve	ok
 Angelina	better
 Ian	best
 Suri	good
+Fernanda	ok
+Annabriza	best
+Tejasvini	good
+Aditya	better
