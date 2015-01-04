@@ -1,0 +1,148 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use CGI;
+use JSON::XS;
+use Data::Dumper;
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::GrassRoots;
+
+my $cgi        = new CGI();
+my $results    = undef;
+my $tournament = read_tournament_config();
+
+my @divisions  = ();
+try {
+	foreach my $ring ( 1 .. $tournament->{ rings }{ count } ) {
+		$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+		push @divisions, @{ $results->{ divisions }};
+	}
+} catch {
+	
+};
+
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+
+print $cgi->header();
+
+print <<EOF;
+<html>
+	<head>
+		<title>Tournament Grass Roots Forms Results</title>
+		<style type="text/css">
+			body {
+				font-family: HelveticaNeue-CondensedBold;
+			}
+			.division {
+				margin-top: 20px;
+			}
+			.results {
+				position: relative;
+				font-family: HelveticaNeue;
+				page-break-inside: avoid;
+			}
+			.results table {
+				width: 640px;
+			}
+			.results th {
+				margin-top: 8px;
+				border-top: 1pt solid #ccc;
+				border-bottom: 1pt solid #ccc;
+				padding: 0 4px 0 4px;
+				text-align: left;
+			}
+			.results th.number  { width: 20px; }
+			.results th.athlete { width: 200px; }
+
+			.results td { 
+				padding: 2px 4px 2px 4px;
+			}
+			.results td .notes {
+				font-size: 9pt;
+			}
+			.results tr:nth-child( even ) { background: #fff; }
+			.results tr:nth-child( odd  ) { background: #eee; }
+
+		</style>
+	</head>
+	<body>
+		<h1>$tournament->{ name }</h1>
+		<h2>Grass Roots Forms Results</h2>
+EOF
+foreach my $division (@divisions) {
+	my $name   = uc $division->{ name };
+	my $judges = $division->{ judges } || 3;
+	my $placed = {};
+	my $i = 0;
+	foreach my $place (@{ $division->{ places }}) {
+		foreach my $j (1 .. $place->{ medals }) {
+			my $k = $division->{ placements }[ $i ];
+			$placed->{ $k } = ordinal( $place->{ place } );
+			$i++;
+		}
+	}
+
+	print <<EOF;
+		<div class="results">
+		<div class="division"><b>Division $name</b> &mdash; $division->{ description }</div>
+		<table border=0 cellpadding=0 cellspacing=0>
+			<tr>
+				<th class="number">#</th>
+				<th class="athlete">Name</th>
+EOF
+	foreach my $i ( 1 .. $judges ) { print "<th>J$i</th>"; }
+	print <<EOF;
+				<th>Total</th>
+				<th>Place</th>
+			</tr>
+EOF
+	my $n = $#{$division->{ athletes }};
+	foreach my $i (0 .. $n) {
+		my $athlete = $division->{ athletes }[ $i ];
+		my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
+		print "<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ name }</td>";
+		foreach my $i ( 0 .. ($judges - 1)) {
+			my $score = sprintf( "%.1f", $athlete->{ scores }[ $i ] );
+			$score = $score <= 0 ? '-' : $score;
+			print "<td>$score</td>";
+		}
+		my $score = sprintf( "%.1f", $athlete->{ score } );
+		print "<td>$score<span class=\"notes\">$notes</span></td>";
+		if( exists $placed->{ $i } ) { print "<td>$placed->{ $i }</td>"; }
+		else { print "<td>-</td>"; }
+		print "</tr>\n";
+	}
+	print <<EOF;
+		</table>
+		</div>
+EOF
+}
+
+print <<EOF;
+	</body>
+</html>
+EOF
+
+# ============================================================
+sub ordinal {
+# ============================================================
+	my $n = shift;
+	my $d = $n % 10;
+	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+	elsif( $d == 1 )           { return $n . 'st'; }
+	elsif( $d == 2 )           { return $n . 'nd'; }
+	elsif( $d == 3 )           { return $n . 'rd'; }
+	else                       { return $n . 'th'; }
+}
+
+# ============================================================
+sub read_tournament_config {
+# ============================================================
+	my $php = `cat /var/www/html/freescore/include/php/config.php`;
+	$php .= "<?php echo \$tournament ?>";
+	$php =~ s/\n/ /g;
+
+	my $json = new JSON::XS();
+	my $data = `echo '$php' | php`;
+	return $json->decode( $data );
+}

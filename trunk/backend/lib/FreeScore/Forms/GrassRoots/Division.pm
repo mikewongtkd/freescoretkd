@@ -69,14 +69,14 @@ sub calculate_placements {
 		my $a = $sorted[ $i ];
 		my $x = $self->{ athletes }[ $a ];
 
-		push @$placements, $a;
+		push @$placements, $a if $x->{ complete };
 		my $place_ties = { place => $i + 1, tied => [ $a ] };
 		for( my $j = ($i + 1); $j <= $#sorted; $j++ ) {
 			my $b = $sorted[ $j ];
 			my $y = $self->{ athletes }[ $b ];
 			last unless _compare( $x, $y, $n ) == 0;
 
-			push @$placements, $b;
+			push @$placements, $b if $y->{ complete };
 			push @{ $place_ties->{ tied }}, $b;
 			$i = $j;
 		}
@@ -108,6 +108,9 @@ sub calculate_placements {
 		} else { 
 			$self->{ placements } = $placements; 
 		}
+	} else {
+		$self->{ placements } = $placements; 
+		$self->{ pending } = [ grep { ! $self->{ athletes }[ $_ ]{ complete } } ( 0 .. $#{ $self->{ athletes }}) ];
 	}
 }
 
@@ -211,7 +214,8 @@ sub write {
 	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
 	print FILE "# places=$places\n" if exists $self->{ places };
 	print FILE "# tied=$tied\n" if exists $self->{ tied };
-	print FILE "# placements=" . join( ",", @{$self->{ placements }}) . "\n" if exists $self->{ placements };
+	print FILE "# placements=" . join( ",", @{$self->{ placements }}) . "\n" if( exists $self->{ placements } && @{ $self->{ placements }});
+	print FILE "# pending=" . join( ",", @{$self->{ pending }}) . "\n" if( exists $self->{ pending } && @{ $self->{ pending }});
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
@@ -224,17 +228,24 @@ sub write {
 # ============================================================
 sub _compare {
 # ============================================================
+# High-Low tiebreaker: check high scores, then low scores
+# Tiebreaker scores: resolve ties by votes or by scores
 	my $a      = shift;
 	my $b      = shift;
 	my $judges = shift;
 
 	my $score = sprintf( "%.1f", $b->{ score } ) <=> sprintf( "%.1f", $a->{ score } );
-	my $high  = { a => $a->{ scores }[ $a->{ max } ], b => $b->{ scores }[ $b->{ max } ] };
-	my $low   = { a => $a->{ scores }[ $a->{ min } ], b => $b->{ scores }[ $b->{ min } ] };
-	my $hilo  = ($judges > 3) ? sprintf( "%.1f", $high->{ b } ) <=> sprintf( "%.1f", $high->{ a } ) || sprintf( "%.1f", $low->{ b } ) <=> sprintf( "%.1f", $low->{ a } ) : 0; # High-Low tiebreaker: check high scores, then low scores
-	my $tb    = (defined $a->{ tb } && defined $b->{ tb }) ? sprintf( "%.1f", $b->{ tb } ) <=> sprintf( "%.1f", $a->{ tb } ) : 0; # Tiebreaker scores
+	my $high  = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ max } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ max } ])};
+	my $low   = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ min } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ min } ])};
+	my $hi    = ($score == 0 && $judges > 3) ? $high->{ b } <=> $high->{ a } : 0;
+	my $lo    = ($score == 0 && $judges > 3) ? $low->{ b }  <=> $low->{ a }  : 0;
+	my $tb    = (defined $a->{ tb } && defined $b->{ tb }) ? sprintf( "%.1f", $b->{ tb } ) <=> sprintf( "%.1f", $a->{ tb } ) : 0; 
 
-	return $score || $hilo || $tb;
+	if( $hi > 0 ) { $b->{ notes } = 'H';  } elsif( $hi < 0 ) { $a->{ notes } = 'H';  }
+	if( $lo > 0 ) { $b->{ notes } = 'L';  } elsif( $lo < 0 ) { $a->{ notes } = 'L';  }
+	if( $tb > 0 ) { $b->{ notes } = 'TB'; } elsif( $tb < 0 ) { $a->{ notes } = 'TB'; }
+
+	return $score || $hi || $lo || $tb;
 }
 
 1;

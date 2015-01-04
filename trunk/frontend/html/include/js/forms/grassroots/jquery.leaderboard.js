@@ -19,14 +19,14 @@ $.widget( "freescore.leaderboard", {
 		var e         = o.elements;
 		var widget    = this.element;
 		var athletes  = o.division.athletes;
-		var pending   = { list: html.ol.clone(), athletes: new Array() };
-		var standings = { athletes: new Array() };
+		var pending   = { list: html.ol.clone(), athletes: [] };
+		var standings = { athletes: [] };
 
-		for( var i = 0; i < athletes.length; i++ ) {
-			var athlete = athletes[ i ];
-			if( athlete.complete ) { standings.athletes.push( athlete ); }
-			else                   { pending.athletes.push( athlete ); }
-		}
+		if( ! defined( o.division.placements )) { o.division.placements = []; }
+		if( ! defined( o.division.pending    )) { o.division.pending    = []; }
+
+		standings.athletes = o.division.placements .map( function( i ) { return athletes[ i ]; } );
+		pending.athletes   = o.division.pending    .map( function( i ) { return athletes[ i ]; } );
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
 		if( standings.athletes.length == 0 ) {
@@ -40,14 +40,14 @@ $.widget( "freescore.leaderboard", {
 		}
 
 		// ===== UPDATE THE 'CURRENT STANDINGS' PANEL
-		standings.athletes = o.division.placements.map( function( i ) { return athletes[ i ]; } );
 		e.standings.empty();
 		e.standings.append( "<h2>Current Standings</h2>" );
 		var k = standings.athletes.length < 4 ? standings.athletes.length : 4;
 		for( var i = 0; i < k; i++ ) {
 			var item = html.li.clone();
 			var athlete = standings.athletes[ i ];
-			e.standings.append(  "<div class=\"athlete\"><div class=\"name rank" + (i + 1) + "\">" + athlete.name + "</div><div class=\"score\">" + athlete.score.toFixed( 1 ) + "</div><div class=\"medal\"><img src=\"/freescore/images/medals/rank" + (i + 1) + ".png\" align=\"right\" /></div></div>" );
+			var notes   = defined( athlete.notes ) ? "<div class=\"notes\">" + athlete.notes + "</div>": '';
+			e.standings.append(  "<div class=\"athlete\"><div class=\"name rank" + (i + 1) + "\">" + athlete.name + "</div><div class=\"score\">" + athlete.score.toFixed( 1 ) + notes + "</div><div class=\"medal\"><img src=\"/freescore/images/medals/rank" + (i + 1) + ".png\" align=\"right\" /></div></div>" );
 		}
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
