@@ -42,12 +42,15 @@ $.widget( "freescore.judgeNotes", {
 
 			if( athlete.scores[ round ].length > 0 ) {
 				var summarize = function( form ) {
-					var score = { accuracy : 0.0, presentation : 0.0 };
-					if   ( defined( form.adjusted_mean ) && defined( form.adjusted_mean.accuracy )) { 
-						score = form.adjusted_mean; 
+					var judge        = form.judge[ 0 ];
+					var penalties    = judge.major + judge.minor;
+					var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
+					var presentation = parseFloat( judge.rhythm + judge.power + judge.ki );
+					var score        = { accuracy : accuracy.toFixed( 1 ), presentation : presentation.toFixed( 1 ) };
+					if   ( accuracy >= 0 && presentation > 0 ) { 
 						return [
-							e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy.toFixed( 1 ) ), '/',
-							e.html.span.clone() .addClass( "presentation" ) .html( score.presentation.toFixed( 1 ) ) 
+							e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy ), '/',
+							e.html.span.clone() .addClass( "presentation" ) .html( score.presentation ) 
 						];
 					} 
 					return [ e.html.span.clone() .addClass( "accuracy" ) .html( '&ndash;' ), '/', e.html.span.clone() .addClass( "presentation" ) .html( '&ndash;' ) ];
@@ -55,7 +58,15 @@ $.widget( "freescore.judgeNotes", {
 				var forms = athlete.scores[ round ];
 				score.form1 = summarize( forms[ 0 ] );
 				if( defined( forms[ 1 ] )) { score.form2 = summarize( forms[ 1 ] ); }
-				score.sum   = forms.map( function( form ) { return defined( form.judge[ 0 ]) ? form.judge[ 0 ].accuracy + form.judge[ 0 ].presentation : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
+				score.sum   = forms.map( function( form ) { 
+					if( ! defined( form.judge[ 0 ] )) { return 0.0; }
+					var judge        = form.judge[ 0 ];
+					if( ! defined(judge.major ) || ! defined( judge.minor ) || ! defined( judge.rhythm ) || ! defined( judge.power ) || ! defined( judge.ki )) { return 0.0; }
+					var penalties    = judge.major + judge.minor;
+					var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
+					var presentation = parseFloat( judge.rhythm + judge.power + judge.ki );
+					return accuracy + presentation;
+				} ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }}

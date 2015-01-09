@@ -391,7 +391,9 @@ sub write {
 	my @places = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $self->{ placement }{ $round };
-		push @places, "$round:" . join( ",", @{$self->{ placement }{ $round }} );
+		next unless int(@{$self->{ placement }{ $round }}) > 0;
+		next unless grep { /^\d+$/ } @{ $self->{ placement }{ $round }};
+		push @places, "$round:" . join( ",", grep { /^\d+$/ } @{$self->{ placement }{ $round }} );
 	}
 	$self->{ pending } = {} unless defined $self->{ pending };
 	my @pending = ();
@@ -656,7 +658,7 @@ sub _parse_placement {
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
-		my @placements = split /,/, $list;
+		my @placements = grep { /^\d+$/ } split /,/, $list;
 		$round => [ @placements ];
 	} split /;/, $value;
 	return { @rounds };
@@ -668,7 +670,7 @@ sub _parse_pending {
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
-		my @placements = split /,/, $list;
+		my @placements = grep { /^\d+$/ } split /,/, $list;
 		$round => [ @placements ];
 	} split /;/, $value;
 	return { @rounds };
