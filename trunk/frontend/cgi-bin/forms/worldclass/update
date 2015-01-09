@@ -29,7 +29,7 @@ UPDATE: while( 1 ) {
 	my $data   = undef;
 	my $id     = time();
 
-	usleep( 250000 );
+	usleep( 125000 );
 
 	try {
 		$checksum = FreeScore::Forms::WorldClass::checksum( $tournament, $ring );

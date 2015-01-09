@@ -21,9 +21,9 @@ $.widget( "freescore.judgeNotes", {
 		var current  = o.current;
 		var round    = o.round;
 
-		if( typeof athletes === 'undefined' ) { return; }
-		if( typeof current  === 'undefined' ) { return; }
-		if( typeof round    === 'undefined' ) { return; }
+		if( ! defined( athletes )) { return; }
+		if( ! defined( current  )) { return; }
+		if( ! defined( round    )) { return; }
 
 		view.empty();
 		var table = h.table.clone();
@@ -69,7 +69,7 @@ $.widget( "freescore.judgeNotes", {
 				} ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
 			}
 
-			var isCurrent    = function() { if( i == current ) { return "current"; }}
+			var isCurrent    = function() { if( i == current ) { return "current"; }} // MW TODO This only works for the first round.
 
 			tr
 				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "order" ) .html( i + 1 + "." ))

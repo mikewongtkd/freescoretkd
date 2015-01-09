@@ -21,7 +21,7 @@ $.widget( "freescore.leaderboard", {
 		var pending   = { list: html.ol.clone(), athletes: [] };
 		var placement = { athletes: [] };
 
-		if( typeof( o.division ) === 'undefined' ) { return; }
+		if( ! defined( o.division )) { return; }
 		var athletes  = o.division.athletes;
 		var round     = o.division.round;
 

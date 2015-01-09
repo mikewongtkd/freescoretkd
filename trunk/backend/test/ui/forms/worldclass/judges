@@ -2,15 +2,15 @@
 use lib qw( ./lib ../lib );
 use Algorithm::Numerical::Shuffle qw( shuffle );
 use FreeScore::Test qw( score_worldclass );
-use Data::Dumper;
+use Time::HiRes qw( usleep );
 
 our $test  = new FreeScore::Test();
 
 my $number = $test->worldclass( "judges" );
 my $judges = $number->{ judges } - 1;
-my $skill  = [ qw( good better best better best better ) ];
+my $skill  = [ qw( good better best better best better ok good ok good ok better ok good best good better ok good better good good ) ];
 
-foreach my $athlete ( 0 .. 5 ) {
+foreach my $athlete ( 0 .. 21 ) {
 	foreach my $form ( 0 .. 1 ) {
 		score( $skill->[ $athlete ], $judges );
 		$test->worldclass( "form/next" );
@@ -18,8 +18,38 @@ foreach my $athlete ( 0 .. 5 ) {
 	$test->worldclass( "athlete/next" );
 
 	$test->worldclass( "display" );
-	sleep( 4 );
-	$test->worldclass( "display" ) unless $athlete == 5;
+	sleep( 1 );
+	$test->worldclass( "display" ) unless $athlete == 21;
+}
+
+sleep( 3 );
+$test->worldclass( "round/next" );
+
+foreach my $athlete ( 0 .. 10 ) {
+	foreach my $form ( 0 .. 1 ) {
+		score( 'better', $judges );
+		$test->worldclass( "form/next" );
+	}
+	$test->worldclass( "athlete/next" );
+
+	$test->worldclass( "display" );
+	sleep( 1 );
+	$test->worldclass( "display" ) unless $athlete == 10;
+}
+
+sleep( 3 );
+$test->worldclass( "round/next" );
+
+foreach my $athlete ( 0 .. 7 ) {
+	foreach my $form ( 0 .. 1 ) {
+		score( 'best', $judges );
+		$test->worldclass( "form/next" );
+	}
+	$test->worldclass( "athlete/next" );
+
+	$test->worldclass( "display" );
+	sleep( 1 );
+	$test->worldclass( "display" ) unless $athlete == 7;
 }
 
 # ============================================================
@@ -32,7 +62,7 @@ sub score {
 		my $score       = score_worldclass( $skill );
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		$test->worldclass( $judge_score );
-		sleep( 1 );
+		usleep( 125000 );
 	}
-	sleep( 2 );
+	usleep( 500000 );
 }

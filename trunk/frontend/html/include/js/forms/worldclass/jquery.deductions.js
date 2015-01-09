@@ -6,7 +6,7 @@ $.widget( "freescore.deductions", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
-		o.value    = (typeof o.value === 'undefined') ? 0.1 : o.value;
+		o.value    = (! defined( o.value )) ? 0.1 : o.value;
 		o.count    = 0;
 
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
