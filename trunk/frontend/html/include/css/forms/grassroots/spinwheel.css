@@ -2,7 +2,8 @@
   width: 100px;
   height: 140px;
   position: relative;
-  background: linear-gradient(to bottom, #333333 0%, #cccccc 5%, white 45%, white 55%, #cccccc 95%, #333333 100%);
+  background: -webkit-linear-gradient(to bottom, #333 0%, #ccc 5%, #fff 45%, #fff 55%, #ccc 95%, #333 100%);
+  background: linear-gradient(to bottom, #333 0%, #ccc 5%, #fff 45%, #fff 55%, #ccc 95%, #333 100%);
   border-radius: 12px;
   font-family: Optima;
   overflow: hidden; }
@@ -19,3 +20,5 @@
       left: 0;
       top: 0;
       -webkit-user-select: none; }
+
+/*# sourceMappingURL=spinwheel.css.map */

@@ -1,4 +1,5 @@
 body {
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
 
 .grassroots {
@@ -73,6 +74,7 @@ body {
       color: lime;
       border-radius: 24px;
       border: 4px solid white;
+      background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
       background: linear-gradient(to top, #45484d 0%, #000000 100%); }
       .grassroots .scoreboard .totalScores .red, .grassroots .scoreboard .totalScores .hong {
         color: #f66; }
@@ -104,6 +106,8 @@ body {
         height: 709px;
         color: yellow;
         font-size: 24pt;
+        background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+        /* W3C */
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
@@ -165,6 +169,8 @@ body {
         height: 709px;
         color: #999;
         font-size: 24pt;
+        background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+        /* W3C */
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;

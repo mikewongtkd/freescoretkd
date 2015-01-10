@@ -1,4 +1,6 @@
 body {
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  /* W3C */
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */ }
 
@@ -42,6 +44,7 @@ body {
       text-align: center;
       width: 300px;
       height: 102px;
+      background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
       background: linear-gradient(to top, #45484d 0%, #000000 100%); }
       .worldclass .scoreboard .judgeScore .judge {
         position: absolute;
@@ -103,6 +106,7 @@ body {
       width: 700px;
       font-weight: bold;
       color: white;
+      background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
       background: linear-gradient(to top, #45484d 0%, #000000 100%);
       border-radius: 0 24px 24px 0; }
       .worldclass .scoreboard .totalScores .red, .worldclass .scoreboard .totalScores .hong {
@@ -175,6 +179,7 @@ body {
           left: 0;
           width: 192px;
           height: 72px;
+          background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
           background: linear-gradient(to top, #45484d 0%, #000000 100%);
           border: 4px solid #c96;
           border-radius: 24px; }
@@ -210,6 +215,8 @@ body {
         height: 704px;
         color: lime;
         font-size: 24pt;
+        background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+        /* W3C */
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
@@ -270,6 +277,8 @@ body {
         height: 704px;
         color: #999;
         font-size: 24pt;
+        background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+        /* W3C */
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
         border: 4px solid white;
