@@ -1,4 +1,5 @@
 body {
+  background: black;
   background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
 
@@ -7,6 +8,7 @@ body {
   font-family: Optima;
   width: 180px;
   height: 346px;
+  background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   /* W3C */
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -28,26 +30,31 @@ body {
     line-height: 92pt; }
   .deductions .disabled {
     border: 4px solid #666;
+    background: #e2e2e2;
     background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
     background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
     color: black; }
   .deductions .remove-minor {
     border: 4px solid green;
+    background: #9dd53a;
     background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
     background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
     color: black; }
   .deductions .add-minor {
     border: 4px solid blue;
+    background: #6db3f2;
     background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
     background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
   .deductions .remove-major {
     border: 4px solid orange;
+    background: #ffb76b;
     background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
     background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
     color: black; }
   .deductions .add-major {
     width: 160px;
     border: 4px solid gold;
+    background: #fceabb;
     background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
     background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
     color: black; }
@@ -77,6 +84,7 @@ body {
     position: absolute;
     width: 180px;
     height: 180px;
+    background: #7abcff;
     background: -webkit-linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
     background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
     border-radius: 12px; }
@@ -87,6 +95,7 @@ body {
     top: 68px;
     left: 68px;
     border-radius: 12px;
+    background: #f29696;
     background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
     background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
   .matposition .label {
@@ -108,6 +117,7 @@ body {
     font-size: 24pt;
     text-align: center;
     position: absolute;
+    background: #4c4c4c;
     background: -webkit-linear-gradient(to bottom, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
     background: linear-gradient(to bottom, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
     top: 120px;
@@ -152,6 +162,7 @@ body {
 .judgeNotes {
   border: 4px solid white;
   border-radius: 24px;
+  background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
   color: #999;
@@ -198,6 +209,7 @@ body {
       .judgeNotes .view table .sum {
         width: 15%; }
       .judgeNotes .view table .current {
+        background: #606c88;
         background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
         background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
         color: white; }
@@ -210,6 +222,7 @@ body {
   width: 800px;
   height: 600px; }
 .flippable .front, .flippable .back {
+  background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
   border-radius: 24pt;
@@ -231,6 +244,7 @@ body {
       color: white;
       border: 4px solid #93d;
       border-radius: 12px;
+      background: #9560c9;
       background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
       background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
       text-align: center;
@@ -260,6 +274,7 @@ body {
         width: 240px;
         height: 32px;
         border-radius: 24pt;
+        background: black;
         background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
         color: #ccc;
@@ -278,6 +293,7 @@ body {
         top: 0; }
       .judgeController .front .score > .accuracy {
         border-radius: 18pt 0 0 18pt;
+        background: black;
         background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
         background: linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
         color: white;
@@ -287,6 +303,7 @@ body {
           line-height: 18pt; }
       .judgeController .front .score > .presentation {
         border-radius: 0 18pt 18pt 0;
+        background: white;
         background: -webkit-linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
         background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
         left: 194px; }
@@ -325,6 +342,7 @@ body {
       color: white;
       border: 4px solid #93d;
       border-radius: 12px;
+      background: #9560c9;
       background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
       background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
       text-align: center;
@@ -343,14 +361,17 @@ body {
       left: 590px; }
     .judgeController .back .division {
       border-color: green;
+      background: #9dd53a;
       background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
       background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
     .judgeController .back .athlete {
       border-color: blue;
+      background: #6db3f2;
       background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
       background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
     .judgeController .back .mode {
       border-color: gold;
+      background: #fceabb;
       background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
       background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
       color: black;

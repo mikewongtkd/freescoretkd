@@ -1,5 +1,6 @@
 
 body {
+	background: black;
 	background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%);
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
 }
@@ -17,6 +18,7 @@ body {
 	}
 
 	.front, .back {
+		background: black;
 		background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
 		background: linear-gradient(to top, #45484d 0%,#000000 100%);
 		border-radius: 24pt;
@@ -42,6 +44,7 @@ body {
 			color: white;
 			border: 4px solid #93d;
 			border-radius: 12px;
+			background: #9560c9;
 			background: -webkit-linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
 			background: linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
 			text-align: center;
@@ -70,6 +73,7 @@ body {
 				width: 240px;
 				height: 32px;
 				border-radius: 24pt;
+				background: black;
 				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
 				background: linear-gradient(to top, #45484d 0%,#000000 100%);
 				color: #ccc;
@@ -92,6 +96,7 @@ body {
 
 			& > .accuracy {
 				border-radius: 18pt 0 0 18pt;
+				background: black;
 				background: -webkit-linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
 				background: linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
 				color: white;
@@ -101,6 +106,7 @@ body {
 
 			& > .presentation {
 				border-radius: 0 18pt 18pt 0;
+				background: white;
 				background: -webkit-linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
 				background: linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
 				span { font-size: 18pt; line-height: 18pt; }
@@ -147,6 +153,7 @@ body {
 			color: white;
 			border: 4px solid #93d;
 			border-radius: 12px;
+			background: #9560c9;
 			background: -webkit-linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
 			background: linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
 			text-align: center;
@@ -169,18 +176,21 @@ body {
 
 		.division {
 			border-color: green;
+			background: #9dd53a;
 			background: -webkit-linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
 			background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
 		}
 
 		.athlete {
 			border-color: blue;
+			background: #6db3f2;
 			background: -webkit-linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
 			background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
 		}
 
 		.mode {
 			border-color: gold;
+			background: #fceabb;
 			background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			color: black;

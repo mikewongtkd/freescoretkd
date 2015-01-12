@@ -1,11 +1,17 @@
 body {
-  background: linear-gradient(to bottom, #45484d 0%, black 100%);
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */
   font-family: Optima;
   font-size: 24pt; }
 
 .register {
-  background: linear-gradient(to top, #45484d 0%, black 100%);
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
   /* W3C */
   color: #ccc;
   border: 4px solid white;
@@ -53,6 +59,8 @@ body {
     position: absolute;
     width: 180px;
     height: 180px;
+    background: #7abcff;
+    background: -webkit-linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
     background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
     border-radius: 12px; }
     .register .mat .playing-field {
@@ -67,6 +75,8 @@ body {
       top: 20px;
       left: 20px;
       border-radius: 12px;
+      background: #f29696;
+      background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
       background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
   .register .roles {
     position: relative;
@@ -102,6 +112,8 @@ body {
       height: 64px;
       border-radius: 24pt;
       border: 4px solid green;
+      background: #9dd53a;
+      background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
       background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
       text-align: center; }
     .register .confirmation .back {
@@ -114,5 +126,9 @@ body {
       height: 64px;
       border-radius: 24pt;
       border: 4px solid orange;
+      background: #ffb76b;
+      background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
       background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
       text-align: center; }
+
+/*# sourceMappingURL=register.css.map */

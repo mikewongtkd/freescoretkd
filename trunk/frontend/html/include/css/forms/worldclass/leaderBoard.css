@@ -13,6 +13,7 @@
       height: 704px;
       color: lime;
       font-size: 24pt;
+      background: black;
       background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
       /* W3C */
       background: linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -75,6 +76,7 @@
       height: 704px;
       color: #999;
       font-size: 24pt;
+      background: black;
       background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
       /* W3C */
       background: linear-gradient(to top, #45484d 0%, #000000 100%);

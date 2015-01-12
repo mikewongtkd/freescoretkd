@@ -1,5 +1,6 @@
 
 body {
+	background: black;
 	background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
 }
@@ -9,6 +10,7 @@ body {
 	width: 800px;
 	height: 480px;
 	margin: 0 auto 0 auto;
+	background: black;
 	background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
 	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
 	border-radius: 24pt;
@@ -39,12 +41,14 @@ body {
 
 		.send  { 
 			border: 4px solid red;
+			background: #f85032;
 			background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
 			background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
 			top: 120px; 
 		}
 		.clear { 
 			border: 4px solid orange;
+			background: #ffb76b;
 			background: -webkit-linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
 			background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
 			top: 240px; 
@@ -53,6 +57,7 @@ body {
 		.division {
 			width: 160px;
 			border: 4px solid green;
+			background: #9dd53a;
 			background: -webkit-linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
 			background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
 		}
@@ -60,6 +65,7 @@ body {
 		.athlete {
 			width: 160px;
 			border: 4px solid blue;
+			background: #6db3f2;
 			background: -webkit-linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
 			background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
 		}
@@ -70,6 +76,7 @@ body {
 			top: 0;
 			width: 160px;
 			border: 4px solid gold;
+			background: #fceabb;
 			background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			color: black;
