@@ -85,6 +85,8 @@ sub place_athletes {
 		$y_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$y;
 		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )    foreach (qw( sum pre all ));
 
+		# ===== ANNOTATE TIE-BREAKER CAUSE
+		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
 		if( $x_stats->{ sum } == $y_stats->{ sum } ) {
 			if    ( $x_stats->{ pre } > $y_stats->{ pre } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
 			elsif ( $x_stats->{ pre } < $y_stats->{ pre } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
@@ -238,7 +240,6 @@ sub read {
 			elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
 			elsif ( $key eq 'pending'   ) { $self->{ $key } = _parse_pending( $value );   }
 			else                          { $self->{ $key } = $value;                     }
-			next;
 
 		# ===== READ DIVISION ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
@@ -265,6 +266,7 @@ sub read {
 
 			$athlete->{ scores }{ $round }[ $form ] = { judge => [] } unless exists $athlete->{ scores }{ $round }[ $form ]{ judge };
 			$athlete->{ scores }{ $round }[ $form ]{ judge }[ $judge ] = { judge => $judge, major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
 
 		} else {
 			die "Unknown line type '$_'\n";
@@ -298,7 +300,7 @@ sub read {
 		}
 	}
 
-	# ===== COMPLETE THE TABLE OF SCORES
+	# ===== COMPLETE THE SCORING MATRIX
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		foreach my $round (@rounds) {
 			my @compulsory    = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
@@ -646,8 +648,8 @@ sub _parse_forms {
 
 	my @rounds = map { 
 		my ($round, $forms) = split /:/;
-		my @forms = map { my ($name, $type) = /^([\w\s]+)(?:\s\((compulsory|tiebreaker)\))?/; { name => $name, type => $type || 'compulsory' }; } split /,\s?/, $forms;
-		$round => [ @forms ];
+		my @forms = map { my ($name, $type) = /^([\w\s]+)(?:\s\((compulsory|tiebreaker)\))?/; { name => $name, type => $type || 'compulsory' }; } split /,\s*/, $forms;
+		($round => [ @forms ]);
 	} split /;/, $value;
 	return { @rounds }; 
 }

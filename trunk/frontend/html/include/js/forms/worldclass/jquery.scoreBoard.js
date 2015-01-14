@@ -126,7 +126,7 @@ $.widget( "freescore.scoreboard", {
 		round_description.append( e.html.li.clone() .html( current.description ));
 		round_description.append( e.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round_names[ current.round ] + ' Round</b>'));
 		if( current.forms.length > 1 ) { round_description.append( e.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ].name + '</b>' )); } 
-		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ] + '</b>' )); }
+		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ].name + '</b>' )); }
 
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
