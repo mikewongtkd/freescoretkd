@@ -8,34 +8,35 @@ $.widget( "freescore.register", {
 		var o            = this.options;
 		var e            = this.options.elements = {};
 		var w            = this.element;
-		var html         = o.html     = { div : $( "<div />" ), h1 : $( "<h1 />" ), p : $( "<p />" ), img : $( "<img />" ) };
+		var html         = e.html     = FreeScore.html;
 		var tournament   = o.tournament;
 		var url          = o.url      = $.url().param( 'referer' );
 
 		var h1           = html.h1.clone() .html( "Register" );
 		var text         = html.p.clone() .html( "Choose your Poomsae event: " );
 
-		var events       = o.events  = [];
-		var rings        = o.rings   = [];
-		var roles        = o.roles   = [];
-		var judges       = o.judges  = [];
 		var width        = tournament.rings.width;
 		var height       = tournament.rings.height;
-		var competition  = html.div.clone() .addClass( "competition" );
-		var floorplan    = html.div.clone() .addClass( "floorplan" ) .css( "width", width * 200 ) .css( "height", height * 200 ) .hide();
-		var jobs         = html.div.clone() .addClass( "roles" ) .hide();
-		var court        = html.div.clone() .addClass( "court" ) .hide();
-		var confirmation = html.div.clone() .addClass( "confirmation" ) .hide();
 
-		// ===== REMOVE LOCAL COOKIES
-		$.removeCookie( 'ring'  );
-		$.removeCookie( 'role'  );
-		$.removeCookie( 'judge' );
+		var register     = o.register = { 
+			events       : { data : [], view : html.div.clone() },
+			rings        : { data : [], view : html.div.clone() },
+			roles        : { data : [], view : html.div.clone() },
+			judges       : { data : [], view : html.div.clone() },
+			confirmation : {            view : html.div.clone() },
+		};
 
-		// ===== REMOVE SITE COOKIES
-		$.removeCookie( 'ring',  { path: '/' });
-		$.removeCookie( 'role',  { path: '/' });
-		$.removeCookie( 'judge', { path: '/' });
+		register.events       .view .addClass( "competition" );
+		register.rings        .view .addClass( "floorplan" )    .css( "width", width * 200 ) .css( "height", height * 200 ) .hide();
+		register.roles        .view .addClass( "roles" )        .hide();
+		register.judges       .view .addClass( "court" )        .hide();
+		register.confirmation .view .addClass( "confirmation" ) .hide();
+
+
+		// ===== REMOVE LOCAL AND SITE COOKIES
+		$.removeCookie( 'ring'  ); $.removeCookie( 'ring',  { path: '/' });
+		$.removeCookie( 'role'  ); $.removeCookie( 'role',  { path: '/' });
+		$.removeCookie( 'judge' ); $.removeCookie( 'judge', { path: '/' });
 
 		// ====================
 		// SELECTION FUNCTIONS
@@ -45,14 +46,14 @@ $.widget( "freescore.register", {
 		var selectRing = function() {
 		// ----------------------------------------
 			text.html( "Choose your ring number:" );
-			floorplan .fadeIn();
-			for( var j = 0; j < o.rings.length; j++ ) {
-				var mat = rings[ j ];
+			o.register.rings.view .fadeIn();
+			for( var j = 0; j < o.register.rings.data.length; j++ ) {
+				var mat = o.register.rings.data[ j ];
 				var x   = mat.attr( "goto-x" );
 				var y   = mat.attr( "goto-y" );
 				mat.animate( { left: x, top: y, opacity: 1.0 } );
 			}
-			floorplan .attr( "animate", "on-initialization" );
+			o.register.rings.view .attr( "animate", "on-initialization" );
 		};
 
 		// ----------------------------------------
@@ -63,16 +64,17 @@ $.widget( "freescore.register", {
 			text.html( "Which judge?" );
 			for( var k = 0; k < o.max_judges; k++ ) { 
 				var judge = addJudge( k+1 ); 
-				o.judges.push( judge ); 
-				court.append( judge ); 
+				o.register.judges.data.push( judge ); 
+				o.register.judges.view.append( judge ); 
 			}
 
-			court.fadeIn( 500, function() {
+			o.register.judges.view.fadeIn( 500, function() {
 				var scale = 200;
-				if( o.judges.length == 5 ) { scale = 160; }
-				if( o.judges.length == 7 ) { scale = 120; }
-				for( var i = 0; i < o.judges.length; i++ ) {
-					var judge = o.judges[ i ];
+				if( o.register.judges.data.length == 5 ) { scale = 160; }
+				if( o.register.judges.data.length == 7 ) { scale = 120; }
+				console.log( o.register.judges.data );
+				for( var i = 0; i < o.register.judges.data.length; i++ ) {
+					var judge = o.register.judges.data[ i ];
 					judge.animate( { left: i * scale } );
 				}
 			});
@@ -93,10 +95,10 @@ $.widget( "freescore.register", {
 			event.attr( "url",   url );
 			var label = html.div.clone() .addClass( "label" ) .html( name );
 			event.append( color, greys, label );
-			o.events.push( event );
+			o.register.events.data.push( event );
 			var callback = function( name ) { return function() {
-				for( var i = 0; i < o.events.length; i++ ) {
-					var event = o.events[ i ];
+				for( var i = 0; i < o.register.events.data.length; i++ ) {
+					var event = o.register.events.data[ i ];
 
 					if( event.attr( "name" ) == name ) {
 						event.children( ".greys" ).fadeOut();
@@ -105,7 +107,7 @@ $.widget( "freescore.register", {
 
 					} else {
 						event.fadeOut( 500, function() {
-							competition .delay( 500 ) .fadeOut( 500, selectRing );
+							o.register.events.view .delay( 500 ) .fadeOut( 500, selectRing );
 						});
 					}
 				}
@@ -118,11 +120,11 @@ $.widget( "freescore.register", {
 			o.event = {};
 			if( url.match( /grassroots/ ) != null ) { o.event.name = "Grassroots",  o.event.image = "grassroots-01", o.event.url = "../forms/grassroots/" }
 			if( url.match( /worldclass/ ) != null ) { o.event.name = "World Class", o.event.image = "poomsae-02",    o.event.url = "../forms/worldclass/" }
-			competition .hide();
+			o.register.events.view .hide();
 			selectRing();
 
 		} else {
-			competition.append( 
+			o.register.events.view.append( 
 				addEvent( "Grassroots",  "grassroots-01", "../forms/grassroots/", 0 ),
 				addEvent( "World Class", "poomsae-02",    "../forms/worldclass/", 1 )
 			);
@@ -134,24 +136,25 @@ $.widget( "freescore.register", {
 		var addRing    = function( num, x, y ) {
 			var mat          = html.div.clone() .addClass( "mat" );
 			var playingField = html.div.clone() .addClass( "playing-field" ) .html( num );
+			var rings        = o.register.rings;
 			mat.attr( "num", num );
 			mat.css( "opacity", 0.5 );
 			mat.attr( "goto-x", x );
 			mat.attr( "goto-y", y );
 			mat.append( playingField );
 
-			var gotoX    = (parseInt(floorplan.css( "width"  )) / 2) - 100;
-			var gotoY    = (parseInt(floorplan.css( "height" )) / 2) - 100;
+			var gotoX    = (parseInt(rings.view.css( "width"  )) / 2) - 100;
+			var gotoY    = (parseInt(rings.view.css( "height" )) / 2) - 100;
 
 
-			if( floorplan.attr( "animate" ) == "on-initialization" ) {
+			if( rings.view.attr( "animate" ) == "on-initialization" ) {
 				mat.animate( { left: x, top: y, opacity: 1.0 } )
 			}
 
 			var callback = function( num ) {
 				return function() {
 					for( var i = 0; i < tournament.rings.count; i++ ) {
-						var ring = o.rings[ i ];
+						var ring = o.register.rings.data[ i ];
 						var j    = ring.attr( "num" );
 						if( j == num ) { 
 							ring.animate( { left: gotoX, top: gotoY } );
@@ -159,7 +162,7 @@ $.widget( "freescore.register", {
 
 						} else { 
 							ring.fadeOut( 500, function() { 
-								floorplan.fadeOut( 500, function() {
+								rings.view.fadeOut( 500, function() {
 									if(
 										defined( url ) && (
 											(url.match( /judge/ )       != null) ||
@@ -183,18 +186,18 @@ $.widget( "freescore.register", {
 											updateConfirmation(); 
 											var ring = $.cookie( "ring" );
 											text.html( "Confirm Registration for Display in Ring " + ring + ":" );
-											confirmation .fadeIn();
+											o.register.confirmation.view .fadeIn();
 
 										} else if( url.match( /coordinator/ ) != null ) { 
 											$.cookie( "role", "coordinator", { path: '/' } ); 
 											updateConfirmation(); 
 											var ring = $.cookie( "ring" );
 											text.html( "Confirm Registration for Coordinator in Ring " + ring + ":" );
-											confirmation .fadeIn();
+											o.register.confirmation.view .fadeIn();
 										}
 									} else {
 										text.html( "What is your role in ring " + $.cookie( "ring" ) + ":" ); 
-										jobs.fadeIn( 500 ); 
+										o.register.roles.view.fadeIn( 500 ); 
 									}
 								}); 
 							}); 
@@ -205,23 +208,24 @@ $.widget( "freescore.register", {
 			mat.click( callback( num ) );
 			return mat;
 		}
+
 		for( var y = 0; y < height; y++ ) {
 			for( var x = 0; x < width; x++ ) {
-				if( rings.length > tournament.rings.count  ) { continue; }
+				if( o.register.rings.data.length > tournament.rings.count  ) { continue; }
 				var xpos = x * 200;
 				var ypos = y * 200;
 				if( tournament.rings.formation == "loop" && height == 2) { // formation = [loop|rows]
 					var half = tournament.rings.count / 2;
-					xpos = rings.length >= half ? (half - (x + 1)) * 200 : xpos;
+					xpos = o.register.rings.data.length >= half ? (half - (x + 1)) * 200 : xpos;
 				}
 
 				if( tournament.rings.count % 2 ) { // If there is an odd ring
-					if      ( width > height ) { if( rings.length == Math.round( tournament.rings.count/2 ) && rings.length % 2 ) { ypos += 100; }} // center the odd ring
-					else if ( height > width ) { if( rings.length == tournament.rings.count && rings.length % 2 ) { xpos += 100; }} // center the odd ring
+					if      ( width > height ) { if( o.register.rings.data.length == Math.round( tournament.rings.count/2 ) && o.register.rings.data.length % 2 ) { ypos += 100; }} // center the odd ring
+					else if ( height > width ) { if( o.register.rings.data.length == tournament.rings.count && o.register.rings.length % 2 ) { xpos += 100; }} // center the odd ring
 				}
-				var ring = addRing( (rings.length + 1), xpos, ypos );
-				rings.push( ring );
-				floorplan.append( ring );
+				var ring = addRing( (o.register.rings.data.length + 1), xpos, ypos );
+				o.register.rings.data.push( ring ); // MW TODO Separate data from view
+				o.register.rings.view.append( ring );
 			}
 		}
 		
@@ -236,15 +240,15 @@ $.widget( "freescore.register", {
 			role.append( img, label );
 			var callback = function( roleName ) {
 				return function() {
-					for( var i = 0; i < o.roles.length; i++ ) {
-						var role = o.roles[ i ];
+					for( var i = 0; i < o.register.roles.data.length; i++ ) {
+						var role = o.register.roles.data[ i ];
 						if( role.attr( "role" ) == roleName ) {
 							role.children( "p" ).remove();
 							role.children( "img" ).animate( { height: 200 } );
 
 							if( role.attr( "role" ) == "Judge" ) {
 								role.animate( { left: 200 }, 400, 'swing', function() {
-									jobs .delay( 300 ) .fadeOut( 500, function() { 
+									o.register.roles.view .delay( 300 ) .fadeOut( 500, function() { 
 										var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 										$.ajax( {
 											type:    'GET',
@@ -257,12 +261,12 @@ $.widget( "freescore.register", {
 							} else {
 								role.animate( { left: 200 }, 400, 'swing', function() {
 									role .delay( 300 ) .fadeOut( 400, function () {
-										jobs .fadeOut( 400, function() {
+										o.register.roles.view .fadeOut( 400, function() {
 											$.cookie( "role", roleName.toLowerCase(), { path: '/' } );
 											updateConfirmation();
 											var ring = $.cookie( "ring" );
 											text.html( "Confirm Registration for " + roleName + " in Ring " + ring + ":" );
-											confirmation .fadeIn();
+											o.register.confirmation.view .fadeIn();
 										});
 									});
 								});
@@ -277,11 +281,11 @@ $.widget( "freescore.register", {
 			return role;
 		}
 
-		roles.push( addRole( 'Coordinator', '0px' ));
-		roles.push( addRole( 'Judge', '200px' ));
-		roles.push( addRole( 'Display', '400px' ));
-		for( var i = 0; i < roles.length; i++ ) {
-			jobs.append( roles[ i ] );
+		o.register.roles.data.push( addRole( 'Coordinator', '0px' ));
+		o.register.roles.data.push( addRole( 'Judge', '200px' ));
+		o.register.roles.data.push( addRole( 'Display', '400px' ));
+		for( var i = 0; i < o.register.roles.data.length; i++ ) {
+			o.register.roles.view.append( o.register.roles.data[ i ] );
 		}
 
 		// ====================
@@ -295,18 +299,18 @@ $.widget( "freescore.register", {
 			judge.append( img, label );
 			var callback = function( num ) {
 				return function() {
-					for( var i = 0; i < o.judges.length; i++ ) {
-						var judge = o.judges[ i ];
+					for( var i = 0; i < o.register.judges.data.length; i++ ) {
+						var judge = o.register.judges.view[ i ];
 						if( judge.attr( "num" ) == num ) {
 							judge.children( "p" ).remove();
 							judge.children( "img" ).animate( { height: 200 }, 400, 'swing', function() {
-								court .delay( 300 ) .fadeOut( 400, function() {
+								o.register.judges.view .delay( 300 ) .fadeOut( 400, function() {
 									var ring = $.cookie( "ring" );
 									text.html( "Confirm Registration for Judge " + num + " in Ring " + ring + ":" );
 									$.cookie( "role", "judge", { path: '/' } );
 									$.cookie( "judge", num, { path: '/' } );
 									updateConfirmation();
-									confirmation .fadeIn();
+									o.register.confirmation.view .fadeIn();
 								});
 							});
 						} else {
@@ -323,7 +327,7 @@ $.widget( "freescore.register", {
 		// REGISTRATION CONFIRMATION
 		// ====================
 		var updateConfirmation = function() {
-			floorplan .attr( "animate", "none" );
+			o.register.rings.view .attr( "animate", "none" );
 			var event = addEvent( o.event.name, o.event.image, o.event.url, 0 );
 			event.children( ".greys" ).hide();
 			var ring  = addRing( parseInt( $.cookie( "ring" )), 0, 0 ) .css( "left", "200px" ) .css( "opacity", "1.0" );
@@ -348,11 +352,11 @@ $.widget( "freescore.register", {
 			ring.off();
 			role.off();
 
-			confirmation.empty();
-			confirmation.append( event, ring, role, ok, back );
+			o.register.confirmation.view.empty();
+			o.register.confirmation.view.append( event, ring, role, ok, back );
 		}
 
-		w.append( h1, text, competition, floorplan, jobs, court, confirmation );
+		w.append( h1, text, o.register.events.view, o.register.rings.view, o.register.roles.view, o.register.judges.view, o.register.confirmation.view );
 		w.addClass( "register" );
 	},
 	_init: function( ) {

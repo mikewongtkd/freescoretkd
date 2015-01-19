@@ -11,9 +11,13 @@ var FreeScore = {
 	html : { 
 		a     : $( "<a />" ), 
 		div   : $( "<div />" ), 
+		h1    : $( "<h1 />" ), 
+		h2    : $( "<h2 />" ), 
+		h3    : $( "<h3 />" ), 
 		img   : $( "<img />" ), 
 		li    : $( "<li />" ), 
 		ol    : $( "<ol />" ), 
+		p     : $( "<p />" ), 
 		span  : $( "<span />" ), 
 		table : $( "<table />" ), 
 		td    : $( "<td />" ), 
