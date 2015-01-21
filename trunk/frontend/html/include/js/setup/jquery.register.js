@@ -38,325 +38,325 @@ $.widget( "freescore.register", {
 		$.removeCookie( 'role'  ); $.removeCookie( 'role',  { path: '/' });
 		$.removeCookie( 'judge' ); $.removeCookie( 'judge', { path: '/' });
 
-		// ====================
-		// SELECTION FUNCTIONS
-		// ====================
-
-		// ----------------------------------------
-		var selectRing = function() {
-		// ----------------------------------------
+		// ------------------------------------------------------------
+		register.rings.show = function() {
+		// ------------------------------------------------------------
 			text.html( "Choose your ring number:" );
-			o.register.rings.view .fadeIn();
-			for( var j = 0; j < o.register.rings.data.length; j++ ) {
-				var mat = o.register.rings.data[ j ];
-				var x   = mat.attr( "goto-x" );
-				var y   = mat.attr( "goto-y" );
-				mat.animate( { left: x, top: y, opacity: 1.0 } );
+			register.rings.view .fadeIn();
+			for( var j = 0; j < register.rings.data.length; j++ ) {
+				var ring = register.rings.data[ j ];
+				var x    = ring.x;
+				var y    = ring.y;
+				ring.dom.animate( { left: x, top: y, opacity: 1.0 } );
 			}
-			o.register.rings.view .attr( "animate", "on-initialization" );
+			register.rings.view .attr( "animate", "on-initialization" );
 		};
 
-		// ----------------------------------------
-		var selectJudge = function( options ) {
-		// ----------------------------------------
-			o.max_judges = options.judges || 3;
+		// ------------------------------------------------------------
+		register.rings.select = function( num ) { return function() {
+		// ------------------------------------------------------------
+			for( var i = 0; i < tournament.rings.count; i++ ) {
+				var ring = register.rings.data[ i ];
+				var j    = ring.num;
+				if( j == num ) { 
+					ring.dom.animate( { left: ring.go.x, top: ring.go.y } );
+					$.cookie( "ring", num, { path: '/' } );
+					register.rings.view .delay( 750 ) .fadeOut( 500, register.roles.show );
 
-			text.html( "Which judge?" );
-			for( var k = 0; k < o.max_judges; k++ ) { 
-				var judge = addJudge( k+1 ); 
-				o.register.judges.data.push( judge ); 
-				o.register.judges.view.append( judge ); 
+				} else { 
+					ring.dom.fadeOut( 500 ); 
+				}
 			}
+		}};
 
-			o.register.judges.view.fadeIn( 500, function() {
-				var scale = 200;
-				if( o.register.judges.data.length == 5 ) { scale = 160; }
-				if( o.register.judges.data.length == 7 ) { scale = 120; }
-				console.log( o.register.judges.data );
-				for( var i = 0; i < o.register.judges.data.length; i++ ) {
-					var judge = o.register.judges.data[ i ];
-					judge.animate( { left: i * scale } );
-				}
-			});
-		};
+		// ------------------------------------------------------------
+		register.rings.add = function( num, x, y ) {
+		// ------------------------------------------------------------
 
-		// ====================
-		// REGISTER EVENT
-		// ====================
-		var addEvent   = function( name, image, url, x ) {
-			var	event = html.div.clone() .addClass( "event" );
-			var color = html.div.clone() .addClass( "color" );
-			var greys = html.div.clone() .addClass( "greys" );
-			color.css( "background-image", "url( '../images/bg/" + image + ".color.jpg' )" );
-			greys.css( "background-image", "url( '../images/bg/" + image + ".greys.jpg' )" );
-			event.animate( { left : (x * 200) } );
-			event.attr( "name",  name );
-			event.attr( "image", image );
-			event.attr( "url",   url );
-			var label = html.div.clone() .addClass( "label" ) .html( name );
-			event.append( color, greys, label );
-			o.register.events.data.push( event );
-			var callback = function( name ) { return function() {
-				for( var i = 0; i < o.register.events.data.length; i++ ) {
-					var event = o.register.events.data[ i ];
-
-					if( event.attr( "name" ) == name ) {
-						event.children( ".greys" ).fadeOut();
-						event.animate( { left: 100 } );
-						o.event = { name : event.attr( "name" ), image : event.attr( "image" ), url : event.attr( "url" ) };
-
-					} else {
-						event.fadeOut( 500, function() {
-							o.register.events.view .delay( 500 ) .fadeOut( 500, selectRing );
-						});
-					}
-				}
-			}};
-			event.click( callback( name ));
-			return event;
-		};
-
-		if( defined( url ) ) {
-			o.event = {};
-			if( url.match( /grassroots/ ) != null ) { o.event.name = "Grassroots",  o.event.image = "grassroots-01", o.event.url = "../forms/grassroots/" }
-			if( url.match( /worldclass/ ) != null ) { o.event.name = "World Class", o.event.image = "poomsae-02",    o.event.url = "../forms/worldclass/" }
-			o.register.events.view .hide();
-			selectRing();
-
-		} else {
-			o.register.events.view.append( 
-				addEvent( "Grassroots",  "grassroots-01", "../forms/grassroots/", 0 ),
-				addEvent( "World Class", "poomsae-02",    "../forms/worldclass/", 1 )
-			);
-		}
-
-		// ====================
-		// REGISTER RING
-		// ====================
-		var addRing    = function( num, x, y ) {
-			var mat          = html.div.clone() .addClass( "mat" );
+			var dom          = html.div.clone() .addClass( "mat" );
 			var playingField = html.div.clone() .addClass( "playing-field" ) .html( num );
-			var rings        = o.register.rings;
-			mat.attr( "num", num );
-			mat.css( "opacity", 0.5 );
-			mat.attr( "goto-x", x );
-			mat.attr( "goto-y", y );
-			mat.append( playingField );
+			var rings        = register.rings;
+			dom.css( "opacity", 0.5 );
+			dom.append( playingField );
 
 			var gotoX    = (parseInt(rings.view.css( "width"  )) / 2) - 100;
 			var gotoY    = (parseInt(rings.view.css( "height" )) / 2) - 100;
 
+			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: gotoX, top: gotoY, opacity: 1.0 } ) }
 
-			if( rings.view.attr( "animate" ) == "on-initialization" ) {
-				mat.animate( { left: x, top: y, opacity: 1.0 } )
+			dom.click( register.rings.select( num ) );
+			return { num: num, x: x, y: y, go: { x: gotoX, y: gotoY }, dom: dom };
+		}
+
+		var available_events = {
+			grassroots: { name: "Grassroots",  image: "grassroots-01", url: "../forms/grassroots/" },
+			worldclass: { name: "World Class", image: "poomsae-02",    url: "../forms/worldclass/" }
+		};
+
+		// ------------------------------------------------------------
+		register.events.select = function( name ) { return function() {
+		// ------------------------------------------------------------
+			for( var i = 0; i < register.events.data.length; i++ ) {
+				var selected = register.events.data[ i ];
+
+				if( selected.name == name ) {
+					selected.dom.children( ".greys" ).fadeOut( 500 );
+					selected.dom.animate( { left: 100 } );
+					o.event = { name : selected.name, image : selected.image, url : selected.url };
+					register.events.view .delay( 800 ) .fadeOut( 500, register.rings.show );
+
+				} else {
+					selected.dom.fadeOut( 500 );
+				}
 			}
+		}};
 
-			var callback = function( num ) {
-				return function() {
-					for( var i = 0; i < tournament.rings.count; i++ ) {
-						var ring = o.register.rings.data[ i ];
-						var j    = ring.attr( "num" );
-						if( j == num ) { 
-							ring.animate( { left: gotoX, top: gotoY } );
-							$.cookie( "ring", num, { path: '/' } );
+		// ------------------------------------------------------------
+		register.events.add   = function( ev, x ) {
+		// ------------------------------------------------------------
+			var name  = ev.name;
+			var image = ev.image;
+			var url   = ev.url;
+			var	dom   = html.div.clone() .addClass( "event" );
+			var color = html.div.clone() .addClass( "color" );
+			var greys = html.div.clone() .addClass( "greys" );
+			color.css( "background-image", "url( '../images/bg/" + image + ".color.jpg' )" );
+			greys.css( "background-image", "url( '../images/bg/" + image + ".greys.jpg' )" );
+			dom.animate( { left : (x * 200) } );
+			dom.attr( "name",  name );
+			dom.attr( "image", image );
+			dom.attr( "url",   url );
+			var label = html.div.clone() .addClass( "label" ) .html( name );
+			dom.append( color, greys, label );
 
-						} else { 
-							ring.fadeOut( 500, function() { 
-								rings.view.fadeOut( 500, function() {
-									if(
-										defined( url ) && (
-											(url.match( /judge/ )       != null) ||
-											(url.match( /index/ )       != null) ||
-											(url.match( /coordinator/ ) != null)
-										)
-									) {
-										if( url.match( /judge/ )       != null ) { 
-											var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
-											$.ajax( {
-												type:    'GET',
-												url:     url,
-												data:    {},
-												success: selectJudge,
-												error:   function( response ) { },
-											});
+			dom.click( register.events.select( name ));
+			return { name: name, image: image, url: url, dom: dom };
+		};
 
+		// ------------------------------------------------------------
+		register.roles.show = function() { 
+		// ------------------------------------------------------------
+			if(
+				defined( url ) && (
+					(url.match( /judge/ )       != null) ||
+					(url.match( /index/ )       != null) ||
+					(url.match( /coordinator/ ) != null)
+				)
+			) {
+				if( url.match( /judge/ )       != null ) { 
+					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES
+					var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+					$.ajax( {
+						type:    'GET',
+						url:     url,
+						data:    {},
+						success: register.judges.show,
+						error:   function( response ) { },
+					});
 
-										} else if( url.match( /index/ )       != null ) { 
-											$.cookie( "role", "display", { path: '/' } ); 
-											updateConfirmation(); 
-											var ring = $.cookie( "ring" );
-											text.html( "Confirm Registration for Display in Ring " + ring + ":" );
-											o.register.confirmation.view .fadeIn();
+				} else if( url.match( /index/ )       != null ) { 
+					$.cookie( "role", "display", { path: '/' } ); 
+					register.confirmation.show();
 
-										} else if( url.match( /coordinator/ ) != null ) { 
-											$.cookie( "role", "coordinator", { path: '/' } ); 
-											updateConfirmation(); 
-											var ring = $.cookie( "ring" );
-											text.html( "Confirm Registration for Coordinator in Ring " + ring + ":" );
-											o.register.confirmation.view .fadeIn();
-										}
-									} else {
-										text.html( "What is your role in ring " + $.cookie( "ring" ) + ":" ); 
-										o.register.roles.view.fadeIn( 500 ); 
-									}
-								}); 
-							}); 
-						}
+				} else if( url.match( /coordinator/ ) != null ) { 
+					$.cookie( "role", "coordinator", { path: '/' } ); 
+					register.confirmation.show();
+				}
+			} else {
+				text.html( "What is your role in ring " + $.cookie( "ring" ) + ":" ); 
+				register.roles.view .fadeIn( 500 ); 
+			}
+		}; 
+
+		// ------------------------------------------------------------
+		register.roles.select = function( roleName ) { return function() {
+		// ------------------------------------------------------------
+			for( var i = 0; i < register.roles.data.length; i++ ) {
+				var role = register.roles.data[ i ];
+				if( role.name == roleName ) {
+					role.dom.children( "p" ).remove();
+					role.dom.children( "img" ).animate( { height: 200 } );
+
+					if( role.name == "Judge" ) {
+						role.dom.animate( { left: 200 }, 400, 'swing', function() {
+							var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+							$.ajax( {
+								type:    'GET',
+								url:     url,
+								data:    {},
+								success: register.judges.show,
+								error:   function( response ) { },
+							});
+						});
+					} else {
+						$.cookie( "role", roleName.toLowerCase(), { path: '/' } );
+						role.dom.animate( { left: 200 }, 400, 'swing', function() {
+							role.dom .delay( 300 ) .fadeOut( 400, function () {
+								register.roles.view .fadeOut( 400, register.confirmation.show );
+							});
+						});
 					}
-				};
-			}
-			mat.click( callback( num ) );
-			return mat;
-		}
-
-		for( var y = 0; y < height; y++ ) {
-			for( var x = 0; x < width; x++ ) {
-				if( o.register.rings.data.length > tournament.rings.count  ) { continue; }
-				var xpos = x * 200;
-				var ypos = y * 200;
-				if( tournament.rings.formation == "loop" && height == 2) { // formation = [loop|rows]
-					var half = tournament.rings.count / 2;
-					xpos = o.register.rings.data.length >= half ? (half - (x + 1)) * 200 : xpos;
+				} else {
+					role.dom.fadeOut();
 				}
-
-				if( tournament.rings.count % 2 ) { // If there is an odd ring
-					if      ( width > height ) { if( o.register.rings.data.length == Math.round( tournament.rings.count/2 ) && o.register.rings.data.length % 2 ) { ypos += 100; }} // center the odd ring
-					else if ( height > width ) { if( o.register.rings.data.length == tournament.rings.count && o.register.rings.length % 2 ) { xpos += 100; }} // center the odd ring
-				}
-				var ring = addRing( (o.register.rings.data.length + 1), xpos, ypos );
-				o.register.rings.data.push( ring ); // MW TODO Separate data from view
-				o.register.rings.view.append( ring );
 			}
-		}
-		
-		// ====================
-		// REGISTER ROLE
-		// ====================
-		var addRole  = function( roleName, left ) {
-			var role  = html.div.clone() .addClass( "role" ) .attr( "role", roleName ) .css( "top", 0 ) .css( "left", left );
-			var src   = "../images/roles/" + roleName.toLowerCase() + ".png";
+		}};
+
+		// ------------------------------------------------------------
+		register.roles.add = function( name, left ) {
+		// ------------------------------------------------------------
+			var dom   = html.div.clone() .addClass( "role" ) .attr( "role", name ) .css( "top", 0 ) .css( "left", left );
+			var src   = "../images/roles/" + name.toLowerCase() + ".png";
 			var img   = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
-			var label = html.p.clone() .append( roleName );
-			role.append( img, label );
-			var callback = function( roleName ) {
-				return function() {
-					for( var i = 0; i < o.register.roles.data.length; i++ ) {
-						var role = o.register.roles.data[ i ];
-						if( role.attr( "role" ) == roleName ) {
-							role.children( "p" ).remove();
-							role.children( "img" ).animate( { height: 200 } );
-
-							if( role.attr( "role" ) == "Judge" ) {
-								role.animate( { left: 200 }, 400, 'swing', function() {
-									o.register.roles.view .delay( 300 ) .fadeOut( 500, function() { 
-										var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
-										$.ajax( {
-											type:    'GET',
-											url:     url,
-											data:    {},
-											success: selectJudge,
-											error:   function( response ) { },
-										});
-									});});
-							} else {
-								role.animate( { left: 200 }, 400, 'swing', function() {
-									role .delay( 300 ) .fadeOut( 400, function () {
-										o.register.roles.view .fadeOut( 400, function() {
-											$.cookie( "role", roleName.toLowerCase(), { path: '/' } );
-											updateConfirmation();
-											var ring = $.cookie( "ring" );
-											text.html( "Confirm Registration for " + roleName + " in Ring " + ring + ":" );
-											o.register.confirmation.view .fadeIn();
-										});
-									});
-								});
-							}
-						} else {
-							role.fadeOut();
-						}
-					}
-				};
-			};
-			role.click( callback( roleName ));
-			return role;
+			var label = html.p.clone() .append( name );
+			dom.append( img, label );
+			dom.click( register.roles.select( name ));
+			return { name: name, x: left, dom: dom };
 		}
 
-		o.register.roles.data.push( addRole( 'Coordinator', '0px' ));
-		o.register.roles.data.push( addRole( 'Judge', '200px' ));
-		o.register.roles.data.push( addRole( 'Display', '400px' ));
-		for( var i = 0; i < o.register.roles.data.length; i++ ) {
-			o.register.roles.view.append( o.register.roles.data[ i ] );
-		}
+		// ------------------------------------------------------------
+		register.judges.show = function( ajaxResponse ) {
+		// ------------------------------------------------------------
+			register.roles.view .hide();
+			o.max_judges = ajaxResponse.judges || 3;
 
-		// ====================
-		// REGISTER JUDGE
-		// ====================
-		var addJudge  = function( num ) {
-			var judge = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
+			text.html( "Which judge?" );
+			for( var k = 0; k < o.max_judges; k++ ) { 
+				var judge = register.judges.add( k+1 ); 
+				register.judges.data.push( judge ); 
+				register.judges.view.append( judge.dom ); 
+			}
+
+			register.judges.view.fadeIn( 500, function() {
+				var scale = 200;
+				if( register.judges.data.length == 5 ) { scale = 160; }
+				if( register.judges.data.length == 7 ) { scale = 120; }
+				for( var i = 0; i < register.judges.data.length; i++ ) {
+					var judge = register.judges.data[ i ];
+					judge.dom.animate( { left: i * scale } );
+				}
+			});
+		};
+
+		// ------------------------------------------------------------
+		register.judges.select = function( num ) { return function() {
+		// ------------------------------------------------------------
+			for( var i = 0; i < register.judges.data.length; i++ ) {
+				var judge = register.judges.data[ i ];
+				if( judge.num == num ) {
+					$.cookie( "role", "judge", { path: '/' } );
+					$.cookie( "judge", num, { path: '/' } );
+
+					judge.dom.children( "p" ).remove();
+					judge.dom.children( "img" ).animate( { height: 200 }, 400, 'swing' );
+					register.judges.view .delay( 800 ) .fadeOut( 400, register.confirmation.show );
+				} else {
+					judge.dom.fadeTo( 500, 0.25 );
+				}
+			}
+		}};
+
+		// ------------------------------------------------------------
+		register.judges.add  = function( num ) {
+		// ------------------------------------------------------------
+			var dom   = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
 			var src   = "../images/roles/judge.png";
 			var img   = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
 			var label = html.p.clone() .append( "Judge " + num );
-			judge.append( img, label );
-			var callback = function( num ) {
-				return function() {
-					for( var i = 0; i < o.register.judges.data.length; i++ ) {
-						var judge = o.register.judges.view[ i ];
-						if( judge.attr( "num" ) == num ) {
-							judge.children( "p" ).remove();
-							judge.children( "img" ).animate( { height: 200 }, 400, 'swing', function() {
-								o.register.judges.view .delay( 300 ) .fadeOut( 400, function() {
-									var ring = $.cookie( "ring" );
-									text.html( "Confirm Registration for Judge " + num + " in Ring " + ring + ":" );
-									$.cookie( "role", "judge", { path: '/' } );
-									$.cookie( "judge", num, { path: '/' } );
-									updateConfirmation();
-									o.register.confirmation.view .fadeIn();
-								});
-							});
-						} else {
-							judge.fadeTo( 500, 0.25 );
-						}
-					}
-				};
-			};
-			judge.click( callback( num ));
-			return judge;
+			dom.append( img, label );
+			dom.click( register.judges.select( num ));
+			return { num: num, dom: dom };
 		}
 
-		// ====================
-		// REGISTRATION CONFIRMATION
-		// ====================
-		var updateConfirmation = function() {
-			o.register.rings.view .attr( "animate", "none" );
-			var event = addEvent( o.event.name, o.event.image, o.event.url, 0 );
-			event.children( ".greys" ).hide();
-			var ring  = addRing( parseInt( $.cookie( "ring" )), 0, 0 ) .css( "left", "200px" ) .css( "opacity", "1.0" );
+		// ------------------------------------------------------------
+		register.confirmation.show = function() {
+		// ------------------------------------------------------------
+			var selected = { ring: $.cookie( "ring" ), role: $.cookie( "role" ), judge: $.cookie( "judge" ) };
+
+			if( selected.role == "judge" ) { text.html( "Confirm Registration for Judge " + selected.judge + " in Ring " + selected.ring + ":" ); }
+			else                           { text.html( "Confirm Registration for " + selected.role.ucfirst() + " in Ring " + selected.ring + ":" ); }
+
+			register.confirmation.view.fadeIn();
+			register.rings.view .attr( "animate", "none" );
+
+			// ===== SHOW EVENT
+			var ev = register.events.add( o.event, 0 );
+			ev.dom.children( ".greys" ).hide();
+
+			// ===== SHOW RING NUMBER
+			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0 );
+			ring.dom.css( "left", "200px" ) .css( "opacity", "1.0" );
 			var role  = String( $.cookie( "role" ));
+
+			// ===== SHOW JUDGE NUMBER OR OTHER ROLE
 			if( role == "judge" ) {
 				var num   = $.cookie( "judge" );
-				role = addJudge( num );
-				role.css( 'left', '400px' );
+				role = register.judges.add( num );
+				role.dom.css( 'left', '400px' );
 				if( defined( o.event ) ) { url = o.event.url + "/judge.php"; }
 			} else {
 				if      ( role == "display"     ) { if( ! defined( url )) { url = o.event.url + "/index.php"; } }
 				else if ( role == "coordinator" ) { if( ! defined( url )) { url = o.event.url + "/coordinator.php"; } }
-				role = addRole( role.capitalize(), '400px' );
+				role = register.roles.add( role.capitalize(), '400px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );
 			
 			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { location = url; } );
 			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { location.reload(); } );
-			ring.off();
 
-			event.off();
-			ring.off();
-			role.off();
+			ev.dom.off();
+			ring.dom.off();
+			role.dom.off();
 
-			o.register.confirmation.view.empty();
-			o.register.confirmation.view.append( event, ring, role, ok, back );
+			register.confirmation.view.empty();
+			register.confirmation.view.append( ev.dom, ring.dom, role.dom, ok, back );
 		}
 
-		w.append( h1, text, o.register.events.view, o.register.rings.view, o.register.roles.view, o.register.judges.view, o.register.confirmation.view );
+
+		// ===== IF THERE'S A REFERRER URL, USE THE URL TO AUTOMATICALLY SELECT THE EVENT
+		if( defined( url ) ) {
+			o.event = {};
+			if( url.match( /grassroots/ ) != null ) { o.event = available_events.grassroots; }
+			if( url.match( /worldclass/ ) != null ) { o.event = available_events.worldclass; }
+			register.events.view .hide();
+			register.rings .fadeIn();
+
+		// ===== SHOW THE GRASS ROOTS AND WORLD CLASS EVENTS
+		} else {
+			var grassroots = register.events.add( available_events.grassroots, 0 );
+			var worldclass = register.events.add( available_events.worldclass, 1 );
+			register.events.data.push( grassroots, worldclass );
+			register.events.view.append( grassroots.dom, worldclass.dom );
+		}
+
+		for( var y = 0; y < height; y++ ) {
+			for( var x = 0; x < width; x++ ) {
+				if( register.rings.data.length > tournament.rings.count  ) { continue; }
+				var xpos = x * 200;
+				var ypos = y * 200;
+				if( tournament.rings.formation == "loop" && height == 2) { // formation = [loop|rows]
+					var half = tournament.rings.count / 2;
+					xpos = register.rings.data.length >= half ? (half - (x + 1)) * 200 : xpos;
+				}
+
+				if( tournament.rings.count % 2 ) { // If there is an odd ring
+					if      ( width > height ) { if( register.rings.data.length == Math.round( tournament.rings.count/2 ) && register.rings.data.length % 2 ) { ypos += 100; }} // center the odd ring
+					else if ( height > width ) { if( register.rings.data.length == tournament.rings.count && register.rings.length % 2 ) { xpos += 100; }} // center the odd ring
+				}
+				var ring = register.rings.add( (register.rings.data.length + 1), xpos, ypos );
+				register.rings.data.push( ring );
+				register.rings.view.append( ring.dom );
+			}
+		}
+	
+		register.roles.data.push( register.roles.add( 'Coordinator', '0px' ));
+		register.roles.data.push( register.roles.add( 'Judge', '200px' ));
+		register.roles.data.push( register.roles.add( 'Display', '400px' ));
+		for( var i = 0; i < register.roles.data.length; i++ ) {
+			register.roles.view.append( register.roles.data[ i ].dom );
+		}
+
+		w.append( h1, text, register.events.view, register.rings.view, register.roles.view, register.judges.view, register.confirmation.view );
 		w.addClass( "register" );
 	},
 	_init: function( ) {
