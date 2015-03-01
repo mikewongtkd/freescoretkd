@@ -1,6 +1,6 @@
 
 $.widget( "freescore.spinwheel", {
-	options : { autoShow : true, min : 5.0, max : 10.0, step : 0.1, selected: 8.0 },
+	options : { autoShow : true, min : 7.0, max : 10.0, step : 0.1, selected: 8.0 },
 	_create : function() {
 		var o          = this.options;
 		var e          = this.options.elements = {};

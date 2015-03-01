@@ -81,6 +81,9 @@ sub calculate_means {
 		if( $stats->{ min }{ pre } == $stats->{ max }{ pre } ) { $stats->{ max }{ pre }++; }
 
 		# ===== MARK THE SCORES AS MIN OR MAX
+		foreach my $i (0 .. $#{ $form->{ judge }}) {
+			foreach my $minmax (qw( minacc maxacc minpre maxpre )) { $form->{ judge }[ $i ]{ $minmax } = JSON::XS::false; }
+		}
 		$form->{ judge }[ $stats->{ min }{ acc } ]{ minacc } = JSON::XS::true;
 		$form->{ judge }[ $stats->{ max }{ acc } ]{ maxacc } = JSON::XS::true;
 		$form->{ judge }[ $stats->{ min }{ pre } ]{ minpre } = JSON::XS::true;

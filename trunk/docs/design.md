@@ -88,6 +88,12 @@ The first `Directory` directive must be modified to allow symbolic links. The se
 
 Plain text files with a ramdisk cache. This could be improved by using a filesystem with triggers on write, or some form of `fswatch`. 
 
+#### Network
+
+See setup images for configuring Open-WRT and DD-WRT access points.
+
+Configure server host /etc/host file to resolve `freescore.net to` localhost loopback (`127.0.0.1`) and also to the DHCP static lease from the access point (e.g. `192.168.11.136`).
+
 #### Software Engineering
 
 ##### Documentation

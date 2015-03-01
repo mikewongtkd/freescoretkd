@@ -1,6 +1,6 @@
 body {
   font-family: Optima, helvetica, sans-serif;
-  background: linear-gradient(to bottom, #44484d 0%, black 100%); }
+  background: linear-gradient(to bottom, #44484d 0%, #000000 100%); }
 
 .divisions {
   position: relative;
@@ -22,12 +22,14 @@ body {
     left: 0;
     top: 0;
     width: 580px;
-    height: 20px;
+    height: 40px;
     padding: 0 0 16px 0; }
     .divisions .search input {
-      margin-left: 48px;
+      font-size: 14pt;
+      margin-left: 24px;
       border-radius: 8px;
-      width: 500px; }
+      width: 460px;
+      padding: 0 8px 0 8px; }
   .divisions ul {
     position: relative;
     list-style-type: none;
@@ -58,7 +60,7 @@ body {
         top: 0;
         width: 300px; }
       .divisions ul li.division .header .controls {
-        background: linear-gradient(to bottom, #cccccc 0%, #999999 100%);
+        background: linear-gradient(to bottom, #ccc 0%, #999 100%);
         position: absolute;
         top: 4px;
         left: 400px;
@@ -109,7 +111,7 @@ body {
         top: 0;
         height: 32px;
         width: 600px;
-        background: linear-gradient(to bottom, #cccccc 0%, #999999 100%); }
+        background: linear-gradient(to bottom, #ccc 0%, #999 100%); }
         .divisions ul li.division .current .name {
           color: #000;
           font-weight: bold; }
@@ -155,9 +157,11 @@ body {
             .divisions ul li.division ul li.pendingAthlete .score .value {
               color: #ccc; }
           .divisions ul li.division ul li.currentAthlete {
-            background: linear-gradient(to bottom, #666666 0%, #444444 100%); }
+            background: linear-gradient(to bottom, #666 0%, #444 100%); }
             .divisions ul li.division ul li.currentAthlete .name {
               color: #fff;
               font-weight: bold; }
             .divisions ul li.division ul li.currentAthlete .score .value {
               color: #fff; }
+
+/*# sourceMappingURL=division.css.map */

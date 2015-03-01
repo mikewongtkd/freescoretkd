@@ -131,6 +131,7 @@ $.widget( "freescore.scoreboard", {
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 
+		// ===== UPDATE THE JUDGES SCORES
 		for( var i = 0; i < k; i++ ) {
 			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k } );
 		}

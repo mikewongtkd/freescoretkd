@@ -16,6 +16,12 @@ cache:
 		touch $(CACHE)/$(TOURNAMENT)/$$i/progress.txt; \
 	done
 	chmod -R a+w $(CACHE)/$(TOURNAMENT)
+
+update:
+	./bin/update-db $(TOURNAMENT)
+
+tournament:
+	./bin/create-db $(TOURNAMENT)
 	
 clean:
 	umount $(CACHE)

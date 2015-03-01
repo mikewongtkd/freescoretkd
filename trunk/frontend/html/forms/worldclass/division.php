@@ -10,12 +10,12 @@
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.division.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.divisions.js"></script>
 	</head>
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).division( { server : '<?= $host ?>', tournament : '<?= $tournament ?>' });
+			$( '#division' ).divisions( { server : '<?= $host ?>', tournament : '<?= $tournament ?>' });
 		</script>
 	</body>
 </html>

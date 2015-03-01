@@ -27,13 +27,15 @@ body {
 		left: 0;
 		top: 0;
 		width: 580px;
-		height: 20px;
+		height: 40px;
 		padding: 0 0 16px 0;
 
 		input {
-			margin-left: 48px;
+			font-size: 14pt;
+			margin-left: 24px;
 			border-radius: 8px;
-			width: 500px;
+			width: 460px;
+			padding: 0 8px 0 8px;
 		}
 	}
 

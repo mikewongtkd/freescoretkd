@@ -4,6 +4,8 @@ use File::Find;
 my $tournament = shift;
 my $path       = "/Volumes/ramdisk/$tournament";
 
+die "Tournament not specified" unless $tournament;
+
 find( \&paths,     $path );
 find( \&divisions, $path );
 find( \&progress,  $path );
