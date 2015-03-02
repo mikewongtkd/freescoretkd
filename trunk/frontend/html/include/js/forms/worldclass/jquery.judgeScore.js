@@ -39,8 +39,8 @@ $.widget( "freescore.judgeScore", {
 				presentation : e.html.span .clone() .addClass( "presentation" ) .html( score.presentation )
 			};
 			var ignore = { 
-				accuracy     : o.max >= 5 && (defined( score.minacc ) || defined( score.maxacc )),
-				presentation : o.max >= 5 && (defined( score.minpre ) || defined( score.maxpre ))
+				accuracy     : o.max >= 5 && (score.minacc || score.maxacc),
+				presentation : o.max >= 5 && (score.minpre || score.maxpre)
 			};
 			if( ignore.accuracy     ) { span.accuracy     .addClass( "ignore-acc" ); } else { span.accuracy     .removeClass( "ignore-acc" ); }
 			if( ignore.presentation ) { span.presentation .addClass( "ignore-pre" ); } else { span.presentation .removeClass( "ignore-pre" ); }

@@ -8,14 +8,42 @@ our $test  = new FreeScore::Test();
 
 my $number = $test->worldclass( "judges" );
 my $judges = $number->{ judges } - 1;
-my $skill  = [ qw( good better best better best better ok good ok good ok better ok good best good better ok good better good good ) ];
+my $names  = [ 'Aditya', 'Anika', 'Piper', 'Alexander', 'Steven', 'Sofia', 'Christian', 'Jamsheed', 'Thibault', 'Yash', 'Sean C.', 'Sean O.', 'Sujatha', 'Jill', 'Mike', 'Carl', 'Veronika', 'Giovanni', 'Katrina', 'Cody', 'Kaylee', 'Jonathan' ];
+my $skill  = {
+	'Aditya'	=> 'good',
+	'Anika'		=> 'better',
+	'Piper'		=> 'best',
+	'Alexander'	=> 'better',
+	'Steven'	=> 'best',
+	'Sofia'		=> 'better',
+	'Christian'	=> 'ok',
+	'Jamsheed'	=> 'good',
+	'Thibault'	=> 'ok',
+	'Yash'		=> 'good',
+	'Sean C.'	=> 'ok',
+	'Sean O.'	=> 'better',
+	'Sujatha'	=> 'ok',
+	'Jill'		=> 'good',
+	'Mike'		=> 'best',
+	'Carl'		=> 'good',
+	'Veronika'	=> 'better',
+	'Giovanni'	=> 'ok',
+	'Katrina'	=> 'good',
+	'Cody'		=> 'better',
+	'Kaylee'	=> 'good',
+	'Jonathan'	=> 'good'
+};
+my $current = 0;
 
 foreach my $athlete ( 0 .. 21 ) {
 	foreach my $form ( 0 .. 1 ) {
-		score( $skill->[ $athlete ], $judges );
+		my $name  = $names->[ $current ];
+		my $level = $skill->{ $name };
+		score( $level, $judges );
 		$test->worldclass( "form/next" );
 	}
-	$test->worldclass( "athlete/next" );
+	$current = $test->worldclass( "athlete/next" );
+	$current = $current->{ athlete };
 
 	$test->worldclass( "display" );
 	sleep( 1 );
@@ -23,14 +51,18 @@ foreach my $athlete ( 0 .. 21 ) {
 }
 
 sleep( 3 );
-$test->worldclass( "round/next" );
+$current = $test->worldclass( "round/next" );
+$current = $current->{ athlete };
 
 foreach my $athlete ( 0 .. 10 ) {
 	foreach my $form ( 0 .. 1 ) {
-		score( 'better', $judges );
+		my $name  = $names->[ $current ];
+		my $level = $skill->{ $name };
+		score( $level, $judges );
 		$test->worldclass( "form/next" );
 	}
-	$test->worldclass( "athlete/next" );
+	$current = $test->worldclass( "athlete/next" );
+	$current = $current->{ athlete };
 
 	$test->worldclass( "display" );
 	sleep( 1 );
@@ -38,14 +70,18 @@ foreach my $athlete ( 0 .. 10 ) {
 }
 
 sleep( 3 );
-$test->worldclass( "round/next" );
+$current = $test->worldclass( "round/next" );
+$current = $current->{ athlete };
 
 foreach my $athlete ( 0 .. 7 ) {
 	foreach my $form ( 0 .. 1 ) {
-		score( 'best', $judges );
+		my $name  = $names->[ $current ];
+		my $level = $skill->{ $name };
+		score( $level, $judges );
 		$test->worldclass( "form/next" );
 	}
-	$test->worldclass( "athlete/next" );
+	$current = $test->worldclass( "athlete/next" );
+	$current = $current->{ athlete };
 
 	$test->worldclass( "display" );
 	sleep( 1 );
