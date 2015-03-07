@@ -50,7 +50,10 @@ $.widget( "freescore.scoreboard", {
 		var show_form_score = function( div ) {
 		// ============================================================
 			div.empty();
-			var grand_total = 0.0;
+			var grand_mean = 0.0;
+			var count      = 0;
+
+			// ===== SHOW ROUND FORMS
 			for( var i = 0; i <= current.form; i++ ) {
 				var name  = current.forms[ i ].name;
 				var score = current.athlete.scores[ current.round ][ i ];
@@ -58,7 +61,8 @@ $.widget( "freescore.scoreboard", {
 				if( ! defined( mean )) { continue; }
 				var total = (mean.accuracy + mean.presentation).toFixed( 2 );
 				total = total == 'NaN' ? '' : total;
-				grand_total += parseFloat( total );
+				grand_mean += parseFloat( total );
+				count++;
 				var form = {
 					display : e.html.div.clone() .addClass( "form" ),
 					name    : e.html.div.clone() .addClass( "name" ),
@@ -70,15 +74,17 @@ $.widget( "freescore.scoreboard", {
 				form.display.css( "left", (i * 220) + 20 );
 				div.append( form.display );
 			}
+
+			// ===== SHOW MEAN FOR ALL FORMS
 			var form = {
 				display : e.html.div.clone() .addClass( "form" ),
 				name    : e.html.div.clone() .addClass( "name" ),
 				score   : e.html.div.clone() .addClass( "score" )
 			};
-			if( isNaN( grand_total )) { grand_total = ''; }
-			else                      { grand_total = grand_total.toFixed( 2 ); }
-			form.name.html( "Current Total" );
-			form.score.html( grand_total );
+			if( isNaN( grand_mean )) { grand_mean = ''; }
+			else                     { grand_mean = (grand_mean / count).toFixed( 2 ); }
+			form.name.html( "Average" );
+			form.score.html( grand_mean );
 			form.display.append( form.name, form.score );
 			form.display.css( "left", 460 );
 			div.append( form.display );

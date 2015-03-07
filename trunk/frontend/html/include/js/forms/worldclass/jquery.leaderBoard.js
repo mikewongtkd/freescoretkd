@@ -50,7 +50,7 @@ $.widget( "freescore.leaderboard", {
 			var name       = html.div.clone() .addClass( "name" ) .html( 'Name' );
 			var form1      = html.div.clone() .addClass( "form1" ) .html( 'Form&nbsp;1' );
 			var form2      = html.div.clone() .addClass( "form2" ) .html( 'Form&nbsp;2' );
-			var score      = html.div.clone() .addClass( "score" ) .html( 'Total' );
+			var score      = html.div.clone() .addClass( "score" ) .html( 'Average' );
 
 			entry.append( name, form1, form2, score, medal );
 			e.placement.append( entry );
