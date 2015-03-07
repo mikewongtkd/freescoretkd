@@ -60,7 +60,7 @@ $.widget( "freescore.leaderboard", {
 				var forms      = athlete.scores[ o.division.round ];
 				var athlete    = placement.athletes[ i ];
 				var notes      = defined( athlete.notes ) ? athlete.notes : '';
-				var total      = forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ).toFixed( 2 );
+				var total      = (forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / forms.length).toFixed( 2 );
 				var entry      = html.div.clone() .addClass( "athlete" );
 				var name       = html.div.clone() .addClass( "name" ) .html( athlete.name );
 				var form1      = defined( forms[ 0 ] ) ? html.div.clone() .addClass( "form1" ) .html( forms[ 0 ].adjusted_mean.total.toFixed( 2 )) : '';
