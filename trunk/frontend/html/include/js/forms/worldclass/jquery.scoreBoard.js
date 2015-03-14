@@ -81,13 +81,14 @@ $.widget( "freescore.scoreboard", {
 				name    : e.html.div.clone() .addClass( "name" ),
 				score   : e.html.div.clone() .addClass( "score" )
 			};
-			if( isNaN( grand_mean )) { grand_mean = ''; }
-			else                     { grand_mean = (grand_mean / count).toFixed( 2 ); }
-			form.name.html( "Average" );
-			form.score.html( grand_mean );
-			form.display.append( form.name, form.score );
-			form.display.css( "left", 460 );
-			div.append( form.display );
+			if( ! isNaN( grand_mean ) && count != 0 ) {
+				grand_mean = (grand_mean / count).toFixed( 2 );
+				form.name.html( "Average" );
+				form.score.html( grand_mean );
+				form.display.append( form.name, form.score );
+				form.display.css( "left", 460 );
+				div.append( form.display );
+			}
 
 			return div;
 		};
