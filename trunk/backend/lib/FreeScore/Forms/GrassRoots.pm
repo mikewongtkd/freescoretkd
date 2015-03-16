@@ -5,15 +5,6 @@ use FreeScore::Forms::GrassRoots::Division;
 use base qw( FreeScore::Forms );
 
 # ============================================================
-sub checksum {
-# ============================================================
-	my $tournament  = shift;
-	my $ring        = shift;
-
-	return FreeScore::Forms::checksum( $tournament, "forms-grassroots", $ring );
-}
-
-# ============================================================
 sub init {
 # ============================================================
 	my $self       = shift;

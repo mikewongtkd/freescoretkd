@@ -25,39 +25,44 @@ print "Cache-Control: no-cache\n\n";
 
 my $eol      = "\r\n";
 
-# ===== INITIAL DATA
-try {
-	my $data = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
-	unbless( $data );
-	my $id = time();
-	my $update = $json->canonical->encode( $data );
-	$update =~ s/"(-?\d+(?:\.\d+)?)"/\1/g; # Convert strings of real numbers to real numbers
+# ===== SEND INITIAL DATA
+my $id     = time();
+my $update = update( $tournament, $ring, $judge );
 
-	print "id: $id$eol";
-	print "data: $update$eol$eol";
-
-} catch {
-	$data = { error => $_ };
-};
+print "id: $id$eol";
+print "data: $update$eol$eol";
 
 # ===== MONITOR FOR CHANGES
 UPDATE: while( 1 ) {
 
+	$watcher->wait( sub {
+		$id     = time();
+		$update = update( $tournament, $ring, $judge );
+
+		print "id: $id$eol";
+		print "data: $update$eol$eol";
+	});
+}
+
+# ============================================================
+sub update {
+# ============================================================
+	my $tournament = shift;
+	my $ring       = shift;
+	my $judge      = shift;
+	my $update     = undef;
+	my $data       = undef;
+
 	try {
-		$watcher->wait( sub {
-			$id = time();
-			$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
-			$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
-			unbless( $data );
-		});
+		$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
+		$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
+		unbless( $data );
 
 	} catch {
 		$data = { error => $_ };
 	};
-	my $update = $json->canonical->encode( $data );
+	$update = $json->canonical->encode( $data );
 	$update =~ s/"(-?\d+(?:\.\d+)?)"/\1/g; # Convert strings of real numbers to real numbers
 
-	print "id: $id$eol";
-	print "data: $update$eol$eol";
+	return $update;
 }

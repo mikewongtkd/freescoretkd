@@ -220,9 +220,6 @@ sub write {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
 	close FILE;
-
-	my $checksum_file = $self->{ file }; $checksum_file =~ s/\.txt$/.chk/;
-	`md5 -q $self->{ file } > $checksum_file`;
 }
 
 # ============================================================

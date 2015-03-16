@@ -17,9 +17,6 @@ cache:
 	done
 	chmod -R a+w $(CACHE)/$(TOURNAMENT)
 
-update:
-	./bin/update-db $(TOURNAMENT)
-
 tournament:
 	./bin/create-db $(TOURNAMENT)
 	

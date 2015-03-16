@@ -70,23 +70,6 @@ sub load_all {
 }
 
 # ============================================================
-sub write_checksum {
-# ============================================================
-	my $path        = shift;
-	my $progress    = "$path/progress.txt";
-	my $progress_cs = "$path/progress.chk";
-
-	my @divisions  = ();
-	opendir DIR, $path or die "Can't open directory '$path' $!";
-	my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
-	closedir DIR;
-	push @divisions, sort keys %assigned;
-	my $divisions = join " ", map { my $checksum_file = "$path/div.$_.chk"; -e $checksum_file ? $checksum_file : (); } @divisions;
-
-	my $checksum = `cat $progress $divisions | md5 -q > $progress_cs`;
-}
-
-# ============================================================
 sub write {
 # ============================================================
 	my $self = shift;
@@ -100,28 +83,6 @@ sub write {
 		}
 	}
 	close FILE;
-
-	write_checksum( $self->{ path } );
-}
-
-# ============================================================
-sub checksum {
-# ============================================================
-	my $tournament  = shift;
-	my $subdir      = shift;
-	my $ring        = shift;
-	my $path        = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring );
-	my $progress    = "$path/progress.txt";
-	my $progress_cs = "$path/progress.chk";
-	my $checksum    = undef;
-
-	# ===== PREPARE CHECKSUM IF IT DOESN'T ALREADY EXIST
-	write_checksum( $path ) if( ! -e $progress_cs );
-
-	$checksum = `cat $progress_cs`;
-	chomp $checksum;
-
-	return $checksum;
 }
 
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }
