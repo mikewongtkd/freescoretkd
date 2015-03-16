@@ -14,15 +14,15 @@ $.widget( "freescore.deductions", {
 		var controller = o.controller;
 		var label      = e.label  = html.div.clone() .addClass( "label" ) .html( o.value == 0.1 ? "Minor Deductions" : "Major Deductions" );
 		var view       = e.view   = html.div.clone() .addClass( "view" ) .html( o.count );
-		var remove     = e.remove = html.div.clone() .html( "Remove" );
-		var add        = e.add    = html.div.clone() .html( "Add" );
+		var remove     = e.remove = html.div.clone();
+		var add        = e.add    = html.div.clone();
 
 		if( o.value == 0.1 ) {
-			remove .addClass( "button-small remove-minor" );
-			add    .addClass( "button-large add-minor" );
+			remove .addClass( "button-small remove-minor" ) .html( "Remove" );
+			add    .addClass( "button-large add-minor" )    .html( "Add Minor" );
 		} else {
-			remove .addClass( "button-small remove-major" );
-			add    .addClass( "button-large add-major" );
+			remove .addClass( "button-small remove-major" ) .html( "Remove" );
+			add    .addClass( "button-large add-major" )    .html( "Add Major" );
 		}
 
 		widget.append( label, remove, view, add );

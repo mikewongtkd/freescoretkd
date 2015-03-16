@@ -1,0 +1,65 @@
+
+.divisions {
+	position: relative;
+	font-family: Optima;
+
+	.list {
+		position: absolute;
+		left:  0;
+		top:   0;
+		width: 200px;
+
+		.location {
+			font-family: Optima-Bold;
+			font-size: 12pt;
+			height: 20px;
+			width: 180px;
+			border: 2px solid #333;
+			padding: 8px;
+			margin-bottom: 4px;
+		}
+		.division {
+			font-family: HelveticaNeue-CondensedBold;
+			font-size: 10pt;
+			height: 20px;
+			width: 168px;
+			line-height: 14.4pt;
+			color: #333;
+			border: 2px solid #333;
+			padding: 8px 8px 8px 20px;
+			margin-bottom: 4px;
+		}
+	}
+
+	.athletes {
+		position: absolute;
+		left:  220px;
+		top:   0;
+		width: 200px;
+		display: none;
+
+		.athlete {
+			font-family: Optima;
+			font-size: 12pt;
+			height: 20px;
+			width: 196px;
+			border: 2px solid #333;
+			padding: 8px;
+			margin-bottom: 4px;
+		}
+	}
+
+	.arrow {
+		position: absolute;
+		width:  0;
+		height: 0;
+
+		border-top: 20px solid transparent;
+		border-bottom: 20px solid transparent;
+		border-right: 20px solid #333;
+	}
+
+	// background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+	// background: linear-gradient(to top, #45484d 0%,#000000 100%);
+}
+

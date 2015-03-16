@@ -22,6 +22,7 @@ sub init {
 	my $subdir     = "forms-worldclass";
 
 	if( defined $ring ) { 
+		# ===== LOAD THE DIVISIONS IN THE SPECiFiED RING
 		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
@@ -30,14 +31,15 @@ sub init {
 		}
 
 	} else { 
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+		# ==== LOAD THE DIVISIONS IN STAGING
+		$self->{ path } = sprintf( "%s/%s/%s/staging", $FreeScore::PATH, $tournament, $subdir ); 
 		my ($divisions, $rings) = $self->load_all();
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
 			push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
 		}
 
-		# ===== LOAD EACH RING
+		# ===== LOAD THE DIVISIONS IN EACH RING
 		foreach my $ring (@$rings) {
 			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );

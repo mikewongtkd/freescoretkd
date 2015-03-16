@@ -64,6 +64,8 @@ sub load_all {
 	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } @contents;
 	my @rings     = map { /^ring(\d+)$/;       } grep { /^ring\d+$/       } @contents;
 
+	unshift @rings, "staging";
+
 	return ([ @divisions ], [ @rings ]);
 }
 
