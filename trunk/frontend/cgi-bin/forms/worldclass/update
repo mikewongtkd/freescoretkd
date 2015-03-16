@@ -4,6 +4,7 @@ use CGI;
 use Time::HiRes qw( usleep );
 use JSON::XS;
 use Data::Structure::Util qw( unbless );
+use Filesys::Notify::Simple;
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::WorldClass;
@@ -14,6 +15,7 @@ my $ring       = shift || $cgi->param( 'ring' )  || $cgi->cookie( 'ring' );
 my $judge      = shift || $cgi->param( 'judge' ) || $cgi->cookie( 'judge' );
 my $role       =          $cgi->param( 'role' )  || $cgi->cookie( 'role' );
 my $json       = new JSON::XS();
+my $watcher    = new Filesys::Notify::Simple( [ "/Volumes/ramdisk/$tournament/forms-worldclass" ] );
 
 $judge -= 1;
 
@@ -22,22 +24,34 @@ print "Content-Type: text/event-stream\n";
 print "Cache-Control: no-cache\n\n";
 
 my $eol      = "\r\n";
-my $last     = undef;
-my $checksum = undef;
 
+# ===== INITIAL DATA
+try {
+	my $data = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
+	unbless( $data );
+	my $id = time();
+	my $update = $json->canonical->encode( $data );
+	$update =~ s/"(-?\d+(?:\.\d+)?)"/\1/g; # Convert strings of real numbers to real numbers
+
+	print "id: $id$eol";
+	print "data: $update$eol$eol";
+
+} catch {
+	$data = { error => $_ };
+};
+
+# ===== MONITOR FOR CHANGES
 UPDATE: while( 1 ) {
-	my $data   = undef;
-	my $id     = time();
-
-	usleep( 125000 );
 
 	try {
-		$checksum = FreeScore::Forms::WorldClass::checksum( $tournament, $ring );
-		next UPDATE if( defined $checksum && $checksum eq $last );
+		$watcher->wait( sub {
+			$id = time();
+			$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
+			$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
+			unbless( $data );
+		});
 
-		$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
-		$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
-		unbless( $data );
 	} catch {
 		$data = { error => $_ };
 	};
@@ -46,5 +60,4 @@ UPDATE: while( 1 ) {
 
 	print "id: $id$eol";
 	print "data: $update$eol$eol";
-	$last = $checksum;
 }

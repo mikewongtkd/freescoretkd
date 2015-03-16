@@ -46,6 +46,7 @@ $.widget( "freescore.divisions", {
 
 		function refresh( update ) {
 			var tournament = JSON.parse( update.data );
+			console.log( tournament );
 			e.list.empty();
 			var locations = { 'staging' : [] };
 			for( var i = 0; i < tournament.divisions.length; i++ ) {
@@ -62,7 +63,7 @@ $.widget( "freescore.divisions", {
 			}
 		};
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db + '&ring=');
+		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
 	},
 });
