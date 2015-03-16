@@ -76,11 +76,8 @@ sub write {
 
 	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
 	foreach my $key (sort keys %$self) {
-		if ($key =~ /^divisions$/ ) {
-			print FILE "# $key=" . join( ",", map { $_->{ name } } @{ $self->{ divisions }}) . "\n";
-		} else {
-			print FILE "# $key=$self->{ $key }\n";
-		}
+		next if ($key =~ /^(?:divisions|file|path)$/ );
+		print FILE "# $key=$self->{ $key }\n";
 	}
 	close FILE;
 }
