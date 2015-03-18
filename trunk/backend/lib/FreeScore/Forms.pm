@@ -57,14 +57,12 @@ sub load_all {
 	my $self = shift;
 	
 	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
-	my @contents = readdir DIR;
+	my @rings     = map { /^ring(\d+)$/;       } grep { /^ring\d+$/       } readdir DIR;
 	closedir DIR;
 
-	# ===== FIND ALL DIVISIONS AND RINGS
-	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } @contents;
-	my @rings     = map { /^ring(\d+)$/;       } grep { /^ring\d+$/       } @contents;
-
-	unshift @rings, "staging";
+	opendir DIR, "$self->{ path }/staging" or die "Can't open directory '$self->{ path }/staging' $!";
+	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
+	closedir DIR;
 
 	return ([ @divisions ], [ @rings ]);
 }

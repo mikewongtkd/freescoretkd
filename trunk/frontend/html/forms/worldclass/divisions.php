@@ -1,4 +1,10 @@
-<?php include( "../../include/php/config.php" ); ?>
+<?php 
+	$an_hour_ago = time() - 3600;
+	setcookie( 'judge', '', $an_hour_ago, '/' );
+	setcookie( 'role',  '', $an_hour_ago, '/' );
+	setcookie( 'ring',  '', $an_hour_ago, '/' );
+	include( "../../include/php/config.php" ); 
+?>
 <html>
 	<head>
 		<title>World Class Divisions</title>

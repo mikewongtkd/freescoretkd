@@ -3,6 +3,7 @@ use FreeScore;
 use FreeScore::Forms;
 use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
+use Data::Dumper;
 
 # ============================================================
 sub init {
@@ -23,11 +24,13 @@ sub init {
 
 	} else { 
 		# ==== LOAD THE DIVISIONS IN STAGING
-		$self->{ path } = sprintf( "%s/%s/%s/staging", $FreeScore::PATH, $tournament, $subdir ); 
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
 		my ($divisions, $rings) = $self->load_all();
-		$self->{ divisions } = [];
+		my $loaded = [];
 		foreach my $id (@$divisions) {
-			push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+			my $division = new FreeScore::Forms::WorldClass::Division( "$self->{ path }/staging", $id );
+			$division->{ ring } = 'staging';
+			push @$loaded, 
 		}
 
 		# ===== LOAD THE DIVISIONS IN EACH RING
@@ -35,9 +38,12 @@ sub init {
 			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );
 			foreach my $id (@$ring_divisions) {
-				push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id, $ring );
+				my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+				$division->{ ring } = int( $ring );
+				push @$loaded, $division;
 			}
 		}
+		$self->{ divisions } = $loaded;
 
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 

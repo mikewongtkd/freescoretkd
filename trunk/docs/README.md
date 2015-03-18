@@ -19,6 +19,7 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
   - Data::Structure::Util
   - Date::Calc;
   - Digest::MD5
+  - Filesys::Notify::Simple
   - JSON::XS
   - Mojolicious
   - Time::HiRes
