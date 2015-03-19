@@ -11,9 +11,13 @@
       font-size: 12pt;
       height: 20px;
       width: 180px;
-      border: 2px solid #333;
-      padding: 8px;
-      margin-bottom: 4px; }
+      background: #ccc;
+      padding: 6px 8px 6px 8px;
+      border-top: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #333;
+      border-left: 1px solid #999;
+      margin-top: 4px; }
     .divisions .list .division {
       font-family: HelveticaNeue-CondensedBold;
       font-size: 10pt;
@@ -21,23 +25,46 @@
       width: 168px;
       line-height: 14.4pt;
       color: #333;
-      border: 2px solid #333;
-      padding: 8px 8px 8px 20px;
-      margin-bottom: 4px; }
+      padding: 2px 8px 2px 20px;
+      background: #ddd;
+      border-top: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #333;
+      border-left: 1px solid #999; }
   .divisions .athletes {
     position: absolute;
     left: 220px;
     top: 0;
     width: 200px;
     display: none; }
+    .divisions .athletes ul {
+      list-style-type: none; }
+    .divisions .athletes li {
+      padding: 0;
+      margin: 0; }
+    .divisions .athletes .division {
+      font-family: Optima-Bold;
+      font-size: 12pt;
+      height: 20px;
+      width: 190px;
+      background: #ccc;
+      padding: 6px 8px 6px 8px;
+      border-top: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      border-bottom: 1px solid #333;
+      border-left: 1px solid #999;
+      margin-top: 4px; }
     .divisions .athletes .athlete {
       font-family: Optima;
       font-size: 12pt;
       height: 20px;
       width: 196px;
-      border: 2px solid #333;
-      padding: 8px;
-      margin-bottom: 4px; }
+      padding: 2px 8px 2px 2px;
+      background: #ddd;
+      border-top: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #333;
+      border-left: 1px solid #999; }
   .divisions .arrow {
     position: absolute;
     width: 0;

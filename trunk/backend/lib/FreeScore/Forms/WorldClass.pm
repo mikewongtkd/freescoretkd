@@ -19,7 +19,9 @@ sub init {
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
-			push @{ $self->{ divisions }}, new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id, $ring );
+			my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+			$division->{ ring } = int( $ring );
+			push @{ $self->{ divisions }}, $division;
 		}
 
 	} else { 
@@ -30,7 +32,7 @@ sub init {
 		foreach my $id (@$divisions) {
 			my $division = new FreeScore::Forms::WorldClass::Division( "$self->{ path }/staging", $id );
 			$division->{ ring } = 'staging';
-			push @$loaded, 
+			push @$loaded, $division;
 		}
 
 		# ===== LOAD THE DIVISIONS IN EACH RING

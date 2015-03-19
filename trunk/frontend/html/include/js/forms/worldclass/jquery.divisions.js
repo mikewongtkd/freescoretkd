@@ -1,4 +1,3 @@
-// Depends on jquery.judgeScore.js
 
 $.widget( "freescore.divisions", {
 	options: { autoShow: true, },
@@ -19,13 +18,27 @@ $.widget( "freescore.divisions", {
 		var o       = this.options;
 		var html    = e.html;
 
-		var addDivisionList = function( athletes ) {
+		var addDivisionList = function( division ) {
+			var athletes = division.athletes;
+			var description = html.div.clone() .addClass( "division" ).html( division.description );
 			e.athletes.empty();
+			e.athletes.append( description );
+			var list = html.ul.clone();
+			list.sortable();
+			var icon = "<span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span>";
 			for( var i = 0; i < athletes.length; i++ ) {
-				var athlete = athletes[ i ];
-				var display = html.div.clone() .addClass( "athlete" ) .html( athlete.name );
-				e.athletes.append( display );
+				var athlete = { 'data' : athletes[ i ] };
+				athlete.view = html.li.clone() .addClass( "athlete" ) .html( icon + athlete.data.name );
+				list.append( athlete.view );
 			}
+			e.athletes.append( list );
+		}
+
+		var callback = function( division ) {
+			return function() {
+				addDivisionList( division );
+				e.athletes.show(); 
+			};
 		}
 
 		var addLocation = function( name, divisions ) {
@@ -33,21 +46,16 @@ $.widget( "freescore.divisions", {
 			title.html( name );
 			e.list.append( title );
 			for( var i = 0; i < divisions.length; i++ ) {
-				var division = divisions[ i ];
-				var listing = html.div.clone() .addClass( "division" );
-				listing.html( division.name.toUpperCase() + " " + division.description );
-				listing.click( function() { 
-					addDivisionList( division.athletes );
-					e.athletes.show(); 
-				} );
-				e.list.append( listing );
+				var division = { 'data' : divisions[ i ] };
+				division.view = html.div.clone() .addClass( "division" );
+				division.view.html( division.data.name.toUpperCase() + " " + division.data.description );
+				var handleClick = callback( division.data );
+				division.view.click( handleClick );
+				e.list.append( division.view );
 			}
 		}
 
-		function refresh( update ) {
-			var tournament = JSON.parse( update.data );
-			console.log( tournament );
-			e.list.empty();
+		var get_divisions = function( tournament ) {
 			var locations = { 'staging' : [] };
 			for( var i = 0; i < tournament.divisions.length; i++ ) {
 				var division = tournament.divisions[ i ];
@@ -55,6 +63,14 @@ $.widget( "freescore.divisions", {
 				if( ! defined( locations[ ring ] )) { locations[ ring ] = []; }
 				locations[ ring ].push( division );
 			}
+			return locations;
+		};
+
+		function refresh( update ) {
+			var tournament = JSON.parse( update.data );
+			e.list.empty();
+			var locations = get_divisions( tournament );
+
 			addLocation( "Staging", locations[ 'staging' ] );
 			for( var ring in locations ) {
 				if( ring == 'staging' ) { continue; }
