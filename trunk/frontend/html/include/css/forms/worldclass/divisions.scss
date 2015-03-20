@@ -45,8 +45,18 @@
 		width: 200px;
 		display: none;
 
-		ul { list-style-type: none; }
-		li { padding: 0; margin: 0; }
+		ul { 
+			list-style-type: none; 
+			padding: 0; 
+			margin: 0; 
+		}
+		li { 
+			padding: 0; 
+			margin: 0; 
+			span {
+				display: inline-block;
+			}
+		}
 
 		.division {
 			font-family: Optima-Bold;
@@ -63,8 +73,8 @@
 		}
 
 		.athlete {
-			font-family: Optima;
-			font-size: 12pt;
+			font-family: HelveticaNeue-Thin;
+			font-size: 10pt;
 			height: 20px;
 			width: 196px;
 			padding: 2px 8px 2px 2px;
@@ -81,9 +91,9 @@
 		width:  0;
 		height: 0;
 
-		border-top: 20px solid transparent;
-		border-bottom: 20px solid transparent;
-		border-right: 20px solid #333;
+		border-top: 16px solid transparent;
+		border-bottom: 16px solid transparent;
+		border-right: 24px solid #999;
 	}
 
 	// background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);

@@ -38,10 +38,14 @@
     width: 200px;
     display: none; }
     .divisions .athletes ul {
-      list-style-type: none; }
+      list-style-type: none;
+      padding: 0;
+      margin: 0; }
     .divisions .athletes li {
       padding: 0;
       margin: 0; }
+      .divisions .athletes li span {
+        display: inline-block; }
     .divisions .athletes .division {
       font-family: Optima-Bold;
       font-size: 12pt;
@@ -55,8 +59,8 @@
       border-left: 1px solid #999;
       margin-top: 4px; }
     .divisions .athletes .athlete {
-      font-family: Optima;
-      font-size: 12pt;
+      font-family: HelveticaNeue-Thin;
+      font-size: 10pt;
       height: 20px;
       width: 196px;
       padding: 2px 8px 2px 2px;
@@ -69,8 +73,8 @@
     position: absolute;
     width: 0;
     height: 0;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-right: 20px solid #333; }
+    border-top: 16px solid transparent;
+    border-bottom: 16px solid transparent;
+    border-right: 24px solid #999; }
 
 /*# sourceMappingURL=divisions.css.map */
