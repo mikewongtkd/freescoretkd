@@ -9,6 +9,7 @@ $.widget( "freescore.divisions", {
 		var list     = e.list     = html.div.clone() .addClass( "list" );
 		var athletes = e.athletes = html.div.clone() .addClass( "athletes" );
 		var arrow    = e.arrow    = html.div.clone() .addClass( "arrow" );
+		athletes.hide();
 		arrow.hide();
 		
 		this.element .addClass( "divisions" );
@@ -31,7 +32,7 @@ $.widget( "freescore.divisions", {
 				o.reorder = [];
 				list.children().each( function( index ) { o.reorder[ $( this ).prop( "order" ) ] = index; } );
 				console.log( o.reorder ); 
-				// REST call to reorder
+				// To complete this function, make a REST call to reorder
 			} );
 			for( var i = 0; i < athletes.length; i++ ) {
 				var athlete = { 'data' : athletes[ i ] };
@@ -43,7 +44,7 @@ $.widget( "freescore.divisions", {
 			e.athletes.append( list );
 		}
 
-		var callback = function( division ) {
+		var divisionClickHandler = function( division ) {
 			return function() {
 				addDivisionList( division.data );
 				var position = division.view.offset();
@@ -56,41 +57,60 @@ $.widget( "freescore.divisions", {
 			};
 		}
 
-		var addLocation = function( name, divisions ) {
+		var addRing = function( name, divisions ) {
+			var ring  = { view : html.div.clone(), 'divisions' : html.ul.clone() .attr( 'id', name ) };
 			var title = html.div.clone() .addClass( "location" );
 			title.html( name );
-			e.list.append( title );
+			ring.view.append( title );
+			ring.view.append( ring.divisions );
+			var oldList, newList, item;
+			ring.divisions.sortable({ 
+				connectWith : $( '.location ul' ),
+				start : function( ev, ui ) {
+					item = ui.item;
+					newList = oldList = ui.item.parent();
+				},
+				stop  : function( ev, ui ) {
+					console.log("Moved " + item.text() + " from " + oldList.attr('id') + " to " + newList.attr('id'));	
+				}, 
+				change: function( ev, ui ) {
+					if( ui.sender ) {
+						newList = ui.placeholder.parent();
+					}
+				}
+			});
 			for( var i = 0; i < divisions.length; i++ ) {
-				var division = { 'data' : divisions[ i ] };
-				division.view = html.div.clone() .addClass( "division" );
+				var division = { data : divisions[ i ] };
+				division.view = html.li.clone();
 				division.view.html( division.data.name.toUpperCase() + " " + division.data.description );
-				var handleClick = callback( division );
+				var handleClick = divisionClickHandler( division );
 				division.view.click( handleClick );
-				e.list.append( division.view );
+				ring.divisions.append( division.view );
 			}
+			e.list.append( ring.view );
 		}
 
 		var get_divisions = function( tournament ) {
-			var locations = { 'staging' : [] };
+			var divisions = { staging : [] };
 			for( var i = 0; i < tournament.divisions.length; i++ ) {
 				var division = tournament.divisions[ i ];
 				var ring     = division.ring;
-				if( ! defined( locations[ ring ] )) { locations[ ring ] = []; }
-				locations[ ring ].push( division );
+				if( ! defined( divisions[ ring ] )) { divisions[ ring ] = []; }
+				divisions[ ring ].push( division );
 			}
-			return locations;
+			return divisions;
 		};
 
 		function refresh( update ) {
 			var tournament = JSON.parse( update.data );
 			e.list.empty();
-			var locations = get_divisions( tournament );
+			var divisions = get_divisions( tournament );
 
-			addLocation( "Staging", locations[ 'staging' ] );
-			for( var ring in locations ) {
+			addRing( "Staging", divisions[ 'staging' ] );
+			for( var ring in divisions ) {
 				if( ring == 'staging' ) { continue; }
-				var divisions = locations[ ring ];
-				addLocation( "Ring " + ring, divisions );
+				var divisions = divisions[ ring ];
+				addRing( "Ring " + ring, divisions );
 			}
 		};
 

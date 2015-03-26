@@ -1,4 +1,10 @@
 
+body {
+	background: black;
+	background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%);
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
+}
+
 .divisions {
 	position: relative;
 	font-family: Optima;
@@ -22,7 +28,14 @@
 			border-left: 1px solid #999;
 			margin-top: 4px;
 		}
-		.division {
+
+		ul { 
+			list-style-type: none; 
+			padding: 0; 
+			margin: 0; 
+		}
+
+		li {
 			font-family: HelveticaNeue-CondensedBold;
 			font-size: 10pt;
 			height: 20px;
@@ -43,7 +56,6 @@
 		left:  220px;
 		top:   0;
 		width: 200px;
-		display: none;
 
 		ul { 
 			list-style-type: none; 
@@ -93,7 +105,7 @@
 
 		border-top: 16px solid transparent;
 		border-bottom: 16px solid transparent;
-		border-right: 24px solid #999;
+		border-right: 24px solid #eee;
 	}
 
 	// background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
