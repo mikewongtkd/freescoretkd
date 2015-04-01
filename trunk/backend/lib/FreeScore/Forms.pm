@@ -37,7 +37,7 @@ sub load_ring {
 	}
 
 	my @divisions = ();
-	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
+	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
 	my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
 	closedir DIR;
 
@@ -56,11 +56,11 @@ sub load_all {
 # ============================================================
 	my $self = shift;
 	
-	opendir DIR, $self->{ path } or die "Can't open directory '$self->{ path }' $!";
+	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
 	my @rings     = map { /^ring(\d+)$/;       } grep { /^ring\d+$/       } readdir DIR;
 	closedir DIR;
 
-	opendir DIR, "$self->{ path }/staging" or die "Can't open directory '$self->{ path }/staging' $!";
+	opendir DIR, "$self->{ path }/staging" or die "Database Read Error: Can't open directory '$self->{ path }/staging' $!";
 	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
 	closedir DIR;
 
@@ -72,7 +72,7 @@ sub write {
 # ============================================================
 	my $self = shift;
 
-	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
+	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	foreach my $key (sort keys %$self) {
 		next if ($key =~ /^(?:divisions|file|path)$/ );
 		print FILE "# $key=$self->{ $key }\n";

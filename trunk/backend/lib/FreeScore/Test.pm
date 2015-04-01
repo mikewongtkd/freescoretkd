@@ -63,7 +63,7 @@ sub get {
 	if( $response->is_success ) {
 		return $self->{ json }->decode( $response->decoded_content );
 	} else {
-		die "Failed to get a response for command '$url'; " . $response->status_line;
+		die "Network Error: Failed to get a response for command '$url'; " . $response->status_line;
 	}
 }
 

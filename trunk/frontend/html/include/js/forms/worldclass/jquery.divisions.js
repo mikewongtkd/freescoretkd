@@ -48,8 +48,8 @@ $.widget( "freescore.divisions", {
 			return function() {
 				addDivisionList( division.data );
 				var position = division.view.offset();
-				var x        = position.left + division.view.width() + 20;
-				var y        = position.top + (division.view.height()/2) - 22;
+				var x        = position.left + division.view.width();
+				var y        = position.top + (division.view.height()/2) - 18;
 				e.arrow.css( "left", x );
 				e.arrow.css( "top", y );
 				e.arrow.show();
@@ -87,6 +87,9 @@ $.widget( "freescore.divisions", {
 				division.view.click( handleClick );
 				ring.divisions.append( division.view );
 			}
+			var division = { view : html.li.clone() };
+			ring.divisions.append( division.view );
+
 			e.list.append( ring.view );
 		}
 

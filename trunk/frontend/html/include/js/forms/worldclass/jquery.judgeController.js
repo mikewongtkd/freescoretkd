@@ -67,7 +67,7 @@ $.widget( "freescore.judgeController", {
 
 		score.append( accuracy, presentation, athlete );
 		views.append( flipToBack, score, matPosition );
-		controls.append( label, rhythm, power, ki, send );
+		controls.append( label, power, rhythm, ki, send );
 
 		controllers.append( major, controls, minor );
 

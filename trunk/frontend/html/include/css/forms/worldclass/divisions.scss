@@ -53,9 +53,11 @@ body {
 
 	.athletes {
 		position: absolute;
-		left:  220px;
+		left:  200px;
 		top:   0;
-		width: 200px;
+		width: 400px;
+		border-radius: 16px;
+		border: 8px solid #333;
 
 		ul { 
 			list-style-type: none; 
@@ -73,22 +75,20 @@ body {
 		.division {
 			font-family: Optima-Bold;
 			font-size: 12pt;
-			height: 20px;
-			width: 190px;
+			height: 80px;
 			background: #ccc;
 			padding: 6px 8px 6px 8px;
 			border-top: 1px solid #ddd;
 			border-right: 1px solid #ddd;
 			border-bottom: 1px solid #333;
 			border-left: 1px solid #999;
-			margin-top: 4px;
+			border-radius: 16px 16px 0 0;
 		}
 
 		.athlete {
 			font-family: HelveticaNeue-Thin;
 			font-size: 10pt;
 			height: 20px;
-			width: 196px;
 			padding: 2px 8px 2px 2px;
 			background: #ddd;
 			border-top: 1px solid #ccc;
@@ -103,9 +103,9 @@ body {
 		width:  0;
 		height: 0;
 
-		border-top: 16px solid transparent;
-		border-bottom: 16px solid transparent;
-		border-right: 24px solid #eee;
+		border-top: 13px solid transparent;
+		border-bottom: 13px solid transparent;
+		border-right: 24px solid #333;
 	}
 
 	// background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);

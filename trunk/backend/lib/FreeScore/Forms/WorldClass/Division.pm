@@ -227,7 +227,7 @@ sub read {
 	$self->{ round }   = 'finals';
 
 	my $athlete = {};
-	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
+	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
 		next if /^\s*$/;
@@ -269,7 +269,7 @@ sub read {
 			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
 
 		} else {
-			die "Unknown line type '$_'\n";
+			die "Database Read Error: Unknown line type '$_'\n";
 		}
 	}
 	push @{ $self->{ athletes }}, $athlete if( $athlete->{ name } );
@@ -404,7 +404,7 @@ sub write {
 		push @pending, "$round:" . join( ",", @{$self->{ pending }{ $round }} );
 	}
 
-	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
+	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# form=$self->{ form }\n";
@@ -553,8 +553,8 @@ sub select_round_scores {
 	my $round = shift;
 	my $type  = shift;
 
-	die "Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
-	die "Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
+	die "Division Object Error: Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
+	die "Division Object Error: Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
 	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
 
 	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };

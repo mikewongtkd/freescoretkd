@@ -13,7 +13,7 @@ sub read {
 	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
 	$self->{ round }  = 'fin';
 
-	open FILE, $self->{ file } or die "Can't read '$self->{ file }' $!";
+	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
 		next if /^\s*$/;
@@ -206,7 +206,7 @@ sub write {
 	my $places = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
 	$self->{ state } = 'tiebreaker' if( exists $self->{ tied } && $self->{ state } eq 'score');
 
-	open FILE, ">$self->{ file }" or die "Can't write '$self->{ file }' $!";
+	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# round=$self->{ round }\n" if exists $self->{ round };
