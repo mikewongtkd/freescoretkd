@@ -83,6 +83,13 @@ body {
 			border-bottom: 1px solid #333;
 			border-left: 1px solid #999;
 			border-radius: 16px 16px 0 0;
+
+			input[type=text] {
+				border: none;
+				background: transparent;
+				font-family: Optima-Bold;
+				font-size: 12pt;
+			}
 		}
 
 		.athlete {
@@ -95,6 +102,15 @@ body {
 			border-right: 1px solid #ccc;
 			border-bottom: 1px solid #333;
 			border-left: 1px solid #999;
+
+			input[type=text] {
+				border: none;
+				background: transparent;
+				font-family: HelveticaNeue-Thin;
+				font-size: 10pt;
+				width: 360px;
+			}
+
 		}
 	}
 

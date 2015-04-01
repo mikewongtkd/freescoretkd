@@ -23,9 +23,19 @@ $.widget( "freescore.divisions", {
 
 		var addDivisionList = function( division ) {
 			var athletes = division.athletes;
-			var description = html.div.clone() .addClass( "division" ).html( division.description );
+			var header = { view : html.div.clone() .addClass( "division" ) };
+			header.name        = html.text.clone();
+			header.description = html.text.clone();
+			header.judges      = html.select.clone();
+			header.judges.append( html.option.clone() .attr( "value", "3" ) .html( "3" ) );
+			header.judges.append( html.option.clone() .attr( "value", "5" ) .html( "5" ) );
+			header.judges.append( html.option.clone() .attr( "value", "7" ) .html( "7" ) );
+			header.judges.attr( "selected", division.judges );
+			header.name        .attr( "value", division.name.toUpperCase() ) .attr( "placeholder", "ID" ) .css( "width", "60px" );
+			header.description .attr( "value", division.description ) .attr( "placeholder", "Division Description" ) .css( "width", "320px" );
+			header.view.append( header.name, header.description, "Judges: ", header.judges );
 			e.athletes.empty();
-			e.athletes.append( description );
+			e.athletes.append( header.view );
 			var list = html.ul.clone();
 			list.sortable({ axis : 'y' });
 			list.on( "sortstop", function( ev, ui ) {  
@@ -41,6 +51,10 @@ $.widget( "freescore.divisions", {
 				athlete.view = html.li.clone() .addClass( "athlete" ) .prop( "order", i ) .append( icon, name );
 				list.append( athlete.view );
 			}
+			var icon    = html.span.clone() .addClass( "ui-icon" ) .addClass( "ui-icon-arrowthick-2-n-s" )
+			var name    = html.text.clone() .attr( "placeholder", "New Athlete's Name" );
+			athlete.view = html.li.clone() .addClass( "athlete" ) .prop( "order", athletes.length ) .append( icon, name );
+			list.append( athlete.view );
 			e.athletes.append( list );
 		}
 
