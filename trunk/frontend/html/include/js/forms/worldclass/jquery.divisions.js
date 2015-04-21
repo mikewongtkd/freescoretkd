@@ -8,7 +8,7 @@ $.widget( "freescore.divisions", {
 		var html     = e.html     = FreeScore.html;
 		var list     = e.list     = html.div.clone() .attr( "data-role", "collapsible-set" );
 		
-		this.element .addClass( "divisions" );
+		this.element .attr( "data-role", "content" ) .addClass( "divisions" );
 		this.element .append( list );
 	},
 
@@ -31,14 +31,25 @@ $.widget( "freescore.divisions", {
 		};
 
 		/* ============================================================ */
-		function addRing( i, divisions ) {
+		function addRing( i, divs ) {
 		/* ============================================================ */
-			var ring  = { data : divisions, view : html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-collapsed", "false" ), title : html.h3.clone() };
+			var ring = { divisions : divs, view : html.div.clone() .attr( "data-role", "collapsible" ), title : html.h4.clone(), list : html.ul.clone() .attr( "data-role", "listview" ), count : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) };
 			if( i == 'staging' ) { ring.title.html( 'Staging' ); }
 			else                 { ring.title.html( 'Ring ' + i ); }
-			ring.view.append( ring.title );
 
-			for( var division in divisions ) {
+			ring.count.html( ring.divisions.length );
+
+			ring.view.append( ring.title );
+			ring.view.append( ring.list );
+			ring.title.append( ring.count );
+
+			for( var i in ring.divisions ) {
+				var division = ring.divisions[ i ];
+				var view  = html.li.clone();
+				var name  = html.a.clone() .attr( "href", "/freescore" ) .html( division.name.toUpperCase() + " " + division.description );
+				var count = html.span.clone() .addClass( "ui-li-count" ) .html( division.athletes.length );
+				view.append( name, count );
+				ring.list.append( view );
 			}
 
 			e.list.append( ring.view );
@@ -55,7 +66,6 @@ $.widget( "freescore.divisions", {
 
 			for( var i in rings ) {
 				var divisions = rings[ i ];
-				console.log( divisions );
 				o.rings.push( addRing( i, divisions ));
 			}
 		};
