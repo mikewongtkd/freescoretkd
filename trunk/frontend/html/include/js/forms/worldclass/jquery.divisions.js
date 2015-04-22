@@ -5,11 +5,16 @@ $.widget( "freescore.divisions", {
 		var o = this.options;
 		var e = this.options.elements = {};
 
-		var html     = e.html     = FreeScore.html;
-		var list     = e.list     = html.div.clone() .attr( "data-role", "collapsible-set" );
+		var html      = e.html      = FreeScore.html;
+		var rings     = e.rings     = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" );
+		var list      = e.list      = html.ul.clone() .attr( "data-role", "listview" );
+		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
+		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
+
+		rings.append( list );
 		
 		this.element .attr( "data-role", "content" ) .addClass( "divisions" );
-		this.element .append( list );
+		this.element .append( rings, ring_divs, div_edit );
 	},
 
 	_init: function() {
@@ -17,9 +22,9 @@ $.widget( "freescore.divisions", {
 		var o       = this.options;
 		var html    = e.html;
 
-		/* ============================================================ */
+		// ============================================================
 		var get_rings = function( tournament ) {
-		/* ============================================================ */
+		// ============================================================
 			var rings = { staging : [] };
 			for( var i = 0; i < tournament.divisions.length; i++ ) {
 				var division = tournament.divisions[ i ];
@@ -30,35 +35,87 @@ $.widget( "freescore.divisions", {
 			return rings;
 		};
 
-		/* ============================================================ */
+		// ============================================================
 		function addRing( i, divs ) {
-		/* ============================================================ */
-			var ring = { divisions : divs, view : html.div.clone() .attr( "data-role", "collapsible" ), title : html.h4.clone(), list : html.ul.clone() .attr( "data-role", "listview" ), count : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) };
-			if( i == 'staging' ) { ring.title.html( 'Staging' ); }
-			else                 { ring.title.html( 'Ring ' + i ); }
+		// ============================================================
+			var ring = { 
+				divisions : divs, 
+				listitem  : html.li.clone(),
+				link      : html.a.clone(),
+				count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
+			};
+			if( i == 'staging' ) { ring.link.html( 'Staging' ); }
+			else                 { ring.link.html( 'Ring ' + i ); }
 
-			ring.count.html( ring.divisions.length );
+			ring.link.attr( "href", "#ring_divisions?ring=" + i ) .attr( "data-transition", "slide" );
+			ring.link.append( ring.count );
 
-			ring.view.append( ring.title );
-			ring.view.append( ring.list );
-			ring.title.append( ring.count );
+			ring.count.html( ring.divisions.length + " Divisions" );
+			if( ring.divisions.length == 1 ) { ring.count.html( "1 Division" ); }
+			else { ring.count.html( ring.divisions.length + " Divisions" ); }
+			ring.listitem.append( ring.link );
 
-			for( var i in ring.divisions ) {
-				var division = ring.divisions[ i ];
-				var view  = html.li.clone();
-				var name  = html.a.clone() .attr( "href", "/freescore" ) .html( division.name.toUpperCase() + " " + division.description );
-				var count = html.span.clone() .addClass( "ui-li-count" ) .html( division.athletes.length );
-				view.append( name, count );
-				ring.list.append( view );
-			}
-
-			e.list.append( ring.view );
+			e.list.append( ring.listitem );
+			e.list.listview( "refresh" );
 			return ring;
 		}
 
-		/* ============================================================ */
+		// ============================================================
+		function showRing( i ) {
+		// ============================================================
+			var ring = o.rings[ (i - 1) ];
+			var list = html.ul.clone() .attr( "data-role", "listview" );
+			var page = e.ring_divs;
+
+			page.empty();
+			list.empty();
+			page.append( list );
+
+			var back = { 
+				listitem  : html.li.clone() .attr( 'data-icon', 'carat-l' ), 
+				link      : html.a.clone(),
+			};
+			if( i == 'staging' ) { back.link.html( 'Staging' ); }
+			else                 { back.link.html( 'Ring ' + i ); }
+			back.link.attr( "href", "#rings" ) .attr( "data-transition", "slide" ) .attr( "data-direction", "reverse" );
+			back.listitem.append( back.link );
+			list.append( back.listitem );
+
+			for( var j in ring.divisions ) {
+				var division = { 
+					data      : ring.divisions[ j ], 
+					listitem  : html.li.clone(), 
+					link      : html.a.clone(),
+					count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
+				};
+				division.link.html( division.data.name.toUpperCase() + " " + division.data.description );
+				division.link.attr( "href", "#division_editor?ring=" + i ) .attr( "data-transition", "slide" );
+				division.link.append( division.count );
+
+				if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
+				else { division.count.html( division.data.athletes.length + " Athletes" ); }
+				division.listitem.append( division.link );
+
+				list.append( division.listitem );
+			}
+			list.listview().listview( "refresh" );
+		}
+
+		// ============================================================
+		function parsePageUrl( pageUrl ) {
+		// ============================================================
+			var anchor = $.url( pageUrl ).attr( "anchor" );
+			var args   = anchor.split( '?' );
+			var option = $.url( anchor ).param();
+
+			option[ 'id' ] = args[ 0 ];
+
+			return option;
+		}
+
+		// ============================================================
 		function refresh( update ) {
-		/* ============================================================ */
+		// ============================================================
 			var tournament = JSON.parse( update.data );
 			e.list.empty();
 			o.rings = [];
@@ -69,6 +126,16 @@ $.widget( "freescore.divisions", {
 				o.rings.push( addRing( i, divisions ));
 			}
 		};
+
+		// ============================================================
+		// Behavior
+		// ============================================================
+		this.element.on( "pagebeforechange", function( ev, data ) {
+			if( ! defined( data.absUrl )) { return; }
+			var option  = parsePageUrl( data.absUrl );
+
+			if( option.id == "ring_divisions" ) { showRing( option.ring ); }
+		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
