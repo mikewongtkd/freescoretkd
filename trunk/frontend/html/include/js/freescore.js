@@ -11,6 +11,7 @@ var FreeScore = {
 	html : { 
 		a      : $( "<a />" ), 
 		div    : $( "<div />" ), 
+		form   : $( "<form />" ), 
 		h1     : $( "<h1 />" ), 
 		h2     : $( "<h2 />" ), 
 		h3     : $( "<h3 />" ), 
@@ -21,6 +22,7 @@ var FreeScore = {
 		ol     : $( "<ol />" ), 
 		option : $( "<option />" ), 
 		p      : $( "<p />" ), 
+		search : $( "<input type=\"search\" />" ), 
 		select : $( "<select />" ), 
 		span   : $( "<span />" ), 
 		table  : $( "<table />" ), 

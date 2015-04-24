@@ -16,12 +16,13 @@
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.divisions.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.divisionEditor.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).divisions( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
+			$( '#division' ).divisionEditor( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

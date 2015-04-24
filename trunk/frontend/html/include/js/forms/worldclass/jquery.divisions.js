@@ -61,9 +61,16 @@ $.widget( "freescore.divisions", {
 		}
 
 		// ============================================================
+		function showEditor( i, division ) {
+		// ============================================================
+			var ring = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
+			var page = e.div_edit;
+		}
+
+		// ============================================================
 		function showRing( i ) {
 		// ============================================================
-			var ring = o.rings[ (i - 1) ];
+			var ring = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
 			var list = html.ul.clone() .attr( "data-role", "listview" );
 			var page = e.ring_divs;
 
@@ -72,7 +79,7 @@ $.widget( "freescore.divisions", {
 			page.append( list );
 
 			var back = { 
-				listitem  : html.li.clone() .attr( 'data-icon', 'carat-l' ), 
+				listitem  : html.li.clone() .attr( 'data-icon', 'carat-l' ) .attr( "data-theme", "b" ), 
 				link      : html.a.clone(),
 			};
 			if( i == 'staging' ) { back.link.html( 'Staging' ); }
@@ -81,23 +88,39 @@ $.widget( "freescore.divisions", {
 			back.listitem.append( back.link );
 			list.append( back.listitem );
 
-			for( var j in ring.divisions ) {
-				var division = { 
-					data      : ring.divisions[ j ], 
-					listitem  : html.li.clone(), 
-					link      : html.a.clone(),
-					count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
-				};
-				division.link.html( division.data.name.toUpperCase() + " " + division.data.description );
-				division.link.attr( "href", "#division_editor?ring=" + i ) .attr( "data-transition", "slide" );
-				division.link.append( division.count );
+			if( defined( ring )) {
+				for( var j in ring.divisions ) {
+					var division = { 
+						data      : ring.divisions[ j ], 
+						listitem  : html.li.clone(), 
+						link      : html.a.clone(),
+						count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
+					};
+					division.link.html( division.data.name.toUpperCase() + " " + division.data.description );
+					division.link.attr( "href", "#division_editor?ring=" + i + "&division=" + j ) .attr( "data-transition", "slide" );
+					division.link.append( division.count );
 
-				if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
-				else { division.count.html( division.data.athletes.length + " Athletes" ); }
-				division.listitem.append( division.link );
+					if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
+					else { division.count.html( division.data.athletes.length + " Athletes" ); }
+					division.listitem.append( division.link );
 
-				list.append( division.listitem );
+					list.append( division.listitem );
+				}
 			}
+
+			var add = { 
+				listitem  : html.li.clone(),
+				link      : html.a.clone(),
+			};
+			add.link .append( "Add Division" );
+			add.link
+				.attr( "href",            "#division_editor?ring=" + i )
+				.attr( "data-transition", "slide"                      )
+				.addClass( "ui-btn ui-btn-icon-left ui-icon-plus" );
+			add.listitem.append( add.link );
+			list.append( add.listitem );
+
+
 			list.listview().listview( "refresh" );
 		}
 
@@ -121,6 +144,38 @@ $.widget( "freescore.divisions", {
 			o.rings = [];
 			var rings = get_rings( tournament );
 
+			var header = {
+				listitem : html.li.clone() .attr( "data-theme", "b" ),
+				name     : html.span.clone() .html( defined( o.tournament.name ) ? o.tournament.name : "World Class Poomsae" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ),
+				app      : html.span.clone() .html( defined( o.tournament.name ) ? "World Class Poomsae" : "" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ) .css( "margin-left", "8px" ) .css( "color", "#999" ),
+				search   : {
+					view   : html.div.clone()
+								.css( "float", "right" ),
+
+					input  : html.search.clone() 
+								.addClass( "search-box" ) 
+								.attr( "name", "search" ) 
+								.attr( "placeholder", "Search for athlete name or division description" ) 
+								.attr( "data-type", "search" )
+								.css( "width", "360px" )
+								.css( "margin", "2px 16px 0 0" )
+								.css( "border-radius", "24px" )
+								.css( "float", "left" ),
+
+					button : html.a.clone()
+								.attr( "href", "#" )
+								.addClass( "ui-btn ui-icon-search ui-btn-icon-right" )
+								.html( "Search" )
+								.css( "border-radius", "24px" )
+								.css( "float", "left" )
+								.css( "margin", "0" )
+								.css( "font-size", "9pt" )
+				}
+			};
+			header.search.view.append( header.search.input, header.search.button );
+			header.listitem.append( header.name, header.app, header.search.view );
+			
+			e.list.append( header.listitem );
 			for( var i in rings ) {
 				var divisions = rings[ i ];
 				o.rings.push( addRing( i, divisions ));
@@ -134,7 +189,8 @@ $.widget( "freescore.divisions", {
 			if( ! defined( data.absUrl )) { return; }
 			var option  = parsePageUrl( data.absUrl );
 
-			if( option.id == "ring_divisions" ) { showRing( option.ring ); }
+			if      ( option.id == "ring_divisions"  ) { showRing( option.ring ); }
+			else if ( option.id == "division_editor" ) { showEditor( option.ring, option.division ); }
 		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
