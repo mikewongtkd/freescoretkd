@@ -1,5 +1,5 @@
 <?php
-	$host = "freescore.net";
+	$host = "192.168.1.109";
 	$tournament = json_encode( [ 
 		"name" => "UC Open 2015",
 		"db" => "tma-2015-spring", 

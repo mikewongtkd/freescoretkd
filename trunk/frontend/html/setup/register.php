@@ -5,7 +5,7 @@
 <html>
 	<head>
 		<link href="../include/css/setup/register.css" rel="stylesheet" />
-		<script src="../include/jquery/js/jQuery.js"></script>
+		<script src="../include/jquery/js/jquery.js"></script>
 		<script src="../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../include/jquery/js/jquery.purl.js"></script>

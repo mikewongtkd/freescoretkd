@@ -10,7 +10,7 @@
 		<title>World Class Divisions</title>
 		<link href="../../include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/divisions.css" rel="stylesheet" />
-		<script src="../../include/jquery/js/jQuery.js"></script>
+		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/js/freescore.js"></script>

@@ -9,7 +9,7 @@
 	<head>
 		<link href="../../include/css/forms/worldclass/worldclassApp.css" rel="stylesheet" />
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
-		<script src="../../include/jquery/js/jQuery.js"></script>
+		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
