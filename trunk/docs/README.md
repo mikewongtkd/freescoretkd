@@ -16,6 +16,11 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
 - PHP
 - Perl
   - CGI
+    - Test::Warn
+    - Test::Deep
+      - Test::NoWarnings
+      - Test::Tester
+        - YAML
   - Data::Structure::Util
   - Date::Calc;
   - Digest::MD5
@@ -24,7 +29,6 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
   - Mojolicious
   - Time::HiRes
   - Try::Tiny
-  - YAML
 - Server Sent Events (SSE)
 - AJAX
 
@@ -103,9 +107,77 @@ Situations:
 Disable sleep.
 
     Settings > Apps > Development > Stay Awake
+    Settings > Device > Display > Screen timeout
 
 ##### Apple iPad
 Disable sleep.
 
     Settings > General > Autolock > Never
     
+## Raspberry Pi
+
+A stand-alone FreeScore system can be installed on to a Raspberry Pi.
+
+### Current prototype
+
+username: pi
+password: freescore
+
+### On first SSH
+    
+1. raspi-config
+2. Install ramdisk
+3. Install apache/PHP
+4. Install perl modules
+
+#### Installing the ramdisk
+At the terminal, type the following:
+
+    sudo su -
+    vi /etc/fstab
+
+Add following line to fstab:
+
+    stmpfs           /Volumes/ramdisk tmpfs   defaults,size=64M 0       0
+
+#### Installing Web Tools
+
+    sudo su -
+    aptitude update
+    apt-get install apache2 php5 -y
+
+#### Installing Development Tools 
+
+    sudo su -
+    apt-get install vim subversion -y
+
+#### Install Perl Modules
+
+	cpan
+    cpan> o conf prerequisites_policy 'follow'
+    cpan> o conf build_requires_install_policy yes
+    cpan> o conf commit
+
+    cpan install Test::Tester Test::Deep CGI Data::Structure::Util Date::Calc; Digest::MD5 Filesys::Notify::Simple JSON::XS Mojolicious Time::HiRes Try::Tiny YAML
+
+#### Get a Subversion Clone of FreeScore
+
+    svn co https://github.com/mikewongtkd/freescoretkd/trunk freescore
+
+#### Make Raspberry Pi a Wifi Access Point
+
+    apt-get install hostapd dnsmasq -y
+
+Set `/etc/hosts`
+
+    192.168.88.1	freescore.net www.freescore.net
+
+Set DNS server 192.168.88.1
+
+#### Clone SD Card Image
+
+    dd if=<SD card location> of=<Desired SD image file location> bs=1m
+
+Using `rdisk` is faster, rather than any mounted volume i.e.
+
+    dd if=/dev/rdisk<xyz> of=~/Desktop/freescore.sd.image

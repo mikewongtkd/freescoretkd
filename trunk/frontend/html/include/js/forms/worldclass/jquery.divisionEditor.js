@@ -61,7 +61,7 @@ $.widget( "freescore.divisionEditor", {
 			for( var i in o.division.athletes ) {
 				var athlete = { 
 					data     : o.division.athletes[ i ],
-					name     : html.text.clone(),
+					name     : html.span.clone(),
 					view     : html.div.clone(),
 					move     : html.div.clone(),
 					moveup   : html.a.clone(),
@@ -71,40 +71,47 @@ $.widget( "freescore.divisionEditor", {
 					listitem : html.li.clone() .attr( "data-icon", "ui-icon-user" ),
 				};
 
-
 				athlete.view
 					.css( "display", "inline-block" )
 					.css( "width", "95%" );
 
 				athlete.name
-					.css( "border", "0" )
 					.css( "font-weight", "bold" )
 					.css( "font-size", "14pt" )
-					.css( "margin-top", "10px" )
-					.attr( "value", athlete.data.name );
+					.css( "position", "absolute" )
+					.css( "top", "22px" )
+					.html( athlete.data.name );
 
 				athlete.move
 					.addClass( "ui-nodisc-icon" )
 					.css( "padding", "8px" )
-					.css( "background", "#eee" )
-					.css( "border-radius", "24px" )
 					.css( "margin-right", "24px" )
 					.css( "float", "left" );
 
+				var switchUp = i == 0 ? 0 : (i - 1);
 				athlete.moveup
 					.addClass( "ui-btn ui-icon-arrow-u ui-btn-icon-notext ui-btn-inline" )
+					.attr( "athlete", i )
+					.attr( "switch", switchUp )
 					.css( "margin", "0 1px 0 0" )
 					.css( "border-radius", "24px 0 0 24px" )
 					.css( "border", "0" )
-					.css( "background", "#999" )
-					.click( function( ev ) { console.log( ev ) } );
+					.css( "background", "#ccc" )
+					.click( function() { 
+						var i = $( this ).attr( "athlete" );
+						var j = $( this ).attr( "switch" );
+						console.log( "ajax call to swap " + i + " and " + j );
+					});
 
+				var switchDown = i == o.division.athletes.length ? o.divisions.athletes.length : (i + 1);
 				athlete.movedown
 					.addClass( "ui-btn ui-icon-arrow-d ui-btn-icon-notext ui-btn-inline" )
+					.attr( "athlete", i )
+					.attr( "switch", switchDown )
 					.css( "margin", "0 0 0 0" )
 					.css( "border-radius", "0 24px 24px 0" )
 					.css( "border", "0" )
-					.css( "background", "#999" )
+					.css( "background", "#ccc" )
 					.click( function( ev ) { console.log( ev ) } );
 
 				athlete.edit
