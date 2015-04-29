@@ -146,7 +146,7 @@ any '*command' => sub {
 	$self->render( json => { error => "Forms::WorldClass: Unknown command: $command" });
 };
 
-app->config( hypnotoad => { listen => [ 'http://*:3088' ]});
+app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid' });
 app->start();
 
 # ============================================================

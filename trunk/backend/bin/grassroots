@@ -202,5 +202,5 @@ any '*' => sub {
 	$self->render( text => 'Forms::Grassroots: Unknown command' );
 };
 
-app->config( hypnotoad => { listen => [ 'http://*:3080' ]});
+app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid' });
 app->start();
