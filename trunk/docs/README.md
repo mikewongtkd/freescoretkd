@@ -23,10 +23,13 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
         - YAML
   - Data::Structure::Util
   - Date::Calc;
-  - Digest::MD5
   - Filesys::Notify::Simple
+  - GD::Barcode
+    - GD
   - JSON::XS
+  - LWP::UserAgent
   - Mojolicious
+  - Text::CSV
   - Time::HiRes
   - Try::Tiny
 - Server Sent Events (SSE)
@@ -109,6 +112,13 @@ Disable sleep.
     Settings > Apps > Development > Stay Awake
     Settings > Device > Display > Screen timeout
 
+Enable Chrome Max Memory Allocation
+
+1. Launch Chrome
+2. Go to "chrome://flags/#max-tiles-for-interest-area"
+3. Select 512
+4. Restart Chrome
+
 ##### Apple iPad
 Disable sleep.
 
@@ -126,19 +136,16 @@ password: freescore
 ### On first SSH
     
 1. raspi-config
-2. Install ramdisk
+2. Install Development Tools
 3. Install apache/PHP
-4. Install perl modules
+4. Install ramdisk
+5. Install perl modules
+6. Install FreeScore
 
-#### Installing the ramdisk
-At the terminal, type the following:
+#### Installing Development Tools 
 
     sudo su -
-    vi /etc/fstab
-
-Add following line to fstab:
-
-    stmpfs           /Volumes/ramdisk tmpfs   defaults,size=64M 0       0
+    apt-get install vim subversion -y
 
 #### Installing Web Tools
 
@@ -146,10 +153,16 @@ Add following line to fstab:
     aptitude update
     apt-get install apache2 php5 -y
 
-#### Installing Development Tools 
+#### Installing the ramdisk
+At the terminal, type the following:
 
     sudo su -
-    apt-get install vim subversion -y
+    mkdir -p /Volumes/ramdisk
+    vim /etc/fstab
+
+Add following line to fstab:
+
+    tmpfs           /Volumes/ramdisk tmpfs   defaults,size=64M 0       0
 
 #### Install Perl Modules
 
@@ -157,8 +170,9 @@ Add following line to fstab:
     cpan> o conf prerequisites_policy 'follow'
     cpan> o conf build_requires_install_policy yes
     cpan> o conf commit
-
-    cpan install Test::Tester Test::Deep CGI Data::Structure::Util Date::Calc; Digest::MD5 Filesys::Notify::Simple JSON::XS Mojolicious Time::HiRes Try::Tiny YAML
+    cpan> install YAML Test::Tester Test::NoWarnings Test::Deep Test::Warn
+    cpan> install CGI CGI::Carp Data::Structure::Util Date::Calc Filesys::Notify::Simple
+    cpan> install GD GD::Barcode JSON::XS Mojolicious Time::HiRes Try::Tiny
 
 #### Get a Subversion Clone of FreeScore
 
@@ -172,7 +186,41 @@ Set `/etc/hosts`
 
     192.168.88.1	freescore.net www.freescore.net
 
-Set DNS server 192.168.88.1
+Edit `/etc/network/interfaces`. Comment out lines following 
+`allow-hotplug wlan0` and insert the following
+
+    iface wlan0 inet static
+    address 192.168.88.1
+    netmask 255.255.255.0
+
+edit `/etc/default/hostapd`; provide the below value for `DAEMON_CONF`.
+
+    DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+edit `/etc/hostapd/hostapd.conf`
+
+    interface=wlan0
+    driver=nl80211
+    ctrl_interface=/var/run/hostapd
+    ctrl_interface_group=0
+
+    ssid=freescore
+    hw_mode=g
+    channel=8
+    wpa=2
+    wpa_passphrase=3mfj1XAF
+    wpa_key_mgmt=WPA-PSK
+    wpa_pairwise=CCMP
+    rsn_pairwise=CCMP
+    beacon_int=100
+    auth_algs=3
+    wmm_enabled=1
+
+Test with `hostapd /etc/hostapd/hostapd.conf`
+
+edit `/etc/dnsmasq.conf`
+
+edit Apache Configuration; allow FollowSymLinks
 
 #### Clone SD Card Image
 
