@@ -24,9 +24,11 @@ get '/:tournament/:ring/judges' => sub {
 	my $division   = $progress->current();
 
 	try {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { error => $_ });
 	}
 };
@@ -42,9 +44,11 @@ get '/:tournament/:ring/division/next' => sub {
 	try {
 		$progress->next();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'current' => $progress->current() } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -60,9 +64,11 @@ get '/:tournament/:ring/division/previous' => sub {
 	try {
 		$progress->previous();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'current' => $progress->current() } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -83,9 +89,11 @@ get '/:tournament/:ring/display' => sub {
 	try {
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'state' => $division->{ state } } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -103,9 +111,11 @@ get '/:tournament/:ring/athlete/next' => sub {
 		$division->next();
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -123,9 +133,11 @@ get '/:tournament/:ring/athlete/previous' => sub {
 		$division->previous();
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -147,9 +159,11 @@ get '/:tournament/:ring/:judge/:score' => sub {
 	try {
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -173,16 +187,20 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 	try {
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
 
 any '*' => sub {
 	my $self = shift;
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 	$self->render( text => 'Forms::Grassroots: Unknown command' );
 };
 
-app->start( 'cgi' );
+app->config( hypnotoad => { listen => [ 'http://*:3080' ]});
+app->start();

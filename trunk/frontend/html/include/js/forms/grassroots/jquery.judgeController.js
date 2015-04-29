@@ -21,17 +21,17 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE NAVIGATION BUTTONS
 		// ============================================================
-		o.app = "forms/grassroots/rest";
-		var prevAthlete = e.prevAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'athlete',  app : o.app, command : 'athlete/previous',  label : 'Previous Athlete'  });
-		var prevDiv     = e.prevDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'division', app : o.app, command : 'division/previous', label : 'Previous Division' });
-		var nextDiv     = e.nextDiv     = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'division', app : o.app, command : 'division/next',     label : 'Next Division'     });
-		var nextAthlete = e.nextAthlete = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'athlete',  app : o.app, command : 'athlete/next',      label : 'Next Athlete'     });
+		var port = ':3080/';
+		var prevAthlete = e.prevAthlete = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'athlete',  command : 'athlete/previous',  label : 'Previous Athlete'  });
+		var prevDiv     = e.prevDiv     = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'division', command : 'division/previous', label : 'Previous Division' });
+		var nextDiv     = e.nextDiv     = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'division', command : 'division/next',     label : 'Next Division'     });
+		var nextAthlete = e.nextAthlete = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'athlete',  command : 'athlete/next',      label : 'Next Athlete'     });
 		e.navigation.append( prevAthlete, prevDiv, nextDiv, nextAthlete );
 
 		// ============================================================
 		// THE MODE BUTTONS
 		// ============================================================
-		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'mode',  app : o.app, command : 'display', label : 'Flip Display' });
+		var displayMode = e.displayMode = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'mode',  command : 'display', label : 'Flip Display' });
 
 		// ============================================================
 		// THE SCORE DROP-DOWN AND VOTE
@@ -42,8 +42,8 @@ $.widget( "freescore.judgeController", {
 		// ============================================================
 		// THE ACTION BUTTONS
 		// ============================================================
-		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action clear',  app : o.app, command : o.judge + '/-10', label : 'Clear' });
-		var sendButton  = e.sendButton  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, type : 'action send',  app : o.app, command : o.judge + '/80', label : 'Send'  });
+		var clearButton = e.clearButton = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'action clear', command : o.judge + '/-10', label : 'Clear' });
+		var sendButton  = e.sendButton  = html.div.clone() .ajaxbutton({ server : o.server, port : port, tournament : o.tournament.db, ring : o.ring, type : 'action send',  command : o.judge + '/80', label : 'Send'  });
 
 		o.vote  = e.vote.tiebreaker( 'option', 'vote' );
 		o.score = (e.score.spinwheel( 'option', 'selected' ) * 10) .toFixed( 0 );

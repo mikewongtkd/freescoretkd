@@ -34,7 +34,7 @@ $.widget( "freescore.judgeController", {
 		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Tempo', controller: this });
 		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',  controller: this });
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Ki', controller: this });
-		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : "forms/worldclass/rest", label : "Send", type : "send" })
+		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, label : "Send", type : "send" })
 
 		var command      = o.command      = function( judge, score ) {
 			var major  = (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
@@ -73,15 +73,14 @@ $.widget( "freescore.judgeController", {
 
 		front.append( views, controllers );
 
-		o.app = "forms/worldclass/rest";
 		var back         = e.back         = html.div.clone() .addClass( "back" );
 		var notes        = e.notes        = html.div.clone() .judgeNotes({ num : o.num });
 		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
-		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
-		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
-		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "division/previous", label : "Prev Division", type : "navigate prev division" });
-		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "division/next",     label : "Next Division", type : "navigate next division" });
-		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, tournament : o.tournament.db, ring : o.ring, app : o.app, command : "display",           label : "Leaderboard",   type : "navigate mode"          });
+		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
+		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
+		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/previous", label : "Prev Division", type : "navigate prev division" });
+		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/next",     label : "Next Division", type : "navigate next division" });
+		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "display",           label : "Leaderboard",   type : "navigate mode"          });
 
 		back.append( prevAthlete, nextAthlete, prevDivision, nextDivision, flipDisplay, notes, flipToFront );
 

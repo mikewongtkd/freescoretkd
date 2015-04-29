@@ -23,9 +23,11 @@ get '/:tournament/:ring/judges' => sub {
 	my $division   = $progress->current();
 
 	try {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'description' => 'Number of Judges', 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { error => $_ });
 	}
 };
@@ -71,9 +73,11 @@ get( '/:tournament/:ring/:object/:goto' => [
 		}
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'description' => 'Navigation', 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { error => $_ });
 	}
 });
@@ -94,9 +98,11 @@ get '/:tournament/:ring/display' => sub {
 	try {
 		$division->write();
 		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'description' => 'Update Display State', 'state' => $division->{ state } } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { error => $_ });
 	}
 };
@@ -124,9 +130,11 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 		$division->write();
 		$progress->write();
 		$division->update_status();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
 
 	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { error => $_ });
 	}
 };
@@ -134,11 +142,12 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 	$self->render( json => { error => "Forms::WorldClass: Unknown command: $command" });
 };
 
-
-app->start( 'cgi' );
+app->config( hypnotoad => { listen => [ 'http://*:3088' ]});
+app->start();
 
 # ============================================================
 sub get_score {

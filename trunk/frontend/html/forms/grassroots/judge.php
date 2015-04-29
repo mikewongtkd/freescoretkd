@@ -10,7 +10,7 @@
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/tiebreaker.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/judgeController.css">
 		<link rel="stylesheet" href="../../include/css/ajaxbutton.css">
-		<script src="../../include/jquery/js/jQuery.js"></script>
+		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
