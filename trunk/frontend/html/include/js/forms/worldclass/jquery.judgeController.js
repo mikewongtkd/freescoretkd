@@ -155,7 +155,13 @@ $.widget( "freescore.judgeController", {
 			}
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
-			if( division.current != o.current.athlete || division.form != o.current.form ) {
+			var different = { 
+				division : division.name    != o.current.divname,
+				athlete  : division.current != o.current.athlete,
+				form     : division.form    != o.current.form
+			}
+			
+			if( different.division || different.athlete || different.form ) {
 				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
 				var athlete    = division.athletes[ parseInt( division.current ) ];
 				var items      = [ 'Judge ' + (o.num + 1), division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, round_name[ division.round ], form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
@@ -177,6 +183,7 @@ $.widget( "freescore.judgeController", {
 			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
 
 			o.current.division = forms.current;
+			o.current.divname  = division.name;
 			o.current.athlete  = division.current;
 			o.current.form     = division.form;
 		};
