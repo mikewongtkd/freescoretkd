@@ -179,7 +179,10 @@ $.widget( "freescore.register", {
 
 					if( role.name == "Judge" ) {
 						role.dom.animate( { left: 200 }, 400, 'swing', function() {
-							var url = 'http://' + o.server + '/cgi-bin/freescore/forms/' + o.event.url + 'rest/' + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+							var port = ':3080';
+							if     ( o.event.url == "grassroots" ) { port = ':3080/'; }
+							else if( o.event.url == "worldclass" ) { port = ':3088/'; }
+							var url = 'http://' + o.server + port + '/' +  o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 							$.ajax( {
 								type:    'GET',
 								url:     url,
