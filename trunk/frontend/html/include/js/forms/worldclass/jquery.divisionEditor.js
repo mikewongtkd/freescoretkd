@@ -12,11 +12,22 @@ $.widget( "freescore.divisionEditor", {
 		var list      = e.list      = html.ol.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
 
 		var actions   = e.actions   = {
-			athlete : html.div.clone(),
+			athlete : html.text.clone(),
+			save    : html.a.clone(),
 			reset   : html.a.clone(),
 			remove  : html.a.clone(),
 			close   : html.a.clone(),
 		}
+
+		actions.athlete.on( "change", function( ev, ui ) {
+			o.current.name = actions.athlete.attr( "value" );
+		});
+
+		actions.save
+			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
+			.html( "Save" )
+			.attr( "href", "#list" )
+			.attr( "data-rel", "close" );
 
 		actions.reset
 			.addClass( "ui-btn ui-icon-back ui-btn-icon-left" )
@@ -40,7 +51,7 @@ $.widget( "freescore.divisionEditor", {
 			.attr( "data-display", "overlay" ) 
 			.attr( "data-theme", "b" ) 
 			.attr( "id", "edit-panel" )
-			.append( actions.athlete, actions.reset, actions.remove, actions.close );
+			.append( actions.athlete, actions.save, actions.reset, actions.remove, actions.close );
 		
 		division.append( edit, header, list );
 		this.element .append( division );
@@ -125,8 +136,10 @@ $.widget( "freescore.divisionEditor", {
 					.click( function( ev ) { 
 						var i = $( this ).attr( "athlete" ); 
 						var athlete = o.division.athletes[ i ];
+						console.log( athlete.name );
 						o.current = athlete;
-						e.actions.athlete.html( athlete.name ); e.edit.panel( "open" ); 
+						e.actions.athlete.attr( "value", athlete.name ); 
+						e.edit.panel( "open" ); 
 					});
 
 				athlete.move.append( athlete.moveup, athlete.movedown );
