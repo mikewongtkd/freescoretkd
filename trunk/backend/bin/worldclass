@@ -6,8 +6,6 @@ use Mojolicious::Lite;
 use YAML;
 use FreeScore::Forms::WorldClass;
 
-srand();
-
 # ============================================================
 # JUDGE INTERFACE
 # ============================================================
@@ -23,12 +21,10 @@ get '/:tournament/:ring/judges' => sub {
 	my $division   = $progress->current();
 
 	try {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { 'description' => 'Number of Judges', 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
+		send_response( $self, { 'description' => 'Number of Judges', 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { error => $_ });
+		send_response( $self, { error => $_ });
 	}
 };
 
@@ -73,12 +69,10 @@ get( '/:tournament/:ring/:object/:goto' => [
 		}
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { 'description' => 'Navigation', 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
+		send_response( $self, { 'description' => 'Navigation', 'division' => $division->{ name }, 'athlete' => $division->{ current }, 'state' => $division->{ state }, 'round' => $division->{ round }, 'form' => $division->{ form } });
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { error => $_ });
+		send_response( $self, { error => $_ });
 	}
 });
 
@@ -98,12 +92,10 @@ get '/:tournament/:ring/display' => sub {
 	try {
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { 'description' => 'Update Display State', 'state' => $division->{ state } } );
+		send_response( $self, { 'description' => 'Update Display State', 'state' => $division->{ state } } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { error => $_ });
+		send_response( $self, { error => $_ });
 	}
 };
 
@@ -130,22 +122,74 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 		$division->write();
 		$progress->write();
 		$division->update_status();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
+		send_response( $self, { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { error => $_ });
+		send_response( $self, { error => $_ });
 	}
 };
 
+# ============================================================
+# COORDINATOR INTERFACE
+# ============================================================
+
+# ------------------------------------------------------------
+# GET THE DIVISION TEXT DATA
+# ------------------------------------------------------------
+get '/:tournament/:ring/:div_index/text' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $div_index  = $self->param( 'div_index' );
+	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division   = $progress->{ divisions }[ $div_index ];
+
+	try {
+		my $content = '';
+		open FILE, $division->{ file } or die "Database Error: Can't read '$division->{ file }' $!";
+		while( <FILE> ) { $content .= $_; }
+		close FILE;
+		send_response( $self, { content => $content } );
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+post '/:tournament/:ring/:div_index/text' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $div_index  = $self->param( 'div_index' );
+	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division   = $progress->{ divisions }[ $div_index ];
+	my $content    = $self->req->body;
+
+	try {
+		open FILE, ">$division->{ file }" or die "Database Error: Can't write to '$division->{ file }' $!";
+		print FILE $content;
+		close FILE;
+		send_response( $self, { message => "Successfully wrote to $division->{ file }" } );
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+
+
+# ============================================================
+# ERROR TRAPPING
+# ============================================================
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-	$self->render( json => { error => "Forms::WorldClass: Unknown command: $command" });
+	send_response( $self, { error => "Forms::WorldClass: Unknown command: $command" });
 };
 
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
 app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid' });
 app->start();
 
@@ -160,3 +204,12 @@ sub get_score {
 	else                                     { $score /= 10;  }
 	return sprintf( "%.1f", $score );
 }
+
+# ============================================================
+sub send_response {
+# ============================================================
+	my $self = shift;
+	my $data = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => $data );
+};

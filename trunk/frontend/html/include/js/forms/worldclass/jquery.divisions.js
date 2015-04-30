@@ -9,7 +9,13 @@ $.widget( "freescore.divisions", {
 		var rings     = e.rings     = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" );
 		var list      = e.list      = html.ul.clone() .attr( "data-role", "listview" );
 		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
-		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
+		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" ) .attr( "data-dialog", "true" );
+		var editor    = e.editor    = {
+			link : html.a.clone() .addClass( "ui-btn ui-corner-all ui-icon-delete ui-btn-icon-right" ),
+			main : html.textarea.clone(),
+			set  : false
+		};
+		e.div_edit.append( editor.link, editor.main );
 
 		rings.append( list );
 		
@@ -39,6 +45,7 @@ $.widget( "freescore.divisions", {
 		function addRing( i, divs ) {
 		// ============================================================
 			var ring = { 
+				number    : i,
 				divisions : divs, 
 				listitem  : html.li.clone(),
 				link      : html.a.clone(),
@@ -61,10 +68,49 @@ $.widget( "freescore.divisions", {
 		}
 
 		// ============================================================
-		function showEditor( i, division ) {
+		function showEditor( i, divIndex ) {
 		// ============================================================
-			var ring = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
-			var page = e.div_edit;
+			var n        = o.rings.length;
+			var ring     = i == "staging" ? o.rings[ (n - 1) ] : o.rings[ (i - 1) ];
+			var division = ring.divisions[ divIndex ];
+			var page     = e.div_edit;
+			var port     = ':3088/';
+			var url      = 'http://' + o.server + port + o.tournament.db + '/' + i + '/' + divIndex + '/text';
+			$( "#division_editor" ) .attr( "ring", i );
+
+			var initialize_editor = function( response ) {
+				if( e.editor.set ) { return; };
+				e.editor.link.click( function() {
+					var editor = $( "#division_editor" );
+					var i      = editor.attr( "ring" );
+					jQuery.mobile.changePage( "#ring_divisions?ring=" + i, { transition : 'slide', reverse : true } );
+
+					$.ajax( {
+						type:    'POST',
+						url:     url,
+						data:    e.editor.codemirror.getValue(),
+						success: function( response ) { console.log( response ); },
+						error:   function( response ) { },
+					});
+
+					showRing( i );
+
+				});
+				e.editor.link.html( division.name.toUpperCase() + ' ' + division.description );
+				e.editor.main.html( response.content );
+				e.editor.codemirror = e.editor.main.codemirror( { mode : 'freescore', lineNumbers: true } );
+				e.div_edit.css( "top", "-10%" );
+				e.editor.set = true;
+
+			}
+
+			$.ajax( {
+				type:    'GET',
+				url:     url,
+				data:    {},
+				success: initialize_editor,
+				error:   function( response ) { },
+			});
 		}
 
 		// ============================================================
@@ -185,12 +231,14 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		// Behavior
 		// ============================================================
-		this.element.on( "pagebeforechange", function( ev, data ) {
+		this.element.on( "pagebeforetransition", function( ev, data ) {
 			if( ! defined( data.absUrl )) { return; }
 			var option  = parsePageUrl( data.absUrl );
 
 			if      ( option.id == "ring_divisions"  ) { showRing( option.ring ); }
 			else if ( option.id == "division_editor" ) { showEditor( option.ring, option.division ); }
+			e.editor.set = false;
+
 		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );

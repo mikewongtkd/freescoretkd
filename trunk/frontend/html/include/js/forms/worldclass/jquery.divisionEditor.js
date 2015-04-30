@@ -10,36 +10,43 @@ $.widget( "freescore.divisionEditor", {
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone();
 		var list      = e.list      = html.ol.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
+		var details   = e.details   = html.div.clone();
 
 		var actions   = e.actions   = {
-			athlete : html.text.clone(),
-			save    : html.a.clone(),
-			reset   : html.a.clone(),
-			remove  : html.a.clone(),
-			close   : html.a.clone(),
+			athlete : { 
+				name    : html.text.clone(),
+				save    : html.a.clone(),
+				reset   : html.a.clone(),
+				remove  : html.a.clone(),
+				close   : html.a.clone(),
+			},
+			division : {
+				name    : html.text.clone(),
+			}
 		}
 
-		actions.athlete.on( "change", function( ev, ui ) {
-			o.current.name = actions.athlete.attr( "value" );
+		actions.athlete.name.change( function( ev, ui ) {
+			var i = o.current;
+			console.log( "AJAX call to change athlete name" );
 		});
 
-		actions.save
+		actions.athlete.save
 			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
 			.html( "Save" )
 			.attr( "href", "#list" )
 			.attr( "data-rel", "close" );
 
-		actions.reset
+		actions.athlete.reset
 			.addClass( "ui-btn ui-icon-back ui-btn-icon-left" )
 			.html( "Clear Score" )
 			.click( function( ev ) { } );
 
-		actions.remove
+		actions.athlete.remove
 			.addClass( "ui-btn ui-icon-minus ui-btn-icon-left" )
 			.html( "Remove" )
 			.click( function( ev ) { } );
 
-		actions.close
+		actions.athlete.close
 			.addClass( "ui-btn ui-icon-delete ui-btn-icon-left" )
 			.html( "Cancel" )
 			.attr( "href", "#list" )
@@ -51,10 +58,12 @@ $.widget( "freescore.divisionEditor", {
 			.attr( "data-display", "overlay" ) 
 			.attr( "data-theme", "b" ) 
 			.attr( "id", "edit-panel" )
-			.append( actions.athlete, actions.save, actions.reset, actions.remove, actions.close );
-		
-		division.append( edit, header, list );
-		this.element .append( division );
+			.append( actions.athlete.name, actions.athlete.save, actions.athlete.reset, actions.athlete.remove, actions.athlete.close );
+
+		details  .attr( "data-role", "page" ) .attr( "data-dialog", "true" ) .attr( "id", "details" );
+		division .attr( "data-role", "page" ) .attr( "id", "division" );
+		division .append( edit, header, list );
+		this.element .append( division, details );
 	},
 
 	_init: function() {
@@ -68,6 +77,14 @@ $.widget( "freescore.divisionEditor", {
 			var tournament = JSON.parse( update.data );
 			o.division = tournament.divisions[ 2 ]; // MW
 
+			e.header.empty();
+			e.header.append( 
+				html.ul.clone() .attr( "data-role", "listview" ) .attr( "data-theme", "b" ) .append(
+					html.li.clone() .attr( "data-icon", "gear" ) .append(
+						html.a.clone() .attr( "href", "#details" ) .attr( "data-transition", "slide" ) .html( o.division.name.toUpperCase() + ' ' + o.division.description )
+					)
+				) .listview() .listview( "refresh" )
+			);
 			e.list.empty();
 			for( var i in o.division.athletes ) {
 				var athlete = { 
@@ -137,8 +154,8 @@ $.widget( "freescore.divisionEditor", {
 						var i = $( this ).attr( "athlete" ); 
 						var athlete = o.division.athletes[ i ];
 						console.log( athlete.name );
-						o.current = athlete;
-						e.actions.athlete.attr( "value", athlete.name ); 
+						o.current = i;
+						e.actions.athlete.name.val( athlete.name ); 
 						e.edit.panel( "open" ); 
 					});
 

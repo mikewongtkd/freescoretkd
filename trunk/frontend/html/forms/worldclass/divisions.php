@@ -15,7 +15,9 @@
 		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/opt/codemirror-5.2/lib/codemirror.js"></script>
-		<script src="../../include/opt/codemirror-5.2/mode/freescore.js"></script>
+		<script src="../../include/opt/codemirror-5.2/keymap/vim.js"></script>
+		<script src="../../include/opt/codemirror-5.2/mode/freescore/freescore.js"></script>
+		<script src="../../include/jquery/js/jquery.codemirror.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.divisions.js"></script>
@@ -25,7 +27,7 @@
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).divisionEditor( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
+			$( '#division' ).divisions( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>
