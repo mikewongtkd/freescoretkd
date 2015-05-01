@@ -60,18 +60,22 @@ $.widget( "freescore.divisionDescriptor", {
 			},
 			format : function( ev ) {
 				var val = $( ev.target ).val();
+				age.empty();
+				var buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ), handle.age );
+				age.append( buttonGroup ).trigger( 'create' );
+				buttonGroup.controlgroup( "refresh" );
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
 			}
 		};
 
-		var format = addButtonGroup( "Event", [ "Individual", "Pair", "Team" ], handle.format );
-		var gender = addButtonGroup( "Gender", [ "Female", "Male" ], handle.gender );
-		var age    = addButtonGroup( "Age", [ "4-5", "6-7", "8-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40-49", "50-59", "60+" ], handle.age );
-		var rank   = addButtonGroup( "Rank", [ "Novice", "Intermediate", "Advanced", "Black Belt" ], handle.rank );
+		var format = e.format = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents(), handle.format ));
+		var gender = e.gender = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Gender", [ "Female", "Male" ], handle.gender ));
+		var age    = e.age    = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
+		var rank   = e.rank   = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
 
-		format.children( "input:radio#event-0" ).attr( "checked", true );
+		format.children().children( "input:radio#event-0" ).attr( "checked", true );
 
-		widget.append( [ format, gender, rank, age ].map( function( item ) { var div = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( item ); return div; }));
+		widget.append( format, gender, rank, age );
 	},
 	_init: function( ) {
 		var widget = this.element;

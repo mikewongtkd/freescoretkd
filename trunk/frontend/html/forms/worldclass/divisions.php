@@ -29,7 +29,7 @@
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).formSelector( { server : '<?= $host ?>', tournament : <?= $tournament ?>, rank : 'Black Belt', age : '40', athletes : 20 });
+			$( '#division' ).divisionDescriptor( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

@@ -9,25 +9,7 @@ $.widget( "freescore.formSelector", {
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
-		var allForms = [ 
-			'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 
-			'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 
-			'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu'
-		];
-		var forms = [];
-		if( o.rank != 'Black Belt'   ) { 
-			forms.push( allForms.splice( 0, 7 ));
-
-		} else {
-			var age = parseInt( o.age );
-			if( age <= 10 ) { forms = allForms.splice( 1, 8 ); } else
-			if( age == 12 ) { forms = allForms.splice( 2, 8 ); } else
-			if( age == 15 ) { forms = allForms.splice( 3, 8 ); } else
-			if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else
-			if( age <= 40 ) { forms = allForms.splice( 7, 8 ); } else
-			                { forms = allForms.splice( 8, 8 ); }
-		}
-
+		var forms = FreeScore.rulesUSAT.recognizedPoomsae( o.format, o.age, o.rank );
 		forms.unshift( 'None' );
 
 		// ============================================================
@@ -56,7 +38,18 @@ $.widget( "freescore.formSelector", {
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
-		var selected = {};
+		var reset    = function() {
+			for( var i in all ) {
+				var round = all[ i ];
+				var forms = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
+				for( var j in forms ) {
+					var button = $( forms[ j ] );
+					button .prop( "checked", false );
+					console.log( button, j );
+				}
+			}
+		};
+
 		var handle   = {
 			select : function( ev ) {
 				var val        = $( ev.target ).val();
@@ -84,6 +77,7 @@ $.widget( "freescore.formSelector", {
 			cancel : function( ev ) {
 			},
 			random : function( ev ) {
+				// ===== PICK A RANDOM FORM FOR EVERY ROUND
 				var randomPicks = [];
 				for( var i in all ) { 
 					var round        = all[ i ];
@@ -98,13 +92,13 @@ $.widget( "freescore.formSelector", {
 				}
 				randomPicks = randomPicks.sort( numeric );
 
+				// ===== CHECK THE RADIO BOXES
 				for( var i in all ) {
 					var round     = all[ i ];
 					var forms     = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
 					var pick      = randomPicks.shift();
 					var button    = $( forms[ pick ]);
-					var none      = $( forms[ 0 ] );
-					none   .prop( "checked", false ) .checkboxradio( "refresh" );
+					forms.filter( ":checked" ) .prop( "checked", false ) .checkboxradio( "refresh" );
 					button .prop( "checked", true  ) .checkboxradio( "refresh" );
 				}
 				getForms();

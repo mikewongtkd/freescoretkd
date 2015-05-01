@@ -35,6 +35,62 @@ var FreeScore = {
 		th       : $( "<th />" ), 
 		tr       : $( "<tr />" ), 
 		ul       : $( "<ul />" ), 
+	},
+	rulesUSAT : { 
+		// 2015 Rules, updated 5/1/2015
+
+		// ------------------------------------------------------------
+		poomsaeEvents : function() { return [ "Individual", "Pair", "Team" ]; },
+		// ------------------------------------------------------------
+
+		// ------------------------------------------------------------
+		ageGroups : function( format ) {
+		// ------------------------------------------------------------
+			if( format == 'Team' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40+" ]; } else
+			if( format == 'Pair' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40+" ]; } else
+			/* Individual */       { return [ "6-7", "8-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40-49", "50-59", "60-64", "65+" ]; }
+		},
+
+		// ------------------------------------------------------------
+		recognizedPoomsae : function( format, age, rank ) {
+		// ------------------------------------------------------------
+			var allForms = [ 
+				'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 
+				'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 
+				'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu'
+			];
+			var forms = [];
+			if( rank == 'Yellow'       ) { forms.push( allForms.splice( 0, 2 )); } else
+			if( rank == 'Green'        ) { forms.push( allForms.splice( 0, 4 )); } else
+			if( rank == 'Blue'         ) { forms.push( allForms.splice( 0, 5 )); } else
+			if( rank == 'Red'          ) { forms.push( allForms.splice( 0, 8 )); } else
+			{
+				var age = parseInt( age );
+				if( format == 'Team' ) {
+					if( age <=  9 ) { forms = allForms.splice( 1, 8 ); } else // Youth
+					if( age <= 11 ) { forms = allForms.splice( 2, 8 ); } else // Youth
+					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
+					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
+					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
+									{ forms = allForms.splice( 7, 8 ); }      // 1st Masters
+
+				} else if( format == 'Pair' ) {
+					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
+					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
+					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
+					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
+									{ forms = allForms.splice( 7, 8 ); }      // 1st Masters
+				} else { // Individiual
+					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
+					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
+					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
+					if( age <= 40 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
+					if( age <= 50 ) { forms = allForms.splice( 7, 8 ); } else // 1st Masters
+									{ forms = allForms.splice( 8, 8 ); }      // 2nd/3rd Masters
+				}
+			}
+			return forms;
+		},
 	}
 };
 String.prototype.capitalize = function() {
