@@ -65,10 +65,10 @@ $.widget( "freescore.divisionDescriptor", {
 			}
 		};
 
-		var format = e.format = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents(), handle.format ));
-		var gender = e.gender = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Gender", [ "Female", "Male" ], handle.gender ));
-		var age    = e.age    = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
-		var rank   = e.rank   = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
+		var format = e.format = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents(), handle.format ));
+		var gender = e.gender = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male" ], handle.gender ));
+		var age    = e.age    = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
+		var rank   = e.rank   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
 
 		format.find( "input:radio#event-0" ).attr( "checked", true );
 

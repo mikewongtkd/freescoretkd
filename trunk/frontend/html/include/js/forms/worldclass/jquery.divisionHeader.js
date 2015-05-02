@@ -6,13 +6,12 @@ $.widget( "freescore.divisionHeader", {
 		var e    = this.options.elements = {};
 		var html = e.html = FreeScore.html;
 
-		var description = e.description = html.div.clone() .attr( "data-role", "collapsible" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
-		var forms       = e.forms       = html.div.clone() .attr( "data-role", "collapsible" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
-		var judges      = e.judges      = html.div.clone() .attr( "data-role", "collapsible" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
-		var actions     = e.actions     = html.div.clone() .attr( "data-role", "collapsible" ) .append( html.h3.clone() .html( "Actions" ),                        html.div.clone() .prop( "id", "actionsWidget" ));
-		var accordian   = e.accordian   = html.div.clone() .attr( "data-role", "collapsibleset" );
+		var description = e.description = html.div.clone() .attr( "data-role", "collapsible" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
+		var forms       = e.forms       = html.div.clone() .attr( "data-role", "collapsible" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
+		var judges      = e.judges      = html.div.clone() .attr( "data-role", "collapsible" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
+		var accordian   = e.accordian   = html.div.clone() .attr( "data-role", "collapsibleset" ) .attr( "data-collapsed-icon", "carat-r" ) .attr( "data-expanded-icon", "carat-d" );
 
-		accordian.append( description, forms, judges, actions );
+		accordian.append( description, forms, judges );
 		w .append( accordian );
 	},
 	_init: function( ) {
@@ -22,6 +21,15 @@ $.widget( "freescore.divisionHeader", {
 
 		var refresh = function( update ) {
 			var tournament = JSON.parse( update.data );
+
+			var handle = o.handlers = {
+				judges : function( ev ) {
+					var value  = $( ev.target ).val();
+					var widget = e.judges.find( "h3 a" );
+					widget.html( value );
+					o.judges = parseInt( value );
+				}
+			};
 
 			var initialize = o.initialize = {
 				// ============================================================
@@ -54,10 +62,18 @@ $.widget( "freescore.divisionHeader", {
 					widget.formSelector( options );
 					widget.find( "[data-role='controlgroup']" ).controlgroup().controlgroup( "refresh" );
 					e.forms.find( "h3 a" ).html( "Please Select Forms" );
+				},
+				judges : function() {
+					var widget = e.judges.find( "#judgesWidget" );
+					widget.empty();
+					widget.append( addButtonGroup( "Judges", [ '3 Judges', '5 Judges', '7 Judges' ], handle.judges ) );
+					widget.addClass( "ui-field-contain" );
+					widget.find( "[data-role='controlgroup']" ).controlgroup().controlgroup( "refresh" );
 				}
 			};
 
 			initialize.description();
+			initialize.judges();
 		}
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
