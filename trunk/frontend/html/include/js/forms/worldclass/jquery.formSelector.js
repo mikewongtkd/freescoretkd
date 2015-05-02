@@ -6,6 +6,13 @@ $.widget( "freescore.formSelector", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
+	},
+	_init: function( ) {
+		var widget = this.element;
+		var o      = this.options;
+		var e      = this.options.elements;
+		var html   = e.html;
+
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
@@ -16,23 +23,31 @@ $.widget( "freescore.formSelector", {
 		var getForms = function() {
 		// ============================================================
 			var map        = { 'Preliminaries' : 'prelim', 'Semi-Finals' : 'semfin', 'Finals 1st form' : 'finals', 'Finals 2nd form' : 'finals' };
+			var reverseMap = { 'prelim' : 'Preliminary Round Form', 'semfin' : 'Semi-Final Round Form', 'finals' : 'Final Round Forms' };
 			o.selected     = { order : [ 'prelim', 'semfin', 'finals' ], prelim : [], semfin : [], finals : [] };
 			for( var i in all ) {
 				var round     = all[ i ];
-				var roundName = round.children( ".ui-controlgroup-label" ).children( "legend" ).html();
-				var forms     = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
+				var roundName = round.find( "legend" ).html();
+				var forms     = round.find( "input" );
 				var selected  = forms.filter( ":checked" ).val();
 
 				var roundCode = map[ roundName ];
 				if( selected != 'None' ) { o.selected[ roundCode ].push( selected ) };
 			}
-			var group = [];
+			var concise = [];
+			var descriptive = [];
 			for( var i in o.selected.order ) {
 				var round = o.selected.order[ i ];
-				if( o.selected[ round ].length > 0 ) { group.push( round + ':' + o.selected[ round ].join( "," )); }
+				if( o.selected[ round ].length > 0 ) { 
+					concise.push( round + ':' + o.selected[ round ].join( "," )); 
+					descriptive.push( reverseMap[ round ] + ': ' + o.selected[ round ].join( ", " ));
+				}
 			}
-			o.selected.text = group.join( ";" );
-			console.log( o.selected.text );
+			o.selected.text        = concise.join( ";" );
+			o.selected.description = descriptive.join( "; " );
+			var headerFormsTitle = o.header.e.forms.find( "h3 a" );
+			var description = o.selected.description ? o.selected.description : "Please Select Forms";
+			headerFormsTitle.html( description );
 		};
 
 		// ============================================================
@@ -41,7 +56,7 @@ $.widget( "freescore.formSelector", {
 		var reset    = function() {
 			for( var i in all ) {
 				var round = all[ i ];
-				var forms = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
+				var forms = round.find( "input" );
 				for( var j in forms ) {
 					var button = $( forms[ j ] );
 					button .prop( "checked", false );
@@ -56,7 +71,7 @@ $.widget( "freescore.formSelector", {
 				var selectedId = $( ev.target ).attr( "id" );
 				for( var i in all ) {
 					var round     = all[ i ];
-					var forms     = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
+					var forms     = round.find( "input" );
 					var column    = $.grep( forms, function( item ) { return $( item ).val() == val } );
 					var columnId  = $( column ).attr( "id" );
 					var selected  = forms.filter( ":checked" ).val();
@@ -72,16 +87,12 @@ $.widget( "freescore.formSelector", {
 				}
 				getForms();
 			},
-			accept : function( ev ) {
-			},
-			cancel : function( ev ) {
-			},
 			random : function( ev ) {
 				// ===== PICK A RANDOM FORM FOR EVERY ROUND
 				var randomPicks = [];
 				for( var i in all ) { 
 					var round        = all[ i ];
-					var forms        = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
+					var forms        = round.find( "input" );
 					var originalPick = true;
 					picking: while( originalPick ) {
 						var pick  = Math.ceil( Math.random() * (forms.length - 1));
@@ -95,7 +106,7 @@ $.widget( "freescore.formSelector", {
 				// ===== CHECK THE RADIO BOXES
 				for( var i in all ) {
 					var round     = all[ i ];
-					var forms     = round.children( ".ui-controlgroup-controls" ).children().children( "input" );
+					var forms     = round.find( "input" );
 					var pick      = randomPicks.shift();
 					var button    = $( forms[ pick ]);
 					forms.filter( ":checked" ) .prop( "checked", false ) .checkboxradio( "refresh" );
@@ -118,8 +129,8 @@ $.widget( "freescore.formSelector", {
 
 		// ===== SELECT "None" BUTTON BY DEFAULT
 		all.map( function( item ) { 
-			var name = item.children( "legend" ).html().toLowerCase().replace( / /g, '-' );
-			item.children( '#' + name + '-0' ).prop( "checked", true ) 
+			var name = item.find( "legend" ).html().toLowerCase().replace( / /g, '-' );
+			item.find( '#' + name + '-0' ).prop( "checked", true ) 
 		});
 
 		// ===== CONVERT TO A FIELDCONTAIN (LABEL AND BUTTONS ON ONE LINE)
@@ -127,18 +138,11 @@ $.widget( "freescore.formSelector", {
 		var actions    = e.actions    = html.div.clone() .attr( "data-role", "control-group" ) .attr( "data-type", "horizontal" ) .attr( "data-mini", true ) .css( "margin-left", "20%" );
 
 		actions.append(
-			html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "star" )   .css( "width", "120px" ) .html( "Random" ) .click( handle.random ),
-			html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .css( "width", "120px" ) .html( "OK" )     .click( handle.accept ),
-			html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .css( "width", "120px" ) .html( "Cancel" ) .click( handle.cancel )
+			html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "star" )   .css( "width", "120px" ) .html( "Random" ) .click( handle.random )
 		);
 
 		actions.controlgroup().controlgroup( "refresh" );
 
 		widget.append( formSelect, actions );
-	},
-	_init: function( ) {
-		var widget = this.element;
-		var o      = this.options;
-		var e      = this.options.elements;
 	}
 });

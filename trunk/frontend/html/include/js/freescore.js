@@ -60,10 +60,10 @@ var FreeScore = {
 				'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu'
 			];
 			var forms = [];
-			if( rank == 'Yellow'       ) { forms.push( allForms.splice( 0, 2 )); } else
-			if( rank == 'Green'        ) { forms.push( allForms.splice( 0, 4 )); } else
-			if( rank == 'Blue'         ) { forms.push( allForms.splice( 0, 5 )); } else
-			if( rank == 'Red'          ) { forms.push( allForms.splice( 0, 8 )); } else
+			if( rank == 'Yellow'       ) { forms = allForms.splice( 0, 2 ); } else
+			if( rank == 'Green'        ) { forms = allForms.splice( 0, 4 ); } else
+			if( rank == 'Blue'         ) { forms = allForms.splice( 0, 5 ); } else
+			if( rank == 'Red'          ) { forms = allForms.splice( 0, 8 ); } else
 			{
 				var age = parseInt( age );
 				if( format == 'Team' ) {
@@ -80,7 +80,7 @@ var FreeScore = {
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
 					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
 									{ forms = allForms.splice( 7, 8 ); }      // 1st Masters
-				} else { // Individiual
+				} else { // Individual
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors

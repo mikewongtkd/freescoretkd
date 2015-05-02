@@ -6,65 +6,62 @@ $.widget( "freescore.divisionDescriptor", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
+		o.text = o.header.o.text;
+
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
-		var getDescription = function() {
+		var getDescription = o.getDescription = function() {
 			var map = { 
-				'12-14' : 'Cadets', '15-17' : 'Juniors', '18-29' : 'Seniors', '30-39' : 'Executives', 
-				'40-49' : '1st Masters', '50-59' : '2nd Masters', '60+' : '3rd Masters' 
+				'12-14' : 'Cadets', '15-17' : 'Juniors', '18-29' : 'Under 30', '30-39' : 'Under 40', 
+				'40-49' : 'Under 50', '50-59' : 'Under 60', '60-64' : 'Under 65', '65+' : 'Over 65'
 			};
 			var groups = [];
-			if( defined( o.rank )) {
-				if( o.age in map ) { 
-					groups.push( o.gender );
-					groups.push( o.rank );
-					groups.push( map[ o.age ] );
-					if( defined( o.format )) { groups.push( o.format ); }
+			groups.push( o.gender );
+			if( o.age in map )       { groups.push( map[ o.age ] ); } else { groups.push( o.age ); }
+			if( defined( o.rank   )) { groups.push( o.rank + ' Belts' ); }
+			if( defined( o.format )) { groups.push( o.format ); }
 
-				} else {
-					groups.push( o.age );
-					groups.push( o.gender );
-					groups.push( o.rank + ' Belts' );
-					if( defined( o.format )) { groups.push( o.format ); }
-				}
-			} else {
-				if( o.age in map ) { 
-					groups.push( o.gender );
-					groups.push( map[ o.age ] );
-					if( defined( o.format )) { groups.push( o.format ); }
-				} else {
-					groups.push( o.age );
-					groups.push( o.gender );
-					groups.push( 'Black Belts' );
-					if( defined( o.format )) { groups.push( o.format ); }
-				}
-			}
-
-			return { gender : o.gender, age : o.age, rank : o.rank, text : groups.join( " " ) };
+			var text        = groups.join( " " );
+			var description = { gender : o.gender, age : o.age, rank : o.rank, text : text };
+			o.description = description;
+			var headerDescriptionTitle = o.header.e.description.find( "h3 a" );
+			o.header.o.initialize.forms();
+			headerDescriptionTitle.html( description.text );
+			return description;
 		};
-		var handle = {
+		var handle = o.handle = {
 			age : function( ev ) {
 				var val = $( ev.target ).val();
 				o.age = val;
-				o.description = getDescription();
-				console.log( o.description.text );
+				getDescription();
 			},
 			gender : function( ev ) {
 				var val = $( ev.target ).val();
 				o.gender = val;
+				getDescription();
 			},
 			rank : function( ev ) {
 				var val = $( ev.target ).val();
 				if( val == 'Black Belt' ) { o.rank = undefined; } else { o.rank = val; }
+				getDescription();
 			},
 			format : function( ev ) {
+				gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'enable' );
 				var val = $( ev.target ).val();
+				o.age = undefined;
 				age.empty();
 				var buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ), handle.age );
 				age.append( buttonGroup ).trigger( 'create' );
 				buttonGroup.controlgroup( "refresh" );
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
+				if( val == 'Pair' ) {
+					gender.find( ":checked" ).prop( "checked", false );
+					gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'disable' );
+					gender.children().controlgroup();
+					o.gender = undefined;
+				}
+				getDescription();
 			}
 		};
 
@@ -73,7 +70,7 @@ $.widget( "freescore.divisionDescriptor", {
 		var age    = e.age    = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
 		var rank   = e.rank   = html.div.clone() .attr( "data-role", "fieldcontain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
 
-		format.children().children( "input:radio#event-0" ).attr( "checked", true );
+		format.find( "input:radio#event-0" ).attr( "checked", true );
 
 		widget.append( format, gender, rank, age );
 	},
@@ -81,5 +78,55 @@ $.widget( "freescore.divisionDescriptor", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements;
+		
+		var select = function( field, value, callback ) {
+			var buttonGroup = field.children();
+			var unselect    = buttonGroup.find( ":checked" );
+			var selected    = buttonGroup.find( ":radio[value='" + value + "']" );
+			unselect.prop( "checked", false );
+			selected.prop( "checked", true );
+			field.trigger( 'create' );
+			buttonGroup.controlgroup( "refresh" );
+			callback( jQuery.Event( 'click', { target :selected } ));
+		};
+
+		var get_values = function( field ) {
+			var values  = [];
+			var buttons = field.find( ":radio" );
+			for( var i = 0; i < buttons.length; i++ ) {
+				values.push( $( buttons[ i ] ).prop( "value" ));
+			}
+			return values;
+		}
+		
+		if( defined( o.text )) {
+			// ===== HANDLE EVENT DESCRIPTION
+			if( o.text.match( /Team/ )) { select( e.format, 'Team',       o.handle.format ); } else
+			if( o.text.match( /Pair/ )) { select( e.format, 'Pair',       o.handle.format ); } else
+			                            { select( e.format, 'Individual', o.handle.format ); }
+
+			// ===== HANDLE GENDER DESCRIPTION
+			var genders = get_values( e.gender );
+			for( var i = 0; i < genders.length; i++ ) {
+				var gender = genders[ i ];
+				if( o.text.match( gender )) { select( e.gender, gender, o.handle.gender ); }
+			}
+
+			// ===== HANDLE RANK DESCRIPTION
+			var ranks = get_values( e.rank );
+			select( e.rank, 'Black Belt', o.handle.rank );
+			for( var i = 0; i < ranks.length; i++ ) {
+				var rank = ranks[ i ];
+				if( o.text.match( rank )) { select( e.rank, rank,         o.handle.rank ); }
+			}
+
+			// ===== HANDLE AGE DESCRIPTION
+			var ages = get_values( e.age );
+			for( var i = 0; i < ages.length; i++ ) {
+				var age = ages[ i ];
+				if( o.text.match( age )) { select( e.age, age, o.handle.age ); }
+			}
+		}
+		o.getDescription();
 	}
 });
