@@ -117,7 +117,7 @@ $.widget( "freescore.divisionDescriptor", {
 			select( e.rank, 'Black Belt', o.handle.rank );
 			for( var i = 0; i < ranks.length; i++ ) {
 				var rank = ranks[ i ];
-				if( o.text.match( rank )) { select( e.rank, rank,         o.handle.rank ); }
+				if( o.text.match( rank )) { select( e.rank, rank, o.handle.rank ); }
 			}
 
 			// ===== HANDLE AGE DESCRIPTION

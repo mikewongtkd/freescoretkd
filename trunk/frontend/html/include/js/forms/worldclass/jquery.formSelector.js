@@ -60,7 +60,6 @@ $.widget( "freescore.formSelector", {
 				for( var j in forms ) {
 					var button = $( forms[ j ] );
 					button .prop( "checked", false );
-					console.log( button, j );
 				}
 			}
 		};
@@ -116,10 +115,10 @@ $.widget( "freescore.formSelector", {
 			},
 		};
 
-		var prelim = addButtonGroup( "Preliminaries",   forms, handle.select );
-		var semfin = addButtonGroup( "Semi-Finals",     forms, handle.select );
-		var final1 = addButtonGroup( "Finals 1st form", forms, handle.select );
-		var final2 = addButtonGroup( "Finals 2nd form", forms, handle.select );
+		var prelim = e.prelim = addButtonGroup( "Preliminaries",   forms, handle.select );
+		var semfin = e.semfin = addButtonGroup( "Semi-Finals",     forms, handle.select );
+		var final1 = e.final1 = addButtonGroup( "Finals 1st form", forms, handle.select );
+		var final2 = e.final2 = addButtonGroup( "Finals 2nd form", forms, handle.select );
 		var all    = [];
 
 		if( o.athletes > 20 ) { all.push( prelim ); }
@@ -144,5 +143,39 @@ $.widget( "freescore.formSelector", {
 		actions.controlgroup().controlgroup( "refresh" );
 
 		widget.append( formSelect, actions );
+
+		var select = function( field, value, callback ) {
+			var buttonGroup = field.children();
+			var unselect    = buttonGroup.find( ":checked" );
+			var selected    = buttonGroup.find( ":radio[value='" + value + "']" );
+			unselect.prop( "checked", false );
+			selected.prop( "checked", true );
+			field.trigger( 'create' );
+			buttonGroup.controlgroup( "refresh" );
+			callback( jQuery.Event( 'click', { target :selected } ));
+		};
+
+		if( defined( o.forms )) {
+			var select = function( buttonGroup, value ) {
+				var unselect    = buttonGroup.find( ":checked" );
+				var selected    = buttonGroup.find( ":radio[value='" + value + "']" );
+				unselect.prop( "checked", false );
+				selected.prop( "checked", true );
+				buttonGroup.parent().trigger( 'create' );
+				buttonGroup.controlgroup( "refresh" );
+			};
+
+			var rounds = o.forms.split( /;/ );
+			for( var i = 0; i < rounds.length; i++ ) {
+				var roundForms = rounds[ i ].split( /:/ );
+				var round      = roundForms[ 0 ];
+				var forms      = roundForms[ 1 ].split( /,/ );
+				var current    = undefined;
+				if( round.match( 'prelim' )) { select( e.prelim, forms[ 0 ] ); } else 
+				if( round.match( 'semfin' )) { select( e.semfin, forms[ 0 ] ); } else 
+				if( round.match( 'finals' )) { select( e.final1, forms[ 0 ] ); select( e.final2, forms[ 1 ] ); }
+				getForms();
+			}
+		}
 	}
 });

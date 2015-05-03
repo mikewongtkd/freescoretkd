@@ -57,11 +57,14 @@ $.widget( "freescore.divisionHeader", {
 					if( defined( o.description )) {
 						options.age  = o.description.age;
 						options.rank = o.description.rank;
+						if( defined( o.forms )) { options.forms = o.forms; }
 					}
 
 					widget.formSelector( options );
 					widget.find( "[data-role='controlgroup']" ).controlgroup().controlgroup( "refresh" );
-					e.forms.find( "h3 a" ).html( "Please Select Forms" );
+					var selected = widget.formSelector( 'option', 'selected' );
+					if( ! defined( selected )) { e.forms.find( "h3 a" ).html( "Please Select Forms" ); } else
+					                           { e.forms.find( "h3 a" ).html( selected.description ); }
 				},
 				judges : function() {
 					var widget = e.judges.find( "#judgesWidget" );
@@ -69,6 +72,14 @@ $.widget( "freescore.divisionHeader", {
 					widget.append( addButtonGroup( "Judges", [ '3 Judges', '5 Judges', '7 Judges' ], handle.judges ) );
 					widget.addClass( "ui-field-contain" );
 					widget.find( "[data-role='controlgroup']" ).controlgroup().controlgroup( "refresh" );
+					if( defined( o.judges )) {
+						widget.find( ":checked" ).prop( "checked", false );
+						widget.find( ":radio[value='" + o.judges + " Judges']" ).prop( "checked", true );
+						widget.trigger( "create" );
+						widget.children().controlgroup( "refresh" );
+						e.judges.find( "h3 a" ).html( o.judges + " Judges" );
+					} else {
+					}
 				}
 			};
 

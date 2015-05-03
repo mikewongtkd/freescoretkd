@@ -30,6 +30,22 @@ $.widget( "freescore.divisionEditor", {
 			console.log( "AJAX call to change athlete name" );
 		});
 
+		/*
+Individual athlete actions
+- Edit name
+- Clear score
+- Delete
+- Move up
+- Move down
+- Move to last
+- Mark position on mats
+- Start/Stop timer
+- Give out-of-bounds penalty
+- Give timer penalty
+- Give restart penalty
+- Give gamjeom penalty
+*/
+
 		actions.athlete.save
 			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
 			.html( "Save" )

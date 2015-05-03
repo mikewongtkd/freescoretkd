@@ -29,7 +29,7 @@
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).divisionHeader( { server : '<?= $host ?>', tournament : <?= $tournament ?>, text : "8-9 Female Blue" });
+			$( '#division' ).divisionHeader( { server : '<?= $host ?>', tournament : <?= $tournament ?>, text : "8-9 Female Blue", forms : "finals:Taegeuk 2,Taegeuk 5", judges : 5 });
 		</script>
 	</body>
 </html>
