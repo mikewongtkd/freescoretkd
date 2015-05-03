@@ -24,12 +24,13 @@
 		<script src="../../include/js/forms/worldclass/jquery.divisionDescriptor.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.formSelector.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.divisionHeader.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.divisionEditor.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).divisionHeader( { server : '<?= $host ?>', tournament : <?= $tournament ?>, text : "8-9 Female Blue", forms : "finals:Taegeuk 2,Taegeuk 5", judges : 5 });
+			$( '#division' ).divisionEditor( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

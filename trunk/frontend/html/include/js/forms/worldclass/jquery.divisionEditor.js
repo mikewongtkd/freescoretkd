@@ -8,7 +8,7 @@ $.widget( "freescore.divisionEditor", {
 		var html      = e.html      = FreeScore.html;
 		var division  = e.division  = html.div.clone();
 		var edit      = e.edit      = html.div.clone();
-		var header    = e.header    = html.div.clone();
+		var header    = e.header    = html.div.clone() .divisionHeader( o );
 		var list      = e.list      = html.ol.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
 		var details   = e.details   = html.div.clone();
 
@@ -93,14 +93,8 @@ Individual athlete actions
 			var tournament = JSON.parse( update.data );
 			o.division = tournament.divisions[ 2 ]; // MW
 
-			e.header.empty();
-			e.header.append( 
-				html.ul.clone() .attr( "data-role", "listview" ) .attr( "data-theme", "b" ) .append(
-					html.li.clone() .attr( "data-icon", "gear" ) .append(
-						html.a.clone() .attr( "href", "#details" ) .attr( "data-transition", "slide" ) .html( o.division.name.toUpperCase() + ' ' + o.division.description )
-					)
-				) .listview() .listview( "refresh" )
-			);
+			console.log( o.division );
+			e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges });
 			e.list.empty();
 			for( var i in o.division.athletes ) {
 				var athlete = { 

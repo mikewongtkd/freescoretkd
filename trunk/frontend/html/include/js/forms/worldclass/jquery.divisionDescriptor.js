@@ -53,7 +53,7 @@ $.widget( "freescore.divisionDescriptor", {
 				age.empty();
 				var buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ), handle.age );
 				age.append( buttonGroup ).trigger( 'create' );
-				buttonGroup.controlgroup( "refresh" );
+				buttonGroup.controlgroup().controlgroup( "refresh" );
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
 				if( val == 'Pair' ) {
 					gender.find( ":checked" ).prop( "checked", false );
@@ -86,7 +86,7 @@ $.widget( "freescore.divisionDescriptor", {
 			unselect.prop( "checked", false );
 			selected.prop( "checked", true );
 			field.trigger( 'create' );
-			buttonGroup.controlgroup( "refresh" );
+			buttonGroup.controlgroup().controlgroup( "refresh" );
 			callback( jQuery.Event( 'click', { target :selected } ));
 		};
 

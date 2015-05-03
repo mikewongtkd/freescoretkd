@@ -165,15 +165,14 @@ $.widget( "freescore.formSelector", {
 				buttonGroup.controlgroup( "refresh" );
 			};
 
-			var rounds = o.forms.split( /;/ );
-			for( var i = 0; i < rounds.length; i++ ) {
-				var roundForms = rounds[ i ].split( /:/ );
-				var round      = roundForms[ 0 ];
-				var forms      = roundForms[ 1 ].split( /,/ );
-				var current    = undefined;
-				if( round.match( 'prelim' )) { select( e.prelim, forms[ 0 ] ); } else 
-				if( round.match( 'semfin' )) { select( e.semfin, forms[ 0 ] ); } else 
-				if( round.match( 'finals' )) { select( e.final1, forms[ 0 ] ); select( e.final2, forms[ 1 ] ); }
+			for( var round in o.forms ) {
+				var forms = o.forms[ round ];
+				var form1 = forms[ 0 ].name ? forms[ 0 ].name : 'None';
+				var form2 = forms[ 1 ].name ? forms[ 1 ].name : 'None';
+
+				if( round.match( 'prelim' )) { select( e.prelim, form1 ); } else 
+				if( round.match( 'semfin' )) { select( e.semfin, form1 ); } else 
+				if( round.match( 'finals' )) { select( e.final1, form1 ); select( e.final2, form2 ); }
 				getForms();
 			}
 		}
