@@ -6,10 +6,10 @@ $.widget( "freescore.divisionHeader", {
 		var e    = this.options.elements = {};
 		var html = e.html = FreeScore.html;
 
-		var description = e.description = html.div.clone() .attr( "data-role", "collapsible" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
-		var forms       = e.forms       = html.div.clone() .attr( "data-role", "collapsible" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
-		var judges      = e.judges      = html.div.clone() .attr( "data-role", "collapsible" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
-		var accordian   = e.accordian   = html.div.clone() .attr( "data-role", "collapsibleset" ) .attr( "data-collapsed-icon", "carat-r" ) .attr( "data-expanded-icon", "carat-d" );
+		var description = e.description = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
+		var forms       = e.forms       = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
+		var judges      = e.judges      = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
+		var accordian   = e.accordian   = html.div.clone() .attr( "data-role", "collapsibleset" ) .attr( "data-collapsed-icon", "carat-r" ) .attr( "data-expanded-icon", "carat-d" ) .attr( "data-corners", false );
 
 		accordian.append( description, forms, judges );
 		w .append( accordian );
@@ -37,8 +37,6 @@ $.widget( "freescore.divisionHeader", {
 				// ============================================================
 				description : function() {
 					var widget = e.description.find( "#descriptionWidget" );
-					widget.empty();
-
 					widget.divisionDescriptor( { header : { o : o, e : e }} );
 
 					initialize.forms();

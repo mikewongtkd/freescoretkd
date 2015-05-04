@@ -6,8 +6,6 @@ $.widget( "freescore.divisionDescriptor", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
-		o.text = o.header.o.text;
-
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
@@ -70,7 +68,7 @@ $.widget( "freescore.divisionDescriptor", {
 		var age    = e.age    = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
 		var rank   = e.rank   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
 
-		format.find( "input:radio#event-0" ).attr( "checked", true );
+		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
 
 		widget.append( format, gender, rank, age );
 	},
@@ -78,6 +76,8 @@ $.widget( "freescore.divisionDescriptor", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements;
+
+		o.text = o.header.o.text;
 		
 		var select = function( field, value, callback ) {
 			var buttonGroup = field.children();
@@ -100,6 +100,11 @@ $.widget( "freescore.divisionDescriptor", {
 		}
 		
 		if( defined( o.text )) {
+			var reverseMap = { 
+				'Cadets' : '12-14', 'Juniors' : '15-17',  'Under 30' : '18-29', 'Under 40' : '30-39', 
+				'Under 50' : '40-49', 'Under 60' : '50-59', 'Under 65' : '60-64', 'Over 65' : '65+'
+			};
+	
 			// ===== HANDLE EVENT DESCRIPTION
 			if( o.text.match( /Team/ )) { select( e.format, 'Team',       o.handle.format ); } else
 			if( o.text.match( /Pair/ )) { select( e.format, 'Pair',       o.handle.format ); } else
@@ -126,7 +131,20 @@ $.widget( "freescore.divisionDescriptor", {
 				var age = ages[ i ];
 				if( o.text.match( age )) { select( e.age, age, o.handle.age ); }
 			}
+			for( var age in reverseMap ) {
+				if( o.text.match( age )) { select( e.age, reverseMap[ age ], o.handle.age ); }
+			}
 		}
 		o.getDescription();
+
+		var refresh = function( field ) {
+			field.trigger( 'create' );
+			field.children().controlgroup().controlgroup( "refresh" );
+		};
+
+		refresh( e.format );
+		refresh( e.age );
+		refresh( e.gender );
+		refresh( e.rank );
 	}
 });

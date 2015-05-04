@@ -14,11 +14,26 @@ $.widget( "freescore.divisionEditor", {
 
 		var actions   = e.actions   = {
 			athlete : { 
-				name    : html.text.clone(),
-				save    : html.a.clone(),
-				reset   : html.a.clone(),
-				remove  : html.a.clone(),
-				close   : html.a.clone(),
+				name     : html.text.clone(),
+				save     : html.a.clone(),
+				reset    : html.a.clone(),
+				move     : {
+					up       : html.a.clone(),
+					down     : html.a.clone(),
+					last     : html.a.clone(),
+				},
+				timer    : {
+					start    : html.a.clone(),
+					stop     : html.a.clone(),
+				},
+				penalty  : {
+					bounds   : html.a.clone(),
+					overtime : html.a.clone(),
+					restart  : html.a.clone(),
+					gamjeom  : html.a.clone(),
+				},
+				remove   : html.a.clone(),
+				close    : html.a.clone(),
 			},
 			division : {
 				name    : html.text.clone(),
@@ -30,21 +45,50 @@ $.widget( "freescore.divisionEditor", {
 			console.log( "AJAX call to change athlete name" );
 		});
 
-		/*
-Individual athlete actions
-- Edit name
-- Clear score
-- Delete
-- Move up
-- Move down
-- Move to last
-- Mark position on mats
-- Start/Stop timer
-- Give out-of-bounds penalty
-- Give timer penalty
-- Give restart penalty
-- Give gamjeom penalty
-*/
+		actions.athlete.move.up
+			.addClass( "ui-btn ui-icon-arrow-u ui-btn-icon-left" )
+			.html( "Move up" )
+			.click( function( ev ) { } );
+
+		actions.athlete.move.down
+			.addClass( "ui-btn ui-icon-arrow-d ui-btn-icon-left" )
+			.html( "Move down" )
+			.click( function( ev ) { } );
+
+		actions.athlete.move.last
+			.addClass( "ui-btn ui-icon-forward ui-btn-icon-left" )
+			.html( "Move to Last" )
+			.click( function( ev ) { } );
+
+		actions.athlete.timer.start
+			.addClass( "ui-btn ui-icon-clock ui-btn-icon-left" )
+			.html( "Timer Start" )
+			.click( function( ev ) { } );
+
+		actions.athlete.timer.stop
+			.addClass( "ui-btn ui-icon-clock ui-btn-icon-left" )
+			.html( "Timer Stop" )
+			.click( function( ev ) { } );
+
+		actions.athlete.penalty.bounds
+			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
+			.html( "Out-of-Bounds Penalty" )
+			.click( function( ev ) { } );
+
+		actions.athlete.penalty.overtime
+			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
+			.html( "Time Penalty" )
+			.click( function( ev ) { } );
+
+		actions.athlete.penalty.restart
+			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
+			.html( "Restart Penalty" )
+			.click( function( ev ) { } );
+
+		actions.athlete.penalty.gamjeom
+			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
+			.html( "Gamjeom Penalty" )
+			.click( function( ev ) { } );
 
 		actions.athlete.save
 			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
@@ -74,7 +118,21 @@ Individual athlete actions
 			.attr( "data-display", "overlay" ) 
 			.attr( "data-theme", "b" ) 
 			.attr( "id", "edit-panel" )
-			.append( actions.athlete.name, actions.athlete.save, actions.athlete.reset, actions.athlete.remove, actions.athlete.close );
+			.append( 
+				actions.athlete.name, 
+				actions.athlete.save, 
+				actions.athlete.reset, 
+				actions.athlete.move.up, 
+				actions.athlete.move.down, 
+				actions.athlete.move.last, 
+				actions.athlete.timer.start,
+				actions.athlete.timer.stop,
+				actions.athlete.penalty.bounds,
+				actions.athlete.penalty.time,
+				actions.athlete.penalty.restart,
+				actions.athlete.penalty.gamjeom,
+				actions.athlete.remove, 
+				actions.athlete.close );
 
 		details  .attr( "data-role", "page" ) .attr( "data-dialog", "true" ) .attr( "id", "details" );
 		division .attr( "data-role", "page" ) .attr( "id", "division" );
@@ -93,7 +151,6 @@ Individual athlete actions
 			var tournament = JSON.parse( update.data );
 			o.division = tournament.divisions[ 2 ]; // MW
 
-			console.log( o.division );
 			e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges });
 			e.list.empty();
 			for( var i in o.division.athletes ) {
@@ -163,7 +220,6 @@ Individual athlete actions
 					.click( function( ev ) { 
 						var i = $( this ).attr( "athlete" ); 
 						var athlete = o.division.athletes[ i ];
-						console.log( athlete.name );
 						o.current = i;
 						e.actions.athlete.name.val( athlete.name ); 
 						e.edit.panel( "open" ); 
