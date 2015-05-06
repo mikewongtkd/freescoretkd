@@ -30,7 +30,7 @@
 	<body>
 		<div id="division"></div>
 		<script type="text/javascript">
-			$( '#division' ).divisionEditor( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
+			$( '#division' ).divisions( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

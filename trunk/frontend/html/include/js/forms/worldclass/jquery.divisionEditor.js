@@ -15,7 +15,7 @@ $.widget( "freescore.divisionEditor", {
 		var actions   = e.actions   = {
 			athlete : { 
 				name     : html.text.clone(),
-				save     : html.a.clone(),
+				accept   : html.a.clone(),
 				reset    : html.a.clone(),
 				move     : {
 					up       : html.a.clone(),
@@ -90,9 +90,9 @@ $.widget( "freescore.divisionEditor", {
 			.html( "Gamjeom Penalty" )
 			.click( function( ev ) { } );
 
-		actions.athlete.save
+		actions.athlete.accept
 			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
-			.html( "Save" )
+			.html( "OK" )
 			.attr( "href", "#list" )
 			.attr( "data-rel", "close" );
 
@@ -120,7 +120,7 @@ $.widget( "freescore.divisionEditor", {
 			.attr( "id", "edit-panel" )
 			.append( 
 				actions.athlete.name, 
-				actions.athlete.save, 
+				actions.athlete.accept, 
 				actions.athlete.reset, 
 				actions.athlete.move.up, 
 				actions.athlete.move.down, 
@@ -145,96 +145,87 @@ $.widget( "freescore.divisionEditor", {
 		var o       = this.options;
 		var html    = e.html;
 
-		// ============================================================
-		function refresh( update ) {
-		// ============================================================
-			var tournament = JSON.parse( update.data );
-			o.division = tournament.divisions[ 2 ]; // MW
+		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges });
+		e.list.empty();
+		for( var i in o.division.athletes ) {
+			var athlete = { 
+				data     : o.division.athletes[ i ],
+				name     : html.span.clone(),
+				view     : html.div.clone(),
+				move     : html.div.clone(),
+				moveup   : html.a.clone(),
+				movedown : html.a.clone(),
+				actions  : html.div.clone(),
+				edit     : html.a.clone(),
+				listitem : html.li.clone() .attr( "data-icon", "ui-icon-user" ),
+			};
 
-			e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges });
-			e.list.empty();
-			for( var i in o.division.athletes ) {
-				var athlete = { 
-					data     : o.division.athletes[ i ],
-					name     : html.span.clone(),
-					view     : html.div.clone(),
-					move     : html.div.clone(),
-					moveup   : html.a.clone(),
-					movedown : html.a.clone(),
-					actions  : html.div.clone(),
-					edit     : html.a.clone(),
-					listitem : html.li.clone() .attr( "data-icon", "ui-icon-user" ),
-				};
+			athlete.view
+				.css( "display", "inline-block" )
+				.css( "width", "95%" );
 
-				athlete.view
-					.css( "display", "inline-block" )
-					.css( "width", "95%" );
+			athlete.name
+				.css( "font-weight", "bold" )
+				.css( "font-size", "14pt" )
+				.css( "position", "absolute" )
+				.css( "top", "22px" )
+				.html( athlete.data.name );
 
-				athlete.name
-					.css( "font-weight", "bold" )
-					.css( "font-size", "14pt" )
-					.css( "position", "absolute" )
-					.css( "top", "22px" )
-					.html( athlete.data.name );
+			athlete.move
+				.addClass( "ui-nodisc-icon" )
+				.css( "padding", "8px" )
+				.css( "margin-right", "24px" )
+				.css( "float", "left" );
 
-				athlete.move
-					.addClass( "ui-nodisc-icon" )
-					.css( "padding", "8px" )
-					.css( "margin-right", "24px" )
-					.css( "float", "left" );
+			var switchUp = i == 0 ? 0 : (i - 1);
+			athlete.moveup
+				.addClass( "ui-btn ui-icon-arrow-u ui-btn-icon-notext ui-btn-inline" )
+				.attr( "athlete", i )
+				.attr( "switch", switchUp )
+				.css( "margin", "0 1px 0 0" )
+				.css( "border-radius", "24px 0 0 24px" )
+				.css( "border", "0" )
+				.css( "background", "#ccc" )
+				.click( function() { 
+					var i = $( this ).attr( "athlete" );
+					var j = $( this ).attr( "switch" );
+					console.log( "ajax call to swap " + i + " and " + j );
+				});
 
-				var switchUp = i == 0 ? 0 : (i - 1);
-				athlete.moveup
-					.addClass( "ui-btn ui-icon-arrow-u ui-btn-icon-notext ui-btn-inline" )
-					.attr( "athlete", i )
-					.attr( "switch", switchUp )
-					.css( "margin", "0 1px 0 0" )
-					.css( "border-radius", "24px 0 0 24px" )
-					.css( "border", "0" )
-					.css( "background", "#ccc" )
-					.click( function() { 
-						var i = $( this ).attr( "athlete" );
-						var j = $( this ).attr( "switch" );
-						console.log( "ajax call to swap " + i + " and " + j );
-					});
+			var switchDown = i == o.division.athletes.length ? o.divisions.athletes.length : (i + 1);
+			athlete.movedown
+				.addClass( "ui-btn ui-icon-arrow-d ui-btn-icon-notext ui-btn-inline" )
+				.attr( "athlete", i )
+				.attr( "switch", switchDown )
+				.css( "margin", "0 0 0 0" )
+				.css( "border-radius", "0 24px 24px 0" )
+				.css( "border", "0" )
+				.css( "background", "#ccc" )
+				.click( function( ev ) { console.log( ev ) } );
 
-				var switchDown = i == o.division.athletes.length ? o.divisions.athletes.length : (i + 1);
-				athlete.movedown
-					.addClass( "ui-btn ui-icon-arrow-d ui-btn-icon-notext ui-btn-inline" )
-					.attr( "athlete", i )
-					.attr( "switch", switchDown )
-					.css( "margin", "0 0 0 0" )
-					.css( "border-radius", "0 24px 24px 0" )
-					.css( "border", "0" )
-					.css( "background", "#ccc" )
-					.click( function( ev ) { console.log( ev ) } );
+			athlete.edit
+				.addClass( "ui-btn ui-icon-edit ui-btn-icon-notext ui-btn-inline" )
+				.attr( "athlete", i )
+				.css( "margin", "0 1px 0 0" )
+				.css( "border-radius", "24px" )
+				.css( "margin-top", "8px" )
+				.css( "border", "0" )
+				.css( "float", "right" )
+				.click( function( ev ) { 
+					var i = $( this ).attr( "athlete" ); 
+					var athlete = o.division.athletes[ i ];
+					o.current = i;
+					e.actions.athlete.name.val( athlete.name ); 
+					e.edit.panel( "open" ); 
+				});
 
-				athlete.edit
-					.addClass( "ui-btn ui-icon-edit ui-btn-icon-notext ui-btn-inline" )
-					.attr( "athlete", i )
-					.css( "margin", "0 1px 0 0" )
-					.css( "border-radius", "24px" )
-					.css( "margin-top", "8px" )
-					.css( "border", "0" )
-					.css( "float", "right" )
-					.click( function( ev ) { 
-						var i = $( this ).attr( "athlete" ); 
-						var athlete = o.division.athletes[ i ];
-						o.current = i;
-						e.actions.athlete.name.val( athlete.name ); 
-						e.edit.panel( "open" ); 
-					});
+			athlete.move.append( athlete.moveup, athlete.movedown );
 
-				athlete.move.append( athlete.moveup, athlete.movedown );
+			athlete.view.append( athlete.move, athlete.name, athlete.edit );
+			athlete.listitem.append( athlete.view );
+			e.list.append( athlete.listitem );
 
-				athlete.view.append( athlete.move, athlete.name, athlete.edit );
-				athlete.listitem.append( athlete.view );
-				e.list.append( athlete.listitem );
-			}
 			e.list.listview( "refresh" );
 		};
-
-		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', refresh, false );
 	},
 });
