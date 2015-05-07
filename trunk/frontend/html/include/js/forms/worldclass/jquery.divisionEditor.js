@@ -23,14 +23,17 @@ $.widget( "freescore.divisionEditor", {
 				},
 				remove   : html.a.clone(),
 				close    : html.a.clone(),
-			},
-			division : {
-				name    : html.text.clone(),
 			}
 		}
 
 		actions.athlete.name.change( function( ev, ui ) {
-			var i = o.current;
+			var i        = o.current;
+			var athlete  = o.division.athletes[ i ];
+			var view     = o.athletes[ i ];
+			var oldName  = athlete.name;
+			var newName  = $( this ).val();
+			athlete.name = newName;
+			view.name.html( newName );
 			console.log( "AJAX call to change athlete name" );
 		});
 
@@ -97,6 +100,8 @@ $.widget( "freescore.divisionEditor", {
 		var e       = this.options.elements;
 		var o       = this.options;
 		var html    = e.html;
+
+		o.athletes = [];
 
 		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges });
 		e.list.empty();
@@ -180,6 +185,7 @@ $.widget( "freescore.divisionEditor", {
 
 			e.edit.panel();
 			e.list.listview().listview( "refresh" );
+			o.athletes.push( athlete );
 		};
 	},
 });
