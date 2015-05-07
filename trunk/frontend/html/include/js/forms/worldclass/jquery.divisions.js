@@ -7,15 +7,11 @@ $.widget( "freescore.divisions", {
 
 		var html      = e.html      = FreeScore.html;
 		var rings     = e.rings     = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" );
-		var list      = e.list      = html.ul.clone() .attr( "data-role", "listview" );
+		var list      = e.list      = html.ul.clone()  .attr( "data-role", "listview" );
 		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
-		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" ) .attr( "data-dialog", "true" );
-		var editor    = e.editor    = {
-			link : html.a.clone() .addClass( "ui-btn ui-corner-all ui-icon-delete ui-btn-icon-right" ),
-			main : html.div.clone(),
-			set  : false
-		};
-		e.div_edit.append( editor.link, editor.main );
+		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
+
+		div_edit.divisionEditor( { division : {}, server : o.server, tournament : o.tournament } );
 
 		rings.append( list );
 		
@@ -27,8 +23,6 @@ $.widget( "freescore.divisions", {
 		var e       = this.options.elements;
 		var o       = this.options;
 		var html    = e.html;
-
-		console.log( o );
 
 		// ============================================================
 		var get_rings = function( tournament ) {
@@ -75,20 +69,7 @@ $.widget( "freescore.divisions", {
 			var n        = o.rings.length;
 			var ring     = i == "staging" ? o.rings[ (n - 1) ] : o.rings[ (i - 1) ];
 			var division = ring.divisions[ divIndex ];
-			var page     = e.div_edit;
-
-			e.editor.link.click( function() {
-				var editor = $( "#division_editor" );
-				var i      = editor.attr( "ring" );
-				jQuery.mobile.changePage( "#ring_divisions?ring=" + i, { transition : 'slide', reverse : true } );
-
-				showRing( i );
-
-			});
-			e.editor.link.html( division.name.toUpperCase() + ' ' + division.description );
-			e.editor.main.divisionEditor( { division : division, server : o.server, tournament : o.tournament } );
-			e.editor.codemirror = e.editor.main.codemirror( { mode : 'freescore', lineNumbers: true } );
-			e.div_edit.css( "top", "-10%" );
+			e.div_edit.divisionEditor( { division : division } );
 		}
 
 		// ============================================================
@@ -215,7 +196,6 @@ $.widget( "freescore.divisions", {
 
 			if      ( option.id == "ring_divisions"  ) { showRing( option.ring ); }
 			else if ( option.id == "division_editor" ) { showEditor( option.ring, option.division ); }
-			e.editor.set = false;
 
 		});
 

@@ -162,6 +162,7 @@ $.widget( "freescore.formSelector", {
 				unselect.prop( "checked", false );
 				selected.prop( "checked", true );
 				buttonGroup.parent().trigger( 'create' );
+				buttonGroup.controlgroup();
 				buttonGroup.controlgroup( "refresh" );
 			};
 

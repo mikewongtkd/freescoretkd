@@ -6,6 +6,15 @@ $.widget( "freescore.divisionDescriptor", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
+	},
+	_init: function( ) {
+		var widget = this.element;
+		var o      = this.options;
+		var e      = this.options.elements;
+		var html   = e.html;
+
+		widget.empty();
+
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
@@ -71,12 +80,6 @@ $.widget( "freescore.divisionDescriptor", {
 		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
 
 		widget.append( format, gender, rank, age );
-	},
-	_init: function( ) {
-		var widget = this.element;
-		var o      = this.options;
-		var e      = this.options.elements;
-
 		o.text = o.header.o.text;
 		
 		var select = function( field, value, callback ) {
@@ -136,15 +139,5 @@ $.widget( "freescore.divisionDescriptor", {
 			}
 		}
 		o.getDescription();
-
-		var refresh = function( field ) {
-			field.trigger( 'create' );
-			field.children().controlgroup().controlgroup( "refresh" );
-		};
-
-		refresh( e.format );
-		refresh( e.age );
-		refresh( e.gender );
-		refresh( e.rank );
 	}
 });

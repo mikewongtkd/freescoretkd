@@ -1,6 +1,6 @@
 
 $.widget( "freescore.divisionEditor", {
-	options: { autoShow: true, },
+	options: { autoShow: true },
 	_create: function() {
 		var o = this.options;
 		var e = this.options.elements = {};
@@ -10,7 +10,6 @@ $.widget( "freescore.divisionEditor", {
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone() .divisionHeader( o );
 		var list      = e.list      = html.ol.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
-		var details   = e.details   = html.div.clone();
 
 		var actions   = e.actions   = {
 			athlete : { 
@@ -21,16 +20,6 @@ $.widget( "freescore.divisionEditor", {
 					up       : html.a.clone(),
 					down     : html.a.clone(),
 					last     : html.a.clone(),
-				},
-				timer    : {
-					start    : html.a.clone(),
-					stop     : html.a.clone(),
-				},
-				penalty  : {
-					bounds   : html.a.clone(),
-					overtime : html.a.clone(),
-					restart  : html.a.clone(),
-					gamjeom  : html.a.clone(),
 				},
 				remove   : html.a.clone(),
 				close    : html.a.clone(),
@@ -58,36 +47,6 @@ $.widget( "freescore.divisionEditor", {
 		actions.athlete.move.last
 			.addClass( "ui-btn ui-icon-forward ui-btn-icon-left" )
 			.html( "Move to Last" )
-			.click( function( ev ) { } );
-
-		actions.athlete.timer.start
-			.addClass( "ui-btn ui-icon-clock ui-btn-icon-left" )
-			.html( "Timer Start" )
-			.click( function( ev ) { } );
-
-		actions.athlete.timer.stop
-			.addClass( "ui-btn ui-icon-clock ui-btn-icon-left" )
-			.html( "Timer Stop" )
-			.click( function( ev ) { } );
-
-		actions.athlete.penalty.bounds
-			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
-			.html( "Out-of-Bounds Penalty" )
-			.click( function( ev ) { } );
-
-		actions.athlete.penalty.overtime
-			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
-			.html( "Time Penalty" )
-			.click( function( ev ) { } );
-
-		actions.athlete.penalty.restart
-			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
-			.html( "Restart Penalty" )
-			.click( function( ev ) { } );
-
-		actions.athlete.penalty.gamjeom
-			.addClass( "ui-btn ui-icon-alert ui-btn-icon-left" )
-			.html( "Gamjeom Penalty" )
 			.click( function( ev ) { } );
 
 		actions.athlete.accept
@@ -125,19 +84,13 @@ $.widget( "freescore.divisionEditor", {
 				actions.athlete.move.up, 
 				actions.athlete.move.down, 
 				actions.athlete.move.last, 
-				actions.athlete.timer.start,
-				actions.athlete.timer.stop,
-				actions.athlete.penalty.bounds,
-				actions.athlete.penalty.time,
-				actions.athlete.penalty.restart,
-				actions.athlete.penalty.gamjeom,
 				actions.athlete.remove, 
-				actions.athlete.close );
+				actions.athlete.close 
+			);
 
-		details  .attr( "data-role", "page" ) .attr( "data-dialog", "true" ) .attr( "id", "details" );
-		division .attr( "data-role", "page" ) .attr( "id", "division" );
+		division .attr( "id", "divisionEditor" );
 		division .append( edit, header, list );
-		this.element .append( division, details );
+		this.element .append( division );
 	},
 
 	_init: function() {
@@ -225,7 +178,8 @@ $.widget( "freescore.divisionEditor", {
 			athlete.listitem.append( athlete.view );
 			e.list.append( athlete.listitem );
 
-			e.list.listview( "refresh" );
+			e.edit.panel();
+			e.list.listview().listview( "refresh" );
 		};
 	},
 });
