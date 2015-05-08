@@ -179,6 +179,7 @@ $.widget( "freescore.judgeController", {
 			}
 			var in_round = [];
 			in_round = division.pending[ division.round ].concat( division.placement[ division.round ] );
+			in_round = $.grep( in_round, function( el, i ) { return defined( el ); } ); // Ignore null entries
 			in_round = in_round.sort( function( a, b ) { return a - b; });
 			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
 

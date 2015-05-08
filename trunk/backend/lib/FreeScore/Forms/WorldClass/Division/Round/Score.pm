@@ -47,7 +47,9 @@ sub complete {
 #-------------------------------------------------------------
 	my $self = shift;
 
-	my $complete = all { defined $_ } @{ $self }{ @FreeScore::Forms::WorldClass::Division::Round::Score::criteria };
+	my $complete = 1;
+	my $complete &&= all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor ) };
+	my $complete &&= all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki ) };
 	$self->{ complete } = $complete;
 	return $complete;
 }

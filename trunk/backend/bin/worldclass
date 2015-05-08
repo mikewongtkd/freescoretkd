@@ -6,6 +6,9 @@ use Try::Tiny;
 use Mojolicious::Lite;
 use YAML;
 use FreeScore::Forms::WorldClass;
+use JSON::XS;
+
+our $json = new JSON::XS();
 
 # ============================================================
 # JUDGE INTERFACE
@@ -135,15 +138,111 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 # ============================================================
 
 # ------------------------------------------------------------
+# FASTMATCH TRAINING DIVISION
+# ------------------------------------------------------------
+post '/:tournament/:ring/fastmatch' => sub { 
+	my $self        = shift;
+	my $tournament  = $self->param( 'tournament' );
+	my $ring        = $self->param( 'ring' );
+	my $i           = $self->param( 'div_index' );
+	my $j           = $self->param( 'ath_index' );
+	my $name        = $self->param( 'name' );
+	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $content     = $self->req->body;
+
+	try {
+		my $archive = "archive.20" . join( "-", reverse map { sprintf "%02d", ($_ % 100) } ((localtime())[ 0 .. 5 ])) . ".tar.gz";
+		`cd $progress->{ path } && tar -czf $archive *.txt && rm -f *.txt && touch div.wc01.txt`;
+		$progress->{ current } = 0;
+		$progress->write();
+		my $division = new FreeScore::Forms::WorldClass::Division( $progress->{ path }, 'wc01', $ring );
+		my $header = $json->decode( $content );
+		foreach my $key (keys %$header) {
+			next if $key eq 'athletes';
+			$division->{ $key } = $header->{ $key };
+		}
+		foreach my $athlete (@{ $header->{ athletes }}) {
+			push @{ $division->{ athletes }}, { name => $athlete };
+			print STDERR "Adding $athlete\n";
+		}
+		$division->write();
+		$division = new FreeScore::Forms::WorldClass::Division( $progress->{ path }, 'wc01', $ring );
+		$division->write();
+		send_response( $self, { description => "FastMatch division created" } );
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
+# ADD NEW ATHLETE OR UPDATE ATHLETE'S NAME
+# ------------------------------------------------------------
+get '/:tournament/:ring/:div_index/:ath_index/name/:name' => sub { 
+	my $self        = shift;
+	my $tournament  = $self->param( 'tournament' );
+	my $ring        = $self->param( 'ring' );
+	my $i           = $self->param( 'div_index' );
+	my $j           = $self->param( 'ath_index' );
+	my $name        = $self->param( 'name' );
+	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division    = $progress->{ divisions }[ $i ];
+	my $description = undef;
+
+	if( $j > $#{ $division->{ athletes }} ) { 
+		push @{ $division->{ athletes }}, { name => $name }; 
+		$description = "Added athlete $name.";
+	} else {
+		my $athlete        = $division->{ athletes }[ $j ];
+		$description = "Changed athlete name from '$athlete->{ name }' to '$name'.";
+		$athlete->{ name } = $name;
+	}
+
+	try {
+		$division->write();
+		send_response( $self, { description => $description } );
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
+# POST THE DIVISION HEADER DATA FOR WRITING
+# ------------------------------------------------------------
+post '/:tournament/:ring/:div_index/text' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $i          = $self->param( 'div_index' );
+	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division   = $progress->{ divisions }[ $i ];
+	my $content    = $self->req->body;
+
+	try {
+		my $header = $json->decode( $content );
+		foreach my $key (keys %$header) {
+			$division->{ $key } = $header->{ $key };
+		}
+		$division->write();
+		send_response( $self, { description => "Successfully wrote header to $division->{ id }" } );
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+
+# ------------------------------------------------------------
 # GET THE DIVISION TEXT DATA
 # ------------------------------------------------------------
 get '/:tournament/:ring/:div_index/text' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $div_index  = $self->param( 'div_index' );
+	my $i          = $self->param( 'div_index' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->{ divisions }[ $div_index ];
+	my $division   = $progress->{ divisions }[ $i ];
 
 	try {
 		my $content = '';
@@ -157,20 +256,23 @@ get '/:tournament/:ring/:div_index/text' => sub {
 	}
 };
 
+# ------------------------------------------------------------
+# POST THE DIVISION TEXT DATA FOR WRITING
+# ------------------------------------------------------------
 post '/:tournament/:ring/:div_index/text' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $div_index  = $self->param( 'div_index' );
+	my $i          = $self->param( 'div_index' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->{ divisions }[ $div_index ];
+	my $division   = $progress->{ divisions }[ $i ];
 	my $content    = $self->req->body;
 
 	try {
 		open FILE, ">$division->{ file }" or die "Database Error: Can't write to '$division->{ file }' $!";
 		print FILE $content;
 		close FILE;
-		send_response( $self, { message => "Successfully wrote to $division->{ file }" } );
+		send_response( $self, { description => "Successfully wrote to $division->{ file }" } );
 
 	} catch {
 		send_response( $self, { error => $_ });

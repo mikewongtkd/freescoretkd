@@ -142,9 +142,9 @@ $.widget( "freescore.register", {
 			) {
 				if( url.match( /judge/ )       != null ) { 
 					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES
-					var port = ':3080';
-					if     ( o.event.url == "grassroots" ) { port = ':3080/'; }
-					else if( o.event.url == "worldclass" ) { port = ':3088/'; }
+					var port = ':3088';
+					if     ( o.event.url.match( /grassroots/ )) { port = ':3080/'; }
+					else if( o.event.url.match( /worldclass/ )) { port = ':3088/'; }
 					var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 					$.ajax( {
 						type:    'GET',
@@ -179,9 +179,9 @@ $.widget( "freescore.register", {
 
 					if( role.name == "Judge" ) {
 						role.dom.animate( { left: 200 }, 400, 'swing', function() {
-							var port = ':3080';
-							if     ( o.event.url == "grassroots" ) { port = ':3080/'; }
-							else if( o.event.url == "worldclass" ) { port = ':3088/'; }
+							var port = ':3088';
+							if     ( o.event.url.match( /grassroots/ )) { port = ':3080/'; }
+							else if( o.event.url.match( /worldclass/ )) { port = ':3088/'; }
 							var url = 'http://' + o.server + port + '/' +  o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 							$.ajax( {
 								type:    'GET',
