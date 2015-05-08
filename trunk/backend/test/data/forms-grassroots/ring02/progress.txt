@@ -1,3 +1,1 @@
-# current=20
-# file=/Volumes/ramdisk/test/forms-grassroots/ring02/progress.txt
-# path=/Volumes/ramdisk/test/forms-grassroots/ring02
+# current=0

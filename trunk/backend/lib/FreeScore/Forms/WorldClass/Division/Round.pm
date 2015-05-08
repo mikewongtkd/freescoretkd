@@ -1,7 +1,9 @@
 package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
+use List::Util qw( all );
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
+use Data::Dumper;
 
 # ============================================================
 sub new {
@@ -30,7 +32,7 @@ sub init {
 	foreach my $form (@$self) {
 		foreach my $i (0 .. $#{ $form->{ judge }}) {
 			my $judge_score = $form->{ judge };
-			$judge_score->[ $i ] = new FreeScore::Forms::WorldClass::Division::Round::Score( $judge_score->[ $i ] );
+			bless $judge_score->[ $i ], 'FreeScore::Forms::WorldClass::Division::Round::Score';
 		}
 	}
 	$self->calculate_means();
@@ -186,18 +188,11 @@ sub complete {
 
 	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
 	foreach my $form (@$self) {
-		my $complete = 1;
-		$complete &&= $_->complete() foreach (@{ $form->{ judge }});
-
-		$form->{ complete } = $complete;
+		$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
 	}
 
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
-	my $complete = 1;
-	foreach my $i ( 0 .. $n ) {
-		my $form = $self->[ $i ];
-		$complete &&= $form->{ complete };
-	}
+	my $complete = all { $_->{ complete }; } @$self;
 	return $complete;
 }
 1;

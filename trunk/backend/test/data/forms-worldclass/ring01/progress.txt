@@ -1,3 +1,1 @@
 # current=0
-# file=/Volumes/ramdisk/test/forms-worldclass/ring01/progress.txt
-# path=/Volumes/ramdisk/test/forms-worldclass/ring01

@@ -1,4 +1,5 @@
 package FreeScore::Forms::WorldClass::Division::Round::Score;
+use List::Util qw( all );
 use FreeScore;
 
 our @criteria = qw( major minor rhythm power ki );
@@ -45,9 +46,8 @@ sub complete {
 # all criteria
 #-------------------------------------------------------------
 	my $self = shift;
-	my $complete = 1;
 
-	$complete &&= (defined $_) foreach @{ $self }{ @FreeScore::Forms::WorldClass::Division::Round::Score::criteria };
+	my $complete = all { defined $_ } @{ $self }{ @FreeScore::Forms::WorldClass::Division::Round::Score::criteria };
 	$self->{ complete } = $complete;
 	return $complete;
 }

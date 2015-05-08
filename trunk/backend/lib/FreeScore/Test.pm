@@ -35,7 +35,7 @@ sub grassroots {
 	my $self    = shift;
 	my $command = shift;
 	my $ring    = shift || 1;
-	return $self->get( "forms/grassroots/rest", $command, $ring );
+	return $self->get( ":3080", $command, $ring );
 }
 
 # ============================================================
@@ -44,20 +44,20 @@ sub worldclass {
 	my $self    = shift;
 	my $command = shift;
 	my $ring    = shift || 1;
-	return $self->get( "forms/worldclass/rest", $command, $ring );
+	return $self->get( ":3088", $command, $ring );
 }
 
 # ============================================================
 sub get {
 # ============================================================
 	my $self    = shift;
-	my $app     = shift;
+	my $port    = shift;
 	my $command = shift;
 	my $ring    = shift;
 	my $ua      = $self->{ ua };
 
 	$ua->timeout( 5 );
-	my $url = "http://$self->{ host }/cgi-bin/freescore/$app/$self->{ tournament }{ db }/$ring/$command";
+	my $url = "http://$self->{ host }$port/$self->{ tournament }{ db }/$ring/$command";
 
 	my $response = $ua->get( $url );
 	if( $response->is_success ) {

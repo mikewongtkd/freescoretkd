@@ -3,6 +3,7 @@ use FreeScore;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
+use List::Util qw( any none first shuffle );
 use base qw( FreeScore::Forms::Division );
 use Data::Dumper;
 
@@ -19,6 +20,9 @@ sub assign {
 	my $judges  = $self->{ judges };
 	my $forms   = 0;
 
+	my $i = first { $self->{ athletes }[ $_ ]{ name } eq $athlete->{ name } } ( 0 .. $#{ $self->{ athletes }});
+
+	push @{ $self->{ order }{ $round }}, $i if none { $_ == $i } @{ $self->{ order }{ $round }};
 	if( exists $self->{ forms }{ $round } ) {
 		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
 		$forms = int( @compulsory );
@@ -112,11 +116,17 @@ sub place_athletes {
 
 	# ===== FILTER ATHLETES THAT HAVE SCORES STILL PENDING
 	my @athletes = $self->athletes_in_round();
-	@$pending   = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @athletes;
-	@$placement = grep {   $self->{ athletes }[ $_ ]{ scores }{ $round }->complete() } @$placement;
+	@$pending   = grep { my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $round_scores && ! $round_scores->complete() } @athletes;
+	@$placement = grep { my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $round_scores &&   $round_scores->complete() } @$placement;
 
-	$self->{ placement }{ $round } = $placement;
 	$self->{ pending }{ $round }   = $pending;
+	$self->{ placement }{ $round } = $placement;
+
+	my $half = int( (@{ $self->{ athletes }} + 1) /2 );
+	if   ( $round eq 'prelim' ) { @$placement = @$placement[ 0 .. $half ]; }
+	elsif( $round eq 'semfin' ) { @$placement = @$placement[ 0 .. 7  ]; }
+	elsif( $round eq 'finals' ) { @$placement = @$placement[ 0 .. 3  ]; }
+
 	return $placement;
 }
 
@@ -226,7 +236,10 @@ sub read {
 	$self->{ state }   = 'score';
 	$self->{ round }   = 'finals';
 
-	my $athlete = {};
+	my $round    = 'finals';
+	my $order    = {};
+	my $athletes = {};
+	my $athlete  = {};
 	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
@@ -234,20 +247,27 @@ sub read {
 
 		# ===== READ DIVISION STATE INFORMATION
 		if( /^#/ ) {
-			s/^#\s+//;
-			my ($key, $value) = split /=/;
-			if    ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
-			elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
-			elsif ( $key eq 'pending'   ) { $self->{ $key } = _parse_pending( $value );   }
-			else                          { $self->{ $key } = $value;                     }
+			if( /=/ ) {
+				s/^#\s+//;
+				my ($key, $value) = split /=/;
+				if    ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
+				elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
+				elsif ( $key eq 'pending'   ) { $self->{ $key } = _parse_pending( $value );   }
+				else                          { $self->{ $key } = $value;                     }
 
+			} elsif( /prelim|semfin|finals/i ) {
+				s/^#\s+//;
+				$round = $_;
+			}
 		# ===== READ DIVISION ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
+			# Store the current athlete before starting a new athlete
 			if( $athlete->{ name } ) {
-				push @{ $self->{ athletes }}, $athlete;
+				push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
 				$athlete = {};
 			}
 
+			# Start a new athlete
 			my ($name, $rank, $age) = split /\t/;
 
 			$athlete->{ name }   = $name;
@@ -255,10 +275,13 @@ sub read {
 			$athlete->{ age }    = $age;
 			$athlete->{ scores } = {};
 
+			$athletes->{ $athlete->{ name } } = $athlete;
+
 		# ===== READ DIVISION ATHLETE SCORES
-		} elsif( /^\t/ ) {
+		} elsif( /^\t\w/ ) {
 			s/^\t//;
-			my ($round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
+			my ($score_round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
+			die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
 			$self->{ rounds }{ $round } = 1;
 
 			$form  =~ s/f//; $form  = int( $form )  - 1;
@@ -272,8 +295,28 @@ sub read {
 			die "Database Read Error: Unknown line type '$_'\n";
 		}
 	}
-	push @{ $self->{ athletes }}, $athlete if( $athlete->{ name } );
+	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; }
 	close FILE;
+
+	# ===== ESTABLISH THE ORDER BASED ON THE FIRST ROUND
+	my $initial_order = {};
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+		next unless exists $order->{ $round };
+		if( keys %$initial_order ) {
+			foreach my $name (@{ $order->{ $round }}) {
+				push @{$self->{ order }{ $round }}, $initial_order->{ $name };
+			}
+		} else {
+			my $i = 0;
+			foreach my $name (@{ $order->{ $round }}) {
+				$initial_order->{ $name } = $i;
+				push @{$self->{ order }{ $round }}, $i;
+				push @{ $self->{ athletes }}, $athletes->{ $name };
+				$i++;
+			}
+		}
+		last;
+	}
 
 	# ===== INITIALIZE EACH ROUND (IF NOT ALREADY INITIALIZED)
 	my @rounds = ();
@@ -286,14 +329,17 @@ sub read {
 		push @rounds, 'semfin' if $n >  8;
 		push @rounds, 'finals';
 
+		# If there are lots of athletes, assign all athletes to preliminary round
 		if     ( $round eq 'prelim' && $n >= 20 ) { 
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 			$self->{ places } = [ $half ];
 
+		# If there less than 20 athletes, assign all athletes to semi-final round
 		} elsif( $round eq 'semfin' && $n > 8 && $n < 20 ) {
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 			$self->{ places } = [ 8 ];
 
+		# If there are less than 8 athletes, assign all to final round
 		} elsif( $round eq 'finals' && $n <= 8 ) {
 			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
 			$self->{ places } = [ 1, 1, 2 ];
@@ -327,6 +373,8 @@ sub read {
 # ============================================================
 sub update_status {
 # ============================================================
+# Determine athlete placements and tie detection
+# ------------------------------------------------------------
 	my $self  = shift;
 	my $round = $self->{ round };
 
@@ -343,16 +391,21 @@ sub update_status {
 		}
 	}
 
+	# ===== ASSIGN THE ATHLETES TO THE NEXT ROUND
 	my $n        = int( @{ $self->{ athletes }} );
 	my $half     = int( ($n-1)/2 );
 	my $k        = $n > 8 ? 7 : ($n - 1);
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
-		my @placed = map { $self->{ athletes }[ $_ ] } @{ $self->{ placement }{ 'prelim' }}[ 0 .. $half ];
-		$self->assign( $_, 'semfin' ) foreach @placed;
+		# Semi-final round goes in random order
+		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
+		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
+		$self->assign( $_, 'semfin' ) foreach @athlete_advances;
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
-		my @placed = map { $self->{ athletes }[ $_ ] } @{ $self->{ placement }{ 'semfin' }}[ 0 .. $k ];
-		$self->assign( $_, 'finals' ) foreach @placed;
+		# Finals go in reverse placement order of semi-finals
+		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
+		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
+		$self->assign( $_, 'finals' ) foreach @athlete_advances;
 	}
 }
 
@@ -392,15 +445,14 @@ sub write {
 	$self->{ placement } = {} unless defined $self->{ placement };
 	my @places = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		next unless exists $self->{ placement }{ $round };
-		next unless int(@{$self->{ placement }{ $round }}) > 0;
+		next unless exists $self->{ placement }{ $round } && int(@{$self->{ placement }{ $round }});
 		next unless grep { /^\d+$/ } @{ $self->{ placement }{ $round }};
 		push @places, "$round:" . join( ",", grep { /^\d+$/ } @{$self->{ placement }{ $round }} );
 	}
 	$self->{ pending } = {} unless defined $self->{ pending };
 	my @pending = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		next unless exists $self->{ pending }{ $round };
+		next unless exists $self->{ pending }{ $round } && int( @{ $self->{ pending }{ $round }} );
 		push @pending, "$round:" . join( ",", @{$self->{ pending }{ $round }} );
 	}
 
@@ -411,14 +463,19 @@ sub write {
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n";
-	print FILE "# forms=" . join( ";", @forms ) . "\n";
-	print FILE "# placement=" . join( ";", @places ) . "\n";
-	print FILE "# pending=" . join( ";", @pending ) . "\n";
+	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
+	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
+	print FILE "# pending=" . join( ";", @pending ) . "\n" if @pending;
 	my $forms = int( split /,/, $self->{ forms } );
-	foreach my $athlete (@{ $self->{ athletes }}) {
-		print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+		next unless exists $self->{ order }{ $round } && int( @{ $self->{ order }{ $round }});
+		print FILE "# ------------------------------------------------------------\n";
+		print FILE "# $round\n";
+		print FILE "# ------------------------------------------------------------\n";
+		foreach my $k (@{ $self->{ order }{ $round }}) {
+			my $athlete = $self->{ athletes }[ $k ];
+			print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
 
-		foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 			next unless exists $athlete->{ scores }{ $round };
 			my $forms = $athlete->{ scores }{ $round };
 			for( my $i = 0; $i <= $#$forms; $i++ ) {
@@ -607,15 +664,14 @@ sub athletes_in_round {
 	elsif ( $option eq 'semfin'  ) { $round = $option; }
 	elsif ( $option eq 'finals'  ) { $round = $option; }
 
-	my @athlete_indices   = ( 0 .. $#{ $self->{ athletes }} );
-	my @athletes_in_round = grep { @{$self->{ athletes }[ $_ ]{ scores }{ $round }} } @athlete_indices;
+	my @athletes_in_round = @{ $self->{ order }{ $round }};
 
 	if( defined $i ) {
 		return $athletes_in_round[ $i ];
 
 	} elsif( $find ) {
-		my $j = (map { $athletes_in_round[ $_ ] == $self->{ current } ? $_ : () } ( 0 .. $#athletes_in_round ))[ 0 ];
-		my $k = ($j + $find) % int( @athletes_in_round );
+		my $j = first { $athletes_in_round[ $_ ] == $self->{ current } } ( 0 .. $#athletes_in_round );
+		my $k = ($j + $find) < 0 ? $#athletes_in_round : ($j + $find) % int( @athletes_in_round );
 
 		return $athletes_in_round[ $k ];
 

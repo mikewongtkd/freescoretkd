@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 
 use lib qw( /usr/local/freescore/lib );
+use Data::Dumper;
 use Try::Tiny;
 use Mojolicious::Lite;
 use YAML;

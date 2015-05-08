@@ -4,26 +4,29 @@
 # round=prelim
 # judges=5
 # description=World Class All Ages
-# forms=prelim:Koomgang,Taegeuk Saa Jang;semfin:Taegeuk Oh Jang,Koryo;finals:Taegeuk Chil Jang,Taegeuk Yuk Jang
-Aditya	Black	
-Anika	Black	
-Piper	Black	
-Alexander	Black	
-Steven	Black	
-Sofia	Black	
-Christian	Black	
-Jamsheed	Black	
-Thibault	Black	
-Yash	Black	
-Sean C.	Black	
-Sean O.	Black	
-Sujatha	Black	
-Jill	Black	
-Mike	Black	
-Carl	Black	
-Veronika	Black	
-Giovanni	Black	
-Katrina	Black	
-Cody	Black	
-Kaylee	Black	
-Jonathan	Black	
+# forms=prelim:Koomgang,Taegeuk 4;semfin:Taegeuk 5,Koryo;finals:Taegeuk 7,Taegeuk 6
+# ------------------------------------------------------------
+# prelim
+# ------------------------------------------------------------
+Aditya
+Anika
+Piper
+Alexander
+Steven
+Sofia
+Christian
+Jamsheed
+Thibault
+Yash
+Sean C.
+Sean O.
+Sujatha
+Jill
+Mike
+Carl
+Veronika
+Giovanni
+Katrina
+Cody
+Kaylee
+Jonathan
