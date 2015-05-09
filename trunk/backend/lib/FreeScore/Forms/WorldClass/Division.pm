@@ -77,6 +77,7 @@ sub place_athletes {
 		my $y = $scores->[ $b ]{ compulsory };
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
+		# ===== CALCULATE STATISTICS IN CASE OF TIES
 		my $x_stats = {};
 		$x_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$x;
 		$x_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$x;
@@ -89,7 +90,7 @@ sub place_athletes {
 		$y_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$y;
 		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )    foreach (qw( sum pre all ));
 
-		# ===== ANNOTATE TIE-BREAKER CAUSE
+		# ===== DETECT TIES AND APPLY AUTOMATED TIE-RESOLUTION
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
 		if( $x_stats->{ sum } == $y_stats->{ sum } ) {
 			if    ( $x_stats->{ pre } > $y_stats->{ pre } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
@@ -115,28 +116,24 @@ sub place_athletes {
 	} @athlete_indices;
 
 	# ===== FILTER ATHLETES THAT HAVE SCORES STILL PENDING
-	my @athletes = $self->athletes_in_round();
-	@$pending   = grep { my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $round_scores && ! $round_scores->complete() } @athletes;
-	@$placement = grep { my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $round_scores &&   $round_scores->complete() } @$placement;
+	@$pending   = grep { my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $round_scores && ! $round_scores->complete() } @{ $self->{ order }{ $round }};
 
-	$self->{ pending }{ $round }   = $pending;
-	$self->{ placement }{ $round } = $placement;
-
-	my $half = int( (@{ $self->{ athletes }} + 1) /2 );
+	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 ) - 1;
 	if   ( $round eq 'prelim' ) { @$placement = @$placement[ 0 .. $half ]; }
 	elsif( $round eq 'semfin' ) { @$placement = @$placement[ 0 .. 7  ]; }
 	elsif( $round eq 'finals' ) { @$placement = @$placement[ 0 .. 3  ]; }
 
-	return $placement;
+	$self->{ pending }{ $round }   = $pending;
+	$self->{ placement }{ $round } = $placement;
 }
 
 # ============================================================
 sub detect_ties {
 # ============================================================
 	my $self      = shift;
-	my $placement = shift;
 	my $ties      = [];
 	my $round     = $self->{ round };
+	my $placement = $self->{ placement }{ $round };
 
 	# ===== DETECT TIES BY LOOKING AT PAIRS OF SCORES
 	my $i = 0;
@@ -210,6 +207,63 @@ sub get_only {
 			$form->{ judge } = [ $form->{ judge }[ $judge ] ];
 		}
 	}
+}
+
+# ============================================================
+sub normalize {
+# ============================================================
+	my $self = shift;
+
+	# ===== INITIALIZE EACH ROUND (IF NOT ALREADY INITIALIZED)
+	my @rounds = ();
+	ROUND_SETUP: {
+		my $round    =  $self->{ round };
+		my $n        = int( @{ $self->{ athletes }} );
+		my $half     = int( ($n-1)/2 );
+
+		push @rounds, 'prelim' if $n >= 20;
+		push @rounds, 'semfin' if $n >  8;
+		push @rounds, 'finals';
+
+		# If there are lots of athletes, assign all athletes to preliminary round
+		if     ( $round eq 'prelim' && $n >= 20 ) { 
+			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
+			$self->{ places } = [ $half ];
+
+		# If there less than 20 athletes, assign all athletes to semi-final round
+		} elsif( $round eq 'semfin' && $n > 8 && $n < 20 ) {
+			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
+			$self->{ places } = [ 8 ];
+
+		# If there are less than 8 athletes, assign all to final round
+		} elsif( $round eq 'finals' && $n <= 8 ) {
+			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
+			$self->{ places } = [ 1, 1, 2 ];
+		}
+	}
+
+	# ===== NORMALIZE THE SCORING MATRIX
+	foreach my $athlete (@{ $self->{ athletes }}) {
+		foreach my $round (@rounds) {
+			my @compulsory    = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
+			my $athlete_forms = $#{ $athlete->{ scores }{ $round }};
+			my $forms         = $#compulsory > $athlete_forms ? $#compulsory : $athlete_forms;
+
+			next unless exists $athlete->{ scores }{ $round };
+			foreach my $i ( 0 .. $forms ) {
+				my $judge_scores = $athlete->{ scores }{ $round }[ $i ];
+				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
+				foreach my $j ( 0 .. ($self->{ judges } - 1) ) {
+					next if( ref $judge_scores->{ judge }[ $j ] );
+					$judge_scores->{ judge }[ $j ] = { major => undef, minor => undef, rhythm => undef, power => undef, ki => undef };
+				}
+			}
+			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
+		}
+	}
+
+	$self->{ current } = $self->athletes_in_round( 'first' ) unless( $self->{ current } );
+	$self->update_status();
 }
 
 # ============================================================
@@ -318,56 +372,7 @@ sub read {
 		last;
 	}
 
-	# ===== INITIALIZE EACH ROUND (IF NOT ALREADY INITIALIZED)
-	my @rounds = ();
-	ROUND_SETUP: {
-		my $round    =  $self->{ round };
-		my $n        = int( @{ $self->{ athletes }} );
-		my $half     = int( ($n-1)/2 );
-
-		push @rounds, 'prelim' if $n >= 20;
-		push @rounds, 'semfin' if $n >  8;
-		push @rounds, 'finals';
-
-		# If there are lots of athletes, assign all athletes to preliminary round
-		if     ( $round eq 'prelim' && $n >= 20 ) { 
-			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
-			$self->{ places } = [ $half ];
-
-		# If there less than 20 athletes, assign all athletes to semi-final round
-		} elsif( $round eq 'semfin' && $n > 8 && $n < 20 ) {
-			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
-			$self->{ places } = [ 8 ];
-
-		# If there are less than 8 athletes, assign all to final round
-		} elsif( $round eq 'finals' && $n <= 8 ) {
-			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
-			$self->{ places } = [ 1, 1, 2 ];
-		}
-	}
-
-	# ===== COMPLETE THE SCORING MATRIX
-	foreach my $athlete (@{ $self->{ athletes }}) {
-		foreach my $round (@rounds) {
-			my @compulsory    = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
-			my $athlete_forms = $#{ $athlete->{ scores }{ $round }};
-			my $forms         = $#compulsory > $athlete_forms ? $#compulsory : $athlete_forms;
-
-			next unless exists $athlete->{ scores }{ $round };
-			foreach my $i ( 0 .. $forms ) {
-				my $judge_scores = $athlete->{ scores }{ $round }[ $i ];
-				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
-				foreach my $j ( 0 .. ($self->{ judges } - 1) ) {
-					next if( ref $judge_scores->{ judge }[ $j ] );
-					$judge_scores->{ judge }[ $j ] = { major => undef, minor => undef, rhythm => undef, power => undef, ki => undef };
-				}
-			}
-			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
-		}
-	}
-
-	$self->{ current } = $self->athletes_in_round( 'first' ) unless( $self->{ current } );
-	$self->update_status();
+	$self->normalize();
 }
 
 # ============================================================
@@ -379,8 +384,8 @@ sub update_status {
 	my $round = $self->{ round };
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
-	my $placement = $self->place_athletes();
-	my $ties      = $self->detect_ties( $placement );
+	$self->place_athletes();
+	my $ties = $self->detect_ties();
 
 	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
 	foreach my $tie (@$ties) {

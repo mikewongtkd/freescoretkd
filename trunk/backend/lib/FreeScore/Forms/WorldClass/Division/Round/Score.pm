@@ -48,8 +48,8 @@ sub complete {
 	my $self = shift;
 
 	my $complete = 1;
-	my $complete &&= all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor ) };
-	my $complete &&= all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki ) };
+	$complete &&= all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor ) };
+	$complete &&= all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki ) };
 	$self->{ complete } = $complete;
 	return $complete;
 }

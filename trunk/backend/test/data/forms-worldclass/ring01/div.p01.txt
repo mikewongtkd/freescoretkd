@@ -4,7 +4,7 @@
 # round=prelim
 # judges=5
 # description=World Class All Ages
-# forms=prelim:Koomgang,Taegeuk 4;semfin:Taegeuk 5,Koryo;finals:Taegeuk 7,Taegeuk 6
+# forms=prelim:Taegeuk 4;semfin:Koryo;finals:Taegeuk 7,Keumgang
 # ------------------------------------------------------------
 # prelim
 # ------------------------------------------------------------

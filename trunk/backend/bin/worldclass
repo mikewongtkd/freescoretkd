@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 
 use lib qw( /usr/local/freescore/lib );
+use File::Path qw( make_path );
 use Data::Dumper;
 use Try::Tiny;
 use Mojolicious::Lite;
@@ -140,34 +141,34 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 # ------------------------------------------------------------
 # FASTMATCH TRAINING DIVISION
 # ------------------------------------------------------------
-post '/:tournament/:ring/fastmatch' => sub { 
-	my $self        = shift;
-	my $tournament  = $self->param( 'tournament' );
-	my $ring        = $self->param( 'ring' );
-	my $i           = $self->param( 'div_index' );
-	my $j           = $self->param( 'ath_index' );
-	my $name        = $self->param( 'name' );
-	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $content     = $self->req->body;
+post '/fastmatch' => sub { 
+	my $self       = shift;
+	my $tournament = 'fastmatch';
+	my $ring       = 1;
+	my $content    = $self->req->body;
+	my $path       = "/Volumes/ramdisk/fastmatch/forms-worldclass/ring01";
 
 	try {
-		my $archive = "archive.20" . join( "-", reverse map { sprintf "%02d", ($_ % 100) } ((localtime())[ 0 .. 5 ])) . ".tar.gz";
-		`cd $progress->{ path } && tar -czf $archive *.txt && rm -f *.txt && touch div.wc01.txt`;
-		$progress->{ current } = 0;
-		$progress->write();
-		my $division = new FreeScore::Forms::WorldClass::Division( $progress->{ path }, 'wc01', $ring );
+		# ===== MAKE TOURNAMENT AND PROGRESS FILE
+		make_path $path unless -e $path;
+		open FILE, ">$path/progress.txt" or die "Can't write to '$path/progress.txt' $!";
+		print FILE "# current = 0;";
+		close FILE;
+
+		# ===== CREATE DIVISION
 		my $header = $json->decode( $content );
+		open FILE, ">$path/div.wc01.txt" or die "Can't write to '$path/div.wc01.txt' $!";
 		foreach my $key (keys %$header) {
 			next if $key eq 'athletes';
-			$division->{ $key } = $header->{ $key };
+			print FILE "# $key=$header->{ $key }\n";
 		}
 		foreach my $athlete (@{ $header->{ athletes }}) {
-			push @{ $division->{ athletes }}, { name => $athlete };
-			print STDERR "Adding $athlete\n";
+			print FILE "$athlete\n";
 		}
+		close FILE;
+		my $division = new FreeScore::Forms::WorldClass::Division( $path, 'wc01', $ring );
 		$division->write();
-		$division = new FreeScore::Forms::WorldClass::Division( $progress->{ path }, 'wc01', $ring );
-		$division->write();
+
 		send_response( $self, { description => "FastMatch division created" } );
 
 	} catch {

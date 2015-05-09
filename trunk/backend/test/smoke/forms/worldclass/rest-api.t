@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use lib qw( ./lib ../lib );
-use Test::Simple tests => 579;
+use Test::Simple tests => 691;
 use FreeScore::Test qw( score_worldclass );
 use Data::Dumper;
 
@@ -20,6 +20,43 @@ ok( $response->{ state } eq 'display' );
 
 # ===== SCORE THE 22 PLAYERS IN THE PRELIMINARY ROUND
 foreach my $athlete ( 0 .. 21 ) { 
+	foreach my $judge ( 0 .. ($judges - 1)) {
+		my $score = score_worldclass();
+
+		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+		ok( $response = $test->worldclass( $judge_score ) );
+		print STDERR Dumper $response if exists $response->{ error };
+		ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
+	}
+	ok( $response = $test->worldclass( "athlete/next" ));
+	ok( $response->{ athlete } == ($athlete + 1) % 22);
+}
+
+# ===== MOVE TO THE SEMIFINAL ROUND
+ok( $response = $test->worldclass( "round/next" ));
+ok( $response->{ round } eq 'semfin' );
+
+# ===== SCORE THE 11 PLAYERS IN THE SEMIFINAL ROUND
+foreach my $athlete ( 0 .. 10 ) { 
+	foreach my $judge ( 0 .. ($judges - 1)) {
+		my $score = score_worldclass();
+
+		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+		ok( $response = $test->worldclass( $judge_score ) );
+		print STDERR Dumper $response if exists $response->{ error };
+		ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
+	}
+	ok( $response = $test->worldclass( "athlete/next" ));
+	ok( $response->{ athlete } == ($athlete + 1) % 11);
+exit(); # MW
+}
+
+# ===== MOVE TO THE FINAL ROUND
+ok( $response = $test->worldclass( "round/next" ));
+ok( $response->{ round } eq 'finals' );
+
+# ===== SCORE THE 8 PLAYERS IN THE FINALS ROUND
+foreach my $athlete ( 0 .. 10 ) { 
 	foreach my $form ( 0 .. 1 ) {
 		foreach my $judge ( 0 .. ($judges - 1)) {
 			my $score = score_worldclass();
@@ -33,11 +70,6 @@ foreach my $athlete ( 0 .. 21 ) {
 		ok( $response->{ form } == 1 );
 	}
 	ok( $response = $test->worldclass( "athlete/next" ));
-	ok( $response->{ athlete } == ($athlete + 1) % 22);
+	ok( $response->{ athlete } == ($athlete + 1) % 11);
 }
-
-# ===== MOVE TO THE NEXT ROUND (SEMIFINALS)
-ok( $response = $test->worldclass( "round/next" ));
-ok( $response->{ round } eq 'semfin' );
-
 

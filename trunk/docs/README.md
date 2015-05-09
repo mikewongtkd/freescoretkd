@@ -27,6 +27,7 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
   - GD::Barcode
     - GD
   - JSON::XS
+  - List::Util
   - LWP::UserAgent
   - Mojolicious
   - Text::CSV
@@ -222,10 +223,20 @@ edit `/etc/dnsmasq.conf`
 
 edit Apache Configuration; allow FollowSymLinks
 
-#### Clone SD Card Image
+#### Clone SD Card Image to File
 
     dd if=<SD card location> of=<Desired SD image file location> bs=1m
 
 Using `rdisk` is faster, rather than any mounted volume i.e.
 
-    dd if=/dev/rdisk<xyz> of=~/Desktop/freescore.sd.image
+    dd if=/dev/rdisk<xyz> of=<path>/freescore.sd.image
+
+You can identify the device number using `diskutil list`
+
+#### Copy Image File to SD Card
+
+Use `diskutil` to identify the SD card device number
+
+    diskutil list
+    diskutil unmount '/Volumes/<device name>'
+    dd bs=1m if=<path>/freescore.sd.image of=/dev/rdisk<xyz>

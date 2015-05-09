@@ -63,13 +63,13 @@ sub calculate_means {
 	foreach my $form (@$self) {
 		next unless $form->{ complete };
 
-		my $stats  = { min => { acc => 0, pre => 0 }, max => { acc => 0, pre => 0 }};
-		my $k = int @{$form->{ judge }};
+		my $stats = { min => { acc => 0, pre => 0 }, max => { acc => 0, pre => 0 }};
+		my $k     = int @{$form->{ judge }};
 		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
 		foreach my $i (0 .. $#{ $form->{ judge }}) {
 			my $score        = $form->{ judge }[ $i ];
-			my $accuracy     = $score->{ accuracy };
-			my $presentation = $score->{ presentation };
+			my $accuracy     = $score->accuracy();
+			my $presentation = $score->presentation();
 			$stats->{ min }{ acc } = $form->{ judge }[ $stats->{ min }{ acc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ min }{ acc };
 			$stats->{ max }{ acc } = $form->{ judge }[ $stats->{ max }{ acc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ max }{ acc };
 			$stats->{ min }{ pre } = $form->{ judge }[ $stats->{ min }{ pre } ]{ presentation } > $presentation ? $i : $stats->{ min }{ pre };
