@@ -6,6 +6,7 @@ use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( any none first shuffle );
 use base qw( FreeScore::Forms::Division );
 use Data::Dumper;
+use strict;
 
 our @round_order = ( qw( prelim semfin finals ) );
 
@@ -78,13 +79,13 @@ sub place_athletes {
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
 		# ===== CALCULATE STATISTICS IN CASE OF TIES
-		my $x_stats = {};
+		my $x_stats = { sum => 0, pre => 0, all => 0 };
 		$x_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$x;
 		$x_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$x;
 		$x_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$x;
 		$x_stats->{ $_ } = sprintf( "%5.2f", $x_stats->{ $_ } )    foreach (qw( sum pre all ));
 
-		my $y_stats = {};
+		my $y_stats = { sum => 0, pre => 0, all => 0 };
 		$y_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$y;
 		$y_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$y;
 		$y_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$y;
@@ -116,7 +117,10 @@ sub place_athletes {
 	} @athlete_indices;
 
 	# ===== FILTER ATHLETES THAT HAVE SCORES STILL PENDING
-	@$pending   = grep { my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $round_scores && ! $round_scores->complete() } @{ $self->{ order }{ $round }};
+	@$pending   = grep { 
+		my $round_scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; 
+		defined $round_scores && ! $round_scores->complete() 
+	} @{ $self->{ order }{ $round }};
 
 	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 ) - 1;
 	if   ( $round eq 'prelim' ) { @$placement = @$placement[ 0 .. $half ]; }
@@ -160,8 +164,8 @@ sub detect_ties {
 	}
 
 	# ===== FILTER UNIMPORTANT TIES
+	$i = 0;
 	my $places   = $self->{ places };
-	my $i        = 0;
 	my $medals   = $places->[ $i ];
 	my $athletes = 0;
 	while( $i < $k && $medals ) {
@@ -204,6 +208,7 @@ sub get_only {
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } };
 		foreach my $form (@{$athlete->{ scores }{ $round }}) {
+			next unless exists $form->{ judge };
 			$form->{ judge } = [ $form->{ judge }[ $judge ] ];
 		}
 	}
@@ -420,10 +425,11 @@ sub round_complete {
 	my $self  = shift;
 	my $round = shift || $self->{ round };
 
-	my $forms      = $self->{ forms }{ $round };
-	my @compulsory = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
-	my $n          = int( @compulsory );
-	my $complete   = 1;
+	my $forms        = $self->{ forms }{ $round };
+	my @form_indices = ( 0 .. $#$forms );
+	my @compulsory   = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
+	my $n            = int( @compulsory );
+	my $complete     = 1;
 	foreach my $athlete ($self->athletes_in_round( $round )) {
 		next unless exists $athlete->{ scores }{ $round };
 		$complete &&= $athlete->{ scores }{ $round }->complete( $n );
@@ -484,7 +490,9 @@ sub write {
 			next unless exists $athlete->{ scores }{ $round };
 			my $forms = $athlete->{ scores }{ $round };
 			for( my $i = 0; $i <= $#$forms; $i++ ) {
-				my $form   = $forms->[ $i ];
+				my $form = $forms->[ $i ];
+				next unless exists $form->{ judge };
+
 				my $judges = $form->{ judge };
 				foreach my $j (0 .. $#$judges) {
 					my $score = $judges->[ $j ];
@@ -669,7 +677,8 @@ sub athletes_in_round {
 	elsif ( $option eq 'semfin'  ) { $round = $option; }
 	elsif ( $option eq 'finals'  ) { $round = $option; }
 
-	my @athletes_in_round = @{ $self->{ order }{ $round }};
+	$self->{ order }{ $round } ||= [];
+	my @athletes_in_round = @{$self->{ order }{ $round }};
 
 	if( defined $i ) {
 		return $athletes_in_round[ $i ];

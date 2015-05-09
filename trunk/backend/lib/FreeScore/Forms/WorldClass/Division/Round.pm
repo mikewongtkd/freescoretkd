@@ -4,6 +4,9 @@ use List::Util qw( all );
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Dumper;
+use Carp;
+
+$SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 
 # ============================================================
 sub new {
@@ -30,9 +33,11 @@ sub init {
 # ============================================================
 	my $self = shift;
 	foreach my $form (@$self) {
-		foreach my $i (0 .. $#{ $form->{ judge }}) {
-			my $judge_score = $form->{ judge };
-			bless $judge_score->[ $i ], 'FreeScore::Forms::WorldClass::Division::Round::Score';
+		next unless exists $form->{ judge };
+		my $judge_scores = $form->{ judge };
+		foreach my $i (0 .. $#$judge_scores) {
+			my $judge_score = $$judge_scores[ $i ];
+			new FreeScore::Forms::WorldClass::Division::Round::Score( $judge_score );
 		}
 	}
 	$self->calculate_means();
@@ -62,14 +67,15 @@ sub calculate_means {
 	$self->complete();
 	foreach my $form (@$self) {
 		next unless $form->{ complete };
+		next unless exists $form->{ judge };
 
 		my $stats = { min => { acc => 0, pre => 0 }, max => { acc => 0, pre => 0 }};
 		my $k     = int @{$form->{ judge }};
 		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
 		foreach my $i (0 .. $#{ $form->{ judge }}) {
 			my $score        = $form->{ judge }[ $i ];
-			my $accuracy     = $score->accuracy();
-			my $presentation = $score->presentation();
+			my $accuracy     = $score->{ accuracy }     || die "Accuracy not calculated!";
+			my $presentation = $score->{ presentation } || die "Precision not calculated!";
 			$stats->{ min }{ acc } = $form->{ judge }[ $stats->{ min }{ acc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ min }{ acc };
 			$stats->{ max }{ acc } = $form->{ judge }[ $stats->{ max }{ acc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ max }{ acc };
 			$stats->{ min }{ pre } = $form->{ judge }[ $stats->{ min }{ pre } ]{ presentation } > $presentation ? $i : $stats->{ min }{ pre };
@@ -188,6 +194,7 @@ sub complete {
 
 	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
 	foreach my $form (@$self) {
+		next unless exists $form->{ judge };
 		$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
 	}
 
