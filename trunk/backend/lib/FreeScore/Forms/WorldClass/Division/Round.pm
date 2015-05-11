@@ -12,18 +12,8 @@ $SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
-	my $data    = shift;
-	my $forms   = shift;
-	my $judges  = shift;
+	my $data    = shift || [];
 	my $self    = bless $data, $class; 
-	if( defined $judges ) {
-		foreach ( 1 .. $forms ) {
-			my $scores = [];
-			push @$scores, {} foreach ( 1 .. $judges ) ;
-			push @$self, { judge => $scores };
-		}
-	}
-
 	$self->init( @_ );
 	return $self;
 }
@@ -32,15 +22,20 @@ sub new {
 sub init {
 # ============================================================
 	my $self = shift;
-	foreach my $form (@$self) {
-		next unless exists $form->{ judge };
-		my $judge_scores = $form->{ judge };
-		foreach my $i (0 .. $#$judge_scores) {
-			my $judge_score = $$judge_scores[ $i ];
-			new FreeScore::Forms::WorldClass::Division::Round::Score( $judge_score );
-		}
-	}
-	$self->calculate_means();
+}
+
+# ============================================================
+sub record_score {
+# ============================================================
+# Records a given score. Will overwrite if the same judge has
+# given a previous score for the same form.
+#------------------------------------------------------------
+ 	my $self  = shift;
+	my $form  = shift;
+	my $judge = shift;
+	my $score = shift;
+
+	$self->[ $form ]{ judge }[ $judge ] = new FreeScore::Forms::WorldClass::Division::Round::Score( $score );
 }
 
 # ============================================================
@@ -52,9 +47,9 @@ sub add_tiebreaker {
 	my $stop   = shift;
 
 	foreach my $i ( $start .. $stop ) {
-		my $scores = [];
-		push @$scores, new FreeScore::Forms::WorldClass::Division::Round::Score( {} ) foreach( 1 .. $judges );
-		$self->[ $i ] = defined $self->[ $i ] ? $self->[ $i ] : { judge => $scores };
+		foreach ( 0 .. $judges ) {
+			push @{ $self->[ $i ]{ judge }}, new FreeScore::Forms::WorldClass::Division::Round::Score();
+		}
 	}
 }
 
@@ -69,54 +64,54 @@ sub calculate_means {
 		next unless $form->{ complete };
 		next unless exists $form->{ judge };
 
-		my $stats = { min => { acc => 0, pre => 0 }, max => { acc => 0, pre => 0 }};
-		my $k     = int @{$form->{ judge }};
+		my $stats  = { minacc => 0, minpre => 0, maxacc => 0, maxpre => 0 };
+		my $judges = int @{$form->{ judge }};
+		my $k      = $#{ $form->{ judge }};
 		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
-		foreach my $i (0 .. $#{ $form->{ judge }}) {
+		foreach my $i (0 .. $k) {
 			my $score        = $form->{ judge }[ $i ];
-			my $accuracy     = $score->{ accuracy }     || die "Accuracy not calculated!";
-			my $presentation = $score->{ presentation } || die "Precision not calculated!";
-			$stats->{ min }{ acc } = $form->{ judge }[ $stats->{ min }{ acc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ min }{ acc };
-			$stats->{ max }{ acc } = $form->{ judge }[ $stats->{ max }{ acc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ max }{ acc };
-			$stats->{ min }{ pre } = $form->{ judge }[ $stats->{ min }{ pre } ]{ presentation } > $presentation ? $i : $stats->{ min }{ pre };
-			$stats->{ max }{ pre } = $form->{ judge }[ $stats->{ max }{ pre } ]{ presentation } < $presentation ? $i : $stats->{ max }{ pre };
-			$stats->{ sum }{ acc } += $accuracy;
-			$stats->{ sum }{ pre } += $presentation;
+			my $accuracy     = $score->{ accuracy }     || die "Round Object Error: Accuracy not calculated!";
+			my $presentation = $score->{ presentation } || die "Round Object Error: Precision not calculated!";
+			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
+			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
+			$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation } > $presentation ? $i : $stats->{ minpre };
+			$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation } < $presentation ? $i : $stats->{ maxpre };
+			$stats->{ sumacc } += $accuracy;
+			$stats->{ sumpre } += $presentation;
 		}
 
 		# ===== IF ALL SCORES ARE THE SAME, THEN THE MIN AND MAX WILL BE THE SAME; DIFFERENTIATE THEM
-		if( $stats->{ min }{ acc } == $stats->{ max }{ acc } ) { $stats->{ max }{ acc }++; }
-		if( $stats->{ min }{ pre } == $stats->{ max }{ pre } ) { $stats->{ max }{ pre }++; }
+		if( $stats->{ minacc } == $stats->{ maxacc } && $k > 0 ) { $stats->{ maxacc }++; }
+		if( $stats->{ minpre } == $stats->{ maxpre } && $k > 0 ) { $stats->{ maxpre }++; }
 
 		# ===== MARK THE SCORES AS MIN OR MAX
-		foreach my $i (0 .. $#{ $form->{ judge }}) {
-			foreach my $minmax (qw( minacc maxacc minpre maxpre )) { $form->{ judge }[ $i ]{ $minmax } = JSON::XS::false; }
-		}
-		$form->{ judge }[ $stats->{ min }{ acc } ]{ minacc } = JSON::XS::true;
-		$form->{ judge }[ $stats->{ max }{ acc } ]{ maxacc } = JSON::XS::true;
-		$form->{ judge }[ $stats->{ min }{ pre } ]{ minpre } = JSON::XS::true;
-		$form->{ judge }[ $stats->{ max }{ pre } ]{ maxpre } = JSON::XS::true;
+		foreach my $i (0 .. $k) { $form->{ judge }[ $i ]->clear_minmax(); }
+
+		$form->{ judge }[ $stats->{ minacc } ]->mark_minmax( 'minacc' );
+		$form->{ judge }[ $stats->{ maxacc } ]->mark_minmax( 'maxacc' );
+		$form->{ judge }[ $stats->{ minpre } ]->mark_minmax( 'minpre' );
+		$form->{ judge }[ $stats->{ maxpre } ]->mark_minmax( 'maxpre' );
 
 		# ===== RE-MAP FROM INDICES TO VALUES
-		$stats->{ min }{ acc } = $form->{ judge }[ $stats->{ min }{ acc } ]{ accuracy };
-		$stats->{ max }{ acc } = $form->{ judge }[ $stats->{ max }{ acc } ]{ accuracy };
-		$stats->{ min }{ pre } = $form->{ judge }[ $stats->{ min }{ pre } ]{ presentation };
-		$stats->{ max }{ pre } = $form->{ judge }[ $stats->{ max }{ pre } ]{ presentation };
+		$stats->{ min }{ acc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy };
+		$stats->{ max }{ acc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy };
+		$stats->{ min }{ pre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation };
+		$stats->{ max }{ pre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
 		my @mean = (
-			accuracy     => sprintf( "%.2f", $stats->{ sum }{ acc }),
-			presentation => sprintf( "%.2f", $stats->{ sum }{ pre })
+			accuracy     => sprintf( "%.2f", $stats->{ sumacc }),
+			presentation => sprintf( "%.2f", $stats->{ sumpre })
 		);
 		my $adjusted = { @mean };
 		my $complete = { @mean };
 
 		# ===== CALCULATE ADJUSTED MEANS
-		if( $k >= 5 ) {
-			$adjusted->{ accuracy }     -= ($stats->{ min }{ acc } + $stats->{ max }{ acc });
-			$adjusted->{ presentation } -= ($stats->{ min }{ pre } + $stats->{ max }{ pre });
+		if( $judges >= 5 ) {
+			$adjusted->{ accuracy }     -= ($stats->{ minacc } + $stats->{ maxacc });
+			$adjusted->{ presentation } -= ($stats->{ minpre } + $stats->{ maxpre });
 
-			$adjusted->{ accuracy }     /= ($k - 2);
-			$adjusted->{ presentation } /= ($k - 2);
+			$adjusted->{ accuracy }     /= ($judges - 2);
+			$adjusted->{ presentation } /= ($judges - 2);
 
 			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
@@ -125,11 +120,11 @@ sub calculate_means {
 			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
 
 		} else {
-			$adjusted = { map { ( $_ => sprintf( "%.2f", ($adjusted->{ $_ }/$k))) } keys %$adjusted };
+			$adjusted = { map { ( $_ => sprintf( "%.2f", ($adjusted->{ $_ }/$judges))) } keys %$adjusted };
 		}
 
 		# ===== CALCULATE COMPLETE MEANS
-		$complete = { map { ( $_ => sprintf( "%.2f", ($complete->{ $_ }/$k))) } keys %$complete };
+		$complete = { map { ( $_ => sprintf( "%.2f", ($complete->{ $_ }/$judges))) } keys %$complete };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation };
 		$complete->{ total } = $complete->{ accuracy } + $complete->{ presentation };
@@ -140,6 +135,23 @@ sub calculate_means {
 	}
 
 	return $means;
+}
+
+# ============================================================
+sub normalize {
+# ============================================================
+	my $self   = shift;
+	my $forms  = shift;
+	my $judges = shift;
+
+	my @forms = map { $self->[ $_ ]; } ( 0 .. $forms );
+	foreach my $i ( 0 .. ($forms - 1)) {
+		my $form = $self->[ $i ];
+		foreach my $j ( 0 .. ($judges - 1)) {
+			next if $form->{ judge }[ $j ];
+			$form->{ judge }[ $j ] = new FreeScore::Forms::WorldClass::Division::Round::Score();
+		}
+	}
 }
 
 # ============================================================

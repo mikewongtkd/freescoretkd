@@ -1,6 +1,7 @@
 package FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all );
 use FreeScore;
+use JSON::XS;
 
 our @criteria = qw( major minor rhythm power ki );
 
@@ -8,11 +9,8 @@ our @criteria = qw( major minor rhythm power ki );
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
-	my $data    = shift;
+	my $data    = shift || { major => 0.0, minor => 0.0, rhythm => 0.0, power => 0.0, ki => 0.0, complete => 0 };
 	my $self = bless $data, $class;
-	foreach my $criteria (@FreeScore::Forms::WorldClass::Division::Round::Score::criteria) {
-		$data->{ $criteria } ||= undef;
-	}
 	$self->accuracy();
 	$self->presentation();
 	return $self;
@@ -27,6 +25,25 @@ sub accuracy {
 	my $accuracy  = $penalties > 4.0 ? 0 : (4.0 - $penalties);
 	$self->{ accuracy } = $accuracy;
 	return $accuracy;
+}
+
+# ============================================================
+sub clear_minmax {
+# ============================================================
+	my $self = shift;
+
+	foreach my $minmax (qw( minacc maxacc minpre maxpre )) { 
+		$self->{ $minmax } = JSON::XS::false; 
+	}
+}
+
+# ============================================================
+sub mark_minmax {
+# ============================================================
+	my $self   = shift;
+	my $minmax = shift;
+
+	$self->{ $minmax } = JSON::XS::true;
 }
 
 # ============================================================

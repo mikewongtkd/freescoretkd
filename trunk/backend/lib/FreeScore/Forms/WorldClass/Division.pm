@@ -3,7 +3,7 @@ use FreeScore;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
-use List::Util qw( any none first shuffle );
+use List::Util qw( any none first shuffle reduce );
 use base qw( FreeScore::Forms::Division );
 use Data::Dumper;
 use strict;
@@ -15,24 +15,26 @@ sub assign {
 # ============================================================
 # Assigns the athlete to a round
 # ------------------------------------------------------------
-	my $self    = shift;
-	my $athlete = shift;
-	my $round   = shift || $self->{ round };
-	my $judges  = $self->{ judges };
-	my $forms   = 0;
+	my $self       = shift;
+	my $athlete    = shift;
+	my $round      = shift || $self->{ round };
+	my $judges     = $self->{ judges };
 
+	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $self->{ forms }{ $round };
+	my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
+	my $forms      = int( @compulsory );
+	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
+
+	# Find athlete by name
 	my $i = first { $self->{ athletes }[ $_ ]{ name } eq $athlete->{ name } } ( 0 .. $#{ $self->{ athletes }});
 
-	push @{ $self->{ order }{ $round }}, $i if none { $_ == $i } @{ $self->{ order }{ $round }};
-	if( exists $self->{ forms }{ $round } ) {
-		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
-		$forms = int( @compulsory );
-	}
+	# Do nothing if athlete is already assigned to the round
+	return if( exists $athlete->{ scores }{ $round });
+	return if( first { $_ == $i } @{ $self->{ order }{ $round }});
 
-	my $data = exists $athlete->{ scores }{ $round } ? $athlete->{ scores }{ $round } : [];
-	my $k = int( @$data );
-	return if( int( @$data ) >= $forms );
-	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $data, $forms, $judges );
+	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round();
+	$athlete->{ scores }{ $round }->normalize( $forms, $judges );
+	push @{ $self->{ order }{ $round }}, $i;
 }
 
 # ============================================================
@@ -43,7 +45,7 @@ sub assign_tiebreaker {
 	my $self    = shift;
 	my $athlete = shift;
 	my $round   = shift || $self->{ round };
-	my $judges  = $self->{ judges };
+	my $judges  = $self->{ judges } - 1;
 
 	if( exists $self->{ forms }{ $round } ) {
 		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
@@ -51,7 +53,7 @@ sub assign_tiebreaker {
 		my $start = int( @compulsory );
 		my $stop  = int( @compulsory ) + int( @tiebreaker ) - 1;
 		for my $i ($start .. $stop) {
-			$athlete->{ scores }{ $round }->add_tiebreaker( $judges, $start, $stop );
+			# $athlete->{ scores }{ $round }->add_tiebreaker( $judges, $start, $stop ); # MW TODO
 		}
 	}
 }
@@ -59,12 +61,15 @@ sub assign_tiebreaker {
 # ============================================================
 sub place_athletes {
 # ============================================================
+# Calculates placements for the current round. Auto-updates
+# score averages.
+# ------------------------------------------------------------
 	my $self      = shift;
 	my $round     = $self->{ round };
 	my $placement = [];
 	my $pending   = [];
 
-	# ===== PLACE ATHLETES
+	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
 	my @athlete_indices = ( 0 .. $#{ $self->{ athletes }} );
 	my $scores = [ map {
 		my $compulsory = $self->select_compulsory_round_scores( $_, $round );
@@ -72,6 +77,7 @@ sub place_athletes {
 		{ compulsory => $compulsory, tiebreaker => $tiebreaker }
 	} @athlete_indices ];
 
+	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
 	@$placement = sort { 
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
 		my $x = $scores->[ $a ]{ compulsory };
@@ -123,9 +129,10 @@ sub place_athletes {
 	} @{ $self->{ order }{ $round }};
 
 	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 ) - 1;
-	if   ( $round eq 'prelim' ) { @$placement = @$placement[ 0 .. $half ]; }
-	elsif( $round eq 'semfin' ) { @$placement = @$placement[ 0 .. 7  ]; }
-	elsif( $round eq 'finals' ) { @$placement = @$placement[ 0 .. 3  ]; }
+	my $n    = 0;
+	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
+	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
+	@$placement = @$placement[ 0 .. $n ];
 
 	$self->{ pending }{ $round }   = $pending;
 	$self->{ placement }{ $round } = $placement;
@@ -166,7 +173,7 @@ sub detect_ties {
 	# ===== FILTER UNIMPORTANT TIES
 	$i = 0;
 	my $places   = $self->{ places };
-	my $medals   = $places->[ $i ];
+	my $medals   = $places->{ $round }[ $i ];
 	my $athletes = 0;
 	while( $i < $k && $medals ) {
 		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
@@ -189,7 +196,7 @@ sub detect_ties {
 		}
 
 		$i += $gave;
-		$medals += $places->[ $i ];
+		$medals += $places->{ $round }[ $i ];
 	}
 
 	# ===== IGNORE ALL OTHER TIES
@@ -217,42 +224,34 @@ sub get_only {
 # ============================================================
 sub normalize {
 # ============================================================
-	my $self = shift;
+	my $self   = shift;
+	my $judges = $self->{ judges };
 
-	# ===== INITIALIZE EACH ROUND (IF NOT ALREADY INITIALIZED)
-	my @rounds = ();
-	ROUND_SETUP: {
-		my $round    =  $self->{ round };
+	# ===== INITIALIZE EACH ROUND IF NOT ALREADY DEFINED
+	my $round = $self->{ round };
+	if( defined $round ) {
+		if( none { my $rounds = int(keys %{ $_->{ scores }}); $rounds > 0 } @{ $self->{ athletes }} ) {
+			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
+		}
+
+	} else {
 		my $n        = int( @{ $self->{ athletes }} );
 		my $half     = int( ($n-1)/2 );
 
-		push @rounds, 'prelim' if $n >= 20;
-		push @rounds, 'semfin' if $n >  8;
-		push @rounds, 'finals';
+		if    ( $n >= 20 ) { $round = 'prelim'; }
+		elsif ( $n >=  8 ) { $round = 'semfin'; }
+		else               { $round = 'finals'; }
 
-		# If there are lots of athletes, assign all athletes to preliminary round
-		if     ( $round eq 'prelim' && $n >= 20 ) { 
-			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
-			$self->{ places } = [ $half ];
-
-		# If there less than 20 athletes, assign all athletes to semi-final round
-		} elsif( $round eq 'semfin' && $n > 8 && $n < 20 ) {
-			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
-			$self->{ places } = [ 8 ];
-
-		# If there are less than 8 athletes, assign all to final round
-		} elsif( $round eq 'finals' && $n <= 8 ) {
-			$self->assign( $_ ) foreach ( @{ $self->{ athletes }} );
-			$self->{ places } = [ 1, 1, 2 ];
-		}
+		if   ( $n >= 20 )          { $self->assign( $_, 'prelim' ) foreach ( @{ $self->{ athletes }} ); }
+		elsif( $n > 8 && $n < 20 ) { $self->assign( $_, 'semfin' ) foreach ( @{ $self->{ athletes }} ); }
+		elsif( $n <= 8 )           { $self->assign( $_, 'finals' ) foreach ( @{ $self->{ athletes }} ); }
 	}
 
 	# ===== NORMALIZE THE SCORING MATRIX
 	foreach my $athlete (@{ $self->{ athletes }}) {
+		my @rounds = grep { exists $athlete->{ scores }{ $_ }; } qw( prelim semfin finals );
 		foreach my $round (@rounds) {
-			my @compulsory    = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
-			my $athlete_forms = $#{ $athlete->{ scores }{ $round }};
-			my $forms         = $#compulsory > $athlete_forms ? $#compulsory : $athlete_forms;
+			my $forms         = int( @{ $self->{ forms }{ $round }});
 
 			next unless exists $athlete->{ scores }{ $round };
 			foreach my $i ( 0 .. $forms ) {
@@ -263,12 +262,11 @@ sub normalize {
 					$judge_scores->{ judge }[ $j ] = { major => undef, minor => undef, rhythm => undef, power => undef, ki => undef };
 				}
 			}
-			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
+			$athlete->{ scores }{ $round }->normalize( $forms, $judges )
 		}
 	}
 
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless( $self->{ current } );
-	$self->update_status();
 }
 
 # ============================================================
@@ -278,12 +276,11 @@ sub record_score {
 	my $judge = shift;
 	my $score = shift;
 
-	$score = new FreeScore::Forms::WorldClass::Division::Round::Score({ %$score });
-	my $i = $self->{ current };
-	my $j = $self->{ round };
-	my $k = $self->{ form };
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
 
-	$self->{ athletes }[ $i ]{ scores }{ $j }[ $k ]{ judge }[ $judge ] = $score;
+	$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
 }
 
 # ============================================================
@@ -293,9 +290,9 @@ sub read {
 
 	# ===== DEFAULTS
 	$self->{ state }   = 'score';
-	$self->{ round }   = 'finals';
+	$self->{ places }  = _parse_places( 'prelim:half;semfin:8;finals:1,1,2' );
 
-	my $round    = 'finals';
+	my $round    = 'autodetect_required';
 	my $order    = {};
 	my $athletes = {};
 	my $athlete  = {};
@@ -310,9 +307,12 @@ sub read {
 				s/^#\s+//;
 				my ($key, $value) = split /=/;
 				if    ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
+				elsif ( $key eq 'places'    ) { $self->{ $key } = _parse_places( $value );    }
 				elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
 				elsif ( $key eq 'pending'   ) { $self->{ $key } = _parse_pending( $value );   }
 				else                          { $self->{ $key } = $value;                     }
+
+				$round = $self->{ round } if( defined $self->{ round } );
 
 			} elsif( /prelim|semfin|finals/i ) {
 				s/^#\s+//;
@@ -340,15 +340,16 @@ sub read {
 		} elsif( /^\t\w/ ) {
 			s/^\t//;
 			my ($score_round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
+			$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
 			die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
 			$self->{ rounds }{ $round } = 1;
 
-			$form  =~ s/f//; $form  = int( $form )  - 1;
-			$judge =~ s/j//; $judge = int( $judge ) - 1;
+			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!" unless $form >= 0;
+			$judge =~ s/j//; $judge = int( $judge ) - 1; die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
 
-			$athlete->{ scores }{ $round }[ $form ] = { judge => [] } unless exists $athlete->{ scores }{ $round }[ $form ]{ judge };
-			$athlete->{ scores }{ $round }[ $form ]{ judge }[ $judge ] = { judge => $judge, major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round( $athlete->{ scores }{ $round } );
+			my $score = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() unless exists $athlete->{ scores }{ $round };
+			$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
 
 		} else {
 			die "Database Read Error: Unknown line type '$_'\n";
@@ -356,6 +357,16 @@ sub read {
 	}
 	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; }
 	close FILE;
+
+	# ===== AUTODETECT THE FIRST ROUND
+	if( exists $order->{ 'autodetect_required' } ) {
+		my $n = int( keys %$athletes );
+		if    ( $n >= 20            ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
+		elsif ( $n <  20 && $n >  8 ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
+		elsif (             $n >= 8 ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
+
+		delete $order->{ 'autodetect_required' };
+	}
 
 	# ===== ESTABLISH THE ORDER BASED ON THE FIRST ROUND
 	my $initial_order = {};
@@ -378,6 +389,7 @@ sub read {
 	}
 
 	$self->normalize();
+	$self->update_status();
 }
 
 # ============================================================
@@ -630,6 +642,8 @@ sub select_round_scores {
 	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
 	my $forms  = $self->{ forms }{ $round };
 
+	print STDERR Dumper "$self->{ athletes }[ $i ]{ name }";
+
 	$scores->calculate_means();
 
 	my @form_indices = ( 0 .. $#$forms );
@@ -722,13 +736,25 @@ sub _parse_forms {
 }
 
 # ============================================================
+sub _parse_places {
+# ============================================================
+	my $value = shift;
+	my @rounds = map {
+		my ($round, $list) = split /:/;
+		my @places = grep { /^(?:\d+|half)$/ } split /,/, $list;
+		($round => [ @places ]);
+	} split /;/, $value;
+	return { @rounds };
+}
+
+# ============================================================
 sub _parse_placement {
 # ============================================================
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
 		my @placements = grep { /^\d+$/ } split /,/, $list;
-		$round => [ @placements ];
+		($round => [ @placements ]);
 	} split /;/, $value;
 	return { @rounds };
 }
@@ -739,8 +765,8 @@ sub _parse_pending {
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
-		my @placements = grep { /^\d+$/ } split /,/, $list;
-		$round => [ @placements ];
+		my @pending = grep { /^\d+$/ } split /,/, $list;
+		($round => [ @pending ]);
 	} split /;/, $value;
 	return { @rounds };
 }
