@@ -154,16 +154,14 @@ password: freescore
     aptitude update
     apt-get install apache2 php5 -y
 
-#### Installing the ramdisk
+#### Set up the Database
 At the terminal, type the following:
 
     sudo su -
-    mkdir -p /Volumes/ramdisk
+    mkdir -p /Volumes
+    ln -s divisions /Volumes/ramdisk
+    chmod -R a+w divisions
     vim /etc/fstab
-
-Add following line to fstab:
-
-    tmpfs           /Volumes/ramdisk tmpfs   defaults,size=64M 0       0
 
 #### Install Perl Modules
 
@@ -220,6 +218,27 @@ edit `/etc/hostapd/hostapd.conf`
 Test with `hostapd /etc/hostapd/hostapd.conf`
 
 edit `/etc/dnsmasq.conf`
+
+#### Install Samba and NetAtalk (AppleTalk)
+
+    apt-get install samba samba-common-bin netatalk
+    vim /etc/samba/smb.conf
+
+Create password
+
+    smbpasswd -a pi
+
+#### Change hostname
+
+Edit `/etc/hosts`
+
+    127.0.1.1 raspberrypi -> 127.0.1.1. freescore
+
+Edit `/etc/hostname`
+
+    raspberrypi -> freescore
+
+#### Update Web Server
 
 edit Apache Configuration; allow FollowSymLinks
 
