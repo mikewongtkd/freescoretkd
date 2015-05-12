@@ -144,11 +144,10 @@ sub normalize {
 	my $forms  = shift;
 	my $judges = shift;
 
-	my @forms = map { $self->[ $_ ]; } ( 0 .. $forms );
 	foreach my $i ( 0 .. ($forms - 1)) {
 		my $form = $self->[ $i ];
 		foreach my $j ( 0 .. ($judges - 1)) {
-			next if $form->{ judge }[ $j ];
+			next if defined( $form->{ judge }[ $j ] );
 			$form->{ judge }[ $j ] = new FreeScore::Forms::WorldClass::Division::Round::Score();
 		}
 	}

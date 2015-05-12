@@ -253,15 +253,7 @@ sub normalize {
 		foreach my $round (@rounds) {
 			my $forms         = int( @{ $self->{ forms }{ $round }});
 
-			next unless exists $athlete->{ scores }{ $round };
-			foreach my $i ( 0 .. $forms ) {
-				my $judge_scores = $athlete->{ scores }{ $round }[ $i ];
-				$judge_scores->{ judge } = [] unless exists $judge_scores->{ judge };
-				foreach my $j ( 0 .. ($self->{ judges } - 1) ) {
-					next if( ref $judge_scores->{ judge }[ $j ] );
-					$judge_scores->{ judge }[ $j ] = { major => undef, minor => undef, rhythm => undef, power => undef, ki => undef };
-				}
-			}
+			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() unless exists $athlete->{ scores }{ $round };
 			$athlete->{ scores }{ $round }->normalize( $forms, $judges )
 		}
 	}
@@ -418,12 +410,14 @@ sub update_status {
 	my $half     = int( ($n-1)/2 );
 	my $k        = $n > 8 ? 7 : ($n - 1);
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
+		print STDERR "PRELIMINARY ROUND COMPLETE\n";
 		# Semi-final round goes in random order
 		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
 		$self->assign( $_, 'semfin' ) foreach @athlete_advances;
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
+		print STDERR "SEMIFINALS ROUND COMPLETE\n";
 		# Finals go in reverse placement order of semi-finals
 		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
@@ -437,13 +431,15 @@ sub round_complete {
 	my $self  = shift;
 	my $round = shift || $self->{ round };
 
+	return 0 unless exists $self->{ order }{ $round };
+	return 0 if @{ $self->{ order }{ $round }} == 0;
+
 	my $forms        = $self->{ forms }{ $round };
 	my @form_indices = ( 0 .. $#$forms );
 	my @compulsory   = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
 	my $n            = int( @compulsory );
 	my $complete     = 1;
 	foreach my $athlete ($self->athletes_in_round( $round )) {
-		next unless exists $athlete->{ scores }{ $round };
 		$complete &&= $athlete->{ scores }{ $round }->complete( $n );
 	}
 	return $complete;
@@ -641,8 +637,6 @@ sub select_round_scores {
 
 	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
 	my $forms  = $self->{ forms }{ $round };
-
-	print STDERR Dumper "$self->{ athletes }[ $i ]{ name }";
 
 	$scores->calculate_means();
 

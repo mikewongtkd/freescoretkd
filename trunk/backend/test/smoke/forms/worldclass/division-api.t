@@ -33,8 +33,9 @@ sub score {
 		my $i = $division->{ current };
 		my $athlete = $division->{ athletes }[ $i ]{ scores }{ $r };
 		my $name    = $division->{ athletes }[ $i ]{ name };
+		my $forms   = $#{$division->{ forms }{ $r }};
 		ok( $athlete );
-		foreach my $form( 0 .. 1 ) {
+		foreach my $form ( 0 .. $forms ) {
 			foreach my $judge ( 0 .. $j ) {
 				my $level = $skill->{ $name };
 				my $score = score_worldclass( $level );
@@ -43,7 +44,7 @@ sub score {
 				ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
 				$division->write();
 			}
-			$division->next_form() if( $form == 0 );
+			$division->next_form() if( $form == 0 && $forms > 0 );
 		}
 		$division->next_athlete();
 	}
