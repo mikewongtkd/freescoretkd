@@ -32,8 +32,7 @@ sub assign {
 	return if( exists $athlete->{ scores }{ $round });
 	return if( first { $_ == $i } @{ $self->{ order }{ $round }});
 
-	$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round();
-	$athlete->{ scores }{ $round }->normalize( $forms, $judges );
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	push @{ $self->{ order }{ $round }}, $i;
 }
 
@@ -192,7 +191,6 @@ sub detect_ties {
 		} else {
 			$athletes -= $medals;
 			$medals = 0;
-
 		}
 
 		$i += $gave;
@@ -228,7 +226,7 @@ sub normalize {
 	my $judges = $self->{ judges };
 
 	# ===== INITIALIZE EACH ROUND IF NOT ALREADY DEFINED
-	my $round = $self->{ round };
+	my $round  = $self->{ round };
 	if( defined $round ) {
 		if( none { my $rounds = int(keys %{ $_->{ scores }}); $rounds > 0 } @{ $self->{ athletes }} ) {
 			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
@@ -248,13 +246,11 @@ sub normalize {
 	}
 
 	# ===== NORMALIZE THE SCORING MATRIX
+	my $forms  = int( @{ $self->{ forms }{ $round }});
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		my @rounds = grep { exists $athlete->{ scores }{ $_ }; } qw( prelim semfin finals );
 		foreach my $round (@rounds) {
-			my $forms         = int( @{ $self->{ forms }{ $round }});
-
-			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() unless exists $athlete->{ scores }{ $round };
-			$athlete->{ scores }{ $round }->normalize( $forms, $judges )
+			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 		}
 	}
 
@@ -312,6 +308,9 @@ sub read {
 			}
 		# ===== READ DIVISION ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
+			die "Division Configuration Error: Number of Judges not defined before athlete information" unless $self->{ judges };
+			die "Division Configuration Error: Forms not defined before athlete information" unless $self->{ forms };
+
 			# Store the current athlete before starting a new athlete
 			if( $athlete->{ name } ) {
 				push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
@@ -339,8 +338,10 @@ sub read {
 			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!" unless $form >= 0;
 			$judge =~ s/j//; $judge = int( $judge ) - 1; die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
 
-			my $score = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-			$athlete->{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() unless exists $athlete->{ scores }{ $round };
+			my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+			my $forms  = int( @{ $self->{ forms }{ $round }});
+			my $judges = $self->{ judges };
+			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 			$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
 
 		} else {
@@ -410,14 +411,12 @@ sub update_status {
 	my $half     = int( ($n-1)/2 );
 	my $k        = $n > 8 ? 7 : ($n - 1);
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
-		print STDERR "PRELIMINARY ROUND COMPLETE\n";
 		# Semi-final round goes in random order
 		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
 		$self->assign( $_, 'semfin' ) foreach @athlete_advances;
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
-		print STDERR "SEMIFINALS ROUND COMPLETE\n";
 		# Finals go in reverse placement order of semi-finals
 		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
@@ -449,7 +448,6 @@ sub round_complete {
 sub write {
 # ============================================================
 	my $self = shift;
-	my @criteria = qw( major minor rhythm power ki );
 
 	$self->update_status();
 
@@ -485,29 +483,17 @@ sub write {
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# pending=" . join( ";", @pending ) . "\n" if @pending;
-	my $forms = int( split /,/, $self->{ forms } );
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $self->{ order }{ $round } && int( @{ $self->{ order }{ $round }});
 		print FILE "# ------------------------------------------------------------\n";
 		print FILE "# $round\n";
 		print FILE "# ------------------------------------------------------------\n";
+		my $forms = int( @{$self->{ forms }{ $round }});
 		foreach my $k (@{ $self->{ order }{ $round }}) {
 			my $athlete = $self->{ athletes }[ $k ];
 			print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
-
-			next unless exists $athlete->{ scores }{ $round };
-			my $forms = $athlete->{ scores }{ $round };
-			for( my $i = 0; $i <= $#$forms; $i++ ) {
-				my $form = $forms->[ $i ];
-				next unless exists $form->{ judge };
-
-				my $judges = $form->{ judge };
-				foreach my $j (0 .. $#$judges) {
-					my $score = $judges->[ $j ];
-					my @scores = map { defined $_ ? sprintf( "%.1f", $_ ) : '' } @{ $score }{ @criteria };
-					printf FILE "\t" . join( "\t", $round, 'f' . ($i + 1), 'j' . ($j + 1), @scores ) . "\n";
-				}
-			}
+			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round } );
+			print FILE $athlete->{ scores }{ $round }->string( $round, $forms, $self->{ judges } );
 		}
 	}
 	close FILE;

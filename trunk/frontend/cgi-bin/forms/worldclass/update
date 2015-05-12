@@ -7,6 +7,7 @@ use Data::Structure::Util qw( unbless );
 use Filesys::Notify::Simple;
 
 use lib qw( /usr/local/freescore/lib );
+use FreeScore;
 use FreeScore::Forms::WorldClass;
 
 my $cgi        = new CGI();
@@ -15,7 +16,7 @@ my $ring       = shift || $cgi->param( 'ring' )  || $cgi->cookie( 'ring' );
 my $judge      = shift || $cgi->param( 'judge' ) || $cgi->cookie( 'judge' );
 my $role       =          $cgi->param( 'role' )  || $cgi->cookie( 'role' );
 my $json       = new JSON::XS();
-my $watcher    = new Filesys::Notify::Simple( [ "/Volumes/ramdisk/$tournament/forms-worldclass" ] );
+my $watcher    = new Filesys::Notify::Simple( [ "$FreeScore::PATH/$tournament/forms-worldclass" ] );
 
 $judge -= 1;
 

@@ -138,19 +138,70 @@ sub calculate_means {
 }
 
 # ============================================================
-sub normalize {
+sub complete {
+# ============================================================
+# An athlete's round is complete when all their compulsory forms are complete
+# ------------------------------------------------------------
+	my $self = shift;
+	my $n    = shift || int( @$self ) > 1 ? 2 : 1;
+	$n = $n - 1;
+
+	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
+	foreach my $form (@$self) {
+		next unless exists $form->{ judge };
+		$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
+	}
+
+	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
+	my $complete = all { $_->{ complete }; } @$self;
+	return $complete;
+}
+
+# ============================================================
+sub reinstantiate {
 # ============================================================
 	my $self   = shift;
 	my $forms  = shift;
 	my $judges = shift;
 
-	foreach my $i ( 0 .. ($forms - 1)) {
-		my $form = $self->[ $i ];
-		foreach my $j ( 0 .. ($judges - 1)) {
-			next if defined( $form->{ judge }[ $j ] );
-			$form->{ judge }[ $j ] = new FreeScore::Forms::WorldClass::Division::Round::Score();
+	my $new = undef;
+
+	if( ! defined $self ) {
+		$new = new FreeScore::Forms::WorldClass::Division::Round();
+		for( my $i = 0; $i < $forms; $i++ ) {
+			for( my $j = 0; $j < $judges; $j++ ) {
+				push @{$new->[ $i ]{ judge }}, new FreeScore::Forms::WorldClass::Division::Round::Score();
+			}
+		}
+		return $new;
+	}
+	my $sub = eval { $self->can( "record_score" ) };
+	$self = new FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $self ) unless $sub;
+	for( my $i = 0; $i < $forms; $i++ ) {
+		for( my $j = 0; $j < $judges; $j++ ) {
+			$self->[ $i ]{ judge }[ $j ] = FreeScore::Forms::WorldClass::Division::Round::Score::reinstantiate( $self->[ $i ]{ judge }[ $j ]);
 		}
 	}
+	return $self;
+}
+
+# ============================================================
+sub string {
+# ============================================================
+	my $self   = shift;
+	my $round  = shift;
+	my $forms  = shift;
+	my $judges = shift;
+	my @string = ();
+	$self = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $self, $forms, $judges );
+	for( my $i = 0; $i < $forms; $i++ ) {
+		my $form = $self->[ $i ];
+		for( my $j = 0; $j < $judges; $j++ ) {
+			my $score = $form->{ judge }[ $j ];
+			push @string, "\t" . join( "\t", $round, 'f' . ($i + 1), 'j' . ($j + 1), $score->string() ) . "\n";
+		}
+	}
+	return join "", @string;
 }
 
 # ============================================================
@@ -194,23 +245,4 @@ sub _compare {
 		$sum_b->{ complete_mean }{ total }        <=> $sum_a->{ complete_mean }{ total };
 }
 
-# ============================================================
-sub complete {
-# ============================================================
-# An athlete's round is complete when all their compulsory forms are complete
-# ------------------------------------------------------------
-	my $self = shift;
-	my $n    = shift || int( @$self ) > 1 ? 2 : 1;
-	$n = $n - 1;
-
-	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
-	foreach my $form (@$self) {
-		next unless exists $form->{ judge };
-		$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
-	}
-
-	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
-	my $complete = all { $_->{ complete }; } @$self;
-	return $complete;
-}
 1;

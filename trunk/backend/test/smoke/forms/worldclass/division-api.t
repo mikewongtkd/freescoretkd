@@ -44,7 +44,10 @@ sub score {
 				ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
 				$division->write();
 			}
-			$division->next_form() if( $form == 0 && $forms > 0 );
+			if( $form == 0 && $forms > 0 ) {
+				print STDERR "NEXT FORM\n";
+				$division->next_form();
+			}
 		}
 		$division->next_athlete();
 	}

@@ -57,6 +57,24 @@ sub presentation {
 }
 
 # ============================================================
+sub reinstantiate {
+# ============================================================
+	my $self = shift;
+
+	return new FreeScore::Forms::WorldClass::Division::Round::Score() if( ! defined $self );
+	my $sub = eval { $self->can( "clear_minmax" ) };
+	return new FreeScore::Forms::WorldClass::Division::Round::Score( $self ) unless $sub;
+	return $self;
+}
+
+# ============================================================
+sub string {
+# ============================================================
+	my $self = shift;
+	return join "\t", map { defined $_ ? sprintf( "%.1f", $_ ) : '' } @{ $self }{ @FreeScore::Forms::WorldClass::Division::Round::Score::criteria };
+}
+
+# ============================================================
 sub complete {
 # ============================================================
 # A score is complete when a judge has provided values for

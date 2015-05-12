@@ -7,13 +7,14 @@ use JSON::XS;
 use Filesys::Notify::Simple;
 
 use lib qw( /usr/local/freescore/lib );
+use FreeScore;
 use FreeScore::Forms::GrassRoots;
 
 my $cgi        = new CGI();
 my $tournament = shift || $cgi->param( 'tournament' );
 my $ring       = shift || $cgi->param( 'ring' ) || $cgi->cookie( 'ring' );
 my $json       = new JSON::XS();
-my $watcher    = new Filesys::Notify::Simple( [ "/Volumes/ramdisk/$tournament/forms-grassroots" ] );
+my $watcher    = new Filesys::Notify::Simple( [ "$FreeScore::PATH/$tournament/forms-grassroots" ] );
 
 $| = 1;
 print "Content-Type: text/event-stream\n";

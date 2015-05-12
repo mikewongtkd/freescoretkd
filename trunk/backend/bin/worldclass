@@ -6,6 +6,7 @@ use Data::Dumper;
 use Try::Tiny;
 use Mojolicious::Lite;
 use YAML;
+use FreeScore;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
 
@@ -146,7 +147,7 @@ post '/fastmatch' => sub {
 	my $tournament = 'fastmatch';
 	my $ring       = 1;
 	my $content    = $self->req->body;
-	my $path       = "/Volumes/ramdisk/fastmatch/forms-worldclass/ring01";
+	my $path       = "$FreeScore::PATH/fastmatch/forms-worldclass/ring01";
 
 	try {
 		# ===== MAKE TOURNAMENT AND PROGRESS FILE
