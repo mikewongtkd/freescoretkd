@@ -11,6 +11,8 @@ $SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 # ============================================================
 sub new {
 # ============================================================
+# A round is an array of one or more forms.
+# ------------------------------------------------------------
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift || [];
 	my $self    = bless $data, $class; 
@@ -70,8 +72,10 @@ sub calculate_means {
 		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
 		foreach my $i (0 .. $k) {
 			my $score        = $form->{ judge }[ $i ];
-			my $accuracy     = $score->{ accuracy }     || die "Round Object Error: Accuracy not calculated!";
-			my $presentation = $score->{ presentation } || die "Round Object Error: Precision not calculated!";
+			my $accuracy     = $score->{ accuracy };
+			my $presentation = $score->{ presentation };
+			die "Round Object Error: Accuracy not calculated!"  if not defined $accuracy;
+			die "Round Object Error: Precision not calculated!" if not defined $presentation;
 			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
 			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
 			$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation } > $presentation ? $i : $stats->{ minpre };
@@ -176,7 +180,11 @@ sub reinstantiate {
 		return $new;
 	}
 	my $sub = eval { $self->can( "record_score" ) };
-	$self = new FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $self ) unless $sub;
+	my $ref = ref $self;
+	if( ! $sub ) {
+		if( $ref eq 'ARRAY' ) { bless $self, "FreeScore::Forms::WorldClass::Division::Round"; } 
+		else                  { die "Round Object Error: Attempting to instantiate an round object that is not an array ($ref) $!"; }
+	}
 	for( my $i = 0; $i < $forms; $i++ ) {
 		for( my $j = 0; $j < $judges; $j++ ) {
 			$self->[ $i ]{ judge }[ $j ] = FreeScore::Forms::WorldClass::Division::Round::Score::reinstantiate( $self->[ $i ]{ judge }[ $j ]);

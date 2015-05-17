@@ -5,7 +5,6 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( any none first shuffle reduce );
 use base qw( FreeScore::Forms::Division );
-use Data::Dumper;
 use strict;
 
 our @round_order = ( qw( prelim semfin finals ) );
@@ -29,8 +28,7 @@ sub assign {
 	my $i = first { $self->{ athletes }[ $_ ]{ name } eq $athlete->{ name } } ( 0 .. $#{ $self->{ athletes }});
 
 	# Do nothing if athlete is already assigned to the round
-	return if( exists $athlete->{ scores }{ $round });
-	return if( first { $_ == $i } @{ $self->{ order }{ $round }});
+	return if( any { $_ == $i } @{ $self->{ order }{ $round }});
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	push @{ $self->{ order }{ $round }}, $i;
@@ -267,7 +265,10 @@ sub record_score {
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
 
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
 }
 
