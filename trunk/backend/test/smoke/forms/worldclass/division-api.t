@@ -9,15 +9,18 @@ my $tournament = 'test';
 my $ring       = 1;
 my $skill      = get_skill_levels();
 
+# ===== LOAD API (2 TESTS)
 my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 ok( $progress );
 
 my $division   = $progress->current();
 ok( $division );
 
-score( $division, 22 ); # PRELIMINARY, 22 ATHLETES
-score( $division, 11 ); # SEMI-FINALS, 11 ATHLETES
-score( $division, 8 );  # FINALS,       8 ATHLETES
+score( $division, 22 ); # PRELIMINARY, 22 ATHLETES, 1 FORM,  132 TESTS
+score( $division, 11 ); # SEMI-FINALS, 11 ATHLETES, 1 FORM,   66 TESTS
+score( $division, 8 );  # FINALS,       8 ATHLETES, 2 FORMS,  88 TESTS
+
+# 2 + 132 + 66 + 88 = 288 TOTAL TESTS
 
 # ============================================================
 sub score {
