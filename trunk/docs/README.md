@@ -192,11 +192,18 @@ Edit `/etc/network/interfaces`. Comment out lines following
     address 192.168.88.1
     netmask 255.255.255.0
 
-edit `/etc/default/hostapd`; provide the below value for `DAEMON_CONF`.
+Edit `/etc/default/ifplugd`
+
+    INTERFACES="eth0"
+    HOTPLUG_INTERFACES="eth0"
+    ARGS="-q -f -u0 -d10 -w -I"
+    SUSPEND_ACTION="stop"
+
+Edit `/etc/default/hostapd`; provide the below value for `DAEMON_CONF`.
 
     DAEMON_CONF="/etc/hostapd/hostapd.conf"
 
-edit `/etc/hostapd/hostapd.conf`
+Edit `/etc/hostapd/hostapd.conf`
 
     interface=wlan0
     driver=nl80211
@@ -222,10 +229,6 @@ edit `/etc/dnsmasq.conf`
 #### Install Samba and NetAtalk (AppleTalk)
 
     apt-get install samba samba-common-bin netatalk
-    vim /etc/samba/smb.conf
-
-Create password
-
     smbpasswd -a pi
 
 #### Change hostname

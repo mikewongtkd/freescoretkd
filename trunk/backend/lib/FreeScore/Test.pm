@@ -188,6 +188,12 @@ sub score_worldclass {
 
 	}
 
+	# ===== ASSURE PRESENTATION SCORE BOUNDS
+	foreach (qw( rhythm power ki )) { 
+		$score->{ $_ } < 0.5 ? $score->{ $_ } = 0.5 : $score->{ $_ }; 
+		$score->{ $_ } > 2.0 ? $score->{ $_ } = 2.0 : $score->{ $_ }; 
+	}
+
 	$score->{ major } = $score->{ major } * 3;
 	$score->{ minor } = $score->{ major } + $score->{ minor } > 40 ? (40 - $score->{ major }) : $score->{ minor };
 

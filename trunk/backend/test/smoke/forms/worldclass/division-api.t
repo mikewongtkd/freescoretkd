@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use lib qw( ./lib ../lib );
-use Test::Simple tests => 453;
+use Test::Simple tests => 288;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Test qw( score_worldclass );
 use Data::Dumper;
@@ -31,8 +31,8 @@ sub score {
 
 	foreach ( 0 .. $n ) {
 		my $i = $division->{ current };
-		my $athlete = $division->{ athletes }[ $i ]{ scores }{ $r };
-		my $name    = $division->{ athletes }[ $i ]{ name };
+		my $athlete = $division->{ athletes }[ $i ];
+		my $name    = $athlete->{ name };
 		my $forms   = $#{$division->{ forms }{ $r }};
 		ok( $athlete );
 		foreach my $form ( 0 .. $forms ) {
@@ -41,13 +41,12 @@ sub score {
 				my $score = score_worldclass( $level );
 				$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
 				$division->record_score( $judge, $score );
-				ok( $athlete->[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
-				$division->write();
+				ok( $athlete->{ scores }{ $r }[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
 			}
 			if( $form == 0 && $forms > 0 ) {
-				print STDERR "NEXT FORM\n";
 				$division->next_form();
 			}
+			$division->write();
 		}
 		$division->next_athlete();
 	}

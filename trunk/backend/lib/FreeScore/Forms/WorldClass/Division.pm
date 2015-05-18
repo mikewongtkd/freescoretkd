@@ -125,11 +125,11 @@ sub place_athletes {
 		defined $round_scores && ! $round_scores->complete() 
 	} @{ $self->{ order }{ $round }};
 
-	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 ) - 1;
+	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 );
 	my $n    = 0;
 	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
 	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
-	@$placement = @$placement[ 0 .. $n ];
+	@$placement = splice( @$placement, 0, $n );
 
 	$self->{ pending }{ $round }   = $pending;
 	$self->{ placement }{ $round } = $placement;
@@ -413,12 +413,14 @@ sub update_status {
 	my $k        = $n > 8 ? 7 : ($n - 1);
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
 		# Semi-final round goes in random order
+		return if( int( @{ $self->{ order }{ semfin }}) > 0 );
 		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
 		$self->assign( $_, 'semfin' ) foreach @athlete_advances;
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
 		# Finals go in reverse placement order of semi-finals
+		return if( int( @{ $self->{ order }{ finals }}) > 0 );
 		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
 		$self->assign( $_, 'finals' ) foreach @athlete_advances;
@@ -431,16 +433,14 @@ sub round_complete {
 	my $self  = shift;
 	my $round = shift || $self->{ round };
 
-	return 0 unless exists $self->{ order }{ $round };
-	return 0 if @{ $self->{ order }{ $round }} == 0;
+	return 0 unless( exists $self->{ order }{ $round } && int(@{ $self->{ order }{ $round }}) > 0 );
 
 	my $forms        = $self->{ forms }{ $round };
 	my @form_indices = ( 0 .. $#$forms );
-	my @compulsory   = grep { $forms->[ $_ ]{ type } eq 'compulsory' } @form_indices;
-	my $n            = int( @compulsory );
 	my $complete     = 1;
-	foreach my $athlete ($self->athletes_in_round( $round )) {
-		$complete &&= $athlete->{ scores }{ $round }->complete( $n );
+	foreach my $i ($self->athletes_in_round( $round )) {
+		my $athlete = $self->{ athletes }[ $i ];
+		$complete &&= $athlete->{ scores }{ $round }->complete();
 	}
 	return $complete;
 }
@@ -568,6 +568,7 @@ sub previous_round {
 sub next_athlete {
 # ============================================================
 	my $self = shift;
+
 	$self->{ state }   = 'score';
 	$self->{ current } = $self->athletes_in_round( 'next' );
 	$self->{ form }    = 0;
@@ -577,11 +578,11 @@ sub next_athlete {
 sub next_form {
 # ============================================================
 	my $self = shift;
-	$self->{ state } = 'score';
 
-	my $round     = $self->{ round };
-	my $form      = $self->{ form };
-	my $max_forms = $#{ $self->{ forms }{ $round }};
+	$self->{ state } = 'score';
+	my $round        = $self->{ round };
+	my $form         = $self->{ form };
+	my $max_forms    = $#{ $self->{ forms }{ $round }};
 
 	return unless( $form < $max_forms );
 	$self->{ form }++;
@@ -591,8 +592,8 @@ sub next_form {
 sub previous_athlete {
 # ============================================================
 	my $self = shift;
-	$self->{ state } = 'score';
 
+	$self->{ state }      = 'score';
 	$self->{ current }    = $self->athletes_in_round( 'prev' );
 	$self->{ form }       = 0;
 }
@@ -601,8 +602,8 @@ sub previous_athlete {
 sub previous_form {
 # ============================================================
 	my $self = shift;
-	$self->{ state } = 'score';
 
+	$self->{ state } = 'score';
 	my $round        = $self->{ round };
 	my $form         = $self->{ form };
 
@@ -681,7 +682,6 @@ sub athletes_in_round {
 	} elsif( $find ) {
 		my $j = first { $athletes_in_round[ $_ ] == $self->{ current } } ( 0 .. $#athletes_in_round );
 		my $k = ($j + $find) < 0 ? $#athletes_in_round : ($j + $find) % int( @athletes_in_round );
-
 		return $athletes_in_round[ $k ];
 
 	} else {
