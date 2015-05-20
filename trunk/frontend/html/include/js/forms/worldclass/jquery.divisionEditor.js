@@ -16,11 +16,6 @@ $.widget( "freescore.divisionEditor", {
 				name     : html.text.clone(),
 				accept   : html.a.clone(),
 				reset    : html.a.clone(),
-				move     : {
-					up       : html.a.clone(),
-					down     : html.a.clone(),
-					last     : html.a.clone(),
-				},
 				remove   : html.a.clone(),
 				close    : html.a.clone(),
 			}
@@ -36,21 +31,6 @@ $.widget( "freescore.divisionEditor", {
 			view.name.html( newName );
 			console.log( "AJAX call to change athlete name" );
 		});
-
-		actions.athlete.move.up
-			.addClass( "ui-btn ui-icon-arrow-u ui-btn-icon-left" )
-			.html( "Move up" )
-			.click( function( ev ) { } );
-
-		actions.athlete.move.down
-			.addClass( "ui-btn ui-icon-arrow-d ui-btn-icon-left" )
-			.html( "Move down" )
-			.click( function( ev ) { } );
-
-		actions.athlete.move.last
-			.addClass( "ui-btn ui-icon-forward ui-btn-icon-left" )
-			.html( "Move to Last" )
-			.click( function( ev ) { } );
 
 		actions.athlete.accept
 			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
@@ -84,9 +64,6 @@ $.widget( "freescore.divisionEditor", {
 				actions.athlete.name, 
 				actions.athlete.accept, 
 				actions.athlete.reset, 
-				actions.athlete.move.up, 
-				actions.athlete.move.down, 
-				actions.athlete.move.last, 
 				actions.athlete.remove, 
 				actions.athlete.close 
 			);

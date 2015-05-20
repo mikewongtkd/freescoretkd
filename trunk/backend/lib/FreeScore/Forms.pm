@@ -38,7 +38,7 @@ sub load_ring {
 
 	my @divisions = ();
 	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
-	my %assigned = map { /^div\.([\w\.]+)\.txt$/; ( $1 => 1 ); } grep { /^div\.[\w\.]+\.txt$/ } readdir DIR;
+	my %assigned = map { /^div\.([\w\.]+)\.txt$/ ? ( $1 => 1 ) : (); } readdir DIR;
 	closedir DIR;
 
 	if( exists $self->{ divisions } ) { 
@@ -57,11 +57,11 @@ sub load_all {
 	my $self = shift;
 	
 	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
-	my @rings     = map { /^ring(\d+)$/;       } grep { /^ring\d+$/       } readdir DIR;
+	my @rings     = map { /^ring(\d+)$/       ? $1 : (); } readdir DIR;
 	closedir DIR;
 
 	opendir DIR, "$self->{ path }/staging" or die "Database Read Error: Can't open directory '$self->{ path }/staging' $!";
-	my @divisions = map { /^div\.(\w+)\.txt$/; } grep { /^div\.\w+\.txt$/ } readdir DIR;
+	my @divisions = map { /^div\.(\w+)\.txt$/ ? $1 : (); } readdir DIR;
 	closedir DIR;
 
 	return ([ @divisions ], [ @rings ]);

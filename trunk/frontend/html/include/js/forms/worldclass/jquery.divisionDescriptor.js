@@ -54,18 +54,18 @@ $.widget( "freescore.divisionDescriptor", {
 				getDescription();
 			},
 			format : function( ev ) {
-				gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'enable' );
+				e.gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'enable' );
 				var val = $( ev.target ).val();
 				o.age = undefined;
-				age.empty();
+				e.age.empty();
 				var buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ), handle.age );
-				age.append( buttonGroup ).trigger( 'create' );
+				e.age.append( buttonGroup ).trigger( 'create' );
 				buttonGroup.controlgroup().controlgroup( "refresh" );
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
 				if( val == 'Pair' ) {
-					gender.find( ":checked" ).prop( "checked", false );
-					gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'disable' );
-					gender.children().controlgroup();
+					e.gender.find( ":checked" ).prop( "checked", false );
+					e.gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'disable' );
+					e.gender.children().controlgroup();
 					o.gender = undefined;
 				}
 				getDescription();

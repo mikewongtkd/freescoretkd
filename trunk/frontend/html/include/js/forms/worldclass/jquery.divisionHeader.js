@@ -35,6 +35,8 @@ $.widget( "freescore.divisionHeader", {
 			description : function() {
 				var widget = e.description.find( "#descriptionWidget" );
 				widget.divisionDescriptor( { header : { o : o, e : e }} );
+				var placeholder = e.html.span.clone() .css( "color", "#666" ) .html( "Division Description" );
+				e.description.find( "h3 a" ).html( placeholder );
 
 				initialize.forms();
 			},

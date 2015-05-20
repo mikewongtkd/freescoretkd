@@ -168,12 +168,11 @@ $.widget( "freescore.formSelector", {
 
 			for( var round in o.forms ) {
 				var forms = o.forms[ round ];
-				var form1 = forms[ 0 ].name ? forms[ 0 ].name : 'None';
-				var form2 = forms[ 1 ].name ? forms[ 1 ].name : 'None';
+				var form  = forms.map( function( item ) { return item.name; } );
 
-				if( round.match( 'prelim' )) { select( e.prelim, form1 ); } else 
-				if( round.match( 'semfin' )) { select( e.semfin, form1 ); } else 
-				if( round.match( 'finals' )) { select( e.final1, form1 ); select( e.final2, form2 ); }
+				if( round.match( 'prelim' )) { select( e.prelim, form[ 0 ] ); } else 
+				if( round.match( 'semfin' )) { select( e.semfin, form[ 0 ] ); } else 
+				if( round.match( 'finals' )) { select( e.final1, form[ 0 ] ); select( e.final2, form[ 1 ] ); }
 				getForms();
 			}
 		}
