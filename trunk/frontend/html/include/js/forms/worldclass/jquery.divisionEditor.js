@@ -85,9 +85,9 @@ $.widget( "freescore.divisionEditor", {
 		for( var i in o.division.athletes ) {
 			var athlete = { 
 				data     : o.division.athletes[ i ],
-				name     : html.span.clone(),
-				view     : html.div.clone(),
-				move     : html.div.clone(),
+				name     : html.span .clone() .addClass( "name" ),
+				view     : html.div  .clone() .addClass( "athlete" ),
+				move     : html.div  .clone() .addClass( "move" ),
 				moveup   : html.a.clone(),
 				movedown : html.a.clone(),
 				actions  : html.div.clone(),
@@ -100,10 +100,6 @@ $.widget( "freescore.divisionEditor", {
 				.css( "width", "95%" );
 
 			athlete.name
-				.css( "font-weight", "bold" )
-				.css( "font-size", "14pt" )
-				.css( "position", "absolute" )
-				.css( "top", "22px" )
 				.html( athlete.data.name );
 
 			athlete.move

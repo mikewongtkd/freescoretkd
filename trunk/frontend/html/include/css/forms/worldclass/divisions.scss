@@ -12,5 +12,30 @@ body {
 		padding: 0.2em 0.5em;
 		float: right;
 	}
+	ol {
+		margin: 0;
+		padding: 0;
+		li {
+			list-style: none;
+			&:before {
+				content:counter( li );
+				counter-increment: li;
+				width: 40px;
+				font-weight: bold;
+				font-size: 72pt;
+				position: absolute;
+				top: 22px;
+				left: 8px;
+			}
+			.athlete {
+				.name {
+					font-weight: bold;
+					font-size: 14pt;
+					position: absolute;
+					top: 22px;
+				}
+			}
+		}
+	}
 }
 

@@ -8,5 +8,24 @@ body {
   font-weight: bold;
   padding: 0.2em 0.5em;
   float: right; }
+.divisions ol {
+  margin: 0;
+  padding: 0; }
+  .divisions ol li {
+    list-style: none; }
+    .divisions ol li:before {
+      content: counter(li);
+      counter-increment: li;
+      width: 40px;
+      font-weight: bold;
+      font-size: 72pt;
+      position: absolute;
+      top: 22px;
+      left: 8px; }
+    .divisions ol li .athlete .name {
+      font-weight: bold;
+      font-size: 14pt;
+      position: absolute;
+      top: 22px; }
 
 /*# sourceMappingURL=divisions.css.map */
