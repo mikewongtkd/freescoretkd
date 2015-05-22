@@ -80,7 +80,8 @@ $.widget( "freescore.divisionEditor", {
 
 		o.athletes = [];
 
-		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges });
+		var n = defined( o.division.athletes ) ? o.division.athletes.length : 0;
+		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges, athletes : n });
 		e.list.empty();
 		for( var i in o.division.athletes ) {
 			var athlete = { 

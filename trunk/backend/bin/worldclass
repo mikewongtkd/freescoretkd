@@ -212,22 +212,36 @@ get '/:tournament/:ring/:div_index/:ath_index/name/:name' => sub {
 # ------------------------------------------------------------
 # POST THE DIVISION HEADER DATA FOR WRITING
 # ------------------------------------------------------------
-post '/:tournament/:ring/:div_index/text' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $i          = $self->param( 'div_index' );
-	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->{ divisions }[ $i ];
-	my $content    = $self->req->body;
+post '/:tournament/:ring/:div_index/edit' => sub { 
+	my $self        = shift;
+	my $tournament  = $self->param( 'tournament' );
+	my $ring        = $self->param( 'ring' );
+	my $i           = $self->param( 'div_index' );
+	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division    = $progress->{ divisions }[ $i ];
+	my $content     = $self->req->body;
+	my $description = '';
 
 	try {
-		my $header = $json->decode( $content );
-		foreach my $key (keys %$header) {
-			$division->{ $key } = $header->{ $key };
+		my $edits   = $json->decode( $content );
+		my $header  = $edits->{ header };
+		my $reorder = $edits->{ reorder };
+		my $edit    = $edits->{ athlete };
+
+		if( defined $header  ) { $division->{ $_ } = $header->{ $_ } foreach (keys %$header); $description = "Successfully updated division $division->{ id } information."; }
+		if( defined $reorder ) { $division->reorder( $reorder ); $description = "Successfully reordered division $division->{ id }."; }
+		if( defined $edit    ) {
+			my $i       = $edit->{ index };
+			my $athlete = $division->{ athletes }[ $i ];
+			my $round   = $division->{ round };
+			my $judges  = $division->{ judges };
+			my $forms   = int( @{ $self->{ forms }{ $round }} );
+			$athlete->{ name } = $edit->{ name } if( exists $edit->{ name } );
+			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
+			$description = "Successfully cleared $athlete->{ name } scores.";
 		}
 		$division->write();
-		send_response( $self, { description => "Successfully wrote header to $division->{ id }" } );
+		send_response( $self, { description => $description } );
 
 	} catch {
 		send_response( $self, { error => $_ });

@@ -273,6 +273,22 @@ sub record_score {
 }
 
 # ============================================================
+sub reorder {
+# ============================================================
+	my $self      = shift;
+	my $reorder   = shift;
+	my $round     = $self->{ round };
+	my $order     = $self->{ order }{ $round };
+	my $new_order = [];
+
+	foreach my $i (@$reorder) {
+		push @$new_order, $order->[ ($i - 1) ];
+	}
+
+	$self->{ order }{ $round } = $new_order;
+}
+
+# ============================================================
 sub read {
 # ============================================================
 	my $self  = shift;

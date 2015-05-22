@@ -50,7 +50,7 @@ $.widget( "freescore.divisionHeader", {
 
 				widget = e.forms.find( "#formsWidget" );
 				widget.empty();
-				var options = { header : { o : o, e : e } };
+				var options = { header : { o : o, e : e }, athletes : o.athletes };
 				if( defined( o.description )) {
 					options.age  = o.description.age;
 					options.rank = o.description.rank;
