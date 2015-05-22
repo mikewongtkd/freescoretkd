@@ -1,7 +1,0 @@
-# state=display
-# current=3
-# description=Grand Championships
-Alice	Brown	8.6	8.4	8.6
-Aaron	Brown	8.7	8.7	8.3
-Oscar	Brown	8.8	8.6	8.5
-Cleo	Brown	8.7	8.5	8.4

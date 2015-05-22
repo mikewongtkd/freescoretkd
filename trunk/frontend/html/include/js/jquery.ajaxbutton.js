@@ -3,7 +3,7 @@ $.widget( "freescore.ajaxbutton", {
 	_create: function() {
 		var o        = this.options;
 		var e        = this.options.elements = {};
-		var html     = o.html     = { div : $( "<div />" ), span : $( "<span />" ) };
+		var html     = o.html     = FreeScore.html;
 		var button   = e.button   = html.div.clone() .addClass( "button" ) .addClass( o.type ) .html( o.label );
 		var progress = e.progress = html.span.clone() .addClass( "candycane" );
 		var sound    = e.sound    = {};

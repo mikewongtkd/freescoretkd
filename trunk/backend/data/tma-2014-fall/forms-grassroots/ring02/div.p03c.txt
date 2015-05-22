@@ -1,5 +1,0 @@
-# state=display
-# current=1
-# description=8-9yo Novice
-Ryan Kinoshita	Yellow/White	8.6	8.2	8.3
-Ava	Yellow/Orange	8.5	8.3	8.2

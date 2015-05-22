@@ -1,8 +1,0 @@
-# description=10-11 Weapons Poomsae
-Alice	Green
-Annabriza	Blue
-Oscarivan	Blue
-Aditya	Brown
-Piper	Black
-Tejasvini	Blue
-Noa	Blue

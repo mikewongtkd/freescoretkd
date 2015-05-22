@@ -1,6 +1,0 @@
-# state=display
-# current=1
-# judges=5
-# description=12-14yo Advanced
-Leopold	Brown	8.2	8.3	8.2
-Annabriza	Brown	8.5	8.5	8.9

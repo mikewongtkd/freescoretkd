@@ -1,5 +1,0 @@
-# state=score
-# current=1
-# description=6-7yo Novice
-Ethan	White/Orange	8.5	8.2	8.2
-Cash	White/Orange	8.4	7.9	7.9

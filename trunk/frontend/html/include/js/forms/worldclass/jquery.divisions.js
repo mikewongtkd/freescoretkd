@@ -6,6 +6,7 @@ $.widget( "freescore.divisions", {
 		var e = this.options.elements = {};
 
 		var html      = e.html      = FreeScore.html;
+		var error     = e.error     = html.div.clone();
 		var rings     = e.rings     = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" );
 		var list      = e.list      = html.ul.clone()  .attr( "data-role", "listview" );
 		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
@@ -16,7 +17,7 @@ $.widget( "freescore.divisions", {
 		rings.append( list );
 		
 		this.element .attr( "data-role", "content" ) .addClass( "divisions" );
-		this.element .append( rings, ring_divs, div_edit );
+		this.element .append( error, rings, ring_divs, div_edit );
 	},
 
 	_init: function() {
@@ -145,6 +146,9 @@ $.widget( "freescore.divisions", {
 		function refresh( update ) {
 		// ============================================================
 			var tournament = JSON.parse( update.data );
+			if( defined( tournament.error )) {
+				e.error.errormessage({ message : tournament.error });
+			}
 			e.list.empty();
 			o.rings = get_rings( tournament );
 

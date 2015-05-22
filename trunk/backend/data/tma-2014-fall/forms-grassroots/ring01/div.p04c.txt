@@ -1,6 +1,0 @@
-# state=display
-# current=1
-# judges=5
-# description=8-9yo Novice
-Antonio	Orange	9.3	8.9	8.6
-Gabriel	Orange	9	9.3	8.8

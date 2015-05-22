@@ -18,8 +18,10 @@
 		<script src="../../include/opt/codemirror-5.2/keymap/vim.js"></script>
 		<script src="../../include/opt/codemirror-5.2/mode/freescore/freescore.js"></script>
 		<script src="../../include/jquery/js/jquery.codemirror.js"></script>
+		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
+		<script src="../../include/js/jquery.errormessage.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.divisions.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.divisionDescriptor.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.formSelector.js"></script>

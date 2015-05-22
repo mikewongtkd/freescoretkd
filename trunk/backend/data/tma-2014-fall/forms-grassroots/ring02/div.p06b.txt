@@ -1,5 +1,0 @@
-# state=display
-# current=1
-# description=8-9yo Intermediate-Advanced
-Tanish	Brown	8.5	8.5	8.4
-Aaron P.	Brown	8.8	8.7	8.5

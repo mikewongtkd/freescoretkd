@@ -1,4 +1,0 @@
-# current=20
-# divisions=p01b,p01d,p01gc2,p02b,p02d,p03,p03b,p03c,p03d,p03e,p03gc,p06,p06b,p06c,p06d,p06gc,p08,p08b,p08c,p08d,p10,p12,p12b
-# file=/Volumes/ramdisk/tma-2014-fall/forms-grassroots/ring02/progress.txt
-# path=/Volumes/ramdisk/tma-2014-fall/forms-grassroots/ring02

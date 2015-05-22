@@ -1,6 +1,0 @@
-# state=display
-# current=1
-# judges=5
-# description=8-9yo Intermediate
-Brandon	Purple	8.4	8.6	8.3
-Nathan	Purple	8.5	8.4	8.5

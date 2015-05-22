@@ -1,5 +1,0 @@
-# state=display
-# current=0
-# description=6-7yo Novice
-Dominic	White/Purple	7.8	7.8	7.8
-Dilan	White/Purple	7.7	7.6	7.9

@@ -1,4 +1,0 @@
-# state=display
-# current=0
-# description=Seniors Advanced
-Zubin	Brown	8.6	8.3	8.4

@@ -1,4 +1,0 @@
-# description=15-33 Advanced
-Arjun	Red
-Shaurey	Red
-Ann	Brown

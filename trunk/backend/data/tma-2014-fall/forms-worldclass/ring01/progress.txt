@@ -1,3 +1,0 @@
-# current=6
-# file=/Volumes/ramdisk/tma-2014-fall/forms-worldclass/ring01/progress.txt
-# path=/Volumes/ramdisk/tma-2014-fall/forms-worldclass/ring01

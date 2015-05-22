@@ -1,6 +1,0 @@
-# state=display
-# current=2
-# description=8-9yo Intermediate-Advanced
-Kyle	Blue	8.6	8.2	8.5
-Alice	Blue	8.8	8.8	8.6
-Tejasvini	Brown	8.5	8.5	8.4

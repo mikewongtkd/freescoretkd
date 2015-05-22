@@ -1,9 +1,0 @@
-# description=8-17 Black Belt Weapons Forms
-Saahithya	Red
-Sofia	Red
-Anika	Red 
-Piper	Black
-Sonaal	Black
-Alexander	Black
-Liam	Black 
-John Martin	Black

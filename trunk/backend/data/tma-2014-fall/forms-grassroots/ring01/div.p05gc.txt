@@ -1,8 +1,0 @@
-# state=display
-# current=3
-# judges=5
-# description=Grand Championships
-Suri	Green	8	8.1	8
-Nathan	Green	8.4	8.3	8.3
-Max	Green	8.3	8.3	8.4
-Smrithi	Green	8.6	8.4	8.6

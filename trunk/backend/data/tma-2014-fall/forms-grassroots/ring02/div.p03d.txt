@@ -1,6 +1,0 @@
-# state=display
-# current=2
-# description=4-7yo Novice
-Katelyn T.	Yellow/Orange	8.2	8.1	8.1
-Kaylee	Y.	8.8	8.6	8.4
-Parth D.	Yellow/Orange	8.1	7.9	8
