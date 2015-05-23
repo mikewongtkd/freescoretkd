@@ -17,10 +17,11 @@ body {
       display: inline-block;
       width: 100%; }
       .divisions ul li .athlete .name {
+        border: 0;
         font-weight: bold;
         font-size: 14pt;
         position: absolute;
-        top: 22px; }
+        top: 20px; }
       .divisions ul li .athlete .move {
         padding: 8px;
         margin-right: 24px;

@@ -13,30 +13,15 @@ $.widget( "freescore.divisionEditor", {
 
 		var actions   = e.actions   = {
 			athlete : { 
-				name     : html.text.clone(),
+				name     : html.div.clone(),
 				accept   : html.a.clone(),
 				reset    : html.a.clone(),
 				remove   : html.a.clone(),
 				close    : html.a.clone(),
 			}
 		}
-
-		actions.athlete.name.change( function( ev, ui ) {
-			var i        = o.current;
-			var athlete  = o.division.athletes[ i ];
-			var view     = o.athletes[ i ];
-			var oldName  = athlete.name;
-			var newName  = $( this ).val();
-			athlete.name = newName;
-			view.name.html( newName );
-			console.log( "AJAX call to change athlete name" );
-		});
-
-		actions.athlete.accept
-			.addClass( "ui-btn ui-icon-check ui-btn-icon-left" )
-			.html( "OK" )
-			.attr( "href", "#list" )
-			.attr( "data-rel", "close" );
+		actions.athlete.name
+			.html( "Name" );
 
 		actions.athlete.reset
 			.addClass( "ui-btn ui-icon-back ui-btn-icon-left" )
@@ -62,7 +47,6 @@ $.widget( "freescore.divisionEditor", {
 			.attr( "id", "edit-panel" )
 			.append( 
 				actions.athlete.name, 
-				actions.athlete.accept, 
 				actions.athlete.reset, 
 				actions.athlete.remove, 
 				actions.athlete.close 
@@ -85,57 +69,43 @@ $.widget( "freescore.divisionEditor", {
 		e.list.empty();
 		for( var i in o.division.athletes ) {
 			var athlete = { 
+				index    : i,
 				data     : o.division.athletes[ i ],
-				name     : html.span .clone() .addClass( "name" ),
+				name     : html.text .clone() .addClass( "name" ) .attr( "id", "athlete-name-" + i ),
 				view     : html.div  .clone() .addClass( "athlete" ),
-				move     : html.div  .clone() .addClass( "move" ),
-				moveup   : html.a.clone(),
-				movedown : html.a.clone(),
 				actions  : html.div.clone(),
 				edit     : html.a.clone(),
 				listitem : html.li.clone() .attr( "data-icon", "ui-icon-user" ),
 			};
 
 			athlete.view.addClass( "athlete" );
+			athlete.name .attr( "index", i );
+			athlete.name .val( athlete.data.name );
+			athlete.name .click( function( ev ) { $( this ).select(); } );
+			athlete.name .keydown( function( ev ) { 
+				var i       = $( this ).attr( "index" );
+				var oldName = o.division.athletes[ i ].name;
+				var newName = $( this ).val();
+				if      ( ev.which == 13 ) { 
+					o.division.athletes[ i ].name = newName; 
+					$( this ).blur(); 
+					console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
 
-			athlete.name
-				.html( athlete.data.name );
-
-			athlete.move .addClass( "move ui-nodisc-icon" );
-
-			var switchUp = i == 0 ? 0 : (i - 1);
-			athlete.moveup
-				.addClass( "up ui-btn ui-icon-arrow-u ui-btn-icon-notext ui-btn-inline" )
-				.attr( "athlete", i )
-				.attr( "switch", switchUp )
-				.click( function() { 
-					var i = $( this ).attr( "athlete" );
-					var j = $( this ).attr( "switch" );
-					console.log( "ajax call to swap " + i + " and " + j );
-				});
-
-			var switchDown = i == o.division.athletes.length ? o.divisions.athletes.length : (i + 1);
-			athlete.movedown
-				.addClass( "down ui-btn ui-icon-arrow-d ui-btn-icon-notext ui-btn-inline" )
-				.attr( "athlete", i )
-				.attr( "switch", switchDown )
-				.click( function( ev ) { console.log( ev ) } );
+				} else if ( ev.which == 27 ) { $( this ).val( oldName ); }
+			});
 
 			athlete.edit
 				.addClass( "edit ui-btn ui-icon-edit ui-btn-icon-notext ui-btn-inline" )
-				.attr( "athlete", i )
+				.attr( "index", i )
 				.click( function( ev ) { 
-					var i = $( this ).attr( "athlete" ); 
+					var i = $( this ).attr( "index" ); 
 					var athlete = o.division.athletes[ i ];
 					o.current = i;
-					e.actions.athlete.name.val( athlete.name ); 
+					e.actions.athlete.name.html( athlete.name ); 
 					e.edit.panel( "open" ); 
 				});
 
-			athlete.move.addClass( "move" );
-			athlete.move.append( athlete.moveup, athlete.movedown );
-
-			athlete.view.append( athlete.move, athlete.name, athlete.edit );
+			athlete.view.append( athlete.name, athlete.edit );
 			athlete.listitem.append( athlete.view );
 			e.list.append( athlete.listitem );
 
