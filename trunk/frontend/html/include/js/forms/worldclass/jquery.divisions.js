@@ -7,17 +7,12 @@ $.widget( "freescore.divisions", {
 
 		var html      = e.html      = FreeScore.html;
 		var error     = e.error     = html.div.clone();
-		var rings     = e.rings     = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" );
-		var list      = e.list      = html.ul.clone()  .attr( "data-role", "listview" );
-		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
 		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
 
 		div_edit.divisionEditor( { division : {}, server : o.server, tournament : o.tournament } );
-
-		rings.append( list );
 		
 		this.element .attr( "data-role", "content" ) .addClass( "divisions" );
-		this.element .append( error, rings, ring_divs, div_edit );
+		this.element .append( error, div_edit );
 	},
 
 	_init: function() {
@@ -149,7 +144,6 @@ $.widget( "freescore.divisions", {
 			if( defined( tournament.error )) {
 				e.error.errormessage({ message : tournament.error });
 			}
-			e.list.empty();
 			o.rings = get_rings( tournament );
 
 			showEditor( 1, 0 );
