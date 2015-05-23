@@ -9,7 +9,7 @@ $.widget( "freescore.divisionEditor", {
 		var division  = e.division  = html.div.clone();
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone() .divisionHeader( o );
-		var list      = e.list      = html.ol.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
+		var list      = e.list      = html.ul.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
 
 		var actions   = e.actions   = {
 			athlete : { 
@@ -96,28 +96,18 @@ $.widget( "freescore.divisionEditor", {
 				listitem : html.li.clone() .attr( "data-icon", "ui-icon-user" ),
 			};
 
-			athlete.view
-				.css( "display", "inline-block" )
-				.css( "width", "95%" );
+			athlete.view.addClass( "athlete" );
 
 			athlete.name
 				.html( athlete.data.name );
 
-			athlete.move
-				.addClass( "ui-nodisc-icon" )
-				.css( "padding", "8px" )
-				.css( "margin-right", "24px" )
-				.css( "float", "left" );
+			athlete.move .addClass( "move ui-nodisc-icon" );
 
 			var switchUp = i == 0 ? 0 : (i - 1);
 			athlete.moveup
-				.addClass( "ui-btn ui-icon-arrow-u ui-btn-icon-notext ui-btn-inline" )
+				.addClass( "up ui-btn ui-icon-arrow-u ui-btn-icon-notext ui-btn-inline" )
 				.attr( "athlete", i )
 				.attr( "switch", switchUp )
-				.css( "margin", "0 1px 0 0" )
-				.css( "border-radius", "24px 0 0 24px" )
-				.css( "border", "0" )
-				.css( "background", "#ccc" )
 				.click( function() { 
 					var i = $( this ).attr( "athlete" );
 					var j = $( this ).attr( "switch" );
@@ -126,23 +116,14 @@ $.widget( "freescore.divisionEditor", {
 
 			var switchDown = i == o.division.athletes.length ? o.divisions.athletes.length : (i + 1);
 			athlete.movedown
-				.addClass( "ui-btn ui-icon-arrow-d ui-btn-icon-notext ui-btn-inline" )
+				.addClass( "down ui-btn ui-icon-arrow-d ui-btn-icon-notext ui-btn-inline" )
 				.attr( "athlete", i )
 				.attr( "switch", switchDown )
-				.css( "margin", "0 0 0 0" )
-				.css( "border-radius", "0 24px 24px 0" )
-				.css( "border", "0" )
-				.css( "background", "#ccc" )
 				.click( function( ev ) { console.log( ev ) } );
 
 			athlete.edit
-				.addClass( "ui-btn ui-icon-edit ui-btn-icon-notext ui-btn-inline" )
+				.addClass( "edit ui-btn ui-icon-edit ui-btn-icon-notext ui-btn-inline" )
 				.attr( "athlete", i )
-				.css( "margin", "0 1px 0 0" )
-				.css( "border-radius", "24px" )
-				.css( "margin-top", "8px" )
-				.css( "border", "0" )
-				.css( "float", "right" )
 				.click( function( ev ) { 
 					var i = $( this ).attr( "athlete" ); 
 					var athlete = o.division.athletes[ i ];
@@ -151,6 +132,7 @@ $.widget( "freescore.divisionEditor", {
 					e.edit.panel( "open" ); 
 				});
 
+			athlete.move.addClass( "move" );
 			athlete.move.append( athlete.moveup, athlete.movedown );
 
 			athlete.view.append( athlete.move, athlete.name, athlete.edit );
