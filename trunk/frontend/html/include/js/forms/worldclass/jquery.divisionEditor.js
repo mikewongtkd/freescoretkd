@@ -62,7 +62,7 @@ $.widget( "freescore.divisionEditor", {
 		rounds.prelim.button.append( html.a.clone() .attr( "href", "#prelim" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
 		rounds.semfin.button.append( html.a.clone() .attr( "href", "#semfin" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
 		rounds.finals.button.append( html.a.clone() .attr( "href", "#finals" ) .attr( "data-ajax", false ) .html( map[ 'finals' ] ));
-		rounds.navbar.append( rounds.prelim.button, rounds.semfin.button, rounds.finals.button );
+		rounds.navbar.append( html.ul.clone().append( rounds.prelim.button, rounds.semfin.button, rounds.finals.button ));
 		rounds.prelim.tab.append( rounds.prelim.list );
 		rounds.semfin.tab.append( rounds.semfin.list );
 		rounds.finals.tab.append( rounds.finals.list );
