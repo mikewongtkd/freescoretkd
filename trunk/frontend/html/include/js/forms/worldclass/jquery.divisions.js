@@ -7,7 +7,7 @@ $.widget( "freescore.divisions", {
 
 		var html      = e.html      = FreeScore.html;
 		var error     = e.error     = html.div.clone();
-		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
+		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division-editor" );
 
 		div_edit.divisionEditor( { division : {}, server : o.server, tournament : o.tournament } );
 		

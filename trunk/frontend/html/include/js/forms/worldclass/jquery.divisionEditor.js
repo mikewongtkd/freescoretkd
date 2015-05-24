@@ -6,10 +6,16 @@ $.widget( "freescore.divisionEditor", {
 		var e = this.options.elements = {};
 
 		var html      = e.html      = FreeScore.html;
-		var division  = e.division  = html.div.clone();
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone() .divisionHeader( o );
-		var list      = e.list      = html.ul.clone() .attr( "data-role", "listview" ) .attr( "id", "list" );
+
+		var rounds    = e.rounds    = {
+			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
+			navbar : html.div.clone() .attr( "data-role", "navbar" ),
+			prelim : { button : html.li.clone(), tab : html.div.clone() .attr( "id", "prelim" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
+			semfin : { button : html.li.clone(), tab : html.div.clone() .attr( "id", "semfin" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
+			finals : { button : html.li.clone(), tab : html.div.clone() .attr( "id", "finals" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
+		};
 
 		var actions   = e.actions   = {
 			athlete : { 
@@ -52,9 +58,18 @@ $.widget( "freescore.divisionEditor", {
 				actions.athlete.close 
 			);
 
-		division .attr( "id", "divisionEditor" );
-		division .append( edit, header, list );
-		this.element .append( division );
+		var map = { prelim : "Preliminary Round", semfin : "Semi-Final Round", finals : "Final Round" };
+		rounds.prelim.button.append( html.a.clone() .attr( "href", "#prelim" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
+		rounds.semfin.button.append( html.a.clone() .attr( "href", "#semfin" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
+		rounds.finals.button.append( html.a.clone() .attr( "href", "#finals" ) .attr( "data-ajax", false ) .html( map[ 'finals' ] ));
+		rounds.navbar.append( rounds.prelim.button, rounds.semfin.button, rounds.finals.button );
+		rounds.prelim.tab.append( rounds.prelim.list );
+		rounds.semfin.tab.append( rounds.semfin.list );
+		rounds.finals.tab.append( rounds.finals.list );
+		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
+		rounds.navbar.enhanceWithin();
+
+		this.element .append( edit, header, rounds .tabs );
 	},
 
 	_init: function() {
@@ -62,12 +77,7 @@ $.widget( "freescore.divisionEditor", {
 		var o       = this.options;
 		var html    = e.html;
 
-		o.athletes = [];
-
-		var n = defined( o.division.athletes ) ? o.division.athletes.length : 0;
-		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges, athletes : n });
-		e.list.empty();
-		for( var i in o.division.athletes ) {
+		var addAthlete = function( i ) {
 			var athlete = { 
 				index    : i,
 				data     : o.division.athletes[ i ],
@@ -107,11 +117,41 @@ $.widget( "freescore.divisionEditor", {
 
 			athlete.view.append( athlete.name, athlete.edit );
 			athlete.listitem.append( athlete.view );
-			e.list.append( athlete.listitem );
 
-			e.edit.panel();
-			e.list.listview().listview( "refresh" );
-			o.athletes.push( athlete );
-		};
+			return athlete;
+		}
+
+		var n = defined( o.division.athletes ) ? o.division.athletes.length : 0;
+		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges, athletes : n });
+		var min = undefined;
+
+
+		for( var r = 0; r < 3; r++ ) {
+			var rname = [ 'prelim', 'semfin', 'finals' ][ r ];
+			if( ! defined( o.division.order )) continue;
+			var order = o.division.order[ rname ];
+			if( ! defined( order )) continue;
+
+			// ===== ADD NAVIGATION BUTTON
+			if( ! defined( min )) { min = r; }
+			console.log( rname );
+		}
+
+		for( var r = min; r < 3; r++ ) {
+			var rname = [ 'prelim', 'semfin', 'finals' ][ r ];
+			var order = o.division.order[ rname ];
+			var round = e.rounds[ rname ];
+			round.list.empty();
+
+			// TODO set up the round to display
+			for( var i in order ) {
+				var j = order[ i ];
+				var athlete = addAthlete( j );
+				round.list.append( athlete.listitem );
+
+				e.edit.panel();
+				round.list.listview().listview( "refresh" );
+			};
+		}
 	},
 });
