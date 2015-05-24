@@ -35,8 +35,11 @@ $.widget( "freescore.divisionHeader", {
 			description : function() {
 				var widget = e.description.find( "#descriptionWidget" );
 				widget.divisionDescriptor( { header : { o : o, e : e }} );
-				var placeholder = e.html.span.clone() .css( "color", "#666" ) .html( "Division Description" );
-				e.description.find( "h3 a" ).html( placeholder );
+				var placeholder = e.html.span.clone() .css( "color", "#999" ) .html( "Division Description" );
+				var view        = e.description.find( "h3 a" );
+				console.log( view.html() );
+				if( defined( o.text )) { view.html( o.text ); }
+				else                   { view.html( placeholder ); }
 
 				initialize.forms();
 			},
