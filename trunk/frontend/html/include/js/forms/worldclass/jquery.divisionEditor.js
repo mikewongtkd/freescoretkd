@@ -100,6 +100,15 @@ $.widget( "freescore.divisionEditor", {
 					o.division.athletes[ i ].name = newName; 
 					$( this ).blur(); 
 					console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
+					var textboxes = $( "input:text" );
+					var current = textboxes.index( this );
+					if( textboxes[ current + 1 ] != null ) {
+						var next = textboxes[ current + 1 ];
+						next.focus();
+						next.select();
+						ev.preventDefault();
+						return false;
+					}
 
 				} else if ( ev.which == 27 ) { $( this ).val( oldName ); }
 			});
