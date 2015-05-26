@@ -243,7 +243,6 @@ sub normalize {
 		foreach my $i (@{ $self->{ order }{ $round }}) {
 			my $athlete = $self->{ athletes }[ $i ];
 			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-			$self->{ debug } = $round unless defined $athlete->{ scores }{ $round };
 		}
 	}
 
