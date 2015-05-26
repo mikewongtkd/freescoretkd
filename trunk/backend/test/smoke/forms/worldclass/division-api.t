@@ -48,10 +48,11 @@ sub score {
 			}
 			if( $form == 0 && $forms > 0 ) {
 				$division->next_form();
+				$division->write();
 			}
-			$division->write();
 		}
 		$division->next_athlete();
+		$division->write();
 	}
 
 	$division->next_round();

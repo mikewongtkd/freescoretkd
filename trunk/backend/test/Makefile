@@ -4,14 +4,14 @@ all: grassroots worldclass
 
 start:
 	@echo Starting FreeScore servers for testing
-	sudo hypnotoad /usr/local/freescore/bin/worldclass &
-	sudo hypnotoad /usr/local/freescore/bin/grassroots &
+	sudo hypnotoad /usr/local/freescore/bin/worldclass
+	sudo hypnotoad /usr/local/freescore/bin/grassroots
 
 stop:
 	@echo Stopping FreeScore servers for testing
-	pid=$$(ps -ef | grep worldclass | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }'); \
+	pid=$$(ps -ef | grep -vi vim | grep 'worldclass' | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }'); \
 	sudo kill $$pid
-	pid=$$(ps -ef | grep grassroots | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }'); \
+	pid=$$(ps -ef | grep -vi vim | grep 'grassroots' | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }'); \
 	sudo kill $$pid
 	
 

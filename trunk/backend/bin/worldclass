@@ -127,8 +127,7 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 		$division->record_score( $judge, $score );
 		$division->write();
 		$progress->write();
-		$division->update_status();
-		send_response( $self, { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => $score } );
+		send_response( $self, { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => { %$score }} );
 
 	} catch {
 		send_response( $self, { error => $_ });
@@ -307,7 +306,9 @@ any '*command' => sub {
 # ============================================================
 # HYPNOTOAD SERVER
 # ============================================================
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
 app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid' });
+app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'error' ));
 app->start();
 
 # ============================================================

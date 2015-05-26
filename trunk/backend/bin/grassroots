@@ -202,5 +202,7 @@ any '*' => sub {
 	$self->render( text => 'Forms::Grassroots: Unknown command' );
 };
 
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
 app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid' });
+app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'error' ));
 app->start();
