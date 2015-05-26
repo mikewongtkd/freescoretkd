@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use lib qw( ./lib ../lib );
-use Test::Simple tests => 691;
+use Test::Simple tests => 572;
 use FreeScore::Test qw( score_worldclass );
 use Data::Dumper;
 
@@ -42,13 +42,11 @@ foreach my $athlete ( 0 .. 10 ) {
 
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		ok( $response = $test->worldclass( $judge_score ) );
+		print STDERR Dumper $response->{ debug };
 		print STDERR Dumper $response if exists $response->{ error };
-		print STDERR Dumper $response;
 		ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
-		exit();
 	}
 	ok( $response = $test->worldclass( "athlete/next" ));
-	print Dumper $response;
 }
 
 # ===== MOVE TO THE FINAL ROUND
@@ -70,6 +68,5 @@ foreach my $athlete ( 0 .. 7 ) {
 		ok( $response->{ form } == 1 );
 	}
 	ok( $response = $test->worldclass( "athlete/next" ));
-	print Dumper $response, $athlete;
 }
 

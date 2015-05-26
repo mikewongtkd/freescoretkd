@@ -9,10 +9,8 @@ start:
 
 stop:
 	@echo Stopping FreeScore servers for testing
-	pid=$$(ps -ef | grep -vi vim | grep 'worldclass' | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }'); \
-	sudo kill $$pid
-	pid=$$(ps -ef | grep -vi vim | grep 'grassroots' | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }'); \
-	sudo kill $$pid
+	ps -ef | grep -vi vim | grep 'worldclass' | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }' | xargs sudo kill
+	ps -ef | grep -vi vim | grep 'grassroots' | grep -v grep | awk 'BEGIN { pid = 0; } { if( pid == 0 || $$2 < pid ) { pid = $$2; }} END { print pid; }' | xargs sudo kill
 	
 
 grassroots: cache test-config grassroots-unit-test grassroots-rest-test restore-config

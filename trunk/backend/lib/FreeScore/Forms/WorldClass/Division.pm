@@ -16,7 +16,7 @@ sub assign {
 # ------------------------------------------------------------
 	my $self       = shift;
 	my $athlete    = shift;
-	my $round      = shift || $self->{ round };
+	my $round      = shift;
 	my $judges     = $self->{ judges };
 
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $self->{ forms }{ $round };
@@ -215,13 +215,14 @@ sub normalize {
 	my $self   = shift;
 	my $judges = $self->{ judges };
 
-	# ===== INITIALIZE EACH ROUND IF NOT ALREADY DEFINED
 	my $round  = $self->{ round };
+	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
 	if( defined $round ) {
-		if( none { my $rounds = int(keys %{ $_->{ scores }}); $rounds > 0 } @{ $self->{ athletes }} ) {
+		if( none { my $forms = $_->{ scores }{ $round }; defined $forms && int( @$forms ) > 0 } @{ $self->{ athletes }} ) {
 			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
 		}
 
+	# ===== OTHERWISE FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
 	} else {
 		my $n        = int( @{ $self->{ athletes }} );
 		my $half     = int( ($n-1)/2 );
@@ -242,6 +243,7 @@ sub normalize {
 		foreach my $i (@{ $self->{ order }{ $round }}) {
 			my $athlete = $self->{ athletes }[ $i ];
 			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+			$self->{ debug } = $round unless defined $athlete->{ scores }{ $round };
 		}
 	}
 
@@ -314,7 +316,7 @@ sub read {
 			} elsif( /prelim|semfin|finals/i ) {
 				s/^#\s+//;
 
-				# Store the current athlete before starting a new athlete
+				# Store the last athlete
 				if( $athlete->{ name } ) {
 					push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
 					$athlete = {};
@@ -365,7 +367,7 @@ sub read {
 			die "Database Read Error: Unknown line type '$_'\n";
 		}
 	}
-	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; }
+	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
 	close FILE;
 
 	# ===== AUTODETECT THE FIRST ROUND
@@ -387,7 +389,6 @@ sub read {
 		if( keys %$initial_order ) {
 			foreach my $name (@{ $order->{ $round }}) {
 				push @{$self->{ order }{ $round }}, $initial_order->{ $name } if defined $initial_order->{ $name };
-				if( ! defined $initial_order->{ $name } ) { $self->{ debug } = "Unknown athlete '$name'" };
 			}
 
 		# No initial order set; this must be the earliest round
@@ -488,6 +489,8 @@ sub write {
 	$self->update_status();
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
 
+	my $judges = $self->{ judges };
+
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
@@ -524,8 +527,7 @@ sub write {
 		foreach my $k (@$order) {
 			my $athlete = $self->{ athletes }[ $k ];
 			print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
-			# $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round } );
-			print FILE $athlete->{ scores }{ $round }->string( $round, $forms, $self->{ judges } );
+			print FILE $athlete->{ scores }{ $round }->string( $round, $forms, $judges );
 		}
 	}
 	close FILE;
