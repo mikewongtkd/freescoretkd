@@ -59,7 +59,7 @@ test-config:
 
 restore-config:
 	test=$$(grep -c 'FreeScore Test' ../../frontend/html/include/php/config.php); \
-	if [ $$test -eq 1 ]; then \
+	if [ $$test -eq 1 ] && [ -e "config.bak" ]; then \
 		cp config.bak ../../frontend/html/include/php/config.php; \
 	fi
 

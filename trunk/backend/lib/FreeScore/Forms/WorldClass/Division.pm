@@ -245,7 +245,7 @@ sub normalize {
 		}
 	}
 
-	$self->{ current } = $self->athletes_in_round( 'first' ) unless( $self->{ current } );
+	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
 }
 
 # ============================================================
@@ -313,6 +313,14 @@ sub read {
 
 			} elsif( /prelim|semfin|finals/i ) {
 				s/^#\s+//;
+
+				# Store the current athlete before starting a new athlete
+				if( $athlete->{ name } ) {
+					push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
+					$athlete = {};
+				}
+
+				# Assign round
 				$round = $_;
 			}
 		# ===== READ DIVISION ATHLETE INFORMATION
@@ -378,7 +386,8 @@ sub read {
 		# Establish order by athlete name, based on the earliest round
 		if( keys %$initial_order ) {
 			foreach my $name (@{ $order->{ $round }}) {
-				push @{$self->{ order }{ $round }}, $initial_order->{ $name };
+				push @{$self->{ order }{ $round }}, $initial_order->{ $name } if defined $initial_order->{ $name };
+				if( ! defined $initial_order->{ $name } ) { $self->{ debug } = "Unknown athlete '$name'" };
 			}
 
 		# No initial order set; this must be the earliest round
@@ -432,7 +441,6 @@ sub update_status {
 		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
 		$self->assign( $_, 'semfin' ) foreach @athlete_advances;
-		$self->{ current } = $self->athletes_in_round( 'first' );
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
 
@@ -445,7 +453,6 @@ sub update_status {
 		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
 		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
 		$self->assign( $_, 'finals' ) foreach @athlete_advances;
-		$self->{ current } = $self->athletes_in_round( 'first' );
 	}
 }
 
@@ -479,6 +486,7 @@ sub write {
 	my $self = shift;
 
 	$self->update_status();
+	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
 
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
@@ -516,7 +524,7 @@ sub write {
 		foreach my $k (@$order) {
 			my $athlete = $self->{ athletes }[ $k ];
 			print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
-			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round } );
+			# $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round } );
 			print FILE $athlete->{ scores }{ $round }->string( $round, $forms, $self->{ judges } );
 		}
 	}

@@ -199,7 +199,7 @@ sub string {
 	my $forms  = shift;
 	my $judges = shift;
 	my @string = ();
-	$self = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $self, $forms, $judges );
+	
 	for( my $i = 0; $i < $forms; $i++ ) {
 		my $form = $self->[ $i ];
 		for( my $j = 0; $j < $judges; $j++ ) {

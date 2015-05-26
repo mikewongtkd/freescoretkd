@@ -127,7 +127,7 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 		$division->record_score( $judge, $score );
 		$division->write();
 		$progress->write();
-		send_response( $self, { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => { %$score }} );
+		send_response( $self, { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $division->{ round }, judge => ($judge + 1), score => { %$score }, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
 
 	} catch {
 		send_response( $self, { error => $_ });

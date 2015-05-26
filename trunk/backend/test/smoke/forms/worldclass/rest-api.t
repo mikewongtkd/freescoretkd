@@ -43,8 +43,9 @@ foreach my $athlete ( 0 .. 10 ) {
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		ok( $response = $test->worldclass( $judge_score ) );
 		print STDERR Dumper $response if exists $response->{ error };
+		print STDERR Dumper $response;
 		ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
-exit();
+		exit();
 	}
 	ok( $response = $test->worldclass( "athlete/next" ));
 	print Dumper $response;
