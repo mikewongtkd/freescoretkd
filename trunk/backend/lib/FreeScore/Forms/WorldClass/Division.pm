@@ -237,9 +237,10 @@ sub normalize {
 
 	# ===== NORMALIZE THE SCORING MATRIX
 	my $forms  = int( @{ $self->{ forms }{ $round }});
-	foreach my $athlete (@{ $self->{ athletes }}) {
-		my @rounds = grep { exists $athlete->{ scores }{ $_ }; } qw( prelim semfin finals );
-		foreach my $round (@rounds) {
+	my @rounds = grep { my $order = $self->{ order }{ $_ }; defined $order && int( @$order ); } qw( prelim semfin finals );
+	foreach my $round (@rounds) {
+		foreach my $i (@{ $self->{ order }{ $round }}) {
+			my $athlete = $self->{ athletes }[ $i ];
 			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 		}
 	}
@@ -369,14 +370,18 @@ sub read {
 		delete $order->{ 'autodetect_required' };
 	}
 
-	# ===== ESTABLISH THE ORDER BASED ON THE FIRST ROUND
+	# ===== READ THE ATHLETE ASSIGNATION FOR THE ROUND SUB-HEADER IN THE FILE
 	my $initial_order = {};
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $order->{ $round };
+
+		# Establish order by athlete name, based on the earliest round
 		if( keys %$initial_order ) {
 			foreach my $name (@{ $order->{ $round }}) {
 				push @{$self->{ order }{ $round }}, $initial_order->{ $name };
 			}
+
+		# No initial order set; this must be the earliest round
 		} else {
 			my $i = 0;
 			foreach my $name (@{ $order->{ $round }}) {
@@ -386,11 +391,9 @@ sub read {
 				$i++;
 			}
 		}
-		last;
 	}
 
 	$self->normalize();
-	$self->update_status();
 }
 
 # ============================================================

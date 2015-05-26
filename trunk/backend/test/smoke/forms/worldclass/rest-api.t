@@ -35,7 +35,6 @@ foreach my $athlete ( 0 .. 21 ) {
 ok( $response = $test->worldclass( "round/next" ));
 ok( $response->{ round } eq 'semfin' );
 
-
 # ===== SCORE THE 11 PLAYERS IN THE SEMIFINAL ROUND
 foreach my $athlete ( 0 .. 10 ) { 
 	foreach my $judge ( 0 .. ($judges - 1)) {
@@ -45,8 +44,8 @@ foreach my $athlete ( 0 .. 10 ) {
 		ok( $response = $test->worldclass( $judge_score ) );
 		print STDERR Dumper $response if exists $response->{ error };
 		ok( sprintf( "%.1f", $response->{ score }{ major }) eq sprintf( "%.1f", $score->{ major }));
+exit();
 	}
-	exit();
 	ok( $response = $test->worldclass( "athlete/next" ));
 	print Dumper $response;
 }

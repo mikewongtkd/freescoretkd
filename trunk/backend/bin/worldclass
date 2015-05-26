@@ -304,12 +304,8 @@ any '*command' => sub {
 };
 
 # ============================================================
-# HYPNOTOAD SERVER
+# HELPER FUNCTIONS
 # ============================================================
-mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid' });
-app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'error' ));
-app->start();
 
 # ============================================================
 sub get_score {
@@ -331,3 +327,11 @@ sub send_response {
 	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 	$self->render( json => $data );
 };
+
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
+app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid' });
+app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'debug' ));
+app->start();
