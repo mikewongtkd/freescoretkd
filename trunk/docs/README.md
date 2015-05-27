@@ -127,7 +127,9 @@ Disable sleep.
     
 ## Raspberry Pi
 
-A stand-alone FreeScore system can be installed on to a Raspberry Pi.
+A stand-alone FreeScore system can be installed on to a Raspberry Pi. As
+of May 2015, I recommend the Raspberry Pi 2 Model B, 900 MHz ARM v7 1GB RAM
+(~$40), along with an RT5370 chipset USB wifi adapter with antenna (~$15).
 
 ### Current prototype
 

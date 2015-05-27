@@ -61,10 +61,15 @@ sub reinstantiate {
 # ============================================================
 	my $self = shift;
 
-	return new FreeScore::Forms::WorldClass::Division::Round::Score() if( ! defined $self );
-	my $sub = eval { $self->can( "clear_minmax" ) };
-	return new FreeScore::Forms::WorldClass::Division::Round::Score( $self ) unless $sub;
-	return $self;
+	if( ! defined $self ) { 
+		return new FreeScore::Forms::WorldClass::Division::Round::Score();
+
+	} elsif( eval { $self->can( "clear_minmax" ) } ) {
+		return $self;
+
+	} else {
+		return new FreeScore::Forms::WorldClass::Division::Round::Score( $self );
+	}
 }
 
 # ============================================================

@@ -4,6 +4,7 @@ use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( any none first shuffle reduce );
+use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
 use strict;
 
@@ -15,17 +16,15 @@ sub assign {
 # Assigns the athlete to a round
 # ------------------------------------------------------------
 	my $self       = shift;
-	my $athlete    = shift;
+	my $i          = shift;
 	my $round      = shift;
 	my $judges     = $self->{ judges };
+	my $athlete    = $self->{ athletes }[ $i ];
 
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $self->{ forms }{ $round };
 	my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
 	my $forms      = int( @compulsory );
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
-
-	# Find athlete by name
-	my $i = first { $self->{ athletes }[ $_ ]{ name } eq $athlete->{ name } } ( 0 .. $#{ $self->{ athletes }});
 
 	# Do nothing if athlete is already assigned to the round
 	return if( any { $_ == $i } @{ $self->{ order }{ $round }});
@@ -218,9 +217,8 @@ sub normalize {
 	my $round  = $self->{ round };
 	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
 	if( defined $round ) {
-		if( none { my $forms = $_->{ scores }{ $round }; defined $forms && int( @$forms ) > 0 } @{ $self->{ athletes }} ) {
-			$self->assign( $_, $round ) foreach ( @{ $self->{ athletes }} );
-		}
+		my $order = $self->{ order }{ $round };
+		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); } 
 
 	# ===== OTHERWISE FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
 	} else {
@@ -231,9 +229,9 @@ sub normalize {
 		elsif ( $n >=  8 ) { $round = 'semfin'; }
 		else               { $round = 'finals'; }
 
-		if   ( $n >= 20 )          { $self->assign( $_, 'prelim' ) foreach ( @{ $self->{ athletes }} ); }
-		elsif( $n > 8 && $n < 20 ) { $self->assign( $_, 'semfin' ) foreach ( @{ $self->{ athletes }} ); }
-		elsif( $n <= 8 )           { $self->assign( $_, 'finals' ) foreach ( @{ $self->{ athletes }} ); }
+		if   ( $n >= 20 )          { $self->assign( $_, 'prelim' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		elsif( $n > 8 && $n < 20 ) { $self->assign( $_, 'semfin' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		elsif( $n <= 8 )           { $self->assign( $_, 'finals' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 	}
 
 	# ===== NORMALIZE THE SCORING MATRIX
@@ -335,15 +333,21 @@ sub read {
 				$athlete = {};
 			}
 
-			# Start a new athlete
 			my ($name, $rank, $age) = split /\t/;
 
-			$athlete->{ name }   = $name;
-			$athlete->{ rank }   = $rank;
-			$athlete->{ age }    = $age;
-			$athlete->{ scores } = {};
+			# Reload the athlete seen from a previous round or...
+			if( exists $athletes->{ $name } ) {
+				$athlete = $athletes->{ $name };
 
-			$athletes->{ $athlete->{ name } } = $athlete;
+			# Start a new athlete
+			} else {
+				$athlete->{ name }   = $name;
+				$athlete->{ rank }   = $rank;
+				$athlete->{ age }    = $age;
+				$athlete->{ scores } = {};
+
+				$athletes->{ $athlete->{ name } } = $athlete; 
+			}
 
 		# ===== READ DIVISION ATHLETE SCORES
 		} elsif( /^\t\w/ ) {
@@ -355,6 +359,7 @@ sub read {
 
 			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!" unless $form >= 0;
 			$judge =~ s/j//; $judge = int( $judge ) - 1; die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
+			next unless( $major || $minor || $rhythm || $power || $ki );
 
 			my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 			my $forms  = int( @{ $self->{ forms }{ $round }});
@@ -368,6 +373,10 @@ sub read {
 	}
 	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
 	close FILE;
+
+	foreach my $i ( 0 .. $#{ $self->{ athletes }} ) {
+		next unless $athlete->{ scores }{ prelim };
+	}
 
 	# ===== AUTODETECT THE FIRST ROUND
 	if( exists $order->{ 'autodetect_required' } ) {
@@ -439,8 +448,7 @@ sub update_status {
 		# Semi-final round goes in random order
 		my $half             = int( ($n-1)/2 );
 		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
-		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
-		$self->assign( $_, 'semfin' ) foreach @athlete_advances;
+		$self->assign( $_, 'semfin' ) foreach @order;
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
 
@@ -451,8 +459,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k                = $n > 8 ? 7 : ($n - 1);
 		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
-		my @athlete_advances = map { $self->{ athletes }[ $_ ] } @order;
-		$self->assign( $_, 'finals' ) foreach @athlete_advances;
+		$self->assign( $_, 'finals' ) foreach @order;
 	}
 }
 
