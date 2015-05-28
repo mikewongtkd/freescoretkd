@@ -11,10 +11,13 @@
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
+ 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/jquery.errormessage.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.worldclass.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.leaderBoard.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.judgeScore.js"></script>

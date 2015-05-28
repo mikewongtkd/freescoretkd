@@ -36,40 +36,34 @@ my $skill  = {
 my $current = 0;
 
 foreach my $athlete ( 0 .. 21 ) {
-	foreach my $form ( 0 .. 1 ) {
-		my $name  = $names->[ $current ];
-		my $level = $skill->{ $name };
-		score( $level, $judges );
-		$test->worldclass( "form/next" );
-	}
+	my $name  = $names->[ $current ];
+	my $level = $skill->{ $name };
+	score( $level, $judges );
 	$current = $test->worldclass( "athlete/next" );
 	$current = $current->{ athlete };
 
 	$test->worldclass( "display" );
-	sleep( 1 );
+	sleep( 2 );
 	$test->worldclass( "display" ) unless $athlete == 21;
 }
 
-sleep( 3 );
+sleep( 5 );
 $current = $test->worldclass( "round/next" );
 $current = $current->{ athlete };
 
 foreach my $athlete ( 0 .. 10 ) {
-	foreach my $form ( 0 .. 1 ) {
-		my $name  = $names->[ $current ];
-		my $level = $skill->{ $name };
-		score( $level, $judges );
-		$test->worldclass( "form/next" );
-	}
+	my $name  = $names->[ $current ];
+	my $level = $skill->{ $name };
+	score( $level, $judges );
 	$current = $test->worldclass( "athlete/next" );
 	$current = $current->{ athlete };
 
 	$test->worldclass( "display" );
-	sleep( 1 );
+	sleep( 2 );
 	$test->worldclass( "display" ) unless $athlete == 10;
 }
 
-sleep( 3 );
+sleep( 5 );
 $current = $test->worldclass( "round/next" );
 $current = $current->{ athlete };
 
@@ -84,7 +78,7 @@ foreach my $athlete ( 0 .. 7 ) {
 	$current = $current->{ athlete };
 
 	$test->worldclass( "display" );
-	sleep( 1 );
+	sleep( 2 );
 	$test->worldclass( "display" ) unless $athlete == 7;
 }
 
@@ -98,7 +92,7 @@ sub score {
 		my $score       = score_worldclass( $skill );
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		$test->worldclass( $judge_score );
-		usleep( 125000 );
+		usleep( 500000 );
 	}
-	usleep( 500000 );
+	sleep( 1 );
 }

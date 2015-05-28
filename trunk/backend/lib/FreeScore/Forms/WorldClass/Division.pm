@@ -4,6 +4,7 @@ use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( any none first shuffle reduce );
+use Try::Tiny;
 use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
 use strict;
@@ -412,6 +413,8 @@ sub read {
 	}
 
 	$self->normalize();
+	$self->update_status();
+
 }
 
 # ============================================================
@@ -423,19 +426,17 @@ sub update_status {
 	my $round = $self->{ round };
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
-	if( $self->round_complete() ) {
-		$self->place_athletes();
-		my $ties = $self->detect_ties();
+	$self->place_athletes();
+	my $ties = $self->detect_ties();
 
-		# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
-		# foreach my $tie (@$ties) {
-		# 	next unless ref $tie;
-		# 	foreach my $i (@$tie) {
-		# 		my $athlete = $self->{ athletes }[ $i ];
-		# 		$self->assign_tiebreaker( $athlete );
-		# 	}
-		# }
-	}
+	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
+	# foreach my $tie (@$ties) {
+	# 	next unless ref $tie;
+	# 	foreach my $i (@$tie) {
+	# 		my $athlete = $self->{ athletes }[ $i ];
+	# 		$self->assign_tiebreaker( $athlete );
+	# 	}
+	# }
 
 	# ===== ASSIGN THE ATHLETES TO THE NEXT ROUND
 	my $n        = int( @{ $self->{ athletes }} );

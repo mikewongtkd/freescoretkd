@@ -1,5 +1,5 @@
 $.widget( "freescore.errormessage", {
-	options: { autoShow: true },
+	options: { autoShow: true, message : ':' },
 	_create: function() {
 		var o        = this.options;
 		var e        = this.options.elements = {};
@@ -15,7 +15,7 @@ $.widget( "freescore.errormessage", {
 		var html = o.html;
 
 		var text  = o.message.split( ':', 2 );
-		var error = { title: text[ 0 ], message: text[ 1 ] };
+		var error = { title: text[ 0 ], message: text[ 1 ], details : undefined };
 		var code  = html.p.clone() .css( "color", "#fc0" ) .css( "font-family", "Monaco" );
 
 		error.message = error.message.replace( /Can't/, "Can&apos;t" );
@@ -24,6 +24,8 @@ $.widget( "freescore.errormessage", {
 			text = text.replace( /'/g, '' );
 			return code.clone() .html( text ) [ 0 ].outerHTML;
 		});
+		var details = error.message.split( /at \/usr\/local\/freescore\/lib\/FreeScore\/Forms\/WorldClass\/Division\/Round.pm line 9\./ );
+		error.details = details[ 1 ];
 		error.message = error.message.replace( /at \/usr\/local\/freescore\/lib\/([\w\/]+\.pm) line (\d+)[^_]*$/, 
 		function( orig, module, line ) {
 			module = module.replace( /\//g, "::" );

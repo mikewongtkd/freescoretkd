@@ -102,6 +102,7 @@ $.widget( "freescore.scoreboard", {
 
 			var form = current.athlete.scores[ current.round ][ current.form ];
 			var mean      = form.adjusted_mean;
+			console.log( form );
 			if( defined( mean )) { 
 				accuracy     = mean.accuracy;
 				presentation = mean.presentation;

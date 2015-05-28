@@ -7,7 +7,7 @@ $.widget( "freescore.worldclass", {
 		var html        = e.html        = FreeScore.html;
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "back" );
 		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "front" );
-		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" ) .hide();
+		var usermessage = e.usermessage = html.div.clone();
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
 		card.append( leaderboard, scoreboard );
@@ -32,9 +32,8 @@ $.widget( "freescore.worldclass", {
 			}
 
 			if( forms.error ) {
-				e.card.fadeOut();
-				e.usermessage.html( forms.error );
-				e.usermessage.fadeIn( 500 );
+				e.card.hide();
+				e.usermessage.errormessage({ message : forms.error });
 				
 			} else if( division.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
