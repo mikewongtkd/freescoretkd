@@ -118,13 +118,27 @@ sub place_athletes {
 		$comparison;
 	} @athlete_indices;
 
+	# ===== ASSIGN PLACEMENTS
 	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 );
 	my $n    = 0;
 	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
 	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
+	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement;
 	@$placement = splice( @$placement, 0, $n );
 
 	$self->{ placement }{ $round } = $placement;
+
+	# ===== CALCULATE PENDING
+	# Updates the leaderboard to indicate the next player
+	my $pending = [ @{$self->{ order }{ $round }} ];
+	@$pending = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$pending;
+	while( @$pending ) {
+		my $i = $pending->[ 0 ];
+		if( $i == $self->{ current } ) { last; }
+		else { shift @$pending; }
+	}
+
+	$self->{ pending }{ $round } = $pending;
 }
 
 # ============================================================
@@ -426,7 +440,8 @@ sub update_status {
 	my $round = $self->{ round };
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
-	$self->place_athletes();
+	# Update after every completed score to give real-time audience feedback
+	$self->place_athletes(); 
 	my $ties = $self->detect_ties();
 
 	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
@@ -664,7 +679,7 @@ sub select_round_scores {
 	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
 	my $forms  = $self->{ forms }{ $round };
 
-	$scores->calculate_means();
+	$scores->calculate_means( $self->{ judges } );
 
 	my @form_indices = ( 0 .. $#$forms );
 	my @selected     = grep { $forms->[ $_ ]{ type } eq $type } @form_indices;

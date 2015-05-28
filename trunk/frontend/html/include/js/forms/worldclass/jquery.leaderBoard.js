@@ -45,6 +45,16 @@ $.widget( "freescore.leaderboard", {
 		}
 
 		// ===== UPDATE THE 'CURRENT PLACEMENT' PANEL
+		var form_mean_score = function( form, label ) {
+			var div = html.div.clone() .addClass( label );
+			if( ! defined( form ))                     { return ''; }
+			if( ! defined( form.adjusted_mean ))       { return ''; }
+			if( ! defined( form.adjusted_mean.total )) { return ''; }
+			div.html( form.adjusted_mean.total.toFixed( 2 ));
+
+			return div;
+		};
+
 		var update_placements = function( callback ) {
 			var entry      = html.div.clone() .addClass( "athlete" ) .addClass( "header" );
 			var name       = html.div.clone() .addClass( "name" ) .html( 'Name' );
@@ -63,8 +73,8 @@ $.widget( "freescore.leaderboard", {
 				var total      = (forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / forms.length).toFixed( 2 );
 				var entry      = html.div.clone() .addClass( "athlete" );
 				var name       = html.div.clone() .addClass( "name" ) .html( athlete.name );
-				var form1      = defined( forms[ 0 ] ) ? html.div.clone() .addClass( "form1" ) .html( forms[ 0 ].adjusted_mean.total.toFixed( 2 )) : '';
-				var form2      = defined( forms[ 1 ] ) ? html.div.clone() .addClass( "form2" ) .html( forms[ 1 ].adjusted_mean.total.toFixed( 2 )) : '';
+				var form1      = form_mean_score( forms[ 0 ], 'form1' );
+				var form2      = form_mean_score( forms[ 1 ], 'form2' );
 				var score      = html.div.clone() .addClass( "score" ) .html( total + "<span class=\"notes\">&nbsp;" + notes + "</span>" );
 				var medal      = html.div.clone() .addClass( "medal" ) ;
 

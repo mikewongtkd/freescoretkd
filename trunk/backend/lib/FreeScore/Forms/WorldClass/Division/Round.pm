@@ -59,6 +59,7 @@ sub add_tiebreaker {
 sub calculate_means {
 # ============================================================
 	my $self   = shift;
+	my $judges = shift;
 	my $means  = [];
 
 	$self->complete();
@@ -67,7 +68,6 @@ sub calculate_means {
 		next unless exists $form->{ judge };
 
 		my $stats  = { minacc => 0, minpre => 0, maxacc => 0, maxpre => 0 };
-		my $judges = int @{$form->{ judge }};
 		my $k      = $#{ $form->{ judge }};
 		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
 		foreach my $i (0 .. $k) {
@@ -97,10 +97,10 @@ sub calculate_means {
 		$form->{ judge }[ $stats->{ maxpre } ]->mark_minmax( 'maxpre' );
 
 		# ===== RE-MAP FROM INDICES TO VALUES
-		$stats->{ min }{ acc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy };
-		$stats->{ max }{ acc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy };
-		$stats->{ min }{ pre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation };
-		$stats->{ max }{ pre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
+		$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy };
+		$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy };
+		$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation };
+		$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
 		my @mean = (
 			accuracy     => sprintf( "%.2f", $stats->{ sumacc }),
