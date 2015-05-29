@@ -34,38 +34,41 @@ my $skill  = {
 	'Jonathan'	=> 'good'
 };
 my $current = 0;
+my $response = undef;
 
 foreach my $athlete ( 0 .. 21 ) {
 	my $name  = $names->[ $current ];
 	my $level = $skill->{ $name };
 	score( $level, $judges );
-	$current = $test->worldclass( "athlete/next" );
-	$current = $current->{ athlete };
+	usleep( 750000 );
+	$response = $test->worldclass( "athlete/next" );
+	$current = $response->{ athlete };
 
 	$test->worldclass( "display" );
-	sleep( 2 );
+	usleep( 2500000 );
 	$test->worldclass( "display" ) unless $athlete == 21;
 }
 
 sleep( 5 );
-$current = $test->worldclass( "round/next" );
-$current = $current->{ athlete };
+$response = $test->worldclass( "round/next" );
+$current = $response->{ athlete };
 
 foreach my $athlete ( 0 .. 10 ) {
 	my $name  = $names->[ $current ];
 	my $level = $skill->{ $name };
 	score( $level, $judges );
-	$current = $test->worldclass( "athlete/next" );
-	$current = $current->{ athlete };
+	usleep( 750000 );
+	$response = $test->worldclass( "athlete/next" );
+	$current = $response->{ athlete };
 
 	$test->worldclass( "display" );
-	sleep( 2 );
+	usleep( 2500000 );
 	$test->worldclass( "display" ) unless $athlete == 10;
 }
 
 sleep( 5 );
-$current = $test->worldclass( "round/next" );
-$current = $current->{ athlete };
+$response = $test->worldclass( "round/next" );
+$current = $response->{ athlete };
 
 foreach my $athlete ( 0 .. 7 ) {
 	foreach my $form ( 0 .. 1 ) {
@@ -74,8 +77,8 @@ foreach my $athlete ( 0 .. 7 ) {
 		score( $level, $judges );
 		$test->worldclass( "form/next" );
 	}
-	$current = $test->worldclass( "athlete/next" );
-	$current = $current->{ athlete };
+	$response = $test->worldclass( "athlete/next" );
+	$current = $response->{ athlete };
 
 	$test->worldclass( "display" );
 	sleep( 2 );
