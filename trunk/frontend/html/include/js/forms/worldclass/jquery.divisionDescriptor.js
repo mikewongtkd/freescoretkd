@@ -1,5 +1,5 @@
 $.widget( "freescore.divisionDescriptor", {
-	options: { autoShow: true, num: 0 },
+	options: { autoShow: true, num: 0, complete : { ok : function() {}, cancel : function() {} } },
 	_create: function() {
 		var widget = this.element;
 		var o      = this.options;
@@ -72,14 +72,17 @@ $.widget( "freescore.divisionDescriptor", {
 			}
 		};
 
-		var format = e.format = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents(), handle.format ));
-		var gender = e.gender = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male", "Male & Female" ], handle.gender ));
-		var age    = e.age    = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
-		var rank   = e.rank   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
+		var format   = e.format   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents(), handle.format ));
+		var gender   = e.gender   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male", "Male & Female" ], handle.gender ));
+		var age      = e.age      = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
+		var rank     = e.rank     = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
+		var ok       = e.ok       = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#77DD77" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "OK" );
+		var cancel   = e.cancel   = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#E32636" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "Cancel" );
+		var complete = e.complete = html.div.clone() .css( "text-align", "right" ) .append( cancel, ok );
 
 		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
 
-		widget.append( format, gender, rank, age );
+		widget.append( format, gender, rank, age, complete );
 		o.text = o.header.o.text;
 		
 		var select = function( field, value, callback ) {

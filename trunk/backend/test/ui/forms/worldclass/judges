@@ -41,12 +41,13 @@ foreach my $athlete ( 0 .. 21 ) {
 	my $level = $skill->{ $name };
 	score( $level, $judges );
 	usleep( 750000 );
-	$response = $test->worldclass( "athlete/next" );
-	$current = $response->{ athlete };
 
-	$test->worldclass( "display" );
+	$test->worldclass( "display" ); # Show leaderboard
 	usleep( 2500000 );
-	$test->worldclass( "display" ) unless $athlete == 21;
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 21;
+	$current = $response->{ athlete };
 }
 
 sleep( 5 );
@@ -58,12 +59,13 @@ foreach my $athlete ( 0 .. 10 ) {
 	my $level = $skill->{ $name };
 	score( $level, $judges );
 	usleep( 750000 );
-	$response = $test->worldclass( "athlete/next" );
-	$current = $response->{ athlete };
 
-	$test->worldclass( "display" );
+	$test->worldclass( "display" ); # Show leaderboard
 	usleep( 2500000 );
-	$test->worldclass( "display" ) unless $athlete == 10;
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 10;
+	$current = $response->{ athlete };
 }
 
 sleep( 5 );
@@ -77,12 +79,12 @@ foreach my $athlete ( 0 .. 7 ) {
 		score( $level, $judges );
 		$test->worldclass( "form/next" );
 	}
-	$response = $test->worldclass( "athlete/next" );
-	$current = $response->{ athlete };
-
-	$test->worldclass( "display" );
+	$test->worldclass( "display" ); # Show leaderboard
 	sleep( 2 );
-	$test->worldclass( "display" ) unless $athlete == 7;
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 7;
+	$current = $response->{ athlete };
 }
 
 # ============================================================

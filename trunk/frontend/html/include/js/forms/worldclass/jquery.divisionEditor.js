@@ -59,16 +59,16 @@ $.widget( "freescore.divisionEditor", {
 			);
 
 		var map = { prelim : "Preliminary Round", semfin : "Semi-Final Round", finals : "Final Round" };
-		rounds.prelim.button.append( html.a.clone() .attr( "href", "#prelim" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
-		rounds.semfin.button.append( html.a.clone() .attr( "href", "#semfin" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
-		rounds.finals.button.append( html.a.clone() .attr( "href", "#finals" ) .attr( "data-ajax", false ) .html( map[ 'finals' ] ));
-		rounds.navbar.append( html.ul.clone().append( rounds.prelim.button, rounds.semfin.button, rounds.finals.button ));
+		rounds.prelim.button.append( html.a.clone() .attr( "id", "tab-button-prelim" ) .attr( "href", "#prelim" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
+		rounds.semfin.button.append( html.a.clone() .attr( "id", "tab-button-semfin" ) .attr( "href", "#semfin" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
+		rounds.finals.button.append( html.a.clone() .attr( "id", "tab-button-finals" ) .attr( "href", "#finals" ) .attr( "data-ajax", false ) .html( map[ 'finals' ] ));
+		rounds.navbar.append( html.ul.clone() .append( rounds.prelim.button, rounds.semfin.button, rounds.finals.button ));
 		rounds.prelim.tab.append( rounds.prelim.list );
 		rounds.semfin.tab.append( rounds.semfin.list );
 		rounds.finals.tab.append( rounds.finals.list );
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
-		rounds.navbar.enhanceWithin();
-
+		// rounds.navbar.enhanceWithin();
+		rounds.tabs.tabs();
 		this.element .append( edit, header, rounds .tabs );
 	},
 
@@ -83,9 +83,9 @@ $.widget( "freescore.divisionEditor", {
 				data     : o.division.athletes[ i ],
 				name     : html.text .clone() .addClass( "name" ) .attr( "id", "athlete-name-" + i ),
 				view     : html.div  .clone() .addClass( "athlete" ),
-				actions  : html.div.clone(),
-				edit     : html.a.clone(),
-				listitem : html.li.clone() .attr( "data-icon", "ui-icon-user" ),
+				actions  : html.div  .clone(),
+				edit     : html.a    .clone(),
+				listitem : html.li   .clone() .attr( "data-icon", "ui-icon-user" ),
 			};
 
 			athlete.view.addClass( "athlete" );
@@ -131,28 +131,38 @@ $.widget( "freescore.divisionEditor", {
 		}
 
 		var n = defined( o.division.athletes ) ? o.division.athletes.length : 0;
-		e.header.divisionHeader({ text : o.division.description, forms : o.division.forms, judges : o.division.judges, athletes : n });
-		var min = undefined;
+		e.header.divisionHeader({ 
+			server:     o.server,
+			port:       ':3088/',
+			tournament: o.tournament,
+			ring:       o.ring,
+			division:   o.division.index, 
+			text:       o.division.description, 
+			forms:      o.division.forms, 
+			judges:     o.division.judges, 
+			athletes:   n 
+		});
+		var first = undefined;
 
-
+		// ===== DETERMINE WHICH ROUND IS THE FIRST ROUND FOR THIS DIVISION
+		var disable = [];
 		for( var r = 0; r < 3; r++ ) {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ r ];
-			if( ! defined( o.division.order )) continue;
-			var order = o.division.order[ rname ];
-			if( ! defined( order )) continue;
-
-			// ===== ADD NAVIGATION BUTTON
-			if( ! defined( min )) { min = r; }
-			console.log( rname );
+			if( ! defined( o.division.order ) || ! defined( o.division.order[ rname ] )) { 
+				disable.push( r );
+				continue;
+			}
+			if( ! defined( first )) { first = r; }
 		}
+		e.rounds.tabs.tabs({ disabled: disable });
 
-		for( var r = min; r < 3; r++ ) {
+		var active = undefined;
+		for( var r = first; r < 3; r++ ) {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ r ];
 			var order = o.division.order[ rname ];
 			var round = e.rounds[ rname ];
 			round.list.empty();
 
-			// TODO set up the round to display
 			for( var i in order ) {
 				var j = order[ i ];
 				var athlete = addAthlete( j );
@@ -161,6 +171,14 @@ $.widget( "freescore.divisionEditor", {
 				e.edit.panel();
 				round.list.listview().listview( "refresh" );
 			};
+
+			if( round.button.find( 'a' ).hasClass( 'ui-btn-active' )) { active = rname; }
 		}
+
+		if( defined( first ) && ! defined( active )) {
+			var rname = [ 'prelim', 'semfin', 'finals' ][ first ];
+			e.rounds[ rname ].button.find( 'a' ).click();
+		}
+
 	},
 });

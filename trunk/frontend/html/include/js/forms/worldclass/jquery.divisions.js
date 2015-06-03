@@ -65,7 +65,8 @@ $.widget( "freescore.divisions", {
 			var n        = o.rings.length;
 			var ring     = i == "staging" ? o.rings.staging : o.rings[ i ];
 			var division = ring[ divIndex ];
-			e.div_edit.divisionEditor( { division : division } );
+			division.index = divIndex;
+			e.div_edit.divisionEditor( { ring : i, division : division } );
 		}
 
 		// ============================================================
