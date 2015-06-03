@@ -18,13 +18,8 @@ $.widget( "freescore.divisionHeader", {
 
 		accordian.append( error, description, forms, judges );
 		w .append( accordian );
-	},
-	_init: function( ) {
-		var w = this.element;
-		var o = this.options;
-		var e = this.options.elements;
 
-		var updateHeader = function( data ) {
+		var updateHeader = o.updateHeader = function( data ) {
 			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
 			$.ajax( {
 				type:      'POST',
@@ -54,15 +49,38 @@ $.widget( "freescore.divisionHeader", {
 			});
 		}
 
-		var handle = o.handlers = {
+		var handle = o.handle = {
+			description : {
+				ok : function( ev ) {
+					console.log( "Updating Division Description." );
+					var widget      = e.description.find( "#descriptionWidget" );
+					var description = widget.divisionDescriptor( 'option', 'description' );
+					o.updateHeader({ description : description.text });
+					o.description = description;
+				},
+				cancel : function() {
+				}
+			},
+			forms : { 
+				ok : function( ev ) {
+				},
+				cancel : function() {
+				}
+			},
 			judges : function( ev ) {
 				var value  = $( ev.target ).val();
 				var widget = e.judges.find( "h3 a" );
 				o.judges   = parseInt( value );
-				updateHeader({ judges : o.judges });
+				o.updateHeader({ judges : o.judges });
 				widget.html( value );
 			}
 		};
+	},
+	_init: function( ) {
+		var w = this.element;
+		var o = this.options;
+		var e = this.options.elements;
+
 
 		var initialize = o.initialize = {
 			// ============================================================
@@ -70,7 +88,7 @@ $.widget( "freescore.divisionHeader", {
 			// ============================================================
 			description : function() {
 				var widget = e.description.find( "#descriptionWidget" );
-				widget.divisionDescriptor( { header : { o : o, e : e }} );
+				widget.divisionDescriptor( { header : { o : o, e : e }, handle : o.handle.description } );
 				var placeholder = e.html.span.clone() .css( "color", "#999" ) .html( "Division Description" );
 				var view        = e.description.find( "h3 a" );
 
@@ -91,7 +109,7 @@ $.widget( "freescore.divisionHeader", {
 				// Update the forms widget
 				widget = e.forms.find( "#formsWidget" );
 				widget.empty();
-				var options = { header : { o : o, e : e }, athletes : o.athletes };
+				var options = { header : { o : o, e : e }, athletes : o.athletes, handle : o.handle.forms };
 				if( defined( o.description )) {
 					options.age  = o.description.age;
 					options.rank = o.description.rank;
@@ -107,7 +125,7 @@ $.widget( "freescore.divisionHeader", {
 			judges : function() {
 				var widget = e.judges.find( "#judgesWidget" );
 				widget.empty();
-				widget.append( addButtonGroup( "Judges", [ '3 Judges', '5 Judges', '7 Judges' ], handle.judges ) );
+				widget.append( addButtonGroup( "Judges", [ '3 Judges', '5 Judges', '7 Judges' ], o.handle.judges ) );
 				widget.addClass( "ui-field-contain" );
 				if( defined( o.judges )) {
 					widget.find( ":checked" ).prop( "checked", false );

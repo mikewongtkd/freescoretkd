@@ -1,5 +1,5 @@
 $.widget( "freescore.divisionDescriptor", {
-	options: { autoShow: true, num: 0, complete : { ok : function() {}, cancel : function() {} } },
+	options: { autoShow: true, num: 0, handle : { ok : function() { console.log( "OK" ); }, cancel : function() { console.log( "Cancel" ); } } },
 	_create: function() {
 		var widget = this.element;
 		var o      = this.options;
@@ -33,11 +33,13 @@ $.widget( "freescore.divisionDescriptor", {
 			var description = { gender : o.gender, age : o.age, rank : o.rank, text : text };
 			o.description = description;
 			var headerDescriptionTitle = o.header.e.description.find( "h3 a" );
-			o.header.o.initialize.forms();
+			o.header.o.initialize.forms(); // Callback to display forms appropriate to division
 			headerDescriptionTitle.html( description.text );
 			return description;
 		};
 		var handle = o.handle = {
+			ok : o.handle.ok,
+			cancel : o.handle.cancel,
 			age : function( ev ) {
 				var val = $( ev.target ).val();
 				o.age = val;
@@ -76,8 +78,8 @@ $.widget( "freescore.divisionDescriptor", {
 		var gender   = e.gender   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male", "Male & Female" ], handle.gender ));
 		var age      = e.age      = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
 		var rank     = e.rank     = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
-		var ok       = e.ok       = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#77DD77" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "OK" );
-		var cancel   = e.cancel   = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#E32636" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "Cancel" );
+		var ok       = e.ok       = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#77DD77" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "OK" )     .click( o.handle.ok );
+		var cancel   = e.cancel   = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#E32636" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "Cancel" ) .click( o.handle.cancel );
 		var complete = e.complete = html.div.clone() .css( "text-align", "right" ) .append( cancel, ok );
 
 		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default

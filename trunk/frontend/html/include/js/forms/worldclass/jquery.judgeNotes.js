@@ -58,16 +58,20 @@ $.widget( "freescore.judgeNotes", {
 				var forms = athlete.scores[ round ];
 				score.form1 = summarize( forms[ 0 ] );
 				if( defined( forms[ 1 ] )) { score.form2 = summarize( forms[ 1 ] ); }
-				score.average = forms.map( function( form ) { 
-					if( ! defined( form.judge[ 0 ] )) { return 0.0; }
-					var judge        = form.judge[ 0 ];
-					if( ! defined(judge.major ) || ! defined( judge.minor ) || ! defined( judge.rhythm ) || ! defined( judge.power ) || ! defined( judge.ki )) { return 0.0; }
-					if( judge.rhythm < 0.5 || judge.power < 0.5 || judge.ki < 0.5 ) { return 0.0; }
-					var penalties    = judge.major + judge.minor;
-					var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
-					var presentation = parseFloat( judge.rhythm + judge.power + judge.ki );
-					return (accuracy + presentation) / forms.length;
-				} ).reduce( function( previous, current ) { return (previous + current) > 0 ? (previous + current).toFixed( 2 ) : '&ndash;'; } );
+				score.average = (function() {
+					var avg = forms.map( function( form ) { 
+						if( ! defined( form.judge[ 0 ] )) { return 0.0; }
+						var judge        = form.judge[ 0 ];
+						if( ! defined(judge.major ) || ! defined( judge.minor ) || ! defined( judge.rhythm ) || ! defined( judge.power ) || ! defined( judge.ki )) { return 0.0; }
+						if( judge.rhythm < 0.5 || judge.power < 0.5 || judge.ki < 0.5 ) { return 0.0; }
+						var penalties    = judge.major + judge.minor;
+						var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
+						var presentation = parseFloat( judge.rhythm + judge.power + judge.ki );
+						return (accuracy + presentation) / forms.length;
+					} ).reduce( function( previous, current ) { return (previous + current) > 0 ? previous + current : 0; } );
+					avg = avg > 0 ? avg.toFixed( 2 ) : '&ndash;';
+					return avg;
+				})();
 			}
 
 			var isCurrent    = function() { if( i == current ) { return "current"; }} // MW TODO This only works for the first round.
