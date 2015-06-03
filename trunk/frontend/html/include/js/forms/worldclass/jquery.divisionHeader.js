@@ -24,33 +24,43 @@ $.widget( "freescore.divisionHeader", {
 		var o = this.options;
 		var e = this.options.elements;
 
+		var updateHeader = function( data ) {
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
+			$.ajax( {
+				type:      'POST',
+				url:       url,
+				dataType:  'json',
+				data:      JSON.stringify( { header : data }),
+				success: function( response ) { 
+					// Server-side error
+					if( defined( response.error )) {
+						e.sound.error.play();
+						console.log( response.error );
+						// e.error.show();
+						// e.error.errormessage({ message : response.error });
+
+					// All OK
+					} else {
+						e.sound.ok.play(); 
+					}
+				},
+				error:   function( response ) { 
+					// Network error
+					e.sound.error.play(); 
+					console.log( 'Network Error: Unknown network error.' );
+					// e.error.show(); 
+					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
+				}, 
+			});
+		}
+
 		var handle = o.handlers = {
 			judges : function( ev ) {
 				var value  = $( ev.target ).val();
 				var widget = e.judges.find( "h3 a" );
-				widget.html( value );
 				o.judges   = parseInt( value );
-				var url    = 'http://' + o.server + o.port + o.tournament + '/' + o.ring + '/' + o.division + '/edit';
-				$.ajax( {
-					type:      'POST',
-					url:       url,
-					dataType:  'json',
-					data:      { header : { judges : o.judges }},
-					success: function( response ) { 
-						// Server-side error
-						if( defined( response.error )) {
-							sound.error.play();
-							error.show();
-							error.errormessage({ message : response.error });
-
-						// All OK
-						} else {
-							sound.ok.play(); 
-						}
-					},
-					error:   function( response ) { sound.error.play(); progress.fadeOut( 100 ); }, // Network error
-				});
-
+				updateHeader({ judges : o.judges });
+				widget.html( value );
 			}
 		};
 

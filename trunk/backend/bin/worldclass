@@ -239,6 +239,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
 			$description = "Successfully cleared $athlete->{ name } scores.";
 		}
+		$division->normalize();
 		$division->write();
 		send_response( $self, { description => $description } );
 

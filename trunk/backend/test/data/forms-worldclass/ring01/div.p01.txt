@@ -3,7 +3,7 @@
 # form=0
 # round=prelim
 # judges=5
-# description=World Class All Ages
+# description=Male & Female Juniors
 # forms=prelim:Taegeuk 4;semfin:Koryo;finals:Taegeuk 7,Keumgang
 # ------------------------------------------------------------
 # prelim

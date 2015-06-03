@@ -18,6 +18,9 @@ $.widget( "freescore.errormessage", {
 		var error = { title: text[ 0 ], message: text[ 1 ], details : undefined };
 		var code  = html.p.clone() .css( "color", "#fc0" ) .css( "font-family", "Monaco" );
 
+		if( ! defined( error.title   )) { error.title   = ''; }
+		if( ! defined( error.message )) { error.message = ''; }
+
 		error.message = error.message.replace( /Can't/, "Can&apos;t" );
 		error.message = error.message.replace( /'([^']+)'/,
 		function( text ) {
