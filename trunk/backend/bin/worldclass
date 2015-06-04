@@ -177,38 +177,6 @@ post '/fastmatch' => sub {
 };
 
 # ------------------------------------------------------------
-# ADD NEW ATHLETE OR UPDATE ATHLETE'S NAME
-# ------------------------------------------------------------
-get '/:tournament/:ring/:div_index/:ath_index/name/:name' => sub { 
-	my $self        = shift;
-	my $tournament  = $self->param( 'tournament' );
-	my $ring        = $self->param( 'ring' );
-	my $i           = $self->param( 'div_index' );
-	my $j           = $self->param( 'ath_index' );
-	my $name        = $self->param( 'name' );
-	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division    = $progress->{ divisions }[ $i ];
-	my $description = undef;
-
-	if( $j > $#{ $division->{ athletes }} ) { 
-		push @{ $division->{ athletes }}, { name => $name }; 
-		$description = "Added athlete $name.";
-	} else {
-		my $athlete        = $division->{ athletes }[ $j ];
-		$description = "Changed athlete name from '$athlete->{ name }' to '$name'.";
-		$athlete->{ name } = $name;
-	}
-
-	try {
-		$division->write();
-		send_response( $self, { description => $description } );
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
 # POST THE DIVISION HEADER DATA FOR WRITING
 # ------------------------------------------------------------
 post '/:tournament/:ring/:div_index/edit' => sub { 
@@ -231,13 +199,40 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		if( defined $reorder ) { $division->reorder( $reorder ); $description = "Successfully reordered division $division->{ id }."; }
 		if( defined $edit    ) {
 			my $i       = $edit->{ index };
-			my $athlete = $division->{ athletes }[ $i ];
 			my $round   = $division->{ round };
 			my $judges  = $division->{ judges };
-			my $forms   = int( @{ $self->{ forms }{ $round }} );
-			$athlete->{ name } = $edit->{ name } if( exists $edit->{ name } );
-			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
-			$description = "Successfully cleared $athlete->{ name } scores.";
+			my $forms   = defined( $self->{ forms }{ $round } ) ? int( @{ $self->{ forms }{ $round }} ) : 0;
+			my $athlete = undef;
+			my $new     = 0;
+
+			# ===== CHOOSE BETWEEN EDITING EXISTING OR CREATING NEW ATHLETE
+			if( $i >= 0 && $i <= $#{ $division->{ athletes }} ) {
+				$athlete = $division->{ athletes }[ $i ];
+
+			} else {
+				$new = 1;
+				$athlete = {};
+				push @{ $division->{ athletes }}, $athlete;
+				$i = $#{ $division->{ athletes }};
+			}
+
+			# ===== EDIT ATHLETE
+			if      ( defined $edit->{ name } ) {
+				if( $new ) { 
+					$athlete->{ name } = $edit->{ name };
+					$division->assign( $i, $round );
+					$description = "Successfully added athlete $athlete->{ name } to $round round.";
+
+				} else {
+					$description = "Successfully renamed athlete $athlete->{ name } to $edit->{ name }.";
+					$athlete->{ name } = $edit->{ name };
+				}
+
+			# ===== RESET SCORES
+			} elsif ( defined $edit->{ reset } ) {
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
+				$description = "Successfully cleared $athlete->{ name } scores.";
+			}
 		}
 		$division->normalize();
 		$division->write();

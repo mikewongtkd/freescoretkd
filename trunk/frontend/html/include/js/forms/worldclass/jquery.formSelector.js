@@ -40,11 +40,11 @@ $.widget( "freescore.formSelector", {
 				var round = o.selected.order[ i ];
 				if( o.selected[ round ].length > 0 ) { 
 					concise.push( round + ':' + o.selected[ round ].join( "," )); 
-					descriptive.push( "<span class=\"round\">" + reverseMap[ round ] + ':</span>' + o.selected[ round ].map( function( item ) { return "<span class=\"form\">" + item + "</span>"; } ).join( ", " ));
+					descriptive.push( "<span class=\"round text\">" + reverseMap[ round ] + '</span>' + o.selected[ round ].map( function( item ) { return "<span class=\"form\">" + item + "</span>"; } ).join( "&nbsp;" ));
 				}
 			}
 			o.selected.text        = concise.join( ";" );
-			o.selected.description = descriptive.join( "<br>" );
+			o.selected.description = descriptive.join( "&nbsp;" );
 			var headerFormsTitle = o.header.e.forms.find( "h3 a" );
 			var description = o.selected.description ? o.selected.description : "Please Select Forms";
 			headerFormsTitle.html( description );

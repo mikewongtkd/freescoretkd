@@ -1,6 +1,6 @@
 
 $.widget( "freescore.divisionEditor", {
-	options: { autoShow: true },
+	options: { autoShow: true, port : ':3088/' },
 	_create: function() {
 		var o = this.options;
 		var e = this.options.elements = {};
@@ -70,6 +70,41 @@ $.widget( "freescore.divisionEditor", {
 		// rounds.navbar.enhanceWithin();
 		rounds.tabs.tabs();
 		this.element .append( edit, header, rounds .tabs );
+
+		var sound = e.sound = {};
+		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
+		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
+
+		var editAthlete = o.editAthlete = function( i, name, round ) {
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
+			$.ajax( {
+				type:      'POST',
+				url:       url,
+				dataType:  'json',
+				data:      JSON.stringify( { athlete : { index : i, name : name, round : round }}),
+				success: function( response ) { 
+					// Server-side error
+					if( defined( response.error )) {
+						e.sound.error.play();
+						console.log( response.error );
+						// e.error.show();
+						// e.error.errormessage({ message : response.error });
+
+					// All OK
+					} else {
+						e.sound.ok.play(); 
+					}
+				},
+				error:   function( response ) { 
+					// Network error
+					e.sound.error.play(); 
+					console.log( 'Network Error: Unknown network error.' );
+					// e.error.show(); 
+					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
+				}, 
+			});
+		}
+
 	},
 
 	_init: function() {
@@ -77,10 +112,12 @@ $.widget( "freescore.divisionEditor", {
 		var o       = this.options;
 		var html    = e.html;
 
-		var addAthlete = function( i ) {
+		var addAthlete = function( i, round ) {
+			var athletes = defined( o.division ) && defined( o.division.athletes ) ? o.division.athletes : [];
+			var data = (i >= 0 && i < athletes.length) ? athletes[ i ] : undefined;
 			var athlete = { 
 				index    : i,
-				data     : o.division.athletes[ i ],
+				data     : data,
 				name     : html.text .clone() .addClass( "name" ) .attr( "id", "athlete-name-" + i ),
 				view     : html.div  .clone() .addClass( "athlete" ),
 				actions  : html.div  .clone(),
@@ -90,15 +127,26 @@ $.widget( "freescore.divisionEditor", {
 
 			athlete.view.addClass( "athlete" );
 			athlete.name .attr( "index", i );
-			athlete.name .val( athlete.data.name );
+			athlete.name .attr( "round", round );
+			if( defined( athlete.data )) {
+				athlete.name .val( athlete.data.name );
+			} else {
+				athlete.name .attr( "placeholder", "New Athlete" );
+			}
 			athlete.name .click( function( ev ) { $( this ).select(); } );
 			athlete.name .keydown( function( ev ) { 
 				var i       = $( this ).attr( "index" );
+				var round   = $( this ).attr( "round" );
 				var oldName = o.division.athletes[ i ].name;
 				var newName = $( this ).val();
 				if      ( ev.which == 13 ) { 
-					o.division.athletes[ i ].name = newName; 
+					if( defined( athlete.data )) {
+						o.division.athletes[ i ].name = newName; 
+					} else {
+						o.division.athletes[ i ] = { name : newName };
+					}
 					$( this ).blur(); 
+					o.editAthlete( i, newName, round );
 					console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
 					var textboxes = $( "input:text" );
 					var current = textboxes.index( this );
@@ -165,12 +213,13 @@ $.widget( "freescore.divisionEditor", {
 
 			for( var i in order ) {
 				var j = order[ i ];
-				var athlete = addAthlete( j );
+				var athlete = addAthlete( j, rname );
 				round.list.append( athlete.listitem );
 
 				e.edit.panel();
 				round.list.listview().listview( "refresh" );
 			};
+			addAthlete( -1, rname );
 
 			if( round.button.find( 'a' ).hasClass( 'ui-btn-active' )) { active = rname; }
 		}

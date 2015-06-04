@@ -12,12 +12,15 @@ body {
 		padding: 0.2em 0.5em;
 		float: right;
 	}
-	.round {
+	.text {
 		color: #999;
-		display: inline-block;
-		width: 220px;
+	}
+
+	.round {
+		margin-right: 20px;
 	}
 	.form {
+		margin-right: 20px;
 		color: #fc0;
 	}
 	ul {
@@ -31,6 +34,7 @@ body {
 
 				.name {
 					border: 0;
+					width: 90%;
 					font-weight: bold;
 					font-size: 14pt;
 					position: absolute;
