@@ -52,19 +52,30 @@ $.widget( "freescore.divisionHeader", {
 		var handle = o.handle = {
 			description : {
 				ok : function( ev ) {
-					console.log( "Updating Division Description." );
 					var widget      = e.description.find( "#descriptionWidget" );
 					var description = widget.divisionDescriptor( 'option', 'description' );
 					o.updateHeader({ description : description.text });
-					o.description = description;
+					o.description = description.text;
+					e.description.collapsible( "option", "collapsed", true );
 				},
 				cancel : function() {
+					e.description.collapsible( "option", "collapsed", true );
 				}
 			},
 			forms : { 
 				ok : function( ev ) {
+					var widget   = e.forms.find( "#formsWidget" );
+					var selected = widget.formSelector( 'option', 'selected' );
+					var data     = {};
+					if( selected.prelim.length > 0 ) { data.prelim = selected.prelim.map( function( item ) { return { name : item, type : 'compulsory' }; }); }
+					if( selected.semfin.length > 0 ) { data.semfin = selected.semfin.map( function( item ) { return { name : item, type : 'compulsory' }; }); }
+					if( selected.finals.length > 0 ) { data.finals = selected.finals.map( function( item ) { return { name : item, type : 'compulsory' }; }); }
+					o.updateHeader({ forms : data });
+					o.forms = selected.text;
+					e.forms.collapsible( "option", "collapsed", true );
 				},
 				cancel : function() {
+					e.forms.collapsible( "option", "collapsed", true );
 				}
 			},
 			judges : function( ev ) {

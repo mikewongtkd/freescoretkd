@@ -8,6 +8,10 @@ body {
   font-weight: bold;
   padding: 0.2em 0.5em;
   float: right; }
+.divisions .round {
+  color: #999;
+  display: inline-block;
+  width: 220px; }
 .divisions .form {
   color: #fc0; }
 .divisions ul {
