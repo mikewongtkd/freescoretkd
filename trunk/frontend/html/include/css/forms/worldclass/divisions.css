@@ -21,7 +21,7 @@ body {
   .divisions ul li {
     list-style: none; }
     .divisions ul li .athlete {
-      height: 22px;
+      height: 20px;
       width: 100%; }
       .divisions ul li .athlete .number {
         color: #999;
