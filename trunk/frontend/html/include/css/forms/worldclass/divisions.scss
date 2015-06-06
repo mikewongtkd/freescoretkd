@@ -29,16 +29,32 @@ body {
 		li {
 			list-style: none;
 			.athlete {
-				display: inline-block;
+				height: 22px;
 				width: 100%;
+
+				.number {
+					color: #999;
+					padding: 0;
+					margin: 10px 0 0 0;
+					font-weight: bold;
+					font-size: 14pt;
+					width: 30px;
+					position: absolute;
+					top: 0;
+					left: 16px;
+					text-align: right;
+				}
 
 				.name {
 					border: 0;
-					width: 90%;
+					margin: 0;
+					padding: 0;
+					width: 80%;
 					font-weight: bold;
 					font-size: 14pt;
 					position: absolute;
-					top: 20px;
+					top: 10px;
+					left: 64px;
 				}
 				.move {
 					padding: 8px;
@@ -60,9 +76,12 @@ body {
 				}
 				.edit {
 					margin: 8px 8px 0 0;
+					padding: 0;
 					border-radius: 24px;
 					border: 0;
-					float: right;
+					position: absolute;
+					top: 0;
+					left: 90%;
 				}
 			}
 		}

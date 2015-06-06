@@ -112,12 +112,13 @@ $.widget( "freescore.divisionEditor", {
 		var o       = this.options;
 		var html    = e.html;
 
-		var addAthlete = function( i, round ) {
+		var addAthlete = function( i, round, j ) {
 			var athletes = defined( o.division ) && defined( o.division.athletes ) ? o.division.athletes : [];
 			var data = (i >= 0 && i < athletes.length) ? athletes[ i ] : undefined;
 			var athlete = { 
 				index    : i,
 				data     : data,
+				number   : html.div  .clone() .addClass( "number" ),
 				name     : html.text .clone() .addClass( "name" ) .attr( "id", "athlete-name-" + i ),
 				view     : html.div  .clone() .addClass( "athlete" ),
 				actions  : html.div  .clone(),
@@ -126,6 +127,7 @@ $.widget( "freescore.divisionEditor", {
 			};
 
 			athlete.view.addClass( "athlete" );
+			athlete.number .html( parseInt( j ) + 1 );
 			athlete.name .attr( "index", i );
 			athlete.name .attr( "round", round );
 			if( defined( athlete.data )) {
@@ -172,7 +174,7 @@ $.widget( "freescore.divisionEditor", {
 					e.edit.panel( "open" ); 
 				});
 
-			athlete.view.append( athlete.name, athlete.edit );
+			athlete.view.append( athlete.number, athlete.name, athlete.edit );
 			athlete.listitem.append( athlete.view );
 
 			return athlete;
@@ -211,9 +213,9 @@ $.widget( "freescore.divisionEditor", {
 			var round = e.rounds[ rname ];
 			round.list.empty();
 
-			for( var i in order ) {
-				var j = order[ i ];
-				var athlete = addAthlete( j, rname );
+			for( var j in order ) {
+				var i = order[ j ];
+				var athlete = addAthlete( i, rname, j );
 				round.list.append( athlete.listitem );
 
 				e.edit.panel();
