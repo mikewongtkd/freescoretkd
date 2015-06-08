@@ -112,6 +112,18 @@ $.widget( "freescore.divisionEditor", {
 		var o       = this.options;
 		var html    = e.html;
 
+		var selectNextTextBox = function( ev ) {
+			var textboxes = $( "input:text" );
+			var current = textboxes.index( this );
+			if( textboxes[ current + 1 ] != null ) {
+				var next = textboxes[ current + 1 ];
+				next.focus();
+				next.select();
+				ev.preventDefault();
+				return false;
+			}
+		}
+
 		var addAthlete = function( i, round, j ) {
 			var athletes = defined( o.division ) && defined( o.division.athletes ) ? o.division.athletes : [];
 			var data = (i >= 0 && i < athletes.length) ? athletes[ i ] : undefined;
@@ -127,38 +139,36 @@ $.widget( "freescore.divisionEditor", {
 			};
 
 			athlete.view.addClass( "athlete" );
-			athlete.number .html( parseInt( j ) + 1 );
 			athlete.name .attr( "index", i );
 			athlete.name .attr( "round", round );
 			if( defined( athlete.data )) {
 				athlete.name .val( athlete.data.name );
+				athlete.number .html( parseInt( j ) + 1 );
 			} else {
 				athlete.name .attr( "placeholder", "New Athlete" );
+				athlete.number .html( '+' );
 			}
 			athlete.name .click( function( ev ) { $( this ).select(); } );
 			athlete.name .keydown( function( ev ) { 
 				var i       = $( this ).attr( "index" );
 				var round   = $( this ).attr( "round" );
-				var oldName = o.division.athletes[ i ].name;
 				var newName = $( this ).val();
+				var oldName = undefined;
 				if      ( ev.which == 13 ) { 
-					if( defined( athlete.data )) {
+					if( defined( athlete ) && defined( athlete.data )) {
 						o.division.athletes[ i ].name = newName; 
+						oldName = o.division.athletes[ i ].name;
 					} else {
+						var k = o.division.athletes.length;
 						o.division.athletes[ i ] = { name : newName };
+						var athlete = addAthlete( -1, rname, -1 );
+						e.rounds[ round ].list.append( athlete.listitem );
+						e.rounds[ round ].list.listview().listview( "refresh" );
 					}
 					$( this ).blur(); 
 					o.editAthlete( i, newName, round );
 					console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
-					var textboxes = $( "input:text" );
-					var current = textboxes.index( this );
-					if( textboxes[ current + 1 ] != null ) {
-						var next = textboxes[ current + 1 ];
-						next.focus();
-						next.select();
-						ev.preventDefault();
-						return false;
-					}
+					selectNextTextBox( ev );
 
 				} else if ( ev.which == 27 ) { $( this ).val( oldName ); }
 			});
@@ -221,7 +231,9 @@ $.widget( "freescore.divisionEditor", {
 				e.edit.panel();
 				round.list.listview().listview( "refresh" );
 			};
-			addAthlete( -1, rname );
+			var athlete = addAthlete( o.division.athletes.length, rname, -1 );
+			round.list.append( athlete.listitem );
+			round.list.listview().listview( "refresh" );
 
 			if( round.button.find( 'a' ).hasClass( 'ui-btn-active' )) { active = rname; }
 		}
