@@ -12,9 +12,9 @@ $.widget( "freescore.divisionEditor", {
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
 			navbar : html.div.clone() .attr( "data-role", "navbar" ),
-			prelim : { button : html.li.clone(), tab : html.div.clone() .attr( "id", "prelim" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
-			semfin : { button : html.li.clone(), tab : html.div.clone() .attr( "id", "semfin" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
-			finals : { button : html.li.clone(), tab : html.div.clone() .attr( "id", "finals" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
+			prelim : { button : html.li.clone(), tab : html.div.clone() .addClass( "athletes" ) .attr( "id", "prelim-tab" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
+			semfin : { button : html.li.clone(), tab : html.div.clone() .addClass( "athletes" ) .attr( "id", "semfin-tab" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
+			finals : { button : html.li.clone(), tab : html.div.clone() .addClass( "athletes" ) .attr( "id", "finals-tab" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
 		};
 
 		var actions   = e.actions   = {
@@ -104,6 +104,8 @@ $.widget( "freescore.divisionEditor", {
 			});
 		}
 
+		o.updates = 0; // Indicate that live updates are OK
+
 	},
 
 	_init: function() {
@@ -111,17 +113,8 @@ $.widget( "freescore.divisionEditor", {
 		var o       = this.options;
 		var html    = e.html;
 
-		var selectNextTextBox = function( ev ) {
-			var textboxes = $( "input:text" );
-			var current = textboxes.index( this );
-			if( textboxes[ current + 1 ] != null ) {
-				var next = textboxes[ current + 1 ];
-				next.focus();
-				next.select();
-				ev.preventDefault();
-				return false;
-			}
-		}
+		if( o.updates > 1 ) { return; } // Try to ignore live updates while editing the division
+		o.updates++; // It takes 2 updates to get the division information (1 on init, 1 on receiving JSON data)
 
 		var addAthlete = function( i, round, j ) {
 			var athletes = defined( o.division ) && defined( o.division.athletes ) ? o.division.athletes : [];
@@ -155,13 +148,21 @@ $.widget( "freescore.divisionEditor", {
 				var oldName = undefined;
 				var k       = o.division.athletes.length + 1;
 				if      ( ev.which == 13 ) { 
-					if( defined( athlete ) && defined( athlete.data )) {
+					if( i >= 0 && i < o.division.athletes.length ) {
 						o.division.athletes[ i ].name = newName; 
 						oldName = o.division.athletes[ i ].name;
 						$( this ).blur(); 
 						o.editAthlete( i, newName, round );
 						console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
-						selectNextTextBox( ev );
+						var textboxes = $( "input:text" );
+						var current = textboxes.index( this );
+						if( textboxes[ current + 1 ] != null ) {
+							var next = textboxes[ current + 1 ];
+							next.focus();
+							next.select();
+							ev.preventDefault();
+							return false;
+						}
 
 					} else {
 						$( this ).blur();
@@ -233,6 +234,10 @@ $.widget( "freescore.divisionEditor", {
 			var round = e.rounds[ rname ];
 			round.list.empty();
 
+			// Skip updating the list if no athletes are in this round
+			if( ! defined( order )) { continue; }
+
+			// Add all athletes in the current round
 			for( var j in order ) {
 				var i = order[ j ];
 				var athlete = addAthlete( i, rname, j );
@@ -241,6 +246,7 @@ $.widget( "freescore.divisionEditor", {
 				e.edit.panel();
 				round.list.listview().listview( "refresh" );
 			};
+			// Add a blank to add new athletes to the current round
 			var athlete = addAthlete( o.division.athletes.length, rname, -1 );
 			round.list.append( athlete.listitem );
 			round.list.listview().listview( "refresh" );
@@ -252,6 +258,5 @@ $.widget( "freescore.divisionEditor", {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ first ];
 			e.rounds[ rname ].button.find( 'a' ).click();
 		}
-
 	},
 });

@@ -23,65 +23,71 @@ body {
 		margin-right: 20px;
 		color: #fc0;
 	}
-	ul {
-		margin: 0;
-		padding: 0;
-		li {
-			list-style: none;
-			.athlete {
-				height: 20px;
-				width: 100%;
 
-				.number {
-					color: #999;
-					padding: 0;
-					margin: 10px 0 0 0;
-					font-weight: bold;
-					font-size: 14pt;
-					width: 30px;
-					position: absolute;
-					top: 0;
-					left: 16px;
-					text-align: right;
-				}
+	.athletes {
+		overflow-x: hidden;
+		overflow-y: scroll;
 
-				.name {
-					border: 0;
-					margin: 0;
-					padding: 0;
-					width: 80%;
-					font-weight: bold;
-					font-size: 14pt;
-					position: absolute;
-					top: 10px;
-					left: 64px;
-				}
-				.move {
-					padding: 8px;
-					margin-right: 24px;
-					float: left;
+		ul {
+			margin: 0;
+			padding: 0;
+			li {
+				list-style: none;
+				.athlete {
+					height: 20px;
+					width: 100%;
 
-					.up {
-						margin: 0 1px 0 0;
-						border-radius: 24px 0 0 24px;
-						border: 0;
-						background: #ccc;
+					.number {
+						color: #999;
+						padding: 0;
+						margin: 10px 0 0 0;
+						font-weight: bold;
+						font-size: 14pt;
+						width: 30px;
+						position: absolute;
+						top: 0;
+						left: 16px;
+						text-align: right;
 					}
-					.down {
+
+					.name {
+						border: 0;
 						margin: 0;
-						border-radius: 0 24px 24px 0;
-						border: 0;
-						background: #ccc;
+						padding: 0;
+						width: 80%;
+						font-weight: bold;
+						font-size: 14pt;
+						position: absolute;
+						top: 10px;
+						left: 64px;
 					}
-				}
-				.edit {
-					margin: 8px 8px 0 0;
-					padding: 0;
-					border-radius: 24px;
-					border: 0;
-					position: absolute;
-					top: 0;
-					left: 90%;
+					.move {
+						padding: 8px;
+						margin-right: 24px;
+						float: left;
+
+						.up {
+							margin: 0 1px 0 0;
+							border-radius: 24px 0 0 24px;
+							border: 0;
+							background: #ccc;
+						}
+						.down {
+							margin: 0;
+							border-radius: 0 24px 24px 0;
+							border: 0;
+							background: #ccc;
+						}
+					}
+					.edit {
+						margin: 8px 8px 0 0;
+						padding: 0;
+						border-radius: 24px;
+						border: 0;
+						position: absolute;
+						top: 0;
+						left: 90%;
+					}
 				}
 			}
 		}
