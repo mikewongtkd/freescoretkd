@@ -67,7 +67,6 @@ $.widget( "freescore.divisionEditor", {
 		rounds.semfin.tab.append( rounds.semfin.list );
 		rounds.finals.tab.append( rounds.finals.list );
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
-		// rounds.navbar.enhanceWithin();
 		rounds.tabs.tabs();
 		this.element .append( edit, header, rounds .tabs );
 
@@ -131,11 +130,11 @@ $.widget( "freescore.divisionEditor", {
 				index    : i,
 				data     : data,
 				number   : html.div  .clone() .addClass( "number" ),
-				name     : html.text .clone() .addClass( "name" ) .attr( "id", "athlete-name-" + i ),
+				name     : html.text .clone() .addClass( "name" ),
 				view     : html.div  .clone() .addClass( "athlete" ),
 				actions  : html.div  .clone(),
 				edit     : html.a    .clone(),
-				listitem : html.li   .clone() .attr( "data-icon", "ui-icon-user" ),
+				listitem : html.li   .clone() .attr( "id", "athlete-name-" + i )
 			};
 
 			athlete.view.addClass( "athlete" );
@@ -146,7 +145,7 @@ $.widget( "freescore.divisionEditor", {
 				athlete.number .html( parseInt( j ) + 1 );
 			} else {
 				athlete.name .attr( "placeholder", "New Athlete" );
-				athlete.number .html( '+' );
+				athlete.number .addClass( "ui-btn-icon-notext ui-icon-plus" ) .css( "margin", "6px 0 0 0" );
 			}
 			athlete.name .click( function( ev ) { $( this ).select(); } );
 			athlete.name .keydown( function( ev ) { 
@@ -154,21 +153,32 @@ $.widget( "freescore.divisionEditor", {
 				var round   = $( this ).attr( "round" );
 				var newName = $( this ).val();
 				var oldName = undefined;
+				var k       = o.division.athletes.length + 1;
 				if      ( ev.which == 13 ) { 
 					if( defined( athlete ) && defined( athlete.data )) {
 						o.division.athletes[ i ].name = newName; 
 						oldName = o.division.athletes[ i ].name;
+						$( this ).blur(); 
+						o.editAthlete( i, newName, round );
+						console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
+						selectNextTextBox( ev );
+
 					} else {
-						var k = o.division.athletes.length;
+						$( this ).blur();
+						var listitem = $( this ).parent();
+						var number = listitem.find( ".number" );
+						number.removeClass( "ui-btn-icon-notext" );
+						number.removeClass( "ui-icon-plus" );
+						number.html( k );
+						o.editAthlete( k, newName, round );
+						console.log( "AJAX call to create new athlete " + newName );
+
 						o.division.athletes[ i ] = { name : newName };
 						var athlete = addAthlete( -1, rname, -1 );
 						e.rounds[ round ].list.append( athlete.listitem );
 						e.rounds[ round ].list.listview().listview( "refresh" );
+						athlete.name.focus();
 					}
-					$( this ).blur(); 
-					o.editAthlete( i, newName, round );
-					console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
-					selectNextTextBox( ev );
 
 				} else if ( ev.which == 27 ) { $( this ).val( oldName ); }
 			});
