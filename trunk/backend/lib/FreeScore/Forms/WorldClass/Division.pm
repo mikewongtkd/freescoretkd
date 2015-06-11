@@ -280,47 +280,36 @@ sub record_score {
 }
 
 # ============================================================
-sub remove {
+sub remove_from_list {
+# ============================================================
+	my $self = shift;
+	my $list = shift;
+	my $i    = shift;
+
+	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+		if( exists $self->{ $list }{ $round } ) {
+			@{$self->{ $list }{ $round }} = map { 
+				if    ( $_ == $i ) { (); }
+				elsif ( $_ > $i  ) { $_ - 1; }
+				else               { $_; }
+			} @{ $self->{ $list }{ $round }};
+		}
+	}
+}
+
+# ============================================================
+sub remove_athlete {
 # ============================================================
 	my $self = shift;
 	my $i    = shift;
 
-	print STDERR "Deleting athlete " . $self->{ athletes }[ $i ]{ name } . "\n";
-
 	# Remove athlete
 	my $athlete = splice( @{ $self->{ athletes }}, $i, 1 );
 
-	# Update round orders
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		if( exists $self->{ order }{ $round } ) {
-			for( my $j = 0; $j < $#{ $self->{ order }{ $round }}; $j++ ) {
-				print STDERR "Moving order " . $self->{ order }{ $round }[ $j ] . " to " . ($self->{ order }{ $round }[ $j ] - 1) . "\n" if( $self->{ order }{ $round }[ $j ] > $i );
-				splice @{ $self->{ order }{ $round }}, $j, 1 if $self->{ order }{ $round }[ $j ] == $i;
-				$self->{ order }{ $round }[ $j ]-- if( $self->{ order }{ $round }[ $j ] > $i );
-			}
-			for( my $j = 0; $j < $#{ $self->{ order }{ $round }}; $j++ ) {
-				my $athlete = $self->{ athletes }[ $self->{ order }{ $round }[ $j ] ];
-				print STDERR "$round round: $j. " . $athlete->{ name } . "\n";
-			}
-
-		}
-
-		if( exists $self->{ placement }{ $round } ) {
-			for( my $j = 0; $j < $#{ $self->{ placement }{ $round }}; $j++ ) {
-				print STDERR "Moving placement ($j) " . $self->{ placement }{ $round }[ $j ] . " to " . ($self->{ placement }{ $round }[ $j ] - 1) . "\n" if( $self->{ placement }{ $round }[ $j ] > $i );
-				splice @{ $self->{ placement }{ $round }}, $j, 1 if $self->{ placement }{ $round }[ $j ] == $i;
-				$self->{ placement }{ $round }[ $j ]-- if( $self->{ placement }{ $round }[ $j ] > $i );
-			}
-		}
-
-		if( exists $self->{ pending }{ $round } ) {
-			for( my $j = 0; $j < $#{ $self->{ pending }{ $round }}; $j++ ) {
-				print STDERR "Moving pending ($j) " . $self->{ pending }{ $round }[ $j ] . " to " . ($self->{ pending }{ $round }[ $j ] - 1) . "\n" if( $self->{ pending }{ $round }[ $j ] > $i );
-				splice @{ $self->{ pending }{ $round }}, $j, 1 if $self->{ pending }{ $round }[ $j ] == $i;
-				$self->{ pending }{ $round }[ $j ]-- if( $self->{ pending }{ $round }[ $j ] > $i );
-			}
-		}
-	}
+	# Update round orders, placement, and pending
+	$self->remove_from_list( 'order',     $i );
+	$self->remove_from_list( 'placement', $i );
+	$self->remove_from_list( 'pending',   $i );
 
 	return $athlete;
 }

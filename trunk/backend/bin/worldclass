@@ -230,13 +230,13 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 
 			# ===== DELETE ATHLETE
 			} elsif ( defined $edit->{ remove } ) {
-				$division->remove( $i );
+				$division->remove_athlete( $i );
 				$description = "Successfully removed $athlete->{ name } scores.";
 
 			# ===== RESET SCORES
 			} elsif ( defined $edit->{ reset } ) {
 				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
-				$description = "Successfully cleared $athlete->{ name } scores.";
+				$description = "Successfully cleared $athlete->{ name }.";
 			}
 		}
 		$division->normalize();
