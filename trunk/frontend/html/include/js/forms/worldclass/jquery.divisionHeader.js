@@ -92,6 +92,16 @@ $.widget( "freescore.divisionHeader", {
 		var o = this.options;
 		var e = this.options.elements;
 
+		$( "[data-role='collapsible']" ).collapsible( {
+			collapse: function( ev, ui ) {
+				$( this ) .children() .next() .slideUp( 250 );
+			},
+			expand: function( ev, ui ) {
+				$( this ) .children() .next() .hide();
+				$( this ) .children() .next() .slideDown( 250 );
+			},
+		});
+
 
 		var initialize = o.initialize = {
 			// ============================================================

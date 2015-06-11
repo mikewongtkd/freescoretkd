@@ -17,47 +17,6 @@ $.widget( "freescore.divisionEditor", {
 			finals : { button : html.li.clone(), tab : html.div.clone() .addClass( "athletes" ) .attr( "id", "finals-tab" ), list : html.ul.clone() .attr( "data-role", "listview" ) },
 		};
 
-		var actions   = e.actions   = {
-			athlete : { 
-				name     : html.div.clone(),
-				accept   : html.a.clone(),
-				reset    : html.a.clone(),
-				remove   : html.a.clone(),
-				close    : html.a.clone(),
-			}
-		}
-		actions.athlete.name
-			.html( "Name" );
-
-		actions.athlete.reset
-			.addClass( "ui-btn ui-icon-back ui-btn-icon-left" )
-			.html( "Clear Score" )
-			.click( function( ev ) { } );
-
-		actions.athlete.remove
-			.addClass( "ui-btn ui-icon-minus ui-btn-icon-left" )
-			.html( "Remove" )
-			.click( function( ev ) { } );
-
-		actions.athlete.close
-			.addClass( "ui-btn ui-icon-delete ui-btn-icon-left" )
-			.html( "Cancel" )
-			.attr( "href", "#list" )
-			.attr( "data-rel", "close" );
-
-		edit 
-			.attr( "data-role", "panel" ) 
-			.attr( "data-position", "right" ) 
-			.attr( "data-display", "overlay" ) 
-			.attr( "data-theme", "b" ) 
-			.attr( "id", "edit-panel" )
-			.append( 
-				actions.athlete.name, 
-				actions.athlete.reset, 
-				actions.athlete.remove, 
-				actions.athlete.close 
-			);
-
 		var map = { prelim : "Preliminary Round", semfin : "Semi-Final Round", finals : "Final Round" };
 		rounds.prelim.button.append( html.a.clone() .attr( "id", "tab-button-prelim" ) .attr( "href", "#prelim" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
 		rounds.semfin.button.append( html.a.clone() .attr( "id", "tab-button-semfin" ) .attr( "href", "#semfin" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
@@ -68,19 +27,21 @@ $.widget( "freescore.divisionEditor", {
 		rounds.finals.tab.append( rounds.finals.list );
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
 		rounds.tabs.tabs();
-		this.element .append( edit, header, rounds .tabs );
+		this.element .append( header, rounds .tabs );
 
 		var sound = e.sound = {};
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
 		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
 
-		var editAthlete = o.editAthlete = function( i, name, round ) {
+		// ============================================================
+		var editAthlete = o.editAthlete = function( i, athleteData, round ) {
+		// ============================================================
 			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
 			$.ajax( {
 				type:      'POST',
 				url:       url,
 				dataType:  'json',
-				data:      JSON.stringify( { athlete : { index : i, name : name, round : round }}),
+				data:      JSON.stringify( { athlete : athleteData}),
 				success: function( response ) { 
 					// Server-side error
 					if( defined( response.error )) {
@@ -92,6 +53,7 @@ $.widget( "freescore.divisionEditor", {
 					// All OK
 					} else {
 						e.sound.ok.play(); 
+						console.log( response.description );
 					}
 				},
 				error:   function( response ) { 
@@ -152,8 +114,7 @@ $.widget( "freescore.divisionEditor", {
 						o.division.athletes[ i ].name = newName; 
 						oldName = o.division.athletes[ i ].name;
 						$( this ).blur(); 
-						o.editAthlete( i, newName, round );
-						console.log( "AJAX call to change name from '" + oldName + "' to '" + newName + "' for athlete " + i );
+						o.editAthlete( i, { index : i, name : newName, round : round }, round );
 						var textboxes = $( "input:text" );
 						var current = textboxes.index( this );
 						if( textboxes[ current + 1 ] != null ) {
@@ -171,10 +132,10 @@ $.widget( "freescore.divisionEditor", {
 						number.removeClass( "ui-btn-icon-notext" );
 						number.removeClass( "ui-icon-plus" );
 						number.html( k );
-						o.editAthlete( k, newName, round );
-						console.log( "AJAX call to create new athlete " + newName );
+						number.css( "padding-top", "5px" );
+						o.editAthlete((k - 1), { index : k, name : newName, round : round }, round );
 
-						o.division.athletes[ i ] = { name : newName };
+						o.division.athletes[ k ] = { name : newName };
 						var athlete = addAthlete( -1, rname, -1 );
 						e.rounds[ round ].list.append( athlete.listitem );
 						e.rounds[ round ].list.listview().listview( "refresh" );
@@ -185,14 +146,15 @@ $.widget( "freescore.divisionEditor", {
 			});
 
 			athlete.edit
-				.addClass( "edit ui-btn ui-icon-edit ui-btn-icon-notext ui-btn-inline" )
+				.addClass( "edit ui-btn ui-nodisc-icon ui-icon-delete ui-btn-icon-notext ui-btn-inline" )
 				.attr( "index", i )
+				.css( "background-color", "red" )
 				.click( function( ev ) { 
 					var i = $( this ).attr( "index" ); 
 					var athlete = o.division.athletes[ i ];
 					o.current = i;
-					e.actions.athlete.name.html( athlete.name ); 
-					e.edit.panel( "open" ); 
+					o.editAthlete( i, { index : i, remove : true, round : round }, round );
+					o.updates = 0;
 				});
 
 			athlete.view.append( athlete.number, athlete.name, athlete.edit );

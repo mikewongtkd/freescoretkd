@@ -6,7 +6,7 @@ use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Dumper;
 use Carp;
 
-$SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
+# $SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 
 # ============================================================
 sub new {
