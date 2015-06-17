@@ -18,9 +18,9 @@ $.widget( "freescore.divisionEditor", {
 		};
 
 		var map = { prelim : "Preliminary Round", semfin : "Semi-Final Round", finals : "Final Round" };
-		rounds.prelim.button.append( html.a.clone() .attr( "id", "tab-button-prelim" ) .attr( "href", "#prelim" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
-		rounds.semfin.button.append( html.a.clone() .attr( "id", "tab-button-semfin" ) .attr( "href", "#semfin" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
-		rounds.finals.button.append( html.a.clone() .attr( "id", "tab-button-finals" ) .attr( "href", "#finals" ) .attr( "data-ajax", false ) .html( map[ 'finals' ] ));
+		rounds.prelim.button.append( html.a.clone() .attr( "id", "tab-button-prelim" ) .attr( "href", "#prelim-tab" ) .attr( "data-ajax", false ) .html( map[ 'prelim' ] ));
+		rounds.semfin.button.append( html.a.clone() .attr( "id", "tab-button-semfin" ) .attr( "href", "#semfin-tab" ) .attr( "data-ajax", false ) .html( map[ 'semfin' ] ));
+		rounds.finals.button.append( html.a.clone() .attr( "id", "tab-button-finals" ) .attr( "href", "#finals-tab" ) .attr( "data-ajax", false ) .html( map[ 'finals' ] ));
 		rounds.navbar.append( html.ul.clone() .append( rounds.prelim.button, rounds.semfin.button, rounds.finals.button ));
 		rounds.prelim.tab.append( rounds.prelim.list );
 		rounds.semfin.tab.append( rounds.semfin.list );
@@ -103,6 +103,9 @@ $.widget( "freescore.divisionEditor", {
 				athlete.number .addClass( "ui-btn-icon-notext ui-icon-plus" ) .css( "margin", "6px 0 0 0" );
 			}
 			athlete.name .click( function( ev ) { $( this ).select(); } );
+			// ------------------------------------------
+			// Behavior for editing athlete name
+			// ------------------------------------------
 			athlete.name .keydown( function( ev ) { 
 				var i       = $( this ).attr( "index" );
 				var round   = $( this ).attr( "round" );
