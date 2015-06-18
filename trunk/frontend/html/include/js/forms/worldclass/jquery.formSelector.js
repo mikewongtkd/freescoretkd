@@ -121,7 +121,7 @@ $.widget( "freescore.formSelector", {
 		var final2 = e.final2 = addButtonGroup( "Finals 2nd form", forms, handle.select );
 		var all    = [];
 
-		if( o.athletes > 20 ) { all.push( prelim ); }
+		if( o.athletes > 16 ) { all.push( prelim ); }
 		if( o.athletes > 8  ) { all.push( semfin ); }
 		all.push( final1 );
 		all.push( final2 );

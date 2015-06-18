@@ -27,7 +27,8 @@ $.widget( "freescore.divisionEditor", {
 		rounds.finals.tab.append( rounds.finals.list );
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
 		rounds.tabs.tabs();
-		this.element .append( header, rounds .tabs );
+		
+		this.element .append( header, rounds.tabs );
 
 		var sound = e.sound = {};
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
@@ -155,6 +156,7 @@ $.widget( "freescore.divisionEditor", {
 				.click( function( ev ) { 
 					var i = $( this ).attr( "index" ); 
 					var athlete = o.division.athletes[ i ];
+
 					o.current = i;
 					o.editAthlete( i, { index : i, remove : true, round : round }, round );
 					o.updates = 0;
