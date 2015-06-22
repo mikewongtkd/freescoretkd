@@ -9,7 +9,7 @@ $.widget( "freescore.divisionEditor", {
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone() .addClass( "config" ) .divisionHeader( o );
 		var actions   = e.actions   = {
-			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .addClass( "actions" ),
+			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ),
 			move : {
 				up : {},
 				down: {},
