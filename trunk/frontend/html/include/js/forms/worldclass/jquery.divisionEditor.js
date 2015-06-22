@@ -7,7 +7,16 @@ $.widget( "freescore.divisionEditor", {
 
 		var html      = e.html      = FreeScore.html;
 		var edit      = e.edit      = html.div.clone();
-		var header    = e.header    = html.div.clone() .divisionHeader( o );
+		var header    = e.header    = html.div.clone() .addClass( "config" ) .divisionHeader( o );
+		var actions   = e.actions   = {
+			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .addClass( "actions" ),
+			move : {
+				up : {},
+				down: {},
+				last: {},
+			},
+			remove : {}
+		};
 
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
@@ -27,8 +36,8 @@ $.widget( "freescore.divisionEditor", {
 		rounds.finals.tab.append( rounds.finals.list );
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
 		rounds.tabs.tabs();
-		
-		this.element .append( header, rounds.tabs );
+
+		this.element .append( header, rounds.tabs, actions.footer );
 
 		var sound = e.sound = {};
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
@@ -88,14 +97,17 @@ $.widget( "freescore.divisionEditor", {
 				number   : html.div  .clone() .addClass( "number" ),
 				name     : html.text .clone() .addClass( "name" ),
 				view     : html.div  .clone() .addClass( "athlete" ),
-				actions  : html.div  .clone(),
 				edit     : html.a    .clone(),
-				listitem : html.li   .clone() .attr( "id", "athlete-name-" + i )
+				listitem : html.li   .clone() .attr( "id", "athlete-" + round + "-" + i )
 			};
 
 			athlete.view.addClass( "athlete" );
 			athlete.name .attr( "index", i );
 			athlete.name .attr( "round", round );
+			athlete.name.mouseover( function( ev ) { $( this ).parent().parent().addClass( "ui-btn-hover-c" ); });
+			athlete.name.mouseout( function( ev ) { $( this ).parent().parent().removeClass( "ui-btn-hover-c" ); });
+			athlete.name.focus( function( ev ) { $( this ).parent().parent().css({ background: "#b3d4fd" });  });
+			athlete.name.blur(  function( ev ) { $( this ).parent().parent().css({ background: "white" }); });
 			if( defined( athlete.data )) {
 				athlete.name .val( athlete.data.name );
 				athlete.number .html( parseInt( j ) + 1 );
@@ -146,7 +158,10 @@ $.widget( "freescore.divisionEditor", {
 						athlete.name.focus();
 					}
 
-				} else if ( ev.which == 27 ) { $( this ).val( oldName ); }
+				} else if ( ev.which == 27 ) { 
+					if( i >= 0 && i < o.division.athletes.length ) { oldName = o.division.athletes[ i ].name; } 
+					$( this ).val( oldName ); 
+				}
 			});
 
 			athlete.edit
@@ -162,7 +177,7 @@ $.widget( "freescore.divisionEditor", {
 					o.updates = 0;
 				});
 
-			athlete.view.append( athlete.number, athlete.name, athlete.edit );
+			athlete.view.append( athlete.number, athlete.name );
 			athlete.listitem.append( athlete.view );
 
 			return athlete;
