@@ -9,14 +9,22 @@ $.widget( "freescore.divisionEditor", {
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone() .addClass( "config" ) .divisionHeader( o );
 		var actions   = e.actions   = {
-			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ),
+			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ) .addClass( "ui-grid-a" ),
 			move : {
-				up : {},
-				down: {},
-				last: {},
+				panel : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .attr( "data-inline", true ) .addClass( "ui-block-a" ),
+				up    : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-u" ) .attr( "data-inline", true ) .html( "Move Up" ),
+				down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .html( "Move Down" ),
+				last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .html( "Move Last" ),
 			},
-			remove : {}
+			remove : { 
+				panel : html.div.clone() .addClass( "ui-block-b" ),
+				button : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .html( "Remove" )
+			},
 		};
+
+		actions.move.panel.append( actions.move.up, actions.move.down, actions.move.last );
+		actions.remove.panel.append( actions.remove.button );
+		actions.footer.append( actions.move.panel, actions.remove.panel );
 
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
