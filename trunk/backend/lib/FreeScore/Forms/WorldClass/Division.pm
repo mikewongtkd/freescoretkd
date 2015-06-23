@@ -4,6 +4,7 @@ use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( any none first shuffle reduce );
+use List::MoreUtils qw( first_index );
 use Try::Tiny;
 use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
@@ -319,15 +320,26 @@ sub reorder {
 # ============================================================
 	my $self      = shift;
 	my $reorder   = shift;
-	my $round     = $self->{ round };
+	my $index     = $reorder->{ index };
+	my $round     = $reorder->{ round };
+	my $move      = $reorder->{ move };
 	my $order     = $self->{ order }{ $round };
-	my $new_order = [];
+	my $i         = first_index { $_ == $index; } @$order;
 
-	foreach my $i (@$reorder) {
-		push @$new_order, $order->[ ($i - 1) ];
+	return if( $i < 0 );
+
+	if      ( $move eq 'up' ) {
+		my $j = $i - 1;
+		@{$order}[ $j, $i ] = @{$order}[ $i, $j ];
+
+	} elsif ( $move eq 'down' ) {
+		my $j = $i + 1;
+		@{$order}[ $i, $j ] = @{$order}[ $j, $i ];
+
+	} elsif ( $move eq 'last' ) {
+		splice( @$order, $i, 1 );
+		push @$order, $index;
 	}
-
-	$self->{ order }{ $round } = $new_order;
 }
 
 # ============================================================

@@ -12,19 +12,20 @@ $.widget( "freescore.divisionEditor", {
 			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ) .addClass( "ui-grid-a" ),
 			move : {
 				panel : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .attr( "data-inline", true ) .addClass( "ui-block-a" ),
-				up    : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-u" ) .attr( "data-inline", true ) .html( "Move Up" ),
-				down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .html( "Move Down" ),
-				last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .html( "Move Last" ),
+				up    : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-u" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Up" ),
+				down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Down" ),
+				last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
 			},
 			remove : { 
 				panel : html.div.clone() .addClass( "ui-block-b" ),
-				button : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .html( "Remove" )
+				button : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css( "background", "red" ) .html( "Remove" )
 			},
 		};
 
 		actions.move.panel.append( actions.move.up, actions.move.down, actions.move.last );
 		actions.remove.panel.append( actions.remove.button );
 		actions.footer.append( actions.move.panel, actions.remove.panel );
+		actions.footer.find( "a" ).addClass( 'ui-disabled' );
 
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
@@ -52,14 +53,15 @@ $.widget( "freescore.divisionEditor", {
 		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
 
 		// ============================================================
-		var editAthlete = o.editAthlete = function( i, athleteData, round ) {
+		var editDivision = o.editDivision = function( divisionData ) {
 		// ============================================================
-			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
+			console.log( url );
 			$.ajax( {
 				type:      'POST',
 				url:       url,
 				dataType:  'json',
-				data:      JSON.stringify( { athlete : athleteData}),
+				data:      JSON.stringify( divisionData ),
 				success: function( response ) { 
 					// Server-side error
 					if( defined( response.error )) {
@@ -83,6 +85,79 @@ $.widget( "freescore.divisionEditor", {
 				}, 
 			});
 		}
+
+		// ============================================================
+		var editAthlete = o.editAthlete = function( athleteData ) {
+		// ============================================================
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
+			console.log( url );
+			$.ajax( {
+				type:      'POST',
+				url:       url,
+				dataType:  'json',
+				data:      JSON.stringify({ athlete : athleteData}),
+				success: function( response ) { 
+					// Server-side error
+					if( defined( response.error )) {
+						e.sound.error.play();
+						console.log( response.error );
+						// e.error.show();
+						// e.error.errormessage({ message : response.error });
+
+					// All OK
+					} else {
+						e.sound.ok.play(); 
+						console.log( response.description );
+					}
+				},
+				error:   function( response ) { 
+					// Network error
+					e.sound.error.play(); 
+					console.log( 'Network Error: Unknown network error.' );
+					// e.error.show(); 
+					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
+				}, 
+			});
+		}
+
+		// ============================================================
+		// FOOTER UI BUTTON BEHAVIOR
+		// ============================================================
+		actions.move.up.click( function( ev ) {
+			var i       = o.selected.attr( "index" );
+			var round   = o.selected.attr( "round" );
+			var athlete = o.division.athletes[ i ];
+
+			o.editDivision({ index : i, reorder : true, move : 'up', round : round });
+			o.updates = 0;
+		});
+
+		actions.move.down.click( function( ev ) {
+			var i       = o.selected.attr( "index" );
+			var round   = o.selected.attr( "round" );
+			var athlete = o.division.athletes[ i ];
+
+			o.editDivision({ index : i, reorder : true, move : 'down', round : round });
+			o.updates = 0;
+		});
+
+		actions.move.last.click( function( ev ) {
+			var i       = o.selected.attr( "index" );
+			var round   = o.selected.attr( "round" );
+			var athlete = o.division.athletes[ i ];
+
+			o.editDivision({ index : i, reorder : true, move : 'last', round : round });
+			o.updates = 0;
+		});
+
+		actions.remove.button.click( function( ev ) {
+			var i       = o.selected.attr( "index" );
+			var round   = o.selected.attr( "round" );
+			var athlete = o.division.athletes[ i ];
+
+			o.editAthlete({ index : i, remove : true, round : round });
+			o.updates = 0;
+		});
 
 		o.updates = 0; // Indicate that live updates are OK
 
@@ -112,10 +187,14 @@ $.widget( "freescore.divisionEditor", {
 			athlete.view.addClass( "athlete" );
 			athlete.name .attr( "index", i );
 			athlete.name .attr( "round", round );
-			athlete.name.mouseover( function( ev ) { $( this ).parent().parent().addClass( "ui-btn-hover-c" ); });
-			athlete.name.mouseout( function( ev ) { $( this ).parent().parent().removeClass( "ui-btn-hover-c" ); });
-			athlete.name.focus( function( ev ) { $( this ).parent().parent().css({ background: "#b3d4fd" });  });
-			athlete.name.blur(  function( ev ) { $( this ).parent().parent().css({ background: "white" }); });
+			athlete.name.focus( function( ev ) { 
+				if( defined( o.selected )) {
+					o.selected.parent().parent().css({ background : "white" });
+				}
+				$( this ).parent().parent().css({ background: "#b3d4fd" }); 
+				o.selected = $( this );
+				e.actions.footer.find( "a" ).removeClass( 'ui-disabled' );
+			});
 			if( defined( athlete.data )) {
 				athlete.name .val( athlete.data.name );
 				athlete.number .html( parseInt( j ) + 1 );
@@ -138,7 +217,7 @@ $.widget( "freescore.divisionEditor", {
 						o.division.athletes[ i ].name = newName; 
 						oldName = o.division.athletes[ i ].name;
 						$( this ).blur(); 
-						o.editAthlete( i, { index : i, name : newName, round : round }, round );
+						o.editAthlete({ index : i, name : newName, round : round });
 						var textboxes = $( "input:text" );
 						var current = textboxes.index( this );
 						if( textboxes[ current + 1 ] != null ) {
@@ -157,7 +236,7 @@ $.widget( "freescore.divisionEditor", {
 						number.removeClass( "ui-icon-plus" );
 						number.html( k );
 						number.css( "padding-top", "5px" );
-						o.editAthlete((k - 1), { index : k, name : newName, round : round }, round );
+						o.editAthlete({ index : k-1, name : newName, round : round });
 
 						o.division.athletes[ k ] = { name : newName };
 						var athlete = addAthlete( -1, rname, -1 );
@@ -171,19 +250,6 @@ $.widget( "freescore.divisionEditor", {
 					$( this ).val( oldName ); 
 				}
 			});
-
-			athlete.edit
-				.addClass( "edit ui-btn ui-nodisc-icon ui-icon-delete ui-btn-icon-notext ui-btn-inline" )
-				.attr( "index", i )
-				.css( "background-color", "red" )
-				.click( function( ev ) { 
-					var i = $( this ).attr( "index" ); 
-					var athlete = o.division.athletes[ i ];
-
-					o.current = i;
-					o.editAthlete( i, { index : i, remove : true, round : round }, round );
-					o.updates = 0;
-				});
 
 			athlete.view.append( athlete.number, athlete.name );
 			athlete.listitem.append( athlete.view );

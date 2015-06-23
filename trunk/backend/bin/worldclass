@@ -187,7 +187,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division    = $progress->{ divisions }[ $i ];
 	my $content     = $self->req->body;
-	my $description = '';
+	my $description = 'Unknown error while editing division.';
 
 	try {
 		my $edits   = $json->decode( $content );
@@ -195,9 +195,15 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		my $reorder = $edits->{ reorder };
 		my $edit    = $edits->{ athlete };
 
-		if( defined $header  ) { $division->{ $_ } = $header->{ $_ } foreach (keys %$header); $description = "Successfully updated division $division->{ id } information."; }
-		if( defined $reorder ) { $division->reorder( $reorder ); $description = "Successfully reordered division $division->{ id }."; }
-		if( defined $edit    ) {
+		if     ( defined $header  ) { 
+			$division->{ $_ } = $header->{ $_ } foreach (keys %$header); 
+			$description = "Successfully updated division $division->{ id } information."; 
+
+		} elsif( defined $reorder ) { 
+			$division->reorder( $edits ); 
+			$description = "Successfully reordered division $division->{ name }."; 
+
+		} elsif( defined $edit    ) {
 			my $i       = $edit->{ index };
 			my $round   = $division->{ round };
 			my $judges  = $division->{ judges };
@@ -238,6 +244,8 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
 				$description = "Successfully cleared $athlete->{ name }.";
 			}
+		} else {
+			$description = "Unknown athlete edit command";
 		}
 		$division->normalize();
 		$division->write();
