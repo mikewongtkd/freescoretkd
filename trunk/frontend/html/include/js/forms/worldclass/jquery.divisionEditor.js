@@ -146,9 +146,20 @@ $.widget( "freescore.divisionEditor", {
 		// ------------------------------------------------------------
 		actions.move.up.click( function( ev ) {
 		// ------------------------------------------------------------
-			var i       = o.selected.attr( "index" );
-			var round   = o.selected.attr( "round" );
-			var athlete = o.division.athletes[ i ];
+			var i        = o.selected.attr( "index" );
+			var round    = o.selected.attr( "round" );
+			var athlete  = o.division.athletes[ i ];
+
+			var current  = o.selected.parent().parent();
+			var j        = current.find( ".number" ).html();
+			var previous = current.prev();
+			var k        = previous.find( ".number" ).html();
+			previous.detach();
+			previous.insertAfter( current );
+			current.find( ".number" ).html( k );
+			previous.find( ".number" ).html( j );
+			o.selected = undefined;                                     // Clear context
+			e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'up', round : round });
 			o.updates = 0;
@@ -161,6 +172,17 @@ $.widget( "freescore.divisionEditor", {
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
 
+			var current  = o.selected.parent().parent();
+			var j        = current.find( ".number" ).html();
+			var next     = current.next();
+			var k        = next.find( ".number" ).html();
+			current.detach();
+			current.insertAfter( next );
+			current.find( ".number" ).html( k );
+			next.find( ".number" ).html( j );
+			o.selected = undefined;                                     // Clear context
+			e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
+
 			o.editDivision({ index : i, reorder : true, move : 'down', round : round });
 			o.updates = 0;
 		});
@@ -171,6 +193,13 @@ $.widget( "freescore.divisionEditor", {
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
+
+			var current  = o.selected.parent().parent();
+			var last     = current.parent().find( "li:last-child" );
+			current.detach();
+			current.insertBefore( last );
+			o.selected = undefined;                                     // Clear context
+			e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'last', round : round });
 			o.updates = 0;
@@ -188,9 +217,9 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.content.ok.click( function( ev ) {
 				e.dialog.panel.popup( 'close' );                            // Close the confirmation dialog
 				o.editAthlete({ index : i, remove : true, round : round }); // Send AJAX command to update DB
-				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
 				o.selected.parent().parent().remove();                      // Update list display
 				o.selected = undefined;                                     // Clear context
+				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
 				o.updates = 0;                                              // Indicate that the list can be updated
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
