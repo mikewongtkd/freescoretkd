@@ -48,16 +48,16 @@ $.widget( "freescore.divisionEditor", {
 		rounds.tabs.tabs();
 
 		var dialog = e.dialog = {
-			panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dismissable", false ) .attr( "data-transition", "pop" ) .attr( "id", "#dialog" ),
+			panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dialog", true ) .attr( "data-overlay-theme", "b" ) .attr( "id", "#dialog" ),
 			header : {
-				panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .attr( "data-tap-toggle", false ) .attr( "data-theme", "b" ) .addClass( "header" ),
+				panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-theme", "b" ),
 				title : html.h1.clone(),
 			},
 			content : {
 				panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
 				text   : html.p.clone(),
-				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css( "background", "red"   ) .html( "Cancel" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css( "background", "green" ) .html( "Confirm" ),
+				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "green", color: "white", textShadow: "none" }) .html( "Yes" ),
 			}
 		};
 
@@ -65,7 +65,7 @@ $.widget( "freescore.divisionEditor", {
 		dialog.content.panel.append( dialog.content.text, dialog.content.cancel, dialog.content.ok );
 		dialog.panel.append( dialog.header.panel, dialog.content.panel );
 
-		this.element .append( header, rounds.tabs, actions.footer );
+		this.element .append( header, rounds.tabs, actions.footer, dialog.panel );
 
 		var sound = e.sound = {};
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
@@ -142,7 +142,10 @@ $.widget( "freescore.divisionEditor", {
 		// ============================================================
 		// FOOTER UI BUTTON BEHAVIOR
 		// ============================================================
+
+		// ------------------------------------------------------------
 		actions.move.up.click( function( ev ) {
+		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
@@ -151,7 +154,9 @@ $.widget( "freescore.divisionEditor", {
 			o.updates = 0;
 		});
 
+		// ------------------------------------------------------------
 		actions.move.down.click( function( ev ) {
+		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
@@ -160,7 +165,9 @@ $.widget( "freescore.divisionEditor", {
 			o.updates = 0;
 		});
 
+		// ------------------------------------------------------------
 		actions.move.last.click( function( ev ) {
+		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
@@ -169,25 +176,26 @@ $.widget( "freescore.divisionEditor", {
 			o.updates = 0;
 		});
 
+		// ------------------------------------------------------------
 		actions.remove.button.click( function( ev ) {
+		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
 
-			e.dialog.header.title.html( "Remove " + athlete.name + "?" );
-			e.dialog.content.text.html( "Confirm removal of athlete " + athlete.name + " from division?" );
+			e.dialog.header.title.html( "Remove Athlete?" );
+			e.dialog.content.text.html( "Remove athlete " + athlete.name + " from division? Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
+				e.dialog.panel.popup( 'close' );
 				o.editAthlete({ index : i, remove : true, round : round });
 				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );
 				o.updates = 0;
-				e.dialog.detach();
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
-				e.dialog.detach();
+				e.dialog.panel.popup( 'close' );
 			});
 
-			w.append( e.dialog );
-			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#dialog", { transition : "flow" });
+			e.dialog.panel.popup( 'open', { transition : "pop" } );
 		});
 
 		o.updates = 0; // Indicate that live updates are OK
