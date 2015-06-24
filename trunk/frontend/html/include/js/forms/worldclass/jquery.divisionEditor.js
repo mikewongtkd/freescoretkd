@@ -189,6 +189,7 @@ $.widget( "freescore.divisionEditor", {
 				e.dialog.panel.popup( 'close' );
 				o.editAthlete({ index : i, remove : true, round : round });
 				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );
+				o.selected.parent().parent().remove();
 				o.updates = 0;
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
