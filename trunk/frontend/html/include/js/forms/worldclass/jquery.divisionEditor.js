@@ -186,11 +186,12 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.header.title.html( "Remove Athlete?" );
 			e.dialog.content.text.html( "Remove athlete " + athlete.name + " from division? Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
-				e.dialog.panel.popup( 'close' );
-				o.editAthlete({ index : i, remove : true, round : round });
-				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );
-				o.selected.parent().parent().remove();
-				o.updates = 0;
+				e.dialog.panel.popup( 'close' );                            // Close the confirmation dialog
+				o.editAthlete({ index : i, remove : true, round : round }); // Send AJAX command to update DB
+				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
+				o.selected.parent().parent().remove();                      // Update list display
+				o.selected = undefined;                                     // Clear context
+				o.updates = 0;                                              // Indicate that the list can be updated
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
 				e.dialog.panel.popup( 'close' );
