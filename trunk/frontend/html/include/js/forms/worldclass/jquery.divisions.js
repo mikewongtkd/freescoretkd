@@ -25,7 +25,7 @@ $.widget( "freescore.divisions", {
 		var html    = e.html;
 
 		// ============================================================
-		var get_rings = function( tournament ) {
+		var getRings = function( tournament ) {
 		// ============================================================
 			var rings = { staging : [] };
 			for( var i = 0; i < tournament.divisions.length; i++ ) {
@@ -69,7 +69,8 @@ $.widget( "freescore.divisions", {
 			var n        = o.rings.length;
 			var ring     = i == "staging" ? o.rings[ (n - 1) ] : o.rings[ (i - 1) ];
 			var division = ring.divisions[ divIndex ];
-			e.div_edit.divisionEditor( { division : division } );
+			console.log( "Ring: " + i + ", Division " + division.name );
+			e.div_edit.divisionEditor( { ring : i, division : division } );
 		}
 
 		// ============================================================
@@ -147,7 +148,7 @@ $.widget( "freescore.divisions", {
 			var tournament = JSON.parse( update.data );
 			e.list.empty();
 			o.rings = [];
-			var rings = get_rings( tournament );
+			var rings = getRings( tournament );
 
 			var header = {
 				listitem : html.li.clone() .attr( "data-theme", "b" ),

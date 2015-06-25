@@ -17,9 +17,9 @@ $.widget( "freescore.divisionEditor", {
 					down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Down" ),
 					last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
 				},
-				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red"                   }) .html( "Remove" ),
-				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "back" )   .attr( "data-inline", true ) .css({ background: "red",   width: "100px" }) .html( "Cancel" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green", width: "100px" }) .html( "OK" ),
+				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red"                    }) .html( "Remove" ),
+				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "back" )   .attr( "data-inline", true ) .css({ background: "orange", width: "100px" }) .html( "Cancel" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green",  width: "100px" }) .html( "OK" ),
 			},
 			panel : {
 				athlete : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .addClass( "ui-block-a" ),
@@ -233,6 +233,13 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.panel.popup( 'open', { transition : "pop" } );
 		});
 
+		// ------------------------------------------------------------
+		actions.button.cancel.attr( "data-transition", "slide" ) .attr( "data-direction", "reverse" ).click( function( ev ) {
+		// ------------------------------------------------------------
+			// location="#ring_divisions?ring=" + o.ring;
+			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring_divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+		});
+
 		o.updates = 0; // Indicate that live updates are OK
 
 	},
@@ -389,5 +396,10 @@ $.widget( "freescore.divisionEditor", {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ first ];
 			e.rounds[ rname ].button.find( 'a' ).click();
 		}
+
+		// ============================================================
+		// DYNAMIC FOOTER UI BUTTON BEHAVIOR
+		// ============================================================
+		// e.actions.button.cancel.attr( "href", "#ring_divisions?ring=" + o.ring ) .attr( "data-transition", "slide" ) .attr( "data-direction", "reverse" );
 	},
 });
