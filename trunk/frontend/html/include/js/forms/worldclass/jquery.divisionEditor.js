@@ -17,9 +17,9 @@ $.widget( "freescore.divisionEditor", {
 					down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Down" ),
 					last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
 				},
-				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red"                    }) .html( "Remove" ),
+				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "minus"  ) .attr( "data-inline", true ) .css({ background: "#fa3",                  }) .html( "Remove" ),
 				erase  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",    width: "140px" }) .html( "Delete Division" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green",  width: "140px" }) .html( "Accept Division" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "#3a3",   width: "140px" }) .html( "Accept Division" ),
 			},
 			panel : {
 				athlete : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .addClass( "ui-block-a" ),
@@ -60,13 +60,14 @@ $.widget( "freescore.divisionEditor", {
 			content : {
 				panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
 				text   : html.p.clone(),
+				icon   : html.span.clone() .addClass( "ui-btn-icon-left" ) .css( "position", "relative" ),
 				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "green", color: "white", textShadow: "none" }) .html( "Yes" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "#3a3",  color: "white", textShadow: "none" }) .html( "Yes" ),
 			}
 		};
 
 		dialog.header.panel.append( dialog.header.title );
-		dialog.content.panel.append( dialog.content.text, dialog.content.cancel, dialog.content.ok );
+		dialog.content.panel.append( dialog.content.icon, dialog.content.text, dialog.content.cancel, dialog.content.ok );
 		dialog.panel.append( dialog.header.panel, dialog.content.panel );
 
 		this.element .append( header, rounds.tabs, actions.footer, dialog.panel );
@@ -217,7 +218,10 @@ $.widget( "freescore.divisionEditor", {
 			var athlete = o.division.athletes[ i ];
 
 			e.dialog.header.title.html( "Remove Athlete?" );
-			e.dialog.content.text.html( "Remove athlete " + athlete.name + " from division? Once confirmed,<br>this cannot be undone." );
+			e.dialog.header.panel.css({ background : "black" });
+			e.dialog.content.text.empty();
+			e.dialog.content.icon.addClass( "ui-icon-minus" );
+			e.dialog.content.text.append( e.dialog.content.icon, "Remove athlete " + athlete.name + " from division? Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
 				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
 				o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
@@ -231,6 +235,27 @@ $.widget( "freescore.divisionEditor", {
 			});
 
 			e.dialog.panel.popup( 'open', { transition : "pop" } );
+		});
+
+		// ------------------------------------------------------------
+		actions.button.erase.click( function( ev ) {
+		// ------------------------------------------------------------
+			e.dialog.header.title.html( "Delete Division?" );
+			e.dialog.header.panel.css({ background : "red" });
+			e.dialog.content.text.empty();
+			e.dialog.content.icon.addClass( "ui-icon-delete" );
+			e.dialog.content.text.append( e.dialog.content.icon, "Delete this entire division? Once confirmed,<br>this cannot be undone." );
+			e.dialog.content.ok.click( function( ev ) {
+				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
+				// o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
+				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring_divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+			});
+			e.dialog.content.cancel.click( function( ev ) { 
+				e.dialog.panel.popup( 'close' );
+			});
+
+			e.dialog.panel.popup( 'open', { transition : "pop" } );
+
 		});
 
 		// ------------------------------------------------------------
