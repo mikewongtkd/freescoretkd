@@ -18,7 +18,6 @@ $.widget( "freescore.divisionEditor", {
 					last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
 				},
 				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red"                    }) .html( "Remove" ),
-				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "back" )   .attr( "data-inline", true ) .css({ background: "orange", width: "100px" }) .html( "Cancel" ),
 				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green",  width: "100px" }) .html( "OK" ),
 			},
 			panel : {
@@ -28,7 +27,7 @@ $.widget( "freescore.divisionEditor", {
 		};
 
 		actions.panel.athlete.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
-		actions.panel.division.append( actions.button.cancel, actions.button.ok );
+		actions.panel.division.append( actions.button.ok );
 		actions.footer.append( actions.panel.athlete, actions.panel.division );
 		actions.panel.athlete.find( "a" ).addClass( 'ui-disabled' );
 
@@ -234,9 +233,8 @@ $.widget( "freescore.divisionEditor", {
 		});
 
 		// ------------------------------------------------------------
-		actions.button.cancel.attr( "data-transition", "slide" ) .attr( "data-direction", "reverse" ).click( function( ev ) {
+		actions.button.ok.click( function( ev ) {
 		// ------------------------------------------------------------
-			// location="#ring_divisions?ring=" + o.ring;
 			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring_divisions?ring=" + o.ring, { transition : "slide", reverse : true });
 		});
 
@@ -396,10 +394,5 @@ $.widget( "freescore.divisionEditor", {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ first ];
 			e.rounds[ rname ].button.find( 'a' ).click();
 		}
-
-		// ============================================================
-		// DYNAMIC FOOTER UI BUTTON BEHAVIOR
-		// ============================================================
-		// e.actions.button.cancel.attr( "href", "#ring_divisions?ring=" + o.ring ) .attr( "data-transition", "slide" ) .attr( "data-direction", "reverse" );
 	},
 });
