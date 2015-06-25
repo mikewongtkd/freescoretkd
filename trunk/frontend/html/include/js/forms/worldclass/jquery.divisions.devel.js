@@ -6,17 +6,13 @@ $.widget( "freescore.divisions", {
 		var e = this.options.elements = {};
 
 		var html      = e.html      = FreeScore.html;
-		var rings     = e.rings     = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" );
-		var list      = e.list      = html.ul.clone()  .attr( "data-role", "listview" );
-		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
-		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
+		var error     = e.error     = html.div.clone();
+		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division-editor" );
 
 		div_edit.divisionEditor( { division : {}, server : o.server, tournament : o.tournament } );
-
-		rings.append( list );
 		
 		this.element .attr( "data-role", "content" ) .addClass( "divisions" );
-		this.element .append( rings, ring_divs, div_edit );
+		this.element .append( error, div_edit );
 	},
 
 	_init: function() {
@@ -67,9 +63,10 @@ $.widget( "freescore.divisions", {
 		var showEditor = function( i, divIndex ) {
 		// ============================================================
 			var n        = o.rings.length;
-			var ring     = i == "staging" ? o.rings[ (n - 1) ] : o.rings[ (i - 1) ];
-			var division = ring.divisions[ divIndex ];
-			e.div_edit.divisionEditor( { division : division } );
+			var ring     = i == "staging" ? o.rings.staging : o.rings[ i ];
+			var division = ring[ divIndex ];
+			division.index = divIndex;
+			e.div_edit.divisionEditor( { ring : i, division : division } );
 		}
 
 		// ============================================================
@@ -145,59 +142,14 @@ $.widget( "freescore.divisions", {
 		function refresh( update ) {
 		// ============================================================
 			var tournament = JSON.parse( update.data );
-			e.list.empty();
-			o.rings = [];
-			var rings = get_rings( tournament );
-
-			var header = {
-				listitem : html.li.clone() .attr( "data-theme", "b" ),
-				name     : html.span.clone() .html( defined( o.tournament.name ) ? o.tournament.name : "World Class Poomsae" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ),
-				app      : html.span.clone() .html( defined( o.tournament.name ) ? "World Class Poomsae" : "" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ) .css( "margin-left", "8px" ) .css( "color", "#999" ),
-				search   : {
-					view   : html.div.clone()
-								.css( "float", "right" ),
-
-					input  : html.search.clone() 
-								.addClass( "search-box" ) 
-								.attr( "name", "search" ) 
-								.attr( "placeholder", "Search for athlete name or division description" ) 
-								.attr( "data-type", "search" )
-								.css( "width", "360px" )
-								.css( "margin", "2px 16px 0 0" )
-								.css( "border-radius", "24px" )
-								.css( "float", "left" ),
-
-					button : html.a.clone()
-								.attr( "href", "#" )
-								.addClass( "ui-btn ui-icon-search ui-btn-icon-right" )
-								.html( "Search" )
-								.css( "border-radius", "24px" )
-								.css( "float", "left" )
-								.css( "margin", "0" )
-								.css( "font-size", "9pt" )
-				}
-			};
-			header.search.view.append( header.search.input, header.search.button );
-			header.listitem.append( header.name, header.app, header.search.view );
-			
-			e.list.append( header.listitem );
-			for( var i in rings ) {
-				var divisions = rings[ i ];
-				o.rings.push( addRing( i, divisions ));
+			if( defined( tournament.error )) {
+				e.error.errormessage({ message : tournament.error });
 			}
+			o.rings = get_rings( tournament );
+
+			showEditor( 1, 0 );
+
 		};
-
-		// ============================================================
-		// Behavior
-		// ============================================================
-		this.element.on( "pagebeforetransition", function( ev, data ) {
-			if( ! defined( data.absUrl )) { return; }
-			var option  = parsePageUrl( data.absUrl );
-
-			if      ( option.id == "ring_divisions"  ) { showRing( option.ring ); }
-			else if ( option.id == "division_editor" ) { showEditor( option.ring, option.division ); }
-
-		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );

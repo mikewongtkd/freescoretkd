@@ -11,22 +11,26 @@ $.widget( "freescore.divisionEditor", {
 		var header    = e.header    = html.div.clone() .addClass( "config" ) .divisionHeader( o );
 		var actions   = e.actions   = {
 			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ) .addClass( "ui-grid-a" ),
-			move : {
-				panel : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .attr( "data-inline", true ) .addClass( "ui-block-a" ),
-				up    : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-u" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Up" ),
-				down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Down" ),
-				last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
+			button: {
+				move : {
+					up    : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-u" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Up" ),
+					down  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-d" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Down" ),
+					last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
+				},
+				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red"                   }) .html( "Remove" ),
+				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "back" )   .attr( "data-inline", true ) .css({ background: "red",   width: "100px" }) .html( "Cancel" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green", width: "100px" }) .html( "OK" ),
 			},
-			remove : { 
-				panel : html.div.clone() .addClass( "ui-block-b" ),
-				button : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css( "background", "red" ) .html( "Remove" )
-			},
+			panel : {
+				athlete : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .addClass( "ui-block-a" ),
+				division : html.div.clone() .addClass( "ui-block-b" ),
+			}
 		};
 
-		actions.move.panel.append( actions.move.up, actions.move.down, actions.move.last );
-		actions.remove.panel.append( actions.remove.button );
-		actions.footer.append( actions.move.panel, actions.remove.panel );
-		actions.footer.find( "a" ).addClass( 'ui-disabled' );
+		actions.panel.athlete.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
+		actions.panel.division.append( actions.button.cancel, actions.button.ok );
+		actions.footer.append( actions.panel.athlete, actions.panel.division );
+		actions.panel.athlete.find( "a" ).addClass( 'ui-disabled' );
 
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
@@ -144,7 +148,7 @@ $.widget( "freescore.divisionEditor", {
 		// ============================================================
 
 		// ------------------------------------------------------------
-		actions.move.up.click( function( ev ) {
+		actions.button.move.up.click( function( ev ) {
 		// ------------------------------------------------------------
 			var i        = o.selected.attr( "index" );
 			var round    = o.selected.attr( "round" );
@@ -158,15 +162,15 @@ $.widget( "freescore.divisionEditor", {
 			previous.insertAfter( current );
 			current.find( ".number" ).html( k );
 			previous.find( ".number" ).html( j );
-			o.selected = undefined;                                     // Clear context
-			e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
+			o.selected = undefined;                                         // Clear context
+			e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'up', round : round });
 			o.updates = 0;
 		});
 
 		// ------------------------------------------------------------
-		actions.move.down.click( function( ev ) {
+		actions.button.move.down.click( function( ev ) {
 		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
@@ -180,15 +184,15 @@ $.widget( "freescore.divisionEditor", {
 			current.insertAfter( next );
 			current.find( ".number" ).html( k );
 			next.find( ".number" ).html( j );
-			o.selected = undefined;                                     // Clear context
-			e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
+			o.selected = undefined;                                         // Clear context
+			e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'down', round : round });
 			o.updates = 0;
 		});
 
 		// ------------------------------------------------------------
-		actions.move.last.click( function( ev ) {
+		actions.button.move.last.click( function( ev ) {
 		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
@@ -198,15 +202,15 @@ $.widget( "freescore.divisionEditor", {
 			var last     = current.parent().find( "li:last-child" );
 			current.detach();
 			current.insertBefore( last );
-			o.selected = undefined;                                     // Clear context
-			e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
+			o.selected = undefined;                                         // Clear context
+			e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'last', round : round });
 			o.updates = 0;
 		});
 
 		// ------------------------------------------------------------
-		actions.remove.button.click( function( ev ) {
+		actions.button.remove.click( function( ev ) {
 		// ------------------------------------------------------------
 			var i       = o.selected.attr( "index" );
 			var round   = o.selected.attr( "round" );
@@ -215,12 +219,12 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.header.title.html( "Remove Athlete?" );
 			e.dialog.content.text.html( "Remove athlete " + athlete.name + " from division? Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
-				e.dialog.panel.popup( 'close' );                            // Close the confirmation dialog
-				o.editAthlete({ index : i, remove : true, round : round }); // Send AJAX command to update DB
-				o.selected.parent().parent().remove();                      // Update list display
-				o.selected = undefined;                                     // Clear context
-				e.actions.footer.find( "a" ).addClass( 'ui-disabled' );     // Disable contextual footer UI buttons
-				o.updates = 0;                                              // Indicate that the list can be updated
+				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
+				o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
+				o.selected.parent().parent().remove();                          // Update list display
+				o.selected = undefined;                                         // Clear context
+				e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+				o.updates = 0;                                                  // Indicate that the list can be updated
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
 				e.dialog.panel.popup( 'close' );
