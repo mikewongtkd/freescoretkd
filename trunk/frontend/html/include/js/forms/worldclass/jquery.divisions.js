@@ -11,12 +11,30 @@ $.widget( "freescore.divisions", {
 		var ring_divs = e.ring_divs = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring_divisions" );
 		var div_edit  = e.div_edit  = html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division_editor" );
 
+		var dialog = e.dialog = {
+			panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dialog", true ) .attr( "data-overlay-theme", "b" ) .attr( "id", "#division-dialog" ),
+			header : {
+				panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-theme", "b" ),
+				title : html.h1.clone(),
+			},
+			content : {
+				panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
+				text   : html.p.clone(),
+				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "#3a3",  color: "white", textShadow: "none" }) .html( "Yes" ),
+			}
+		};
+
+		dialog.header.panel.append( dialog.header.title );
+		dialog.content.panel.append( dialog.content.text, dialog.content.cancel, dialog.content.ok );
+		dialog.panel.append( dialog.header.panel, dialog.content.panel );
+
 		div_edit.divisionEditor( { division : {}, server : o.server, tournament : o.tournament } );
 
 		rings.append( list );
 		
 		this.element .attr( "data-role", "content" ) .addClass( "divisions" );
-		this.element .append( rings, ring_divs, div_edit );
+		this.element .append( rings, ring_divs, div_edit, dialog.panel );
 	},
 
 	_init: function() {
@@ -74,7 +92,7 @@ $.widget( "freescore.divisions", {
 		}
 
 		// ============================================================
-		function showRing( i ) {
+		var showRing = function( i ) {
 		// ============================================================
 			var ring = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
 			var list = html.ul.clone() .attr( "data-role", "listview" );
@@ -118,11 +136,25 @@ $.widget( "freescore.divisions", {
 				listitem  : html.li.clone(),
 				link      : html.a.clone(),
 			};
-			add.link .append( "Add Division" );
-			add.link
-				.attr( "href",            "#division_editor?ring=" + i )
-				.attr( "data-transition", "slide"                      )
-				.addClass( "ui-btn ui-btn-icon-left ui-icon-plus" );
+			add.link .addClass( "ui-btn ui-btn-icon-left ui-icon-plus" ) .html( "New Division" );
+
+			// ------------------------------------------------------------
+			add.link.click( function( ev ) {
+			// ------------------------------------------------------------
+				e.dialog.header.title.html( "New Division" );
+				e.dialog.content.text.html( "Please provide information for the new division." );
+				e.dialog.content.ok.click( function( ev ) {
+					// o.editAthlete({ index : i, remove : true, round : round });  // Send AJAX command to update DB
+					e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
+					$( ":mobile-pagecontainer" ).pagecontainer( "change", "#division_editor?ring=" + i, { transition : "slide" } ); 
+				});
+				e.dialog.content.cancel.click( function( ev ) { 
+					e.dialog.panel.popup( 'close' );
+				});
+
+				e.dialog.panel.popup();
+				e.dialog.panel.popup( 'open', { transition : "pop" } );
+			});
 			add.listitem.append( add.link );
 			list.append( add.listitem );
 

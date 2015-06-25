@@ -24,7 +24,8 @@ sub init {
 	$self->{ ring } = $ring;
 	$self->{ name } = $name;
 	$self->{ file } = "$self->{ path }/div.$name.txt";
-	$self->read();
+	die "Database Read Error: Can't find division at '$self->{ path }' $!" if( ! -e $self->{ path } );
+	$self->read() if( -e $self->{ file } );
 }
 
 sub display    { my $self = shift; $self->{ state } = 'display'; }
