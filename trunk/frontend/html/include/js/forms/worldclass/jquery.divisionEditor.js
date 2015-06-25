@@ -18,7 +18,8 @@ $.widget( "freescore.divisionEditor", {
 					last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
 				},
 				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red"                    }) .html( "Remove" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green",  width: "100px" }) .html( "OK" ),
+				erase  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",    width: "140px" }) .html( "Delete Division" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "green",  width: "140px" }) .html( "Accept Division" ),
 			},
 			panel : {
 				athlete : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .addClass( "ui-block-a" ),
@@ -27,7 +28,7 @@ $.widget( "freescore.divisionEditor", {
 		};
 
 		actions.panel.athlete.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
-		actions.panel.division.append( actions.button.ok );
+		actions.panel.division.append( actions.button.erase, actions.button.ok );
 		actions.footer.append( actions.panel.athlete, actions.panel.division );
 		actions.panel.athlete.find( "a" ).addClass( 'ui-disabled' );
 
