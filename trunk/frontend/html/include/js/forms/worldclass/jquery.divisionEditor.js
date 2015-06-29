@@ -248,7 +248,7 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.content.ok.click( function( ev ) {
 				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
 				// o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
-				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring_divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
 				e.dialog.panel.popup( 'close' );
@@ -261,7 +261,7 @@ $.widget( "freescore.divisionEditor", {
 		// ------------------------------------------------------------
 		actions.button.ok.click( function( ev ) {
 		// ------------------------------------------------------------
-			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring_divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
 		});
 
 		o.updates = 0; // Indicate that live updates are OK
