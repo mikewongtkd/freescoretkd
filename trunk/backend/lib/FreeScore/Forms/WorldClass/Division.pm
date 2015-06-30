@@ -133,11 +133,6 @@ sub place_athletes {
 	# Updates the leaderboard to indicate the next player
 	my $pending = [ @{$self->{ order }{ $round }} ];
 	@$pending = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$pending;
-	while( @$pending ) {
-		my $i = $pending->[ 0 ];
-		if( $i == $self->{ current } ) { last; }
-		else { shift @$pending; }
-	}
 
 	$self->{ pending }{ $round } = $pending;
 }

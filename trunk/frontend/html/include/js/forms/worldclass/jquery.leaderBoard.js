@@ -27,6 +27,7 @@ $.widget( "freescore.leaderboard", {
 
 		placement.athletes = o.division.placement[ round ].map( function( i ) { return athletes[ i ]; } );
 		pending.athletes   = o.division.pending[ round ].map( function( i ) { return athletes[ i ]; } );
+		console.log( o.division.pending );
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
 		if( placement.athletes.length == 0 ) {

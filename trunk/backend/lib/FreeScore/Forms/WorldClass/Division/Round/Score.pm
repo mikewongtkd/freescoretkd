@@ -88,7 +88,7 @@ sub complete {
 	my $self = shift;
 
 	my $complete = { accuracy => 0, presentation => 0 };
-	$complete->{ accuracy } = all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor ) };
+	$complete->{ accuracy }     = all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor ) };
 	$complete->{ presentation } = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki ) };
 	$self->{ complete } = $complete->{ accuracy } && $complete->{ presentation };
 	return $self->{ complete };

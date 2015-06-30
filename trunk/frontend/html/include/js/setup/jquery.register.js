@@ -42,8 +42,8 @@ $.widget( "freescore.register", {
 			register.rings.view .fadeIn();
 			for( var j = 0; j < register.rings.data.length; j++ ) {
 				var ring = register.rings.data[ j ];
-				var x    = ring.x;
-				var y    = ring.y;
+				var x    = ring.start.x;
+				var y    = ring.start.y;
 				ring.dom.animate( { left: x, top: y, opacity: 1.0 } );
 			}
 			register.rings.view .attr( "animate", "on-initialization" );
@@ -56,7 +56,7 @@ $.widget( "freescore.register", {
 				var ring = register.rings.data[ i ];
 				var j    = ring.num;
 				if( j == num ) { 
-					ring.dom.animate( { left: ring.go.x, top: ring.go.y } );
+					ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
 					$.cookie( "ring", num, { path: '/' } );
 					register.rings.view .delay( 750 ) .fadeOut( 500, register.roles.show );
 
@@ -67,7 +67,7 @@ $.widget( "freescore.register", {
 		}};
 
 		// ------------------------------------------------------------
-		register.rings.add = function( num, x, y ) {
+		register.rings.add = function( num, x, y, gotoX, gotoY ) {
 		// ------------------------------------------------------------
 
 			var dom          = html.div.clone() .addClass( "mat" );
@@ -76,16 +76,16 @@ $.widget( "freescore.register", {
 			dom.css( "opacity", 0.5 );
 			dom.append( playingField );
 
-			var gotoX    = (parseInt(rings.view.css( "width"  )) / 2) - 100;
-			var gotoY    = (parseInt(rings.view.css( "height" )) / 2) - 100;
+			var selectX = (parseInt( rings.view.css( "width" ))/2) - 100;
+			var selectY = (parseInt( rings.view.css( "height" ))/2) - 100;
 
-			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: gotoX, top: gotoY, opacity: 1.0 } ) }
+			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY, opacity: 1.0 } ) }
 
 			dom.click( register.rings.select( num ) );
-			return { num: num, x: x, y: y, go: { x: gotoX, y: gotoY }, dom: dom };
+			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom };
 		}
 
-		var available_events = {
+		var availableEvents = {
 			grassroots: { name: "Grassroots",  image: "grassroots-01", url: "../forms/grassroots/" },
 			worldclass: { name: "World Class", image: "poomsae-02",    url: "../forms/worldclass/" }
 		};
@@ -287,7 +287,7 @@ $.widget( "freescore.register", {
 			ev.dom.children( ".greys" ).hide();
 
 			// ===== SHOW RING NUMBER
-			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0 );
+			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0, 0, 0 );
 			ring.dom.css( "left", "200px" ) .css( "opacity", "1.0" );
 			var role  = String( $.cookie( "role" ));
 
@@ -323,15 +323,14 @@ $.widget( "freescore.register", {
 		// ===== STEP 1. SHOW THE EVENTS (OR SKIP IF URL DEFINED)
 		if( defined( url ) ) {
 			o.event = {};
-			if( url.match( /grassroots/ ) != null ) { o.event = available_events.grassroots; }
-			if( url.match( /worldclass/ ) != null ) { o.event = available_events.worldclass; }
-			register.events.view .hide();
-			register.rings .fadeIn();
+			if( url.match( /grassroots/ ) != null ) { o.event = availableEvents.grassroots; }
+			if( url.match( /worldclass/ ) != null ) { o.event = availableEvents.worldclass; }
+			register.events.view.hide();
 
 		} else {
 			register.events.data.push( 
-				register.events.add( available_events.grassroots, 0 ),
-				register.events.add( available_events.worldclass, 1 )
+				register.events.add( availableEvents.grassroots, 0 ),
+				register.events.add( availableEvents.worldclass, 1 )
 			);
 			register.events.view.append( register.events.data.map( function( ev ) { return ev.dom; } ));
 		}
@@ -357,10 +356,13 @@ $.widget( "freescore.register", {
 					if      ( width > height ) { if( n == half ) { ypos += 100; } else if( n > half ) { xpos -= 200; }}
 					else if ( height > width ) { if( n == k-1  ) { xpos -= 100; }}
 				}
-				var ring = register.rings.add( (n + 1), xpos, ypos );
+				var ring = register.rings.add( (n + 1), x, y, xpos, ypos );
 				register.rings.data.push( ring );
 				register.rings.view.append( ring.dom );
 			}
+		}
+		if( defined( url ) ) {
+			register.rings.show();
 		}
 	
 		// ===== STEP 3. SHOW THE ROLES
