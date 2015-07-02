@@ -11,6 +11,7 @@ $.widget( "freescore.divisions", {
 			list      : html.ul.clone()  .attr( "data-role", "listview" ),
 			divisions : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring-divisions" ),
 			division  : {
+				add    : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division-add" ),
 				editor : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division-editor" ),
 			},
 		};
@@ -27,6 +28,44 @@ $.widget( "freescore.divisions", {
 		var e       = this.options.elements;
 		var o       = this.options;
 		var html    = e.html;
+
+		// ============================================================
+		var editDivision = o.editDivision = function( divisionData ) {
+		// ============================================================
+			var url   = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
+			var divId = undefined;
+			console.log( url );
+			$.ajax( {
+				type:      'POST',
+				url:       url,
+				dataType:  'json',
+				data:      JSON.stringify( divisionData ),
+				success: function( response ) { 
+					// Server-side error
+					if( defined( response.error )) {
+						e.sound.error.play();
+						console.log( response.error );
+						// e.error.show();
+						// e.error.errormessage({ message : response.error });
+
+					// All OK
+					} else {
+						e.sound.ok.play(); 
+						console.log( response.description );
+
+						// ===== SHOW DIVISION EDITOR WITH NEW DIVISION
+						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=" + response.id );
+					}
+				},
+				error:   function( response ) { 
+					// Network error
+					e.sound.error.play(); 
+					console.log( 'Network Error: Unknown network error.' );
+					// e.error.show(); 
+					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
+				}, 
+			});
+		};
 
 		// ============================================================
 		var getRings = function( tournament ) {
@@ -84,31 +123,11 @@ $.widget( "freescore.divisions", {
 			var list = html.ul.clone() .attr( "data-role", "listview" );
 			var page = e.ring.divisions;
 
-			var dialog = e.dialog = {
-				panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dialog", true ) .attr( "data-overlay-theme", "b" ) .attr( "id", "#division-dialog" ),
-				header : {
-					panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-theme", "b" ),
-					title : html.h1.clone(),
-				},
-				content : {
-					panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
-					text   : html.p.clone(),
-					cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
-					ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "#3a3",  color: "white", textShadow: "none" }) .html( "Yes" ),
-				}
-			};
-
-			dialog.header.panel.append( dialog.header.title );
-			dialog.content.panel.append( dialog.content.text, dialog.content.cancel, dialog.content.ok );
-			dialog.panel.append( dialog.header.panel, dialog.content.panel );
-
 			page.empty();
 			list.empty();
 			var content = html.div.clone() .attr( "data-role", "content" );
 			page.append( content );
-			content.append( list, dialog );
-
-			dialog.panel.popup();
+			content.append( list );
 
 			var back = { 
 				listitem  : html.li.clone() .attr( 'data-icon', 'carat-l' ) .attr( "data-theme", "b" ), 
@@ -145,22 +164,13 @@ $.widget( "freescore.divisions", {
 				link      : html.a.clone(),
 			};
 			add.link .addClass( "ui-btn ui-btn-icon-left ui-icon-plus" ) .html( "New Division" );
+			add.link .attr( "ring", i );
 
 			// ------------------------------------------------------------
 			add.link.click( function( ev ) {
-			// ------------------------------------------------------------
-				e.dialog.header.title.html( "New Division" );
-				e.dialog.content.text.html( "Please provide information for the new division." );
-				e.dialog.content.ok.click( function( ev ) {
-					// o.editAthlete({ index : i, remove : true, round : round });  // Send AJAX command to update DB
-					e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
-					$( ":mobile-pagecontainer" ).pagecontainer( "change", "#division-editor?ring=" + i, { transition : "slide" } ); 
-				});
-				e.dialog.content.cancel.click( function( ev ) { 
-					e.dialog.panel.popup( 'close' );
-				});
-
-				e.dialog.panel.popup( 'open', { transition : "pop" } );
+			// -----------------------------------------------------------
+				var i = $( this ).attr( "ring" );
+				o.editDivision({ ring : i, create : true });  // Send AJAX command to update DB
 			});
 			add.listitem.append( add.link );
 			list.append( add.listitem );

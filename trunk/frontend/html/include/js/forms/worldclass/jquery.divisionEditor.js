@@ -108,7 +108,7 @@ $.widget( "freescore.divisionEditor", {
 					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
 				}, 
 			});
-		}
+		};
 
 		// ============================================================
 		var editAthlete = o.editAthlete = function( athleteData ) {
@@ -142,7 +142,7 @@ $.widget( "freescore.divisionEditor", {
 					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
 				}, 
 			});
-		}
+		};
 
 		// ============================================================
 		// FOOTER UI BUTTON BEHAVIOR
