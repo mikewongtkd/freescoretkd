@@ -32,6 +32,7 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		var editDivision = o.editDivision = function( divisionData ) {
 		// ============================================================
+			console.log( o );
 			var url   = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
 			var divId = undefined;
 			console.log( url );
@@ -54,7 +55,7 @@ $.widget( "freescore.divisions", {
 						console.log( response.description );
 
 						// ===== SHOW DIVISION EDITOR WITH NEW DIVISION
-						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=" + response.id );
+						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + response.id );
 					}
 				},
 				error:   function( response ) { 

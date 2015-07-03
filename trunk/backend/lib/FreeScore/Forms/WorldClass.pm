@@ -3,7 +3,7 @@ use FreeScore;
 use FreeScore::Forms;
 use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
-use Data::Dumper;
+use List::Util qw( min max );
 
 # ============================================================
 sub init {
@@ -69,6 +69,41 @@ sub navigate {
 	my $self  = shift;
 	my $value = shift;
 	$self->{ current } = $value;
+}
+
+# ============================================================
+sub next_available {
+# ============================================================
+	my $self      = shift;
+	my $requested = shift;
+	my $divisions = {};
+	foreach my $division (@{ $self->{ divisions }}) {
+		my ($type, $number) = $division->{ file } =~ /^div\.([A-Za-z]+)(\d+)\.txt$/;
+		$divisions->{ $type }{ $number } = 1;
+	}
+	foreach my $type (sort keys %$divisions) {
+		my @numbers   = keys %{ $divisions->{ $type }};
+		my $min       = min @numbers;
+		my $max       = max @numbers;
+		my @available = ();
+
+		for my $i ( $min .. ($max + 1)) {
+			next if exists $divisions->{ $type }{ $i };
+			push @available, $i;
+		}
+
+		$divisions->{ $type } = [ sort { $a <=> $b } @available ];
+	}
+
+	if( defined $requested && exists $divisions->{ $requested } ) {
+		return shift @{ $divisions->{ $requested }};
+	} else {
+		# Find the type with the largest available division number
+		my ($largest) = sort { 
+			$divisions->{ $b }[ -1 ] <=> $divisions->{ $a }[ -1 ];
+		} keys %$divisions;
+		return shift @{ $divisions->{ $largest }};
+	}
 }
 
 # ============================================================

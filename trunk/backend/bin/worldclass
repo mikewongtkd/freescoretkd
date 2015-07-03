@@ -252,6 +252,8 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 
 		} elsif( defined $delete  ) {
 			unlink( $division->{ file } );
+			if( -e $division->{ file } ) { $description = "Error: Failed to delete division $division->{ name }"; }
+			else                         { $description = "Successfully deleted division $division->{ name }";    }
 
 		} else {
 			$description = "Unknown athlete edit command";

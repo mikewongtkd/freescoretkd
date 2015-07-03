@@ -246,8 +246,8 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.content.icon.addClass( "ui-icon-delete" );
 			e.dialog.content.text.append( e.dialog.content.icon, "Delete this entire division? Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
-				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
-				// o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
+				e.dialog.panel.popup( 'close' );       // Close the confirmation dialog
+				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
 				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
