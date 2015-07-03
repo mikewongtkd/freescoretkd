@@ -251,15 +251,18 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			$division = new FreeScore::Forms::WorldClass::Division( $progress->{ path }, $add->{ divname }, $ring );
 
 		} elsif( defined $delete  ) {
-			unlink( $division->{ file } );
-			if( -e $division->{ file } ) { $description = "Error: Failed to delete division $division->{ name }"; }
-			else                         { $description = "Successfully deleted division $division->{ name }";    }
+			my $success = unlink( $division->{ file } ) && (! -e $division->{ file });
+			if( $success ) { $description = "Successfully deleted division $division->{ name } at $division->{ file }"; }
+			else           { $description = "Error: Failed to delete division $division->{ name }"; }
 
 		} else {
 			$description = "Unknown athlete edit command";
 		}
-		$division->normalize();
-		$division->write();
+
+		unless( defined $delete ) {
+			$division->normalize();
+			$division->write();
+		}
 		send_response( $self, { description => $description } );
 
 	} catch {

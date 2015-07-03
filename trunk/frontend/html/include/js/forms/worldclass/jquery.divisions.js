@@ -114,6 +114,7 @@ $.widget( "freescore.divisions", {
 			var ring     = i == "staging" ? o.rings[ (n - 1) ] : o.rings[ (i - 1) ];
 			if( ! defined( ring )) { return; }
 			var division = ring.divisions[ divIndex ];
+			division.index = divIndex;
 			e.ring.division.editor.divisionEditor( { ring : i, division : division, updates : 0 } );
 		}
 
