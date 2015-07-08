@@ -4,7 +4,8 @@
     },
     "source": {
 		"include": [ "../frontend/html/include/js" ],
-        "includePattern": ".+\\.js(doc)?$"
+        "includePattern": ".+\\.js(doc)?$",
+		"recurse" : true
     },
     "plugins": [],
     "templates": {
@@ -12,7 +13,7 @@
         "monospaceLinks": false
     },
 	"opts" : {
-		"destination" : "./html/",
+		"destination" : "./frontend/",
 		"recurse" : true
 	}
 }

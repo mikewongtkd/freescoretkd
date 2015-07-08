@@ -1,7 +1,13 @@
-.PHONY: all clean
+.PHONY: all clean frontend backend
 
-all:
+all: frontend backend
+
+frontend:
 	jsdoc -c jsdoc-conf.json
 
+backend:
+	doxygen
+
 clean:
-	rm -rf html 
+	rm -rf backend/* 
+	rm -rf frontend/* 
