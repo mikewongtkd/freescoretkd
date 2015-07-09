@@ -13,8 +13,9 @@ use strict;
 # ============================================================
 sub assign {
 # ============================================================
-# Assigns the athlete to a round
-# ------------------------------------------------------------
+#** @method ( athlete_index, round )
+#   @brief Assigns the athlete to a round
+#*
 	my $self       = shift;
 	my $i          = shift;
 	my $round      = shift;
@@ -36,12 +37,11 @@ sub assign {
 # ============================================================
 sub assign_tiebreaker {
 # ============================================================
-# Assigns the athlete to a tiebreaker round. If the judges need more than one
-# tiebreaker round then the problem is the judges, not the athletes.
-# ------------------------------------------------------------
+#** @method ( athlete )
+#   @brief Assigns the athlete to a tiebreaker round.
+#*
 	my $self    = shift;
 	my $athlete = shift;
-	my $round   = shift || $self->{ round };
 	my $judges  = $self->{ judges } - 1;
 
 	if( exists $self->{ forms }{ $round } ) {
@@ -54,9 +54,9 @@ sub assign_tiebreaker {
 # ============================================================
 sub place_athletes {
 # ============================================================
-# Calculates placements for the current round. Auto-updates
-# score averages.
-# ------------------------------------------------------------
+#** @method ()
+#   @brief Calculates placements for the current round. Auto-updates score averages.
+#*
 	my $self      = shift;
 	my $round     = $self->{ round };
 	my $placement = [];
@@ -136,6 +136,9 @@ sub place_athletes {
 # ============================================================
 sub detect_ties {
 # ============================================================
+#** @method ()
+#   @brief Identifies ties in the current round.
+#*
 	my $self      = shift;
 	my $ties      = [];
 	my $round     = $self->{ round };
@@ -202,6 +205,9 @@ sub detect_ties {
 # ============================================================
 sub get_only {
 # ============================================================
+#** @method ( judge_index )
+#   @brief Erases all scores except the given judge; used prior to sending updates to a judge
+#*
 	my $self  = shift;
 	my $judge = shift;
 	my $round = $self->{ round };
@@ -218,6 +224,9 @@ sub get_only {
 # ============================================================
 sub normalize {
 # ============================================================
+#** @method ()
+#   @brief Normalizes the division object.
+#*
 	my $self   = shift;
 	my $judges = $self->{ judges };
 
@@ -257,6 +266,9 @@ sub normalize {
 # ============================================================
 sub record_score {
 # ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Records the given score for the given judge
+#*
 	my $self  = shift;
 	my $judge = shift;
 	my $score = shift;
@@ -274,6 +286,9 @@ sub record_score {
 # ============================================================
 sub remove_from_list {
 # ============================================================
+#** @method ( list_name, athlete_index )
+#   @brief Removes the given athlete from the given list
+#*
 	my $self = shift;
 	my $list = shift;
 	my $i    = shift;
@@ -292,6 +307,9 @@ sub remove_from_list {
 # ============================================================
 sub remove_athlete {
 # ============================================================
+#** @method ( athlete_index )
+#   @brief Removes the given athlete from the division
+#*
 	my $self = shift;
 	my $i    = shift;
 
@@ -309,6 +327,9 @@ sub remove_athlete {
 # ============================================================
 sub reorder {
 # ============================================================
+#** @method ( reorder_object )
+#   @brief Applies reordering request to the division
+#*
 	my $self      = shift;
 	my $reorder   = shift;
 	my $index     = $reorder->{ index };
@@ -336,6 +357,9 @@ sub reorder {
 # ============================================================
 sub read {
 # ============================================================
+#** @method ()
+#   @brief Reads the division from the database
+#*
 	my $self  = shift;
 
 	# ===== DEFAULTS
@@ -471,8 +495,9 @@ sub read {
 # ============================================================
 sub update_status {
 # ============================================================
-# Determine athlete placements and tie detection
-# ------------------------------------------------------------
+#** @method ()
+#   @brief Determine athlete placements and tie detection
+#*
 	my $self  = shift;
 	my $round = $self->{ round };
 
@@ -543,6 +568,9 @@ sub round_complete {
 # ============================================================
 sub write {
 # ============================================================
+#** @method ()
+#   @brief Writes the division to the database
+#*
 	my $self = shift;
 
 	$self->update_status();
@@ -595,6 +623,9 @@ sub write {
 # ============================================================
 sub navigate {
 # ============================================================
+#** @method ( context, index )
+#   @brief Navigates the division to the given context (e.g. round, athlete, form) and index
+#*
 	my $self   = shift;
 	my $object = shift;
 	my $value  = shift;
@@ -607,6 +638,9 @@ sub navigate {
 # ============================================================
 sub navigate_to_start {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the beginning
+#*
 	my $self = shift;
 
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
@@ -623,6 +657,9 @@ sub navigate_to_start {
 # ============================================================
 sub next_round {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the next round
+#*
 	my $self   = shift;
 	my @rounds = @FreeScore::Forms::WorldClass::Division::round_order;
 	my @i      = (0 .. $#rounds);
@@ -640,6 +677,9 @@ sub next_round {
 # ============================================================
 sub previous_round {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the previous round
+#*
 	my $self   = shift;
 	my @rounds = @FreeScore::Forms::WorldClass::Division::round_order;
 	my @i      = (0 .. $#rounds);
@@ -657,6 +697,9 @@ sub previous_round {
 # ============================================================
 sub next_athlete {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the next athlete
+#*
 	my $self = shift;
 
 	$self->{ state }   = 'score';
@@ -667,6 +710,9 @@ sub next_athlete {
 # ============================================================
 sub next_form {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the next form
+#*
 	my $self = shift;
 
 	$self->{ state } = 'score';
@@ -681,6 +727,9 @@ sub next_form {
 # ============================================================
 sub previous_athlete {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the previous athlete
+#*
 	my $self = shift;
 
 	$self->{ state }      = 'score';
@@ -691,6 +740,9 @@ sub previous_athlete {
 # ============================================================
 sub previous_form {
 # ============================================================
+#** @method ()
+#   @brief Navigates the division to the previous form
+#*
 	my $self = shift;
 
 	$self->{ state } = 'score';
@@ -704,12 +756,15 @@ sub previous_form {
 # ============================================================
 sub select_round_scores {
 # ============================================================
+#** @method ( athlete_index, round, form_type )
+#   @brief Returns the scores for the given form types for the given round
+#*
 	my $self  = shift;
 	my $i     = shift;
 	my $round = shift;
 	my $type  = shift;
 
-	die "Division Object Error: Bad indices when selecting rounds $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
+	die "Division Object Error: Bad indices when selecting athlete $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
 	die "Division Object Error: Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
 	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
 
@@ -728,6 +783,9 @@ sub select_round_scores {
 # ============================================================
 sub select_tiebreaker_round_scores {
 # ============================================================
+#** @method ( athlete_index, round )
+#   @brief Returns the tiebreaker form scores for the given round
+#*
 	my $self  = shift;
 	my $i     = shift;
 	my $round = shift;
@@ -738,6 +796,9 @@ sub select_tiebreaker_round_scores {
 # ============================================================
 sub select_compulsory_round_scores {
 # ============================================================
+#** @method ( athlete_index, round )
+#   @brief Returns the compulsory form scores for the given round
+#*
 	my $self    = shift;
 	my $i       = shift;
 	my $round   = shift;
@@ -748,6 +809,9 @@ sub select_compulsory_round_scores {
 # ============================================================
 sub athletes_in_round {
 # ============================================================
+#** @method ( criteria )
+#   @brief Returns the requested athlete for the given criteria (round name or position: first, last, next, prev)
+#*
 	my $self   = shift;
 	my $option = shift;
 
@@ -783,10 +847,10 @@ sub athletes_in_round {
 # ============================================================
 sub _is_tie {
 # ============================================================
-# Smallest difference is 0.1 divided by 7 judges for complete
-# scores, or ~0.014; so we set the tie detection threshold to
-# 0.010 for convenience
-# ------------------------------------------------------------
+#** @function ( score_delta )
+#   @brief Returns true if the score delta is insignificant
+#   @details Smallest difference is 0.1 divided by 7 judges for complete scores, or ~0.014; so we set the tie detection threshold to 0.010 for convenience
+#*
 	my $comparison = shift;
 	return abs( $comparison ) < 0.010;
 }
@@ -794,9 +858,10 @@ sub _is_tie {
 # ============================================================
 sub _parse_forms {
 # ============================================================
-# Compulsory forms are optionally labeled. Tiebreaker forms 
-# must be labeled.
-# ------------------------------------------------------------
+#** @function ( forms_text )
+#   @brief Parses serialized form text
+#   @details Compulsory forms are optionally labeled. Tiebreaker forms must be labeled.
+#*
 	my $value = shift;
 
 	my @rounds = map { 
@@ -810,6 +875,9 @@ sub _parse_forms {
 # ============================================================
 sub _parse_places {
 # ============================================================
+#** @function ( places_text )
+#   @brief Parses serialized places (medals) text
+#*
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
@@ -822,6 +890,9 @@ sub _parse_places {
 # ============================================================
 sub _parse_placement {
 # ============================================================
+#** @function ( placement_text )
+#   @brief Parses serialized placement text
+#*
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
