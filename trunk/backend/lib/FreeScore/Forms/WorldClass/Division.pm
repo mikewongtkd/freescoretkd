@@ -373,7 +373,7 @@ sub read {
 	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
-		next if /^\s*$/;
+		next if /^\s*$/; # Skip empty or pure whitespace lines
 
 		# ===== READ DIVISION STATE INFORMATION
 		if( /^#/ ) {
@@ -507,13 +507,13 @@ sub update_status {
 	my $ties = $self->detect_ties();
 
 	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
-	# foreach my $tie (@$ties) {
-	# 	next unless ref $tie;
-	# 	foreach my $i (@$tie) {
-	# 		my $athlete = $self->{ athletes }[ $i ];
-	# 		$self->assign_tiebreaker( $athlete );
-	# 	}
-	# }
+	foreach my $tie (@$ties) {
+		next unless ref $tie;
+		foreach my $i (@$tie) {
+			my $athlete = $self->{ athletes }[ $i ];
+			$self->assign_tiebreaker( $athlete );
+		}
+	}
 
 	# ===== ASSIGN THE ATHLETES TO THE NEXT ROUND
 	my $n        = int( @{ $self->{ athletes }} );
@@ -809,7 +809,7 @@ sub select_compulsory_round_scores {
 # ============================================================
 sub athletes_in_round {
 # ============================================================
-#** @method ( criteria )
+#** @method ( [criteria] )
 #   @brief Returns the requested athlete for the given criteria (round name or position: first, last, next, prev)
 #*
 	my $self   = shift;
