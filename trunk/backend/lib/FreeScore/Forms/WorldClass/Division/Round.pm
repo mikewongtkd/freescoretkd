@@ -147,6 +147,7 @@ sub complete {
 # An athlete's round is complete when all their compulsory forms are complete
 # ------------------------------------------------------------
 	my $self = shift;
+	return 0 unless defined $self;
 
 	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
 	foreach my $form (@$self) {

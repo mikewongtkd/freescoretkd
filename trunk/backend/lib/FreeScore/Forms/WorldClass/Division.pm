@@ -10,8 +10,6 @@ use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
 use strict;
 
-our @round_order = ( qw( prelim semfin finals ) );
-
 # ============================================================
 sub assign {
 # ============================================================
@@ -124,7 +122,7 @@ sub place_athletes {
 	my $n    = 0;
 	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
 	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
-	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement;
+	@$placement = grep { my $score = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $score ? $score->complete() : 0; } @$placement;
 	@$placement = splice( @$placement, 0, $n );
 
 	$self->{ placement }{ $round } = $placement;
@@ -132,7 +130,7 @@ sub place_athletes {
 	# ===== CALCULATE PENDING
 	# Updates the leaderboard to indicate the next player
 	my $pending = [ @{$self->{ order }{ $round }} ];
-	@$pending = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$pending;
+	@$pending = grep { my $score = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $score ? ! $score->complete() : 1; } @$pending;
 
 	$self->{ pending }{ $round } = $pending;
 }
@@ -834,5 +832,7 @@ sub _parse_placement {
 	} split /;/, $value;
 	return { @rounds };
 }
+
+our @round_order = ( qw( prelim semfin finals ) );
 
 1;
