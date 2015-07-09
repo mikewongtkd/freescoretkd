@@ -36,7 +36,8 @@ sub assign {
 # ============================================================
 sub assign_tiebreaker {
 # ============================================================
-# Assigns the athlete to a tiebreaker round
+# Assigns the athlete to a tiebreaker round. If the judges need more than one
+# tiebreaker round then the problem is the judges, not the athletes.
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $athlete = shift;
@@ -45,12 +46,8 @@ sub assign_tiebreaker {
 
 	if( exists $self->{ forms }{ $round } ) {
 		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
-		my @tiebreaker = grep { $_->{ type } eq 'tiebreaker' } @{ $self->{ forms }{ $round }};
-		my $start = int( @compulsory );
-		my $stop  = int( @compulsory ) + int( @tiebreaker ) - 1;
-		for my $i ($start .. $stop) {
-			# $athlete->{ scores }{ $round }->add_tiebreaker( $judges, $start, $stop ); # MW TODO
-		}
+		my $tiebreaker = int( @compulsory ); # Tiebreaker form index is after the last compulsory form
+		$athlete->{ scores }{ $round }->add_tiebreaker( $judges, $tiebreaker );
 	}
 }
 
@@ -122,7 +119,8 @@ sub place_athletes {
 	my $n    = 0;
 	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
 	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
-	@$placement = grep { my $score = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $score ? $score->complete() : 0; } @$placement;
+	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
+	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete
 	@$placement = splice( @$placement, 0, $n );
 
 	$self->{ placement }{ $round } = $placement;
@@ -130,7 +128,7 @@ sub place_athletes {
 	# ===== CALCULATE PENDING
 	# Updates the leaderboard to indicate the next player
 	my $pending = [ @{$self->{ order }{ $round }} ];
-	@$pending = grep { my $score = $self->{ athletes }[ $_ ]{ scores }{ $round }; defined $score ? ! $score->complete() : 1; } @$pending;
+	@$pending   = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$self->{ pending }{ $round } = $pending;
 }

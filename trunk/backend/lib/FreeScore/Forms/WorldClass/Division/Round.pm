@@ -45,13 +45,10 @@ sub add_tiebreaker {
 # ============================================================
 	my $self   = shift;
 	my $judges = shift;
-	my $start  = shift;
-	my $stop   = shift;
+	my $i      = shift;
 
-	foreach my $i ( $start .. $stop ) {
-		foreach ( 0 .. $judges ) {
-			push @{ $self->[ $i ]{ judge }}, new FreeScore::Forms::WorldClass::Division::Round::Score();
-		}
+	foreach ( 0 .. $judges ) {
+		push @{ $self->[ $i ]{ judge }}, new FreeScore::Forms::WorldClass::Division::Round::Score();
 	}
 }
 
@@ -147,7 +144,6 @@ sub complete {
 # An athlete's round is complete when all their compulsory forms are complete
 # ------------------------------------------------------------
 	my $self = shift;
-	return 0 unless defined $self;
 
 	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
 	foreach my $form (@$self) {
