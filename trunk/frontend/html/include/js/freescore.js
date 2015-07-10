@@ -10,6 +10,7 @@ function ordinal( x ) {
 var FreeScore = { 
 	html : { 
 		a        : $( "<a />" ), 
+		button   : $( "<button />" ), 
 		div      : $( "<div />" ), 
 		fieldset : $( "<fieldset />" ), 
 		form     : $( "<form />" ), 

@@ -137,20 +137,29 @@ body {
     left: 0px; }
 
 .presentationBar {
+  position: relative;
   font-family: Optima;
   width: 396px;
   height: 64px;
   margin: 0 0 0 20px; }
   .presentationBar .label {
+    top: 0;
+    left: 10px;
+    position: absolute;
     font-size: 12pt;
     width: 400px;
     color: #ccc;
     line-height: 24pt;
     margin-left: 20px; }
   .presentationBar .slider {
-    float: left;
-    width: 300px; }
+    position: absolute;
+    top: 32px;
+    left: 20px;
+    width: 260px; }
   .presentationBar .value {
+    position: absolute;
+    top: 32px;
+    left: 300px;
     font-size: 24pt;
     color: white;
     float: left;
@@ -158,6 +167,17 @@ body {
     text-align: center;
     line-height: 14pt;
     vertical-align: top; }
+  .presentationBar .nudge {
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    margin: 0;
+    padding: 0;
+    top: 30px; }
+  .presentationBar .plus {
+    left: 282px; }
+  .presentationBar .minus {
+    left: 0px; }
 
 .judgeNotes {
   border: 4px solid white;
