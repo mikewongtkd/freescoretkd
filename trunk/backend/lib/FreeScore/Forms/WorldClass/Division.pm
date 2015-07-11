@@ -43,6 +43,7 @@ sub assign_tiebreaker {
 	my $self    = shift;
 	my $athlete = shift;
 	my $judges  = $self->{ judges } - 1;
+	my $round   = $self->{ round };
 
 	if( exists $self->{ forms }{ $round } ) {
 		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};

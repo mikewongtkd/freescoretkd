@@ -31,12 +31,12 @@ $.widget( "freescore.judgeController", {
 		var controls     = e.controls     = html.div.clone() .addClass( "controls" );
 
 		var label        = e.label        = html.div.clone() .addClass( "label" ) .html( "Presentation Score" );
-		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Tempo', controller: this });
+		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Control', controller: this });
 		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',  controller: this });
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Ki', controller: this });
 		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, label : "Send", type : "send" })
 
-		var command      = o.command      = function( judge, score ) {
+		var sendScore    = o.sendScore    = function( judge, score ) {
 			var major  = (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
 			var minor  = (e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
 			var rhythm = (e.rhythm .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
@@ -61,7 +61,7 @@ $.widget( "freescore.judgeController", {
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
-			e.send .ajaxbutton({ command : o.command( o.num, o ) }); // Update "send" button callback
+			e.send .ajaxbutton({ command : o.sendScore( o.num, o ) }); // Update "send" button callback
 		} );
 
 
