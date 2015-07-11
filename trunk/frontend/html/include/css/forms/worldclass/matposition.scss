@@ -7,26 +7,45 @@
 	top: 0;
 	left: 600px;
 
-	.mat {
+	.ring {
 		position: absolute;
-		width:  180px;
-		height: 180px;
+		width:  178px;
+		height: 178px;
+		border-radius: 4px;
 		background: #7abcff;
 		background: -webkit-linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
 		background: linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
-		border-radius: 12px;
-	}
 
-	.center {
-		position: absolute;
-		width:  45px;
-		height: 45px;
-		top: 68px;
-		left: 68px;
-		border-radius: 12px;
-		background: #f29696;
-		background: -webkit-linear-gradient(to bottom, #f29696 0%,#e24848 100%);
-		background: linear-gradient(to bottom, #f29696 0%,#e24848 100%);
+		.blue { border: 1px solid #4096ee; }
+		.red  { border: 1px solid #e24848; }
+
+		.mat {
+			position: absolute;
+			width:  22px;
+			height: 22px;
+			border-radius: 4px;
+		}
+
+		.judge {
+			position: absolute;
+			width:  22px;
+			height: 22px;
+			border-radius: 4px;
+			background: #fceabb;
+			background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+			background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+		}
+
+		.center {
+			position: absolute;
+			top: 66px;
+			left: 66px;
+			height: 45px;
+			width: 45px;
+			background: #f29696;
+			background: -webkit-linear-gradient(to bottom, #f29696 0%,#e24848 100%);
+			background: linear-gradient(to bottom, #f29696 0%,#e24848 100%);
+		}
 	}
 
 	.label {
@@ -55,18 +74,18 @@
 		background: #4c4c4c;
 		background: -webkit-linear-gradient(to bottom, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%);
 		background: linear-gradient(to bottom, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%);
-		top: 120px;
+		top: 10px;
 		left: 30px;
 		width: 114px;
 		height: 40px;
 		border: 4px solid black;
 		border-radius: 12px;
-		opacity: 0.5;
+		opacity: 0.75;
 	}
 
 	.layer {
 		border: 3px solid #36c;
-		border-radius: 12px;
+		border-radius: 4px;
 		position: absolute;
 		width: 174px;
 		height: 174px;

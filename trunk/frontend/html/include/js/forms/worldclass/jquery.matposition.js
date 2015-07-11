@@ -20,15 +20,38 @@ $.widget( "freescore.matposition", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
-		var mat    = e.mat    = html.div.clone() .addClass( "mat" );
+		var ring   = e.ring   = html.div.clone() .addClass( "ring" );
 		var label  = e.label  = html.div.clone() .addClass( "label" ) .html( "Athlete Start Position" );
 		var layer  = e.layer  = html.div.clone() .addClass( "layer" );
 		var center = e.center = html.div.clone() .addClass( "center" );
 		var start  = e.start  = html.div.clone() .addClass( "start-position" ) .html( '&#x2715;' ) .hide();
-		var timer  = e.timer  = html.div.clone() .addClass( "timer" ) .html( "00:00.00" ) .css( "opacity", 0.1 );
+		var timer  = e.timer  = html.div.clone() .addClass( "timer" ) .html( "00:00.00" ) .css( "opacity", 0.75 );
 
-		widget.append( mat );
-		mat.append( center, label, start, layer, timer );
+		// ===== 8x8 MATS
+		for( var i = 0; i < 8; i++ ) {
+			for( var j = 0; j < 8; j++ ) {
+				var x = i * 22;
+				var y = j * 22;
+				if((i == 3 || i == 4) && (j == 3 || j == 4)) { continue; }
+				var mat = html.div.clone() .addClass( "blue mat" );
+				mat.css({ left: x, top : y });
+				ring.append( mat );
+			}
+		}
+
+		// ===== 2x2 CENTER
+		for( var i = 0; i < 2; i++ ) {
+			for( var j = 0; j < 2; j++ ) {
+				var x = i * 22;
+				var y = j * 22;
+				var mat = html.div.clone() .addClass( "red mat" );
+				mat.css({ left: x, top : y });
+				center.append( mat );
+			}
+		}
+
+		widget.append( ring );
+		ring.append( center, label, start, layer, timer );
 		widget.addClass( "matposition" );
 
 		o.dx   = 5;
@@ -42,7 +65,7 @@ $.widget( "freescore.matposition", {
 			o.time.current = 0;
 			o.time.started = false;
 			e.timer.html( formatTime( o.time.current ));
-			e.timer.css( "opacity", 0.1 );
+			e.timer.css( "opacity", 0.75 );
 			e.label.show();
 			e.start.hide();
 		}
@@ -54,7 +77,7 @@ $.widget( "freescore.matposition", {
 			if( o.time.started ) {
 				o.time.stopwatch.stop();
 				o.time.started = false;
-				e.timer.animate({ opacity : 0.50 });
+				e.timer.animate({ opacity : 0.75 });
 			} else {
 				o.time.stopwatch = $.timer( o.time.update, o.time.increment, true );
 				o.time.started = true;
