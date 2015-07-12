@@ -6,18 +6,58 @@ $.widget( "freescore.divisionHeader", {
 		var e    = this.options.elements = {};
 		var html = e.html = FreeScore.html;
 
+		var button     = e.button     = {
+			'delete' : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .attr( "data-mini", true ) .attr( "data-corners", true ) .css({ color: "white", background: "red",    textShadow: "2px 2px #600", width: "140px" }) .html( "Delete Division" ),
+			'accept' : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .attr( "data-mini", true ) .attr( "data-corners", true ) .css({ color: "white", background: "#3a3",   textShadow: "2px 2px #060", width: "140px" }) .html( "Accept Division" ),
+		};
+
 		var description = e.description = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
 		var forms       = e.forms       = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
 		var judges      = e.judges      = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
 		var accordian   = e.accordian   = html.div.clone() .attr( "data-role", "collapsibleset" ) .attr( "data-collapsed-icon", "edit" ) .attr( "data-expanded-icon", "gear" ) .attr( "data-corners", false );
 		var error       = e.error       = html.div.clone() .hide();
 		var sound       = e.sound       = {};
+		e.dialog        = o.dialog;
 
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
 		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
 
+		// ============================================================
+		var editDivision = o.editDivision = function( divisionData ) {
+		// ============================================================
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
+			console.log( url );
+			$.ajax( {
+				type:      'POST',
+				url:       url,
+				dataType:  'json',
+				data:      JSON.stringify( divisionData ),
+				success: function( response ) { 
+					// Server-side error
+					if( defined( response.error )) {
+						e.sound.error.play();
+						console.log( response.error );
+						// e.error.show();
+						// e.error.errormessage({ message : response.error });
+
+					// All OK
+					} else {
+						e.sound.ok.play(); 
+						console.log( response.description );
+					}
+				},
+				error:   function( response ) { 
+					// Network error
+					e.sound.error.play(); 
+					console.log( 'Network Error: Unknown network error.' );
+					// e.error.show(); 
+					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
+				}, 
+			});
+		};
+
 		accordian.append( error, description, forms, judges );
-		w .append( accordian );
+		w .append( accordian, button.delete, button.accept );
 
 		var updateHeader = o.updateHeader = function( data ) {
 			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
@@ -86,7 +126,35 @@ $.widget( "freescore.divisionHeader", {
 				widget.html( value );
 			}
 		};
+
+		// ------------------------------------------------------------
+		button.delete.click( function( ev ) {
+		// ------------------------------------------------------------
+			e.dialog.header.title.html( "Delete Division?" );
+			e.dialog.header.panel.css({ background : "red" });
+			e.dialog.content.text.empty();
+			e.dialog.content.icon.addClass( "ui-icon-delete" );
+			e.dialog.content.text.append( e.dialog.content.icon, "Delete this entire division? Once confirmed,<br>this cannot be undone." );
+			e.dialog.content.ok.click( function( ev ) {
+				e.dialog.panel.popup( 'close' );       // Close the confirmation dialog
+				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
+				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+			});
+			e.dialog.content.cancel.click( function( ev ) { 
+				e.dialog.panel.popup( 'close' );
+			});
+
+			e.dialog.panel.popup( 'open', { transition : "pop" } );
+
+		});
+
+		// ------------------------------------------------------------
+		button.accept.click( function( ev ) {
+		// ------------------------------------------------------------
+			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+		});
 	},
+
 	_init: function( ) {
 		var w = this.element;
 		var o = this.options;

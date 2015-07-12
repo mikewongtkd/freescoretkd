@@ -6,6 +6,28 @@ $.widget( "freescore.divisions", {
 		var e = this.options.elements = {};
 
 		var html      = e.html      = FreeScore.html;
+
+		var dialog = e.dialog = {
+			panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dialog", true ) .attr( "data-overlay-theme", "b" ) .attr( "id", "#dialog" ) .css({ background : 'white' }),
+			header : {
+				panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-theme", "b" ),
+				title : html.h1.clone(),
+			},
+			content : {
+				panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
+				text   : html.p.clone(),
+				icon   : html.span.clone() .addClass( "ui-btn-icon-left" ) .css( "position", "relative" ),
+				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
+				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "#3a3",  color: "white", textShadow: "none" }) .html( "Yes" ),
+			}
+		};
+
+		dialog.header.panel.append( dialog.header.title );
+		dialog.content.panel.append( dialog.content.icon, dialog.content.text, dialog.content.cancel, dialog.content.ok );
+		dialog.panel.append( dialog.header.panel, dialog.content.panel );
+		$( 'body' ).append( dialog.panel );
+		$( function() { dialog.panel.enhanceWithin().popup(); });
+
 		var ring      = e.ring      = {
 			panel     : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" ),
 			list      : html.ul.clone()  .attr( "data-role", "listview" ),
@@ -16,10 +38,10 @@ $.widget( "freescore.divisions", {
 			},
 		};
 
-		ring.division.editor.divisionEditor( { division : {}, server : o.server, tournament : o.tournament } );
+		ring.division.editor.divisionEditor( { division : {}, server : o.server, tournament : o.tournament, dialog : dialog } );
 
 		ring.panel.append( ring.list );
-		
+
 		this.element .addClass( "divisions" );
 		this.element .append( ring.panel, ring.divisions, ring.division.editor );
 	},
@@ -115,7 +137,7 @@ $.widget( "freescore.divisions", {
 			if( ! defined( ring )) { return; }
 			var division = ring.divisions[ divIndex ];
 			division.index = divIndex;
-			e.ring.division.editor.divisionEditor( { ring : i, division : division, updates : 0 } );
+			e.ring.division.editor.divisionEditor( { ring : i, division : division, updates : 0, dialog : e.dialog } );
 		}
 
 		// ============================================================

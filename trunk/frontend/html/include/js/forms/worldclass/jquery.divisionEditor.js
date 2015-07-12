@@ -18,19 +18,14 @@ $.widget( "freescore.divisionEditor", {
 					last  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "forward" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Last" ),
 				},
 				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "minus"  ) .attr( "data-inline", true ) .css({ background: "#fa3",                  }) .html( "Remove" ),
-				erase  : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",    width: "140px" }) .html( "Delete Division" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .css({ background: "#3a3",   width: "140px" }) .html( "Accept Division" ),
 			},
-			panel : {
-				athlete : html.div.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .addClass( "ui-block-a" ),
-				division : html.div.clone() .addClass( "ui-block-b" ),
-			}
+			panel : html.div.clone() 
 		};
+		e.dialog = o.dialog;
 
-		actions.panel.athlete.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
-		actions.panel.division.append( actions.button.erase, actions.button.ok );
-		actions.footer.append( actions.panel.athlete, actions.panel.division );
-		actions.panel.athlete.find( "a" ).addClass( 'ui-disabled' );
+		actions.panel.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
+		actions.footer.append( actions.panel );
+		actions.panel.find( "a" ).addClass( 'ui-disabled' );
 
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
@@ -51,26 +46,7 @@ $.widget( "freescore.divisionEditor", {
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
 		rounds.tabs.tabs();
 
-		var dialog = e.dialog = {
-			panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dialog", true ) .attr( "data-overlay-theme", "b" ) .attr( "id", "#dialog" ),
-			header : {
-				panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-theme", "b" ),
-				title : html.h1.clone(),
-			},
-			content : {
-				panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
-				text   : html.p.clone(),
-				icon   : html.span.clone() .addClass( "ui-btn-icon-left" ) .css( "position", "relative" ),
-				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "#3a3",  color: "white", textShadow: "none" }) .html( "Yes" ),
-			}
-		};
-
-		dialog.header.panel.append( dialog.header.title );
-		dialog.content.panel.append( dialog.content.icon, dialog.content.text, dialog.content.cancel, dialog.content.ok );
-		dialog.panel.append( dialog.header.panel, dialog.content.panel );
-
-		this.element .append( header, rounds.tabs, actions.footer, dialog.panel );
+		this.element .append( header, rounds.tabs, actions.footer );
 
 		var sound = e.sound = {};
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
@@ -164,7 +140,7 @@ $.widget( "freescore.divisionEditor", {
 			current.find( ".number" ).html( k );
 			previous.find( ".number" ).html( j );
 			o.selected = undefined;                                         // Clear context
-			e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'up', round : round });
 			o.updates = 0;
@@ -186,7 +162,7 @@ $.widget( "freescore.divisionEditor", {
 			current.find( ".number" ).html( k );
 			next.find( ".number" ).html( j );
 			o.selected = undefined;                                         // Clear context
-			e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'down', round : round });
 			o.updates = 0;
@@ -204,7 +180,7 @@ $.widget( "freescore.divisionEditor", {
 			current.detach();
 			current.insertBefore( last );
 			o.selected = undefined;                                         // Clear context
-			e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'last', round : round });
 			o.updates = 0;
@@ -227,7 +203,7 @@ $.widget( "freescore.divisionEditor", {
 				o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
 				o.selected.parent().parent().remove();                          // Update list display
 				o.selected = undefined;                                         // Clear context
-				e.actions.panel.athletes.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+				e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 				o.updates = 0;                                                  // Indicate that the list can be updated
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
@@ -235,33 +211,6 @@ $.widget( "freescore.divisionEditor", {
 			});
 
 			e.dialog.panel.popup( 'open', { transition : "pop" } );
-		});
-
-		// ------------------------------------------------------------
-		actions.button.erase.click( function( ev ) {
-		// ------------------------------------------------------------
-			e.dialog.header.title.html( "Delete Division?" );
-			e.dialog.header.panel.css({ background : "red" });
-			e.dialog.content.text.empty();
-			e.dialog.content.icon.addClass( "ui-icon-delete" );
-			e.dialog.content.text.append( e.dialog.content.icon, "Delete this entire division? Once confirmed,<br>this cannot be undone." );
-			e.dialog.content.ok.click( function( ev ) {
-				e.dialog.panel.popup( 'close' );       // Close the confirmation dialog
-				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
-				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
-			});
-			e.dialog.content.cancel.click( function( ev ) { 
-				e.dialog.panel.popup( 'close' );
-			});
-
-			e.dialog.panel.popup( 'open', { transition : "pop" } );
-
-		});
-
-		// ------------------------------------------------------------
-		actions.button.ok.click( function( ev ) {
-		// ------------------------------------------------------------
-			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
 		});
 
 		o.updates = 0; // Indicate that live updates are OK
@@ -373,7 +322,8 @@ $.widget( "freescore.divisionEditor", {
 			text:       o.division.description, 
 			forms:      o.division.forms, 
 			judges:     o.division.judges, 
-			athletes:   n 
+			athletes:   n,
+			dialog:     o.dialog,
 		});
 		var first = undefined;
 
