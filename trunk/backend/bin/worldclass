@@ -190,12 +190,13 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 	my $description = 'Unknown error while editing division.';
 
 	try {
-		my $edits   = $json->decode( $content );
-		my $header  = $edits->{ header };
+		my $edits    = $json->decode( $content );
+		my $header   = $edits->{ header };
 		my $reorder = $edits->{ reorder };
 		my $edit    = $edits->{ athlete };
 		my $add     = $edits->{ add };
 		my $delete  = $edits->{ delete };
+		my $success = {};
 
 		if     ( defined $header  ) { 
 			$division->{ $_ } = $header->{ $_ } foreach (keys %$header); 
@@ -248,11 +249,11 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			}
 
 		} elsif( defined $add     ) {
-			$division = new FreeScore::Forms::WorldClass::Division( $progress->{ path }, $add->{ divname }, $ring );
+			$success->{ id } = $progress->create_division( $ring );
 
 		} elsif( defined $delete  ) {
-			my $success = unlink( $division->{ file } ) && (! -e $division->{ file });
-			if( $success ) { $description = "Successfully deleted division $division->{ name } at $division->{ file }"; }
+			my $deleted = unlink( $division->{ file } ) && (! -e $division->{ file });
+			if( $deleted ) { $description = "Successfully deleted division $division->{ name } at $division->{ file }"; }
 			else           { $description = "Error: Failed to delete division $division->{ name }"; }
 
 		} else {
@@ -263,7 +264,8 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			$division->normalize();
 			$division->write();
 		}
-		send_response( $self, { description => $description } );
+		$success->{ description } = $description;
+		send_response( $self, $success );
 
 	} catch {
 		send_response( $self, { error => $_ });

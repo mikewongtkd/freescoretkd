@@ -55,7 +55,7 @@ $.widget( "freescore.divisions", {
 		var editDivision = o.editDivision = function( divisionData ) {
 		// ============================================================
 			console.log( o );
-			var url   = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
+			var url   = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
 			var divId = undefined;
 			console.log( url );
 			$.ajax( {
@@ -68,13 +68,12 @@ $.widget( "freescore.divisions", {
 					if( defined( response.error )) {
 						e.sound.error.play();
 						console.log( response.error );
-						// e.error.show();
-						// e.error.errormessage({ message : response.error });
 
 					// All OK
 					} else {
 						e.sound.ok.play(); 
 						console.log( response.description );
+						o.division = response.id;
 
 						// ===== SHOW DIVISION EDITOR WITH NEW DIVISION
 						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + response.id );
@@ -192,8 +191,40 @@ $.widget( "freescore.divisions", {
 			// ------------------------------------------------------------
 			add.link.click( function( ev ) {
 			// -----------------------------------------------------------
+				o.newDivision = {};
 				var i = $( this ).attr( "ring" );
-				o.editDivision({ ring : i, create : true });  // Send AJAX command to update DB
+				var handle = {
+					format : function( ev ) { o.newDivision.format = $( ev.target ).val(); },
+					size   : function( ev ) { o.newDivision.size = $( ev.target ).val(); },
+				};
+				var format = addButtonGroup( "Event", FreeScore.rulesUSAT.poomsaeEvents(), handle.format );
+				format.find( "input:radio" ).checkboxradio().checkboxradio( 'refresh' );
+				console.log( format.find( "input:radio" ));
+				format.controlgroup();
+
+				var size   = addButtonGroup( "Athletes", [ '1-8', '9-19', '20+' ], handle.size );
+				size.find( "input:radio" ).checkboxradio().checkboxradio( 'refresh' );
+				size.controlgroup();
+
+				o.division = -1;
+				e.dialog.header.title.html( "Add New Division" );
+				e.dialog.header.panel.css({ background : "black" });
+				e.dialog.content.text.empty();
+				e.dialog.content.icon.addClass( "ui-icon-plus" );
+				e.dialog.content.text.append( e.dialog.content.icon, "Please provide division details" );
+				e.dialog.content.text.append( format, size );
+				e.dialog.content.ok.click( function( ev ) {
+					e.dialog.panel.popup( 'close' );             // Close the confirmation dialog
+					o.editDivision({ ring : i, create : true, format : o.newDivision.format, size : o.newDivision.size }); // Send AJAX command to update DB
+					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + o.division );
+					delete o[ 'newDivision' ];
+				});
+				e.dialog.content.cancel.click( function( ev ) { 
+					e.dialog.panel.popup( 'close' );
+					delete o[ 'newDivision' ];
+				});
+				e.dialog.panel.popup( 'open', { transition : "pop" } );
+
 			});
 			add.listitem.append( add.link );
 			list.append( add.listitem );
