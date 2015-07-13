@@ -25,8 +25,7 @@ $.widget( "freescore.divisionHeader", {
 		// ============================================================
 		var editDivision = o.editDivision = function( divisionData ) {
 		// ============================================================
-			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
-			console.log( url );
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
 			$.ajax( {
 				type:      'POST',
 				url:       url,
@@ -37,8 +36,6 @@ $.widget( "freescore.divisionHeader", {
 					if( defined( response.error )) {
 						e.sound.error.play();
 						console.log( response.error );
-						// e.error.show();
-						// e.error.errormessage({ message : response.error });
 
 					// All OK
 					} else {
@@ -50,8 +47,6 @@ $.widget( "freescore.divisionHeader", {
 					// Network error
 					e.sound.error.play(); 
 					console.log( 'Network Error: Unknown network error.' );
-					// e.error.show(); 
-					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
 				}, 
 			});
 		};
@@ -59,7 +54,9 @@ $.widget( "freescore.divisionHeader", {
 		accordian.append( error, description, forms, judges );
 		w .append( accordian, button.delete, button.accept );
 
+		// ============================================================
 		var updateHeader = o.updateHeader = function( data ) {
+		// ============================================================
 			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
 			$.ajax( {
 				type:      'POST',
@@ -71,8 +68,6 @@ $.widget( "freescore.divisionHeader", {
 					if( defined( response.error )) {
 						e.sound.error.play();
 						console.log( response.error );
-						// e.error.show();
-						// e.error.errormessage({ message : response.error });
 
 					// All OK
 					} else {
@@ -83,8 +78,6 @@ $.widget( "freescore.divisionHeader", {
 					// Network error
 					e.sound.error.play(); 
 					console.log( 'Network Error: Unknown network error.' );
-					// e.error.show(); 
-					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
 				}, 
 			});
 		}
@@ -136,9 +129,10 @@ $.widget( "freescore.divisionHeader", {
 			e.dialog.content.icon.addClass( "ui-icon-delete" );
 			e.dialog.content.text.append( e.dialog.content.icon, "Delete this entire division? Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
-				e.dialog.panel.popup( 'close' );       // Close the confirmation dialog
-				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
 				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
+				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
+				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
+				$( this ).trigger( 'divisiondelete', { ring : o.ring, id : o.division });
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
 				e.dialog.panel.popup( 'close' );

@@ -8,17 +8,17 @@ $.widget( "freescore.divisions", {
 		var html      = e.html      = FreeScore.html;
 
 		var dialog = e.dialog = {
-			panel  : html.div.clone() .attr( "data-role", "popup" ) .attr( "data-dialog", true ) .attr( "data-overlay-theme", "b" ) .attr( "id", "#dialog" ) .css({ background : 'white' }),
+			panel  : html.div.clone() .attr({ 'data-role': 'popup', 'data-dialog': true, 'data-overlay-theme': 'b', id: '#dialog' }) .css({ background : 'white' }),
 			header : {
-				panel : html.div.clone() .attr( "data-role", "header" ) .attr( "data-theme", "b" ),
+				panel : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b' }),
 				title : html.h1.clone(),
 			},
 			content : {
 				panel  : html.div.clone() .attr( "role", "main" ) .addClass( "ui-content" ),
 				text   : html.p.clone(),
 				icon   : html.span.clone() .addClass( "ui-btn-icon-left" ) .css( "position", "relative" ),
-				cancel : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .css({ background: "red",   color: "white", textShadow: "none" }) .html( "No" ),
-				ok     : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check"  ) .attr( "data-inline", true ) .css({ background: "#3a3",  color: "white", textShadow: "none" }) .html( "Yes" ),
+				cancel : html.a.clone() .attr({ 'data-role': 'button', 'data-icon': 'delete', 'data-inline': true }) .css({ background: 'red',   color: 'white', textShadow: 'none' }) .html( "No" ),
+				ok     : html.a.clone() .attr({ 'data-role': 'button', 'data-icon': 'check' , 'data-inline': true }) .css({ background: '#3a3',  color: 'white', textShadow: 'none' }) .html( "Yes" ),
 			}
 		};
 
@@ -29,12 +29,12 @@ $.widget( "freescore.divisions", {
 		$( function() { dialog.panel.enhanceWithin().popup(); });
 
 		var ring      = e.ring      = {
-			panel     : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "rings" ),
-			list      : html.ul.clone()  .attr( "data-role", "listview" ),
-			divisions : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "ring-divisions" ),
+			panel     : html.div.clone() .attr({ 'data-role': 'page', 'id': 'rings' }),
+			list      : html.ul.clone()  .attr({ 'data-role': 'listview' }),
+			divisions : html.div.clone() .attr({ 'data-role': 'page', 'id': 'ring-divisions' }),
 			division  : {
-				add    : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division-add" ),
-				editor : html.div.clone() .attr( "data-role", "page" ) .attr( "id", "division-editor" ),
+				add    : html.div.clone() .attr({ 'data-role': 'page', 'id': 'division-add' }),
+				editor : html.div.clone() .attr({ 'data-role': 'page', 'id': 'division-editor' }),
 			},
 		};
 
@@ -42,7 +42,7 @@ $.widget( "freescore.divisions", {
 
 		ring.panel.append( ring.list );
 
-		this.element .addClass( "divisions" );
+		this.element .addClass( 'divisions' );
 		this.element .append( ring.panel, ring.divisions, ring.division.editor );
 	},
 
@@ -172,7 +172,7 @@ $.widget( "freescore.divisions", {
 						count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
 					};
 					division.link.html( division.data.name.toUpperCase() + " " + division.data.description );
-					division.link.attr( "href", "#division-editor?ring=" + i + "&division=" + j ) .attr( "data-transition", "slide" );
+					division.link.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
 					division.link.append( division.count );
 
 					if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
@@ -233,22 +233,14 @@ $.widget( "freescore.divisions", {
 
 					input  : html.search.clone() 
 								.addClass( "search-box" ) 
-								.attr( "name", "search" ) 
-								.attr( "placeholder", "Search for athlete name or division description" ) 
-								.attr( "data-type", "search" )
-								.css( "width", "360px" )
-								.css( "margin", "2px 16px 0 0" )
-								.css( "border-radius", "24px" )
-								.css( "float", "left" ),
+								.attr({ name: "search", placeholder: "Search for athlete name or division description", 'data-type': "search" })
+								.css({ width: "360px", margin: "2px 16px 0 0", borderRadius: "24px", float: "left" }),
 
 					button : html.a.clone()
 								.attr( "href", "#" )
 								.addClass( "ui-btn ui-icon-search ui-btn-icon-right" )
 								.html( "Search" )
-								.css( "border-radius", "24px" )
-								.css( "float", "left" )
-								.css( "margin", "0" )
-								.css( "font-size", "9pt" )
+								.css({ borderRadius: "24px", float: "left", margin: "0", fontSize: "9pt" })
 				}
 			};
 			header.search.view.append( header.search.input, header.search.button );
@@ -271,6 +263,15 @@ $.widget( "freescore.divisions", {
 			if      ( option.id == "ring-divisions"  ) { showRing( option.ring ); }
 			else if ( option.id == "division-editor" ) { showEditor( option.ring, option.division ); }
 
+		});
+
+		$( 'body' ).on( "divisiondelete", function( ev, data ) {
+			var i        = data.ring;
+			var j        = data.id;
+			var ring     = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
+			var id       = ring.divisions[ j ].name;
+			var listitem = e.ring.divisions.find( 'a[divid=' + id + ']' );
+			listitem.remove();
 		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );

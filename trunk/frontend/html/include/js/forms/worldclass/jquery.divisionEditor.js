@@ -67,8 +67,6 @@ $.widget( "freescore.divisionEditor", {
 					if( defined( response.error )) {
 						e.sound.error.play();
 						console.log( response.error );
-						// e.error.show();
-						// e.error.errormessage({ message : response.error });
 
 					// All OK
 					} else {
@@ -80,8 +78,6 @@ $.widget( "freescore.divisionEditor", {
 					// Network error
 					e.sound.error.play(); 
 					console.log( 'Network Error: Unknown network error.' );
-					// e.error.show(); 
-					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
 				}, 
 			});
 		};
@@ -101,8 +97,6 @@ $.widget( "freescore.divisionEditor", {
 					if( defined( response.error )) {
 						e.sound.error.play();
 						console.log( response.error );
-						// e.error.show();
-						// e.error.errormessage({ message : response.error });
 
 					// All OK
 					} else {
@@ -114,8 +108,6 @@ $.widget( "freescore.divisionEditor", {
 					// Network error
 					e.sound.error.play(); 
 					console.log( 'Network Error: Unknown network error.' );
-					// e.error.show(); 
-					// e.error.errormessage({ message : 'Network Error: Unknown network error.' }); 
 				}, 
 			});
 		};
@@ -139,7 +131,7 @@ $.widget( "freescore.divisionEditor", {
 			previous.insertAfter( current );
 			current.find( ".number" ).html( k );
 			previous.find( ".number" ).html( j );
-			o.selected = undefined;                                         // Clear context
+			o.selected = undefined;                                // Clear context
 			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'up', round : round });
