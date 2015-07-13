@@ -111,7 +111,7 @@ $.widget( "freescore.divisions", {
 				divisions : divs, 
 				listitem  : html.li.clone(),
 				link      : html.a.clone(),
-				count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
+				count     : html.div.clone() .addClass( "ui-li-count" ) 
 			};
 			if( i == 'staging' ) { ring.link.html( 'Staging' ); }
 			else                 { ring.link.html( 'Ring ' + i ); }
@@ -169,14 +169,13 @@ $.widget( "freescore.divisions", {
 						data      : ring.divisions[ j ], 
 						listitem  : html.li.clone(), 
 						link      : html.a.clone(),
-						count     : html.div.clone() .addClass( "ui-btn-up-c ui-btn-corner-all custom-count-pos" ) 
+						count     : html.div.clone() .addClass( "ui-li-count" ) 
 					};
 					division.link.html( division.data.name.toUpperCase() + " " + division.data.description );
 					division.link.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
 					division.link.append( division.count );
 
-					if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
-					else { division.count.html( division.data.athletes.length + " Athletes" ); }
+					division.count.html( division.data.athletes.length );
 					division.listitem.append( division.link );
 
 					list.append( division.listitem );
