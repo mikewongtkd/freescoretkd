@@ -102,13 +102,13 @@ String.prototype.capitalize = function() {
 var addButtonGroup = function( name, buttons, handler ) {
 // ============================================================
 	var html      = FreeScore.html;
-	var fieldset  = html.fieldset.clone() .attr( "data-role", "controlgroup" ) .attr( "data-type", "horizontal" ) .attr( "data-mini", "true" ) .attr( "data-inline", true );
+	var fieldset  = html.fieldset.clone() .attr({ "data-role": "controlgroup", "data-type": "horizontal", "data-mini": true, "data-inline": true });
 	var legend    = html.legend.clone() .html( name );
 	var groupName = name.toLowerCase().replace( / /g, '-' );
 	fieldset.append( legend );
 	for( var i in buttons ) {
 		var inputName = name.toLowerCase().replace( / /g, '-' ) + '-' + i;
-		var input = html.radio.clone() .attr( "name", groupName ) .attr( "id", inputName ) .attr( "value", buttons[ i ] );
+		var input = html.radio.clone() .attr({ name: groupName, id: inputName, value: buttons[ i ] });
 		var label = html.label.clone() .attr( "for", inputName ) .html( buttons[ i ] );
 		fieldset.append( input, label );
 	}

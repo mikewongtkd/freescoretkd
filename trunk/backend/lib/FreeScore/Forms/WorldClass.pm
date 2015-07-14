@@ -57,6 +57,24 @@ sub create_division {
 # ============================================================
 	my $self = shift;
 	my $ring = shift;
+	my $id   = $self->next_available();
+
+	my $file = sprintf( "%s/div.%s.txt", $self->{ path }, $id );
+	open FILE, ">$file" or die "Database Error: Can't write '$file' $!";
+	print FILE<<EOF;
+# state=score
+# current=0
+# form=0
+# judges=5
+# forms=finals:None,None;
+First Athlete
+EOF
+	close FILE;
+
+	my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+	$division->{ ring } = $ring;
+
+	return $division;
 }
 
 # ============================================================
@@ -82,11 +100,13 @@ sub navigate {
 sub next_available {
 # ============================================================
 	my $self      = shift;
-	my $requested = shift;
+	my $requested = shift || undef;
 	my $divisions = {};
 	foreach my $division (@{ $self->{ divisions }}) {
-		my ($type, $number) = $division->{ file } =~ /^div\.([A-Za-z]+)(\d+)\.txt$/;
+		my ($type, $number) = $division->{ name } =~ /^([A-Za-z]+)(\d+)$/;
+		$number = int( $number );
 		$divisions->{ $type }{ $number } = 1;
+		# MW TODO DOES NOT FIND ALL DIVISIONS ACROSS ALL DIRECTORIES
 	}
 	foreach my $type (sort keys %$divisions) {
 		my @numbers   = keys %{ $divisions->{ $type }};
@@ -103,13 +123,14 @@ sub next_available {
 	}
 
 	if( defined $requested && exists $divisions->{ $requested } ) {
-		return shift @{ $divisions->{ $requested }};
+		return sprintf( "%s%02d", $requested, (shift @{ $divisions->{ $requested }}));
+
 	} else {
 		# Find the type with the largest available division number
 		my ($largest) = sort { 
 			$divisions->{ $b }[ -1 ] <=> $divisions->{ $a }[ -1 ];
 		} keys %$divisions;
-		return shift @{ $divisions->{ $largest }};
+		return sprintf( "%s%02d", $largest, (shift @{ $divisions->{ $largest }}));
 	}
 }
 

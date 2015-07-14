@@ -7,6 +7,10 @@ $.widget( "freescore.divisions", {
 
 		var html      = e.html      = FreeScore.html;
 
+		var sound = e.sound = {};
+		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
+		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
+
 		var dialog = e.dialog = {
 			panel  : html.div.clone() .attr({ 'data-role': 'popup', 'data-dialog': true, 'data-overlay-theme': 'b', id: '#dialog' }) .css({ background : 'white' }),
 			header : {
@@ -54,9 +58,8 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		var editDivision = o.editDivision = function( divisionData ) {
 		// ============================================================
-			console.log( o );
+			o.port = ':3088/';
 			var url   = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
-			var divId = undefined;
 			console.log( url );
 			$.ajax( {
 				type:      'POST',
@@ -118,7 +121,6 @@ $.widget( "freescore.divisions", {
 			ring.link.attr( "href", "#ring-divisions?ring=" + i ) .attr( "data-transition", "slide" );
 			ring.link.append( ring.count );
 
-			ring.count.html( ring.divisions.length + " Divisions" );
 			if( ring.divisions.length == 1 ) { ring.count.html( "1 Division" ); }
 			else { ring.count.html( ring.divisions.length + " Divisions" ); }
 			ring.listitem.append( ring.link );
@@ -135,6 +137,13 @@ $.widget( "freescore.divisions", {
 			var ring     = i == "staging" ? o.rings[ (n - 1) ] : o.rings[ (i - 1) ];
 			if( ! defined( ring )) { return; }
 			var division = ring.divisions[ divIndex ];
+			if( ! defined( division )) {
+				var j = divIndex = ring.divisions.length;
+				ring.divisions[ j ] = division = {
+					index : j,
+					name  : o.division,
+				};
+			}
 			division.index = divIndex;
 			e.ring.division.editor.divisionEditor( { ring : i, division : division, updates : 0, dialog : e.dialog } );
 		}
@@ -145,6 +154,7 @@ $.widget( "freescore.divisions", {
 			var ring = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
 			var list = html.ul.clone() .attr( "data-role", "listview" );
 			var page = e.ring.divisions;
+			o.ring   = i;
 
 			page.empty();
 			list.empty();
@@ -174,7 +184,8 @@ $.widget( "freescore.divisions", {
 					division.link.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
 					division.link.append( division.count );
 
-					division.count.html( division.data.athletes.length );
+					if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
+					else { division.count.html( division.data.athletes.length + " Athletes" ); }
 					division.listitem.append( division.link );
 
 					list.append( division.listitem );
@@ -191,39 +202,10 @@ $.widget( "freescore.divisions", {
 			// ------------------------------------------------------------
 			add.link.click( function( ev ) {
 			// -----------------------------------------------------------
-				o.newDivision = {};
 				var i = $( this ).attr( "ring" );
-				var handle = {
-					format : function( ev ) { o.newDivision.format = $( ev.target ).val(); },
-					size   : function( ev ) { o.newDivision.size = $( ev.target ).val(); },
-				};
-				var format = addButtonGroup( "Event", FreeScore.rulesUSAT.poomsaeEvents(), handle.format );
-				format.find( "input:radio" ).checkboxradio().checkboxradio( 'refresh' );
-				console.log( format.find( "input:radio" ));
-				format.controlgroup();
-
-				var size   = addButtonGroup( "Athletes", [ '1-8', '9-19', '20+' ], handle.size );
-				size.find( "input:radio" ).checkboxradio().checkboxradio( 'refresh' );
-				size.controlgroup();
-
-				o.division = -1;
-				e.dialog.header.title.html( "Add New Division" );
-				e.dialog.header.panel.css({ background : "black" });
-				e.dialog.content.text.empty();
-				e.dialog.content.icon.addClass( "ui-icon-plus" );
-				e.dialog.content.text.append( e.dialog.content.icon, "Please provide division details" );
-				e.dialog.content.text.append( format, size );
-				e.dialog.content.ok.click( function( ev ) {
-					e.dialog.panel.popup( 'close' );             // Close the confirmation dialog
-					o.editDivision({ ring : i, create : true, format : o.newDivision.format, size : o.newDivision.size }); // Send AJAX command to update DB
-					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + o.division );
-					delete o[ 'newDivision' ];
-				});
-				e.dialog.content.cancel.click( function( ev ) { 
-					e.dialog.panel.popup( 'close' );
-					delete o[ 'newDivision' ];
-				});
-				e.dialog.panel.popup( 'open', { transition : "pop" } );
+				o.division = -1; // Placeholder value for division
+				o.editDivision({ ring : i, create : true }); // Send AJAX command to update DB
+				$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + o.division );
 
 			});
 			add.listitem.append( add.link );

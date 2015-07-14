@@ -194,7 +194,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		my $header   = $edits->{ header };
 		my $reorder = $edits->{ reorder };
 		my $edit    = $edits->{ athlete };
-		my $add     = $edits->{ add };
+		my $add     = $edits->{ create };
 		my $delete  = $edits->{ delete };
 		my $success = {};
 
@@ -249,7 +249,8 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			}
 
 		} elsif( defined $add     ) {
-			$success->{ id } = $progress->create_division( $ring );
+			$division = $progress->create_division( $ring );
+			$success->{ id } = $division->{ name };
 
 		} elsif( defined $delete  ) {
 			my $deleted = unlink( $division->{ file } ) && (! -e $division->{ file });
@@ -260,7 +261,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			$description = "Unknown athlete edit command";
 		}
 
-		unless( defined $delete ) {
+		unless( defined $delete || defined $add ) {
 			$division->normalize();
 			$division->write();
 		}

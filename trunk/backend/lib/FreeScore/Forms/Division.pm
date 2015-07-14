@@ -13,6 +13,9 @@ sub new {
 # ============================================================
 sub init {
 # ============================================================
+#** @method ( path, name, [ring] )
+#   @brief Initializes the division with path, name, and ring information
+#*
 	my $self = shift;
 	my $path = shift;
 	my $name = shift;
