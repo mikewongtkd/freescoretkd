@@ -66,7 +66,8 @@ sub create_division {
 # current=0
 # form=0
 # judges=5
-# forms=finals:None,None;
+# round=finals
+# forms=finals:None;
 First Athlete
 EOF
 	close FILE;
@@ -102,12 +103,18 @@ sub next_available {
 	my $self      = shift;
 	my $requested = shift || undef;
 	my $divisions = {};
-	foreach my $division (@{ $self->{ divisions }}) {
-		my ($type, $number) = $division->{ name } =~ /^([A-Za-z]+)(\d+)$/;
+	my $path      = $self->{ path };
+	$path =~ s/\/?ring\d+\/?// if( $path =~ /ring\d+/ );
+
+	# Read all divisions in the database
+	my @div_ids = map { s/$path\/(?:ring\d+|staging)\/div\.//; s/\.txt//; $_; } split /\n/, `ls $path/ring*/div*.txt $path/staging/div*.txt 2>/dev/null`;
+
+	foreach my $id (@div_ids) {
+		my ($type, $number) = $id =~ /^([A-Za-z]+)(\d+)$/;
 		$number = int( $number );
 		$divisions->{ $type }{ $number } = 1;
-		# MW TODO DOES NOT FIND ALL DIVISIONS ACROSS ALL DIRECTORIES
 	}
+
 	foreach my $type (sort keys %$divisions) {
 		my @numbers   = keys %{ $divisions->{ $type }};
 		my $min       = min @numbers;
