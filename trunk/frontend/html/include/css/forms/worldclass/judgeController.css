@@ -366,12 +366,16 @@ body {
         background: black;
         background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
         background: linear-gradient(to top, #45484d 0%, #000000 100%);
-        color: #ccc;
-        font-size: 18pt;
         line-height: 24pt;
         text-align: center;
         top: 8px;
         left: 72px; }
+        .judgeController .front .score > .athlete .details {
+          color: #ccc;
+          font-size: 14pt; }
+        .judgeController .front .score > .athlete .athlete {
+          color: #ddd;
+          font-size: 18pt; }
       .judgeController .front .score > .accuracy, .judgeController .front .score > .presentation {
         position: absolute;
         width: 194px;

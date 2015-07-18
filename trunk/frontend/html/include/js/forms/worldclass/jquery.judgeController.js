@@ -20,7 +20,7 @@ $.widget( "freescore.judgeController", {
 		var controllers  = e.controllers  = html.div.clone() .addClass( "controller control-group" );
 
 		var flipToBack   = e.fliptoBlack  = html.div.clone() .addClass( "flip" ) .html( "Division" );
-		var athlete      = e.athlete      = html.ul .clone() .addClass( "athlete" ) .totemticker({ row_height : '32px', interval : 2000 });
+		var athlete      = e.athlete      = html.ul .clone() .addClass( "athlete" ) .totemticker({ row_height : '32px', interval : 3000 });
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
@@ -108,17 +108,16 @@ $.widget( "freescore.judgeController", {
 		var o           = this.options;
 		var html        = e.html;
 		var ordinal     = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
-		var round_order = { 'prelim' : 0, 'semfin' : 1, 'finals' : 2 };
 
 		function refresh( update ) {
 			var forms      = JSON.parse( update.data );
 			var division   = forms.divisions[ 0 ];
 			if( ! defined( division )) { return; }
 
-			var form       = ordinal[ division.form ];
-			var form_names = division.forms[ division.round ];
-			if( ! defined( form_names )) { return; }
-			var form_name  = form_names[ division.form ].name;
+			var formNames   = division.forms[ division.round ];
+			var formOrdinal = formNames.length > 1 ? ordinal[ division.form ] + ' form ' : '';
+			if( ! defined( formNames )) { return; }
+			var formName    = formNames[ division.form ].name;
 
 			if( division.state == 'score' ) {
 				e.flipDisplay.ajaxbutton({ label : "Leaderboard" });
@@ -126,8 +125,8 @@ $.widget( "freescore.judgeController", {
 				e.flipDisplay.ajaxbutton({ label : "Athlete Score" });
 			}
 
-			if( form_names.length > 1 ) {
-				if( division.form < (form_names.length - 1)) {
+			if( formNames.length > 1 ) {
+				if( division.form < (formNames.length - 1)) {
 					e.prevAthlete.ajaxbutton({ command : "athlete/previous", label : "Prev Athlete" });
 					e.nextAthlete.ajaxbutton({ command : "form/next",        label : "Next Form" });
 				} else {
@@ -164,9 +163,15 @@ $.widget( "freescore.judgeController", {
 			if( different.division || different.athlete || different.form ) {
 				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
 				var athlete    = division.athletes[ parseInt( division.current ) ];
-				var items      = [ division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, round_name[ division.round ], form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				var info       = { 
+				                     division : html.span.clone() .addClass( "details" ) .html( division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description ),
+				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name ),
+				                     round    : html.span.clone() .addClass( "details" ) .html( round_name[ division.round ] ),
+				                     form     : html.span.clone() .addClass( "details" ) .html( formOrdinal + formName ),
+				                 };
+				var tickerList = [ info.athlete, info.division, info.round, info.form ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
-				e.athlete .append( items );
+				e.athlete .append( tickerList );
 				e.matPosition.matposition( 'option', 'reset' )();
 
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
