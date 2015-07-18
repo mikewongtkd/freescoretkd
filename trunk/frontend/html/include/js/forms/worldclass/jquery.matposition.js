@@ -13,7 +13,7 @@ function formatTime(time) {
 }
 
 $.widget( "freescore.matposition", {
-	options: { autoShow: true, num: 0 },
+	options: { autoShow: true },
 	_create: function() {
 		var widget = this.element;
 		var o      = this.options;
@@ -22,6 +22,7 @@ $.widget( "freescore.matposition", {
 
 		var ring   = e.ring   = html.div.clone() .addClass( "ring" );
 		var label  = e.label  = html.div.clone() .addClass( "label" ) .html( "Athlete Start Position" );
+		var judges = e.judges = html.div.clone() .addClass( "judges" );
 		var layer  = e.layer  = html.div.clone() .addClass( "layer" );
 		var center = e.center = html.div.clone() .addClass( "center" );
 		var start  = e.start  = html.div.clone() .addClass( "start-position" ) .html( '&#x2715;' ) .hide();
@@ -51,7 +52,7 @@ $.widget( "freescore.matposition", {
 		}
 
 		widget.append( ring );
-		ring.append( center, label, start, layer, timer );
+		ring.append( center, label, start, layer, judges, timer );
 		widget.addClass( "matposition" );
 
 		o.dx   = 5;
@@ -104,5 +105,21 @@ $.widget( "freescore.matposition", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements;
+		var html   = e.html;
+
+		// ===== JUDGE POSITIONS
+		if( defined( o.judges )) {
+			e.judges.empty();
+			var judge = [];
+			for( var i = 0; i < o.judges; i++ ) {
+				var num = i == 0 ? 'R' : i;
+				var who = i == o.judge ? "me" : "notme";
+				var pos = "j" + o.judges + "" + num; // position
+				judge[ i ] = html.div.clone() .addClass( "judge" ) .addClass( pos ) .addClass( who ) .html( num );
+				e.judges.append( judge[ i ] );
+			}
+		}
+
+
 	}
 });

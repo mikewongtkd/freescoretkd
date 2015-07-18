@@ -31,9 +31,9 @@ $.widget( "freescore.judgeController", {
 		var controls     = e.controls     = html.div.clone() .addClass( "controls" );
 
 		var label        = e.label        = html.div.clone() .addClass( "label" ) .html( "Presentation Score" );
-		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Control', controller: this });
-		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',  controller: this });
-		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Ki', controller: this });
+		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',      controller: this });
+		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Control',   controller: this });
+		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Energy', controller: this });
 		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, label : "Send", type : "send" })
 
 		var sendScore    = o.sendScore    = function( judge, score ) {
@@ -164,24 +164,27 @@ $.widget( "freescore.judgeController", {
 			if( different.division || different.athlete || different.form ) {
 				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
 				var athlete    = division.athletes[ parseInt( division.current ) ];
-				var items      = [ 'Judge ' + (o.num + 1), division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, round_name[ division.round ], form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				var items      = [ division.name.toUpperCase().replace( ".", " " ), division.description, athlete.name, round_name[ division.round ], form + ' form', form_name ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( items );
 				e.matPosition.matposition( 'option', 'reset' )();
 
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
 				o.minor  = 0.0; e.minor  .deductions( { count : 0 });
-				o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
-				o.power  = 1.2; e.power  .presentationBar( { value : 1.2 });
-				o.ki     = 1.2; e.ki     .presentationBar( { value : 1.2 });
+				o.rhythm = 0.9; e.rhythm .presentationBar( { value : 0.9 });
+				o.power  = 0.9; e.power  .presentationBar( { value : 0.9 });
+				o.ki     = 0.9; e.ki     .presentationBar( { value : 0.9 });
 
 				widget.trigger({ type : "updateRequest", score : o });
 			}
+			// ===== UPDATE WIDGETS
 			var in_round = [];
 			in_round = division.pending[ division.round ].concat( division.placement[ division.round ] );
 			in_round = $.grep( in_round, function( el, i ) { return defined( el ); } ); // Ignore null entries
 			in_round = in_round.sort( function( a, b ) { return a - b; });
 			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
+
+			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : in_round.length });
 
 			o.current.division = forms.current;
 			o.current.divname  = division.name;
