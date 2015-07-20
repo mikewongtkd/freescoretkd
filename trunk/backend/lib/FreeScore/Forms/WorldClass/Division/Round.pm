@@ -41,6 +41,21 @@ sub record_score {
 }
 
 # ============================================================
+sub record_penalties {
+# ============================================================
+# Records a given score. Will overwrite if the same judge has
+# given a previous score for the same form.
+#------------------------------------------------------------
+ 	my $self    = shift;
+	my $form    = shift;
+	my $penalty = shift;
+
+	foreach my $key (keys %$penalty) {
+		$self->[ $form ]{ penalty }{ $key } = $penalty->{ $key };
+	}
+}
+
+# ============================================================
 sub add_tiebreaker {
 # ============================================================
 	my $self   = shift;
@@ -198,10 +213,15 @@ sub string {
 	my @string = ();
 	
 	for( my $i = 0; $i < $forms; $i++ ) {
-		my $form = $self->[ $i ];
+		my $form    = $self->[ $i ];
+		my $form_id = 'f' . ($i + 1);
+		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} ) {
+			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds time misconduct ) } ) . "\n";
+		}
 		for( my $j = 0; $j < $judges; $j++ ) {
-			my $score = $form->{ judge }[ $j ];
-			push @string, "\t" . join( "\t", $round, 'f' . ($i + 1), 'j' . ($j + 1), $score->string() ) . "\n";
+			my $score    = $form->{ judge }[ $j ];
+			my $judge_id = ($j == 0 ? 'r' : "j$j");
+			push @string, "\t" . join( "\t", $round, $form_id, $judge_id, $score->string() ) . "\n";
 		}
 	}
 	return join "", @string;

@@ -9,13 +9,13 @@
 # finals
 # ------------------------------------------------------------
 Sujatha	Black	
+	finals	f1	r	
 	finals	f1	j1	
 	finals	f1	j2	
 	finals	f1	j3	
 	finals	f1	j4	
-	finals	f1	j5	
+	finals	f2	r	
 	finals	f2	j1	
 	finals	f2	j2	
 	finals	f2	j3	
 	finals	f2	j4	
-	finals	f2	j5	

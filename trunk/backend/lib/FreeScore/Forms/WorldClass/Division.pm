@@ -10,6 +10,29 @@ use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
 use strict;
 
+#**
+# Athlete data structure
+# - athlete
+#   - scores
+#     - <round> (hash key string, e.g. prelim, semfin, finals)
+#       - Round Object
+#
+# Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
+# - [ form index ]
+#   - complete
+#   - penalties
+#   - judge
+#     - [ judge index ]
+#       - Score Object
+#
+# Score data structure (also see FreeScore::Forms::WorldClass::Division::Round::Score)
+# - major
+# - minor
+# - power
+# - rhythm
+# - ki
+#**
+
 # ============================================================
 sub assign {
 # ============================================================
@@ -403,7 +426,7 @@ sub read {
 		# ===== READ DIVISION ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
 			die "Division Configuration Error: Number of Judges not defined before athlete information" unless $self->{ judges };
-			die "Division Configuration Error: Forms not defined before athlete information" unless $self->{ forms };
+			die "Division Configuration Error: Forms not defined before athlete information"            unless $self->{ forms };
 
 			# Store the current athlete before starting a new athlete
 			if( $athlete->{ name } ) {
@@ -430,20 +453,35 @@ sub read {
 		# ===== READ DIVISION ATHLETE SCORES
 		} elsif( /^\t\w/ ) {
 			s/^\t//;
-			my ($score_round, $form, $judge, $major, $minor, $rhythm, $power, $ki) = split /\t/;
-			$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
-			die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
-			$self->{ rounds }{ $round } = 1;
+			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
+			$form  =~ s/f//; $form  = int( $form )  - 1;                        die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
+			$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ) - 1; ; die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
 
-			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!" unless $form >= 0;
-			$judge =~ s/j//; $judge = int( $judge ) - 1; die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
-			next unless( $major || $minor || $rhythm || $power || $ki );
+			# Scores are ordered by judge number (ref, 1, 2, etc.)
+			if    ( $judge =~ /^[jr]/ ) {
+				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
+				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
+				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
+				$self->{ rounds }{ $round } = 1; # Record that at least one score for this round has been recorded; therefore this division has the given round
 
-			my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-			my $forms  = int( @{ $self->{ forms }{ $round }});
-			my $judges = $self->{ judges };
-			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-			$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+				next unless( $major || $minor || $rhythm || $power || $ki );
+
+				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+				my $forms  = int( @{ $self->{ forms }{ $round }});
+				my $judges = $self->{ judges };
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+
+			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
+			} elsif ( $judge =~ /^p/ ) {
+				my ($bounds, $time, $misconduct) = @score_criteria;
+
+				my $penalties = { bounds => $bounds, time => $time, misconduct => $misconduct };
+				my $forms     = int( @{ $self->{ forms }{ $round }});
+				my $judges    = $self->{ judges };
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
+			}
 
 		} else {
 			die "Database Read Error: Unknown line type '$_'\n";
