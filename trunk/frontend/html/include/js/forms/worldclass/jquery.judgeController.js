@@ -19,7 +19,7 @@ $.widget( "freescore.judgeController", {
 		var views        = e.views        = html.div.clone() .addClass( "view control-group" );
 		var controllers  = e.controllers  = html.div.clone() .addClass( "controller control-group" );
 
-		var flipToBack   = e.fliptoBlack  = html.div.clone() .addClass( "flip" ) .html( "Division" );
+		var flipToBack   = e.flipToBack   = html.div.clone() .addClass( "flip" ) .html( "Division" );
 		var athlete      = e.athlete      = html.ul .clone() .addClass( "athlete" ) .totemticker({ row_height : '32px', interval : 3000 });
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
@@ -110,8 +110,8 @@ $.widget( "freescore.judgeController", {
 		var ordinal     = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
 
 		function refresh( update ) {
-			var forms      = JSON.parse( update.data );
-			var division   = forms.divisions[ 0 ];
+			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
+			var division = progress.divisions[ progress.current ];
 			if( ! defined( division )) { return; }
 
 			var formNames   = division.forms[ division.round ];
@@ -133,6 +133,9 @@ $.widget( "freescore.judgeController", {
 					e.prevAthlete.ajaxbutton({ command : "form/previous",    label : "Prev Form" });
 					e.nextAthlete.ajaxbutton({ command : "athlete/next",     label : "Next Athlete" });
 				}
+			} else {
+				e.prevAthlete.ajaxbutton({ command : "athlete/previous", label : "Prev Athlete" });
+				e.nextAthlete.ajaxbutton({ command : "athlete/next",     label : "Next Athlete" });
 			}
 			var num_rounds = Object.keys( division.forms ).length;
 			if       ( num_rounds == 1 ) {
@@ -187,11 +190,11 @@ $.widget( "freescore.judgeController", {
 			in_round = division.pending[ division.round ].concat( division.placement[ division.round ] );
 			in_round = $.grep( in_round, function( el, i ) { return defined( el ); } ); // Ignore null entries
 			in_round = in_round.sort( function( a, b ) { return a - b; });
-			e.notes .judgeNotes({ athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
+			e.notes .judgeNotes({ forms : division.forms[ division.round ], athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
 
 			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : in_round.length });
 
-			o.current.division = forms.current;
+			o.current.division = progress.current;
 			o.current.divname  = division.name;
 			o.current.athlete  = division.current;
 			o.current.form     = division.form;

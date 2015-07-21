@@ -216,11 +216,13 @@ sub string {
 		my $form    = $self->[ $i ];
 		my $form_id = 'f' . ($i + 1);
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} ) {
-			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds time misconduct ) } ) . "\n";
+			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds timelimit misconduct time ) } ) . "\n";
 		}
 		for( my $j = 0; $j < $judges; $j++ ) {
+			$form->{ judge }[ $j ] = FreeScore::Forms::WorldClass::Division::Round::Score::reinstantiate( $form->{ judge }[ $j ]);
 			my $score    = $form->{ judge }[ $j ];
 			my $judge_id = ($j == 0 ? 'r' : "j$j");
+
 			push @string, "\t" . join( "\t", $round, $form_id, $judge_id, $score->string() ) . "\n";
 		}
 	}

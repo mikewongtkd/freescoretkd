@@ -107,6 +107,7 @@
     .scoreboard .totalScores .blue, .scoreboard .totalScores .chung {
       color: #66f; }
     .scoreboard .totalScores .athlete {
+      color: yellow;
       margin: 0;
       height: 80px;
       font-size: 72pt;

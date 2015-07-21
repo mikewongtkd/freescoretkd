@@ -1,7 +1,9 @@
 .flippable {
   -webkit-perspective: 1000; }
-  .flippable .flipped {
+  .flippable .flipped, .flippable .flipy {
     -webkit-transform: rotateY(180deg); }
+  .flippable .flipx {
+    -webkit-transform: rotateX(180deg); }
   .flippable .spun {
     -webkit-transform: rotateY(-180deg); }
   .flippable .card {
@@ -17,3 +19,5 @@
       z-index: 2; }
     .flippable .card .back {
       -webkit-transform: rotateY(180deg); }
+
+/*# sourceMappingURL=flippable.css.map */

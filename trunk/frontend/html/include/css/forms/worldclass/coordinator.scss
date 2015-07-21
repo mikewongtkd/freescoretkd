@@ -5,11 +5,13 @@ body {
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
 }
 
+@import 'judgeNotes';
+
 .flippable {
 
 	.card, .front, .back {
-		width: 800px;
-		height: 600px;
+		width: 600px;
+		height: 800px;
 	}
 
 	.front, .back {

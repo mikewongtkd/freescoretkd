@@ -135,6 +135,9 @@ $.widget( "freescore.scoreboard", {
 		if( current.forms.length > 1 ) { round_description.append( e.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ].name + '</b>' )); } 
 		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ].name + '</b>' )); }
 
+		console.log( current.athlete );
+
+		if( ! defined( current.athlete        )) { return; }
 		if( ! defined( current.athlete.scores )) { return; }
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 
@@ -143,6 +146,7 @@ $.widget( "freescore.scoreboard", {
 			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k } );
 		}
 
+		/*
 		if( parseInt( current.athlete.index ) % 2 ) { // MW This is broken for multiple rounds
 			e.athlete .removeClass( "chung" ); 
 			e.athlete .addClass( "hong" ); 
@@ -150,6 +154,7 @@ $.widget( "freescore.scoreboard", {
 			e.athlete .removeClass( "hong" ); 
 			e.athlete .addClass( "chung" ); 
 		}
+		*/
 			
 		// ===== CHANGE OF PLAYER
 		if( ! defined( o.previous ) || (

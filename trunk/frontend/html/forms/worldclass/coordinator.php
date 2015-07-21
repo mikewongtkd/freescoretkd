@@ -4,12 +4,7 @@
 ?>
 <html>
 	<head>
-		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon.png"             rel="apple-touch-icon" />
-		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-60x60.png"       rel="apple-touch-icon" sizes="60x60" />
-		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-76x76.png"       rel="apple-touch-icon" sizes="76x76" />
-		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-120x120.png"     rel="apple-touch-icon" sizes="120x120" />
-		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-152x152.png"     rel="apple-touch-icon" sizes="152x152" />
-		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed" />
+		<title>World Class Coordinator</title>
 		<link href="../../include/css/ajaxbutton.css" rel="stylesheet" />
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />

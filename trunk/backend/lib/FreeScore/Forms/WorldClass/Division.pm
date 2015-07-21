@@ -63,14 +63,17 @@ sub assign_tiebreaker {
 #** @method ( athlete )
 #   @brief Assigns the athlete to a tiebreaker round.
 #*
-	my $self    = shift;
-	my $athlete = shift;
-	my $judges  = $self->{ judges } - 1;
-	my $round   = $self->{ round };
+	my $self       = shift;
+	my $athlete    = shift;
+	my $judges     = $self->{ judges } - 1;
+	my $round      = $self->{ round };
+	my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
+	my $forms      = int( @compulsory );
 
 	if( exists $self->{ forms }{ $round } ) {
 		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
 		my $tiebreaker = int( @compulsory ); # Tiebreaker form index is after the last compulsory form
+		$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 		$athlete->{ scores }{ $round }->add_tiebreaker( $judges, $tiebreaker );
 	}
 }
@@ -474,9 +477,9 @@ sub read {
 
 			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
 			} elsif ( $judge =~ /^p/ ) {
-				my ($bounds, $time, $misconduct) = @score_criteria;
+				my ($bounds, $timelimit, $misconduct, $time) = @score_criteria;
 
-				my $penalties = { bounds => $bounds, time => $time, misconduct => $misconduct };
+				my $penalties = { bounds => $bounds, timelimit => $timelimit, misconduct => $misconduct, time => $time };
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
 				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );

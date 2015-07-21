@@ -20,6 +20,7 @@ $.widget( "freescore.ajaxbutton", {
 				var url = 'http://' + o.server + o.port + o.tournament + '/' + o.ring + '/' + o.command;
 				$.ajax( {
 					type:    'GET',
+					crossDomain: true,
 					url:     url,
 					data:    {},
 					success: function( response ) { 

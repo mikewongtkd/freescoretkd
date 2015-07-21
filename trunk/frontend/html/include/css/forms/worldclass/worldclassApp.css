@@ -117,6 +117,7 @@ body {
       .worldclass .scoreboard .totalScores .blue, .worldclass .scoreboard .totalScores .chung {
         color: #66f; }
       .worldclass .scoreboard .totalScores .athlete {
+        color: yellow;
         margin: 0;
         height: 80px;
         font-size: 72pt;

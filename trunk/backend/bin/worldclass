@@ -326,7 +326,7 @@ post '/:tournament/:ring/:div_index/text' => sub {
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
-	send_response( $self, { error => "Forms::WorldClass: Unknown command: $command" });
+	send_response( $self, { error => "worldClass: Unknown command: $command" });
 };
 
 # ============================================================

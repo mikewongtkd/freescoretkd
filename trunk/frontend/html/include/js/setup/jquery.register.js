@@ -182,7 +182,7 @@ $.widget( "freescore.register", {
 							var port = ':3088';
 							if     ( o.event.url.match( /grassroots/ )) { port = ':3080/'; }
 							else if( o.event.url.match( /worldclass/ )) { port = ':3088/'; }
-							var url = 'http://' + o.server + port + '/' +  o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+							var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
 							$.ajax( {
 								type:    'GET',
 								url:     url,
@@ -221,6 +221,7 @@ $.widget( "freescore.register", {
 		register.judges.show = function( ajaxResponse ) {
 		// ------------------------------------------------------------
 			register.roles.view .hide();
+			console.log( ajaxResponse ); // MW
 			o.max_judges = ajaxResponse.judges || 3;
 
 			text.html( "Which judge?" );
@@ -265,7 +266,7 @@ $.widget( "freescore.register", {
 			var dom   = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
 			var src   = "../images/roles/judge.png";
 			var img   = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
-			var label = html.p.clone() .append( "Judge " + num );
+			var label = html.p.clone() .append( num == 1 ? "Referee" : "Judge " + (num - 1) );
 			dom.append( img, label );
 			dom.click( register.judges.select( num ));
 			return { num: num, dom: dom };
@@ -276,7 +277,8 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 			var selected = { ring: $.cookie( "ring" ), role: $.cookie( "role" ), judge: $.cookie( "judge" ) };
 
-			if( selected.role == "judge" ) { text.html( "Confirm Registration for Judge " + selected.judge + " in Ring " + selected.ring + ":" ); }
+			var label = selected.judge == 1 ? "Referee" : "Judge " + (selected.judge - 1);
+			if( selected.role == "judge" ) { text.html( "Confirm Registration for " + label + " in Ring " + selected.ring + ":" ); }
 			else                           { text.html( "Confirm Registration for " + selected.role.capitalize() + " in Ring " + selected.ring + ":" ); }
 
 			register.confirmation.view.fadeIn();

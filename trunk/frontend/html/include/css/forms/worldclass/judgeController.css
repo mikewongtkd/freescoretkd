@@ -280,23 +280,30 @@ body {
         padding: 4px 8px 4px 8px;
         font-size: 18pt; }
       .judgeNotes .view table .order {
-        width: 5%; }
+        width: 28px;
+        color: #666; }
       .judgeNotes .view table .name {
-        width: 50%; }
+        width: 286px; }
+      .judgeNotes .view table .form {
+        width: 172px; }
+        .judgeNotes .view table .form .accuracy {
+          color: #f99; }
+        .judgeNotes .view table .form .presentation {
+          color: #99f; }
       .judgeNotes .view table .form1 {
-        width: 15%; }
+        width: 86px; }
         .judgeNotes .view table .form1 .accuracy {
           color: #f99; }
         .judgeNotes .view table .form1 .presentation {
           color: #99f; }
       .judgeNotes .view table .form2 {
-        width: 15%; }
+        width: 86px; }
         .judgeNotes .view table .form2 .accuracy {
           color: #f99; }
         .judgeNotes .view table .form2 .presentation {
           color: #99f; }
       .judgeNotes .view table .average {
-        width: 15%; }
+        width: 86px; }
       .judgeNotes .view table .current {
         background: #606c88;
         background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);

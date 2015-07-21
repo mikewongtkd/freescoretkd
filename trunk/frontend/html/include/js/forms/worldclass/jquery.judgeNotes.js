@@ -26,13 +26,19 @@ $.widget( "freescore.judgeNotes", {
 		if( ! defined( round    )) { return; }
 
 		view.empty();
+		var header = {
+			order : h.th.clone() .addClass( "order" )   .html( "#" ),
+			name  : h.th.clone() .addClass( "name" )    .html( "Name" ),
+			form1 : h.th.clone() .addClass( "form1" )   .html( "Form 1" ),
+			form2 : h.th.clone() .addClass( "form2" )   .html( "Form 2" ),
+			avg   : h.th.clone() .addClass( "average" ) .html( "Avg" )
+		}
+		var headers = [ header.order, header.name, header.form1 ];
+		if( defined( o.forms ) && o.forms.length > 1 ) { headers.push( header.form2 ); } 
+		else                                           { header.form1.removeClass( "form1" ) .addClass( "form" ); }
+		headers.push( header.avg );
 		var table = h.table.clone();
-		table.append( h.tr.clone() 
-			.append( h.th.clone() .addClass( "order" )   .html( "#" ))
-			.append( h.th.clone() .addClass( "name" )    .html( "Name" ))
-			.append( h.th.clone() .addClass( "form1" )   .html( "Form 1" ))
-			.append( h.th.clone() .addClass( "form2" )   .html( "Form 2" ))
-			.append( h.th.clone() .addClass( "average" ) .html( "Avg" )));
+		table.append( h.tr.clone() .append( headers ));
 
 		for( var i = 0; i < o.participants.length; i++ ) {
 			var j            = o.participants[ i ];
@@ -74,14 +80,22 @@ $.widget( "freescore.judgeNotes", {
 				})();
 			}
 
-			var isCurrent    = function() { if( i == current ) { return "current"; }} // MW TODO This only works for the first round.
+			var isCurrent    = function() { if( i == current ) { return "current"; } else { return ''; }}
 
-			tr
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "order" )   .html( i + 1 + "." ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "name"  )   .html( athlete.name ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "form1" )   .html( score.form1 ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "form2" )   .html( score.form2 ))
-				.append( h.td.clone() .addClass( isCurrent() ) .addClass( "average" ) .html( score.average ));
+			var column = {
+				order : h.td.clone() .addClass( isCurrent() ) .addClass( "order" )   .html( i + 1 + "." ),
+				name  : h.td.clone() .addClass( isCurrent() ) .addClass( "name"  )   .html( athlete.name ),
+				form1 : h.td.clone() .addClass( isCurrent() ) .addClass( "form1" )   .html( score.form1 ),
+				form2 : h.td.clone() .addClass( isCurrent() ) .addClass( "form2" )   .html( score.form2 ),
+				avg   : h.td.clone() .addClass( isCurrent() ) .addClass( "average" ) .html( score.average )
+			}
+			var columns = [ column.order, column.name, column.form1 ];
+			var headers = [ header.order, header.name, header.form1 ];
+			if( defined( o.forms ) && o.forms.length > 1 ) { columns.push( column.form2 ); } 
+			else                                           { column.form1.removeClass( "form1" ) .addClass( "form" ); }
+			columns.push( column.avg );
+
+			tr .append( columns );
 			table.append( tr );
 			j++;
 		}
