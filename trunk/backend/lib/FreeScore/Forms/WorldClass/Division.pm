@@ -457,11 +457,11 @@ sub read {
 		} elsif( /^\t\w/ ) {
 			s/^\t//;
 			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
-			$form  =~ s/f//; $form  = int( $form )  - 1;                        die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
-			$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ) - 1; ; die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
+			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
 
 			# Scores are ordered by judge number (ref, 1, 2, etc.)
 			if    ( $judge =~ /^[jr]/ ) {
+				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
 				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
 				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;

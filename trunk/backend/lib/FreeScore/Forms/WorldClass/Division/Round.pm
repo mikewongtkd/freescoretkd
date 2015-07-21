@@ -219,7 +219,7 @@ sub string {
 			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds timelimit misconduct time ) } ) . "\n";
 		}
 		for( my $j = 0; $j < $judges; $j++ ) {
-			$form->{ judge }[ $j ] = FreeScore::Forms::WorldClass::Division::Round::Score::reinstantiate( $form->{ judge }[ $j ]);
+			$form->{ judge }[ $j ] = FreeScore::Forms::WorldClass::Division::Round::Score::reinstantiate( $form->{ judge }[ $j ] );
 			my $score    = $form->{ judge }[ $j ];
 			my $judge_id = ($j == 0 ? 'r' : "j$j");
 

@@ -15,6 +15,7 @@ my $tournament = shift || $cgi->param( 'tournament' );
 my $ring       = shift || $cgi->param( 'ring' )  || $cgi->cookie( 'ring' );
 my $judge      = shift || $cgi->param( 'judge' ) || $cgi->cookie( 'judge' );
 my $role       =          $cgi->param( 'role' )  || $cgi->cookie( 'role' );
+my $debug      =          $cgi->param( 'debug' ) || $cgi->cookie( 'debug' );
 my $json       = new JSON::XS();
 my $watcher    = new Filesys::Notify::Simple( [ "$FreeScore::PATH/$tournament/forms-worldclass" ] );
 
@@ -28,7 +29,7 @@ my $eol      = "\r\n";
 
 # ===== SEND INITIAL DATA
 my $id     = time();
-my $update = update( $tournament, $ring, $judge );
+my $update = update( $tournament, $ring, $judge, $debug );
 
 print "id: $id$eol";
 print "data: $update$eol$eol";
@@ -51,6 +52,7 @@ sub update {
 	my $tournament = shift;
 	my $ring       = shift;
 	my $judge      = shift;
+	my $debug      = shift;
 	my $update     = undef;
 	my $data       = undef;
 
@@ -62,7 +64,9 @@ sub update {
 	} catch {
 		$data = { error => $_ };
 	};
-	$update = $json->canonical->encode( $data );
+
+	if( $debug ) { $update = $json->canonical->pretty->encode( $data ); } 
+	else         { $update = $json->canonical->encode( $data ); }
 	$update =~ s/"(-?\d+(?:\.\d+)?)"/\1/g; # Convert strings of real numbers to real numbers
 
 	return $update;
