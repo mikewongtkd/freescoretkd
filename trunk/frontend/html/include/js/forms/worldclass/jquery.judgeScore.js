@@ -8,7 +8,7 @@ $.widget( "freescore.judgeScore", {
 		var name    = e.name  = html.div.clone() .addClass( "judge" );
 		var view    = e.view  = html.div.clone();
 		score.append( view );
-		name .html( o.num );
+		name .html( o.num == 1 ? 'R' : o.num - 1 );
 		this.element .addClass( "judgeScore" );
 		this.element .append( name, score );
 	},
