@@ -21,12 +21,12 @@ $.widget( "freescore.matposition", {
 		var html   = e.html = FreeScore.html;
 
 		var ring   = e.ring   = html.div.clone() .addClass( "ring" );
-		var label  = e.label  = html.div.clone() .addClass( "label" ) .html( "Athlete Start Position" );
+		var label  = e.label  = html.div.clone() .addClass( "label" ) .html( "Touch to Show Athlete Start Position" );
 		var judges = e.judges = html.div.clone() .addClass( "judges" );
 		var layer  = e.layer  = html.div.clone() .addClass( "layer" );
 		var center = e.center = html.div.clone() .addClass( "center" );
 		var start  = e.start  = html.div.clone() .addClass( "start-position" ) .html( '&#x2715;' ) .hide();
-		var timer  = e.timer  = html.div.clone() .addClass( "timer" ) .html( "00:00.00" ) .css( "opacity", 0.75 );
+		var timer  = e.timer  = html.div.clone() .addClass( "timer" ) .html( "00:00.00" ) .css( "opacity", 0.00 );
 
 		// ===== 8x8 MATS
 		for( var i = 0; i < 8; i++ ) {
@@ -66,7 +66,7 @@ $.widget( "freescore.matposition", {
 			o.time.current = 0;
 			o.time.started = false;
 			e.timer.html( formatTime( o.time.current ));
-			e.timer.css( "opacity", 0.75 );
+			e.timer.css( "opacity", 0.00 );
 			e.label.show();
 			e.start.hide();
 		}

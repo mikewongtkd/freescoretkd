@@ -21,16 +21,50 @@ $.widget( "freescore.coordinatorController", {
 		var athletes  = e.athletes = {
 				page    : html.div.clone() .attr({ 'data-role': 'page', id: 'athletes' }),
 				header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1><a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\">Athletes</a></h1>" ),
-				main    : html.div.clone() .attr({ 'role': 'main' }) .addClass( 'ui-grid-a' ),
-				list    : html.ul.clone() .attr( 'role', 'listview' ) .addClass( 'ui-block-a' ) .css({ width: 'calc( 100% - 200px )' }),
-				actions : html.div.clone() .addClass( 'ui-block-b' ) .css({ width: '200px' }),
+				main    : html.div.clone() .attr({ 'role': 'main' }),
+				list    : html.ol.clone() .attr( 'role', 'listview' ) .addClass( 'athletes' ),
+				actions : html.div.clone(),
 				footer  : html.div.clone() .attr({ 'data-role': 'footer', 'data-theme' : 'b', 'data-position' : 'fixed' }),
 		};
 
-		divisions.main.append( divisions.list, divisions.actions );
+		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
+
+		var actions = e.actions = {
+			panel : html.div.clone() .addClass( "actions" ),
+			navigation : {
+				panel    : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend   : html.legend.clone() .html( "Navigation" ),
+				previous : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( "Prev. Athlete" ),
+				next     : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( "Next Athlete" ),
+			},
+
+			clock : {
+				panel    : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend   : html.legend.clone() .html( "Timer" ),
+				timer    : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .unbind( 'click' ) .html( "00:00:00" ),
+				toggle   : button.clone() .addClass( 'start ui-icon-forward' ) .html( "Start Timer" ),
+			},
+
+			penalties : {
+				panel    : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend   : html.legend.clone() .html( "Penalties" ),
+				time     : button.clone() .addClass( 'penalty ui-icon-clock'   ) .html( "Time Limit" ),
+				bounds   : button.clone() .addClass( 'penalty ui-icon-action'  ) .html( "Out-of-Bounds" ),
+			},
+
+		}
+
+		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.next );
+		actions.clock      .panel.append( actions.clock.legend, actions.clock.timer, actions.clock.toggle );
+		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.time, actions.penalties.bounds );
+
+		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
+		athletes.actions.append( actions.panel );
+
+		divisions.main.append( divisions.list );
 		divisions.page.append( divisions.header, divisions.main, divisions.footer );
 
-		athletes.main.append( athletes.list );
+		athletes.main.append( athletes.list, athletes.actions );
 		athletes.page.append( athletes.header, athletes.main, athletes.footer );
 
 		widget.addClass( "coordinator-controller" );
@@ -84,19 +118,16 @@ $.widget( "freescore.coordinatorController", {
 				var j = division.order[ round ][ i ];
 				var athlete = {
 					data : division.athletes[ j ],
-					item : html.li.clone() .addClass( 'athlete' ),
-					link : html.a.clone()
+					item : html.li.clone()
 				}
 				var complete = true;
 				for( k = 0; k < athlete.data.scores[ round ].length; k++ ) {
 					var formComplete = athlete.data.scores[ round ][ k ].complete;
 					complete &= formComplete;
 				}
-				athlete.link.html( athlete.data.name );
-				athlete.link.attr({ href: '#athletes?divid=' + athlete.data.name, 'data-transition' : 'slide' });
-				if( j == division.current ) { athlete.link.addClass( 'current' );  } else { athlete.link.removeClass( 'current' ) }
-				if( complete              ) { athlete.link.addClass( 'complete' ); } else { athlete.link.removeClass( 'complete' ); }
-				athlete.item.append( athlete.link );
+				athlete.item.html( athlete.data.name );
+				if( j == division.current ) { athlete.item.addClass( 'current' );  } else { athlete.item.removeClass( 'current' ) }
+				if( complete              ) { athlete.item.addClass( 'complete' ); } else { athlete.item.removeClass( 'complete' ); }
 				e.athletes.list.append( athlete.item );
 			}
 			e.athletes.list.listview().listview( 'refresh' );
