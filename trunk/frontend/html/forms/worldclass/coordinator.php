@@ -5,22 +5,17 @@
 <html>
 	<head>
 		<title>World Class Coordinator</title>
-		<link href="../../include/css/ajaxbutton.css" rel="stylesheet" />
-		<link href="../../include/css/flippable.css" rel="stylesheet" />
+		<link href="../../include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
-		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
-		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
-		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
-		<script src="../../include/jquery/js/jquery.tappy.js"></script>
+		<script src="../../include/jquery/js/jquery.purl.js"></script>
+		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
-		<script src="../../include/jquery/js/jquery.timer.js"></script>
-		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.coordinatorController.js"></script>
 	</head>
 	<body>
