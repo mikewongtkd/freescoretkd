@@ -1,15 +1,20 @@
 .athletes {
   width: calc( 100% - 220px ); }
   .athletes .current {
+    color: white;
     background: #05e870;
     background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
     background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
     text-shadow: 2px 2px #497bae; }
   .athletes .complete {
     color: rgba(0, 0, 0, 0.4); }
+  .athletes .ordinal {
+    color: silver; }
+  .athletes .form {
+    color: gold; }
 
 .actions {
-  position: absolute;
+  position: fixed;
   top: 32px;
   left: calc( 100% - 220px );
   width: 220px;

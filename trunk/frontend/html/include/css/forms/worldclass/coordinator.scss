@@ -1,11 +1,13 @@
 .athletes {
 	width: calc( 100% - 220px );
-	.current  { background: #05e870; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
+	.current  { color: white; background: #05e870; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
 	.complete { color: rgba( 0, 0, 0, 0.4 ); }
+	.ordinal  { color: silver; }
+	.form     { color: gold; }
 }
 
 .actions  {
-	position: absolute;
+	position: fixed;
 	top: 32px;
 	left: calc( 100% - 220px );
 	width: 220px;

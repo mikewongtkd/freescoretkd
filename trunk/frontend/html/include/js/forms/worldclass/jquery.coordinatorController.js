@@ -1,14 +1,21 @@
 $.widget( "freescore.coordinatorController", {
 	options: { autoShow: true },
 	_create: function() {
-		var o      = this.options;
-		var e      = this.options.elements = {};
-		var widget = this.element;
-		var html   = e.html  = FreeScore.html;
+		var o       = this.options;
+		var e       = this.options.elements = {};
+		var widget  = this.element;
+		var html    = e.html  = FreeScore.html;
+		var ordinal = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
 
-		o.ring    = parseInt( $.cookie( "ring" ));
-		o.current = {};
-		var ring  = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
+		o.ring      = parseInt( $.cookie( "ring" ));
+		o.port      = ':3088/';
+		o.current   = {};
+		var ring    = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
+
+		var sound    = e.sound    = {
+			ok    : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]}),
+			error : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]}),
+		};
 
 		var divisions = e.divisions = {
 				page   : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
@@ -52,13 +59,14 @@ $.widget( "freescore.coordinatorController", {
 				bounds   : button.clone() .addClass( 'penalty ui-icon-action'  ) .html( "Out-of-Bounds" ),
 			},
 
-		}
+		};
 
 		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.next );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.timer, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.time, actions.penalties.bounds );
 
 		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
+		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
 		divisions.main.append( divisions.list );
@@ -75,6 +83,43 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 
 		// ============================================================
+		var navPrevAthlete = function() {
+		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ o.progress.current ];
+				var round    = division.round;
+				var order    = division.order[ round ];
+				var i        = 0;
+				while( i < order.length ) {
+					if( order[ i ] == division.current ) { break; }
+					i++;
+				}
+				if( i > 0 ) { division.current = order[ i - 1 ] } else { division.current = order[ order.length - 1 ]; };
+				e.updateAthletes( division );
+			}
+			(sendCommand( "athlete/previous" ))();
+		}
+
+		// ============================================================
+		var navNextAthlete = function() {
+		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ o.progress.current ];
+				var round    = division.round;
+				var order    = division.order[ round ];
+				var i        = 0;
+				while( i < order.length ) {
+					if( order[ i ] == division.current ) { break; }
+					i++;
+				}
+				if( i < order.length - 1 ) { division.current = order[ i + 1 ] } else { division.current = order[ 0 ]; };
+				e.updateAthletes( division );
+			}
+
+			(sendCommand( "athlete/next" ))();
+		}
+
+		// ============================================================
 		function parsePageUrl( pageUrl ) {
 		// ============================================================
 			var anchor = $.url( pageUrl ).attr( "anchor" );
@@ -84,6 +129,32 @@ $.widget( "freescore.coordinatorController", {
 			option[ 'id' ] = args[ 0 ];
 
 			return option;
+		}
+
+		// ============================================================
+		var sendCommand = function( command ) {
+		// ============================================================
+			return function() {
+				console.log( command );
+				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + command;
+				$.ajax( {
+					type:    'GET',
+					crossDomain: true,
+					url:     url,
+					data:    {},
+					success: function( response ) { 
+						if( defined( response.error )) {
+							sound.error.play();
+							console.log( response );
+						} else {
+							sound.ok.play(); 
+							console.log( url );
+							console.log( response );
+						}
+					},
+					error:   function( response ) { sound.error.play(); },
+				});
+			}
 		}
 
 		// ============================================================
@@ -121,12 +192,20 @@ $.widget( "freescore.coordinatorController", {
 					item : html.li.clone()
 				}
 				var complete = true;
-				for( k = 0; k < athlete.data.scores[ round ].length; k++ ) {
+				var forms    = athlete.data.scores[ round ].length;
+				for( k = 0; k < forms; k++ ) {
 					var formComplete = athlete.data.scores[ round ][ k ].complete;
 					complete &= formComplete;
 				}
-				athlete.item.html( athlete.data.name );
-				if( j == division.current ) { athlete.item.addClass( 'current' );  } else { athlete.item.removeClass( 'current' ) }
+				if( j == division.current ) { 
+					athlete.item.addClass( 'current' );
+					if      ( forms  > 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash; ' + ordinal[ division.form ] + ':</span> <span class="form">' + division.forms[ round ][ division.form ].name + '</span>' ); }
+					else if ( forms == 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash;</span> <span class="form">' + division.forms[ round ][ division.form ].name + '</span>' ); }
+
+				} else { 
+					athlete.item.html( athlete.data.name );
+					athlete.item.removeClass( 'current' ) 
+				}
 				if( complete              ) { athlete.item.addClass( 'complete' ); } else { athlete.item.removeClass( 'complete' ); }
 				e.athletes.list.append( athlete.item );
 			}
@@ -157,6 +236,10 @@ $.widget( "freescore.coordinatorController", {
 			e.updateDivisions( progress.divisions );
 
 		};
+
+		actions.navigation.previous .click( navPrevAthlete );
+		actions.navigation.next     .click( navNextAthlete );
+
 
 	},
 	_init: function( ) {
