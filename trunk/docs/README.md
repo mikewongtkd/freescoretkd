@@ -27,6 +27,7 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
   - GD::Barcode
     - GD
   - JSON::XS
+  - List::MoreUtils
   - List::Util
   - LWP::UserAgent
   - Mojolicious
