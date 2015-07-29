@@ -1,0 +1,58 @@
+#! /usr/bin/perl
+use lib qw( ./lib ../lib );
+use Algorithm::Numerical::Shuffle qw( shuffle );
+use FreeScore::Test qw( score_worldclass );
+use Time::HiRes qw( usleep );
+
+our $test  = new FreeScore::Test();
+
+# ===== ADVANCE TO THE 3RD DIVISION
+my $division = undef;
+do {
+	usleep( 0.75 * 1000000 );
+	my $response = $test->worldclass( "division/next" );
+	$division = $response->{ division };
+} until( $division eq 'p03' );
+
+my $number = $test->worldclass( "judges" );
+my $judges = $number->{ judges } - 1;
+my $names  = [ qw( Alicia Noe Maya Claire ) ];
+my $skill  = {
+	'Alicia'	=> 'best',
+	'Noe'		=> 'better',
+	'Maya'		=> 'good',
+	'Claire'	=> 'better',
+};
+my $current = 0;
+my $response = undef;
+
+foreach my $athlete ( 0 .. 3 ) {
+	my $name  = $names->[ $current ];
+	my $level = $skill->{ $name };
+	score( $level, $judges );
+	usleep( 0.75 * 1000000 );
+
+	$test->worldclass( "display" ); # Show leaderboard
+	usleep( 2.50 * 1000000 );
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 21;
+	$current = $response->{ athlete };
+}
+
+sleep( 5 );
+
+# ============================================================
+sub score {
+# ============================================================
+	my $skill  = shift;
+	my $k      = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $score       = score_worldclass( $skill );
+		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+		$test->worldclass( $judge_score );
+		usleep( 500000 );
+	}
+	sleep( 1 );
+}

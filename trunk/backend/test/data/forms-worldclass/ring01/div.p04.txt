@@ -1,0 +1,15 @@
+# state=score
+# current=0
+# form=0
+# round=finals
+# judges=7
+# description=Male Cadets
+# forms=finals:Taegeuk 5,Taegeuk 7
+# ------------------------------------------------------------
+# finals
+# ------------------------------------------------------------
+Brendan
+David
+Kai
+Logan
+Aiden
