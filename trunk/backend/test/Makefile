@@ -35,9 +35,10 @@ grassroots-tb-ui-test:
 	
 worldclass: cache test-config worldclass-unit-test worldclass-rest-test restore-config
 
-worldclass-rest: start cache test-config worldclass-rest-test restore-config stop
-worldclass-unit:       cache test-config worldclass-unit-test restore-config
-worldclass-ui:   start cache test-config worldclass-ui-test   restore-config
+worldclass-rest:   start cache test-config worldclass-rest-test restore-config stop
+worldclass-unit:         cache test-config worldclass-unit-test restore-config
+worldclass-ui:     start cache test-config worldclass-ui-5-test restore-config
+worldclass-ui-all: start cache test-config worldclass-ui-5-test worldclass-ui-3-test worldclass-ui-7-test restore-config
 
 worldclass-rest-test:
 	./smoke/forms/worldclass/rest-api.t
@@ -45,8 +46,14 @@ worldclass-rest-test:
 worldclass-unit-test:
 	./smoke/forms/worldclass/division-api.t
 
-worldclass-ui-test:
-	./ui/forms/worldclass/judges
+worldclass-ui-3-test:
+	./ui/forms/worldclass/3-judges
+
+worldclass-ui-5-test:
+	./ui/forms/worldclass/5-judges
+
+worldclass-ui-7-test:
+	./ui/forms/worldclass/7-judges
 
 test-config:
 	test=$$(grep -c 'FreeScore Test' ../../frontend/html/include/php/config.php); \

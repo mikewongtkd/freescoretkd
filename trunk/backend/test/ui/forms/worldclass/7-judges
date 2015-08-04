@@ -1,0 +1,94 @@
+#! /usr/bin/perl
+use lib qw( ./lib ../lib );
+use Algorithm::Numerical::Shuffle qw( shuffle );
+use FreeScore::Test qw( score_worldclass );
+use Time::HiRes qw( usleep );
+
+our $test  = new FreeScore::Test();
+
+# ===== ADVANCE TO THE 4TH DIVISION
+my $division = undef;
+do {
+	usleep( 0.75 * 1000000 );
+	my $response = $test->worldclass( "division/next" );
+	$division = $response->{ division };
+} until( $division eq 'p04' );
+
+my $number = $test->worldclass( "judges" );
+my $judges = $number->{ judges } - 1;
+my $names  = [ qw( Brendan David Kai Logan Aiden ) ];
+my $skill  = {
+	'Brendan'	=> 'good',
+	'David'		=> 'better',
+	'Kai'		=> 'best',
+	'Logan'		=> 'better',
+	'Aiden'		=> 'best',
+};
+my $current = 0;
+my $response = undef;
+
+foreach my $athlete ( 0 .. 21 ) {
+	my $name  = $names->[ $current ];
+	my $level = $skill->{ $name };
+	score( $level, $judges );
+	usleep( 750000 );
+
+	$test->worldclass( "display" ); # Show leaderboard
+	usleep( 2500000 );
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 21;
+	$current = $response->{ athlete };
+}
+
+sleep( 5 );
+$response = $test->worldclass( "round/next" );
+$current = $response->{ athlete };
+
+foreach my $athlete ( 0 .. 10 ) {
+	my $name  = $names->[ $current ];
+	my $level = $skill->{ $name };
+	score( $level, $judges );
+	usleep( 750000 );
+
+	$test->worldclass( "display" ); # Show leaderboard
+	usleep( 2500000 );
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 10;
+	$current = $response->{ athlete };
+}
+
+sleep( 5 );
+$response = $test->worldclass( "round/next" );
+$current = $response->{ athlete };
+
+foreach my $athlete ( 0 .. 7 ) {
+	foreach my $form ( 0 .. 1 ) {
+		my $name  = $names->[ $current ];
+		my $level = $skill->{ $name };
+		score( $level, $judges );
+		$test->worldclass( "form/next" );
+	}
+	$test->worldclass( "display" ); # Show leaderboard
+	sleep( 2 );
+	$test->worldclass( "display" ); # Show score board
+
+	$response = $test->worldclass( "athlete/next" ) unless $athlete == 7;
+	$current = $response->{ athlete };
+}
+
+# ============================================================
+sub score {
+# ============================================================
+	my $skill  = shift;
+	my $k      = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $score       = score_worldclass( $skill );
+		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+		$test->worldclass( $judge_score );
+		usleep( 500000 );
+	}
+	sleep( 1 );
+}

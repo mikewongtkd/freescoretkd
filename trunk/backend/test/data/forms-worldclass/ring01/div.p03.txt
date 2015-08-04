@@ -1,0 +1,14 @@
+# state=score
+# current=0
+# form=0
+# round=finals
+# judges=3
+# description=Female Cadets
+# forms=finals:Taegeuk 4,Taegeuk 8
+# ------------------------------------------------------------
+# finals
+# ------------------------------------------------------------
+Alicia
+Noe
+Maya
+Claire
