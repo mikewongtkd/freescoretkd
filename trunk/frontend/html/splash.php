@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<meta http-equiv="refresh" content="1;url=http://freescore.net/freescore/index.php">
+		<meta http-equiv="refresh" content="3;url=http://freescore.net/freescore/index.php">
 		<title>FreeScore Wifi</title>
 		<style type="text/css">
 			body         { background-color: black; }
