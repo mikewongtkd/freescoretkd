@@ -35,28 +35,28 @@
       .judgeNotes .view table .name {
         width: 278px; }
       .judgeNotes .view table .form {
-        width: 180px;
+        width: 200px;
         text-align: center; }
         .judgeNotes .view table .form .accuracy {
           color: #f99; }
         .judgeNotes .view table .form .presentation {
           color: #99f; }
       .judgeNotes .view table .form1 {
-        width: 90px;
+        width: 86px;
         text-align: center; }
         .judgeNotes .view table .form1 .accuracy {
           color: #f99; }
         .judgeNotes .view table .form1 .presentation {
           color: #99f; }
       .judgeNotes .view table .form2 {
-        width: 90px;
+        width: 86px;
         text-align: center; }
         .judgeNotes .view table .form2 .accuracy {
           color: #f99; }
         .judgeNotes .view table .form2 .presentation {
           color: #99f; }
       .judgeNotes .view table .average {
-        width: 90px;
+        width: 86px;
         text-align: center; }
       .judgeNotes .view table .current {
         background: #606c88;

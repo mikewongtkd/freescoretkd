@@ -26,13 +26,14 @@ $.widget( "freescore.judgeNotes", {
 		if( ! defined( round    )) { return; }
 
 		view.empty();
+		var roundLabel = { prelim : 'Preliminary Round', semfin : 'Semi-Finals', finals : 'Finals' };
 		var formLabel = [
 			defined( o.forms[ 0 ] ) ? o.forms[ 0 ].name : 'Form 1',
 			defined( o.forms[ 1 ] ) ? o.forms[ 1 ].name : 'Form 2',
 		];
 		var header = {
 			order : h.th.clone() .addClass( "order" )   .html( "#" ),
-			name  : h.th.clone() .addClass( "name" )    .html( "Name" ),
+			name  : h.th.clone() .addClass( "name" )    .html( "Name (" + roundLabel[ round ] + ")" ),
 			form1 : h.th.clone() .addClass( "form1" )   .html( formLabel[ 0 ] ),
 			form2 : h.th.clone() .addClass( "form2" )   .html( formLabel[ 1 ] ),
 			avg   : h.th.clone() .addClass( "average" ) .html( "Avg" )
