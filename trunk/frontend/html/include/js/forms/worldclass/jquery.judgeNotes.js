@@ -26,11 +26,15 @@ $.widget( "freescore.judgeNotes", {
 		if( ! defined( round    )) { return; }
 
 		view.empty();
+		var formLabel = [
+			defined( o.forms[ 0 ] ) ? o.forms[ 0 ].name : 'Form 1',
+			defined( o.forms[ 1 ] ) ? o.forms[ 1 ].name : 'Form 2',
+		];
 		var header = {
 			order : h.th.clone() .addClass( "order" )   .html( "#" ),
 			name  : h.th.clone() .addClass( "name" )    .html( "Name" ),
-			form1 : h.th.clone() .addClass( "form1" )   .html( "Form 1" ),
-			form2 : h.th.clone() .addClass( "form2" )   .html( "Form 2" ),
+			form1 : h.th.clone() .addClass( "form1" )   .html( formLabel[ 0 ] ),
+			form2 : h.th.clone() .addClass( "form2" )   .html( formLabel[ 1 ] ),
 			avg   : h.th.clone() .addClass( "average" ) .html( "Avg" )
 		}
 		var headers = [ header.order, header.name, header.form1 ];
@@ -40,14 +44,15 @@ $.widget( "freescore.judgeNotes", {
 		var table = h.table.clone();
 		table.append( h.tr.clone() .append( headers ));
 
-		for( var i = 0; i < o.participants.length; i++ ) {
-			var j            = o.participants[ i ];
+		for( var i = 0; i < o.order.length; i++ ) {
+			var j            = o.order[ i ];
 			var tr           = h.tr.clone();
 			var athlete      = athletes[ j ];
 			var score        = { form1 : '', form2 : '', average : '' };
 
 			if( athlete.scores[ round ].length > 0 ) {
-				var summarize = function( form ) {
+
+				var summarize = function( form ) { // MW TODO Consider pulling this closure out.
 					var judge        = form.judge[ 0 ];
 					var penalties    = judge.major + judge.minor;
 					var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
@@ -80,14 +85,14 @@ $.widget( "freescore.judgeNotes", {
 				})();
 			}
 
-			var isCurrent    = function() { if( i == current ) { return "current"; } else { return ''; }}
+			var isCurrent    = function( form ) { if( j == current ) { if( form == o.form ) { return "current-form"; } else { return "current"; }} else { return ''; }}
 
 			var column = {
-				order : h.td.clone() .addClass( isCurrent() ) .addClass( "order" )   .html( i + 1 + "." ),
-				name  : h.td.clone() .addClass( isCurrent() ) .addClass( "name"  )   .html( athlete.name ),
-				form1 : h.td.clone() .addClass( isCurrent() ) .addClass( "form1" )   .html( score.form1 ),
-				form2 : h.td.clone() .addClass( isCurrent() ) .addClass( "form2" )   .html( score.form2 ),
-				avg   : h.td.clone() .addClass( isCurrent() ) .addClass( "average" ) .html( score.average )
+				order : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "order" )   .html( i + 1 + "." ),
+				name  : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "name"  )   .html( athlete.name ),
+				form1 : h.td.clone() .addClass( isCurrent( 0 ) ) .addClass( "form1" )   .html( score.form1 ),
+				form2 : h.td.clone() .addClass( isCurrent( 1 ) ) .addClass( "form2" )   .html( score.form2 ),
+				avg   : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "average" ) .html( score.average )
 			}
 			var columns = [ column.order, column.name, column.form1 ];
 			var headers = [ header.order, header.name, header.form1 ];

@@ -732,8 +732,8 @@ sub previous_round {
 	# ===== GO TO PREVIOUS ROUND
 	$self->{ round } = $rounds[ $i ];
 
-	# ===== GO TO THE LAST ATHLETE IN THAT ROUND
-	$self->{ current } = $self->athletes_in_round( 'last' );
+	# ===== GO TO THE FIRST ATHLETE IN THAT ROUND
+	$self->{ current } = $self->athletes_in_round( 'first' );
 }
 
 # ============================================================

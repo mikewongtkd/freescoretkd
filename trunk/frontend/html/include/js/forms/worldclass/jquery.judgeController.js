@@ -111,13 +111,15 @@ $.widget( "freescore.judgeController", {
 
 		function refresh( update ) {
 			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
-			var division = progress.divisions[ progress.current ];
+			var division = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
 			if( ! defined( division )) { return; }
 
 			var formNames   = division.forms[ division.round ];
 			var formOrdinal = formNames.length > 1 ? ordinal[ division.form ] + ' form ' : '';
 			if( ! defined( formNames )) { return; }
 			var formName    = formNames[ division.form ].name;
+
+			console.log( division.order[ division.round ], division.current );
 
 			if( division.state == 'score' ) {
 				e.flipDisplay.ajaxbutton({ label : "Leaderboard" });
@@ -186,11 +188,7 @@ $.widget( "freescore.judgeController", {
 				widget.trigger({ type : "updateRequest", score : o });
 			}
 			// ===== UPDATE WIDGETS
-			var in_round = [];
-			in_round = division.pending[ division.round ].concat( division.placement[ division.round ] );
-			in_round = $.grep( in_round, function( el, i ) { return defined( el ); } ); // Ignore null entries
-			in_round = in_round.sort( function( a, b ) { return a - b; });
-			e.notes .judgeNotes({ forms : division.forms[ division.round ], athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, participants : in_round });
+			e.notes .judgeNotes({ forms : division.forms[ division.round ], form : division.form, athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, order : division.order[ division.round ] });
 
 			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : in_round.length });
 

@@ -33,27 +33,31 @@
         width: 28px;
         color: #666; }
       .judgeNotes .view table .name {
-        width: 286px; }
+        width: 278px; }
       .judgeNotes .view table .form {
-        width: 172px; }
+        width: 180px;
+        text-align: center; }
         .judgeNotes .view table .form .accuracy {
           color: #f99; }
         .judgeNotes .view table .form .presentation {
           color: #99f; }
       .judgeNotes .view table .form1 {
-        width: 86px; }
+        width: 90px;
+        text-align: center; }
         .judgeNotes .view table .form1 .accuracy {
           color: #f99; }
         .judgeNotes .view table .form1 .presentation {
           color: #99f; }
       .judgeNotes .view table .form2 {
-        width: 86px; }
+        width: 90px;
+        text-align: center; }
         .judgeNotes .view table .form2 .accuracy {
           color: #f99; }
         .judgeNotes .view table .form2 .presentation {
           color: #99f; }
       .judgeNotes .view table .average {
-        width: 86px; }
+        width: 90px;
+        text-align: center; }
       .judgeNotes .view table .current {
         background: #606c88;
         background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
@@ -62,6 +66,17 @@
         .judgeNotes .view table .current .accuracy {
           color: #fcc; }
         .judgeNotes .view table .current .presentation {
+          color: #ccf; }
+      .judgeNotes .view table .current-form {
+        background: #cedce7;
+        background: -webkit-linear-gradient(top, #cedce7 0%, #596a72 100%);
+        /* Chrome10+,Safari5.1+ */
+        background: linear-gradient(to bottom, #cedce7 0%, #596a72 100%);
+        /* W3C */
+        color: white; }
+        .judgeNotes .view table .current-form .accuracy {
+          color: #fcc; }
+        .judgeNotes .view table .current-form .presentation {
           color: #ccf; }
 
 /*# sourceMappingURL=judgeNotes.css.map */

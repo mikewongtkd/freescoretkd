@@ -37,16 +37,25 @@
 			}
 
 			.order        { width: 28px; color: #666; }
-			.name         { width: 286px; }
-			.form         { width: 172px; .accuracy { color: #f99; } .presentation { color: #99f; }}
-			.form1        { width: 86px;  .accuracy { color: #f99; } .presentation { color: #99f; }}
-			.form2        { width: 86px;  .accuracy { color: #f99; } .presentation { color: #99f; }}
-			.average      { width: 86px; }
+			.name         { width: 278px; }
+			.form         { width: 180px; text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
+			.form1        { width: 90px;  text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
+			.form2        { width: 90px;  text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
+			.average      { width: 90px;  text-align: center; }
 
 			.current {
 				background: #606c88;
 				background: -webkit-linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
 				background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
+				color: white;
+				.accuracy     { color: #fcc; }
+				.presentation { color: #ccf; }
+			}
+
+			.current-form {
+				background: #cedce7;
+				background: -webkit-linear-gradient(top, #cedce7 0%,#596a72 100%); /* Chrome10+,Safari5.1+ */
+				background: linear-gradient(to bottom, #cedce7 0%,#596a72 100%); /* W3C */
 				color: white;
 				.accuracy     { color: #fcc; }
 				.presentation { color: #ccf; }
