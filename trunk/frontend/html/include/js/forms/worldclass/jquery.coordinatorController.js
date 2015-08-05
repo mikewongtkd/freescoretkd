@@ -109,7 +109,7 @@ $.widget( "freescore.coordinatorController", {
 
 		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
 
-		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.division, actions.navigation.previous, actions.navigation.next );
+		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.division, actions.navigation.next );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 
@@ -219,6 +219,17 @@ $.widget( "freescore.coordinatorController", {
 		}
 
 		// ============================================================
+		var navDivision = function() {
+		// ============================================================
+			actions.navigation.division.hide();
+			actions.navigation.next.show();
+			actions.navigation.previous.show();
+			actions.navigation.panel.controlgroup( 'refresh' );
+			actions.clock.panel .show();
+			actions.penalties.panel .show();
+		}
+
+		// ============================================================
 		var awardPenaltyBounds = function() {
 		// ============================================================
 			o.penalties.bounds += 0.3;
@@ -318,23 +329,17 @@ $.widget( "freescore.coordinatorController", {
 			if( o.progress.current != current ) { 
 				actions.navigation.division.unbind( 'click' ).click( function() { 
 					(sendCommand( 'division/' + current )()); 
-					actions.navigation.division.hide();
-					actions.navigation.next.show();
-					actions.navigation.previous.show();
-					actions.clock.panel .show();
-					actions.penalties.panel .show();
+					navDivision();
 				});
 				actions.navigation.division.show();
 				actions.navigation.next.hide();
 				actions.navigation.previous.hide();
+				actions.navigation.panel.controlgroup( 'refresh' );
+				actions.navigation.division.addClass( 'ui-first-child ui-last-child' );
 				actions.clock.panel .hide();
 				actions.penalties.panel .hide();
 			} else {
-				actions.navigation.division.hide();
-				actions.navigation.next.show();
-				actions.navigation.previous.show();
-				actions.clock.panel .show();
-				actions.penalties.panel .show();
+				navDivision();
 			}
 
 			// Update Header
