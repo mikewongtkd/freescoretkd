@@ -66,7 +66,10 @@ $.widget( "freescore.scoreboard", {
 				var score = current.athlete.scores[ current.round ][ i ];
 				var mean  = score.adjusted_mean;
 				if( ! defined( mean )) { continue; }
-				var total = (mean.accuracy + mean.presentation).toFixed( 2 );
+				var penalties = 0;
+				var penalty = score.penalty;
+				if( defined( penalty ) && defined( penalty.timelimit ) && defined( penalty.bounds )) { penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds ); }
+				var total = (mean.accuracy + mean.presentation - penalties).toFixed( 2 );
 				total = total == 'NaN' ? '' : total;
 				grand_mean += parseFloat( total );
 				count++;

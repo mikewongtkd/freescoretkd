@@ -342,8 +342,8 @@ $.widget( "freescore.coordinatorController", {
 			var k = forms.length - 1;
 			if( division.form == 0 ) { e.actions.navigation.previous .removeClass( 'navigate-forms ui-icon-carat-u' )    .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( 'Prev. Athlete' ) .unbind( 'click' ) .click( navPrevAthlete ); } 
 			else                     { e.actions.navigation.previous .removeClass( 'navigate-athletes ui-icon-arrow-u' ) .addClass( 'navigate-forms ui-icon-carat-u' )    .html( 'Prev. Form' )    .unbind( 'click' ) .click( navPrevForm ); }
-			if( division.form == k ) { e.actions.navigation.next     .removeClass( 'navigate-forms ui-icon-carat-d' )    .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( 'Next. Athlete' ) .unbind( 'click' ) .click( navNextAthlete ); } 
-			else                     { e.actions.navigation.next     .removeClass( 'navigate-athletes ui-icon-arrow-d' ) .addClass( 'navigate-forms ui-icon-carat-d' )    .html( 'Next. Form' )    .unbind( 'click' ) .click( navNextForm ); }
+			if( division.form == k ) { e.actions.navigation.next     .removeClass( 'navigate-forms ui-icon-carat-d' )    .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( 'Next Athlete' )  .unbind( 'click' ) .click( navNextAthlete ); } 
+			else                     { e.actions.navigation.next     .removeClass( 'navigate-athletes ui-icon-arrow-d' ) .addClass( 'navigate-forms ui-icon-carat-d' )    .html( 'Next Form' )     .unbind( 'click' ) .click( navNextForm ); }
 		};
 
 		// ============================================================
