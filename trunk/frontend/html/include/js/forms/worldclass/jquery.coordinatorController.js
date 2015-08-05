@@ -27,7 +27,7 @@ $.widget( "freescore.coordinatorController", {
 
 		var athletes  = e.athletes = {
 				page    : html.div.clone() .attr({ 'data-role': 'page', id: 'athletes' }),
-				header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1><a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\">Athletes</a></h1>" ),
+				header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
 				main    : html.div.clone() .attr({ 'role': 'main' }),
 				list    : html.ol.clone() .attr( 'role', 'listview' ) .addClass( 'athletes' ),
 				actions : html.div.clone(),
@@ -144,7 +144,7 @@ $.widget( "freescore.coordinatorController", {
 					i++;
 				}
 				if( i > 0 ) { division.current = order[ i - 1 ] } else { division.current = order[ order.length - 1 ]; };
-				e.updateAthletes( division );
+				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
 				e.time.clear();
@@ -165,7 +165,7 @@ $.widget( "freescore.coordinatorController", {
 					i++;
 				}
 				if( i < order.length - 1 ) { division.current = order[ i + 1 ] } else { division.current = order[ 0 ]; };
-				e.updateAthletes( division );
+				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
 				e.time.clear();
@@ -253,10 +253,12 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var updateAthletes = e.updateAthletes = function( division ) {
+		var updateAthletes = e.updateAthletes = function( division, current ) {
 		// ============================================================
 			e.athletes.list.empty();
 			if( ! defined( division )) { return; }
+			if( o.progress.current != current ) { (sendCommand( 'division/' + current )()); }
+			e.athletes.header .find( 'h1' ) .text( division.name.capitalize() + ' ' + division.description );
 			var round = division.round;
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
@@ -293,12 +295,17 @@ $.widget( "freescore.coordinatorController", {
 			var option    = parsePageUrl( transition.absUrl );
 			var divisions = o.progress.divisions;
 			var division  = undefined;
+			var index     = undefined;
 			if( defined( option.ring ) && defined( option.divid )) {
-				division = $.grep( o.progress.divisions, function( item ) { return (item.name == option.divid && item.ring == option.ring); })[ 0 ];
+				for( var i = 0; i < divisions.length; i++ ) {
+					division = divisions[ i ];
+					if( division.name == option.divid && division.ring == option.ring ) { index = i; break; }
+					division = undefined;
+				}
 			}
 
 			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.current ); }
-			else if ( option.id == "athletes"  ) { e.updateAthletes( division ); }
+			else if ( option.id == "athletes"  ) { e.updateAthletes( division, index ); }
 		});
 
 		// ============================================================
