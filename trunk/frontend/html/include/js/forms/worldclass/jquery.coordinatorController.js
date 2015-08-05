@@ -22,7 +22,6 @@ $.widget( "freescore.coordinatorController", {
 				header : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
 				main   : html.div.clone() .attr({ 'role': 'main' }),
 				list   : html.ul.clone()  .attr({ 'role': 'listview' }) .addClass( 'divisions' ),
-				footer : html.div.clone() .attr({ 'data-role': 'footer', 'data-theme' : 'b', 'data-position' : 'fixed' }),
 			};
 
 		var athletes  = e.athletes = {
@@ -31,7 +30,6 @@ $.widget( "freescore.coordinatorController", {
 				main    : html.div.clone() .attr({ 'role': 'main' }),
 				list    : html.ol.clone() .attr( 'role', 'listview' ) .addClass( 'athletes' ),
 				actions : html.div.clone(),
-				footer  : html.div.clone() .attr({ 'data-role': 'footer', 'data-theme' : 'b', 'data-position' : 'fixed' }),
 		};
 
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
@@ -124,10 +122,10 @@ $.widget( "freescore.coordinatorController", {
 			else { time.start(); }
 		});
 		divisions.main.append( divisions.list );
-		divisions.page.append( divisions.header, divisions.main, divisions.footer );
+		divisions.page.append( divisions.header, divisions.main );
 
 		athletes.main.append( athletes.list, athletes.actions );
-		athletes.page.append( athletes.header, athletes.main, athletes.footer );
+		athletes.page.append( athletes.header, athletes.main );
 
 		widget.addClass( "coordinator-controller" );
 		widget.append( divisions.page, athletes.page );
