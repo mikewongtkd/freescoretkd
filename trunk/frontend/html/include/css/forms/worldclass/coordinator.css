@@ -1,8 +1,15 @@
+.divisions .current {
+  color: white;
+  background: #6facd5;
+  background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
+  background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
+  text-shadow: 2px 2px #497bae; }
+
 .athletes {
   width: calc( 100% - 220px ); }
   .athletes .current {
     color: white;
-    background: #05e870;
+    background: #6facd5;
     background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
     background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
     text-shadow: 2px 2px #497bae; }

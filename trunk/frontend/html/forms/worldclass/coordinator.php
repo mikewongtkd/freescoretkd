@@ -15,6 +15,7 @@
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
+		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.coordinatorController.js"></script>
 	</head>
