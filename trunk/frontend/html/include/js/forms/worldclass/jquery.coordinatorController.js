@@ -127,6 +127,7 @@ $.widget( "freescore.coordinatorController", {
 		athletes.main.append( athletes.list, athletes.actions );
 		athletes.page.append( athletes.header, athletes.main );
 
+		widget.nodoubletapzoom();
 		widget.addClass( "coordinator-controller" );
 		widget.append( divisions.page, athletes.page );
 
