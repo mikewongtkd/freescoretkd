@@ -18,8 +18,14 @@ $.widget( "freescore.scoreboard", {
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
 		var total        = e.total        = html.div.clone() .addClass( "total" );
+		var penalty      = e.penalty      = { bounds : html.div.clone() .addClass( "bounds" ), timelimit : html.div.clone() .addClass( "timelimit" ) };
 
-		totalScore.append( athlete, score, round, forms );
+		penalty.bounds    .append( html.div.clone() .addClass( "icon" ), '-0.3' );
+		penalty.timelimit .append( html.div.clone() .addClass( "icon" ), '-0.3' );
+		penalty.bounds.hide();
+		penalty.timelimit.hide();
+
+		totalScore.append( athlete, score, round, forms, penalty.bounds, penalty.timelimit );
 		score.append( accuracy, presentation, total );
 
 		for( var i = 0; i < 7; i++ ) {
@@ -100,16 +106,23 @@ $.widget( "freescore.scoreboard", {
 			var presentation  = 0;
 			var score         = 0;
 
-			var form = current.athlete.scores[ current.round ][ current.form ];
-			var mean      = form.adjusted_mean;
+			var form    = current.athlete.scores[ current.round ][ current.form ];
+			var mean    = form.adjusted_mean;
+			var penalty = form.penalty;
 			if( defined( mean )) { 
-				accuracy     = mean.accuracy;
-				presentation = mean.presentation;
-				score        = mean.accuracy + mean.presentation;
+				var penalties = 0;
+				if( defined( penalty )) {
+				   penalties = penalty.timelimit + penalty.bounds;
+				   if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
+				   if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
+				}
+				accuracy      = mean.accuracy;
+				presentation  = mean.presentation;
+				score         = mean.accuracy + mean.presentation - penalties;
 
-				accuracy     = accuracy     >= 0 ? accuracy     .toFixed( 2 ) : '';
-				presentation = presentation >= 0 ? presentation .toFixed( 2 ) : '';
-				score        = score        >= 0 ? score        .toFixed( 2 ) : '';
+				accuracy      = accuracy     >= 0 ? accuracy     .toFixed( 2 ) : '';
+				presentation  = presentation >= 0 ? presentation .toFixed( 2 ) : '';
+				score         = score        >= 0 ? score        .toFixed( 2 ) : '';
 
 				e.accuracy     .html( accuracy );
 				e.presentation .html( presentation );

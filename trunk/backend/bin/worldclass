@@ -139,6 +139,33 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 # ============================================================
 
 # ------------------------------------------------------------
+# WRITE COORDINATOR PENALTY FOR ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub { 
+	my $self         = shift;
+	my $tournament   = $self->param( 'tournament'     );
+	my $ring         = $self->param( 'ring'           );
+	my $bounds       = get_score( $self, 'bounds'     );
+	my $timelimit    = get_score( $self, 'timelimit'  );
+	my $misconduct   = get_score( $self, 'misconduct' );
+	my $time         = get_time( $self );
+	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division     = $progress->current();
+	my $athlete      = $division->{ athletes }[ $division->{ current } ];
+	my $penalties    = { bounds => $bounds, timelimit => $timelimit, misconduct => $misconduct, time => $time };
+
+	try {
+		$division->record_penalties( $penalties );
+		$division->write();
+		$progress->write();
+		send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
 # FASTMATCH TRAINING DIVISION
 # ------------------------------------------------------------
 post '/fastmatch' => sub { 
@@ -343,6 +370,17 @@ sub get_score {
 	if( not defined $score || $score eq '' ) { $score = -1.0; }
 	else                                     { $score /= 10;  }
 	return sprintf( "%.1f", $score );
+}
+
+# ============================================================
+sub get_time {
+# ============================================================
+	my $ajax  = shift;
+
+	my $time = $ajax->param( 'time' );
+	if( not defined $time || $time eq '' ) { $time = -1.0; }
+	else                                   { $time /= 100;  }
+	return sprintf( "%.2f", $time );
 }
 
 # ============================================================

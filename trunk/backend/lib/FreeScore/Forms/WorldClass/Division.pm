@@ -296,9 +296,9 @@ sub record_score {
 #** @method ( judge_index, score_object )
 #   @brief Records the given score for the given judge
 #*
-	my $self  = shift;
-	my $judge = shift;
-	my $score = shift;
+	my $self    = shift;
+	my $judge   = shift;
+	my $score   = shift;
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
@@ -308,6 +308,27 @@ sub record_score {
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+}
+
+# ============================================================
+sub record_penalties {
+# ============================================================
+#** @method ( penalty_object )
+#   @brief Records the given penalties
+#*
+	my $self      = shift;
+	my $penalties = shift;
+
+	my $athlete   = $self->{ athletes }[ $self->{ current } ];
+	my $round     = $self->{ round };
+	my $form      = $self->{ form };
+	my $forms     = int( @{ $self->{ forms }{ $round }});
+	my $judges    = $self->{ judges };
+
+	print STDERR Dumper $penalties; # MW
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
 }
 
 # ============================================================

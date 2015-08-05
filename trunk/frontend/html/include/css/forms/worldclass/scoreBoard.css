@@ -195,5 +195,36 @@
           left: 0;
           width: 200px;
           height: 60px; }
+    .scoreboard .totalScores .bounds {
+      color: white;
+      font-size: 24pt;
+      position: absolute;
+      left: 304px;
+      top: 168px;
+      width: 100px;
+      height: 41px; }
+      .scoreboard .totalScores .bounds .icon {
+        float: left;
+        background: #c33 url("/freescore/include/jquery/mobile/images/icons-svg/action-white.svg") no-repeat 9px 5px;
+        background-size: 24px;
+        border-radius: 21px;
+        width: 41px;
+        height: 41px; }
+    .scoreboard .totalScores .timelimit {
+      color: white;
+      font-size: 24pt;
+      position: absolute;
+      position: absolute;
+      left: 304px;
+      top: 120px;
+      width: 100px;
+      height: 41px; }
+      .scoreboard .totalScores .timelimit .icon {
+        float: left;
+        background: #c33 url("/freescore/include/jquery/mobile/images/icons-svg/clock-white.svg") no-repeat 6px 6px;
+        background-size: 28px;
+        border-radius: 21px;
+        width: 41px;
+        height: 41px; }
 
 /*# sourceMappingURL=scoreBoard.css.map */

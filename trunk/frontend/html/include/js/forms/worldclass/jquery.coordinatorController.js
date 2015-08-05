@@ -58,7 +58,7 @@ $.widget( "freescore.coordinatorController", {
 			penalties : {
 				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend    : html.legend.clone() .html( "Penalties" ),
-				time      : button.clone() .addClass( 'penalty ui-icon-clock'   ) .html( "Time Limit" ),
+				timelimit : button.clone() .addClass( 'penalty ui-icon-clock'   ) .html( "Time Limit" ),
 				bounds    : button.clone() .addClass( 'penalty ui-icon-action'  ) .html( "Out-of-Bounds" ),
 			},
 
@@ -78,7 +78,7 @@ $.widget( "freescore.coordinatorController", {
 				return (min > 0 ? e.time.pad(min, 2) : "00") + ":" + e.time.pad(sec, 2) + "." + hundredths;
 			},
 			stop : function() {
-				actions.clock.timer.stop();
+				if( defined( actions.clock.timer )) { actions.clock.timer.stop(); }
 				actions.clock.settings.started = false;
 				actions.clock.toggle.removeClass( "stop" );
 				actions.clock.toggle.removeClass( "ui-icon-delete" );
@@ -103,9 +103,11 @@ $.widget( "freescore.coordinatorController", {
 
 		};
 
+		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
+
 		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.next );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
-		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.time, actions.penalties.bounds );
+		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds );
 
 		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
@@ -170,6 +172,23 @@ $.widget( "freescore.coordinatorController", {
 			}
 
 			(sendCommand( "athlete/next" ))();
+		}
+		// ============================================================
+		var awardPenaltyBounds = function() {
+		// ============================================================
+			o.penalties.bounds = 0.3;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time * 100);
+			(sendCommand( "coordinator/" + penalties )());
+		}
+
+		// ============================================================
+		var awardPenaltyTimeLimit = function() {
+		// ============================================================
+			o.penalties.timelimit = 0.3;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time * 100);
+			(sendCommand( "coordinator/" + penalties )());
 		}
 
 		// ============================================================
@@ -291,8 +310,10 @@ $.widget( "freescore.coordinatorController", {
 
 		};
 
-		actions.navigation.previous .click( navPrevAthlete );
-		actions.navigation.next     .click( navNextAthlete );
+		actions.navigation .previous  .click( navPrevAthlete );
+		actions.navigation .next      .click( navNextAthlete );
+		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
+		actions.penalties  .bounds    .click( awardPenaltyBounds );
 
 
 	},
