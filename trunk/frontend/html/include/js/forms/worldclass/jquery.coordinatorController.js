@@ -44,6 +44,7 @@ $.widget( "freescore.coordinatorController", {
 				division  : button.clone() .addClass( 'navigate-division ui-icon-bullets' ) .html( "This Division" ),
 				previous  : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( "Prev. Athlete" ),
 				next      : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( "Next Athlete" ),
+				round     : button.clone() .addClass( 'navigate-round    ui-icon-check'   ) .html( "Next Round" ),
 			},
 
 			clock : {
@@ -113,7 +114,7 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 
-		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
+		actions.panel.append( actions.navigation.panel, actions.navigation.round, actions.clock.panel, actions.penalties.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -149,7 +150,7 @@ $.widget( "freescore.coordinatorController", {
 				}
 				if( i > 0 ) { division.current = order[ i - 1 ] } else { division.current = order[ order.length - 1 ]; };
 				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
-				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
+				if( defined( form.penalty )) { o.penalties.bounds = defined( form.penalty.bounds ) ? parseFloat( form.penalty.bounds ) : 0; o.penalties.timelimit = defined( form.penalty.timelimit ) ? parseFloat( form.penalty.timelimit ) : 0; }
 				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
@@ -219,14 +220,36 @@ $.widget( "freescore.coordinatorController", {
 		}
 
 		// ============================================================
-		var navDivision = function() {
+		var navDivision = function( current ) {
 		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ current ];
+				var k = Object.keys( division.forms ).length;
+				if( k > 1 ) { actions.navigation.round.show(); } else { actions.navigation.round.hide(); }
+			}
 			actions.navigation.division.hide();
 			actions.navigation.next.show();
 			actions.navigation.previous.show();
 			actions.navigation.panel.controlgroup( 'refresh' );
 			actions.clock.panel .show();
 			actions.penalties.panel .show();
+		}
+
+		// ============================================================
+		var navRound = function() {
+		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ o.progress.current ];
+				var round    = division.round;
+				if      ( round == 'prelim' && defined( division.order.semfin )) { division.round = 'semfin'; }
+				else if ( round == 'semfin' && defined( division.order.finals )) { division.round = 'finals'; }
+				else if ( round == 'finals' && defined( division.order.prelim )) { division.round = 'prelim'; }
+				if( division.round != round ) {
+					division.current = division.order[ division.round ][ 0 ];
+					updateAthletes( division, o.progress.current );
+					(sendCommand( "round/next" ))();
+				}
+			}
 		}
 
 		// ============================================================
@@ -329,9 +352,10 @@ $.widget( "freescore.coordinatorController", {
 			if( o.progress.current != current ) { 
 				actions.navigation.division.unbind( 'click' ).click( function() { 
 					(sendCommand( 'division/' + current )()); 
-					navDivision();
+					navDivision( current );
 				});
 				actions.navigation.division.show();
+				actions.navigation.round.hide();
 				actions.navigation.next.hide();
 				actions.navigation.previous.hide();
 				actions.navigation.panel.controlgroup( 'refresh' );
@@ -339,7 +363,7 @@ $.widget( "freescore.coordinatorController", {
 				actions.clock.panel .hide();
 				actions.penalties.panel .hide();
 			} else {
-				navDivision();
+				navDivision( current );
 			}
 
 			// Update Header
@@ -410,6 +434,8 @@ $.widget( "freescore.coordinatorController", {
 			e.updateDivisions( progress.divisions, progress.current );
 
 		};
+
+		actions.navigation .round     .click( navRound );
 
 		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds    .click( awardPenaltyBounds );

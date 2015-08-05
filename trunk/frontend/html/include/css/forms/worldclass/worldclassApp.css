@@ -215,7 +215,7 @@ body {
         height: 41px; }
         .worldclass .scoreboard .totalScores .bounds .icon {
           float: left;
-          background: #c33 url("/freescore/include/jquery/mobile/images/icons-svg/action-white.svg") no-repeat 9px 5px;
+          background: darkorchid url("/freescore/include/jquery/mobile/images/icons-svg/action-white.svg") no-repeat 9px 5px;
           background-size: 24px;
           border-radius: 21px;
           width: 41px;
@@ -231,7 +231,7 @@ body {
         height: 41px; }
         .worldclass .scoreboard .totalScores .timelimit .icon {
           float: left;
-          background: #c33 url("/freescore/include/jquery/mobile/images/icons-svg/clock-white.svg") no-repeat 6px 6px;
+          background: darkorchid url("/freescore/include/jquery/mobile/images/icons-svg/clock-white.svg") no-repeat 6px 6px;
           background-size: 28px;
           border-radius: 21px;
           width: 41px;

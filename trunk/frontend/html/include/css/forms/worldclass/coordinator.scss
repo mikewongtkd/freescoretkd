@@ -52,6 +52,16 @@
 		border-color: gold;
 	}
 
+	.navigate-round {
+		margin: 16px;
+		color: white;
+		text-shadow: none;
+		background: #ffb76b;
+		background: -webkit-linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+		background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+		border-color: orange;
+	}
+
 	.timer {
 		color: white;
 		font-size: 36px;
