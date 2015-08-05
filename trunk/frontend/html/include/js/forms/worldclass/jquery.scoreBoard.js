@@ -115,13 +115,14 @@ $.widget( "freescore.scoreboard", {
 			var penalty = form.penalty;
 			if( defined( mean )) { 
 				var penalties = 0;
-				if( defined( penalty )) {
-					if( defined( penalty.timelimit ) && defined( penalty.bounds )) {
-						penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds );
-						e.penalty.bounds    .find( 'span' ).text( '-' + penalty.bounds );
-						if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
-						if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
-					}
+				if( defined( penalty ) && defined( penalty.timelimit ) && defined( penalty.bounds )) {
+					penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds );
+					e.penalty.bounds    .find( 'span' ).text( '-' + penalty.bounds );
+					if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
+					if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
+				} else {
+					e.penalty.timelimit .hide();
+					e.penalty.bounds    .hide();
 				}
 				accuracy      = mean.accuracy;
 				presentation  = mean.presentation;

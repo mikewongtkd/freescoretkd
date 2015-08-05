@@ -147,6 +147,8 @@ $.widget( "freescore.coordinatorController", {
 					i++;
 				}
 				if( i > 0 ) { division.current = order[ i - 1 ] } else { division.current = order[ order.length - 1 ]; };
+				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
+				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
 				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
@@ -162,6 +164,8 @@ $.widget( "freescore.coordinatorController", {
 				var division = o.progress.divisions[ o.progress.current ];
 				var round    = division.round;
 				if( division.form > 0 ) { division.form--; }
+				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
+				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
 				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
@@ -184,6 +188,8 @@ $.widget( "freescore.coordinatorController", {
 				}
 				if( i < order.length - 1 ) { division.current = order[ i + 1 ] } else { division.current = order[ 0 ]; };
 				division.form = 0;
+				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
+				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
 				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
@@ -201,6 +207,8 @@ $.widget( "freescore.coordinatorController", {
 				var round    = division.round;
 				var k        = division.forms[ round ].length - 1;
 				if( division.form < k ) { division.form++; }
+				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
+				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
 				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
@@ -324,7 +332,6 @@ $.widget( "freescore.coordinatorController", {
 				}
 				if( j == division.current ) { 
 					athlete.item.addClass( 'current' );
-					console.log( division.form );
 					var form = forms[ division.form ].name;
 					if      ( forms.length  > 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash; ' + ordinal[ division.form ] + ':</span> <span class="form">' + form + '</span>' ); }
 					else if ( forms.length == 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash;</span> <span class="form">' + form + '</span>' ); }
