@@ -48,7 +48,7 @@ $.widget( "freescore.coordinatorController", {
 			clock : {
 				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend    : html.legend.clone() .html( "Timer" ),
-				face      : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .unbind( 'click' ) .html( "00:00:00" ),
+				face      : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .unbind( 'click' ) .html( "00:00.00" ),
 				toggle    : button.clone() .addClass( 'start ui-icon-forward' ) .html( "Start Timer" ),
 				settings  : { increment : 70, current: 0, started : false },
 				timer     : undefined,
@@ -60,6 +60,7 @@ $.widget( "freescore.coordinatorController", {
 				legend    : html.legend.clone() .html( "Penalties" ),
 				timelimit : button.clone() .addClass( 'penalty ui-icon-clock'   ) .html( "Time Limit" ),
 				bounds    : button.clone() .addClass( 'penalty ui-icon-action'  ) .html( "Out-of-Bounds" ),
+				clear     : button.clone() .addClass( 'penalty ui-icon-minus'  ) .html( "Clear Penalties" ),
 			},
 
 		};
@@ -100,7 +101,7 @@ $.widget( "freescore.coordinatorController", {
 				actions.clock.settings.started = false;
 				actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
 				actions.clock.settings.current = 0;
-				actions.clock.face.html( "00:00:00" );
+				actions.clock.face.html( "00:00.00" );
 			}
 
 		};
@@ -109,7 +110,7 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.next );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
-		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds );
+		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 
 		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
@@ -155,6 +156,21 @@ $.widget( "freescore.coordinatorController", {
 		}
 
 		// ============================================================
+		var navPrevForm = function() {
+		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ o.progress.current ];
+				var round    = division.round;
+				if( division.form > 0 ) { division.form--; }
+				e.updateAthletes( division, o.progress.current );
+
+				e.time.stop();
+				e.time.clear();
+			}
+			(sendCommand( "form/previous" ))();
+		}
+
+		// ============================================================
 		var navNextAthlete = function() {
 		// ============================================================
 			if( defined( o.progress )) {
@@ -167,6 +183,7 @@ $.widget( "freescore.coordinatorController", {
 					i++;
 				}
 				if( i < order.length - 1 ) { division.current = order[ i + 1 ] } else { division.current = order[ 0 ]; };
+				division.form = 0;
 				e.updateAthletes( division, o.progress.current );
 
 				e.time.stop();
@@ -175,10 +192,27 @@ $.widget( "freescore.coordinatorController", {
 
 			(sendCommand( "athlete/next" ))();
 		}
+
+		// ============================================================
+		var navNextForm = function() {
+		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ o.progress.current ];
+				var round    = division.round;
+				var k        = division.forms[ round ].length - 1;
+				if( division.form < k ) { division.form++; }
+				e.updateAthletes( division, o.progress.current );
+
+				e.time.stop();
+				e.time.clear();
+			}
+			(sendCommand( "form/next" ))();
+		}
+
 		// ============================================================
 		var awardPenaltyBounds = function() {
 		// ============================================================
-			o.penalties.bounds = 0.3;
+			o.penalties.bounds += 0.3;
 
 			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
@@ -188,6 +222,16 @@ $.widget( "freescore.coordinatorController", {
 		var awardPenaltyTimeLimit = function() {
 		// ============================================================
 			o.penalties.timelimit = 0.3;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/" + penalties )());
+		}
+
+		// ============================================================
+		var clearPenalties = function() {
+		// ============================================================
+			o.penalties.bounds    = 0.0;
+			o.penalties.timelimit = 0.0;
 
 			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
@@ -260,8 +304,13 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.list.empty();
 			if( ! defined( division )) { return; }
 			if( o.progress.current != current ) { (sendCommand( 'division/' + current )()); }
+
+			// Update Header
 			e.athletes.header .find( 'h1' ) .text( division.name.capitalize() + ' ' + division.description );
+
+			// Update Athlete List
 			var round = division.round;
+			var forms = division.forms[ round ];
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
 				var athlete = {
@@ -269,15 +318,16 @@ $.widget( "freescore.coordinatorController", {
 					item : html.li.clone()
 				}
 				var complete = true;
-				var forms    = athlete.data.scores[ round ].length;
-				for( k = 0; k < forms; k++ ) {
+				for( k = 0; k < forms.length; k++ ) {
 					var formComplete = athlete.data.scores[ round ][ k ].complete;
 					complete &= formComplete;
 				}
 				if( j == division.current ) { 
 					athlete.item.addClass( 'current' );
-					if      ( forms  > 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash; ' + ordinal[ division.form ] + ':</span> <span class="form">' + division.forms[ round ][ division.form ].name + '</span>' ); }
-					else if ( forms == 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash;</span> <span class="form">' + division.forms[ round ][ division.form ].name + '</span>' ); }
+					console.log( division.form );
+					var form = forms[ division.form ].name;
+					if      ( forms.length  > 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash; ' + ordinal[ division.form ] + ':</span> <span class="form">' + form + '</span>' ); }
+					else if ( forms.length == 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash;</span> <span class="form">' + form + '</span>' ); }
 
 				} else { 
 					athlete.item.html( athlete.data.name );
@@ -288,6 +338,12 @@ $.widget( "freescore.coordinatorController", {
 			}
 			e.athletes.list.listview().listview( 'refresh' );
 
+			// Update Navigation Menus
+			var k = forms.length - 1;
+			if( division.form == 0 ) { e.actions.navigation.previous .removeClass( 'navigate-forms ui-icon-carat-u' )    .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( 'Prev. Athlete' ) .unbind( 'click' ) .click( navPrevAthlete ); } 
+			else                     { e.actions.navigation.previous .removeClass( 'navigate-athletes ui-icon-arrow-u' ) .addClass( 'navigate-forms ui-icon-carat-u' )    .html( 'Prev. Form' )    .unbind( 'click' ) .click( navPrevForm ); }
+			if( division.form == k ) { e.actions.navigation.next     .removeClass( 'navigate-forms ui-icon-carat-d' )    .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( 'Next. Athlete' ) .unbind( 'click' ) .click( navNextAthlete ); } 
+			else                     { e.actions.navigation.next     .removeClass( 'navigate-athletes ui-icon-arrow-d' ) .addClass( 'navigate-forms ui-icon-carat-d' )    .html( 'Next. Form' )    .unbind( 'click' ) .click( navNextForm ); }
 		};
 
 		// ============================================================
@@ -319,10 +375,9 @@ $.widget( "freescore.coordinatorController", {
 
 		};
 
-		actions.navigation .previous  .click( navPrevAthlete );
-		actions.navigation .next      .click( navNextAthlete );
 		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds    .click( awardPenaltyBounds );
+		actions.penalties  .clear     .click( clearPenalties );
 
 
 	},

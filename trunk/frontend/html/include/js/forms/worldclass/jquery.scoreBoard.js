@@ -20,8 +20,8 @@ $.widget( "freescore.scoreboard", {
 		var total        = e.total        = html.div.clone() .addClass( "total" );
 		var penalty      = e.penalty      = { bounds : html.div.clone() .addClass( "bounds" ), timelimit : html.div.clone() .addClass( "timelimit" ) };
 
-		penalty.bounds    .append( html.div.clone() .addClass( "icon" ), '-0.3' );
-		penalty.timelimit .append( html.div.clone() .addClass( "icon" ), '-0.3' );
+		penalty.bounds    .append( html.div.clone() .addClass( "icon" ), '<span>-0.3</span>' );
+		penalty.timelimit .append( html.div.clone() .addClass( "icon" ), '<span>-0.3</span>' );
 		penalty.bounds.hide();
 		penalty.timelimit.hide();
 
@@ -47,6 +47,7 @@ $.widget( "freescore.scoreboard", {
 		var e       = this.options.elements;
 		var o       = this.options;
 		var k       = o.judges;
+		var html    = e.html;
 		var widget  = this.element;
 		var current = o.current;
 		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
@@ -114,6 +115,7 @@ $.widget( "freescore.scoreboard", {
 				if( defined( penalty )) {
 					if( defined( penalty.timelimit ) && defined( penalty.bounds )) {
 						penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds );
+						e.penalty.bounds    .find( 'span' ).text( '-' + penalty.bounds );
 						if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
 						if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
 					}
