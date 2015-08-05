@@ -41,6 +41,7 @@ $.widget( "freescore.coordinatorController", {
 			navigation : {
 				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend    : html.legend.clone() .html( "Navigation" ),
+				division  : button.clone() .addClass( 'navigate-division ui-icon-bullets' ) .html( "This Division" ),
 				previous  : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( "Prev. Athlete" ),
 				next      : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( "Next Athlete" ),
 			},
@@ -108,7 +109,7 @@ $.widget( "freescore.coordinatorController", {
 
 		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
 
-		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.next );
+		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.division, actions.navigation.previous, actions.navigation.next );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 
@@ -314,7 +315,27 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			e.athletes.list.empty();
 			if( ! defined( division )) { return; }
-			if( o.progress.current != current ) { (sendCommand( 'division/' + current )()); }
+			if( o.progress.current != current ) { 
+				actions.navigation.division.unbind( 'click' ).click( function() { 
+					(sendCommand( 'division/' + current )()); 
+					actions.navigation.division.hide();
+					actions.navigation.next.show();
+					actions.navigation.previous.show();
+					actions.clock.panel .show();
+					actions.penalties.panel .show();
+				});
+				actions.navigation.division.show();
+				actions.navigation.next.hide();
+				actions.navigation.previous.hide();
+				actions.clock.panel .hide();
+				actions.penalties.panel .hide();
+			} else {
+				actions.navigation.division.hide();
+				actions.navigation.next.show();
+				actions.navigation.previous.show();
+				actions.clock.panel .show();
+				actions.penalties.panel .show();
+			}
 
 			// Update Header
 			e.athletes.header .find( 'h1' ) .text( division.name.capitalize() + ' ' + division.description );

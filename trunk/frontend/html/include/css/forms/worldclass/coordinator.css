@@ -32,6 +32,13 @@
   .actions legend {
     margin: 16px auto 0 auto;
     text-shadow: none; }
+  .actions .navigate-division {
+    color: white;
+    text-shadow: none;
+    border-color: #93d;
+    background: #9560c9;
+    background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+    background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%); }
   .actions .navigate-athletes {
     color: white;
     text-shadow: none;
