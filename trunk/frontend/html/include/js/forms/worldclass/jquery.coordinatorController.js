@@ -173,7 +173,7 @@ $.widget( "freescore.coordinatorController", {
 		}
 
 		// ============================================================
-		function parsePageUrl( pageUrl ) {
+		var parsePageUrl = function( pageUrl ) {
 		// ============================================================
 			var anchor = $.url( pageUrl ).attr( "anchor" );
 			var args   = anchor.split( '?' );
