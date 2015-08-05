@@ -79,6 +79,7 @@ $.widget( "freescore.coordinatorController", {
 			},
 			stop : function() {
 				if( defined( actions.clock.timer )) { actions.clock.timer.stop(); }
+				actions.clock.face.html( time.format( actions.clock.time )); 
 				actions.clock.settings.started = false;
 				actions.clock.toggle.removeClass( "stop" );
 				actions.clock.toggle.removeClass( "ui-icon-delete" );
@@ -97,6 +98,7 @@ $.widget( "freescore.coordinatorController", {
 			},
 			clear : function() {
 				actions.clock.settings.started = false;
+				actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
 				actions.clock.settings.current = 0;
 				actions.clock.face.html( "00:00:00" );
 			}
@@ -178,7 +180,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			o.penalties.bounds = 0.3;
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time * 100);
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
 		}
 
@@ -187,7 +189,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			o.penalties.timelimit = 0.3;
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time * 100);
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
 		}
 
