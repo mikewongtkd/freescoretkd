@@ -290,11 +290,14 @@ $.widget( "freescore.coordinatorController", {
 			if( ! defined( divisions )) { return; }
 			for( var i = 0; i < divisions.length; i++ ) {
 				var division = {
-					data : divisions[ i ],
-					item : html.li.clone(),
-					link : html.a.clone()
+					data  : divisions[ i ],
+					item  : html.li.clone(),
+					count : html.span.clone() .addClass( 'ui-li-count' ),
+					link  : html.a.clone()
 				}
-				division.link.html( division.data.name.capitalize() + ' ' + division.data.description );
+				division.count.html( division.data.athletes.length );
+				division.link.empty();
+				division.link.append( division.data.name.capitalize() + ' ' + division.data.description, division.count );
 				division.link.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
 				division.link.click( function( ev ) { var divid = $( this ).attr( 'divid' ); 
 					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
