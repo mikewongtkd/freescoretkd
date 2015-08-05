@@ -325,8 +325,6 @@ sub record_penalties {
 	my $forms     = int( @{ $self->{ forms }{ $round }});
 	my $judges    = $self->{ judges };
 
-	print STDERR Dumper $penalties; # MW
-
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
 }

@@ -112,9 +112,11 @@ $.widget( "freescore.scoreboard", {
 			if( defined( mean )) { 
 				var penalties = 0;
 				if( defined( penalty )) {
-				   penalties = penalty.timelimit + penalty.bounds;
-				   if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
-				   if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
+					if( defined( penalty.timelimit ) && defined( penalty.bounds )) {
+						penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds );
+						if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
+						if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
+					}
 				}
 				accuracy      = mean.accuracy;
 				presentation  = mean.presentation;
