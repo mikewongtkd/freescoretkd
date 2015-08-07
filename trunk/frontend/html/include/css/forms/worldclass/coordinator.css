@@ -59,6 +59,17 @@
     background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
     background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
     border-color: orange; }
+  .actions .navigate-display {
+    margin: 16px;
+    color: white;
+    text-shadow: none;
+    background: #cb60b3;
+    /* Old browsers */
+    background: -webkit-linear-gradient(top, #cb60b3 0%, #c146a1 50%, #a80077 51%, #db36a4 100%);
+    /* Chrome10+,Safari5.1+ */
+    background: linear-gradient(to bottom, #cb60b3 0%, #c146a1 50%, #a80077 51%, #db36a4 100%);
+    /* W3C */
+    border-color: #cb60b3; }
   .actions .timer {
     color: white;
     font-size: 36px;

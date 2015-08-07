@@ -13,23 +13,23 @@ $.widget( "freescore.coordinatorController", {
 		var ring    = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
 
 		var sound    = e.sound    = {
-			ok    : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]}),
-			error : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]}),
+			ok    : new Howl({ urls: [ "/freescore/sounds/upload.mp3", "/freescore/sounds/upload.ogg" ]}),
+			error : new Howl({ urls: [ "/freescore/sounds/quack.mp3",  "/freescore/sounds/quack.ogg" ]}),
 		};
 
 		var divisions = e.divisions = {
-				page   : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
-				header : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
-				main   : html.div.clone() .attr({ 'role': 'main' }),
-				list   : html.ul.clone()  .attr({ 'role': 'listview' }) .addClass( 'divisions' ),
-			};
+			page   : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
+			header : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
+			main   : html.div.clone() .attr({ 'role': 'main' }),
+			list   : html.ul.clone()  .attr({ 'role': 'listview' }) .addClass( 'divisions' ),
+		};
 
 		var athletes  = e.athletes = {
-				page    : html.div.clone() .attr({ 'data-role': 'page', id: 'athletes' }),
-				header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
-				main    : html.div.clone() .attr({ 'role': 'main' }),
-				list    : html.ol.clone() .attr( 'role', 'listview' ) .addClass( 'athletes' ),
-				actions : html.div.clone(),
+			page    : html.div.clone() .attr({ 'data-role': 'page', id: 'athletes' }),
+			header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
+			main    : html.div.clone() .attr({ 'role': 'main' }),
+			list    : html.ol.clone() .attr( 'role', 'listview' ) .addClass( 'athletes' ),
+			actions : html.div.clone(),
 		};
 
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
@@ -43,6 +43,7 @@ $.widget( "freescore.coordinatorController", {
 				previous  : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( "Prev. Athlete" ),
 				next      : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( "Next Athlete" ),
 				round     : button.clone() .addClass( 'navigate-round    ui-icon-check'   ) .html( "Next Round" ),
+				display   : button.clone() .addClass( 'navigate-display  ui-icon-bars'    ) .html( "Leaderboard" ),
 			},
 
 			clock : {
@@ -62,7 +63,6 @@ $.widget( "freescore.coordinatorController", {
 				bounds    : button.clone() .addClass( 'penalty ui-icon-action'  ) .html( "Out-of-Bounds" ),
 				clear     : button.clone() .addClass( 'penalty ui-icon-minus'  ) .html( "Clear Penalties" ),
 			},
-
 		};
 
 		var time = e.time = {
@@ -103,7 +103,6 @@ $.widget( "freescore.coordinatorController", {
 				actions.clock.settings.current = 0;
 				actions.clock.face.html( "00:00.00" );
 			}
-
 		};
 
 		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
@@ -112,7 +111,7 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 
-		actions.panel.append( actions.navigation.panel, actions.navigation.round, actions.clock.panel, actions.penalties.panel );
+		actions.panel.append( actions.navigation.panel, actions.navigation.round, actions.navigation.display, actions.clock.panel, actions.penalties.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -156,7 +155,7 @@ $.widget( "freescore.coordinatorController", {
 				e.time.clear();
 			}
 			(sendCommand( "athlete/previous" ))();
-		}
+		};
 
 		// ============================================================
 		var navPrevForm = function() {
@@ -173,7 +172,7 @@ $.widget( "freescore.coordinatorController", {
 				e.time.clear();
 			}
 			(sendCommand( "form/previous" ))();
-		}
+		};
 
 		// ============================================================
 		var navNextAthlete = function() {
@@ -198,7 +197,7 @@ $.widget( "freescore.coordinatorController", {
 			}
 
 			(sendCommand( "athlete/next" ))();
-		}
+		};
 
 		// ============================================================
 		var navNextForm = function() {
@@ -216,7 +215,7 @@ $.widget( "freescore.coordinatorController", {
 				e.time.clear();
 			}
 			(sendCommand( "form/next" ))();
-		}
+		};
 
 		// ============================================================
 		var navDivision = function( current ) {
@@ -227,12 +226,13 @@ $.widget( "freescore.coordinatorController", {
 				if( k > 1 ) { actions.navigation.round.show(); } else { actions.navigation.round.hide(); }
 			}
 			actions.navigation.division.hide();
+			actions.navigation.display.show();
 			actions.navigation.next.show();
 			actions.navigation.previous.show();
 			actions.navigation.panel.controlgroup( 'refresh' );
 			actions.clock.panel .show();
 			actions.penalties.panel .show();
-		}
+		};
 
 		// ============================================================
 		var navRound = function() {
@@ -249,7 +249,19 @@ $.widget( "freescore.coordinatorController", {
 					(sendCommand( "round/next" ))();
 				}
 			}
-		}
+		};
+
+		// ============================================================
+		var navDisplay = function() {
+		// ============================================================
+			if( defined( o.progress )) {
+				var division = o.progress.divisions[ o.progress.current ];
+				var state    = division.state;
+				if      ( state == 'score'   ) { actions.navigation.display.removeClass( "ui-icon-bars" ) .addClass( "ui-icon-gear" ) .html( "Score Athlete" ); }
+				else if ( state == 'display' ) { actions.navigation.display.removeClass( "ui-icon-gear" ) .addClass( "ui-icon-bars" ) .html( "Leaderboard" ); }
+				(sendCommand( "display" ))();
+			}
+		};
 
 		// ============================================================
 		var awardPenaltyBounds = function() {
@@ -258,7 +270,7 @@ $.widget( "freescore.coordinatorController", {
 
 			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
-		}
+		};
 
 		// ============================================================
 		var awardPenaltyTimeLimit = function() {
@@ -267,7 +279,7 @@ $.widget( "freescore.coordinatorController", {
 
 			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
-		}
+		};
 
 		// ============================================================
 		var clearPenalties = function() {
@@ -277,7 +289,7 @@ $.widget( "freescore.coordinatorController", {
 
 			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
 			(sendCommand( "coordinator/" + penalties )());
-		}
+		};
 
 		// ============================================================
 		var parsePageUrl = function( pageUrl ) {
@@ -289,7 +301,7 @@ $.widget( "freescore.coordinatorController", {
 			option[ 'id' ] = args[ 0 ];
 
 			return option;
-		}
+		};
 
 		// ============================================================
 		var sendCommand = function( command ) {
@@ -315,7 +327,7 @@ $.widget( "freescore.coordinatorController", {
 					error:   function( response ) { sound.error.play(); },
 				});
 			}
-		}
+		};
 
 		// ============================================================
 		var updateDivisions = e.updateDivisions = function( divisions, current ) {
@@ -355,6 +367,7 @@ $.widget( "freescore.coordinatorController", {
 				});
 				actions.navigation.division.show();
 				actions.navigation.round.hide();
+				actions.navigation.display.hide();
 				actions.navigation.next.hide();
 				actions.navigation.previous.hide();
 				actions.navigation.panel.controlgroup( 'refresh' );
@@ -434,13 +447,12 @@ $.widget( "freescore.coordinatorController", {
 
 		};
 
+		actions.navigation .display   .click( navDisplay );
 		actions.navigation .round     .click( navRound );
 
 		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds    .click( awardPenaltyBounds );
 		actions.penalties  .clear     .click( clearPenalties );
-
-
 	},
 	_init: function( ) {
 		var widget      = this.element;
