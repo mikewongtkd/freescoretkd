@@ -350,7 +350,8 @@ body {
   font-family: Optima, Biolinum;
   width: 800px;
   height: 600px;
-  margin: 0 auto 0 auto; }
+  margin: 0 auto 0 auto;
+  -webkit-user-select: none; }
   .judgeController .front {
     position: absolute; }
     .judgeController .front .flip {
