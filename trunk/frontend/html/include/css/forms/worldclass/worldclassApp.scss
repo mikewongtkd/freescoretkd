@@ -5,6 +5,16 @@ body {
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
 }
 
+@font-face {
+	font-family: Nimbus;
+	src: url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
+}
+@font-face {
+	font-family: Biolinum;
+	font-weight: bold;
+	src: url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
+}
+
 .worldclass {
 	margin: 0 auto 0 auto;
 	width: 1000px;
@@ -14,7 +24,7 @@ body {
 }
 
 .usermessage {
-	font-family: Optima;
+	font-family: Optima, Biolinum;
 	font-size: 24pt;
 	color: #ccc;
 	display: none;

@@ -3,9 +3,16 @@ body {
   background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
 
+@font-face {
+  font-family: Nimbus;
+  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+@font-face {
+  font-family: Biolinum;
+  font-weight: bold;
+  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
 .deductions {
   float: left;
-  font-family: Optima;
+  font-family: Optima, Biolinum;
   width: 180px;
   height: 346px;
   background: black;
@@ -74,7 +81,7 @@ body {
 
 .matposition {
   position: absolute;
-  font-family: Optima;
+  font-family: Optima, Biolinum;
   width: 180px;
   height: 180px;
   margin: 16px 10px 42px 10px;
@@ -182,7 +189,7 @@ body {
     left: 0px; }
   .matposition .timer {
     color: white;
-    font-family: HelveticaNeue-CondensedBold;
+    font-family: HelveticaNeue-CondensedBold, Nimbus;
     font-size: 24pt;
     text-align: center;
     position: absolute;
@@ -207,7 +214,7 @@ body {
 
 .presentationBar {
   position: relative;
-  font-family: Optima;
+  font-family: Optima, Biolinum;
   width: 396px;
   height: 64px;
   margin: 0 0 0 20px; }
@@ -340,7 +347,7 @@ body {
   border: 4px solid white; }
 
 .judgeController {
-  font-family: Optima;
+  font-family: Optima, Biolinum;
   width: 800px;
   height: 600px;
   margin: 0 auto 0 auto; }
@@ -433,7 +440,7 @@ body {
       .judgeController .front .controls > .label {
         font-size: 24pt;
         color: #ccc;
-        margin: 12px 0 24px 64px; }
+        margin: 0 0 12px 72px; }
       .judgeController .front .controls .send {
         font-size: 18pt;
         line-height: 28pt;
@@ -445,7 +452,7 @@ body {
         background: red;
         background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
         background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-        margin: 12px 46px 12px 46px;
+        margin: 48px 46px 12px 46px;
         text-align: center; }
   .judgeController .back {
     position: absolute; }

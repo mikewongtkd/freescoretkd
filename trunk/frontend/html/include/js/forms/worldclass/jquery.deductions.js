@@ -18,11 +18,11 @@ $.widget( "freescore.deductions", {
 		var add        = e.add    = html.div.clone();
 
 		if( o.value == 0.1 ) {
-			remove .addClass( "button-small remove-minor" ) .html( "Remove" );
-			add    .addClass( "button-large add-minor" )    .html( "Add Minor" );
+			remove .addClass( "button-small remove-minor" ) .html( "+0.1" );
+			add    .addClass( "button-large add-minor" )    .html( "-0.1" );
 		} else {
-			remove .addClass( "button-small remove-major" ) .html( "Remove" );
-			add    .addClass( "button-large add-major" )    .html( "Add Major" );
+			remove .addClass( "button-small remove-major" ) .html( "+0.3" );
+			add    .addClass( "button-large add-major" )    .html( "-0.3" );
 		}
 
 		widget.append( label, remove, view, add );

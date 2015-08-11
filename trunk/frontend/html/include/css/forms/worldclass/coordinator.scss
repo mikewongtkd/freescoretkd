@@ -1,3 +1,13 @@
+@font-face {
+	font-family: Nimbus;
+	src: url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
+}
+@font-face {
+	font-family: Biolinum;
+	font-weight: bold;
+	src: url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
+}
+
 .divisions {
 	.current  { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
 }
@@ -76,7 +86,7 @@
 		color: white;
 		font-size: 36px;
 		line-height: 36px;
-		font-family: HelveticaNeue-CondensedBold;
+		font-family: HelveticaNeue-CondensedBold, Nimbus;
 		text-shadow: none;
 		background: #4c4c4c;
 		background: -webkit-linear-gradient(to bottom, #4c4c4c 0%,#595959 12%,#666666 25%,#474747 39%,#2c2c2c 50%,#000000 51%,#111111 60%,#2b2b2b 76%,#1c1c1c 91%,#131313 100%);

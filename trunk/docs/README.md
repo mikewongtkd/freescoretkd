@@ -1,6 +1,6 @@
 # FreeScore
 
-## Design Documentation
+## User Documentation
 
 This document highlights the core concepts behind the FreeScore Taekwondo tournament software and its current implementation.
 

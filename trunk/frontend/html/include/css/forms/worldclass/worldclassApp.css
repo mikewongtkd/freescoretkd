@@ -5,11 +5,18 @@ body {
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */ }
 
+@font-face {
+  font-family: Nimbus;
+  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+@font-face {
+  font-family: Biolinum;
+  font-weight: bold;
+  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
 .worldclass {
   margin: 0 auto 0 auto;
   width: 1000px; }
   .worldclass .scoreboard {
-    font-family: HelveticaNeue-CondensedBold;
+    font-family: HelveticaNeue-CondensedBold, Nimbus;
     display: none;
     width: 1000px;
     height: 720px;
@@ -239,7 +246,7 @@ body {
   .worldclass .leaderboard {
     width: 1000px;
     height: 720px;
-    font-family: HelveticaNeue-CondensedBold;
+    font-family: HelveticaNeue-CondensedBold, Nimbus;
     color: white;
     overflow: hidden; }
     .worldclass .leaderboard .division {
@@ -346,7 +353,7 @@ body {
         left: 500px; }
 
 .usermessage {
-  font-family: Optima;
+  font-family: Optima, Biolinum;
   font-size: 24pt;
   color: #ccc;
   display: none;
