@@ -1,5 +1,5 @@
 $.widget( "freescore.judgeScore", {
-	options: { autoShow: true, num: 0, max: 3 },
+	options: { autoShow: true, num: 0, max: 3, complete : false },
 	_create: function() {
 		var o       = this.options;
 		var e       = this.options.elements = {};
@@ -17,6 +17,7 @@ $.widget( "freescore.judgeScore", {
 		var o        = this.options;
 		var w        = this.element;
 		var score    = o.score;
+		var ok       = '&#10004;';
 
 		w.css( "top", (o.num - 1) * 103 );
 		if     ( o.num == 1 ) { w.css( "border-radius", "24px 0 0 0" ); e.name.css( "border-radius", "24px 0 0 0" );}
@@ -25,15 +26,20 @@ $.widget( "freescore.judgeScore", {
 		if( o.num > o.max ) { e.name.addClass( "ignore-judge" ); } else { e.name.removeClass( "ignore-judge" ); }
 		
 		if( defined( score )) {
-			score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';
-			score.presentation = defined( score.presentation ) ?  score.presentation.toFixed( 1 ) : '';
+			if( o.complete ) {
+				score.accuracy     = defined( score.accuracy )     ?  score.accuracy.toFixed( 1 )     : '';
+				score.presentation = defined( score.presentation ) ?  score.presentation.toFixed( 1 ) : '';
 
+			} else {
+				score.accuracy     = defined( score.accuracy )     ?  ok : '';
+				score.presentation = defined( score.presentation ) ?  ok : '';
+			}
 		} else {
 			score = { accuracy : '', presentation : '' };
 		}
 
 		// ===== DISPLAY VALID SCORES
-		if( parseFloat( score.accuracy ) >= 0 && parseFloat( score.presentation ) > 0 ) { 
+		if((score.accuracy == ok || parseFloat( score.accuracy ) >= 0) && (score.presentation == ok || parseFloat( score.presentation ) > 0)) { 
 			var span = {
 				accuracy     : e.html.span .clone() .addClass( "accuracy"     ) .html( score.accuracy     ),
 				presentation : e.html.span .clone() .addClass( "presentation" ) .html( score.presentation )

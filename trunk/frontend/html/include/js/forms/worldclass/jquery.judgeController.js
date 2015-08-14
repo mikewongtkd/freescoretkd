@@ -190,7 +190,7 @@ $.widget( "freescore.judgeController", {
 			// ===== UPDATE WIDGETS
 			e.notes .judgeNotes({ forms : division.forms[ division.round ], form : division.form, athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, order : division.order[ division.round ] });
 
-			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : in_round.length });
+			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : division.pending.length });
 
 			o.current.division = progress.current;
 			o.current.divname  = division.name;

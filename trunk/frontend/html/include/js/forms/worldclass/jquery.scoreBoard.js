@@ -163,8 +163,16 @@ $.widget( "freescore.scoreboard", {
 		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
 
 		// ===== UPDATE THE JUDGES SCORES
+		// Check for completeness
+		var complete = true;
 		for( var i = 0; i < k; i++ ) {
-			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k } );
+			if( ! defined( judge_scores[ i ] )) { complete = false; break; }
+			complete = complete && judge_scores[ i ].complete;
+		}
+
+		// Update the judge scores
+		for( var i = 0; i < k; i++ ) {
+			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k, complete : complete } );
 		}
 
 		/*
