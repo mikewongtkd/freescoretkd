@@ -119,8 +119,6 @@ $.widget( "freescore.judgeController", {
 			if( ! defined( formNames )) { return; }
 			var formName    = formNames[ division.form ].name;
 
-			console.log( division.order[ division.round ], division.current );
-
 			if( division.state == 'score' ) {
 				e.flipDisplay.ajaxbutton({ label : "Leaderboard" });
 			} else {

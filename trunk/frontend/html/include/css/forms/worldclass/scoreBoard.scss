@@ -63,6 +63,7 @@
 			.ignore-acc   { opacity: 0.75; position: relative; color: #c66; &::after{ opacity: 0.75; border-bottom: 8px solid #c66; content: ""; position: absolute; left: 0; top: 50%; right: 0; }}
 			.presentation { color: #99f; }
 			.ignore-pre   { opacity: 0.75; position: relative; color: #66c; &::after{ opacity: 0.75; border-bottom: 8px solid #66c; content: ""; position: absolute; left: 0; top: 50%; right: 0; }}
+			.received     { color: #0c0; }
 		}
 	}
 

@@ -102,6 +102,8 @@ body {
             left: 0;
             top: 50%;
             right: 0; }
+        .worldclass .scoreboard .judgeScore .score .received {
+          color: #0c0; }
     .worldclass .scoreboard .ignore .judge {
       color: #333; }
     .worldclass .scoreboard .ignore .score {

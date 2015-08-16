@@ -34,7 +34,7 @@ $.widget( "freescore.scoreboard", {
 			if     ( k == 3 ) { judge.addClass( "judges3" ); }
 			else if( k == 5 ) { judge.addClass( "judges5" ); }
 			else if( k == 7 ) { judge.addClass( "judges7" ); }
-			judge.judgeScore( { num: j, max: k } ); // Instantiate a new Judge Score widget for each judge
+			judge.judgeScore( { num: j, judges: k } ); // Instantiate a new Judge Score widget for each judge
 			judges[ i ] = judge;
 			judgeScores.append( judge );
 		}
@@ -172,7 +172,7 @@ $.widget( "freescore.scoreboard", {
 
 		// Update the judge scores
 		for( var i = 0; i < k; i++ ) {
-			e.judges[ i ].judgeScore( { score : judge_scores[ i ], max : k, complete : complete } );
+			e.judges[ i ].judgeScore( { score : judge_scores[ i ], judges : k, complete : complete } );
 		}
 
 		/*

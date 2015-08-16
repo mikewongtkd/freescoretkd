@@ -9,7 +9,7 @@
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
   /* W3C */
   border-radius: 16pt;
-  border: 4px solid white;
+  border: 4px solid #999;
   margin: 0 6px 0 6px; }
   .deductions .button-small, .deductions .button-large {
     font-size: 18pt;

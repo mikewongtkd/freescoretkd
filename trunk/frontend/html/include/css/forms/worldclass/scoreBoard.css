@@ -85,6 +85,8 @@
           left: 0;
           top: 50%;
           right: 0; }
+      .scoreboard .judgeScore .score .received {
+        color: #0c0; }
   .scoreboard .ignore .judge {
     color: #333; }
   .scoreboard .ignore .score {
