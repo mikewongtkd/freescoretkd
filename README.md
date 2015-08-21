@@ -7,6 +7,7 @@ FreeScoreTKD is free and open source software for traditional and sport poomsae
 scoring on wireless tablets or smartphones.
 
 Please see the [project website](http://mikewongtkd.github.io/freescoretkd/)
+or the [documentation](https://github.com/mikewongtkd/freescoretkd/blob/master/trunk/docs/README.md)
 for more details.
 
 Copyright (C) 2014 Mike Wong. 
