@@ -274,7 +274,6 @@ $.widget( "freescore.divisions", {
 
 			if      ( option.id == "ring-divisions"  ) { showRing( option.ring ); }
 			else if ( option.id == "division-editor" ) { showEditor( option.ring, option.division ); }
-
 		});
 
 		$( 'body' ).on( "divisiondelete", function( ev, data ) {

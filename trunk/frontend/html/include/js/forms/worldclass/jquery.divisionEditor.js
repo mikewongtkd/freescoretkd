@@ -193,9 +193,24 @@ $.widget( "freescore.divisionEditor", {
 			e.dialog.content.ok.click( function( ev ) {
 				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
 				o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
-				o.selected.parent().parent().remove();                          // Update list display
+
+				// Renumber the list
+				if( defined( o.selected )) {
+					var item   = o.selected.parent().parent();                          
+					console.log( item );
+					var list   = item.parent().find( 'li' );
+					var target = parseInt( item.find( '.number' ).html());
+					list.each( function( j ) {
+						var listItem = list[ j ];
+						var number = $( listItem ).find( '.number' );
+						var found  = parseInt( number.html() );
+						if( found > target ) { number.html( found - 1 ); }
+					});
+					item.remove();                                              // Update list display
+				}
+
 				o.selected = undefined;                                         // Clear context
-				e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+				e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); 			// Disable contextual footer UI buttons
 				o.updates = 0;                                                  // Indicate that the list can be updated
 			});
 			e.dialog.content.cancel.click( function( ev ) { 

@@ -14,6 +14,7 @@
 		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.errormessage.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.divisions.js"></script>
