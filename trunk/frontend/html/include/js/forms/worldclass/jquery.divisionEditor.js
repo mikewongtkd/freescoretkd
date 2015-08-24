@@ -10,7 +10,7 @@ $.widget( "freescore.divisionEditor", {
 		var edit      = e.edit      = html.div.clone();
 		var header    = e.header    = html.div.clone() .addClass( "config" ) .divisionHeader( o );
 		var actions   = e.actions   = {
-			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ) .addClass( "ui-grid-a" ),
+			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ),
 			button: {
 				move : {
 					up    : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "arrow-u" ) .attr( "data-inline", true ) .css( "background", "#38c" ) .html( "Move Up" ),
@@ -19,13 +19,15 @@ $.widget( "freescore.divisionEditor", {
 				},
 				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "minus"  ) .attr( "data-inline", true ) .css({ background: "#fa3",                  }) .html( "Remove" ),
 			},
-			panel : html.div.clone() 
+			athlete : html.div.clone(),
+			header : html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ),
+			division : html.div.clone(),
 		};
 		e.dialog = o.dialog;
 
-		actions.panel.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
-		actions.footer.append( actions.panel );
-		actions.panel.find( "a" ).addClass( 'ui-disabled' );
+		actions.athlete.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
+		actions.footer.append( actions.athlete );
+		actions.athlete.find( "a" ).addClass( 'ui-disabled' );
 
 		var rounds    = e.rounds    = {
 			tabs   : html.div.clone() .attr( "data-role", "tabs" ),
@@ -132,7 +134,7 @@ $.widget( "freescore.divisionEditor", {
 			current.find( ".number" ).html( k );
 			previous.find( ".number" ).html( j );
 			o.selected = undefined;                                // Clear context
-			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+			e.actions.athlete.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'up', round : round });
 			o.updates = 0;
@@ -154,7 +156,7 @@ $.widget( "freescore.divisionEditor", {
 			current.find( ".number" ).html( k );
 			next.find( ".number" ).html( j );
 			o.selected = undefined;                                         // Clear context
-			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+			e.actions.athlete.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'down', round : round });
 			o.updates = 0;
@@ -172,7 +174,7 @@ $.widget( "freescore.divisionEditor", {
 			current.detach();
 			current.insertBefore( last );
 			o.selected = undefined;                                         // Clear context
-			e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
+			e.actions.athlete.find( "a" ).addClass( 'ui-disabled' ); // Disable contextual footer UI buttons
 
 			o.editDivision({ index : i, reorder : true, move : 'last', round : round });
 			o.updates = 0;
@@ -197,20 +199,20 @@ $.widget( "freescore.divisionEditor", {
 				// Renumber the list
 				if( defined( o.selected )) {
 					var item   = o.selected.parent().parent();                          
-					console.log( item );
 					var list   = item.parent().find( 'li' );
 					var target = parseInt( item.find( '.number' ).html());
+					o.division.athletes.splice( target - 1, 1 );
 					list.each( function( j ) {
 						var listItem = list[ j ];
-						var number = $( listItem ).find( '.number' );
-						var found  = parseInt( number.html() );
+						var number   = $( listItem ).find( '.number' );
+						var found    = parseInt( number.html() );
 						if( found > target ) { number.html( found - 1 ); }
 					});
 					item.remove();                                              // Update list display
 				}
 
 				o.selected = undefined;                                         // Clear context
-				e.actions.panel.find( "a" ).addClass( 'ui-disabled' ); 			// Disable contextual footer UI buttons
+				e.actions.athlete.find( "a" ).addClass( 'ui-disabled' ); 			// Disable contextual footer UI buttons
 				o.updates = 0;                                                  // Indicate that the list can be updated
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
@@ -230,10 +232,12 @@ $.widget( "freescore.divisionEditor", {
 		var w       = this.element;
 		var html    = e.html;
 
-		if( o.updates > 1 ) { return; } // Try to ignore live updates while editing the division
+		if( o.updates > 1 ) { return; } // Try to ignore live updates while editing the division to avoid overwriting
 		o.updates++; // It takes 2 updates to get the division information (1 on init, 1 on receiving JSON data)
 
+		// ------------------------------------------------------------
 		var addAthlete = function( i, round, j ) {
+		// ------------------------------------------------------------
 			var athletes = defined( o.division ) && defined( o.division.athletes ) ? o.division.athletes : [];
 			var data = (i >= 0 && i < athletes.length) ? athletes[ i ] : undefined;
 			var athlete = { 
@@ -258,10 +262,10 @@ $.widget( "freescore.divisionEditor", {
 				e.actions.footer.find( "a" ).removeClass( 'ui-disabled' );
 			});
 			if( defined( athlete.data )) {
-				athlete.name .val( athlete.data.name );
+				athlete.name   .val( athlete.data.name );
 				athlete.number .html( parseInt( j ) + 1 );
 			} else {
-				athlete.name .attr( "placeholder", "New Athlete" );
+				athlete.name   .attr( "placeholder", "New Athlete" );
 				athlete.number .addClass( "ui-btn-icon-notext ui-icon-plus" ) .css( "margin", "6px 0 0 0" );
 			}
 			athlete.name .click( function( ev ) { $( this ).select(); } );
@@ -296,11 +300,12 @@ $.widget( "freescore.divisionEditor", {
 						var number = listitem.find( ".number" );
 						number.removeClass( "ui-btn-icon-notext" );
 						number.removeClass( "ui-icon-plus" );
+						console.log( k, o.division.athletes );
 						number.html( k );
 						number.css( "padding-top", "5px" );
 						o.editAthlete({ index : k-1, name : newName, round : round });
 
-						o.division.athletes[ k ] = { name : newName };
+						o.division.athletes[ k-1 ] = { name : newName };
 						var athlete = addAthlete( -1, rname, -1 );
 						e.rounds[ round ].list.append( athlete.listitem );
 						e.rounds[ round ].list.listview().listview( "refresh" );
@@ -317,7 +322,7 @@ $.widget( "freescore.divisionEditor", {
 			athlete.listitem.append( athlete.view );
 
 			return athlete;
-		}
+		};
 
 		var n = defined( o.division.athletes ) ? o.division.athletes.length : 0;
 		e.header.divisionHeader({ 
@@ -335,6 +340,7 @@ $.widget( "freescore.divisionEditor", {
 		var first = undefined;
 
 		// ===== DETERMINE WHICH ROUND IS THE FIRST ROUND FOR THIS DIVISION
+		// Disable all other rounds.
 		var disable = [];
 		for( var r = 0; r < 3; r++ ) {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ r ];
@@ -344,6 +350,7 @@ $.widget( "freescore.divisionEditor", {
 			}
 			if( ! defined( first )) { first = r; }
 		}
+		if( disable.length == 3 ) { disable = $.grep( disable, function( item ) { item != 'finals'; } ); }
 		e.rounds.tabs.tabs({ disabled: disable });
 
 		var active = undefined;
@@ -373,9 +380,12 @@ $.widget( "freescore.divisionEditor", {
 			if( round.button.find( 'a' ).hasClass( 'ui-btn-active' )) { active = rname; }
 		}
 
+		// Make first round the active round
 		if( defined( first ) && ! defined( active )) {
 			var rname = [ 'prelim', 'semfin', 'finals' ][ first ];
-			e.rounds[ rname ].button.find( 'a' ).click();
+			var firstRound = e.rounds[ rname ].button.find( 'a' );
+			firstRound .addClass( 'ui-btn-active' ) .click();
+			active = rname;
 		}
 	},
 });

@@ -68,6 +68,9 @@ sub create_division {
 # judges=5
 # round=finals
 # forms=finals:None;
+# ------------------------------------------------------------
+# finals
+# ------------------------------------------------------------
 First Athlete
 EOF
 	close FILE;
@@ -75,6 +78,7 @@ EOF
 	my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
 	$division->{ ring } = $ring;
 
+	push @{ $self->{ divisions }}, $division;
 	return $division;
 }
 

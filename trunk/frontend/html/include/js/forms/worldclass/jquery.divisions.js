@@ -79,7 +79,7 @@ $.widget( "freescore.divisions", {
 						o.division = response.id;
 
 						// ===== SHOW DIVISION EDITOR WITH NEW DIVISION
-						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + response.id );
+						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + o.ring + '&division=' + response.id );
 					}
 				},
 				error:   function( response ) { 

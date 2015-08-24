@@ -278,6 +278,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		} elsif( defined $add     ) {
 			$division = $progress->create_division( $ring );
 			$success->{ id } = $division->{ name };
+			$description = "Successfully created new division $division->{ name }.";
 
 		} elsif( defined $delete  ) {
 			my $deleted = unlink( $division->{ file } ) && (! -e $division->{ file });
