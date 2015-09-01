@@ -19,11 +19,11 @@ $.widget( "freescore.ajaxbutton", {
 			return function() {
 				var url = 'http://' + o.server + o.port + o.tournament + '/' + o.ring + '/' + o.command;
 				$.ajax( {
-					type:    'GET',
+					type:        'GET',
 					crossDomain: true,
-					url:     url,
-					data:    {},
-					success: function( response ) { 
+					url:         url,
+					data:        {},
+					success:     function( response ) { 
 						if( defined( response.error )) {
 							sound.error.play();
 							progress.hide();
@@ -33,10 +33,11 @@ $.widget( "freescore.ajaxbutton", {
 							console.log( url );
 							console.log( response );
 							progress.fadeOut( 350 );
+							if( defined( o.callback )) { o.callback( response ); }
 						}
 					},
-					error:   function( response ) { sound.error.play(); progress.fadeOut( 100 ); },
-					xhr:     function() {
+					error:       function( response ) { sound.error.play(); progress.fadeOut( 100 ); },
+					xhr:         function() {
 						var xhr = new window.XMLHttpRequest();
 						xhr.addEventListener( "progress", function( e ) {
 							progress.fadeIn( 700, function() { progress.fadeOut( 1500 ) } );

@@ -156,6 +156,20 @@ sub calculate_means {
 }
 
 # ============================================================
+sub form_complete {
+# ============================================================
+# An athlete's form is complete when all judges have registered a valid score
+# ------------------------------------------------------------
+	my $self = shift;
+	my $i    = shift;
+
+	my $form = $self->[ $i ];
+	return 0 unless exists $form->{ judge };
+	$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
+	return $form->{ complete };
+}
+
+# ============================================================
 sub complete {
 # ============================================================
 # An athlete's round is complete when all their compulsory forms are complete
@@ -163,10 +177,7 @@ sub complete {
 	my $self = shift;
 
 	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
-	foreach my $form (@$self) {
-		next unless exists $form->{ judge };
-		$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
-	}
+	foreach my $i (0 .. $#$self) { $self->form_complete( $i ); }
 
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
 	my $complete = all { $_->{ complete }; } @$self;
