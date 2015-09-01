@@ -73,16 +73,45 @@ $.widget( "freescore.judgeController", {
 
 		front.append( views, controllers );
 
+		var arrow        = e.arrow = {
+			left : html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-l-white.svg', height: '24px', width: '24px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
+			right: html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-r-white.svg', height: '24px', width: '24px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
+		};
+
 		var back         = e.back         = html.div.clone() .addClass( "back" );
 		var notes        = e.notes        = html.div.clone() .judgeNotes({ num : o.num });
 		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
-		var prevAthlete  = e.prevAthlete  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/previous",  label : "Prev Athlete",  type : "navigate prev athlete"  });
-		var nextAthlete  = e.nextAthlete  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : "Next Athlete",  type : "navigate next athlete"  });
-		var prevDivision = e.prevDivision = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/previous", label : "Prev Division", type : "navigate prev division" });
-		var nextDivision = e.nextDivision = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/next",     label : "Next Division", type : "navigate next division" });
+		var nav          = e.nav = {
+			athlete : {
+				label : html.div.clone() .addClass( "navigate label athlete-label" ) .html( "Athlete" ),
+				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/previous",  label : arrow.left.clone(),  type : "navigate prev athlete"  }),
+				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : arrow.right.clone(), type : "navigate next athlete"  }),
+			},
+			form : {
+				label : html.div.clone() .addClass( "navigate label form-label" ) .html( "Form" ),
+				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "form/previous",     label : '1<sup>st</sup>',    type : "navigate prev form" }),
+				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "form/next",         label : '2<sup>nd</sup>',    type : "navigate next form" }),
+			},
+			round : {
+				label : html.div.clone() .addClass( "navigate label round-label" ) .html( "Round" ),
+				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "round/previous",    label : arrow.left.clone(),  type : "navigate prev round" }),
+				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "round/next",        label : arrow.right.clone(), type : "navigate next round" }),
+			},
+			division : {
+				label : html.div.clone() .addClass( "navigate label division-label" ) .html( "Division" ),
+				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/previous", label : arrow.left.clone(),  type : "navigate prev division" }),
+				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/next",     label : arrow.right.clone(), type : "navigate next division" }),
+			}
+		};
 		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "display",           label : "Leaderboard",   type : "navigate mode"          });
 
-		back.append( prevAthlete, nextAthlete, prevDivision, nextDivision, flipDisplay, notes, flipToFront );
+		back.append( 
+			nav.athlete  .label, nav.athlete  .prev, nav.athlete  .next, 
+			nav.form     .label, nav.form     .prev, nav.form     .next, 
+			nav.round    .label, nav.round    .prev, nav.round    .next, 
+			nav.division .label, nav.division .prev, nav.division .next, 
+			flipDisplay, notes, flipToFront 
+		);
 
 		card.append( front, back );
 
@@ -126,34 +155,37 @@ $.widget( "freescore.judgeController", {
 			}
 
 			if( formNames.length > 1 ) {
-				if( division.form < (formNames.length - 1)) {
-					e.prevAthlete.ajaxbutton({ command : "athlete/previous", label : "Prev Athlete" });
-					e.nextAthlete.ajaxbutton({ command : "form/next",        label : "Next Form" });
-				} else {
-					e.prevAthlete.ajaxbutton({ command : "form/previous",    label : "Prev Form" });
-					e.nextAthlete.ajaxbutton({ command : "athlete/next",     label : "Next Athlete" });
-				}
+				var first = division.form == 0;
+				var last  = division.form == (formNames.length - 1);
+				if      ( first             ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "disable" ); e.nav.form.next.ajaxbutton( "enable" );  }
+				else if ( ! first && ! last ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "enable" );  e.nav.form.next.ajaxbutton( "enable" );  } 
+				else if ( last              ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "enable" );  e.nav.form.next.ajaxbutton( "disable" ); }
 			} else {
-				e.prevAthlete.ajaxbutton({ command : "athlete/previous", label : "Prev Athlete" });
-				e.nextAthlete.ajaxbutton({ command : "athlete/next",     label : "Next Athlete" });
+				e.nav.form.label.css({ opacity : 0.35 });
+				e.nav.form.prev.ajaxbutton( "disable" );
+				e.nav.form.next.ajaxbutton( "disable" );
 			}
+
 			var num_rounds = Object.keys( division.forms ).length;
-			if       ( num_rounds == 1 ) {
-				e.prevDivision.ajaxbutton({ command : "division/previous", label : "Prev Division" });
-				e.nextDivision.ajaxbutton({ command : "division/next",     label : "Next Division" });
+			if       ( num_rounds == 1 ) { 
+				e.nav.round.label.css({ opacity : 0.35 });
+				e.nav.round.prev.ajaxbutton( "disable" );
+				e.nav.round.next.ajaxbutton( "disable" ); 
 
 			} else if( division.round == 'prelim' || (division.round == 'semfin' && num_rounds == 2 )) {
-				e.prevDivision.ajaxbutton({ command : "division/previous", label : "Prev Division" });
-				e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
+				e.nav.round.label.css({ opacity : 1.00 });
+				e.nav.round.prev.ajaxbutton( "disable" );
+				e.nav.round.next.ajaxbutton( "enable" );
 
 			} else if( division.round == 'semfin' && num_rounds == 3 ) {
-				e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
-				e.nextDivision.ajaxbutton({ command : "round/next",        label : "Next Round" });
+				e.nav.round.label.css({ opacity : 1.00 });
+				e.nav.round.prev.ajaxbutton( "enable" );
+				e.nav.round.next.ajaxbutton( "enable" );
 
 			} else if( division.round == 'finals' ) {
-				e.prevDivision.ajaxbutton({ command : "round/previous",    label : "Prev Round" });
-				e.nextDivision.ajaxbutton({ command : "division/next",     label : "Next Division" });
-
+				e.nav.round.label.css({ opacity : 1.00 });
+				e.nav.round.prev.ajaxbutton( "enable" );
+				e.nav.round.next.ajaxbutton( "disable" );
 			}
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE

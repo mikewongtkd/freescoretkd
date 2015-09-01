@@ -291,12 +291,12 @@ body {
         color: #666; }
       .judgeNotes .view table .name {
         width: 278px; }
-      .judgeNotes .view table .form {
+      .judgeNotes .view table .form0 {
         width: 200px;
         text-align: center; }
-        .judgeNotes .view table .form .accuracy {
+        .judgeNotes .view table .form0 .accuracy {
           color: #f99; }
-        .judgeNotes .view table .form .presentation {
+        .judgeNotes .view table .form0 .presentation {
           color: #99f; }
       .judgeNotes .view table .form1 {
         width: 86px;
@@ -476,37 +476,68 @@ body {
       position: absolute;
       font-size: 18pt;
       line-height: 38pt;
-      height: 48px;
+      height: 32px;
       width: 172px;
       text-align: center;
-      border-radius: 12px;
-      border: 4px solid white;
       color: white;
       left: 590px; }
-    .judgeController .back .division {
-      border-color: green;
-      background: #9dd53a;
-      background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
+    .judgeController .back .next {
+      border-radius: 0 12px 12px 0;
+      left: 678px;
+      width: 80px; }
+    .judgeController .back .prev {
+      border-radius: 12px 0 0 12px;
+      left: 590px;
+      width: 80px; }
+    .judgeController .back .label {
+      position: absolute;
+      left: 604px;
+      width: 166px;
+      text-align: center; }
     .judgeController .back .athlete {
+      top: 36px;
+      border: 4px solid blue;
       border-color: blue;
       background: #6db3f2;
       background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
       background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
+    .judgeController .back .athlete-label {
+      top: 0; }
+    .judgeController .back .form {
+      font-size: 18pt;
+      line-height: 18pt;
+      top: 108px;
+      border: 4px solid green;
+      background: #9dd53a;
+      background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
+      .judgeController .back .form sup {
+        font-size: 10pt; }
+    .judgeController .back .form-label {
+      top: 72px; }
+    .judgeController .back .round {
+      top: 180px;
+      border: 4px solid gold;
+      background: #fceabb;
+      background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%); }
+    .judgeController .back .round-label {
+      top: 144px; }
+    .judgeController .back .division {
+      top: 252px;
+      border: 4px solid orange;
+      background: #ffb76b;
+      background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+      background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%); }
+    .judgeController .back .division-label {
+      top: 216px; }
     .judgeController .back .mode {
-      border-color: gold;
+      height: 48px;
+      border: 4px solid gold;
       background: #fceabb;
       background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
       background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
       color: black;
       top: 324px; }
-    .judgeController .back .prev.athlete {
-      top: 20px; }
-    .judgeController .back .next.athlete {
-      top: 96px; }
-    .judgeController .back .prev.division {
-      top: 172px; }
-    .judgeController .back .next.division {
-      top: 248px; }
 
 /*# sourceMappingURL=judgeController.css.map */

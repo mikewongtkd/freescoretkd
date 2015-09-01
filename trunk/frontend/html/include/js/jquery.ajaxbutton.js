@@ -61,9 +61,28 @@ $.widget( "freescore.ajaxbutton", {
 		e.button.empty();
 		e.button.append( e.progress, o.label );
 
+		/* // MW delete this code if it proves unused
 		function refresh( update ) {
+			console.log( "Refreshing ajax button" );
 			var division = JSON.parse( update.data );
 			b.click( o.clickUpdate() );
 		}
+		*/
+	},
+	disable: function() {
+		var o = this.options;
+		var b = this.element;
+		o.disable = true;
+		b.css({ opacity: 0.35 });
+		b.unbind( "click" );
+		b.click( function() { console.log( "Button disabled." ); });
+	},
+	enable: function() {
+		var o = this.options;
+		var b = this.element;
+		o.disable = false;
+		b.css({ opacity: 1 });
+		b.unbind( "click" );
+		b.click( o.clickUpdate() );
 	}
 });

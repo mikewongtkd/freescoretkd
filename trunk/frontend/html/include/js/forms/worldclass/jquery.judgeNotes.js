@@ -40,7 +40,7 @@ $.widget( "freescore.judgeNotes", {
 		}
 		var headers = [ header.order, header.name, header.form1 ];
 		if( defined( o.forms ) && o.forms.length > 1 ) { headers.push( header.form2 ); } 
-		else                                           { header.form1.removeClass( "form1" ) .addClass( "form" ); }
+		else                                           { header.form1.removeClass( "form1" ) .addClass( "form0" ); }
 		headers.push( header.avg );
 		var table = h.table.clone();
 		table.append( h.tr.clone() .append( headers ));
@@ -98,7 +98,7 @@ $.widget( "freescore.judgeNotes", {
 			var columns = [ column.order, column.name, column.form1 ];
 			var headers = [ header.order, header.name, header.form1 ];
 			if( defined( o.forms ) && o.forms.length > 1 ) { columns.push( column.form2 ); } 
-			else                                           { column.form1.removeClass( "form1" ) .addClass( "form" ); }
+			else                                           { column.form1.removeClass( "form1" ) .addClass( "form0" ); }
 			columns.push( column.avg );
 
 			tr .append( columns );

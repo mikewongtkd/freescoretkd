@@ -34,12 +34,12 @@
         color: #666; }
       .judgeNotes .view table .name {
         width: 278px; }
-      .judgeNotes .view table .form {
+      .judgeNotes .view table .form0 {
         width: 200px;
         text-align: center; }
-        .judgeNotes .view table .form .accuracy {
+        .judgeNotes .view table .form0 .accuracy {
           color: #f99; }
-        .judgeNotes .view table .form .presentation {
+        .judgeNotes .view table .form0 .presentation {
           color: #99f; }
       .judgeNotes .view table .form1 {
         width: 86px;
