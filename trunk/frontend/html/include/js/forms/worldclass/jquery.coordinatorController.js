@@ -304,7 +304,7 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var sendCommand = function( command ) {
+		var sendCommand = function( command, callback ) {
 		// ============================================================
 			return function() {
 				console.log( command );
@@ -318,13 +318,15 @@ $.widget( "freescore.coordinatorController", {
 						if( defined( response.error )) {
 							sound.error.play();
 							console.log( response );
+
 						} else {
 							sound.ok.play(); 
 							console.log( url );
 							console.log( response );
+							if( defined( callback )) { callback( response ); }
 						}
 					},
-					error:   function( response ) { sound.error.play(); },
+					error:   function( response ) { sound.error.play(); console.log( "Network Error: Unknown network error." ); },
 				});
 			}
 		};
@@ -388,7 +390,7 @@ $.widget( "freescore.coordinatorController", {
 				var j = division.order[ round ][ i ];
 				var athlete = {
 					data : division.athletes[ j ],
-					item : html.li.clone()
+					item : html.li.clone() .empty()
 				}
 				var complete = true;
 				for( k = 0; k < forms.length; k++ ) {
@@ -397,13 +399,25 @@ $.widget( "freescore.coordinatorController", {
 				}
 				if( j == division.current ) { 
 					athlete.item.addClass( 'current' );
-					var form = forms[ division.form ].name;
-					if      ( forms.length  > 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash; ' + ordinal[ division.form ] + ':</span> <span class="form">' + form + '</span>' ); }
-					else if ( forms.length == 1 ) { athlete.item.html( athlete.data.name + ' <span class="ordinal">&mdash;</span> <span class="form">' + form + '</span>' ); }
+					var form = {
+						name    : html.span.clone() .addClass( "form" )    .html( forms[ division.form ].name ),
+						ordinal : html.span.clone() .addClass( "ordinal" ) .html( forms.length > 1 ? ' ' + ordinal[ division.form ] + ':' : '' ),
+						description : html.p.clone() .append( html.strong.clone())
+					};
+					form.description.find( 'strong' ).append( form.name, form.ordinal );
+					var title = html.h3.clone() .html( athlete.data.name );
+					athlete.item.append( title, form.description );
 
 				} else { 
-					athlete.item.html( athlete.data.name );
+					athlete.item.append( athlete.data.name );
 					athlete.item.removeClass( 'current' ) 
+
+					var score = {
+						panel : html.span.clone() .addClass( 'ui-li-count' ),
+						total : athlete.data.scores[ round ][ division.form ].adjusted_mean.total
+					};
+					if( defined( score.total )) { score.panel.html( score.total ); } else { score.panel.html( '&mdash;' ); }
+					athlete.item.append( score.panel ); 
 				}
 				if( complete              ) { athlete.item.addClass( 'complete' ); } else { athlete.item.removeClass( 'complete' ); }
 				e.athletes.list.append( athlete.item );

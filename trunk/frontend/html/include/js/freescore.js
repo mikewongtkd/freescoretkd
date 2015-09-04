@@ -31,6 +31,7 @@ var FreeScore = {
 		search   : $( "<input type=\"search\" />" ), 
 		select   : $( "<select />" ), 
 		span     : $( "<span />" ), 
+		strong   : $( "<strong />" ), 
 		table    : $( "<table />" ), 
 		td       : $( "<td />" ), 
 		th       : $( "<th />" ), 
