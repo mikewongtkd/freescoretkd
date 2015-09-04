@@ -36,16 +36,6 @@ $.widget( "freescore.coordinatorController", {
 
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
-			navigation : {
-				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend    : html.legend.clone() .html( "Navigation" ),
-				division  : button.clone() .addClass( 'navigate-division ui-icon-bullets' ) .html( "This Division" ),
-				previous  : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( "Prev. Athlete" ),
-				next      : button.clone() .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( "Next Athlete" ),
-				round     : button.clone() .addClass( 'navigate-round    ui-icon-check'   ) .html( "Next Round" ),
-				display   : button.clone() .addClass( 'navigate-display  ui-icon-bars'    ) .html( "Leaderboard" ),
-			},
-
 			clock : {
 				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend    : html.legend.clone() .html( "Timer" ),
@@ -107,11 +97,10 @@ $.widget( "freescore.coordinatorController", {
 
 		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
 
-		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.previous, actions.navigation.division, actions.navigation.next );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 
-		actions.panel.append( actions.navigation.panel, actions.navigation.round, actions.navigation.display, actions.clock.panel, actions.penalties.panel );
+		actions.panel.append( actions.clock.panel, actions.penalties.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -133,135 +122,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		// Behavior
 		// ============================================================
-
-		// ============================================================
-		var navPrevAthlete = function() {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ o.progress.current ];
-				var round    = division.round;
-				var order    = division.order[ round ];
-				var i        = 0;
-				while( i < order.length ) {
-					if( order[ i ] == division.current ) { break; }
-					i++;
-				}
-				if( i > 0 ) { division.current = order[ i - 1 ] } else { division.current = order[ order.length - 1 ]; };
-				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
-				if( defined( form.penalty )) { o.penalties.bounds = defined( form.penalty.bounds ) ? parseFloat( form.penalty.bounds ) : 0; o.penalties.timelimit = defined( form.penalty.timelimit ) ? parseFloat( form.penalty.timelimit ) : 0; }
-				e.updateAthletes( division, o.progress.current );
-
-				e.time.stop();
-				e.time.clear();
-			}
-			(sendCommand( "athlete/previous" ))();
-		};
-
-		// ============================================================
-		var navPrevForm = function() {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ o.progress.current ];
-				var round    = division.round;
-				if( division.form > 0 ) { division.form--; }
-				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
-				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
-				e.updateAthletes( division, o.progress.current );
-
-				e.time.stop();
-				e.time.clear();
-			}
-			(sendCommand( "form/previous" ))();
-		};
-
-		// ============================================================
-		var navNextAthlete = function() {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ o.progress.current ];
-				var round    = division.round;
-				var order    = division.order[ round ];
-				var i        = 0;
-				while( i < order.length ) {
-					if( order[ i ] == division.current ) { break; }
-					i++;
-				}
-				if( i < order.length - 1 ) { division.current = order[ i + 1 ] } else { division.current = order[ 0 ]; };
-				division.form = 0;
-				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
-				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
-				e.updateAthletes( division, o.progress.current );
-
-				e.time.stop();
-				e.time.clear();
-			}
-
-			(sendCommand( "athlete/next" ))();
-		};
-
-		// ============================================================
-		var navNextForm = function() {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ o.progress.current ];
-				var round    = division.round;
-				var k        = division.forms[ round ].length - 1;
-				if( division.form < k ) { division.form++; }
-				var form = division.athletes[ division.current ].scores[ round ][ division.form ];
-				if( defined( form.penalty )) { o.penalties.bounds = form.penalty.bounds; o.penalties.timelimit = form.penalty.timelimit; }
-				e.updateAthletes( division, o.progress.current );
-
-				e.time.stop();
-				e.time.clear();
-			}
-			(sendCommand( "form/next" ))();
-		};
-
-		// ============================================================
-		var navDivision = function( current ) {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ current ];
-				var k = Object.keys( division.forms ).length;
-				if( k > 1 ) { actions.navigation.round.show(); } else { actions.navigation.round.hide(); }
-			}
-			actions.navigation.division.hide();
-			actions.navigation.display.show();
-			actions.navigation.next.show();
-			actions.navigation.previous.show();
-			actions.navigation.panel.controlgroup( 'refresh' );
-			actions.clock.panel .show();
-			actions.penalties.panel .show();
-		};
-
-		// ============================================================
-		var navRound = function() {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ o.progress.current ];
-				var round    = division.round;
-				if      ( round == 'prelim' && defined( division.order.semfin )) { division.round = 'semfin'; }
-				else if ( round == 'semfin' && defined( division.order.finals )) { division.round = 'finals'; }
-				else if ( round == 'finals' && defined( division.order.prelim )) { division.round = 'prelim'; }
-				if( division.round != round ) {
-					division.current = division.order[ division.round ][ 0 ];
-					updateAthletes( division, o.progress.current );
-					(sendCommand( "round/next" ))();
-				}
-			}
-		};
-
-		// ============================================================
-		var navDisplay = function() {
-		// ============================================================
-			if( defined( o.progress )) {
-				var division = o.progress.divisions[ o.progress.current ];
-				var state    = division.state;
-				if      ( state == 'score'   ) { actions.navigation.display.removeClass( "ui-icon-bars" ) .addClass( "ui-icon-gear" ) .html( "Score Athlete" ); }
-				else if ( state == 'display' ) { actions.navigation.display.removeClass( "ui-icon-gear" ) .addClass( "ui-icon-bars" ) .html( "Leaderboard" ); }
-				(sendCommand( "display" ))();
-			}
-		};
+		// See master d6011f2 for navigation methods
 
 		// ============================================================
 		var awardPenaltyBounds = function() {
@@ -363,21 +224,8 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.list.empty();
 			if( ! defined( division )) { return; }
 			if( o.progress.current != current ) { 
-				actions.navigation.division.unbind( 'click' ).click( function() { 
-					(sendCommand( 'division/' + current )()); 
-					navDivision( current );
-				});
-				actions.navigation.division.show();
-				actions.navigation.round.hide();
-				actions.navigation.display.hide();
-				actions.navigation.next.hide();
-				actions.navigation.previous.hide();
-				actions.navigation.panel.controlgroup( 'refresh' );
-				actions.navigation.division.addClass( 'ui-first-child ui-last-child' );
 				actions.clock.panel .hide();
 				actions.penalties.panel .hide();
-			} else {
-				navDivision( current );
 			}
 
 			// Update Header
@@ -430,12 +278,6 @@ $.widget( "freescore.coordinatorController", {
 			}
 			e.athletes.list.listview().listview( 'refresh' );
 
-			// Update Navigation Menus
-			var k = forms.length - 1;
-			if( division.form == 0 ) { e.actions.navigation.previous .removeClass( 'navigate-forms ui-icon-carat-u' )    .addClass( 'navigate-athletes ui-icon-arrow-u' ) .html( 'Prev. Athlete' ) .unbind( 'click' ) .click( navPrevAthlete ); } 
-			else                     { e.actions.navigation.previous .removeClass( 'navigate-athletes ui-icon-arrow-u' ) .addClass( 'navigate-forms ui-icon-carat-u' )    .html( 'Prev. Form' )    .unbind( 'click' ) .click( navPrevForm ); }
-			if( division.form == k ) { e.actions.navigation.next     .removeClass( 'navigate-forms ui-icon-carat-d' )    .addClass( 'navigate-athletes ui-icon-arrow-d' ) .html( 'Next Athlete' )  .unbind( 'click' ) .click( navNextAthlete ); } 
-			else                     { e.actions.navigation.next     .removeClass( 'navigate-athletes ui-icon-arrow-d' ) .addClass( 'navigate-forms ui-icon-carat-d' )    .html( 'Next Form' )     .unbind( 'click' ) .click( navNextForm ); }
 		};
 
 		// ============================================================
@@ -466,9 +308,6 @@ $.widget( "freescore.coordinatorController", {
 			e.updateDivisions( progress.divisions, progress.current );
 
 		};
-
-		actions.navigation .display   .click( navDisplay );
-		actions.navigation .round     .click( navRound );
 
 		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds    .click( awardPenaltyBounds );
