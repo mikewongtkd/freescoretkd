@@ -278,6 +278,9 @@ $.widget( "freescore.coordinatorController", {
 			}
 			e.athletes.list.listview().listview( 'refresh' );
 
+			e.time.stop();
+			e.time.clear();
+
 		};
 
 		// ============================================================

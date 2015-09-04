@@ -164,7 +164,6 @@ At the terminal, type the following:
     mkdir -p /Volumes
     ln -s divisions /Volumes/ramdisk
     chmod -R a+w divisions
-    vim /etc/fstab
 
 #### Install Perl Modules
 
@@ -265,3 +264,18 @@ Use `diskutil` to identify the SD card device number
     diskutil list
     diskutil unmount '/Volumes/<device name>'
     dd bs=1m if=<path>/freescore.sd.image of=/dev/rdisk<xyz>
+
+### Using FreeScoreWifi as a Display device
+
+    sudo apt-get install chromium x11-xserver-utils unclutter
+
+Edit `/etc/xdg/lxsession/LXDE/autostart`
+
+    @lxpanel --profile LXDE
+    @pcmanfm --desktop --profile LXDE
+    @xscreensaver -no-splash
+    @xset s off
+    @xset -dpms
+    @xset s no blank
+    @chromium -kiosk -incognito http://freescore.net/freescore/forms/worldclass/index.php?ring=1&role=display
+
