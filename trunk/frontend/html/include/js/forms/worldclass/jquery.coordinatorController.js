@@ -397,6 +397,8 @@ $.widget( "freescore.coordinatorController", {
 					var formComplete = athlete.data.scores[ round ][ k ].complete;
 					complete &= formComplete;
 				}
+				
+				// Current Athlete
 				if( j == division.current ) { 
 					athlete.item.addClass( 'current' );
 					var form = {
@@ -408,17 +410,21 @@ $.widget( "freescore.coordinatorController", {
 					var title = html.h3.clone() .html( athlete.data.name );
 					athlete.item.append( title, form.description );
 
+				// Non-current athlete
 				} else { 
 					athlete.item.append( athlete.data.name );
 					athlete.item.removeClass( 'current' ) 
-
-					var score = {
-						panel : html.span.clone() .addClass( 'ui-li-count' ),
-						total : athlete.data.scores[ round ][ division.form ].adjusted_mean.total
-					};
-					if( defined( score.total )) { score.panel.html( score.total ); } else { score.panel.html( '&mdash;' ); }
-					athlete.item.append( score.panel ); 
 				}
+
+				// Append score
+				var score = {
+					panel : html.span.clone() .addClass( 'ui-li-count' ),
+					data  : athlete.data.scores[ round ][ division.form ],
+				};
+				score.total = score.data.complete ? score.data.adjusted_mean.total : 0.0;
+				if( score.data.complete ) { score.panel.html( score.total ); } else { score.panel.html( '&mdash;' ); }
+				athlete.item.append( score.panel ); 
+
 				if( complete              ) { athlete.item.addClass( 'complete' ); } else { athlete.item.removeClass( 'complete' ); }
 				e.athletes.list.append( athlete.item );
 			}
