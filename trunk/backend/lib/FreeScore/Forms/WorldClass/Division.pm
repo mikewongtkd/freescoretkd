@@ -21,6 +21,9 @@ use strict;
 # - [ form index ]
 #   - complete
 #   - penalties
+#   - status
+#     - withdrawn
+#     - disqualified
 #   - judge
 #     - [ judge index ]
 #       - Score Object
