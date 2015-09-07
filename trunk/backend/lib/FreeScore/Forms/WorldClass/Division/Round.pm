@@ -80,6 +80,7 @@ sub calculate_means {
 
 		my $stats  = { minacc => 0, minpre => 0, maxacc => 0, maxpre => 0 };
 		my $k      = $#{ $form->{ judge }};
+
 		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
 		foreach my $i (0 .. $k) {
 			my $score        = $form->{ judge }[ $i ];
@@ -95,7 +96,7 @@ sub calculate_means {
 			$stats->{ sumpre } += $presentation;
 		}
 
-		# ===== IF ALL SCORES ARE THE SAME, THEN THE MIN AND MAX WILL BE THE SAME; DIFFERENTIATE THEM
+		# ===== IF ALL SCORES ARE THE SAME, THEN WE NEED TO DROP DIFFERENT SCORES (ONE "HIGH" AND ONE "LOW")
 		if( $stats->{ minacc } == $stats->{ maxacc } && $k > 0 ) { $stats->{ maxacc }++; }
 		if( $stats->{ minpre } == $stats->{ maxpre } && $k > 0 ) { $stats->{ maxpre }++; }
 

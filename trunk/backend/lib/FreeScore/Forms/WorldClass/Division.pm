@@ -448,7 +448,7 @@ sub read {
 				# Assign round
 				$round = $_;
 			}
-		# ===== READ DIVISION ATHLETE INFORMATION
+		# ===== READ ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
 			die "Division Configuration Error: Number of Judges not defined before athlete information" unless $self->{ judges };
 			die "Division Configuration Error: Forms not defined before athlete information"            unless $self->{ forms };
@@ -475,7 +475,7 @@ sub read {
 				$athletes->{ $athlete->{ name } } = $athlete; 
 			}
 
-		# ===== READ DIVISION ATHLETE SCORES
+		# ===== READ ATHLETE SCORES
 		} elsif( /^\t\w/ ) {
 			s/^\t//;
 			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
@@ -487,7 +487,7 @@ sub read {
 				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
 				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
-				$self->{ rounds }{ $round } = 1; # Record that at least one score for this round has been recorded; therefore this division has the given round
+				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
 
 				next unless( $major || $minor || $rhythm || $power || $ki );
 

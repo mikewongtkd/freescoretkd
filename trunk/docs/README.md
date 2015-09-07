@@ -279,3 +279,42 @@ Edit `/etc/xdg/lxsession/LXDE/autostart`
     @xset s no blank
     @chromium -kiosk -incognito http://freescore.net/freescore/forms/worldclass/index.php?ring=1&role=display
 
+# Troubleshooting
+
+## Database Errors
+
+100 Database path read error
+110 Database path/file missing
+120 Database file unreadable
+130 Database file unwriteable
+
+## Division Object Errors
+
+## Round Object Errors
+
+./FreeScore/Forms/Division.pm:die "Database Read Error: Can't find division at '$self->{ path }' $!" if( ! -e $self->{ path } );
+./FreeScore/Forms/GrassRoots/Division.pm:open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
+./FreeScore/Forms/GrassRoots/Division.pm:open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
+./FreeScore/Forms/WorldClass/Division/Round.pm:die "Round Object Error: Accuracy not calculated!" if not defined $accuracy;
+./FreeScore/Forms/WorldClass/Division/Round.pm:die "Round Object Error: Precision not calculated!" if not defined $presentation;
+./FreeScore/Forms/WorldClass/Division/Round.pm:else { die "Round Object Error: Attempting to instantiate an round object that is not an array ($ref) $!"; }
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $self->{ forms }{ $round };
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
+./FreeScore/Forms/WorldClass/Division.pm:open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Configuration Error: Number of Judges not defined before athlete information" unless $self->{ judges };
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Configuration Error: Forms not defined before athlete information" unless $self->{ forms };
+./FreeScore/Forms/WorldClass/Division.pm:$form =~ s/f//; $form = int( $form ) - 1; die "Division Configuration Error: Invalid form index '$form' $!" unless $form >= 0;
+./FreeScore/Forms/WorldClass/Division.pm:$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
+./FreeScore/Forms/WorldClass/Division.pm:die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
+./FreeScore/Forms/WorldClass/Division.pm:die "Database Read Error: Unknown line type '$_'\n";
+./FreeScore/Forms/WorldClass/Division.pm:open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Object Error: Bad indices when selecting athlete $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Object Error: Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
+./FreeScore/Forms/WorldClass/Division.pm:die "Division Configuration Error: While searching for $option athlete in '$round', found no athletes assigned to '$round'" unless( int( @athletes_in_round ));
+./FreeScore/Forms/WorldClass.pm:open FILE, ">$file" or die "Database Error: Can't write '$file' $!";
+./FreeScore/Forms.pm:opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
+./FreeScore/Forms.pm:opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
+./FreeScore/Forms.pm:opendir DIR, "$self->{ path }/staging" or die "Database Read Error: Can't open directory '$self->{ path }/staging' $!";
+./FreeScore/Forms.pm:open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
+./FreeScore/Test.pm:die "Network Error: Failed to get a response for command '$url'; " . $response->status_line;
+
