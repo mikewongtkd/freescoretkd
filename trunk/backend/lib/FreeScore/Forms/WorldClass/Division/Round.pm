@@ -55,6 +55,33 @@ sub record_penalties {
 }
 
 # ============================================================
+sub record_status {
+# ============================================================
+# Records status notes. Will overwrite. 
+#------------------------------------------------------------
+ 	my $self    = shift;
+	my $i       = shift;
+	my $notes   = shift;
+
+	my $form = $self->[ $i ];
+	foreach my $key (keys %$notes) { $form->{ status }{ $key } = $notes->{ $key }; }
+
+	my $punitive_declaration = undef;
+	foreach my $j ($i .. $#$self) {  
+		my $form = $self->[ $j ];
+		foreach my $status (sort keys %{ $form->{ status }}) {
+			$punitive_declaration = $status if( $status eq 'disqualified' || $status eq 'withdrawn' );
+		}
+		# Copy the status of the current form and all subsequent forms
+		if( defined $punitive_declaration ) { 
+			$form->{ complete } = 1; 
+			$form->{ status }{ $punitive_declaration } = 1;
+		}
+	}
+
+}
+
+# ============================================================
 sub add_tiebreaker {
 # ============================================================
 	my $self   = shift;
@@ -77,6 +104,13 @@ sub calculate_means {
 	foreach my $form (@$self) {
 		next unless $form->{ complete };
 		next unless exists $form->{ judge };
+
+		# ===== SET MEAN SCORE TO ZERO FOR WITHDRAWN OR DISQUALIFIED ATHLETES
+		if( exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified } ) {
+			$form->{ adjusted_mean } = 0.0;
+			$form->{ complete_mean } = 0.0;
+			push @$means, { adjusted_mean => 0.0, complete_mean => 0.0 };
+		}
 
 		my $stats  = { minacc => 0, minpre => 0, maxacc => 0, maxpre => 0 };
 		my $k      = $#{ $form->{ judge }};
@@ -159,14 +193,20 @@ sub calculate_means {
 # ============================================================
 sub form_complete {
 # ============================================================
-# An athlete's form is complete when all judges have registered a valid score
+# An athlete's form is complete if there is a punitive declaration or when all judges have registered a valid score
 # ------------------------------------------------------------
 	my $self = shift;
 	my $i    = shift;
-
 	my $form = $self->[ $i ];
+
+	# ===== FORM IS COMPLETE IF THERE IS A PUNITATIVE DECISION
+	my $punitive_declaration = exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified };
+	$form->{ complete }      = $punitive_declaration; 
+	return 1 if $form->{ complete };
+
+	# ===== FORM IS COMPLETE IF ALL JUDGES HAVE REGISTERED A VALID SCORE
 	return 0 unless exists $form->{ judge };
-	$form->{ complete } = all { $_->complete() } ( @{ $form->{ judge }} );
+	$form->{ complete } ||= all { $_->complete() } ( @{ $form->{ judge }} );
 	return $form->{ complete };
 }
 
@@ -181,7 +221,7 @@ sub complete {
 	foreach my $i (0 .. $#$self) { $self->form_complete( $i ); }
 
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
-	my $complete = all { $_->{ complete }; } @$self;
+	$complete = all { $_->{ complete }; } @$self;
 	return $complete;
 }
 
@@ -229,6 +269,14 @@ sub string {
 	for( my $i = 0; $i < $forms; $i++ ) {
 		my $form    = $self->[ $i ];
 		my $form_id = 'f' . ($i + 1);
+
+		# ===== RECORD STATUS
+		if( exists $form->{ status } ) {
+			foreach my $key (sort keys %{ $form->{ status }}) {
+				my $value = $form->{ status }{ $key };
+				push @string, "\t" . join( "\t", $round, $form_id, 's', "$key=$value" ) . "\n";
+			}
+		}
 
 		# ===== RECORD PENALTIES
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} ) {

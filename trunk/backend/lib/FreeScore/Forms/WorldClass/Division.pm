@@ -506,6 +506,14 @@ sub read {
 				my $judges    = $self->{ judges };
 				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
+
+			# Status notes describe athlete withdraw or disqualification
+			} elsif ( $judge =~ /^s/ ) {
+				my $status = { (map { my ($key, $value) = split /=/, $_, 2; ($key => $value ); } @score_criteria) };
+				my $forms     = int( @{ $self->{ forms }{ $round }});
+				my $judges    = $self->{ judges };
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$athlete->{ scores }{ $round }->record_status( $form, $status );
 			}
 
 		} else {
@@ -580,7 +588,8 @@ sub update_status {
 	}
 
 	# ===== ASSIGN THE ATHLETES TO THE NEXT ROUND
-	my $n        = int( @{ $self->{ athletes }} );
+	my $punitive_declarations = sub { my $form = shift; return (exists $form->{ status } && (exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified })); };
+	my $n = int( @{ $self->{ athletes }} );
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
 
 		# Skip if athletes have already been assigned to the semi-finals
@@ -588,8 +597,10 @@ sub update_status {
 		return if( defined $semfin && int( @$semfin ) > 0 );
 
 		# Semi-final round goes in random order
-		my $half             = int( ($n-1)/2 );
-		my @order            = shuffle (@{ $self->{ placement }{ prelim }}[ 0 .. $half ]);
+		my $half       = int( ($n-1)/2 );
+		my @candidates = @{ $self->{ placement }{ prelim }};
+		my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ prelim }} } @candidates;
+		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$self->assign( $_, 'semfin' ) foreach @order;
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
@@ -599,8 +610,10 @@ sub update_status {
 		return if( defined $finals && int( @$finals ) > 0 );
 
 		# Finals go in reverse placement order of semi-finals
-		my $k                = $n > 8 ? 7 : ($n - 1);
-		my @order            = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
+		my $k          = $n > 8 ? 7 : ($n - 1);
+		my @candidates = @{ $self->{ placement }{ semfin }};
+		my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
+		my @order      = reverse (@{ $self->{ placement }{ semfin }}[ 0 .. $k ]);
 		$self->assign( $_, 'finals' ) foreach @order;
 	}
 }
