@@ -1,0 +1,98 @@
+.ro8a {
+  top: 0;
+  left: 0; }
+
+.ro8b {
+  top: 120px;
+  left: 0; }
+
+.ro8c {
+  top: 240px;
+  left: 0; }
+
+.ro8d {
+  top: 360px;
+  left: 0; }
+
+.ro4a {
+  top: 60px;
+  left: 400px; }
+
+.ro4b {
+  top: 300px;
+  left: 400px; }
+
+.ro2 {
+  top: 180px;
+  left: 800px; }
+
+.ro8a.grow:hover {
+  z-index: 10px;
+  transform: scale(2) translateX(80px); }
+
+.ro8b.grow:hover {
+  z-index: 10px;
+  transform: scale(2) translateX(80px); }
+
+.ro8c.grow:hover {
+  z-index: 10px;
+  transform: scale(2) translateX(80px); }
+
+.ro8d.grow:hover {
+  z-index: 10px;
+  transform: scale(2) translateX(80px); }
+
+.ro2.grow:hover {
+  transform: scale(2) translateX(-80px); }
+
+.bracket {
+  position: absolute;
+  left: 80px;
+  top: 80px; }
+  .bracket .match {
+    font-family: Optima;
+    position: absolute;
+    height: 80px;
+    width: 360px; }
+    .bracket .match .chung, .bracket .match .hong {
+      position: absolute;
+      height: 38px;
+      width: 358px;
+      left: 0;
+      font-size: 32px;
+      color: white; }
+      .bracket .match .chung .athlete, .bracket .match .hong .athlete {
+        position: absolute;
+        left: 0;
+        height: 38px;
+        width: 280px;
+        padding-left: 10px; }
+      .bracket .match .chung .score, .bracket .match .hong .score {
+        position: absolute;
+        left: 290px;
+        height: 38px;
+        width: 58px;
+        padding-left: 10px; }
+    .bracket .match .chung {
+      top: 0;
+      background-color: #00c;
+      border-radius: 0 20px 0 0;
+      border: 1px solid #003; }
+      .bracket .match .chung .score {
+        border-left: 2px solid #66f; }
+    .bracket .match .hong {
+      top: 40px;
+      background-color: #d00;
+      border-radius: 0 0 20px 0;
+      border: 1px solid #300; }
+      .bracket .match .hong .score {
+        border-left: 2px solid #f66; }
+
+.grow {
+  transition: all 0.2s ease-in-out; }
+
+.grow:hover {
+  z-index: 10;
+  transform: scale(2); }
+
+/*# sourceMappingURL=match.css.map */
