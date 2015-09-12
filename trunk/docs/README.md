@@ -269,6 +269,11 @@ Use `diskutil` to identify the SD card device number
 
     sudo apt-get install chromium x11-xserver-utils unclutter
 
+Enable autostart X with LXDE window manager (default); use `raspi-config` and
+follow the on-screen menu.
+
+    sudo raspi-config
+
 Edit `/etc/xdg/lxsession/LXDE/autostart`
 
     @lxpanel --profile LXDE
@@ -277,7 +282,13 @@ Edit `/etc/xdg/lxsession/LXDE/autostart`
     @xset s off
     @xset -dpms
     @xset s no blank
-    @chromium -kiosk -incognito http://freescore.net/freescore/forms/worldclass/index.php?ring=1&role=display
+    @chromium --kiosk --ignore-certificate-errors --disable-restore-session-state --incognito "http://freescore.net/freescore/forms/worldclass/index.php?ring=1&role=display"
+
+Switch from X-windows to command line using `<Alt>-<Ctl>-<F1>`. You can terminate
+the session by identifying it's PID using
+
+    pkill x
+
 
 # Troubleshooting
 
