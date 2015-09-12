@@ -12,12 +12,12 @@ $.widget( "freescore.match", {
 				chung : {
 					panel   : html.div.clone() .addClass( "chung" ),
 					athlete : html.div.clone() .addClass( "athlete" ) .html( "Blue" ),
-					score   : html.div.clone() .addClass( "score" )   .html( "7.6" ),
+					score   : html.div.clone() .addClass( "score" )   .html( "7.66" ),
 				},
 				hong : {
 					panel   : html.div.clone() .addClass( "hong" ),
 					athlete : html.div.clone() .addClass( "athlete" ) .html( "Red" ),
-					score   : html.div.clone() .addClass( "score" )   .html( "7.4" ),
+					score   : html.div.clone() .addClass( "score" )   .html( "7.42" ),
 				}
 			};
 			match.chung .panel.append( match.chung .athlete, match.chung .score );
@@ -34,7 +34,12 @@ $.widget( "freescore.match", {
 			ro2  : addMatch( 'ro2'  ),
 		}
 
-		w .append( match.ro8, match.ro4, match.ro2 ) .addClass( "bracket" );
+		w .append( 
+			addMatch( 'ro8a' ), addMatch( 'ro8b' ), addMatch( 'ro8c' ), addMatch( 'ro8d' ),
+			addMatch( 'ro4a' ), addMatch( 'ro4b' ),
+			addMatch( 'ro2' )
+			// match.ro2 
+		) .addClass( "bracket" );
 	},
 	_init: function( ) {
 		var w    = this.element;

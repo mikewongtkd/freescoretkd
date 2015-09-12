@@ -35,15 +35,15 @@
 				position: absolute;
 				left:       0;
 				height:  38px;
-				width:  280px;
+				width:  250px;
 				padding-left: 10px;
 			}
 
 			.score {
 				position: absolute;
-				left:   290px;
+				left:   260px;
 				height:  38px;
-				width:   58px;
+				width:   88px;
 				padding-left: 10px;
 			}
 		}
@@ -52,7 +52,7 @@
 			top: 0;
 			background-color: #00c;
 			border-radius: 0 20px 0 0;
-			border: 1px solid #003;
+			border: 1px solid #009;
 
 			.athlete {
 			}
@@ -66,7 +66,7 @@
 			top: 40px;
 			background-color: #d00;
 			border-radius: 0 0 20px 0;
-			border: 1px solid #300;
+			border: 1px solid #900;
 
 			.athlete {
 			}
@@ -79,5 +79,7 @@
 	}
 }
 
-.grow { transition: all 0.2s ease-in-out; }
-.grow:hover { z-index: 10; transform: scale( 2.0 ) }
+.grow { 
+	transition: all 0.2s ease-in-out; 
+	&:hover { z-index: 10; transform: scale( 2.0 ); }
+}
