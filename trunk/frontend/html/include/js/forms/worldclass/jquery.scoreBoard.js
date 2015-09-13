@@ -175,15 +175,8 @@ $.widget( "freescore.scoreboard", {
 			e.judges[ i ].judgeScore( { score : judge_scores[ i ], judges : k, complete : complete } );
 		}
 
-		/*
-		if( parseInt( current.athlete.index ) % 2 ) { // MW This is broken for multiple rounds
-			e.athlete .removeClass( "chung" ); 
-			e.athlete .addClass( "hong" ); 
-		} else { 
-			e.athlete .removeClass( "hong" ); 
-			e.athlete .addClass( "chung" ); 
-		}
-		*/
+		if( o.odd ) { e.athlete .removeClass( "chung" ); e.athlete .addClass( "hong" );  } 
+		else        { e.athlete .removeClass( "hong" );  e.athlete .addClass( "chung" ); }
 			
 		// ===== CHANGE OF PLAYER
 		if( ! defined( o.previous ) || (
