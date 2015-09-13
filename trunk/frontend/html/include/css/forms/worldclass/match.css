@@ -26,25 +26,6 @@
   top: 180px;
   left: 800px; }
 
-.ro8a.grow:hover {
-  z-index: 10px;
-  transform: scale(2) translateX(80px); }
-
-.ro8b.grow:hover {
-  z-index: 10px;
-  transform: scale(2) translateX(80px); }
-
-.ro8c.grow:hover {
-  z-index: 10px;
-  transform: scale(2) translateX(80px); }
-
-.ro8d.grow:hover {
-  z-index: 10px;
-  transform: scale(2) translateX(80px); }
-
-.ro2.grow:hover {
-  transform: scale(2) translateX(-80px); }
-
 .bracket {
   position: absolute;
   left: 80px;
@@ -88,10 +69,23 @@
       .bracket .match .hong .score {
         border-left: 2px solid #f66; }
 
-.grow {
-  transition: all 0.2s ease-in-out; }
-  .grow:hover {
-    z-index: 10;
-    transform: scale(2); }
+.zoom, .zoom-left, .zoom-right {
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+  transform: scale(2.5); }
+
+.zoom-left {
+  transform: scale(2.5) translateX(-80px); }
+
+.zoom-right {
+  transform: scale(2.5) translateX(80px); }
+
+.nozoom {
+  transition: all 0.2s ease-in-out;
+  z-index: 1;
+  transform: scale(1); }
+
+.fade {
+  opacity: 0.25; }
 
 /*# sourceMappingURL=match.css.map */
