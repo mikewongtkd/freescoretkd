@@ -6,7 +6,9 @@ $.widget( "freescore.worldclass", {
 		var widget      = this.element;
 		var html        = e.html        = FreeScore.html;
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "back" );
+		var brackets    = e.brackets    = html.div.clone() .addClass( "back" ) .hide();
 		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "front" );
+		var dualscores  = e.dualscores  = html.div.clone() .addClass( "front" ). hide();
 		var usermessage = e.usermessage = html.div.clone();
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 

@@ -6,6 +6,25 @@
 .ro4b { top: 300px; left: 400px; }
 .ro2  { top: 180px; left: 800px; }
 
+.line8, .line4 { position: absolute; }
+
+.line8 { width: 20px; height:  60px; }
+.line4 { width: 20px; height: 120px; }
+
+.line-8a4a-start { top:  39px; left: 360px; border-top:    2px solid black; border-right: 2px solid black; }
+.line-8a4a-stop  { top:  39px; left: 380px; border-bottom: 2px solid black; }
+.line-8b4a-start { top:  99px; left: 360px; border-bottom: 2px solid black; border-right: 2px solid black; }
+.line-8b4a-stop  { top:  99px; left: 380px; border-top:    2px solid black; }
+.line-8c4b-start { top: 279px; left: 360px; border-top:    2px solid black; border-right: 2px solid black; }
+.line-8c4b-stop  { top: 279px; left: 380px; border-bottom: 2px solid black; }
+.line-8d4b-start { top: 339px; left: 360px; border-bottom: 2px solid black; border-right: 2px solid black; }
+.line-8d4b-stop  { top: 339px; left: 380px; border-top:    2px solid black; }
+
+.line-4a2-start  { top:  99px; left: 760px; border-top:    2px solid black; border-right: 2px solid black; }
+.line-4a2-stop   { top:  99px; left: 780px; border-bottom: 2px solid black; }
+.line-4b2-start  { top: 219px; left: 760px; border-bottom: 2px solid black; border-right: 2px solid black; }
+.line-4b2-stop   { top: 219px; left: 780px; border-top:    2px solid black; }
+
 .ro8a.grow:hover { z-index: 10px; transform: scale( 2.0 ) translateX( 80px ); }
 .ro8b.grow:hover { z-index: 10px; transform: scale( 2.0 ) translateX( 80px ); }
 .ro8c.grow:hover { z-index: 10px; transform: scale( 2.0 ) translateX( 80px ); }
@@ -35,15 +54,15 @@
 				position: absolute;
 				left:       0;
 				height:  38px;
-				width:  280px;
+				width:  260px;
 				padding-left: 10px;
 			}
 
 			.score {
 				position: absolute;
-				left:   290px;
+				left:   270px;
 				height:  38px;
-				width:   58px;
+				width:   78px;
 				padding-left: 10px;
 			}
 		}
