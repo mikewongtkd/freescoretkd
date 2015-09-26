@@ -1,9 +1,16 @@
 <?php 
-	if( ! isset( $_COOKIE[ 'ring' ])) { header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); }
-	$an_hour_ago = time() - 3600;
-	setcookie( 'judge', '', $an_hour_ago, '/' );
-	setcookie( 'role', 'display', 0, '/' );
+	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
+	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : NULL;
+	$k = json_decode( $tournament )->rings->count;
+	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
+		setcookie( 'ring', $_GET[ 'ring' ], 0, '/' ); 
+	} else {
+		header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); 
+	}
+	if( ! isset( $_COOKIE[ 'ring' ])) { header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); }
+	setcookie( 'judge', '', $clear_cookie, '/' );
+	setcookie( 'role', 'display', 0, '/' );
 ?>
 <html>
 	<head>

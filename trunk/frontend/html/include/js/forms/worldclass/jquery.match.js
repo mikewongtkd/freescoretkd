@@ -6,18 +6,28 @@ $.widget( "freescore.match", {
 		var e    = this.options.elements = {};
 		var html = e.html  = FreeScore.html;
 
-		var addMatch = function( name ) {
+		var addMatch = o.addMatch = function( name ) {
+			var division = o.division;
+			var athlete  = {};
+			if( ! defined( division )) {
+				athlete  = {
+					chung : { name : 'Blue', score : '&mdash;' },
+					hong  : { name : 'Red',  score : '&mdash;' },
+				};
+			} else {
+			}
+			var zoom  = { ro8a : 'zoom-right', ro8b : 'zoom-right', ro8c : 'zoom-right', ro8d : 'zoom-right', ro4a : 'zoom', ro4b : 'zoom', ro2 : 'zoom-left' };
 			var match = {
-				panel : html.div.clone() .addClass( "match" ) .addClass( name ) .addClass( "grow" ) .attr({ id : name }),
+				panel : html.div.clone() .addClass( 'match nozoom ' + name ) .attr({ id : name }) .hover( function() { $( this ).toggleClass( zoom[ name ] + ' nozoom fade' ); $( '.match' ).toggleClass( 'fade' ); }),
 				chung : {
 					panel   : html.div.clone() .addClass( "chung" ),
-					athlete : html.div.clone() .addClass( "athlete" ) .html( "Blue" ),
-					score   : html.div.clone() .addClass( "score" )   .html( "7.66" ),
+					athlete : html.div.clone() .addClass( "athlete" ) .html( athlete.chung.name ),
+					score   : html.div.clone() .addClass( "score" )   .html( athlete.chung.score ),
 				},
 				hong : {
 					panel   : html.div.clone() .addClass( "hong" ),
-					athlete : html.div.clone() .addClass( "athlete" ) .html( "Red" ),
-					score   : html.div.clone() .addClass( "score" )   .html( "7.43" ),
+					athlete : html.div.clone() .addClass( "athlete" ) .html( athlete.hong.name ),
+					score   : html.div.clone() .addClass( "score" )   .html( athlete.hong.score ),
 				}
 			};
 			match.chung .panel.append( match.chung .athlete, match.chung .score );
@@ -28,7 +38,7 @@ $.widget( "freescore.match", {
 			return match.panel;
 		};
 
-		var addLine = function( name ) {
+		var addLine = o.addLine = function( name ) {
 			var type = name.match( /8/ ) ? 'line8' : 'line4';
 			var line = {
 				panel : html.div.clone(),
@@ -41,18 +51,7 @@ $.widget( "freescore.match", {
 			return line.panel;
 		};
 
-		var match = {
-			ro8  : html.div.clone() .append( addMatch( 'ro8a' ), addMatch( 'ro8b' ), addMatch( 'ro8c' ), addMatch( 'ro8d' )),
-			ro4  : html.div.clone() .append( addMatch( 'ro4a' ), addMatch( 'ro4b' )),
-			ro2  : addMatch( 'ro2'  ),
-		};
-
-		var lines = {
-			ro8: html.div.clone() .append( addLine( '8a4a' ), addLine( '8b4a' ), addLine( '8c4b' ), addLine( '8d4b' )),
-			ro4: html.div.clone() .append( addLine( '4a2'  ), addLine( '4b2'  )),
-		};
-
-		w .append( match.ro8, match.ro4, match.ro2, lines.ro8, lines.ro4 ) .addClass( "bracket" );
+		w .addClass( 'bracket' );
 	},
 	_init: function( ) {
 		var w    = this.element;
@@ -60,5 +59,13 @@ $.widget( "freescore.match", {
 		var e    = this.options.elements;
 		var html = e.html  = FreeScore.html;
 
+		w .empty();
+		w .append( 
+			o.addMatch( 'ro8a' ), o.addMatch( 'ro8b' ), o.addMatch( 'ro8c' ), o.addMatch( 'ro8d' ),
+			o.addMatch( 'ro4a' ), o.addMatch( 'ro4b' ),
+			o.addMatch( 'ro2' ),
+			o.addLine( '8a4a' ), o.addLine( '8b4a' ), o.addLine( '8c4b' ), o.addLine( '8d4b' ), 
+			o.addLine( '4a2' ), o.addLine( '4b2' )
+		);
 	}
 });
