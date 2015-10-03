@@ -151,6 +151,7 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		var showRing = function( i ) {
 		// ============================================================
+			var n        = o.rings.length;
 			var ring = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
 			var list = html.ul.clone() .attr( "data-role", "listview" );
 			var page = e.ring.divisions;
@@ -270,6 +271,7 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		this.element.on( "pagebeforetransition", function( ev, data ) {
 			if( ! defined( data.absUrl )) { return; }
+			if( ! defined( o.rings )) { location = "./divisions.php"; }
 			var option  = parsePageUrl( data.absUrl );
 
 			if      ( option.id == "ring-divisions"  ) { showRing( option.ring ); }
@@ -287,5 +289,6 @@ $.widget( "freescore.divisions", {
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
+
 	},
 });
