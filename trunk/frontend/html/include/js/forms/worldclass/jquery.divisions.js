@@ -176,19 +176,21 @@ $.widget( "freescore.divisions", {
 			if( defined( ring )) {
 				for( var j in ring.divisions ) {
 					var division = { 
-						data      : ring.divisions[ j ], 
-						listitem  : html.li.clone(), 
-						link      : html.a.clone(),
-						count     : html.div.clone() .addClass( "ui-li-count" ),
+						data        : ring.divisions[ j ], 
+						listitem    : html.li.clone(), 
+						description : html.a.clone(),
+						delete      : html.a.clone(),
+						count       : html.div.clone() .addClass( "ui-li-count" ),
 					};
 					division.shortlist = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
-					division.link.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;" + division.shortlist + "</p>" );
-					division.link.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
-					division.link.append( division.count );
+					division.description.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;" + division.shortlist + "</p>" );
+					division.description.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
+					division.delete.attr({ 'data-icon' : 'delete' });
+					division.description.append( division.count );
 
 					if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
 					else { division.count.html( division.data.athletes.length + " Athletes" ); }
-					division.listitem.append( division.link );
+					division.listitem.append( division.description, division.delete );
 
 					list.append( division.listitem );
 				}
