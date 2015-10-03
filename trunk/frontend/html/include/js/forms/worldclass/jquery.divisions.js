@@ -179,9 +179,10 @@ $.widget( "freescore.divisions", {
 						data      : ring.divisions[ j ], 
 						listitem  : html.li.clone(), 
 						link      : html.a.clone(),
-						count     : html.div.clone() .addClass( "ui-li-count" ) 
+						count     : html.div.clone() .addClass( "ui-li-count" ),
 					};
-					division.link.html( division.data.name.toUpperCase() + " " + division.data.description );
+					division.shortlist = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
+					division.link.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;" + division.shortlist + "</p>" );
 					division.link.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
 					division.link.append( division.count );
 
@@ -236,6 +237,9 @@ $.widget( "freescore.divisions", {
 			o.rings = [];
 			var rings = getRings( tournament );
 
+			// $.removeCookie( "ring", { path : "/" } );
+			// $.removeCookie( "division", { path : "/" } );
+
 			var header = {
 				listitem : html.li.clone() .attr( "data-theme", "b" ),
 				name     : html.span.clone() .html( defined( o.tournament.name ) ? o.tournament.name : "World Class Poomsae" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ),
@@ -264,6 +268,11 @@ $.widget( "freescore.divisions", {
 				var divisions = rings[ i ];
 				o.rings.push( addRing( i, divisions ));
 			}
+			if( defined( o.callback ) ) {
+				var show = o.callback;
+				o.callback = undefined;
+				show();
+			}
 		};
 
 		// ============================================================
@@ -271,8 +280,16 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		this.element.on( "pagebeforetransition", function( ev, data ) {
 			if( ! defined( data.absUrl )) { return; }
-			if( ! defined( o.rings )) { location = "./divisions.php"; }
 			var option  = parsePageUrl( data.absUrl );
+			
+			if( defined( option.ring     )) { $.cookie( "ring",     option.ring     ); } else { option.ring     = $.cookie( "ring" ); }
+			if( defined( option.division )) { $.cookie( "division", option.division ); } else { option.division = $.cookie( "division" ); }
+
+			if( ! defined( o.rings )) { 
+				if      ( option.id == "ring-divisions"  ) { o.callback = function() { showRing( option.ring ); }; }
+				else if ( option.id == "division-editor" ) { o.callback = function() { showEditor( option.ring, option.division ); } }
+				return;
+			}
 
 			if      ( option.id == "ring-divisions"  ) { showRing( option.ring ); }
 			else if ( option.id == "division-editor" ) { showEditor( option.ring, option.division ); }
