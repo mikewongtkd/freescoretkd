@@ -19,8 +19,8 @@ $.widget( "freescore.divisionEditor", {
 				},
 				remove : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "minus"  ) .attr( "data-inline", true ) .css({ background: "#fa3",                  }) .html( "Remove" ),
 			},
-			athlete : html.div.clone(),
-			header : html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ),
+			athlete  : html.div.clone(),
+			header   : html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ),
 			division : html.div.clone(),
 		};
 		e.dialog = o.dialog;

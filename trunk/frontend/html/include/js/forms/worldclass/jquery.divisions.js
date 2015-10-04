@@ -164,12 +164,12 @@ $.widget( "freescore.divisions", {
 			content.append( list );
 
 			var back = { 
-				listitem  : html.li.clone() .attr( 'data-icon', 'carat-l' ) .attr( "data-theme", "b" ), 
-				link      : html.a.clone(),
+				listitem  : html.li.clone(), 
+				link      : html.a.clone() .addClass( 'ui-btn ui-btn-icon-left ui-icon-carat-l' ) .css({ 'color' : 'white', 'text-shadow':'0 1px 0 #036', 'background-color': '#38c' }),
 			};
 			if( i == 'staging' ) { back.link.html( 'Staging' ); }
 			else                 { back.link.html( 'Ring ' + i ); }
-			back.link.attr( "href", "#rings" ) .attr( "data-transition", "slide" ) .attr( "data-direction", "reverse" );
+			back.link.attr( "href", "#rings" ) .attr({ 'data-transition' : 'slide', 'data-direction': 'reverse' });
 			back.listitem.append( back.link );
 			list.append( back.listitem );
 
@@ -177,20 +177,26 @@ $.widget( "freescore.divisions", {
 				for( var j in ring.divisions ) {
 					var division = { 
 						data        : ring.divisions[ j ], 
-						listitem    : html.li.clone(), 
+						listitem    : html.li.clone() .attr({ 'data-icon':'false' }), 
 						description : html.a.clone(),
-						delete      : html.a.clone(),
-						count       : html.div.clone() .addClass( "ui-li-count" ),
+						action      : {
+							panel   : html.div.clone() .attr({ 'data-role':'controlgroup', 'data-type':'horizontal' }) .css({ 'position':'absolute', 'top':'16px', 'right':'16px' }),
+							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext' }) .css({ 'height':'20px', 'background-color':'red' }),
+							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext' }) .css({ 'height':'20px', 'background-color':'orange' }),
+						},
 					};
-					division.shortlist = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
-					division.description.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;" + division.shortlist + "</p>" );
-					division.description.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
-					division.delete.attr({ 'data-icon' : 'delete' });
-					division.description.append( division.count );
 
-					if( division.data.athletes.length == 1 ) { division.count.html( "1 Athlete" ); }
-					else { division.count.html( division.data.athletes.length + " Athletes" ); }
-					division.listitem.append( division.description, division.delete );
+					var count = division.data.athletes.length == 1 ? "1 Athlete" : division.data.athletes.length + " Athletes";
+
+					division.shortlist = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
+					division.description.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;<b>" + count + "</b><br>&nbsp;&nbsp;" + division.shortlist + "</p>" );
+					division.description.attr({ href: "#division-editor?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
+
+					division.action.panel.append( division.action.restage, division.action.remove );
+					division.action.panel.controlgroup();
+
+					division.description.append( division.count, division.action.panel );
+					division.listitem.append( division.description );
 
 					list.append( division.listitem );
 				}
