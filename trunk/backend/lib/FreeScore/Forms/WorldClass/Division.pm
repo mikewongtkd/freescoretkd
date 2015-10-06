@@ -84,6 +84,9 @@ sub assign_tiebreaker {
 # ============================================================
 sub distribute_evenly {
 # ============================================================
+#** @method ( group_name_array, athlete_array )
+#   @brief Uniformly distributes the athletes across the array of groups for bracketed round assignments
+#*
 	my $self   = shift;
 	my $groups = shift;
 	my $queue  = shift || [ ( 0 .. $#{ $self->{ athletes }} ) ];
@@ -275,46 +278,32 @@ sub normalize {
 #*
 	my $self   = shift;
 	my $judges = $self->{ judges };
-
 	my $round  = $self->{ round };
+
+	die "Division Configuration Error: No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
+
 	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
 	if( defined $round ) {
 		my $order = $self->{ order }{ $round };
 		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); } 
 
-	# ===== OTHERWISE FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
+	# ===== NO ROUND DEFINED; FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
 	} else {
 		my $n        = int( @{ $self->{ athletes }} );
 		my $half     = int( ($n-1)/2 );
 
-		if    ( $n >= 20 ) { 
-			$round = 'prelim'; 
-			$self->assign( $_, 'prelim' ) foreach ( 0 .. $#{ $self->{ athletes }} );
-
-		} elsif ( $n >=  8 ) { 
-			$round = 'semfin'; 
-			$self->assign( $_, 'semfin' ) foreach ( 0 .. $#{ $self->{ athletes }} );
-
-		} else { 
+		if    ( $n >= 20 ) { $round = 'prelim'; $self->assign( $_, 'prelim' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		elsif ( $n >=  8 ) { $round = 'semfin'; $self->assign( $_, 'semfin' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		else { 
+			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
 			if( $self->{ method } eq 'combination' ) {
-				if( $n > 4 ) {
-					$round = 'ro8a'; 
-					$self->distribute_evenly( [ qw( ro8a ro8d ro8b ro8c ) ] );
+				if    ( $n > 4 ) { $round = 'ro8a'; $self->distribute_evenly( [ qw( ro8a ro8d ro8b ro8c ) ] ); } 
+				elsif ( $n > 2 ) { $round = 'ro4a'; $self->distribute_evenly( [ qw( ro4a ro4b ) ] ); } 
+				else             { $round = 'ro2';  $self->distribute_evenly( [ qw( ro2 ) ] ); }
 
-				} elsif( $n > 2 ) {
-					$round = 'ro4a'; 
-					$self->distribute_evenly( [ qw( ro4a ro4b ) ] );
-
-				} else {
-					$round = 'ro2'; 
-					$self->distribute_evenly( [ qw( ro2 ) ] );
-				}
-			} else {
-				$round = 'finals'; 
-				$self->assign( $_, 'finals' ) foreach ( 0 .. $#{ $self->{ athletes }} );
-			}
+			# ===== CUTOFF METHOD USES SAME METHODOLOGY AS BEFORE
+			} else { $round = 'finals'; $self->assign( $_, 'finals' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 		}
-
 	}
 
 	# ===== NORMALIZE THE SCORING MATRIX
@@ -625,8 +614,7 @@ sub update_status {
 		}
 	}
 
-	# ===== ASSIGN THE ATHLETES TO THE NEXT ROUND
-	my $punitive_declarations = sub { my $form = shift; return (exists $form->{ status } && (exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified })); };
+	# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
 	my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
 
@@ -637,7 +625,7 @@ sub update_status {
 		# Semi-final round goes in random order
 		my $half       = int( ($n-1)/2 );
 		my @candidates = @{ $self->{ placement }{ prelim }};
-		my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ prelim }} } @candidates;
+		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ prelim }} } @candidates;
 		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$self->assign( $_, 'semfin' ) foreach @order;
 
@@ -649,7 +637,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
+		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
 		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
 		$self->distribute_evenly( [ qw( ro8a ro8d ro8b ro8c ) ], \@order );
 
@@ -661,7 +649,7 @@ sub update_status {
 		my $goto = { ro8a => 'ro4a', ro8b => 'ro4a', ro8c => 'ro4b', ro8d => 'ro4b' };
 		foreach my $match (qw( ro8a ro8b ro8c ro8d )) {
 			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
+			my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
@@ -676,7 +664,7 @@ sub update_status {
 
 		foreach my $match (qw( ro4a ro4b )) {
 			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
+			my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
@@ -691,7 +679,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = grep { ! any { $punitive_declarations->( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
+		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
 		my @order      = reverse (@eligible[ 0 .. $k ]);
 		$self->assign( $_, 'finals' ) foreach @order;
 	}
@@ -1056,6 +1044,16 @@ sub _parse_placement {
 		($round => [ @placements ]);
 	} split /;/, $value;
 	return { @rounds };
+}
+
+# ============================================================
+sub _withdrawn_or_disqualified { 
+# ============================================================
+#** @function ( form_object )
+#   @brief Returns true if a form object has a withdrawn or disqualified status
+#*
+	my $form = shift; 
+	return (exists $form->{ status } && (exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified }));
 }
 
 our @round_order = ( qw( prelim semfin finals ro8a ro8b ro8c ro8d ro4a ro4b ro2 ) );
