@@ -119,6 +119,32 @@ $.widget( "freescore.divisions", {
 		};
 
 		// ============================================================
+		var reassignDivision = o.reassignDivision = function( ev ) {
+		// ============================================================
+			var division = {
+				name  : $( this ).attr( 'divname' ).toUpperCase(),
+				index : $( this ).attr( 'index' ),
+				ring  : $( this ).attr( 'ring' )
+			};
+			e.dialog.header.title.html( "Reassign Division?" );
+			e.dialog.header.panel.css({ background : "orange" });
+			e.dialog.content.text.empty();
+			e.dialog.content.icon.addClass( "ui-icon-back" );
+			e.dialog.content.text.append( e.dialog.content.icon, "Reassign division " + division.name + "?" );
+			e.dialog.content.ok.click( function( ev ) {
+				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + division.ring, { transition : "slide", reverse : true });
+				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
+				// o.editDivision({ 'move' : true }); // Send AJAX command to update DB
+				$( this ).trigger( 'divisionmove', { ring : division.ring, id : division.index });
+			});
+			e.dialog.content.cancel.click( function( ev ) { 
+				e.dialog.panel.popup( 'close' );
+			});
+
+			e.dialog.panel.popup( 'open', { transition : "pop" } );
+		};
+
+		// ============================================================
 		var getRings = function( tournament ) {
 		// ============================================================
 			var rings = { staging : [] };
