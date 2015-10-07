@@ -6,11 +6,6 @@ $.widget( "freescore.divisionHeader", {
 		var e    = this.options.elements = {};
 		var html = e.html = FreeScore.html;
 
-		var button     = e.button     = {
-			'delete' : html.a.clone() .attr({ 'data-role': 'button', 'data-icon': 'delete', 'data-inline': true, 'data-mini': true, 'data-corners': true }) .css({ color: "white", background: "red",    textShadow: "2px 2px #600", width: "140px" }) .html( "Delete Division" ),
-			'accept' : html.a.clone() .attr({ 'data-role': 'button', 'data-icon': 'check',  'data-inline': true, 'data-mini': true, 'data-corners': true }) .css({ color: "white", background: "#3a3",   textShadow: "2px 2px #060", width: "140px" }) .html( "Accept Division" ),
-		};
-
 		var accept      = e.accept = {
 			panel    : html.ul .clone() .attr({ 'data-role': 'listview' }),
 			listitem : html.li .clone(),
@@ -126,28 +121,6 @@ $.widget( "freescore.divisionHeader", {
 				widget.html( value );
 			}
 		};
-
-		// ------------------------------------------------------------
-		button.delete.click( function( ev ) {
-		// ------------------------------------------------------------
-			e.dialog.header.title.html( "Delete Division?" );
-			e.dialog.header.panel.css({ background : "red" });
-			e.dialog.content.text.empty();
-			e.dialog.content.icon.addClass( "ui-icon-delete" );
-			e.dialog.content.text.append( e.dialog.content.icon, "Delete this entire division? Once confirmed,<br>this cannot be undone." );
-			e.dialog.content.ok.click( function( ev ) {
-				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
-				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
-				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
-				$( this ).trigger( 'divisiondelete', { ring : o.ring, id : o.division });
-			});
-			e.dialog.content.cancel.click( function( ev ) { 
-				e.dialog.panel.popup( 'close' );
-			});
-
-			e.dialog.panel.popup( 'open', { transition : "pop" } );
-
-		});
 
 		// ------------------------------------------------------------
 		accept.button.click( function( ev ) {

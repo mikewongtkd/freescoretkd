@@ -93,6 +93,32 @@ $.widget( "freescore.divisions", {
 		};
 
 		// ============================================================
+		var deleteDivision = o.deleteDivision = function( ev ) {
+		// ============================================================
+			var division = {
+				name  : $( this ).attr( 'divname' ).toUpperCase(),
+				index : $( this ).attr( 'index' ),
+				ring  : $( this ).attr( 'ring' )
+			};
+			e.dialog.header.title.html( "Delete Division?" );
+			e.dialog.header.panel.css({ background : "red" });
+			e.dialog.content.text.empty();
+			e.dialog.content.icon.addClass( "ui-icon-delete" );
+			e.dialog.content.text.append( e.dialog.content.icon, "Delete division " + division.name + "?<br>Once confirmed,<br>this cannot be undone." );
+			e.dialog.content.ok.click( function( ev ) {
+				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + division.ring, { transition : "slide", reverse : true });
+				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
+				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
+				$( this ).trigger( 'divisiondelete', { ring : division.ring, id : division.index });
+			});
+			e.dialog.content.cancel.click( function( ev ) { 
+				e.dialog.panel.popup( 'close' );
+			});
+
+			e.dialog.panel.popup( 'open', { transition : "pop" } );
+		};
+
+		// ============================================================
 		var getRings = function( tournament ) {
 		// ============================================================
 			var rings = { staging : [] };
@@ -181,8 +207,8 @@ $.widget( "freescore.divisions", {
 						description : html.a.clone(),
 						action      : {
 							panel   : html.div.clone() .attr({ 'data-role':'controlgroup', 'data-type':'horizontal' }) .css({ 'position':'absolute', 'top':'16px', 'right':'16px' }),
-							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext' }) .css({ 'height':'20px', 'background-color':'red' }),
-							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext' }) .css({ 'height':'20px', 'background-color':'orange' }),
+							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext', 'ring':ring, 'index':j, 'divname': ring.divisions[ j ].name }) .click( deleteDivision ) .css({ 'height':'20px', 'background-color':'red' }),
+							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext', 'ring':ring, 'index':j, 'divname': ring.divisions[ j ].name }) .css({ 'height':'20px', 'background-color':'orange' }),
 						},
 					};
 
