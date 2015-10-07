@@ -165,7 +165,7 @@ $.widget( "freescore.divisions", {
 
 			var back = { 
 				listitem  : html.li.clone(), 
-				link      : html.a.clone() .addClass( 'ui-btn ui-btn-icon-left ui-icon-carat-l' ) .css({ 'color' : 'white', 'text-shadow':'0 1px 0 #036', 'background-color': '#38c' }),
+				link      : html.a.clone() .addClass( 'ui-btn ui-btn-icon-left ui-icon-carat-l' ) .css({ 'color' : 'white', 'text-shadow':'0 1px 0 #036', 'background-color': '#38c', 'margin-top':'-1px', 'margin-bottom':'-1px' }),
 			};
 			if( i == 'staging' ) { back.link.html( 'Staging' ); }
 			else                 { back.link.html( 'Ring ' + i ); }

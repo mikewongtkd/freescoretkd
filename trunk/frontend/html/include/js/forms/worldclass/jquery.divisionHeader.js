@@ -7,14 +7,21 @@ $.widget( "freescore.divisionHeader", {
 		var html = e.html = FreeScore.html;
 
 		var button     = e.button     = {
-			'delete' : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "delete" ) .attr( "data-inline", true ) .attr( "data-mini", true ) .attr( "data-corners", true ) .css({ color: "white", background: "red",    textShadow: "2px 2px #600", width: "140px" }) .html( "Delete Division" ),
-			'accept' : html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "check" )  .attr( "data-inline", true ) .attr( "data-mini", true ) .attr( "data-corners", true ) .css({ color: "white", background: "#3a3",   textShadow: "2px 2px #060", width: "140px" }) .html( "Accept Division" ),
+			'delete' : html.a.clone() .attr({ 'data-role': 'button', 'data-icon': 'delete', 'data-inline': true, 'data-mini': true, 'data-corners': true }) .css({ color: "white", background: "red",    textShadow: "2px 2px #600", width: "140px" }) .html( "Delete Division" ),
+			'accept' : html.a.clone() .attr({ 'data-role': 'button', 'data-icon': 'check',  'data-inline': true, 'data-mini': true, 'data-corners': true }) .css({ color: "white", background: "#3a3",   textShadow: "2px 2px #060", width: "140px" }) .html( "Accept Division" ),
 		};
 
-		var description = e.description = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
-		var forms       = e.forms       = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
-		var judges      = e.judges      = html.div.clone() .attr( "data-role", "collapsible" ) .attr( "data-theme", "b" ) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
-		var accordian   = e.accordian   = html.div.clone() .attr( "data-role", "collapsibleset" ) .attr( "data-collapsed-icon", "edit" ) .attr( "data-expanded-icon", "gear" ) .attr( "data-corners", false );
+		var accept      = e.accept = {
+			panel    : html.ul .clone() .attr({ 'data-role': 'listview' }),
+			listitem : html.li .clone(),
+			button   : html.a  .clone() .addClass( "ui-btn ui-btn-icon-left ui-icon-carat-l" ) .html( "Accept Division" ) .css({ 'color': 'white', 'text-shadow': '0 1px 0 #030', 'background-color': '#090', 'margin-top':'-1px', 'margin-bottom':'-1px' })
+		};
+		accept.panel.append( accept.listitem.append( accept.button ));
+
+		var description = e.description = html.div.clone() .attr({ 'data-role': 'collapsible', 'data-theme': 'b' }) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
+		var forms       = e.forms       = html.div.clone() .attr({ 'data-role': 'collapsible', 'data-theme': 'b' }) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
+		var judges      = e.judges      = html.div.clone() .attr({ 'data-role': 'collapsible', 'data-theme': 'b' }) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Number of Judges" ), html.div.clone() .prop( "id", "judgesWidget" ));
+		var accordian   = e.accordian   = html.div.clone() .attr({ 'data-role': 'collapsibleset', 'data-collapsed-icon': 'edit', 'data-expanded-icon': 'gear', 'data-corners': false }) .css({ margin: 0 });
 		var error       = e.error       = html.div.clone() .hide();
 		var sound       = e.sound       = {};
 		e.dialog        = o.dialog;
@@ -52,7 +59,7 @@ $.widget( "freescore.divisionHeader", {
 		};
 
 		accordian.append( error, description, forms, judges );
-		w .append( accordian, button.delete, button.accept );
+		w .append( accept.panel, accordian );
 
 		// ============================================================
 		var updateHeader = o.updateHeader = function( data ) {
@@ -143,7 +150,7 @@ $.widget( "freescore.divisionHeader", {
 		});
 
 		// ------------------------------------------------------------
-		button.accept.click( function( ev ) {
+		accept.button.click( function( ev ) {
 		// ------------------------------------------------------------
 			$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + o.ring, { transition : "slide", reverse : true });
 		});

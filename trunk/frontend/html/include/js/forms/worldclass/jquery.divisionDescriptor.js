@@ -78,8 +78,8 @@ $.widget( "freescore.divisionDescriptor", {
 		var gender   = e.gender   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male", "Male & Female" ], handle.gender ));
 		var age      = e.age      = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
 		var rank     = e.rank     = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
-		var ok       = e.ok       = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#77DD77" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "OK" )     .click( o.handle.ok );
-		var cancel   = e.cancel   = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#E32636" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "Cancel" ) .click( o.handle.cancel );
+		var ok       = e.ok         = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#090', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #030' }) .html( "OK" )     .click( o.handle.ok );
+		var cancel   = e.cancel     = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#900', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #300' }) .html( "Cancel" ) .click( o.handle.cancel );
 		var complete = e.complete = html.div.clone() .css( "text-align", "right" ) .append( cancel, ok );
 
 		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default

@@ -135,8 +135,8 @@ $.widget( "freescore.formSelector", {
 		// ===== CONVERT TO A FIELDCONTAIN (LABEL AND BUTTONS ON ONE LINE)
 		var formSelect = e.formSelect = all.map( function( item ) { var div = html.div.clone() .addClass( "ui-field-contain" ) .append( item ); return div; })
 		var actions    = e.actions    = html.div.clone() .attr( "data-role", "control-group" ) .attr( "data-type", "horizontal" ) .attr( "data-mini", true ) .css( "margin-left", "20%" );
-		var ok         = e.ok         = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#77DD77" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "OK" )     .click( o.handle.ok );
-		var cancel     = e.cancel     = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css( "background", "#E32636" ) .css( "width", "100px" ) .css( "color", "white" ) .html( "Cancel" ) .click( o.handle.cancel );
+		var ok         = e.ok         = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#090', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #030' }) .html( "OK" )     .click( o.handle.ok );
+		var cancel     = e.cancel     = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#900', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #300' }) .html( "Cancel" ) .click( o.handle.cancel );
 		var complete   = e.complete   = html.div.clone() .css( "text-align", "right" ) .append( cancel, ok );
 
 		actions.append(
