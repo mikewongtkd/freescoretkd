@@ -1,4 +1,4 @@
-function defined( x ) { return ((typeof( x ) !== 'undefined') && (x != null)); }
+function defined( x ) { return ((typeof( x ) !== 'undefined') && (x !== null)); }
 function ordinal( x ) {
 	var d = x % 10;
 	if      ( x > 10 && x < 14 ) { return x + 'th'; }
@@ -67,7 +67,7 @@ var FreeScore = {
 			if( rank == 'Blue'         ) { forms = allForms.splice( 0, 5 ); } else
 			if( rank == 'Red'          ) { forms = allForms.splice( 0, 8 ); } else
 			{
-				var age = parseInt( age );
+				age = parseInt( age );
 				if( format == 'Team' ) {
 					if( age <=  9 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 11 ) { forms = allForms.splice( 2, 8 ); } else // Youth
@@ -97,7 +97,7 @@ var FreeScore = {
 };
 String.prototype.capitalize = function() {
 	return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
-}
+};
 
 // ============================================================
 var addButtonGroup = function( name, buttons, handler ) {
@@ -115,7 +115,7 @@ var addButtonGroup = function( name, buttons, handler ) {
 	}
 	fieldset.children( "input:radio" ).on( "change", handler );
 	return fieldset;
-}
+};
 
 // ============================================================
 // SORT DELEGATE FUNCTIONS
