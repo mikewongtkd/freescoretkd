@@ -280,10 +280,9 @@ sub normalize {
 	my $judges = $self->{ judges };
 	my $round  = $self->{ round };
 
-	die "Division Configuration Error: No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
-
 	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
 	if( defined $round ) {
+		die "Division Configuration Error: No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
 		my $order = $self->{ order }{ $round };
 		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); } 
 
@@ -369,13 +368,12 @@ sub remove_from_list {
 	my $i    = shift;
 
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		if( exists $self->{ $list }{ $round } ) {
-			@{$self->{ $list }{ $round }} = map { 
-				if    ( $_ == $i ) { (); }
-				elsif ( $_ > $i  ) { $_ - 1; }
-				else               { $_; }
-			} @{ $self->{ $list }{ $round }};
-		}
+		next unless exists $self->{ $list }{ $round };
+		@{$self->{ $list }{ $round }} = map { 
+			if    ( $_ == $i ) { ();     }
+			elsif ( $_ >  $i ) { $_ - 1; }
+			else               { $_;     }
+		} @{ $self->{ $list }{ $round }};
 	}
 }
 
@@ -462,7 +460,7 @@ sub read {
 
 				$round = $self->{ round } if( defined $self->{ round } );
 
-			} elsif( /prelim|semfin|finals/i ) {
+			} elsif( /prelim|semfin|finals|ro8[abcd]|ro4[ab]|ro2/i ) {
 				s/^#\s+//;
 
 				# Store the last athlete
@@ -473,6 +471,7 @@ sub read {
 
 				# Assign round
 				$round = $_;
+
 			}
 		# ===== READ ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
@@ -556,9 +555,10 @@ sub read {
 	# ===== AUTODETECT THE FIRST ROUND
 	if( exists $order->{ 'autodetect_required' } ) {
 		my $n = int( keys %$athletes );
-		if    ( $n >= 20            ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
+		if    ( $n ==  0            ) { die "Division Configuration Error: No athletes declared $!"; }
+		elsif ( $n >= 20            ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
 		elsif ( $n <  20 && $n >  8 ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
-		elsif (             $n >= 8 ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
+		elsif ( $n <=  8            ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
 
 		delete $order->{ 'autodetect_required' };
 	}
@@ -804,12 +804,23 @@ sub next_round {
 #** @method ()
 #   @brief Navigates the division to the next round
 #*
-	my $self   = shift;
-	my @rounds = @FreeScore::Forms::WorldClass::Division::round_order;
-	my @i      = (0 .. $#rounds);
-	my ($i)    = grep { $self->{ round } eq $rounds[ $_ ] } @i;
-	if( $i == $#rounds ) { $i = 0; }
-	else                 { $i++; } # MW FIX FOR COMBINATION METHOD
+	my $self    = shift;
+	my $round   = $self->{ round };
+	my @rounds  = @FreeScore::Forms::WorldClass::Division::round_order;
+	my @i       = grep { exists $self->{ order }{ $rounds[ $_ ] } } (0 .. $#rounds);
+	my $first   = $i[ 0 ];
+	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
+	my $i       = $map->{ $round };
+
+	if( $self->{ method } eq 'combination' ) {
+		if    ( $round eq 'semfin' ) { $i = $map->{ ro8a }; } # semfin goes to ro8a
+		elsif ( $round eq 'ro2'    ) { $i = $first;         } # ro2 wraps around to first available round
+		else                         { $i++;                }
+
+	} else {
+		if    ( $round eq 'finals' ) { $i = $first; }
+		else                         { $i++;        }
+	}
 
 	# ===== GO TO NEXT ROUND
 	$self->{ round } = $rounds[ $i ];
@@ -824,12 +835,23 @@ sub previous_round {
 #** @method ()
 #   @brief Navigates the division to the previous round
 #*
-	my $self   = shift;
-	my @rounds = @FreeScore::Forms::WorldClass::Division::round_order;
-	my @i      = (0 .. $#rounds);
-	my ($i)    = grep { $self->{ round } eq $rounds[ $_ ] } @i;
-	if( $i == 0 ) { $i = $#rounds; }
-	else          { $i--; }
+	my $self    = shift;
+	my $round   = $self->{ round };
+	my @rounds  = @FreeScore::Forms::WorldClass::Division::round_order;
+	my @i       = grep { exists $self->{ order }{ $rounds[ $_ ] } } (0 .. $#rounds);
+	my $first   = $i[ 0 ];
+	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
+	my $i       = $map->{ $round };
+
+	if( $self->{ method } eq 'combination' ) {
+		if    ( $round eq $rounds[ $first ] ) { $i = $map->{ ro2 };    } # first round wraps around to ro2
+		elsif ( $round eq 'ro8a'            ) { $i = $map->{ semfin }; } # ro8a goes to semfin
+		else                                  { $i--;                  }
+
+	} else {
+		if    ( $round eq $rounds[ $first ] ) { $i = $map->{ finals }; } # first round wraps around to finals
+		else                                  { $i--;                  }
+	}
 
 	# ===== GO TO PREVIOUS ROUND
 	$self->{ round } = $rounds[ $i ];

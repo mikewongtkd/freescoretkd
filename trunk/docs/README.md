@@ -4,6 +4,10 @@
 
 This document highlights the core concepts behind the FreeScore Taekwondo tournament software and its current implementation.
 
+## Installation
+
+See `INSTALL.md`
+
 ### Laptops and Tablets
 
 FreeScore is designed for physical portability; laptops and tablets. It achieves this by using software technology with relatively low computational overhead that can be run on limited hardware. Any system that can run Apache can be used as a server; any system that can run the latest version of Chrome can be used as a terminal or tablet interface for judges.
