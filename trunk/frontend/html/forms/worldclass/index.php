@@ -4,7 +4,7 @@
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : NULL;
 	$k = json_decode( $tournament )->rings->count;
 	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
-		setcookie( 'ring', $_GET[ 'ring' ], 0, '/' ); 
+		setcookie( 'ring', $i, 0, '/' ); 
 	} else {
 		header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); 
 	}
