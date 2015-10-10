@@ -24,7 +24,7 @@ score( $division, 11 ); # SEMI-FINALS, 11 ATHLETES, 1 FORM,   66 TESTS
 $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 $division   = $progress->current();
 
-score( $division, 8 );  # FINALS,       8 ATHLETES, 2 FORMS,  88 TESTS
+score( $division, 8  ); # FINALS,       8 ATHLETES, 2 FORMS,  88 TESTS
 
 # 2 + 132 + 66 + 88 = 288 TOTAL TESTS
 
