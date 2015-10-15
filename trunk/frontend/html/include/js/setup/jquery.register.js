@@ -300,7 +300,7 @@ $.widget( "freescore.register", {
 				role.dom.css( 'left', '400px' );
 				if( defined( o.event ) ) { url = o.event.url + "/judge.php"; }
 			} else {
-				if      ( role == "display"     ) { if( ! defined( url )) { url = o.event.url + "/index.php"; } }
+				if      ( role == "display"     ) { if( ! defined( url )) { url = o.event.url + "/index.php?ring=" + ring.num; } }
 				else if ( role == "coordinator" ) { if( ! defined( url )) { url = o.event.url + "/coordinator.php"; } }
 				role = register.roles.add( role.capitalize(), '400px' );
 			}
