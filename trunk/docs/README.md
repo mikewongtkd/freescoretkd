@@ -25,6 +25,40 @@ Create symbolic links for the following:
     ln -s - ~/freescoretkd/trunk/frontend/cgi-bin  /var/www/cgi-bin/freescore
     ln -s ~/freescoretkd/trunk/backend             /usr/local/freescore
 
+### Database setup
+
+FreeScore uses simple text files for divisions and directories for rings and
+staging. Tournament configuration is controlled by editing the PHP file
+`config.php` under `trunk/frontend/html/include/php/config.php`. The default
+database location is `/Volumes/ramdisk/test`. Examples of a starter database
+can be found in `trunk/backend/test/data`. 
+
+Division names follow the pattern `div.pNNL.txt` where N is a number from 0-9
+and L is an optional letter. Ring names follow the pattern `ringNN` where N
+is a number from 0-9. There is a special ring `staging` where divisions that
+are not yet ready for ring assignment can be stored. To assign a division to
+a ring, simply move the division text file to the appropriate ring directory.
+
+For example:
+
+	cd /Volumes/ramdisk/test/forms-worldclass
+    mv staging/div.p01.txt ring01
+
+If you don't have a directory `/Volumes/ramdisk/test` the first step for
+database installation is to create this directory. I recommend copying the
+example files from the `trunk/backend/test/data` directory, renaming and
+editing the files as needed. 
+
+The division file format is simply some header information (e.g. division
+description, number of judges, etc.) and a list of athlete names. 
+
+Be careful when editing divisions; currently the division parser is quite
+persnickity on reading input and does not provide helpful error messages.
+After copying, editing, and renaming a division file, reload the display
+page (register a device as a display). If the page shows up, then it's likely
+the parser had no problems.  If the display shows an error message, then
+delete the last added file and try again.
+
 ### Laptops and Tablets
 
 FreeScore is designed for physical portability; laptops and tablets. It achieves this by using software technology with relatively low computational overhead that can be run on limited hardware. Any system that can run Apache can be used as a server; any system that can run the latest version of Chrome can be used as a terminal or tablet interface for judges.
