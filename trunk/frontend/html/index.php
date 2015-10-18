@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>FreeScore TKD Wifi v3.0</title>
+		<title>FreeScore TKD Wifi v3.3</title>
 		<link href="./include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<script src="./include/jquery/js/jquery.js"></script>
 		<script src="./include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>

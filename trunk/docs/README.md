@@ -6,7 +6,24 @@ This document highlights the core concepts behind the FreeScore Taekwondo tourna
 
 ## Installation
 
-See `INSTALL.md`
+### Pre-install instructions for Mac:
+Create symbolic links for the following:
+
+- Get Apache directories to be similar to Linux systems
+
+    ln -s /Library/WebServer/Documents -> /var/www/html
+    ln -s /Library/WebServer/CGI-Executables -> /var/www/cgi-bin
+
+- Optional: Create a 2 MB ramdisk at `/Volumes/ramdisk`. The new system uses various OS-supported methods to watch a filesystem and no longer needs ramdisk speeds for efficiency.
+  
+    diskutil erasevolume HFS+ \"ramdisk\" `hdiutil attach -nomount ram://2048
+
+### Installation instructions
+Create symbolic links for the following:
+
+    ln -s ~/freescoretkd/trunk/frontend/html       /var/www/html/freescore
+    ln -s - ~/freescoretkd/trunk/frontend/cgi-bin  /var/www/cgi-bin/freescore
+    ln -s ~/freescoretkd/trunk/backend             /usr/local/freescore
 
 ### Laptops and Tablets
 
