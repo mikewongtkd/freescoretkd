@@ -77,7 +77,7 @@ The front-end architecture is currently Apache2/PHP using and Mojolicious/CGI. A
       - Test::Tester
         - YAML
   - Data::Structure::Util
-  - Date::Calc;
+  - Date::Calc
   - Filesys::Notify::Simple
   - GD::Barcode
     - GD
