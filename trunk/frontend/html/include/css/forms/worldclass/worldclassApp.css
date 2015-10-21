@@ -126,11 +126,29 @@ body {
       .worldclass .scoreboard .totalScores .blue, .worldclass .scoreboard .totalScores .chung {
         color: #66f; }
       .worldclass .scoreboard .totalScores .athlete {
+        position: absolute;
+        top: 0;
+        left: 120px;
         color: yellow;
         margin: 0;
-        height: 80px;
+        height: 120px;
+        width: 454px;
         font-size: 72pt;
-        line-height: 72pt; }
+        line-height: 72pt;
+        text-align: center; }
+      .worldclass .scoreboard .totalScores .flag {
+        position: absolute;
+        padding: 16px 4px 4px 4px;
+        height: 128px;
+        width: 128px; }
+      .worldclass .scoreboard .totalScores .left {
+        position: absolute;
+        top: 0;
+        left: 0; }
+      .worldclass .scoreboard .totalScores .right {
+        position: absolute;
+        top: 0;
+        left: 572px; }
       .worldclass .scoreboard .totalScores .round {
         position: absolute;
         top: 520px;

@@ -12,6 +12,8 @@ $.widget( "freescore.scoreboard", {
 		var judges       = e.judges       = new Array();
 		var totalScore   = e.totalScore   = html.div.clone() .addClass( "totalScores" );
 		var athlete      = e.athlete      = html.div.clone() .addClass( "athlete" );
+		var lflag        = e.lflag        = html.div.clone() .addClass( "left flag" );
+		var rflag        = e.rflag        = html.div.clone() .addClass( "right flag" );
 		var round        = e.round        = html.div.clone() .addClass( "round" );
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var forms        = e.forms        = html.div.clone() .addClass( "forms" );
@@ -25,7 +27,7 @@ $.widget( "freescore.scoreboard", {
 		penalty.bounds.hide();
 		penalty.timelimit.hide();
 
-		totalScore.append( athlete, score, round, forms, penalty.bounds, penalty.timelimit );
+		totalScore.append( athlete, lflag, rflag, score, round, forms, penalty.bounds, penalty.timelimit );
 		score.append( accuracy, presentation, total );
 
 		for( var i = 0; i < 7; i++ ) {
@@ -184,7 +186,10 @@ $.widget( "freescore.scoreboard", {
 			current.round != o.previous.round ||
 			current.form != o.previous.form
 		)) {
+			var currentFlag = defined( current.athlete.info.flag ) ? '<img src="/freescore/images/flags/' + current.athlete.info.flag + '.png" width="80px" />' : '';
 			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
+			e.lflag   .empty() .fadeOut( 500, function() { e.lflag   .html( currentFlag )          .fadeIn(); });
+			e.rflag   .empty() .fadeOut( 500, function() { e.rflag   .html( currentFlag )          .fadeIn(); });
 			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round_description )  .fadeIn(); });
 			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )              .fadeIn(); });
 		}

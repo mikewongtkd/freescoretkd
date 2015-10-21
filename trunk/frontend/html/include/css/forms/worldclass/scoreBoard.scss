@@ -90,11 +90,35 @@
 		.blue, .chung { color: #66f; }
 
 		.athlete {
+			position: absolute;
+			top: 0;
+			left: 120px;
 			color: yellow;
 			margin: 0;
-			height: 80px;
+			height: 120px;
+			width: 454px;
 			font-size: 72pt;
 			line-height: 72pt;
+			text-align: center;
+		}
+
+		.flag {
+			position: absolute;
+			padding: 16px 4px 4px 4px;
+			height: 128px;
+			width: 128px;
+		}
+
+		.left {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		.right {
+			position: absolute;
+			top: 0;
+			left: 572px;
 		}
 
 		.round {

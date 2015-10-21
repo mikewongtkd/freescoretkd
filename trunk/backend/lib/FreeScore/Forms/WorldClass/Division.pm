@@ -484,7 +484,7 @@ sub read {
 				$athlete = {};
 			}
 
-			my ($name, $rank, $age) = split /\t/;
+			my ($name, @info) = split /\t/;
 
 			# Reload the athlete seen from a previous round or...
 			if( exists $athletes->{ $name } ) {
@@ -493,8 +493,7 @@ sub read {
 			# Start a new athlete
 			} else {
 				$athlete->{ name }   = $name;
-				$athlete->{ rank }   = $rank;
-				$athlete->{ age }    = $age;
+				$athlete->{ info }   = { map { my ($key, $value) = split /=/, $_, 2; ($key => $value); } @info };
 				$athlete->{ scores } = {};
 
 				$athletes->{ $athlete->{ name } } = $athlete; 
@@ -757,7 +756,7 @@ sub write {
 		my $forms = int( @{$self->{ forms }{ $round }});
 		foreach my $k (@$order) {
 			my $athlete = $self->{ athletes }[ $k ];
-			print FILE join( "\t", @{ $athlete }{ qw( name rank age ) }), "\n";
+			print FILE join( "\t", $athlete->{ name }, map { "$_=$athlete->{ info }{ $_ }" } sort keys $athlete->{ info } ) . "\n";
 			print FILE $athlete->{ scores }{ $round }->string( $round, $forms, $judges );
 		}
 	}

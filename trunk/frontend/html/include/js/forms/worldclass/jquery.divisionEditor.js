@@ -278,6 +278,8 @@ $.widget( "freescore.divisionEditor", {
 				var newName = $( this ).val();
 				var oldName = undefined;
 				var k       = o.division.athletes.length + 1;
+
+				// Enter key behavior: accept name and move to next athlete
 				if      ( ev.which == 13 ) { 
 					if( i >= 0 && i < o.division.athletes.length ) {
 						o.division.athletes[ i ].name = newName; 
@@ -312,10 +314,65 @@ $.widget( "freescore.divisionEditor", {
 						athlete.name.focus();
 					}
 
+				// Escape key behavior: Restore the old name
 				} else if ( ev.which == 27 ) { 
 					if( i >= 0 && i < o.division.athletes.length ) { oldName = o.division.athletes[ i ].name; } 
 					$( this ).val( oldName ); 
 				}
+			});
+
+			// ===== COPY-AND-PASTE FUNCTIONALITY
+			athlete.name .on( "paste", function( ev ) {
+				var textinput = $( this );
+				var i         = textinput.attr( "index" );
+				var round     = textinput.attr( "round" );
+				var clipboard = ev.originalEvent.clipboardData;
+				var content   = {
+					html : clipboard.getData( 'text/html' ),
+					text : clipboard.getData( 'text/plain' ),
+				}
+				var names = [];
+
+				// Microsoft Excel or HTML table
+				if       ( content.html != '' ) {
+					console.log( "Clipboard has HTML or Excel data" );
+
+					var parser    = new DOMParser();
+					var doc       = parser.parseFromString( content.html, "text/html" );
+					var table     = $( doc ).find( 'table' );
+					var rows      = table.find( 'tr' );
+					$.each( rows, function( i ) {
+						var columns = $( rows[ i ] ).find( 'td' );
+						var name    = $( columns[ 0 ]).html();
+						names.push( name );
+					});
+
+				// Plain text
+				} else if( content.text != '' ) {
+					console.log( "Clipboard has text data" );
+					names = names.concat( $.grep( content.text.split( /[\r\n]/ ), function( item ) { return item != ''; } ));
+
+				} else {
+					console.log( "Clipboard has unknown or no data" );
+				}
+
+				$.each( names, function( j ) {
+					var newName = names[ j ];
+					o.division.athletes[ i ].name = newName; 
+					oldName = o.division.athletes[ i ].name;
+					textinput.blur(); 
+					o.editAthlete({ index : i, name : newName, round : round });
+					var textboxes = $( "input:text" );
+					var current = textboxes.index( textinput );
+					if( textboxes[ current + 1 ] != null ) {
+						var next = textboxes[ current + 1 ];
+						next.focus();
+						next.select();
+						ev.preventDefault();
+						i++;
+					}
+				});
+				return false;
 			});
 
 			athlete.view.append( athlete.number, athlete.name );
