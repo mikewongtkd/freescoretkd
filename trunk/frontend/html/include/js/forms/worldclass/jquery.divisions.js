@@ -97,7 +97,7 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 			var division = {
 				name  : $( this ).attr( 'divname' ).toUpperCase(),
-				index : $( this ).attr( 'index' ),
+				index : $( this ).attr( 'divindex' ),
 				ring  : $( this ).attr( 'ring' )
 			};
 			e.dialog.header.title.html( "Delete Division?" );
@@ -106,9 +106,14 @@ $.widget( "freescore.divisions", {
 			e.dialog.content.icon.addClass( "ui-icon-delete" );
 			e.dialog.content.text.append( e.dialog.content.icon, "Delete division " + division.name + "?<br>Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
-				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions?ring=" + division.ring, { transition : "slide", reverse : true });
+				o.division = division.index;
+
+				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions", { transition : "slide", reverse : true });
 				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
 				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
+
+				console.log( division );
+
 				$( this ).trigger( 'divisiondelete', { ring : division.ring, id : division.index });
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
@@ -233,8 +238,8 @@ $.widget( "freescore.divisions", {
 						description : html.a.clone(),
 						action      : {
 							panel   : html.div.clone() .attr({ 'data-role':'controlgroup', 'data-type':'horizontal' }) .css({ 'position':'absolute', 'top':'16px', 'right':'16px' }),
-							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext', 'ring':ring, 'index':j, 'divname': ring.divisions[ j ].name }) .click( deleteDivision ) .css({ 'height':'20px', 'background-color':'red' }),
-							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext', 'ring':ring, 'index':j, 'divname': ring.divisions[ j ].name }) .css({ 'height':'20px', 'background-color':'orange' }),
+							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext', 'ring':ring.number, 'divindex':j, 'divname': ring.divisions[ j ].name }) .click( deleteDivision ) .css({ 'height':'20px', 'background-color':'red' }),
+							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext', 'ring':ring.number, 'divindex':j, 'divname': ring.divisions[ j ].name }) .css({ 'height':'20px', 'background-color':'orange' }),
 						},
 					};
 
