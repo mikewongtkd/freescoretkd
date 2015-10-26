@@ -79,7 +79,9 @@ $.widget( "freescore.divisions", {
 						o.division = response.id;
 
 						// ===== SHOW DIVISION EDITOR WITH NEW DIVISION
-						$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + o.ring + '&division=' + response.id );
+						if( ! divisionData.delete ) {
+							$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + o.ring + '&division=' + response.id );
+						}
 					}
 				},
 				error:   function( response ) { 
@@ -100,6 +102,7 @@ $.widget( "freescore.divisions", {
 				index : $( this ).attr( 'divindex' ),
 				ring  : $( this ).attr( 'ring' )
 			};
+			console.log( division );
 			e.dialog.header.title.html( "Delete Division?" );
 			e.dialog.header.panel.css({ background : "red" });
 			e.dialog.content.text.empty();
@@ -107,13 +110,8 @@ $.widget( "freescore.divisions", {
 			e.dialog.content.text.append( e.dialog.content.icon, "Delete division " + division.name + "?<br>Once confirmed,<br>this cannot be undone." );
 			e.dialog.content.ok.click( function( ev ) {
 				o.division = division.index;
-
-				$( ":mobile-pagecontainer" ).pagecontainer( "change", "#ring-divisions", { transition : "slide", reverse : true });
 				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
 				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
-
-				console.log( division );
-
 				$( this ).trigger( 'divisiondelete', { ring : division.ring, id : division.index });
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
@@ -238,8 +236,8 @@ $.widget( "freescore.divisions", {
 						description : html.a.clone(),
 						action      : {
 							panel   : html.div.clone() .attr({ 'data-role':'controlgroup', 'data-type':'horizontal' }) .css({ 'position':'absolute', 'top':'16px', 'right':'16px' }),
-							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext', 'ring':ring.number, 'divindex':j, 'divname': ring.divisions[ j ].name }) .click( deleteDivision ) .css({ 'height':'20px', 'background-color':'red' }),
-							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext', 'ring':ring.number, 'divindex':j, 'divname': ring.divisions[ j ].name }) .css({ 'height':'20px', 'background-color':'orange' }),
+							remove  : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'delete', 'data-iconpos':'notext', 'ring':ring.number, 'divindex':j, 'divname': ring.divisions[ j ].name, 'actionname': 'delete'  }) .click( deleteDivision ) .css({ 'height':'20px', 'background-color':'red' }),
+							restage : html.a.clone()   .attr({ 'data-role':'button', 'data-icon':'back',   'data-iconpos':'notext', 'ring':ring.number, 'divindex':j, 'divname': ring.divisions[ j ].name, 'actionname': 'restage' }) .css({ 'height':'20px', 'background-color':'orange' }),
 						},
 					};
 
@@ -364,9 +362,24 @@ $.widget( "freescore.divisions", {
 			var i        = data.ring;
 			var j        = data.id;
 			var ring     = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
+
+			console.log( data );
+			console.log( ring.divisions );
+
 			var id       = ring.divisions[ j ].name;
 			var listitem = e.ring.divisions.find( 'a[divid=' + id + ']' );
 			listitem.remove();
+			for( var k = j; k < ring.divisions.length; k++ ) {
+				id          = ring.divisions[ k ].name;
+				var actions = e.ring.divisions.find( 'a[divname=' + id + ']' );
+				$.each( actions, function( l ) { 
+					var item  = $( actions[ l ] );
+					var index = parseInt( item.attr( 'divindex' )) - 1; 
+					console.log( "Changing " + $( item ).attr( 'divname' ) + " from " + item.attr( 'divindex' ) + " to " + index );
+					item.attr( 'divindex', index ); 
+				});
+			}
+			ring.divisions.splice( j, 1 );
 		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
