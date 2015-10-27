@@ -108,17 +108,28 @@ $.widget( "freescore.divisions", {
 			e.dialog.content.text.empty();
 			e.dialog.content.icon.addClass( "ui-icon-delete" );
 			e.dialog.content.text.append( e.dialog.content.icon, "Delete division " + division.name + "?<br>Once confirmed,<br>this cannot be undone." );
+
+			// ----------------------------------------
 			e.dialog.content.ok.click( function( ev ) {
+			// ----------------------------------------
+			// User clicks confirmation dialog OK
+			// - Close the dialog
+			// - Send AJAX command to delete division from DB
+			// - Trigger UI to update
+			// ----------------------------------------
 				o.division = division.index;
-				e.dialog.panel.popup( 'close' );     // Close the confirmation dialog
-				o.editDivision({ 'delete' : true }); // Send AJAX command to update DB
+				e.dialog.panel.popup( 'close' );
+				o.editDivision({ 'delete' : true });
 				$( this ).trigger( 'divisiondelete', { ring : division.ring, id : division.index });
+				return false;
 			});
 			e.dialog.content.cancel.click( function( ev ) { 
 				e.dialog.panel.popup( 'close' );
+				return false;
 			});
 
 			e.dialog.panel.popup( 'open', { transition : "pop" } );
+			return false;
 		};
 
 		// ============================================================
@@ -341,7 +352,10 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 		// Behavior
 		// ============================================================
+
+		// ------------------------------------------------------------
 		this.element.on( "pagebeforetransition", function( ev, data ) {
+		// ------------------------------------------------------------
 			if( ! defined( data.absUrl )) { return; }
 			var option  = parsePageUrl( data.absUrl );
 			
@@ -358,14 +372,12 @@ $.widget( "freescore.divisions", {
 			else if ( option.id == "division-editor" ) { showEditor( option.ring, option.division ); }
 		});
 
+		// ------------------------------------------------------------
 		$( 'body' ).on( "divisiondelete", function( ev, data ) {
+		// ------------------------------------------------------------
 			var i        = data.ring;
 			var j        = data.id;
 			var ring     = i == "staging" ? o.rings[ i ] : o.rings[ (i - 1) ];
-
-			console.log( data );
-			console.log( ring.divisions );
-
 			var id       = ring.divisions[ j ].name;
 			var listitem = e.ring.divisions.find( 'a[divid=' + id + ']' );
 			listitem.remove();
@@ -380,6 +392,7 @@ $.widget( "freescore.divisions", {
 				});
 			}
 			ring.divisions.splice( j, 1 );
+			return false;
 		});
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
