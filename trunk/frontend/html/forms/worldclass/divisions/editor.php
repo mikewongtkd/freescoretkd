@@ -1,10 +1,4 @@
-<?php 
-	$an_hour_ago = time() - 3600;
-	setcookie( 'judge', '', $an_hour_ago, '/' );
-	setcookie( 'role',  '', $an_hour_ago, '/' );
-	setcookie( 'ring',  '', $an_hour_ago, '/' );
-	include( "../../../include/php/config.php" ); 
-?>
+<?php include( "../../../include/php/config.php" ); ?>
 <html>
 	<head>
 		<title>World Class Divisions</title>
@@ -17,17 +11,19 @@
 		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
 		<script src="../../../include/js/jquery.errormessage.js"></script>
-		<script src="../../../include/js/forms/worldclass/jquery.divisions.js"></script>
-		<script src="../../../include/js/forms/worldclass/jquery.divisionDescriptor.js"></script>
-		<script src="../../../include/js/forms/worldclass/jquery.formSelector.js"></script>
-		<script src="../../../include/js/forms/worldclass/jquery.divisionHeader.js"></script>
-		<script src="../../../include/js/forms/worldclass/jquery.divisionEditor.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisions.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionDescriptor.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.formSelector.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionHeader.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionEditor.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
-		<div id="division"></div>
-		<script type="text/javascript">
-			$( '#division' ).divisions( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
-		</script>
+		<div data-role="page" id="editorPage">
+			<div id="division"></div>
+			<script type="text/javascript">
+				$( '#division' ).editor( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : <?= $_GET[ 'ring' ] ?>, division : <?= $_GET[ 'division' ] ?> });
+			</script>
+		</div>
 	</body>
 </html>
