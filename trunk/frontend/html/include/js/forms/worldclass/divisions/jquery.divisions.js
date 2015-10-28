@@ -126,7 +126,6 @@ $.widget( "freescore.divisions", {
 			list.append( back.listitem );
 
 			if( defined( divisions )) {
-				console.log( divisions );
 				for( var j in divisions ) {
 					var division = { 
 						data        : divisions[ j ], 
@@ -143,7 +142,7 @@ $.widget( "freescore.divisions", {
 
 					division.shortlist = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
 					division.description.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;<b>" + count + "</b><br>&nbsp;&nbsp;" + division.shortlist + "</p>" );
-					division.description.attr({ href: "editor.php?ring=" + i + "&division=" + j, divid: division.data.name, 'data-transition': 'slide' });
+					division.description.attr({ href: "editor.php?ring=" + i + "&divindex=" + j, divid: division.data.name, 'data-transition': 'slide' });
 
 					division.action.panel.append( division.action.restage, division.action.remove );
 					division.action.panel.controlgroup();
@@ -179,7 +178,7 @@ $.widget( "freescore.divisions", {
 		}
 
 		// ============================================================
-		function refresh( update ) {
+		function refreshDivisions( update ) {
 		// ============================================================
 			var tournament = JSON.parse( update.data );
 			o.rings = getRings( tournament );
@@ -190,7 +189,7 @@ $.widget( "freescore.divisions", {
 		// Behavior
 		// ============================================================
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', refresh, false );
+		e.source.addEventListener( 'message', refreshDivisions, false );
 
 	},
 });

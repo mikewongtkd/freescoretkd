@@ -63,7 +63,7 @@ $.widget( "freescore.rings", {
 		}
 
 		// ============================================================
-		function refresh( update ) {
+		function refreshRings( update ) {
 		// ============================================================
 			var tournament = JSON.parse( update.data );
 			e.ring.list.empty();
@@ -101,7 +101,7 @@ $.widget( "freescore.rings", {
 		};
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', refresh, false );
+		e.source.addEventListener( 'message', refreshRings, false );
 
 	},
 });

@@ -5,19 +5,20 @@ body {
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
 }
 
-.divisions {
+.division {
+	// Header text
 	.text {
 		color: #999;
 	}
-
+	// Header round margin
 	.round {
 		margin-right: 20px;
 	}
+	// Header forms margin
 	.form {
 		margin-right: 20px;
 		color: #fc0;
 	}
-
 	.athletes {
 		overflow-x: hidden;
 		overflow-y: scroll;

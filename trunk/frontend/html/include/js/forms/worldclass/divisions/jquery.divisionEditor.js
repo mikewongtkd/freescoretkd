@@ -8,7 +8,7 @@ $.widget( "freescore.editor", {
 
 		var html      = e.html      = FreeScore.html;
 		var edit      = e.edit      = html.div.clone();
-		var header    = e.header    = html.div.clone() .addClass( "config" ) .divisionHeader( o );
+		var header    = e.header    = html.div.clone() .addClass( "config" );
 		var actions   = e.actions   = {
 			footer : html.div.clone() .attr( "data-role", "footer" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ),
 			button: {
@@ -23,7 +23,6 @@ $.widget( "freescore.editor", {
 			header   : html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .attr( "data-theme", "b" ) .attr( "data-tap-toggle", false ) .addClass( "actions" ) .addClass( "ui-bar" ),
 			division : html.div.clone(),
 		};
-		e.dialog = o.dialog;
 
 		actions.athlete.append( actions.button.move.up, actions.button.move.down, actions.button.move.last, actions.button.remove );
 		actions.footer.append( actions.athlete );
@@ -48,7 +47,9 @@ $.widget( "freescore.editor", {
 		rounds.tabs.append( rounds.navbar, rounds.prelim.tab, rounds.semfin.tab, rounds.finals.tab );
 		rounds.tabs.tabs();
 
-		this.element .append( header, rounds.tabs, actions.footer );
+		w .empty();
+		w .append( header, rounds.tabs, actions.footer );
+		w .addClass( "division" );
 
 		var sound = e.sound = {};
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
@@ -57,7 +58,7 @@ $.widget( "freescore.editor", {
 		// ============================================================
 		var editDivision = o.editDivision = function( divisionData ) {
 		// ============================================================
-			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division.index + '/edit';
+			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.divindex + '/edit';
 			console.log( url );
 			$.ajax( {
 				type:      'POST',
@@ -187,39 +188,8 @@ $.widget( "freescore.editor", {
 			var round   = o.selected.attr( "round" );
 			var athlete = o.division.athletes[ i ];
 
-			e.dialog.header.title.html( "Remove Athlete?" );
-			e.dialog.header.panel.css({ background : "black" });
-			e.dialog.content.text.empty();
-			e.dialog.content.icon.addClass( "ui-icon-minus" );
-			e.dialog.content.text.append( e.dialog.content.icon, "Remove athlete " + athlete.name + " from division? Once confirmed,<br>this cannot be undone." );
-			e.dialog.content.ok.click( function( ev ) {
-				e.dialog.panel.popup( 'close' );                                // Close the confirmation dialog
-				o.editAthlete({ index : i, remove : true, round : round });     // Send AJAX command to update DB
+			// Activate dialog to confirm athlete removal
 
-				// Renumber the list
-				if( defined( o.selected )) {
-					var item   = o.selected.parent().parent();                          
-					var list   = item.parent().find( 'li' );
-					var target = parseInt( item.find( '.number' ).html());
-					o.division.athletes.splice( target - 1, 1 );
-					list.each( function( j ) {
-						var listItem = list[ j ];
-						var number   = $( listItem ).find( '.number' );
-						var found    = parseInt( number.html() );
-						if( found > target ) { number.html( found - 1 ); }
-					});
-					item.remove();                                              // Update list display
-				}
-
-				o.selected = undefined;                                         // Clear context
-				e.actions.athlete.find( "a" ).addClass( 'ui-disabled' ); 			// Disable contextual footer UI buttons
-				o.updates = 0;                                                  // Indicate that the list can be updated
-			});
-			e.dialog.content.cancel.click( function( ev ) { 
-				e.dialog.panel.popup( 'close' );
-			});
-
-			e.dialog.panel.popup( 'open', { transition : "pop" } );
 		});
 
 		o.updates = 0; // Indicate that live updates are OK
@@ -231,9 +201,6 @@ $.widget( "freescore.editor", {
 		var o       = this.options;
 		var w       = this.element;
 		var html    = e.html;
-
-		if( o.updates > 1 ) { return; } // Try to ignore live updates while editing the division to avoid overwriting
-		o.updates++; // It takes 2 updates to get the division information (1 on init, 1 on receiving JSON data)
 
 		// ------------------------------------------------------------
 		var addAthlete = function( i, round, j ) {
@@ -382,23 +349,25 @@ $.widget( "freescore.editor", {
 		};
 
 		// ============================================================
-		function refresh( update ) {
+		function refreshEditor( update ) {
 		// ============================================================
 			var tournament = JSON.parse( update.data );
-			var ring       = tournament.divisions[ o.ring ];
-			var division   = ring[ o.division ];
+			var ring       = $.grep( tournament.divisions, function( division ) { return division.ring == o.ring; });
+			var division   = o.division = ring[ o.divindex ];
 			var n          = defined( o.division.athletes ) ? o.division.athletes.length : 0;
+
+			if( ! defined( division )) { return; }
+
 			e.header.divisionHeader({ 
 				server:     o.server,
 				port:       ':3088/',
 				tournament: o.tournament,
 				ring:       o.ring,
-				division:   division.index, 
+				division:   o.divindex, 
 				text:       division.description, 
 				forms:      division.forms, 
 				judges:     division.judges, 
 				athletes:   n,
-				dialog:     o.dialog,
 			});
 
 			// ===== DETERMINE WHICH ROUND IS THE FIRST ROUND FOR THIS DIVISION
@@ -450,6 +419,13 @@ $.widget( "freescore.editor", {
 				firstRound .addClass( 'ui-btn-active' ) .click();
 				active = rname;
 			}
-		}
+		};
+
+		// ============================================================
+		// Behavior
+		// ============================================================
+		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
+		e.source.addEventListener( 'message', refreshEditor, false );
+
 	},
 });

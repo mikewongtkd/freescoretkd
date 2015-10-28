@@ -11,6 +11,7 @@
 		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
 		<script src="../../../include/js/jquery.errormessage.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.rings.js"></script>
 		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisions.js"></script>
 		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionDescriptor.js"></script>
 		<script src="../../../include/js/forms/worldclass/divisions/jquery.formSelector.js"></script>
@@ -22,7 +23,7 @@
 		<div data-role="page" id="editorPage">
 			<div id="division"></div>
 			<script type="text/javascript">
-				$( '#division' ).editor( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : <?= $_GET[ 'ring' ] ?>, division : <?= $_GET[ 'division' ] ?> });
+				$( '#division' ).editor( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : <?= $_GET[ 'ring' ] ?>, divindex : <?= $_GET[ 'divindex' ] ?> });
 			</script>
 		</div>
 	</body>

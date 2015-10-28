@@ -3,27 +3,27 @@ body {
   background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
 
-.divisions .text {
+.division .text {
   color: #999; }
-.divisions .round {
+.division .round {
   margin-right: 20px; }
-.divisions .form {
+.division .form {
   margin-right: 20px;
   color: #fc0; }
-.divisions .athletes {
+.division .athletes {
   overflow-x: hidden;
   overflow-y: scroll; }
-  .divisions .athletes ul {
+  .division .athletes ul {
     margin: 0;
     padding: 0;
     width: 100%; }
-    .divisions .athletes ul li {
+    .division .athletes ul li {
       list-style: none;
       margin: 0;
       padding: 0;
       height: 40px;
       width: 100%; }
-      .divisions .athletes ul li .athlete .number {
+      .division .athletes ul li .athlete .number {
         color: #999;
         padding: 0;
         margin: 10px 0 0 0;
@@ -34,7 +34,7 @@ body {
         top: 0;
         left: 16px;
         text-align: right; }
-      .divisions .athletes ul li .athlete .name {
+      .division .athletes ul li .athlete .name {
         border: 0;
         margin: 0;
         padding: 0;

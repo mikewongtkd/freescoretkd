@@ -7,11 +7,8 @@ $.widget( "freescore.divisionHeader", {
 		var html = e.html = FreeScore.html;
 
 		var accept      = e.accept = {
-			panel    : html.ul .clone() .attr({ 'data-role': 'listview' }),
-			listitem : html.li .clone(),
-			button   : html.a  .clone() .addClass( "ui-btn ui-btn-icon-left ui-icon-carat-l" ) .html( "Accept Division" ) .css({ 'color': 'white', 'text-shadow': '0 1px 0 #030', 'background-color': '#090', 'margin-top':'-1px', 'margin-bottom':'-1px' })
+			button   : html.a  .clone() .addClass( "ui-btn ui-btn-icon-left ui-icon-carat-l" ) .html( "Accept Division" ) .css({ 'color': 'white', 'text-shadow': '0 1px 0 #030', 'background-color': '#090', 'margin':'-1px' })
 		};
-		accept.panel.append( accept.listitem.append( accept.button ));
 
 		var description = e.description = html.div.clone() .attr({ 'data-role': 'collapsible', 'data-theme': 'b' }) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
 		var forms       = e.forms       = html.div.clone() .attr({ 'data-role': 'collapsible', 'data-theme': 'b' }) .css( "width", "100%" ) .append( html.h3.clone() .html( "Please Select Forms" ),            html.div.clone() .prop( "id", "formsWidget" ));
@@ -19,7 +16,6 @@ $.widget( "freescore.divisionHeader", {
 		var accordian   = e.accordian   = html.div.clone() .attr({ 'data-role': 'collapsibleset', 'data-collapsed-icon': 'edit', 'data-expanded-icon': 'gear', 'data-corners': false }) .css({ margin: 0 });
 		var error       = e.error       = html.div.clone() .hide();
 		var sound       = e.sound       = {};
-		e.dialog        = o.dialog;
 
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
 		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
@@ -54,7 +50,7 @@ $.widget( "freescore.divisionHeader", {
 		};
 
 		accordian.append( error, description, forms, judges );
-		w .append( accept.panel, accordian );
+		w .append( accept.button, accordian );
 
 		// ============================================================
 		var updateHeader = o.updateHeader = function( data ) {
