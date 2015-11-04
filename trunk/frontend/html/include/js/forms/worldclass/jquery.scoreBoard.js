@@ -187,11 +187,12 @@ $.widget( "freescore.scoreboard", {
 			current.form != o.previous.form
 		)) {
 			var currentFlag = defined( current.athlete.info.flag ) ? '<img src="/freescore/images/flags/' + current.athlete.info.flag + '.png" width="80px" />' : '';
-			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( current.athlete.name ) .fadeIn(); });
-			e.lflag   .empty() .fadeOut( 500, function() { e.lflag   .html( currentFlag )          .fadeIn(); });
-			e.rflag   .empty() .fadeOut( 500, function() { e.rflag   .html( currentFlag )          .fadeIn(); });
-			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round_description )  .fadeIn(); });
-			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )              .fadeIn(); });
+			var currentName = html.span.clone() .html( current.athlete.name );
+			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( currentName )         .fadeIn(); });
+			e.lflag   .empty() .fadeOut( 500, function() { e.lflag   .html( currentFlag )         .fadeIn(); });
+			e.rflag   .empty() .fadeOut( 500, function() { e.rflag   .html( currentFlag )         .fadeIn(); });
+			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round_description ) .fadeIn(); });
+			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )             .fadeIn(); });
 		}
 
 		// ===== CHANGE OF SCORE

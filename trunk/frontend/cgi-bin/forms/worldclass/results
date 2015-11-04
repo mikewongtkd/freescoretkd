@@ -54,6 +54,7 @@ print <<EOF;
 			}
 			.results th.number  { width: 20px; }
 			.results th.athlete { width: 200px; }
+			.results th.form    { width: 100px; }
 
 			.results td { 
 				padding: 2px 4px 2px 4px;
@@ -74,7 +75,7 @@ foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	my $round  = $division->{ round };
-	my $forms  = int( @{$division->{ forms }{ $round }} );
+	my $forms  = $division->{ forms }{ $round };
 	my $placed = {};
 	my $i = 0;
 	foreach my $place ( 1 .. 3 ) {
@@ -90,7 +91,7 @@ foreach my $division (@divisions) {
 				<th class="number">#</th>
 				<th class="athlete">Name</th>
 EOF
-	foreach my $i ( 1 .. $forms ) { print "<th>F$i</th>"; }
+	foreach my $i ( 0 .. $#$forms ) { print "<th class=\"form\">$forms->[ $i ]{ name }</th>"; }
 	print <<EOF;
 				<th>Total</th>
 				<th>Place</th>
@@ -140,7 +141,10 @@ sub ordinal {
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = `cat /var/www/html/freescore/include/php/config.php`;
+	my $php = '';
+	if    ( -e '/var/www/html/freescore/include/php/config.php' ) { $php = `cat /var/www/html/freescore/include/php/config.php`; }
+	elsif ( -e '/var/www/freescore/include/php/config.php'      ) { $php = `cat /var/www/html/freescore/include/php/config.php`; }
+	else                                                          { die "Can't find configuration file 'config.php' $!"; }
 	$php .= "<?php echo \$tournament ?>";
 	$php =~ s/\n/ /g;
 

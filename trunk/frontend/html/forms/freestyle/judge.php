@@ -4,13 +4,15 @@
 ?>
 <html>
 	<head>
+		<link href="../../include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<link href="../../include/css/ajaxbutton.css" rel="stylesheet" />
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<link href="../../include/css/forms/freestyle/judgeController.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
-		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
+		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
 		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
