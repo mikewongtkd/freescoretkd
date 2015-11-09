@@ -1030,10 +1030,10 @@ sub _parse_forms {
 	my $value = shift;
 
 	my @rounds = map { 
-		my ($round, $forms) = split /:/;
-		my @forms = map { my ($name, $type) = /^([\w\s]+)(?:\s\((compulsory|tiebreaker)\))?/; { name => $name, type => $type || 'compulsory' }; } split /,\s*/, $forms;
+		my ($round, $forms) = split /\s*:\s*/;
+		my @forms = map { my ($name, $type) = /^([\w\s]+)(?:\s\((compulsory|tiebreaker)\))?/; { name => $name, type => $type || 'compulsory' }; } split /\s*,\s*/, $forms;
 		($round => [ @forms ]);
-	} split /;/, $value;
+	} split /\s*;\s*/, $value;
 	return { @rounds }; 
 }
 

@@ -187,12 +187,20 @@ $.widget( "freescore.scoreboard", {
 			current.form != o.previous.form
 		)) {
 			var currentFlag = defined( current.athlete.info.flag ) ? '<img src="/freescore/images/flags/' + current.athlete.info.flag + '.png" width="80px" />' : '';
-			var currentName = html.span.clone() .html( current.athlete.name );
+			var currentName = current.athlete.name;
+			if( currentName.length > 12 ) { // Name too long? Use first initial and last name
+				var firstlast = currentName.split( /\s+/, 2 ); var first = firstlast[ 0 ]; var last = firstlast[ 1 ];
+				currentName = first.substr( 0, 1 ) + ' ' + last;
+				if( currentName.length > 12 ) { currentName = last; } // Still too long? Use last name
+			}
+			currentName = html.span.clone() .append( currentName );
 			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( currentName )         .fadeIn(); });
 			e.lflag   .empty() .fadeOut( 500, function() { e.lflag   .html( currentFlag )         .fadeIn(); });
 			e.rflag   .empty() .fadeOut( 500, function() { e.rflag   .html( currentFlag )         .fadeIn(); });
 			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round_description ) .fadeIn(); });
 			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )             .fadeIn(); });
+
+			e.athlete .fitText( 0.525 );
 		}
 
 		// ===== CHANGE OF SCORE

@@ -22,6 +22,7 @@
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+		<script src="../../include/jquery/js/jquery.fittext.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
