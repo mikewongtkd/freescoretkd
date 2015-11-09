@@ -56,32 +56,53 @@ $.widget( "freescore.leaderboard", {
 		};
 
 		var update_placements = function( callback ) {
-			var entry      = html.div.clone() .addClass( "athlete" ) .addClass( "header" );
-			var name       = html.div.clone() .addClass( "name" ) .html( 'Name' );
-			var form1      = html.div.clone() .addClass( "form1" ) .html( 'Form&nbsp;1' );
-			var form2      = html.div.clone() .addClass( "form2" ) .html( 'Form&nbsp;2' );
-			var score      = html.div.clone() .addClass( "score" ) .html( 'Average' );
 
-			entry.append( name, form1, form2, score, medal );
-			e.placement.append( entry );
+			var round = o.division.round;
 
+			// ===== ADD HEADER
+			var divforms = o.division.forms[ round ];
+			var form = [ {}, html.span.clone() .html( divforms[ 0 ].name.replace( /\s/, '' )) ];
+			if( divforms.length == 2 ) { form.push( html.span.clone() .html( divforms[ 1 ].name.replace( /\s/, '' ))); } else { form.push( html.span.clone() ); }
+			var header = {
+				panel : html.div.clone() .addClass( "athlete" ) .addClass( "header" ),
+				name  : html.div.clone() .addClass( "name" ) .html( 'Name' ),
+			    form1 : html.div.clone() .addClass( "form1" ) .html( form[ 1 ] ),
+			    form2 : html.div.clone() .addClass( "form2" ) .html( form[ 2 ] ),
+				score : html.div.clone() .addClass( "score" ) .html( 'Average' ),
+			};
+
+			header.panel.append( header.name, header.form1, header.form2, header.score, header.medal );
+			e.placement.append( header.panel );
+
+			// ===== ADD ATHLETES
 			for( var i = 0; i < k; i++ ) {
 				var athlete    = placement.athletes[ i ];
-				var forms      = athlete.scores[ o.division.round ];
+				var forms      = athlete.scores[ round ];
 				var athlete    = placement.athletes[ i ];
 				var notes      = defined( athlete.notes ) ? athlete.notes : '';
 				var total      = (forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / forms.length).toFixed( 2 );
-				var entry      = html.div.clone() .addClass( "athlete" );
-				var name       = html.div.clone() .addClass( "name" ) .html( athlete.name );
-				var form1      = form_mean_score( forms[ 0 ], 'form1' );
-				var form2      = form_mean_score( forms[ 1 ], 'form2' );
-				var score      = html.div.clone() .addClass( "score" ) .html( total + "<span class=\"notes\">&nbsp;" + notes + "</span>" );
-				var medal      = html.div.clone() .addClass( "medal" ) ;
+				var name       = athlete.name;
+				if( name.length > 12 && ! e.placement.hasClass( 'one-column' ) ) { // Name too long? Use first initial and last name
+					var firstlast = name.split( /\s+/ ); var first = firstlast.shift(); var last = firstlast.join( ' ' );
+					name = first.substr( 0, 1 ) + ' ' + last;
+					if( name.length > 12 ) { name = last; } // Still too long? Use last name only
+				}
+				var namespan = html.span.clone() .html( name );
 
-				if( defined( callback )) { callback( i, name, medal ); }
+				var entry = {
+					panel : html.div.clone() .addClass( "athlete" ),
+					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
+					form1 : form_mean_score( forms[ 0 ], 'form1' ),
+					form2 : form_mean_score( forms[ 1 ], 'form2' ),
+					score : html.div.clone() .addClass( "score" ) .html( total + "<span class=\"notes\">&nbsp;" + notes + "</span>" ),
+					medal : html.div.clone() .addClass( "medal" ),
+				};
 
-				entry.append( name, form1, form2, score, medal );
-				e.placement.append( entry );
+				if( defined( callback )) { callback( i, entry.name, entry.medal ); }
+
+				entry.panel.append( entry.name, entry.form1, entry.form2, entry.score, entry.medal );
+				e.placement.append( entry.panel );
+				entry.name .fitText( 0.55, { maxFontSize: '32pt' });
 			}
 		};
 		var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Final Round', 'finals' : 'Final Round' };

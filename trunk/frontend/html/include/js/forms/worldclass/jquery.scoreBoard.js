@@ -189,7 +189,7 @@ $.widget( "freescore.scoreboard", {
 			var currentFlag = defined( current.athlete.info.flag ) ? '<img src="/freescore/images/flags/' + current.athlete.info.flag + '.png" width="80px" />' : '';
 			var currentName = current.athlete.name;
 			if( currentName.length > 12 ) { // Name too long? Use first initial and last name
-				var firstlast = currentName.split( /\s+/, 2 ); var first = firstlast[ 0 ]; var last = firstlast[ 1 ];
+				var firstlast = currentName.split( /\s+/ ); var first = firstlast.shift(); var last = firstlast.join( ' ' );
 				currentName = first.substr( 0, 1 ) + ' ' + last;
 				if( currentName.length > 12 ) { currentName = last; } // Still too long? Use last name
 			}
@@ -200,7 +200,7 @@ $.widget( "freescore.scoreboard", {
 			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round_description ) .fadeIn(); });
 			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )             .fadeIn(); });
 
-			e.athlete .fitText( 0.525 );
+			e.athlete .fitText( 0.55 ); // Scale athlete name for best visibility and size
 		}
 
 		// ===== CHANGE OF SCORE
