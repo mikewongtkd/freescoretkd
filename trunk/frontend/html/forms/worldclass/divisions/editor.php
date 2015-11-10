@@ -1,7 +1,7 @@
 <?php include( "../../../include/php/config.php" ); ?>
 <html>
 	<head>
-		<title>World Class Divisions</title>
+		<title>Division Editor</title>
 		<link href="../../../include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<link href="../../../include/css/forms/worldclass/divisions.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
