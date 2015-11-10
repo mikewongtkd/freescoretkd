@@ -1,4 +1,4 @@
-$.widget( "freescore.divisionHeader", {
+$.widget( "freescore.header", {
 	options: { autoShow: true, num: 0 },
 	_create: function() {
 		var w    = this.element;
@@ -7,7 +7,7 @@ $.widget( "freescore.divisionHeader", {
 		var html = e.html = FreeScore.html;
 
 		var accept      = e.accept = {
-			button   : html.a  .clone() .addClass( "ui-btn ui-btn-icon-left ui-icon-carat-l" ) .html( "Accept Division" ) .css({ 'color': 'white', 'text-shadow': '0 1px 0 #030', 'background-color': '#090', 'margin':'-1px' })
+			button   : html.a  .clone() .addClass( "ui-btn ui-btn-icon-left ui-icon-carat-l" ) .html( "Accept Division" ) .css({ 'color': 'white', 'text-shadow': '0 1px 0 #030', 'background-color': '#090', 'margin':'-1px' }) .attr({ href : 'javascript: close()' })
 		};
 
 		var description = e.description = html.div.clone() .attr({ 'data-role': 'collapsible', 'data-theme': 'b' }) .css( "width", "100%" ) .append( html.h3.clone() .html( "Division Description" ),           html.div.clone() .prop( "id", "descriptionWidget" ));
@@ -117,12 +117,6 @@ $.widget( "freescore.divisionHeader", {
 				widget.html( value );
 			}
 		};
-
-		// ------------------------------------------------------------
-		accept.button.click( function( ev ) {
-		// ------------------------------------------------------------
-			$( ":mobile-pagecontainer" ).pagecontainer( "change", "ring.php?ring=" + o.ring, { transition : "slide", reverse : true });
-		});
 	},
 
 	_init: function( ) {

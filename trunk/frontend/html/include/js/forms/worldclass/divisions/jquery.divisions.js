@@ -53,7 +53,7 @@ $.widget( "freescore.divisions", {
 
 						// ===== SHOW DIVISION EDITOR WITH NEW DIVISION
 						if( ! divisionData.delete ) {
-							$( ':mobile-pagecontainer' ).pagecontainer( 'change', 'editor.php?ring=' + o.ring + '&division=' + response.id );
+							window.open( 'editor.php?ring=' + o.ring + '&division=' + response.id, '_blank' );
 						}
 					}
 				},
@@ -142,7 +142,7 @@ $.widget( "freescore.divisions", {
 
 					division.shortlist = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
 					division.description.html( "<h3>" + division.data.name.toUpperCase() + " " + division.data.description + "</h3><p>&nbsp;&nbsp;<b>" + count + "</b><br>&nbsp;&nbsp;" + division.shortlist + "</p>" );
-					division.description.attr({ href: "editor.php?ring=" + i + "&divindex=" + j, divid: division.data.name, 'data-transition': 'slide' });
+					division.description.attr({ href: "editor.php?ring=" + i + "&divindex=" + j, divid: division.data.name, target : '_blank' });
 
 					division.action.panel.append( division.action.restage, division.action.remove );
 					division.action.panel.controlgroup();
@@ -165,9 +165,8 @@ $.widget( "freescore.divisions", {
 			add.link.click( function( ev ) {
 			// -----------------------------------------------------------
 				var i = $( this ).attr( "ring" );
-				o.division = -1; // Placeholder value for division
 				o.editDivision({ ring : i, create : true }); // Send AJAX command to update DB
-				$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#division-editor?ring=' + i + '&division=' + o.division );
+				window.open( 'editor.php?ring=' + i + '&divindex=new', '_blank' );
 
 			});
 			add.listitem.append( add.link );

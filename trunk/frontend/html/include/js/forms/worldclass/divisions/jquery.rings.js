@@ -50,7 +50,9 @@ $.widget( "freescore.rings", {
 			if( i == 'staging' ) { ring.link.html( 'Staging' ); }
 			else                 { ring.link.html( 'Ring ' + i ); }
 
-			ring.link.attr( "href", "ring.php?ring=" + i ) .attr( "data-transition", "slide" );
+			if( ring.divisions.length > 0 ) {
+				ring.link.attr({ href: "ring.php?ring=" + i, "data-transition": "slide" });
+			}
 			ring.link.append( ring.count );
 
 			if( ring.divisions.length == 1 ) { ring.count.html( "1 Division" ); }

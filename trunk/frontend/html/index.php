@@ -1,6 +1,9 @@
+<?php
+	$version = 3.4;
+?>
 <html>
 	<head>
-		<title>FreeScore TKD Wifi v3.3</title>
+		<title>FreeScore TKD Wifi v<?=$version?></title>
 		<link href="./include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<script src="./include/jquery/js/jquery.js"></script>
 		<script src="./include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
@@ -15,13 +18,13 @@
 		</style>
 		<script type="text/javascript">
 			function register() { document.location="./setup/register.php"; }
-			function managewc() { document.location="./forms/worldclass/divisions.php"; }
+			function managewc() { document.location="./forms/worldclass/divisions/index.php"; }
 		</script>
 	</head>
 	<body>
 		<div data-role="page">
 			<div data-role="header" data-position-fixed="true" data-theme="b">
-				<div><span class="title">FreeScore TKD Wifi</span> <span class="version">v3.0</span></div>
+				<div><span class="title">FreeScore TKD Wifi</span> <span class="version">v<?=$version?></span></div>
 				<span class="description"><a href="http://mikewongtkd.github.io/freescoretkd">Open Source Taekwondo Poomsae Scoring Software</a> available under the GPL v2.</span>
 			</div>
 			<div data-role="main">
@@ -34,7 +37,7 @@
 						<li data-role="list-divider">Divisions</li>
 						<li><a href="javascript:managewc()">
 							<h2>Manage World Class Poomsae Divisions</h2>
-							<p>Add, remove, or edit divisions across all rings</p>
+							<p>Add, remove, or edit divisions</p>
 						</a></li>
 					</ul>
 			</div>

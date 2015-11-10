@@ -10,21 +10,16 @@
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
-		<script src="../../../include/js/jquery.errormessage.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.rings.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisions.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionDescriptor.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.formSelector.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionHeader.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionEditor.js"></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="../../../include/js/forms/worldclass/divisions/editor/header/jquery.descriptor.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/editor/header/jquery.forms.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/editor/jquery.header.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/editor/jquery.athletes.js"></script>
+		<script src="../../../include/js/forms/worldclass/divisions/jquery.editor.js"></script>
 	</head>
 	<body>
-		<div data-role="page" id="editorPage">
-			<div id="division"></div>
-			<script type="text/javascript">
-				$( '#division' ).editor( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : <?= $_GET[ 'ring' ] ?>, divindex : <?= $_GET[ 'divindex' ] ?> });
-			</script>
-		</div>
+		<div id="division"></div>
+		<script type="text/javascript">
+			$( '#division' ).editor( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : <?= $_GET[ 'ring' ] ?>, divindex : <?= $_GET[ 'divindex' ] ?> });
+		</script>
 	</body>
 </html>

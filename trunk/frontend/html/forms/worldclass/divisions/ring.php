@@ -13,10 +13,6 @@
 		<script src="../../../include/js/jquery.errormessage.js"></script>
 		<script src="../../../include/js/forms/worldclass/divisions/jquery.rings.js"></script>
 		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisions.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionDescriptor.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.formSelector.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionHeader.js"></script>
-		<script src="../../../include/js/forms/worldclass/divisions/jquery.divisionEditor.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
