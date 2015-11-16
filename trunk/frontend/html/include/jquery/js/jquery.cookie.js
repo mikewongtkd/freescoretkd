@@ -102,7 +102,7 @@
 		return result;
 	};
 
-	config.defaults = {};
+	config.defaults = { expires: 1, path: '/' }; // MW Set default path to site
 
 	$.removeCookie = function (key, options) {
 		if ($.cookie(key) === undefined) {

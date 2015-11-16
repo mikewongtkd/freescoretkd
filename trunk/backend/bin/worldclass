@@ -222,74 +222,41 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 	try {
 		my $edits    = $json->decode( $content );
 		my $header   = $edits->{ header };
-		my $reorder = $edits->{ reorder };
-		my $edit    = $edits->{ athlete };
-		my $add     = $edits->{ create };
-		my $delete  = $edits->{ delete };
-		my $success = {};
+		my $athletes = $edits->{ athletes };
+		my $add      = $edits->{ create };
+		my $delete   = $edits->{ delete };
+		my $success  = {};
 
-		if     ( defined $header  ) { 
+		# ====== EDITING OR CREATE NEW DIVISION CONTENT
+		if( exists $edits->{ header } && exists $edit->{ athletes } ) {
+
+			# CREATE A NEW DIVISION
+			if( exists $edits->{ create } ) {
+				$division = $progress->create_division( $ring );
+				$success->{ id } = $division->{ name };
+			}
+			
+			# AND/OR EDIT AN EXISTING DIVISION
 			$division->{ $_ } = $header->{ $_ } foreach (keys %$header); 
-			$description = "Successfully updated division $division->{ id } information."; 
-
-		} elsif( defined $reorder ) { 
-			$division->reorder( $edits ); 
-			$description = "Successfully reordered division $division->{ name }."; 
-
-		} elsif( defined $edit    ) {
-			my $i       = $edit->{ index };
-			my $round   = $division->{ round };
-			my $judges  = $division->{ judges };
-			my $forms   = defined( $self->{ forms }{ $round } ) ? int( @{ $self->{ forms }{ $round }} ) : 0;
-			my $athlete = undef;
-			my $new     = 0;
-
-			# ===== CHOOSE BETWEEN EDITING EXISTING OR CREATING NEW ATHLETE
-			if( $i >= 0 && $i <= $#{ $division->{ athletes }} ) {
-				$athlete = $division->{ athletes }[ $i ];
-
-			} else {
-				$new = 1;
-				$athlete = {};
-				push @{ $division->{ athletes }}, $athlete;
-				$i = $#{ $division->{ athletes }};
+			my $reordered = [ map { { name => $_->{ after }{ name } } } @$athletes ]; # Set defaults to all new athletes
+			foreach my $edit (@$athletes) {
+				my $i = $edit->{ before }{ index };
+				my $j = $edit->{ after }{ index };
+				next unless defined $i; # New athletes have no defined "before index"
+				my $athlete = $division->{ athletes }[ $i ];
+				die "Division Editing Error: Athlete '$edit->{ before }{ name }' does not correspond to '$athlete->{ name }'" unless $athlete->{ name } eq $edit->{ before }{ name };
+				$reordered->[ $j ] = $athlete; # Transfer existing scores to potentially reordered athlete
 			}
+			$division->{ athletes } = $reordered;
 
-			# ===== EDIT ATHLETE
-			if      ( defined $edit->{ name } ) {
-				if( $new ) { 
-					$athlete->{ name } = $edit->{ name };
-					$division->assign( $i, $round );
-					$description = "Successfully added athlete $athlete->{ name } to $round round.";
-
-				} else {
-					$description = "Successfully renamed athlete $athlete->{ name } to $edit->{ name }.";
-					$athlete->{ name } = $edit->{ name };
-				}
-
-			# ===== DELETE ATHLETE
-			} elsif ( defined $edit->{ remove } ) {
-				$division->remove_athlete( $i );
-				$description = "Successfully removed $athlete->{ name } scores.";
-
-			# ===== RESET SCORES
-			} elsif ( defined $edit->{ reset } ) {
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( undef, $forms, $judges ) if( exists $edit->{ reset } );
-				$description = "Successfully cleared $athlete->{ name }.";
-			}
-
-		} elsif( defined $add     ) {
-			$division = $progress->create_division( $ring );
-			$success->{ id } = $division->{ name };
-			$description = "Successfully created new division $division->{ name }.";
-
-		} elsif( defined $delete  ) {
+		# ====== DELETE A DIVISION
+		} elsif( exists $edits->{ delete } ) {
 			my $deleted = unlink( $division->{ file } ) && (! -e $division->{ file });
 			if( $deleted ) { $description = "Successfully deleted division $division->{ name } at $division->{ file }"; }
-			else           { $description = "Error: Failed to delete division $division->{ name }"; }
+			else           { die "Database Update Error: Failed to delete division $division->{ name }"; }
 
 		} else {
-			$description = "Unknown athlete edit command";
+			$description = "Unknown athlete or division editing command";
 		}
 
 		unless( defined $delete || defined $add ) {

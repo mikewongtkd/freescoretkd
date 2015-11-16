@@ -20,35 +20,6 @@ $.widget( "freescore.header", {
 		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
 		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
 
-		// ============================================================
-		var editDivision = o.editDivision = function( divisionData ) {
-		// ============================================================
-			var url    = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + o.division + '/edit';
-			$.ajax( {
-				type:      'POST',
-				url:       url,
-				dataType:  'json',
-				data:      JSON.stringify( divisionData ),
-				success: function( response ) { 
-					// Server-side error
-					if( defined( response.error )) {
-						e.sound.error.play();
-						console.log( response.error );
-
-					// All OK
-					} else {
-						e.sound.ok.play(); 
-						console.log( response.description );
-					}
-				},
-				error:   function( response ) { 
-					// Network error
-					e.sound.error.play(); 
-					console.log( 'Network Error: Unknown network error.' );
-				}, 
-			});
-		};
-
 		accordian.append( error, description, forms, judges );
 		w .append( accept.button, accordian );
 

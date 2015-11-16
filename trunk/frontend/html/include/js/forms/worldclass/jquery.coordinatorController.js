@@ -201,12 +201,13 @@ $.widget( "freescore.coordinatorController", {
 				var division = {
 					data  : divisions[ i ],
 					item  : html.li.clone(),
-					count : html.span.clone() .addClass( 'ui-li-count' ),
 					link  : html.a.clone()
 				}
-				division.count.html( division.data.athletes.length );
+				var count = division.data.athletes.length > 1 ? division.data.athletes.length + ' Athletes' : '1 Athlete';
+				var list  = (division.data.athletes.length > 8 ? division.data.athletes.slice( 0, 7 ) : division.data.athletes).map( function( athlete ) { return athlete.name; } ).join( ", " ) + (division.data.athletes.length > 8 ? ', ...' : '');
+
 				division.link.empty();
-				division.link.append( division.data.name.capitalize() + ' ' + division.data.description, division.count );
+				division.link.append( '<h3>' + division.data.name.capitalize() + ' ' + division.data.description + '<h3><p><b>' + count + '</b><br>' + list + '</p>' );
 				division.link.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
 				division.link.click( function( ev ) { var divid = $( this ).attr( 'divid' ); 
 					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
@@ -270,7 +271,7 @@ $.widget( "freescore.coordinatorController", {
 					data  : athlete.data.scores[ round ][ division.form ],
 				};
 				score.total = score.data.complete ? score.data.adjusted_mean.total : 0.0;
-				if( score.data.complete ) { score.panel.html( score.total ); } else { score.panel.html( '&mdash;' ); }
+				if( score.data.complete ) { score.panel.html( score.total.toFixed( 2 ) ); } else { score.panel.html( '&mdash;' ); }
 				athlete.item.append( score.panel ); 
 
 				if( complete              ) { athlete.item.addClass( 'complete' ); } else { athlete.item.removeClass( 'complete' ); }
@@ -287,6 +288,7 @@ $.widget( "freescore.coordinatorController", {
 		this.element.on( "pagebeforetransition", function( ev, transition ) {
 		// ============================================================
 			if( ! defined( transition.absUrl )) { return; }
+			if( ! defined( o.progress        )) { return; }
 			var option    = parsePageUrl( transition.absUrl );
 			var divisions = o.progress.divisions;
 			var division  = undefined;
@@ -294,7 +296,7 @@ $.widget( "freescore.coordinatorController", {
 			if( defined( option.ring ) && defined( option.divid )) {
 				for( var i = 0; i < divisions.length; i++ ) {
 					division = divisions[ i ];
-					if( division.name == option.divid && division.ring == option.ring ) { index = i; break; }
+					if( division.name == option.divid && division.ring == option.ring ) { index = i; $.cookie( 'divindex', i ); break; }
 					division = undefined;
 				}
 			}
@@ -307,8 +309,10 @@ $.widget( "freescore.coordinatorController", {
 		e.refresh = function( update ) {
 		// ============================================================
 			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
+			var i        = defined( $.cookie( 'divindex' )) ? $.cookie( 'divindex' ) : progress.current;
 			o.progress = progress;
 			e.updateDivisions( progress.divisions, progress.current );
+			e.updateAthletes( progress.divisions[ i ], progress.current );
 
 		};
 
