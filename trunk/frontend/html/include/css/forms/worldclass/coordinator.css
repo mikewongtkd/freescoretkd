@@ -14,13 +14,16 @@
 
 .athletes {
   width: calc( 100% - 220px ); }
-  .athletes .current {
+  .athletes a .form {
+    float: right;
+    margin-right: 10px; }
+  .athletes .current a {
     color: white;
     background: #6facd5;
     background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
     background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
     text-shadow: 2px 2px #497bae; }
-  .athletes .complete {
+  .athletes .complete a {
     color: rgba(0, 0, 0, 0.4); }
   .athletes .ordinal {
     color: silver; }

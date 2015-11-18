@@ -216,10 +216,11 @@ $.widget( "freescore.judgeController", {
 			var different = { 
 				division : division.name    != o.current.divname,
 				athlete  : division.current != o.current.athlete,
+				round    : division.round   != o.current.round,
 				form     : division.form    != o.current.form
 			}
 			
-			if( different.division || different.athlete || different.form ) {
+			if( different.division || different.round || different.athlete || different.form ) {
 				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
 				var athlete    = division.athletes[ parseInt( division.current ) ];
 				var info       = { 
@@ -248,6 +249,7 @@ $.widget( "freescore.judgeController", {
 
 			o.current.division = progress.current;
 			o.current.divname  = division.name;
+			o.current.round    = division.round;
 			o.current.athlete  = division.current;
 			o.current.form     = division.form;
 		};
