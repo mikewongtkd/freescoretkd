@@ -97,7 +97,6 @@ get '/:tournament/:ring/display' => sub {
 
 	try {
 		$division->write();
-		$progress->write();
 		send_response( $self, { 'description' => 'Update Display State', 'state' => $division->{ state } } );
 
 	} catch {
@@ -126,7 +125,6 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 	try {
 		$division->record_score( $judge, $score );
 		$division->write();
-		$progress->write();
 		my $round = $division->{ round };
 		my $form  = $division->{ form };
 		my $form_complete = $athlete->{ scores }{ $round }->form_complete( $form );
@@ -160,7 +158,6 @@ get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub
 	try {
 		$division->record_penalties( $penalties );
 		$division->write();
-		$progress->write();
 		send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
 
 	} catch {
@@ -183,7 +180,6 @@ get '/:tournament/:ring/coordinator/:status' => sub {
 	try {
 		$division->record_status( $status );
 		$division->write();
-		$progress->write();
 		send_response( $self, { description => 'Declaring punitive decision for athlete', athlete => $athlete->{ name }, round => $division->{ round }, status => $status, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
 
 	} catch {
