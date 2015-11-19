@@ -142,7 +142,7 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 # ============================================================
 
 # ------------------------------------------------------------
-# WRITE COORDINATOR PENALTY FOR ATHLETE
+# WRITE REFEREE PENALTY FOR ATHLETE
 # ------------------------------------------------------------
 get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub { 
 	my $self         = shift;
@@ -162,6 +162,29 @@ get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub
 		$division->write();
 		$progress->write();
 		send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
+# WRITE REFEREE PUNITIVE DECISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/coordinator/:status' => sub { 
+	my $self         = shift;
+	my $tournament   = $self->param( 'tournament'     );
+	my $ring         = $self->param( 'ring'           );
+	my $status       = $self->param( 'status'         );
+	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division     = $progress->current();
+	my $athlete      = $division->{ athletes }[ $division->{ current } ];
+
+	try {
+		$division->record_status( $status );
+		$division->write();
+		$progress->write();
+		send_response( $self, { description => 'Declaring punitive decision for athlete', athlete => $athlete->{ name }, round => $division->{ round }, status => $status, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
 
 	} catch {
 		send_response( $self, { error => $_ });
@@ -228,7 +251,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		my $success  = {};
 
 		# ====== EDITING OR CREATE NEW DIVISION CONTENT
-		if( exists $edits->{ header } && exists $edit->{ athletes } ) {
+		if( exists $edits->{ header } && exists $edits->{ athletes } ) {
 
 			# CREATE A NEW DIVISION
 			if( exists $edits->{ create } ) {

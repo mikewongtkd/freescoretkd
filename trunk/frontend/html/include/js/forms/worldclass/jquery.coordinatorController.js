@@ -152,6 +152,15 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var withdrawAthlete = function() {
+		// ============================================================
+			o.penalties.timelimit = 0.3;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/" + penalties )());
+		};
+
+		// ============================================================
 		var clearPenalties = function() {
 		// ============================================================
 			o.penalties.bounds    = 0.0;
@@ -346,6 +355,7 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds    .click( awardPenaltyBounds );
+		actions.penalties  .withdraw  .click( withdrawAthlete );
 		actions.penalties  .clear     .click( clearPenalties );
 	},
 	_init: function( ) {

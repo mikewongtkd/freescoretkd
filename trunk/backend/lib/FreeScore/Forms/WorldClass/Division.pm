@@ -358,6 +358,25 @@ sub record_penalties {
 }
 
 # ============================================================
+sub record_status {
+# ============================================================
+#** @method ( punitive_declaration_text )
+#   @brief Records the given punitive declaration status
+#*
+	my $self      = shift;
+	my $status    = shift;
+
+	my $athlete   = $self->{ athletes }[ $self->{ current } ];
+	my $round     = $self->{ round };
+	my $form      = $self->{ form };
+	my $forms     = int( @{ $self->{ forms }{ $round }});
+	my $judges    = $self->{ judges };
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	$athlete->{ scores }{ $round }->record_status( $form, $status );
+}
+
+# ============================================================
 sub remove_from_list {
 # ============================================================
 #** @method ( list_name, athlete_index )
