@@ -36,9 +36,12 @@ $.widget( "freescore.coordinatorController", {
 
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
-			navigate : {
+			navigation : {
 				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend    : html.legend.clone() .html( "Navigation" ),
+				legend    : html.legend.clone() .html( "Score This" ),
+				round     : button.clone() .addClass( 'navigation ui-icon-location' ) .html( "Round" ),
+				athlete   : button.clone() .addClass( 'navigation ui-icon-user'     ) .html( "Athlete" ),
+				form      : button.clone() .addClass( 'navigation ui-icon-tag'      ) .html( "Form" ),
 			},
 			clock : {
 				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
@@ -102,10 +105,11 @@ $.widget( "freescore.coordinatorController", {
 
 		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
 
+		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.round, actions.navigation.athlete, actions.navigation.form );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.withdraw, actions.penalties.clear );
 
-		actions.panel.append( actions.clock.panel, actions.penalties.panel );
+		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 

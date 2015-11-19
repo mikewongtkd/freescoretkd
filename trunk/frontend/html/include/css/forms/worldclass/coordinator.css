@@ -51,44 +51,13 @@
   .actions legend {
     margin: 16px auto 0 auto;
     text-shadow: none; }
-  .actions .navigate-division {
-    color: white;
-    text-shadow: none;
-    border-color: #93d;
-    background: #9560c9;
-    background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-    background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%); }
-  .actions .navigate-athletes {
+  .actions .navigation {
     color: white;
     text-shadow: none;
     border-color: blue;
     background: #6db3f2;
     background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
     background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
-  .actions .navigate-forms {
-    background: #fceabb;
-    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    border-color: gold; }
-  .actions .navigate-round {
-    margin: 16px;
-    color: white;
-    text-shadow: none;
-    background: #ffb76b;
-    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    border-color: orange; }
-  .actions .navigate-display {
-    margin: 16px;
-    color: white;
-    text-shadow: none;
-    background: #cb60b3;
-    /* Old browsers */
-    background: -webkit-linear-gradient(top, #cb60b3 0%, #c146a1 50%, #a80077 51%, #db36a4 100%);
-    /* Chrome10+,Safari5.1+ */
-    background: linear-gradient(to bottom, #cb60b3 0%, #c146a1 50%, #a80077 51%, #db36a4 100%);
-    /* W3C */
-    border-color: #cb60b3; }
   .actions .timer {
     color: white;
     font-size: 36px;
