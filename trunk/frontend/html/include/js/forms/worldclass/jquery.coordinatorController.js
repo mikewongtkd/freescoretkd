@@ -37,30 +37,35 @@ $.widget( "freescore.coordinatorController", {
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
 			navigation : {
-				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend    : html.legend.clone() .html( "Score This" ),
-				round     : button.clone() .addClass( 'navigation ui-icon-location' ) .html( "Round" ),
-				athlete   : button.clone() .addClass( 'navigation ui-icon-user'     ) .html( "Athlete" ),
-				form      : button.clone() .addClass( 'navigation ui-icon-tag'      ) .html( "Form" ),
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Score This" ),
+				round      : button.clone() .addClass( 'navigation ui-icon-location' ) .html( "Round" ),
+				athlete    : button.clone() .addClass( 'navigation ui-icon-user'     ) .html( "Athlete" ),
+				form       : button.clone() .addClass( 'navigation ui-icon-tag'      ) .html( "Form" ),
 			},
 			clock : {
-				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend    : html.legend.clone() .html( "Timer" ),
-				face      : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .unbind( 'click' ) .html( "00:00.00" ),
-				toggle    : button.clone() .addClass( 'start ui-icon-forward' ) .html( "Start Timer" ),
-				settings  : { increment : 70, started : false },
-				timer     : undefined,
-				time      : 0,
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Timer" ),
+				face       : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .unbind( 'click' ) .html( "00:00.00" ),
+				toggle     : button.clone() .addClass( 'start ui-icon-forward' ) .html( "Start Timer" ),
+				settings   : { increment : 70, started : false },
+				timer      : undefined,
+				time       : 0,
 			},
 
 			penalties : {
-				panel     : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend    : html.legend.clone() .html( "Penalties" ),
-				timelimit : button.clone() .addClass( 'penalty ui-icon-clock'  ) .html( "Time Limit"      ),
-				bounds    : button.clone() .addClass( 'penalty ui-icon-action' ) .html( "Out-of-Bounds"   ),
-				withdraw  : button.clone() .addClass( 'penalty ui-icon-minus'  ) .html( "Withdraw"        ),
-				clear     : button.clone() .addClass( 'penalty ui-icon-delete' ) .html( "Clear Penalties" ),
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Penalties" ),
+				timelimit  : button.clone() .addClass( 'penalty ui-icon-clock'  ) .html( "Time Limit"      ),
+				bounds     : button.clone() .addClass( 'penalty ui-icon-action' ) .html( "Out-of-Bounds"   ),
+				clear      : button.clone() .addClass( 'penalty ui-icon-delete' ) .html( "Clear Penalties" ),
 			},
+			punitive : {
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Punitive Decision" ),
+				withdraw   : button.clone() .addClass( 'punitive ui-icon-back'   ) .html( "Withdraw"        ),
+				disqualify : button.clone() .addClass( 'punitive ui-icon-alert'  ) .html( "Disqualify"      ),
+			}
 		};
 
 		var time = e.time = {
@@ -107,9 +112,10 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.navigation .panel.append( actions.navigation.legend, actions.navigation.round, actions.navigation.athlete, actions.navigation.form );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
-		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.withdraw, actions.penalties.clear );
+		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
+		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.withdraw, actions.punitive.disqualify );
 
-		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel );
+		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -131,7 +137,6 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		// Behavior
 		// ============================================================
-		// See master d6011f2 for navigation methods
 
 		// ============================================================
 		var awardPenaltyBounds = function() {
@@ -154,10 +159,13 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var withdrawAthlete = function() {
 		// ============================================================
-			o.penalties.timelimit = 0.3;
+			(sendCommand( "coordinator/withdrawn" )());
+		};
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/" + penalties )());
+		// ============================================================
+		var disqualifyAthlete = function() {
+		// ============================================================
+			(sendCommand( "coordinator/disqualified" )());
 		};
 
 		// ============================================================
@@ -353,10 +361,12 @@ $.widget( "freescore.coordinatorController", {
 
 		};
 
-		actions.penalties  .timelimit .click( awardPenaltyTimeLimit );
-		actions.penalties  .bounds    .click( awardPenaltyBounds );
-		actions.penalties  .withdraw  .click( withdrawAthlete );
-		actions.penalties  .clear     .click( clearPenalties );
+		actions.penalties  .timelimit  .click( awardPenaltyTimeLimit );
+		actions.penalties  .bounds     .click( awardPenaltyBounds );
+		actions.penalties  .clear      .click( clearPenalties );
+
+		actions.punitive   .withdraw   .click( withdrawAthlete );
+		actions.punitive   .disqualify .click( disqualifyAthlete );
 	},
 	_init: function( ) {
 		var widget      = this.element;
