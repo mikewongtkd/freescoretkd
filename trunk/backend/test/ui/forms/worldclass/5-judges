@@ -8,30 +8,30 @@ our $test  = new FreeScore::Test();
 
 my $number = $test->worldclass( "judges" );
 my $judges = $number->{ judges } - 1;
-my $names  = [ 'Aditya', 'Anika', 'Piper', 'Alexander', 'Steven', 'Sofia', 'Christian', 'Jamsheed', 'Thibault', 'Yash', 'Sean C.', 'Sean O.', 'Sujatha', 'Jill', 'Mike', 'Carl', 'Veronika', 'Giovanni', 'Katrina', 'Cody', 'Kaylee', 'Jonathan' ];
+my $names  = [ 'Nicolaas Janz', 'Richard Chan', 'Azalea Danielson', 'Zahara Schwarz', 'Sisel Meir', 'Duncan Patrick', 'Xue Huang', 'Aditi Mhasalkar', 'Linda Alessi', 'Seema Patil', 'Kaitlyn Norris', 'Adrianna Lockwood', 'Henry Guo', 'Peter Janz', 'Dong Rhee', 'Sang Chung', 'Karen Jiang', 'Zhi Wen', 'Seung Choi', 'Chris Bristow', 'Helen Chen', 'Naveen Avninder', ];
 my $skill  = {
-	'Aditya'	=> 'good',
-	'Anika'		=> 'better',
-	'Piper'		=> 'best',
-	'Alexander'	=> 'better',
-	'Steven'	=> 'best',
-	'Sofia'		=> 'better',
-	'Christian'	=> 'ok',
-	'Jamsheed'	=> 'good',
-	'Thibault'	=> 'ok',
-	'Yash'		=> 'good',
-	'Sean C.'	=> 'ok',
-	'Sean O.'	=> 'better',
-	'Sujatha'	=> 'ok',
-	'Jill'		=> 'good',
-	'Mike'		=> 'best',
-	'Carl'		=> 'good',
-	'Veronika'	=> 'better',
-	'Giovanni'	=> 'ok',
-	'Katrina'	=> 'good',
-	'Cody'		=> 'better',
-	'Kaylee'	=> 'good',
-	'Jonathan'	=> 'good'
+	'Nicolaas Janz'     => 'good', 
+	'Richard Chan'      => 'better', 
+	'Azalea Danielson'  => 'good', 
+	'Zahara Schwarz'    => 'better', 
+	'Sisel Meir'        => 'better', 
+	'Duncan Patrick'    => 'ok', 
+	'Xue Huang'         => 'good', 
+	'Aditi Mhasalkar'   => 'good', 
+	'Linda Alessi'      => 'good', 
+	'Seema Patil'       => 'better', 
+	'Kaitlyn Norris'    => 'ok', 
+	'Adrianna Lockwood' => 'better', 
+	'Henry Guo'         => 'good', 
+	'Peter Janz'        => 'good', 
+	'Dong Rhee'         => 'good', 
+	'Sang Chung'        => 'ok', 
+	'Karen Jiang'       => 'best', 
+	'Zhi Wen'           => 'ok', 
+	'Seung Choi'        => 'better', 
+	'Chris Bristow'     => 'ok', 
+	'Helen Chen'        => 'better', 
+	'Naveen Avninder'   => 'better', 
 };
 my $current = 0;
 my $response = undef;
@@ -44,7 +44,6 @@ foreach my $athlete ( 0 .. 21 ) {
 
 	$test->worldclass( "display" ); # Show leaderboard
 	usleep( 2500000 );
-	$test->worldclass( "display" ); # Show score board
 
 	$response = $test->worldclass( "athlete/next" ) unless $athlete == 21;
 	$current = $response->{ athlete };
@@ -62,7 +61,6 @@ foreach my $athlete ( 0 .. 10 ) {
 
 	$test->worldclass( "display" ); # Show leaderboard
 	usleep( 2500000 );
-	$test->worldclass( "display" ); # Show score board
 
 	$response = $test->worldclass( "athlete/next" ) unless $athlete == 10;
 	$current = $response->{ athlete };
@@ -81,7 +79,6 @@ foreach my $athlete ( 0 .. 7 ) {
 	}
 	$test->worldclass( "display" ); # Show leaderboard
 	sleep( 2 );
-	$test->worldclass( "display" ); # Show score board
 
 	$response = $test->worldclass( "athlete/next" ) unless $athlete == 7;
 	$current = $response->{ athlete };
