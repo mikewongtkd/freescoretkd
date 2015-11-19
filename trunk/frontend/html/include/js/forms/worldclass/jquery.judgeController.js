@@ -221,7 +221,7 @@ $.widget( "freescore.judgeController", {
 			}
 			
 			if( different.division || different.round || different.athlete || different.form ) {
-				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals' };
+				var round_name = { 'prelim' : 'Preliminary Round', 'semfin' : 'Semi-Finals', 'finals' : 'Finals', 'ro8a' : '1st Finals', 'ro8b' : '1st Finals', 'ro8c': '1st Finals', 'ro8d' : '1st Finals', 'ro4a' : '2nd Finals', 'ro4b' : '2nd Finals', 'r02' : '3rd Finals' };
 				var athlete    = division.athletes[ parseInt( division.current ) ];
 				var info       = { 
 				                     division : html.span.clone() .addClass( "details" ) .html( division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description ),

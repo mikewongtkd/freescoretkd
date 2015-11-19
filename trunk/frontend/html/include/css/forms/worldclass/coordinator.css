@@ -12,11 +12,20 @@
   background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
   text-shadow: 2px 2px #497bae; }
 
+.ui-filterable {
+  margin: 0;
+  padding: 0 12px 0 12px; }
+
 .athletes {
   width: calc( 100% - 220px ); }
   .athletes a .form {
     float: right;
-    margin-right: 10px; }
+    margin: -4px 10px -20px 0;
+    width: 80px;
+    text-align: center;
+    padding: 4px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 8px; }
   .athletes .current a {
     color: white;
     background: #6facd5;
