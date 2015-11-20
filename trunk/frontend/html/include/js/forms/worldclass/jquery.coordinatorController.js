@@ -115,7 +115,8 @@ $.widget( "freescore.coordinatorController", {
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.withdraw, actions.punitive.disqualify );
 
-		actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel );
+		// actions.panel.append( actions.navigation.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel ); // MW
+		actions.panel.append( actions.clock.panel, actions.penalties.panel ); // MW
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -253,11 +254,9 @@ $.widget( "freescore.coordinatorController", {
 			if( o.progress.current == current ) { 
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
-				e.actions.punitive  .panel .show();
 			} else {
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
-				e.actions.punitive  .panel .hide();
 			}
 
 			// Update Header
