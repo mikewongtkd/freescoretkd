@@ -236,9 +236,9 @@ $.widget( "freescore.judgeController", {
 
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
 				o.minor  = 0.0; e.minor  .deductions( { count : 0 });
-				o.rhythm = 0.9; e.rhythm .presentationBar( { value : 0.9 });
-				o.power  = 0.9; e.power  .presentationBar( { value : 0.9 });
-				o.ki     = 0.9; e.ki     .presentationBar( { value : 0.9 });
+				o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
+				o.power  = 1.2; e.power  .presentationBar( { value : 1.2 });
+				o.ki     = 1.2; e.ki     .presentationBar( { value : 1.2 });
 
 				widget.trigger({ type : "updateRequest", score : o });
 			}

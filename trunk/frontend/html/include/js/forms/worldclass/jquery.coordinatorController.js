@@ -253,9 +253,11 @@ $.widget( "freescore.coordinatorController", {
 			if( o.progress.current == current ) { 
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
+				e.actions.punitive  .panel .show();
 			} else {
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
+				e.actions.punitive  .panel .hide();
 			}
 
 			// Update Header

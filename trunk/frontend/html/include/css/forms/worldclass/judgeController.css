@@ -251,9 +251,9 @@ body {
     padding: 0;
     top: 28px; }
   .presentationBar .plus {
-    left: 281px; }
+    left: 0; }
   .presentationBar .minus {
-    left: 0px; }
+    left: 281px; }
 
 .judgeNotes {
   border: 4px solid #999;

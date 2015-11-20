@@ -15,12 +15,14 @@
 		<link href="../../include/css/forms/worldclass/judgeController.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
+		<link href="../../include/jquery/css/jquery.ui.slider-rtl.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
 		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
+		<script src="../../include/jquery/js/jquery.ui.slider-rtl.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
