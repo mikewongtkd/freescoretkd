@@ -267,6 +267,7 @@ $.widget( "freescore.coordinatorController", {
 				}
 
 				e.athletes.rounds.append( tabs );
+				e.athletes.rounds.navbar().navbar( "destroy" );
 				e.athletes.rounds.navbar();
 			}
 		};
@@ -308,8 +309,8 @@ $.widget( "freescore.coordinatorController", {
 				// Highlight current athlete
 				athlete.name.append( athlete.data.name );
 				athlete.item.append( athlete.name, athlete.form1, athlete.form2 );
-				if( j == division.current ) { athlete.item.addClass( 'current' ); }
-				else                        { athlete.item.removeClass( 'current' ) }
+				if( j == division.current && o.round == division.round ) { athlete.item.addClass( 'current' ); }
+				else                                                     { athlete.item.removeClass( 'current' ) }
 
 				// Append score
 				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;
@@ -369,7 +370,7 @@ $.widget( "freescore.coordinatorController", {
 			}
 
 			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.current ); }
-			else if ( option.id == "athletes"  ) { o.round = undefined; var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
+			else if ( option.id == "athletes"  ) { o.round = division.round; var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
 		});
 
 		// ============================================================
