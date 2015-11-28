@@ -76,24 +76,8 @@ $.widget( "freescore.rings", {
 				listitem : html.li.clone() .attr( "data-theme", "b" ),
 				name     : html.span.clone() .html( defined( o.tournament.name ) ? o.tournament.name : "World Class Poomsae" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ),
 				app      : html.span.clone() .html( defined( o.tournament.name ) ? "World Class Poomsae" : "" ) .css( "font-family", "HelveticaNeue-CondensedBold" ) .css( "font-size", "18pt" ) .css( "margin-left", "8px" ) .css( "color", "#999" ),
-				search   : {
-					view   : html.div.clone()
-								.css( "float", "right" ),
-
-					input  : html.search.clone() 
-								.addClass( "search-box" ) 
-								.attr({ name: "search", placeholder: "Search for athlete name or division description", 'data-type': "search" })
-								.css({ width: "360px", margin: "2px 16px 0 0", borderRadius: "24px", float: "left" }),
-
-					button : html.a.clone()
-								.attr( "href", "#" )
-								.addClass( "ui-btn ui-icon-search ui-btn-icon-right" )
-								.html( "Search" )
-								.css({ borderRadius: "24px", float: "left", margin: "0", fontSize: "9pt" })
-				}
 			};
-			header.search.view.append( header.search.input, header.search.button );
-			header.listitem.append( header.name, header.app, header.search.view );
+			header.listitem.append( header.name, header.app );
 			
 			e.ring.list.append( header.listitem );
 			for( var i in rings ) {

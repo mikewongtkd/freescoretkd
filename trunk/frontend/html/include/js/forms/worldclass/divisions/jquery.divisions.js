@@ -106,24 +106,21 @@ $.widget( "freescore.divisions", {
 		// ============================================================
 			var n         = o.rings.length;
 			var divisions = i == "staging" ? o.rings[ i ] : o.rings[ i ];
-			var list      = html.ul.clone() .attr( "data-role", "listview" );
+			var list      = html.ul.clone() .attr({ 'data-role': 'listview', 'data-filter' : true, 'data-filter-placeholder' : 'Search for division description or athlete name...' });
 			var page      = e.ring.divisions;
 
-			page.empty();
-			list.empty();
-			var content = html.div.clone() .attr( "data-role", "content" );
-			page.append( content );
-			content.append( list );
-
 			var back = { 
-				listitem  : html.li.clone(), 
-				link      : html.a.clone() .addClass( 'ui-btn ui-btn-icon-left ui-icon-carat-l' ) .css({ 'color' : 'white', 'text-shadow':'0 1px 0 #036', 'background-color': '#38c', 'margin-top':'-1px', 'margin-bottom':'-1px' }),
+				link      : html.a.clone() .addClass( 'ui-btn ui-btn-icon-left ui-icon-carat-l' ) .css({ 'color' : 'white', 'text-shadow':'0 1px 0 #036', 'background-color': '#38c', 'margin': '-1px' }),
 			};
 			if( i == 'staging' ) { back.link.html( 'Staging' ); }
 			else                 { back.link.html( 'Ring ' + i ); }
 			back.link.attr( "href", "index.php" ) .attr({ 'data-transition' : 'slide', 'data-direction': 'reverse' });
-			back.listitem.append( back.link );
-			list.append( back.listitem );
+
+			page.empty();
+			list.empty();
+			var content = html.div.clone() .attr( "data-role", "content" );
+			page.append( back.link, content );
+			content.append( list );
 
 			if( defined( divisions )) {
 				for( var j in divisions ) {
