@@ -194,21 +194,19 @@ $.widget( "freescore.judgeController", {
 					$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, });
 
 					// Next form or athlete or round
-					var form    = function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/form/next';    $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); };
-					var athlete = function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/athlete/next'; $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); };
-					var round   = function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/round/next';   $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); };
-					var none    = function() {};
-					var next;
+					var next = {
+						form    : function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/form/next';    $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); },
+						athlete : function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/athlete/next'; $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); },
+						round   : function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/round/next';   $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); },
+					};
 					var last = {
 						form    : formNames.length - 1,
-						athlete : division.order[ (division.order.length - 1)],
+						athlete : division.order[ (division.order.length - 1) ],
 						round   : 'finals'
 					};
-					if     ( division.form    != last.form    ) { next = form;    }
-					else if( division.current != last.athlete ) { next = athlete; }
-					else if( division.round   != last.round   ) { next = round;   }
-					else                                        { next = none;    }
-					setTimeout( next, 7500 );
+					if     ( division.form    != last.form    ) { setTimeout( next.form,    7500 ); }
+					else if( division.current != last.athlete ) { setTimeout( next.athlete, 7500 ); }
+					else if( division.round   != last.round   ) { setTimeout( next.round,   7500 ); }
 				}, 7500 );
 			};
 
