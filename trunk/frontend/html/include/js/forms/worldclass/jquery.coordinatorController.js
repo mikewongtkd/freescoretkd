@@ -25,18 +25,19 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		var athletes  = e.athletes = {
-			page    : html.div.clone() .attr({ 'data-role' : 'page', id: 'athletes' }),
-			header  : html.div.clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
-			main    : html.div.clone() .attr({ 'role': 'main' }),
-			list    : html.ol.clone()  .attr({ 'data-role': 'listview' }) .addClass( 'athletes' ),
-			actions : html.div.clone(),
-			rounds  : html.div.clone() .addClass( 'athletes' ),
+			page    : html.div   .clone() .attr({ 'data-role' : 'page', id: 'athletes' }),
+			header  : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
+			main    : html.div   .clone() .attr({ 'role': 'main' }),
+			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
+			actions : html.div   .clone(),
+			rounds  : html.div   .clone() .addClass( 'athletes' ),
 		};
 
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
 
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
+
 			clock : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Timer" ),
@@ -54,6 +55,7 @@ $.widget( "freescore.coordinatorController", {
 				bounds     : button.clone() .addClass( 'penalty ui-icon-action' ) .html( "Out-of-Bounds"   ),
 				clear      : button.clone() .addClass( 'penalty ui-icon-delete' ) .html( "Clear Penalties" ),
 			},
+
 			punitive : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Punitive Decision" ),
@@ -120,7 +122,7 @@ $.widget( "freescore.coordinatorController", {
 		divisions.main.append( divisions.list );
 		divisions.page.append( divisions.header, divisions.main );
 
-		athletes.main.append( athletes.rounds, athletes.list, athletes.actions );
+		athletes.main.append( athletes.rounds, athletes.table, athletes.actions );
 		athletes.page.append( athletes.header, athletes.main );
 
 		widget.nodoubletapzoom();
@@ -275,7 +277,6 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var updateAthletes = e.updateAthletes = function( division, current ) {
 		// ============================================================
-			e.athletes.list.empty();
 			if( ! defined( division )) { return; }
 			if( o.progress.current == current ) { 
 				e.actions.clock     .panel .show();
@@ -285,32 +286,51 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.penalties .panel .hide();
 			}
 
-			// Update Header
+			// Update Page Header
 			e.athletes.header .find( 'h1' ) .text( division.name.toUpperCase() + ' ' + division.description );
 
-			// Update Athlete List
+			// Update Athlete Table
+			e.athletes.table.empty();
+			var header = {
+				row   : html.th .clone(),
+				order : html.td .clone() .addClass( "order" ),
+				name  : html.td .clone() .addClass( "name" ),
+				form1 : html.td .clone() .addClass( "oneform" ),
+				form2 : html.td .clone() .addClass( "twoforms" ),
+			};
 			var round = defined( o.round ) ? o.round : division.round;
 			var forms = division.forms[ round ];
+
+			header.row.append( header.order, header.name, header.form1 );
+			if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); }
+			e.athletes.table.append( header.row );
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
 				var athlete = {
 					data  : division.athletes[ j ],
-					item  : html.li.clone() .attr( { 'data-icon' : false }),
-					name  : html.a.clone()  .attr( { 'data-icon': false } ),
-					form1 : html.a.clone()  .addClass( "form" ) .attr({ 'data-role' : 'button', 'data-icon' : false }),
-					form2 : html.a.clone()  .addClass( "form" ) .attr({ 'data-role' : 'button', 'data-icon' : false }),
+					row   : html.tr   .clone(),
+					order : html.td   .clone(),
+					name  : html.td   .clone(),
+					form1 : html.td   .clone(),
+					form2 : html.td   .clone(),
 				};
+
+				// Is the athlete's score complete for this round
 				var complete = true;
 				for( k = 0; k < forms.length; k++ ) {
 					var formComplete = athlete.data.scores[ round ][ k ].complete;
 					complete &= formComplete;
 				}
 				
-				// Highlight current athlete
+				// Populate data
 				athlete.name.append( athlete.data.name );
-				athlete.item.append( athlete.name, athlete.form1, athlete.form2 );
-				if( j == division.current && o.round == division.round ) { athlete.item.addClass( 'current' ); }
-				else                                                     { athlete.item.removeClass( 'current' ) }
+				athlete.order.append( (i + 1) + '.' );
+				athlete.row.append( athlete.order, athlete.name, athlete.form1 );
+				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); }
+
+				// Highlight current athlete
+				if( j == division.current && o.round == division.round ) { athlete.row.addClass( 'current' ); }
+				else                                                     { athlete.row.removeClass( 'current' ) }
 
 				// Append score
 				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;
@@ -326,14 +346,11 @@ $.widget( "freescore.coordinatorController", {
 						score : defined( score ) && defined( score.total ) ? score.total.toFixed( 2 ) : '&mdash;'
 					};
 					athlete.form2.append( "<strong>" + form2.score + "</strong>" );
-					athlete.name.append( athlete.form2 ); 
 				}
-				athlete.name.append( athlete.form1 ); 
+				e.athletes.table.append( athlete.row );
 
-				if( complete              ) { athlete.item.addClass( 'complete' ); } else { athlete.item.removeClass( 'complete' ); }
-				e.athletes.list.append( athlete.item );
+				if( complete              ) { athlete.row.addClass( 'complete' ); } else { athlete.row.removeClass( 'complete' ); }
 			}
-			e.athletes.list.listview().listview( 'refresh' );
 
 			var different = {
 				division : division.name      != o.current.divname,

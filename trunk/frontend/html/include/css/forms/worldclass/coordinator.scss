@@ -19,9 +19,9 @@
 
 .athletes {
 	width: calc( 100% - 220px );
-	a .form { float: right; margin: -4px 10px -20px 0; width: 80px; text-align: center; padding: 4px; border: 1px solid rgba( 128, 128, 128, 0.3 ); border-radius: 8px; }
-	.current a { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
-	.complete a { color: rgba( 0, 0, 0, 0.4 ); }
+	td { padding: 0; }
+	.current { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
+	.complete { color: rgba( 0, 0, 0, 0.4 ); }
 	.ordinal  { color: silver; }
 	.form     { color: gold; }
 }
