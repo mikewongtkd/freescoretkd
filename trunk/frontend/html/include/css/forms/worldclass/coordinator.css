@@ -17,9 +17,24 @@
   padding: 0 12px 0 12px; }
 
 .athletes {
+  font-family: Optima;
   width: calc( 100% - 220px ); }
-  .athletes td {
-    padding: 0; }
+  .athletes tr {
+    height: 32px; }
+  .athletes th {
+    font-size: 9pt;
+    text-align: left; }
+  .athletes .order {
+    width: 40px;
+    font-size: 10pt;
+    text-align: center; }
+  .athletes .name {
+    width: calc( 100% - 380px );
+    font-size: 16pt; }
+  .athletes .oneform {
+    width: 120px; }
+  .athletes .twoforms {
+    width: 60px; }
   .athletes .current {
     color: white;
     background: #6facd5;

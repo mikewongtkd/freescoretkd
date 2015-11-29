@@ -290,16 +290,16 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.header .find( 'h1' ) .text( division.name.toUpperCase() + ' ' + division.description );
 
 			// Update Athlete Table
-			e.athletes.table.empty();
-			var header = {
-				row   : html.th .clone(),
-				order : html.td .clone() .addClass( "order" ),
-				name  : html.td .clone() .addClass( "name" ),
-				form1 : html.td .clone() .addClass( "oneform" ),
-				form2 : html.td .clone() .addClass( "twoforms" ),
-			};
 			var round = defined( o.round ) ? o.round : division.round;
 			var forms = division.forms[ round ];
+			e.athletes.table.empty();
+			var header = {
+				row   : html.tr .clone(),
+				order : html.th .clone() .html( 'Num.' ),
+				name  : html.th .clone() .html( 'Athlete' ),
+				form1 : html.th .clone() .html( forms[ 0 ].name ),
+				form2 : html.th .clone() .html( defined( forms[ 1 ] ) ? forms[ 1 ].name : '' ),
+			};
 
 			header.row.append( header.order, header.name, header.form1 );
 			if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); }
@@ -309,10 +309,10 @@ $.widget( "freescore.coordinatorController", {
 				var athlete = {
 					data  : division.athletes[ j ],
 					row   : html.tr   .clone(),
-					order : html.td   .clone(),
-					name  : html.td   .clone(),
-					form1 : html.td   .clone(),
-					form2 : html.td   .clone(),
+					order : html.td   .clone() .addClass( "order" ),
+					name  : html.td   .clone() .addClass( "name" ),
+					form1 : html.td   .clone() .addClass( "oneform" ),
+					form2 : html.td   .clone() .addClass( "twoforms" ),
 				};
 
 				// Is the athlete's score complete for this round
@@ -326,7 +326,7 @@ $.widget( "freescore.coordinatorController", {
 				athlete.name.append( athlete.data.name );
 				athlete.order.append( (i + 1) + '.' );
 				athlete.row.append( athlete.order, athlete.name, athlete.form1 );
-				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); }
+				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
 
 				// Highlight current athlete
 				if( j == division.current && o.round == division.round ) { athlete.row.addClass( 'current' ); }

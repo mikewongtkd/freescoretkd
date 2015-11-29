@@ -18,9 +18,15 @@
 }
 
 .athletes {
+	font-family: Optima; 
 	width: calc( 100% - 220px );
-	td { padding: 0; }
-	.current { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
+	tr { height: 32px; }
+	th { font-size: 9pt; text-align: left; }
+	.order    { width :  40px; font-size:  10pt; text-align: center; }
+	.name     { width : calc( 100% - 380px ); font-size:  16pt; }
+	.oneform  { width : 120px; }
+	.twoforms { width :  60px; }
+	.current  { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
 	.complete { color: rgba( 0, 0, 0, 0.4 ); }
 	.ordinal  { color: silver; }
 	.form     { color: gold; }
