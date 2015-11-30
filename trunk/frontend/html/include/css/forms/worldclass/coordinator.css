@@ -16,9 +16,19 @@
   margin: 0;
   padding: 0 12px 0 12px; }
 
+table {
+  margin: 10px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white; }
+
+.rounds {
+  width: calc( 100% - 220px ); }
+
 .athletes {
   font-family: Optima;
-  width: calc( 100% - 220px ); }
+  width: calc( 100% - 240px ); }
   .athletes tr {
     height: 32px; }
   .athletes th {
@@ -26,10 +36,10 @@
     text-align: left; }
   .athletes .order {
     width: 40px;
-    font-size: 10pt;
+    font-size: 12pt;
     text-align: center; }
   .athletes .name {
-    width: calc( 100% - 380px );
+    width: calc( 100% - 600px );
     font-size: 16pt; }
   .athletes .oneform {
     width: 120px; }

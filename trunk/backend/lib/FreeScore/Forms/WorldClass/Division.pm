@@ -618,6 +618,9 @@ sub update_status {
 	my $method = $self->{ method };
 	my $round  = $self->{ round };
 
+	# ===== CALCULATE SCORE MEANS FOR ALL ROUNDS
+	$self->calculate_means();
+
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
 	$self->place_athletes(); 
@@ -938,6 +941,20 @@ sub previous_form {
 }
 
 # ============================================================
+sub calculate_means {
+# ============================================================
+	my $self = shift;
+
+	foreach my $round (keys %{ $self->{ forms }}) {
+		my @athletes_in_round = @{$self->{ order }{ $round }};
+		foreach my $i (@athletes_in_round) {
+			my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
+			$scores->calculate_means( $self->{ judges } );
+		}
+	}
+}
+
+# ============================================================
 sub select_round_scores {
 # ============================================================
 #** @method ( athlete_index, round, form_type )
@@ -954,8 +971,6 @@ sub select_round_scores {
 
 	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
 	my $forms  = $self->{ forms }{ $round };
-
-	$scores->calculate_means( $self->{ judges } );
 
 	my @form_indices = ( 0 .. $#$forms );
 	my @selected     = grep { $forms->[ $_ ]{ type } eq $type } @form_indices;

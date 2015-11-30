@@ -30,7 +30,7 @@ $.widget( "freescore.coordinatorController", {
 			main    : html.div   .clone() .attr({ 'role': 'main' }),
 			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
 			actions : html.div   .clone(),
-			rounds  : html.div   .clone() .addClass( 'athletes' ),
+			rounds  : html.div   .clone() .addClass( 'rounds' ),
 		};
 
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
@@ -302,7 +302,7 @@ $.widget( "freescore.coordinatorController", {
 			};
 
 			header.row.append( header.order, header.name, header.form1 );
-			if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); }
+			if( forms.length == 2 ) { header.row.append( header.form2 ); }
 			e.athletes.table.append( header.row );
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
@@ -334,6 +334,7 @@ $.widget( "freescore.coordinatorController", {
 
 				// Append score
 				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;
+				console.log( round, athlete.data.scores[ round ] );
 				var form1 = {
 					name  : division.forms[ round ][ 0 ].name,
 					score : defined( score ) && defined( score.total ) ? score.total.toFixed( 2 ) : '&mdash;'
