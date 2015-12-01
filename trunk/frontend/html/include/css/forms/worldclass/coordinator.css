@@ -6,11 +6,14 @@
   font-weight: bold;
   src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
 .divisions .current {
-  color: white;
+  color: gold;
   background: #6facd5;
   background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
   background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
   text-shadow: 2px 2px #497bae; }
+  .divisions .current:hover {
+    color: limegreen;
+    text-shadow: 2px 2px teal; }
 
 .ui-filterable {
   margin: 0;
@@ -42,21 +45,24 @@ table {
     width: calc( 100% - 600px );
     font-size: 16pt; }
   .athletes .oneform {
-    width: 120px; }
+    width: 120px;
+    text-align: center; }
   .athletes .twoforms {
-    width: 60px; }
-  .athletes .current {
-    color: white;
-    background: #6facd5;
-    background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
-    background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
-    text-shadow: 2px 2px #497bae; }
-  .athletes .complete {
-    color: rgba(0, 0, 0, 0.4); }
+    width: 60px;
+    text-align: center; }
   .athletes .ordinal {
     color: silver; }
   .athletes .form {
     color: gold; }
+  .athletes .complete {
+    color: rgba(0, 0, 0, 0.4); }
+  .athletes .current {
+    background: #6facd5;
+    background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
+    background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
+    text-shadow: 2px 2px #497bae; }
+    .athletes .current td {
+      color: gold; }
 
 .actions {
   position: fixed;

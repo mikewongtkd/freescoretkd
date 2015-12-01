@@ -9,7 +9,17 @@
 }
 
 .divisions {
-	.current  { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
+	.current  { 
+		color: gold; 
+		background: #6facd5; 
+		background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); 
+		background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); 
+		text-shadow: 2px 2px #497bae; 
+		&:hover {
+			color: limegreen;
+			text-shadow: 2px 2px teal; 
+		}
+	}
 }
 
 .ui-filterable {
@@ -26,12 +36,20 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 	th { font-size: 9pt; text-align: left; }
 	.order    { width :  40px; font-size:  12pt; text-align: center; }
 	.name     { width : calc( 100% - 600px ); font-size:  16pt; }
-	.oneform  { width : 120px; }
-	.twoforms { width :  60px; }
-	.current  { color: white; background: #6facd5; background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); text-shadow: 2px 2px #497bae; }
-	.complete { color: rgba( 0, 0, 0, 0.4 ); }
+	.oneform  { width : 120px; text-align: center; }
+	.twoforms { width :  60px; text-align: center; }
 	.ordinal  { color: silver; }
 	.form     { color: gold; }
+	.complete { color: rgba( 0, 0, 0, 0.4 ); }
+	.current  { 
+		background: #6facd5; 
+		background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); 
+		background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); 
+		text-shadow: 2px 2px #497bae; 
+		td {
+			color: gold; 
+		}
+	}
 }
 
 .actions  {
