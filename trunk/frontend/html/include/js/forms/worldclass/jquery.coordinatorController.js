@@ -249,29 +249,27 @@ $.widget( "freescore.coordinatorController", {
 			var tabs = e.html.ul.clone();
 			var rounds = [];
 			for( var round in division.order ) { rounds.push( round ); }
-			if( rounds.length > 1 ) {
-				for( var i = 0; i < FreeScore.round.order.length; i++ ) {
-					var round = FreeScore.round.order[ i ];
-					if( round in division.order ) {
-						var tab = {
-							item   : e.html.li.clone(),
-							button : e.html.a.clone(),
-							name   : FreeScore.round.name[ round ]
-						};
-						tab.button.attr({ 'round' : round });
-						tab.button.html( tab.name );
-						tab.button.click( function() { o.round = $( this ).attr( 'round' ); e.updateAthletes( division, current ); });
-						tab.button.removeClass( 'ui-btn-active' );
-						if( defined( o.round ) && o.round == round || division.round == round ) { tab.button.addClass( 'ui-btn-active' ); }
-						tab.item.append( tab.button );
-						tabs.append( tab.item );
-					}
+			for( var i = 0; i < FreeScore.round.order.length; i++ ) {
+				var round = FreeScore.round.order[ i ];
+				if( round in division.order ) {
+					var tab = {
+						item   : e.html.li.clone(),
+						button : e.html.a.clone(),
+						name   : FreeScore.round.name[ round ]
+					};
+					tab.button.attr({ 'round' : round });
+					tab.button.html( tab.name );
+					tab.button.click( function() { o.round = $( this ).attr( 'round' ); e.updateAthletes( division, current ); });
+					tab.button.removeClass( 'ui-btn-active' );
+					if( defined( o.round ) && o.round == round || division.round == round ) { tab.button.addClass( 'ui-btn-active' ); }
+					tab.item.append( tab.button );
+					tabs.append( tab.item );
 				}
-
-				e.athletes.rounds.append( tabs );
-				e.athletes.rounds.navbar().navbar( "destroy" );
-				e.athletes.rounds.navbar();
 			}
+
+			e.athletes.rounds.append( tabs );
+			e.athletes.rounds.navbar().navbar( "destroy" );
+			e.athletes.rounds.navbar();
 		};
 
 		// ============================================================
