@@ -44,6 +44,10 @@ table {
   .athletes .name {
     width: calc( 100% - 600px );
     font-size: 16pt; }
+    .athletes .name input[type=text] {
+      font-family: Optima;
+      background: transparent;
+      border: none; }
   .athletes .oneform {
     width: 120px;
     text-align: center; }

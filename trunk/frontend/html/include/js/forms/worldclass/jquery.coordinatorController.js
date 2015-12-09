@@ -339,7 +339,11 @@ $.widget( "freescore.coordinatorController", {
 				}
 				
 				// Populate data
-				athlete.name.append( athlete.data.name );
+				if( complete ) {
+					athlete.name.append( athlete.data.name );
+				} else {
+					athlete.name.append( html.text.clone().val( athlete.data.name ));
+				}
 				athlete.order.append( (i + 1) + '.' );
 				athlete.row.append( athlete.order, athlete.name, athlete.form1 );
 				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
