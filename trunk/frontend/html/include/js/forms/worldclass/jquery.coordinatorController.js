@@ -41,11 +41,12 @@ $.widget( "freescore.coordinatorController", {
 			clock : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Timer" ),
-				face       : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .unbind( 'click' ) .html( "00:00.00" ),
+				face       : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .html( "00:00.00" ),
 				toggle     : button.clone() .addClass( 'start ui-icon-forward' ) .html( "Start Timer" ),
 				settings   : { increment : 70, started : false },
 				timer      : undefined,
 				time       : 0,
+				realtime   : 0,
 			},
 
 			penalties : {
@@ -71,7 +72,7 @@ $.widget( "freescore.coordinatorController", {
 				return str;
 			},
 			format : function(time) {
-				time = time / 10;
+				time = Math.floor( time / 10 );
 				var min = parseInt(time / 6000),
 					sec = parseInt(time / 100) - (min * 60),
 					hundredths = e.time.pad(time - (sec * 100) - (min * 6000), 2);
@@ -98,9 +99,22 @@ $.widget( "freescore.coordinatorController", {
 			},
 			clear : function() {
 				e.actions.clock.settings.started = false;
-				e.actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
-				e.actions.clock.time = 0;
+				e.actions.clock.timer    = $.timer( actions.clock.update, actions.clock.settings.increment, true );
+				e.actions.clock.time     = 0;
+				e.actions.clock.realtime = 0;
 				e.actions.clock.face.html( "00:00.00" );
+			}
+		};
+
+		actions.clock.update = function() { 
+			actions.clock.face.html( time.format( actions.clock.time )); 
+			if( actions.clock.settings.started ) { 
+				if( actions.clock.realtime > 0 ) {
+					var now     = parseInt((new Date()).getTime()); // Use system clock time to adjust time deltas for improved accuracy
+					var elapsed = parseInt(now - actions.clock.realtime);
+					actions.clock.time += elapsed;
+				}
+				actions.clock.realtime = parseInt((new Date()).getTime());
 			}
 		};
 
@@ -114,10 +128,12 @@ $.widget( "freescore.coordinatorController", {
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
-		actions.clock.update = function() { actions.clock.face.html( time.format( actions.clock.time )); if( actions.clock.settings.started ) { actions.clock.time += actions.clock.settings.increment; }};
 		actions.clock.toggle.click( function( ev ) {
-			if( actions.clock.settings.started ) { time.stop(); }
+			if( actions.clock.settings.started ) { e.time.stop(); }
 			else { time.start(); }
+		});
+		actions.clock.face.click( function( ev ) {
+			if( actions.clock.time > 0 && ! actions.clock.settings.started ) { e.time.clear(); }
 		});
 		divisions.main.append( divisions.list );
 		divisions.page.append( divisions.header, divisions.main );
@@ -279,9 +295,11 @@ $.widget( "freescore.coordinatorController", {
 			if( o.progress.current == current ) { 
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
+				e.actions.punitive  .panel .show();
 			} else {
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
+				e.actions.punitive  .panel .hide();
 			}
 
 			// Update Page Header
@@ -332,7 +350,6 @@ $.widget( "freescore.coordinatorController", {
 
 				// Append score
 				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;
-				console.log( round, athlete.data.scores[ round ] );
 				var form1 = {
 					name  : division.forms[ round ][ 0 ].name,
 					score : defined( score ) && defined( score.total ) ? score.total.toFixed( 2 ) : '&mdash;'
