@@ -33,6 +33,8 @@ $.widget( "freescore.coordinatorController", {
 			rounds  : html.div   .clone() .addClass( 'rounds' ),
 		};
 
+		var dialog = e.dialog = $( '#popupDialog' );
+
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
 
 		var actions = e.actions = {
@@ -89,6 +91,7 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock.toggle.html( "Start Timer" );
 			},
 			start : function() {
+				dialog.popup().popup( 'open', { transition : 'pop', positionTo : 'window' });
 				e.actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
 				e.actions.clock.settings.started = true;
 				e.actions.clock.toggle.removeClass( "start" );
@@ -427,6 +430,8 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.punitive   .withdraw   .click( withdrawAthlete );
 		actions.punitive   .disqualify .click( disqualifyAthlete );
+
+		dialog.popupdialog();
 	},
 	_init: function( ) {
 		var widget      = this.element;
