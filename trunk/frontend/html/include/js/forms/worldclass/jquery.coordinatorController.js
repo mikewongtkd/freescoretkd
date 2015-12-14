@@ -91,7 +91,6 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock.toggle.html( "Start Timer" );
 			},
 			start : function() {
-				dialog.popup().popup( 'open', { transition : 'pop', positionTo : 'window' });
 				e.actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
 				e.actions.clock.settings.started = true;
 				e.actions.clock.toggle.removeClass( "start" );
@@ -173,7 +172,14 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var withdrawAthlete = function() {
 		// ============================================================
-			(sendCommand( "coordinator/withdrawn" )());
+			var division = o.progress.divisions[ o.progress.current ];
+			var athlete  = division.athletes[ division.current ];
+			e.dialog.popupdialog({
+				title:    'Withdraw Athlete?',
+				subtitle: 'Withdraw ' + athlete.name + '?',
+				message:  'Once confirmed, this operation cannot be undone.',
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+			// (sendCommand( "coordinator/withdrawn" )());
 		};
 
 		// ============================================================
@@ -352,8 +358,11 @@ $.widget( "freescore.coordinatorController", {
 				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
 
 				// Highlight current athlete
-				if( j == division.current && o.round == division.round ) { athlete.row.addClass( 'current' ); }
-				else                                                     { athlete.row.removeClass( 'current' ) }
+				var currentDivision = o.progress.current == current;
+				var currentRound    = o.round == division.round;
+				var currentAthlete  = j == division.current;
+				if( currentDivision && currentRound && currentAthlete ) { athlete.row.addClass( 'current' ); }
+				else                                                    { athlete.row.removeClass( 'current' ) }
 
 				// Append score
 				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;

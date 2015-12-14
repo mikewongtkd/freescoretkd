@@ -47,7 +47,8 @@ table {
     .athletes .name input[type=text] {
       font-family: Optima;
       background: transparent;
-      border: none; }
+      border: none;
+      width: 100%; }
   .athletes .oneform {
     width: 120px;
     text-align: center; }
