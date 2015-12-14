@@ -176,16 +176,29 @@ $.widget( "freescore.coordinatorController", {
 			var athlete  = division.athletes[ division.current ];
 			e.dialog.popupdialog({
 				title:    'Withdraw Athlete?',
-				subtitle: 'Withdraw ' + athlete.name + '?',
+				subtitle: 'Withdraw ' + athlete.name + ' from this division?',
 				message:  'Once confirmed, this operation cannot be undone.',
+				buttons:  [
+					{ text : 'Cancel',   style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+					{ text : 'Withdraw', style : 'important', click : function( ev ) { (sendCommand( "coordinator/withdrawn" )()); $('#popupDialog').popup('close'); } },
+				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
-			// (sendCommand( "coordinator/withdrawn" )());
 		};
 
 		// ============================================================
 		var disqualifyAthlete = function() {
 		// ============================================================
-			(sendCommand( "coordinator/disqualified" )());
+			var division = o.progress.divisions[ o.progress.current ];
+			var athlete  = division.athletes[ division.current ];
+			e.dialog.popupdialog({
+				title:    'Disqualify Athlete?',
+				subtitle: 'Disqualify ' + athlete.name + ' from this division by punitive decision?',
+				message:  'Once confirmed, this operation cannot be undone.',
+				buttons:  [
+					{ text : 'Cancel',     style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+					{ text : 'Disqualify', style : 'important', click : function( ev ) { (sendCommand( "coordinator/disqualified" )()); $('#popupDialog').popup('close'); } },
+				]
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
 
 		// ============================================================

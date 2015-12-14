@@ -5,8 +5,8 @@
 	<div role="main" class="ui-content">
 		<h3 class="ui-title">Subtitle</h3>
 		<div id="popupDialogMessage">Message</div>
-		<div id="popupDialogButtons">
-			<div style="text-align: right;">
+		<div>
+			<div style="text-align: right;" id="popupDialogButtons">
 				<a href="javascript:$('#popupDialog').popup('close');" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b">Cancel</a>
 				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b">OK</a>
 			</div>

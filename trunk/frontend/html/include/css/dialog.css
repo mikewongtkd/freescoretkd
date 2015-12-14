@@ -1,0 +1,30 @@
+#popupDialogButtons .ok {
+  color: white;
+  text-shadow: none;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  border-color: green; }
+#popupDialogButtons .cancel {
+  color: white;
+  text-shadow: none;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  border-color: orange; }
+#popupDialogButtons .important {
+  color: white;
+  text-shadow: none;
+  background: red;
+  background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  border-color: #c00; }
+#popupDialogButtons .default {
+  color: white;
+  text-shadow: none;
+  border-color: blue;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
+
+/*# sourceMappingURL=dialog.css.map */
