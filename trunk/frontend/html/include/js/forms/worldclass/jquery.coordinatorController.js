@@ -29,6 +29,7 @@ $.widget( "freescore.coordinatorController", {
 			header  : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
 			main    : html.div   .clone() .attr({ 'role': 'main' }),
 			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
+			tbody   : html.tbody .clone(),
 			actions : html.div   .clone(),
 			rounds  : html.div   .clone() .addClass( 'rounds' ),
 		};
@@ -39,6 +40,13 @@ $.widget( "freescore.coordinatorController", {
 
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
+
+			changes : {
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Changes" ),
+				save       : button.clone() .addClass( 'navigation ui-icon-check'  ) .html( "Save Changes"    ),
+				revert     : button.clone() .addClass( 'navigation ui-icon-back'   ) .html( "Revert Changes"  ),
+			},
 
 			clock : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
@@ -62,7 +70,7 @@ $.widget( "freescore.coordinatorController", {
 			punitive : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Punitive Decision" ),
-				withdraw   : button.clone() .addClass( 'punitive ui-icon-back'   ) .html( "Withdraw"        ),
+				withdraw   : button.clone() .addClass( 'punitive ui-icon-user'   ) .html( "Withdraw"        ),
 				disqualify : button.clone() .addClass( 'punitive ui-icon-alert'  ) .html( "Disqualify"      ),
 			}
 		};
@@ -122,11 +130,12 @@ $.widget( "freescore.coordinatorController", {
 
 		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
 
+		actions.changes    .panel.append( actions.changes.legend, actions.changes.save, actions.changes.revert );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.withdraw, actions.punitive.disqualify );
 
-		actions.panel.append( actions.clock.panel, actions.penalties.panel, actions.punitive.panel );
+		actions.panel.append( actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -318,10 +327,12 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
 				e.actions.punitive  .panel .show();
+				e.actions.changes   .panel .hide();
 			} else {
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
 				e.actions.punitive  .panel .hide();
+				e.actions.changes   .panel .hide();
 			}
 
 			// Update Page Header
@@ -331,6 +342,7 @@ $.widget( "freescore.coordinatorController", {
 			var round = defined( o.round ) ? o.round : division.round;
 			var forms = division.forms[ round ];
 			e.athletes.table.empty();
+			e.athletes.tbody.empty();
 			var header = {
 				row   : html.tr .clone(),
 				order : html.th .clone() .html( 'Num.' ),
@@ -342,6 +354,11 @@ $.widget( "freescore.coordinatorController", {
 			header.row.append( header.order, header.name, header.form1 );
 			if( forms.length == 2 ) { header.row.append( header.form2 ); }
 			e.athletes.table.append( header.row );
+			e.athletes.table.append( e.athletes.tbody );
+			e.athletes.tbody.sortable({
+				change: function( ev ) { e.actions.changes.panel.fadeIn(); }
+			});
+
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
 				var athlete = {
@@ -364,7 +381,10 @@ $.widget( "freescore.coordinatorController", {
 				if( complete ) {
 					athlete.name.append( athlete.data.name );
 				} else {
-					athlete.name.append( html.text.clone().val( athlete.data.name ));
+					var input = html.text.clone();
+					input.val( athlete.data.name );
+					input.change( function( ev ) { e.actions.changes.panel.fadeIn(); } );
+					athlete.name.append( input );
 				}
 				athlete.order.append( (i + 1) + '.' );
 				athlete.row.append( athlete.order, athlete.name, athlete.form1 );
@@ -392,7 +412,7 @@ $.widget( "freescore.coordinatorController", {
 					};
 					athlete.form2.append( "<strong>" + form2.score + "</strong>" );
 				}
-				e.athletes.table.append( athlete.row );
+				e.athletes.tbody.append( athlete.row );
 
 				if( complete              ) { athlete.row.addClass( 'complete' ); } else { athlete.row.removeClass( 'complete' ); }
 			}

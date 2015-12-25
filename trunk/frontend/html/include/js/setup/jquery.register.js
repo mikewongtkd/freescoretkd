@@ -166,7 +166,7 @@ $.widget( "freescore.register", {
 					register.confirmation.show();
 				}
 			} else {
-				text.html( "What is your role in ring " + $.cookie( "ring" ) + ":" ); 
+				text.html( "What is your role in Ring " + $.cookie( "ring" ) + ":" ); 
 				register.roles.view .fadeIn( 500 ); 
 			}
 		}; 
