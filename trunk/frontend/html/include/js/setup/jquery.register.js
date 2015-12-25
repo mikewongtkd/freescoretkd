@@ -41,10 +41,12 @@ $.widget( "freescore.register", {
 			text.html( "Choose your ring number:" );
 			register.rings.view .fadeIn();
 			for( var j = 0; j < register.rings.data.length; j++ ) {
-				var ring = register.rings.data[ j ];
-				var x    = ring.start.x;
-				var y    = ring.start.y;
-				ring.dom.animate( { left: x, top: y, opacity: 1.0 } );
+				var ring    = register.rings.data[ j ];
+				var x       = ring.start.x;
+				var y       = ring.start.y;
+				var opacity = ring.enabled ? 1.0 : 0.35;
+				if( ! enabled ) { ring.dom.off() };
+				ring.dom.animate( { left: x, top: y, opacity: opacity } );
 			}
 			register.rings.view .attr( "animate", "on-initialization" );
 		};
@@ -67,7 +69,7 @@ $.widget( "freescore.register", {
 		}};
 
 		// ------------------------------------------------------------
-		register.rings.add = function( num, x, y, gotoX, gotoY ) {
+		register.rings.add = function( num, x, y, gotoX, gotoY, enabled ) {
 		// ------------------------------------------------------------
 
 			var dom          = html.div.clone() .addClass( "mat" );
@@ -78,11 +80,12 @@ $.widget( "freescore.register", {
 
 			var selectX = (parseInt( rings.view.css( "width" ))/2) - 100;
 			var selectY = (parseInt( rings.view.css( "height" ))/2) - 100;
+			var opacity = enabled ? 1.0 : 0.35;
 
-			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY, opacity: 1.0 } ) }
+			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY, opacity: opacity } ) }
 
-			dom.click( register.rings.select( num ) );
-			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom };
+			if( enabled ) { dom.click( register.rings.select( num ) ) };
+			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom, enabled: enabled };
 		}
 
 		var availableEvents = {
@@ -289,7 +292,7 @@ $.widget( "freescore.register", {
 			ev.dom.children( ".greys" ).hide();
 
 			// ===== SHOW RING NUMBER
-			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0, 0, 0 );
+			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0, 0, 0, true );
 			ring.dom.css( "left", "200px" ) .css( "opacity", "1.0" );
 			var role  = String( $.cookie( "role" ));
 
@@ -341,6 +344,7 @@ $.widget( "freescore.register", {
 		var width  = tournament.rings.width;
 		var height = tournament.rings.height;
 		var format = tournament.rings.formation; // formation = [loop|rows]
+		var enable = tournament.rings.enable;
 		var k      = tournament.rings.count;
 		var half   = Math.floor( k/2 );
 		var odd    = k % 2 && (height > 1 && width > 1);
@@ -348,6 +352,7 @@ $.widget( "freescore.register", {
 		for( var y = 0; y < height; y++ ) {
 			for( var x = 0; x < width; x++ ) {
 				var n = register.rings.data.length;
+				var enabled = ! defined( enable ) || enable.indexOf( n + 1 ) >= 0;
 				if( n >= k ) { continue; }
 				var xpos = x * 200;
 				var ypos = y * 200;
@@ -358,7 +363,7 @@ $.widget( "freescore.register", {
 					if      ( width > height ) { if( n == half ) { ypos += 100; } else if( n > half ) { xpos -= 200; }}
 					else if ( height > width ) { if( n == k-1  ) { xpos -= 100; }}
 				}
-				var ring = register.rings.add( (n + 1), x, y, xpos, ypos );
+				var ring = register.rings.add( (n + 1), x, y, xpos, ypos, enabled );
 				register.rings.data.push( ring );
 				register.rings.view.append( ring.dom );
 			}
