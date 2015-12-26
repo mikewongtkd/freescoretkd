@@ -368,16 +368,21 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.table.append( header.row );
 			e.athletes.table.append( e.athletes.tbody );
 			e.athletes.tbody.sortable({
+				items: '> tr:not(complete)', // In theory should prevent reordering of completed athletes
 				stop: function( ev ) { 
-					var newOrder = [];
+					var reorder = [];
 					var rows = $(this).context.children;
 					for( i = 0; i < rows.length; i++ ) {
-						var j = $($( rows[ i ] ).find( '.order' )[ 0 ]).attr( 'order' );
-						if( defined( j ) ) { newOrder.push( parseInt( j )); }
-						$($( rows[ i ] ).find( '.order' )[ 0 ]).html( (i + 1) + '.' );
+						var row    = $( rows[ i ] );
+						var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
+						var j      = column.order.attr( 'order' );
+						var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
+						if( i == division.current ) { row.addClass( 'current' ); } else { row.removeClass( 'current' ); }
+						if( defined( j ) ) { reorder.push({ order : parseInt( j ), name : name }); }
+						column.order.html( (i + 1) + '.' );
 					}
-					console.log( newOrder );
 					e.actions.changes.panel.fadeIn(); 
+					o.changes = reorder;
 				}
 			});
 
@@ -402,6 +407,7 @@ $.widget( "freescore.coordinatorController", {
 				// Populate data
 				if( complete ) {
 					athlete.name.append( athlete.data.name );
+					athlete.row.addClass( 'complete' );
 				} else {
 					var input = html.text.clone();
 					input.val( athlete.data.name );
@@ -483,6 +489,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
 			var i        = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
+			if( defined( o.changes )) { return; } // Do not refresh if there are pending changes
 			o.progress = progress;
 			e.updateDivisions( progress.divisions, i );
 			e.updateAthletes( progress.divisions[ i ], i );
