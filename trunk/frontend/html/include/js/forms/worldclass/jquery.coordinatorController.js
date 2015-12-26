@@ -233,6 +233,18 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var saveChanges = function() {
+		// ============================================================
+			e.dialog.popupdialog({
+				title:    'Saving Changes',
+				subtitle: 'Saving Changes',
+				message:  'Please wait while the server completes the update.',
+				buttons:  [
+				]
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+		}
+
+		// ============================================================
 		var sendCommand = function( command, callback ) {
 		// ============================================================
 			return function() {
@@ -356,7 +368,17 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.table.append( header.row );
 			e.athletes.table.append( e.athletes.tbody );
 			e.athletes.tbody.sortable({
-				change: function( ev ) { e.actions.changes.panel.fadeIn(); }
+				stop: function( ev ) { 
+					var newOrder = [];
+					var rows = $(this).context.children;
+					for( i = 0; i < rows.length; i++ ) {
+						var j = $($( rows[ i ] ).find( '.order' )[ 0 ]).attr( 'order' );
+						if( defined( j ) ) { newOrder.push( parseInt( j )); }
+						$($( rows[ i ] ).find( '.order' )[ 0 ]).html( (i + 1) + '.' );
+					}
+					console.log( newOrder );
+					e.actions.changes.panel.fadeIn(); 
+				}
 			});
 
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
@@ -386,6 +408,7 @@ $.widget( "freescore.coordinatorController", {
 					input.change( function( ev ) { e.actions.changes.panel.fadeIn(); } );
 					athlete.name.append( input );
 				}
+				athlete.order.attr({ order : (i + 1) });
 				athlete.order.append( (i + 1) + '.' );
 				athlete.row.append( athlete.order, athlete.name, athlete.form1 );
 				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
