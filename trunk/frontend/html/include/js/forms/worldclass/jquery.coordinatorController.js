@@ -247,6 +247,7 @@ $.widget( "freescore.coordinatorController", {
 				message:  'Please wait while the server completes the update.',
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+			o.changes = undefined;
 		};
 
 		// ============================================================

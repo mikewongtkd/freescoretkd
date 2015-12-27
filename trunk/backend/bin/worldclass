@@ -152,6 +152,8 @@ post '/:tournament/:ring/coordinator' => sub {
 		my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
 		my $division     = $progress->find( $content->{ divid } );
 		die "Division $content->{ divid } not found" unless defined $division;
+		$division->edit_athletes( $content->{ athletes }, $content->{ round } );
+		$division->write();
 		send_response( $self, { description => "Saving coordinator change request to athlete ordering and/or name(s)", round => $division->{ round }, athletes => $content->{ athletes } });
 	} catch {
 		send_response( $self, { error => $_ });

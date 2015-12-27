@@ -258,9 +258,16 @@ sub edit_athletes {
 	my $edits = shift;
 	my $round = shift || $self->{ round };
 
-	my $order = $self->{ order }{ $round };
+	my $order   = $self->{ order }{ $round };
+	my $reorder = [];
 	for my $i ( 0 .. $#$edits ) {
+		my $j = $edits->[ $i ]{ order } - 1; # Get the athlete's previous relative order index
+		my $k = $order->[ $j ]; # Get the athlete id (original index);
+		my $athlete = $self->{ athletes }[ $k ]; # Retrieve the athlete
+		push @$reorder, $k;
+		$athlete->{ name } = $edits->[ $i ]{ name };
 	}
+	$self->{ order }{ $round } = $reorder;
 }
 
 # ============================================================
