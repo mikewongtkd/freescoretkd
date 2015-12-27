@@ -140,6 +140,25 @@ get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub {
 # ============================================================
 
 # ------------------------------------------------------------
+# COORDINATOR REQUESTS CHANGES FOR ATHLETE ORDER OR NAME(S)
+# ------------------------------------------------------------
+post '/:tournament/:ring/coordinator' => sub {
+	my $self         = shift;
+	my $tournament   = $self->param( 'tournament'     );
+	my $ring         = $self->param( 'ring'           );
+
+	try {
+		my $content      = $json->decode( $self->req->body );
+		my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
+		my $division     = $progress->find( $content->{ divid } );
+		die "Division $content->{ divid } not found" unless defined $division;
+		send_response( $self, { description => "Saving coordinator change request to athlete ordering and/or name(s)", round => $division->{ round }, athletes => $content->{ athletes } });
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
 # WRITE REFEREE PENALTY FOR ATHLETE
 # ------------------------------------------------------------
 get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub { 
@@ -343,7 +362,7 @@ post '/:tournament/:ring/:div_index/text' => sub {
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
-	send_response( $self, { error => "worldClass: Unknown command: $command" });
+	send_response( $self, { error => "worldclass service: Unknown command: $command" });
 };
 
 # ============================================================

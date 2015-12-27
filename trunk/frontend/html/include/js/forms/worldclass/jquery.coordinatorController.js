@@ -233,16 +233,21 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var revertChanges = function() {
+		// ============================================================
+		};
+
+		// ============================================================
 		var saveChanges = function() {
 		// ============================================================
+			(sendRequest( 'coordinator', o.changes )());
 			e.dialog.popupdialog({
 				title:    'Saving Changes',
-				subtitle: 'Saving Changes',
+				subtitle: 'Sending Changes to Server',
 				message:  'Please wait while the server completes the update.',
-				buttons:  [
-				]
+				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
-		}
+		};
 
 		// ============================================================
 		var sendCommand = function( command, callback ) {
@@ -268,6 +273,35 @@ $.widget( "freescore.coordinatorController", {
 						}
 					},
 					error:   function( response ) { sound.error.play(); console.log( "Network Error: Unknown network error." ); },
+				});
+			}
+		};
+
+		// ============================================================
+		var sendRequest = function( request, data, callback ) {
+		// ============================================================
+			return function() {
+				console.log( request );
+				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + request;
+				$.ajax( {
+					type:        'POST',
+					crossDomain: true,
+					url:         url,
+					dataType:    'json',
+					data:        JSON.stringify( data ),
+					success:     function( response ) { 
+						if( defined( response.error )) {
+							sound.error.play();
+							console.log( response );
+
+						} else {
+							sound.ok.play(); 
+							console.log( url );
+							console.log( response );
+							if( defined( callback )) { callback( response ); }
+						}
+					},
+					error:       function( response ) { sound.error.play(); console.log( "Network Error: Unknown network error." ); },
 				});
 			}
 		};
@@ -371,7 +405,7 @@ $.widget( "freescore.coordinatorController", {
 				items: '> tr:not(complete)', // In theory should prevent reordering of completed athletes
 				stop: function( ev ) { 
 					var reorder = [];
-					var rows = $(this).context.children;
+					var rows = $(this).context.children; // tbody children are tr elements, i.e. athlete names and scores
 					for( i = 0; i < rows.length; i++ ) {
 						var row    = $( rows[ i ] );
 						var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
@@ -381,8 +415,8 @@ $.widget( "freescore.coordinatorController", {
 						if( defined( j ) ) { reorder.push({ order : parseInt( j ), name : name }); }
 						column.order.html( (i + 1) + '.' );
 					}
+					o.changes = { divid : division.name, athletes: reorder, round : round };
 					e.actions.changes.panel.fadeIn(); 
-					o.changes = reorder;
 				}
 			});
 
@@ -411,7 +445,20 @@ $.widget( "freescore.coordinatorController", {
 				} else {
 					var input = html.text.clone();
 					input.val( athlete.data.name );
-					input.change( function( ev ) { e.actions.changes.panel.fadeIn(); } );
+					input.change( function( ev ) { 
+						var rename = [];
+						var rows   = $( this ).parents( 'tbody' ).children(); // tbody children are tr elements, i.e. athlete names and scores
+						for( i = 0; i < rows.length; i++ ) {
+							var row    = $( rows[ i ] );
+							var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
+							var j      = column.order.attr( 'order' );
+							var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
+							if( defined( j ) ) { rename.push({ order : parseInt( j ), name : name }); }
+						}
+						o.changes = { divid : division.name, athletes: rename, round : round };
+						e.actions.changes.panel.fadeIn(); 
+
+					});
 					athlete.name.append( input );
 				}
 				athlete.order.attr({ order : (i + 1) });
@@ -494,7 +541,10 @@ $.widget( "freescore.coordinatorController", {
 			e.updateDivisions( progress.divisions, i );
 			e.updateAthletes( progress.divisions[ i ], i );
 
+			e.dialog.popup( 'close' );
 		};
+		actions.changes    .save       .click( saveChanges );
+		actions.changes    .revert     .click( revertChanges );
 
 		actions.penalties  .timelimit  .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds     .click( awardPenaltyBounds );
