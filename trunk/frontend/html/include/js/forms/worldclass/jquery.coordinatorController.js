@@ -403,7 +403,10 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.table.append( header.row );
 			e.athletes.table.append( e.athletes.tbody );
 			e.athletes.tbody.sortable({
-				items: '> tr:not(complete)', // In theory should prevent reordering of completed athletes
+				// Prevent reordering of athletes who have completed their form
+				items: '> tr:not(complete)', 
+
+				// Notify user of reordering change and enable user to save changes
 				stop: function( ev ) { 
 					var reorder = [];
 					var rows = $(this).context.children; // tbody children are tr elements, i.e. athlete names and scores
@@ -418,6 +421,16 @@ $.widget( "freescore.coordinatorController", {
 					}
 					o.changes = { divid : division.name, athletes: reorder, round : round };
 					e.actions.changes.panel.fadeIn(); 
+				}
+			});
+			// Handle 'Enter' key (focus on next input and select text)
+			e.athletes.tbody.keypress( function( ev ) {
+				if( ev.keyCode == 13 ) {
+					$( ev.target ).blur();
+					var row  = $(ev.target).parents( 'tr' );
+					var next = row.next().find( 'input' );
+					next.focus();
+					next.select();
 				}
 			});
 
