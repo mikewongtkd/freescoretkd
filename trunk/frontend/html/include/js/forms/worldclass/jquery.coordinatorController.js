@@ -235,6 +235,17 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var revertChanges = function() {
 		// ============================================================
+			if( ! defined( o.progress )) { return; }
+			var progress = JSON.stringify( o.progress );
+			var update   = { data : progress };
+			e.dialog.popupdialog({
+				title:    'Reverting Changes',
+				subtitle: 'Restoring previous division configuration',
+				message:  'Please wait while the server completes the update.',
+				buttons:  'none',
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+			o.changes = undefined;
+			setTimeout( function() { e.refresh( update ); }, 1000 );
 		};
 
 		// ============================================================
@@ -548,8 +559,9 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		e.refresh = function( update ) {
 		// ============================================================
-			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
-			var i        = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
+			var progress = JSON.parse( update.data ); 
+			if( ! defined( progress.divisions )) { return; }
+			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
 			if( defined( o.changes )) { return; } // Do not refresh if there are pending changes
 			o.progress = progress;
 			e.updateDivisions( progress.divisions, i );
