@@ -13,8 +13,9 @@ $.widget( "freescore.coordinatorController", {
 		var ring    = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
 
 		var sound    = e.sound = {
-			ok    : new Howl({ urls: [ "/freescore/sounds/upload.mp3", "/freescore/sounds/upload.ogg" ]}),
-			error : new Howl({ urls: [ "/freescore/sounds/quack.mp3",  "/freescore/sounds/quack.ogg" ]}),
+			ok        : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg"   ]}),
+			confirmed : new Howl({ urls: [ "/freescore/sounds/received.mp3", "/freescore/sounds/received.ogg" ]}),
+			error     : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"    ]}),
 		};
 
 		var divisions = e.divisions = {
@@ -187,6 +188,7 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Withdraw Athlete?',
 				subtitle: 'Withdraw ' + athlete.name + ' from this division?',
 				message:  'Once confirmed, this operation cannot be undone.',
+				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel',   style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 					{ text : 'Withdraw', style : 'important', click : function( ev ) { (sendCommand( "coordinator/withdrawn" )()); $('#popupDialog').popup('close'); } },
@@ -203,6 +205,7 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Disqualify Athlete?',
 				subtitle: 'Disqualify ' + athlete.name + ' from this division by punitive decision?',
 				message:  'Once confirmed, this operation cannot be undone.',
+				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel',     style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 					{ text : 'Disqualify', style : 'important', click : function( ev ) { (sendCommand( "coordinator/disqualified" )()); $('#popupDialog').popup('close'); } },
@@ -242,9 +245,11 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Reverting Changes',
 				subtitle: 'Restoring previous division configuration',
 				message:  'Please wait while the server completes the update.',
+				afterclose: function( ev, ui ) { e.sound.confirmed.play(); },
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			o.changes = undefined;
+			e.sound.ok.play();
 			setTimeout( function() { e.refresh( update ); }, 1000 );
 		};
 
@@ -256,6 +261,7 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Saving Changes',
 				subtitle: 'Sending Changes to Server',
 				message:  'Please wait while the server completes the update.',
+				afterclose: function( ev, ui ) { e.sound.confirmed.play(); },
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			o.changes = undefined;

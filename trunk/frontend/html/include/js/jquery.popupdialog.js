@@ -38,8 +38,14 @@ $.widget( "freescore.popupdialog", {
 				dialog.buttons.append( button.panel );
 			}
 		}
+		var options = {};
+		if( defined( o.afterclose     )) { options.afterclose     = o.afterclose;     }
+		if( defined( o.afteropen      )) { options.afteropen      = o.afteropen;      }
+		if( defined( o.beforeposition )) { options.beforeposition = o.beforeposition; }
+		if( defined( o.create         )) { options.create         = o.create;         }
 
 		w.css({ 'background' : '#fff;', 'width' : '800px' });
-		w.popup();
+		w.popup( options );
+
 	}
 });
