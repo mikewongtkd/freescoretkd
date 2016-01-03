@@ -14,6 +14,17 @@
   .divisions .current:hover {
     color: limegreen;
     text-shadow: 2px 2px teal; }
+.divisions .ring {
+  font-weight: light;
+  font-size: 9pt;
+  text-shadow: none;
+  color: black;
+  float: right;
+  padding: 2px 4px 2px 4px;
+  background-color: #eee;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  margin-top: 5px; }
 
 .ui-filterable {
   margin: 0;

@@ -18,11 +18,13 @@ $.widget( "freescore.coordinatorController", {
 			error     : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"    ]}),
 		};
 
+		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
+
 		var divisions = e.divisions = {
-			page   : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
-			header : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
-			main   : html.div.clone() .attr({ 'role': 'main' }),
-			list   : html.ul.clone()  .attr({ 'role': 'listview', 'data-filter' : true, 'data-filter-placeholder' : 'Search for division description or athlete name...' }) .addClass( 'divisions' ),
+			page    : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
+			header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
+			main    : html.div.clone() .attr({ 'role': 'main' }),
+			list    : html.ul.clone()  .attr({ 'role': 'listview', 'data-filter' : true, 'data-filter-placeholder' : 'Search for division description or athlete name...' }) .addClass( 'divisions' ),
 		};
 
 		var athletes  = e.athletes = {
@@ -36,8 +38,6 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		var dialog = e.dialog = $( '#popupDialog' );
-
-		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
 
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
@@ -328,26 +328,36 @@ $.widget( "freescore.coordinatorController", {
 		var updateDivisions = e.updateDivisions = function( divisions, current ) {
 		// ============================================================
 			e.divisions.list.empty();
+			e.divisions.list.attr({ 'data-split-icon' : 'minus' });
 			if( ! defined( divisions )) { return; }
+			var divider = html.li.clone() .attr({ 'data-role' : 'list-divider' });
+			e.divisions.list.append( divider.clone() .html( 'Ring ' + o.ring ));
 			for( var i = 0; i < divisions.length; i++ ) {
-				var division = {
-					data  : divisions[ i ],
-					item  : html.li.clone(),
-					link  : html.a.clone()
-				}
-				var count     = division.data.athletes.length > 1 ? division.data.athletes.length + ' Athletes' : '1 Athlete';
-				var list      = division.data.athletes.map( function( item ) { return item.name; } ).join( ", " );
+				var divdata = divisions[ i ];
+				var count     = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
+				var list      = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
 
-				division.link.empty();
-				division.link.append( '<h3>' + division.data.name.toUpperCase() + ' ' + division.data.description + '<h3><p><b>' + count + ':</b> ' + list + '</p>' );
-				division.link.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
-				division.link.click( function( ev ) { var divid = $( this ).attr( 'divid' ); 
+				var division = {
+					data    : divdata,
+					item    : html.li.clone(),
+					edit    : html.a.clone(),
+					ring    : html.div.clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
+					title   : html.h3.clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
+					details : html.p.clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
+					remove  : html.a.clone() .css({ 'background-color' : 'red' }),
+				}
+
+				division.edit.empty();
+				division.edit.append( division.ring, division.title, division.details );
+				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
+				division.edit.click( function( ev ) { var divid = $( this ).attr( 'divid' ); 
 					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
 				});
-				if( i == current ) { division.link.addClass( 'current' ); } else { division.link.removeClass( 'current' ); }
-				division.item.append( division.link );
+				if( i == current ) { division.edit.addClass( 'current' ); } else { division.edit.removeClass( 'current' ); }
+				division.item.append( division.edit, division.remove );
 				e.divisions.list.append( division.item );
 			}
+			e.divisions.list.append( divider.clone() .html( 'Staging' ));
 			e.divisions.list.listview().listview( 'refresh' );
 		};
 
