@@ -236,6 +236,12 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var removeDivision = function( ev ) {
+		// ============================================================
+			console.log( $( this ));
+		};
+
+		// ============================================================
 		var revertChanges = function() {
 		// ============================================================
 			if( ! defined( o.progress )) { return; }
@@ -344,15 +350,19 @@ $.widget( "freescore.coordinatorController", {
 					ring    : html.div.clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
 					title   : html.h3.clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
 					details : html.p.clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					remove  : html.a.clone() .css({ 'background-color' : 'red' }),
+					remove  : html.a.clone() .attr({ index : i, name : divdata.name }) .css({ 'background-color' : 'red' }),
 				}
 
 				division.edit.empty();
 				division.edit.append( division.ring, division.title, division.details );
 				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
+
+				// ===== BEHAVIOR
 				division.edit.click( function( ev ) { var divid = $( this ).attr( 'divid' ); 
 					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
 				});
+				division.remove.click( removeDivision );
+
 				if( i == current ) { division.edit.addClass( 'current' ); } else { division.edit.removeClass( 'current' ); }
 				division.item.append( division.edit, division.remove );
 				e.divisions.list.append( division.item );
