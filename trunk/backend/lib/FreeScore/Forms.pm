@@ -26,7 +26,6 @@ sub find {
 sub load_ring {
 # ============================================================
 	my $self       = shift;
-	my $ring       = shift;
 
 	$self->{ file } = "$self->{ path }/progress.txt";
 

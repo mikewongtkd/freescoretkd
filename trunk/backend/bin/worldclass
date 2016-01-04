@@ -255,6 +255,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 	my $ring        = $self->param( 'ring' );
 	my $i           = $self->param( 'div_index' );
 	my $progress    = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $staging     = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
 	my $division    = $i >= 0 ? $progress->{ divisions }[ $i ] : undef;
 	my $content     = $self->req->body;
 	my $description = 'Unknown error while editing division.';
@@ -265,6 +266,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		my $athletes = $edits->{ athletes };
 		my $add      = $edits->{ create };
 		my $delete   = $edits->{ delete };
+		my $transfer = $edits->{ transfer };
 		my $success  = {};
 
 		# ====== EDITING OR CREATE NEW DIVISION CONTENT
@@ -294,6 +296,24 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			my $deleted = unlink( $division->{ file } ) && (! -e $division->{ file });
 			if( $deleted ) { $description = "Successfully deleted division $division->{ name } at $division->{ file }"; }
 			else           { die "Database Update Error: Failed to delete division $division->{ name }"; }
+
+		# ====== TRANSFER A DIVISION
+		} elsif( exists $edits->{ transfer } ) {
+			my $destination = undef;
+			my $ring_path   = sprintf( "ring%02d", $ring );
+			if( $transfer eq 'staging' ) {
+				$destination = $division->{ file };
+				$destination =~ s/\b$ring_path\b/staging/; 
+			} else {
+				$division    = $staging->{ divisions }[ $i ];
+				$destination = $division->{ file };
+				$destination =~ s/staging/$ring_path/; 
+			}
+			`mv $division->{ file } $destination`;
+			my $transferred = -e $destination;
+			if( $transferred ) { $description = "Successfully transferred division $division->{ name } from $division->{ file } to $destination"; }
+			else               { die "Database Update Error: Failed to transfer division $division->{ name } from $division->{ file } to $destination"; }
+			$division->{ file } = $destination;
 
 		} else {
 			$description = "Unknown athlete or division editing command";

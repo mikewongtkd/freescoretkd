@@ -55,10 +55,13 @@ sub update {
 	my $debug      = shift;
 	my $update     = undef;
 	my $data       = undef;
+	my $staging    = undef;
 
 	try {
-		$data = new FreeScore::Forms::WorldClass( $tournament, $ring );
-		$data->get_only( $judge ) if( $role eq 'judge' && $judge >= 0 ); # Judges only get the current division and their scores
+		$data    = new FreeScore::Forms::WorldClass( $tournament, $ring );
+		$staging = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
+		if( $role eq 'judge' && $judge >= 0 ) { $data->get_only( $judge ); } # Judges only get the current division and their scores
+		else                                  { $data->{ staging } = $staging; }
 		unbless( $data );
 
 	} catch {

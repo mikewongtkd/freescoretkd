@@ -15,7 +15,7 @@ sub init {
 
 	if( defined $ring ) { 
 		# ===== LOAD THE DIVISIONS IN THE SPECIFIED RING
-		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+		$self->{ path } = $ring eq 'staging' ? join( "/", $FreeScore::PATH, $tournament, $subdir, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {

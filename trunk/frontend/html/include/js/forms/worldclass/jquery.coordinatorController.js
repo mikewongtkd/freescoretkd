@@ -353,43 +353,90 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var updateDivisions = e.updateDivisions = function( divisions, current ) {
+		var transferDivision = function( ev ) {
+		// ============================================================
+			var transferButton = $( this );
+			var request        = $( this ).attr( 'index' ) + '/edit';
+			var name           = $( this ).attr( 'name' );
+			var sendTo         = $( this ).attr( 'sendTo' );
+			var count          = $( this ).attr( 'count' );
+			var description    = $( this ).attr( 'description' );
+			var parameters     = { transfer : sendTo };
+			var ringname       = sendTo == 'staging' ? 'staging' : 'ring ' + sendTo;
+
+			e.dialog.popupdialog({
+				title:    'Transfer Division?',
+				subtitle: 'Transfer ' + name.toUpperCase() + ' ' + description + ' (' + count + ')?',
+				message:  'If you send this division to ' + ringname + ', it can be reclaimed later.',
+				afterclose: function( ev, ui ) {},
+				buttons:  [
+					{ text : 'Cancel',   style : 'cancel',  click : function( ev ) { $('#popupDialog').popup('close'); } },
+					{ text : 'Transfer', style : 'default', click : function( ev ) { (sendRequest( request, parameters ))(); } },
+				]
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+		};
+
+		// ============================================================
+		var updateDivisions = e.updateDivisions = function( divisions, staging, current ) {
 		// ============================================================
 			e.divisions.list.empty();
 			e.divisions.list.attr({ 'data-split-icon' : 'minus' });
 			if( ! defined( divisions )) { return; }
+
 			var divider = html.li.clone() .attr({ 'data-role' : 'list-divider' });
 			e.divisions.list.append( divider.clone() .html( 'Ring ' + o.ring ));
 			for( var i = 0; i < divisions.length; i++ ) {
 				var divdata = divisions[ i ];
-				var count     = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
-				var list      = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
+				var count   = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
+				var list    = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
 
 				var division = {
-					data    : divdata,
-					item    : html.li.clone(),
-					edit    : html.a.clone(),
-					ring    : html.div.clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
-					title   : html.h3.clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
-					details : html.p.clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					remove  : html.a.clone() .addClass( 'remove' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description }),
-				}
+					data     : divdata,
+					item     : html.li  .clone(),
+					edit     : html.a   .clone(),
+					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
+					title    : html.h3  .clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
+					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
+					transfer : html.a   .clone() .addClass( 'transfer' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }),
+				};
 
 				division.edit.empty();
 				division.edit.append( division.ring, division.title, division.details );
 				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
 
 				// ===== BEHAVIOR
-				division.edit.click( function( ev ) { var divid = $( this ).attr( 'divid' ); 
+				division.edit.click( function( ev ) { 
+					var divid = $( this ).attr( 'divid' ); 
 					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
 				});
-				division.remove.click( removeDivision );
+				division.transfer.click( transferDivision );
 
 				if( i == current ) { division.edit.addClass( 'current' ); } else { division.edit.removeClass( 'current' ); }
-				division.item.append( division.edit, division.remove );
+				division.item.append( division.edit, division.transfer );
 				e.divisions.list.append( division.item );
 			}
 			e.divisions.list.append( divider.clone() .html( 'Staging' ));
+			for( var i = 0; i < staging.divisions.length; i++ ) {
+				var divdata = staging.divisions[ i ];
+				var count   = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
+				var list    = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
+
+				var division = {
+					data     : divdata,
+					item     : html.li  .clone(),
+					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Staging' ),
+					title    : html.h3  .clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
+					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
+					transfer : html.a   .clone() .addClass( 'transfer' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : o.ring }),
+				};
+
+				division.transfer.click( transferDivision );
+				division.transfer.append( division.ring, division.title, division.details );
+
+				division.item.append( division.transfer );
+				e.divisions.list.append( division.item );
+			}
+
 			e.divisions.list.listview().listview( 'refresh' );
 		};
 
@@ -600,7 +647,7 @@ $.widget( "freescore.coordinatorController", {
 				}
 			}
 
-			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.current ); }
+			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.staging, o.progress.current ); }
 			else if ( option.id == "athletes"  ) { o.round = division.round; var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
 		});
 
@@ -612,7 +659,7 @@ $.widget( "freescore.coordinatorController", {
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
 			if( defined( o.changes )) { return; } // Do not refresh if there are pending changes
 			o.progress = progress;
-			e.updateDivisions( progress.divisions, i );
+			e.updateDivisions( progress.divisions, progress.staging, i );
 			e.updateAthletes( progress.divisions[ i ], i );
 
 			e.dialog.popup( 'close' );
@@ -630,11 +677,9 @@ $.widget( "freescore.coordinatorController", {
 		dialog.popupdialog();
 	},
 	_init: function( ) {
-		var widget      = this.element;
-		var e           = this.options.elements;
-		var o           = this.options;
-		var html        = e.html;
-		var ordinal     = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
+		var o = this.options;
+		var w = this.element;
+		var e = this.options.elements;
 
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', e.refresh, false );
