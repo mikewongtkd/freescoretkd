@@ -238,7 +238,29 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var removeDivision = function( ev ) {
 		// ============================================================
-			console.log( $( this ));
+			var removeButton = $( this );
+			var request      = $( this ).attr( 'index' ) + '/edit';
+			var name         = $( this ).attr( 'name' );
+			var count        = $( this ).attr( 'count' );
+			var description  = $( this ).attr( 'description' );
+			if( o.removedivision != name ) {
+				$( this ).animate({ 'background-color' : 'red' }, 500 );
+				$( this ).parents( 'li' ).siblings().find( 'a.remove' ).animate({ 'background-color' : 'transparent' }, 250);
+
+			} else {
+				var parameters = { delete : true };
+				e.dialog.popupdialog({
+					title:    'Remove Division?',
+					subtitle: 'Remove ' + name.toUpperCase() + ' ' + description + ' (' + count + ')?',
+					message:  'Once confirmed, this operation cannot be undone.',
+					afterclose: function( ev, ui ) {},
+					buttons:  [
+						{ text : 'Cancel', style : 'cancel',    click : function( ev ) { $('#popupDialog').popup('close'); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
+						{ text : 'Remove', style : 'important', click : function( ev ) { (sendRequest( request, parameters ))(); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
+					]
+				}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+			}
+			o.removedivision = name;
 		};
 
 		// ============================================================
@@ -350,7 +372,7 @@ $.widget( "freescore.coordinatorController", {
 					ring    : html.div.clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
 					title   : html.h3.clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
 					details : html.p.clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					remove  : html.a.clone() .attr({ index : i, name : divdata.name }) .css({ 'background-color' : 'red' }),
+					remove  : html.a.clone() .addClass( 'remove' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description }),
 				}
 
 				division.edit.empty();
