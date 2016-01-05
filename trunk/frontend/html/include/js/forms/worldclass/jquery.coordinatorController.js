@@ -224,6 +224,13 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var editDivision = function() {
+		// ============================================================
+			var divid = $( this ).attr( 'divid' ); 
+			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
+		};
+
+		// ============================================================
 		var parsePageUrl = function( pageUrl ) {
 		// ============================================================
 			var anchor = $.url( pageUrl ).attr( "anchor" );
@@ -236,7 +243,7 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var removeDivision = function( ev ) {
+		var removeDivision = function() {
 		// ============================================================
 			var removeButton = $( this );
 			var request      = $( this ).attr( 'index' ) + '/edit';
@@ -253,10 +260,10 @@ $.widget( "freescore.coordinatorController", {
 					title:    'Remove Division?',
 					subtitle: 'Remove ' + name.toUpperCase() + ' ' + description + ' (' + count + ')?',
 					message:  'Once confirmed, this operation cannot be undone.',
-					afterclose: function( ev, ui ) {},
+					afterclose: function() {},
 					buttons:  [
-						{ text : 'Cancel', style : 'cancel',    click : function( ev ) { $('#popupDialog').popup('close'); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
-						{ text : 'Remove', style : 'important', click : function( ev ) { (sendRequest( request, parameters ))(); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
+						{ text : 'Cancel', style : 'cancel',    click : function() { $('#popupDialog').popup('close'); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
+						{ text : 'Remove', style : 'important', click : function() { (sendRequest( request, parameters ))(); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
 					]
 				}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			}
@@ -273,7 +280,7 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Reverting Changes',
 				subtitle: 'Restoring previous division configuration',
 				message:  'Please wait while the server completes the update.',
-				afterclose: function( ev, ui ) { e.sound.confirmed.play(); },
+				afterclose: function() { e.sound.confirmed.play(); },
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			o.changes = undefined;
@@ -289,7 +296,7 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Saving Changes',
 				subtitle: 'Sending Changes to Server',
 				message:  'Please wait while the server completes the update.',
-				afterclose: function( ev, ui ) { e.sound.confirmed.play(); },
+				afterclose: function() { e.sound.confirmed.play(); },
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			o.changes = undefined;
@@ -353,7 +360,7 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var transferDivision = function( ev ) {
+		var transferDivision = function() {
 		// ============================================================
 			var transferButton = $( this );
 			var request        = $( this ).attr( 'index' ) + '/edit';
@@ -362,16 +369,18 @@ $.widget( "freescore.coordinatorController", {
 			var count          = $( this ).attr( 'count' );
 			var description    = $( this ).attr( 'description' );
 			var parameters     = { transfer : sendTo };
-			var ringname       = sendTo == 'staging' ? 'staging' : 'ring ' + sendTo;
+			var message        = sendTo == 'staging' ? 
+				'If you send this division back to staging, it can be reclaimed later.' :
+				'If you take this division into ring ' + sendTo + ', it can be sent back to staging later.';
 
 			e.dialog.popupdialog({
 				title:    'Transfer Division?',
 				subtitle: 'Transfer ' + name.toUpperCase() + ' ' + description + ' (' + count + ')?',
-				message:  'If you send this division to ' + ringname + ', it can be reclaimed later.',
-				afterclose: function( ev, ui ) {},
+				message:  message,
+				afterclose: function() {},
 				buttons:  [
-					{ text : 'Cancel',   style : 'cancel',  click : function( ev ) { $('#popupDialog').popup('close'); } },
-					{ text : 'Transfer', style : 'default', click : function( ev ) { (sendRequest( request, parameters ))(); } },
+					{ text : 'Cancel',   style : 'cancel',  click : function() { $('#popupDialog').popup('close'); } },
+					{ text : 'Transfer', style : 'default', click : function() { $(this).parent().children().hide(); (sendRequest( request, parameters ))(); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -383,7 +392,9 @@ $.widget( "freescore.coordinatorController", {
 			e.divisions.list.attr({ 'data-split-icon' : 'minus' });
 			if( ! defined( divisions )) { return; }
 
-			var divider = html.li.clone() .attr({ 'data-role' : 'list-divider' });
+			var divider = html.li.clone() .addClass( 'divider' ) .attr({ 'data-role' : 'list-divider', 'data-theme' : 'b' });
+
+			// ===== DISPLAY RING DIVISIONS
 			e.divisions.list.append( divider.clone() .html( 'Ring ' + o.ring ));
 			for( var i = 0; i < divisions.length; i++ ) {
 				var divdata = divisions[ i ];
@@ -404,17 +415,36 @@ $.widget( "freescore.coordinatorController", {
 				division.edit.append( division.ring, division.title, division.details );
 				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
 
-				// ===== BEHAVIOR
-				division.edit.click( function( ev ) { 
-					var divid = $( this ).attr( 'divid' ); 
-					$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
-				});
-				division.transfer.click( transferDivision );
+				division.edit     .click( editDivision );
+				division.transfer .click( transferDivision );
 
 				if( i == current ) { division.edit.addClass( 'current' ); } else { division.edit.removeClass( 'current' ); }
+
+				// Composition
 				division.item.append( division.edit, division.transfer );
 				e.divisions.list.append( division.item );
 			}
+
+			// ===== NEW DIVISION
+			e.divisions.list.append( divider.clone() .html( 'New Division' ));
+			{
+				var division = {
+					item     : html.li  .clone(),
+					edit     : html.a   .clone() .addClass( 'create ui-icon-plus' ),
+					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
+					title    : html.h3  .clone() .html( 'Create a new division at ring ' + o.ring ),
+				};
+
+				division.edit.empty();
+				division.edit.append( division.ring, division.title );
+
+				division.edit     .click();
+
+				division.item.append( division.edit );
+				e.divisions.list.append( division.item );
+			}
+
+			// ===== DISPLAY STAGING DIVISIONS
 			e.divisions.list.append( divider.clone() .html( 'Staging' ));
 			for( var i = 0; i < staging.divisions.length; i++ ) {
 				var divdata = staging.divisions[ i ];
@@ -427,12 +457,12 @@ $.widget( "freescore.coordinatorController", {
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Staging' ),
 					title    : html.h3  .clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
 					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					transfer : html.a   .clone() .addClass( 'transfer' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : o.ring }),
+					transfer : html.a   .clone() .addClass( 'transfer ui-icon-plus' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : o.ring }),
 				};
 
 				division.transfer.click( transferDivision );
-				division.transfer.append( division.ring, division.title, division.details );
 
+				division.transfer.append( division.ring, division.title, division.details );
 				division.item.append( division.transfer );
 				e.divisions.list.append( division.item );
 			}
