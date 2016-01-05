@@ -269,14 +269,14 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		my $transfer = $edits->{ transfer };
 		my $success  = {};
 
-		# ====== EDITING OR CREATE NEW DIVISION CONTENT
-		if( exists $edits->{ header } && exists $edits->{ athletes } ) {
 
-			# CREATE A NEW DIVISION
-			if( exists $edits->{ create } ) {
-				$division = $progress->create_division( $ring );
-				$success->{ id } = $division->{ name };
-			}
+		# ===== CREATE A NEW DIVISION
+		if( exists $edits->{ create } ) {
+			$division = $progress->create_division( $ring );
+			$success->{ id } = $division->{ name };
+
+		# ====== EDITING OR CREATE NEW DIVISION CONTENT
+		} elsif( exists $edits->{ header } && exists $edits->{ athletes } ) {
 			
 			# AND/OR EDIT AN EXISTING DIVISION
 			$division->{ $_ } = $header->{ $_ } foreach (keys %$header); 
@@ -316,7 +316,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			$division->{ file } = $destination;
 
 		} else {
-			$description = "Unknown athlete or division editing command";
+			die "Unknown athlete or division editing command: '$content'";
 		}
 
 		unless( defined $delete || defined $add ) {

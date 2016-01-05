@@ -180,18 +180,28 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var withdrawAthlete = function() {
+		var clearPenalties = function() {
 		// ============================================================
-			var division = o.progress.divisions[ o.progress.current ];
-			var athlete  = division.athletes[ division.current ];
+			o.penalties.bounds    = 0.0;
+			o.penalties.timelimit = 0.0;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/" + penalties )());
+		};
+
+		// ============================================================
+		var createDivision = function() {
+		// ============================================================
+			var request        = $( this ).attr( 'index' ) + '/edit';
+			var parameters     = { create : true };
 			e.dialog.popupdialog({
-				title:    'Withdraw Athlete?',
-				subtitle: 'Withdraw ' + athlete.name + ' from this division?',
-				message:  'Once confirmed, this operation cannot be undone.',
-				afterclose: function( ev, ui ) {},
+				title:    'Create Division?',
+				subtitle: 'Create a new division at ring ' + o.ring + '?',
+				message:  'Once created, the division can be edited',
+				afterclose: function() {},
 				buttons:  [
-					{ text : 'Cancel',   style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-					{ text : 'Withdraw', style : 'important', click : function( ev ) { (sendCommand( "coordinator/withdrawn" )()); $('#popupDialog').popup('close'); } },
+					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); } },
+					{ text : 'Create', style : 'ok',     click : function() { $(this).parent().children().hide(); (sendRequest( request, parameters ))(); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -211,16 +221,6 @@ $.widget( "freescore.coordinatorController", {
 					{ text : 'Disqualify', style : 'important', click : function( ev ) { (sendCommand( "coordinator/disqualified" )()); $('#popupDialog').popup('close'); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
-		};
-
-		// ============================================================
-		var clearPenalties = function() {
-		// ============================================================
-			o.penalties.bounds    = 0.0;
-			o.penalties.timelimit = 0.0;
-
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/" + penalties )());
 		};
 
 		// ============================================================
@@ -386,6 +386,23 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var withdrawAthlete = function() {
+		// ============================================================
+			var division = o.progress.divisions[ o.progress.current ];
+			var athlete  = division.athletes[ division.current ];
+			e.dialog.popupdialog({
+				title:    'Withdraw Athlete?',
+				subtitle: 'Withdraw ' + athlete.name + ' from this division?',
+				message:  'Once confirmed, this operation cannot be undone.',
+				afterclose: function( ev, ui ) {},
+				buttons:  [
+					{ text : 'Cancel',   style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+					{ text : 'Withdraw', style : 'important', click : function( ev ) { (sendCommand( "coordinator/withdrawn" )()); $('#popupDialog').popup('close'); } },
+				]
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+		};
+
+		// ============================================================
 		var updateDivisions = e.updateDivisions = function( divisions, staging, current ) {
 		// ============================================================
 			e.divisions.list.empty();
@@ -438,7 +455,7 @@ $.widget( "freescore.coordinatorController", {
 				division.edit.empty();
 				division.edit.append( division.ring, division.title );
 
-				division.edit     .click();
+				division.edit .click( createDivision );
 
 				division.item.append( division.edit );
 				e.divisions.list.append( division.item );
