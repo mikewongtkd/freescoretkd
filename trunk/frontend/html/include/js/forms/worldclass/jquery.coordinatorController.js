@@ -60,6 +60,12 @@ $.widget( "freescore.coordinatorController", {
 				realtime   : 0,
 			},
 
+			navigate : {
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Start Scoring" ),
+				division   : button.clone() .addClass( 'navigation ui-icon-arrow-r'  ) .html( "This Division" ),
+			},
+
 			penalties : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Penalties" ),
@@ -133,10 +139,11 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.changes    .panel.append( actions.changes.legend, actions.changes.save, actions.changes.revert );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
+		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
 		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.withdraw, actions.punitive.disqualify );
 
-		actions.panel.append( actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.changes.panel );
+		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -228,6 +235,21 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			var divid = $( this ).attr( 'divid' ); 
 			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
+		};
+
+		// ============================================================
+		var goToDivision = function() {
+		// ============================================================
+			e.dialog.popupdialog({
+				title:    'Start Scoring Division?',
+				subtitle: 'Start scoring division?',
+				message:  'Check that no referees are currently scoring before changing the current division.',
+				afterclose: function() {},
+				buttons:  [
+					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); }},
+					{ text : 'Start',  style : 'ok',     click : function() { (sendRequest( request, parameters ))(); }},
+				]
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
 
 		// ============================================================
@@ -524,11 +546,13 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			if( ! defined( division )) { return; }
 			if( o.progress.current == current ) { 
+				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
 				e.actions.punitive  .panel .show();
 				e.actions.changes   .panel .hide();
 			} else {
+				e.actions.navigate  .panel .show();
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
 				e.actions.punitive  .panel .hide();
@@ -706,11 +730,14 @@ $.widget( "freescore.coordinatorController", {
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
 			if( defined( o.changes )) { return; } // Do not refresh if there are pending changes
 			o.progress = progress;
-			e.updateDivisions( progress.divisions, progress.staging, i );
+			e.updateDivisions( progress.divisions, progress.staging, progress.current );
+			e.updateRounds( progress.divisions[ i ], i );
 			e.updateAthletes( progress.divisions[ i ], i );
 
 			e.dialog.popup( 'close' );
 		};
+		actions.navigate   .division   .click( goToDivision );
+
 		actions.changes    .save       .click( saveChanges );
 		actions.changes    .revert     .click( revertChanges );
 
