@@ -187,6 +187,24 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var changeAthletes = function( division, round ) {
+		// ============================================================
+			return function() {
+				var rename = [];
+				var rows   = $( this ).parents( 'tbody' ).children(); // tbody children are tr elements, i.e. athlete names and scores
+				for( i = 0; i < rows.length; i++ ) {
+					var row    = $( rows[ i ] );
+					var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
+					var j      = column.order.attr( 'order' );
+					var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
+					if( defined( j ) ) { rename.push({ order : parseInt( j ), name : name }); }
+				}
+				o.changes = { divid : division.name, athletes: rename, round : round };
+				e.actions.changes.panel.fadeIn(); 
+			}
+		};
+
+		// ============================================================
 		var clearPenalties = function() {
 		// ============================================================
 			o.penalties.bounds    = 0.0;
@@ -246,7 +264,7 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Start Scoring Division?',
 				subtitle: 'Start scoring division?',
 				message:  'Check that no referees are currently scoring before changing the current division.',
-				afterclose: function() {},
+				afterclose: function() { e.sound.confirmed.play(); },
 				buttons:  [
 					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); }},
 					{ text : 'Start',  style : 'ok',     click : function() { $(this).parent().children().hide(); (sendCommand( command ))(); }},
@@ -568,13 +586,10 @@ $.widget( "freescore.coordinatorController", {
 				var index = undefined;
 				for( var i = 0; i < o.progress.divisions.length; i++ ) {
 					var div = o.progress.divisions[ i ]
-					if( div.name == division.name ) {
-						index = i;
-						break;
-					}
+					if( div.name == division.name ) { index = i; break; }
 				}
 
-				if( defined( index )) { e.actions.navigate.division.attr({ index : index }); }
+				e.actions.navigate.division.attr({ index : index });
 			}
 
 			// Update Page Header
@@ -599,13 +614,13 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.table.append( e.athletes.tbody );
 			e.athletes.tbody.sortable({
 				// Prevent reordering of athletes who have completed their form
-				items: '> tr:not(complete)', 
+				items: '> tr:not(.add, .complete)', 
 
 				// Notify user of reordering change and enable user to save changes
 				stop: function( ev ) { 
 					var reorder = [];
 					var rows = $(this).context.children; // tbody children are tr elements, i.e. athlete names and scores
-					for( i = 0; i < rows.length; i++ ) {
+					for( i = 0; i < rows.length - 1; i++ ) {
 						var row    = $( rows[ i ] );
 						var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
 						var j      = column.order.attr( 'order' );
@@ -647,27 +662,18 @@ $.widget( "freescore.coordinatorController", {
 					complete &= formComplete;
 				}
 				
-				// Populate data
+				// ===== SHOW ATHLETE DATA (ORDER, NAME, AND SCORE(S))
+				// If the athlete has completed their forms, show the name as unchangeable
 				if( complete ) {
 					athlete.name.append( athlete.data.name );
 					athlete.row.addClass( 'complete' );
+
+				// Otherwise show the name as an editable input
 				} else {
+
 					var input = html.text.clone();
 					input.val( athlete.data.name );
-					input.change( function( ev ) { 
-						var rename = [];
-						var rows   = $( this ).parents( 'tbody' ).children(); // tbody children are tr elements, i.e. athlete names and scores
-						for( i = 0; i < rows.length; i++ ) {
-							var row    = $( rows[ i ] );
-							var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
-							var j      = column.order.attr( 'order' );
-							var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
-							if( defined( j ) ) { rename.push({ order : parseInt( j ), name : name }); }
-						}
-						o.changes = { divid : division.name, athletes: rename, round : round };
-						e.actions.changes.panel.fadeIn(); 
-
-					});
+					input.change( changeAthletes( division, round ) );
 					athlete.name.append( input );
 				}
 				athlete.order.attr({ order : (i + 1) });
@@ -676,11 +682,12 @@ $.widget( "freescore.coordinatorController", {
 				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
 
 				// Highlight current athlete
+				if( ! defined( o.round )) { o.round = division.round; }
 				var currentDivision = o.progress.current == current;
 				var currentRound    = o.round == division.round;
 				var currentAthlete  = j == division.current;
-				if( currentDivision && currentRound && currentAthlete ) { athlete.row.addClass( 'current' ); }
-				else                                                    { athlete.row.removeClass( 'current' ) }
+				if( currentDivision && currentRound && currentAthlete ) { athlete.row    .addClass( 'current' ); }
+				else                                                    { athlete.row .removeClass( 'current' ); }
 
 				// Append score
 				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;
@@ -699,8 +706,19 @@ $.widget( "freescore.coordinatorController", {
 				}
 				e.athletes.tbody.append( athlete.row );
 
-				if( complete              ) { athlete.row.addClass( 'complete' ); } else { athlete.row.removeClass( 'complete' ); }
+				if( complete ) { athlete.row.addClass( 'complete' ); } else { athlete.row.removeClass( 'complete' ); }
 			}
+
+			// ===== ADD NEW ATHLETE
+			var add = {
+				row   : html.tr   .clone() .addClass( "add" ),
+				order : html.td   .clone() .addClass( "order ui-btn-icon-notext ui-icon-plus" ).css({ position: 'relative' }),
+				name  : html.td   .clone() .addClass( "name" ),
+				input : html.text .clone() .attr({ placeholder: 'Add a new athlete' }),
+			};
+			add.row.append( add.order, add.name );
+			add.name.append( add.input );
+			e.athletes.tbody.append( add.row );
 
 			var different = {
 				division : division.name      != o.current.divname,
