@@ -434,6 +434,7 @@ $.widget( "freescore.coordinatorController", {
 			var divider = html.li.clone() .addClass( 'divider' ) .attr({ 'data-role' : 'list-divider', 'data-theme' : 'b' });
 
 			// ===== DISPLAY RING DIVISIONS
+			// JSFiddle for multiple buttons: https://jsfiddle.net/w33sk6zz/
 			e.divisions.list.append( divider.clone() .html( 'Ring ' + o.ring ));
 			for( var i = 0; i < divisions.length; i++ ) {
 				var divdata = divisions[ i ];
@@ -545,6 +546,7 @@ $.widget( "freescore.coordinatorController", {
 		var updateAthletes = e.updateAthletes = function( division, current ) {
 		// ============================================================
 			if( ! defined( division )) { return; }
+			console.log( division );
 			if( o.progress.current == current ) { 
 				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
