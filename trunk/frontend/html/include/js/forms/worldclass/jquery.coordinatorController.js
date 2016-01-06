@@ -62,8 +62,8 @@ $.widget( "freescore.coordinatorController", {
 
 			navigate : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend     : html.legend.clone() .html( "Start Scoring" ),
-				division   : button.clone() .addClass( 'navigation ui-icon-arrow-r'  ) .html( "This Division" ),
+				legend     : html.legend.clone() .html( "Go To This Division" ),
+				division   : button.clone() .addClass( 'navigation ui-icon-arrow-r'  ) .html( "Start Scoring" ),
 			},
 
 			penalties : {
@@ -240,6 +240,8 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var goToDivision = function() {
 		// ============================================================
+			console.log( o.progress );
+			var command = 'division/' + $( this ).attr( 'index' );
 			e.dialog.popupdialog({
 				title:    'Start Scoring Division?',
 				subtitle: 'Start scoring division?',
@@ -247,7 +249,7 @@ $.widget( "freescore.coordinatorController", {
 				afterclose: function() {},
 				buttons:  [
 					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); }},
-					{ text : 'Start',  style : 'ok',     click : function() { (sendRequest( request, parameters ))(); }},
+					{ text : 'Start',  style : 'ok',     click : function() { $(this).parent().children().hide(); (sendCommand( command ))(); }},
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -546,19 +548,33 @@ $.widget( "freescore.coordinatorController", {
 		var updateAthletes = e.updateAthletes = function( division, current ) {
 		// ============================================================
 			if( ! defined( division )) { return; }
-			console.log( division );
 			if( o.progress.current == current ) { 
 				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
 				e.actions.punitive  .panel .show();
 				e.actions.changes   .panel .hide();
+
+				e.actions.navigate.division.attr({ index : undefined });
+
 			} else {
 				e.actions.navigate  .panel .show();
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
 				e.actions.punitive  .panel .hide();
 				e.actions.changes   .panel .hide();
+
+				// Set context for navigation button
+				var index = undefined;
+				for( var i = 0; i < o.progress.divisions.length; i++ ) {
+					var div = o.progress.divisions[ i ]
+					if( div.name == division.name ) {
+						index = i;
+						break;
+					}
+				}
+
+				if( defined( index )) { e.actions.navigate.division.attr({ index : index }); }
 			}
 
 			// Update Page Header
