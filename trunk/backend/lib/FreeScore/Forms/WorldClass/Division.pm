@@ -21,7 +21,7 @@ use strict;
 # - [ form index ]
 #   - complete
 #   - penalties
-#   - status
+#   - decision
 #     - withdrawn
 #     - disqualified
 #   - judge
@@ -261,13 +261,23 @@ sub edit_athletes {
 	my $order   = $self->{ order }{ $round };
 	my $reorder = [];
 	for my $i ( 0 .. $#$edits ) {
-		my $j = $edits->[ $i ]{ order } - 1; # Get the athlete's previous relative order index
-		my $k = $order->[ $j ]; # Get the athlete id (original index);
-		my $athlete = $self->{ athletes }[ $k ]; # Retrieve the athlete
+		my $j       = $edits->[ $i ]{ order } - 1; # Get the athlete's previous relative order index
+		my $k       = $order->[ $j ]; # If the athlete is already in the round, get the athlete id (original index);
+		my $athlete = undef;
+
+		if( defined $k ) {
+			$athlete = $self->{ athletes }[ $k ]; # Retrieve the athlete
+		} else {
+			$athlete = { info => {} };
+			push @{ $self->{ athletes }}, $athlete;
+			$k = $#{ $self->{ athletes }};
+		}
 		push @$reorder, $k;
+
 		$athlete->{ name } = $edits->[ $i ]{ name };
 	}
 	$self->{ order }{ $round } = $reorder;
+	$self->normalize();
 }
 
 # ============================================================
@@ -377,13 +387,13 @@ sub record_penalties {
 }
 
 # ============================================================
-sub record_status {
+sub record_decision {
 # ============================================================
 #** @method ( punitive_declaration_text )
-#   @brief Records the given punitive declaration status
+#   @brief Records the given punitive decision
 #*
 	my $self      = shift;
-	my $status    = shift;
+	my $decision    = shift;
 
 	my $athlete   = $self->{ athletes }[ $self->{ current } ];
 	my $round     = $self->{ round };
@@ -392,7 +402,8 @@ sub record_status {
 	my $judges    = $self->{ judges };
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-	$athlete->{ scores }{ $round }->record_status( $form, $status );
+	$athlete->{ scores }{ $round }->record_decision( $form, $decision );
+	$self->next_athlete();
 }
 
 # ============================================================
@@ -571,11 +582,11 @@ sub read {
 
 			# Status notes describe athlete withdraw or disqualification
 			} elsif ( $judge =~ /^s/ ) {
-				my $status = { (map { my ($key, $value) = split /=/, $_, 2; ($key => $value ); } @score_criteria) };
+				my $decision  = [ (map { my ($key, $value) = split /=/, $_, 2; ($key); } @score_criteria) ];
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
 				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_status( $form, $status );
+				$athlete->{ scores }{ $round }->record_decision( $form, $_ ) foreach @$decision;
 			}
 
 		} else {
@@ -797,7 +808,7 @@ sub write {
 		my $forms = int( @{$self->{ forms }{ $round }});
 		foreach my $k (@$order) {
 			my $athlete = $self->{ athletes }[ $k ];
-			print FILE join( "\t", $athlete->{ name }, map { "$_=$athlete->{ info }{ $_ }" } sort keys $athlete->{ info } ) . "\n";
+			print FILE join( "\t", $athlete->{ name }, exists $athlete->{ info } ? map { "$_=$athlete->{ info }{ $_ }" } sort keys %{ $athlete->{ info }} : () ) . "\n";
 			print FILE $athlete->{ scores }{ $round }->string( $round, $forms, $judges );
 		}
 	}
@@ -1124,10 +1135,10 @@ sub _parse_placement {
 sub _withdrawn_or_disqualified { 
 # ============================================================
 #** @function ( form_object )
-#   @brief Returns true if a form object has a withdrawn or disqualified status
+#   @brief Returns true if a form object has a withdrawn or disqualified decision
 #*
 	my $form = shift; 
-	return (exists $form->{ status } && (exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified }));
+	return (exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified }));
 }
 
 our @round_order = ( qw( prelim semfin finals ro8a ro8b ro8c ro8d ro4a ro4b ro2 ) );

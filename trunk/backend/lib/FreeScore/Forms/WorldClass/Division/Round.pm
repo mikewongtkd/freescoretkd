@@ -55,27 +55,30 @@ sub record_penalties {
 }
 
 # ============================================================
-sub record_status {
+sub record_decision {
 # ============================================================
-# Records status notes. Will overwrite. 
+# Records decision notes. Will overwrite. 
 #------------------------------------------------------------
- 	my $self    = shift;
-	my $i       = shift;
-	my $notes   = shift;
+ 	my $self     = shift;
+	my $i        = shift;
+	my $decision = shift;
 
 	my $form = $self->[ $i ];
-	foreach my $key (keys %$notes) { $form->{ status }{ $key } = $notes->{ $key }; }
+	$form->{ decision }{ $decision } = 1;
+
+	if( $notes ) {
+		print STDERR Dumper $notes;
+		print STDERR Dumper $form;
+	}
 
 	my $punitive_declaration = undef;
 	foreach my $j ($i .. $#$self) {  
 		my $form = $self->[ $j ];
-		foreach my $status (sort keys %{ $form->{ status }}) {
-			$punitive_declaration = $status if( $status eq 'disqualified' || $status eq 'withdrawn' );
-		}
-		# Copy the status of the current form and all subsequent forms
+		foreach my $decision (sort keys %{ $form->{ decision }}) { $punitive_declaration = $decision; }
+		# Copy the decision of the current form and all subsequent forms
 		if( defined $punitive_declaration ) { 
 			$form->{ complete } = 1; 
-			$form->{ status }{ $punitive_declaration } = 1;
+			$form->{ decision }{ $punitive_declaration } = 1;
 		}
 	}
 
@@ -106,7 +109,8 @@ sub calculate_means {
 		next unless exists $form->{ judge };
 
 		# ===== SET MEAN SCORE TO ZERO FOR WITHDRAWN OR DISQUALIFIED ATHLETES
-		if( exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified } ) {
+		my $punitive_decision = exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified };
+		if( $punitive_decision ) {
 			$form->{ adjusted_mean } = 0.0;
 			$form->{ complete_mean } = 0.0;
 			push @$means, { adjusted_mean => 0.0, complete_mean => 0.0 };
@@ -120,8 +124,8 @@ sub calculate_means {
 			my $score        = $form->{ judge }[ $i ];
 			my $accuracy     = $score->{ accuracy };
 			my $presentation = $score->{ presentation };
-			die "Round Object Error: Accuracy not calculated!"  if not defined $accuracy;
-			die "Round Object Error: Precision not calculated!" if not defined $presentation;
+			die "Round Object Error: Accuracy not calculated!"  if ! defined $accuracy     && ! $punitive_decision;
+			die "Round Object Error: Precision not calculated!" if ! defined $presentation && ! $punitive_decision;
 			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
 			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
 			$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation } > $presentation ? $i : $stats->{ minpre };
@@ -200,7 +204,7 @@ sub form_complete {
 	my $form = $self->[ $i ];
 
 	# ===== FORM IS COMPLETE IF THERE IS A PUNITATIVE DECISION
-	my $punitive_declaration = exists $form->{ status }{ withdrawn } || exists $form->{ status }{ disqualified };
+	my $punitive_declaration = exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified };
 	$form->{ complete }      = $punitive_declaration; 
 	return 1 if $form->{ complete };
 
@@ -271,9 +275,9 @@ sub string {
 		my $form_id = 'f' . ($i + 1);
 
 		# ===== RECORD STATUS
-		if( exists $form->{ status } ) {
-			foreach my $key (sort keys %{ $form->{ status }}) {
-				my $value = $form->{ status }{ $key };
+		if( exists $form->{ decision } ) {
+			foreach my $key (sort keys %{ $form->{ decision }}) {
+				my $value = $form->{ decision }{ $key };
 				push @string, "\t" . join( "\t", $round, $form_id, 's', "$key=$value" ) . "\n";
 			}
 		}

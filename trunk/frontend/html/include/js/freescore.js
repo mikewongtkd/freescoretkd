@@ -34,6 +34,7 @@ var FreeScore = {
 		strong   : $( "<strong />" ), 
 		table    : $( "<table />" ), 
 		tbody    : $( "<tbody />" ), 
+		thead    : $( "<thead />" ), 
 		td       : $( "<td />" ), 
 		th       : $( "<th />" ), 
 		tr       : $( "<tr />" ), 

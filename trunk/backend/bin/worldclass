@@ -161,6 +161,28 @@ post '/:tournament/:ring/coordinator' => sub {
 };
 
 # ------------------------------------------------------------
+# WRITE REFEREE PUNITIVE DECISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/coordinator/:decision' => sub { 
+	my $self         = shift;
+	my $tournament   = $self->param( 'tournament'     );
+	my $ring         = $self->param( 'ring'           );
+	my $decision     = $self->param( 'decision'         );
+	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division     = $progress->current();
+	my $athlete      = $division->{ athletes }[ $division->{ current } ];
+
+	try {
+		$division->record_decision( $decision );
+		$division->write();
+		send_response( $self, { description => 'Declaring punitive decision for athlete', athlete => $athlete->{ name }, round => $division->{ round }, decision => $decision, debug => $division->{ debug }});
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
 # WRITE REFEREE PENALTY FOR ATHLETE
 # ------------------------------------------------------------
 get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub { 
@@ -179,29 +201,7 @@ get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub
 	try {
 		$division->record_penalties( $penalties );
 		$division->write();
-		send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
-# WRITE REFEREE PUNITIVE DECISION
-# ------------------------------------------------------------
-get '/:tournament/:ring/coordinator/:status' => sub { 
-	my $self         = shift;
-	my $tournament   = $self->param( 'tournament'     );
-	my $ring         = $self->param( 'ring'           );
-	my $status       = $self->param( 'status'         );
-	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division     = $progress->current();
-	my $athlete      = $division->{ athletes }[ $division->{ current } ];
-
-	try {
-		$division->record_status( $status );
-		$division->write();
-		send_response( $self, { description => 'Declaring punitive decision for athlete', athlete => $athlete->{ name }, round => $division->{ round }, status => $status, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
+		send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, debug => $division->{ debug }});
 
 	} catch {
 		send_response( $self, { error => $_ });
@@ -264,11 +264,11 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		my $edits    = $json->decode( $content );
 		my $header   = $edits->{ header };
 		my $athletes = $edits->{ athletes };
+		my $round    = $edits->{ round } || $division->{ round };
 		my $add      = $edits->{ create };
 		my $delete   = $edits->{ delete };
 		my $transfer = $edits->{ transfer };
 		my $success  = {};
-
 
 		# ===== CREATE A NEW DIVISION
 		if( exists $edits->{ create } ) {
@@ -276,20 +276,11 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			$success->{ id } = $division->{ name };
 
 		# ====== EDITING OR CREATE NEW DIVISION CONTENT
-		} elsif( exists $edits->{ header } && exists $edits->{ athletes } ) {
+		} elsif( exists $edits->{ header } || exists $edits->{ athletes } ) {
 			
 			# AND/OR EDIT AN EXISTING DIVISION
 			$division->{ $_ } = $header->{ $_ } foreach (keys %$header); 
-			my $reordered = [ map { { name => $_->{ after }{ name } } } @$athletes ]; # Set defaults to all new athletes
-			foreach my $edit (@$athletes) {
-				my $i = $edit->{ before }{ index };
-				my $j = $edit->{ after }{ index };
-				next unless defined $i; # New athletes have no defined "before index"
-				my $athlete = $division->{ athletes }[ $i ];
-				die "Division Editing Error: Athlete '$edit->{ before }{ name }' does not correspond to '$athlete->{ name }'" unless $athlete->{ name } eq $edit->{ before }{ name };
-				$reordered->[ $j ] = $athlete; # Transfer existing scores to potentially reordered athlete
-			}
-			$division->{ athletes } = $reordered;
+			$division->edit_athletes( $athletes, $round );
 
 		# ====== DELETE A DIVISION
 		} elsif( exists $edits->{ delete } ) {
