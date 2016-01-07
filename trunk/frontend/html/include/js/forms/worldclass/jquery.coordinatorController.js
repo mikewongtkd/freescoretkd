@@ -726,11 +726,10 @@ $.widget( "freescore.coordinatorController", {
 					var disqualified = athlete.data.scores[ round ][ 0 ].decision.disqualified;
 
 					if( defined( score ) ) {
-						if( defined( score.total ))  { score = score.total.toFixed( 2 ); }
-						else                         { score = '&mdash;'; }
+						if( defined( score.total ))  { score = score.total.toFixed( 2 ); } else { score = '&mdash;'; }
 						if( defined( withdrawn ))    { score = 'WD'; }
 						if( defined( disqualified )) { score = 'DQ'; }
-					}
+					} else                           { score = '&mdash;'; }
 
 					var form1 = {
 						name  : division.forms[ round ][ 0 ].name,
@@ -744,12 +743,10 @@ $.widget( "freescore.coordinatorController", {
 					var withdrawn    = athlete.data.scores[ round ][ 1 ].decision.withdrawn;
 					var disqualified = athlete.data.scores[ round ][ 1 ].decision.disqualified;
 					if( defined( score ) ) {
-						if( defined( score.total ))  { score = score.total.toFixed( 2 ); }
-						else                         { score = '&mdash;'; }
+						if( defined( score.total ))  { score = score.total.toFixed( 2 ); } else { score = '&mdash;'; }
 						if( defined( withdrawn ))    { score = 'WD'; }
 						if( defined( disqualified )) { score = 'DQ'; }
-					}
-
+					}  else                          { score = '&mdash;'; }
 					var form2 = {
 						name  : division.forms[ round ][ 1 ].name,
 						score : score
