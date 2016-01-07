@@ -720,17 +720,39 @@ $.widget( "freescore.coordinatorController", {
 				else                                                    { athlete.row .removeClass( 'current' ); }
 
 				// Append score
-				var score = athlete.data.scores[ round ][ 0 ].adjusted_mean;
-				var form1 = {
-					name  : division.forms[ round ][ 0 ].name,
-					score : defined( score ) && defined( score.total ) ? score.total.toFixed( 2 ) : '&mdash;'
+				{
+					var score        = athlete.data.scores[ round ][ 0 ].adjusted_mean;
+					var withdrawn    = athlete.data.scores[ round ][ 0 ].decision.withdrawn;
+					var disqualified = athlete.data.scores[ round ][ 0 ].decision.disqualified;
+
+					if( defined( score ) ) {
+						if( defined( score.total ))  { score = score.total.toFixed( 2 ); }
+						else                         { score = '&mdash;'; }
+						if( defined( withdrawn ))    { score = 'WD'; }
+						if( defined( disqualified )) { score = 'DQ'; }
+					}
+
+					var form1 = {
+						name  : division.forms[ round ][ 0 ].name,
+						score : score
+					};
+					athlete.form1.append( "<strong>" + form1.score + "</strong>" );
 				};
-				athlete.form1.append( "<strong>" + form1.score + "</strong>" );
+
 				if( division.forms[ round ].length > 1 ) { 
-					var score = athlete.data.scores[ round ][ 1 ].adjusted_mean;
+					var score        = athlete.data.scores[ round ][ 1 ].adjusted_mean;
+					var withdrawn    = athlete.data.scores[ round ][ 1 ].decision.withdrawn;
+					var disqualified = athlete.data.scores[ round ][ 1 ].decision.disqualified;
+					if( defined( score ) ) {
+						if( defined( score.total ))  { score = score.total.toFixed( 2 ); }
+						else                         { score = '&mdash;'; }
+						if( defined( withdrawn ))    { score = 'WD'; }
+						if( defined( disqualified )) { score = 'DQ'; }
+					}
+
 					var form2 = {
 						name  : division.forms[ round ][ 1 ].name,
-						score : defined( score ) && defined( score.total ) ? score.total.toFixed( 2 ) : '&mdash;'
+						score : score
 					};
 					athlete.form2.append( "<strong>" + form2.score + "</strong>" );
 				}
