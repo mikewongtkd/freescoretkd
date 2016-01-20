@@ -702,7 +702,7 @@ $.widget( "freescore.coordinatorController", {
 				// Otherwise show the name as an editable input
 				} else {
 
-					var input = html.text.clone();
+					var input = html.search.clone();
 					input.val( athlete.data.name );
 					input.change( renameAthletes( division, round ) );
 					athlete.name.append( input );

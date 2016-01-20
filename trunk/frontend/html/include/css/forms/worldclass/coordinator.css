@@ -61,19 +61,39 @@ table {
     font-size: 12pt;
     text-align: center; }
   .athletes .name {
-    width: calc( 100% - 600px );
+    width: calc( 100% - 180px );
     font-size: 16pt; }
-    .athletes .name input[type=text] {
+    .athletes .name input[type=search], .athletes .name input[type=text] {
       font-family: Optima;
       background: transparent;
       border: none;
       width: 100%; }
+      .athletes .name input[type=search]::-webkit-search-cancel-button, .athletes .name input[type=text]::-webkit-search-cancel-button {
+        -webkit-appearance: none; }
+        .athletes .name input[type=search]::-webkit-search-cancel-button:after, .athletes .name input[type=text]::-webkit-search-cancel-button:after {
+          content: '';
+          display: block;
+          width: 16px;
+          height: 16px;
+          background-image: url("/freescore/include/jquery/mobile/images/icons-svg/delete-black.svg");
+          background-repeat: no-repeat;
+          background-size: 16px;
+          background-position: top left; }
+        .athletes .name input[type=search]::-webkit-search-cancel-button svg, .athletes .name input[type=text]::-webkit-search-cancel-button svg {
+          fill: red; }
+      .athletes .name input[type=search]:focus, .athletes .name input[type=text]:focus {
+        outline: none;
+        border-bottom: 1px solid #6facd5; }
+      .athletes .name input[type=search]:hover, .athletes .name input[type=text]:hover {
+        border-bottom: 1px solid #6facd5; }
   .athletes .oneform {
-    width: 120px;
-    text-align: center; }
+    width: 100px;
+    text-align: left;
+    padding-left: 20px; }
   .athletes .twoforms {
-    width: 60px;
-    text-align: center; }
+    width: 40px;
+    text-align: left;
+    padding-left: 20px; }
   .athletes .ordinal {
     color: silver; }
   .athletes .form {

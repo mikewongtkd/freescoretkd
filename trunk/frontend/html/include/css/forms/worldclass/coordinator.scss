@@ -67,17 +67,44 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 		text-align: center; 
 	}
 	.name     { 
-		width : calc( 100% - 600px ); 
+		width : calc( 100% - 180px ); 
 		font-size:  16pt; 
-		input[type=text] {
+		input[type=search], input[type=text] {
 			font-family: Optima;
 			background: transparent;
 			border: none;
 			width: 100%;
+
+			&::-webkit-search-cancel-button {
+				-webkit-appearance: none;
+
+				&:after {
+					content: '';
+					display: block;
+					width: 16px;
+					height: 16px;
+					background-image: url( '/freescore/include/jquery/mobile/images/icons-svg/delete-black.svg' );
+					background-repeat: no-repeat;
+					background-size: 16px;
+					background-position: top left;
+				}
+				svg {
+					fill: red;
+				}
+			}
+
+			&:focus {
+				outline: none;
+				border-bottom: 1px solid #6facd5;
+			}
+
+			&:hover {
+				border-bottom: 1px solid #6facd5;
+			}
 		}
 	}
-	.oneform  { width : 120px; text-align: center; }
-	.twoforms { width :  60px; text-align: center; }
+	.oneform  { width : 100px; text-align: left; padding-left: 20px; }
+	.twoforms { width :  40px; text-align: left; padding-left: 20px; }
 	.ordinal  { color: silver; }
 	.form     { color: gold; }
 	.complete { color: rgba( 0, 0, 0, 0.4 ); }
