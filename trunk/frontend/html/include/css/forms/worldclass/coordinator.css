@@ -73,11 +73,11 @@ table {
         .athletes .name input[type=search]::-webkit-search-cancel-button:after, .athletes .name input[type=text]::-webkit-search-cancel-button:after {
           content: '';
           display: block;
-          width: 16px;
-          height: 16px;
-          background-image: url("/freescore/include/jquery/mobile/images/icons-svg/delete-black.svg");
+          width: 24px;
+          height: 24px;
+          background-image: url("/freescore/images/icons/apps/coordinator/delete.svg");
           background-repeat: no-repeat;
-          background-size: 16px;
+          background-size: 24px;
           background-position: top left; }
         .athletes .name input[type=search]::-webkit-search-cancel-button svg, .athletes .name input[type=text]::-webkit-search-cancel-button svg {
           fill: red; }

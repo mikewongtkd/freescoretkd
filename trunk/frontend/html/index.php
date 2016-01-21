@@ -17,8 +17,9 @@
 			div[data-role="footer"]              { text-align: center; color: silver; }
 		</style>
 		<script type="text/javascript">
-			function register() { document.location="./setup/register.php"; }
-			function managewc() { document.location="./forms/worldclass/divisions/index.php"; }
+			function register()   { document.location="./setup/register.php"; }
+			function managewc()   { document.location="./forms/worldclass/divisions/index.php"; }
+			function tournament() { document.location="./setup/tournament.php"; }
 		</script>
 	</head>
 	<body>
@@ -39,10 +40,15 @@
 							<h2>Manage World Class Poomsae Divisions</h2>
 							<p>Add, remove, or edit divisions</p>
 						</a></li>
+						<li data-role="list-divider">Tournament</li>
+						<li><a href="javascript:tournament()">
+							<h2>Manage Tournament Configuration</h2>
+							<p>Configure the number of rings</p>
+						</a></li>
 					</ul>
 			</div>
 			<div data-role="footer" data-position-fixed="true" data-theme="b">
-				&copy; 2015 Mike Wong All Rights Reserved. 
+				&copy; 2015-2016 Mike Wong All Rights Reserved. 
 			</div>
 		</div>
 	</body>

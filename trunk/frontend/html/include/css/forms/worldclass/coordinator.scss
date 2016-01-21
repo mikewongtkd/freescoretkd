@@ -81,11 +81,11 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 				&:after {
 					content: '';
 					display: block;
-					width: 16px;
-					height: 16px;
-					background-image: url( '/freescore/include/jquery/mobile/images/icons-svg/delete-black.svg' );
+					width: 24px;
+					height: 24px;
+					background-image: url( '/freescore/images/icons/apps/coordinator/delete.svg' );
 					background-repeat: no-repeat;
-					background-size: 16px;
+					background-size: 24px;
 					background-position: top left;
 				}
 				svg {
