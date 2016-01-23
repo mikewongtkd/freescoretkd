@@ -3,6 +3,6 @@
 	$tournament = json_encode( [ 
 		"name" => "FreeScore Test Data",
 		"db" => "test", 
-		"rings" => [ "count" => 2, "start" => 1, "enable" => [ 1, 2 ], "width" => 2, "height" => 1, "formation" => "rows" ]
+		"rings" => [ "count" => 6, "start" => 1, "enable" => [ 1, 2, 5, 6 ], "width" => 3, "height" => 2, "formation" => "loop" ]
 	]);
 ?>

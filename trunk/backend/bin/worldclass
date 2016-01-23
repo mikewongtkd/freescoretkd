@@ -370,6 +370,62 @@ post '/:tournament/:ring/:div_index/text' => sub {
 };
 
 # ============================================================
+# SETUP INTERFACE
+# ============================================================
+# This is temporarily served by the worldclass service until
+# I can make a proper setup service.
+
+# ------------------------------------------------------------
+# SETUP REQUESTS CHANGES FOR NUMBER OF RINGS IN TOURNAMENT
+# ------------------------------------------------------------
+post '/:tournament/setup' => sub {
+	my $self         = shift;
+	my $tournament   = $self->param( 'tournament'     );
+	my $ring         = $self->param( 'ring'           );
+
+	try {
+		my $content = $json->decode( $self->req->body );
+		my $k       = $content->{ start };
+		my $n       = $content->{ count };
+		my $w       = $content->{ width };
+		my $h       = $content->{ height };
+		my $format  = $content->{ formation };
+		my $enable  = join ", ", @{ $content->{ enable }};
+		my $path    = "$FreeScore::PATH/$tournament";
+		my @created = ();
+		foreach my $i ( $k .. ($n + $k - 1)) {
+			foreach my $event (qw( forms-grassroots forms-worldclass )) {
+				my $ring = sprintf( "%s/%s/ring%02d", $path, $event, $i );
+				print STDERR "Creating $ring\n";
+				next if( -e $ring );
+				mkdir $ring;
+				chmod 0777, $ring;
+				open FILE, ">$ring/progress.txt";
+				print FILE "# current=0\n";
+				close FILE;
+				push @created, $i;
+			}
+		}
+
+		open FILE, ">/var/www/html/freescore/include/php/config.php" or die "Config Error: Can't write to config.php $!";
+		print FILE <<EOF;
+<?php
+	\$host = "freescore.net";
+	\$tournament = json_encode( [ 
+		"name" => "FreeScore Test Data",
+		"db" => "test", 
+		"rings" => [ "count" => $n, "start" => $k, "enable" => [ $enable ], "width" => $w, "height" => $h, "formation" => "$format" ]
+	]);
+?>
+EOF
+		close FILE;
+		send_response( $self, { description => "Updating tournament setup to $content->{ count } ring(s)", setup => $content });
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
+
+# ============================================================
 # ERROR TRAPPING
 # ============================================================
 any '*command' => sub {

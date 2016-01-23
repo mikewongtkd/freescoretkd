@@ -8,15 +8,19 @@ $.widget( "freescore.tournament", {
 		var html         = e.html     = FreeScore.html;
 		var tournament   = o.tournament;
 
-
+		var sound    = e.sound = {
+			ok        : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg"   ]}),
+			confirmed : new Howl({ urls: [ "/freescore/sounds/received.mp3", "/freescore/sounds/received.ogg" ]}),
+			error     : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"    ]}),
+		};
 	},
 	_init: function( ) {
 		var o    = this.options;
 		var w    = this.element;
 		var e    = this.options.elements;
 		var html = e.html;
-
 		o.ring   = {};
+		o.port   = ':3088/'; // Send to Worldclass service for now; will need to have a Setup service later
 
 		w.empty();
 
@@ -106,11 +110,6 @@ $.widget( "freescore.tournament", {
 			cancel : html.a.clone() .addClass( "cancel" ) .attr({ 'data-role' : 'button', 'data-inline' : true }) .html( "Cancel" ),
 		};
 
-		button.cancel .click( function() { document.location = ".."; } );
-		button.ok     .click( function() { console.log( o.ring ); } );
-
-		button.panel.append( button.cancel, button.ok );
-
 		// ============================================================
 		var updateFormation = function() {
 		// ============================================================
@@ -168,6 +167,40 @@ $.widget( "freescore.tournament", {
 			}
 			e.ring.enable.fieldset.enhanceWithin().controlgroup( 'refresh' );
 		};
+
+		// ============================================================
+		var sendRequest = function( request, data, callback ) {
+		// ============================================================
+			return function() {
+				console.log( request );
+				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + request;
+				$.ajax( {
+					type:        'POST',
+					crossDomain: true,
+					url:         url,
+					dataType:    'json',
+					data:        JSON.stringify( data ),
+					success:     function( response ) { 
+						if( defined( response.error )) {
+							e.sound.error.play();
+							console.log( response );
+
+						} else {
+							e.sound.ok.play(); 
+							console.log( url );
+							console.log( response );
+							if( defined( callback )) { callback( response ); }
+						}
+					},
+					error:       function( response ) { e.sound.error.play(); console.log( "Network Error: Unknown network error." ); },
+				});
+			}
+		};
+
+		button.cancel .click( function() { document.location = ".."; } );
+		button.ok     .click( function() { console.log( o.ring ); updateFormation(); updateLayout(); updateEnable(); (sendRequest( 'setup', o.ring, function() { setTimeout( function() { window.location='..'; }, 750 ); } ))(); } );
+
+		button.panel.append( button.cancel, button.ok );
 
 		// ===== RING COUNT
 		for( var i = 0; i < ring.count.options.length; i++ ) {
