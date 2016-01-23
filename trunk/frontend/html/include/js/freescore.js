@@ -11,6 +11,7 @@ var FreeScore = {
 	html : { 
 		a        : $( "<a />" ), 
 		button   : $( "<button />" ), 
+		checkbox : $( "<input type=\"checkbox\" />" ), 
 		div      : $( "<div />" ), 
 		fieldset : $( "<fieldset />" ), 
 		form     : $( "<form />" ), 

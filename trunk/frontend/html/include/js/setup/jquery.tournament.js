@@ -18,7 +18,7 @@ $.widget( "freescore.tournament", {
 
 		w.empty();
 
-		var ring = {
+		var ring = e.ring = {
 			count : {
 				panel   : html.div    .clone() .addClass( "ui-field-contain ring-count" ),
 				label   : html.label  .clone() .attr({ for : 'select-ring-count' }) .html( 'Ring count' ),
@@ -63,6 +63,30 @@ $.widget( "freescore.tournament", {
 					{ value : 20, text : '20' },
 				]
 			},
+			enable : {
+				panel    : html.div      .clone() .attr({ 'data-role' : 'fieldcontain' }),
+				fieldset : html.fieldset .clone() .addClass( "ring-enable" ) .attr({ 'data-role' : 'controlgroup', 'data-type' : 'horizontal' }),
+				label    : html.legend   .clone() .html( 'Disable rings' ),
+			}
+		};
+
+		// ============================================================
+		var updateEnable = function() {
+		// ============================================================
+			var k    = parseInt( $( '#select-ring-start option:selected' ).text());
+			var n    = parseInt( $( '#select-ring-count option:selected' ).text());
+			var html = e.html;
+
+			e.ring.enable.fieldset.controlgroup();
+			e.ring.enable.fieldset.controlgroup( "container" ).empty();
+			for( var i = k; i < k + n; i++ ) {
+				var option = {
+					input : html.checkbox .clone() .attr({ name : 'enable-' + i, id : 'enable-' + i, value : 'disable' }),
+					label : html.label    .clone() .attr({ for : 'enable-' + i }) .html( i )
+				};
+				e.ring.enable.fieldset.controlgroup( "container" ).append( option.input, option.label );
+			}
+			e.ring.enable.fieldset.enhanceWithin().controlgroup( 'refresh' );
 		};
 
 		// ===== RING COUNT
@@ -70,6 +94,7 @@ $.widget( "freescore.tournament", {
 			var data   = ring.count.options[ i ];
 			var option = html.option.clone() .val( data.value ) .html( data.text );
 			ring.count.select.append( option );
+			ring.count.select.change( updateEnable );
 		}
 
 		// ===== RING START
@@ -77,10 +102,13 @@ $.widget( "freescore.tournament", {
 			var data   = ring.start.options[ i ];
 			var option = html.option.clone() .val( data.value ) .html( data.text );
 			ring.start.select.append( option );
+			ring.start.select.change( updateEnable );
 		}
 
 		ring.count.panel.append( ring.count.label, ring.count.select );
 		ring.start.panel.append( ring.start.label, ring.start.select );
-		w.append( ring.count.panel, ring.start.panel );
+		ring.enable.fieldset.append( ring.enable.label );
+		ring.enable.panel.append( ring.enable.fieldset );
+		w.append( ring.count.panel, ring.start.panel, ring.enable.panel  );
 	}
 });
