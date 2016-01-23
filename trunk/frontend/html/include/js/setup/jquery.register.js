@@ -343,6 +343,7 @@ $.widget( "freescore.register", {
 		// ===== STEP 2. SHOW THE RINGS
 		var width  = tournament.rings.width;
 		var height = tournament.rings.height;
+		var start  = tournament.rings.start;
 		var format = tournament.rings.formation; // formation = [loop|rows]
 		var enable = tournament.rings.enable;
 		var k      = tournament.rings.count;
@@ -352,7 +353,8 @@ $.widget( "freescore.register", {
 		for( var y = 0; y < height; y++ ) {
 			for( var x = 0; x < width; x++ ) {
 				var n = register.rings.data.length;
-				var enabled = ! defined( enable ) || enable.indexOf( n + 1 ) >= 0;
+				var num = n + start;
+				var enabled = ! defined( enable ) || enable.indexOf( num ) >= 0;
 				if( n >= k ) { continue; }
 				var xpos = x * 200;
 				var ypos = y * 200;
@@ -363,7 +365,7 @@ $.widget( "freescore.register", {
 					if      ( width > height ) { if( n == half ) { ypos += 100; } else if( n > half ) { xpos -= 200; }}
 					else if ( height > width ) { if( n == k-1  ) { xpos -= 100; }}
 				}
-				var ring = register.rings.add( (n + 1), x, y, xpos, ypos, enabled );
+				var ring = register.rings.add( num, x, y, xpos, ypos, enabled );
 				register.rings.data.push( ring );
 				register.rings.view.append( ring.dom );
 			}
