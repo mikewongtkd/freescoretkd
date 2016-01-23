@@ -1,0 +1,18 @@
+.tournament .buttons {
+  text-align: right; }
+  .tournament .buttons a.ok {
+    color: white;
+    text-shadow: 0 1px 0 green;
+    background: #9dd53a;
+    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    border: 1px solid green; }
+  .tournament .buttons a.cancel {
+    color: white;
+    text-shadow: 0 1px 0 brown;
+    background: #ffb76b;
+    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    border: 1px solid brown; }
+
+/*# sourceMappingURL=tournament.css.map */
