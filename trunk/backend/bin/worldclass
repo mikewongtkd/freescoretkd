@@ -392,7 +392,7 @@ post '/:tournament/setup' => sub {
 		my $format  = $content->{ formation };
 		my $enable  = join ", ", @{ $content->{ enable }};
 		my $path    = "$FreeScore::PATH/$tournament";
-		my @created = ();
+
 		foreach my $i ( $k .. ($n + $k - 1)) {
 			foreach my $event (qw( forms-grassroots forms-worldclass )) {
 				my $ring = sprintf( "%s/%s/ring%02d", $path, $event, $i );
@@ -403,7 +403,7 @@ post '/:tournament/setup' => sub {
 				open FILE, ">$ring/progress.txt";
 				print FILE "# current=0\n";
 				close FILE;
-				push @created, $i;
+				chmod 0666, "$ring/progress.txt";
 			}
 		}
 
