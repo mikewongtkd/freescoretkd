@@ -258,8 +258,9 @@ sub edit_athletes {
 	my $edits = shift;
 	my $round = shift || $self->{ round };
 
-	my $order   = $self->{ order }{ $round };
-	my $reorder = [];
+	my $order       = $self->{ order }{ $round };
+	my $reorder     = [];
+	
 	for my $i ( 0 .. $#$edits ) {
 		my $j       = $edits->[ $i ]{ order } - 1; # Get the athlete's previous relative order index
 		my $k       = $order->[ $j ]; # If the athlete is already in the round, get the athlete id (original index);
@@ -276,6 +277,10 @@ sub edit_athletes {
 
 		$athlete->{ name } = $edits->[ $i ]{ name };
 	}
+
+	# Create a placeholder athlete if user has deleted all athletest (no athlete has a name)
+	if( none { $_->{ name }; } @$edits ) { $self->{ athletes }[ 0 ] = { name => 'First Athlete', info => {} }; }
+
 	$self->{ order }{ $round } = $reorder;
 	$self->normalize();
 }
