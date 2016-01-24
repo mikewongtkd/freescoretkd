@@ -3,7 +3,7 @@ use FreeScore;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
-use List::Util qw( any none first shuffle reduce );
+use List::Util qw( all any none first shuffle reduce );
 use List::MoreUtils qw( first_index );
 use Try::Tiny;
 use Data::Dumper;
@@ -279,7 +279,7 @@ sub edit_athletes {
 	}
 
 	# Create a placeholder athlete if user has deleted all athletest (no athlete has a name)
-	if( none { $_->{ name }; } @$edits ) { $self->{ athletes }[ 0 ] = { name => 'First Athlete', info => {} }; }
+	if( all { $_->{ name } =~ /^\s*$/; } @$edits ) { $self->{ athletes }[ 0 ] = { name => 'First Athlete', info => {} }; }
 
 	$self->{ order }{ $round } = $reorder;
 	$self->normalize();
