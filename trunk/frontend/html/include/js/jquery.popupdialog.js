@@ -19,9 +19,9 @@ $.widget( "freescore.popupdialog", {
 			buttons  : $( '#popupDialogButtons' )
 		};
 
-		dialog.title    .html( o.title );
-		dialog.subtitle .html( o.subtitle );
-		dialog.message  .html( o.message );
+		dialog.title    .empty() .append( o.title );
+		dialog.subtitle .empty() .append( o.subtitle );
+		dialog.message  .empty() .append( o.message );
 
 		if( o.buttons == 'none' || o.buttons.length > 0 ) { dialog.buttons.empty(); }
 		if( o.buttons != 'none' ) {

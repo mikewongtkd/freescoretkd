@@ -29,7 +29,20 @@ $.widget( "freescore.coordinatorController", {
 
 		var athletes  = e.athletes = {
 			page    : html.div   .clone() .attr({ 'data-role' : 'page', id: 'athletes' }),
-			header  : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<a href=\"#divisions\" data-transition=\"slide\" data-direction=\"reverse\" data-icon=\"carat-l\">Divisions for Ring " + o.ring + " </a><h1>Athletes</h1>" ),
+			header  : { 
+				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
+				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slide', 'data-direction' : 'back', 'data-icon' : 'carat-l' }) .html( 'Divisions for Ring ' + o.ring ),
+				title : html.h1    .clone() .html( 'Athletes' ),
+				setup : html.a     .clone() .attr({ 'data-icon' : 'gear', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Setup' ),
+				menu  : {
+					panel       : html.div .clone() .attr({ 'data-role' : 'popup', 'id' : 'division-setup', 'data-theme' : 'b' }),
+					list        : html.ul  .clone() .attr({ 'data-role' : 'listview', 'data-inset' : true }),
+					description : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Description' )),
+					forms       : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Forms' )),
+					judges      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Number of Judges' )),
+					method      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Competition Method' )),
+				}
+			},
 			main    : html.div   .clone() .attr({ 'role': 'main' }),
 			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
 			thead   : html.thead .clone(),
@@ -158,8 +171,12 @@ $.widget( "freescore.coordinatorController", {
 		divisions.main.append( divisions.list );
 		divisions.page.append( divisions.header, divisions.main );
 
+		athletes.header.menu.panel.append( athletes.header.menu.list );
+		athletes.header.menu.list.append( athletes.header.menu.description, athletes.header.menu.forms, athletes.header.menu.judges, athletes.header.menu.method );
+
+		athletes.header.panel.append( athletes.header.back, athletes.header.title, athletes.header.setup, athletes.header.menu.panel );
 		athletes.main.append( athletes.rounds, athletes.table, athletes.actions );
-		athletes.page.append( athletes.header, athletes.main );
+		athletes.page.append( athletes.header.panel, athletes.main );
 
 		widget.nodoubletapzoom();
 		widget.addClass( "coordinator-controller" );
@@ -262,6 +279,28 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			var divid = $( this ).attr( 'divid' ); 
 			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
+		};
+
+		// ============================================================
+		var editDivisionDescription = function() {
+		// ============================================================
+			e.athletes.header.menu.panel.popup('close'); 
+			setTimeout( function() {
+				var editor = html.div.clone() .divisionDescriptor( o );
+				e.dialog.popupdialog({
+					title:    'Edit Division Description',
+					subtitle: 'Division Description',
+					message:  editor,
+					afterclose: function( ev, ui ) {},
+					buttons:  [
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { $('#popupDialog').popup('close'); } },
+					]
+				})
+
+				e.dialog.trigger( 'create' );
+				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
+			}, 100 );
 		};
 
 		// ============================================================
@@ -640,7 +679,7 @@ $.widget( "freescore.coordinatorController", {
 			}
 
 			// Update Page Header
-			e.athletes.header .find( 'h1' ) .text( division.name.toUpperCase() + ' ' + division.description );
+			e.athletes.header.title .html( division.name.toUpperCase() + ' ' + division.description );
 
 			// Update Athlete Table
 			var round = defined( o.round ) ? o.round : division.round;
@@ -825,6 +864,8 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.punitive   .withdraw   .click( withdrawAthlete );
 		actions.punitive   .disqualify .click( disqualifyAthlete );
+
+		athletes.header.menu.description.find( 'a' ).click( editDivisionDescription );
 
 		dialog.popupdialog();
 	},

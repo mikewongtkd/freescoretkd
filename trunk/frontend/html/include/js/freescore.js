@@ -114,13 +114,15 @@ var addButtonGroup = function( name, buttons, handler ) {
 	var legend    = html.legend.clone() .html( name );
 	var groupName = name.toLowerCase().replace( / /g, '-' );
 	fieldset.append( legend );
+	fieldset.controlgroup();
+	var container = fieldset.controlgroup( 'container' );
 	for( var i in buttons ) {
 		var inputName = name.toLowerCase().replace( / /g, '-' ) + '-' + i;
 		var input = html.radio.clone() .attr({ name: groupName, id: inputName, value: buttons[ i ] });
 		var label = html.label.clone() .attr( "for", inputName ) .html( buttons[ i ] );
-		fieldset.append( input, label );
+		container.append( input, label );
 	}
-	fieldset.children( "input:radio" ).on( "change", handler );
+	if( defined( handler )) { container.children( 'input:radio' ).on( "change", handler ); }
 	return fieldset;
 };
 

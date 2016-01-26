@@ -1,5 +1,5 @@
 $.widget( "freescore.divisionDescriptor", {
-	options: { autoShow: true, num: 0, handle : { ok : function() { console.log( "OK" ); }, cancel : function() { console.log( "Cancel" ); } } },
+	options: { autoShow: true  },
 	_create: function() {
 		var widget = this.element;
 		var o      = this.options;
@@ -32,14 +32,9 @@ $.widget( "freescore.divisionDescriptor", {
 			var text        = groups.join( " " );
 			var description = { gender : o.gender, age : o.age, rank : o.rank, text : text };
 			o.description = description;
-			var headerDescriptionTitle = o.header.e.description.find( "h3 a" );
-			o.header.o.initialize.forms(); // Callback to display forms appropriate to division
-			headerDescriptionTitle.html( description.text );
 			return description;
 		};
 		var handle = o.handle = {
-			ok : o.handle.ok,
-			cancel : o.handle.cancel,
 			age : function( ev ) {
 				var val = $( ev.target ).val();
 				o.age = val;
@@ -56,7 +51,7 @@ $.widget( "freescore.divisionDescriptor", {
 				getDescription();
 			},
 			format : function( ev ) {
-				e.gender.find( "input[type='radio']" ).checkboxradio().checkboxradio( 'enable' );
+				e.gender.find( ":radio" ).checkboxradio().checkboxradio( 'enable' );
 				var val = $( ev.target ).val();
 				o.age = undefined;
 				e.age.empty();
@@ -78,14 +73,10 @@ $.widget( "freescore.divisionDescriptor", {
 		var gender   = e.gender   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male", "Male & Female" ], handle.gender ));
 		var age      = e.age      = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
 		var rank     = e.rank     = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
-		var ok       = e.ok         = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#090', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #030' }) .html( "OK" )     .click( o.handle.ok );
-		var cancel   = e.cancel     = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#900', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #300' }) .html( "Cancel" ) .click( o.handle.cancel );
-		var complete = e.complete = html.div.clone() .css( "text-align", "right" ) .append( cancel, ok );
 
 		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
 
-		widget.append( format, gender, rank, age, complete );
-		o.text = o.header.o.text;
+		widget.append( format, gender, rank, age );
 		
 		var select = function( field, value, callback ) {
 			var buttonGroup = field.children();
@@ -144,5 +135,6 @@ $.widget( "freescore.divisionDescriptor", {
 			}
 		}
 		o.getDescription();
+		widget.find( 'fieldset' ).controlgroup().controlgroup( 'refresh' );
 	}
 });
