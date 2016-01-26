@@ -95,7 +95,8 @@ var FreeScore = {
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
 					if( age <= 40 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
 					if( age <= 50 ) { forms = allForms.splice( 7, 8 ); } else // 1st Masters
-									{ forms = allForms.splice( 8, 8 ); }      // 2nd/3rd Masters
+					if( age <= 65 ) { forms = allForms.splice( 8, 8 ); } else // 2nd/3rd Masters
+					                { forms = allForms.splice( 3, 12 ); }      // Default
 				}
 			}
 			return forms;

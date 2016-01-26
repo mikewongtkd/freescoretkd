@@ -20,6 +20,9 @@
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.popupdialog.js"></script>
 		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.descriptor.js"></script>
+		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.forms.js"></script>
+		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.judges.js"></script>
+		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.method.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.coordinatorController.js"></script>
 	</head>
 	<body>

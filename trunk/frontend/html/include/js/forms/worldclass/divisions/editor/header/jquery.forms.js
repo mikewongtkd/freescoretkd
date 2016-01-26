@@ -1,5 +1,5 @@
 $.widget( "freescore.formSelector", {
-	options: { autoShow: true, num: 0, handle : { ok : function() {}, cancel : function() {} } },
+	options: { autoShow: true },
 	_create: function() {
 		var widget = this.element;
 		var o      = this.options;
@@ -45,9 +45,6 @@ $.widget( "freescore.formSelector", {
 			}
 			o.selected.text        = concise.join( ";" );
 			o.selected.description = descriptive.join( "&nbsp;" );
-			var headerFormsTitle = o.header.e.forms.find( "h3 a" );
-			var description = o.selected.description ? o.selected.description : "Please Select Forms";
-			headerFormsTitle.html( description );
 		};
 
 		// ============================================================
@@ -100,7 +97,6 @@ $.widget( "freescore.formSelector", {
 						originalPick = false;
 					}
 				}
-				randomPicks = randomPicks.sort( numeric );
 
 				// ===== CHECK THE RADIO BOXES
 				for( var i in all ) {
@@ -121,8 +117,8 @@ $.widget( "freescore.formSelector", {
 		var final2 = e.final2 = addButtonGroup( "Finals 2nd form", forms, handle.select );
 		var all    = [];
 
-		if( o.athletes > 16 ) { all.push( prelim ); }
-		if( o.athletes > 8  ) { all.push( semfin ); }
+		all.push( prelim );
+		all.push( semfin );
 		all.push( final1 );
 		all.push( final2 );
 
@@ -135,17 +131,13 @@ $.widget( "freescore.formSelector", {
 		// ===== CONVERT TO A FIELDCONTAIN (LABEL AND BUTTONS ON ONE LINE)
 		var formSelect = e.formSelect = all.map( function( item ) { var div = html.div.clone() .addClass( "ui-field-contain" ) .append( item ); return div; })
 		var actions    = e.actions    = html.div.clone() .attr( "data-role", "control-group" ) .attr( "data-type", "horizontal" ) .attr( "data-mini", true ) .css( "margin-left", "20%" );
-		var ok         = e.ok         = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#090', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #030' }) .html( "OK" )     .click( o.handle.ok );
-		var cancel     = e.cancel     = html.a.clone()   .addClass( "ui-btn ui-btn-inline ui-corner-all" ) .css({ 'background': '#900', 'width': '100px', 'color': 'white', 'text-shadow': '0 1px 0 #300' }) .html( "Cancel" ) .click( o.handle.cancel );
-		var complete   = e.complete   = html.div.clone() .css( "text-align", "right" ) .append( cancel, ok );
 
 		actions.append(
 			html.a.clone() .attr( "data-role", "button" ) .attr( "data-icon", "star" )   .css( "width", "120px" ) .html( "Random" ) .click( handle.random )
 		);
 
-		actions.controlgroup().controlgroup( "refresh" );
-
-		widget.append( formSelect, actions, complete );
+		widget.empty();
+		widget.append( formSelect, actions );
 
 		var select = function( field, value, callback ) {
 			var buttonGroup = field.children();

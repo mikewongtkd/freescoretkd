@@ -31,7 +31,7 @@ $.widget( "freescore.coordinatorController", {
 			page    : html.div   .clone() .attr({ 'data-role' : 'page', id: 'athletes' }),
 			header  : { 
 				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
-				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slide', 'data-direction' : 'back', 'data-icon' : 'carat-l' }) .html( 'Divisions for Ring ' + o.ring ),
+				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slide', 'data-direction' : 'reverse', 'data-icon' : 'carat-l' }) .html( 'Divisions for Ring ' + o.ring ),
 				title : html.h1    .clone() .html( 'Athletes' ),
 				setup : html.a     .clone() .attr({ 'data-icon' : 'gear', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Setup' ),
 				menu  : {
@@ -41,7 +41,13 @@ $.widget( "freescore.coordinatorController", {
 					forms       : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Forms' )),
 					judges      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Number of Judges' )),
 					method      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Competition Method' )),
-				}
+				},
+				editor : {
+					description : html.div.clone() .divisionDescriptor( o ),
+					forms       : html.div.clone() .formSelector( o ),
+					judges      : html.div.clone() .judgeCount( o ),
+					method      : html.div.clone() .method( o ),
+				},
 			},
 			main    : html.div   .clone() .attr({ 'role': 'main' }),
 			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
@@ -286,10 +292,46 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			e.athletes.header.menu.panel.popup('close'); 
 			setTimeout( function() {
-				var editor = html.div.clone() .divisionDescriptor( o );
+				var i        = parseInt( $.cookie( 'divindex' ));
+				var division = o.progress.divisions[ i ];
+				var editor   = e.athletes.header.editor.description;
+				editor.divisionDescriptor({ text : division.description });
+				editor.trigger( 'create' );
 				e.dialog.popupdialog({
 					title:    'Edit Division Description',
 					subtitle: 'Division Description',
+					message:  editor,
+					afterclose: function( ev, ui ) {},
+					buttons:  [
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								var d = editor.divisionDescriptor( 'option', 'description' ); 
+								o.description = d;
+								$('#popupDialog').popup('close'); 
+							} 
+						},
+					]
+				})
+
+				e.dialog.trigger( 'create' );
+				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
+			}, 100 );
+		};
+
+		// ============================================================
+		var editDivisionForms = function() {
+		// ============================================================
+			e.athletes.header.menu.panel.popup('close'); 
+			setTimeout( function() {
+				var i         = parseInt( $.cookie( 'divindex' ));
+				var division  = o.progress.divisions[ i ];
+				var editor    = e.athletes.header.editor.description; editor.divisionDescriptor({ text : division.description });
+				o.description = editor.divisionDescriptor( 'option', 'description' );
+				editor        = e.athletes.header.editor.forms;
+				editor.formSelector( o.description );
+				e.dialog.popupdialog({
+					title:    'Select Forms for Division',
+					subtitle: 'Division Form Selection',
 					message:  editor,
 					afterclose: function( ev, ui ) {},
 					buttons:  [
@@ -302,6 +344,55 @@ $.widget( "freescore.coordinatorController", {
 				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
 			}, 100 );
 		};
+
+		// ============================================================
+		var editDivisionJudges = function() {
+		// ============================================================
+			e.athletes.header.menu.panel.popup('close'); 
+			setTimeout( function() {
+				var i         = parseInt( $.cookie( 'divindex' ));
+				var division  = o.progress.divisions[ i ];
+				var editor    = e.athletes.header.editor.judges; editor.judgeCount({ num : division.judges });
+				e.dialog.popupdialog({
+					title:    'Number of Judges',
+					subtitle: 'Set Number of Judges for Division',
+					message:  editor,
+					afterclose: function( ev, ui ) {},
+					buttons:  [
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { $('#popupDialog').popup('close'); } },
+					]
+				})
+
+				e.dialog.trigger( 'create' );
+				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
+			}, 100 );
+		};
+
+		// ============================================================
+		var editDivisionMethod = function() {
+		// ============================================================
+			e.athletes.header.menu.panel.popup('close'); 
+			setTimeout( function() {
+				var i         = parseInt( $.cookie( 'divindex' ));
+				var division  = o.progress.divisions[ i ];
+				var editor    = e.athletes.header.editor.method; editor.method({ method : division.method });
+				e.dialog.popupdialog({
+					title:    'Competition Method',
+					subtitle: 'Set Competition Method for Division',
+					message:  editor,
+					afterclose: function( ev, ui ) {},
+					buttons:  [
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { $('#popupDialog').popup('close'); } },
+					]
+				})
+
+				e.dialog.trigger( 'create' );
+				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
+			}, 100 );
+		};
+
 
 		// ============================================================
 		var goToDivision = function() {
@@ -865,7 +956,10 @@ $.widget( "freescore.coordinatorController", {
 		actions.punitive   .withdraw   .click( withdrawAthlete );
 		actions.punitive   .disqualify .click( disqualifyAthlete );
 
-		athletes.header.menu.description.find( 'a' ).click( editDivisionDescription );
+		athletes.header.menu.description .find( 'a' ).click( editDivisionDescription );
+		athletes.header.menu.forms       .find( 'a' ).click( editDivisionForms );
+		athletes.header.menu.judges      .find( 'a' ).click( editDivisionJudges );
+		athletes.header.menu.method      .find( 'a' ).click( editDivisionMethod );
 
 		dialog.popupdialog();
 	},
