@@ -1,8 +1,6 @@
 #! /usr/bin/perl
 
 use lib qw( /usr/local/freescore/lib );
-use File::Path qw( make_path );
-use Data::Dumper;
 use Try::Tiny;
 use Mojolicious::Lite;
 use YAML;
@@ -209,44 +207,6 @@ get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub
 };
 
 # ------------------------------------------------------------
-# FASTMATCH TRAINING DIVISION
-# ------------------------------------------------------------
-post '/fastmatch' => sub { 
-	my $self       = shift;
-	my $tournament = 'fastmatch';
-	my $ring       = 1;
-	my $content    = $self->req->body;
-	my $path       = "$FreeScore::PATH/fastmatch/forms-worldclass/ring01";
-
-	try {
-		# ===== MAKE TOURNAMENT AND PROGRESS FILE
-		make_path $path unless -e $path;
-		open FILE, ">$path/progress.txt" or die "Can't write to '$path/progress.txt' $!";
-		print FILE "# current = 0;";
-		close FILE;
-
-		# ===== CREATE DIVISION
-		my $header = $json->decode( $content );
-		open FILE, ">$path/div.wc01.txt" or die "Can't write to '$path/div.wc01.txt' $!";
-		foreach my $key (keys %$header) {
-			next if $key eq 'athletes';
-			print FILE "# $key=$header->{ $key }\n";
-		}
-		foreach my $athlete (@{ $header->{ athletes }}) {
-			print FILE "$athlete\n";
-		}
-		close FILE;
-		my $division = new FreeScore::Forms::WorldClass::Division( $path, 'wc01', $ring );
-		$division->write();
-
-		send_response( $self, { description => "FastMatch division created" } );
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
 # POST THE DIVISION HEADER DATA FOR WRITING
 # ------------------------------------------------------------
 post '/:tournament/:ring/:div_index/edit' => sub { 
@@ -278,9 +238,12 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		# ====== EDITING OR CREATE NEW DIVISION CONTENT
 		} elsif( exists $edits->{ header } || exists $edits->{ athletes } ) {
 			
-			# AND/OR EDIT AN EXISTING DIVISION
-			$division->{ $_ } = $header->{ $_ } foreach (keys %$header); 
-			$division->edit_athletes( $athletes, $round );
+			foreach (keys %$header) {
+				if( /^forms$/ ) { $division->{ $_ } = FreeScore::Forms::WorldClass::Division::_parse_forms( $header->{ $_ } ); }
+				else { $division->{ $_ } = $header->{ $_ }; }
+			}
+			$division->edit_athletes( $athletes, $round ) if exists $edits->{ athletes };
+			$description = "Successfully updated division $division->{ name }";
 
 		# ====== DELETE A DIVISION
 		} elsif( exists $edits->{ delete } ) {

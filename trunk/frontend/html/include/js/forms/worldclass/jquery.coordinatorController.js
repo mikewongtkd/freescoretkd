@@ -295,19 +295,22 @@ $.widget( "freescore.coordinatorController", {
 				var i        = parseInt( $.cookie( 'divindex' ));
 				var division = o.progress.divisions[ i ];
 				var editor   = e.athletes.header.editor.description;
+				var request  = i + '/edit';
 				editor.divisionDescriptor({ text : division.description });
 				editor.trigger( 'create' );
 				e.dialog.popupdialog({
 					title:    'Edit Division Description',
 					subtitle: 'Division Description',
 					message:  editor,
-					afterclose: function( ev, ui ) {},
+					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								$(this).parent().children().hide(); 
 								var d = editor.divisionDescriptor( 'option', 'description' ); 
 								o.description = d;
-								$('#popupDialog').popup('close'); 
+								var parameters = { header: { description : d.text }};
+								(sendRequest( request, parameters ))(); 
 							} 
 						},
 					]
@@ -326,6 +329,7 @@ $.widget( "freescore.coordinatorController", {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
 				var editor    = e.athletes.header.editor.description; editor.divisionDescriptor({ text : division.description });
+				var request  = i + '/edit';
 				o.description = editor.divisionDescriptor( 'option', 'description' );
 				editor        = e.athletes.header.editor.forms;
 				editor.formSelector( o.description );
@@ -333,10 +337,17 @@ $.widget( "freescore.coordinatorController", {
 					title:    'Select Forms for Division',
 					subtitle: 'Division Form Selection',
 					message:  editor,
-					afterclose: function( ev, ui ) {},
+					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								o.forms = e.athletes.header.editor.forms.formSelector( 'option', 'selected' );
+								console.log( o.forms );
+								$(this).parent().children().hide(); 
+								var parameters = { header: { forms : o.forms.text }};
+								(sendRequest( request, parameters ))(); 
+							} 
+						},
 					]
 				})
 
