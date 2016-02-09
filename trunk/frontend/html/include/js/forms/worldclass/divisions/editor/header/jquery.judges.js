@@ -1,19 +1,33 @@
 $.widget( "freescore.judgeCount", {
 	options: { autoShow: true  },
 	_create: function() {
-		var widget = this.element;
-		var o      = this.options;
-		var e      = this.options.elements = {};
-		var html   = e.html = FreeScore.html;
+		var o    = this.options;
+		var w    = this.element;
+		var e    = this.options.elements = {};
+		var html = e.html = FreeScore.html;
+
+		var handle      = e.handle = {
+			select : function( ev ) {
+				var val = parseInt( $( ev.target ).val());
+				o.num = val;
+			}
+		};
+
+		var buttonGroup = e.buttonGroup = addButtonGroup( 'Please choose the number of judges in this ring (including referee)', [ '3 Judges', '5 Judges', '7 Judges' ], handle.select );
+		w.html( buttonGroup );
 
 	},
 	_init: function( ) {
-		var widget = this.element;
-		var o      = this.options;
-		var e      = this.options.elements;
-		var html   = e.html;
+		var o    = this.options;
+		var w    = this.element;
+		var e    = this.options.elements;
+		var html = e.html;
 
-		widget.empty();
-		widget.append( addButtonGroup( 'Number of Judges', [ '3 Judges', '5 Judges', '7 Judges' ] ));
+		// ===== INITIALIZE JUDGES FROM DIVISION JUDGES SETTING
+		if( defined( o.num )) {
+			var select = e.buttonGroup.find( ":radio[value='" + o.num + " Judges']" );
+			select.prop( "checked", true );
+			w.trigger( 'create' );
+		}
 	}
 });

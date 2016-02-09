@@ -150,6 +150,7 @@ $.widget( "freescore.formSelector", {
 			callback( jQuery.Event( 'click', { target :selected } ));
 		};
 
+		// ===== INITIALIZE FORM SELECTOR FROM DIVISION FORMS SETTINGS
 		if( defined( o.forms )) {
 			var select = function( buttonGroup, value ) {
 				var unselect    = buttonGroup.find( ":checked" );

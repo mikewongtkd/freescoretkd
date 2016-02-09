@@ -273,6 +273,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			die "Unknown athlete or division editing command: '$content'";
 		}
 
+		# ===== WRITE THE EDITS (EXCEPT FOR CREATING OR DELETING A DIVISION)
 		unless( defined $delete || defined $add ) {
 			$division->normalize();
 			$division->write();

@@ -296,7 +296,7 @@ $.widget( "freescore.coordinatorController", {
 				var division = o.progress.divisions[ i ];
 				var editor   = e.athletes.header.editor.description;
 				var request  = i + '/edit';
-				editor.divisionDescriptor({ text : division.description });
+				editor.divisionDescriptor().divisionDescriptor({ text : division.description });
 				editor.trigger( 'create' );
 				e.dialog.popupdialog({
 					title:    'Edit Division Description',
@@ -307,7 +307,7 @@ $.widget( "freescore.coordinatorController", {
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
 								$(this).parent().children().hide(); 
-								var d = editor.divisionDescriptor( 'option', 'description' ); 
+								var d = editor.divisionDescriptor().divisionDescriptor( 'option', 'description' ); 
 								o.description = d;
 								var parameters = { header: { description : d.text }};
 								(sendRequest( request, parameters ))(); 
@@ -328,11 +328,13 @@ $.widget( "freescore.coordinatorController", {
 			setTimeout( function() {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
-				var editor    = e.athletes.header.editor.description; editor.divisionDescriptor({ text : division.description });
-				var request  = i + '/edit';
-				o.description = editor.divisionDescriptor( 'option', 'description' );
-				editor        = e.athletes.header.editor.forms;
-				editor.formSelector( o.description );
+				var parse     = e.athletes.header.editor.description; parse.divisionDescriptor({ text : division.description }); // Parse division.description
+				var request   = i + '/edit';
+				var options   = parse.divisionDescriptor().divisionDescriptor( 'option', 'description' );
+				o.description = options;
+				var editor    = e.athletes.header.editor.forms;
+				options.forms = division.forms;
+				editor.formSelector( options );
 				e.dialog.popupdialog({
 					title:    'Select Forms for Division',
 					subtitle: 'Division Form Selection',
@@ -341,8 +343,7 @@ $.widget( "freescore.coordinatorController", {
 					buttons:  [
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
-								o.forms = e.athletes.header.editor.forms.formSelector( 'option', 'selected' );
-								console.log( o.forms );
+								o.forms = e.athletes.header.editor.forms.formSelector().formSelector( 'option', 'selected' );
 								$(this).parent().children().hide(); 
 								var parameters = { header: { forms : o.forms.text }};
 								(sendRequest( request, parameters ))(); 
@@ -363,15 +364,22 @@ $.widget( "freescore.coordinatorController", {
 			setTimeout( function() {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
+				var request   = i + '/edit';
 				var editor    = e.athletes.header.editor.judges; editor.judgeCount({ num : division.judges });
 				e.dialog.popupdialog({
 					title:    'Number of Judges',
 					subtitle: 'Set Number of Judges for Division',
 					message:  editor,
-					afterclose: function( ev, ui ) {},
+					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								o.num = e.athletes.header.editor.judges.judgeCount().judgeCount( 'option', 'num' );
+								$(this).parent().children().hide(); 
+								var parameters = { header: { judges : o.num }};
+								(sendRequest( request, parameters ))(); 
+							} 
+						},
 					]
 				})
 
@@ -387,15 +395,23 @@ $.widget( "freescore.coordinatorController", {
 			setTimeout( function() {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
-				var editor    = e.athletes.header.editor.method; editor.method({ method : division.method });
+				var request   = i + '/edit';
+				var opts      = { method : division.method };
+				var editor    = e.athletes.header.editor.method; editor.method( opts );
 				e.dialog.popupdialog({
 					title:    'Competition Method',
 					subtitle: 'Set Competition Method for Division',
 					message:  editor,
-					afterclose: function( ev, ui ) {},
+					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								o.method = e.athletes.header.editor.method.method().method( 'option', 'method' );
+								$(this).parent().children().hide(); 
+								var parameters = { header: { method : o.method }};
+								(sendRequest( request, parameters ))(); 
+							} 
+						},
 					]
 				})
 
@@ -408,7 +424,6 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var goToDivision = function() {
 		// ============================================================
-			console.log( o.progress );
 			var command = 'division/' + $( this ).attr( 'index' );
 			e.dialog.popupdialog({
 				title:    'Start Scoring Division?',
