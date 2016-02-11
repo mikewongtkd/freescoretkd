@@ -25,26 +25,25 @@ $.widget( "freescore.formSelector", {
 			var map        = { 'Preliminaries' : 'prelim', 'Semi-Finals' : 'semfin', 'Finals 1st form' : 'finals', 'Finals 2nd form' : 'finals' };
 			var reverseMap = { 'prelim' : 'Preliminary Round Form', 'semfin' : 'Semi-Final Round Form', 'finals' : 'Final Round Forms' };
 			o.selected     = { order : [ 'prelim', 'semfin', 'finals' ], prelim : [], semfin : [], finals : [] };
-			for( var i in all ) {
-				var round     = all[ i ];
-				var roundName = round.find( "legend" ).html();
-				var forms     = round.find( "input" );
-				var selected  = forms.filter( ":checked" ).val();
-
-				var roundCode = map[ roundName ];
-				if( selected != 'None' ) { o.selected[ roundCode ].push( selected ) };
+			for( var i in o.all ) {
+				var round      = o.all[ i ];
+				var roundName  = round.find( "legend" ).html();
+				var forms      = round.find( "input" );
+				var selected   = forms.filter( ":checked" ).val();
+				var roundCode  = map[ roundName ];
+				if( selected  != 'None' && defined( selected )) { o.selected[ roundCode ].push( selected ) };
 			}
 			var concise = [];
-			var descriptive = [];
 			for( var i in o.selected.order ) {
 				var round = o.selected.order[ i ];
 				if( o.selected[ round ].length > 0 ) { 
 					concise.push( round + ':' + o.selected[ round ].join( "," )); 
-					descriptive.push( "<span class=\"round text\">" + reverseMap[ round ] + '</span>' + o.selected[ round ].map( function( item ) { return "<span class=\"form\">" + item + "</span>"; } ).join( "&nbsp;" ));
 				}
 			}
-			o.selected.text        = concise.join( ";" );
-			o.selected.description = descriptive.join( "&nbsp;" );
+			o.selected.text = concise.join( ";" );
+
+			var ev = $.Event( FreeScore.event.division.forms, { text : o.selected.text } );
+			widget.trigger( ev );
 		};
 
 		// ============================================================
@@ -115,7 +114,7 @@ $.widget( "freescore.formSelector", {
 		var semfin = e.semfin = addButtonGroup( "Semi-Finals",     forms, handle.select );
 		var final1 = e.final1 = addButtonGroup( "Finals 1st form", forms, handle.select );
 		var final2 = e.final2 = addButtonGroup( "Finals 2nd form", forms, handle.select );
-		var all    = [];
+		var all    = o.all = [];
 
 		all.push( prelim );
 		all.push( semfin );

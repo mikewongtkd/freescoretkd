@@ -10,6 +10,7 @@ $.widget( "freescore.coordinatorController", {
 		o.ring      = parseInt( $.cookie( "ring" ));
 		o.port      = ':3088/';
 		o.current   = {};
+		o.forms     = {};
 		var ring    = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
 
 		var sound    = e.sound = {
@@ -307,9 +308,7 @@ $.widget( "freescore.coordinatorController", {
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
 								$(this).parent().children().hide(); 
-								var d = editor.divisionDescriptor().divisionDescriptor( 'option', 'description' ); 
-								o.description = d;
-								var parameters = { header: { description : d.text }};
+								var parameters = { header: { description : o.description.text }};
 								(sendRequest( request, parameters ))(); 
 							} 
 						},
@@ -343,7 +342,6 @@ $.widget( "freescore.coordinatorController", {
 					buttons:  [
 						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
-								o.forms = e.athletes.header.editor.forms.formSelector().formSelector( 'option', 'selected' );
 								$(this).parent().children().hide(); 
 								var parameters = { header: { forms : o.forms.text }};
 								(sendRequest( request, parameters ))(); 
@@ -551,7 +549,6 @@ $.widget( "freescore.coordinatorController", {
 		var sendCommand = function( command, callback ) {
 		// ============================================================
 			return function() {
-				console.log( command );
 				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + command;
 				$.ajax( {
 					type:    'GET',
@@ -579,7 +576,6 @@ $.widget( "freescore.coordinatorController", {
 		var sendRequest = function( request, data, callback ) {
 		// ============================================================
 			return function() {
-				console.log( request );
 				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + request;
 				$.ajax( {
 					type:        'POST',
@@ -955,6 +951,11 @@ $.widget( "freescore.coordinatorController", {
 			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.staging, o.progress.current ); }
 			else if ( option.id == "athletes"  ) { o.round = division.round; var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
 		});
+
+		// ============================================================
+		$( "body" ).on( FreeScore.event.division.description, function( ev ) { o.description = { gender : ev.gender, age : ev.age, rank : ev.rank, text : ev.text }; } );
+		$( "body" ).on( FreeScore.event.division.forms,       function( ev ) { o.forms.text  = ev.text; } );
+		// ============================================================
 
 		// ============================================================
 		e.refresh = function( update ) {

@@ -238,11 +238,21 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 		# ====== EDITING OR CREATE NEW DIVISION CONTENT
 		} elsif( exists $edits->{ header } || exists $edits->{ athletes } ) {
 			
+			$success->{ edits } = [];
 			foreach (keys %$header) {
-				if( /^forms$/ ) { $division->{ $_ } = FreeScore::Forms::WorldClass::Division::_parse_forms( $header->{ $_ } ); }
-				else { $division->{ $_ } = $header->{ $_ }; }
+				my $was = $division->{ $_ };
+				if( /^forms$/ ) { 
+					$division->{ $_ } = FreeScore::Forms::WorldClass::Division::_parse_forms( $header->{ $_ } ); 
+					push @{ $success->{ edits }}, "form selection";
+				} else { 
+					$division->{ $_ } = $header->{ $_ }; 
+					push @{ $success->{ edits }}, "$_ was $was, now $header->{ $_ }";
+				}
 			}
-			$division->edit_athletes( $athletes, $round ) if exists $edits->{ athletes };
+			if( exists $edits->{ athletes } ) {
+				$division->edit_athletes( $athletes, $round );
+				push @{ $success->{ edits }}, "athlete(s) name and/or order";
+			}
 			$description = "Successfully updated division $division->{ name }";
 
 		# ====== DELETE A DIVISION

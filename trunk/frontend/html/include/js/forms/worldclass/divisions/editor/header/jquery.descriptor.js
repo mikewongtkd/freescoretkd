@@ -23,32 +23,37 @@ $.widget( "freescore.divisionDescriptor", {
 				'12-14' : 'Cadets', '15-17' : 'Juniors', '18-29' : 'Under 30', '30-39' : 'Under 40', 
 				'40-49' : 'Under 50', '50-59' : 'Under 60', '60-64' : 'Under 65', '65+' : 'Over 65'
 			};
-			var groups = [];
-			groups.push( o.gender );
-			if( o.age in map )       { groups.push( map[ o.age ] ); } else { groups.push( o.age ); }
-			if( defined( o.rank   )) { groups.push( o.rank + ' Belts' ); }
-			if( defined( o.format )) { groups.push( o.format ); }
+			var descriptors = [];
+			descriptors.push( o.gender );
+			if( o.age in map )       { descriptors.push( map[ o.age ] ); } else { descriptors.push( o.age ); }
+			if( defined( o.rank   )) { descriptors.push( o.rank + ' Belts' ); }
+			if( defined( o.format )) { descriptors.push( o.format ); }
 
-			var text        = groups.join( " " );
+			var text        = descriptors.join( " " );
 			var description = { gender : o.gender, age : o.age, rank : o.rank, text : text };
 			o.description = description;
+
+			var ev = $.Event( FreeScore.event.division.description, { gender : o.gender, age : o.age, rank : o.rank, text : description.text } );
+			console.log( description );
+			widget.trigger( ev );
+
 			return description;
 		};
 		var handle = o.handle = {
 			age : function( ev ) {
 				var val = $( ev.target ).val();
 				o.age = val;
-				getDescription();
+				o.getDescription();
 			},
 			gender : function( ev ) {
 				var val = $( ev.target ).val();
 				o.gender = val;
-				getDescription();
+				o.getDescription();
 			},
 			rank : function( ev ) {
 				var val = $( ev.target ).val();
 				if( val == 'Black Belt' ) { o.rank = undefined; } else { o.rank = val; }
-				getDescription();
+				o.getDescription();
 			},
 			format : function( ev ) {
 				var val = $( ev.target ).val();
@@ -56,7 +61,6 @@ $.widget( "freescore.divisionDescriptor", {
 				e.age.empty();
 				var buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ), handle.age );
 				e.age.append( buttonGroup ).trigger( 'create' );
-				buttonGroup.controlgroup().controlgroup( "refresh" );
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
 				if( val == 'Pair' ) {
 					e.gender.find( ":checked" ).prop( "checked", false );
@@ -65,7 +69,8 @@ $.widget( "freescore.divisionDescriptor", {
 				} else {
 					// e.gender.find( ":radio" ).checkboxradio().checkboxradio( 'enable' );
 				}
-				getDescription();
+				buttonGroup.controlgroup().controlgroup( "refresh" );
+				o.getDescription();
 			}
 		};
 
