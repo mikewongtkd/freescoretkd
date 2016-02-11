@@ -53,6 +53,13 @@ var FreeScore = {
 	},
 	rulesUSAT : { 
 		// 2015 Rules, updated 5/1/2015
+		// ------------------------------------------------------------
+		genders : function() { return [ "Female", "Male", "Male & Female" ]; },
+		// ------------------------------------------------------------
+		
+		// ------------------------------------------------------------
+		ranks : function() { return [ "Yellow Belt", "Green Belt", "Blue Belt", "Red Belt", "Black Belt" ]; },
+		// ------------------------------------------------------------
 
 		// ------------------------------------------------------------
 		poomsaeEvents : function() { return [ "Individual", "Pair", "Team" ]; },
@@ -114,7 +121,7 @@ String.prototype.capitalize = function() {
 };
 
 // ============================================================
-var addButtonGroup = function( name, buttons, handler ) {
+var addButtonGroup = function( name, buttons ) {
 // ============================================================
 	var html      = FreeScore.html;
 	var fieldset  = html.fieldset.clone() .attr({ "data-role": "controlgroup", "data-type": "horizontal", "data-mini": true, "data-inline": true });
@@ -129,7 +136,12 @@ var addButtonGroup = function( name, buttons, handler ) {
 		var label = html.label.clone() .attr( "for", inputName ) .html( buttons[ i ] );
 		container.append( input, label );
 	}
-	if( defined( handler )) { container.children( 'input:radio' ).on( "change", handler ); }
+	container.children( 'input:radio' ).on( "change", function() {
+		var val   = $( this ).val();
+		var event = $.Event( "buttonGroup" + name, { value : val } );
+		$( this ).trigger( event );
+		return false;
+	});
 	return fieldset;
 };
 

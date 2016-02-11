@@ -23,73 +23,96 @@ $.widget( "freescore.divisionDescriptor", {
 				'12-14' : 'Cadets', '15-17' : 'Juniors', '18-29' : 'Under 30', '30-39' : 'Under 40', 
 				'40-49' : 'Under 50', '50-59' : 'Under 60', '60-64' : 'Under 65', '65+' : 'Over 65'
 			};
-			var descriptors = [];
-			descriptors.push( o.gender );
-			if( o.age in map )       { descriptors.push( map[ o.age ] ); } else { descriptors.push( o.age ); }
-			if( defined( o.rank   )) { descriptors.push( o.rank + ' Belts' ); }
-			if( defined( o.format )) { descriptors.push( o.format ); }
 
-			var text        = descriptors.join( " " );
-			var description = { gender : o.gender, age : o.age, rank : o.rank, text : text };
+			// ===== GET CURRENTLY SELECTED VALUES
+			o.gender = defined( o.gender ) ? o.gender : e.division.gender .buttonGroup.find( ':checked' ).val();
+			o.age    = defined( o.age )    ? o.age    : e.division.age    .buttonGroup.find( ':checked' ).val();
+			o.rank   = defined( o.rank )   ? o.rank   : e.division.rank   .buttonGroup.find( ':checked' ).val();
+			o.format = defined( o.format ) ? o.format : e.division.format .buttonGroup.find( ':checked' ).val();
+
+			// ===== ASSIGN 
+			var descriptors = [];
+			if( defined( o.gender )) { descriptors.push( o.gender ); }
+			if( defined( o.rank   )) { if( o.rank   != 'Black Belt' ) { descriptors.push( o.rank ); }}
+			if( o.age in map )       { descriptors.push( map[ o.age ] ); } else if( defined( o.age )) { descriptors.push( o.age ); }
+			if( defined( o.format )) { if( o.format != 'Individual' ) { descriptors.push( o.format ); }}
+
+			var description = { gender : o.gender, age : o.age, rank : o.rank, text : descriptors.join( " " ) };
 			o.description = description;
 
-			var ev = $.Event( FreeScore.event.division.description, { gender : o.gender, age : o.age, rank : o.rank, text : description.text } );
-			console.log( description );
+			var ev = $.Event( FreeScore.event.division.description, description );
 			widget.trigger( ev );
-
-			return description;
 		};
+
 		var handle = o.handle = {
-			age : function( ev ) {
-				var val = $( ev.target ).val();
-				o.age = val;
-				o.getDescription();
-			},
-			gender : function( ev ) {
-				var val = $( ev.target ).val();
-				o.gender = val;
-				o.getDescription();
-			},
-			rank : function( ev ) {
-				var val = $( ev.target ).val();
-				if( val == 'Black Belt' ) { o.rank = undefined; } else { o.rank = val; }
-				o.getDescription();
-			},
+			age    : function( ev ) { o.age    = ev.value; o.getDescription(); return false; },
+			gender : function( ev ) { o.gender = ev.value; o.getDescription(); return false; },
+			rank   : function( ev ) { o.rank   = ev.value; o.getDescription(); return false; },
 			format : function( ev ) {
-				var val = $( ev.target ).val();
-				o.age = undefined;
-				e.age.empty();
-				var buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ), handle.age );
-				e.age.append( buttonGroup ).trigger( 'create' );
+				var val = ev.value;
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
+
+				// ===== UPDATE AGE GROUP BASED ON EVENT
+				o.age = undefined;
+				e.division.age.panel.empty();
+				var buttonGroup = e.division.age.buttonGroup = addButtonGroup( "Age", FreeScore.rulesUSAT.ageGroups( val ) );
+				e.division.age.panel.append( buttonGroup ).trigger( 'create' );
+				buttonGroup.controlgroup().controlgroup( "refresh" );
+
+				// ===== HANDLE AGE DESCRIPTION
+				var ages = get_values( e.division.age.panel );
+				for( var i = 0; i < ages.length; i++ ) {
+					var age = ages[ i ];
+					if( o.text.match( age )) { select( e.division.age.buttonGroup, age, o.handle.age ); }
+				}
+				for( var age in reverseMap ) {
+					if( o.text.match( age )) { select( e.division.age.buttonGroup, reverseMap[ age ], o.handle.age ); }
+				}
+
+				// ===== HANDLE GENDER DESCRIPTION
+				var genders = get_values( e.division.gender.panel );
+				for( var i = 0; i < genders.length; i++ ) {
+					var gender = genders[ i ];
+					if( o.text.match( gender )) { select( e.division.gender.buttonGroup, gender, o.handle.gender ); }
+				}
+
+				// ===== UPDATE GENDERS BASED ON EVENT
 				if( val == 'Pair' ) {
-					e.gender.find( ":checked" ).prop( "checked", false );
-					// e.gender.find( ":radio" ).checkboxradio().checkboxradio( 'disable' );
+					e.division.gender.buttonGroup.find( ":checked" ).prop( "checked", false );
+					// e.division.gender.buttonGroup.find( ":radio" ).each( function() { $( this ).attr({ disabled : true }).checkboxradio().checkboxradio( 'refresh' ); });
 					o.gender = undefined;
 				} else {
-					// e.gender.find( ":radio" ).checkboxradio().checkboxradio( 'enable' );
+					// e.division.gender.buttonGroup.find( ":radio" ).each( function() { $( this ).removeAttr( 'disabled' ).checkboxradio().checkboxradio( 'refresh' ); });
 				}
-				buttonGroup.controlgroup().controlgroup( "refresh" );
+				e.division.gender.panel.trigger( 'create' );
+				e.division.gender.buttonGroup.controlgroup().controlgroup( "refresh" );
+
 				o.getDescription();
+				return false;
 			}
 		};
 
-		var format   = e.format   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents(), handle.format ));
-		var gender   = e.gender   = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Gender", [ "Female", "Male", "Male & Female" ], handle.gender ));
-		var age      = e.age      = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Age",  FreeScore.rulesUSAT.ageGroups( "Individual" ), handle.age ));
-		var rank     = e.rank     = html.div.clone() .addClass( "ui-field-contain" ) .append( addButtonGroup( "Rank", [ "Yellow", "Green", "Blue", "Red", "Black Belt" ], handle.rank ));
+		var division = e.division = {
+			format: { panel: html.div.clone() .addClass( "ui-field-contain" ), buttonGroup: addButtonGroup( "Event",  FreeScore.rulesUSAT.poomsaeEvents()) },
+			gender: { panel: html.div.clone() .addClass( "ui-field-contain" ), buttonGroup: addButtonGroup( "Gender", FreeScore.rulesUSAT.genders()) },
+			age:    { panel: html.div.clone() .addClass( "ui-field-contain" ), buttonGroup: addButtonGroup( "Age",    FreeScore.rulesUSAT.ageGroups()) },
+			rank:   { panel: html.div.clone() .addClass( "ui-field-contain" ), buttonGroup: addButtonGroup( "Rank",   FreeScore.rulesUSAT.ranks()) }
+		};
 
-		format.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
+		division.format .panel .append( division.format .buttonGroup ) .on( "buttonGroupEvent",  handle.format );
+		division.gender .panel .append( division.gender .buttonGroup ) .on( "buttonGroupGender", handle.gender );
+		division.age    .panel .append( division.age    .buttonGroup ) .on( "buttonGroupAge",    handle.age );
+		division.rank   .panel .append( division.rank   .buttonGroup ) .on( "buttonGroupRank",   handle.rank );
 
-		widget.append( format, gender, rank, age );
+		e.division.format.panel.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
+
+		widget.append( e.division.format.panel, e.division.gender.panel, e.division.rank.panel, e.division.age.panel );
 		
-		var select = function( field, value, callback ) {
-			var buttonGroup = field.children();
+		var select = function( buttonGroup, value, callback ) {
 			var unselect    = buttonGroup.find( ":checked" );
 			var selected    = buttonGroup.find( ":radio[value='" + value + "']" );
 			unselect.prop( "checked", false );
 			selected.prop( "checked", true );
-			field.trigger( 'create' );
 			buttonGroup.controlgroup().controlgroup( "refresh" );
 			callback( jQuery.Event( 'click', { target :selected } ));
 		};
@@ -103,6 +126,9 @@ $.widget( "freescore.divisionDescriptor", {
 			return values;
 		}
 		
+		// ============================================================
+		// SELECT BUTTONS BASED ON DIVISION DATA
+		// ============================================================
 		if( defined( o.text )) {
 			var reverseMap = { 
 				'Cadets' : '12-14', 'Juniors' : '15-17',  'Under 30' : '18-29', 'Under 40' : '30-39', 
@@ -110,33 +136,33 @@ $.widget( "freescore.divisionDescriptor", {
 			};
 	
 			// ===== HANDLE EVENT DESCRIPTION
-			if( o.text.match( /Team/ )) { select( e.format, 'Team',       o.handle.format ); } else
-			if( o.text.match( /Pair/ )) { select( e.format, 'Pair',       o.handle.format ); } else
-			                            { select( e.format, 'Individual', o.handle.format ); }
+			if( o.text.match( /Team/ )) { select( e.division.format.buttonGroup, 'Team',       o.handle.format ); } else
+			if( o.text.match( /Pair/ )) { select( e.division.format.buttonGroup, 'Pair',       o.handle.format ); } else
+			                            { select( e.division.format.buttonGroup, 'Individual', o.handle.format ); }
 
 			// ===== HANDLE GENDER DESCRIPTION
-			var genders = get_values( e.gender );
+			var genders = get_values( e.division.gender.panel );
 			for( var i = 0; i < genders.length; i++ ) {
 				var gender = genders[ i ];
-				if( o.text.match( gender )) { select( e.gender, gender, o.handle.gender ); }
+				if( o.text.match( gender )) { select( e.division.gender.buttonGroup, gender, o.handle.gender ); }
 			}
 
 			// ===== HANDLE RANK DESCRIPTION
-			var ranks = get_values( e.rank );
-			select( e.rank, 'Black Belt', o.handle.rank );
+			var ranks = get_values( e.division.rank.panel );
+			select( e.division.rank.buttonGroup, 'Black Belt', o.handle.rank );
 			for( var i = 0; i < ranks.length; i++ ) {
 				var rank = ranks[ i ];
-				if( o.text.match( rank )) { select( e.rank, rank, o.handle.rank ); }
+				if( o.text.match( rank )) { select( e.division.rank.buttonGroup, rank, o.handle.rank ); }
 			}
 
 			// ===== HANDLE AGE DESCRIPTION
-			var ages = get_values( e.age );
+			var ages = get_values( e.division.age.panel );
 			for( var i = 0; i < ages.length; i++ ) {
 				var age = ages[ i ];
-				if( o.text.match( age )) { select( e.age, age, o.handle.age ); }
+				if( o.text.match( age )) { select( e.division.age.buttonGroup, age, o.handle.age ); }
 			}
 			for( var age in reverseMap ) {
-				if( o.text.match( age )) { select( e.age, reverseMap[ age ], o.handle.age ); }
+				if( o.text.match( age )) { select( e.division.age.buttonGroup, reverseMap[ age ], o.handle.age ); }
 			}
 		}
 		o.getDescription();

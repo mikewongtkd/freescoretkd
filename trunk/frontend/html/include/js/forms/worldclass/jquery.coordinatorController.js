@@ -953,9 +953,10 @@ $.widget( "freescore.coordinatorController", {
 		});
 
 		// ============================================================
-		$( "body" ).on( FreeScore.event.division.description, function( ev ) { o.description = { gender : ev.gender, age : ev.age, rank : ev.rank, text : ev.text }; } );
-		$( "body" ).on( FreeScore.event.division.forms,       function( ev ) { o.forms.text  = ev.text; } );
+		// HANDLE HEADER EDITOR EVENTS
 		// ============================================================
+		athletes.header.editor.description .on( FreeScore.event.division.description, function( ev ) { o.description = { gender : ev.gender, age : ev.age, rank : ev.rank, text : ev.text }; return false; } );
+		athletes.header.editor.forms       .on( FreeScore.event.division.forms,       function( ev ) { o.forms.text  = ev.text; } );
 
 		// ============================================================
 		e.refresh = function( update ) {
