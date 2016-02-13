@@ -11,6 +11,7 @@ $.widget( "freescore.coordinatorController", {
 		o.port      = ':3088/';
 		o.current   = {};
 		o.forms     = {};
+		o.method    = 'cutoff';
 		var ring    = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
 
 		var sound    = e.sound = {

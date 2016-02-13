@@ -23,7 +23,7 @@ $.widget( "freescore.method", {
 
 		if( ! defined( e.buttonGroup )) { 
 			w.empty();
-			e.buttonGroup = addButtonGroup( 'Method of Competition', methods, handle.select ); 
+			e.buttonGroup = addButtonGroup( 'Method', methods, handle.select ); 
 			e.description = html.div.clone() .css({ height: '80px', border: '1px solid #ccc', padding: '10px', 'vertical-align' : 'middle', 'color' : '#666' }); 
 			w.append( e.buttonGroup, e.description );
 		}

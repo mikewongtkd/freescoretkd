@@ -13,7 +13,7 @@ $.widget( "freescore.judgeCount", {
 			}
 		};
 
-		var buttonGroup = e.buttonGroup = addButtonGroup( 'Please choose the number of judges in this ring (including referee)', [ '3 Judges', '5 Judges', '7 Judges' ], handle.select );
+		var buttonGroup = e.buttonGroup = addButtonGroup( 'Judges', [ '3 Judges', '5 Judges', '7 Judges' ], handle.select );
 		w.html( buttonGroup );
 
 	},

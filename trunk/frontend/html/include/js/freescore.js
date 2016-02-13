@@ -127,6 +127,7 @@ var addButtonGroup = function( name, buttons ) {
 	var fieldset  = html.fieldset.clone() .attr({ "data-role": "controlgroup", "data-type": "horizontal", "data-mini": true, "data-inline": true });
 	var legend    = html.legend.clone() .html( name );
 	var groupName = name.toLowerCase().replace( / /g, '-' );
+	var eventName = name.replace( /[\-_ ]/g, '' );
 	fieldset.append( legend );
 	fieldset.controlgroup();
 	var container = fieldset.controlgroup( 'container' );
@@ -137,9 +138,9 @@ var addButtonGroup = function( name, buttons ) {
 		container.append( input, label );
 	}
 	container.children( 'input:radio' ).on( "change", function() {
-		var val   = $( this ).val();
-		var event = $.Event( "buttonGroup" + name, { value : val } );
-		$( this ).trigger( event );
+		var val = $( this ).val();
+		var ev  = $.Event( "buttonGroup" + eventName, { value : val } );
+		$( this ).trigger( ev );
 		return false;
 	});
 	return fieldset;

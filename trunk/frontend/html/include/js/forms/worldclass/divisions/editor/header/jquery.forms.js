@@ -16,31 +16,33 @@ $.widget( "freescore.formSelector", {
 		// ============================================================
 		// BEHAVIOR
 		// ============================================================
-		var forms = FreeScore.rulesUSAT.recognizedPoomsae( o.format, o.age, o.rank );
-		forms.unshift( 'None' );
+		var forms = e.forms = {
+			pool : FreeScore.rulesUSAT.recognizedPoomsae( o.format, o.age, o.rank )
+		};
+		forms.pool.unshift( 'None' );
 
 		// ============================================================
 		var getForms = function() {
 		// ============================================================
-			var map        = { 'Preliminaries' : 'prelim', 'Semi-Finals' : 'semfin', 'Finals 1st form' : 'finals', 'Finals 2nd form' : 'finals' };
+			var map        = { 'Preliminaries' : 'prelim', 'Semi-Finals' : 'semfin', 'Finals 1st Form' : 'finals', 'Finals 2nd Form' : 'finals' };
 			var reverseMap = { 'prelim' : 'Preliminary Round Form', 'semfin' : 'Semi-Final Round Form', 'finals' : 'Final Round Forms' };
 			o.selected     = { order : [ 'prelim', 'semfin', 'finals' ], prelim : [], semfin : [], finals : [] };
-			for( var i in o.all ) {
-				var round      = o.all[ i ];
-				var roundName  = round.find( "legend" ).html();
-				var forms      = round.find( "input" );
-				var selected   = forms.filter( ":checked" ).val();
-				var roundCode  = map[ roundName ];
-				if( selected  != 'None' && defined( selected )) { o.selected[ roundCode ].push( selected ) };
+			for( var i in e.forms.all ) {
+				var round       = { buttonGroup : e.forms.all[ i ] };
+				var forms       = round.buttonGroup.find( "input" );
+				var selected    = forms.filter( ":checked" ).val();
+				round.name      = round.buttonGroup.find( "legend" ).html();
+				round.code      = map[ round.name ];
+				if( selected   != 'None' && defined( selected )) { o.selected[ round.code ].push( selected ) };
 			}
-			var concise = [];
+			var text = [];
 			for( var i in o.selected.order ) {
-				var round = o.selected.order[ i ];
-				if( o.selected[ round ].length > 0 ) { 
-					concise.push( round + ':' + o.selected[ round ].join( "," )); 
+				var round = { code : o.selected.order[ i ] };
+				if( o.selected[ round.code ].length > 0 ) { 
+					text.push( round.code + ':' + o.selected[ round.code ].join( "," )); 
 				}
 			}
-			o.selected.text = concise.join( ";" );
+			o.selected.text = text.join( ";" );
 
 			var ev = $.Event( FreeScore.event.division.forms, { text : o.selected.text } );
 			widget.trigger( ev );
@@ -50,8 +52,8 @@ $.widget( "freescore.formSelector", {
 		// BEHAVIOR
 		// ============================================================
 		var reset    = function() {
-			for( var i in all ) {
-				var round = all[ i ];
+			for( var i in e.forms.all ) {
+				var round = e.forms.all[ i ];
 				var forms = round.find( "input" );
 				for( var j in forms ) {
 					var button = $( forms[ j ] );
@@ -64,8 +66,8 @@ $.widget( "freescore.formSelector", {
 			select : function( ev ) {
 				var val        = $( ev.target ).val();
 				var selectedId = $( ev.target ).attr( "id" );
-				for( var i in all ) {
-					var round     = all[ i ];
+				for( var i in e.forms.all ) {
+					var round     = e.forms.all[ i ];
 					var forms     = round.find( "input" );
 					var column    = $.grep( forms, function( item ) { return $( item ).val() == val } );
 					var columnId  = $( column ).attr( "id" );
@@ -110,25 +112,35 @@ $.widget( "freescore.formSelector", {
 			},
 		};
 
-		var prelim = e.prelim = addButtonGroup( "Preliminaries",   forms, handle.select );
-		var semfin = e.semfin = addButtonGroup( "Semi-Finals",     forms, handle.select );
-		var final1 = e.final1 = addButtonGroup( "Finals 1st form", forms, handle.select );
-		var final2 = e.final2 = addButtonGroup( "Finals 2nd form", forms, handle.select );
-		var all    = o.all = [];
+		forms.prelim = { buttonGroup : addButtonGroup( "Preliminaries",   forms.pool ), panel : html.div.clone() .addClass( "ui-field-contain" ) };
+		forms.semfin = { buttonGroup : addButtonGroup( "Semi-Finals",     forms.pool ), panel : html.div.clone() .addClass( "ui-field-contain" ) };
+		forms.final1 = { buttonGroup : addButtonGroup( "Finals 1st Form", forms.pool ), panel : html.div.clone() .addClass( "ui-field-contain" ) };
+		forms.final2 = { buttonGroup : addButtonGroup( "Finals 2nd Form", forms.pool ), panel : html.div.clone() .addClass( "ui-field-contain" ) };
 
-		all.push( prelim );
-		all.push( semfin );
-		all.push( final1 );
-		all.push( final2 );
+		forms.prelim.panel.append( forms.prelim.buttonGroup );
+		forms.semfin.panel.append( forms.semfin.buttonGroup );
+		forms.final1.panel.append( forms.final1.buttonGroup );
+		forms.final2.panel.append( forms.final2.buttonGroup );
+
+		forms.all = [];
+
+		forms.all.push( forms.prelim.buttonGroup );
+		forms.all.push( forms.semfin.buttonGroup );
+		forms.all.push( forms.final1.buttonGroup );
+		forms.all.push( forms.final2.buttonGroup );
+
+		forms.prelim.buttonGroup.on( "buttonGroupPreliminaries", handle.select );
+		forms.semfin.buttonGroup.on( "buttonGroupSemiFinals",    handle.select );
+		forms.final1.buttonGroup.on( "buttonGroupFinals1stForm", handle.select );
+		forms.final2.buttonGroup.on( "buttonGroupFinals2ndForm", handle.select );
 
 		// ===== SELECT "None" BUTTON BY DEFAULT
-		all.map( function( item ) { 
-			var name = item.find( "legend" ).html().toLowerCase().replace( / /g, '-' );
+		$.each( forms.all, function( i, item ) { 
+			var name = item.find( "legend" ).html().toLowerCase().replace( /[\-_ ]/g, '' );
 			item.find( '#' + name + '-0' ).prop( "checked", true ) 
 		});
 
 		// ===== CONVERT TO A FIELDCONTAIN (LABEL AND BUTTONS ON ONE LINE)
-		var formSelect = e.formSelect = all.map( function( item ) { var div = html.div.clone() .addClass( "ui-field-contain" ) .append( item ); return div; })
 		var actions    = e.actions    = html.div.clone() .attr( "data-role", "control-group" ) .attr( "data-type", "horizontal" ) .attr( "data-mini", true ) .css( "margin-left", "20%" );
 
 		actions.append(
@@ -136,7 +148,7 @@ $.widget( "freescore.formSelector", {
 		);
 
 		widget.empty();
-		widget.append( formSelect, actions );
+		widget.append( forms.all, actions );
 
 		var select = function( field, value, callback ) {
 			var buttonGroup = field.children();
@@ -165,9 +177,9 @@ $.widget( "freescore.formSelector", {
 				var forms = o.forms[ round ];
 				var form  = forms.map( function( item ) { return item.name; } );
 
-				if( round.match( 'prelim' )) { select( e.prelim, form[ 0 ] ); } else 
-				if( round.match( 'semfin' )) { select( e.semfin, form[ 0 ] ); } else 
-				if( round.match( 'finals' )) { select( e.final1, form[ 0 ] ); select( e.final2, form[ 1 ] ); }
+				if( round.match( 'prelim' )) { select( e.forms.prelim.buttonGroup, form[ 0 ] ); } else 
+				if( round.match( 'semfin' )) { select( e.forms.semfin.buttonGroup, form[ 0 ] ); } else 
+				if( round.match( 'finals' )) { select( e.forms.final1.buttonGroup, form[ 0 ] ); select( e.forms.final2.buttonGroup, form[ 1 ] ); }
 				getForms();
 			}
 		}
