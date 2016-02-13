@@ -293,6 +293,7 @@ $.widget( "freescore.coordinatorController", {
 		var editDivisionDescription = function() {
 		// ============================================================
 			e.athletes.header.menu.panel.popup('close'); 
+			o.changes = true;
 			setTimeout( function() {
 				var i        = parseInt( $.cookie( 'divindex' ));
 				var division = o.progress.divisions[ i ];
@@ -306,8 +307,9 @@ $.widget( "freescore.coordinatorController", {
 					message:  editor,
 					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								o.changes = undefined;
 								$(this).parent().children().hide(); 
 								var parameters = { header: { description : o.description.text }};
 								(sendRequest( request, parameters ))(); 
@@ -325,6 +327,7 @@ $.widget( "freescore.coordinatorController", {
 		var editDivisionForms = function() {
 		// ============================================================
 			e.athletes.header.menu.panel.popup('close'); 
+			o.changes = true;
 			setTimeout( function() {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
@@ -341,8 +344,9 @@ $.widget( "freescore.coordinatorController", {
 					message:  editor,
 					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
+								o.changes = undefined;
 								$(this).parent().children().hide(); 
 								var parameters = { header: { forms : o.forms.text }};
 								(sendRequest( request, parameters ))(); 
@@ -360,6 +364,7 @@ $.widget( "freescore.coordinatorController", {
 		var editDivisionJudges = function() {
 		// ============================================================
 			e.athletes.header.menu.panel.popup('close'); 
+			o.changes = true;
 			setTimeout( function() {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
@@ -371,9 +376,10 @@ $.widget( "freescore.coordinatorController", {
 					message:  editor,
 					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
 								o.num = e.athletes.header.editor.judges.judgeCount().judgeCount( 'option', 'num' );
+								o.changes = undefined;
 								$(this).parent().children().hide(); 
 								var parameters = { header: { judges : o.num }};
 								(sendRequest( request, parameters ))(); 
@@ -391,6 +397,7 @@ $.widget( "freescore.coordinatorController", {
 		var editDivisionMethod = function() {
 		// ============================================================
 			e.athletes.header.menu.panel.popup('close'); 
+			o.changes = true;
 			setTimeout( function() {
 				var i         = parseInt( $.cookie( 'divindex' ));
 				var division  = o.progress.divisions[ i ];
@@ -403,9 +410,10 @@ $.widget( "freescore.coordinatorController", {
 					message:  editor,
 					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
 								o.method = e.athletes.header.editor.method.method().method( 'option', 'method' );
+								o.changes = undefined;
 								$(this).parent().children().hide(); 
 								var parameters = { header: { method : o.method }};
 								(sendRequest( request, parameters ))(); 

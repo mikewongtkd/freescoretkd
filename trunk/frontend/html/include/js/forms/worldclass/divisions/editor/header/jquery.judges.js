@@ -13,7 +13,8 @@ $.widget( "freescore.judgeCount", {
 			}
 		};
 
-		var buttonGroup = e.buttonGroup = addButtonGroup( 'Judges', [ '3 Judges', '5 Judges', '7 Judges' ], handle.select );
+		var buttonGroup = e.buttonGroup = addButtonGroup( 'Judges', [ '3 Judges', '5 Judges', '7 Judges' ] );
+		buttonGroup.on( "buttonGroupJudges", handle.select );
 		w.html( buttonGroup );
 
 	},

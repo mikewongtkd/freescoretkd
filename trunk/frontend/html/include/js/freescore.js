@@ -139,9 +139,12 @@ var addButtonGroup = function( name, buttons ) {
 	}
 	container.children( 'input:radio' ).on( "change", function() {
 		var val = $( this ).val();
-		var ev  = $.Event( "buttonGroup" + eventName, { value : val } );
+		var id  = $( this ).attr( 'id' );
+
+		var ev  = $.Event( "buttonGroup" + eventName, { value : val, id : id } );
 		$( this ).trigger( ev );
-		return false;
+
+		return true;
 	});
 	return fieldset;
 };

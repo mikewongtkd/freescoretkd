@@ -46,6 +46,8 @@ $.widget( "freescore.formSelector", {
 
 			var ev = $.Event( FreeScore.event.division.forms, { text : o.selected.text } );
 			widget.trigger( ev );
+
+			return false;
 		};
 
 		// ============================================================
@@ -64,8 +66,8 @@ $.widget( "freescore.formSelector", {
 
 		var handle   = {
 			select : function( ev ) {
-				var val        = $( ev.target ).val();
-				var selectedId = $( ev.target ).attr( "id" );
+				var val        = ev.value;
+				var selectedId = ev.id;
 				for( var i in e.forms.all ) {
 					var round     = e.forms.all[ i ];
 					var forms     = round.find( "input" );
@@ -87,8 +89,8 @@ $.widget( "freescore.formSelector", {
 			random : function( ev ) {
 				// ===== PICK A RANDOM FORM FOR EVERY ROUND
 				var randomPicks = [];
-				for( var i in all ) { 
-					var round        = all[ i ];
+				for( var i in e.forms.all ) { 
+					var round        = e.forms.all[ i ];
 					var forms        = round.find( "input" );
 					var originalPick = true;
 					picking: while( originalPick ) {
@@ -100,8 +102,8 @@ $.widget( "freescore.formSelector", {
 				}
 
 				// ===== CHECK THE RADIO BOXES
-				for( var i in all ) {
-					var round     = all[ i ];
+				for( var i in e.forms.all ) {
+					var round     = e.forms.all[ i ];
 					var forms     = round.find( "input" );
 					var pick      = randomPicks.shift();
 					var button    = $( forms[ pick ]);

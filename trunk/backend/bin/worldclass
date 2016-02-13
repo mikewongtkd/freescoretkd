@@ -240,6 +240,7 @@ post '/:tournament/:ring/:div_index/edit' => sub {
 			
 			$success->{ edits } = [];
 			foreach (keys %$header) {
+				next if $header->{ $_ } eq '';
 				my $was = $division->{ $_ };
 				if( /^forms$/ ) { 
 					$division->{ $_ } = FreeScore::Forms::WorldClass::Division::_parse_forms( $header->{ $_ } ); 
