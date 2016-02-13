@@ -964,7 +964,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		// HANDLE HEADER EDITOR EVENTS
 		// ============================================================
-		athletes.header.editor.description .on( FreeScore.event.division.description, function( ev ) { o.description = { gender : ev.gender, age : ev.age, rank : ev.rank, text : ev.text }; return false; } );
+		athletes.header.editor.description .on( FreeScore.event.division.description, function( ev ) { o.description = { gender : ev.gender, age : ev.age, rank : ev.rank, text : ev.text }; console.log( "Updating", ev );} );
 		athletes.header.editor.forms       .on( FreeScore.event.division.forms,       function( ev ) { o.forms.text  = ev.text; } );
 
 		// ============================================================

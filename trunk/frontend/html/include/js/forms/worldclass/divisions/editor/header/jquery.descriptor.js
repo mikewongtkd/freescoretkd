@@ -40,14 +40,17 @@ $.widget( "freescore.divisionDescriptor", {
 			var description = { gender : o.gender, age : o.age, rank : o.rank, text : descriptors.join( " " ) };
 			o.description = description;
 
-			var ev = $.Event( FreeScore.event.division.description, description );
-			widget.trigger( ev );
+			if( defined( description.gender ) && defined( description.age ) && defined( description.rank ) && defined( description.text )) {
+				var ev = $.Event( FreeScore.event.division.description, description );
+				console.log( "Triggering", ev );
+				widget.trigger( ev );
+			}
 		};
 
 		var handle = o.handle = {
-			age    : function( ev ) { o.age    = ev.value; o.getDescription(); return false; },
-			gender : function( ev ) { o.gender = ev.value; o.getDescription(); return false; },
-			rank   : function( ev ) { o.rank   = ev.value; o.getDescription(); return false; },
+			age    : function( ev ) { o.age    = ev.value; o.getDescription(); ev.stopPropagation(); },
+			gender : function( ev ) { o.gender = ev.value; o.getDescription(); ev.stopPropagation(); },
+			rank   : function( ev ) { o.rank   = ev.value; o.getDescription(); ev.stopPropagation(); },
 			format : function( ev ) {
 				var val = ev.value;
 				if( val == 'Individual' ) { o.format = undefined; } else { o.format = val; }
@@ -88,7 +91,7 @@ $.widget( "freescore.divisionDescriptor", {
 				e.division.gender.buttonGroup.controlgroup().controlgroup( "refresh" );
 
 				o.getDescription();
-				return false;
+				ev.stopPropagation();
 			}
 		};
 
@@ -99,10 +102,17 @@ $.widget( "freescore.divisionDescriptor", {
 			rank:   { panel: html.div.clone() .addClass( "ui-field-contain" ), buttonGroup: addButtonGroup( "Rank",   FreeScore.rulesUSAT.ranks()) }
 		};
 
-		division.format .panel .append( division.format .buttonGroup ) .on( "buttonGroupEvent",  handle.format );
-		division.gender .panel .append( division.gender .buttonGroup ) .on( "buttonGroupGender", handle.gender );
-		division.age    .panel .append( division.age    .buttonGroup ) .on( "buttonGroupAge",    handle.age );
-		division.rank   .panel .append( division.rank   .buttonGroup ) .on( "buttonGroupRank",   handle.rank );
+		division.format .panel .append( division.format .buttonGroup );
+		division.gender .panel .append( division.gender .buttonGroup );
+		division.age    .panel .append( division.age    .buttonGroup );
+		division.rank   .panel .append( division.rank   .buttonGroup );
+
+		setTimeout( function() {
+			division.format .panel .on( "buttonGroupEvent",  handle.format );
+			division.gender .panel .on( "buttonGroupGender", handle.gender );
+			division.age    .panel .on( "buttonGroupAge",    handle.age );
+			division.rank   .panel .on( "buttonGroupRank",   handle.rank );
+		}, 100 );
 
 		e.division.format.panel.find( "input:radio#event-0" ).attr( "checked", true ); // Select Individual Poomsae by default
 
@@ -114,7 +124,8 @@ $.widget( "freescore.divisionDescriptor", {
 			unselect.prop( "checked", false );
 			selected.prop( "checked", true );
 			buttonGroup.controlgroup().controlgroup( "refresh" );
-			callback( jQuery.Event( 'click', { target :selected } ));
+			var id          = selected.attr( 'id' );
+			callback( $.Event( 'initialize', { id : id, value : value } ));
 		};
 
 		var get_values = function( field ) {

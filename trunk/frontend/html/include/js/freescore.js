@@ -137,15 +137,17 @@ var addButtonGroup = function( name, buttons ) {
 		var label = html.label.clone() .attr( "for", inputName ) .html( buttons[ i ] );
 		container.append( input, label );
 	}
-	container.children( 'input:radio' ).on( "change", function() {
-		var val = $( this ).val();
-		var id  = $( this ).attr( 'id' );
+	var buttons = container.find( ':radio' );
+	setTimeout( function() { // 100ms delay apparently allows instantiation to complete, improving reliability of event being triggered
+		buttons.on( "change", function() {
+			var val = $( this ).val();
+			var id  = $( this ).attr( 'id' );
 
-		var ev  = $.Event( "buttonGroup" + eventName, { value : val, id : id } );
-		$( this ).trigger( ev );
-
-		return true;
-	});
+			var ev  = $.Event( "buttonGroup" + eventName, { value : val, id : id } );
+			$( this ).trigger( ev );
+			console.log( ev );
+		});
+	}, 100 );
 	return fieldset;
 };
 
