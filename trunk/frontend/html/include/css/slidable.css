@@ -1,0 +1,60 @@
+.slidable .above, .slidable .below, .slidable .left, .slidable .right {
+  position: absolute; }
+.slidable .above {
+  -webkit-transform: translateY(-100%); }
+.slidable .below {
+  -webkit-transform: translateY(100%); }
+.slidable .left {
+  -webkit-transform: translateX(-100%); }
+.slidable .right {
+  -webkit-transform: translateX(100%); }
+.slidable .above-in {
+  -webkit-animation: above-in 0.5s forwards; }
+.slidable .below-in {
+  -webkit-animation: below-in 0.5s forwards; }
+.slidable .left-in {
+  -webkit-animation: left-in  0.5s forwards; }
+.slidable .right-in {
+  -webkit-animation: right-in 0.5s forwards; }
+@-webkit-keyframes above-in {
+  100% {
+    -webkit-transform: translateY(0%); } }
+@-webkit-keyframes below-in {
+  100% {
+    -webkit-transform: translateY(0%); } }
+@-webkit-keyframes left-in {
+  100% {
+    -webkit-transform: translateX(0%); } }
+@-webkit-keyframes right-in {
+  100% {
+    -webkit-transform: translateX(0%); } }
+.slidable .above-out {
+  -webkit-animation: above-out 0.5s forwards; }
+.slidable .below-out {
+  -webkit-animation: below-out 0.5s forwards; }
+.slidable .left-out {
+  -webkit-animation: left-out  0.5s forwards; }
+.slidable .right-out {
+  -webkit-animation: right-out 0.5s forwards; }
+@-webkit-keyframes above-out {
+  0% {
+    -webkit-transform: translateY(0%); }
+  100% {
+    -webkit-transform: translateY(-100%); } }
+@-webkit-keyframes below-out {
+  0% {
+    -webkit-transform: translateY(0%); }
+  100% {
+    -webkit-transform: translateY(100%); } }
+@-webkit-keyframes left-out {
+  0% {
+    -webkit-transform: translateY(0%); }
+  100% {
+    -webkit-transform: translateX(-100%); } }
+@-webkit-keyframes right-out {
+  0% {
+    -webkit-transform: translateY(0%); }
+  100% {
+    -webkit-transform: translateX(100%); } }
+
+/*# sourceMappingURL=slidable.css.map */
