@@ -29,13 +29,15 @@ $.widget( "freescore.errormessage", {
 		});
 		var details = error.message.split( /at \/usr\/local\/freescore\/lib\/FreeScore\/Forms\/WorldClass\/Division\/Round.pm line 9\./ );
 		error.details = details[ 1 ];
-		error.message = error.message.replace( /at \/usr\/local\/freescore\/lib\/([\w\/]+\.pm) line (\d+)[^_]*$/, 
-		function( orig, module, line ) {
-			module = module.replace( /\//g, "::" );
-			module = module.replace( /\.pm/, "" );
-			return "at line " + line + " in module " + code.clone().html( module ) [ 0 ].outerHTML;
-		});
-		
+		error.message = error.message.replace( /at \/usr\/local\/freescore\/lib\/([\w\/]+\.pm) line (\d+)[^_]*$/,
+			function( orig, module, line ) {
+				module = module.replace( /\//g, "::" );
+				module = module.replace( /\.pm/, "" );
+				return "at line " + line + " in module " + code.clone().html( module ) [ 0 ].outerHTML;
+			});
+		error.message += "<p>Reconnecting to server...</p>";
+		setTimeout( function() { location.reload(); }, 3500 );
+
 		var dialog = html.div.clone() .attr( "data-role", "page" ) .attr( "data-dialog", "true" ) .attr( "data-close-btn", "none" );
 		var header = html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .css( "color", "white" ) .css( "background", "#900" ) .css( "text-shadow", "none" ) .addClass( "header" );
 		var h1     = html.h1.clone();

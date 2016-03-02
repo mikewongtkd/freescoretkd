@@ -184,6 +184,7 @@ $.widget( "freescore.judgeController", {
 				e.nav.round.next.ajaxbutton( "disable" );
 			}
 			// ===== UPDATE AUTOPILOT BEHAVIOR
+			var delay = { showScore: 9000, next: 6500 };
 			o.autopilot = function( response ) {
 				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
 				if( defined( response.autopilot )  &&   response.autopilot ) { return; } // Only engage autopilot when no other autopilot request is engaged
@@ -204,10 +205,10 @@ $.widget( "freescore.judgeController", {
 						athlete : division.order[ (division.order.length - 1) ],
 						round   : 'finals'
 					};
-					if     ( division.form    != last.form    ) { setTimeout( next.form,    7500 ); }
-					else if( division.current != last.athlete ) { setTimeout( next.athlete, 7500 ); }
-					else if( division.round   != last.round   ) { setTimeout( next.round,   7500 ); }
-				}, 7500 );
+					if     ( division.form    != last.form    ) { setTimeout( next.form,    delay.next ); }
+					else if( division.current != last.athlete ) { setTimeout( next.athlete, delay.next ); }
+					else if( division.round   != last.round   ) { setTimeout( next.round,   delay.next ); }
+				}, delay.showScore );
 			};
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
