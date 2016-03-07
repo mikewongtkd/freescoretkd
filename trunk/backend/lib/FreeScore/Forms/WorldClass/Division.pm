@@ -141,17 +141,19 @@ sub place_athletes {
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
 		# ===== CALCULATE STATISTICS IN CASE OF TIES
-		my $x_stats = { sum => 0, pre => 0, all => 0 };
-		$x_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$x;
-		$x_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$x;
-		$x_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$x;
-		$x_stats->{ $_ } = sprintf( "%5.2f", $x_stats->{ $_ } )    foreach (qw( sum pre all ));
+		my $x_stats = { sum => 0, pre => 0, all => 0, punitive => 0 };
+		$x_stats->{ sum } += $_->{ adjusted_mean }{ total }         foreach @$x;
+		$x_stats->{ pre } += $_->{ adjusted_mean }{ presentation }  foreach @$x;
+		$x_stats->{ all } += $_->{ complete_mean }{ total }         foreach @$x;
+		$x_stats->{ punitive } ||= _withdrawn_or_disqualified( $_ ) foreach @$x;
+		$x_stats->{ $_ } = sprintf( "%5.2f", $x_stats->{ $_ } )     foreach (qw( sum pre all ));
 
 		my $y_stats = { sum => 0, pre => 0, all => 0 };
-		$y_stats->{ sum } += $_->{ adjusted_mean }{ total }        foreach @$y;
-		$y_stats->{ pre } += $_->{ adjusted_mean }{ presentation } foreach @$y;
-		$y_stats->{ all } += $_->{ complete_mean }{ total }        foreach @$y;
-		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )    foreach (qw( sum pre all ));
+		$y_stats->{ sum } += $_->{ adjusted_mean }{ total }         foreach @$y;
+		$y_stats->{ pre } += $_->{ adjusted_mean }{ presentation }  foreach @$y;
+		$y_stats->{ all } += $_->{ complete_mean }{ total }         foreach @$y;
+		$y_stats->{ punitive } ||= _withdrawn_or_disqualified( $_ ) foreach @$y;
+		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )     foreach (qw( sum pre all ));
 
 		# ===== DETECT TIES AND APPLY AUTOMATED TIE-RESOLUTION
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
@@ -162,8 +164,8 @@ sub place_athletes {
 				if    ( $x_stats->{ all } > $y_stats->{ all } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
 				elsif ( $x_stats->{ all } < $y_stats->{ all } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
 				else {
-					$self->{ athletes }[ $a ]{ notes } = 'TB';
-					$self->{ athletes }[ $b ]{ notes } = 'TB';
+					if( ! $x_stats->{ punitive } ) { $self->{ athletes }[ $a ]{ notes } = 'TB'; }
+					if( ! $y_stats->{ punitive } ) { $self->{ athletes }[ $b ]{ notes } = 'TB'; }
 				}
 			}
 		}
@@ -219,6 +221,8 @@ sub detect_ties {
 		while( $j < $k ) {
 			my $b = $placement->[ $j ];
 			my $y = $self->select_compulsory_round_scores( $b, $round );
+			if( any { _withdrawn_or_disqualified( $_ ); } @$y ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
+
 			my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
 			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
@@ -817,7 +821,7 @@ sub write {
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
-	print FILE "# autopilot=$self->{ autopilot }\n";
+	print FILE "# autopilot=$self->{ autopilot }\n" if defined( $self->{ autopilot } );
 	print FILE "# method=" . lc( $self->{ method } ) . "\n" if defined( $self->{ method } );
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
@@ -897,6 +901,7 @@ sub next_round {
 	}
 
 	# ===== GO TO NEXT ROUND
+	$self->{ state } = 'score';
 	$self->{ round } = $rounds[ $i ];
 
 	# ===== GO TO THE FIRST ATHLETE IN THAT ROUND
@@ -945,6 +950,22 @@ sub next_athlete {
 	$self->{ state }   = 'score';
 	$self->{ current } = $self->athletes_in_round( 'next' );
 	$self->{ form }    = 0;
+}
+
+# ============================================================
+sub next_available_athlete {
+# ============================================================
+#** @method ()
+#   @brief Navigates the division to the next athlete that needs a score and has not been withdrawn or disqualified
+#*
+	my $self      = shift;
+	my $round     = $self->{ round };
+	my $available = undef;
+	do {
+		$self->{ current } = $self->athletes_in_round( 'next' );
+		$available = ! $self->{ athletes }[ $self->{ current } ]{ scores }{ $round }->complete();
+	} while( ! $available );
+	$self->{ form } = 0;
 }
 
 # ============================================================

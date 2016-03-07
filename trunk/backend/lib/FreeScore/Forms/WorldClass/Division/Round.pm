@@ -81,7 +81,6 @@ sub record_decision {
 			$form->{ decision }{ $punitive_declaration } = 1;
 		}
 	}
-
 }
 
 # ============================================================
@@ -91,6 +90,7 @@ sub add_tiebreaker {
 	my $judges = shift;
 	my $i      = shift;
 
+	$self->[ $i ]{ tiebreaker } = 1;
 	foreach ( 0 .. $judges ) {
 		push @{ $self->[ $i ]{ judge }}, new FreeScore::Forms::WorldClass::Division::Round::Score();
 	}
