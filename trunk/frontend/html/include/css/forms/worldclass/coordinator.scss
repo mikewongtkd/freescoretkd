@@ -73,35 +73,25 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 			font-family: Optima;
 			background: transparent;
 			border: none;
-			width: 100%;
-
-			&::-webkit-search-cancel-button {
-				-webkit-appearance: none;
-
-				&:after {
-					content: '';
-					display: block;
-					width: 24px;
-					height: 24px;
-					background-image: url( '/freescore/images/icons/apps/coordinator/delete.svg' );
-					background-repeat: no-repeat;
-					background-size: 24px;
-					background-position: top left;
-				}
-				svg {
-					fill: red;
-				}
-			}
+			width: calc( 100% - 240px ); 
 
 			&:focus {
 				outline: none;
 				border-bottom: 1px solid #6facd5;
 			}
-
-			&:hover {
-				border-bottom: 1px solid #6facd5;
-			}
 		}
+		.athlete-actions {
+			color: white;
+			text-shadow: none;
+			display: none;
+			background: red;
+			background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+			background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+		}
+		&:hover {
+			.athlete-actions { display: inline; }
+		}
+
 	}
 	.oneform  { width : 100px; text-align: left; padding-left: 20px; }
 	.twoforms { width :  40px; text-align: left; padding-left: 20px; }

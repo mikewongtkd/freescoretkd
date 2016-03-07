@@ -97,13 +97,6 @@ $.widget( "freescore.coordinatorController", {
 				misconduct : button.clone() .addClass( 'penalty ui-icon-comment' ) .html( "Misconduct"      ),
 				clear      : button.clone() .addClass( 'penalty ui-icon-delete' )  .html( "Clear Penalties" ),
 			},
-
-			punitive : {
-				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend     : html.legend.clone() .html( "Punitive Decision" ),
-				withdraw   : button.clone() .addClass( 'punitive ui-icon-user'   ) .html( "Withdraw"        ),
-				disqualify : button.clone() .addClass( 'punitive ui-icon-alert'  ) .html( "Disqualify"      ),
-			}
 		};
 
 		var time = e.time = {
@@ -165,9 +158,8 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
-		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.withdraw, actions.punitive.disqualify );
 
-		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.changes.panel );
+		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -290,8 +282,9 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var disqualifyAthlete = function() {
 		// ============================================================
+			var index    = $(this).attr( 'index' );
 			var division = o.progress.divisions[ o.progress.current ];
-			var athlete  = division.athletes[ division.current ];
+			var athlete  = division.athletes[ index ];
 			e.dialog.popupdialog({
 				title:    'Disqualify Athlete?',
 				subtitle: 'Disqualify ' + athlete.name + ' from this division by punitive decision?',
@@ -299,7 +292,7 @@ $.widget( "freescore.coordinatorController", {
 				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel',     style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-					{ text : 'Disqualify', style : 'important', click : function( ev ) { $( this ).parent().children().hide(); (sendCommand( "coordinator/disqualified" )()); } },
+					{ text : 'Disqualify', style : 'important', click : function( ev ) { $( this ).parent().children().hide(); (sendCommand( "coordinator/punitive/disqualified/" + index )()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -477,6 +470,26 @@ $.widget( "freescore.coordinatorController", {
 
 			return option;
 		};
+
+		// ============================================================
+		var removeAthlete = function( division, round ) {
+		// ============================================================
+			return function() {
+				var text = $(this).parent().find( 'input:text' );
+				text.val( '' );
+				var rename = [];
+				var rows   = $( 'tbody.athlete-list' ).children( 'tr' ); // tbody children are tr elements, i.e. athlete names and scores
+				for( i = 0; i < rows.length; i++ ) {
+					var row    = $( rows[ i ] );
+					var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
+					var j      = column.order.attr( 'order' );
+					var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
+					if( defined( j ) ) { rename.push({ order : parseInt( j ), name : name }); }
+				}
+				o.changes = { divid : division.name, athletes: rename, round : round };
+				e.actions.changes.panel.fadeIn(); 
+			}
+		}
 
 		// ============================================================
 		var removeDivision = function() {
@@ -660,8 +673,9 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var withdrawAthlete = function() {
 		// ============================================================
+			var index    = $(this).attr( 'index' );
 			var division = o.progress.divisions[ o.progress.current ];
-			var athlete  = division.athletes[ division.current ];
+			var athlete  = division.athletes[ index ];
 			e.dialog.popupdialog({
 				title:    'Withdraw Athlete?',
 				subtitle: 'Withdraw ' + athlete.name + ' from this division?',
@@ -669,7 +683,7 @@ $.widget( "freescore.coordinatorController", {
 				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel',   style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-					{ text : 'Withdraw', style : 'important', click : function( ev ) { $(this).parent().children().hide(); (sendCommand( "coordinator/withdrawn" )()); } },
+					{ text : 'Withdraw', style : 'important', click : function( ev ) { $(this).parent().children().hide(); (sendCommand( "coordinator/punitive/withdrawn/" + index )()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -800,7 +814,6 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
-				e.actions.punitive  .panel .show();
 				e.actions.changes   .panel .hide();
 
 				e.actions.navigate.division.attr({ index : undefined });
@@ -809,7 +822,6 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.navigate  .panel .show();
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
-				e.actions.punitive  .panel .hide();
 				e.actions.changes   .panel .hide();
 
 				// Set context for navigation button
@@ -885,10 +897,20 @@ $.widget( "freescore.coordinatorController", {
 				// Otherwise show the name as an editable input
 				} else {
 
-					var input = html.search.clone();
+					var input   = html.text.clone();
+					var action = {
+						withdraw   : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-user  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( 'WD' ),
+						disqualify : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-info  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( 'DQ' ),
+						remove     : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-minus ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( 'RM' ),
+					};
+
+					action.withdraw   .click( withdrawAthlete );
+					action.disqualify .click( disqualifyAthlete );
+					action.remove     .click( removeAthlete( division, round ) );
+
 					input.val( athlete.data.name );
 					input.change( renameAthletes( division, round ) );
-					athlete.name.append( input );
+					athlete.name.append( input, action.withdraw, action.disqualify, action.remove );
 				}
 				athlete.order.attr({ order : (i + 1) });
 				athlete.order.append( (i + 1) + '.' );
@@ -1013,9 +1035,6 @@ $.widget( "freescore.coordinatorController", {
 		actions.penalties  .restart    .click( awardPenaltyRestart );
 		actions.penalties  .misconduct .click( awardPenaltyMisconduct );
 		actions.penalties  .clear      .click( clearPenalties );
-
-		actions.punitive   .withdraw   .click( withdrawAthlete );
-		actions.punitive   .disqualify .click( disqualifyAthlete );
 
 		athletes.header.menu.description .find( 'a' ).click( editDivisionDescription );
 		athletes.header.menu.forms       .find( 'a' ).click( editDivisionForms );

@@ -67,25 +67,19 @@ table {
       font-family: Optima;
       background: transparent;
       border: none;
-      width: 100%; }
-      .athletes .name input[type=search]::-webkit-search-cancel-button, .athletes .name input[type=text]::-webkit-search-cancel-button {
-        -webkit-appearance: none; }
-        .athletes .name input[type=search]::-webkit-search-cancel-button:after, .athletes .name input[type=text]::-webkit-search-cancel-button:after {
-          content: '';
-          display: block;
-          width: 24px;
-          height: 24px;
-          background-image: url("/freescore/images/icons/apps/coordinator/delete.svg");
-          background-repeat: no-repeat;
-          background-size: 24px;
-          background-position: top left; }
-        .athletes .name input[type=search]::-webkit-search-cancel-button svg, .athletes .name input[type=text]::-webkit-search-cancel-button svg {
-          fill: red; }
+      width: calc( 100% - 240px ); }
       .athletes .name input[type=search]:focus, .athletes .name input[type=text]:focus {
         outline: none;
         border-bottom: 1px solid #6facd5; }
-      .athletes .name input[type=search]:hover, .athletes .name input[type=text]:hover {
-        border-bottom: 1px solid #6facd5; }
+    .athletes .name .athlete-actions {
+      color: white;
+      text-shadow: none;
+      display: none;
+      background: red;
+      background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%); }
+    .athletes .name:hover .athlete-actions {
+      display: inline; }
   .athletes .oneform {
     width: 100px;
     text-align: left;

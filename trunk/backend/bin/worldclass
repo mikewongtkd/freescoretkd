@@ -273,17 +273,18 @@ post '/:tournament/:ring/coordinator' => sub {
 # ------------------------------------------------------------
 # WRITE REFEREE PUNITIVE DECISION
 # ------------------------------------------------------------
-get '/:tournament/:ring/coordinator/:decision' => sub { 
+get '/:tournament/:ring/coordinator/punitive/:decision/:index' => sub { 
 	my $self         = shift;
 	my $tournament   = $self->param( 'tournament'     );
 	my $ring         = $self->param( 'ring'           );
-	my $decision     = $self->param( 'decision'         );
+	my $decision     = $self->param( 'decision'       );
+	my $index        = $self->param( 'index'          );
 	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division     = $progress->current();
-	my $athlete      = $division->{ athletes }[ $division->{ current } ];
+	my $athlete      = $division->{ athletes }[ $index ];
 
 	try {
-		$division->record_decision( $decision );
+		$division->record_decision( $decision, $index );
 		$division->write();
 		send_response( $self, { description => 'Declaring punitive decision for athlete', athlete => $athlete->{ name }, round => $division->{ round }, decision => $decision, debug => $division->{ debug }});
 

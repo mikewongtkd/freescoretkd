@@ -414,13 +414,14 @@ sub record_penalties {
 # ============================================================
 sub record_decision {
 # ============================================================
-#** @method ( punitive_declaration_text )
+#** @method ( punitive_declaration_text, athlete_index )
 #   @brief Records the given punitive decision
 #*
 	my $self      = shift;
-	my $decision    = shift;
+	my $decision  = shift;
+	my $i         = shift;
 
-	my $athlete   = $self->{ athletes }[ $self->{ current } ];
+	my $athlete   = $self->{ athletes }[ $i ];
 	my $round     = $self->{ round };
 	my $form      = $self->{ form };
 	my $forms     = int( @{ $self->{ forms }{ $round }});
