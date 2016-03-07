@@ -1,6 +1,6 @@
 package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
-use List::Util qw( all );
+use List::Util qw( all sum );
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Dumper;
@@ -178,7 +178,7 @@ sub calculate_means {
 		}
 
 		# ===== CALCULATE PENALTIES
-		my $penalties = $form->{ penalty }{ bounds } + $form->{ penalty }{ timelimit };
+		my $penalties = sum @{$form->{ penalty }}{ ( qw( bounds timelimit restart misconduct )) };
 
 		# ===== CALCULATE COMPLETE MEANS
 		$complete = { map { ( $_ => sprintf( "%.2f", ($complete->{ $_ }/$judges))) } keys %$complete };
@@ -284,7 +284,7 @@ sub string {
 
 		# ===== RECORD PENALTIES
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} ) {
-			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds timelimit misconduct time ) } ) . "\n";
+			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds timelimit restart misconduct time ) } ) . "\n";
 		}
 
 		# ===== RECORD SCORES

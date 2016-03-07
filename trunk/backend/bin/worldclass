@@ -8,7 +8,8 @@ use FreeScore;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
 
-our $json = new JSON::XS();
+our $autopilot = [];
+our $json      = new JSON::XS();
 
 # ============================================================
 # JUDGE INTERFACE
@@ -30,6 +31,79 @@ get '/:tournament/:ring/judges' => sub {
 	} catch {
 		send_response( $self, { error => $_ });
 	}
+};
+
+# ------------------------------------------------------------
+# TURN ON AUTOPILOT FOR THIS RING
+# ------------------------------------------------------------
+get '/:tournament/:ring/:judge/autopilot' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $judge      = $self->param( 'judge' );
+	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division   = $progress->current();
+	my ($ring_num) = $ring eq 'staging' ? (undef) : map { int( $_ ); } $ring =~ /^(?:ring)?(\d+)/;
+	my $judge_name = $judge == 1 ? 'Referee' : 'Judge ' + int( $judge - 1 );
+	my $complete   = $division->{ athletes }[ $division->{ current } ]{ scores }{ $division->{ round } }->form_complete( $division->{ form } ); 
+
+	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
+	if( defined $ring_num && $autopilot->[ $ring_num ] ) {
+		send_response( $self, { error => 'Autopilot is already engaged for this ring by $judge_name.' } );
+		return;
+	}
+
+	# ===== ENGAGE AUTOPILOT
+	$autopilot->[ $ring_num ] = $judge;
+
+	my $delay = { scoreboard => 9, leaderboard => 6 };
+	my $wait  = \&Mojo::IOLoop->timer;
+	my $round = $division->{ round };
+	my $order = $division->{ order }{ $round };
+	my $forms = $division->{ forms }{ $round };
+
+	my $last = {
+		athlete => $division->{ current } == $order->[ -1 ],
+		form    => $division->{ form }    == int( @$forms ),
+		round   => $division->{ round }   =~ qr/^(?:finals|ro2)$/
+	};
+
+	# ===== AUTOPILOT ACTIONS
+	my $show = {};
+	# ----------------------------------------
+	$show->{ leaderboard } = sub {
+	# ----------------------------------------
+		my $go_next = {
+			round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
+			athlete => $last->{ form } && ! $last->{ athlete },
+			form    => $last->{ form }
+		};
+		if    ( $go_next->{ round }   ) { $division->next_round();   }
+		elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
+		elsif ( $go_next->{ form }    ) { $division->next_form();    }
+		$division->write();
+
+		# Disengage autopilot
+		$autopilot->[ $ring_num ] = 0;
+	};
+	# ----------------------------------------
+	$show->{ scoreboard } = sub {
+	# ----------------------------------------
+		if( $division->is_display() ) { $division->score(); } else { $division->display(); }
+		$division->write();
+		$wait->( $delay->{ leaderboard }, $show->{ leaderboard } );
+	};
+
+	# ===== AUTOPILOT BEHAVIOR
+	# Autopilot behavior comprises the two afforementioned actions in
+	# serial, with delays between.
+	try {
+		$wait->( $delay->{ scoreboard }, $show->{ scoreboard } );
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+	send_response( $self, { description => 'Autopilot is engaged' });
+
 };
 
 # ------------------------------------------------------------
@@ -183,23 +257,28 @@ get '/:tournament/:ring/coordinator/:decision' => sub {
 # ------------------------------------------------------------
 # WRITE REFEREE PENALTY FOR ATHLETE
 # ------------------------------------------------------------
-get '/:tournament/:ring/coordinator/:bounds/:timelimit/:misconduct/:time' => sub { 
+get '/:tournament/:ring/coordinator/penalty/:bounds/:timelimit/:restart/:misconduct/:time' => sub { 
 	my $self         = shift;
 	my $tournament   = $self->param( 'tournament'     );
 	my $ring         = $self->param( 'ring'           );
 	my $bounds       = get_score( $self, 'bounds'     );
 	my $timelimit    = get_score( $self, 'timelimit'  );
+	my $restart      = get_score( $self, 'restart'    );
 	my $misconduct   = get_score( $self, 'misconduct' );
 	my $time         = get_time( $self );
 	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division     = $progress->current();
 	my $athlete      = $division->{ athletes }[ $division->{ current } ];
-	my $penalties    = { bounds => $bounds, timelimit => $timelimit, misconduct => $misconduct, time => $time };
+	my $penalties    = { bounds => $bounds, timelimit => $timelimit, restart => $restart, misconduct => $misconduct, time => $time };
 
 	try {
 		$division->record_penalties( $penalties );
 		$division->write();
-		send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, debug => $division->{ debug }});
+		if( $bounds == 0 && $timelimit == 0 && $restart == 0 && $misconduct == 0 && $time == 0 ) {
+			send_response( $self, { description => 'Clearing penalties for athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, debug => $division->{ debug }});
+		} else {
+			send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, debug => $division->{ debug }});
+		}
 
 	} catch {
 		send_response( $self, { error => $_ });

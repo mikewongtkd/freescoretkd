@@ -91,9 +91,11 @@ $.widget( "freescore.coordinatorController", {
 			penalties : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Penalties" ),
-				timelimit  : button.clone() .addClass( 'penalty ui-icon-clock'  ) .html( "Time Limit"      ),
-				bounds     : button.clone() .addClass( 'penalty ui-icon-action' ) .html( "Out-of-Bounds"   ),
-				clear      : button.clone() .addClass( 'penalty ui-icon-delete' ) .html( "Clear Penalties" ),
+				timelimit  : button.clone() .addClass( 'penalty ui-icon-clock'  )  .html( "Time Limit"      ),
+				bounds     : button.clone() .addClass( 'penalty ui-icon-action' )  .html( "Out-of-Bounds"   ),
+				restart    : button.clone() .addClass( 'penalty ui-icon-forward' ) .html( "Restart"         ),
+				misconduct : button.clone() .addClass( 'penalty ui-icon-comment' ) .html( "Misconduct"      ),
+				clear      : button.clone() .addClass( 'penalty ui-icon-delete' )  .html( "Clear Penalties" ),
 			},
 
 			punitive : {
@@ -157,12 +159,12 @@ $.widget( "freescore.coordinatorController", {
 			}
 		};
 
-		o.penalties = { bounds : 0, timelimit : 0, misconduct : 0 };
+		o.penalties = { bounds : 0, timelimit : 0, restart : 0, misconduct : 0 };
 
 		actions.changes    .panel.append( actions.changes.legend, actions.changes.save, actions.changes.revert );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
-		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.clear );
+		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
 		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.withdraw, actions.punitive.disqualify );
 
 		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.changes.panel );
@@ -225,8 +227,26 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			o.penalties.bounds += 0.3;
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/" + penalties )());
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/penalty/" + penalties )());
+		};
+
+		// ============================================================
+		var awardPenaltyMisconduct = function() {
+		// ============================================================
+			o.penalties.misconduct += 0.3;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/penalty/" + penalties )());
+		};
+
+		// ============================================================
+		var awardPenaltyRestart = function() {
+		// ============================================================
+			o.penalties.restart += 0.6;
+
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/penalty/" + penalties )());
 		};
 
 		// ============================================================
@@ -234,18 +254,20 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			o.penalties.timelimit = 0.3;
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/" + penalties )());
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/penalty/" + penalties )());
 		};
 
 		// ============================================================
 		var clearPenalties = function() {
 		// ============================================================
-			o.penalties.bounds    = 0.0;
-			o.penalties.timelimit = 0.0;
+			o.penalties.bounds     = 0.0;
+			o.penalties.timelimit  = 0.0;
+			o.penalties.restart    = 0.0;
+			o.penalties.misconduct = 0.0;
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/" + penalties )());
+			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
+			(sendCommand( "coordinator/penalty/" + penalties )());
 		};
 
 		// ============================================================
@@ -988,6 +1010,8 @@ $.widget( "freescore.coordinatorController", {
 
 		actions.penalties  .timelimit  .click( awardPenaltyTimeLimit );
 		actions.penalties  .bounds     .click( awardPenaltyBounds );
+		actions.penalties  .restart    .click( awardPenaltyRestart );
+		actions.penalties  .misconduct .click( awardPenaltyMisconduct );
 		actions.penalties  .clear      .click( clearPenalties );
 
 		actions.punitive   .withdraw   .click( withdrawAthlete );

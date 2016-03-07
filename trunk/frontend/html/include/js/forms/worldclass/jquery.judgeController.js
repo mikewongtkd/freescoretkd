@@ -183,32 +183,11 @@ $.widget( "freescore.judgeController", {
 				e.nav.round.prev.ajaxbutton( "enable" );
 				e.nav.round.next.ajaxbutton( "disable" );
 			}
-			// ===== UPDATE AUTOPILOT BEHAVIOR
-			var delay = { showScore: 9000, next: 6500 };
+			// ===== INITIATE AUTOPILOT BEHAVIOR
 			o.autopilot = function( response ) {
 				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
-				if( defined( response.autopilot )  &&   response.autopilot ) { return; } // Only engage autopilot when no other autopilot request is engaged
-
-				// Change Display
-				setTimeout( function() {
-					var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/display';
-					$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, });
-
-					// Next form or athlete or round
-					var next = {
-						form    : function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/form/next';    $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); },
-						athlete : function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/athlete/next'; $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); },
-						round   : function() { var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + '/round/next';   $.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, }); },
-					};
-					var last = {
-						form    : formNames.length - 1,
-						athlete : division.order[ (division.order.length - 1) ],
-						round   : 'finals'
-					};
-					if     ( division.form    != last.form    ) { setTimeout( next.form,    delay.next ); }
-					else if( division.current != last.athlete ) { setTimeout( next.athlete, delay.next ); }
-					else if( division.round   != last.round   ) { setTimeout( next.round,   delay.next ); }
-				}, delay.showScore );
+				var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + + '/' + o.num + '/autopilot';
+				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, });
 			};
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
