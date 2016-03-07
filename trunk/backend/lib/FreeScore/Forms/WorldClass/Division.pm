@@ -82,6 +82,21 @@ sub assign_tiebreaker {
 }
 
 # ============================================================
+sub autopilot {
+# ============================================================
+#** @method ( judge )
+#   @brief Lock division as under autopilot control
+#*
+	my $self  = shift;
+	my $judge = shift;
+
+	if( defined $judge ) {
+		if( $judge == 0 ) { delete $self->{ autopilot } } else { $self->{ autopilot } = $judge; }
+	}
+	if( exists $self->{ autopilot } ) { return $self->{ autopilot }; } else { return 0; }
+}
+
+# ============================================================
 sub distribute_evenly {
 # ============================================================
 #** @method ( group_name_array, athlete_array )
@@ -368,6 +383,7 @@ sub record_score {
 	my $forms   = int( @{ $self->{ forms }{ $round }});
 	my $judges  = $self->{ judges };
 
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
 }
@@ -801,6 +817,7 @@ sub write {
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
+	print FILE "# autopilot=$self->{ autopilot }\n";
 	print FILE "# method=" . lc( $self->{ method } ) . "\n" if defined( $self->{ method } );
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;

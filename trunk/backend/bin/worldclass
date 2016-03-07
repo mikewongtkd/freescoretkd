@@ -7,13 +7,31 @@ use YAML;
 use FreeScore;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
+use Data::Dumper;
 
-our $autopilot = [];
 our $json      = new JSON::XS();
 
 # ============================================================
 # JUDGE INTERFACE
 # ============================================================
+
+# ------------------------------------------------------------
+# GET THE DIVISION STATUS
+# ------------------------------------------------------------
+get '/:tournament/:ring/status' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
+	my $division   = $progress->current();
+
+	try {
+		send_response( $self, { 'description' => 'Division $division->{ name } status', 'division' => $division->{ name }, 'current' => $division->{ current }, 'form' => $division->{ form }, 'round' => $division->{ round }, 'judges' => $division->{ judges }, 'forms' => $division->{ forms }{ $division->{ round }}, 'autopilot' => $division->autopilot() } );
+
+	} catch {
+		send_response( $self, { error => $_ });
+	}
+};
 
 # ------------------------------------------------------------
 # GET THE NUMBER OF JUDGES FOR THIS DIVISION
@@ -43,29 +61,29 @@ get '/:tournament/:ring/:judge/autopilot' => sub {
 	my $judge      = $self->param( 'judge' );
 	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
 	my $division   = $progress->current();
-	my ($ring_num) = $ring eq 'staging' ? (undef) : map { int( $_ ); } $ring =~ /^(?:ring)?(\d+)/;
-	my $judge_name = $judge == 1 ? 'Referee' : 'Judge ' + int( $judge - 1 );
+	my ($ring_num) = $ring eq 'staging' ? 0 : map { int( $_ ); } $ring =~ /^(?:ring)?(\d+)/i;
+	my $judge_name = $judge == 0 ? 'Referee' : 'Judge ' . int( $judge );
 	my $complete   = $division->{ athletes }[ $division->{ current } ]{ scores }{ $division->{ round } }->form_complete( $division->{ form } ); 
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
-	if( defined $ring_num && $autopilot->[ $ring_num ] ) {
-		send_response( $self, { error => 'Autopilot is already engaged for this ring by $judge_name.' } );
+	if( my $locked = $division->autopilot() ) {
+		send_response( $self, { error => 'Autopilot is already engaged for this ring by ' . ($locked == 1 ? 'Referee' : 'Judge ' . ($locked - 1)) . '.' } );
 		return;
 	}
 
 	# ===== ENGAGE AUTOPILOT
-	$autopilot->[ $ring_num ] = $judge;
+	$division->autopilot( $judge + 1 );
+	$division->write();
 
-	my $delay = { scoreboard => 9, leaderboard => 6 };
-	my $wait  = \&Mojo::IOLoop->timer;
+	my $delay = { scoreboard => 9, leaderboard => 6, total => 0 };
 	my $round = $division->{ round };
 	my $order = $division->{ order }{ $round };
 	my $forms = $division->{ forms }{ $round };
 
 	my $last = {
-		athlete => $division->{ current } == $order->[ -1 ],
-		form    => $division->{ form }    == int( @$forms ),
-		round   => $division->{ round }   =~ qr/^(?:finals|ro2)$/
+		athlete => ($division->{ current } == $order->[ -1 ]),
+		form    => ($division->{ form }    == int( @$forms ) - 1),
+		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
 	};
 
 	# ===== AUTOPILOT ACTIONS
@@ -76,34 +94,39 @@ get '/:tournament/:ring/:judge/autopilot' => sub {
 		my $go_next = {
 			round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
 			athlete => $last->{ form } && ! $last->{ athlete },
-			form    => $last->{ form }
+			form    => ! $last->{ form }
 		};
+
 		if    ( $go_next->{ round }   ) { $division->next_round();   }
 		elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
 		elsif ( $go_next->{ form }    ) { $division->next_form();    }
+		$division->autopilot( 0 ); # Disengage autopilot
 		$division->write();
-
-		# Disengage autopilot
-		$autopilot->[ $ring_num ] = 0;
 	};
 	# ----------------------------------------
 	$show->{ scoreboard } = sub {
 	# ----------------------------------------
-		if( $division->is_display() ) { $division->score(); } else { $division->display(); }
-		$division->write();
-		$wait->( $delay->{ leaderboard }, $show->{ leaderboard } );
+		if( $last->{ form } ) { 
+			$division->display() unless $division->is_display(); 
+			$division->write(); 
+			Mojo::IOLoop->timer( $delay->{ leaderboard } => $show->{ leaderboard } );
+			$delay->{ total } += $delay->{ leaderboard };
+
+		} else {
+			$show->{ leaderboard }();
+		}
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	try {
-		$wait->( $delay->{ scoreboard }, $show->{ scoreboard } );
+		$delay->{ total } += $delay->{ scoreboard };
+		Mojo::IOLoop->timer( $delay->{ scoreboard } => $show->{ scoreboard } );
+		send_response( $self, { description => 'Autopilot is engaged', delay => $delay->{ total } });
 	} catch {
 		send_response( $self, { error => $_ });
-	}
-	send_response( $self, { description => 'Autopilot is engaged' });
-
+	};
 };
 
 # ------------------------------------------------------------

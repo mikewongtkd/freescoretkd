@@ -80,7 +80,8 @@ $.widget( "freescore.leaderboard", {
 				var forms      = athlete.scores[ round ];
 				var athlete    = placement.athletes[ i ];
 				var notes      = defined( athlete.notes ) ? athlete.notes : '';
-				var total      = (forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / forms.length).toFixed( 2 );
+				var length     = forms.length > 1 ? 2 : 1; // Max number of forms per round is 2
+				var total      = (forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / length).toFixed( 2 );
 				var name       = athlete.name;
 				if( name.length > 12 && ! e.placement.hasClass( 'one-column' ) ) { // Name too long? Use first initial and last name
 					var firstlast = name.split( /\s+/ ); var first = firstlast.shift(); var last = firstlast.join( ' ' );
