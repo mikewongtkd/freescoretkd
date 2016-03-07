@@ -1,0 +1,91 @@
+#! /usr/bin/perl
+use lib qw( ./lib ../lib );
+use Algorithm::Numerical::Shuffle qw( shuffle );
+use FreeScore::Test qw( score_worldclass );
+use Time::HiRes qw( usleep );
+
+our $test  = new FreeScore::Test();
+
+my $number = $test->worldclass( "judges" );
+my $judges = $number->{ judges } - 1;
+my $names  = [ 'Nicolaas Janz', 'Richard Chan', 'Azalea Danielson', 'Zahara Schwarz', 'Sisel Meir', 'Duncan Patrick', 'Xue Huang', 'Aditi Mhasalkar', 'Linda Alessi', 'Seema Patil', 'Kaitlyn Norris', 'Adrianna Lockwood', 'Henry Guo', 'Peter Janz', 'Dong Rhee', 'Sang Chung', 'Karen Jiang', 'Zhi Wen', 'Seung Choi', 'Chris Bristow', 'Helen Chen', 'Naveen Avninder', ];
+my $skill  = {
+	'Nicolaas Janz'     => 'good', 
+	'Richard Chan'      => 'better', 
+	'Azalea Danielson'  => 'good', 
+	'Zahara Schwarz'    => 'better', 
+	'Sisel Meir'        => 'better', 
+	'Duncan Patrick'    => 'ok', 
+	'Xue Huang'         => 'good', 
+	'Aditi Mhasalkar'   => 'good', 
+	'Linda Alessi'      => 'good', 
+	'Seema Patil'       => 'better', 
+	'Kaitlyn Norris'    => 'ok', 
+	'Adrianna Lockwood' => 'better', 
+	'Henry Guo'         => 'good', 
+	'Peter Janz'        => 'good', 
+	'Dong Rhee'         => 'good', 
+	'Sang Chung'        => 'ok', 
+	'Karen Jiang'       => 'best', 
+	'Zhi Wen'           => 'ok', 
+	'Seung Choi'        => 'better', 
+	'Chris Bristow'     => 'ok', 
+	'Helen Chen'        => 'better', 
+	'Naveen Avninder'   => 'better', 
+};
+my $current = 0;
+my $status = undef;
+
+foreach my $athlete ( 0 .. 21 ) {
+	$status   = $test->worldclass( "status" );
+	$current  = $status->{ current };
+	my $name  = $names->[ $current ];
+	print STDERR "Scoring $status->{ forms }[ $form ]{ name } for $name\n";
+	my $level = $skill->{ $name };
+	score( $level, $judges );
+}
+
+foreach my $athlete ( 0 .. 10 ) {
+	$status   = $test->worldclass( "status" );
+	$current  = $status->{ current };
+	my $name  = $names->[ $current ];
+	print STDERR "Scoring $status->{ forms }[ $form ]{ name } for $name\n";
+	my $level = $skill->{ $name };
+	score( $level, $judges );
+}
+
+foreach my $athlete ( 0 .. 7 ) {
+	foreach my $form ( 0 .. 1 ) {
+		$status  = $test->worldclass( "status" );
+		$current = $status->{ current };
+		my $name = $names->[ $current ];
+		print STDERR "Scoring $status->{ forms }[ $form ]{ name } for $name\n";
+		my $level = $skill->{ $name };
+		score( $level, $judges );
+	}
+}
+
+# ============================================================
+sub score {
+# ============================================================
+	my $skill  = shift;
+	my $k      = shift;
+	my @judges = shuffle( 0 .. $k );
+	foreach my $judge (@judges) {
+		my $score       = score_worldclass( $skill );
+		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
+		$test->worldclass( $judge_score );
+		usleep( 500000 );
+		if( $judge == $judges[ -1 ] ) {
+			my $response = $test->worldclass( "$judge/autopilot" );
+			if( $response->{ error } ) {
+				print STDERR "ERROR: $response->{ error }\n";
+			} else {
+				sleep( 4 );
+				$test->worldclass( "3/autopilot" );
+				sleep( 12 );
+			}
+		}
+	}
+	sleep( 1 );
+}
