@@ -34,8 +34,18 @@ print <<EOF;
 				font-family: HelveticaNeue-CondensedBold;
 			}
 			.division {
-				margin-top: 20px;
+				clear: both;
+				margin-top: 28px;
+				width: 640px;
+				height: 20px;
 			}
+			.division .description {
+				float: left;
+			}
+			.division .ring {
+				float: right;
+			}
+
 			.results {
 				position: relative;
 				font-family: HelveticaNeue;

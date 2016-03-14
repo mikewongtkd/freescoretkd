@@ -136,8 +136,8 @@ sub place_athletes {
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
 	@$placement = sort { 
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
-		my $x = $scores->[ $a ]{ compulsory };
-		my $y = $scores->[ $b ]{ compulsory };
+		my $x = $scores->[ $a ]{ compulsory }; # a := first athlete index;  x := first athlete score
+		my $y = $scores->[ $b ]{ compulsory }; # b := second athlete index; y := second athlete score
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
 		# ===== CALCULATE STATISTICS IN CASE OF TIES
@@ -155,9 +155,9 @@ sub place_athletes {
 		$y_stats->{ punitive } ||= _withdrawn_or_disqualified( $_ ) foreach @$y;
 		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )     foreach (qw( sum pre all ));
 
-		# ===== DETECT TIES AND APPLY AUTOMATED TIE-RESOLUTION
+		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
-		if( $x_stats->{ sum } == $y_stats->{ sum } ) {
+		if( $x_stats->{ sum } == $y_stats->{ sum } && $x_stats->{ sum } != 0 ) {
 			if    ( $x_stats->{ pre } > $y_stats->{ pre } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
 			elsif ( $x_stats->{ pre } < $y_stats->{ pre } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
 			else {

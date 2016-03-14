@@ -32,14 +32,21 @@ print <<EOF;
 		<title>Tournament World Class Forms Results</title>
 		<style type="text/css">
 			body {
-				font-family: HelveticaNeue-CondensedBold;
+				font-family: Optima;
 			}
 			.division {
-				margin-top: 20px;
+				clear: both;
+				margin-top: 28px;
+				width: 640px;
+				height: 20px;
+			}
+			.division .description {
+				float: left;
+			}
+			.division .ring {
+				float: right;
 			}
 			.results {
-				position: relative;
-				font-family: HelveticaNeue;
 				page-break-inside: avoid;
 			}
 			.results table {
@@ -52,7 +59,7 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results th.number  { width: 20px; }
+			.results th.number  { width: 32px; }
 			.results th.athlete { width: 200px; }
 			.results th.form    { width: 100px; }
 
@@ -74,10 +81,21 @@ EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
-	my $round  = $division->{ round };
+	my $round  = 'finals';
 	my $forms  = $division->{ forms }{ $round };
 	my $placed = {};
 	my $i = 0;
+
+	unless( exists $division->{ placement }{ $round } ) {
+		print <<EOF;
+			<div class="results">
+			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="ring">Ring $division->{ ring }</div></div>
+			Results pending
+			</div>
+EOF
+		next;
+	}
+
 	foreach my $place ( 1 .. 3 ) {
 		my $i = $division->{ placement }{ $round }[ ($place - 1) ];
 		$placed->{ $i } = ordinal( $place );
@@ -85,7 +103,7 @@ foreach my $division (@divisions) {
 
 	print <<EOF;
 		<div class="results">
-		<div class="division"><b>Division $name</b> &mdash; $division->{ description }</div>
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="ring">Ring $division->{ ring }</div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">#</th>
@@ -105,6 +123,7 @@ EOF
 		my $forms = $athlete->{ scores }{ $round };
 		my $sum   = 0.0;
 		foreach my $j ( 0 .. $#$forms ) {
+			next if( $division->{ forms }{ $round }[ $j ]{ type } ne 'compulsory' );
 			my $form = $forms->[ $j ];
 			my $score = $form->{ complete_mean };
 			printf( "<td>%.1f/%.1f</td>", $score->{ accuracy }, $score->{ presentation } );
