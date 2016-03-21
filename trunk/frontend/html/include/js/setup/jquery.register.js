@@ -44,9 +44,7 @@ $.widget( "freescore.register", {
 				var ring    = register.rings.data[ j ];
 				var x       = ring.start.x;
 				var y       = ring.start.y;
-				var opacity = ring.enabled ? 1.0 : 0.35;
-				if( ! enabled ) { ring.dom.off() };
-				ring.dom.animate( { left: x, top: y, opacity: opacity } );
+				ring.dom.animate( { left: x, top: y } );
 			}
 			register.rings.view .attr( "animate", "on-initialization" );
 		};
@@ -54,7 +52,7 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 		register.rings.select = function( num ) { return function() {
 		// ------------------------------------------------------------
-			for( var i = 0; i < tournament.rings.count; i++ ) {
+			for( var i = 0; i < tournament.rings.length; i++ ) {
 				var ring = register.rings.data[ i ];
 				var j    = ring.num;
 				if( j == num ) { 
@@ -69,23 +67,20 @@ $.widget( "freescore.register", {
 		}};
 
 		// ------------------------------------------------------------
-		register.rings.add = function( num, x, y, gotoX, gotoY, enabled ) {
+		register.rings.add = function( num, x, y, gotoX, gotoY ) {
 		// ------------------------------------------------------------
 
 			var dom          = html.div.clone() .addClass( "mat" );
 			var playingField = html.div.clone() .addClass( "playing-field" ) .html( num );
 			var rings        = register.rings;
-			dom.css( "opacity", 0.5 );
 			dom.append( playingField );
 
 			var selectX = (parseInt( rings.view.css( "width" ))/2) - 100;
 			var selectY = (parseInt( rings.view.css( "height" ))/2) - 100;
-			var opacity = enabled ? 1.0 : 0.35;
 
-			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY, opacity: opacity } ) }
-
-			if( enabled ) { dom.click( register.rings.select( num ) ) };
-			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom, enabled: enabled };
+			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY } ) }
+			dom.click( register.rings.select( num ));
+			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom };
 		}
 
 		var availableEvents = {
@@ -293,7 +288,7 @@ $.widget( "freescore.register", {
 
 			// ===== SHOW RING NUMBER
 			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0, 0, 0, true );
-			ring.dom.css( "left", "200px" ) .css( "opacity", "1.0" );
+			ring.dom.css( "left", "200px" );
 			var role  = String( $.cookie( "role" ));
 
 			// ===== SHOW JUDGE NUMBER OR OTHER ROLE
@@ -341,33 +336,27 @@ $.widget( "freescore.register", {
 		}
 
 		// ===== STEP 2. SHOW THE RINGS
-		var width  = tournament.rings.width;
-		var height = tournament.rings.height;
-		var start  = tournament.rings.start;
-		var format = tournament.rings.formation; // formation = [loop|rows]
-		var enable = tournament.rings.enable;
-		var k      = tournament.rings.count;
+		var k      = tournament.rings.length;
+		var height = k >= 16 ? 4 : k >= 11 ? 3 : k >= 4 ? 2 : 1;
+		var width  = Math.ceil( k / height );
 		var half   = Math.floor( k/2 );
 		var odd    = k % 2 && (height > 1 && width > 1);
+		var i      = 0;
 		register.rings.view .css( "width", width * 200 ) .css( "height", height * 200 ) 
 		for( var y = 0; y < height; y++ ) {
 			for( var x = 0; x < width; x++ ) {
-				var n = register.rings.data.length;
-				var num = n + start;
-				var enabled = ! defined( enable ) || enable.indexOf( num ) >= 0;
-				if( n >= k ) { continue; }
+				var num = tournament.rings[ i ];;
 				var xpos = x * 200;
 				var ypos = y * 200;
-				var loop = ((n % (2 * width)) >= width) && format == "loop";
-				if( loop ) { xpos = (width - ((n % width)+1)) * 200; }
 
 				if( odd ) {
-					if      ( width > height ) { if( n == half ) { ypos += 100; } else if( n > half ) { xpos -= 200; }}
-					else if ( height > width ) { if( n == k-1  ) { xpos -= 100; }}
+					if      ( width > height ) { if( i == half ) { ypos += 100; } else if( i > half ) { xpos -= 200; }}
+					else if ( height > width ) { if( i == k-1  ) { xpos -= 100; }}
 				}
-				var ring = register.rings.add( num, x, y, xpos, ypos, enabled );
+				var ring = register.rings.add( num, x, y, xpos, ypos );
 				register.rings.data.push( ring );
 				register.rings.view.append( ring.dom );
+				i++;
 			}
 		}
 		if( defined( url ) ) {

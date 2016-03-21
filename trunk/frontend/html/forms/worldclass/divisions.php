@@ -13,6 +13,7 @@
 		<link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<link href="../../include/opt/elfinder/css/elfinder.min.css" rel="stylesheet" />
 		<link href="../../include/opt/elfinder/css/theme.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/divisions.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
@@ -34,14 +35,13 @@
 	</head>
 	<body>
 		<div class="container">
-			<div class="jumbotron panel-primary">
-				<h1>Edit Rings and Divisions</h1>
-				<p><b>FreeScore TKD</b> Open Source Taekwondo Poomsae Scoring Software.</p>
-			</div>
+			<h1>Edit Rings and Divisions</h1>
+
+			<p>You can drag-and-drop ring folders with divisions in them into the <b>forms-worldclass</b> directory. You can also drag-and-drop from FreeScore TKD to your computer. Use the buttons to edit the rings and divisions.</p>
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<h4 class="panel-title">Use the filebrowser below to edit ring configurations and divisions</h4>
+					<h4 class="panel-title">World Class Sport Poomsae Rings and Divisions</h4>
 				</div>
 				<div id="elfinder" class="panel-body"></div>
 			</div>

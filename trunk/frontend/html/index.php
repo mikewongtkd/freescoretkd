@@ -18,7 +18,7 @@
 		</style>
 		<script type="text/javascript">
 			function register()   { document.location="./setup/register.php"; }
-			function managewc()   { document.location="./forms/worldclass/divisions/index.php"; }
+			function managewc()   { document.location="./forms/worldclass/divisions.php"; }
 			function tournament() { document.location="./setup/tournament.php"; }
 		</script>
 	</head>
@@ -38,12 +38,7 @@
 						<li data-role="list-divider">Divisions</li>
 						<li><a href="javascript:managewc()">
 							<h2>Manage World Class Poomsae Divisions</h2>
-							<p>Add, remove, or edit divisions</p>
-						</a></li>
-						<li data-role="list-divider">Tournament</li>
-						<li><a href="javascript:tournament()">
-							<h2>Manage Tournament Configuration</h2>
-							<p>Configure the number of rings</p>
+							<p>Add, remove, or edit divisions; also add or remove rings</p>
 						</a></li>
 					</ul>
 			</div>
