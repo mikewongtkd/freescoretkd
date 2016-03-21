@@ -8,26 +8,43 @@
 <html>
 	<head>
 		<title>World Class Divisions</title>
-		<link href="../../include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/worldclass/divisions.css" rel="stylesheet" />
+		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
+		<link href="../../include/opt/elfinder/css/elfinder.min.css" rel="stylesheet" />
+		<link href="../../include/opt/elfinder/css/theme.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
-		<script src="../../include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
+		<script src="../../include/opt/elfinder/js/elfinder.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/jquery.errormessage.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.divisions.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.divisionDescriptor.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.formSelector.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.divisionHeader.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.divisionEditor.js"></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+
+		<script>
+			$( function() {
+				$('#elfinder').elfinder({
+					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
+					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ]
+				});
+			});
+		</script>
 	</head>
 	<body>
-		<div id="division"></div>
-		<script type="text/javascript">
-			$( '#division' ).divisions( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
-		</script>
+		<div class="container">
+			<div class="jumbotron panel-primary">
+				<h1>Edit Rings and Divisions</h1>
+				<p><b>FreeScore TKD</b> Open Source Taekwondo Poomsae Scoring Software.</p>
+			</div>
+
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h4 class="panel-title">Use the filebrowser below to edit ring configurations and divisions</h4>
+				</div>
+				<div id="elfinder" class="panel-body"></div>
+			</div>
+		</div>
 	</body>
 </html>

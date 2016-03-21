@@ -1,68 +1,17 @@
 
+@font-face {
+	font-family: Nimbus;
+	src: url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
+}
+@font-face {
+	font-family: Biolinum;
+	font-weight: bold;
+	src: url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
+}
+
 body {
-	background: black;
-	background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%);
-	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
 }
 
-.division {
-	// Header text
-	.text {
-		color: #999;
-	}
-	// Header round margin
-	.round {
-		margin-right: 20px;
-	}
-	// Header forms margin
-	.form {
-		margin-right: 20px;
-		color: #fc0;
-	}
-	.athletes {
-		overflow-x: hidden;
-		overflow-y: scroll;
-
-		ul {
-			margin: 0;
-			padding: 0;
-			width: 100%;
-			li {
-				list-style: none;
-				margin: 0;
-				padding: 0;
-				height: 40px;
-				width: 100%;
-
-
-				.athlete {
-					.number {
-						color: #999;
-						padding: 0;
-						margin: 10px 0 0 0;
-						font-weight: bold;
-						font-size: 14pt;
-						width: 30px;
-						position: absolute;
-						top: 0;
-						left: 16px;
-						text-align: right;
-					}
-
-					.name {
-						border: 0;
-						margin: 0;
-						padding: 0;
-						width: calc( 100% - 90px );
-						font-weight: bold;
-						font-size: 14pt;
-						position: absolute;
-						top: 10px;
-						left: 64px;
-					}
-				}
-			}
-		}
-	}
+.jumbotron {
+	font-family: Optima, Biolinum;
 }
-
