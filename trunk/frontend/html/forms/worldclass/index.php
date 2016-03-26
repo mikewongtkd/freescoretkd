@@ -2,18 +2,20 @@
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
-	$k = json_decode( $tournament )->rings->count;
+	$k = in_array( $i, json_decode( $tournament )->rings );
+	$warning = "";
 	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
 		setcookie( 'ring', $i, 0, '/' ); 
 		$cookie_set = true;
 	} else {
-		echo "Ring number invalid.";
+		$warning = "Ring number invalid.";
 		# header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); 
 	}
 	if( ! ($cookie_set || isset( $_COOKIE[ 'ring' ]))) { echo "Ring number not set."; }
 	# if( ! isset( $_COOKIE[ 'ring' ])) { header( 'Location: ../../setup/register.php?referer=../forms/worldclass/index.php' ); exit(); }
 	setcookie( 'judge', '', $clear_cookie, '/' );
 	setcookie( 'role', 'display', 0, '/' );
+	if( $warning ) { echo $warning; }
 ?>
 <html>
 	<head>
