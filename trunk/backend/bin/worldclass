@@ -7,6 +7,7 @@ use YAML;
 use FreeScore;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
+use List::MoreUtils (qw( firstidx ));
 use Data::Dumper;
 
 our $json      = new JSON::XS();
@@ -72,24 +73,44 @@ get '/:tournament/:ring/:judge/autopilot' => sub {
 	}
 
 	# ===== ENGAGE AUTOPILOT
-	$division->autopilot( $judge + 1 );
-	$division->write();
+	try {
+		$division->autopilot( $judge + 1 );
+		$division->write();
+	} catch {
+		send_response( $self, { error => $_ });
+	};
 
-	my $delay = { scoreboard => 9, leaderboard => 6, total => 0 };
+	my $delay = { leaderboard => 9, next => 6, total => 0 };
 	my $round = $division->{ round };
 	my $order = $division->{ order }{ $round };
 	my $forms = $division->{ forms }{ $round };
+	my $j     = firstidx { $_ == $division->{ current } } @$order;
 
 	my $last = {
 		athlete => ($division->{ current } == $order->[ -1 ]),
 		form    => ($division->{ form }    == int( @$forms ) - 1),
 		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
+		each3   => (!(($j+1) % 3)),
 	};
 
 	# ===== AUTOPILOT ACTIONS
 	my $show = {};
 	# ----------------------------------------
 	$show->{ leaderboard } = sub {
+	# ----------------------------------------
+		return unless $division->autopilot(); # Cancel request if autopilot is disengaged
+		if( $last->{ form } && ( $last->{ each3 } || $last->{ athlete } )) { 
+			$division->display() unless $division->is_display(); 
+			$division->write(); 
+			Mojo::IOLoop->timer( $delay->{ next } => $show->{ next } );
+			$delay->{ total } += $delay->{ next };
+
+		} else {
+			$show->{ next }();
+		}
+	};
+	# ----------------------------------------
+	$show->{ next } = sub {
 	# ----------------------------------------
 		return unless $division->autopilot(); # Cancel request if autopilot is disengaged
 		my $go_next = {
@@ -104,27 +125,13 @@ get '/:tournament/:ring/:judge/autopilot' => sub {
 		$division->autopilot( 0 ); # Disengage autopilot
 		$division->write();
 	};
-	# ----------------------------------------
-	$show->{ scoreboard } = sub {
-	# ----------------------------------------
-		return unless $division->autopilot(); # Cancel request if autopilot is disengaged
-		if( $last->{ form } ) { 
-			$division->display() unless $division->is_display(); 
-			$division->write(); 
-			Mojo::IOLoop->timer( $delay->{ leaderboard } => $show->{ leaderboard } );
-			$delay->{ total } += $delay->{ leaderboard };
-
-		} else {
-			$show->{ leaderboard }();
-		}
-	};
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	try {
-		$delay->{ total } += $delay->{ scoreboard };
-		Mojo::IOLoop->timer( $delay->{ scoreboard } => $show->{ scoreboard } );
+		$delay->{ total } += $delay->{ leaderboard };
+		Mojo::IOLoop->timer( $delay->{ leaderboard } => $show->{ leaderboard } );
 		send_response( $self, { description => 'Autopilot is engaged', delay => $delay->{ total } });
 	} catch {
 		send_response( $self, { error => $_ });

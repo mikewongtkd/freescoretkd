@@ -47,19 +47,19 @@ worldclass-unit-test:
 	./smoke/forms/worldclass/division-api.t
 
 worldclass-ui-3-test:
-	./ui/forms/worldclass/3-judges
+	./ui/forms/worldclass/model-view/3-judges
 
 worldclass-ui-5-test:
-	./ui/forms/worldclass/5-judges
+	./ui/forms/worldclass/model-view/5-judges
 
 worldclass-ui-7-test:
-	./ui/forms/worldclass/7-judges
+	./ui/forms/worldclass/model-view/7-judges
 
 test-config:
 	test=$$(grep -c 'FreeScore Test' ../../frontend/html/include/php/config.php); \
 	if [ $$test -eq 0 ]; then \
 		cp ../../frontend/html/include/php/config.php config.bak; \
-		cp include/config.php ../../frontend/html/include/php/config.php; \
+		cp include/php/config.php ../../frontend/html/include/php/config.php; \
 	fi
 
 restore-config:

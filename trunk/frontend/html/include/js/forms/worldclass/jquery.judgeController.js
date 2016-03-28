@@ -187,7 +187,8 @@ $.widget( "freescore.judgeController", {
 			o.autopilot = function( response ) {
 				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
 				var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + + '/' + o.num + '/autopilot';
-				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: function( response ) {}, error:   function( response ) {}, });
+				var doNothing = function() {};
+				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: doNothing, error: doNothing, });
 			};
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
