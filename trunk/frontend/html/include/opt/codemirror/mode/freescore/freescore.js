@@ -125,7 +125,7 @@ CodeMirror.defineMode('freescore', function() {
       return tokenize(stream, state);
     },
     lineComment: '#',
-    fold: "brace"
+    fold: "indent"
   };
 });
 

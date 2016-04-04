@@ -2,6 +2,8 @@
 	$file     = '/Volumes/ramdisk/test/forms-worldclass/' . $_GET[ 'file' ];
 	$lines    = file( $file );
 	$header   = preg_grep( "/^#/", $lines );
+	$lines    = preg_grep( "/^\t/", $lines, true ); # Ignore scores (until I can figure out how to parse them)
+	$lines    = preg_grep( "/^\s*$/", $lines, true );  # Ignore empty lines
 	$id       = $_GET[ 'file' ]; $id = preg_replace( '/ring\d+\/div\./', '', $id ); $id = preg_replace( '/\.txt/', '', $id );
 	$setting  = [];
 	foreach( $header as $line ) {
