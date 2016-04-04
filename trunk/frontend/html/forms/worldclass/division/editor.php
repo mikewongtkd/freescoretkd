@@ -2,6 +2,7 @@
 	$file     = '/Volumes/ramdisk/test/forms-worldclass/' . $_GET[ 'file' ];
 	$lines    = file( $file );
 	$header   = preg_grep( "/^#/", $lines );
+	$id       = $_GET[ 'file' ]; $id = preg_replace( '/ring\d+\/div\./', '', $id ); $id = preg_replace( '/\.txt/', '', $id );
 	$setting  = [];
 	foreach( $header as $line ) {
 		$line = rtrim( $line );
@@ -9,6 +10,7 @@
 		$keyvalue = preg_split( "/=/", $line, 2 );
 		$setting[ $keyvalue[0] ] = $keyvalue[1];
 	}
+	$setting[ 'method' ] = isset( $setting[ 'method' ] ) ? $setting[ 'method' ] : 'cutoff';
 	$header   = join( "", $header );
 	$athletes = preg_grep( "/^#/", $lines, true ); 
 	$athletes = join( "", $athletes );
@@ -33,36 +35,41 @@
 				var athletes = { textarea : document.getElementById( 'athletes' ) };
 				athletes.editor = CodeMirror.fromTextArea( athletes.textarea, { lineNumbers: true, mode : 'freescore' });
 				athletes.editor.setSize( '100%', '600px' );
+				$( '.CodeMirror' ).css({ 'border-radius': '6px' });
 
-				$( '#edit-forms' ).click( function() { $( '#modal-edit-forms' ).modal( 'show' ); });
+				var modal = {
+					poomsae : '#modal-edit-poomsae-cutoff',
+				};
+
+				$( '#show-poomsae-dialog' ).click( function() { $( modal.poomsae ).modal( 'show' ); });
 			});
 		</script>
 	</head>
 	<body>
 		<div class="container">
-			<h1>Editing Division</h1>
-
-			<!-- <p><pre><?php var_dump( $setting ) ?></pre></p> -->
-
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<h4 class="panel-title">Division Settings</h4>
-				</div>
-				<div class="panel-body">
-					<button type="button" id="edit-forms" class="btn btn-primary">Edit Poomsae Selection</button>
-				</div>
-			</div>
-
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h4 class="panel-title">Athletes</h4>
+					<h4 class="panel-title pull-left" style="margin-top: 4px;">
+						Division <?= strtoupper( $id ) ?> <?= $setting[ 'description' ] ?>
+					</h4>
+					<div class="btn-group pull-right">
+						<button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" style="border: 0px; background: transparent; -webkit-appearance: none; -webkit-box-shadow: none; outline: none;"><span class="glyphicon glyphicon-menu-hamburger"></span> Settings</button>
+						<ul class="dropdown-menu">
+							<li><a id="show-settings-dialog">Change Division Description</a></li>
+							<li><a id="show-poomsae-dialog">Change Poomsae Selection</a></li>
+							<li><a id="show-settings-dialog">Change Division Settings</a></li>
+						</ul>
+					</div>
+					<div class="clearfix"></div>
 				</div>
 				<textarea id="athletes" class="panel-body"><?= $athletes?></textarea>
 			</div>
 
 			<button type="button" class="btn btn-success">Save Changes</button>
 
-			<?php include( "dialog/poomsae-selection.php" ) ?>
+			<?php include( "dialog/poomsae-cutoff.php" ) ?>
+			<?php include( "dialog/poomsae-extended.php" ) ?>
+			<?php include( "dialog/poomsae-behavior.php" ) ?>
 
 		</div>
 	</body>
