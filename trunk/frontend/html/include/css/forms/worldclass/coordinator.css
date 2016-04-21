@@ -11,9 +11,21 @@
   background: -webkit-linear-gradient(to top, #497bae 0%, #6facd5 100%);
   background: linear-gradient(to top, #497bae 0%, #6facd5 100%);
   text-shadow: 2px 2px #497bae; }
+  .divisions .current .title {
+    color: white; }
+  .divisions .current p {
+    color: #eee; }
+    .divisions .current p b {
+      color: white; }
   .divisions .current:hover {
-    color: limegreen;
+    color: gold;
     text-shadow: 2px 2px teal; }
+    .divisions .current:hover .title {
+      color: yellow; }
+    .divisions .current:hover p {
+      color: yellow; }
+      .divisions .current:hover p b {
+        color: gold; }
 .divisions .ring {
   font-weight: light;
   font-size: 9pt;
@@ -71,8 +83,7 @@ table {
       border: none;
       width: calc( 100% - 240px ); }
       .athletes .name input[type=search]:focus, .athletes .name input[type=text]:focus {
-        outline: none;
-        border-bottom: 1px solid #6facd5; }
+        outline: none; }
     .athletes .name .athlete-actions {
       color: white;
       text-shadow: none;

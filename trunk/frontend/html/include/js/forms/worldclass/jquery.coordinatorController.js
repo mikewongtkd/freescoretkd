@@ -208,6 +208,10 @@ $.widget( "freescore.coordinatorController", {
 					var next = (addNewAthlete( division, round ))();
 					e.athletes.tbody.append( next.row );
 				});
+
+				add.input.focus( function() { 
+					$( this ).parents( '.athletes' ).find( '.athlete-actions' ).css({ 'display' : 'none' });
+				});
 				add.row.append( add.order, add.name );
 				add.name.append( add.input );
 				return add;
@@ -703,13 +707,14 @@ $.widget( "freescore.coordinatorController", {
 				var divdata = divisions[ i ];
 				var count   = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
 				var list    = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
+				var title   = (i == current ? 'Currently Scoring:<span class="title"> ' : '<span>') + divdata.name.toUpperCase() + ' ' + divdata.description + '</span>';
 
 				var division = {
 					data     : divdata,
 					item     : html.li  .clone(),
 					edit     : html.a   .clone(),
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
-					title    : html.h3  .clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
+					title    : html.h3  .clone() .html( title ),
 					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
 					transfer : html.a   .clone() .addClass( 'transfer' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }),
 				};
@@ -859,16 +864,6 @@ $.widget( "freescore.coordinatorController", {
 				items: '> tr:not(.add, .complete)',       // Prevent reordering of athletes who have completed their form
 				stop: reorderAthletes( division, round ), // Notify user of reordering change and enable user to save changes
 			});
-			// Handle 'Enter' key (focus on next input and select text)
-			e.athletes.tbody.keypress( function( ev ) {
-				if( ev.keyCode == 13 ) {
-					$( ev.target ).blur();
-					var row  = $(ev.target).parents( 'tr' );
-					var next = row.next().find( 'input' );
-					next.focus();
-					next.select();
-				}
-			});
 
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
@@ -966,6 +961,38 @@ $.widget( "freescore.coordinatorController", {
 
 				if( complete ) { athlete.row.addClass( 'complete' ); } else { athlete.row.removeClass( 'complete' ); }
 			}
+
+			// Handle 'Enter' key (focus on next input and select text)
+			e.athletes.tbody.keydown( function( ev ) {
+				if( ev.which == 13 ) {
+					$( ev.target ).blur();
+					var row  = $(ev.target).parents( 'tr' );
+					var next = row.next().find( 'input' );
+					next.focus();
+					next.select();
+
+				} else if( ev.which == 38 ) { 
+					var row  = $(ev.target).parents( 'tr' );
+					var prev = row.prev().find( 'input' );
+					if( defined( prev.val() )) {
+						$( ev.target ).blur();
+						prev.focus();
+						prev.select();
+					}
+					ev.preventDefault();
+
+				} else if( ev.which == 40 ) { 
+					var row  = $(ev.target).parents( 'tr' );
+					var next = row.next().find( 'input' );
+					if( defined( next.val() )) {
+						$( ev.target ).blur();
+						next.focus();
+						next.select();
+					}
+					ev.preventDefault();
+				}
+			});
+
 
 			// ===== ADD NEW ATHLETE
 			var add = (addNewAthlete( division, round ))();

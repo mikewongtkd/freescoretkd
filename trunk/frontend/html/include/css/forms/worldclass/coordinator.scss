@@ -15,9 +15,14 @@
 		background: -webkit-linear-gradient( to top, #497bae 0%, #6facd5 100% ); 
 		background: linear-gradient( to top, #497bae 0%, #6facd5 100% ); 
 		text-shadow: 2px 2px #497bae; 
+		.title { color: white; }
+		p { b { color: white; } color: #eee; }
+
 		&:hover {
-			color: limegreen;
+			color: gold;
 			text-shadow: 2px 2px teal; 
+			.title { color: yellow; }
+			p { b { color: gold; } color: yellow; }
 		}
 	}
 	.ring {
@@ -79,7 +84,7 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 
 			&:focus {
 				outline: none;
-				border-bottom: 1px solid #6facd5;
+				// border-bottom: 1px solid #6facd5;
 			}
 		}
 		.athlete-actions {
@@ -91,7 +96,6 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 			background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
 			padding: 4px 16px 4px 16px;
 		}
-	//		.athlete-actions { display: inline; }
 	}
 	.oneform  { width : 100px; text-align: left; padding-left: 20px; }
 	.twoforms { width :  40px; text-align: left; padding-left: 20px; }
