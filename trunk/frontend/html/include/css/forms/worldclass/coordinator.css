@@ -57,9 +57,11 @@ table {
     font-size: 9pt;
     text-align: left; }
   .athletes .order {
-    width: 40px;
+    color: #ccc;
+    width: 34px;
     font-size: 12pt;
-    text-align: center; }
+    text-align: right;
+    padding-right: 6px; }
   .athletes .name {
     width: calc( 100% - 180px );
     font-size: 16pt; }
@@ -77,9 +79,8 @@ table {
       display: none;
       background: red;
       background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%); }
-    .athletes .name:hover .athlete-actions {
-      display: inline; }
+      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+      padding: 4px 16px 4px 16px; }
   .athletes .oneform {
     width: 100px;
     text-align: left;

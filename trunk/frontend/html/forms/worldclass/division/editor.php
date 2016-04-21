@@ -1,8 +1,8 @@
 <?php
 	$file     = '/Volumes/ramdisk/test/forms-worldclass/' . $_GET[ 'file' ];
 	$lines    = file( $file );
-	$header   = preg_grep( "/^#/", $lines );
-	$lines    = preg_grep( "/^\t/", $lines, true ); # Ignore scores (until I can figure out how to parse them)
+	$header   = preg_grep( "/^#/",    $lines );
+	$lines    = preg_grep( "/^\t/",   $lines, true );  # Ignore scores (until I can figure out how to parse them)
 	$lines    = preg_grep( "/^\s*$/", $lines, true );  # Ignore empty lines
 	$id       = $_GET[ 'file' ]; $id = preg_replace( '/ring\d+\/div\./', '', $id ); $id = preg_replace( '/\.txt/', '', $id );
 	$setting  = [];
@@ -70,7 +70,6 @@
 			<button type="button" class="btn btn-success">Save Changes</button>
 
 			<?php include( "dialog/poomsae-cutoff.php" ) ?>
-			<?php include( "dialog/poomsae-extended.php" ) ?>
 			<?php include( "dialog/poomsae-behavior.php" ) ?>
 
 		</div>

@@ -189,7 +189,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 
 		// ============================================================
-		var addAthlete = function( division, round ) {
+		var addNewAthlete = function( division, round ) {
 		// ============================================================
 			return function() {
 				var add = {
@@ -205,7 +205,7 @@ $.widget( "freescore.coordinatorController", {
 					add.row.removeClass( "add" );
 					add.order.html( j + '.' ) .attr({ order : j }) .removeClass( "ui-btn-icon-notext ui-icon-plus" );
 					renameAthletes( division, round ) ();
-					var next = (addAthlete( division, round ))();
+					var next = (addNewAthlete( division, round ))();
 					e.athletes.tbody.append( next.row );
 				});
 				add.row.append( add.order, add.name );
@@ -421,7 +421,7 @@ $.widget( "freescore.coordinatorController", {
 				var editor    = e.athletes.header.editor.method; editor.method( opts );
 				e.dialog.popupdialog({
 					title:    'Competition Method',
-					subtitle: 'Set Competition Method for Division',
+					subtitle: 'Select a Competition Method',
 					message:  editor,
 					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
@@ -899,9 +899,9 @@ $.widget( "freescore.coordinatorController", {
 
 					var input   = html.text.clone();
 					var action = {
-						withdraw   : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-user  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( 'WD' ),
-						disqualify : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-info  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( 'DQ' ),
-						remove     : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-minus ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( 'RM' ),
+						withdraw   : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-user  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( '&nbsp;&nbsp;&nbsp;WD' ),
+						disqualify : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-info  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( '&nbsp;&nbsp;&nbsp;DQ' ),
+						remove     : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-minus ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( '&nbsp;&nbsp;&nbsp;RM' ),
 					};
 
 					action.withdraw   .click( withdrawAthlete );
@@ -910,6 +910,10 @@ $.widget( "freescore.coordinatorController", {
 
 					input.val( athlete.data.name );
 					input.change( renameAthletes( division, round ) );
+					input.focus( function() { 
+						$( this ).parents( '.athletes' ).find( '.athlete-actions' ).css({ 'display' : 'none' });
+						$( this ).parent().find( '.athlete-actions' ).css({ 'display' : 'inline' }); 
+					});
 					athlete.name.append( input, action.withdraw, action.disqualify, action.remove );
 				}
 				athlete.order.attr({ order : (i + 1) });
@@ -964,7 +968,7 @@ $.widget( "freescore.coordinatorController", {
 			}
 
 			// ===== ADD NEW ATHLETE
-			var add = (addAthlete( division, round ))();
+			var add = (addNewAthlete( division, round ))();
 			e.athletes.tbody.append( add.row );
 
 			var different = {

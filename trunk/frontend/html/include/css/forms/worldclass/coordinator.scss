@@ -62,9 +62,11 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 		text-align: left; 
 	}
 	.order    { 
-		width :  40px; 
+		color: #ccc;
+		width :  34px; 
 		font-size:  12pt; 
-		text-align: center; 
+		text-align: right; 
+		padding-right: 6px;
 	}
 	.name     { 
 		width : calc( 100% - 180px ); 
@@ -87,11 +89,9 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 			background: red;
 			background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
 			background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+			padding: 4px 16px 4px 16px;
 		}
-		&:hover {
-			.athlete-actions { display: inline; }
-		}
-
+	//		.athlete-actions { display: inline; }
 	}
 	.oneform  { width : 100px; text-align: left; padding-left: 20px; }
 	.twoforms { width :  40px; text-align: left; padding-left: 20px; }

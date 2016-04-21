@@ -204,7 +204,7 @@ password: freescore
 #### Installing Development Tools 
 
     sudo su -
-    apt-get install vim subversion -y
+    apt-get install vim git-all -y
 
 #### Installing Web Tools
 
@@ -230,7 +230,7 @@ At the terminal, type the following:
     cpan> install CGI CGI::Carp Data::Structure::Util Date::Calc Filesys::Notify::Simple
     cpan> install GD GD::Barcode JSON::XS Mojolicious Time::HiRes Try::Tiny
 
-#### Get a Subversion Clone of FreeScore
+#### Get a Git Clone of FreeScore
 
     svn co https://github.com/mikewongtkd/freescoretkd/trunk freescore
 
@@ -263,7 +263,7 @@ Edit `/etc/default/hostapd`; provide the below value for `DAEMON_CONF`.
 Edit `/etc/hostapd/hostapd.conf`
 
     interface=wlan0
-    driver=nl80211
+    driver=nl80211 # also supports the brcmfmac driver on Pi 3
     ctrl_interface=/var/run/hostapd
     ctrl_interface_group=0
 
@@ -282,11 +282,6 @@ Edit `/etc/hostapd/hostapd.conf`
 Test with `hostapd /etc/hostapd/hostapd.conf`
 
 edit `/etc/dnsmasq.conf`
-
-#### Install Samba and NetAtalk (AppleTalk)
-
-    apt-get install samba samba-common-bin netatalk
-    smbpasswd -a pi
 
 #### Change hostname
 

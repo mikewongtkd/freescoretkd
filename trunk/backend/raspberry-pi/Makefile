@@ -1,8 +1,7 @@
-all:
-	@echo Installs WiFi Access Point/DNSMasq configuration files and RESTful Poomsae services
+all: install
 
 install:
-	@echo Installing
+	@echo Installs WiFi Access Point/DNSMasq configuration files and RESTful Poomsae services
 	cp etc/dnsmasq.conf /etc/dnsmasq.conf
 	cp etc/init.d/worldclass /etc/init.d/worldclass
 	cp etc/init.d/grassroots /etc/init.d/grassroots

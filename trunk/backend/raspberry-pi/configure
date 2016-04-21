@@ -1,0 +1,85 @@
+#! /bin/sh
+
+sudo aptitude update
+sudo aptitude install \
+	vim \
+	git-all \
+	apache2 \
+	php5 \
+	cpanminus \
+	hostapd \
+	dnsmasq -y
+sudo cpanm \
+	YAML \
+	Test::Tester \
+	Test::NoWarnings \
+	Test::Deep \
+	Test::Warn \
+	CGI \
+	CGI::Carp \
+	Data::Structure::Util \
+	Date::Calc \
+	Filesys::Notify::Simple \
+	GD \
+	GD::Barcode \
+	JSON::XS \
+	List::MoreUtils \
+	LWP::UserAgent \
+	Mojolicious \
+	Time::HiRes \
+	Try::Tiny
+
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+	then echo "Must be root"
+	exit
+fi
+
+if [[ $# -ne 1 ]]; 
+	then echo "You need to pass a password!"
+	echo "Usage:"
+	echo "sudo $0 yourChosenPassword [apName]"
+	exit
+fi
+
+$APPASS="3mfj1XAF"
+$APSSID="freescore"
+
+if [[ $# -eq 2 ]]; 
+	$APSSID=$2
+fi
+
+apt-get remove --purge hostapd -y
+apt-get install hostapd dnsmasq -y
+
+cat > /etc/dnsmasq.conf <<EOF
+interface=wlan0
+dhcp-range=192.168.88.50,192.168.88.250,255.255.255.0,12h
+EOF
+
+cat > /etc/hostapd/hostapd.conf <<EOF
+interface=wlan0
+hw_mode=g
+channel=10
+auth_algs=1
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=CCMP
+rsn_pairwise=CCMP
+wpa_passphrase=$APPASS
+ssid=$APSSID
+EOF
+
+sed -i -- 's/exit 0/ /g' /etc/rc.local
+
+cat >> /etc/rc.local <<EOF
+ifconfig wlan0 down
+ifconfig wlan0 192.168.88.1 netmask 255.255.255.0 up
+iwconfig wlan0 power off
+service dnsmasq restart
+hostapd -B /etc/hostapd/hostapd.conf & > /dev/null 2>&1
+exit 0
+EOF
+
+echo "All done!"

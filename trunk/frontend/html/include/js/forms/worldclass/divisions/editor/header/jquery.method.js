@@ -26,7 +26,7 @@ $.widget( "freescore.method", {
 			e.buttonGroup = addButtonGroup( 'Method', methods ); 
 			e.buttonGroup.on( "buttonGroupMethod", handle.select );
 			e.description = html.div.clone() .css({ height: '80px', border: '1px solid #ccc', padding: '10px', 'vertical-align' : 'middle', 'color' : '#666' }); 
-			w.append( e.buttonGroup, e.description );
+			w.append( e.buttonGroup, '<p>Method Description</p>', e.description );
 		}
 
 	},
