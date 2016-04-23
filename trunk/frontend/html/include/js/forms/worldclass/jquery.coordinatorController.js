@@ -570,7 +570,7 @@ $.widget( "freescore.coordinatorController", {
 			e.dialog.popupdialog({
 				title:    'Reverting Changes',
 				subtitle: 'Restoring previous division configuration',
-				message:  'Please wait while the server completes the update.',
+				message:  'Please wait while the server completes the restoration update.',
 				afterclose: function() { e.sound.confirmed.play(); },
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
@@ -797,9 +797,16 @@ $.widget( "freescore.coordinatorController", {
 					};
 					tab.button.attr({ 'round' : round });
 					tab.button.html( tab.name );
-					tab.button.click( function() { o.round = $( this ).attr( 'round' ); e.updateAthletes( division, current ); });
+					tab.button.click( function() { 
+						$( this ).parents( 'ul' ).find( 'a' ).removeClass( 'ui-btn-active' );
+						o.round = $( this ).attr( 'round' ); 
+						e.updateAthletes( division, current ); 
+					});
 					tab.button.removeClass( 'ui-btn-active' );
-					if( defined( o.round ) && o.round == round || division.round == round ) { tab.button.addClass( 'ui-btn-active' ); }
+					if( defined( o.round ) && o.round == round || division.round == round ) { 
+						tabs.find( 'a' ).removeClass( 'ui-btn-active' );
+						tab.button.addClass( 'ui-btn-active' ); 
+					}
 					tab.item.append( tab.button );
 					tabs.append( tab.item );
 				}
@@ -1047,8 +1054,11 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			var progress = JSON.parse( update.data ); 
 			if( ! defined( progress.divisions )) { return; }
+			if( ! defined( progress.digest    )) { return; }
+			var digest   = progress.digest;
+			if( defined( o.progress) && digest == o.progress.digest ) { return; }
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
-			if( defined( o.changes )) { return; } // Do not refresh if there are pending changes
+			if( defined( o.changes )) { console.log( 'Changes pending; skipping update.' ); return; } // Do not refresh if there are pending changes
 			o.progress = progress;
 			e.updateDivisions( progress.divisions, progress.staging, progress.current );
 			e.updateRounds( progress.divisions[ i ], i );
@@ -1056,16 +1066,14 @@ $.widget( "freescore.coordinatorController", {
 
 			e.dialog.popup( 'close' );
 		};
-		actions.navigate   .division   .click( goToDivision );
-
-		actions.changes    .save       .click( saveChanges );
-		actions.changes    .revert     .click( revertChanges );
-
-		actions.penalties  .timelimit  .click( awardPenaltyTimeLimit );
-		actions.penalties  .bounds     .click( awardPenaltyBounds );
-		actions.penalties  .restart    .click( awardPenaltyRestart );
-		actions.penalties  .misconduct .click( awardPenaltyMisconduct );
-		actions.penalties  .clear      .click( clearPenalties );
+		actions .navigate   .division   .click( goToDivision );
+		actions .changes    .save       .click( saveChanges );
+		actions .changes    .revert     .click( revertChanges );
+		actions .penalties  .timelimit  .click( awardPenaltyTimeLimit );
+		actions .penalties  .bounds     .click( awardPenaltyBounds );
+		actions .penalties  .restart    .click( awardPenaltyRestart );
+		actions .penalties  .misconduct .click( awardPenaltyMisconduct );
+		actions .penalties  .clear      .click( clearPenalties );
 
 		athletes.header.menu.description .find( 'a' ).click( editDivisionDescription );
 		athletes.header.menu.forms       .find( 'a' ).click( editDivisionForms );

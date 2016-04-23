@@ -4,6 +4,7 @@ use CGI;
 use Time::HiRes qw( usleep );
 use JSON::XS;
 use Data::Structure::Util qw( unbless );
+use Digest::SHA1 qw( sha1_hex );
 use Filesys::Notify::Simple;
 
 use lib qw( /usr/local/freescore/lib );
@@ -71,6 +72,9 @@ sub update {
 	if( $debug ) { $update = $json->canonical->pretty->encode( $data ); } 
 	else         { $update = $json->canonical->encode( $data ); }
 	$update =~ s/"(-?\d+(?:\.\d+)?)"/\1/g; # Convert strings of real numbers to real numbers
+
+	my $digest = sha1_hex( $update );
+	$update =~ s/{/{"digest":"$digest",/;
 
 	return $update;
 }
