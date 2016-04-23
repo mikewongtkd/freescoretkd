@@ -25,6 +25,7 @@ $.widget( "freescore.worldclass", {
 		function refresh( update ) {
 			var forms    = JSON.parse( update.data );
 			var division, current, athlete;
+			if( defined( o.digest ) && forms.digest == o.digest ) { return; } else { o.digest = forms.digest; }
 			if( defined( forms.divisions ) && defined( forms.current )) {
 				division = forms.divisions[ forms.current ];
 				if( defined( division )) {

@@ -139,6 +139,7 @@ $.widget( "freescore.judgeController", {
 
 		function refresh( update ) {
 			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
+			var digest   = progress.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
 			if( ! defined( division )) { return; }
 
@@ -184,12 +185,15 @@ $.widget( "freescore.judgeController", {
 				e.nav.round.next.ajaxbutton( "disable" );
 			}
 			// ===== INITIATE AUTOPILOT BEHAVIOR
+			/*
+			// Autopilot is now handled server-side
 			o.autopilot = function( response ) {
 				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
 				var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + + '/' + o.num + '/autopilot';
 				var doNothing = function() {};
 				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: doNothing, error: doNothing, });
 			};
+			*/
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			var different = { 
@@ -225,6 +229,7 @@ $.widget( "freescore.judgeController", {
 
 			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : division.pending.length });
 
+			o.current.digest   = digest;
 			o.current.division = progress.current;
 			o.current.divname  = division.name;
 			o.current.round    = division.round;
