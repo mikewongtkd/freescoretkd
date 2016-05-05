@@ -19,6 +19,7 @@
 		<script type="text/javascript">
 			function register()   { document.location="./setup/register.php"; }
 			function managewc()   { document.location="./forms/worldclass/divisions.php"; }
+			function managegr()   { document.location="./forms/grassroots/divisions.php"; }
 			function tournament() { document.location="./setup/tournament.php"; }
 		</script>
 	</head>
@@ -37,7 +38,11 @@
 						</a></li>
 						<li data-role="list-divider">Divisions</li>
 						<li><a href="javascript:managewc()">
-							<h2>Manage World Class Poomsae Divisions</h2>
+							<h2>Manage Sport Poomsae Divisions</h2>
+							<p>Add, remove, or edit divisions; also add or remove rings</p>
+						</a></li>
+						<li><a href="javascript:managegr()">
+							<h2>Manage Flipcard Poomsae Divisions</h2>
 							<p>Add, remove, or edit divisions; also add or remove rings</p>
 						</a></li>
 					</ul>
