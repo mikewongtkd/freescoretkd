@@ -26,7 +26,7 @@ $.widget( "freescore.judgeNotes", {
 		if( ! defined( round    )) { return; }
 
 		view.empty();
-		var roundLabel = { prelim : 'Preliminary Round', semfin : 'Semi-Finals', finals : 'Finals' };
+		var roundLabel = { prelim : 'Preliminary Round', semfin : 'Semi-Finals', finals : 'Finals', ro8 : '1st Finals', ro4 : '2nd Finals', ro2: '3rd Finals' };
 		var formLabel = [
 			defined( o.forms[ 0 ] ) ? o.forms[ 0 ].name : 'Form 1',
 			defined( o.forms[ 1 ] ) ? o.forms[ 1 ].name : 'Form 2',

@@ -349,9 +349,9 @@ sub normalize {
 		else { 
 			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
 			if( $self->{ method } eq 'combination' ) {
-				if    ( $n > 4 ) { $round = 'ro8a'; $self->distribute_evenly( [ qw( ro8a ro8d ro8b ro8c ) ] ); } 
-				elsif ( $n > 2 ) { $round = 'ro4a'; $self->distribute_evenly( [ qw( ro4a ro4b ) ] ); } 
-				else             { $round = 'ro2';  $self->distribute_evenly( [ qw( ro2 ) ] ); }
+				if    ( $n > 4 ) { $round = 'ro8'; $self->distribute_evenly( 'ro8' ); } 
+				elsif ( $n > 2 ) { $round = 'ro4'; $self->distribute_evenly( 'ro4' ); } 
+				else             { $round = 'ro2'; $self->distribute_evenly( 'ro2' ); }
 
 			# ===== CUTOFF METHOD USES SAME METHODOLOGY AS BEFORE
 			} else { $round = 'finals'; $self->assign( $_, 'finals' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
@@ -535,7 +535,7 @@ sub read {
 
 				$round = $self->{ round } if( defined $self->{ round } );
 
-			} elsif( /prelim|semfin|finals|ro8[abcd]|ro4[ab]|ro2/i ) {
+			} elsif( /prelim|semfin|finals|ro8|ro4|ro2/i ) {
 				s/^#\s+//;
 
 				# Store the last athlete
@@ -706,9 +706,9 @@ sub update_status {
 		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$self->assign( $_, 'semfin' ) foreach @order;
 
-	} elsif( $method eq 'combination' && $round eq 'ro8a' && $self->round_complete( 'semfin' )) {
+	} elsif( $method eq 'combination' && $round eq 'ro8' && $self->round_complete( 'semfin' )) {
 		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ ro8a };
+		my $finals = $self->{ order }{ ro8 };
 		return if( defined $finals && int( @$finals ) > 0 );
 
 		# Finals go in reverse placement order of semi-finals
@@ -716,15 +716,15 @@ sub update_status {
 		my @candidates = @{ $self->{ placement }{ semfin }};
 		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
 		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
-		$self->distribute_evenly( [ qw( ro8a ro8d ro8b ro8c ) ], \@order );
+		$self->distribute_evenly( 'ro8', \@order );
 
-	} elsif( $method eq 'combination' && $round eq 'ro4a' && $self->round_complete( 'ro8a' ) && $self->round_complete( 'ro8b' ) && $self->round_complete( 'ro8c' ) && $self->round_complete( 'ro8d' )) {
+	} elsif( $method eq 'combination' && $round eq 'ro4a' && $self->round_complete( 'ro8' )) {
 		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ ro4a };
+		my $finals = $self->{ order }{ ro4 };
 		return if( defined $finals && int( @$finals ) > 0 );
 
-		my $goto = { ro8a => 'ro4a', ro8b => 'ro4a', ro8c => 'ro4b', ro8d => 'ro4b' };
-		foreach my $match (qw( ro8a ro8b ro8c ro8d )) {
+		my $goto = { ro8 => 'ro4' };
+		foreach my $match (qw( ro8 )) { # MW Figure this out when sober
 			my @candidates = @{ $self->{ placement }{ $match }};
 			my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
@@ -1186,6 +1186,6 @@ sub _withdrawn_or_disqualified {
 	return (exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified }));
 }
 
-our @round_order = ( qw( prelim semfin finals ro8a ro8b ro8c ro8d ro4a ro4b ro2 ) );
+our @round_order = ( qw( prelim semfin finals ro8 ro4 ro2 ) );
 
 1;
