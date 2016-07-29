@@ -64,8 +64,8 @@ $.widget( "freescore.scoreboard", {
 
 			// ===== SHOW ROUND FORMS
 			for( var i = 0; i <= current.form; i++ ) {
-				var name  = current.forms[ i ].name;
-				var score = current.athlete.scores[ current.round ][ i ];
+				var name  = current.forms[ i ];
+				var score = current.athlete.scores[ current.round ].forms[ i ];
 				var mean  = score.adjusted_mean;
 				if( ! defined( mean )) { continue; }
 				var penalties = 0;
@@ -112,7 +112,7 @@ $.widget( "freescore.scoreboard", {
 			var presentation  = 0;
 			var score         = 0;
 
-			var form    = current.athlete.scores[ current.round ][ current.form ];
+			var form    = current.athlete.scores[ current.round ].forms[ current.form ];
 			var mean    = form.adjusted_mean;
 			var penalty = form.penalty;
 
@@ -157,12 +157,12 @@ $.widget( "freescore.scoreboard", {
 
 		round_description.append( e.html.li.clone() .html( current.description ));
 		round_description.append( e.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round_names[ current.round ] + ' Round</b>'));
-		if( current.forms.length > 1 ) { round_description.append( e.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ].name + '</b>' )); } 
-		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ].name + '</b>' )); }
+		if( current.forms.length > 1 ) { round_description.append( e.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ] + '</b>' )); } 
+		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ] + '</b>' )); }
 
 		if( ! defined( current.athlete        )) { return; }
 		if( ! defined( current.athlete.scores )) { return; }
-		var judge_scores = current.athlete.scores[ current.round ][ current.form ].judge;
+		var judge_scores = current.athlete.scores[ current.round ].forms[ current.form ].judge;
 
 		// ===== UPDATE THE JUDGES SCORES
 		// Check for completeness

@@ -28,8 +28,8 @@ $.widget( "freescore.judgeNotes", {
 		view.empty();
 		var roundLabel = { prelim : 'Preliminary Round', semfin : 'Semi-Finals', finals : 'Finals', ro8 : '1st Finals', ro4 : '2nd Finals', ro2: '3rd Finals' };
 		var formLabel = [
-			defined( o.forms[ 0 ] ) ? o.forms[ 0 ].name : 'Form 1',
-			defined( o.forms[ 1 ] ) ? o.forms[ 1 ].name : 'Form 2',
+			defined( o.forms[ 0 ] ) ? o.forms[ 0 ] : 'Form 1',
+			defined( o.forms[ 1 ] ) ? o.forms[ 1 ] : 'Form 2',
 		];
 		var header = {
 			order : h.th.clone() .addClass( "order" )   .html( "#" ),
@@ -51,7 +51,7 @@ $.widget( "freescore.judgeNotes", {
 			var athlete      = athletes[ j ];
 			var score        = { form1 : '', form2 : '', average : '' };
 
-			if( athlete.scores[ round ].length > 0 ) {
+			if( athlete.scores[ round ].forms.length > 0 ) {
 
 				var summarize = function( form ) { // MW TODO Consider pulling this closure out.
 					var judge        = form.judge[ 0 ];
@@ -67,7 +67,7 @@ $.widget( "freescore.judgeNotes", {
 					} 
 					return [ e.html.span.clone() .addClass( "accuracy" ) .html( '&ndash;' ), '/', e.html.span.clone() .addClass( "presentation" ) .html( '&ndash;' ) ];
 				}
-				var forms = athlete.scores[ round ];
+				var forms = athlete.scores[ round ].forms;
 				score.form1 = summarize( forms[ 0 ] );
 				if( defined( forms[ 1 ] )) { score.form2 = summarize( forms[ 1 ] ); }
 				score.average = (function() {

@@ -61,8 +61,8 @@ $.widget( "freescore.leaderboard", {
 
 			// ===== ADD HEADER
 			var divforms = o.division.forms[ round ];
-			var form = [ {}, html.span.clone() .html( divforms[ 0 ].name.replace( /\s/, '' )) ];
-			if( divforms.length == 2 ) { form.push( html.span.clone() .html( divforms[ 1 ].name.replace( /\s/, '' ))); } else { form.push( html.span.clone() ); }
+			var form = [ {}, html.span.clone() .html( divforms[ 0 ].replace( /\s/, '' )) ];
+			if( divforms.length == 2 ) { form.push( html.span.clone() .html( divforms[ 1 ].replace( /\s/, '' ))); } else { form.push( html.span.clone() ); }
 			var header = {
 				panel : html.div.clone() .addClass( "athlete" ) .addClass( "header" ),
 				name  : html.div.clone() .addClass( "name" ) .html( 'Name' ),
@@ -77,7 +77,7 @@ $.widget( "freescore.leaderboard", {
 			// ===== ADD ATHLETES
 			for( var i = 0; i < k; i++ ) {
 				var athlete    = placement.athletes[ i ];
-				var forms      = athlete.scores[ round ];
+				var forms      = athlete.scores[ round ].forms;
 				var athlete    = placement.athletes[ i ];
 				var notes      = defined( athlete.notes ) ? athlete.notes : '';
 				var length     = forms.length > 1 ? 2 : 1; // Max number of forms per round is 2

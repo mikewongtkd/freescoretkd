@@ -50,7 +50,7 @@ sub score {
 				my $score = score_worldclass( $level );
 				$score->{ $_ } = sprintf( "%.1f", $score->{ $_ }) foreach keys %$score;
 				$division->record_score( $judge, $score );
-				ok( $athlete->{ scores }{ $r }[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
+				ok( $athlete->{ scores }{ $r }{ forms }[ $form ]{ judge }[ $judge ]{ major } == $score->{ major } );
 				$division->write();
 			}
 			if( $form == 0 && $forms > 0 ) {

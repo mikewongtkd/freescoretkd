@@ -146,7 +146,7 @@ $.widget( "freescore.judgeController", {
 			var formNames   = division.forms[ division.round ];
 			var formOrdinal = formNames.length > 1 ? ordinal[ division.form ] + ' form ' : '';
 			if( ! defined( formNames )) { return; }
-			var formName    = formNames[ division.form ].name;
+			var formName    = formNames[ division.form ];
 
 			if( division.state == 'score' ) { e.flipDisplay.ajaxbutton({ label : "Leaderboard" }); } 
 			else                            { e.flipDisplay.ajaxbutton({ label : "Athlete Score" }); }
@@ -184,16 +184,6 @@ $.widget( "freescore.judgeController", {
 				e.nav.round.prev.ajaxbutton( "enable" );
 				e.nav.round.next.ajaxbutton( "disable" );
 			}
-			// ===== INITIATE AUTOPILOT BEHAVIOR
-			/*
-			// Autopilot is now handled server-side
-			o.autopilot = function( response ) {
-				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
-				var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + + '/' + o.num + '/autopilot';
-				var doNothing = function() {};
-				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: doNothing, error: doNothing, });
-			};
-			*/
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			var different = { 

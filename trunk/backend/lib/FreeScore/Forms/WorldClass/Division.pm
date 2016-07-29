@@ -18,15 +18,22 @@ use strict;
 #       - Round Object
 #
 # Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
-# - [ form index ]
-#   - complete
-#   - penalties
-#   - decision
-#     - withdrawn
-#     - disqualified
+# - complete
+# - decision
+#   - withdrawn
+#   - disqualified
+# - forms
+#   - [ form index ]
+#     - complete
+#     - penalties
+#     - decision
+#       - withdrawn
+#       - disqualified
 #   - judge
 #     - [ judge index ]
 #       - Score Object
+# - tiebreakers
+#   (same substructure as forms)
 #
 # Score data structure (also see FreeScore::Forms::WorldClass::Division::Round::Score)
 # - major
@@ -49,7 +56,7 @@ sub assign {
 	my $athlete    = $self->{ athletes }[ $i ];
 
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $self->{ forms }{ $round };
-	my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
+	my @compulsory = @{ $self->{ forms }{ $round }};
 	my $forms      = int( @compulsory );
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
 
@@ -70,14 +77,11 @@ sub assign_tiebreaker {
 	my $athlete    = shift;
 	my $judges     = $self->{ judges } - 1;
 	my $round      = $self->{ round };
-	my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
-	my $forms      = int( @compulsory );
+	my $forms      = $self->{ tiebreakers }{ $round };
 
-	if( exists $self->{ forms }{ $round } ) {
-		my @compulsory = grep { $_->{ type } eq 'compulsory' } @{ $self->{ forms }{ $round }};
-		my $tiebreaker = int( @compulsory ); # Tiebreaker form index is after the last compulsory form
+	if( exists $self->{ tiebreakers }{ $round } ) {
 		$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-		$athlete->{ scores }{ $round }->add_tiebreaker( $judges, $tiebreaker );
+		$athlete->{ scores }{ $round }->add_tiebreaker( $judges );
 	}
 }
 
@@ -126,55 +130,35 @@ sub place_athletes {
 	my $placement = [];
 
 	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
-	my @athlete_indices = ( 0 .. $#{ $self->{ athletes }} );
-	my $scores = [ map {
-		my $compulsory = $self->select_compulsory_round_scores( $_, $round );
-		my $tiebreaker = $self->select_tiebreaker_round_scores( $_, $round );
-		{ compulsory => $compulsory, tiebreaker => $tiebreaker }
-	} @athlete_indices ];
+	my @athlete_indices = @{$self->{ order }{ $round }};
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
 	@$placement = sort { 
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
-		my $x = $scores->[ $a ]{ compulsory }; # a := first athlete index;  x := first athlete score
-		my $y = $scores->[ $b ]{ compulsory }; # b := second athlete index; y := second athlete score
+		my $x = $self->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
+		my $y = $self->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
-
-		# ===== CALCULATE STATISTICS IN CASE OF TIES
-		my $x_stats = { sum => 0, pre => 0, all => 0, punitive => 0 };
-		$x_stats->{ sum } += $_->{ adjusted_mean }{ total }         foreach @$x;
-		$x_stats->{ pre } += $_->{ adjusted_mean }{ presentation }  foreach @$x;
-		$x_stats->{ all } += $_->{ complete_mean }{ total }         foreach @$x;
-		$x_stats->{ punitive } ||= _withdrawn_or_disqualified( $_ ) foreach @$x;
-		$x_stats->{ $_ } = sprintf( "%5.2f", $x_stats->{ $_ } )     foreach (qw( sum pre all ));
-
-		my $y_stats = { sum => 0, pre => 0, all => 0 };
-		$y_stats->{ sum } += $_->{ adjusted_mean }{ total }         foreach @$y;
-		$y_stats->{ pre } += $_->{ adjusted_mean }{ presentation }  foreach @$y;
-		$y_stats->{ all } += $_->{ complete_mean }{ total }         foreach @$y;
-		$y_stats->{ punitive } ||= _withdrawn_or_disqualified( $_ ) foreach @$y;
-		$y_stats->{ $_ } = sprintf( "%5.2f", $y_stats->{ $_ } )     foreach (qw( sum pre all ));
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
-		if( $x_stats->{ sum } == $y_stats->{ sum } && $x_stats->{ sum } != 0 ) {
-			if    ( $x_stats->{ pre } > $y_stats->{ pre } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
-			elsif ( $x_stats->{ pre } < $y_stats->{ pre } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
+		if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
+			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
+			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
 			else {
-				if    ( $x_stats->{ all } > $y_stats->{ all } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
-				elsif ( $x_stats->{ all } < $y_stats->{ all } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
+				if    ( $x->{ complete }{ total } > $y->{ complete }{ total } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
+				elsif ( $x->{ complete }{ total } < $y->{ complete }{ total } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
 				else {
-					if( ! $x_stats->{ punitive } ) { $self->{ athletes }[ $a ]{ notes } = 'TB'; }
-					if( ! $y_stats->{ punitive } ) { $self->{ athletes }[ $b ]{ notes } = 'TB'; }
+					if( exists $x->{ decision }{ withdrawn }    ) { $self->{ athletes }[ $a ]{ notes } = 'WD'; }
+					if( exists $x->{ decision }{ disqualified } ) { $self->{ athletes }[ $a ]{ notes } = 'DQ'; }
+					if( exists $y->{ decision }{ withdrawn }    ) { $self->{ athletes }[ $b ]{ notes } = 'WD'; }
+					if( exists $y->{ decision }{ disqualified } ) { $self->{ athletes }[ $b ]{ notes } = 'DQ'; }
 				}
 			}
 		}
 
 		# ===== COMPARE BY TIE-BREAKERS IF TIED
 		if( _is_tie( $comparison )) {
-			my $x = $scores->[ $a ]{ tiebreaker };
-			my $y = $scores->[ $b ]{ tiebreaker };
-			$comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y ); 
 		}
 
 		$comparison;
@@ -215,13 +199,13 @@ sub detect_ties {
 	my $k = int(@{$self->{ athletes }});
 	while( $i < $k ) {
 		my $a = $placement->[ $i ];
-		my $x = $self->select_compulsory_round_scores( $a, $round );
+		my $x = $self->{ athletes }[ $i ]{ scores }{ $round };
 
 		my $j = $i + 1;
 		while( $j < $k ) {
 			my $b = $placement->[ $j ];
-			my $y = $self->select_compulsory_round_scores( $b, $round );
-			if( any { _withdrawn_or_disqualified( $_ ); } @$y ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
+			my $y = $self->{ athletes }[ $j ]{ scores }{ $round };
+			if( exists $y->{ decision }{ withdrawn } || exists $y->{ decision }{ disqualified } ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
 
 			my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
@@ -316,7 +300,7 @@ sub get_only {
 
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } };
-		foreach my $form (@{$athlete->{ scores }{ $round }}) {
+		foreach my $form (@{$athlete->{ scores }{ $round }{ forms }}) {
 			next unless exists $form->{ judge };
 			$form->{ judge } = [ $form->{ judge }[ $judge ] ];
 		}
@@ -528,10 +512,11 @@ sub read {
 			if( /=/ ) {
 				s/^#\s+//;
 				my ($key, $value) = split /=/;
-				if    ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
-				elsif ( $key eq 'places'    ) { $self->{ $key } = _parse_places( $value );    }
-				elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
-				else                          { $self->{ $key } = $value;                     }
+				if    ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
+				elsif ( $key eq 'tiebreakers' ) { $self->{ $key } = _parse_forms( $value );     }
+				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );    }
+				elsif ( $key eq 'placement'   ) { $self->{ $key } = _parse_placement( $value ); }
+				else                            { $self->{ $key } = $value;                     }
 
 				$round = $self->{ round } if( defined $self->{ round } );
 
@@ -702,7 +687,7 @@ sub update_status {
 		# Semi-final round goes in random order
 		my $half       = int( ($n-1)/2 );
 		my @candidates = @{ $self->{ placement }{ prelim }};
-		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ prelim }} } @candidates;
+		my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ prelim }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
 		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$self->assign( $_, 'semfin' ) foreach @order;
 
@@ -714,7 +699,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
+		my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ semfin }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
 		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
 		$self->distribute_evenly( 'ro8', \@order );
 
@@ -726,7 +711,7 @@ sub update_status {
 		my $goto = { ro8 => 'ro4' };
 		foreach my $match (qw( ro8 )) { # MW Figure this out when sober
 			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
+			my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ $match }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
@@ -741,7 +726,7 @@ sub update_status {
 
 		foreach my $match (qw( ro4a ro4b )) {
 			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ $match }} } @candidates;
+			my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ $match }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
@@ -756,7 +741,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = grep { ! any { _withdrawn_or_disqualified( $_ ); } @{$self->{ athletes }[ $_ ]{ scores }{ semfin }} } @candidates;
+		my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ semfin }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
 		my @order      = reverse (@eligible[ 0 .. $k ]);
 		$self->assign( $_, 'finals' ) foreach @order;
 	}
@@ -801,9 +786,10 @@ sub write {
 
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
+	my @tiebreakers = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		next unless exists $self->{ forms }{ $round };
-		push @forms, "$round:" . join( ",", map { $_->{ type } eq 'tiebreaker' ? "$->{ name } ($_->{ type })" : $_->{ name }; } @{$self->{ forms }{ $round }} );
+		push @forms,       "$round:" . join( ",", @{$self->{ forms }{ $round }} )       if exists $self->{ forms }{ $round };
+		push @tiebreakers, "$round:" . join( ",", @{$self->{ tiebreakers }{ $round }} ) if exists $self->{ tiebreakers }{ $round };
 	}
 
 	# ===== PREPARE THE PLACEMENTS AND PENDING ATHLETES
@@ -1030,57 +1016,6 @@ sub calculate_means {
 }
 
 # ============================================================
-sub select_round_scores {
-# ============================================================
-#** @method ( athlete_index, round, form_type )
-#   @brief Returns the scores for the given form types for the given round
-#*
-	my $self  = shift;
-	my $i     = shift;
-	my $round = shift;
-	my $type  = shift;
-
-	die "Division Object Error: Bad indices when selecting athlete $!" if( $i < 0 || $i > $#{ $self->{ athletes }} );
-	die "Division Object Error: Forms not defined for round $round $!" unless( exists $self->{ forms }{ $round } );
-	return undef unless( exists $self->{ athletes }[ $i ]{ scores }{ $round } );
-
-	my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
-	my $forms  = $self->{ forms }{ $round };
-
-	my @form_indices = ( 0 .. $#$forms );
-	my @selected     = grep { $forms->[ $_ ]{ type } eq $type } @form_indices;
-	
-	return [ map { $scores->[ $_ ] } @selected   ];
-}
-
-
-# ============================================================
-sub select_tiebreaker_round_scores {
-# ============================================================
-#** @method ( athlete_index, round )
-#   @brief Returns the tiebreaker form scores for the given round
-#*
-	my $self  = shift;
-	my $i     = shift;
-	my $round = shift;
-
-	return $self->select_round_scores( $i, $round, 'tiebreaker' );
-}
-
-# ============================================================
-sub select_compulsory_round_scores {
-# ============================================================
-#** @method ( athlete_index, round )
-#   @brief Returns the compulsory form scores for the given round
-#*
-	my $self    = shift;
-	my $i       = shift;
-	my $round   = shift;
-
-	return $self->select_round_scores( $i, $round, 'compulsory' );
-}
-
-# ============================================================
 sub athletes_in_round {
 # ============================================================
 #** @method ( [criteria] )
@@ -1134,13 +1069,13 @@ sub _parse_forms {
 # ============================================================
 #** @function ( forms_text )
 #   @brief Parses serialized form text
-#   @details Compulsory forms are optionally labeled. Tiebreaker forms must be labeled.
+#   @details For use with 'forms' and 'tiebreakers' header
 #*
 	my $value = shift;
 
 	my @rounds = map { 
 		my ($round, $forms) = split /\s*:\s*/;
-		my @forms = map { my ($name, $type) = /^([\w\s]+)(?:\s\((compulsory|tiebreaker)\))?/; { name => $name, type => $type || 'compulsory' }; } split /\s*,\s*/, $forms;
+		my @forms = split /\s*,\s*/, $forms;
 		($round => [ @forms ]);
 	} split /\s*;\s*/, $value;
 	return { @rounds }; 
@@ -1174,16 +1109,6 @@ sub _parse_placement {
 		($round => [ @placements ]);
 	} split /;/, $value;
 	return { @rounds };
-}
-
-# ============================================================
-sub _withdrawn_or_disqualified { 
-# ============================================================
-#** @function ( form_object )
-#   @brief Returns true if a form object has a withdrawn or disqualified decision
-#*
-	my $form = shift; 
-	return (exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified }));
 }
 
 our @round_order = ( qw( prelim semfin finals ro8 ro4 ro2 ) );
