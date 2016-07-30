@@ -149,7 +149,7 @@ sub calculate_means {
 			$self->{ decision }{ disqualified } = 1 if exists $form->{ decision }{ disqualified };
 			$self->{ adjusted }{ total }        = sprintf( "%.2f", 0.0 );
 			$self->{ adjusted }{ presentation } = sprintf( "%.2f", 0.0 );
-			$self->{ complete }{ total }        = sprintf( "%.2f", 0.0 );
+			$self->{ total }                    = sprintf( "%.2f", 0.0 );
 			last;
 		}
 
@@ -233,17 +233,17 @@ sub calculate_means {
 
 	# ===== CACHE CALCULATIONS
 	$self->{ adjusted } = { total => 0, presentation => 0 };
-	$self->{ complete } = { total => 0 };
+	$self->{ original } = { total => 0 };
 
 	foreach my $mean (@$means) {
 		$self->{ adjusted }{ total }        += $mean->{ adjusted_mean }{ total };
 		$self->{ adjusted }{ presentation } += $mean->{ adjusted_mean }{ presentation };
-		$self->{ complete }{ total }        += $mean->{ complete_mean }{ total };
+		$self->{ total }                    += $mean->{ complete_mean }{ total };
 	};
 
 	$self->{ adjusted }{ total }        = sprintf( "%.2f", $self->{ adjusted }{ total } );
 	$self->{ adjusted }{ presentation } = sprintf( "%.2f", $self->{ adjusted }{ presentation } );
-	$self->{ complete }{ total }        = sprintf( "%.2f", $self->{ complete }{ total } );
+	$self->{ total }                    = sprintf( "%.2f", $self->{ total } );
 
 	return $self;
 }
@@ -257,7 +257,7 @@ sub form_complete {
 	my $i    = shift;
 	my $form = $self->{ forms }[ $i ];
 
-	# ===== FORM IS COMPLETE IF THERE IS A PUNITATIVE DECISION
+	# ===== FORM IS COMPLETE IF THERE IS A PUNITIVE DECISION
 	my $punitive_declaration = exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified });
 	$form->{ complete }      = $punitive_declaration; 
 	return 1 if $form->{ complete };

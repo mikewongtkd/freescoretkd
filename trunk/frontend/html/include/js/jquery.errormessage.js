@@ -37,6 +37,7 @@ $.widget( "freescore.errormessage", {
 			});
 		error.message += "<p>Reconnecting to server...</p>";
 		setTimeout( function() { location.reload(); }, 3500 );
+		console.log( error );
 
 		var dialog = html.div.clone() .attr( "data-role", "page" ) .attr( "data-dialog", "true" ) .attr( "data-close-btn", "none" );
 		var header = html.div.clone() .attr( "data-role", "header" ) .attr( "data-position", "fixed" ) .css( "color", "white" ) .css( "background", "#900" ) .css( "text-shadow", "none" ) .addClass( "header" );

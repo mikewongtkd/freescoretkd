@@ -145,8 +145,8 @@ sub place_athletes {
 			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
 			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
 			else {
-				if    ( $x->{ complete }{ total } > $y->{ complete }{ total } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
-				elsif ( $x->{ complete }{ total } < $y->{ complete }{ total } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
+				if    ( $x->{ total } > $y->{ total } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
+				elsif ( $x->{ total } < $y->{ total } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
 				else {
 					if( exists $x->{ decision }{ withdrawn }    ) { $self->{ athletes }[ $a ]{ notes } = 'WD'; }
 					if( exists $x->{ decision }{ disqualified } ) { $self->{ athletes }[ $a ]{ notes } = 'DQ'; }

@@ -1,4 +1,7 @@
 #! /usr/bin/perl
+#
+# Testing for server-side autopilot
+#
 use lib qw( ./lib ../lib );
 use Algorithm::Numerical::Shuffle qw( shuffle );
 use FreeScore::Test qw( score_worldclass );
@@ -40,7 +43,7 @@ foreach my $athlete ( 0 .. 21 ) {
 	$status   = $test->worldclass( "status" );
 	$current  = $status->{ current };
 	my $name  = $names->[ $current ];
-	print STDERR "Scoring $status->{ forms }[ $form ]{ name } for $name\n";
+	print STDERR "Scoring $status->{ forms }[ $form ] for $name\n";
 	my $level = $skill->{ $name };
 	score( $level, $judges );
 }
@@ -49,7 +52,7 @@ foreach my $athlete ( 0 .. 10 ) {
 	$status   = $test->worldclass( "status" );
 	$current  = $status->{ current };
 	my $name  = $names->[ $current ];
-	print STDERR "Scoring $status->{ forms }[ $form ]{ name } for $name\n";
+	print STDERR "Scoring $status->{ forms }[ $form ] for $name\n";
 	my $level = $skill->{ $name };
 	score( $level, $judges );
 }
@@ -59,7 +62,7 @@ foreach my $athlete ( 0 .. 7 ) {
 		$status  = $test->worldclass( "status" );
 		$current = $status->{ current };
 		my $name = $names->[ $current ];
-		print STDERR "Scoring $status->{ forms }[ $form ]{ name } for $name\n";
+		print STDERR "Scoring $status->{ forms }[ $form ] for $name\n";
 		my $level = $skill->{ $name };
 		score( $level, $judges );
 	}

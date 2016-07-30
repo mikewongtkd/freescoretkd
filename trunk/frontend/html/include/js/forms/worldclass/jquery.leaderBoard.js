@@ -55,7 +55,7 @@ $.widget( "freescore.leaderboard", {
 			return div;
 		};
 
-		var update_placements = function( callback ) {
+		var update_placements = function( k, callback ) {
 
 			var round = o.division.round;
 
@@ -114,18 +114,18 @@ $.widget( "freescore.leaderboard", {
 		if( o.division.round == 'finals' ) { 
 			k = k > 4 ? 4 : k; 
 
-			var callback = function( i, name, medal ) {
+			var show_medals = function( i, name, medal ) {
 				var j          = i + 1;
 				name  .addClass( "rank" + j );
 				medal .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 			}
 
-			update_placements( callback );
+			update_placements( k, show_medals );
 
 		} else {
 			if     ( o.division.round == 'prelim' ) { k = k > half ? half : k; }
 			else if( o.division.round == 'semfin' ) { k = k > 8 ? 8 : k; }
-			update_placements();
+			update_placements( k );
 		}
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES

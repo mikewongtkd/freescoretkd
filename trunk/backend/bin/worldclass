@@ -27,7 +27,7 @@ get '/:tournament/:ring/status' => sub {
 	my $division   = $progress->current();
 
 	try {
-		send_response( $self, { 'description' => 'Division $division->{ name } status', 'division' => $division->{ name }, 'current' => $division->{ current }, 'form' => $division->{ form }, 'round' => $division->{ round }, 'judges' => $division->{ judges }, 'forms' => $division->{ forms }{ $division->{ round }}, 'autopilot' => $division->autopilot() } );
+		send_response( $self, { 'description' => "Division $division->{ name } status", 'division' => $division->{ name }, 'current' => $division->{ current }, 'form' => $division->{ form }, 'round' => $division->{ round }, 'judges' => $division->{ judges }, 'forms' => $division->{ forms }{ $division->{ round }}, 'autopilot' => $division->autopilot() } );
 
 	} catch {
 		send_response( $self, { error => $_ });
