@@ -79,16 +79,7 @@ sub score {
 		my $judge_score = join( "/", $judge, (map { $_ * 10 } @{ $score }{ qw( major minor rhythm power ki ) }));
 		$test->worldclass( $judge_score );
 		usleep( 500000 );
-		if( $judge == $judges[ -1 ] ) {
-			my $response = $test->worldclass( "$judge/autopilot" );
-			if( $response->{ error } ) {
-				print STDERR "ERROR: $response->{ error }\n";
-			} else {
-				sleep( 4 );
-				$test->worldclass( "3/autopilot" );
-				sleep( 12 );
-			}
-		}
+		sleep( 16 ) if( $judge == $judges[ -1 ] );
 	}
 	sleep( 1 );
 }

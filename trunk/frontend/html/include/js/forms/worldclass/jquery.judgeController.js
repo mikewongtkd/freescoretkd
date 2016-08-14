@@ -184,13 +184,15 @@ $.widget( "freescore.judgeController", {
 				e.nav.round.prev.ajaxbutton( "enable" );
 				e.nav.round.next.ajaxbutton( "disable" );
 			}
-			// ===== ENABLE AUTOPILOT BEHAVIOR
+			/*
+			// ===== INITIATE AUTOPILOT BEHAVIOR FROM THE CLIENT-SIDE
 			o.autopilot = function( response ) {
 				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
 				var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + + '/' + o.num + '/autopilot';
 				var doNothing = function() {};
 				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: doNothing, error: doNothing, });
 			};
+			*/
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			var different = { 

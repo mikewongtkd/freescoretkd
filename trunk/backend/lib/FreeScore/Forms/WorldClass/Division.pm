@@ -95,7 +95,7 @@ sub autopilot {
 	my $judge = shift;
 
 	if( defined $judge ) {
-		if( $judge == 0 ) { delete $self->{ autopilot } } else { $self->{ autopilot } = $judge; }
+		if( $judge eq 'clear' ) { delete $self->{ autopilot } } else { $self->{ autopilot } = $judge; }
 	}
 	if( exists $self->{ autopilot } ) { return $self->{ autopilot }; } else { return 0; }
 }
@@ -286,6 +286,26 @@ sub edit_athletes {
 
 	$self->{ order }{ $round } = $reorder;
 	$self->normalize();
+}
+
+# ============================================================
+sub eligible_athletes {
+# ============================================================
+#** @method ( round, athlete_indices )
+#   @brief Returns a filtered list of given athlete indices where the athlete has not been disqualified or withdrawn for the given round
+#*
+	my $self       = shift;
+	my $round      = shift;
+	my @candidates = @_;
+	my @eligible   = ();
+
+	foreach my $candidate (@candidates) {
+		my $r = $self->{ athletes }[ $candidate ]{ scores }{ $round };
+		next if( exists $r->{ decision } && (exists $r->{ decision }{ disqualified } || exists $r->{ decision }{ withdrawn }));
+		push @eligible, $candidate;
+	}
+
+	return @eligible;
 }
 
 # ============================================================
@@ -687,7 +707,7 @@ sub update_status {
 		# Semi-final round goes in random order
 		my $half       = int( ($n-1)/2 );
 		my @candidates = @{ $self->{ placement }{ prelim }};
-		my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ prelim }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
+		my @eligible   = $self->eligible_athletes( 'prelim', @candidates );
 		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$self->assign( $_, 'semfin' ) foreach @order;
 
@@ -699,7 +719,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ semfin }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
+		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
 		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
 		$self->distribute_evenly( 'ro8', \@order );
 
@@ -711,7 +731,7 @@ sub update_status {
 		my $goto = { ro8 => 'ro4' };
 		foreach my $match (qw( ro8 )) { # MW Figure this out when sober
 			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ $match }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
+			my @eligible   = $self->eligible_athletes( $match, @candidates );
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
@@ -726,7 +746,7 @@ sub update_status {
 
 		foreach my $match (qw( ro4a ro4b )) {
 			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ $match }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
+			my @eligible   = $self->eligible_athletes( $match, @candidates );
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
@@ -741,7 +761,7 @@ sub update_status {
 		# Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = grep { my $r = $self->{ athletes }[ $_ ]{ scores }{ semfin }; exists $r->{ decision } && (exists $r->{ decision }{ withdrawn } || exists $r->{ decision }{ disqualified }) } @candidates;
+		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
 		my @order      = reverse (@eligible[ 0 .. $k ]);
 		$self->assign( $_, 'finals' ) foreach @order;
 	}
@@ -756,8 +776,6 @@ sub round_complete {
 	my $order = $self->{ order }{ $round };
 	return 0 unless( defined $order && int(@$order) > 0 );
 
-	my $forms        = $self->{ forms }{ $round };
-	my @form_indices = ( 0 .. $#$forms );
 	my @athletes     = $self->athletes_in_round( $round );
 	my $complete     = 1;
 
