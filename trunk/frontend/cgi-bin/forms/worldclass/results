@@ -11,14 +11,30 @@ use FreeScore::Forms::WorldClass;
 my $cgi        = new CGI();
 my $results    = undef;
 my $tournament = read_tournament_config();
+my $ring       = $cgi->param( 'ring' );
+my $divid      = $cgi->param( 'divid' );
+my @rounds     = ($cgi->param( 'round' ));
 
 my @divisions  = ();
+my $results    = undef;
 try {
-	foreach my $ring ( 1 .. $tournament->{ rings }{ count } ) {
-		$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-		push @divisions, @{ $results->{ divisions }};
+	if( defined $ring ) {
+		if( defined $divid ) { 
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} else {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
 	}
 } catch {
+	die $_;
 	
 };
 
@@ -29,7 +45,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Tournament World Class Forms Results</title>
+		<title>World Class Forms Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -81,63 +97,56 @@ EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
-	my $round  = 'finals';
-	my $forms  = $division->{ forms }{ $round };
-	my $placed = {};
-	my $i = 0;
+	@rounds = @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	foreach my $round (@rounds) {
+		next unless exists $division->{ order }{ $round };
+		my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
+		my $forms  = $division->{ forms }{ $round };
+		my $placed = {};
+		my $i = 0;
+		foreach my $place ( 1 .. 3 ) {
+			my $i = $division->{ placement }{ $round }[ ($place - 1) ];
+			$placed->{ $i } = ordinal( $place );
+		}
 
-	unless( exists $division->{ placement }{ $round } ) {
 		print <<EOF;
-			<div class="results">
-			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="ring">Ring $division->{ ring }</div></div>
-			Results pending
-			</div>
-EOF
-		next;
-	}
-
-	foreach my $place ( 1 .. 3 ) {
-		my $i = $division->{ placement }{ $round }[ ($place - 1) ];
-		$placed->{ $i } = ordinal( $place );
-	}
-
-	print <<EOF;
 		<div class="results">
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="ring">Ring $division->{ ring }</div></div>
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } ($rname)</div><div class="ring">Ring $division->{ ring }</div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">#</th>
 				<th class="athlete">Name</th>
 EOF
-	foreach my $i ( 0 .. $#$forms ) { print "<th class=\"form\">$forms->[ $i ]{ name }</th>"; }
-	print <<EOF;
+		foreach my $i ( 0 .. $#$forms ) { print "<th class=\"form\">$forms->[ $i ]</th>"; }
+		print <<EOF;
 				<th>Total</th>
 				<th>Place</th>
 			</tr>
 EOF
-	my $n = $#{$division->{ athletes }};
-	foreach my $i (0 .. $n) {
-		my $athlete = $division->{ athletes }[ $i ];
-		my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-		print "<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ name }</td>";
-		my $forms = $athlete->{ scores }{ $round };
-		my $sum   = 0.0;
-		foreach my $j ( 0 .. $#$forms ) {
-			next if( $division->{ forms }{ $round }[ $j ]{ type } ne 'compulsory' );
-			my $form = $forms->[ $j ];
-			my $score = $form->{ complete_mean };
-			printf( "<td>%.1f/%.1f</td>", $score->{ accuracy }, $score->{ presentation } );
-			$sum += $score->{ total };
+		my $n = $#{$division->{ order }{ $round }};
+		foreach my $i (0 .. $n) {
+			my $j       = $division->{ order }{ $round }[ $i ];
+			my $athlete = $division->{ athletes }[ $j ];
+			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
+			print "<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ name }</td>";
+			my $forms = $athlete->{ scores }{ $round }{ forms };
+			my $sum   = 0.0;
+			foreach my $j ( 0 .. $#$forms ) {
+				my $form = $forms->[ $j ];
+				my $mean = $form->{ adjusted };
+				printf( "<td>%.1f+%.1f=%.1f</td>", $mean->{ accuracy }, $mean->{ presentation }, $mean->{ total } );
+				$sum += $mean->{ total };
+			}
+			printf( "<td>%.2f<span class=\"notes\">$notes</span></td>", $sum, $notes );
+			if( exists $placed->{ $i } ) { print "<td>$placed->{ $i }</td>"; }
+			else { print "<td>-</td>"; }
+			print "</tr>\n";
 		}
-		printf( "<td>%.2f<span class=\"notes\">$notes</span></td>", $sum, $notes );
-		if( exists $placed->{ $i } ) { print "<td>$placed->{ $i }</td>"; }
-		else { print "<td>-</td>"; }
-		print "</tr>\n";
-	}
-	print <<EOF;
+		print <<EOF;
 		</table>
 		</div>
 EOF
+	}
 }
 
 print <<EOF;
@@ -161,13 +170,12 @@ sub ordinal {
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
-	if    ( -e '/var/www/html/freescore/include/php/config.php' ) { $php = `cat /var/www/html/freescore/include/php/config.php`; }
-	elsif ( -e '/var/www/freescore/include/php/config.php'      ) { $php = `cat /var/www/html/freescore/include/php/config.php`; }
+	if    ( -e '/var/www/html/freescore/include/php/config.php' ) { $php = '/var/www/html/freescore/include/php/config.php'; }
+	elsif ( -e '/var/www/freescore/include/php/config.php'      ) { $php = '/var/www/html/freescore/include/php/config.php'; }
 	else                                                          { die "Can't find configuration file 'config.php' $!"; }
-	$php .= "<?php echo \$tournament ?>";
-	$php =~ s/\n/ /g;
 
 	my $json = new JSON::XS();
-	my $data = `echo '$php' | php`;
-	return $json->decode( $data );
+	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+	my $config = $json->decode( $data );
+	return $config;
 }

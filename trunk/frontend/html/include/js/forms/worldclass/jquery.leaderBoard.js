@@ -47,10 +47,10 @@ $.widget( "freescore.leaderboard", {
 		// ===== UPDATE THE 'CURRENT PLACEMENT' PANEL
 		var form_mean_score = function( form, label ) {
 			var div = html.div.clone() .addClass( label );
-			if( ! defined( form ))                     { return ''; }
-			if( ! defined( form.adjusted_mean ))       { return ''; }
-			if( ! defined( form.adjusted_mean.total )) { return ''; }
-			div.html( form.adjusted_mean.total.toFixed( 2 ));
+			if( ! defined( form ))                { return ''; }
+			if( ! defined( form.adjusted ))       { return ''; }
+			if( ! defined( form.adjusted.total )) { return ''; }
+			div.html( form.adjusted.total.toFixed( 2 ));
 
 			return div;
 		};
@@ -81,7 +81,7 @@ $.widget( "freescore.leaderboard", {
 				var athlete    = placement.athletes[ i ];
 				var notes      = defined( athlete.notes ) ? athlete.notes : '';
 				var length     = forms.length > 1 ? 2 : 1; // Max number of forms per round is 2
-				var total      = (forms.map( function( form ) { return defined( form.adjusted_mean ) ? form.adjusted_mean.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / length).toFixed( 2 );
+				var total      = (forms.map( function( form ) { return defined( form.adjusted ) ? form.adjusted.total : 0.0; } ).reduce( function( previous, current ) { return previous + current; } ) / length).toFixed( 2 );
 				var name       = athlete.name;
 				if( name.length > 12 && ! e.placement.hasClass( 'one-column' ) ) { // Name too long? Use first initial and last name
 					var firstlast = name.split( /\s+/ ); var first = firstlast.shift(); var last = firstlast.join( ' ' );

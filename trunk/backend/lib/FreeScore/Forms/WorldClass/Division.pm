@@ -1130,5 +1130,6 @@ sub _parse_placement {
 }
 
 our @round_order = ( qw( prelim semfin finals ro8 ro4 ro2 ) );
+our $round_name  = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals', ro8 => 'Finals 1', ro4 => 'Finals 2', ro2 => 'Finals 3' };
 
 1;

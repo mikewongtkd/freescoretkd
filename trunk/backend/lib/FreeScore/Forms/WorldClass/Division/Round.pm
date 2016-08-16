@@ -9,22 +9,35 @@ use Carp;
 # $SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 
 # Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
+# - adjusted
+#   - accuracy
+#   - presentation
+#   - total
 # - complete
 # - decision
 #   - withdrawn
 #   - disqualified
 # - forms
 #   - [ form index ]
+#     - adjusted
+#       - accuracy
+#       - presentation
+#       - total
 #     - complete
-#     - penalties
 #     - decision
 #       - withdrawn
 #       - disqualified
+#     - original
+#       - accuracy
+#       - presentation
+#       - total
+#     - penalties
 #   - judge
 #     - [ judge index ]
 #       - Score Object
 # - tiebreakers
 #   (same substructure as forms)
+# - total
 
 # ============================================================
 sub new {
@@ -143,8 +156,6 @@ sub calculate_means {
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
 		my $punitive_decision = exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified });
 		if( $punitive_decision ) {
-			$form->{ adjusted_mean } = 0.0;
-			$form->{ complete_mean } = 0.0;
 			$self->{ decision }{ withdrawn }    = 1 if exists $form->{ decision }{ withdrawn };
 			$self->{ decision }{ disqualified } = 1 if exists $form->{ decision }{ disqualified };
 			$self->{ adjusted }{ total }        = sprintf( "%.2f", 0.0 );
@@ -194,7 +205,7 @@ sub calculate_means {
 			presentation => sprintf( "%.2f", $stats->{ sumpre })
 		);
 		my $adjusted = { @mean };
-		my $complete = { @mean };
+		my $original = { @mean };
 
 		# ===== CALCULATE ADJUSTED MEANS
 		if( $judges >= 5 ) {
@@ -217,15 +228,16 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( qw( bounds timelimit restart misconduct )) };
 
-		# ===== CALCULATE COMPLETE MEANS
-		$complete = { map { ( $_ => sprintf( "%.2f", ($complete->{ $_ }/$judges))) } keys %$complete };
+		# ===== CALCULATE ORIGINAL (UNADJUSTED) MEANS
+		$original = { map { ( $_ => sprintf( "%.2f", ($original->{ $_ }/$judges))) } keys %$original };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
-		$complete->{ total } = $complete->{ accuracy } + $complete->{ presentation } - $penalties;
+		$original->{ total } = $original->{ accuracy } + $original->{ presentation } - $penalties;
 
-		$form->{ adjusted_mean } = $adjusted;
-		$form->{ complete_mean } = $complete;
-		push @$means, { adjusted_mean => $adjusted, complete_mean => $complete };
+		$form->{ adjusted } = $adjusted;
+		$form->{ original } = $original;
+
+		push @$means, { adjusted => $adjusted, complete => $original };
 	}
 	# ===== CALCULATE TIEBREAKER SCORES (NOT YET IMPLEMENTED)
 	foreach my $form (@{$self->{ tiebreakers }}) {
@@ -233,12 +245,12 @@ sub calculate_means {
 
 	# ===== CACHE CALCULATIONS
 	$self->{ adjusted } = { total => 0, presentation => 0 };
-	$self->{ original } = { total => 0 };
 
 	foreach my $mean (@$means) {
-		$self->{ adjusted }{ total }        += $mean->{ adjusted_mean }{ total };
-		$self->{ adjusted }{ presentation } += $mean->{ adjusted_mean }{ presentation };
-		$self->{ total }                    += $mean->{ complete_mean }{ total };
+		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
+		$self->{ adjusted }{ accuracy }     += $mean->{ adjusted }{ accuracy };
+		$self->{ adjusted }{ presentation } += $mean->{ adjusted }{ presentation };
+		$self->{ total }                    += $mean->{ original }{ total };
 	};
 
 	$self->{ adjusted }{ total }        = sprintf( "%.2f", $self->{ adjusted }{ total } );

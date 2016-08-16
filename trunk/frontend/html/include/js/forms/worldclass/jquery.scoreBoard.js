@@ -66,7 +66,7 @@ $.widget( "freescore.scoreboard", {
 			for( var i = 0; i <= current.form; i++ ) {
 				var name  = current.forms[ i ];
 				var score = current.athlete.scores[ current.round ].forms[ i ];
-				var mean  = score.adjusted_mean;
+				var mean  = score.adjusted;
 				if( ! defined( mean )) { continue; }
 				var penalties = 0;
 				var penalty = score.penalty;
@@ -113,12 +113,12 @@ $.widget( "freescore.scoreboard", {
 			var score         = 0;
 
 			var form    = current.athlete.scores[ current.round ].forms[ current.form ];
-			var mean    = form.adjusted_mean;
+			var mean    = form.adjusted;
 			var penalty = form.penalty;
 
 			var penalties = 0;
-			if( defined( penalty ) && defined( penalty.timelimit ) && defined( penalty.bounds )) {
-				penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds );
+			if( defined( penalty )) {
+				Object.keys( penalty ).forEach( function( category ) { penalties += parseFloat( penalty[ category ] ); });
 				e.penalty.bounds    .find( 'span' ).text( '-' + penalty.bounds );
 				if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
 				if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }

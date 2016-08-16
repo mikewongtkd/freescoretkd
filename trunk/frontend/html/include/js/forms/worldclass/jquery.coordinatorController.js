@@ -941,7 +941,7 @@ $.widget( "freescore.coordinatorController", {
 				// Append score
 				{
 					var form         = athlete.data.scores[ round ].forms[ 0 ];
-					var score        = form.adjusted_mean;
+					var score        = form.adjusted;
 					var withdrawn    = defined( form.decision ) ? form.decision.withdrawn : undefined;
 					var disqualified = defined( form.decision ) ? form.decision.disqualified : undefined;
 
@@ -960,7 +960,7 @@ $.widget( "freescore.coordinatorController", {
 
 				if( division.forms[ round ].length > 1 ) { 
 					var form         = athlete.data.scores[ round ].forms[ 1 ];
-					var score        = form.adjusted_mean;
+					var score        = form.adjusted;
 					var withdrawn    = defined( form.decision ) ? form.decision.withdrawn : undefined;
 					var disqualified = defined( form.decision ) ? form.decision.disqualified : undefined;
 					if( defined( score ) ) {

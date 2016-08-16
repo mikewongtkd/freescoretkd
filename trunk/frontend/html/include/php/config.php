@@ -9,7 +9,7 @@
 			$n = preg_replace( '/ring/', '', $n );
 			return intval( $n );
 		}
-	}
+	};
 	$rings = [];
 	$rings[ 'grassroots' ] = preg_grep( '/^\./', scandir( '/Volumes/ramdisk/' . $tournament[ 'db' ] . '/forms-grassroots' ), PREG_GREP_INVERT );
 	$rings[ 'worldclass' ] = preg_grep( '/^\./', scandir( '/Volumes/ramdisk/' . $tournament[ 'db' ] . '/forms-worldclass' ), PREG_GREP_INVERT );
