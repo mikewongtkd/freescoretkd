@@ -97,6 +97,12 @@ $.widget( "freescore.coordinatorController", {
 				misconduct : button.clone() .addClass( 'penalty ui-icon-comment' ) .html( "Misconduct"      ),
 				clear      : button.clone() .addClass( 'penalty ui-icon-delete' )  .html( "Clear Penalties" ),
 			},
+
+			report : {
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Report" ),
+				print      : button.clone() .addClass( 'navigation ui-icon-grid' )    .html( "Print"           ),
+			},
 		};
 
 		var time = e.time = {
@@ -158,8 +164,9 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
+		actions.report     .panel.append( actions.report.legend, actions.report.print );
 
-		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.changes.panel );
+		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.report.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -576,7 +583,8 @@ $.widget( "freescore.coordinatorController", {
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			o.changes = undefined;
 			e.sound.ok.play();
-			setTimeout( function() { e.refresh( update ); }, 1000 );
+			setTimeout( function() { e.refresh( update ); e.actions.changes.panel.fadeOut(); }, 1000 );
+				 
 		};
 
 		// ============================================================
@@ -886,7 +894,7 @@ $.widget( "freescore.coordinatorController", {
 				// Is the athlete's score complete for this round
 				var complete = true;
 				for( k = 0; k < forms.length; k++ ) {
-					var formComplete = athlete.data.scores[ round ][ k ].complete;
+					var formComplete = athlete.data.scores[ round ].forms[ k ].complete;
 					complete &= formComplete;
 				}
 				
@@ -932,9 +940,10 @@ $.widget( "freescore.coordinatorController", {
 
 				// Append score
 				{
-					var score        = athlete.data.scores[ round ][ 0 ].adjusted_mean;
-					var withdrawn    = athlete.data.scores[ round ][ 0 ].decision.withdrawn;
-					var disqualified = athlete.data.scores[ round ][ 0 ].decision.disqualified;
+					var form         = athlete.data.scores[ round ].forms[ 0 ];
+					var score        = form.adjusted_mean;
+					var withdrawn    = defined( form.decision ) ? form.decision.withdrawn : undefined;
+					var disqualified = defined( form.decision ) ? form.decision.disqualified : undefined;
 
 					if( defined( score ) ) {
 						if( defined( score.total ))  { score = score.total.toFixed( 2 ); } else { score = '&mdash;'; }
@@ -950,9 +959,10 @@ $.widget( "freescore.coordinatorController", {
 				};
 
 				if( division.forms[ round ].length > 1 ) { 
-					var score        = athlete.data.scores[ round ][ 1 ].adjusted_mean;
-					var withdrawn    = athlete.data.scores[ round ][ 1 ].decision.withdrawn;
-					var disqualified = athlete.data.scores[ round ][ 1 ].decision.disqualified;
+					var form         = athlete.data.scores[ round ].forms[ 1 ];
+					var score        = form.adjusted_mean;
+					var withdrawn    = defined( form.decision ) ? form.decision.withdrawn : undefined;
+					var disqualified = defined( form.decision ) ? form.decision.disqualified : undefined;
 					if( defined( score ) ) {
 						if( defined( score.total ))  { score = score.total.toFixed( 2 ); } else { score = '&mdash;'; }
 						if( defined( withdrawn ))    { score = 'WD'; }
@@ -1056,7 +1066,7 @@ $.widget( "freescore.coordinatorController", {
 			if( ! defined( progress.divisions )) { return; }
 			if( ! defined( progress.digest    )) { return; }
 			var digest   = progress.digest;
-			if( defined( o.progress) && digest == o.progress.digest ) { return; }
+			if( defined( o.progress ) && digest == o.progress.digest ) { if( ! e.dialog.hasClass( 'ui-popup-hidden' )) { e.dialog.popup( 'close' ); } return; }
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
 			if( defined( o.changes )) { console.log( 'Changes pending; skipping update.' ); return; } // Do not refresh if there are pending changes
 			o.progress = progress;
