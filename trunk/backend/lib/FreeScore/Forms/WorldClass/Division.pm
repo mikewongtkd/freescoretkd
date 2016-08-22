@@ -5,6 +5,7 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all any none first shuffle reduce );
 use List::MoreUtils qw( first_index );
+use JSON::XS;
 use Try::Tiny;
 use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
@@ -117,6 +118,20 @@ sub distribute_evenly {
 		$self->assign( $j, $group );
 		$i = ($i + 1) % $k;
 	}
+}
+
+# ============================================================
+sub from_json {
+# ============================================================
+#** @method ( json_division_data )
+#   @brief  Class method that returns an instance using the given JSON division data
+#   Call as my $division = FreeScore::Forms::WorldClass::Division->from_json( $json )
+#*
+	my $class = shift;
+	my $data  = shift;
+	my $json  = new JSON();
+	my $self  = $json->decode( $data );
+	return bless $self, $class;
 }
 
 # ============================================================
