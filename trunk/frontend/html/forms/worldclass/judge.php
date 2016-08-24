@@ -28,6 +28,9 @@
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.ajaxbutton.js"></script>
+		<script src="../../include/js/forms/worldclass/score.class.js"></script>
+		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.deductions.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.matposition.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.presentationBar.js"></script>

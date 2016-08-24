@@ -135,25 +135,22 @@ $.widget( "freescore.judgeController", {
 		var e           = this.options.elements;
 		var o           = this.options;
 		var html        = e.html;
-		var ordinal     = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
 
 		function refresh( update ) {
 			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
 			var digest   = progress.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
-			var division = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
-			if( ! defined( division )) { return; }
+			var div_data = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
+			if( ! defined( div_data )) { return; }
+			var division = new Division( div_data );
 
-			var formNames   = division.forms[ division.round ];
-			var formOrdinal = formNames.length > 1 ? ordinal[ division.form ] + ' form ' : '';
-			if( ! defined( formNames )) { return; }
-			var formName    = formNames[ division.form ];
+			if( ! defined( division.form.list())) { return; }
 
-			if( division.state == 'score' ) { e.flipDisplay.ajaxbutton({ label : "Leaderboard" }); } 
+			if( division.state.is.score() ) { e.flipDisplay.ajaxbutton({ label : "Leaderboard" }); } 
 			else                            { e.flipDisplay.ajaxbutton({ label : "Athlete Score" }); }
 
-			if( formNames.length > 1 ) {
-				var first = division.form == 0;
-				var last  = division.form == (formNames.length - 1);
+			if( division.form.count() > 1 ) {
+				var first = division.current.form.is.firstForm();
+				var last  = division.current.form.is.lastForm();
 				if      ( first             ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "disable" ); e.nav.form.next.ajaxbutton( "enable" );  }
 				else if ( ! first && ! last ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "enable" );  e.nav.form.next.ajaxbutton( "enable" );  } 
 				else if ( last              ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "enable" );  e.nav.form.next.ajaxbutton( "disable" ); }
@@ -163,23 +160,24 @@ $.widget( "freescore.judgeController", {
 				e.nav.form.next.ajaxbutton( "disable" );
 			}
 
-			var numRounds = Object.keys( division.forms ).length;
+			var numRounds  = division.round.count();
+			var nextStatus = division.round.is.complete() ? 'enable' : 'disable';
 			if       ( numRounds == 1 ) { 
 				e.nav.round.label.css({ opacity : 0.35 });
 				e.nav.round.prev.ajaxbutton( "disable" );
 				e.nav.round.next.ajaxbutton( "disable" ); 
 
-			} else if( division.round == 'prelim' || (division.round == 'semfin' && numRounds == 2 )) {
-				e.nav.round.label.css({ opacity : 1.00 });
+			} else if( division.round.is.prelim() || (division.round.is.semfin() && numRounds == 2 )) {
+				e.nav.round.label.css({ opacity : division.round.is.complete() ? 1.00 : 0.35 });
 				e.nav.round.prev.ajaxbutton( "disable" );
-				e.nav.round.next.ajaxbutton( "enable" );
+				e.nav.round.next.ajaxbutton( nextStatus );
 
-			} else if( division.round == 'semfin' && numRounds == 3 ) {
+			} else if( division.round.is.semfin() && numRounds == 3 ) {
 				e.nav.round.label.css({ opacity : 1.00 });
 				e.nav.round.prev.ajaxbutton( "enable" );
-				e.nav.round.next.ajaxbutton( "enable" );
+				e.nav.round.next.ajaxbutton( nextStatus );
 
-			} else if( division.round == 'finals' ) {
+			} else if( division.round.is.finals() ) {
 				e.nav.round.label.css({ opacity : 1.00 });
 				e.nav.round.prev.ajaxbutton( "enable" );
 				e.nav.round.next.ajaxbutton( "disable" );
@@ -196,19 +194,19 @@ $.widget( "freescore.judgeController", {
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			var different = { 
-				division : division.name    != o.current.divname,
-				athlete  : division.current != o.current.athlete,
-				round    : division.round   != o.current.round,
-				form     : division.form    != o.current.form
+				division : division.name()              != o.current.divname,
+				athlete  : division.current.athleteId() != o.current.athlete,
+				round    : division.current.roundId()   != o.current.round,
+				form     : division.current.formId()    != o.current.form
 			}
 			
 			if( different.division || different.round || different.athlete || different.form ) {
-				var athlete    = division.athletes[ parseInt( division.current ) ];
+				var athlete    = new Athlete( division.current.athlete() );
 				var info       = { 
-				                     division : html.span.clone() .addClass( "details" ) .html( division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description ),
-				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name ),
-				                     round    : html.span.clone() .addClass( "details" ) .html( FreeScore.round.name[ division.round ] ),
-				                     form     : html.span.clone() .addClass( "details" ) .html( formOrdinal + formName ),
+				                     division : html.span.clone() .addClass( "details" ) .html( division.summary() ),
+				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
+				                     round    : html.span.clone() .addClass( "details" ) .html( division.round.name() ),
+				                     form     : html.span.clone() .addClass( "details" ) .html( division.current.form.description() ),
 				                 };
 				var tickerList = [ info.athlete, info.division, info.round, info.form ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
@@ -224,16 +222,16 @@ $.widget( "freescore.judgeController", {
 				widget.trigger({ type : "updateRequest", score : o });
 			}
 			// ===== UPDATE WIDGETS
-			e.notes .judgeNotes({ forms : division.forms[ division.round ], form : division.form, athletes : division.athletes, judges : division.judges, current : division.current, round : division.round, order : division.order[ division.round ] });
+			e.notes .judgeNotes({ forms : division.form.list(), form : division.current.form.name(), athletes : division.athletes(), judges : division.judges(), current : division.current.athleteId(), round : division.current.roundId(), order : division.current.order() });
 
-			e.matPosition. matposition({ judges : division.judges, judge : o.num, remaining : division.pending.length });
+			e.matPosition. matposition({ judges : division.judges(), judge : o.num, remaining : division.pending.count() });
 
 			o.current.digest   = digest;
 			o.current.division = progress.current;
-			o.current.divname  = division.name;
-			o.current.round    = division.round;
-			o.current.athlete  = division.current;
-			o.current.form     = division.form;
+			o.current.divname  = division.name();
+			o.current.round    = division.current.roundId();
+			o.current.athlete  = division.current.athleteId();
+			o.current.form     = division.current.formId();
 		};
 		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );

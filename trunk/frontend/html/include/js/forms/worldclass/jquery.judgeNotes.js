@@ -45,55 +45,33 @@ $.widget( "freescore.judgeNotes", {
 		var table = h.table.clone();
 		table.append( h.tr.clone() .append( headers ));
 
+		var summarize = function( form ) {
+			var accuracy     = form.accuracy().toFixed( 1 );
+			var presentation = form.presentation().toFixed( 1 );
+			if( ! form.is.complete() ) { accuracy = presentation = '&ndash;'; }
+			return [
+				e.html.span.clone() .addClass( "accuracy" )     .html( accuracy ), '/',
+				e.html.span.clone() .addClass( "presentation" ) .html( presentation ) 
+			];
+		};
+
 		for( var i = 0; i < o.order.length; i++ ) {
 			var j            = o.order[ i ];
 			var tr           = h.tr.clone();
-			var athlete      = athletes[ j ];
-			var score        = { form1 : '', form2 : '', average : '' };
+			var athlete      = new Athlete( athletes[ j ] );
 
-			if( athlete.scores[ round ].forms.length > 0 ) {
-
-				var summarize = function( form ) { // MW TODO Consider pulling this closure out.
-					var judge        = form.judge[ 0 ];
-					var penalties    = judge.major + judge.minor;
-					var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
-					var presentation = parseFloat( judge.rhythm + judge.power + judge.ki );
-					var score        = { accuracy : accuracy.toFixed( 1 ), presentation : presentation.toFixed( 1 ) };
-					if   ( accuracy >= 0 && presentation > 0 ) { 
-						return [
-							e.html.span.clone() .addClass( "accuracy" )     .html( score.accuracy ), '/',
-							e.html.span.clone() .addClass( "presentation" ) .html( score.presentation ) 
-						];
-					} 
-					return [ e.html.span.clone() .addClass( "accuracy" ) .html( '&ndash;' ), '/', e.html.span.clone() .addClass( "presentation" ) .html( '&ndash;' ) ];
-				}
-				var forms = athlete.scores[ round ].forms;
-				score.form1 = summarize( forms[ 0 ] );
-				if( defined( forms[ 1 ] )) { score.form2 = summarize( forms[ 1 ] ); }
-				score.average = (function() {
-					var avg = forms.map( function( form ) { 
-						if( ! defined( form.judge[ 0 ] )) { return 0.0; }
-						var judge        = form.judge[ 0 ];
-						if( ! defined(judge.major ) || ! defined( judge.minor ) || ! defined( judge.rhythm ) || ! defined( judge.power ) || ! defined( judge.ki )) { return 0.0; }
-						if( judge.rhythm < 0.5 || judge.power < 0.5 || judge.ki < 0.5 ) { return 0.0; }
-						var penalties    = judge.major + judge.minor;
-						var accuracy     = parseFloat( penalties > 4.0 ? 0.0 : 4.0 - penalties );
-						var presentation = parseFloat( judge.rhythm + judge.power + judge.ki );
-						return (accuracy + presentation) / forms.length;
-					} ).reduce( function( previous, current ) { return (previous + current) > 0 ? previous + current : 0; } );
-					avg = avg > 0 ? avg.toFixed( 2 ) : '&ndash;';
-					return avg;
-				})();
-			}
-
+			var score   = athlete.score( round );
+			var form1   = summarize( score.form( 0 ));
+			var form2   = score.forms.count() > 1 ? summarize( score.form( 1 )) : '';
+			var average = score.is.complete() ? score.average() : '&ndash;';
 			var isCurrent    = function( form ) { if( j == current ) { if( form == o.form ) { return "current-form"; } else { return "current"; }} else { return ''; }}
 
 			var column = {
 				order : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "order" )   .html( i + 1 + "." ),
-				name  : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "name"  )   .html( athlete.name ),
-				form1 : h.td.clone() .addClass( isCurrent( 0 ) ) .addClass( "form1" )   .html( score.form1 ),
-				form2 : h.td.clone() .addClass( isCurrent( 1 ) ) .addClass( "form2" )   .html( score.form2 ),
-				avg   : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "average" ) .html( score.average )
+				name  : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "name"  )   .html( athlete.name() ),
+				form1 : h.td.clone() .addClass( isCurrent( 0 ) ) .addClass( "form1" )   .html( form1 ),
+				form2 : h.td.clone() .addClass( isCurrent( 1 ) ) .addClass( "form2" )   .html( form2 ),
+				avg   : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "average" ) .html( average )
 			}
 			var columns = [ column.order, column.name, column.form1 ];
 			var headers = [ header.order, header.name, header.form1 ];
