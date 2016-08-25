@@ -23,44 +23,44 @@ $.widget( "freescore.worldclass", {
 		e.scoreboard.scoreboard();
 
 		function refresh( update ) {
-			var forms    = JSON.parse( update.data );
-			var division, current, athlete;
-			if( defined( o.digest ) && forms.digest == o.digest ) { return; } else { o.digest = forms.digest; }
-			if( defined( forms.divisions ) && defined( forms.current )) {
-				division = forms.divisions[ forms.current ];
-				if( defined( division )) {
-					current = parseInt( division.current );
-					athlete = division.athletes[ current ];
+			var progress = JSON.parse( update.data );
+			var division = undefined;
+			if( defined( o.digest ) && progress.digest == o.digest ) { return; } else { o.digest = progress.digest; }
+			if( defined( progress.divisions ) && defined( progress.current )) {
+				var divisionData = progress.divisions[ progress.current ];
+				if( defined( divisionData )) {
+					division = new Division( divisionData );
 				}
 			}
 
-			if( forms.error ) {
+			if( progress.error ) {
 				e.card.hide();
-				e.usermessage.errormessage({ message : forms.error });
+				e.usermessage.errormessage({ message : progress.error });
 				
-			} else if( division.state == 'display' ) {
+			} else if( division.state.is.display() ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );
 
 			} else {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
 				var odd = false;
-				for( var i = 0; i < division.order[ division.round ].length; i++ ) {
-					if( division.order[ division.round ][ i ] == current ) {
+				for( var i = 0; i < division.current.order().length; i++ ) {
+					if( division.current.order( i ) == division.current.athleteId() ) {
 						odd = i % 2;
 						break;
 					}
 				}
 				e.scoreboard.scoreboard( { 
-					judges : division.judges,
+					judges : division.judges(),
 					current: { 
-						name        : division.name, 
-						round       : division.round, 
-						description : division.description,
-						form        : division.form, 
-						forms       : division.forms[ division.round ], 
+						name        : division.name(), 
+						round       : division.current.roundId(), 
+						roundName   : division.current.round.display.name(),
+						description : division.description(),
+						form        : division.current.formId(), 
+						forms       : division.form.list(), 
 						odd         : odd,
-						athlete     : athlete 
+						athlete     : division.current.athlete() 
 					}
 				});
 			}

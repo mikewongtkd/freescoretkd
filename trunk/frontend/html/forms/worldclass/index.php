@@ -31,6 +31,9 @@
  		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.errormessage.js"></script>
+		<script src="../../include/js/forms/worldclass/score.class.js"></script>
+		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.worldclass.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.leaderBoard.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.judgeScore.js"></script>

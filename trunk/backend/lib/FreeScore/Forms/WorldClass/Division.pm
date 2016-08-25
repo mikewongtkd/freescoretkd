@@ -157,16 +157,16 @@ sub place_athletes {
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
 		if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
-			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $self->{ athletes }[ $a ]{ notes } = 'P'; }
-			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $self->{ athletes }[ $b ]{ notes } = 'P'; }
+			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $x->{ notes } = 'P'; }
+			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $y->{ notes } = 'P'; }
 			else {
-				if    ( $x->{ total } > $y->{ total } ) { $self->{ athletes }[ $a ]{ notes } = 'HL'; }
-				elsif ( $x->{ total } < $y->{ total } ) { $self->{ athletes }[ $b ]{ notes } = 'HL'; }
+				if    ( $x->{ total } > $y->{ total } ) { $x->{ notes } = 'HL'; }
+				elsif ( $x->{ total } < $y->{ total } ) { $y->{ notes } = 'HL'; }
 				else {
-					if( exists $x->{ decision }{ withdrawn }    ) { $self->{ athletes }[ $a ]{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualified } ) { $self->{ athletes }[ $a ]{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdrawn }    ) { $self->{ athletes }[ $b ]{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualified } ) { $self->{ athletes }[ $b ]{ notes } = 'DQ'; }
+					if( exists $x->{ decision }{ withdrawn }    ) { $x->{ notes } = 'WD'; }
+					if( exists $x->{ decision }{ disqualified } ) { $x->{ notes } = 'DQ'; }
+					if( exists $y->{ decision }{ withdrawn }    ) { $y->{ notes } = 'WD'; }
+					if( exists $y->{ decision }{ disqualified } ) { $y->{ notes } = 'DQ'; }
 				}
 			}
 		}

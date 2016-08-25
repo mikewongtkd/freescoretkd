@@ -17,6 +17,7 @@ function Score( score ) {
 		list  : function() { return score.forms; }
 	};
 
+	this.notes = function() { return score.notes; };
 	this.total = function() { return score.total; };
 	this.adjusted = {
 		presentation : function() { return score.adjusted.presentation; },
@@ -28,17 +29,16 @@ function Score( score ) {
 	// independence and promote fairness
 	if( score.forms[ 0 ].judge.length == 1 ) {
 		_form = this.form = function( i ) {
-			var form = score.forms[ i ];
+			var form       = score.forms[ i ];
+			var judgeScore = form.judge[ 0 ];
 
 			return {
 				accuracy : function() {
-					var judgeScore = form.judge[ 0 ];
 					var deductions = parseFloat( judgeScore.major ) + parseFloat( judgeScore.minor );
 					var accuracy   = deductions > 4.0 ? 0.0 : 4.0 - deductions;
 					return parseFloat( accuracy.toFixed( 1 ));
 				},
 				presentation : function() {
-					var judgeScore   = form.judge[ 0 ];
 					var presentation = parseFloat( judgeScore.power ) + parseFloat( judgeScore.rhythm ) + parseFloat( judgeScore.ki );
 					return parseFloat( presentation.toFixed( 1 ));
 				},
@@ -62,5 +62,58 @@ function Score( score ) {
 	// ===== FULL DIVISION DATA
 	// All other devices receive full division data
 	} else {
+		_form = this.form = function( i ) {
+			var form = score.forms[ i ];
+			return { 
+				adjusted : function() { return form.adjusted; },
+				decision : {
+					is : {
+						withdrawn    : function() { return form.decision.withdrawn; },
+						disqualified : function() { return form.decision.disqualified; },
+					}
+				},
+				is : {
+					complete : function() { return form.complete; }
+				},
+				judge : function( j ) {
+					var judgeScore = form.judge[ j ];
+					return {
+						score : {
+							accuracy : function() {
+								var deductions = parseFloat( judgeScore.major ) + parseFloat( judgeScore.minor );
+								var accuracy   = deductions > 4.0 ? 0.0 : 4.0 - deductions;
+								return parseFloat( accuracy.toFixed( 1 ));
+							},
+							presentation : function() {
+								var presentation = parseFloat( judgeScore.power ) + parseFloat( judgeScore.rhythm ) + parseFloat( judgeScore.ki );
+								return parseFloat( presentation.toFixed( 1 ));
+							},
+							data : function() { return judgeScore; },
+							is: {
+								complete : function() { return judgeScore.complete; },
+							}
+						}
+					};
+				},
+				penalty : function() {
+					if( ! defined( form.penalty )) { return undefined; }
+					return {
+						data : function() { return form.penalty; },
+						from : function( key ) {
+							if( key in form.penalty ) { return form.penalty[ key ]; }
+							return undefined;
+						},
+						total : function() {
+							var total = 0.0;
+							Object.keys( form.penalty ).forEach( function( category ) { 
+								var value = defined( form.penalty[ category ] ) ? parseFloat( form.penalty[ category ]) : 0.0;
+								total += value;
+							});
+							return total;
+						}
+					};
+				}
+			};
+		};
 	}
 };

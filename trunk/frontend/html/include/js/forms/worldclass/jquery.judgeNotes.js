@@ -58,12 +58,12 @@ $.widget( "freescore.judgeNotes", {
 		for( var i = 0; i < o.order.length; i++ ) {
 			var j            = o.order[ i ];
 			var tr           = h.tr.clone();
-			var athlete      = new Athlete( athletes[ j ] );
+			var athlete      = athletes[ j ];
 
 			var score   = athlete.score( round );
 			var form1   = summarize( score.form( 0 ));
 			var form2   = score.forms.count() > 1 ? summarize( score.form( 1 )) : '';
-			var average = score.is.complete() ? score.average() : '&ndash;';
+			var average = score.is.complete() ? score.average().toFixed( 2 ) : '&ndash;';
 			var isCurrent    = function( form ) { if( j == current ) { if( form == o.form ) { return "current-form"; } else { return "current"; }} else { return ''; }}
 
 			var column = {

@@ -5,7 +5,6 @@ $.widget( "freescore.coordinatorController", {
 		var e       = this.options.elements = {};
 		var widget  = this.element;
 		var html    = e.html  = FreeScore.html;
-		var ordinal = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
 
 		o.ring      = parseInt( $.cookie( "ring" ));
 		o.port      = ':3088/';
@@ -63,6 +62,13 @@ $.widget( "freescore.coordinatorController", {
 
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
+			admin : {
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Administration" ),
+				print      : button.clone() .addClass( 'navigation ui-icon-grid' )      .html( "Print Results"  ),
+				split      : button.clone() .addClass( 'navigation ui-icon-arrow-u-r' ) .html( "Split Flights"  ),
+				merge      : button.clone() .addClass( 'navigation ui-icon-star' )      .html( "Merge Flights"  ),
+			},
 
 			changes : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
@@ -98,11 +104,6 @@ $.widget( "freescore.coordinatorController", {
 				clear      : button.clone() .addClass( 'penalty ui-icon-delete' )  .html( "Clear Penalties" ),
 			},
 
-			report : {
-				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend     : html.legend.clone() .html( "Report" ),
-				print      : button.clone() .addClass( 'navigation ui-icon-grid' )    .html( "Print"           ),
-			},
 		};
 
 		var time = e.time = {
@@ -164,9 +165,9 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
-		actions.report     .panel.append( actions.report.legend, actions.report.print );
+		actions.admin      .panel.append( actions.admin.legend, actions.admin.print, actions.admin.split, actions.admin.merge );
 
-		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.report.panel, actions.changes.panel );
+		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.admin.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -867,8 +868,8 @@ $.widget( "freescore.coordinatorController", {
 				row   : html.tr .clone(),
 				order : html.th .clone() .html( 'Num.' ),
 				name  : html.th .clone() .html( 'Athlete' ),
-				form1 : html.th .clone() .html( forms[ 0 ].name ),
-				form2 : html.th .clone() .html( defined( forms[ 1 ] ) ? forms[ 1 ].name : '' ),
+				form1 : html.th .clone() .html( forms[ 0 ] ),
+				form2 : html.th .clone() .html( defined( forms[ 1 ] ) ? forms[ 1 ] : '' ),
 			};
 
 			header.row.append( header.order, header.name, header.form1 );

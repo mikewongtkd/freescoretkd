@@ -52,7 +52,6 @@ $.widget( "freescore.scoreboard", {
 		var html    = e.html;
 		var widget  = this.element;
 		var current = o.current;
-		var ordinal = [ '1st', '2nd', '3rd', '4th' ];
 		if( ! defined( current )) { return; }
 
 		// ============================================================
@@ -65,11 +64,11 @@ $.widget( "freescore.scoreboard", {
 			// ===== SHOW ROUND FORMS
 			for( var i = 0; i <= current.form; i++ ) {
 				var name  = current.forms[ i ];
-				var score = current.athlete.scores[ current.round ].forms[ i ];
-				var mean  = score.adjusted;
+				var score = current.athlete.score( current.round ).form( i );
+				var mean  = score.adjusted();
 				if( ! defined( mean )) { continue; }
 				var penalties = 0;
-				var penalty = score.penalty;
+				var penalty = score.penalty();
 				if( defined( penalty ) && defined( penalty.timelimit ) && defined( penalty.bounds )) { penalties = parseFloat( penalty.timelimit ) + parseFloat( penalty.bounds ); }
 				var total = (mean.accuracy + mean.presentation - penalties).toFixed( 2 );
 				total = total == 'NaN' ? '' : total;
@@ -112,16 +111,14 @@ $.widget( "freescore.scoreboard", {
 			var presentation  = 0;
 			var score         = 0;
 
-			var form    = current.athlete.scores[ current.round ].forms[ current.form ];
-			var mean    = form.adjusted;
-			var penalty = form.penalty;
+			var form    = current.athlete.score( current.round ).form( current.form );
+			var mean    = form.adjusted();
+			var penalty = form.penalty();
 
-			var penalties = 0;
 			if( defined( penalty )) {
-				Object.keys( penalty ).forEach( function( category ) { penalties += parseFloat( penalty[ category ] ); });
-				e.penalty.bounds    .find( 'span' ).text( '-' + penalty.bounds );
-				if( penalty.timelimit > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
-				if( penalty.bounds    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
+				e.penalty.bounds    .find( 'span' ).text( '-' + penalty.from( 'bounds' ) );
+				if( penalty.from( 'timelimit' ) > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
+				if( penalty.from( 'bounds' )    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
 			} else {
 				e.penalty.timelimit .hide();
 				e.penalty.bounds    .hide();
@@ -130,7 +127,8 @@ $.widget( "freescore.scoreboard", {
 			if( defined( mean )) { 
 				accuracy      = mean.accuracy;
 				presentation  = mean.presentation;
-				score         = mean.accuracy + mean.presentation - penalties;
+				score         = mean.accuracy + mean.presentation - penalty.total();
+				console.log( penalty.total() );
 
 				accuracy      = accuracy     >= 0 ? accuracy     .toFixed( 2 ) : '';
 				presentation  = presentation >= 0 ? presentation .toFixed( 2 ) : '';
@@ -152,53 +150,40 @@ $.widget( "freescore.scoreboard", {
 			show_form_score( e.forms );
 		};
 
-		var round_names = { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Final', 'finals' : 'Final' };
-		var round_description = e.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 });;
+		// ===== ROUND DESCRIPTION TICKER
+		var round = { ticker : e.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 } ), name : current.roundName };
+		var form  = { ordinal : ordinal( current.form + 1 ) + ' Form', name : current.forms[ current.form ] };
 
-		round_description.append( e.html.li.clone() .html( current.description ));
-		round_description.append( e.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round_names[ current.round ] + ' Round</b>'));
-		if( current.forms.length > 1 ) { round_description.append( e.html.li.clone() .html( ordinal[ current.form ] + ' Form <b>' + current.forms[ current.form ] + '</b>' )); } 
-		else                           { round_description.append( e.html.li.clone() .html( '<b>' + current.forms[ current.form ] + '</b>' )); }
+		round.ticker.append( e.html.li.clone() .html( current.description ));
+		round.ticker.append( e.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round.name + '</b>'));
+		if( current.forms.length > 1 ) { round.ticker.append( e.html.li.clone() .html( form.ordinal + '<b> ' + form.name + '</b>' )); } 
+		else                           { round.ticker.append( e.html.li.clone() .html( '<b>' + form.name + '</b>' )); }
 
 		if( ! defined( current.athlete        )) { return; }
-		if( ! defined( current.athlete.scores )) { return; }
-		var judge_scores = current.athlete.scores[ current.round ].forms[ current.form ].judge;
+		var form = current.athlete.score( current.round ).form( current.form );
 
-		// ===== UPDATE THE JUDGES SCORES
-		// Check for completeness
-		var complete = true;
+		// ===== UPDATE THE JUDGE SCORES
 		for( var i = 0; i < k; i++ ) {
-			if( ! defined( judge_scores[ i ] )) { complete = false; break; }
-			complete = complete && judge_scores[ i ].complete;
-		}
-
-		// Update the judge scores
-		for( var i = 0; i < k; i++ ) {
-			e.judges[ i ].judgeScore( { score : judge_scores[ i ], judges : k, complete : complete } );
+			var judge = form.judge( i );
+			e.judges[ i ].judgeScore( { score : judge.score.data(), judges : k, complete : form.is.complete() } );
 		}
 
 		if( o.odd ) { e.athlete .removeClass( "chung" ); e.athlete .addClass( "hong" );  } 
 		else        { e.athlete .removeClass( "hong" );  e.athlete .addClass( "chung" ); }
-			
+
 		// ===== CHANGE OF PLAYER
 		if( ! defined( o.previous ) || (
-			current.athlete.name != o.previous.athlete.name ||
-			current.round != o.previous.round ||
-			current.form != o.previous.form
+			current.athlete.name() != o.previous.athlete.name ||
+			current.round          != o.previous.round ||
+			current.form           != o.previous.form
 		)) {
-			var currentFlag = defined( current.athlete.info.flag ) ? '<img src="/freescore/images/flags/' + current.athlete.info.flag + '.png" width="80px" />' : '';
-			var currentName = current.athlete.name;
-			if( currentName.length > 12 ) { // Name too long? Use first initial and last name
-				var firstlast = currentName.split( /\s+/ ); var first = firstlast.shift(); var last = firstlast.join( ' ' );
-				currentName = first.substr( 0, 1 ) + ' ' + last;
-				if( currentName.length > 12 ) { currentName = last; } // Still too long? Use last name
-			}
-			currentName = html.span.clone() .append( currentName );
-			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( currentName )         .fadeIn(); });
-			e.lflag   .empty() .fadeOut( 500, function() { e.lflag   .html( currentFlag )         .fadeIn(); });
-			e.rflag   .empty() .fadeOut( 500, function() { e.rflag   .html( currentFlag )         .fadeIn(); });
-			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round_description ) .fadeIn(); });
-			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )             .fadeIn(); });
+			var flag = defined( current.athlete.info( 'flag' ) ) ? '<img src="/freescore/images/flags/' + current.athlete.info( 'flag' ) + '.png" width="80px" />' : '';
+			var name = html.span.clone() .append( current.athlete.display.name() );
+			e.athlete .empty() .fadeOut( 500, function() { e.athlete .html( name )           .fadeIn(); });
+			e.lflag   .empty() .fadeOut( 500, function() { e.lflag   .html( flag )           .fadeIn(); });
+			e.rflag   .empty() .fadeOut( 500, function() { e.rflag   .html( flag )           .fadeIn(); });
+			e.round   .empty() .fadeOut( 500, function() { e.round   .append( round.ticker ) .fadeIn(); });
+			e.forms   .empty() .fadeOut( 500, function() { show_form_score( e.forms )        .fadeIn(); });
 
 			e.athlete .fitText( 0.55 ); // Scale athlete name for best visibility and size
 		}

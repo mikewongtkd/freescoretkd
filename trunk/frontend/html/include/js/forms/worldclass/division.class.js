@@ -10,7 +10,7 @@ function Division( division ) {
 
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };
-	this.athletes    = function() { return division.athletes; };
+	this.athletes    = function() { return division.athletes.map( function( athlete ) { return new Athlete( athlete ); }); };
 
 	this.as = {
 		json : function() { return JSON.stringify( division ); },
@@ -19,16 +19,16 @@ function Division( division ) {
 	var _current = this.current = {
 		athlete : function() {
 			var i = parseInt( division.current );
-			return division.athletes[ i ];
+			return new Athlete( division.athletes[ i ] );
 		},
-		athletes : function() {
+		athletes : function( round ) {
 			var athletes = [];
-			var round    = division.round;
+			round = defined( round ) ? round : division.round;
 			if( ! defined( division.order[ round ] )) { return athletes; }
 
 			for( var i = 0; i < division.order[ round ].length; i++ ) {
 				var j = division.order[ round ][ i ];
-				athletes.push( division.athletes[ j ] );
+				athletes.push( new Athlete( division.athletes[ j ] ));
 			}
 
 			return athletes;
@@ -36,12 +36,11 @@ function Division( division ) {
 		athleteId : function() { return division.current; },
 		form : {
 			description : function() {
-				var ordinal     = [ '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th' ];
 				var round       = division.round;
 				var form        = division.form;
 				var forms       = division.forms[ round ];
 				var name        = division.forms[ round ][ form ];
-				var description = forms.length > 1 ? ordinal[ form ] + ' form ' + name : name;
+				var description = forms.length > 1 ? ordinal( form + 1 ) + ' form ' + name : name;
 				return description;
 			},
 			is : {
@@ -53,10 +52,15 @@ function Division( division ) {
 			},
 		},
 		formId    : function() { return division.form; },
-		order : function() {
+		order : function( i ) {
 			var round = division.round;
 			var order = division.order;
-			return order[ round ];
+			if( defined( i )) { return order[ round ][ i ]; }
+			else              { return order[ round ]; }
+		},
+		round : {
+			display : { name : function() { return FreeScore.round.name[ division.round ]; }},
+			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
 		},
 		roundId   : function() { return division.round; },
 	};
@@ -78,10 +82,15 @@ function Division( division ) {
 		}
 	};
 
-	this.pending = {
-		count : function() { return division.pending[ division.round ].length; },
-		list  : function() { return division.pending[ division.round ]; }
+	this.pending = function( round ) { 
+		round = defined( round ) ? round : division.round;
+		return division.pending[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	};
+
+	this.placement = function( round ) {
+		round = defined( round ) ? round : division.round;
+		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
+	}
 
 	// ============================================================
 	var _round = this.round = {
@@ -94,7 +103,7 @@ function Division( division ) {
 				var round    = division.round;
 				var complete = true;
 				for( var i = 0; i < athletes.length; i++ ) {
-					var athlete = new Athlete( athletes[ i ] );
+					var athlete = athletes[ i ];
 					var score   = athlete.score( round );
 					complete &= score.is.complete();
 				}

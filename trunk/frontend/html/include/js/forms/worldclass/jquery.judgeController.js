@@ -137,11 +137,11 @@ $.widget( "freescore.judgeController", {
 		var html        = e.html;
 
 		function refresh( update ) {
-			var progress = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
-			var digest   = progress.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
-			var div_data = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
-			if( ! defined( div_data )) { return; }
-			var division = new Division( div_data );
+			var progress     = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
+			var digest       = progress.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
+			var divisionData = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
+			if( ! defined( divisionData )) { return; }
+			var division     = new Division( divisionData );
 
 			if( ! defined( division.form.list())) { return; }
 
@@ -201,7 +201,7 @@ $.widget( "freescore.judgeController", {
 			}
 			
 			if( different.division || different.round || different.athlete || different.form ) {
-				var athlete    = new Athlete( division.current.athlete() );
+				var athlete    = division.current.athlete();
 				var info       = { 
 				                     division : html.span.clone() .addClass( "details" ) .html( division.summary() ),
 				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
@@ -224,7 +224,7 @@ $.widget( "freescore.judgeController", {
 			// ===== UPDATE WIDGETS
 			e.notes .judgeNotes({ forms : division.form.list(), form : division.current.form.name(), athletes : division.athletes(), judges : division.judges(), current : division.current.athleteId(), round : division.current.roundId(), order : division.current.order() });
 
-			e.matPosition. matposition({ judges : division.judges(), judge : o.num, remaining : division.pending.count() });
+			e.matPosition. matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
 
 			o.current.digest   = digest;
 			o.current.division = progress.current;
