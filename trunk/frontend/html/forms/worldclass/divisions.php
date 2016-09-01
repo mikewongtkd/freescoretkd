@@ -28,6 +28,7 @@
 			$( function() {
 				$('#elfinder').elfinder({
 					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
+					getFileCallback: function( files, fm ) { window.open( files.url ); },
 					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ]
 				});
 			});

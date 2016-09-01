@@ -19,6 +19,9 @@
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.popupdialog.js"></script>
+		<script src="../../include/js/forms/worldclass/score.class.js"></script>
+		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.descriptor.js"></script>
 		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.forms.js"></script>
 		<script src="../../include/js/forms/worldclass/divisions/editor/header/jquery.judges.js"></script>

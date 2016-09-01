@@ -3,7 +3,7 @@ use FreeScore;
 use FreeScore::Forms;
 use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
-use List::Util qw( min max );
+use List::Util qw( first min max );
 
 # ============================================================
 sub init {
@@ -79,6 +79,15 @@ EOF
 	$division->{ ring } = $ring;
 
 	push @{ $self->{ divisions }}, $division;
+	return $division;
+}
+
+# ============================================================
+sub find_division {
+# ============================================================
+	my $self     = shift;
+	my $id       = shift;
+	my $division = first { $_->{ id } eq $id; } @{ $self->{ divisions }};
 	return $division;
 }
 

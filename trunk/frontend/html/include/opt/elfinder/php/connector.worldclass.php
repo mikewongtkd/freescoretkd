@@ -1,6 +1,9 @@
 <?php
 
-error_reporting(0); // Set E_ALL for debuging
+include "../../../php/config.php";
+date_default_timezone_set( 'America/Los_Angeles' );
+$tournament = json_decode( $tournament, true );
+error_reporting( 0 ); // Set E_ALL for debuging
 
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elFinderConnector.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elFinder.class.php';
@@ -49,7 +52,7 @@ $opts = array(
 		array(
 			'driver'        => 'LocalFileSystem',           // driver for accessing file system (REQUIRED)
 			'path'          => '/Volumes/ramdisk/test/forms-worldclass', // path to files (REQUIRED)
-			'URL'           => dirname($_SERVER['PHP_SELF']) . '../../../../../forms/worldclass/division/editor.php?file=', // URL to files (REQUIRED)
+			'URL'           => dirname($_SERVER['PHP_SELF']) . '/../../../../forms/worldclass/division/editor.php?file=' . $tournament[ 'db' ] . '/forms-worldclass', // URL to files (REQUIRED)
 			'uploadDeny'    => array('all'),                // All Mimetypes not allowed to upload
 			'uploadAllow'   => array('text/plain'),// Mimetype `image` and `text/plain` allowed to upload
 			'uploadOrder'   => array('deny', 'allow'),      // allowed Mimetype `text/plain` only

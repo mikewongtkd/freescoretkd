@@ -9,8 +9,10 @@ use FreeScore::Forms::WorldClass;
 use JSON::XS;
 use List::MoreUtils (qw( firstidx ));
 use Data::Dumper;
+use Data::Structure::Util qw( unbless );
 
-our $json      = new JSON::XS();
+our $json   = new JSON::XS();
+our $client = {};
 
 # ============================================================
 # JUDGE INTERFACE
@@ -265,6 +267,34 @@ get '/:tournament/:ring/coordinator/penalty/:bounds/:timelimit/:restart/:miscond
 	} catch {
 		send_response( $self, { error => $_ });
 	}
+};
+
+# ------------------------------------------------------------
+# EDIT THE DIVISION VIA WEBSOCKETS
+# ------------------------------------------------------------
+websocket '/division/edit' => sub {
+	my $self = shift;
+
+	$self->on( message => sub {
+		my $self         = shift;
+		my $request      = shift;
+		my $id           = sprintf "%s", $self->tx();
+		$client->{ $id } = $self->tx();
+		$request         = $json->decode( $request );
+		local $_         = $request->{ type } || '';
+		if      ( /^division$/ ) {
+			try {
+				my ($tournament, $worldclass, $ring, $file) = split /\//, $request->{ file }; $ring =~ s/ring//;
+				my ($div_id) = $file =~ /^div\.(\w+)\.txt$/;
+				my $progress = new FreeScore::Forms::WorldClass( $tournament, $ring );
+				my $division = unbless $progress->find( $div_id );
+				$client->{ $id }->send( { json => { type => $request->{ type }, division => $division }});
+
+			} catch {
+				$client->{ $id }->send( { json => { error => "Cannot read division at '$client->{ file }': $_" }});
+			}
+		} 
+	});
 };
 
 # ------------------------------------------------------------
