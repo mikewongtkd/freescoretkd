@@ -533,7 +533,7 @@ sub autopilot {
 		athlete => ($division->{ current } == $order->[ -1 ]),
 		form    => ($division->{ form }    == int( @$forms ) - 1),
 		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
-		each3   => (!(($j+1) % 3)),
+		each2   => (!($j % 2)),
 	};
 
 	# ===== AUTOPILOT ACTIONS
@@ -542,7 +542,7 @@ sub autopilot {
 	$action->{ show }{ leaderboard } = sub {
 	# ----------------------------------------
 		return unless $division->autopilot(); # Cancel request if autopilot is disengaged
-		if( $last->{ form } && ( $last->{ each3 } || $last->{ athlete } )) { 
+		if( $last->{ form } && ( $last->{ each2 } || $last->{ athlete } )) { 
 			$division->display() unless $division->is_display(); 
 			$division->write(); 
 			Mojo::IOLoop->timer( $delay->{ next } => $action->{ go }{ next } );

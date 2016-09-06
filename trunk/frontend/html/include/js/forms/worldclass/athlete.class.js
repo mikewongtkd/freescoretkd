@@ -17,7 +17,7 @@ function Athlete( athlete ) {
 			var last    = names.join( ' ' );
 			var initial = first.substr( 0, 1 );
 			var abbrev  = initial + ' ' + last;
-			if( abbrev <= 12 ) { return abbrev; }
+			if( abbrev.length <= 12 ) { return abbrev; }
 			return last;
 		}
 	};

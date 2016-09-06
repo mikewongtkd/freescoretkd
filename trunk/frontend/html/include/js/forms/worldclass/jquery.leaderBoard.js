@@ -14,12 +14,11 @@ $.widget( "freescore.leaderboard", {
 		this.element .append( division );
 	},
 	_init: function( ) {
-		var e         = this.options.elements;
-		var o         = this.options;
-		var html      = e.html;
-		var widget    = this.element;
-		var pending   = { list: html.ol.clone(), athletes: [] };
-		var placement = { athletes: [] };
+		var e      = this.options.elements;
+		var o      = this.options;
+		var html   = e.html;
+		var widget = this.element;
+		var list   = html.ol.clone();
 
 		if( ! defined( o.division )) { return; }
 		var pending   = o.division.pending();
@@ -44,7 +43,7 @@ $.widget( "freescore.leaderboard", {
 		// ===== UPDATE THE 'CURRENT PLACEMENT' PANEL
 		var form_mean_score = function( form, label ) {
 			var div = html.div.clone() .addClass( label );
-			if( ! form.is.complete() ) { return ''; }
+			if( ! defined( form ) || ! form.is.complete() ) { return ''; }
 			div.html( form.adjusted().total.toFixed( 2 ));
 
 			return div;
@@ -74,7 +73,7 @@ $.widget( "freescore.leaderboard", {
 				var score      = athlete.score( round );
 				var notes      = defined( score.notes() ) ? score.notes() : '';
 				var name       = e.placement.hasClass( 'one-column' ) ? athlete.name() : athlete.display.name();
-				var namespan = html.span.clone() .html( athlete.name() );
+				var namespan = html.span.clone() .html( name );
 
 				var entry = {
 					panel : html.div.clone() .addClass( "athlete" ),
@@ -132,12 +131,12 @@ $.widget( "freescore.leaderboard", {
 		// ===== UPDATE THE 'NEXT UP' PANEL
 		e.pending.empty();
 		e.pending.append( "<h2>Next Up</h2>" );
-		e.pending.append( pending.list );
+		e.pending.append( list );
 		for( var i = 0; i < pending.length; i++ ) {
 			var athlete = pending[ i ];
 			var item    = html.li.clone();
 			item.append( "<b>" + athlete.name() + "</b>" );
-			pending.list.append( item );
+			list.append( item );
 		}
 		widget.fadeIn( 500 );
 	},

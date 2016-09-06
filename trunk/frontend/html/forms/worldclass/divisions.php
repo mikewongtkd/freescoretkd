@@ -28,8 +28,16 @@
 			$( function() {
 				$('#elfinder').elfinder({
 					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
-					getFileCallback: function( files, fm ) { window.open( files.url ); },
-					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ]
+					getFileCallback: function( files, fm ) { 
+						console.log( files );
+						// window.open( files.url ); 
+					},
+					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
+					contextmenu: {
+						files : [
+							'getfile', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'edit', 'rename'
+						]
+					}
 				});
 			});
 		</script>
@@ -38,7 +46,10 @@
 		<div class="container">
 			<h1>Edit Rings and Divisions</h1>
 
-			<p>You can drag-and-drop ring folders with divisions in them into the <b>forms-worldclass</b> directory. You can also drag-and-drop from FreeScore TKD to your computer. Use the buttons to edit the rings and divisions.</p>
+			<p>You can drag-and-drop ring folders with divisions in them into
+			the <b>forms-worldclass</b> directory. You can also drag-and-drop
+			from FreeScore TKD to your computer. Right-click on a file to edit
+			or duplicate the division.</p>
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">

@@ -128,7 +128,6 @@ $.widget( "freescore.scoreboard", {
 				accuracy      = mean.accuracy;
 				presentation  = mean.presentation;
 				score         = mean.accuracy + mean.presentation - penalty.total();
-				console.log( penalty.total() );
 
 				accuracy      = accuracy     >= 0 ? accuracy     .toFixed( 2 ) : '';
 				presentation  = presentation >= 0 ? presentation .toFixed( 2 ) : '';

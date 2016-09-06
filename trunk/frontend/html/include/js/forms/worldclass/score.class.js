@@ -64,6 +64,7 @@ function Score( score ) {
 	} else {
 		_form = this.form = function( i ) {
 			var form = score.forms[ i ];
+			if( ! defined( form )) { return undefined; }
 			return { 
 				adjusted : function() { return form.adjusted; },
 				decision : {
