@@ -1,9 +1,9 @@
 <?php
-	$version = 3.4;
+	include "./include/php/config.php";
 ?>
 <html>
 	<head>
-		<title>FreeScore TKD Wifi v<?=$version?></title>
+		<title>FreeScore TKD Wifi v<?=$freescore[ 'version' ] ?></title>
 		<link href="./include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
 		<script src="./include/jquery/js/jquery.js"></script>
 		<script src="./include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
@@ -26,7 +26,7 @@
 	<body>
 		<div data-role="page">
 			<div data-role="header" data-position-fixed="true" data-theme="b">
-				<div><span class="title">FreeScore TKD Wifi</span> <span class="version">v<?=$version?></span></div>
+				<div><span class="title">FreeScore TKD Wifi</span> <span class="version">v<?=$freescore[ 'version' ]?></span></div>
 				<span class="description"><a href="http://mikewongtkd.github.io/freescoretkd">Open Source Taekwondo Poomsae Scoring Software</a> available under the GPL v2.</span>
 			</div>
 			<div data-role="main">
@@ -48,7 +48,7 @@
 					</ul>
 			</div>
 			<div data-role="footer" data-position-fixed="true" data-theme="b">
-				&copy; 2015-2016 Mike Wong All Rights Reserved. 
+				&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved. 
 			</div>
 		</div>
 	</body>

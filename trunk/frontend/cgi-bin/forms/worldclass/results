@@ -77,14 +77,12 @@ print <<EOF;
 			}
 			.results th.number  { width: 32px; }
 			.results th.athlete { width: 200px; }
-			.results th.form    { width: 100px; }
+			.results th.form    { width: 100px; text-align: center; }
 
-			.results td { 
-				padding: 2px 4px 2px 4px;
-			}
-			.results td .notes {
-				font-size: 9pt;
-			}
+			.results td         { padding: 2px 4px 2px 4px; }
+			.results td.score   { text-align: center; }
+			.results td .preacc { font-size: 8pt; }
+			.results td .notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 
@@ -97,27 +95,29 @@ EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
-	@rounds = @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	@rounds = reverse @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
 		my $forms  = $division->{ forms }{ $round };
 		my $placed = {};
-		my $i = 0;
-		foreach my $place ( 1 .. 3 ) {
-			my $i = $division->{ placement }{ $round }[ ($place - 1) ];
-			$placed->{ $i } = ordinal( $place );
+		my $i      = 0;
+		my $places = $division->{ placement }{ $round };
+		foreach my $j ( 0 .. $#$places ) {
+			my $i = $places->[ $j ];
+			$placed->{ $i } = ordinal( $j + 1 );
 		}
 
 		print <<EOF;
 		<div class="results">
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } ($rname)</div><div class="ring">Ring $division->{ ring }</div></div>
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="ring"><b>$rname</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">#</th>
 				<th class="athlete">Name</th>
 EOF
-		foreach my $i ( 0 .. $#$forms ) { print "<th class=\"form\">$forms->[ $i ]</th>"; }
+		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
+		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 		print <<EOF;
 				<th>Total</th>
 				<th>Place</th>
@@ -128,18 +128,22 @@ EOF
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $sum     = 0.0;
 			print "<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ name }</td>";
-			my $forms = $athlete->{ scores }{ $round }{ forms };
-			my $sum   = 0.0;
-			foreach my $j ( 0 .. $#$forms ) {
-				my $form = $forms->[ $j ];
-				my $mean = $form->{ adjusted };
-				printf( "<td>%.1f+%.1f=%.1f</td>", $mean->{ accuracy }, $mean->{ presentation }, $mean->{ total } );
+			foreach my $j ( 0 .. 1 ) {
+				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
+				my $mean  = $score->{ adjusted };
+				if( defined $mean ) {
+					if( $score->{ complete } ) { printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation } ); }
+					else { print( "<td>&ndash;</td>" ); }
+				} else {
+					print( "<td>&nbsp;</td>" );
+				}
 				$sum += $mean->{ total };
 			}
 			printf( "<td>%.2f<span class=\"notes\">$notes</span></td>", $sum, $notes );
-			if( exists $placed->{ $i } ) { print "<td>$placed->{ $i }</td>"; }
-			else { print "<td>-</td>"; }
+			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
+			else { print "<td>&ndash;</td>"; }
 			print "</tr>\n";
 		}
 		print <<EOF;

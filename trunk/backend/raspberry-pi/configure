@@ -19,6 +19,7 @@ sudo cpanm \
 	CGI::Carp \
 	Data::Structure::Util \
 	Date::Calc \
+	Digest::SHA1 \
 	Filesys::Notify::Simple \
 	GD \
 	GD::Barcode \

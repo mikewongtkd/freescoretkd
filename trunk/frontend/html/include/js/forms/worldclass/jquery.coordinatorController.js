@@ -484,6 +484,14 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var printResults = function( division ) {
+		// ============================================================
+			return function() {
+				window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + division.ring + '&divid=' + division.name );
+			}
+		}
+
+		// ============================================================
 		var removeAthlete = function( division, round ) {
 		// ============================================================
 			return function() {
@@ -1075,11 +1083,17 @@ $.widget( "freescore.coordinatorController", {
 			e.updateRounds( progress.divisions[ i ], i );
 			e.updateAthletes( progress.divisions[ i ], i );
 
+			// ===== UPDATE BEHAVIOR
+			e .actions .admin .print .click( printResults( progress.divisions[ i ] ));
+
 			e.dialog.popup( 'close' );
 		};
+
 		actions .navigate   .division   .click( goToDivision );
+
 		actions .changes    .save       .click( saveChanges );
 		actions .changes    .revert     .click( revertChanges );
+
 		actions .penalties  .timelimit  .click( awardPenaltyTimeLimit );
 		actions .penalties  .bounds     .click( awardPenaltyBounds );
 		actions .penalties  .restart    .click( awardPenaltyRestart );

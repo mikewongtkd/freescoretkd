@@ -1,3 +1,7 @@
+<?php
+	if( is_file( "./include/php/config.php"           )) { include "./include/php/config.php"; }
+	if( is_file( "./freescore/include/php/config.php" )) { include "./freescore/include/php/config.php"; }
+?>
 <html>
 	<head>
 		<meta http-equiv="refresh" content="3;url=http://freescore.net/freescore/index.php">
@@ -16,7 +20,7 @@
 			<div class="callout">
 				<div class="title">FreeScore</div>
 				<div class="description">Open Source Taekwondo Poomsae Scoring Software</div>
-				<div class="author">by Mike Wong &copy;2015 All Rights Reserved</div>
+				<div class="author">by Mike Wong &copy;<?= $freescore[ 'copyright' ] ?> All Rights Reserved</div>
 			</div>
 		</div>
 	</body>
