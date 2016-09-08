@@ -65,6 +65,7 @@ $.widget( "freescore.coordinatorController", {
 			admin : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Administration" ),
+				display    : button.clone() .addClass( 'navigation ui-icon-eye' )       .html( "Show Display"   ),
 				print      : button.clone() .addClass( 'navigation ui-icon-grid' )      .html( "Print Results"  ),
 				split      : button.clone() .addClass( 'navigation ui-icon-arrow-u-r' ) .html( "Split Flights"  ),
 				merge      : button.clone() .addClass( 'navigation ui-icon-star' )      .html( "Merge Flights"  ),
@@ -165,7 +166,7 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
-		actions.admin      .panel.append( actions.admin.legend, actions.admin.print, actions.admin.split, actions.admin.merge );
+		actions.admin      .panel.append( actions.admin.legend, actions.admin.display, actions.admin.print, actions.admin.split, actions.admin.merge );
 
 		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.admin.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
@@ -487,7 +488,9 @@ $.widget( "freescore.coordinatorController", {
 		var printResults = function( division ) {
 		// ============================================================
 			return function() {
-				window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + division.ring + '&divid=' + division.name );
+				var url     = '/cgi-bin/freescore/forms/worldclass/results?ring=' + division.ring + '&divid=' + division.name ;
+				var results = window.open( url, '_blank', 'toolbar=no,status=no,scrollbars=yes,resizable=yes' );
+				results.print();
 			}
 		}
 
@@ -663,6 +666,19 @@ $.widget( "freescore.coordinatorController", {
 					error:       function( response ) { sound.error.play(); console.log( "Network Error: Unknown network error." ); },
 				});
 			}
+		};
+
+		// ============================================================
+		var showDisplay = function() {
+		// ============================================================
+			var url     = 'index.php';
+			var display = window.open( url, '_blank', 'toolbar=no,status=no,scrollbars=yes,resizable=yes' );
+			e.display = display;
+			e.actions.admin.display.button();
+			e.actions.admin.display.button( 'disable' );
+			display.onbeforeunload = function() {
+				e.actions.admin.display.button( 'enable' );
+			};
 		};
 
 		// ============================================================
@@ -1088,6 +1104,8 @@ $.widget( "freescore.coordinatorController", {
 
 			e.dialog.popup( 'close' );
 		};
+
+		actions .admin      .display    .click( showDisplay );
 
 		actions .navigate   .division   .click( goToDivision );
 

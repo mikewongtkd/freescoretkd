@@ -29,6 +29,7 @@
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
  		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+ 		<script src="../../include/jquery/js/screenfull.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.errormessage.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
@@ -43,6 +44,9 @@
 		<div id="worldclass"></div>
 		<script type="text/javascript">
 			$( '#worldclass' ).worldclass({ tournament : <?= $tournament ?> });
+			$( 'body' ).click( function() {
+				if( screenfull.enabled ) { screenfull.toggle(); }
+			});
 		</script>
 	</body>
 </html>

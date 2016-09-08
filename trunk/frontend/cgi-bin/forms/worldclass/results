@@ -70,8 +70,8 @@ print <<EOF;
 			}
 			.results th {
 				margin-top: 8px;
-				border-top: 1pt solid #ccc;
-				border-bottom: 1pt solid #ccc;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
@@ -85,6 +85,8 @@ print <<EOF;
 			.results td .notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
+			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
+			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
 		</style>
 	</head>
