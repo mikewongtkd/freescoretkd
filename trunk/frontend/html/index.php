@@ -9,18 +9,33 @@
 		<script src="./include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
-			div[data-role="header"]              { text-align: center; }
-			div[data-role="header"] .title       { font-size: 24px; color: gold; }
-			div[data-role="header"] .version     { font-size: 10px; color: silver; }
-			div[data-role="header"] .description { color: silver; }
-			div[data-role="header"] a            { text-decoration: none; }
-			div[data-role="footer"]              { text-align: center; color: silver; }
+			@font-face {
+			  font-family: Nimbus;
+			  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+			@font-face {
+			  font-family: Biolinum;
+			  font-weight: bold;
+			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+			div[data-role="header"]                   { font-family: Optima, helvetica, sans-serif; text-align: center; }
+			div[data-role="header"]      .title       { font-size: 24px; color: gold; }
+			div[data-role="header"]      .version     { font-size: 10px; color: silver; }
+			div[data-role="header"]      .description { color: silver; }
+			div[data-role="header"]      a            { text-decoration: none; }
+			div[data-role="footer"]                   { font-family: Optima, Biolinum, sans-serif; text-align: center; color: silver; }
+			li[data-role="list-divider"]              { font-size: 14pt !important; padding-left: 10px !important; }
+			li[data-role="list-divider"] .description { color: #888; font-weight: lighter; }
 		</style>
-		<script type="text/javascript">
-			function register()   { document.location="./setup/register.php"; }
-			function managewc()   { document.location="./forms/worldclass/divisions.php"; }
-			function managegr()   { document.location="./forms/grassroots/divisions.php"; }
-			function tournament() { document.location="./setup/tournament.php"; }
+		<script>
+			var go = {
+				grassroots : {
+					registration: function() { window.location="./forms/grassroots/register.php"; },
+					divisions:    function() { window.location="./forms/grassroots/divisions.php"; }
+				},
+				worldclass : {
+					registration: function() { window.location="./forms/worldclass/register.php"; },
+					divisions:    function() { window.location="./forms/worldclass/divisions.php"; }
+				},
+			};
 		</script>
 	</head>
 	<body>
@@ -31,18 +46,22 @@
 			</div>
 			<div data-role="main">
 					<ul data-role="listview">
-						<li data-role="list-divider">Devices</li>
-						<li><a href="javascript:register()">
-							<h2>Register a Ring Device</h2>
-							<p>Assign and ring and role for a ring laptop or judge/coordinator tablet</p>
+						<li data-role="list-divider">Sport Poomsae<span class="description">: score poomsae following the WTF Sport Poomsae rules</span></li>
+						<li><a href="javascript:go.worldclass.registration()">
+							<h2>Register a Tablet or Computer for Sport Poomsae</h2>
+							<p>Assign and ring and role for a ring laptop or judge tablet</p>
 						</a></li>
-						<li data-role="list-divider">Divisions</li>
-						<li><a href="javascript:managewc()">
+						<li><a href="javascript:go.worldclass.divisions()">
 							<h2>Manage Sport Poomsae Divisions</h2>
 							<p>Add, remove, or edit divisions; also add or remove rings</p>
 						</a></li>
-						<li><a href="javascript:managegr()">
-							<h2>Manage Flipcard Poomsae Divisions</h2>
+						<li data-role="list-divider">Classic Poomsae<span class="description">: score poomsae using an electronic version of the classic flip cards</span></li>
+						<li><a href="javascript:go.grassroots.registration()">
+							<h2>Register a Tablet or Computer for Classic Poomsae</h2>
+							<p>Assign and ring and role for a ring laptop or judge tablet</p>
+						</a></li>
+						<li><a href="javascript:go.grassroots.divisions()">
+							<h2>Manage Classic Poomsae Divisions</h2>
 							<p>Add, remove, or edit divisions; also add or remove rings</p>
 						</a></li>
 					</ul>
