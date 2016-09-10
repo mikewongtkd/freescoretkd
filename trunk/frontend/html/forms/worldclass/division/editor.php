@@ -1,3 +1,6 @@
+<?php
+	include "../../../include/php/config.php"
+?>
 <html>
 	<head>
 		<title>Division Editor</title>
@@ -71,9 +74,13 @@
 
 				// ===== SERVICE COMMUNICATION
 				if( ! "WebSocket" in window ) { alert( "Browser does not support communication with the server via websockets." ); return; }
-				var ws = new WebSocket( "ws://localhost:3088/division/edit" );
+				var ws = new WebSocket( "ws://<?= $host ?>:3088/websocket" );
 				ws.onopen    = function() {
-					var request = { type : 'division', file : '<?= $_GET[ 'file' ] ?>' };
+					var file    = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// );
+					var tournament = file.shift();
+					var ring       = file.shift();
+					var divId      = file.shift();
+					var request = { type : 'division', action : 'read', tournament : tournament, ring : ring, divid : divId };
 					var json    = JSON.stringify( request );
 					ws.send( json );
 				};

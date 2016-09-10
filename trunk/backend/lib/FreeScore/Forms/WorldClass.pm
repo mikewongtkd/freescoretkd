@@ -99,7 +99,7 @@ sub get_only {
 	my $i        = $self->{ current };
 	my $division = $self->{ divisions }[ $i ];
 	$self->{ divisions } = [ $division ];
-	$division->get_only( $judge );
+	return $division->get_only( $judge );
 }
 
 # ============================================================

@@ -61,7 +61,7 @@ $.widget( "freescore.judgeController", {
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
-			e.send .ajaxbutton({ command : o.sendScore( o.num, o ), callback : o.autopilot }); // Update "send" button callback
+			e.send .ajaxbutton({ command : o.sendScore( o.num, o )}); // Update "send" button callback
 		} );
 
 		score.append( accuracy, presentation, athlete );
@@ -136,10 +136,19 @@ $.widget( "freescore.judgeController", {
 		var o           = this.options;
 		var html        = e.html;
 
-		function refresh( update ) {
-			var progress     = JSON.parse( update.data ); if( ! defined( progress.divisions )) { return; }
-			var digest       = progress.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
-			var divisionData = progress.divisions[ 0 ]; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
+		var ws          = new WebSocket( 'ws://' + o.server + ':3088/worldclass' ); 
+
+		ws.onopen = function() {
+			var request  = { data : { type : 'division', action : 'read', tournament : o.tournament.db, ring : o.ring, judge : o.num }};
+			request.json = JSON.stringify( request.data );
+			console.log( request.json );
+			ws.send( request.json );
+		};
+
+		ws.onmessage = function( response ) {
+			var update       = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
+			var digest       = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
+			var divisionData = update.division; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
 			if( ! defined( divisionData )) { return; }
 			var division     = new Division( divisionData );
 
@@ -182,15 +191,6 @@ $.widget( "freescore.judgeController", {
 				e.nav.round.prev.ajaxbutton( "enable" );
 				e.nav.round.next.ajaxbutton( "disable" );
 			}
-			/*
-			// ===== INITIATE AUTOPILOT BEHAVIOR FROM THE CLIENT-SIDE
-			o.autopilot = function( response ) {
-				if( ! defined( response.complete ) || ! response.complete  ) { return; } // Only engage autopilot when all scores for this athlete/form are recorded
-				var url = 'http://' + o.server + ':3088/' + o.tournament.db + '/' + o.ring + + '/' + o.num + '/autopilot';
-				var doNothing = function() {};
-				$.ajax( { type: 'GET', crossDomain: true, url: url, data: {}, success: doNothing, error: doNothing, });
-			};
-			*/
 
 			// ===== RESET DEFAULTS FOR A NEW ATHLETE
 			var different = { 
@@ -227,13 +227,11 @@ $.widget( "freescore.judgeController", {
 			e.matPosition. matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
 
 			o.current.digest   = digest;
-			o.current.division = progress.current;
+			o.current.division = update.current;
 			o.current.divname  = division.name();
 			o.current.round    = division.current.roundId();
 			o.current.athlete  = division.current.athleteId();
 			o.current.form     = division.current.formId();
 		};
-		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', refresh, false );
 	}
 });

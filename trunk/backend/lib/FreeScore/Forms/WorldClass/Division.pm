@@ -296,8 +296,8 @@ sub edit_athletes {
 		$athlete->{ name } = $edits->[ $i ]{ name };
 	}
 
-	# Create a placeholder athlete if user has deleted all athletest (no athlete has a name)
-	if( all { $_->{ name } =~ /^\s*$/; } @$edits ) { $self->{ athletes }[ 0 ] = { name => 'First Athlete', info => {} }; }
+	# Create a placeholder athlete if no athlete has a valid name
+	if( all { $_->{ name } =~ /^\s*$/; } @$edits ) { $self->{ athletes } = [{ name => 'First Athlete', info => {} }]; }
 
 	$self->{ order }{ $round } = $reorder;
 	$self->normalize();
@@ -334,12 +334,13 @@ sub get_only {
 	my $round = $self->{ round };
 
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } };
+		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } }; # Prune all but the current round
 		foreach my $form (@{$athlete->{ scores }{ $round }{ forms }}) {
 			next unless exists $form->{ judge };
-			$form->{ judge } = [ $form->{ judge }[ $judge ] ];
+			$form->{ judge } = [ $form->{ judge }[ $judge ] ]; # Prune all bu the given judge
 		}
 	}
+	return $self;
 }
 
 # ============================================================
