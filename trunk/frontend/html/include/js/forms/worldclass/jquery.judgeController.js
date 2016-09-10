@@ -141,16 +141,13 @@ $.widget( "freescore.judgeController", {
 		ws.onopen = function() {
 			var request  = { data : { type : 'division', action : 'read', tournament : o.tournament.db, ring : o.ring, judge : o.num }};
 			request.json = JSON.stringify( request.data );
-			console.log( request.json );
 			ws.send( request.json );
 		};
 
 		ws.onmessage = function( response ) {
 			var update       = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
 			var digest       = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
-			var divisionData = update.division; // Judge updates are limited in scope to one judge, one division, to minimize data transfer
-			if( ! defined( divisionData )) { return; }
-			var division     = new Division( divisionData );
+			var division     = new Division( update.division );
 
 			if( ! defined( division.form.list())) { return; }
 

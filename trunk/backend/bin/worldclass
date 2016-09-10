@@ -5,6 +5,7 @@ use Mojolicious::Lite;
 use Try::Tiny;
 use FreeScore;
 use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::DispatchTable;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( firstidx ));
@@ -273,58 +274,23 @@ get '/:tournament/:ring/coordinator/penalty/:bounds/:timelimit/:restart/:miscond
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
 websocket '/worldclass' => sub {
-	my $self = shift;
+	my $self         = shift;
+	my $table        = new FreeScore::Forms::WorldClass::DispatchTable( $self );
+	my $id           = sprintf "%s", $self->tx();
+	$client->{ $id } = $self->tx();
 
 	$self->on( message => sub {
-		my $self         = shift;
-		my $request      = shift;
-		my $id           = sprintf "%s", $self->tx();
-		$client->{ $id } = $self->tx();
-		$request         = $json->decode( $request );
-		print STDERR Dumper $request;
-		my ($progress, $division, $unblessed, $encoded, $digest);
+		my $self     = shift;
+		my $request  = $json->decode( shift );
+		my $progress = undef;
 
-		if( $request->{ type } eq 'division' ) {
-			try {
-				$progress  = new FreeScore::Forms::WorldClass( $request->{ tournament }, $request->{ ring } );
-				$division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-			} catch {
-				$client->{ $id }->send( { json => { error => "Cannot read division at '$client->{ file }': $_" }});
-			};
+		try   { $progress  = new FreeScore::Forms::WorldClass( $request->{ tournament }, $request->{ ring } ); }
+		catch { $client->{ $id }->send( { json => { error => "Error reading database '$request->{ tournament }': $_" }}); };
 
-			local $_  = $request->{ action };
-			if      ( /read/ ) {
-				if( exists $request->{ judge } && defined $request->{ judge } ) {
-					$unblessed = unbless $division->get_only( $request->{ judge } );
-					$encoded   = $json->canonical->encode( $unblessed );
-					$digest    = sha1_hex( $encoded );
-					$client->{ $id }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
-				} else {
-					$unblessed = unbless $division;
-					$encoded   = $json->canonical->encode( $unblessed );
-					$digest    = sha1_hex( $encoded );
-					$client->{ $id }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
-				}
-			} elsif ( /edit-athletes/ ) {
-				try {
-					$division->edit_athletes( $request->{ edits }, $request->{ round } );
-					$division->write();
-					$unblessed = unbless $division;
-					$encoded   = $json->canonical->encode( $unblessed );
-					$digest    = sha1_hex( $encoded );
-					foreach my $id (keys %$client) {
-						$client->{ $id }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
-					}
-				} catch {
-					$client->{ $id }->send( { json => { error => "Cannot edit athletes or write division at '$client->{ file }': $_" }});
-				};
-			} else {
-				$client->{ $id }->send( { json => { error => "Unknown request", request => $request }});
-			}
-		} else {
-			$client->{ $id }->send( { json => { error => "Unknown request", request => $request }});
-		}
+		$table->dispatch( $request, $progress, [ keys %$client ] );
 	});
+
+	$self->on( finish => sub { delete $client->{ $id }; });
 };
 
 # ------------------------------------------------------------
