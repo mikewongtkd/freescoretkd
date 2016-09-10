@@ -83,8 +83,9 @@ $.widget( "freescore.judgeController", {
 		var nav          = e.nav = {
 			athlete : {
 				label : html.div.clone() .addClass( "navigate label athlete-label" ) .html( "Athlete" ),
-				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/previous",  label : arrow.left.clone(),  type : "navigate prev athlete"  }),
-				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : arrow.right.clone(), type : "navigate next athlete"  }),
+				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/prev",      label : arrow.left .clone(), type : "navigate prev athlete"  }),
+				// next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : arrow.right.clone(), type : "navigate next athlete"  }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate next athlete" ),
 			},
 			form : {
 				label : html.div.clone() .addClass( "navigate label form-label" ) .html( "Form" ),
@@ -135,16 +136,16 @@ $.widget( "freescore.judgeController", {
 		var e           = this.options.elements;
 		var o           = this.options;
 		var html        = e.html;
-
-		var ws          = new WebSocket( 'ws://' + o.server + ':3088/worldclass' ); 
+		var ws          = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 
 		ws.onopen = function() {
-			var request  = { data : { type : 'division', action : 'read', tournament : o.tournament.db, ring : o.ring, judge : o.num }};
+			var request  = { data : { type : 'division', action : 'read', judge : o.num }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 		};
 
 		ws.onmessage = function( response ) {
+			console.log( response );
 			var update       = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
 			var digest       = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division     = new Division( update.division );
@@ -218,11 +219,14 @@ $.widget( "freescore.judgeController", {
 
 				widget.trigger({ type : "updateRequest", score : o });
 			}
+
 			// ===== UPDATE WIDGETS
-			e.notes .judgeNotes({ forms : division.form.list(), form : division.current.form.name(), athletes : division.athletes(), judges : division.judges(), current : division.current.athleteId(), round : division.current.roundId(), order : division.current.order() });
+			e.notes        .judgeNotes({ forms : division.form.list(), form : division.current.form.name(), athletes : division.athletes(), judges : division.judges(), current : division.current.athleteId(), round : division.current.roundId(), order : division.current.order() });
+			e.matPosition  .matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
 
-			e.matPosition. matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
-
+			// ===== UPDATE BUTTONS
+			e.nav .athlete .next .click( function() { var request  = { data : { type : 'division', action : 'athlete next', judge : o.num }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); });
+			// ===== RECORD CURRENT STATUS
 			o.current.digest   = digest;
 			o.current.division = update.current;
 			o.current.divname  = division.name();

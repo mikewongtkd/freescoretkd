@@ -7,6 +7,7 @@ use List::Util qw( all any none first shuffle reduce );
 use List::MoreUtils qw( first_index );
 use JSON::XS;
 use Try::Tiny;
+use Clone qw( clone );
 use Data::Dumper;
 use base qw( FreeScore::Forms::Division );
 use strict;
@@ -331,16 +332,17 @@ sub get_only {
 #*
 	my $self  = shift;
 	my $judge = shift;
-	my $round = $self->{ round };
+	my $clone = clone $self;
+	my $round = $clone->{ round };
 
-	foreach my $athlete (@{ $self->{ athletes }}) {
+	foreach my $athlete (@{ $clone->{ athletes }}) {
 		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } }; # Prune all but the current round
 		foreach my $form (@{$athlete->{ scores }{ $round }{ forms }}) {
 			next unless exists $form->{ judge };
 			$form->{ judge } = [ $form->{ judge }[ $judge ] ]; # Prune all bu the given judge
 		}
 	}
-	return $self;
+	return $clone;
 }
 
 # ============================================================

@@ -11,6 +11,8 @@ use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( firstidx ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use EV;
+use AnyEvent::Filesys::Notify;
 
 our $json   = new JSON::XS();
 our $client = {};
@@ -273,24 +275,36 @@ get '/:tournament/:ring/coordinator/penalty/:bounds/:timelimit/:restart/:miscond
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/worldclass' => sub {
-	my $self         = shift;
-	my $table        = new FreeScore::Forms::WorldClass::DispatchTable( $self );
-	my $id           = sprintf "%s", $self->tx();
-	$client->{ $id } = $self->tx();
+websocket '/worldclass/:tournament/:ring' => sub {
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament'     );
+	my $ring       = $self->param( 'ring'           );
+	my $table      = new FreeScore::Forms::WorldClass::DispatchTable( $self->tx() );
+	my $progress   = undef;
+	my $id         = sprintf "%s", sha1_hex( $self->tx() );
+	my $group      = sprintf "%s-%d", $tournament, $ring;
+
+	$client->{ $group }{ $id } = { device => $self->tx() };
+	print STDERR "WORLDCLASS $tournament ring $ring $id\n";
+
+	# ===== READ PROGRESS
+	try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
+	catch { $client->{ $id }{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 	$self->on( message => sub {
 		my $self     = shift;
 		my $request  = $json->decode( shift );
-		my $progress = undef;
 
-		try   { $progress  = new FreeScore::Forms::WorldClass( $request->{ tournament }, $request->{ ring } ); }
-		catch { $client->{ $id }->send( { json => { error => "Error reading database '$request->{ tournament }': $_" }}); };
+		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
+		$client->{ $group }{ $id }{ judge } = $request->{ judge } if( exists $request->{ judge });
 
-		$table->dispatch( $request, $progress, [ keys %$client ] );
+		# ===== HANDLE REQUEST WITH DISPATCH
+		my $clients = [ values %{$client->{ $group }} ];
+		try   { $table->dispatch( $request, $progress, $clients ); }
+		catch { $client->{ $group }{ $id }{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 	});
 
-	$self->on( finish => sub { delete $client->{ $id }; });
+	$self->on( finish => sub { delete $client->{ $group }{ $id }; });
 };
 
 # ------------------------------------------------------------

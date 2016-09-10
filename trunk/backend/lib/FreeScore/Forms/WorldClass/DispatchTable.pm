@@ -22,17 +22,44 @@ sub new {
 sub init {
 # ============================================================
 	my $self            = shift;
-	$self->{ _socket }  = shift;
+	$self->{ _client }  = shift;
 	$self->{ _json }    = new JSON::XS();
 	$self->{ division } = {
 		read         => \&handle_division_read,
-		next_athlete => \&handle_division_next_athlete,
-		prev_athlete => \&handle_division_prev_athlete,
-		next_form    => \&handle_division_next_form,
-		prev_form    => \&handle_division_prev_form,
-		next_round   => \&handle_division_next_round,
-		prev_round   => \&handle_division_prev_round,
+		athlete_next => \&handle_division_athlete_next,
+		athlete_prev => \&handle_division_athlete_prev,
+		form_next    => \&handle_division_form_next,
+		form_prev    => \&handle_division_form_prev,
+		round_next   => \&handle_division_round_next,
+		round_prev   => \&handle_division_round_prev,
 	};
+}
+
+# ============================================================
+sub broadcast_response {
+# ============================================================
+ 	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $json     = $self->{ _json };
+	my $division = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+
+	foreach my $client (@$clients) {
+		my ($unblessed, $encoded, $digest);
+		if( exists $client->{ judge } ) {
+			$unblessed = unbless $division->get_only( $judge );
+			$encoded   = $json->canonical->encode( $unblessed );
+			$digest    = sha1_hex( $encoded );
+		} else {
+			$unblessed = unbless $division;
+			$encoded   = $json->canonical->encode( $unblessed );
+			$digest    = sha1_hex( $encoded );
+		}
+		try   { $client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});}
+		catch { $client->send( { json => { error => "$_" }}); }
+	}
 }
 
 # ============================================================
@@ -50,101 +77,115 @@ sub dispatch {
 }
 
 # ============================================================
+sub handle_division_athlete_next {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Next athlete.\n";
+
+	try {
+		$division->autopilot( 0 );
+		$division->write();
+		$division->next_athlete();
+		$division->write();
+
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_athlete_prev {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+}
+
+# ============================================================
+sub handle_division_form_next {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+}
+
+# ============================================================
+sub handle_division_form_prev {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+}
+
+# ============================================================
 sub handle_division_read {
 # ============================================================
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
-	my $socket   = $self->{ _socket };
+
+	$self->send_response( $request, $progress, $clients );
+}
+
+# ============================================================
+sub handle_division_round_next {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+}
+
+# ============================================================
+sub handle_division_round_prev {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+}
+
+# ============================================================
+sub send_response {
+# ============================================================
+ 	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $json     = $self->{ _json };
 	my $division = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 
-	print STDER "TEST";
-
 	if( exists $request->{ judge } && defined $request->{ judge } ) {
-		$unblessed = unbless $division->get_only( $request->{ judge } );
-		$encoded   = $json->canonical->encode( $unblessed );
-		$digest    = sha1_hex( $encoded );
-		$socket->tx()->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		my $unblessed = unbless $division->get_only( $request->{ judge } );
+		my $encoded   = $json->canonical->encode( $unblessed );
+		my $digest    = sha1_hex( $encoded );
+
+		$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+
 	} else {
-		$unblessed = unbless $division;
-		$encoded   = $json->canonical->encode( $unblessed );
-		$digest    = sha1_hex( $encoded );
-		$socket->tx()->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		my $unblessed = unbless $division;
+		my $encoded   = $json->canonical->encode( $unblessed );
+		my $digest    = sha1_hex( $encoded );
+
+		$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
 	}
-}
-
-# ============================================================
-sub handle_division_next_athlete {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $socket   = $self->{ _socket };
-	my $json     = $self->{ _json };
-	my $division = $progress->current();
-}
-
-# ============================================================
-sub handle_division_prev_athlete {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $socket   = $self->{ _socket };
-	my $json     = $self->{ _json };
-	my $division = $progress->current();
-}
-
-# ============================================================
-sub handle_division_next_form {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $socket   = $self->{ _socket };
-	my $json     = $self->{ _json };
-	my $division = $progress->current();
-}
-
-# ============================================================
-sub handle_division_prev_form {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $socket   = $self->{ _socket };
-	my $json     = $self->{ _json };
-	my $division = $progress->current();
-}
-
-# ============================================================
-sub handle_division_next_round {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $socket   = $self->{ _socket };
-	my $json     = $self->{ _json };
-	my $division = $progress->current();
-}
-
-# ============================================================
-sub handle_division_prev_round {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $socket   = $self->{ _socket };
-	my $json     = $self->{ _json };
-	my $division = $progress->current();
 }
 
 1;
