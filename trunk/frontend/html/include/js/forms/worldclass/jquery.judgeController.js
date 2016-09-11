@@ -83,9 +83,10 @@ $.widget( "freescore.judgeController", {
 		var nav          = e.nav = {
 			athlete : {
 				label : html.div.clone() .addClass( "navigate label athlete-label" ) .html( "Athlete" ),
-				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/prev",      label : arrow.left .clone(), type : "navigate prev athlete"  }),
+				// prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/prev",      label : arrow.left .clone(), type : "navigate prev athlete"  }),
 				// next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : arrow.right.clone(), type : "navigate next athlete"  }),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate next athlete" ),
+				prev  : html.div.clone() .button({ label : arrow.left .clone() }) .addClass( "navigate button prev athlete" ),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next athlete" ),
 			},
 			form : {
 				label : html.div.clone() .addClass( "navigate label form-label" ) .html( "Form" ),
@@ -145,10 +146,10 @@ $.widget( "freescore.judgeController", {
 		};
 
 		ws.onmessage = function( response ) {
-			console.log( response );
-			var update       = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
-			var digest       = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
-			var division     = new Division( update.division );
+			if( response == 'ping' ) { console.log( response ); return; }
+			var update   = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
+			var digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
+			var division = new Division( update.division );
 
 			if( ! defined( division.form.list())) { return; }
 
@@ -225,7 +226,9 @@ $.widget( "freescore.judgeController", {
 			e.matPosition  .matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
 
 			// ===== UPDATE BUTTONS
-			e.nav .athlete .next .click( function() { var request  = { data : { type : 'division', action : 'athlete next', judge : o.num }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); });
+			e.nav .athlete .next .off( 'click' ) .click( function() { var request  = { data : { type : 'division', action : 'athlete next', judge : o.num }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); });
+			e.nav .athlete .prev .off( 'click' ) .click( function() { var request  = { data : { type : 'division', action : 'athlete prev', judge : o.num }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); });
+
 			// ===== RECORD CURRENT STATUS
 			o.current.digest   = digest;
 			o.current.division = update.current;
@@ -233,6 +236,10 @@ $.widget( "freescore.judgeController", {
 			o.current.round    = division.current.roundId();
 			o.current.athlete  = division.current.athleteId();
 			o.current.form     = division.current.formId();
+		};
+
+		ws.onclose = function() {
+			ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 		};
 	}
 });

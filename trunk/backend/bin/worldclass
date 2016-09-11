@@ -282,10 +282,14 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	my $table      = new FreeScore::Forms::WorldClass::DispatchTable( $self->tx() );
 	my $progress   = undef;
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
-	my $group      = sprintf "%s-%d", $tournament, $ring;
+	my $group      = sprintf "%s-ring-%d", $tournament, $ring;
+
+	$self->inactivity_timeout( 1800 ); # 30 minutes
 
 	$client->{ $group }{ $id } = { device => $self->tx() };
-	print STDERR "WORLDCLASS $tournament ring $ring $id\n";
+	print STDERR "WORLDCLASS $tournament ring $ring\n";
+	print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
+	print STDERR "\n";
 
 	# ===== READ PROGRESS
 	try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
@@ -299,7 +303,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		$client->{ $group }{ $id }{ judge } = $request->{ judge } if( exists $request->{ judge });
 
 		# ===== HANDLE REQUEST WITH DISPATCH
-		my $clients = [ values %{$client->{ $group }} ];
+		my $clients = $client->{ $group };
 		try   { $table->dispatch( $request, $progress, $clients ); }
 		catch { $client->{ $group }{ $id }{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 	});
@@ -627,6 +631,6 @@ sub send_response {
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid' });
+app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid', workers => 1 });
 app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'debug' ));
 app->start();

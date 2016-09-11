@@ -46,7 +46,7 @@
 			</div>
 			<div data-role="main">
 					<ul data-role="listview">
-						<li data-role="list-divider">Sport Poomsae<span class="description">: score poomsae following the WTF Sport Poomsae rules</span></li>
+						<li data-role="list-divider">Sport Poomsae<span class="description">: Score poomsae following the WTF Sport Poomsae rules</span></li>
 						<li><a href="javascript:go.worldclass.registration()">
 							<h2>Register a Tablet or Computer for Sport Poomsae</h2>
 							<p>Assign and ring and role for a ring laptop or judge tablet</p>
@@ -55,7 +55,7 @@
 							<h2>Manage Sport Poomsae Divisions</h2>
 							<p>Add, remove, or edit divisions; also add or remove rings</p>
 						</a></li>
-						<li data-role="list-divider">Classic Poomsae<span class="description">: score poomsae using an electronic version of the classic flip cards</span></li>
+						<li data-role="list-divider">Classic Poomsae<span class="description">: Score poomsae using an electronic version of the classic flip cards</span></li>
 						<li><a href="javascript:go.grassroots.registration()">
 							<h2>Register a Tablet or Computer for Classic Poomsae</h2>
 							<p>Assign and ring and role for a ring laptop or judge tablet</p>

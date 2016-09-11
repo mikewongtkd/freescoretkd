@@ -10,7 +10,6 @@
 		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-120x120.png"     rel="apple-touch-icon" sizes="120x120" />
 		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-152x152.png"     rel="apple-touch-icon" sizes="152x152" />
 		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed" />
-		<link href="../../include/css/ajaxbutton.css" rel="stylesheet" />
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/judgeController.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />

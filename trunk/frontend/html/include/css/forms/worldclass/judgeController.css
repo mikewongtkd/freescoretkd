@@ -352,6 +352,18 @@ body {
   height: 600px;
   margin: 0 auto 0 auto;
   -webkit-user-select: none; }
+  .judgeController .button {
+    font-family: Optima, Biolinum;
+    font-size: 14pt;
+    float: left;
+    height: 60px;
+    border-radius: 12pt;
+    text-align: center;
+    line-height: 60px;
+    margin: 0 10px 0 10px;
+    position: relative; }
+    .judgeController .button .ui-button-text {
+      padding-top: 4px; }
   .judgeController .front {
     position: absolute; }
     .judgeController .front .flip {

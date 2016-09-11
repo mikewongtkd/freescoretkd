@@ -46,20 +46,22 @@ sub broadcast_response {
 	my $json     = $self->{ _json };
 	my $division = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 
-	foreach my $client (@$clients) {
-		my ($unblessed, $encoded, $digest);
-		if( exists $client->{ judge } ) {
-			$unblessed = unbless $division->get_only( $judge );
-			$encoded   = $json->canonical->encode( $unblessed );
-			$digest    = sha1_hex( $encoded );
-		} else {
-			$unblessed = unbless $division;
-			$encoded   = $json->canonical->encode( $unblessed );
-			$digest    = sha1_hex( $encoded );
-		}
-		try   { $client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});}
+	print STDERR "  Broadcasting to:\n";
+	foreach my $id (sort keys %$clients) {
+		my $broadcast = $clients->{ $id };
+		my $unblessed;
+		my $is_judge = exists $broadcast->{ judge } && defined $broadcast->{ judge };
+
+		if( $is_judge ) { $unblessed = unbless $division->get_only( $broadcast->{ judge } ); } 
+		else            { $unblessed = unbless $division; }
+		my $encoded = $json->canonical->encode( $unblessed );
+		my $digest  = sha1_hex( $encoded );
+
+		print STDERR "    $id\n";
+		try   { $broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});}
 		catch { $client->send( { json => { error => "$_" }}); }
 	}
+	print STDERR "\n";
 }
 
 # ============================================================
@@ -107,7 +109,21 @@ sub handle_division_athlete_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
+
+	print STDERR "Previous athlete.\n";
+
+	try {
+		$division->autopilot( 0 );
+		$division->write();
+		$division->previous_athlete();
+		$division->write();
+
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -164,28 +180,21 @@ sub handle_division_round_prev {
 # ============================================================
 sub send_response {
 # ============================================================
- 	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $client   = $self->{ _client };
-	my $json     = $self->{ _json };
-	my $division = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+	my $unblessed = undef;
+	my $judge     = exists $request->{ judge } && defined $request->{ judge };
 
-	if( exists $request->{ judge } && defined $request->{ judge } ) {
-		my $unblessed = unbless $division->get_only( $request->{ judge } );
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
-
-		$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
-
-	} else {
-		my $unblessed = unbless $division;
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
-
-		$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
-	}
+	if( $judge ) { $unblessed = unbless $division->get_only( $request->{ judge } ); }
+	else         { $unblessed = unbless $division; }
+	my $encoded   = $json->canonical->encode( $unblessed );
+	my $digest    = sha1_hex( $encoded );
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
 }
 
 1;
