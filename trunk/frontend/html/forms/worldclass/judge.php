@@ -26,7 +26,6 @@
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>

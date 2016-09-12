@@ -7,7 +7,7 @@
 
 	.label {
 		top: 0;
-		left: 10px;
+		left: 20px;
 		position: absolute;
 		font-size: 12pt;
 		width: 400px;
@@ -19,14 +19,14 @@
 	.slider {
 		position: absolute;
 		top: 32px;
-		left: 20px;
-		width: 260px;
+		left: 30px;
+		width: 250px;
 	}
 
 	.value {
 		position: absolute;
 		top: 32px;
-		left: 300px;
+		left: 320px;
 		font-size: 24pt;
 		color: white;
 		float: left;
@@ -38,12 +38,13 @@
 
 	.nudge {
 		position: absolute;
-		height: 23px;
-		width: 23px;
+		height: 40px;
+		width: 40px;
 		margin: 0;
 		padding: 0;
-		top: 28px;
+		top: 18px;
+		border-radius: 12px;
 	}
-	.plus  { left: 0; }
-	.minus { left: 281px;   }
+	.plus  { left: -8px; }
+	.minus { left: 280px;   }
 }

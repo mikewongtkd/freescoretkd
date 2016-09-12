@@ -53,10 +53,6 @@ body {
 		line-height: 60px;
 		margin: 0 10px 0 10px;
 		position: relative;
-
-		.ui-button-text {
-			padding-top: 4px;
-		}
 	}
 
 	.front {
@@ -172,6 +168,9 @@ body {
 				background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
 				margin: 48px 46px 12px 46px;
 				text-align: center;
+
+				.ui-button-text { padding-top: 3px; }
+
 			}
 		}
 	}
@@ -204,6 +203,7 @@ body {
 			text-align: center;
 			color: white;
 			left: 590px;
+
 		}
 
 		.next {
@@ -217,6 +217,8 @@ body {
 			left: 590px;
 			width: 80px
 		}
+
+		.next, .prev { .ui-button-text { padding-top: 1px; }}
 
 		.label {
 			position: absolute;
@@ -245,6 +247,10 @@ body {
 			background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
 
 			sup { font-size: 10pt; }
+
+			.ui-button-text {
+				padding-top: 3px;
+			}
 		}
 		.form-label { top: 76px; }
 

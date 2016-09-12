@@ -5,12 +5,18 @@ $.widget( "freescore.judgeController", {
 		var e      = this.options.elements = {};
 		var widget = this.element;
 		var html   = e.html  = FreeScore.html;
+		var sound  = e.sound    = {};
 
 		widget.nodoubletapzoom();
 
 		o.num     = parseInt( $.cookie( "judge" )) - 1;
 		o.ring    = parseInt( $.cookie( "ring" ));
 		o.current = {};
+
+		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
+		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"  ]});
+		sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]});
+		sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]});
 
 		widget.addClass( 'judgeController flippable' );
 
@@ -34,7 +40,7 @@ $.widget( "freescore.judgeController", {
 		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',      controller: this });
 		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Control',   controller: this });
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Energy', controller: this });
-		var send         = e.send         = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, label : "Send", type : "send" })
+		var send         = e.send         = html.div.clone() .button({ label : "Send" }) .addClass( "send" );
 
 		var sendScore    = o.sendScore    = function( judge, score ) {
 			var major  = (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
@@ -61,7 +67,8 @@ $.widget( "freescore.judgeController", {
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
-			e.send .ajaxbutton({ command : o.sendScore( o.num, o )}); // Update "send" button callback
+			e.send .off( 'click' ) .click( function() {
+			});
 		} );
 
 		score.append( accuracy, presentation, athlete );
@@ -83,28 +90,26 @@ $.widget( "freescore.judgeController", {
 		var nav          = e.nav = {
 			athlete : {
 				label : html.div.clone() .addClass( "navigate label athlete-label" ) .html( "Athlete" ),
-				// prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/prev",      label : arrow.left .clone(), type : "navigate prev athlete"  }),
-				// next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "athlete/next",      label : arrow.right.clone(), type : "navigate next athlete"  }),
-				prev  : html.div.clone() .button({ label : arrow.left .clone() }) .addClass( "navigate button prev athlete" ),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next athlete" ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev athlete" )  .attr( 'action', 'athlete prev' ) .attr( 'sound', 'prev' ),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next athlete" )  .attr( 'action', 'athlete next' ) .attr( 'sound', 'next' ),
 			},
 			form : {
 				label : html.div.clone() .addClass( "navigate label form-label" ) .html( "Form" ),
-				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "form/previous",     label : '1<sup>st</sup>',    type : "navigate prev form" }),
-				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "form/next",         label : '2<sup>nd</sup>',    type : "navigate next form" }),
+				prev  : html.div.clone() .button({ label : '1<sup>st</sup>' })    .addClass( "navigate button prev form" )     .attr( 'action', 'form prev' )    .attr( 'sound', 'prev' ),
+				next  : html.div.clone() .button({ label : '2<sup>nd</sup>' })    .addClass( "navigate button next form" )     .attr( 'action', 'form next' )    .attr( 'sound', 'next' ),
 			},
 			round : {
 				label : html.div.clone() .addClass( "navigate label round-label" ) .html( "Round" ),
-				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "round/previous",    label : arrow.left.clone(),  type : "navigate prev round" }),
-				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "round/next",        label : arrow.right.clone(), type : "navigate next round" }),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev round" )    .attr( 'action', 'round prev' )   .attr( 'sound', 'prev' ),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next round" )    .attr( 'action', 'round next' )   .attr( 'sound', 'next' ),
 			},
 			division : {
 				label : html.div.clone() .addClass( "navigate label division-label" ) .html( "Division" ),
-				prev  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/previous", label : arrow.left.clone(),  type : "navigate prev division" }),
-				next  : html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "division/next",     label : arrow.right.clone(), type : "navigate next division" }),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev division" ) .attr( 'action', 'prev' )         .attr( 'sound', 'prev' ),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next division" ) .attr( 'action', 'next' )         .attr( 'sound', 'next' ),
 			}
 		};
-		var flipDisplay  = e.flipDisplay  = html.div.clone() .ajaxbutton({ server : o.server, port : ':3088/', tournament : o.tournament.db, ring : o.ring, command : "display",           label : "Leaderboard",   type : "navigate mode"          });
+		var flipDisplay  = e.flipDisplay  = html.div.clone() .button({ label : "Leaderboard" }) .addClass( "navigate button mode" ) .attr( 'action', 'display' ) .attr( 'sound', 'ok' );
 
 		back.append( 
 			nav.athlete  .label, nav.athlete  .prev, nav.athlete  .next, 
@@ -153,45 +158,79 @@ $.widget( "freescore.judgeController", {
 
 			if( ! defined( division.form.list())) { return; }
 
-			if( division.state.is.score() ) { e.flipDisplay.ajaxbutton({ label : "Leaderboard" }); } 
-			else                            { e.flipDisplay.ajaxbutton({ label : "Athlete Score" }); }
-
-			if( division.form.count() > 1 ) {
-				var first = division.current.form.is.firstForm();
-				var last  = division.current.form.is.lastForm();
-				if      ( first             ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "disable" ); e.nav.form.next.ajaxbutton( "enable" );  }
-				else if ( ! first && ! last ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "enable" );  e.nav.form.next.ajaxbutton( "enable" );  } 
-				else if ( last              ) { e.nav.form.label.css({ opacity : 1 }); e.nav.form.prev.ajaxbutton( "enable" );  e.nav.form.next.ajaxbutton( "disable" ); }
-			} else {
-				e.nav.form.label.css({ opacity : 0.35 });
-				e.nav.form.prev.ajaxbutton( "disable" );
-				e.nav.form.next.ajaxbutton( "disable" );
+			var button = {
+				enable : function( button ) {
+					button.button( 'enable' );
+					button.off( 'click' ); // Avoid multiple handlers
+					button.click( function() {
+						var request  = { data : { type : 'division', action : button.attr( 'action' ), judge : o.num }}; 
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json ); 
+						e.sound[ button.attr( 'sound' ) ].play();
+					});
+				},
+				disable : function( button ) {
+					button.button( 'disable' );
+					button.off( 'click' );
+				}
 			}
 
-			var numRounds  = division.round.count();
-			var nextStatus = division.round.is.complete() ? 'enable' : 'disable';
+			// ----------------------------------------
+			// ATHLETE NAVIGATION BUTTONS
+			// ----------------------------------------
+			button.enable( e.nav.athlete.prev );
+			button.enable( e.nav.athlete.next );
+
+			// ----------------------------------------
+			// FLIPCARD BUTTON
+			// ----------------------------------------
+			if( division.state.is.score() ) { e.flipDisplay.button({ label : "Leaderboard" }); } 
+			else                            { e.flipDisplay.button({ label : "Athlete Score" }); }
+
+			// ----------------------------------------
+			// FORM NAVIGATION BUTTONS
+			// ----------------------------------------
+			e.nav.form.prev.off( 'click' );
+			e.nav.form.next.off( 'click' );
+			if( division.form.count() <= 1 ) { // One form; no need to navigate
+				e.nav.form.label.css({ opacity : 0.35 });
+				button.disable( e.nav.form.prev );
+				button.disable( e.nav.form.next );
+			} else { // Two forms
+				var first = division.current.form.is.firstForm();
+				var last  = division.current.form.is.lastForm();
+				e.nav.form.label.css({ opacity : 1 }); 
+				if      ( first             ) { button .disable( e.nav.form.prev ); button  .enable( e.nav.form.next ); }
+				else if ( ! first && ! last ) { button  .enable( e.nav.form.prev ); button  .enable( e.nav.form.next ); } 
+				else if ( last              ) { button  .enable( e.nav.form.prev ); button .disable( e.nav.form.next ); }
+			}
+
+			// ----------------------------------------
+			// ROUND NAVIGATION BUTTONS
+			// ----------------------------------------
+			var numRounds = division.round.count();
 			if       ( numRounds == 1 ) { 
 				e.nav.round.label.css({ opacity : 0.35 });
-				e.nav.round.prev.ajaxbutton( "disable" );
-				e.nav.round.next.ajaxbutton( "disable" ); 
+				button.disable( e.nav.round.prev );
+				button.disable( e.nav.round.next );
 
 			} else if( division.round.is.prelim() || (division.round.is.semfin() && numRounds == 2 )) {
 				e.nav.round.label.css({ opacity : division.round.is.complete() ? 1.00 : 0.35 });
-				e.nav.round.prev.ajaxbutton( "disable" );
-				e.nav.round.next.ajaxbutton( nextStatus );
+				button.disable( e.nav.round.prev );
+				if( division.round.is.complete() ) { button.enable( e.nav.round.next ) } else { button.disable( e.nav.round.next ); }
 
 			} else if( division.round.is.semfin() && numRounds == 3 ) {
 				e.nav.round.label.css({ opacity : 1.00 });
-				e.nav.round.prev.ajaxbutton( "enable" );
-				e.nav.round.next.ajaxbutton( nextStatus );
+				button.enable( e.nav.round.prev );
+				if( division.round.is.complete() ) { button.enable( e.nav.round.next ) } else { button.disable( e.nav.round.next ); }
 
 			} else if( division.round.is.finals() ) {
 				e.nav.round.label.css({ opacity : 1.00 });
-				e.nav.round.prev.ajaxbutton( "enable" );
-				e.nav.round.next.ajaxbutton( "disable" );
+				button  .enable( e.nav.round.prev );
+				button .disable( e.nav.round.next );
 			}
 
-			// ===== RESET DEFAULTS FOR A NEW ATHLETE
+			// ===== CHECK TO SEE IF THE DIVISION, ATHLETE, ROUND, OR FORM HAS CHANGED
 			var different = { 
 				division : division.name()              != o.current.divname,
 				athlete  : division.current.athleteId() != o.current.athlete,
@@ -199,8 +238,11 @@ $.widget( "freescore.judgeController", {
 				form     : division.current.formId()    != o.current.form
 			}
 			
+			// ===== RESET DEFAULTS FOR A DIFFERENT ATHLETE, FORM, ROUND, OR DIVISION
 			if( different.division || different.round || different.athlete || different.form ) {
 				var athlete    = division.current.athlete();
+
+				// ===== UPDATE TICKER
 				var info       = { 
 				                     division : html.span.clone() .addClass( "details" ) .html( division.summary() ),
 				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
@@ -212,6 +254,7 @@ $.widget( "freescore.judgeController", {
 				e.athlete .append( tickerList );
 				e.matPosition.matposition( 'option', 'reset' )();
 
+				// ===== RESET SCORE
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
 				o.minor  = 0.0; e.minor  .deductions( { count : 0 });
 				o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
@@ -224,10 +267,6 @@ $.widget( "freescore.judgeController", {
 			// ===== UPDATE WIDGETS
 			e.notes        .judgeNotes({ forms : division.form.list(), form : division.current.form.name(), athletes : division.athletes(), judges : division.judges(), current : division.current.athleteId(), round : division.current.roundId(), order : division.current.order() });
 			e.matPosition  .matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
-
-			// ===== UPDATE BUTTONS
-			e.nav .athlete .next .off( 'click' ) .click( function() { var request  = { data : { type : 'division', action : 'athlete next', judge : o.num }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); });
-			e.nav .athlete .prev .off( 'click' ) .click( function() { var request  = { data : { type : 'division', action : 'athlete prev', judge : o.num }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); });
 
 			// ===== RECORD CURRENT STATUS
 			o.current.digest   = digest;

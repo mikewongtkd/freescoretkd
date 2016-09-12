@@ -220,7 +220,7 @@ body {
   margin: 0 0 0 20px; }
   .presentationBar .label {
     top: 0;
-    left: 10px;
+    left: 20px;
     position: absolute;
     font-size: 12pt;
     width: 400px;
@@ -230,12 +230,12 @@ body {
   .presentationBar .slider {
     position: absolute;
     top: 32px;
-    left: 20px;
-    width: 260px; }
+    left: 30px;
+    width: 250px; }
   .presentationBar .value {
     position: absolute;
     top: 32px;
-    left: 300px;
+    left: 320px;
     font-size: 24pt;
     color: white;
     float: left;
@@ -245,15 +245,16 @@ body {
     vertical-align: top; }
   .presentationBar .nudge {
     position: absolute;
-    height: 23px;
-    width: 23px;
+    height: 40px;
+    width: 40px;
     margin: 0;
     padding: 0;
-    top: 28px; }
+    top: 18px;
+    border-radius: 12px; }
   .presentationBar .plus {
-    left: 0; }
+    left: -8px; }
   .presentationBar .minus {
-    left: 281px; }
+    left: 280px; }
 
 .judgeNotes {
   border: 4px solid #999;
@@ -362,8 +363,6 @@ body {
     line-height: 60px;
     margin: 0 10px 0 10px;
     position: relative; }
-    .judgeController .button .ui-button-text {
-      padding-top: 4px; }
   .judgeController .front {
     position: absolute; }
     .judgeController .front .flip {
@@ -467,6 +466,8 @@ body {
         background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
         margin: 48px 46px 12px 46px;
         text-align: center; }
+        .judgeController .front .controls .send .ui-button-text {
+          padding-top: 3px; }
   .judgeController .back {
     position: absolute; }
     .judgeController .back .flip {
@@ -501,6 +502,8 @@ body {
       border-radius: 12px 0 0 12px;
       left: 590px;
       width: 80px; }
+    .judgeController .back .next .ui-button-text, .judgeController .back .prev .ui-button-text {
+      padding-top: 1px; }
     .judgeController .back .label {
       position: absolute;
       left: 604px;
@@ -525,6 +528,8 @@ body {
       background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
       .judgeController .back .form sup {
         font-size: 10pt; }
+      .judgeController .back .form .ui-button-text {
+        padding-top: 3px; }
     .judgeController .back .form-label {
       top: 76px; }
     .judgeController .back .round {
