@@ -151,10 +151,11 @@ $.widget( "freescore.judgeController", {
 		};
 
 		ws.onmessage = function( response ) {
-			if( response == 'ping' ) { console.log( response ); return; }
 			var update   = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
 			var digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division = new Division( update.division );
+
+			console.log( division );
 
 			if( ! defined( division.form.list())) { return; }
 

@@ -45,13 +45,14 @@ sub broadcast_response {
 # ============================================================
 # Broadcasts to ring
 # ------------------------------------------------------------
- 	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $client   = $self->{ _client };
-	my $json     = $self->{ _json };
-	my $division = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+	my $client_id = sprintf "%s", sha1_hex( $client );
 
 	print STDERR "  Broadcasting to:\n";
 	foreach my $id (sort keys %$clients) {
@@ -64,11 +65,9 @@ sub broadcast_response {
 		my $encoded = $json->canonical->encode( $unblessed );
 		my $digest  = sha1_hex( $encoded );
 
-		if( $self->{ _last_state }{ $id } eq $digest ) { print STDERR "    user: $id digest: $digest NO CHANGE; SKIP\n"; }
-		else                                           { print STDERR "    user: $id digest: $digest\n"; }
-		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }})
-			unless $self->{ _last_state }{ $id } eq $digest;
-		$self->{ _last_state }{ $id } = $digest;
+		print STDERR "    user: $id digest: $digest\n";
+		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n";
 }
@@ -206,70 +205,64 @@ sub send_response {
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $unblessed = undef;
-	my $judge     = exists $request->{ judge } && defined $request->{ judge };
+	my $is_judge  = exists $request->{ judge } && int( $request->{ judge } ) >= 0;
+	my $judge     = $is_judge ? int( $request->{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
-	if( $judge ) { $unblessed = unbless $division->get_only( $request->{ judge } ); }
-	else         { $unblessed = unbless $division; }
+	my $unblessed = unbless ($is_judge ? $division->get_only( $judge ) : $division);
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
-	if( $self->{ _last_state }{ $id } eq $digest ) { print STDERR "    user: $id digest: $digest NO CHANGE; SKIP\n"; }
-	else                                           { print STDERR "    user: $id digest: $digest\n"; }
+	print STDERR "  Sending response\n";
+	print STDERR "    user: $id digest: $digest\n\n";
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }}); 
-	# unless $self->{ _last_state }{ $id } eq $digest;
-	$self->{ _last_state }{ $id } = $digest;
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+	$self->{ _last_state } = $digest;
 }
 
 # ============================================================
-sub on_file_change_notify {
+sub watch_files {
 # ============================================================
-	my $self    = shift;
-	my $clients = shift;
-	my $watch   = $self->{ _watching };
-	my $path    = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/ring%02d", $self->{ _tournament }, $self->{ _ring } );
-	my $json    = $self->{ _json };
+	my $self     = shift; 
+	return if exists $self->{ _watcher } && defined $self->{ _watcher };
 
-	print STDERR "Watching $path\n";
+	my $judge    = shift;
+	my $is_judge = defined( $judge ) && int( $judge ) >= 0;
+	my $path     = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/ring%02d", $self->{ _tournament }, $self->{ _ring } );
+	my $json     = $self->{ _json };
+	my $client   = $self->{ _client };
+	my $id        = sprintf "%s", sha1_hex( $client );
 
-	$watch->{ $path } = {
-		watcher => new AnyEvent::Filesys::Notify(
-			dirs     => [ $path ],
-			interval => 1.0,
-			cb       => sub {
-				my $event = shift;
-				return if $event->is_modified(); # Each request is responsible for broadcasting modifications; this avoids interval latency
+	print STDERR "  Watching $path\n";
 
-				# ===== READ PROGRESS
-				my $tournament = $self->{ _tournament };
-				my $ring       = $self->{ _ring };
-				my $progress   = undef;
-				try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
-				catch { $self->{ _client }{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); return; };
-				my $division = $progress->current();
+	$self->{ _watcher } = new AnyEvent::Filesys::Notify(
+		dirs     => [ $path ],
+		interval => 2.0,
+		cb       => sub {
+			my $event = shift;
+			return if $event->is_modified(); # Each request is responsible for broadcasting modifications; this avoids interval latency
 
-				print STDERR "  Broadcasting file changes in '" . $event->path() . "' to:\n";
-				foreach my $id (sort keys %$clients) {
-					my $broadcast = $clients->{ $id };
-					my $unblessed;
-					my $is_judge = exists $broadcast->{ judge } && defined $broadcast->{ judge };
+			# ===== READ NEW PROGRESS 
+			my $tournament = $self->{ _tournament };
+			my $ring       = $self->{ _ring };
+			my $progress   = undef;
+			try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
+			catch { $self->{ _client }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); return; };
+			my $division = $progress->current();
 
-					if( $is_judge ) { $unblessed = unbless $division->get_only( $broadcast->{ judge } ); } 
-					else            { $unblessed = unbless $division; }
-					my $encoded = $json->canonical->encode( $unblessed );
-					my $digest  = sha1_hex( $encoded );
+			print STDERR "\n  Notifying file changes in '" . $event->path() . "' to:\n";
+			my $unblessed = unbless ($is_judge ? $division->get_only( $judge ) : $division );
+			my $encoded   = $json->canonical->encode( $unblessed );
+			my $digest    = sha1_hex( $encoded );
 
-					if( $self->{ _last_state }{ $id } eq $digest ) { print STDERR "    user: $id digest: $digest NO CHANGE; SKIP\n"; }
-					else                                           { print STDERR "    user: $id digest: $digest\n"; }
-					$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }})
-						unless $self->{ _last_state }{ $id } eq $digest;
-					$self->{ _last_state }{ $id } = $digest;
-				}
-				print STDERR "\n";
-			}
-		)
-	} unless( exists $watch->{ $path } );
+			if( $self->{ _last_state } eq $digest ) { print STDERR "    user: $id judge: $judge digest: $digest NO CHANGE; SKIP\n"; }
+			else                                    { print STDERR "    user: $id judge: $judge digest: $digest\n"; }
+			$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }})
+				unless $self->{ _last_state } eq $digest;
+			$self->{ _last_state } = $digest;
+			print STDERR "\n";
+		}
+	);
 	print STDERR "\n";
 	push @{$watch->{ $path }{ group }}, $self->{ _client };
 }
