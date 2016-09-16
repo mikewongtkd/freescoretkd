@@ -1,4 +1,4 @@
-package FreeScore::Forms::WorldClass::DispatchTable;
+package FreeScore::Forms::WorldClass::EventManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
@@ -21,10 +21,13 @@ sub new {
 # ============================================================
 sub init {
 # ============================================================
-	my $self            = shift;
-	$self->{ _client }  = shift;
-	$self->{ _json }    = new JSON::XS();
-	$self->{ division } = {
+	my $self               = shift;
+	$self->{ _tournament } = shift;
+	$self->{ _ring }       = shift;
+	$self->{ _client }     = shift;
+	$self->{ _json }       = new JSON::XS();
+	$self->{ _watching }   = {};
+	$self->{ division }    = {
 		read         => \&handle_division_read,
 		athlete_next => \&handle_division_athlete_next,
 		athlete_prev => \&handle_division_athlete_prev,
@@ -38,6 +41,8 @@ sub init {
 # ============================================================
 sub broadcast_response {
 # ============================================================
+# Broadcasts to ring
+# ------------------------------------------------------------
  	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
@@ -195,6 +200,43 @@ sub send_response {
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+}
+
+# ============================================================
+sub notify {
+# ============================================================
+	my $self    = shift;
+	my $clients = shift;
+	my $watch   = $self->{ _watching };
+	my $path    = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/%s", $self->{ _tournament }, $self->{ _ring } );
+	my $json    = $self->{ _json };
+
+	$watch->{ $path } = {
+		watcher => new AnyEvent::Filesys::Notify(
+			dirs     => [ $path ],
+			interval => 2.0,
+			cb       => sub {
+				my $event = shift;
+				print STDERR "  Broadcasting to:\n";
+				foreach my $id (sort keys %$clients) {
+					my $broadcast = $clients->{ $id };
+					my $unblessed;
+					my $is_judge = exists $broadcast->{ judge } && defined $broadcast->{ judge };
+
+					if( $is_judge ) { $unblessed = unbless $division->get_only( $broadcast->{ judge } ); } 
+					else            { $unblessed = unbless $division; }
+					my $encoded = $json->canonical->encode( $unblessed );
+					my $digest  = sha1_hex( $encoded );
+
+					print STDERR "    $id\n";
+					try   { $broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});}
+					catch { $client->send( { json => { error => "$_" }}); }
+				}
+				print STDERR "\n";
+			}
+		)
+	} unless( exists $watch->{ $path } );
+	push @{$watch->{ $path }{ group }}, $self->{ _client };
 }
 
 1;
