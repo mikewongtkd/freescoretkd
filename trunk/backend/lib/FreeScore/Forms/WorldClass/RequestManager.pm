@@ -1,4 +1,4 @@
-package FreeScore::Forms::WorldClass::EventManager;
+package FreeScore::Forms::WorldClass::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
@@ -8,6 +8,8 @@ use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( firstidx ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use AnyEvent::Filesys::Notify;
+use AnyEvent;
 
 # ============================================================
 sub new {
@@ -62,15 +64,17 @@ sub broadcast_response {
 		my $encoded = $json->canonical->encode( $unblessed );
 		my $digest  = sha1_hex( $encoded );
 
-		print STDERR "    $id\n";
-		try   { $broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});}
-		catch { $client->send( { json => { error => "$_" }}); }
+		if( $self->{ _last_state }{ $id } eq $digest ) { print STDERR "    user: $id digest: $digest NO CHANGE; SKIP\n"; }
+		else                                           { print STDERR "    user: $id digest: $digest\n"; }
+		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }})
+			unless $self->{ _last_state }{ $id } eq $digest;
+		$self->{ _last_state }{ $id } = $digest;
 	}
 	print STDERR "\n";
 }
 
 # ============================================================
-sub dispatch {
+sub handle {
 # ============================================================
 	my $self     = shift;
 	my $request  = shift;
@@ -183,6 +187,15 @@ sub handle_division_round_prev {
 }
 
 # ============================================================
+sub handle_file_change {
+# ============================================================
+	my $self     = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+}
+
+
+# ============================================================
 sub send_response {
 # ============================================================
  	my $self      = shift;
@@ -194,30 +207,49 @@ sub send_response {
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $unblessed = undef;
 	my $judge     = exists $request->{ judge } && defined $request->{ judge };
+	my $id        = sprintf "%s", sha1_hex( $client );
 
 	if( $judge ) { $unblessed = unbless $division->get_only( $request->{ judge } ); }
 	else         { $unblessed = unbless $division; }
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+
+	if( $self->{ _last_state }{ $id } eq $digest ) { print STDERR "    user: $id digest: $digest NO CHANGE; SKIP\n"; }
+	else                                           { print STDERR "    user: $id digest: $digest\n"; }
+
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }}); 
+	# unless $self->{ _last_state }{ $id } eq $digest;
+	$self->{ _last_state }{ $id } = $digest;
 }
 
 # ============================================================
-sub notify {
+sub on_file_change_notify {
 # ============================================================
 	my $self    = shift;
 	my $clients = shift;
 	my $watch   = $self->{ _watching };
-	my $path    = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/%s", $self->{ _tournament }, $self->{ _ring } );
+	my $path    = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/ring%02d", $self->{ _tournament }, $self->{ _ring } );
 	my $json    = $self->{ _json };
+
+	print STDERR "Watching $path\n";
 
 	$watch->{ $path } = {
 		watcher => new AnyEvent::Filesys::Notify(
 			dirs     => [ $path ],
-			interval => 2.0,
+			interval => 1.0,
 			cb       => sub {
 				my $event = shift;
-				print STDERR "  Broadcasting to:\n";
+				return if $event->is_modified(); # Each request is responsible for broadcasting modifications; this avoids interval latency
+
+				# ===== READ PROGRESS
+				my $tournament = $self->{ _tournament };
+				my $ring       = $self->{ _ring };
+				my $progress   = undef;
+				try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
+				catch { $self->{ _client }{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); return; };
+				my $division = $progress->current();
+
+				print STDERR "  Broadcasting file changes in '" . $event->path() . "' to:\n";
 				foreach my $id (sort keys %$clients) {
 					my $broadcast = $clients->{ $id };
 					my $unblessed;
@@ -228,14 +260,17 @@ sub notify {
 					my $encoded = $json->canonical->encode( $unblessed );
 					my $digest  = sha1_hex( $encoded );
 
-					print STDERR "    $id\n";
-					try   { $broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});}
-					catch { $client->send( { json => { error => "$_" }}); }
+					if( $self->{ _last_state }{ $id } eq $digest ) { print STDERR "    user: $id digest: $digest NO CHANGE; SKIP\n"; }
+					else                                           { print STDERR "    user: $id digest: $digest\n"; }
+					$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }})
+						unless $self->{ _last_state }{ $id } eq $digest;
+					$self->{ _last_state }{ $id } = $digest;
 				}
 				print STDERR "\n";
 			}
 		)
 	} unless( exists $watch->{ $path } );
+	print STDERR "\n";
 	push @{$watch->{ $path }{ group }}, $self->{ _client };
 }
 
