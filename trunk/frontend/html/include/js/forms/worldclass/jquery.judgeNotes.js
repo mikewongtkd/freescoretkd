@@ -48,7 +48,7 @@ $.widget( "freescore.judgeNotes", {
 		var summarize = function( form ) {
 			var accuracy     = form.accuracy().toFixed( 1 );
 			var presentation = form.presentation().toFixed( 1 );
-			if( ! form.is.complete() ) { accuracy = presentation = '&ndash;'; }
+			if( ! form.is.scored() ) { accuracy = presentation = '&ndash;'; }
 			return [
 				e.html.span.clone() .addClass( "accuracy" )     .html( accuracy ), '/',
 				e.html.span.clone() .addClass( "presentation" ) .html( presentation ) 

@@ -37,6 +37,12 @@ sub init {
 		form_prev    => \&handle_division_form_prev,
 		round_next   => \&handle_division_round_next,
 		round_prev   => \&handle_division_round_prev,
+		score        => \&handle_division_score,
+		display      => \&handle_division_display,
+	};
+	$self->{ ring }        = {
+		division_next => \&handle_ring_division_next,
+		division_prev => \&handle_ring_division_prev,
 	};
 }
 
@@ -96,11 +102,8 @@ sub handle_division_athlete_next {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Next athlete.\n";
-
 	try {
 		$division->autopilot( 0 );
-		$division->write();
 		$division->next_athlete();
 		$division->write();
 
@@ -120,13 +123,34 @@ sub handle_division_athlete_prev {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Previous athlete.\n";
+	try {
+		$division->autopilot( 0 );
+		$division->previous_athlete();
+		$division->write();
+
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_display {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
 
 	try {
 		$division->autopilot( 0 );
+		if( $division->is_display() ) { $division->score();   } 
+		else                          { $division->display(); }
 		$division->write();
-		$division->previous_athlete();
-		$division->write();
+
+
 
 		$self->broadcast_response( $request, $progress, $clients );
 	} catch {
@@ -142,6 +166,15 @@ sub handle_division_form_next {
 	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
+
+	try {
+		$division->autopilot( 0 );
+		$division->next_form();
+		$division->write();
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -152,6 +185,15 @@ sub handle_division_form_prev {
 	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
+
+	try {
+		$division->autopilot( 0 );
+		$division->previous_form();
+		$division->write();
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -173,6 +215,15 @@ sub handle_division_round_next {
 	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
+
+	try {
+		$division->autopilot( 0 );
+		$division->next_round();
+		$division->write();
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -183,16 +234,42 @@ sub handle_division_round_prev {
 	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
+
+	try {
+		$division->autopilot( 0 );
+		$division->previous_round();
+		$division->write();
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
-sub handle_file_change {
+sub handle_division_score {
 # ============================================================
 	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
-}
 
+	try {
+		$division->record_score( $request->{ judge }, $request->{ score } );
+		$division->write();
+		my $round   = $division->{ round };
+		my $form    = $division->{ form };
+		my $athlete = $division->{ athletes }[ $division->{ curent } ];
+		my $form_complete = $athlete->{ scores }{ $round }->form_complete( $form );
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		$self->{ _autopilot }( $division, $judge ) if $form_complete;
+
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
 
 # ============================================================
 sub send_response {

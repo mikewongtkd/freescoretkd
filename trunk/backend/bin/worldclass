@@ -72,72 +72,6 @@ get '/:tournament/:ring/:judge/autopilot' => sub {
 	send_response( $self, $response );
 };
 
-# ------------------------------------------------------------
-# TOGGLE CURRENT DIVISION STATE BETWEEN DISPLAY AND SCORE
-# ------------------------------------------------------------
-get '/:tournament/:ring/display' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division   = $progress->current();
-
-	try {
-		# ===== ANY NAVIGATION DISENGAGES AUTOPILOT
-		if( my $locked = $division->autopilot() ) {
-			$division->autopilot( 0 );
-			$division->write();
-		}
-
-		if( $division->is_display() ) { $division->score();   } 
-		else                          { $division->display(); }
-
-		$division->write();
-		send_response( $self, { 'description' => 'Update Display State', 'state' => $division->{ state } } );
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
-# WRITE JUDGE SCORE FOR ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/:judge/:major/:minor/:rhythm/:power/:ki' => sub { 
-	my $self         = shift;
-	my $tournament   = $self->param( 'tournament' );
-	my $ring         = $self->param( 'ring'       );
-	my $judge        = $self->param( 'judge'      );
-	my $major        = get_score( $self, 'major'  );
-	my $minor        = get_score( $self, 'minor'  );
-	my $rhythm       = get_score( $self, 'rhythm' );
-	my $power        = get_score( $self, 'power'  );
-	my $ki           = get_score( $self, 'ki'     );
-	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division     = $progress->current();
-	my $athlete      = $division->{ athletes }[ $division->{ current } ];
-	my $score        = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-
-	try {
-		$division->record_score( $judge, $score );
-		$division->write();
-		my $round = $division->{ round };
-		my $form  = $division->{ form };
-		my $form_complete = $athlete->{ scores }{ $round }->form_complete( $form );
-
-		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		if( $form_complete ) { 
-			my $response = autopilot( $division, $judge );
-			send_response( $self, { %$response, description => 'Scoring athlete', athlete => $athlete->{ name }, round => $round, judge => ($judge + 1), score => { %$score }, complete => $form_complete, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
-		} else {
-			send_response( $self, { description => 'Scoring athlete', athlete => $athlete->{ name }, round => $round, judge => ($judge + 1), score => { %$score }, complete => $form_complete, order => $division->{ order }{ $division->{ round }}, debug => $division->{ debug }});
-		}
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
 # ============================================================
 # COORDINATOR INTERFACE
 # ============================================================
@@ -229,21 +163,22 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
 	my $group      = sprintf "%s-ring-%d", $tournament, $ring;
 
-	$self->inactivity_timeout( 1800 ); # 30 minutes
+	$self->inactivity_timeout( 3600 ); # 1 hour
+	$manager->{ _autopilot } = \&autopilot;
 
 	$client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
 	print STDERR "WORLDCLASS $tournament ring $ring\n";
 	print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
 	print STDERR "\n";
 
-	# ===== READ PROGRESS
-	try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
-	catch { $client->{ $id }{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
-
 	$self->on( message => sub {
 		my $self    = shift;
 		my $request = $json->decode( shift );
 		my $judge   = exists $request->{ judge } && int( $request->{ judge } ) >= 0 ? $request->{ judge } : undef;
+
+		# ===== READ PROGRESS
+		try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
+		catch { $client->{ $id }{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
 		$client->{ $group }{ $id }{ judge } = $judge if defined $judge;

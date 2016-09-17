@@ -44,6 +44,11 @@ function Score( score ) {
 				},
 				is: {
 					complete : function() { return form.complete; },
+					scored : function() { 
+						var deductions   = parseFloat( judgeScore.major ) + parseFloat( judgeScore.minor );
+						var presentation = parseFloat( judgeScore.power ) + parseFloat( judgeScore.rhythm ) + parseFloat( judgeScore.ki );
+						return (deductions > 0.0 || presentation > 0.0);
+					}
 				}
 			};
 		};

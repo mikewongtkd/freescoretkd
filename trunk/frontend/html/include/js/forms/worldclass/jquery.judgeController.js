@@ -42,20 +42,12 @@ $.widget( "freescore.judgeController", {
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Energy', controller: this });
 		var send         = e.send         = html.div.clone() .button({ label : "Send" }) .addClass( "send" );
 
-		var sendScore    = o.sendScore    = function( judge, score ) {
-			var major  = (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
-			var minor  = (e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' ) * 10) .toFixed( 0 );
-			var rhythm = (e.rhythm .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
-			var power  = (e.power  .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
-			var ki     = (e.ki     .presentationBar( 'option', 'value' ) * 10) .toFixed( 0 );
-
-			return judge + "/" + major + "/" + minor + "/" + rhythm + "/" + power + "/" + ki;
-		}
-
 		// ===== UPDATE BEHAVIOR
 		widget.on( "updateRequest", function( ev ) {
 			var o = ev.score;
 			var e = ev.score.elements;
+
+			// ===== UPDATE JUDGE CONTROLLER DISPLAY
 			o.accuracy     = 4.0 -
 			                 e.major .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' ) -
 			                 e.minor .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' );
@@ -67,7 +59,21 @@ $.widget( "freescore.judgeController", {
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
+
+			// ===== UPDATE SEND BUTTON
+			var score = {
+				major  : (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' )) .toFixed( 1 ),
+				minor  : (e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' )) .toFixed( 1 ),
+				rhythm : (e.rhythm .presentationBar( 'option', 'value' )) .toFixed( 1 ),
+				power  : (e.power  .presentationBar( 'option', 'value' )) .toFixed( 1 ),
+				ki     : (e.ki     .presentationBar( 'option', 'value' )) .toFixed( 1 ),
+			};
+
 			e.send .off( 'click' ) .click( function() {
+				var request  = { data : { type : 'division', action : 'score', judge : o.num, score : score }};
+				request.json = JSON.stringify( request.data );
+				e.ws.send( request.json );
+				e.sound.ok.play();
 			});
 		} );
 
@@ -142,7 +148,7 @@ $.widget( "freescore.judgeController", {
 		var e           = this.options.elements;
 		var o           = this.options;
 		var html        = e.html;
-		var ws          = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+		var ws          = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 
 		ws.onopen = function() {
 			var request  = { data : { type : 'division', action : 'read', judge : o.num }};
@@ -154,8 +160,6 @@ $.widget( "freescore.judgeController", {
 			var update   = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
 			var digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division = new Division( update.division );
-
-			console.log( division );
 
 			if( ! defined( division.form.list())) { return; }
 
@@ -186,7 +190,13 @@ $.widget( "freescore.judgeController", {
 			// FLIPCARD BUTTON
 			// ----------------------------------------
 			if( division.state.is.score() ) { e.flipDisplay.button({ label : "Leaderboard" }); } 
-			else                            { e.flipDisplay.button({ label : "Athlete Score" }); }
+			else                            { e.flipDisplay.button({ label : "Athlete&nbsp;Score" }); }
+			e.flipDisplay .off( 'click' ) .click( function() {
+				var request  = { data : { type : 'division', action : 'display', judge : o.num }}; 
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json ); 
+				e.sound.ok.play();
+			});
 
 			// ----------------------------------------
 			// FORM NAVIGATION BUTTONS
@@ -253,7 +263,6 @@ $.widget( "freescore.judgeController", {
 				var tickerList = [ info.athlete, info.division, info.round, info.form ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( tickerList );
-				e.matPosition.matposition( 'option', 'reset' )();
 
 				// ===== RESET SCORE
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
