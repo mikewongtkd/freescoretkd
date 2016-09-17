@@ -166,11 +166,15 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	$self->inactivity_timeout( 3600 ); # 1 hour
 	$manager->{ _autopilot } = \&autopilot;
 
-	$client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
+	# ===== REGISTER THE CLIENT
+	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
 	print STDERR "WORLDCLASS $tournament ring $ring\n";
 	print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
 	print STDERR "\n";
 
+	# ----------------------------------------
+	# Handle messages
+	# ----------------------------------------
 	$self->on( message => sub {
 		my $self    = shift;
 		my $request = $json->decode( shift );
@@ -178,10 +182,10 @@ websocket '/worldclass/:tournament/:ring' => sub {
 
 		# ===== READ PROGRESS
 		try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
-		catch { $client->{ $id }{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
+		catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
-		$client->{ $group }{ $id }{ judge } = $judge if defined $judge;
+		$c->{ judge } = $judge if defined $judge;
 		print STDERR "JUDGE $judge: " if defined $judge;
 
 		# ===== WATCH FILESYSTEM FOR CHANGES
@@ -189,10 +193,14 @@ websocket '/worldclass/:tournament/:ring' => sub {
 
 		# ===== HANDLE REQUEST
 		my $clients = $client->{ $group };
+		print STDERR Dumper $request;
 		try   { $manager->handle( $request, $progress, $clients ); }
-		catch { $client->{ $group }{ $id }{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 	});
 
+	# ----------------------------------------
+	# Handle disconnects
+	# ----------------------------------------
 	$self->on( finish => sub { delete $client->{ $group }{ $id }; });
 };
 

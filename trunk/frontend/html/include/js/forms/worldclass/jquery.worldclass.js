@@ -17,25 +17,27 @@ $.widget( "freescore.worldclass", {
 		widget .append( card, usermessage );
 	},
 	_init: function( ) {
-		var e = this.options.elements;
-		var o = this.options;
+		var e  = this.options.elements;
+		var o  = this.options;
+		var ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
 		e.leaderboard.leaderboard();
 		e.scoreboard.scoreboard();
 
-		function refresh( update ) {
-			var progress = JSON.parse( update.data );
-			var division = undefined;
-			if( defined( o.digest ) && progress.digest == o.digest ) { return; } else { o.digest = progress.digest; }
-			if( defined( progress.divisions ) && defined( progress.current )) {
-				var divisionData = progress.divisions[ progress.current ];
-				if( defined( divisionData )) {
-					division = new Division( divisionData );
-				}
-			}
+		ws.onopen = function() {
+			var request  = { data : { type : 'division', action : 'read' }};
+			request.json = JSON.stringify( request.data );
+			ws.send( request.json );
+		}
 
-			if( progress.error ) {
+		ws.onmessage = function( response ) {
+			var update = JSON.parse( response.data );
+			var divisionData = update.division;
+			if( defined( o.digest ) && response.digest == o.digest ) { return; } else { o.digest = response.digest; }
+			if( defined( divisionData )) { division = new Division( divisionData ); } else { return; }
+
+			if( response.error ) {
 				e.card.hide();
-				e.usermessage.errormessage({ message : progress.error });
+				e.usermessage.errormessage({ message : response.error });
 				
 			} else if( division.state.is.display() ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
@@ -65,9 +67,5 @@ $.widget( "freescore.worldclass", {
 				});
 			}
 		};
-
-		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', refresh, false );
-
 	}
 });

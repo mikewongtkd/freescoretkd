@@ -151,7 +151,7 @@ $.widget( "freescore.scoreboard", {
 
 		// ===== ROUND DESCRIPTION TICKER
 		var round = { ticker : e.html.ul.clone() .totemticker({ row_height: '32px', interval : 2000 } ), name : current.roundName };
-		var form  = { ordinal : ordinal( current.form + 1 ) + ' Form', name : current.forms[ current.form ] };
+		var form  = { ordinal : ordinal( parseInt( current.form ) + 1 ) + ' Form', name : current.forms[ current.form ] };
 
 		round.ticker.append( e.html.li.clone() .html( current.description ));
 		round.ticker.append( e.html.li.clone() .html( current.name.toUpperCase() + ' <b>' + round.name + '</b>'));

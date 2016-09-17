@@ -102,6 +102,8 @@ sub handle_division_athlete_next {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
+	print STDERR "Next athlete.\n";
+
 	try {
 		$division->autopilot( 0 );
 		$division->next_athlete();
@@ -122,6 +124,8 @@ sub handle_division_athlete_prev {
 	my $clients  = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+
+	print STDERR "Previous athlete.\n";
 
 	try {
 		$division->autopilot( 0 );
@@ -144,13 +148,13 @@ sub handle_division_display {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
+	print STDERR "Change display.\n";
+
 	try {
 		$division->autopilot( 0 );
 		if( $division->is_display() ) { $division->score();   } 
 		else                          { $division->display(); }
 		$division->write();
-
-
 
 		$self->broadcast_response( $request, $progress, $clients );
 	} catch {
@@ -166,6 +170,8 @@ sub handle_division_form_next {
 	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
+
+	print STDERR "Next form.\n";
 
 	try {
 		$division->autopilot( 0 );
@@ -186,6 +192,8 @@ sub handle_division_form_prev {
 	my $clients  = shift;
 	my $division = $progress->current();
 
+	print STDERR "Previous form.\n";
+
 	try {
 		$division->autopilot( 0 );
 		$division->previous_form();
@@ -204,6 +212,8 @@ sub handle_division_read {
 	my $progress = shift;
 	my $clients  = shift;
 
+	print STDERR "Request division data.\n";
+
 	$self->send_response( $request, $progress, $clients );
 }
 
@@ -215,6 +225,8 @@ sub handle_division_round_next {
 	my $progress = shift;
 	my $clients  = shift;
 	my $division = $progress->current();
+
+	print STDERR "Next round.\n";
 
 	try {
 		$division->autopilot( 0 );
@@ -235,6 +247,8 @@ sub handle_division_round_prev {
 	my $clients  = shift;
 	my $division = $progress->current();
 
+	print STDERR "Previous round.\n";
+
 	try {
 		$division->autopilot( 0 );
 		$division->previous_round();
@@ -254,6 +268,8 @@ sub handle_division_score {
 	my $clients  = shift;
 	my $division = $progress->current();
 
+	print STDERR "Send score.\n";
+
 	try {
 		$division->record_score( $request->{ judge }, $request->{ score } );
 		$division->write();
@@ -265,6 +281,44 @@ sub handle_division_score {
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		$self->{ _autopilot }( $division, $judge ) if $form_complete;
 
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_ring_division_next {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+
+	print STDERR "Next division.\n";
+
+	try {
+		$progress->next();
+		$progress->write();
+		$self->broadcast_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_ring_division_prev {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+
+	print STDERR "Previous division.\n";
+
+	try {
+		$progress->previous();
+		$progress->write();
 		$self->broadcast_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -303,25 +357,26 @@ sub watch_files {
 	my $self     = shift; 
 	return if exists $self->{ _watcher } && defined $self->{ _watcher };
 
-	my $judge    = shift;
-	my $is_judge = defined( $judge ) && int( $judge ) >= 0;
-	my $path     = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/ring%02d", $self->{ _tournament }, $self->{ _ring } );
-	my $json     = $self->{ _json };
-	my $client   = $self->{ _client };
-	my $id        = sprintf "%s", sha1_hex( $client );
+	my $judge      = shift;
+	my $is_judge   = defined( $judge ) && int( $judge ) >= 0;
+	my $tournament = $self->{ _tournament };
+	my $ring       = $self->{ _ring };
+	my $path       = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/ring%02d", $tournament, $ring );
+	my $json       = $self->{ _json };
+	my $client     = $self->{ _client };
+	my $id         = sprintf "%s", sha1_hex( $client );
 
-	print STDERR "  Watching $path\n";
+	printf STDERR "Watching '%s/ring%02d' ", $tournament, $ring;
 
 	$self->{ _watcher } = new AnyEvent::Filesys::Notify(
 		dirs     => [ $path ],
 		interval => 2.0,
 		cb       => sub {
 			my $event = shift;
-			return if $event->is_modified(); # Each request is responsible for broadcasting modifications; this avoids interval latency
+			return if $event->is_modified();     # Each request is responsible for broadcasting modifications; this avoids interval latency
+			return if $event->path() =~ /\.swp/; # Ignore vim swap files
 
 			# ===== READ NEW PROGRESS 
-			my $tournament = $self->{ _tournament };
-			my $ring       = $self->{ _ring };
 			my $progress   = undef;
 			try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
 			catch { $self->{ _client }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); return; };
@@ -340,7 +395,6 @@ sub watch_files {
 			print STDERR "\n";
 		}
 	);
-	print STDERR "\n";
 	push @{$watch->{ $path }{ group }}, $self->{ _client };
 }
 

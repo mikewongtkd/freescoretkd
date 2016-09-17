@@ -1,11 +1,11 @@
 <?php 
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
-	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
-	$k = in_array( $i, json_decode( $tournament )->rings );
+	$ring = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
+	$k = in_array( $ring, json_decode( $tournament )->rings );
 	$warning = "";
-	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
-		setcookie( 'ring', $i, 0, '/' ); 
+	if( $ring == 'staging' || (ctype_digit( $ring ) && (integer) $ring >= 1 && (integer) $ring <= $k)) { 
+		setcookie( 'ring', $ring, 0, '/' ); 
 		$cookie_set = true;
 	} else {
 		$warning = "Ring number invalid.";
@@ -43,7 +43,7 @@
 	<body>
 		<div id="worldclass"></div>
 		<script type="text/javascript">
-			$( '#worldclass' ).worldclass({ tournament : <?= $tournament ?> });
+			$( '#worldclass' ).worldclass({ tournament : <?= $tournament ?>, ring : <?= $ring ?> });
 			$( 'body' ).click( function() {
 				if( screenfull.enabled ) { screenfull.toggle(); }
 			});

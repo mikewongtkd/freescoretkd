@@ -96,23 +96,23 @@ $.widget( "freescore.judgeController", {
 		var nav          = e.nav = {
 			athlete : {
 				label : html.div.clone() .addClass( "navigate label athlete-label" ) .html( "Athlete" ),
-				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev athlete" )  .attr( 'action', 'athlete prev' ) .attr( 'sound', 'prev' ),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next athlete" )  .attr( 'action', 'athlete next' ) .attr( 'sound', 'next' ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev athlete" )  .attr({ type: 'division', action: 'athlete prev',  sound: 'prev' }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next athlete" )  .attr({ type: 'division', action: 'athlete next',  sound: 'next' }),
 			},
 			form : {
 				label : html.div.clone() .addClass( "navigate label form-label" ) .html( "Form" ),
-				prev  : html.div.clone() .button({ label : '1<sup>st</sup>' })    .addClass( "navigate button prev form" )     .attr( 'action', 'form prev' )    .attr( 'sound', 'prev' ),
-				next  : html.div.clone() .button({ label : '2<sup>nd</sup>' })    .addClass( "navigate button next form" )     .attr( 'action', 'form next' )    .attr( 'sound', 'next' ),
+				prev  : html.div.clone() .button({ label : '1<sup>st</sup>' })    .addClass( "navigate button prev form" )     .attr({ type: 'division', action: 'form prev',     sound: 'prev' }),
+				next  : html.div.clone() .button({ label : '2<sup>nd</sup>' })    .addClass( "navigate button next form" )     .attr({ type: 'division', action: 'form next',     sound: 'next' }),
 			},
 			round : {
 				label : html.div.clone() .addClass( "navigate label round-label" ) .html( "Round" ),
-				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev round" )    .attr( 'action', 'round prev' )   .attr( 'sound', 'prev' ),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next round" )    .attr( 'action', 'round next' )   .attr( 'sound', 'next' ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev round" )    .attr({ type: 'division', action: 'round prev',    sound: 'prev' }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next round" )    .attr({ type: 'division', action: 'round next',    sound: 'next' }),
 			},
 			division : {
 				label : html.div.clone() .addClass( "navigate label division-label" ) .html( "Division" ),
-				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev division" ) .attr( 'action', 'prev' )         .attr( 'sound', 'prev' ),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next division" ) .attr( 'action', 'next' )         .attr( 'sound', 'next' ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev division" ) .attr({ type: 'ring',     action: 'division prev', sound: 'prev' }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next division" ) .attr({ type: 'ring',     action: 'division next', sound: 'next' }),
 			}
 		};
 		var flipDisplay  = e.flipDisplay  = html.div.clone() .button({ label : "Leaderboard" }) .addClass( "navigate button mode" ) .attr( 'action', 'display' ) .attr( 'sound', 'ok' );
@@ -168,7 +168,7 @@ $.widget( "freescore.judgeController", {
 					button.button( 'enable' );
 					button.off( 'click' ); // Avoid multiple handlers
 					button.click( function() {
-						var request  = { data : { type : 'division', action : button.attr( 'action' ), judge : o.num }}; 
+						var request  = { data : { type : button.attr( 'type' ), action : button.attr( 'action' ), judge : o.num }}; 
 						request.json = JSON.stringify( request.data );
 						ws.send( request.json ); 
 						e.sound[ button.attr( 'sound' ) ].play();
@@ -240,6 +240,12 @@ $.widget( "freescore.judgeController", {
 				button  .enable( e.nav.round.prev );
 				button .disable( e.nav.round.next );
 			}
+
+			// ----------------------------------------
+			// DIVISION NAVIGATION BUTTONS
+			// ----------------------------------------
+			button .enable( e.nav.division.prev );
+			button .enable( e.nav.division.next );
 
 			// ===== CHECK TO SEE IF THE DIVISION, ATHLETE, ROUND, OR FORM HAS CHANGED
 			var different = { 
