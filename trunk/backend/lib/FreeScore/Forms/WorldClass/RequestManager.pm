@@ -41,13 +41,14 @@ sub init {
 		display      => \&handle_division_display,
 	};
 	$self->{ ring }        = {
+		read          => \&handle_ring_read,
 		division_next => \&handle_ring_division_next,
 		division_prev => \&handle_ring_division_prev,
 	};
 }
 
 # ============================================================
-sub broadcast_response {
+sub broadcast_division_response {
 # ============================================================
 # Broadcasts to ring
 # ------------------------------------------------------------
@@ -109,7 +110,7 @@ sub handle_division_athlete_next {
 		$division->next_athlete();
 		$division->write();
 
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -132,7 +133,7 @@ sub handle_division_athlete_prev {
 		$division->previous_athlete();
 		$division->write();
 
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -156,7 +157,7 @@ sub handle_division_display {
 		else                          { $division->display(); }
 		$division->write();
 
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -177,7 +178,7 @@ sub handle_division_form_next {
 		$division->autopilot( 0 );
 		$division->next_form();
 		$division->write();
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -198,7 +199,7 @@ sub handle_division_form_prev {
 		$division->autopilot( 0 );
 		$division->previous_form();
 		$division->write();
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -214,7 +215,7 @@ sub handle_division_read {
 
 	print STDERR "Request division data.\n";
 
-	$self->send_response( $request, $progress, $clients );
+	$self->send_division_response( $request, $progress, $clients );
 }
 
 # ============================================================
@@ -232,7 +233,7 @@ sub handle_division_round_next {
 		$division->autopilot( 0 );
 		$division->next_round();
 		$division->write();
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -253,7 +254,7 @@ sub handle_division_round_prev {
 		$division->autopilot( 0 );
 		$division->previous_round();
 		$division->write();
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -281,7 +282,7 @@ sub handle_division_score {
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		$self->{ _autopilot }( $division, $judge ) if $form_complete;
 
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -300,7 +301,7 @@ sub handle_ring_division_next {
 	try {
 		$progress->next();
 		$progress->write();
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -319,14 +320,27 @@ sub handle_ring_division_prev {
 	try {
 		$progress->previous();
 		$progress->write();
-		$self->broadcast_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
 }
 
 # ============================================================
-sub send_response {
+sub handle_ring_read {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+
+	print STDERR "Request ring data.\n";
+
+	$self->send_ring_response( $request, $progress, $clients );
+}
+
+# ============================================================
+sub send_division_response {
 # ============================================================
  	my $self      = shift;
 	my $request   = shift;
@@ -347,7 +361,32 @@ sub send_response {
 	print STDERR "  Sending response\n";
 	print STDERR "    user: $id digest: $digest\n\n";
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
+	$self->{ _last_state } = $digest;
+}
+
+# ============================================================
+sub send_ring_response {
+# ============================================================
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+	my $unblessed = undef;
+	my $is_judge  = exists $request->{ judge } && int( $request->{ judge } ) >= 0;
+	my $judge     = $is_judge ? int( $request->{ judge }) : undef;
+	my $id        = sprintf "%s", sha1_hex( $client );
+
+	my $unblessed = unbless $progress;
+	my $encoded   = $json->canonical->encode( $unblessed );
+	my $digest    = sha1_hex( $encoded );
+
+	print STDERR "  Sending response\n";
+	print STDERR "    user: $id digest: $digest\n\n";
+
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
 }
 

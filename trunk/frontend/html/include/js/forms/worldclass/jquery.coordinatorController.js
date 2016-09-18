@@ -1038,15 +1038,12 @@ $.widget( "freescore.coordinatorController", {
 		});
 
 		// ============================================================
-		e.refresh = function( update ) {
+		e.refresh = function( response ) {
 		// ============================================================
-			var progress = JSON.parse( update.data ); 
+			var update   = JSON.parse( response.data ); 
+			var progress = update.ring;
 			if( ! defined( progress.divisions )) { return; }
-			if( ! defined( progress.digest    )) { return; }
-			var digest   = progress.digest;
-			if( defined( o.progress ) && digest == o.progress.digest ) { if( ! e.dialog.hasClass( 'ui-popup-hidden' )) { e.dialog.popup( 'close' ); } return; }
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
-			if( defined( o.changes )) { console.log( 'Changes pending; skipping update.' ); return; } // Do not refresh if there are pending changes
 			o.progress = progress;
 			var division = new Division( progress.divisions[ i ] );
 			e.updateDivisions( progress.divisions, progress.staging, progress.current );
@@ -1080,11 +1077,21 @@ $.widget( "freescore.coordinatorController", {
 		dialog.popupdialog();
 	},
 	_init: function( ) {
-		var o = this.options;
-		var w = this.element;
-		var e = this.options.elements;
+		var o  = this.options;
+		var w  = this.element;
+		var e  = this.options.elements;
+		var ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/worldclass/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', e.refresh, false );
+		ws.onopen = function() {
+			var request  = { data : { type : 'ring', action : 'read' }};
+			request.json = JSON.stringify( request.data );
+			ws.send( request.json );
+		}
+
+		ws.onmessage = e.refresh;
+
+		ws.onclose = function() {
+			ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+		}
 	}
 });
