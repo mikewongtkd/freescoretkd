@@ -688,6 +688,19 @@ sub read {
 }
 
 # ============================================================
+sub split {
+# ============================================================
+#** @method ( n )
+#   @brief Splits the division into n flights
+#*
+	my $self  = shift;
+	my $n     = shift;
+	my $round = $self->{ round };
+	
+	return if $round ne 'prelim'; # Can only split prior to the preliminary round
+}
+
+# ============================================================
 sub update_status {
 # ============================================================
 #** @method ()
