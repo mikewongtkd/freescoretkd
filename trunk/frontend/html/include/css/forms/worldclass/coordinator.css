@@ -5,6 +5,9 @@
   font-family: Biolinum;
   font-weight: bold;
   src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+:root {
+  --actions-panel-width: 240px; }
+
 .ui-header {
   height: 48px; }
   .ui-header .ui-title {
@@ -65,11 +68,11 @@ table {
   background-color: white; }
 
 .rounds {
-  width: calc( 100% - 220px ); }
+  width: calc( 100% - var( --actions-panel-width )); }
 
 .athletes {
   font-family: Optima;
-  width: calc( 100% - 240px ); }
+  width: calc( 100% - (var( --actions-panel-width ) + 20px)); }
   .athletes tr {
     height: 32px; }
   .athletes th {
@@ -82,7 +85,7 @@ table {
     text-align: right;
     padding-right: 6px; }
   .athletes .name {
-    width: calc( 100% - 180px );
+    width: calc( 100% - ( var( --actions-panel-width ) + 40px));
     font-size: 16pt; }
     .athletes .name input[type=search], .athletes .name input[type=text] {
       font-family: Optima;
@@ -91,14 +94,6 @@ table {
       width: calc( 100% - 240px ); }
       .athletes .name input[type=search]:focus, .athletes .name input[type=text]:focus {
         outline: none; }
-    .athletes .name .athlete-actions {
-      color: white;
-      text-shadow: none;
-      display: none;
-      background: red;
-      background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-      padding: 4px 16px 4px 16px; }
   .athletes .oneform {
     width: 100px;
     text-align: left;
@@ -124,8 +119,8 @@ table {
 .actions {
   position: fixed;
   top: 32px;
-  left: calc( 100% - 220px );
-  width: 220px;
+  left: calc( 100% - var( --actions-panel-width ) );
+  width: var(--actions-panel-width);
   height: 100%;
   background: #ccc; }
   .actions fieldset {

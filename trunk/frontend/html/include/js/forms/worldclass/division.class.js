@@ -113,6 +113,7 @@ function Division( division ) {
 			semfin   : function() { return division.round == 'semfin'; },
 			finals   : function() { return division.round == 'finals'; }
 		},
+		list : function() { return Object.keys( division.forms ); },
 		name : function() { return FreeScore.round.name[ division.round ]; }
 	};
 

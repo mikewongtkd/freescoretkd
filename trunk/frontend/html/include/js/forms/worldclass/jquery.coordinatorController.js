@@ -82,7 +82,7 @@ $.widget( "freescore.coordinatorController", {
 			clock : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Timer" ),
-				face       : button.clone() .addClass( 'timer' ) .css({ 'text-align' : 'center' }) .html( "00:00.00" ),
+				face       : button.clone() .addClass( 'timer' ) .css({ 'text-align' : 'center' }) .html( "0:00.0" ),
 				toggle     : button.clone() .addClass( 'start' ) .iconlabel( "time",  "Start Timer" ),
 				settings   : { increment : 70, started : false },
 				timer      : undefined,
@@ -99,13 +99,18 @@ $.widget( "freescore.coordinatorController", {
 			penalties : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Penalties" ),
-				timelimit  : button.clone() .addClass( 'penalty' ) .iconlabel( "hourglass",     "Time Limit"      ),
-				bounds     : button.clone() .addClass( 'penalty' ) .iconlabel( "share",         "Out-of-Bounds"   ),
-				restart    : button.clone() .addClass( 'penalty' ) .iconlabel( "retweet",       "Restart"         ),
-				misconduct : button.clone() .addClass( 'penalty' ) .iconlabel( "comment",       "Misconduct"      ),
-				clear      : button.clone() .addClass( 'penalty' ) .iconlabel( "remove-circle", "Clear Penalties" ),
+				timelimit  : button.clone() .addClass( 'penalty' ) .iconlabel( "hourglass", "Time Limit"      ),
+				bounds     : button.clone() .addClass( 'penalty' ) .iconlabel( "share",     "Out-of-Bounds"   ),
+				restart    : button.clone() .addClass( 'penalty' ) .iconlabel( "retweet",   "Restart Form"    ),
+				misconduct : button.clone() .addClass( 'penalty' ) .iconlabel( "comment",   "Misconduct"      ),
+				clear      : button.clone() .addClass( 'penalty' ) .iconlabel( "trash",     "Clear Penalties" ),
 			},
 
+			punitive : {
+				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
+				legend     : html.legend.clone() .html( "Remove Athlete" ),
+				remove     : button.clone() .addClass( 'punitive' ) .iconlabel( "remove",   "Remove Athlete"  ),
+			}
 		};
 
 		var time = e.time = {
@@ -114,12 +119,11 @@ $.widget( "freescore.coordinatorController", {
 				while (str.length < length) {str = '0' + str;}
 				return str;
 			},
-			format : function(time) {
-				time = Math.floor( time / 10 );
-				var min = parseInt(time / 6000),
-					sec = parseInt(time / 100) - (min * 60),
-					hundredths = e.time.pad(time - (sec * 100) - (min * 6000), 2);
-				return (min > 0 ? e.time.pad(min, 2) : "00") + ":" + e.time.pad(sec, 2) + "." + hundredths;
+			format : function( time ) {
+				var min    = parseInt(time / 60000),
+					sec    = parseInt(time / 1000) - (min * 60),
+					tenths = parseInt((time % 1000)/100) % 10;
+				return min + ":" + e.time.pad(sec, 2) + '.' + tenths;
 			},
 			stop : function() {
 				if( defined( actions.clock.timer )) { actions.clock.timer.stop(); }
@@ -135,14 +139,14 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock.settings.started = true;
 				e.actions.clock.toggle.removeClass( "start" );
 				e.actions.clock.toggle.addClass( "stop" );
-				e.actions.clock.toggle.iconlabel( "pause", "Stop Timer" );
+				e.actions.clock.toggle.iconlabel( "pause", "Pause Timer" );
 			},
 			clear : function() {
 				e.actions.clock.settings.started = false;
 				e.actions.clock.timer    = $.timer( actions.clock.update, actions.clock.settings.increment, true );
 				e.actions.clock.time     = 0;
 				e.actions.clock.realtime = 0;
-				e.actions.clock.face.html( "00:00.00" );
+				e.actions.clock.face.html( "0:00.0" );
 			}
 		};
 
@@ -165,8 +169,9 @@ $.widget( "freescore.coordinatorController", {
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
 		actions.admin      .panel.append( actions.admin.legend, actions.admin.display, actions.admin.print, actions.admin.split, actions.admin.merge );
+		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.remove );
 
-		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.admin.panel, actions.changes.panel );
+		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.admin.panel, actions.changes.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -857,14 +862,17 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
+				e.actions.punitive  .panel .show();
 				e.actions.changes   .panel .hide();
 
+				// Clear context for navigation button
 				e.actions.navigate.division.attr({ index : undefined });
 
 			} else {
 				e.actions.navigate  .panel .show();
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
+				e.actions.punitive  .panel .hide();
 				e.actions.changes   .panel .hide();
 
 				// Set context for navigation button
@@ -907,6 +915,7 @@ $.widget( "freescore.coordinatorController", {
 				var j = division.order[ round ][ i ];
 				var athlete = {
 					data  : division.athletes[ j ],
+					is    : {},
 					row   : html.tr   .clone(),
 					order : html.td   .clone() .addClass( "order" ),
 					name  : html.td   .clone() .addClass( "name" ),
@@ -931,23 +940,11 @@ $.widget( "freescore.coordinatorController", {
 				} else {
 
 					var input   = html.text.clone();
-					var action = {
-						withdraw   : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-user  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( '&nbsp;&nbsp;&nbsp;WD' ),
-						disqualify : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-info  ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( '&nbsp;&nbsp;&nbsp;DQ' ),
-						remove     : html.a.clone().addClass( "athlete-actions ui-btn ui-nodisc-icon ui-shadow ui-corner-all ui-icon-minus ui-btn-icon-left ui-mini ui-btn-inline ui-nodisc-icon" ) .attr({ index : j }) .html( '&nbsp;&nbsp;&nbsp;RM' ),
-					};
-
-					action.withdraw   .click( withdrawAthlete );
-					action.disqualify .click( disqualifyAthlete );
-					action.remove     .click( removeAthlete( division, round ) );
 
 					input.val( athlete.data.name );
 					input.change( renameAthletes( division, round ) );
-					input.focus( function() { 
-						$( this ).parents( '.athletes' ).find( '.athlete-actions' ).css({ 'display' : 'none' });
-						$( this ).parent().find( '.athlete-actions' ).css({ 'display' : 'inline' }); 
-					});
-					athlete.name.append( input, action.withdraw, action.disqualify, action.remove );
+					athlete.name.append( input );
+
 				}
 				athlete.order.attr({ order : (i + 1) });
 				athlete.order.append( (i + 1) + '.' );
@@ -955,11 +952,13 @@ $.widget( "freescore.coordinatorController", {
 				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
 
 				// Highlight current athlete
-				var currentDivision = o.progress.current == current;
-				var currentRound    = o.round == division.round;
-				var currentAthlete  = j == division.current;
-				if( currentDivision && currentRound && currentAthlete ) { athlete.row    .addClass( 'current' ); }
-				else                                                    { athlete.row .removeClass( 'current' ); }
+				var is = { current : {}, up : false };
+				is.current.division = o.progress.current == current;
+				is.current.round    = o.round == division.round;
+				is.current.athlete  = j == division.current;
+				athlete.is.up       = is.current.division && is.current.round && is.current.athlete;
+
+				if( athlete.is.up ) { athlete.row.addClass( 'current' ); } else { athlete.row.removeClass( 'current' ); }
 
 				// Append score
 				{
@@ -1093,6 +1092,7 @@ $.widget( "freescore.coordinatorController", {
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
 			if( defined( o.changes )) { console.log( 'Changes pending; skipping update.' ); return; } // Do not refresh if there are pending changes
 			o.progress = progress;
+			var division = new Division( progress.divisions[ i ] );
 			e.updateDivisions( progress.divisions, progress.staging, progress.current );
 			e.updateRounds( progress.divisions[ i ], i );
 			e.updateAthletes( progress.divisions[ i ], i );
