@@ -30,20 +30,21 @@ sub init {
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
-		read         => \&handle_division_read,
-		athlete_next => \&handle_division_athlete_next,
-		athlete_prev => \&handle_division_athlete_prev,
-		form_next    => \&handle_division_form_next,
-		form_prev    => \&handle_division_form_prev,
-		round_next   => \&handle_division_round_next,
-		round_prev   => \&handle_division_round_prev,
-		score        => \&handle_division_score,
-		display      => \&handle_division_display,
+		athlete_next  => \&handle_division_athlete_next,
+		athlete_prev  => \&handle_division_athlete_prev,
+		award_penalty => \&handle_division_award_penalty,
+		form_next     => \&handle_division_form_next,
+		form_prev     => \&handle_division_form_prev,
+		read          => \&handle_division_read,
+		round_next    => \&handle_division_round_next,
+		round_prev    => \&handle_division_round_prev,
+		score         => \&handle_division_score,
+		display       => \&handle_division_display,
 	};
 	$self->{ ring }        = {
-		read          => \&handle_ring_read,
 		division_next => \&handle_ring_division_next,
 		division_prev => \&handle_ring_division_prev,
+		read          => \&handle_ring_read,
 	};
 }
 
@@ -91,6 +92,28 @@ sub handle {
 
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
 	return $self->$dispatch( $request, $progress, $clients ) if defined $dispatch;
+}
+
+# ============================================================
+sub handle_division_award_penalty {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Award penalty.\n";
+
+	try {
+		$division->record_penalties( $request->{ penalties });
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================

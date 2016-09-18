@@ -15,6 +15,9 @@
     line-height: 8pt;
     color: gold; }
 
+.ui-radio input[type=radio] {
+  display: none !important; }
+
 .divisions .current {
   color: gold;
   background: #6facd5;

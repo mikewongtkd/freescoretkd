@@ -226,7 +226,7 @@ sub calculate_means {
 		}
 
 		# ===== CALCULATE PENALTIES
-		my $penalties = sum @{$form->{ penalty }}{ ( qw( bounds timelimit restart misconduct )) };
+		my $penalties = sum @{$form->{ penalty }}{ ( qw( bounds timelimit restart )) };
 
 		# ===== CALCULATE ORIGINAL (UNADJUSTED) MEANS
 		$original = { map { ( $_ => sprintf( "%.2f", ($original->{ $_ }/$judges))) } keys %$original };

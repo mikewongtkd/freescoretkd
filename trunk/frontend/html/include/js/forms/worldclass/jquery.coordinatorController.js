@@ -133,6 +133,8 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock.toggle.removeClass( "stop" );
 				e.actions.clock.toggle.addClass( "start" );
 				e.actions.clock.toggle.iconlabel( "play", "Start Timer" );
+				o.penalties.time = (e.actions.clock.time/1000).toFixed( 1 );
+				awardPenalty();
 			},
 			start : function() {
 				e.actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
@@ -162,7 +164,7 @@ $.widget( "freescore.coordinatorController", {
 			}
 		};
 
-		o.penalties = { bounds : 0, timelimit : 0, restart : 0, misconduct : 0 };
+		o.penalties = { bounds : 0, timelimit : 0, restart : 0, misconduct : 0, time : 0 };
 
 		actions.changes    .panel.append( actions.changes.legend, actions.changes.save, actions.changes.revert );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
@@ -231,40 +233,13 @@ $.widget( "freescore.coordinatorController", {
 		}
 
 		// ============================================================
-		var awardPenaltyBounds = function() {
+		// Award Penalties
 		// ============================================================
-			o.penalties.bounds += 0.3;
-
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/penalty/" + penalties )());
-		};
-
-		// ============================================================
-		var awardPenaltyMisconduct = function() {
-		// ============================================================
-			o.penalties.misconduct += 0.3;
-
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/penalty/" + penalties )());
-		};
-
-		// ============================================================
-		var awardPenaltyRestart = function() {
-		// ============================================================
-			o.penalties.restart += 0.6;
-
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/penalty/" + penalties )());
-		};
-
-		// ============================================================
-		var awardPenaltyTimeLimit = function() {
-		// ============================================================
-			o.penalties.timelimit = 0.3;
-
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/penalty/" + penalties )());
-		};
+		var awardPenalty           = function() {                                (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyBounds     = function() { o.penalties.bounds     += 0.3; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyMisconduct = function() { o.penalties.misconduct += 1  ; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyRestart    = function() { o.penalties.restart    += 0.6; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyTimeLimit  = function() { o.penalties.timelimit   = 0.3; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
 
 		// ============================================================
 		var clearPenalties = function() {
@@ -273,9 +248,9 @@ $.widget( "freescore.coordinatorController", {
 			o.penalties.timelimit  = 0.0;
 			o.penalties.restart    = 0.0;
 			o.penalties.misconduct = 0.0;
+			o.penalties.time       = 0;
 
-			var penalties = (o.penalties.bounds * 10) + '/' + (o.penalties.timelimit * 10) + '/' + (o.penalties.restart * 10) + '/' + (o.penalties.misconduct * 10) + '/' + (e.actions.clock.time / 10);
-			(sendCommand( "coordinator/penalty/" + penalties )());
+			(sendRequest({ type: 'division', action: 'award penalty', penalties : o.penalties })());
 		};
 
 		// ============================================================
@@ -617,57 +592,12 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var sendCommand = function( command, callback ) {
+		var sendRequest = function( requestData ) {
 		// ============================================================
 			return function() {
-				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + command;
-				$.ajax( {
-					type:    'GET',
-					crossDomain: true,
-					url:     url,
-					data:    {},
-					success: function( response ) { 
-						if( defined( response.error )) {
-							sound.error.play();
-							console.log( response );
-
-						} else {
-							sound.ok.play(); 
-							console.log( url );
-							console.log( response );
-							if( defined( callback )) { callback( response ); }
-						}
-					},
-					error:   function( response ) { sound.error.play(); console.log( "Network Error: Unknown network error." ); },
-				});
-			}
-		};
-
-		// ============================================================
-		var sendRequest = function( request, data, callback ) {
-		// ============================================================
-			return function() {
-				var url = 'http://' + o.server + o.port + o.tournament.db + '/' + o.ring + '/' + request;
-				$.ajax( {
-					type:        'POST',
-					crossDomain: true,
-					url:         url,
-					dataType:    'json',
-					data:        JSON.stringify( data ),
-					success:     function( response ) { 
-						if( defined( response.error )) {
-							sound.error.play();
-							console.log( response );
-
-						} else {
-							sound.ok.play(); 
-							console.log( url );
-							console.log( response );
-							if( defined( callback )) { callback( response ); }
-						}
-					},
-					error:       function( response ) { sound.error.play(); console.log( "Network Error: Unknown network error." ); },
-				});
+				var request = { data : requestData };
+				request.json = JSON.stringify( request.data );
+				e.ws.send( request.json );
 			}
 		};
 
@@ -1040,7 +970,16 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		e.refresh = function( response ) {
 		// ============================================================
-			var update   = JSON.parse( response.data ); 
+			var update = JSON.parse( response.data ); 
+
+			// ===== IF THE UPDATE IS NOT A RING UPDATE, THEN SOMETHING HAS CHANGED; GET FRESH DATA
+			if( update.type != 'ring' ) {
+				var request  = { data : { type : 'ring', action : 'read' }};
+				request.json = JSON.stringify( request.data );
+				e.ws.send( request.json );
+				return;
+			}
+
 			var progress = update.ring;
 			if( ! defined( progress.divisions )) { return; }
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
@@ -1052,8 +991,6 @@ $.widget( "freescore.coordinatorController", {
 
 			// ===== UPDATE BEHAVIOR
 			e .actions .admin .print .click( printResults( progress.divisions[ i ] ));
-
-			e.dialog.popup( 'close' );
 		};
 
 		actions .admin      .display    .click( showDisplay );

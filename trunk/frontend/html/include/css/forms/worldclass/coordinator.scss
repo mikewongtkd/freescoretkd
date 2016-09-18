@@ -21,6 +21,8 @@
 	}
 }
 
+.ui-radio { input[type=radio] { display: none !important; }}
+
 .divisions {
 	.current  { 
 		color: gold; 
