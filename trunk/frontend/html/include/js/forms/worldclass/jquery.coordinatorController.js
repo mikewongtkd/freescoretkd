@@ -699,8 +699,8 @@ $.widget( "freescore.coordinatorController", {
 				'If you take this division into ring ' + sendTo + ', it can be sent back to staging later.';
 
 			e.dialog.popupdialog({
-				title:    'Transfer Division?',
-				subtitle: 'Transfer ' + name.toUpperCase() + ' ' + description + ' (' + count + ')?',
+				title:    sendTo == 'staging' ? 'Send to Staging?' : 'Send to Ring ' + sendTo,
+				subtitle: 'Send ' + name.toUpperCase() + ' ' + description + ' (' + count + ') to ' + (sendTo == 'staging' ? 'Staging' : 'Ring ' + sendTo) + '?',
 				message:  message,
 				afterclose: function() {},
 				buttons:  [
@@ -732,7 +732,7 @@ $.widget( "freescore.coordinatorController", {
 		var updateDivisions = e.updateDivisions = function( divisions, staging, current ) {
 		// ============================================================
 			e.divisions.list.empty();
-			e.divisions.list.attr({ 'data-split-icon' : 'minus' });
+			e.divisions.list.attr({ 'data-split-icon' : 'arrow-u-l' });
 			if( ! defined( divisions )) { return; }
 
 			var divider = html.li.clone() .addClass( 'divider' ) .attr({ 'data-role' : 'list-divider', 'data-theme' : 'b' });
@@ -740,10 +740,10 @@ $.widget( "freescore.coordinatorController", {
 			// ===== DISPLAY RING DIVISIONS
 			e.divisions.list.append( divider.clone() .html( 'Ring ' + o.ring ));
 			for( var i = 0; i < divisions.length; i++ ) {
-				var divdata = divisions[ i ];
-				var count   = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
-				var list    = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
-				var title   = (i == current ? 'Currently Scoring:<span class="title"> ' : '<span>') + divdata.name.toUpperCase() + ' ' + divdata.description + '</span>';
+				var divdata = new Division( divisions[ i ] );
+				var count   = divdata.athletes().length > 1 ? divdata.athletes().length + ' Athletes' : '1 Athlete';
+				var list    = divdata.athletes().map( function( item ) { return item.name(); } ).join( ", " );
+				var title   = (i == current ? 'Currently Scoring:<span class="title"> ' : '<span>') + divdata.summary() + '</span>';
 
 				var division = {
 					data     : divdata,
@@ -757,7 +757,7 @@ $.widget( "freescore.coordinatorController", {
 
 				division.edit.empty();
 				division.edit.append( division.ring, division.title, division.details );
-				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name });
+				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name() });
 
 				division.edit     .click( editDivision );
 				division.transfer .click( transferDivision );
@@ -821,31 +821,28 @@ $.widget( "freescore.coordinatorController", {
 
 			// ===== SELECT ROUND
 			var tabs = e.html.ul.clone();
-			var rounds = [];
-			for( var round in division.order ) { rounds.push( round ); }
-			for( var i = 0; i < FreeScore.round.order.length; i++ ) {
-				var round = FreeScore.round.order[ i ];
-				if( round in division.order ) {
-					var tab = {
-						item   : e.html.li.clone(),
-						button : e.html.a.clone(),
-						name   : FreeScore.round.name[ round ]
-					};
-					tab.button.attr({ 'round' : round });
-					tab.button.html( tab.name );
-					tab.button.click( function() { 
-						$( this ).parents( 'ul' ).find( 'a' ).removeClass( 'ui-btn-active' );
-						o.round = $( this ).attr( 'round' ); 
-						e.updateAthletes( division, current ); 
-					});
-					tab.button.removeClass( 'ui-btn-active' );
-					if( defined( o.round ) && o.round == round || division.round == round ) { 
-						tabs.find( 'a' ).removeClass( 'ui-btn-active' );
-						tab.button.addClass( 'ui-btn-active' ); 
-					}
-					tab.item.append( tab.button );
-					tabs.append( tab.item );
+			var rounds = division.current.rounds();
+			for( var i = 0; i < rounds.length; i++ ) {
+				var round = rounds[ i ];
+				var tab = {
+					item   : e.html.li.clone(),
+					button : e.html.a.clone(),
+					name   : FreeScore.round.name[ round ]
+				};
+				tab.button.attr({ 'round' : round });
+				tab.button.html( tab.name );
+				tab.button.click( function() { 
+					$( this ).parents( 'ul' ).find( 'a' ).removeClass( 'ui-btn-active' );
+					o.round = $( this ).attr( 'round' ); 
+					e.updateAthletes( division, current ); 
+				});
+				tab.button.removeClass( 'ui-btn-active' );
+				if( defined( o.round ) && o.round == round || division.round.matches( round ) ) { 
+					tabs.find( 'a' ).removeClass( 'ui-btn-active' );
+					tab.button.addClass( 'ui-btn-active' ); 
 				}
+				tab.item.append( tab.button );
+				tabs.append( tab.item );
 			}
 
 			e.athletes.rounds.append( tabs );
@@ -857,7 +854,7 @@ $.widget( "freescore.coordinatorController", {
 		var updateAthletes = e.updateAthletes = function( division, current ) {
 		// ============================================================
 			if( ! defined( division )) { return; }
-			if( ! defined( o.round  )) { o.round = division.round; }
+			if( ! defined( o.round  )) { o.round = division.current.roundId(); }
 			if( o.progress.current == current ) { 
 				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
@@ -886,11 +883,11 @@ $.widget( "freescore.coordinatorController", {
 			}
 
 			// Update Page Header
-			e.athletes.header.title .html( division.name.toUpperCase() + ' ' + division.description );
+			e.athletes.header.title .html( division.summary() );
 
 			// Update Athlete Table
-			var round = defined( o.round ) ? o.round : division.round;
-			var forms = division.forms[ round ];
+			var round = defined( o.round ) ? division.current.roundId() : o.round;
+			var forms = division.form.list( round );
 			e.athletes.table.empty();
 			e.athletes.thead.empty();
 			e.athletes.tbody.empty();
@@ -898,12 +895,11 @@ $.widget( "freescore.coordinatorController", {
 				row   : html.tr .clone(),
 				order : html.th .clone() .html( 'Num.' ),
 				name  : html.th .clone() .html( 'Athlete' ),
-				form1 : html.th .clone() .html( forms[ 0 ] ),
-				form2 : html.th .clone() .html( defined( forms[ 1 ] ) ? forms[ 1 ] : '' ),
+				form  : [ html.th .clone() .html( forms[ 0 ] ), html.th .clone() .html( forms.length > 1 ? forms[ 1 ] : '' ) ],
 			};
 
-			header.row.append( header.order, header.name, header.form1 );
-			if( forms.length == 2 ) { header.row.append( header.form2 ); }
+			header.row.append( header.order, header.name, header.form[ 0 ] );
+			if( forms.length > 1 ) { header.row.append( header.form[ 1 ] ); }
 			e.athletes.thead.append( header.row );
 			e.athletes.table.append( e.athletes.thead, e.athletes.tbody );
 			e.athletes.tbody.sortable({
@@ -911,106 +907,71 @@ $.widget( "freescore.coordinatorController", {
 				stop: reorderAthletes( division, round ), // Notify user of reordering change and enable user to save changes
 			});
 
-			for( var i = 0; i < division.order[ round ].length; i++ ) {
-				var j = division.order[ round ][ i ];
+			$.each( division.current.athletes( round ), function( i, athleteData ) {
 				var athlete = {
-					data  : division.athletes[ j ],
+					data  : athleteData,
 					is    : {},
 					row   : html.tr   .clone(),
 					order : html.td   .clone() .addClass( "order" ),
 					name  : html.td   .clone() .addClass( "name" ),
-					form1 : html.td   .clone() .addClass( "oneform" ),
-					form2 : html.td   .clone() .addClass( "twoforms" ),
+					form  : [ html.td   .clone() .addClass( "oneform" ), html.td   .clone() .addClass( "twoforms" ) ],
 				};
 
-				// Is the athlete's score complete for this round
-				var complete = true;
-				for( k = 0; k < forms.length; k++ ) {
-					var formComplete = athlete.data.scores[ round ].forms[ k ].complete;
-					complete &= formComplete;
-				}
-				
 				// ===== SHOW ATHLETE DATA (ORDER, NAME, AND SCORE(S))
 				// If the athlete has completed their forms, show the name as unchangeable
-				if( complete ) {
-					athlete.name.append( athlete.data.name );
+				if( athlete.data.score( round ).is.complete() ) {
+					athlete.name.append( athlete.data.name() );
 					athlete.row.addClass( 'complete' );
 
 				// Otherwise show the name as an editable input
 				} else {
-
 					var input   = html.text.clone();
-
-					input.val( athlete.data.name );
+					input.val( athlete.data.name() );
 					input.change( renameAthletes( division, round ) );
 					athlete.name.append( input );
-
 				}
+
 				athlete.order.attr({ order : (i + 1) });
 				athlete.order.append( (i + 1) + '.' );
-				athlete.row.append( athlete.order, athlete.name, athlete.form1 );
-				if( forms.length == 2 ) { athlete.row.append( athlete.form2 ); athlete.form1 .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
+				athlete.row.append( athlete.order, athlete.name, athlete.form[ 0 ] ).removeClass( 'complete' );
+				if( forms.length > 1 ) { athlete.row.append( athlete.form[ 1 ] ); athlete.form[ 0 ] .removeClass( 'oneform' ) .addClass( 'twoforms' ); }
 
 				// Highlight current athlete
 				var is = { current : {}, up : false };
-				is.current.division = o.progress.current == current;
-				is.current.round    = o.round == division.round;
-				is.current.athlete  = j == division.current;
+				is.current.division = o.progress.current  == current;
+				is.current.round    = o.round             == division.current.roundId();
+				is.current.athlete  = athlete.data.name() == division.current.athlete().name();
 				athlete.is.up       = is.current.division && is.current.round && is.current.athlete;
 
 				if( athlete.is.up ) { athlete.row.addClass( 'current' ); } else { athlete.row.removeClass( 'current' ); }
 
 				// Append score
-				{
-					var form         = athlete.data.scores[ round ].forms[ 0 ];
-					var score        = form.adjusted;
-					var withdrawn    = defined( form.decision ) ? form.decision.withdrawn : undefined;
-					var disqualified = defined( form.decision ) ? form.decision.disqualified : undefined;
+				$.each( forms, function( i, formName ) {
+					var form  = { data : athlete.data.score( round ).form( i ), name : formName, score : '&mdash;' };
+					if( form.data.is.complete() ) {
+						if( form.data.adjusted().total )          { form.score = form.data.adjusted().total.toFixed( 2 ); }
+						if( form.data.decision.is.withdrawn())    { form.score = 'WD'; }
+						if( form.data.decision.is.disqualified()) { form.score = 'DQ'; }
+					} else { score = '&mdash;'; }
 
-					if( defined( score ) ) {
-						if( defined( score.total ))  { score = score.total.toFixed( 2 ); } else { score = '&mdash;'; }
-						if( defined( withdrawn ))    { score = 'WD'; }
-						if( defined( disqualified )) { score = 'DQ'; }
-					} else                           { score = '&mdash;'; }
+					athlete.form[ i ].append( "<strong>" + form.score + "</strong>" );
+				});
 
-					var form1 = {
-						name  : division.forms[ round ][ 0 ].name,
-						score : score
-					};
-					athlete.form1.append( "<strong>" + form1.score + "</strong>" );
-				};
-
-				if( division.forms[ round ].length > 1 ) { 
-					var form         = athlete.data.scores[ round ].forms[ 1 ];
-					var score        = form.adjusted;
-					var withdrawn    = defined( form.decision ) ? form.decision.withdrawn : undefined;
-					var disqualified = defined( form.decision ) ? form.decision.disqualified : undefined;
-					if( defined( score ) ) {
-						if( defined( score.total ))  { score = score.total.toFixed( 2 ); } else { score = '&mdash;'; }
-						if( defined( withdrawn ))    { score = 'WD'; }
-						if( defined( disqualified )) { score = 'DQ'; }
-					}  else                          { score = '&mdash;'; }
-					var form2 = {
-						name  : division.forms[ round ][ 1 ].name,
-						score : score
-					};
-					athlete.form2.append( "<strong>" + form2.score + "</strong>" );
-				}
 				e.athletes.tbody.append( athlete.row );
 
-				if( complete ) { athlete.row.addClass( 'complete' ); } else { athlete.row.removeClass( 'complete' ); }
-			}
+			});
 
 			// Handle 'Enter' key (focus on next input and select text)
 			e.athletes.tbody.keydown( function( ev ) {
-				if( ev.which == 13 ) {
+				var key = { enter : 13, tab : 40, shift : { tab : 38 }};
+				if( ev.which == key.enter ) {
 					$( ev.target ).blur();
 					var row  = $(ev.target).parents( 'tr' );
 					var next = row.next().find( 'input' );
 					next.focus();
 					next.select();
 
-				} else if( ev.which == 38 ) { 
+				} else if( ev.which == key.shift.tab ) { 
 					var row  = $(ev.target).parents( 'tr' );
 					var prev = row.prev().find( 'input' );
 					if( defined( prev.val() )) {
@@ -1020,7 +981,7 @@ $.widget( "freescore.coordinatorController", {
 					}
 					ev.preventDefault();
 
-				} else if( ev.which == 40 ) { 
+				} else if( ev.which == key.tab ) { 
 					var row  = $(ev.target).parents( 'tr' );
 					var next = row.next().find( 'input' );
 					if( defined( next.val() )) {
@@ -1038,9 +999,9 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.tbody.append( add.row );
 
 			var different = {
-				division : division.name      != o.current.divname,
-				athlete  : division.current   != o.current.athlete,
-				form     : division.form      != o.current.form,
+				division : division.name()              != o.current.divname,
+				athlete  : division.current.athleteId() != o.current.athlete,
+				form     : division.current.formId()    != o.current.form,
 			};
 
 			if( different.division || different.round || different.athlete || different.form ) {
@@ -1048,10 +1009,10 @@ $.widget( "freescore.coordinatorController", {
 				e.time.clear();
 			}
 
-			o.current.divname = division.name;
-			o.current.round   = division.round;
-			o.current.athlete = division.current;
-			o.current.form    = division.form;
+			o.current.divname = division.name();
+			o.current.round   = division.current.roundId();
+			o.current.athlete = division.current.athleteId();
+			o.current.form    = division.current.formId();
 
 		};
 
@@ -1060,26 +1021,21 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			if( ! defined( transition.absUrl )) { return; }
 			if( ! defined( o.progress        )) { return; }
-			var option    = parsePageUrl( transition.absUrl );
-			var divisions = o.progress.divisions;
-			var division  = undefined;
+			var option        = parsePageUrl( transition.absUrl );
+			var divisions     = o.progress.divisions;
+			var divisionData  = undefined;
+			var division      = undefined;
 			if( defined( option.ring ) && defined( option.divid )) {
 				for( var i = 0; i < divisions.length; i++ ) {
-					division = divisions[ i ];
-					if( division.name == option.divid && division.ring == option.ring ) { $.cookie( 'divindex', i ); break; }
-					division = undefined;
+					divisionData = divisions[ i ];
+					if( divisionData.name == option.divid && divisionData.ring == option.ring ) { $.cookie( 'divindex', i ); division = new Division( divisionData ); break; }
+					divisionData = undefined;
 				}
 			}
 
 			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.staging, o.progress.current ); }
-			else if ( option.id == "athletes"  ) { o.round = division.round; var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
+			else if ( option.id == "athletes"  ) { o.round = division.current.roundId(); var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
 		});
-
-		// ============================================================
-		// HANDLE HEADER EDITOR EVENTS
-		// ============================================================
-		athletes.header.editor.description .on( FreeScore.event.division.description, function( ev ) { o.description = { gender : ev.gender, age : ev.age, rank : ev.rank, text : ev.text }; console.log( "Updating", ev );} );
-		athletes.header.editor.forms       .on( FreeScore.event.division.forms,       function( ev ) { o.forms.text  = ev.text; } );
 
 		// ============================================================
 		e.refresh = function( update ) {
@@ -1094,8 +1050,8 @@ $.widget( "freescore.coordinatorController", {
 			o.progress = progress;
 			var division = new Division( progress.divisions[ i ] );
 			e.updateDivisions( progress.divisions, progress.staging, progress.current );
-			e.updateRounds( progress.divisions[ i ], i );
-			e.updateAthletes( progress.divisions[ i ], i );
+			e.updateRounds( division, i );
+			e.updateAthletes( division, i );
 
 			// ===== UPDATE BEHAVIOR
 			e .actions .admin .print .click( printResults( progress.divisions[ i ] ));

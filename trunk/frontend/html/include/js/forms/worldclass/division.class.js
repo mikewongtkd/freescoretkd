@@ -62,7 +62,8 @@ function Division( division ) {
 			display : { name : function() { return FreeScore.round.name[ division.round ]; }},
 			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
 		},
-		roundId   : function() { return division.round; },
+		roundId : function() { return division.round; },
+		rounds : function() { return Object.keys( division.order ) },
 	};
 
 	// ============================================================
@@ -114,7 +115,8 @@ function Division( division ) {
 			finals   : function() { return division.round == 'finals'; }
 		},
 		list : function() { return Object.keys( division.forms ); },
-		name : function() { return FreeScore.round.name[ division.round ]; }
+		matches : function( round ) { return division.round == round; },
+		name : function() { return FreeScore.round.name[ division.round ]; },
 	};
 
 	var _state = this.state = {
