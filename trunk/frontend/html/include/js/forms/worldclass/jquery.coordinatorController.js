@@ -19,7 +19,8 @@ $.widget( "freescore.coordinatorController", {
 			error     : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"    ]}),
 		};
 
-		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all ui-btn-icon-left' ) .css({ height: '24px' });
+		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all' ) .css({ height: '42px', 'text-align' : 'left' });
+		$.fn.extend({ iconlabel : function( icon, label ) { $( this ).html( "<span class=\"glyphicon glyphicon-" + icon + "\">&nbsp;</span>&nbsp;" + label ); return $( this ); }});
 
 		var divisions = e.divisions = {
 			page    : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
@@ -65,24 +66,24 @@ $.widget( "freescore.coordinatorController", {
 			admin : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Administration" ),
-				display    : button.clone() .addClass( 'navigation ui-icon-eye' )       .html( "Show Display"   ),
-				print      : button.clone() .addClass( 'navigation ui-icon-grid' )      .html( "Print Results"  ),
-				split      : button.clone() .addClass( 'navigation ui-icon-arrow-u-r' ) .html( "Split Flights"  ),
-				merge      : button.clone() .addClass( 'navigation ui-icon-star' )      .html( "Merge Flights"  ),
+				display    : button.clone() .addClass( 'navigation' ) .iconlabel( "eye-open",     "Show Display"   ),
+				print      : button.clone() .addClass( 'navigation' ) .iconlabel( "print",        "Print Results"  ),
+				split      : button.clone() .addClass( 'navigation' ) .iconlabel( "resize-full",  "Split Flights"  ),
+				merge      : button.clone() .addClass( 'navigation' ) .iconlabel( "resize-small", "Merge Flights"  ),
 			},
 
 			changes : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Changes" ),
-				save       : button.clone() .addClass( 'navigation ui-icon-check'  ) .html( "Save Changes"    ),
-				revert     : button.clone() .addClass( 'navigation ui-icon-back'   ) .html( "Revert Changes"  ),
+				save       : button.clone() .addClass( 'navigation' ) .iconlabel( "floppy-disk",   "Save"            ),
+				revert     : button.clone() .addClass( 'navigation' ) .iconlabel( "floppy-remove", "Revert Changes"  ),
 			},
 
 			clock : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Timer" ),
-				face       : button.clone() .removeClass( 'ui-btn-icon-left' ) .addClass( 'timer' ) .html( "00:00.00" ),
-				toggle     : button.clone() .addClass( 'start ui-icon-forward' ) .html( "Start Timer" ),
+				face       : button.clone() .addClass( 'timer' ) .css({ 'text-align' : 'center' }) .html( "00:00.00" ),
+				toggle     : button.clone() .addClass( 'start' ) .iconlabel( "time",  "Start Timer" ),
 				settings   : { increment : 70, started : false },
 				timer      : undefined,
 				time       : 0,
@@ -92,17 +93,17 @@ $.widget( "freescore.coordinatorController", {
 			navigate : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Go To This Division" ),
-				division   : button.clone() .addClass( 'navigation ui-icon-arrow-r'  ) .html( "Start Scoring" ),
+				division   : button.clone() .addClass( 'navigation'  ) .iconlabel( "play", "Start Scoring" ),
 			},
 
 			penalties : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Penalties" ),
-				timelimit  : button.clone() .addClass( 'penalty ui-icon-clock'  )  .html( "Time Limit"      ),
-				bounds     : button.clone() .addClass( 'penalty ui-icon-action' )  .html( "Out-of-Bounds"   ),
-				restart    : button.clone() .addClass( 'penalty ui-icon-forward' ) .html( "Restart"         ),
-				misconduct : button.clone() .addClass( 'penalty ui-icon-comment' ) .html( "Misconduct"      ),
-				clear      : button.clone() .addClass( 'penalty ui-icon-delete' )  .html( "Clear Penalties" ),
+				timelimit  : button.clone() .addClass( 'penalty' ) .iconlabel( "hourglass",     "Time Limit"      ),
+				bounds     : button.clone() .addClass( 'penalty' ) .iconlabel( "share",         "Out-of-Bounds"   ),
+				restart    : button.clone() .addClass( 'penalty' ) .iconlabel( "retweet",       "Restart"         ),
+				misconduct : button.clone() .addClass( 'penalty' ) .iconlabel( "comment",       "Misconduct"      ),
+				clear      : button.clone() .addClass( 'penalty' ) .iconlabel( "remove-circle", "Clear Penalties" ),
 			},
 
 		};
@@ -124,20 +125,17 @@ $.widget( "freescore.coordinatorController", {
 				if( defined( actions.clock.timer )) { actions.clock.timer.stop(); }
 				e.actions.clock.face.html( time.format( actions.clock.time )); 
 				e.actions.clock.settings.started = false;
+				e.actions.clock.realtime = 0;
 				e.actions.clock.toggle.removeClass( "stop" );
-				e.actions.clock.toggle.removeClass( "ui-icon-delete" );
 				e.actions.clock.toggle.addClass( "start" );
-				e.actions.clock.toggle.addClass( "ui-icon-forward" );
-				e.actions.clock.toggle.html( "Start Timer" );
+				e.actions.clock.toggle.iconlabel( "play", "Start Timer" );
 			},
 			start : function() {
 				e.actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
 				e.actions.clock.settings.started = true;
 				e.actions.clock.toggle.removeClass( "start" );
-				e.actions.clock.toggle.removeClass( "ui-icon-forward" );
 				e.actions.clock.toggle.addClass( "stop" );
-				e.actions.clock.toggle.addClass( "ui-icon-delete" );
-				e.actions.clock.toggle.html( "Stop Timer" );
+				e.actions.clock.toggle.iconlabel( "pause", "Stop Timer" );
 			},
 			clear : function() {
 				e.actions.clock.settings.started = false;

@@ -8,6 +8,15 @@
 	src: url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
 }
 
+.ui-header {
+	height: 48px;
+	.ui-title {
+		font-size: 18pt;
+		line-height: 8pt;
+		color: gold;
+	}
+}
+
 .divisions {
 	.current  { 
 		color: gold; 
@@ -126,8 +135,9 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 	}
 
 	legend { 
-		margin: 16px auto 0 auto; 
+		margin: 0 0 0 8px; 
 		text-shadow: none;
+		border-bottom: none;
 	}
 
 	.navigation {
