@@ -112,22 +112,7 @@ sub record_decision {
 
 	my $form = $self->{ forms }[ $i ];
 	$form->{ decision }{ $decision } = 1;
-
-	if( $notes ) {
-		print STDERR Dumper $notes;
-		print STDERR Dumper $form;
-	}
-
-	my $punitive_declaration = undef;
-	foreach my $j ($i .. $#$self) {  
-		my $form = $self->{ forms }[ $j ];
-		foreach my $decision (sort keys %{ $form->{ decision }}) { $punitive_declaration = $decision; }
-		# Copy the decision of the current form and all subsequent forms
-		if( defined $punitive_declaration ) { 
-			$form->{ complete } = 1; 
-			$form->{ decision }{ $punitive_declaration } = 1;
-		}
-	}
+	$form->{ complete }              = 1;
 }
 
 # ============================================================
@@ -268,6 +253,8 @@ sub form_complete {
 	my $self = shift;
 	my $i    = shift;
 	my $form = $self->{ forms }[ $i ];
+
+	return 1 if $form->{ complete }; # Return previously resolved cached value
 
 	# ===== FORM IS COMPLETE IF THERE IS A PUNITIVE DECISION
 	my $punitive_declaration = exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified });

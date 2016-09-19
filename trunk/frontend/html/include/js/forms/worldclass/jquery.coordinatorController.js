@@ -14,9 +14,11 @@ $.widget( "freescore.coordinatorController", {
 		var ring    = o.ring == 'staging' ? 'Staging' : 'Ring ' + o.ring;
 
 		var sound    = e.sound = {
-			ok        : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg"   ]}),
+			send      : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg"   ]}),
 			confirmed : new Howl({ urls: [ "/freescore/sounds/received.mp3", "/freescore/sounds/received.ogg" ]}),
 			error     : new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"    ]}),
+			next      : new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]}),
+			prev      : new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]}),
 		};
 
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all' ) .css({ height: '42px', 'text-align' : 'left' });
@@ -134,7 +136,7 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock.toggle.addClass( "start" );
 				e.actions.clock.toggle.iconlabel( "play", "Start Timer" );
 				o.penalties.time = (e.actions.clock.time/1000).toFixed( 1 );
-				awardPenalty();
+				if( o.penalties.time > 0 ) { awardPenalty(); }
 			},
 			start : function() {
 				e.actions.clock.timer = $.timer( actions.clock.update, actions.clock.settings.increment, true );
@@ -170,7 +172,7 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
-		actions.admin      .panel.append( actions.admin.legend, actions.admin.display, actions.admin.print, actions.admin.split, actions.admin.merge );
+		actions.admin      .panel.append( actions.admin.legend, actions.admin.display, actions.admin.print );
 		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.remove );
 
 		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.admin.panel, actions.changes.panel );
@@ -237,7 +239,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var awardPenalty           = function() {                                (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
 		var awardPenaltyBounds     = function() { o.penalties.bounds     += 0.3; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
-		var awardPenaltyMisconduct = function() { o.penalties.misconduct += 1  ; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyMisconduct = function() { o.penalties.misconduct += 1  ; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); if( o.penalties.misconduct > 1 ) { disqualifyAthlete(); } };
 		var awardPenaltyRestart    = function() { o.penalties.restart    += 0.6; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
 		var awardPenaltyTimeLimit  = function() { o.penalties.timelimit   = 0.3; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
 
@@ -256,16 +258,23 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var createDivision = function() {
 		// ============================================================
-			var request        = $( this ).attr( 'index' ) + '/edit';
-			var parameters     = { create : true };
+			e.sound.prev.play();
+		};
+
+		// ============================================================
+		var deleteAthlete = function() {
+		// ============================================================
+			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var athlete  = division.current.athlete();
+			e.sound.next.play();
 			e.dialog.popupdialog({
-				title:    'Create Division?',
-				subtitle: 'Create a new division at ring ' + o.ring + '?',
-				message:  'Once created, the division can be edited',
-				afterclose: function() {},
+				title:    'Delete Athlete?',
+				subtitle: 'Delete ' + athlete.name() + ' from this division?',
+				message:  'This removes an athlete that doesn\'t belong in the division. Once confirmed, this operation cannot be undone.',
+				afterclose: function( ev, ui ) {},
 				buttons:  [
-					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); } },
-					{ text : 'Create', style : 'ok',     click : function() { $(this).parent().children().hide(); (sendRequest( request, parameters ))(); } },
+					{ text : 'Cancel', style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup( 'close' ); } },
+					{ text : 'Delete', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'delete athlete', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -274,16 +283,17 @@ $.widget( "freescore.coordinatorController", {
 		var disqualifyAthlete = function() {
 		// ============================================================
 			var index    = $(this).attr( 'index' );
-			var division = o.progress.divisions[ o.progress.current ];
-			var athlete  = division.athletes[ index ];
+			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var athlete  = division.current.athlete();
+			e.sound.next.play();
 			e.dialog.popupdialog({
 				title:    'Disqualify Athlete?',
-				subtitle: 'Disqualify ' + athlete.name + ' from this division by punitive decision?',
-				message:  'Once confirmed, this operation cannot be undone.',
+				subtitle: 'Disqualify ' + athlete.name() + ' from this division?',
+				message:  'This is a punitive decision. Once confirmed, this operation cannot be undone.',
 				afterclose: function( ev, ui ) {},
 				buttons:  [
-					{ text : 'Cancel',     style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-					{ text : 'Disqualify', style : 'important', click : function( ev ) { $( this ).parent().children().hide(); (sendCommand( "coordinator/punitive/disqualified/" + index )()); } },
+					{ text : 'Cancel',     style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup( 'close' ); } },
+					{ text : 'Disqualify', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'award punitive', decision: 'disqualified', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -302,20 +312,20 @@ $.widget( "freescore.coordinatorController", {
 			o.changes = true;
 			setTimeout( function() {
 				var i        = parseInt( $.cookie( 'divindex' ));
-				var division = o.progress.divisions[ i ];
+				var division = new Division( o.progress.divisions[ i ] );
 				var editor   = e.athletes.header.editor.description;
 				var request  = i + '/edit';
-				editor.divisionDescriptor().divisionDescriptor({ text : division.description });
+				editor.divisionDescriptor().divisionDescriptor({ text : division.description() });
 				editor.trigger( 'create' );
 				e.dialog.popupdialog({
 					title:    'Edit Division Description',
 					subtitle: 'Division Description',
 					message:  editor,
-					afterclose: function() { e.sound.confirmed.play(); },
 					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
+						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; e.sound.prev.play(); $('#popupDialog').popup('close'); } },
 						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
 								o.changes = undefined;
+								e.sound.confirmed.play();
 								$(this).parent().children().hide(); 
 								var parameters = { header: { description : o.description.text }};
 								(sendRequest( request, parameters ))(); 
@@ -470,54 +480,31 @@ $.widget( "freescore.coordinatorController", {
 				var results = window.open( url, '_blank', 'toolbar=no,status=no,scrollbars=yes,resizable=yes' );
 				results.print();
 			}
-		}
+		};
 
 		// ============================================================
-		var removeAthlete = function( division, round ) {
+		var removeAthlete = function() {
 		// ============================================================
-			return function() {
-				var text = $(this).parent().find( 'input:text' );
-				text.val( '' );
-				var rename = [];
-				var rows   = $( 'tbody.athlete-list' ).children( 'tr' ); // tbody children are tr elements, i.e. athlete names and scores
-				for( i = 0; i < rows.length; i++ ) {
-					var row    = $( rows[ i ] );
-					var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
-					var j      = column.order.attr( 'order' );
-					var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
-					if( defined( j ) ) { rename.push({ order : parseInt( j ), name : name }); }
-				}
-				o.changes = { divid : division.name, athletes: rename, round : round };
-				e.actions.changes.panel.fadeIn(); 
-			}
-		}
-
-		// ============================================================
-		var removeDivision = function() {
-		// ============================================================
-			var removeButton = $( this );
-			var request      = $( this ).attr( 'index' ) + '/edit';
-			var name         = $( this ).attr( 'name' );
-			var count        = $( this ).attr( 'count' );
-			var description  = $( this ).attr( 'description' );
-			if( o.removedivision != name ) {
-				$( this ).animate({ 'background-color' : 'red' }, 500 );
-				$( this ).parents( 'li' ).siblings().find( 'a.remove' ).animate({ 'background-color' : 'transparent' }, 250);
-
-			} else {
-				var parameters = { delete : true };
-				e.dialog.popupdialog({
-					title:    'Remove Division?',
-					subtitle: 'Remove ' + name.toUpperCase() + ' ' + description + ' (' + count + ')?',
-					message:  'Once confirmed, this operation cannot be undone.',
-					afterclose: function() {},
-					buttons:  [
-						{ text : 'Cancel', style : 'cancel',    click : function() { $('#popupDialog').popup('close'); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
-						{ text : 'Remove', style : 'important', click : function() { (sendRequest( request, parameters ))(); removeButton.animate({ 'background-color' : 'transparent' }, 250); o.removedivision = undefined; } },
-					]
-				}).popup( 'open', { transition : 'pop', positionTo : 'window' });
-			}
-			o.removedivision = name;
+			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var athlete  = division.current.athlete();
+			var round    = division.current.roundId();
+			e.sound.next.play();
+			e.dialog.popupdialog({
+				title:    'Remove ' + athlete.name(),
+				subtitle: 'Choose a reason to remove ' + athlete.name() + ' from this division.',
+				message:  '<ul>' +
+					'<li><b>Delete</b> to remove an athlete that was accidentally added to the division</li>' + 
+					'<li><b>Withdraw</b> to remove an athlete that doesn\'t show up after 3rd call, cannot perform due to injury, or voluntarily withdraws</li>' + 
+					'<li><b>Disqualify</b> to remove an athlete that is no longer qualified to compete.</li></ul>',
+				afterclose: function( ev, ui ) {},
+				buttons:  [
+					{ text : 'Cancel',     style : 'cancel',    click : function( ev ) { e.sound.prev.play(); $('#popupDialog').popup('close'); } },
+					{ text : 'Delete',     style : 'important', click : function( ev ) { e.sound.next.play(); deleteAthlete(); } },
+					{ text : 'Withdraw',   style : 'important', click : function( ev ) { e.sound.next.play(); withdrawAthlete(); } },
+					{ text : 'Disqualify', style : 'important', click : function( ev ) { e.sound.next.play(); disqualifyAthlete(); } },
+				]
+			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+			if((! athlete.score( round ).is.complete()) && (! division.round.is.first())) { $( '#dialog-button-delete' ).button( 'disable' ); } // Cannot delete an athlete once they have been scored in the first round.
 		};
 
 		// ============================================================
@@ -572,7 +559,7 @@ $.widget( "freescore.coordinatorController", {
 				buttons:  'none',
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 			o.changes = undefined;
-			e.sound.ok.play();
+			e.sound.prev.play();
 			setTimeout( function() { e.refresh( update ); e.actions.changes.panel.fadeOut(); }, 1000 );
 				 
 		};
@@ -643,17 +630,16 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var withdrawAthlete = function() {
 		// ============================================================
-			var index    = $(this).attr( 'index' );
-			var division = o.progress.divisions[ o.progress.current ];
-			var athlete  = division.athletes[ index ];
+			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var athlete  = division.current.athlete();
 			e.dialog.popupdialog({
 				title:    'Withdraw Athlete?',
-				subtitle: 'Withdraw ' + athlete.name + ' from this division?',
+				subtitle: 'Withdraw ' + athlete.name() + ' from this division?',
 				message:  'Once confirmed, this operation cannot be undone.',
 				afterclose: function( ev, ui ) {},
 				buttons:  [
-					{ text : 'Cancel',   style : 'cancel', click : function( ev ) { $('#popupDialog').popup('close'); } },
-					{ text : 'Withdraw', style : 'important', click : function( ev ) { $(this).parent().children().hide(); (sendCommand( "coordinator/punitive/withdrawn/" + index )()); } },
+					{ text : 'Cancel',   style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup('close'); }},
+					{ text : 'Withdraw', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup('close'); (sendRequest({ type: 'division', action: 'award punitive', decision: 'withdrawn', athlete_id: division.current.athleteId() })()); }},
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -879,9 +865,9 @@ $.widget( "freescore.coordinatorController", {
 				$.each( forms, function( i, formName ) {
 					var form  = { data : athlete.data.score( round ).form( i ), name : formName, score : '&mdash;' };
 					if( form.data.is.complete() ) {
-						if( form.data.adjusted().total )          { form.score = form.data.adjusted().total.toFixed( 2 ); }
-						if( form.data.decision.is.withdrawn())    { form.score = 'WD'; }
-						if( form.data.decision.is.disqualified()) { form.score = 'DQ'; }
+						if     ( form.data.decision.is.withdrawn())    { form.score = 'WD'; }
+						else if( form.data.decision.is.disqualified()) { form.score = 'DQ'; }
+						else if( form.data.adjusted().total )          { form.score = form.data.adjusted().total.toFixed( 2 ); }
 					} else { score = '&mdash;'; }
 
 					athlete.form[ i ].append( "<strong>" + form.score + "</strong>" );
@@ -1005,6 +991,8 @@ $.widget( "freescore.coordinatorController", {
 		actions .penalties  .restart    .click( awardPenaltyRestart );
 		actions .penalties  .misconduct .click( awardPenaltyMisconduct );
 		actions .penalties  .clear      .click( clearPenalties );
+
+		actions .punitive   .remove     .click( removeAthlete );
 
 		athletes.header.menu.description .find( 'a' ).click( editDivisionDescription );
 		athletes.header.menu.forms       .find( 'a' ).click( editDivisionForms );

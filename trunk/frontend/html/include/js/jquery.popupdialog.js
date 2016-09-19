@@ -19,6 +19,12 @@ $.widget( "freescore.popupdialog", {
 			buttons  : $( '#popupDialogButtons' )
 		};
 
+		var cleanup = function( text ) {
+			var cleaned = 'dialog-button-' + text.toLowerCase();
+			cleaned.replace( /\s+/, '-' );
+			return cleaned;
+		};
+
 		dialog.title    .empty() .append( o.title );
 		dialog.subtitle .empty() .append( o.subtitle );
 		dialog.message  .empty() .append( o.message );
@@ -31,7 +37,7 @@ $.widget( "freescore.popupdialog", {
 					panel : html.a.clone() .addClass( "ui-btn" ) .addClass( "ui-btn-inline" ),
 				};
 				if( defined( button.data.icon  )) { button.panel.addClass( "ui-icon-" + button.data.icon ); }
-				if( defined( button.data.text  )) { button.panel.html( button.data.text ); }
+				if( defined( button.data.text  )) { button.panel.html( button.data.text ); button.panel.attr({ id : cleanup( button.data.text ) }); }
 				if( defined( button.data.style )) { button.panel.addClass( button.data.style ); } else { button.panel.addClass( 'default' ); }
 				if( defined( button.data.click )) { button.panel.click( button.data.click ); }
 				button.panel.button();

@@ -30,21 +30,23 @@ sub init {
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
-		athlete_next  => \&handle_division_athlete_next,
-		athlete_prev  => \&handle_division_athlete_prev,
-		award_penalty => \&handle_division_award_penalty,
-		form_next     => \&handle_division_form_next,
-		form_prev     => \&handle_division_form_prev,
-		read          => \&handle_division_read,
-		round_next    => \&handle_division_round_next,
-		round_prev    => \&handle_division_round_prev,
-		score         => \&handle_division_score,
-		display       => \&handle_division_display,
+		athlete_delete     => \&handle_division_athlete_delete,
+		athlete_next       => \&handle_division_athlete_next,
+		athlete_prev       => \&handle_division_athlete_prev,
+		award_penalty      => \&handle_division_award_penalty,
+		award_punitive     => \&handle_division_award_punitive,
+		form_next          => \&handle_division_form_next,
+		form_prev          => \&handle_division_form_prev,
+		read               => \&handle_division_read,
+		round_next         => \&handle_division_round_next,
+		round_prev         => \&handle_division_round_prev,
+		score              => \&handle_division_score,
+		display            => \&handle_division_display,
 	};
 	$self->{ ring }        = {
-		division_next => \&handle_ring_division_next,
-		division_prev => \&handle_ring_division_prev,
-		read          => \&handle_ring_read,
+		division_next      => \&handle_ring_division_next,
+		division_prev      => \&handle_ring_division_prev,
+		read               => \&handle_ring_read,
 	};
 }
 
@@ -108,6 +110,28 @@ sub handle_division_award_penalty {
 
 	try {
 		$division->record_penalties( $request->{ penalties });
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_award_punitive {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n";
+
+	try {
+		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );

@@ -98,60 +98,6 @@ post '/:tournament/:ring/coordinator' => sub {
 };
 
 # ------------------------------------------------------------
-# WRITE REFEREE PUNITIVE DECISION
-# ------------------------------------------------------------
-get '/:tournament/:ring/coordinator/punitive/:decision/:index' => sub { 
-	my $self         = shift;
-	my $tournament   = $self->param( 'tournament'     );
-	my $ring         = $self->param( 'ring'           );
-	my $decision     = $self->param( 'decision'       );
-	my $index        = $self->param( 'index'          );
-	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division     = $progress->current();
-	my $athlete      = $division->{ athletes }[ $index ];
-
-	try {
-		$division->record_decision( $decision, $index );
-		$division->write();
-		send_response( $self, { description => 'Declaring punitive decision for athlete', athlete => $athlete->{ name }, round => $division->{ round }, decision => $decision, debug => $division->{ debug }});
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
-# WRITE REFEREE PENALTY FOR ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/coordinator/penalty/:bounds/:timelimit/:restart/:misconduct/:time' => sub { 
-	my $self         = shift;
-	my $tournament   = $self->param( 'tournament'     );
-	my $ring         = $self->param( 'ring'           );
-	my $bounds       = get_score( $self, 'bounds'     );
-	my $timelimit    = get_score( $self, 'timelimit'  );
-	my $restart      = get_score( $self, 'restart'    );
-	my $misconduct   = get_score( $self, 'misconduct' );
-	my $time         = get_time( $self );
-	my $progress     = new FreeScore::Forms::WorldClass( $tournament, $ring );
-	my $division     = $progress->current();
-	my $athlete      = $division->{ athletes }[ $division->{ current } ];
-	my $penalties    = { bounds => $bounds, timelimit => $timelimit, restart => $restart, misconduct => $misconduct, time => $time };
-
-	try {
-		$division->record_penalties( $penalties );
-		$division->write();
-		if( $bounds == 0 && $timelimit == 0 && $restart == 0 && $misconduct == 0 && $time == 0 ) {
-			send_response( $self, { description => 'Clearing penalties for athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, debug => $division->{ debug }});
-		} else {
-			send_response( $self, { description => 'Awarding penalties to athlete', athlete => $athlete->{ name }, round => $division->{ round }, penalties => { %$penalties }, debug => $division->{ debug }});
-		}
-
-	} catch {
-		send_response( $self, { error => $_ });
-	}
-};
-
-# ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
 websocket '/worldclass/:tournament/:ring' => sub {
@@ -184,7 +130,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
 
-		print STDERR Dumper $request;
+		print STDERR $json->canonical->encode( $request ), "\n\n";
 
 		# ===== READ PROGRESS
 		try   { 
@@ -441,29 +387,6 @@ sub autopilot {
 		return { error => $_ };
 	};
 };
-
-# ============================================================
-sub get_score {
-# ============================================================
-	my $ajax  = shift;
-	my $name  = shift;
-
-	my $score = $ajax->param( $name );
-	if( not defined $score || $score eq '' ) { $score = -1.0; }
-	else                                     { $score /= 10;  }
-	return sprintf( "%.1f", $score );
-}
-
-# ============================================================
-sub get_time {
-# ============================================================
-	my $ajax  = shift;
-
-	my $time = $ajax->param( 'time' );
-	if( not defined $time || $time eq '' ) { $time = -1.0; }
-	else                                   { $time /= 100;  }
-	return sprintf( "%.2f", $time );
-}
 
 # ============================================================
 sub send_response {

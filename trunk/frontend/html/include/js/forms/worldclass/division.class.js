@@ -63,7 +63,7 @@ function Division( division ) {
 			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
 		},
 		roundId : function() { return division.round; },
-		rounds : function() { return Object.keys( division.order ) },
+		rounds :  function() { return Object.keys( division.order ) },
 	};
 
 	// ============================================================
@@ -112,7 +112,8 @@ function Division( division ) {
 			},
 			prelim   : function() { return division.round == 'prelim'; },
 			semfin   : function() { return division.round == 'semfin'; },
-			finals   : function() { return division.round == 'finals'; }
+			finals   : function() { return division.round == 'finals'; },
+			first    : function() { var sorted = $.grep( FreeScore.round.order, function( round ) { return round in division.order; } ); return division.round == sorted[ 0 ]; }
 		},
 		list : function() { return Object.keys( division.forms ); },
 		matches : function( round ) { return division.round == round; },
