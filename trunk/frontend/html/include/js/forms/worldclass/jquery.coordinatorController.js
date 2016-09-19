@@ -24,6 +24,11 @@ $.widget( "freescore.coordinatorController", {
 		var button = html.a.clone() .addClass( 'ui-btn ui-corner-all' ) .css({ height: '42px', 'text-align' : 'left' });
 		$.fn.extend({ iconlabel : function( icon, label ) { $( this ).html( "<span class=\"glyphicon glyphicon-" + icon + "\">&nbsp;</span>&nbsp;" + label ); return $( this ); }});
 
+		// ============================================================
+		// PAGE LAYOUTS
+		// ============================================================
+
+		// ===== RING COORDINATOR UI FRAMEWORK
 		var divisions = e.divisions = {
 			page    : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
 			header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
@@ -31,6 +36,7 @@ $.widget( "freescore.coordinatorController", {
 			list    : html.ul.clone()  .attr({ 'role': 'listview', 'data-filter' : true, 'data-filter-placeholder' : 'Search for division description or athlete name...' }) .addClass( 'divisions' ),
 		};
 
+		// ===== DIVISION COORDINATOR UI FRAMEWORK
 		var athletes  = e.athletes = {
 			page    : html.div   .clone() .attr({ 'data-role' : 'page', id: 'athletes' }),
 			header  : { 
@@ -61,8 +67,38 @@ $.widget( "freescore.coordinatorController", {
 			rounds  : html.div   .clone() .addClass( 'rounds' ),
 		};
 
+		// ===== CREATE DIVISION COORDINATOR UI FRAMEWORK
+		var create  = e.create = {
+			page    : html.div   .clone() .attr({ 'data-role' : 'page', id: 'create' }),
+			header  : { 
+				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
+				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slideup', 'data-direction' : 'reverse', 'data-icon' : 'carat-u' }) .html( 'Divisions for Ring ' + o.ring ),
+				title : html.h1    .clone() .html( 'Create New Division' ),
+				setup : html.a     .clone() .attr({ 'data-icon' : 'gear', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Setup' ),
+				menu  : {
+					panel       : html.div .clone() .attr({ 'data-role' : 'popup', 'id' : 'division-setup', 'data-theme' : 'b' }),
+					list        : html.ul  .clone() .attr({ 'data-role' : 'listview', 'data-inset' : true }),
+					description : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Description' )),
+					forms       : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Forms' )),
+					judges      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Number of Judges' )),
+					method      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Competition Method' )),
+				},
+				editor : {
+					description : html.div.clone() .divisionDescriptor( o ),
+					forms       : html.div.clone() .formSelector( o ),
+					judges      : html.div.clone() .judgeCount( o ),
+					method      : html.div.clone() .method( o ),
+				},
+			},
+			main    : html.div   .clone() .attr({ 'role': 'main' }),
+		};
+
+		// ===== DIALOG FRAMEWORK
 		var dialog = e.dialog = $( '#popupDialog' );
 
+		// ============================================================
+		// BUTTONS FOR DIVISION COORDINATOR UI
+		// ============================================================
 		var actions = e.actions = {
 			panel : html.div.clone() .addClass( "actions" ),
 			admin : {
@@ -186,9 +222,12 @@ $.widget( "freescore.coordinatorController", {
 		actions.clock.face.click( function( ev ) {
 			if( actions.clock.time > 0 && ! actions.clock.settings.started ) { e.time.clear(); }
 		});
+
+		// ===== ASSEMBLE ELEMENTS FOR RING COORDINATOR UI
 		divisions.main.append( divisions.list );
 		divisions.page.append( divisions.header, divisions.main );
 
+		// ===== ASSEMBLE ELEMENTS FOR DIVISION COORDINATOR UI
 		athletes.header.menu.panel.append( athletes.header.menu.list );
 		athletes.header.menu.list.append( athletes.header.menu.description, athletes.header.menu.forms, athletes.header.menu.judges, athletes.header.menu.method );
 
@@ -196,12 +235,21 @@ $.widget( "freescore.coordinatorController", {
 		athletes.main.append( athletes.rounds, athletes.table, athletes.actions );
 		athletes.page.append( athletes.header.panel, athletes.main );
 
+		// ===== ASSEMBLE ELEMENTS FOR CREATE NEW DIVISION COORDINATOR UI
+		create.header.menu.panel.append( create.header.menu.list );
+		create.header.menu.list.append( create.header.menu.description, create.header.menu.forms, create.header.menu.judges, create.header.menu.method );
+
+		create.header.panel.append( create.header.back, create.header.title, create.header.setup, create.header.menu.panel );
+		// create.main.append(  );
+		create.page.append( create.header.panel, create.main );
+
+		// ===== ASSEMBLE ALL PAGES INTO APPLICATION
 		widget.nodoubletapzoom();
 		widget.addClass( "coordinator-controller" );
-		widget.append( divisions.page, athletes.page );
+		widget.append( divisions.page, athletes.page, create.page );
 
 		// ============================================================
-		// Behavior
+		// BUTTON BEHAVIOR
 		// ============================================================
 
 		// ============================================================
@@ -260,6 +308,8 @@ $.widget( "freescore.coordinatorController", {
 		var createDivision = function() {
 		// ============================================================
 			e.sound.prev.play();
+			var divid = $( this ).attr( 'divid' ); 
+			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#create?ring=' + o.ring, { transition : 'slideup' } )
 		};
 
 		// ============================================================
@@ -693,12 +743,13 @@ $.widget( "freescore.coordinatorController", {
 					item     : html.li  .clone(),
 					edit     : html.a   .clone() .addClass( 'create ui-icon-plus' ),
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
-					title    : html.h3  .clone() .html( 'Create a new division at ring ' + o.ring ),
+					title    : html.h3  .clone() .html( 'Create a new division at Ring ' + o.ring ),
 				};
 
 				division.edit.empty();
 				division.edit.append( division.ring, division.title );
 
+				division.edit.attr({ 'data-transition' : 'slideup' });
 				division.edit .click( createDivision );
 
 				division.item.append( division.edit );
@@ -803,7 +854,7 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.header.title .html( division.summary() );
 
 			// Update Athlete Table
-			var round = defined( o.round ) ? division.current.roundId() : o.round;
+			var round = defined( o.round ) ? o.round : division.current.roundId();
 			var forms = division.form.list( round );
 			e.athletes.table.empty();
 			e.athletes.thead.empty();
@@ -952,6 +1003,7 @@ $.widget( "freescore.coordinatorController", {
 
 			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.staging, o.progress.current ); }
 			else if ( option.id == "athletes"  ) { o.round = division.current.roundId(); var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
+			else if ( option.id == "create"    ) {  }
 		});
 
 		// ============================================================

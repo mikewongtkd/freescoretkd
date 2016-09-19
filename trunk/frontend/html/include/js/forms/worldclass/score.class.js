@@ -74,8 +74,8 @@ function Score( score ) {
 				adjusted : function() { return form.adjusted; },
 				decision : {
 					is : {
-						withdrawn    : function() { return form.decision.withdrawn; },
-						disqualified : function() { return form.decision.disqualified; },
+						withdrawn    : function() { if( defined( form.decision )) { return form.decision.withdrawn;    } else { return false; } },
+						disqualified : function() { if( defined( form.decision )) { return form.decision.disqualified; } else { return false; } },
 					}
 				},
 				is : {

@@ -63,7 +63,7 @@ function Division( division ) {
 			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
 		},
 		roundId : function() { return division.round; },
-		rounds :  function() { return Object.keys( division.order ) },
+		rounds :  function() { return $.grep( FreeScore.round.order, function( round ) { return round in division.order; }); },
 	};
 
 	// ============================================================
