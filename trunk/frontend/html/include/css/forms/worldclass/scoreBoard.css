@@ -1,3 +1,6 @@
+@font-face {
+  font-family: GlyphiconHalfling;
+  src: url(/include/bootstrap/fonts/glyphicons-halflings-regular.ttf); }
 .scoreboard {
   font-family: HelveticaNeue-CondensedBold, Nimbus;
   display: none;
@@ -9,8 +12,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 300px;
-    height: 720px;
+    width: 292px;
+    height: 712px;
     margin: 0 0 20px 0; }
   .scoreboard .judges7 .judge {
     font-size: 24pt;
@@ -33,8 +36,8 @@
   .scoreboard .judgeScore {
     position: absolute;
     text-align: center;
-    width: 300px;
-    height: 102px;
+    width: 292px;
+    height: 101.5px;
     background: black;
     background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
     background: linear-gradient(to top, #45484d 0%, #000000 100%); }
@@ -94,9 +97,9 @@
   .scoreboard .totalScores {
     position: absolute;
     top: 0;
-    left: 300px;
+    left: 292px;
     text-align: center;
-    height: 720px;
+    height: 712px;
     width: 700px;
     font-weight: bold;
     color: white;
@@ -215,36 +218,42 @@
           left: 0;
           width: 200px;
           height: 60px; }
-    .scoreboard .totalScores .bounds {
+    .scoreboard .totalScores .penalty {
       color: white;
       font-size: 24pt;
       position: absolute;
-      left: 304px;
-      top: 168px;
       width: 100px;
       height: 41px; }
-      .scoreboard .totalScores .bounds .icon {
-        float: left;
-        background: darkorchid url("/freescore/include/jquery/mobile/images/icons-svg/action-white.svg") no-repeat 9px 5px;
-        background-size: 24px;
-        border-radius: 21px;
-        width: 41px;
-        height: 41px; }
-    .scoreboard .totalScores .timelimit {
-      color: white;
-      font-size: 24pt;
-      position: absolute;
-      position: absolute;
-      left: 304px;
-      top: 120px;
-      width: 100px;
-      height: 41px; }
-      .scoreboard .totalScores .timelimit .icon {
-        float: left;
-        background: darkorchid url("/freescore/include/jquery/mobile/images/icons-svg/clock-white.svg") no-repeat 6px 6px;
+      .scoreboard .totalScores .penalty .icon {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        background: darkorchid;
         background-size: 28px;
         border-radius: 21px;
         width: 41px;
         height: 41px; }
+        .scoreboard .totalScores .penalty .icon .glyphicon {
+          position: absolute;
+          font-size: 22pt;
+          top: 6px;
+          left: 6px; }
+      .scoreboard .totalScores .penalty .value {
+        position: absolute;
+        left: 44px;
+        top: -2px;
+        height: 41px; }
+    .scoreboard .totalScores .bounds {
+      left: 254px;
+      top: 168px; }
+    .scoreboard .totalScores .timelimit {
+      left: 254px;
+      top: 120px; }
+    .scoreboard .totalScores .restart {
+      left: 354px;
+      top: 168px; }
+    .scoreboard .totalScores .misconduct {
+      left: 354px;
+      top: 120px; }
 
 /*# sourceMappingURL=scoreBoard.css.map */

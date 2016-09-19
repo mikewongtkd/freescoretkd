@@ -19,7 +19,7 @@ $.widget( "freescore.judgeScore", {
 		var score    = o.score;
 		var ok       = '&#10004;';
 
-		w.css( "top", (o.num - 1) * 103 );
+		w.css( "top", (o.num - 1) * 101.5 );
 		if     ( o.num == 1 ) { w.css( "border-radius", "24px 0 0 0" ); e.name.css( "border-radius", "24px 0 0 0" );}
 		else if( o.num == 7 ) { w.css( "border-radius", "0 0 0 24px" ); e.name.css( "border-radius", "0 0 0 24px" );}
 

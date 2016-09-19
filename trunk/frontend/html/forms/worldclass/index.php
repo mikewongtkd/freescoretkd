@@ -19,6 +19,7 @@
 ?>
 <html>
 	<head>
+		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/worldclassApp.css" rel="stylesheet" />
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>

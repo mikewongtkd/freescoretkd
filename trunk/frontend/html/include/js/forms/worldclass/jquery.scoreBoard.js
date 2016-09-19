@@ -20,14 +20,22 @@ $.widget( "freescore.scoreboard", {
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
 		var total        = e.total        = html.div.clone() .addClass( "total" );
-		var penalty      = e.penalty      = { bounds : html.div.clone() .addClass( "bounds" ), timelimit : html.div.clone() .addClass( "timelimit" ) };
+		var penalty      = e.penalty      = { 
+			icon :       html.span.clone() .addClass( "icon" ),
+			value :      html.span.clone() .addClass( "value" ),
+			bounds :     html.div.clone()  .addClass( "bounds penalty" ), 
+			timelimit :  html.div.clone()  .addClass( "timelimit penalty" ),
+			restart:     html.div.clone()  .addClass( "restart penalty" ), 
+			misconduct : html.div.clone()  .addClass( "misconduct penalty" ),
+			display : function( icon ) { return html.span.clone() .addClass( "glyphicon glyphicon-" + icon ); },
+		};
 
-		penalty.bounds    .append( html.div.clone() .addClass( "icon" ), '<span>-0.3</span>' );
-		penalty.timelimit .append( html.div.clone() .addClass( "icon" ), '<span>-0.3</span>' );
-		penalty.bounds.hide();
-		penalty.timelimit.hide();
+		penalty.bounds     .append( penalty.icon.clone() .html( penalty.display( 'share'   )), penalty.value.clone() .html( '-0.3' )) .hide();
+		penalty.timelimit  .append( penalty.icon.clone() .html( penalty.display( 'time'    )), penalty.value.clone() .html( '-0.3' )) .hide();
+		penalty.restart    .append( penalty.icon.clone() .html( penalty.display( 'retweet' )), penalty.value.clone() .html( '-0.6' )) .hide();
+		penalty.misconduct .append( penalty.icon.clone() .html( penalty.display( 'comment' )), penalty.value.clone() .html( '&nbsp;1' )) .hide();
 
-		totalScore.append( athlete, lflag, rflag, score, round, forms, penalty.bounds, penalty.timelimit );
+		totalScore.append( athlete, lflag, rflag, score, round, forms, penalty.bounds, penalty.timelimit, penalty.restart, penalty.misconduct );
 		score.append( accuracy, presentation, total );
 
 		for( var i = 0; i < 7; i++ ) {
@@ -116,12 +124,12 @@ $.widget( "freescore.scoreboard", {
 			var penalty = form.penalty();
 
 			if( defined( penalty )) {
-				e.penalty.bounds    .find( 'span' ).text( '-' + penalty.from( 'bounds' ) );
-				if( penalty.from( 'timelimit' ) > 0 ) { e.penalty.timelimit .show(); } else { e.penalty.timelimit .hide(); }
-				if( penalty.from( 'bounds' )    > 0 ) { e.penalty.bounds    .show(); } else { e.penalty.bounds    .hide(); }
-			} else {
-				e.penalty.timelimit .hide();
-				e.penalty.bounds    .hide();
+				e.penalty.bounds     .find( 'span.value' ).html( '-' + penalty.from( 'bounds' ) );
+				e.penalty.misconduct .find( 'span.value' ).html( '&nbsp;' + penalty.from( 'misconduct' ) );
+				if( penalty.from( 'timelimit' )  > 0 ) { e.penalty.timelimit  .show(); } else { e.penalty.timelimit  .hide(); }
+				if( penalty.from( 'bounds' )     > 0 ) { e.penalty.bounds     .show(); } else { e.penalty.bounds     .hide(); }
+				if( penalty.from( 'restart' )    > 0 ) { e.penalty.restart    .show(); } else { e.penalty.restart    .hide(); }
+				if( penalty.from( 'misconduct' ) > 0 ) { e.penalty.misconduct .show(); } else { e.penalty.misconduct .hide(); }
 			}
 
 			if( defined( mean )) { 

@@ -237,11 +237,11 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		// Award Penalties
 		// ============================================================
-		var awardPenalty           = function() {                                (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
-		var awardPenaltyBounds     = function() { o.penalties.bounds     += 0.3; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
-		var awardPenaltyMisconduct = function() { o.penalties.misconduct += 1  ; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); if( o.penalties.misconduct > 1 ) { disqualifyAthlete(); } };
-		var awardPenaltyRestart    = function() { o.penalties.restart    += 0.6; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
-		var awardPenaltyTimeLimit  = function() { o.penalties.timelimit   = 0.3; (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenalty           = function() {                                e.sound.next.play(); (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyBounds     = function() { o.penalties.bounds     += 0.3; e.sound.next.play(); (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
+		var awardPenaltyMisconduct = function() { o.penalties.misconduct += 1  ; e.sound.next.play(); (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); if( o.penalties.misconduct > 1 ) { disqualifyAthlete(); } };
+		var awardPenaltyRestart    = function() { o.penalties.restart    += 0.6; e.sound.next.play(); (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); if( o.penalties.restart > 0.6 ) { disqualifyAthlete(); } };
+		var awardPenaltyTimeLimit  = function() { o.penalties.timelimit   = 0.3; e.sound.next.play(); (sendRequest({ type: 'division', action: 'award penalty', penalties: o.penalties })()); };
 
 		// ============================================================
 		var clearPenalties = function() {
@@ -252,6 +252,7 @@ $.widget( "freescore.coordinatorController", {
 			o.penalties.misconduct = 0.0;
 			o.penalties.time       = 0;
 
+			e.sound.send.play();
 			(sendRequest({ type: 'division', action: 'award penalty', penalties : o.penalties })());
 		};
 
