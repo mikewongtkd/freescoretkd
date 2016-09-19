@@ -211,7 +211,7 @@ $.widget( "freescore.coordinatorController", {
 				var add = {
 					row   : html.tr   .clone() .addClass( "add" ),
 					order : html.td   .clone() .addClass( "order ui-btn-icon-notext ui-icon-plus" ) .css({ position: 'relative' }),
-					name  : html.td   .clone() .addClass( "name" ),
+					name  : html.td   .clone() .addClass( "name" ) .attr({ colspan: division.form.count( round ) + 1 }),
 					input : html.text .clone() .attr({ placeholder: 'Add a new athlete' }),
 				};
 
