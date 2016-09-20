@@ -9,6 +9,7 @@
 		<link href="../../include/css/dialog.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="../../include/opt/codemirror/lib/codemirror.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
@@ -18,6 +19,7 @@
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
+		<script src="../../include/opt/codemirror/lib/codemirror.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/jquery.popupdialog.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>

@@ -73,7 +73,7 @@ $.widget( "freescore.coordinatorController", {
 			header  : { 
 				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
 				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slideup', 'data-direction' : 'reverse', 'data-icon' : 'carat-u' }) .html( 'Divisions for Ring ' + o.ring ),
-				title : html.h1    .clone() .html( 'Create New Division' ),
+				title : html.h1    .clone() .html( 'Create a New Division at Ring ' + o.ring ),
 				setup : html.a     .clone() .attr({ 'data-icon' : 'gear', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Setup' ),
 				menu  : {
 					panel       : html.div .clone() .attr({ 'data-role' : 'popup', 'id' : 'division-setup', 'data-theme' : 'b' }),
@@ -90,8 +90,19 @@ $.widget( "freescore.coordinatorController", {
 					method      : html.div.clone() .method( o ),
 				},
 			},
-			main    : html.div   .clone() .attr({ 'role': 'main' }),
+			division : {
+				panel: html.div.clone(),
+				editor: {
+					panel: html.div.clone()
+				},
+			}
 		};
+
+		$( function() {
+			create.division.editor.codemirror = CodeMirror( create.division.editor.panel.get( 0 ), { lineNumbers: true, mode : 'freescore' });
+			create.division.editor.codemirror.focus();
+			create.division.editor.codemirror.setSelection({ line: 0, ch: 0 }, { line: 0 } );
+		});
 
 		// ===== DIALOG FRAMEWORK
 		var dialog = e.dialog = $( '#popupDialog' );
@@ -238,10 +249,10 @@ $.widget( "freescore.coordinatorController", {
 		// ===== ASSEMBLE ELEMENTS FOR CREATE NEW DIVISION COORDINATOR UI
 		create.header.menu.panel.append( create.header.menu.list );
 		create.header.menu.list.append( create.header.menu.description, create.header.menu.forms, create.header.menu.judges, create.header.menu.method );
+		create.division.panel.append( create.division.editor.panel );
 
 		create.header.panel.append( create.header.back, create.header.title, create.header.setup, create.header.menu.panel );
-		// create.main.append(  );
-		create.page.append( create.header.panel, create.main );
+		create.page.append( create.header.panel, create.division.panel );
 
 		// ===== ASSEMBLE ALL PAGES INTO APPLICATION
 		widget.nodoubletapzoom();
