@@ -120,6 +120,10 @@ String.prototype.capitalize = function() {
 	return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
 };
 
+$.fn.exists = function () {
+    return this.length !== 0;
+}
+
 // ============================================================
 var addButtonGroup = function( name, buttons ) {
 // ============================================================

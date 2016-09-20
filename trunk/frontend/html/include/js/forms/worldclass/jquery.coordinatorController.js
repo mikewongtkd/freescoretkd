@@ -67,43 +67,6 @@ $.widget( "freescore.coordinatorController", {
 			rounds  : html.div   .clone() .addClass( 'rounds' ),
 		};
 
-		// ===== CREATE DIVISION COORDINATOR UI FRAMEWORK
-		var create  = e.create = {
-			page    : html.div   .clone() .attr({ 'data-role' : 'page', id: 'create' }),
-			header  : { 
-				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
-				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slideup', 'data-direction' : 'reverse', 'data-icon' : 'carat-u' }) .html( 'Divisions for Ring ' + o.ring ),
-				title : html.h1    .clone() .html( 'Create a New Division at Ring ' + o.ring ),
-				setup : html.a     .clone() .attr({ 'data-icon' : 'gear', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Setup' ),
-				menu  : {
-					panel       : html.div .clone() .attr({ 'data-role' : 'popup', 'id' : 'division-setup', 'data-theme' : 'b' }),
-					list        : html.ul  .clone() .attr({ 'data-role' : 'listview', 'data-inset' : true }),
-					description : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Description' )),
-					forms       : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Forms' )),
-					judges      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Number of Judges' )),
-					method      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Competition Method' )),
-				},
-				editor : {
-					description : html.div.clone() .divisionDescriptor( o ),
-					forms       : html.div.clone() .formSelector( o ),
-					judges      : html.div.clone() .judgeCount( o ),
-					method      : html.div.clone() .method( o ),
-				},
-			},
-			division : {
-				panel: html.div.clone(),
-				editor: {
-					panel: html.div.clone()
-				},
-			}
-		};
-
-		$( function() {
-			create.division.editor.codemirror = CodeMirror( create.division.editor.panel.get( 0 ), { lineNumbers: true, mode : 'freescore' });
-			create.division.editor.codemirror.focus();
-			create.division.editor.codemirror.setSelection({ line: 0, ch: 0 }, { line: 0 } );
-		});
-
 		// ===== DIALOG FRAMEWORK
 		var dialog = e.dialog = $( '#popupDialog' );
 
@@ -246,14 +209,6 @@ $.widget( "freescore.coordinatorController", {
 		athletes.main.append( athletes.rounds, athletes.table, athletes.actions );
 		athletes.page.append( athletes.header.panel, athletes.main );
 
-		// ===== ASSEMBLE ELEMENTS FOR CREATE NEW DIVISION COORDINATOR UI
-		create.header.menu.panel.append( create.header.menu.list );
-		create.header.menu.list.append( create.header.menu.description, create.header.menu.forms, create.header.menu.judges, create.header.menu.method );
-		create.division.panel.append( create.division.editor.panel );
-
-		create.header.panel.append( create.header.back, create.header.title, create.header.setup, create.header.menu.panel );
-		create.page.append( create.header.panel, create.division.panel );
-
 		// ===== ASSEMBLE ALL PAGES INTO APPLICATION
 		widget.nodoubletapzoom();
 		widget.addClass( "coordinator-controller" );
@@ -319,8 +274,7 @@ $.widget( "freescore.coordinatorController", {
 		var createDivision = function() {
 		// ============================================================
 			e.sound.prev.play();
-			var divid = $( this ).attr( 'divid' ); 
-			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#create?ring=' + o.ring, { transition : 'slideup' } )
+			window.open( "./division/new.php", "_blank" );
 		};
 
 		// ============================================================
