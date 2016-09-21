@@ -1,0 +1,80 @@
+@font-face {
+  font-family: Nimbus;
+  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+@font-face {
+  font-family: Biolinum;
+  font-weight: bold;
+  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+body {
+  font-family: Optima, Nimbus; }
+
+.dropdown-toggle {
+  border: 0;
+  margin-top: -4px;
+  margin-right: 20px;
+  background: transparent;
+  -webkit-appearance: none;
+  -webkit-box-shadow: none;
+  outline: none; }
+
+.panel-footer {
+  background-color: #eee; }
+
+.CodeMirror {
+  border-radius: 6px; }
+  .CodeMirror pre {
+    font-family: Optima, Nimbus;
+    font-size: 18pt; }
+
+.CodeMirror-linenumber {
+  font-family: Optima, Nimbus;
+  font-size: 18pt; }
+
+.panel-heading div.panel-title:after {
+  font-family: 'Glyphicons Halflings';
+  content: "\270f";
+  float: right;
+  color: white; }
+
+.panel-title .setting {
+  color: gold; }
+
+.division-setting .description-content, .division-setting .form-selection-content, .division-setting .other-content {
+  height: 160px;
+  padding: 8px; }
+.division-setting .nav-pills {
+  float: left;
+  width: 120px;
+  margin-right: 20px; }
+  .division-setting .nav-pills .active a {
+    background: none !important;
+    color: #777 !important; }
+  .division-setting .nav-pills .active:not(.disabled) a {
+    background: linear-gradient(to bottom, #5cb85c 0, #419641 100%) !important;
+    color: white !important;
+    text-shadow: 0 1px 0 #000;
+    border-color: #3e8f3e; }
+.division-setting .tab-content {
+  float: left;
+  width: calc( 100% - 140px ); }
+  .division-setting .tab-content .btn.active {
+    background: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
+    color: white;
+    text-shadow: 0 1px 0 #000;
+    border-color: #3e8f3e; }
+  .division-setting .tab-content .bootstrap-select {
+    width: 120px !important; }
+  .division-setting .tab-content #individual {
+    position: relative;
+    top: 4px;
+    left: 0; }
+  .division-setting .tab-content #pair {
+    position: relative;
+    top: 44px;
+    left: 0; }
+  .division-setting .tab-content #team {
+    position: relative;
+    top: 88px;
+    left: 0; }
+
+/*# sourceMappingURL=new.css.map */
