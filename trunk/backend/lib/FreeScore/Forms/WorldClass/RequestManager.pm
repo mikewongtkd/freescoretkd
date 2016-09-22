@@ -398,14 +398,15 @@ sub send_division_response {
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $unblessed = undef;
 	my $is_judge  = exists $request->{ judge } && int( $request->{ judge } ) >= 0;
-	my $judge     = $is_judge ? int( $request->{ judge }) : undef;
+	my $judge     = $is_judge ? int($request->{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $unblessed = unbless ($is_judge ? $division->get_only( $judge ) : $division);
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
-	print STDERR "  Sending response\n";
+	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
+	print STDERR "  Sending division response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n";
 	print STDERR "    user: $id digest: $digest\n\n";
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
@@ -430,7 +431,8 @@ sub send_ring_response {
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
-	print STDERR "  Sending response\n";
+	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
+	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n";
 	print STDERR "    user: $id digest: $digest\n\n";
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});

@@ -36,12 +36,7 @@
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<div class="btn-group pull-left">
-						<button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-menu-hamburger"></span></button>
-						<ul class="dropdown-menu">
-							<li><a id="description"       >Change Description</a></li>
-							<li><a id="poomsae-selection" >Change Poomsae Selection</a></li>
-							<li><a id="other-settings"    >Change Other Settings</a></li>
-						</ul>
+						<span class="glyphicon glyphicon-menu-hamburger"></span>
 					</div>
 					<h4 class="panel-title">List of Athletes in this Division</h4>
 				</div>

@@ -71,6 +71,8 @@
 		description.text = description.text.trim();
 		description.text = description.text.replace( /\s+/, ' ' );
 		$( "#description-title" ).html( "Description: <span class=\"setting\">" + description.text + "</span>" );
+		var idx = $( 'input[name=age]' ).parent( '.active' );
+		console.log( idx );
 	}};
 	$( 'a[data-toggle=tab]' ).click( function( ev ) {
 		var clicked = $( ev.target );

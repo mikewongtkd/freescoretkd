@@ -212,7 +212,7 @@ $.widget( "freescore.coordinatorController", {
 		// ===== ASSEMBLE ALL PAGES INTO APPLICATION
 		widget.nodoubletapzoom();
 		widget.addClass( "coordinator-controller" );
-		widget.append( divisions.page, athletes.page, create.page );
+		widget.append( divisions.page, athletes.page );
 
 		// ============================================================
 		// BUTTON BEHAVIOR
