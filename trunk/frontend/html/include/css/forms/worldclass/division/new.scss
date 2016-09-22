@@ -53,7 +53,11 @@ body {
 }
 
 .division-setting {
-	.description-content, .form-selection-content, .other-content {
+	.settings-content {
+		height: 72;
+		padding: 8px;
+	}
+	.description-content, .form-selection-content {
 		height: 160px;
 		padding: 8px;
 	}
@@ -77,16 +81,18 @@ body {
 		}
 	
 	}
-	.tab-content {
-		float: left;
-		width: calc( 100% - 140px );
-
+	.tab-content, .settings-content {
 		.btn.active {
 			background: linear-gradient(to bottom,#5cb85c 0,#419641 100%);
 			color: white;
 			text-shadow: 0 1px 0 #000;
 			border-color: #3e8f3e;
 		}
+	}
+
+	.tab-content {
+		float: left;
+		width: calc( 100% - 140px );
 
 		.bootstrap-select {
 			width: 120px !important;
@@ -107,5 +113,9 @@ body {
 			top: 88px;
 			left: 0;
 		}
+	}
+
+	.bootstrap-switch {
+		height: 32px;
 	}
 }

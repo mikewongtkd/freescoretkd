@@ -77,7 +77,7 @@ EOD;
 		selected.text = selected.text.trim();
 		selected.text = selected.text.replace( /\s+/, ' ' );
 		$( "#form-selection-title" ).html( "Form Selection: <span class=\"setting\">" + selected.description + "</span>" );
-		console.log( selected.text );
+		division.forms = selected.text;
 	}};
 	$( 'a[data-toggle=tab]' ).click( function( ev ) {
 		var clicked = $( ev.target );

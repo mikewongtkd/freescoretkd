@@ -39,7 +39,10 @@ body {
 .panel-title .setting {
   color: gold; }
 
-.division-setting .description-content, .division-setting .form-selection-content, .division-setting .other-content {
+.division-setting .settings-content {
+  height: 72;
+  padding: 8px; }
+.division-setting .description-content, .division-setting .form-selection-content {
   height: 160px;
   padding: 8px; }
 .division-setting .nav-pills {
@@ -54,14 +57,14 @@ body {
     color: white !important;
     text-shadow: 0 1px 0 #000;
     border-color: #3e8f3e; }
+.division-setting .tab-content .btn.active, .division-setting .settings-content .btn.active {
+  background: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
+  color: white;
+  text-shadow: 0 1px 0 #000;
+  border-color: #3e8f3e; }
 .division-setting .tab-content {
   float: left;
   width: calc( 100% - 140px ); }
-  .division-setting .tab-content .btn.active {
-    background: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
-    color: white;
-    text-shadow: 0 1px 0 #000;
-    border-color: #3e8f3e; }
   .division-setting .tab-content .bootstrap-select {
     width: 120px !important; }
   .division-setting .tab-content #individual {
@@ -76,5 +79,7 @@ body {
     position: relative;
     top: 88px;
     left: 0; }
+.division-setting .bootstrap-switch {
+  height: 32px; }
 
 /*# sourceMappingURL=new.css.map */
