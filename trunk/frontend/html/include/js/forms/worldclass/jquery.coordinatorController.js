@@ -463,15 +463,15 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var goToDivision = function() {
 		// ============================================================
-			var command = 'division/' + $( this ).attr( 'index' );
+			var i = parseInt( $.cookie( 'divindex' ));
 			e.dialog.popupdialog({
 				title:    'Start Scoring Division?',
 				subtitle: 'Start scoring division?',
-				message:  'Check that no referees are currently scoring before changing the current division.',
+				message:  'Redirects FreeScore to start scoring this division [' + i + ']. Check that no referees are currently scoring before changing the current division.',
 				afterclose: function() { e.sound.confirmed.play(); },
 				buttons:  [
 					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); }},
-					{ text : 'Start',  style : 'ok',     click : function() { $(this).parent().children().hide(); (sendCommand( command ))(); }},
+					{ text : 'Start',  style : 'ok',     click : function() { (sendRequest({ type: 'division', action: 'navigate', target : { destination: 'division', index: i }}))(); $('#popupDialog').popup('close');}},
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};

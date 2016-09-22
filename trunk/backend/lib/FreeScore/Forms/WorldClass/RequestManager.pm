@@ -37,6 +37,7 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
+		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		round_next         => \&handle_division_round_next,
 		round_prev         => \&handle_division_round_prev,
@@ -246,6 +247,39 @@ sub handle_division_form_prev {
 		$division->autopilot( 0 );
 		$division->previous_form();
 		$division->write();
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_navigate {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $division = $progress->current();
+
+	my $object = $request->{ target }{ destination };
+	my $i      = int( $request->{ target }{ index } );
+
+	print STDERR "Navigating to $object $i.\n";
+
+	try {
+		if( $object =~ /^division$/i ) { 
+			$progress->navigate( $i ); 
+			$progress->write();
+			$division = $progress->current();
+			$division->autopilot( 0 );
+			$division->write();
+		}
+		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
+			$division->navigate( $object, $i ); 
+			$division->autopilot( 0 );
+			$division->write();
+		}
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
