@@ -1,6 +1,7 @@
 package FreeScore::Forms;
 use FreeScore;
 use FreeScore::Forms::Division;
+use List::Util qw( first );
 
 # ============================================================
 sub new {
@@ -14,12 +15,10 @@ sub new {
 # ============================================================
 sub find {
 # ============================================================
-	my $self = shift;
-	my $name = shift;
-	foreach my $division (@{ $self->{ divisions }} ) {
-		return $division if( $division->{ name } eq $name );
-	}
-	return undef;
+	my $self     = shift;
+	my $name     = shift;
+	my $division = first { $_->{ name } eq $name } @{ $self->{ divisions }};
+	return $division;
 }
 
 # ============================================================

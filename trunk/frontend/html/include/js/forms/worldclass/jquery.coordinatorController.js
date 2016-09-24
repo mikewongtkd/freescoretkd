@@ -43,21 +43,7 @@ $.widget( "freescore.coordinatorController", {
 				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
 				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slide', 'data-direction' : 'reverse', 'data-icon' : 'carat-l' }) .html( 'Divisions for Ring ' + o.ring ),
 				title : html.h1    .clone() .html( 'Athletes' ),
-				setup : html.a     .clone() .attr({ 'data-icon' : 'gear', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Setup' ),
-				menu  : {
-					panel       : html.div .clone() .attr({ 'data-role' : 'popup', 'id' : 'division-setup', 'data-theme' : 'b' }),
-					list        : html.ul  .clone() .attr({ 'data-role' : 'listview', 'data-inset' : true }),
-					description : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Description' )),
-					forms       : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Edit Forms' )),
-					judges      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Number of Judges' )),
-					method      : html.li  .clone() .attr({ 'data-icon' : 'edit' }) .append( html.a.clone() .html( 'Change Competition Method' )),
-				},
-				editor : {
-					description : html.div.clone() .divisionDescriptor( o ),
-					forms       : html.div.clone() .formSelector( o ),
-					judges      : html.div.clone() .judgeCount( o ),
-					method      : html.div.clone() .method( o ),
-				},
+				setup : html.a     .clone() .attr({ 'data-icon' : 'edit', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Settings' ),
 			},
 			main    : html.div   .clone() .attr({ 'role': 'main' }),
 			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
@@ -202,10 +188,7 @@ $.widget( "freescore.coordinatorController", {
 		divisions.page.append( divisions.header, divisions.main );
 
 		// ===== ASSEMBLE ELEMENTS FOR DIVISION COORDINATOR UI
-		athletes.header.menu.panel.append( athletes.header.menu.list );
-		athletes.header.menu.list.append( athletes.header.menu.description, athletes.header.menu.forms, athletes.header.menu.judges, athletes.header.menu.method );
-
-		athletes.header.panel.append( athletes.header.back, athletes.header.title, athletes.header.setup, athletes.header.menu.panel );
+		athletes.header.panel.append( athletes.header.back, athletes.header.title, athletes.header.setup );
 		athletes.main.append( athletes.rounds, athletes.table, athletes.actions );
 		athletes.page.append( athletes.header.panel, athletes.main );
 
@@ -274,7 +257,7 @@ $.widget( "freescore.coordinatorController", {
 		var createDivision = function() {
 		// ============================================================
 			e.sound.prev.play();
-			window.open( "./division/new.php", "_blank" );
+			window.open( "./division/new.php?file=" + o.tournament.db + "/" + o.ring + "/new", "_blank" );
 		};
 
 		// ============================================================
@@ -287,7 +270,6 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Delete Athlete?',
 				subtitle: 'Delete ' + athlete.name() + ' from this division?',
 				message:  'This removes an athlete that doesn\'t belong in the division. Once confirmed, this operation cannot be undone.',
-				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel', style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup( 'close' ); } },
 					{ text : 'Delete', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'delete athlete', athlete_id: division.current.athleteId() })()); } },
@@ -306,159 +288,12 @@ $.widget( "freescore.coordinatorController", {
 				title:    'Disqualify Athlete?',
 				subtitle: 'Disqualify ' + athlete.name() + ' from this division?',
 				message:  'This is a punitive decision. Once confirmed, this operation cannot be undone.',
-				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel',     style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup( 'close' ); } },
 					{ text : 'Disqualify', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'award punitive', decision: 'disqualified', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
-
-		// ============================================================
-		var editDivision = function() {
-		// ============================================================
-			var divid = $( this ).attr( 'divid' ); 
-			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
-		};
-
-		// ============================================================
-		var editDivisionDescription = function() {
-		// ============================================================
-			e.athletes.header.menu.panel.popup('close'); 
-			o.changes = true;
-			setTimeout( function() {
-				var i        = parseInt( $.cookie( 'divindex' ));
-				var division = new Division( o.progress.divisions[ i ] );
-				var editor   = e.athletes.header.editor.description;
-				var request  = i + '/edit';
-				editor.divisionDescriptor().divisionDescriptor({ text : division.description() });
-				editor.trigger( 'create' );
-				e.dialog.popupdialog({
-					title:    'Edit Division Description',
-					subtitle: 'Division Description',
-					message:  editor,
-					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; e.sound.prev.play(); $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
-								o.changes = undefined;
-								e.sound.confirmed.play();
-								$(this).parent().children().hide(); 
-								var parameters = { header: { description : o.description.text }};
-								(sendRequest( request, parameters ))(); 
-							} 
-						},
-					]
-				})
-
-				e.dialog.trigger( 'create' );
-				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
-			}, 100 );
-		};
-
-		// ============================================================
-		var editDivisionForms = function() {
-		// ============================================================
-			e.athletes.header.menu.panel.popup('close'); 
-			o.changes = true;
-			setTimeout( function() {
-				var i         = parseInt( $.cookie( 'divindex' ));
-				var division  = o.progress.divisions[ i ];
-				var parse     = e.athletes.header.editor.description; parse.divisionDescriptor({ text : division.description }); // Parse division.description
-				var request   = i + '/edit';
-				var options   = parse.divisionDescriptor().divisionDescriptor( 'option', 'description' );
-				o.description = options;
-				var editor    = e.athletes.header.editor.forms;
-				options.forms = division.forms;
-				editor.formSelector( options );
-				e.dialog.popupdialog({
-					title:    'Select Forms for Division',
-					subtitle: 'Division Form Selection',
-					message:  editor,
-					afterclose: function() { e.sound.confirmed.play(); },
-					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
-								o.changes = undefined;
-								$(this).parent().children().hide(); 
-								var parameters = { header: { forms : o.forms.text }};
-								(sendRequest( request, parameters ))(); 
-							} 
-						},
-					]
-				})
-
-				e.dialog.trigger( 'create' );
-				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
-			}, 100 );
-		};
-
-		// ============================================================
-		var editDivisionJudges = function() {
-		// ============================================================
-			e.athletes.header.menu.panel.popup('close'); 
-			o.changes = true;
-			setTimeout( function() {
-				var i         = parseInt( $.cookie( 'divindex' ));
-				var division  = o.progress.divisions[ i ];
-				var request   = i + '/edit';
-				var editor    = e.athletes.header.editor.judges; editor.judgeCount({ num : division.judges });
-				e.dialog.popupdialog({
-					title:    'Number of Judges',
-					subtitle: 'Set Number of Judges for Division',
-					message:  editor,
-					afterclose: function() { e.sound.confirmed.play(); },
-					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
-								o.num = e.athletes.header.editor.judges.judgeCount().judgeCount( 'option', 'num' );
-								o.changes = undefined;
-								$(this).parent().children().hide(); 
-								var parameters = { header: { judges : o.num }};
-								(sendRequest( request, parameters ))(); 
-							} 
-						},
-					]
-				})
-
-				e.dialog.trigger( 'create' );
-				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
-			}, 100 );
-		};
-
-		// ============================================================
-		var editDivisionMethod = function() {
-		// ============================================================
-			e.athletes.header.menu.panel.popup('close'); 
-			o.changes = true;
-			setTimeout( function() {
-				var i         = parseInt( $.cookie( 'divindex' ));
-				var division  = o.progress.divisions[ i ];
-				var request   = i + '/edit';
-				var opts      = { method : division.method };
-				var editor    = e.athletes.header.editor.method; editor.method( opts );
-				e.dialog.popupdialog({
-					title:    'Competition Method',
-					subtitle: 'Select a Competition Method',
-					message:  editor,
-					afterclose: function() { e.sound.confirmed.play(); },
-					buttons:  [
-						{ text : 'Cancel', style : 'cancel', click : function( ev ) { o.changes = undefined; $('#popupDialog').popup('close'); } },
-						{ text : 'Accept', style : 'ok',     click : function( ev ) { 
-								o.method = e.athletes.header.editor.method.method().method( 'option', 'method' );
-								o.changes = undefined;
-								$(this).parent().children().hide(); 
-								var parameters = { header: { method : o.method }};
-								(sendRequest( request, parameters ))(); 
-							} 
-						},
-					]
-				})
-
-				e.dialog.trigger( 'create' );
-				e.dialog.popup( 'open', { transition : 'pop', positionTo : 'window' });
-			}, 100 );
-		};
-
 
 		// ============================================================
 		var goToDivision = function() {
@@ -581,6 +416,13 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
+		var runDivision = function() {
+		// ============================================================
+			var divid = $( this ).attr( 'divid' ); 
+			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
+		};
+
+		// ============================================================
 		var saveChanges = function() {
 		// ============================================================
 			(sendRequest( 'coordinator', o.changes )());
@@ -680,24 +522,24 @@ $.widget( "freescore.coordinatorController", {
 				var division = {
 					data     : divdata,
 					item     : html.li  .clone(),
-					edit     : html.a   .clone(),
+					run      : html.a   .clone(),
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
 					title    : html.h3  .clone() .html( title ),
 					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
 					transfer : html.a   .clone() .addClass( 'transfer' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }),
 				};
 
-				division.edit.empty();
-				division.edit.append( division.ring, division.title, division.details );
-				division.edit.attr({ 'data-transition' : 'slide', 'divid' : division.data.name() });
+				division.run.empty();
+				division.run.append( division.ring, division.title, division.details );
+				division.run.attr({ 'data-transition' : 'slide', 'divid' : division.data.name() });
 
-				division.edit     .click( editDivision );
+				division.run      .click( runDivision );
 				division.transfer .click( transferDivision );
 
-				if( i == current ) { division.edit.addClass( 'current' ); } else { division.edit.removeClass( 'current' ); }
+				if( i == current ) { division.run.addClass( 'current' ); } else { division.run.removeClass( 'current' ); }
 
 				// Composition
-				division.item.append( division.edit, division.transfer );
+				division.item.append( division.run, division.transfer );
 				e.divisions.list.append( division.item );
 			}
 
@@ -1012,11 +854,6 @@ $.widget( "freescore.coordinatorController", {
 
 		actions .punitive   .remove     .click( removeAthlete );
 
-		athletes.header.menu.description .find( 'a' ).click( editDivisionDescription );
-		athletes.header.menu.forms       .find( 'a' ).click( editDivisionForms );
-		athletes.header.menu.judges      .find( 'a' ).click( editDivisionJudges );
-		athletes.header.menu.method      .find( 'a' ).click( editDivisionMethod );
-
 		dialog.popupdialog();
 	},
 	_init: function( ) {
@@ -1029,12 +866,24 @@ $.widget( "freescore.coordinatorController", {
 			var request  = { data : { type : 'ring', action : 'read' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
-		}
+		};
 
 		ws.onmessage = e.refresh;
 
-		ws.onclose = function() {
+		ws.onclose = function( reason ) {
 			ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
-		}
+			if( reason.code > 1001 ) {
+				e.dialog.popupdialog({
+					title:    'Network Error',
+					subtitle: 'An error occurred while attempting to connect to the server.',
+					message:  'Error ' + reason.code + ' ' + FreeScore.websocket.errorDescription( reason ),
+					buttons:  [
+						{ text : 'OK', style : 'important', click : function( ev ) { $('#popupDialog').popup( 'close' ); } },
+					]
+				}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+
+				e.dialog.popupdialog().popup( 'open' );
+			}
+		};
 	}
 });

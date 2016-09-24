@@ -3,7 +3,7 @@
 ?>
 <html>
 	<head>
-		<title>Create a New Division</title>
+	<title></title>
 		<link href="../../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
@@ -56,8 +56,9 @@
 			var athletes = { textarea : $( '#athletes' ), editor : undefined };
 			athletes.editor = CodeMirror.fromTextArea( document.getElementById( 'athletes' ), { lineNumbers: true, autofocus: true, mode : 'freescore' });
 			athletes.editor.setSize( '100%', '360px' );
+			athletes.doc = athletes.editor.getDoc();
 
-			$( '#save-button' ).removeClass( 'disabled' ) .click( function() { 
+			$( '#save-button' ).addClass( 'disabled' ) .click( function() { 
 				bootbox.prompt({
 					title: "Save Division " + (defined( division.description ) ? "&quot;" + division.description + "&quot;" : '' ) + " As?",
 					value: (defined( division.name ) ? division.name : "p000"),
@@ -70,25 +71,38 @@
 			});
 
 			// ===== SERVICE COMMUNICATION
-			if( ! "WebSocket" in window ) { alert( "Browser does not support communication with the server via websockets." ); }
-			/*
-			var ws = new WebSocket( "ws://<?= $host ?>:3088/worldclass" );
-			ws.onopen    = function() {
-				var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// );
-				var tournament = file.shift();
-				var ring       = file.shift();
+			var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// );
+			var tournament = file.shift();
+			var ring       = file.shift();
+			var divId      = file.shift();
+			var ws         = new WebSocket( "ws://<?= $host ?>:3088/worldclass/" + tournament + "/" + ring );
+
+			ws.onopen      = function() {
 				$( '#save-button' ).removeClass( 'disabled' ) .click( function() { 
 					var request  = { data : { type : 'division', action : 'write', division : division }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
 					window.close(); 
 				});
+				if( divId != 'new' ) {
+					var request = { type : 'division', action : 'read', tournament : tournament, ring : ring, divid : divId };
+					var json    = JSON.stringify( request );
+					ws.send( json );
+				}
 			};
 			ws.onmessage = function( ev ) {
+				var response = JSON.parse( ev.data );
+				console.log( response );
+				if( response.type == 'division' ) {
+					var division = new Division( response.division );
+					$( '#division-description' ).html( division.summary() );
+					var list = division.athletes();
+					var text = ($.map( list, function( element, i ) { return element.name(); })).join( "\n" )
+					athletes.doc.setValue( text );
+				}
 			};
-			ws.onclose   = function() {
+			ws.onclose   = function( reason ) {
 			};
-			 */
 		</script>
 
 	</body>

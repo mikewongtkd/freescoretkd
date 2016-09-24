@@ -35,6 +35,7 @@ sub init {
 		athlete_prev       => \&handle_division_athlete_prev,
 		award_penalty      => \&handle_division_award_penalty,
 		award_punitive     => \&handle_division_award_punitive,
+		edit_header        => \&handle_division_edit_header,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
 		navigate           => \&handle_division_navigate,
@@ -212,6 +213,28 @@ sub handle_division_display {
 }
 
 # ============================================================
+sub handle_division_edit_header {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Editing division header.\n";
+	print STDERR Dumper $request->{ header };
+
+	try {
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_division_form_next {
 # ============================================================
 	my $self     = shift;
@@ -363,6 +386,25 @@ sub handle_division_score {
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		$self->{ _autopilot }( $division, $judge ) if $form_complete;
 
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_write {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+
+	print STDERR "Writing division data.\n";
+
+	try {
+		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );
+		$division->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});

@@ -2,13 +2,9 @@
 
 my $size  = join "", @ARGV;
 my $block = 512;
-if     ( $size =~ /kb/i ) {
-	$size *= 1024;
-} elsif( $size =~ /mb/i ) {
-	$size *= (1024 ** 2);
-} elsif( $size =~ /gb/i ) {
-	$size *= (1024 ** 3);
-}
+if   ( $size =~ /kb/i ) { $size *= 1024;        }
+elsif( $size =~ /mb/i ) { $size *= (1024 ** 2); }
+elsif( $size =~ /gb/i ) { $size *= (1024 ** 3); }
 
 $size /= $block;
 
