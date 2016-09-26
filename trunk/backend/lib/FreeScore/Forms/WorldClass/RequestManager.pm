@@ -69,16 +69,43 @@ sub broadcast_division_response {
 	print STDERR "  Broadcasting to:\n";
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
-		my $unblessed;
-		my $is_judge = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-
-		if( $is_judge ) { $unblessed = unbless $division->get_only( $broadcast->{ judge } ); } 
-		else            { $unblessed = unbless $division; }
-		my $encoded = $json->canonical->encode( $unblessed );
-		my $digest  = sha1_hex( $encoded );
+		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
+		my $unblessed = unbless ( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $division ); 
+		my $encoded   = $json->canonical->encode( $unblessed );
+		my $digest    = sha1_hex( $encoded );
 
 		print STDERR "    user: $id digest: $digest\n";
 		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		$self->{ _last_state } = $digest if $client_id eq $id;
+	}
+	print STDERR "\n";
+}
+
+# ============================================================
+sub broadcast_ring_response {
+# ============================================================
+# Broadcasts to ring
+# ------------------------------------------------------------
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+	my $client_id = sprintf "%s", sha1_hex( $client );
+
+	print STDERR "  Broadcasting to:\n";
+	foreach my $id (sort keys %$clients) {
+		my $broadcast = $clients->{ $id };
+		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
+		my $unblessed = unbless ( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $progress ); 
+		my $encoded   = $json->canonical->encode( $unblessed );
+		my $digest    = sha1_hex( $encoded );
+		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed };
+
+		print STDERR "    user: $id digest: $digest\n";
+		$broadcast->{ device }->send( { json => $response });
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n";
@@ -297,13 +324,14 @@ sub handle_division_navigate {
 			$division = $progress->current();
 			$division->autopilot( 0 );
 			$division->write();
+			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
 		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
 			$division->navigate( $object, $i ); 
 			$division->autopilot( 0 );
 			$division->write();
+			$self->broadcast_division_response( $request, $progress, $clients );
 		}
-		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -424,7 +452,7 @@ sub handle_ring_division_next {
 	try {
 		$progress->next();
 		$progress->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -443,7 +471,7 @@ sub handle_ring_division_prev {
 	try {
 		$progress->previous();
 		$progress->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
