@@ -35,6 +35,7 @@ sub init {
 		athlete_prev       => \&handle_division_athlete_prev,
 		award_penalty      => \&handle_division_award_penalty,
 		award_punitive     => \&handle_division_award_punitive,
+		edit_athletes      => \&handle_division_edit_athletes,
 		edit_header        => \&handle_division_edit_header,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
@@ -231,6 +232,27 @@ sub handle_division_display {
 		$division->autopilot( 0 );
 		if( $division->is_display() ) { $division->score();   } 
 		else                          { $division->display(); }
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+# ============================================================
+sub handle_division_edit_athletes {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Editing division athletes.\n";
+
+	try {
+		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );

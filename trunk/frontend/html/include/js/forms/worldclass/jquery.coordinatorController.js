@@ -70,13 +70,6 @@ $.widget( "freescore.coordinatorController", {
 				merge      : button.clone() .addClass( 'navigation' ) .iconlabel( "resize-small", "Merge Flights"  ),
 			},
 
-			changes : {
-				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
-				legend     : html.legend.clone() .html( "Changes" ),
-				save       : button.clone() .addClass( 'navigation' ) .iconlabel( "floppy-disk",   "Save"            ),
-				revert     : button.clone() .addClass( 'navigation' ) .iconlabel( "floppy-remove", "Revert Changes"  ),
-			},
-
 			clock : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Timer" ),
@@ -164,14 +157,13 @@ $.widget( "freescore.coordinatorController", {
 
 		o.penalties = { bounds : 0, timelimit : 0, restart : 0, misconduct : 0, time : 0 };
 
-		actions.changes    .panel.append( actions.changes.legend, actions.changes.save, actions.changes.revert );
 		actions.clock      .panel.append( actions.clock.legend, actions.clock.face, actions.clock.toggle );
 		actions.navigate   .panel.append( actions.navigate.legend, actions.navigate.division );
 		actions.penalties  .panel.append( actions.penalties.legend, actions.penalties.timelimit, actions.penalties.bounds, actions.penalties.restart, actions.penalties.misconduct, actions.penalties.clear );
 		actions.admin      .panel.append( actions.admin.legend, actions.admin.display, actions.admin.print );
 		actions.punitive   .panel.append( actions.punitive.legend, actions.punitive.remove );
 
-		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.admin.panel, actions.changes.panel );
+		actions.panel.append( actions.navigate.panel, actions.clock.panel, actions.penalties.panel, actions.punitive.panel, actions.admin.panel );
 		actions.panel.attr({ 'data-position-fixed' : true });
 		athletes.actions.append( actions.panel );
 
@@ -217,7 +209,7 @@ $.widget( "freescore.coordinatorController", {
 					var j    = rows.length;
 					add.row.removeClass( "add" );
 					add.order.html( j + '.' ) .attr({ order : j }) .removeClass( "ui-btn-icon-notext ui-icon-plus" );
-					renameAthletes( division, round ) ();
+					editAthletes( division, round ) ();
 					var next = (addNewAthlete( division, round ))();
 					e.athletes.tbody.append( next.row );
 				});
@@ -359,25 +351,7 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var renameAthletes = function( division, round ) {
-		// ============================================================
-			return function() {
-				var rename = [];
-				var rows   = $( 'tbody.athlete-list' ).children( 'tr' ); // tbody children are tr elements, i.e. athlete names and scores
-				for( i = 0; i < rows.length; i++ ) {
-					var row    = $( rows[ i ] );
-					var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
-					var j      = column.order.attr( 'order' );
-					var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
-					if( defined( j ) ) { rename.push({ order : parseInt( j ), name : name }); }
-				}
-				o.changes = { divid : division.name, athletes: rename, round : round };
-				e.actions.changes.panel.fadeIn(); 
-			}
-		};
-
-		// ============================================================
-		var reorderAthletes = function( division, round ) {
+		var editAthletes = function( division, round ) {
 		// ============================================================
 			return function() {
 				var reorder = [];
@@ -391,28 +365,8 @@ $.widget( "freescore.coordinatorController", {
 					if( defined( j ) ) { reorder.push({ order : parseInt( j ), name : name }); }
 					column.order.html( (i + 1) + '.' );
 				}
-				o.changes = { divid : division.name, athletes: reorder, round : round };
-				e.actions.changes.panel.fadeIn(); 
+				sendRequest( { type: 'division', action: 'edit athletes', divid : division.name, athletes: reorder, round : round } )();
 			}
-		};
-
-		// ============================================================
-		var revertChanges = function() {
-		// ============================================================
-			if( ! defined( o.progress )) { return; }
-			var progress = JSON.stringify( o.progress );
-			var update   = { data : progress };
-			e.dialog.popupdialog({
-				title:    'Reverting Changes',
-				subtitle: 'Restoring previous division configuration',
-				message:  'Please wait while the server completes the restoration update.',
-				afterclose: function() { e.sound.confirmed.play(); },
-				buttons:  'none',
-			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
-			o.changes = undefined;
-			e.sound.prev.play();
-			setTimeout( function() { e.refresh( update ); e.actions.changes.panel.fadeOut(); }, 1000 );
-				 
 		};
 
 		// ============================================================
@@ -420,20 +374,6 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			var divid = $( this ).attr( 'divid' ); 
 			$( ':mobile-pagecontainer' ).pagecontainer( 'change', '#athletes?ring=' + o.ring + '&divid=' + divid, { transition : 'slide' } )
-		};
-
-		// ============================================================
-		var saveChanges = function() {
-		// ============================================================
-			(sendRequest( 'coordinator', o.changes )());
-			e.dialog.popupdialog({
-				title:    'Saving Changes',
-				subtitle: 'Sending Changes to Server',
-				message:  'Please wait while the server completes the update.',
-				afterclose: function() { e.sound.confirmed.play(); },
-				buttons:  'none',
-			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
-			o.changes = undefined;
 		};
 
 		// ============================================================
@@ -635,7 +575,6 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
 				e.actions.punitive  .panel .show();
-				e.actions.changes   .panel .hide();
 
 				// Clear context for navigation button
 				e.actions.navigate.division.attr({ index : undefined });
@@ -645,7 +584,6 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.clock     .panel .hide();
 				e.actions.penalties .panel .hide();
 				e.actions.punitive  .panel .hide();
-				e.actions.changes   .panel .hide();
 
 				// Set context for navigation button
 				var index = undefined;
@@ -679,7 +617,7 @@ $.widget( "freescore.coordinatorController", {
 			e.athletes.table.append( e.athletes.thead, e.athletes.tbody );
 			e.athletes.tbody.sortable({
 				items: '> tr:not(.add, .complete)',       // Prevent reordering of athletes who have completed their form
-				stop: reorderAthletes( division, round ), // Notify user of reordering change and enable user to save changes
+				stop: editAthletes( division, round ), // Reorder athletes as requested
 			});
 
 			$.each( division.current.athletes( round ), function( i, athleteData ) {
@@ -702,7 +640,7 @@ $.widget( "freescore.coordinatorController", {
 				} else {
 					var input   = html.text.clone();
 					input.val( athlete.data.name() );
-					input.change( renameAthletes( division, round ) );
+					input.change( editAthletes( division, round ) );
 					athlete.name.append( input );
 				}
 
@@ -842,9 +780,6 @@ $.widget( "freescore.coordinatorController", {
 		actions .admin      .display    .click( showDisplay );
 
 		actions .navigate   .division   .click( goToDivision );
-
-		actions .changes    .save       .click( saveChanges );
-		actions .changes    .revert     .click( revertChanges );
 
 		actions .penalties  .timelimit  .click( awardPenaltyTimeLimit );
 		actions .penalties  .bounds     .click( awardPenaltyBounds );

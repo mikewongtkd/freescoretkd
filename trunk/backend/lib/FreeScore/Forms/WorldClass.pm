@@ -4,7 +4,6 @@ use FreeScore::Forms;
 use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max );
-use Clone qw( clone );
 
 # ============================================================
 sub init {
@@ -51,13 +50,6 @@ sub init {
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
 	}
-}
-
-# ============================================================
-sub clone {
-# ============================================================
-	my $self = shift;
-	return clone $self;
 }
 
 # ============================================================
