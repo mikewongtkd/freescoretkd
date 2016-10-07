@@ -257,13 +257,12 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			var division = new Division( o.progress.divisions[ o.progress.current ] );
 			var athlete  = division.current.athlete();
-			e.sound.next.play();
 			e.dialog.popupdialog({
 				title:    'Delete Athlete?',
 				subtitle: 'Delete ' + athlete.name() + ' from this division?',
 				message:  'This removes an athlete that doesn\'t belong in the division. Once confirmed, this operation cannot be undone.',
 				buttons:  [
-					{ text : 'Cancel', style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup( 'close' ); } },
+					{ text : 'Cancel', style : 'cancel',    click : function( ev ) { e.sound.prev.play();      removeAthleteDialog(); } },
 					{ text : 'Delete', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'delete athlete', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
@@ -275,13 +274,12 @@ $.widget( "freescore.coordinatorController", {
 			var index    = $(this).attr( 'index' );
 			var division = new Division( o.progress.divisions[ o.progress.current ] );
 			var athlete  = division.current.athlete();
-			e.sound.next.play();
 			e.dialog.popupdialog({
 				title:    'Disqualify Athlete?',
 				subtitle: 'Disqualify ' + athlete.name() + ' from this division?',
 				message:  'This is a punitive decision. Once confirmed, this operation cannot be undone.',
 				buttons:  [
-					{ text : 'Cancel',     style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup( 'close' ); } },
+					{ text : 'Cancel',     style : 'cancel',    click : function( ev ) { e.sound.prev.play();      removeAthleteDialog(); } },
 					{ text : 'Disqualify', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'award punitive', decision: 'disqualified', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
@@ -328,17 +326,20 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var removeAthlete = function() {
 		// ============================================================
+			e.sound.next.play();
+			removeAthleteDialog();
+		};
+
+		// ============================================================
+		var removeAthleteDialog = function() {
+		// ============================================================
 			var division = new Division( o.progress.divisions[ o.progress.current ] );
 			var athlete  = division.current.athlete();
 			var round    = division.current.roundId();
-			e.sound.next.play();
 			e.dialog.popupdialog({
 				title:    'Remove ' + athlete.name(),
 				subtitle: 'Choose a reason to remove ' + athlete.name() + ' from this division.',
-				message:  '<ul>' +
-					'<li><b>Delete</b> to remove an athlete that was accidentally added to the division</li>' + 
-					'<li><b>Withdraw</b> to remove an athlete that doesn\'t show up after 3rd call, cannot perform due to injury, or voluntarily withdraws</li>' + 
-					'<li><b>Disqualify</b> to remove an athlete that is no longer qualified to compete.</li></ul>',
+				message:  '',
 				afterclose: function( ev, ui ) {},
 				buttons:  [
 					{ text : 'Cancel',     style : 'cancel',    click : function( ev ) { e.sound.prev.play(); $('#popupDialog').popup('close'); } },
@@ -436,7 +437,7 @@ $.widget( "freescore.coordinatorController", {
 				message:  'Once confirmed, this operation cannot be undone.',
 				afterclose: function( ev, ui ) {},
 				buttons:  [
-					{ text : 'Cancel',   style : 'cancel',    click : function( ev ) { e.sound.prev.play();      $('#popupDialog').popup('close'); }},
+					{ text : 'Cancel',   style : 'cancel',    click : function( ev ) { e.sound.prev.play();      removeAthleteDialog(); }},
 					{ text : 'Withdraw', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup('close'); (sendRequest({ type: 'division', action: 'award punitive', decision: 'withdrawn', athlete_id: division.current.athleteId() })()); }},
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
