@@ -88,7 +88,7 @@
 	// ============================================================
 	// DESCRIPTION BEHAVIOR
 	// ============================================================
-	var description = { category: '', gender: '', age: '', rank : '', text: '', divid: 0, idx : 0, update : function() { 
+	var description = { category: '', gender: '', age: '', years: '', rank : '', text: '', divid: 0, idx : 0, update : function() { 
 		description.text   = { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + ({ y: 'Yellow Belt', g: 'Green Belt', b: 'Blue Belt', r: 'Red Belt', k: '', '':'' }[ description.rank ]) + ' ' + description.age.capitalize();
 		description.text   = description.text.trim();
 		description.text   = description.text.replace( /\s+/, ' ' );
@@ -99,6 +99,7 @@
 		$( "#description-title" ).html( "Description: <span class=\"setting\">" + description.text + "</span>" );
 		division.description = description.text;
 		division.name        = 'p' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
+		selected.update();
 	}};
 
 	// ============================================================
@@ -134,8 +135,9 @@
 	// ============================================================
 	$( 'input[name=age]' ).parent().click( function( ev ) {
 		var clicked = $( ev.target );
-		description.age = clicked.find( 'input' ).val();
-		description.idx = parseInt( clicked.find( 'input' ).attr( 'idx' ) );
+		description.age   = clicked.find( 'input' ).val();
+		description.years = clicked.text(); 
+		description.idx   = parseInt( clicked.find( 'input' ).attr( 'idx' ) );
 		description.update();
 		$( 'input[name=age]' ).parent().each( function( i, element ) { if( ! $( element ).is( clicked )) { $( element ).removeClass( 'active' ); }});
 	});

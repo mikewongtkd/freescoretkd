@@ -82,13 +82,14 @@ var FreeScore = {
 				'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu'
 			];
 			var forms = [];
-			if( rank == 'Yellow'       ) { forms = allForms.splice( 0, 2 ); } else
-			if( rank == 'Green'        ) { forms = allForms.splice( 0, 4 ); } else
-			if( rank == 'Blue'         ) { forms = allForms.splice( 0, 5 ); } else
-			if( rank == 'Red'          ) { forms = allForms.splice( 0, 8 ); } else
+			if( rank == 'Yellow' || rank == 'y' ) { forms = allForms.splice( 0, 2 ); } else
+			if( rank == 'Green'  || rank == 'g' ) { forms = allForms.splice( 0, 4 ); } else
+			if( rank == 'Blue'   || rank == 'b' ) { forms = allForms.splice( 0, 5 ); } else
+			if( rank == 'Red'    || rank == 'r' ) { forms = allForms.splice( 0, 8 ); } else
 			{
 				age = parseInt( age );
-				if( format == 'Team' ) {
+				if( isNaN( age )) { return allForms; }
+				if( format.match( /team/i ) ) {
 					if( age <=  9 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 11 ) { forms = allForms.splice( 2, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
@@ -96,7 +97,7 @@ var FreeScore = {
 					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
 									{ forms = allForms.splice( 7, 8 ); }      // 1st Masters
 
-				} else if( format == 'Pair' ) {
+				} else if( format.match( /pair/i ) ) {
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
@@ -106,10 +107,11 @@ var FreeScore = {
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-					if( age <= 40 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
-					if( age <= 50 ) { forms = allForms.splice( 7, 8 ); } else // 1st Masters
-					if( age <= 65 ) { forms = allForms.splice( 8, 8 ); } else // 2nd/3rd Masters
-					                { forms = allForms.splice( 3, 12 ); }      // Default
+					if( age <  40 ) { forms = allForms.splice( 5, 8 ); } else
+					if( age <  50 ) { forms = allForms.splice( 7, 8 ); } else
+					if( age <  60 ) { forms = allForms.splice( 8, 8 ); } else
+					if( age <  65 ) { forms = allForms.splice( 8, 8 ); } else
+					                { forms = allForms.splice( 8, 8 ); }     
 				}
 			}
 			return forms;

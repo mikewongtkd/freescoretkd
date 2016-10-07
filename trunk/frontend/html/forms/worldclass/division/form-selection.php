@@ -66,24 +66,46 @@ EOD;
 <script>
 	// ===== FORM SELECTION BEHAVIOR
 	var selected = { method: '', forms : { prelim : [], semfin : [], finals : [] }, text: '', description: '', update : function() { 
+		var forms = [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
+		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
+
+		// ===== IF ANY FORM IS ALLOWED, SHOW ALL FORMS
+		if( $( '#allow-any-form' ).bootstrapSwitch( 'state' )) {
+			$.each( forms,   function( i, form ) { $( 'option:contains("' + form + '")' ).show(); });
+
+		// ===== OTHERWISE, APPLY RULES
+		} else {
+			var allowed = FreeScore.rulesUSAT.recognizedPoomsae( description.category, description.years, description.rank );
+			$.each( forms,   function( i, form ) { $( 'option:contains("' + form + '")' ).hide(); });
+			$.each( allowed, function( i, form ) { $( 'option:contains("' + form + '")' ).show(); });
+			$.each( all,     function( i, form ) { $( 'option:contains("' + form + '")' ).hide(); });
+		}
+		$('.selectpicker').selectpicker( 'refresh' );
+
+		// ===== CREATE FORM SELECTION TEXT FROM SELECTIONS
 		selected.text = 
 			(selected.forms.prelim.length > 0 ? 'prelim:' + selected.forms.prelim.join( ',' ) + ';' : '') +
 			(selected.forms.semfin.length > 0 ? 'semfin:' + selected.forms.semfin.join( ',' ) + ';' : '') +
 			(selected.forms.finals.length > 0 ? 'finals:' + selected.forms.finals.join( ',' )       : '');
+
+		// ===== CREATE FORM SELECTION DESCRIPTION FROM SELECTIONS
 		selected.description =
-			(selected.forms.prelim.length > 0 ? '[Preliminary Round] ' + selected.forms.prelim.join( ', ' ) + '; ' : '') +
-			(selected.forms.semfin.length > 0 ? '[Semi-Final Round] '  + selected.forms.semfin.join( ', ' ) + '; ' : '') +
-			(selected.forms.finals.length > 0 ? '[Final Round] '       + selected.forms.finals.join( ', ' )        : '');
+			(selected.forms.prelim.length > 0 ? '<span class="round">Preliminary Round</span> ' + selected.forms.prelim.join( ', ' ) + ' ' : '') +
+			(selected.forms.semfin.length > 0 ? '<span class="round">Semi-Final Round</span> '  + selected.forms.semfin.join( ', ' ) + ' ' : '') +
+			(selected.forms.finals.length > 0 ? '<span class="round">Final Round</span> '       + selected.forms.finals.join( ', ' )        : '');
+
 		selected.text = selected.text.trim();
 		selected.text = selected.text.replace( /\s+/, ' ' );
 		$( "#form-selection-title" ).html( "Form Selection: <span class=\"setting\">" + selected.description + "</span>" );
 		division.forms = selected.text;
 	}};
+
 	$( 'a[data-toggle=tab]' ).click( function( ev ) {
 		var clicked = $( ev.target );
 		selected.method = clicked.html().toLowerCase();
 		selected.update();
 	});
+
 	var getForms = function( obj ) { var form = $( obj ).html(); if( form == 'None' ) { return; } else { return form; } };
 	$( '.selectpicker' ).on( 'changed.bs.select', function( ev, i, current, previous ) {
 		var form  = $( ev.target[ i ] ).val();
@@ -93,5 +115,6 @@ EOD;
 		else if ( round.hasClass( 'finals' )) { selected.forms.finals = $.map( $( '.finals .filter-option' ), getForms ); }
 		selected.update();
 	});
+	// ===== FORM SELECTOR MODIFICATION BY DESCRIPTION
 </script>
 

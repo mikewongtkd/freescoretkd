@@ -23,11 +23,7 @@
 			</div>
 			<div class="col-md-2">
 				<label>Allow any form</label><br>
-				<input type="checkbox" id="allow-any-form" checked>
-			</div>
-			<div class="col-md-2">
-				<label for="allow-any-age">Allow any age</label><br>
-				<input type="checkbox" id="allow-any-age">
+				<input type="checkbox" id="allow-any-form">
 			</div>
 		</div>
 	</div>
@@ -37,6 +33,14 @@
 	$( "input[type=checkbox]" ).bootstrapSwitch({ size : 'small' });
 
 	// ===== DIVISION DATA STORAGE
-	var division = { athletes : [] };
+	var division = { athletes : [], judges : 5, init : {} };
+
+	// ============================================================
+	// JUDGES
+	// ============================================================
+	$( 'input[name=judges]' ).parent().click( function( ev ) {
+		var clicked = $( ev.target );
+		division.judges = parseInt( clicked.find( 'input' ).val() );
+	});
 
 </script>
