@@ -1,4 +1,4 @@
-<div class="panel panel-primary">
+<div class="panel panel-primary division-header">
 	<div class="panel-heading">
 		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#description" id="description-title">Description</div>
 	</div>
@@ -88,7 +88,7 @@
 	// ============================================================
 	// DESCRIPTION BEHAVIOR
 	// ============================================================
-	var description = { category: '', gender: '', age: '', years: '', rank : '', text: '', divid: 0, idx : 0, update : function() { 
+	description = { category: '', gender: '', age: '', years: '', rank : '', text: '', divid: 0, idx : 0, update : function() { 
 		description.text   = { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + ({ y: 'Yellow Belt', g: 'Green Belt', b: 'Blue Belt', r: 'Red Belt', k: '', '':'' }[ description.rank ]) + ' ' + description.age.capitalize();
 		description.text   = description.text.trim();
 		description.text   = description.text.replace( /\s+/, ' ' );
@@ -98,7 +98,17 @@
 		description.divid += { k: 0, y: 400, g: 300, b: 200, r: 100, '': 0 }[ description.rank ]
 		$( "#description-title" ).html( "Description: <span class=\"setting\">" + description.text + "</span>" );
 		division.description = description.text;
-		division.name        = 'p' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
+
+		// ===== UPDATE DIVISION NAME, IF NOT ALREADY DEFINED
+		var name      = $( '#division-name' ).val();
+		division.name = name ? name : 'p' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
+		$( '#division-name' ).attr({ placeholder: division.name.toUpperCase() });
+
+		// ===== UPDATE TITLE AND HEADER
+		$( 'title' ).html( division.summary() );
+		$( 'h1' ).html( division.summary() );
+
+		// ===== UPDATE FORM SELECTION LISTS
 		selected.update();
 	}};
 

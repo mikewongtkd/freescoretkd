@@ -3,7 +3,7 @@
 ?>
 <html>
 	<head>
-	<title></title>
+	<title>New Division</title>
 		<link href="../../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
@@ -29,9 +29,7 @@
 	</head>
 	<body>
 		<div class="container">
-			<div class="page-header">
-				<h1>Create a New Division</h1>
-			</div>
+			<div class="page-header"><h1>New Division</h1></div>
 
 <?php include( "settings.php" ); ?>
 <?php include( "description.php" ); ?>
@@ -39,9 +37,6 @@
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<div class="btn-group pull-left">
-						<span class="glyphicon glyphicon-menu-hamburger"></span>
-					</div>
 					<h4 class="panel-title">List of Athletes in this Division</h4>
 				</div>
 				<textarea id="athletes" class="panel-body"></textarea>
@@ -53,10 +48,19 @@
 		</div>
 
 		<script>
-			var athletes = { textarea : $( '#athletes' ), editor : undefined };
+			athletes.textarea = $( '#athletes' );
 			athletes.editor = CodeMirror.fromTextArea( document.getElementById( 'athletes' ), { lineNumbers: true, autofocus: true, mode : 'freescore' });
 			athletes.editor.setSize( '100%', '360px' );
 			athletes.doc = athletes.editor.getDoc();
+
+			// ===== BEHAVIOR
+			athletes.editor.on( "keyHandled", function( cm, key, ev ) {
+				if( key != 'Enter' && key != 'Shift-Enter' && key != 'Backspace' && key != 'Shift-Backspace' ) { return; }
+				division.athletes = (athletes.doc.getValue().trim()).split( "\n" );
+
+				var autodetect = $( 'label.active input[value=auto]' ).length > 0;
+				if( autodetect ) { first.round.select.autodetect(); }
+			});
 
 			$( '#save-button' ).addClass( 'disabled' ) .click( function() { 
 				bootbox.prompt({

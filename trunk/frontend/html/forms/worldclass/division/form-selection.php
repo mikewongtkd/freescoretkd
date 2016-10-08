@@ -3,6 +3,7 @@ function formsList( $round, $id ) {
 	$list = <<<EOD
 <select class="selectpicker $round" id="$round$id">
 	<option>None</option>
+	<option>Open</option>
 	<option>Taegeuk 1</option>
 	<option>Taegeuk 2</option>
 	<option>Taegeuk 3</option>
@@ -39,18 +40,22 @@ EOD;
 				<div class="tab-pane" id="cutoff">
 					<table class="table">
 						<thead>
-							<tr><th colspan=2>Preliminary Round</th><th colspan=2>Semi-Final Round</th><th colspan=2>Final Round</th></tr>
+							<tr>
+								<th colspan=2 class="prelim-header">Preliminary Round</th>
+								<th colspan=2 class="semfin-header">Semi-Final Round</th>
+								<th colspan=2 class="finals-header">Final Round</th>
+							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<td>First form</td><td>Second form</td>
-								<td>First form</td><td>Second form</td>
-								<td>First form</td><td>Second form</td>
+								<td class="prelim-form">First form</td><td class="prelim-form">Second form</td>
+								<td class="semfin-form">First form</td><td class="semfin-form">Second form</td>
+								<td class="finals-form">First form</td><td class="finals-form">Second form</td>
 							</tr>
 							<tr>
-								<td><?php formsList( "prelim", 1 ) ?></td><td><?php formsList( "prelim", 2 ) ?></td>
-								<td><?php formsList( "semfin", 1 ) ?></td><td><?php formsList( "semfin", 2 ) ?></td>
-								<td><?php formsList( "finals", 1 ) ?></td><td><?php formsList( "finals", 2 ) ?></td>
+								<td class="prelim-list"><?php formsList( "prelim", 1 ) ?></td><td class="prelim-list"><?php formsList( "prelim", 2 ) ?></td>
+								<td class="semfin-list"><?php formsList( "semfin", 1 ) ?></td><td class="semfin-list"><?php formsList( "semfin", 2 ) ?></td>
+								<td class="finals-list"><?php formsList( "finals", 1 ) ?></td><td class="finals-list"><?php formsList( "finals", 2 ) ?></td>
 							</tr>
 						</tbody>
 					</table>
@@ -66,7 +71,7 @@ EOD;
 <script>
 	// ===== FORM SELECTION BEHAVIOR
 	var selected = { method: '', forms : { prelim : [], semfin : [], finals : [] }, text: '', description: '', update : function() { 
-		var forms = [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
+		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
 
 		// ===== IF ANY FORM IS ALLOWED, SHOW ALL FORMS
