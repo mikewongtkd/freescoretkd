@@ -41,38 +41,81 @@
 				</div>
 				<textarea id="athletes" class="panel-body"></textarea>
 				<div class="panel-footer">
-					<button type="button" id="save-button" class="btn btn-success pull-right "><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
+					<span id="user-message">Not enough forms selected. Please select forms.</span>
+					<button type="button" id="save-button" class="btn btn-success pull-right disabled"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
 					<div class="clearfix"></div>
 				</div>
 			</div>
 		</div>
 
 		<script>
+			// ============================================================
+			// ATHLETE LIST (CODEMIRROR)
+			// ============================================================
 			athletes.textarea = $( '#athletes' );
 			athletes.editor = CodeMirror.fromTextArea( document.getElementById( 'athletes' ), { lineNumbers: true, autofocus: true, mode : 'freescore' });
 			athletes.editor.setSize( '100%', '360px' );
 			athletes.doc = athletes.editor.getDoc();
 
 			// ===== BEHAVIOR
-			athletes.editor.on( "keyHandled", function( cm, key, ev ) {
-				if( key != 'Enter' && key != 'Shift-Enter' && key != 'Backspace' && key != 'Shift-Backspace' ) { return; }
-				division.athletes = (athletes.doc.getValue().trim()).split( "\n" );
+			athletes.editor.on( "change", function( cm, key, ev ) {
+				division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map((name) => { return { name : name };});
 
 				var autodetect = $( 'label.active input[value=auto]' ).length > 0;
 				if( autodetect ) { first.round.select.autodetect(); }
+
+				validate.input();
+
 			});
 
-			$( '#save-button' ).addClass( 'disabled' ) .click( function() { 
-				bootbox.prompt({
-					title: "Save Division " + (defined( division.description ) ? "&quot;" + division.description + "&quot;" : '' ) + " As?",
-					value: (defined( division.name ) ? division.name : "p000"),
-					callback: function( result ) {
-						if( result === null ) { window.close(); } 
-						else {
-						}
-					}
-				});
-			});
+			validate.athletes = {};
+
+			validate.athletes.count = function() {
+				if( division.athletes.length == 0 ) { return false; }
+				return (division.athletes[ 0 ].name);
+			}
+			validate.athletes.unique = function() {
+				var duplicates = [];
+				if( division.athletes.length > 1 ) {
+					var count = division.athletes
+						.map( (athlete) => { return athlete.name; })
+						.reduce((uniq, cur) => { uniq[ cur ] = (uniq[ cur ] || 0) + 1; return uniq; }, {});
+					duplicates = Object.keys( count ).filter((a) => count[a] > 1 );
+				}
+				return (duplicates.length == 0);
+			}
+
+			validate.input = function() {
+				save.disable();
+				var ok = true;
+
+				if( validate.athletes.count() && validate.athletes.unique()) {
+					$( '#athletes' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
+
+				} else if( ! validate.athletes.count() ) {
+					ok = false;
+					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
+					$( '#user-message' ).html( "Not enough athletes. Please add more athletes." );
+
+				} else if( ! validate.athletes.unique() ) {
+					ok = false;
+					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
+					$( '#user-message' ).html( "Duplicate athletes. Please resolve athletes with the same name." );
+				}
+
+				if ( validate.selection() ) {
+					$( '#form-selection' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
+				} else {
+					ok = false;
+					$( '#form-selection' ).parent().addClass( "panel-danger" ).removeClass( "panel-primary" );
+					$( '#user-message' ).html( "Not enough forms selected. Please select forms." );
+				}
+				if( ok ) {
+					$( '#user-message' ).html( "" );
+					save.enable();
+				}
+				return ok;
+			}
 
 			// ===== SERVICE COMMUNICATION
 			var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// );
@@ -80,14 +123,22 @@
 			var ring       = file.shift();
 			var divId      = file.shift();
 			var ws         = new WebSocket( "ws://<?= $host ?>:3088/worldclass/" + tournament + "/" + ring );
-
-			ws.onopen      = function() {
-				$( '#save-button' ).removeClass( 'disabled' ) .click( function() { 
+			var save       = { enable : function() {
+				var button = $( '#save-button' );
+				button.removeClass( 'disabled' );
+				button.off( 'click' ).click( function() { 
 					var request  = { data : { type : 'division', action : 'write', division : division }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
-					window.close(); 
+					console.log( division );
 				});
+			}, disable : function() {
+				var button = $( '#save-button' );
+				button.addClass( 'disabled' );
+				button.off( 'click' );
+			}}
+
+			ws.onopen      = function() {
 				if( divId != 'new' ) {
 					var request = { type : 'division', action : 'read', tournament : tournament, ring : ring, divid : divId };
 					var json    = JSON.stringify( request );

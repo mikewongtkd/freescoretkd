@@ -5,13 +5,14 @@ use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max );
 
+our $subdir = "forms-worldclass";
+
 # ============================================================
 sub init {
 # ============================================================
 	my $self       = shift;
 	my $tournament = shift;
 	my $ring       = shift;
-	my $subdir     = "forms-worldclass";
 
 	if( defined $ring ) { 
 		# ===== LOAD THE DIVISIONS IN THE SPECIFIED RING

@@ -93,4 +93,9 @@ body {
 .division-setting .bootstrap-switch {
   height: 32px; }
 
+#user-message {
+  line-height: 24pt;
+  font-size: 14pt;
+  color: #a94442; }
+
 /*# sourceMappingURL=new.css.map */

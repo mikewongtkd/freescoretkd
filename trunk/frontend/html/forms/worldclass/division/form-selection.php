@@ -25,7 +25,7 @@ EOD;
 	echo $list;
 }
 ?>
-<div class="panel panel-primary">
+<div class="panel panel-danger">
 	<div class="panel-heading">
 		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#form-selection" id="form-selection-title">Form Selection</div>
 	</div>
@@ -70,7 +70,7 @@ EOD;
 </div>
 <script>
 	// ===== FORM SELECTION BEHAVIOR
-	var selected = { method: '', forms : { prelim : [], semfin : [], finals : [] }, text: '', description: '', update : function() { 
+	var selected = { method: '', forms : { prelim : [], semfin : [], finals : [] }, description: '', update : function() { 
 		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
 
@@ -87,22 +87,16 @@ EOD;
 		}
 		$('.selectpicker').selectpicker( 'refresh' );
 
-		// ===== CREATE FORM SELECTION TEXT FROM SELECTIONS
-		selected.text = 
-			(selected.forms.prelim.length > 0 ? 'prelim:' + selected.forms.prelim.join( ',' ) + ';' : '') +
-			(selected.forms.semfin.length > 0 ? 'semfin:' + selected.forms.semfin.join( ',' ) + ';' : '') +
-			(selected.forms.finals.length > 0 ? 'finals:' + selected.forms.finals.join( ',' )       : '');
-
 		// ===== CREATE FORM SELECTION DESCRIPTION FROM SELECTIONS
 		selected.description =
 			(selected.forms.prelim.length > 0 ? '<span class="round">Preliminary Round</span> ' + selected.forms.prelim.join( ', ' ) + ' ' : '') +
 			(selected.forms.semfin.length > 0 ? '<span class="round">Semi-Final Round</span> '  + selected.forms.semfin.join( ', ' ) + ' ' : '') +
 			(selected.forms.finals.length > 0 ? '<span class="round">Final Round</span> '       + selected.forms.finals.join( ', ' )        : '');
 
-		selected.text = selected.text.trim();
-		selected.text = selected.text.replace( /\s+/, ' ' );
+		validate.input();
+
 		$( "#form-selection-title" ).html( "Form Selection: <span class=\"setting\">" + selected.description + "</span>" );
-		division.forms = selected.text;
+		division.forms = selected.forms;
 	}};
 
 	$( 'a[data-toggle=tab]' ).click( function( ev ) {
@@ -120,6 +114,18 @@ EOD;
 		else if ( round.hasClass( 'finals' )) { selected.forms.finals = $.map( $( '.finals .filter-option' ), getForms ); }
 		selected.update();
 	});
+
+	validate.selection = function() {
+		var rounds = [ 'prelim', 'semfin', 'finals' ];
+		if( division.round == 'prelim' ) { rounds = rounds.slice( 0 ); } else 
+		if( division.round == 'semfin' ) { rounds = rounds.slice( 1 ); } else 
+		if( division.round == 'finals' ) { rounds = rounds.slice( 2 ); }
+
+		return rounds.map( ( round ) => {
+			return selected.forms[ round ].length > 0; // Each round has at least one form
+		}).reduce( ( acc, cur ) => { return acc && cur; }); // All rounds have at least one form
+	};
+
 	// ===== FORM SELECTOR MODIFICATION BY DESCRIPTION
 </script>
 

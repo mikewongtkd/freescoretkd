@@ -41,6 +41,7 @@
 	var division    = { athletes : [], judges : 5, init : {}, summary : function() { return this.name.toUpperCase() + ' ' + this.description; }};
 	var athletes    = {};
 	var description = {};
+	var validate    = {};
 
 	// ===== HIDE FORM SELECTORS FOR ALL ROUNDS
 	$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
@@ -48,7 +49,7 @@
 
 	var first = { round : { select : {
 		autodetect : function() {
-			var n = ((athletes.doc.getValue().trim()).split( "\n" )).length;
+			var n = division.athletes.length;
 
 			if( n <= 8 ) { first.round.select.finals(); } else 
 			if( n < 20 ) { first.round.select.semfin(); } else 

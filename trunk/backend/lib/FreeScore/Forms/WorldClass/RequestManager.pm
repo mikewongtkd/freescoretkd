@@ -35,6 +35,7 @@ sub init {
 		athlete_prev       => \&handle_division_athlete_prev,
 		award_penalty      => \&handle_division_award_penalty,
 		award_punitive     => \&handle_division_award_punitive,
+		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
 		edit_header        => \&handle_division_edit_header,
 		form_next          => \&handle_division_form_next,
@@ -44,7 +45,7 @@ sub init {
 		round_next         => \&handle_division_round_next,
 		round_prev         => \&handle_division_round_prev,
 		score              => \&handle_division_score,
-		display            => \&handle_division_display,
+		write              => \&handle_division_write,
 	};
 	$self->{ ring }        = {
 		division_next      => \&handle_ring_division_next,
@@ -290,6 +291,7 @@ sub handle_division_form_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
 	print STDERR "Next form.\n";
@@ -311,6 +313,7 @@ sub handle_division_form_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
 	print STDERR "Previous form.\n";
@@ -332,6 +335,7 @@ sub handle_division_navigate {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
 	my $object = $request->{ target }{ destination };
@@ -379,6 +383,7 @@ sub handle_division_round_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
 	print STDERR "Next round.\n";
@@ -400,6 +405,7 @@ sub handle_division_round_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
 	print STDERR "Previous round.\n";
@@ -421,6 +427,7 @@ sub handle_division_score {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
 	print STDERR "Send score.\n";
@@ -445,15 +452,23 @@ sub handle_division_score {
 # ============================================================
 sub handle_division_write {
 # ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
+	my $self       = shift;
+	my $request    = shift;
+	my $progress   = shift;
+	my $clients    = shift;
+	my $client     = $self->{ _client };
+	my $tournament = $self->{ _tournament };
+	my $ring       = $self->{ _ring };
 
 	print STDERR "Writing division data.\n";
 
+	my $valid = { map { ( $_ => 1 ) } qw( athletes description forms judges name round ) };
+
 	try {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );
+		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
+		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::subdir, $ring, $division->{ name } );
+		$division->normalize();
 		$division->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -468,6 +483,7 @@ sub handle_ring_division_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 
 	print STDERR "Next division.\n";
 
@@ -487,6 +503,7 @@ sub handle_ring_division_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $client   = $self->{ _client };
 
 	print STDERR "Previous division.\n";
 

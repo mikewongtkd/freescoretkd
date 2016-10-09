@@ -130,9 +130,7 @@ sub from_json {
 #*
 	my $class = shift;
 	my $data  = shift;
-	my $json  = new JSON();
-	my $self  = $json->decode( $data );
-	return bless $self, $class;
+	return bless $data, $class;
 }
 
 # ============================================================
@@ -354,6 +352,9 @@ sub normalize {
 	my $self   = shift;
 	my $judges = $self->{ judges };
 	my $round  = $self->{ round };
+
+	$self->{ state } ||= 'score';
+	$self->{ form }  ||= 0;
 
 	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
 	if( defined $round ) {
@@ -837,8 +838,8 @@ sub write {
 	my @forms = ();
 	my @tiebreakers = ();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		push @forms,       "$round:" . join( ",", @{$self->{ forms }{ $round }} )       if exists $self->{ forms }{ $round };
-		push @tiebreakers, "$round:" . join( ",", @{$self->{ tiebreakers }{ $round }} ) if exists $self->{ tiebreakers }{ $round };
+		push @forms,       "$round:" . join( ",", @{$self->{ forms }{ $round }} )       if exists $self->{ forms }{ $round }       && @{ $self->{ forms }{ $round }};
+		push @tiebreakers, "$round:" . join( ",", @{$self->{ tiebreakers }{ $round }} ) if exists $self->{ tiebreakers }{ $round } && @{ $self->{ tiebreakers }{ $round }};
 	}
 
 	# ===== PREPARE THE PLACEMENTS AND PENDING ATHLETES
