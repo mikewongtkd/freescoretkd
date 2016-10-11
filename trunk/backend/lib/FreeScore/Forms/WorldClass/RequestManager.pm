@@ -468,9 +468,15 @@ sub handle_division_write {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );
 		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::subdir, $ring, $division->{ name } );
-		$division->normalize();
-		$division->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+
+		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
+			$client->send( { json => { error => "File '$division->{ file }' exists." }});
+
+		} else {
+			$division->normalize();
+			$division->write();
+		}
+		$self->broadcast_division_response( $request, $progress, $clients ) if( $division->{ file } eq ($progress->current())->{ file } );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
