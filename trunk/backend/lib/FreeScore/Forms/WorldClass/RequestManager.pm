@@ -470,13 +470,19 @@ sub handle_division_write {
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::subdir, $ring, $division->{ name } );
 
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
-			$client->send( { json => { error => "File '$division->{ file }' exists." }});
+			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $division }});
 
 		} else {
 			$division->normalize();
 			$division->write();
+
+			# ===== BROADCAST THE UPDATE IF EDITING THE CURRENT DIVISION
+			if( $division->{ file } eq ($progress->current())->{ file } ) {
+				$request->{ divid } = $division->{ name };
+				$self->broadcast_division_response( $request, $progress, $clients );
+			}
+			$client->send( { json => {  type => 'division', action => 'write ok', division => $division }});
 		}
-		$self->broadcast_division_response( $request, $progress, $clients ) if( $division->{ file } eq ($progress->current())->{ file } );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

@@ -130,7 +130,6 @@
 					var request  = { data : { type : 'division', action : 'write', division : division }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
-					console.log( division );
 				});
 			}, disable : function() {
 				var button = $( '#save-button' );
@@ -147,13 +146,60 @@
 			};
 			ws.onmessage = function( ev ) {
 				var response = JSON.parse( ev.data );
-				console.log( response );
+
 				if( response.type == 'division' ) {
-					var division = new Division( response.division );
-					$( '#division-description' ).html( division.summary() );
-					var list = division.athletes();
-					var text = ($.map( list, function( element, i ) { return element.name(); })).join( "\n" )
-					athletes.doc.setValue( text );
+					if( response.action == 'update' ) {
+						var division = new Division( response.division );
+						$( '#division-description' ).html( division.summary() );
+						var list = division.athletes();
+						var text = ($.map( list, function( element, i ) { return element.name(); })).join( "\n" )
+						athletes.doc.setValue( text );
+
+					} else if( response.action == 'write ok' ) {
+						var division = response.division;
+						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.close(); } );
+
+					} else if( response.action == 'write error' ) {
+						var division = response.division;
+						bootbox.dialog({
+							title : "Division " + division.name.toUpperCase() + " already exists!",
+							message: "Do you want to overwrite the existing division " + division.name.toUpperCase() + "?",
+							buttons: {
+								cancel : {
+									label: 'Cancel',
+									className: 'btn-danger',
+									callback: () => {}
+								},
+								confirm : {
+									label: 'Overwrite',
+									className: 'btn-primary',
+									callback: () => {
+										var request  = { data : { type : 'division', action : 'write', overwrite: true, division : division }};
+										request.json = JSON.stringify( request.data );
+										ws.send( request.json );
+									}
+								},
+								rename : {
+									label: 'Save As...',
+									className: 'btn-success',
+									callback: () => {
+										bootbox.prompt({
+											title: 'Save Division As...',
+											value: division.name.toUpperCase(),
+											callback: ( name ) => {
+												if( name === null ) { return; }
+												division.name = name.toLowerCase();
+												var request  = { data : { type : 'division', action : 'write', division : division }};
+												request.json = JSON.stringify( request.data );
+												ws.send( request.json );
+											}
+										});
+									}
+								},
+							},
+							closeButton : false,
+						});
+					}
 				}
 			};
 			ws.onclose   = function( reason ) {
