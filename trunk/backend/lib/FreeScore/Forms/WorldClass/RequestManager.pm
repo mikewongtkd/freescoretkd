@@ -477,7 +477,8 @@ sub handle_division_write {
 			$division->write();
 
 			# ===== BROADCAST THE UPDATE IF EDITING THE CURRENT DIVISION
-			if( $division->{ file } eq ($progress->current())->{ file } ) {
+			my $current = $progress->current() || {};
+			if( $division->{ file } eq $current->{ file } ) {
 				$request->{ divid } = $division->{ name };
 				$self->broadcast_division_response( $request, $progress, $clients );
 			}
