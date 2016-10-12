@@ -91,7 +91,7 @@
 	description = { category: '', gender: '', age: '', years: '', rank : '', text: '', divid: 0, idx : 0, update : function() { 
 		description.text   = { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + ({ y: 'Yellow Belt', g: 'Green Belt', b: 'Blue Belt', r: 'Red Belt', k: '', '':'' }[ description.rank ]) + ' ' + description.age.capitalize();
 		description.text   = description.text.trim();
-		description.text   = description.text.replace( /\s+/, ' ' );
+		description.text   = description.text.replace( /\s+/g, ' ' );
 		description.divid  = { individual : 3, pair : 43, team : 73 }[ description.category ];
 		description.divid -= { f : 2, m : 1, '' : 0 }[ description.gender ];
 		description.divid += description.idx * 3;
@@ -120,9 +120,30 @@
 		$( "#description-title" ).empty().append( "Description: ", text );
 		$( 'title' ).html( division.summary() );
 		$( 'h1' ).html( division.summary() );
-		var matches = undefined;
-		if( matches = division.description().match( /((?:Fem|M)ale)?\s(Individual|Pair|Team)\s((?:Yellow|Green|Blue) Belt\s)?(4-5|6-7|8-9|Youth|Cadet|Junior|Under 30|Under 40|Under 50|Under 60|Under 65|Over 66)/ )) {
-			console.log( matches );
+		var desc = division.description();
+		var gender = desc.match( /\b(Fem|M)ale/i ); gender = gender ? gender[ 0 ].substr( 0, 1 ).toLowerCase() : '';
+		var ev     = desc.match( /Individual|Pair|Team/i); ev = ev ? ev[ 0 ].toLowerCase() : '';
+		var rank   = desc.match( /Yellow|Green|Blue|Red/i ); rank = rank ? rank[ 0 ].substr( 0, 1 ).toLowerCase() : '';
+		var age    = desc.match( /4-5|6-7|8-9|10-11|Youth|12-14|Cadet|15-17|Junior|18-29|Under 30|Under 40|Under 50|Under 60|Under 65|Over 66/i ); age = age ? age[ 0 ].toLowerCase() : '';
+		var map    = { '10-11' : 'youths', 'youth' : 'youths', '12-14' : 'cadets', 'cadet' : 'cadets', '15-17' : 'juniors', 'junior' : 'juniors' }; age = map[ age ] ? map[ age ] : age;
+		if((gender == 'm' && desc.match( /female/i )) || (gender == 'f' && desc.match( /\bmale/i ))) { gender = ''; }
+		console.log( division.description() );
+		if( ev && age ) {
+			$( 'a[href="#' + ev + '"]' ).click();
+			if( gender ) {
+				description.gender = gender;
+				$.each( $( '#' + ev + ' input[name=gender]' ), ( i, elem ) => {
+					var g = { value : $( elem ).val(), button : $( elem ).parent() };
+					if( g.value == gender ) { g.button.click(); }
+				});
+			}
+			description.age = age;
+			$.each( $( '#' + ev + ' input[name=age]' ), ( i, elem ) => {
+				var a = { value : $( elem ).val(), button : $( elem ).parent() };
+				if( a.value == age ) { a.button.click(); }
+			});
+
+			description.update();
 		}
 	};
 
