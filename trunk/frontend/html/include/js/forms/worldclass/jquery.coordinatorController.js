@@ -43,7 +43,7 @@ $.widget( "freescore.coordinatorController", {
 				panel : html.div   .clone() .attr({ 'data-role' : 'header', 'data-theme': 'b', 'data-position' : 'fixed' }),
 				back  : html.a     .clone() .attr({ 'href' : '#divisions', 'data-transition' : 'slide', 'data-direction' : 'reverse', 'data-icon' : 'carat-l' }) .html( 'Divisions for Ring ' + o.ring ),
 				title : html.h1    .clone() .html( 'Athletes' ),
-				setup : html.a     .clone() .attr({ 'data-icon' : 'edit', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Division Settings' ),
+				setup : html.a     .clone() .attr({ 'data-icon' : 'edit', 'data-iconpos' : 'right', 'data-rel' : 'popup', 'href' : '#division-setup' }) .html( 'Edit Division' ),
 			},
 			main    : html.div   .clone() .attr({ 'role': 'main' }),
 			table   : html.table .clone() .addClass( 'athletes' ) .attr({ 'cellpadding' : 0, 'cellspacing' : 0 }),
@@ -249,7 +249,7 @@ $.widget( "freescore.coordinatorController", {
 		var createDivision = function() {
 		// ============================================================
 			e.sound.prev.play();
-			window.open( "./division/new.php?file=" + o.tournament.db + "/" + o.ring + "/new", "_blank" );
+			window.open( "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/new", "_blank" );
 		};
 
 		// ============================================================
@@ -283,6 +283,15 @@ $.widget( "freescore.coordinatorController", {
 					{ text : 'Disqualify', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'award punitive', decision: 'disqualified', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
+		};
+		
+		// ============================================================
+		var editDivision = function( division ) {
+		// ============================================================
+			return function() {
+				e.sound.prev.play();
+				window.open( "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/" + division.name(), "_blank" );
+			}
 		};
 
 		// ============================================================
@@ -598,6 +607,7 @@ $.widget( "freescore.coordinatorController", {
 
 			// Update Page Header
 			e.athletes.header.title .html( division.summary() );
+			e.athletes.header.setup .off( 'click' ).click( editDivision( division ));
 
 			// Update Athlete Table
 			var round = defined( o.round ) ? o.round : division.current.roundId();

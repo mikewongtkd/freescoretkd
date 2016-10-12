@@ -89,6 +89,7 @@
 
 		// Set division name
 		$( '#division-name' ).val( division.name() );
+		description.update();
 	};
 
 	// ============================================================

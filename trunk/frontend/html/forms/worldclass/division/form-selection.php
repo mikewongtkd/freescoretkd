@@ -108,6 +108,7 @@ EOD;
 		var forms = division.forms();
 		$( 'a[href="#cutoff"]' ).click();
 		for( round in forms ) {
+			selected.forms[ round ] = [];
 			for( var i = 0; i < forms[ round ].length; i++ ) {
 				var form = forms[ round ][ i ];
 				selected.forms[ round ].push( form );
