@@ -69,7 +69,9 @@ EOD;
 	</div>
 </div>
 <script>
-	// ===== FORM SELECTION BEHAVIOR
+	// ============================================================
+	// FORM SELECTION BEHAVIOR
+	// ============================================================
 	var selected = { method: '', forms : { prelim : [], semfin : [], finals : [] }, description: '', update : function() { 
 		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
@@ -99,6 +101,25 @@ EOD;
 		division.forms = selected.forms;
 	}};
 
+	// ============================================================
+	// FORM SELECTION INITIALIZATION
+	// ============================================================
+	init.forms = ( division ) => {
+		var forms = division.forms();
+		$( 'a[href="#cutoff"]' ).click();
+		for( round in forms ) {
+			for( var i = 0; i < forms[ round ].length; i++ ) {
+				var form = forms[ round ][ i ];
+				selected.forms[ round ].push( form );
+				$( "#" + round + (i+1) ).selectpicker( 'val',  form );
+			}
+		}
+		selected.update();
+	};
+
+	// ============================================================
+	// FORM SELECTION
+	// ============================================================
 	$( 'a[data-toggle=tab]' ).click( function( ev ) {
 		var clicked = $( ev.target );
 		selected.method = clicked.html().toLowerCase();

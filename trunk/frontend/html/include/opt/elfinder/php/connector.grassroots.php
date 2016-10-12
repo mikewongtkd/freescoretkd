@@ -48,7 +48,7 @@ $opts = array(
 	'roots' => array(
 		array(
 			'driver'        => 'LocalFileSystem',           // driver for accessing file system (REQUIRED)
-			'path'          => '/Volumes/ramdisk/test/forms-grassroots', // path to files (REQUIRED)
+			'path'          => '/usr/local/freescore/data/test/forms-grassroots', // path to files (REQUIRED)
 			'URL'           => dirname($_SERVER['PHP_SELF']) . '../../../../../forms/grassroots/division/editor.php?file=', // URL to files (REQUIRED)
 			'uploadDeny'    => array('all'),                // All Mimetypes not allowed to upload
 			'uploadAllow'   => array('text/plain'),// Mimetype `image` and `text/plain` allowed to upload

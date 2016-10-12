@@ -37,23 +37,19 @@
 <script>
 	$( "input[type=checkbox]" ).bootstrapSwitch({ size : 'small' });
 
-	// ===== APPLICATION GLOBAL VARIABLES
-	var division    = { athletes : [], judges : 5, init : {}, summary : function() { return this.name.toUpperCase() + ' ' + this.description; }};
-	var athletes    = {};
-	var description = {};
-	var validate    = {};
-
-	// ===== HIDE FORM SELECTORS FOR ALL ROUNDS
+	// ============================================================
+	// SETTINGS BEHAVIOR
+	// ============================================================
 	$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
 	$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
 
-	var first = { round : { select : {
+	settings = { round : { select : {
 		autodetect : function() {
 			var n = division.athletes.length;
 
-			if( n <= 8 ) { first.round.select.finals(); } else 
-			if( n < 20 ) { first.round.select.semfin(); } else 
-			             { first.round.select.prelim(); }
+			if( n <= 8 ) { settings.round.select.finals(); } else 
+			if( n < 20 ) { settings.round.select.semfin(); } else 
+			             { settings.round.select.prelim(); }
 		},
 		prelim : function() {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).show();
@@ -72,12 +68,28 @@
 		},
 	}}};
 
-	// ===== DO AUTODETECTION
-	$( first.round.select.autodetect );
+	// ============================================================
+	// AUTODETECT ROUND SETTINGS
+	// ============================================================
+	$( settings.round.select.autodetect );
 
-	// ===== BEHAVIOR
 	$( '#allow-any-form' ).on( 'switchChange.bootstrapSwitch', function( ev, state ) { selected.update(); });
 	$( '#division-name' ).change( function() { description.update(); } );
+
+	// ============================================================
+	// SETTINGS INITIALIZATION
+	// ============================================================
+	init.settings = ( division ) => {
+		// Set number of judges
+		$.each( $( 'input[name=judges]' ), ( i, j ) => {
+			var judges = $( j );
+			var button = judges.parent();
+			if( judges.val() == division.judges()) { button.click(); }
+		});
+
+		// Set division name
+		$( '#division-name' ).val( division.name() );
+	};
 
 	// ============================================================
 	// FIRST ROUND DETECTION
@@ -87,10 +99,10 @@
 		var selected  = clicked.find( 'input' ).val();
 
 		// ===== HIDE FORM SELECTORS FOR UNNEEDED ROUNDS
-		if ( selected == 'auto'   ) { first.round.select.autodetect(); } else
-		if ( selected == 'prelim' ) { first.round.select.prelim();     } else
-		if ( selected == 'semfin' ) { first.round.select.semfin();     } else
-		if ( selected == 'finals' ) { first.round.select.finals();     }
+		if ( selected == 'auto'   ) { settings.round.select.autodetect(); } else
+		if ( selected == 'prelim' ) { settings.round.select.prelim();     } else
+		if ( selected == 'semfin' ) { settings.round.select.semfin();     } else
+		if ( selected == 'finals' ) { settings.round.select.finals();     }
 	});
 
 	// ============================================================

@@ -14,10 +14,6 @@ Create symbolic links for the following:
     ln -s /Library/WebServer/Documents -> /var/www/html
     ln -s /Library/WebServer/CGI-Executables -> /var/www/cgi-bin
 
-- Optional: Create a 2 MB ramdisk at `/Volumes/ramdisk`. The new system uses various OS-supported methods to watch a filesystem and no longer needs ramdisk speeds for efficiency.
-  
-    diskutil erasevolume HFS+ \"ramdisk\" `hdiutil attach -nomount ram://2048
-
 ### Installation instructions
 Create symbolic links for the following:
 
@@ -30,8 +26,8 @@ Create symbolic links for the following:
 FreeScore uses simple text files for divisions and directories for rings and
 staging. Tournament configuration is controlled by editing the PHP file
 `config.php` under `trunk/frontend/html/include/php/config.php`. The default
-database location is `/Volumes/ramdisk/test`. Examples of a starter database
-can be found in `trunk/backend/test/data`. 
+database location is `/usr/local/freescore/data/test`. Examples of a starter
+database can be found in `trunk/backend/test/data`. 
 
 Division names follow the pattern `div.pNNL.txt` where N is a number from 0-9
 and L is an optional letter. Ring names follow the pattern `ringNN` where N
@@ -41,11 +37,11 @@ a ring, simply move the division text file to the appropriate ring directory.
 
 For example:
 
-	cd /Volumes/ramdisk/test/forms-worldclass
+	cd /usr/local/freescore/data/test/forms-worldclass
     mv staging/div.p01.txt ring01
 
-If you don't have a directory `/Volumes/ramdisk/test` the first step for
-database installation is to create this directory. I recommend copying the
+If you don't have a directory `/usr/local/freescore/data/test` the first step
+for database installation is to create this directory. I recommend copying the
 example files from the `trunk/backend/test/data` directory, renaming and
 editing the files as needed. 
 
@@ -216,9 +212,7 @@ password: freescore
 At the terminal, type the following:
 
     sudo su -
-    mkdir -p /Volumes
-    ln -s divisions /Volumes/ramdisk
-    chmod -R a+w divisions
+    chmod -R a+w /usr/local/freescore/data
 
 #### Install Perl Modules
 

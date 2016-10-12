@@ -1,5 +1,5 @@
 package FreeScore;
 
-our $PATH = "/Volumes/ramdisk";
+our $PATH = "/usr/local/freescore/data";
 
 1;

@@ -1,4 +1,5 @@
 .PHONY: all cache rest ui
+DB=/usr/local/freescore/data
 
 all: grassroots worldclass
 
@@ -71,8 +72,8 @@ restore-config:
 	fi
 
 cache:
-	mkdir -p /Volumes/ramdisk/test
-	find /Volumes/ramdisk/test -type f -name \*.txt -exec rm -f {} \;
-	cp -Rf data/* /Volumes/ramdisk/test
-	find /Volumes/ramdisk/test -type f -exec chmod a+w {} \;
-	find /Volumes/ramdisk/test -type d -exec chmod a+w {} \;
+	mkdir -p $(DB)/test
+	find $(DB)/test -type f -name \*.txt -exec rm -f {} \;
+	cp -Rf data/* $(DB)/test
+	find $(DB)/test -type f -exec chmod a+w {} \;
+	find $(DB)/test -type d -exec chmod a+w {} \;

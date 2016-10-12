@@ -28,6 +28,16 @@
 		</style>
 	</head>
 	<body>
+		<script>
+			// ===== APPLICATION GLOBAL VARIABLES
+			var division    = { athletes : [], judges : 5, summary : function() { return this.name.toUpperCase() + ' ' + this.description; }};
+			var init        = {};
+			var settings    = {};
+			var description = {};
+			var athletes    = {};
+			var validate    = {};
+		</script>
+
 		<div class="container">
 			<div class="page-header"><h1>New Division</h1></div>
 
@@ -62,11 +72,17 @@
 				division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map((name) => { return { name : name };});
 
 				var autodetect = $( 'label.active input[value=auto]' ).length > 0;
-				if( autodetect ) { first.round.select.autodetect(); }
+				if( autodetect ) { settings.round.select.autodetect(); }
 
 				validate.input();
 
 			});
+
+			init.athletes = ( division ) => {
+				var list = division.athletes();
+				var text = list.map( ( element ) => { return element.name(); }).join( "\n" );
+				athletes.doc.setValue( text );
+			};
 
 			validate.athletes = {};
 
@@ -150,10 +166,10 @@
 				if( response.type == 'division' ) {
 					if( response.action == 'update' ) {
 						var division = new Division( response.division );
-						$( '#division-description' ).html( division.summary() );
-						var list = division.athletes();
-						var text = ($.map( list, function( element, i ) { return element.name(); })).join( "\n" )
-						athletes.doc.setValue( text );
+						init.settings( division );
+						init.description( division );
+						init.forms( division );
+						init.athletes( division );
 
 					} else if( response.action == 'write ok' ) {
 						var division = response.division;

@@ -51,7 +51,7 @@ $opts = array(
 	'roots' => array(
 		array(
 			'driver'        => 'LocalFileSystem',           // driver for accessing file system (REQUIRED)
-			'path'          => '/Volumes/ramdisk/test/forms-worldclass', // path to files (REQUIRED)
+			'path'          => '/usr/local/freescore/data/test/forms-worldclass', // path to files (REQUIRED)
 			'URL'           => dirname($_SERVER['PHP_SELF']) . '/../../../../forms/worldclass/division/editor.php?file=' . $tournament[ 'db' ] . '/forms-worldclass', // URL to files (REQUIRED)
 			'uploadDeny'    => array('all'),                // All Mimetypes not allowed to upload
 			'uploadAllow'   => array('text/plain'),// Mimetype `image` and `text/plain` allowed to upload

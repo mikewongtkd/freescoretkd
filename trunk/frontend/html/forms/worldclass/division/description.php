@@ -96,7 +96,8 @@
 		description.divid -= { f : 2, m : 1, '' : 0 }[ description.gender ];
 		description.divid += description.idx * 3;
 		description.divid += { k: 0, y: 400, g: 300, b: 200, r: 100, '': 0 }[ description.rank ]
-		$( "#description-title" ).html( "Description: <span class=\"setting\">" + description.text + "</span>" );
+		var text = FreeScore.html.span.clone().addClass( "setting" ).append( description.text );
+		$( "#description-title" ).empty().append( "Description: ", text );
 		division.description = description.text;
 
 		// ===== UPDATE DIVISION NAME, IF NOT ALREADY DEFINED
@@ -111,6 +112,19 @@
 		// ===== UPDATE FORM SELECTION LISTS
 		selected.update();
 	}};
+	// ============================================================
+	// DESCRIPTION INITIALIZATION
+	// ============================================================
+	init.description = ( division ) => {
+		var text = FreeScore.html.span.clone().addClass( "setting" ).append( division.description() );
+		$( "#description-title" ).empty().append( "Description: ", text );
+		$( 'title' ).html( division.summary() );
+		$( 'h1' ).html( division.summary() );
+		var matches = undefined;
+		if( matches = division.description().match( /((?:Fem|M)ale)?\s(Individual|Pair|Team)\s((?:Yellow|Green|Blue) Belt\s)?(4-5|6-7|8-9|Youth|Cadet|Junior|Under 30|Under 40|Under 50|Under 60|Under 65|Over 66)/ )) {
+			console.log( matches );
+		}
+	};
 
 	// ============================================================
 	//	SPORT POOMSAE EVENTS

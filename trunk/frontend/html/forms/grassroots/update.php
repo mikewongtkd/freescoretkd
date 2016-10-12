@@ -8,7 +8,7 @@
 	$json = json_decode( $tournament );
 	$db   = $json->db;
 
-	$source_path = "/Volumes/ramdisk/$db/forms-grassroots/$ring";
+	$source_path = "/usr/local/freescore/data/$db/forms-grassroots/$ring";
 
 	// ============================================================
 	function read_division( $path, $div_id ) {

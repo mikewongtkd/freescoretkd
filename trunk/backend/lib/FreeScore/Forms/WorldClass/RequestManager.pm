@@ -485,6 +485,7 @@ sub handle_division_write {
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
+		print STDERR "ERROR: $_\n";
 	}
 }
 
@@ -604,7 +605,7 @@ sub watch_files {
 	my $is_judge   = defined( $judge ) && int( $judge ) >= 0;
 	my $tournament = $self->{ _tournament };
 	my $ring       = $self->{ _ring };
-	my $path       = sprintf( "/Volumes/ramdisk/%s/forms-worldclass/ring%02d", $tournament, $ring );
+	my $path       = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $FreeScore::Forms::WorldClass::subdir, $tournament, $ring );
 	my $json       = $self->{ _json };
 	my $client     = $self->{ _client };
 	my $id         = sprintf "%s", sha1_hex( $client );
