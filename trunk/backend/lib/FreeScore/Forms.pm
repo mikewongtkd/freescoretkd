@@ -114,5 +114,5 @@ sub write {
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }
 sub next     { my $self = shift; my $i = $self->{ current }; $i = ($i + 1) % int(@{ $self->{ divisions }}); $self->{ current } = $i; }
 sub previous { my $self = shift; my $i = $self->{ current }; $i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; $self->{ current } = $i; }
-sub TO_JSON  { my $self = shift; return { %$self }; }
+
 1;
