@@ -474,13 +474,13 @@ sub handle_division_write {
 
 		} else {
 			$division->normalize();
+			$progress->update_division( $division );
 			$division->write();
 
 			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
 			$client->send( { json => {  type => 'division', action => 'write ok', division => $division }});
 
 			# ===== BROADCAST THE UPDATE
-			$progress->update_division( $division );
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
 	} catch {

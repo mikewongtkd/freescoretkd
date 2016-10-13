@@ -145,8 +145,21 @@ sub update_division {
 	my $division = shift;
 
 	my $i = first_index { $_->{ name } eq $division->{ name } } @{ $self->{ divisions }};
-	if( $i < 0 ) { push @{ $self->{ divisions }}, $division; } 
-	else         { $self->{ divisions }[ $i ] = $division; }
+	# New division
+	if( $i < 0 ) { 
+		push @{ $self->{ divisions }}, $division; 
+
+	# Merge with existing division
+	} else { 
+		my $previous = $self->{ divisions }[ $i ];
+		my $score    = {};
+		foreach my $athlete (@{ $previous->{ athletes }}) { $score->{ $athlete->{ name }} = $athlete; }
+		foreach my $i (0 .. $#{ $division->{ athletes }}) {
+			my $name = $division->{ athletes }[ $i ]{ name };
+			$division->{ athletes }[ $i ] = $score->{ $name } if( exists $score->{ $name } );
+		}
+		$self->{ divisions }[ $i ] = $division; 
+	}
 }
 
 1;
