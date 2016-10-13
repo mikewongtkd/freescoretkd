@@ -462,7 +462,7 @@ sub handle_division_write {
 
 	print STDERR "Writing division data.\n";
 
-	my $valid = { map { ( $_ => 1 ) } qw( athletes description forms judges name round ) };
+	my $valid = { map { ( $_ => 1 ) } qw( athletes description forms judges name ring round ) };
 
 	try {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );

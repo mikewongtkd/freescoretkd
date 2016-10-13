@@ -152,6 +152,7 @@
 				var button = $( '#save-button' );
 				button.removeClass( 'disabled' );
 				button.off( 'click' ).click( function() { 
+					division.ring = ring;
 					var request  = { data : { type : 'division', action : 'write', division : division }};
 					request.json = JSON.stringify( request.data );
 					sound.next.play();
