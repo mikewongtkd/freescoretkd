@@ -69,7 +69,7 @@ sub broadcast_division_response {
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $client_id = sprintf "%s", sha1_hex( $client );
 
-	print STDERR "  Broadcasting to:\n";
+	print STDERR "  Broadcasting division information to:\n";
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
@@ -98,7 +98,7 @@ sub broadcast_ring_response {
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $client_id = sprintf "%s", sha1_hex( $client );
 
-	print STDERR "  Broadcasting to:\n";
+	print STDERR "  Broadcasting ring information to:\n";
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
@@ -467,7 +467,7 @@ sub handle_division_write {
 	try {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );
 		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
-		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::subdir, $ring, $division->{ name } );
+		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } );
 
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
 			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $division }});
@@ -476,14 +476,16 @@ sub handle_division_write {
 			$division->normalize();
 			$division->write();
 
-			# ===== BROADCAST THE UPDATE
-			$self->broadcast_ring_response( $request, $progress, $clients );
-
 			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
 			$client->send( { json => {  type => 'division', action => 'write ok', division => $division }});
+
+			# ===== BROADCAST THE UPDATE
+			$progress->update_division( $division );
+			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
+		print STDERR $_; # MW
 	}
 }
 
@@ -626,7 +628,7 @@ sub watch_files {
 	my $is_judge   = defined( $judge ) && int( $judge ) >= 0;
 	my $tournament = $self->{ _tournament };
 	my $ring       = $self->{ _ring };
-	my $path       = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $FreeScore::Forms::WorldClass::subdir, $tournament, $ring );
+	my $path       = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $FreeScore::Forms::WorldClass::SUBDIR, $tournament, $ring );
 	my $json       = $self->{ _json };
 	my $client     = $self->{ _client };
 	my $id         = sprintf "%s", sha1_hex( $client );

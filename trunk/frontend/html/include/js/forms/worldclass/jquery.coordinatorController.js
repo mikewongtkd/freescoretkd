@@ -249,7 +249,7 @@ $.widget( "freescore.coordinatorController", {
 		var createDivision = function() {
 		// ============================================================
 			e.sound.prev.play();
-			window.location = "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/new";
+			window.open( "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/new", "_blank" );
 		};
 
 		// ============================================================
@@ -290,7 +290,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			return function() {
 				e.sound.prev.play();
-				window.location = "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/" + division.name();
+				window.open( "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/" + division.name(), "_blank" );
 			}
 		};
 

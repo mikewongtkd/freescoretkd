@@ -4,6 +4,7 @@ use FreeScore::Forms;
 use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max );
+use List::MoreUtils qw( first_index );
 
 our $SUBDIR = "forms-worldclass";
 
@@ -87,7 +88,7 @@ sub next_available {
 	my @div_ids = map { s/$path\/(?:ring\d+|staging)\/div\.//; s/\.txt//; $_; } split /\n/, `ls $path/ring*/div*.txt $path/staging/div*.txt 2>/dev/null`;
 
 	foreach my $id (@div_ids) {
-		my ($type, $number) = $id =~ /^([A-Za-z]+)(\d+)$/;
+		my ($type, $number, $letter) = $id =~ /^([A-Za-z]+)(\d+)(\w+)?$/;
 		$number = int( $number );
 		$divisions->{ $type }{ $number } = 1;
 	}
@@ -135,6 +136,17 @@ sub previous {
 	my $i = $self->{ current }; 
 	$i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; 
 	$self->{ current } = $i; 
+}
+
+# ============================================================
+sub update_division {
+# ============================================================
+	my $self     = shift;
+	my $division = shift;
+
+	my $i = first_index { $_->{ name } eq $division->{ name } } @{ $self->{ divisions }};
+	if( $i < 0 ) { push @{ $self->{ divisions }}, $division; } 
+	else         { $self->{ divisions }[ $i ] = $division; }
 }
 
 1;
