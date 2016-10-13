@@ -5,7 +5,7 @@ use FreeScore::Forms::WorldClass::Division;
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max );
 
-our $subdir = "forms-worldclass";
+our $SUBDIR = "forms-worldclass";
 
 # ============================================================
 sub init {
@@ -16,18 +16,20 @@ sub init {
 
 	if( defined $ring ) { 
 		# ===== LOAD THE DIVISIONS IN THE SPECIFIED RING
-		$self->{ path } = $ring eq 'staging' ? join( "/", $FreeScore::PATH, $tournament, $subdir, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+		# Note: the application may need to load both the ring and staging;
+		# this is application specific, so we do not facilitate it here
+		$self->{ path } = $ring eq 'staging' ? join( "/", $FreeScore::PATH, $tournament, $SUBDIR, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
 			my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
-			$division->{ ring } = int( $ring );
+			$division->{ ring } = $ring eq 'staging' ? $ring : int( $ring );
 			push @{ $self->{ divisions }}, $division;
 		}
 
 	} else { 
 		# ==== LOAD THE DIVISIONS IN STAGING
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 		my ($divisions, $rings) = $self->load_all();
 		my $loaded = [];
 		foreach my $id (@$divisions) {
@@ -38,7 +40,7 @@ sub init {
 
 		# ===== LOAD THE DIVISIONS IN EACH RING
 		foreach my $ring (@$rings) {
-			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );
 			foreach my $id (@$ring_divisions) {
 				my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
@@ -49,38 +51,8 @@ sub init {
 		$self->{ divisions } = $loaded;
 
 		# ===== RESTORE THE CURRENT PATH
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 	}
-}
-
-# ============================================================
-sub create_division {
-# ============================================================
-	my $self = shift;
-	my $ring = shift;
-	my $id   = $self->next_available();
-
-	my $file = sprintf( "%s/div.%s.txt", $self->{ path }, $id );
-	open FILE, ">$file" or die "Database Error: Can't write '$file' $!";
-	print FILE<<EOF;
-# state=score
-# current=0
-# form=0
-# judges=5
-# round=finals
-# forms=finals:None;
-# ------------------------------------------------------------
-# finals
-# ------------------------------------------------------------
-First Athlete
-EOF
-	close FILE;
-
-	my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
-	$division->{ ring } = $ring;
-
-	push @{ $self->{ divisions }}, $division;
-	return $division;
 }
 
 # ============================================================

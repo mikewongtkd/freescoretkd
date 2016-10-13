@@ -137,7 +137,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 			$progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); 
 			if( $request->{ type } eq 'ring' ) {
 				$staging = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
-				$progress->{ staging } = $staging;
+				push @{$progress->{ divisions }}, @{$staging->{ divisions }};
 			}
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 

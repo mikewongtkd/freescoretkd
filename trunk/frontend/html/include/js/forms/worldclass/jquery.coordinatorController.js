@@ -31,7 +31,7 @@ $.widget( "freescore.coordinatorController", {
 		// ===== RING COORDINATOR UI FRAMEWORK
 		var divisions = e.divisions = {
 			page    : html.div.clone() .attr({ 'data-role': 'page', id: 'divisions' }),
-			header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>Divisions for " + ring + "</h1>" ),
+			header  : html.div.clone() .attr({ 'data-role': 'header', 'data-theme': 'b', 'data-position' : 'fixed' }) .html( "<h1>" + ring + " Divisions</h1>" ),
 			main    : html.div.clone() .attr({ 'role': 'main' }),
 			list    : html.ul.clone()  .attr({ 'role': 'listview', 'data-filter' : true, 'data-filter-placeholder' : 'Search for division description or athlete name...' }) .addClass( 'divisions' ),
 		};
@@ -91,7 +91,7 @@ $.widget( "freescore.coordinatorController", {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Penalties" ),
 				timelimit  : button.clone() .addClass( 'penalty' ) .iconlabel( "hourglass", "Time Limit"      ),
-				bounds     : button.clone() .addClass( 'penalty' ) .iconlabel( "share",     "Out-of-Bounds"   ),
+				bounds     : button.clone() .addClass( 'penalty' ) .iconlabel( "log-out",   "Out-of-Bounds"   ),
 				restart    : button.clone() .addClass( 'penalty' ) .iconlabel( "retweet",   "Restart Form"    ),
 				misconduct : button.clone() .addClass( 'penalty' ) .iconlabel( "comment",   "Misconduct"      ),
 				clear      : button.clone() .addClass( 'penalty' ) .iconlabel( "trash",     "Clear Penalties" ),
@@ -249,7 +249,7 @@ $.widget( "freescore.coordinatorController", {
 		var createDivision = function() {
 		// ============================================================
 			e.sound.prev.play();
-			window.open( "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/new", "_blank" );
+			window.location = "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/new";
 		};
 
 		// ============================================================
@@ -290,7 +290,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			return function() {
 				e.sound.prev.play();
-				window.open( "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/" + division.name(), "_blank" );
+				window.location = "./division/editor.php?file=" + o.tournament.db + "/" + o.ring + "/" + division.name();
 			}
 		};
 
@@ -412,25 +412,33 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var transferDivision = function() {
 		// ============================================================
-			var transferButton = $( this );
-			var request        = $( this ).attr( 'index' ) + '/edit';
-			var name           = $( this ).attr( 'name' );
-			var sendTo         = $( this ).attr( 'sendTo' );
-			var count          = $( this ).attr( 'count' );
-			var description    = $( this ).attr( 'description' );
-			var parameters     = { transfer : sendTo };
-			var message        = sendTo == 'staging' ? 
-				'If you send this division back to staging, it can be reclaimed later.' :
-				'If you take this division into ring ' + sendTo + ', it can be sent back to staging later.';
+			var request     = $( this ).attr( 'index' ) + '/edit';
+			var name        = $( this ).attr( 'name' );
+			var sendTo      = $( this ).attr( 'sendTo' );
+			var count       = $( this ).attr( 'count' );
+			var description = $( this ).attr( 'description' );
+			var parameters  = { type: 'division', action: 'transfer', transfer : sendTo };
+			var division    = { name : name.toUpperCase(), description : description, summary : name.toUpperCase() + ' ' + description };
+			var dialog      = { message : undefined, title: undefined, subtitle: undefined };
+
+			if( sendTo == 'staging' ) {
+				dialog.title    = 'Send to Staging?';
+				dialog.subtitle = 'Send ' + division.summary + ' (' + count + ') to staging?';
+				dialog.message  = 'If you send division ' + division.name + ' back to staging, it can be reclaimed later.';
+			} else {
+				dialog.title    = 'Accept Division ' + division.name;
+				dialog.subtitle = 'Accept Division ' + division.name + ' to Ring ' + sendTo;
+				dialog.message  = 'If you take division ' + division.name + ' into ring ' + sendTo + ', it can be sent back to staging later.';
+			}
 
 			e.dialog.popupdialog({
-				title:    sendTo == 'staging' ? 'Send to Staging?' : 'Send to Ring ' + sendTo,
-				subtitle: 'Send ' + name.toUpperCase() + ' ' + description + ' (' + count + ') to ' + (sendTo == 'staging' ? 'Staging' : 'Ring ' + sendTo) + '?',
-				message:  message,
+				title:    dialog.title,
+				subtitle: dialog.subtitle,
+				message:  dialog.message,
 				afterclose: function() {},
 				buttons:  [
 					{ text : 'Cancel',   style : 'cancel',  click : function() { $('#popupDialog').popup('close'); } },
-					{ text : 'Transfer', style : 'default', click : function() { $(this).parent().children().hide(); (sendRequest( request, parameters ))(); } },
+					{ text : 'Transfer', style : 'default', click : function() { $('#popupDialog').popup('close'); (sendRequest({ type : 'ring', action : 'transfer', name : name, transfer : sendTo }))(); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -453,10 +461,10 @@ $.widget( "freescore.coordinatorController", {
 		};
 
 		// ============================================================
-		var updateDivisions = e.updateDivisions = function( divisions, staging, current ) {
+		var updateDivisions = e.updateDivisions = function( divisions, current ) {
 		// ============================================================
 			e.divisions.list.empty();
-			e.divisions.list.attr({ 'data-split-icon' : 'arrow-u-l' });
+			e.divisions.list.attr({ 'data-split-icon' : 'home' });
 			if( ! defined( divisions )) { return; }
 
 			var divider = html.li.clone() .addClass( 'divider' ) .attr({ 'data-role' : 'list-divider', 'data-theme' : 'b' });
@@ -464,6 +472,9 @@ $.widget( "freescore.coordinatorController", {
 			// ===== DISPLAY RING DIVISIONS
 			e.divisions.list.append( divider.clone() .html( 'Ring ' + o.ring ));
 			for( var i = 0; i < divisions.length; i++ ) {
+				if( divisions[ i ].ring == 'staging' ) { continue; }
+
+
 				var divdata = new Division( divisions[ i ] );
 				var count   = divdata.athletes().length > 1 ? divdata.athletes().length + ' Athletes' : '1 Athlete';
 				var list    = divdata.athletes().map( function( item ) { return item.name(); } ).join( ", " );
@@ -476,7 +487,7 @@ $.widget( "freescore.coordinatorController", {
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
 					title    : html.h3  .clone() .html( title ),
 					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					transfer : html.a   .clone() .addClass( 'transfer' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }),
+					transfer : html.a   .clone() .addClass( 'transfer-to-staging' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }).css({ 'background-color': '#d9534f;' }),
 				};
 
 				division.run.empty();
@@ -515,8 +526,10 @@ $.widget( "freescore.coordinatorController", {
 
 			// ===== DISPLAY STAGING DIVISIONS
 			e.divisions.list.append( divider.clone() .html( 'Staging' ));
-			for( var i = 0; i < staging.divisions.length; i++ ) {
-				var divdata = staging.divisions[ i ];
+			for( var i = 0; i < divisions.length; i++ ) {
+				if( divisions[ i ].ring != 'staging' ) { continue; }
+
+				var divdata = divisions[ i ];
 				var count   = divdata.athletes.length > 1 ? divdata.athletes.length + ' Athletes' : '1 Athlete';
 				var list    = divdata.athletes.map( function( item ) { return item.name; } ).join( ", " );
 
@@ -757,7 +770,7 @@ $.widget( "freescore.coordinatorController", {
 				}
 			}
 
-			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.staging, o.progress.current ); }
+			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.current ); }
 			else if ( option.id == "athletes"  ) { o.round = division.current.roundId(); var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
 			else if ( option.id == "create"    ) {  }
 		});
@@ -779,8 +792,9 @@ $.widget( "freescore.coordinatorController", {
 			if( ! defined( progress.divisions )) { return; }
 			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
 			o.progress = progress;
+
 			var division = new Division( progress.divisions[ i ] );
-			e.updateDivisions( progress.divisions, progress.staging, progress.current );
+			e.updateDivisions( progress.divisions, progress.current );
 			e.updateRounds( division, i );
 			e.updateAthletes( division, i );
 

@@ -184,7 +184,7 @@
 					} else if( response.action == 'write ok' ) {
 						var division = response.division;
 						sound.send.play();
-						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.close(); } );
+						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.location = '../coordinator.php'; } );
 
 					} else if( response.action == 'write error' ) {
 						var division = response.division;

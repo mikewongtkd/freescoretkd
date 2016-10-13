@@ -17,7 +17,9 @@ sub find {
 # ============================================================
 	my $self     = shift;
 	my $name     = shift;
-	my $division = first { $_->{ name } eq $name } @{ $self->{ divisions }};
+	my $division = undef;
+	
+	$division = first { $_->{ name } eq $name } @{ $self->{ divisions }};
 	return $division;
 }
 
@@ -77,6 +79,24 @@ sub load_all {
 }
 
 # ============================================================
+sub transfer {
+# ============================================================
+	my $self  = shift;
+	my $divid = shift;
+	my $to    = shift;
+
+	$to = $to eq 'staging' ? $to : sprintf( "ring%02d", $to );
+
+	my $division        = $self->find( $divid ) || die "Can't find division $divid (found: " . join( ', ', map { $_->{ name }; } @{$self->{ divisions }} ) . ")$!";
+	my $source          = $division->{ file };
+	$division->{ file } = "$self->{ path }/../$to/div.$divid.txt";
+	$division->{ ring } = $to;
+
+	if( $division->write() ) { unlink $source; return 1; }
+	else                     { return 0; }
+}
+
+# ============================================================
 sub write {
 # ============================================================
 	my $self = shift;
@@ -87,6 +107,8 @@ sub write {
 		print FILE "# $key=$self->{ $key }\n";
 	}
 	close FILE;
+
+	return 1;
 }
 
 sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }

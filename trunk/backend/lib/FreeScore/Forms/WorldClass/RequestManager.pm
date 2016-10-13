@@ -51,6 +51,7 @@ sub init {
 		division_next      => \&handle_ring_division_next,
 		division_prev      => \&handle_ring_division_prev,
 		read               => \&handle_ring_read,
+		transfer           => \&handle_ring_transfer,
 	};
 }
 
@@ -273,7 +274,6 @@ sub handle_division_edit_header {
 	my $division = $progress->current();
 
 	print STDERR "Editing division header.\n";
-	print STDERR Dumper $request->{ header };
 
 	try {
 		$division->write();
@@ -476,17 +476,14 @@ sub handle_division_write {
 			$division->normalize();
 			$division->write();
 
-			# ===== BROADCAST THE UPDATE IF EDITING THE CURRENT DIVISION
-			my $current = $progress->current() || {};
-			if( $division->{ file } eq $current->{ file } ) {
-				$request->{ divid } = $division->{ name };
-				$self->broadcast_division_response( $request, $progress, $clients );
-			}
+			# ===== BROADCAST THE UPDATE
+			$self->broadcast_ring_response( $request, $progress, $clients );
+
+			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
 			$client->send( { json => {  type => 'division', action => 'write ok', division => $division }});
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
-		print STDERR "ERROR: $_\n";
 	}
 }
 
@@ -594,6 +591,29 @@ sub send_ring_response {
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
+}
+
+# ============================================================
+sub handle_ring_transfer {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $divid    = $request->{ name };
+	my $transfer = $request->{ transfer };
+
+	my $destination = $transfer eq 'staging' ? $transfer : sprintf( "Ring %d", $transfer );
+	print STDERR "Transfer division $divid to $destination.\n";
+
+	try {
+		$progress->transfer( $divid, $transfer );
+
+		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================

@@ -64,6 +64,20 @@
 		background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%);
 		background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
 	}
+
+	.transfer-to-ring {
+		background: #9dd53a;
+		background: -webkit-linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+		background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+		border-color: green;
+	}
+
+	.transfer-to-staging {
+		background: red;
+		background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+		background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+		border-color: #900;
+	}
 }
 
 .ui-filterable {
@@ -203,50 +217,3 @@ table { margin: 10px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; 
 		border-color: #900;
 	}
 }
-
-#create {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	.division {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: #ccc;
-		width: 100%;
-		.editor {
-			position: absolute;
-			top: 60px;
-			left: 20px;
-			width: calc( 100% - 40px );
-			height: calc( 100% - 80px );
-			border: 1px solid #ccc;
-			border-radius: 16px;
-
-			.CodeMirror {
-				border-radius: 16px;
-				padding: 8px 0 0 0;
-				font-size: 14pt;
-
-				pre {
-					font-family: Optima, Nimbus;
-				}
-
-				.CodeMirror-lines {
-					margin-left: 28px;
-				}
-
-				.CodeMirror-linenumber {
-					margin-left: -28px;
-					font-family: Optima, Nimbus;
-				}
-			}
-		}
-	}
-}
-
-
