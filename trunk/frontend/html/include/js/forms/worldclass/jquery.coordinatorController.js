@@ -255,7 +255,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var deleteAthlete = function() {
 		// ============================================================
-			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var division = new Division( o.progress.divisions.find(( d ) => { return d.name == o.progress.current; }) );
 			var athlete  = division.current.athlete();
 			e.dialog.popupdialog({
 				title:    'Delete Athlete?',
@@ -272,7 +272,7 @@ $.widget( "freescore.coordinatorController", {
 		var disqualifyAthlete = function() {
 		// ============================================================
 			var index    = $(this).attr( 'index' );
-			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var division = new Division( o.progress.divisions.find(( d ) => { return d.name == o.progress.current; }) );
 			var athlete  = division.current.athlete();
 			e.dialog.popupdialog({
 				title:    'Disqualify Athlete?',
@@ -342,7 +342,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var removeAthleteDialog = function() {
 		// ============================================================
-			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var division = new Division( o.progress.divisions.find(( d ) => { return d.name == o.progress.current; }) );
 			var athlete  = division.current.athlete();
 			var round    = division.current.roundId();
 			e.dialog.popupdialog({
@@ -447,7 +447,7 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var withdrawAthlete = function() {
 		// ============================================================
-			var division = new Division( o.progress.divisions[ o.progress.current ] );
+			var division = new Division( o.progress.divisions.find(( d ) => { return d.name == o.progress.current; }) );
 			var athlete  = division.current.athlete();
 			e.dialog.popupdialog({
 				title:    'Withdraw Athlete?',
@@ -475,11 +475,10 @@ $.widget( "freescore.coordinatorController", {
 			for( var i = 0; i < divisions.length; i++ ) {
 				if( divisions[ i ].ring == 'staging' ) { continue; }
 
-
 				var divdata = new Division( divisions[ i ] );
 				var count   = divdata.athletes().length > 1 ? divdata.athletes().length + ' Athletes' : '1 Athlete';
 				var list    = divdata.athletes().map( function( item ) { return item.name(); } ).join( ", " );
-				var title   = (i == current ? 'Currently Scoring:<span class="title"> ' : '<span>') + divdata.summary() + '</span>';
+				var title   = (divdata.name() == current ? 'Currently Scoring:<span class="title"> ' : '<span>') + divdata.summary() + '</span>';
 
 				var division = {
 					data     : divdata,
@@ -498,7 +497,7 @@ $.widget( "freescore.coordinatorController", {
 				division.run      .click( runDivision );
 				division.transfer .click( transferDivision );
 
-				if( i == current ) { division.run.addClass( 'current' ); } else { division.run.removeClass( 'current' ); }
+				if( divdata.name() == current ) { division.run.addClass( 'current' ); } else { division.run.removeClass( 'current' ); }
 
 				// Composition
 				division.item.append( division.run, division.transfer );

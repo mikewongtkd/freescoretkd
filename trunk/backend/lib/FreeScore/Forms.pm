@@ -2,6 +2,7 @@ package FreeScore::Forms;
 use FreeScore;
 use FreeScore::Forms::Division;
 use List::Util qw( first );
+use List::MoreUtils qw( first_index );
 
 # ============================================================
 sub new {
@@ -58,7 +59,7 @@ sub load_ring {
 	}
 	push @divisions, sort keys %assigned;
 
-	$self->{ current } ||= 0;
+	$self->{ current } ||= @$divisions > 0 ? $divisions[ 0 ] : undef;
 	return [ @divisions ];
 }
 
@@ -111,8 +112,8 @@ sub write {
 	return 1;
 }
 
-sub current  { my $self = shift; return $self->{ divisions }[ $self->{ current }]; }
-sub next     { my $self = shift; my $i = $self->{ current }; $i = ($i + 1) % int(@{ $self->{ divisions }}); $self->{ current } = $i; }
-sub previous { my $self = shift; my $i = $self->{ current }; $i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; $self->{ current } = $i; }
+sub current  { my $self = shift; return first { $_->{ name } eq $self->{ current } } @{$self->{ divisions }; }}
+sub next     { my $self = shift; my $i = first_index { $_->{ name } eq $self->{ current }; } @{ $self->{ divisions }}; return undef if $i < 0; $i = ($i + 1) % int(@{ $self->{ divisions }}); $self->{ current } = $self->{ divisions }[ $i ]{ name }; return $self->{ current }; }
+sub previous { my $self = shift; my $i = first_index { $_->{ name } eq $self->{ current }; } @{ $self->{ divisions }}; return undef if $i < 0; $i = ($i - 1) >= 0 ? ($i -1) : $#{ $self->{ divisions }}; $self->{ current } = $self->{ divisions }[ $i ]{ name }; return $self->{ current }; }
 
 1;
