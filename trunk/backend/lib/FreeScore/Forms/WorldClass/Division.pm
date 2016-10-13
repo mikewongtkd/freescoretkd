@@ -279,7 +279,8 @@ sub edit_athletes {
 	my $reorder     = [];
 	
 	for my $i ( 0 .. $#$edits ) {
-		my $j       = $edits->[ $i ]{ order } - 1; # Get the athlete's previous relative order index
+		my $edit    = $edits->[ $i ];
+		my $j       = $edit->{ order } - 1; # Get the athlete's previous relative order index
 		my $k       = $order->[ $j ]; # If the athlete is already in the round, get the athlete id (original index);
 		my $athlete = undef;
 
@@ -292,7 +293,7 @@ sub edit_athletes {
 		}
 		push @$reorder, $k;
 
-		$athlete->{ name } = $edits->[ $i ]{ name };
+		$athlete->{ name } = $edit->{ name };
 	}
 
 	# Create a placeholder athlete if no athlete has a valid name

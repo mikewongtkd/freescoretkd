@@ -249,11 +249,11 @@ sub handle_division_edit_athletes {
 	my $progress = shift;
 	my $clients  = shift;
 	my $client   = $self->{ _client };
-	my $division = $progress->current();
 
 	print STDERR "Editing division athletes.\n";
 
 	try {
+		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
 		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
 		$division->write();
 
@@ -485,7 +485,6 @@ sub handle_division_write {
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
-		print STDERR $_; # MW
 	}
 }
 

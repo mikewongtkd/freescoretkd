@@ -364,6 +364,7 @@ $.widget( "freescore.coordinatorController", {
 		var editAthletes = function( division, round ) {
 		// ============================================================
 			return function() {
+				console.log( division );
 				var reorder = [];
 				var rows   = $( 'tbody.athlete-list' ).children(); // tbody children are tr elements, i.e. athlete names and scores
 				for( i = 0; i < rows.length - 1; i++ ) {
@@ -371,11 +372,11 @@ $.widget( "freescore.coordinatorController", {
 					var column = { order : $( row.find( '.order' )[ 0 ] ), name : $( row.find( '.name' )[ 0 ] ) };
 					var j      = column.order.attr( 'order' );
 					var name   = column.name.find( 'input' ).length > 0 ? $( column.name.find( 'input' )[ 0 ] ).val() : column.name.html();
-					if( i == division.current ) { row.addClass( 'current' ); } else { row.removeClass( 'current' ); }
+					if( i == division.current.athleteId() ) { row.addClass( 'current' ); } else { row.removeClass( 'current' ); }
 					if( defined( j ) ) { reorder.push({ order : parseInt( j ), name : name }); }
 					column.order.html( (i + 1) + '.' );
 				}
-				sendRequest( { type: 'division', action: 'edit athletes', divid : division.name, athletes: reorder, round : round } )();
+				sendRequest( { type: 'division', action: 'edit athletes', divid : division.name(), athletes: reorder, round : round } )();
 			}
 		};
 
@@ -612,7 +613,7 @@ $.widget( "freescore.coordinatorController", {
 				var index = undefined;
 				for( var i = 0; i < o.progress.divisions.length; i++ ) {
 					var div = o.progress.divisions[ i ]
-					if( div.name == division.name ) { index = i; break; }
+					if( div.name == division.name() ) { index = i; break; }
 				}
 
 				e.actions.navigate.division.attr({ index : index });
