@@ -130,6 +130,8 @@ $.widget( "freescore.scoreboard", {
 				if( penalty.from( 'bounds' )     > 0 ) { e.penalty.bounds     .show(); } else { e.penalty.bounds     .hide(); }
 				if( penalty.from( 'restart' )    > 0 ) { e.penalty.restart    .show(); } else { e.penalty.restart    .hide(); }
 				if( penalty.from( 'misconduct' ) > 0 ) { e.penalty.misconduct .show(); } else { e.penalty.misconduct .hide(); }
+			} else {
+				[ 'timelimit', 'bounds', 'restart', 'misconduct' ].forEach((p) => { e.penalty[ p ].hide(); });
 			}
 
 			if( defined( mean )) { 

@@ -339,7 +339,7 @@ sub handle_division_navigate {
 	my $division = $progress->current();
 
 	my $object = $request->{ target }{ destination };
-	my $i      = int( $request->{ target }{ index } );
+	my $i      = exists $request->{ target }{ divid } ? $request->{ target }{ divid } : int( $request->{ target }{ index } );
 
 	print STDERR "Navigating to $object $i.\n";
 

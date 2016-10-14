@@ -31,9 +31,15 @@ $.widget( "freescore.worldclass", {
 
 		ws.onmessage = function( response ) {
 			var update = JSON.parse( response.data );
-			var divisionData = update.division;
+
+			// ===== EXTRACT THE DIVISION DATA FROM A DIVISION UPDATE OR RING UPDATE
+			var division     = undefined;
+			if( defined( update.division )) { division = new Division( update.division ); } else
+			if( defined( update.ring     )) { division = new Division( update.ring.divisions.find((d) => { return d.name == update.ring.current; })); }
+			else                            { return; }
+
+			// Ignore the update if the digest is the same as previous (i.e. the update contains no changes)
 			if( defined( o.digest ) && response.digest == o.digest ) { return; } else { o.digest = response.digest; }
-			if( defined( divisionData )) { division = new Division( divisionData ); } else { return; }
 
 			if( response.error ) {
 				e.card.hide();

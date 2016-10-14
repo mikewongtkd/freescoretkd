@@ -297,15 +297,16 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 		var goToDivision = function() {
 		// ============================================================
-			var i = parseInt( $.cookie( 'divindex' ));
+			var divid = $.cookie( 'divid' );
+			var division = new Division( o.progress.divisions.find((d) => { return d.name == divid }));
 			e.dialog.popupdialog({
-				title:    'Start Scoring Division?',
-				subtitle: 'Start scoring division?',
-				message:  'Redirects FreeScore to start scoring this division [' + i + ']. Check that no referees are currently scoring before changing the current division.',
+				title:    'Start Scoring Division ' + division.name().toUpperCase() + '?',
+				subtitle: 'Start scoring Division ' + division.summary() + '?',
+				message:  'Redirects FreeScore to start scoring Division ' + division.name().toUpperCase() + '. Check that no referees are currently scoring before changing the current division.',
 				afterclose: function() { e.sound.confirmed.play(); },
 				buttons:  [
 					{ text : 'Cancel', style : 'cancel', click : function() { $('#popupDialog').popup('close'); }},
-					{ text : 'Start',  style : 'ok',     click : function() { (sendRequest({ type: 'division', action: 'navigate', target : { destination: 'division', index: i }}))(); $('#popupDialog').popup('close');}},
+					{ text : 'Start',  style : 'ok',     click : function() { (sendRequest({ type: 'division', action: 'navigate', target : { destination: 'division', divid : division.name() }}))(); $('#popupDialog').popup('close');}},
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};
@@ -326,7 +327,7 @@ $.widget( "freescore.coordinatorController", {
 		var printResults = function( division ) {
 		// ============================================================
 			return function() {
-				var url     = '/cgi-bin/freescore/forms/worldclass/results?ring=' + division.ring + '&divid=' + division.name ;
+				var url     = '/cgi-bin/freescore/forms/worldclass/results?ring=' + division.ring() + '&divid=' + division.name() ;
 				var results = window.open( url, '_blank', 'toolbar=no,status=no,scrollbars=yes,resizable=yes' );
 				results.print();
 			}
@@ -364,7 +365,6 @@ $.widget( "freescore.coordinatorController", {
 		var editAthletes = function( division, round ) {
 		// ============================================================
 			return function() {
-				console.log( division );
 				var reorder = [];
 				var rows   = $( 'tbody.athlete-list' ).children(); // tbody children are tr elements, i.e. athlete names and scores
 				for( i = 0; i < rows.length - 1; i++ ) {
@@ -487,7 +487,7 @@ $.widget( "freescore.coordinatorController", {
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Ring ' + o.ring ),
 					title    : html.h3  .clone() .html( title ),
 					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					transfer : html.a   .clone() .addClass( 'transfer-to-staging' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }).css({ 'background-color': '#d9534f;' }),
+					transfer : html.a   .clone() .addClass( 'transfer-to-staging' ).attr({ name : divdata.name, count : count, description : divdata.description, sendTo : 'staging' }).css({ 'background-color': '#d9534f;' }),
 				};
 
 				division.run.empty();
@@ -539,7 +539,7 @@ $.widget( "freescore.coordinatorController", {
 					ring     : html.div .clone() .addClass( 'ring' ) .html( 'Staging' ),
 					title    : html.h3  .clone() .html( divdata.name.toUpperCase() + ' ' + divdata.description ),
 					details  : html.p   .clone() .append( '<b>' + count + '</b>:&nbsp;', list ),
-					transfer : html.a   .clone() .addClass( 'transfer ui-icon-plus' ).attr({ index : i, name : divdata.name, count : count, description : divdata.description, sendTo : o.ring }),
+					transfer : html.a   .clone() .addClass( 'transfer ui-icon-plus' ).attr({ name : divdata.name, count : count, description : divdata.description, sendTo : o.ring }),
 				};
 
 				division.transfer.click( transferDivision );
@@ -593,14 +593,16 @@ $.widget( "freescore.coordinatorController", {
 		// ============================================================
 			if( ! defined( division )) { return; }
 			if( ! defined( o.round  )) { o.round = division.current.roundId(); }
-			if( o.progress.current == current ) { 
+			$.cookie( 'divid', division.name() ); // Store the current divid in case we need to reload
+
+			if( division.name() == current ) { 
 				e.actions.navigate  .panel .hide();
 				e.actions.clock     .panel .show();
 				e.actions.penalties .panel .show();
 				e.actions.punitive  .panel .show();
 
 				// Clear context for navigation button
-				e.actions.navigate.division.attr({ index : undefined });
+				e.actions.navigate.division.attr({ divid : undefined });
 
 			} else {
 				e.actions.navigate  .panel .show();
@@ -609,13 +611,8 @@ $.widget( "freescore.coordinatorController", {
 				e.actions.punitive  .panel .hide();
 
 				// Set context for navigation button
-				var index = undefined;
-				for( var i = 0; i < o.progress.divisions.length; i++ ) {
-					var div = o.progress.divisions[ i ]
-					if( div.name == division.name() ) { index = i; break; }
-				}
-
-				e.actions.navigate.division.attr({ index : index });
+				var divid = division.name();
+				e.actions.navigate.division.attr({ divid : divid });
 			}
 
 			// Update Page Header
@@ -763,15 +760,11 @@ $.widget( "freescore.coordinatorController", {
 			var divisionData  = undefined;
 			var division      = undefined;
 			if( defined( option.ring ) && defined( option.divid )) {
-				for( var i = 0; i < divisions.length; i++ ) {
-					divisionData = divisions[ i ];
-					if( divisionData.name == option.divid && divisionData.ring == option.ring ) { $.cookie( 'divindex', i ); division = new Division( divisionData ); break; }
-					divisionData = undefined;
-				}
+				division = new Division( o.progress.divisions.find((d) => { return d.name == option.divid && d.ring == option.ring; }));
 			}
 
 			if      ( option.id == "divisions" ) { e.updateDivisions( divisions, o.progress.current ); }
-			else if ( option.id == "athletes"  ) { o.round = division.current.roundId(); var current = parseInt( $.cookie( 'divindex' )); e.updateRounds( division, current ); e.updateAthletes( division, current ); }
+			else if ( option.id == "athletes"  ) { o.round = division.current.roundId(); e.updateRounds( division, o.progress.current ); e.updateAthletes( division, o.progress.current ); }
 			else if ( option.id == "create"    ) {  }
 		});
 
@@ -790,16 +783,16 @@ $.widget( "freescore.coordinatorController", {
 
 			var progress = update.ring;
 			if( ! defined( progress.divisions )) { return; }
-			var i = defined( $.cookie( 'divindex' )) ? parseInt( $.cookie( 'divindex' )) : progress.current;
+			var divid = defined( $.cookie( 'divid' )) ? $.cookie( 'divid' ) : progress.current;
 			o.progress = progress;
 
-			var division = new Division( progress.divisions[ i ] );
+			var division = new Division( progress.divisions.find((d) => { return d.name == divid; }));
 			e.updateDivisions( progress.divisions, progress.current );
-			e.updateRounds( division, i );
-			e.updateAthletes( division, i );
+			e.updateRounds( division, progress.current );
+			e.updateAthletes( division, progress.current );
 
 			// ===== UPDATE BEHAVIOR
-			e .actions .admin .print .click( printResults( progress.divisions[ i ] ));
+			e .actions .admin .print .click( printResults( division ));
 		};
 
 		actions .admin      .display    .click( showDisplay );
