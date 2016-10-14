@@ -32,4 +32,34 @@ You must edit `/etc/init.d/hostapd` to call `/usr/local/bin/hostapd` instead of 
 
 FreeScore requires a webserver and PHP 5 interpreter. They can be installed by issuing the following command:
 
-	sudo apt-get install -y apache2 php5
+	sudo su -
+	apt-get install -y apache2 php5
+	a2enmod cgi
+	apachectl -M
+	service apache2 restart	
+	
+## Perl
+
+	sudo su -
+	apt-get install cpanminus
+	cpanm \
+		YAML \
+		Test::Tester \
+		Test::NoWarnings \
+		Test::Deep \
+		Test::Warn \
+		CGI \
+		CGI::Carp \
+		Data::Structure::Util \
+		Date::Calc \
+		Digest::SHA1 \
+		Filesys::Notify::Simple \
+		GD \
+		GD::Barcode \
+		JSON::XS \
+		List::MoreUtils \
+		LWP::UserAgent \
+		Mojolicious \
+		Time::HiRes \
+		Try::Tiny
+
