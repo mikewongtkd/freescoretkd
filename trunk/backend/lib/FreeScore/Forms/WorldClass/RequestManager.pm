@@ -5,7 +5,7 @@ use FreeScore;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
-use List::MoreUtils (qw( firstidx ));
+use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use AnyEvent::Filesys::Notify;
@@ -343,9 +343,11 @@ sub handle_division_judge_departure {
 	my $division = $progress->current();
 	my $judges   = $self->{ _judges };
 
-
-
 	print STDERR "Requesting judge departure.\n";
+
+	my $id = $request->{ id };
+	my $i  = first_index { $_->{ id } eq $id; } @$judges;
+	$judges->[ $i ] = { id => undef, num => $i + 1 } unless $i < 0;
 }
 
 # ============================================================
@@ -361,7 +363,7 @@ sub handle_division_judge_query {
 	my $n        = $division->{ judges };
 
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
-	if( @$judges != $n ) { for( my $i = 0; $i < $n; $i++ ) { push $judges, { id => undef };}}
+	if( @$judges != $n ) { for( my $i = 0; $i < $n; $i++ ) { push $judges, { id => undef, num => $i + 1 };}}
 
 	print STDERR "Requesting judge information.\n";
 
@@ -377,8 +379,24 @@ sub handle_division_judge_registration {
 	my $clients  = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $judges   = $self->{ _judges };
+	my $id       = $request->{ id };
+	my $num      = $request->{ num };
+	my $judge    = $num == 1 ? 'Referee' : 'Judge ' + ($num - 1);
 
-	print STDERR "Requesting judge registration.\n";
+	print STDERR "Requesting $judge registration.\n";
+
+	$judges->[ $num - 1 ]{ id } = $id;
+
+	print STDERR "  Broadcasting judge registration information to:\n";
+	foreach my $id (sort keys %$clients) {
+		my $broadcast = $clients->{ $id };
+
+		print STDERR "    user: $id digest: $digest\n";
+		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
+	}
+	print STDERR "\n";
+
 }
 
 # ============================================================
@@ -685,14 +703,15 @@ sub watch_files {
 	my $client     = $self->{ _client };
 	my $id         = sprintf "%s", sha1_hex( $client );
 
-	printf STDERR "Watching '%s/ring%02d' ", $tournament, $ring;
+	printf STDERR "Watching '%s/ring%02d for deleted or moved divisions'\n", $tournament, $ring;
 
 	$self->{ _watcher } = new AnyEvent::Filesys::Notify(
 		dirs     => [ $path ],
 		interval => 2.0,
 		cb       => sub {
 			my $event = shift;
-			return if $event->is_modified();     # Each request is responsible for broadcasting modifications; this avoids interval latency
+			return if $event->is_created();      # Write requests are responsible for broadcasting modifications; this avoids latency
+			return if $event->is_modified();     # Edit requests are responsible for broadcasting modifications; this avoids latency
 			return if $event->path() =~ /\.swp/; # Ignore vim swap files
 
 			# ===== READ NEW PROGRESS 

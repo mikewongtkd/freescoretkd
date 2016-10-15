@@ -20,8 +20,9 @@ $.widget( "freescore.register", {
 		};
 
 		var sound = e.sound = {};
-		sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]});
-		sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]});
+		sound.send  = new Howl({ urls: [ "/freescore/sounds/upload.mp3", "/freescore/sounds/upload.ogg"   ]});
+		sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",   "/freescore/sounds/next.ogg"   ]});
+		sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",   "/freescore/sounds/prev.ogg"   ]});
 
 		register.rings        .view .addClass( "floorplan" )    .hide();
 		register.roles        .view .addClass( "roles" )        .hide();
@@ -69,7 +70,6 @@ $.widget( "freescore.register", {
 		register.network.receive = function( response ) {
 		// ------------------------------------------------------------
 			var update = JSON.parse( response.data );
-			console.log( update );
 
 			if( update.type == 'division' ) {
 				if( update.action == 'judges'   ) { 
@@ -110,9 +110,9 @@ $.widget( "freescore.register", {
 
 				e.sound.next.play();
 				ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
-				Cookies.set( 'ring', num );
+				Cookies.set( 'ring', selected );
 				register.rings.view .delay( 750 ) .fadeOut( 500 ) .queue( register.roles.show );
-				e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + ring.num ); 
+				e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + selected ); 
 				e.ws.onopen = register.network.init;
 			});
 		}};
@@ -278,8 +278,8 @@ $.widget( "freescore.register", {
 			}
 			referer = referer.replace( /\/\/+/g, "/" );
 			
-			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { location = referer; } );
-			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { location.reload(); } );
+			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { e.sound.send.play(); setTimeout( function() { location = referer; }, 500 ); } );
+			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { e.sound.prev.play(); setTimeout( function() { location.reload(); }, 250 );} );
 
 			// ===== DISABLE ON-CLICK HANDLERS
 			ring.dom.off();
