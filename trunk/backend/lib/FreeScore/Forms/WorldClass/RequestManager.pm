@@ -27,6 +27,7 @@ sub init {
 	$self->{ _tournament } = shift;
 	$self->{ _ring }       = shift;
 	$self->{ _client }     = shift;
+	$self->{ _autopilot }  = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _judges }     = []; # Maybe merge this with clients?
 	$self->{ _watching }   = {};
@@ -189,7 +190,7 @@ sub handle_division_athlete_next {
 	print STDERR "Next athlete.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		$division->next_athlete();
 		$division->write();
 
@@ -212,7 +213,7 @@ sub handle_division_athlete_prev {
 	print STDERR "Previous athlete.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		$division->previous_athlete();
 		$division->write();
 
@@ -235,7 +236,7 @@ sub handle_division_display {
 	print STDERR "Change display.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		if( $division->is_display() ) { $division->score();   } 
 		else                          { $division->display(); }
 		$division->write();
@@ -301,7 +302,7 @@ sub handle_division_form_next {
 	print STDERR "Next form.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		$division->next_form();
 		$division->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -323,7 +324,7 @@ sub handle_division_form_prev {
 	print STDERR "Previous form.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		$division->previous_form();
 		$division->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -419,13 +420,13 @@ sub handle_division_navigate {
 			$progress->navigate( $i ); 
 			$progress->write();
 			$division = $progress->current();
-			$division->autopilot( 0 );
+			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
 		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
 			$division->navigate( $object, $i ); 
-			$division->autopilot( 0 );
+			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
@@ -460,7 +461,7 @@ sub handle_division_round_next {
 	print STDERR "Next round.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		$division->next_round();
 		$division->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -482,7 +483,7 @@ sub handle_division_round_prev {
 	print STDERR "Previous round.\n";
 
 	try {
-		$division->autopilot( 0 );
+		$division->autopilot( 'off' );
 		$division->previous_round();
 		$division->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -506,13 +507,14 @@ sub handle_division_score {
 	try {
 		$division->record_score( $request->{ judge }, $request->{ score } );
 		$division->write();
-		my $round   = $division->{ round };
-		my $form    = $division->{ form };
-		my $athlete = $division->{ athletes }[ $division->{ curent } ];
+		my $round         = $division->{ round };
+		my $form          = $division->{ form };
+		my $athlete       = $division->{ athletes }[ $division->{ curent } ];
 		my $form_complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		$self->{ _autopilot }( $division, $judge ) if $form_complete;
+		my $autopilot = $self->{ _autopilot }->( $division, $judge ) if $form_complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {

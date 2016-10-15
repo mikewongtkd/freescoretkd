@@ -90,16 +90,17 @@ sub assign_tiebreaker {
 # ============================================================
 sub autopilot {
 # ============================================================
-#** @method ( judge )
-#   @brief Lock division as under autopilot control
+#** @method ( [on|off] )
+#   @brief Put division under autopilot control.
 #*
 	my $self  = shift;
-	my $judge = shift;
+	my $state = shift;
 
-	if( defined $judge ) {
-		if( $judge eq 'clear' ) { delete $self->{ autopilot } } else { $self->{ autopilot } = $judge; }
+	if( defined $state ) {
+		if( $state eq 'off' ) { delete $self->{ autopilot } } else { $self->{ autopilot } = $state; }
 	}
-	if( exists $self->{ autopilot } ) { return $self->{ autopilot }; } else { return 0; }
+	return $self->{ autopilot } if exists $self->{ autopilot };
+	return undef;
 }
 
 # ============================================================
