@@ -41,7 +41,7 @@ FreeScore requires a webserver and PHP 5 interpreter. They can be installed by i
 ## Perl
 
 	sudo su -
-	apt-get install cpanminus
+	apt-get install cpanminus libgd-gd2-perl
 	cpanm \
 		YAML \
 		Test::Tester \
@@ -54,7 +54,6 @@ FreeScore requires a webserver and PHP 5 interpreter. They can be installed by i
 		Date::Calc \
 		Digest::SHA1 \
 		Filesys::Notify::Simple \
-		GD \
 		GD::Barcode \
 		JSON::XS \
 		List::MoreUtils \
