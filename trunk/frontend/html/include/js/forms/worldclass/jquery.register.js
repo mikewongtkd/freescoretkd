@@ -1,37 +1,121 @@
 $.widget( "freescore.register", {
-	options: { autoShow: true, max_judges: 3 },
+	options: { autoShow: true },
 	_create: function() {
 		var o            = this.options;
 		var e            = this.options.elements = {};
 		var w            = this.element;
 		var html         = e.html     = FreeScore.html;
 		var tournament   = o.tournament;
-		var url          = o.url      = $.url().param( 'referer' );
+		var referer      = o.referer  = $.url().param( 'referer' );
 
 		var h1           = html.h1.clone() .html( "Register" );
 		var text         = html.p.clone();
 
 		var register     = o.register = { 
+			network      : {},
 			rings        : { data : [], view : html.div.clone() },
 			roles        : { data : [], view : html.div.clone() },
 			judges       : { data : [], view : html.div.clone() },
 			confirmation : {            view : html.div.clone() },
 		};
 
+		var sound = e.sound = {};
+		sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]});
+		sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]});
+
 		register.rings        .view .addClass( "floorplan" )    .hide();
 		register.roles        .view .addClass( "roles" )        .hide();
 		register.judges       .view .addClass( "court" )        .hide();
 		register.confirmation .view .addClass( "confirmation" ) .hide();
 
-
 		// ===== REMOVE LOCAL AND SITE COOKIES
-		$.removeCookie( 'ring'  ); $.removeCookie( 'ring',  { path: '/' });
-		$.removeCookie( 'role'  ); $.removeCookie( 'role',  { path: '/' });
-		$.removeCookie( 'judge' ); $.removeCookie( 'judge', { path: '/' });
+		[ 'ring', 'role', 'judge' ].forEach((cookie) => { Cookies.remove( cookie ); });
 
 		// ============================================================
 		// UI FUNCTIONS AND CALLBACKS (WIDGET LOGIC DEFINED AFTERWARDS)
 		// ============================================================
+		
+		// ------------------------------------------------------------
+		register.network.error = function() {
+		// ------------------------------------------------------------
+			bootbox.dialog({
+				title:   "Network Error!",
+				message: "Cannot contact the server. Check that the <code>worldclass</code> service is running and try to reconnect.",
+				buttons: { confirm : { label: 'Reconnect', className: 'btn-success', callback: function() { location.reload( true ); }}},
+				closeButton: false
+			});
+		};
+
+		// ------------------------------------------------------------
+		register.network.init = function() {
+		// ------------------------------------------------------------
+			var ws = e.ws;
+			ws.onmessage = register.network.receive;
+			ws.onclose   = register.network.error;
+
+			var id = Cookies.get( 'id' );
+			if( id ) {
+				var request = { data: { type: 'division', action: 'judge departure', id: id }};
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+			}
+
+			var request = { data: { type: 'division', action: 'judge query' }};
+			request.json = JSON.stringify( request.data );
+			ws.send( request.json );
+		};
+
+		// ------------------------------------------------------------
+		register.network.receive = function( response ) {
+		// ------------------------------------------------------------
+			var update = JSON.parse( response.data );
+			console.log( update );
+
+			if( update.type == 'division' ) {
+				if( update.action == 'judges'   ) { 
+					var judges = o.judges = update.judges; 
+					if( register.judges.view.is( ':hidden' )) { return; }
+
+					// Enable the button for non-registered judges; disable the button otherwise
+					judges.forEach(( judge, i ) => { register.judges.data.id = judge.id; });
+					register.judges.data.forEach((judge, i) => {
+						if( judge.id ) { judge.disable(); } else { judge.enable(); }
+					});
+				}
+			}
+		};
+
+		// ------------------------------------------------------------
+		register.rings.add = function( num, x, y, gotoX, gotoY ) {
+		// ------------------------------------------------------------
+
+			var dom          = html.div.clone() .addClass( "mat" );
+			var playingField = html.div.clone() .addClass( "playing-field" ) .html( num );
+			var view         = register.rings.view;
+			dom.append( playingField );
+
+			var selectX = (parseInt( view.css( "width" ))/2)  - 100;
+			var selectY = (parseInt( view.css( "height" ))/2) - 100;
+
+			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY } ) }
+			dom.click( register.rings.select( num ));
+			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom };
+		};
+
+		// ------------------------------------------------------------
+		register.rings.select = function( selected ) { return function() {
+		// ------------------------------------------------------------
+			register.rings.data.forEach(( ring ) => {
+				if( ring.num != selected ) { ring.dom.fadeOut( 500 ); return; }
+
+				e.sound.next.play();
+				ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
+				Cookies.set( 'ring', num );
+				register.rings.view .delay( 750 ) .fadeOut( 500 ) .queue( register.roles.show );
+				e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + ring.num ); 
+				e.ws.onopen = register.network.init;
+			});
+		}};
 
 		// ------------------------------------------------------------
 		register.rings.show = function() {
@@ -48,111 +132,6 @@ $.widget( "freescore.register", {
 		};
 
 		// ------------------------------------------------------------
-		register.rings.select = function( num ) { return function() {
-		// ------------------------------------------------------------
-			for( var i = 0; i < tournament.rings.length; i++ ) {
-				var ring = register.rings.data[ i ];
-				var j    = ring.num;
-				if( j == num ) { 
-					ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
-					$.cookie( "ring", num, { path: '/' } );
-					register.rings.view .delay( 750 ) .fadeOut( 500, register.roles.show );
-
-				} else { 
-					ring.dom.fadeOut( 500 ); 
-				}
-			}
-		}};
-
-		// ------------------------------------------------------------
-		register.rings.add = function( num, x, y, gotoX, gotoY ) {
-		// ------------------------------------------------------------
-
-			var dom          = html.div.clone() .addClass( "mat" );
-			var playingField = html.div.clone() .addClass( "playing-field" ) .html( num );
-			var rings        = register.rings;
-			dom.append( playingField );
-
-			var selectX = (parseInt( rings.view.css( "width" ))/2) - 100;
-			var selectY = (parseInt( rings.view.css( "height" ))/2) - 100;
-
-			if( dom.attr( "animate" ) == "on-initialization" ) { dom.animate( { left: selectX, top: selectY } ) }
-			dom.click( register.rings.select( num ));
-			return { num: num, x: x, y: y, start: { x: gotoX, y: gotoY }, select : { x : selectX, y : selectY }, dom: dom };
-		}
-
-		// ------------------------------------------------------------
-		register.roles.show = function() { 
-		// ------------------------------------------------------------
-			if(
-				defined( url ) && (
-					(url.match( /judge/ )       != null) ||
-					(url.match( /index/ )       != null) ||
-					(url.match( /coordinator/ ) != null)
-				)
-			) {
-				if( url.match( /judge/ )       != null ) { 
-					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES
-					var port = ':3088/';
-					var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
-					$.ajax( {
-						type:    'GET',
-						url:     url,
-						data:    {},
-						success: register.judges.show,
-						error:   function( response ) { },
-					});
-
-				} else if( url.match( /index/ )       != null ) { 
-					$.cookie( "role", "display", { path: '/' } ); 
-					register.confirmation.show();
-
-				} else if( url.match( /coordinator/ ) != null ) { 
-					$.cookie( "role", "coordinator", { path: '/' } ); 
-					register.confirmation.show();
-				}
-			} else {
-				text.html( "What is your role in Ring " + $.cookie( "ring" ) + ":" ); 
-				register.roles.view .fadeIn( 500 ); 
-			}
-		}; 
-
-		// ------------------------------------------------------------
-		register.roles.select = function( roleName ) { return function() {
-		// ------------------------------------------------------------
-			for( var i = 0; i < register.roles.data.length; i++ ) {
-				var role = register.roles.data[ i ];
-				if( role.name == roleName ) {
-					role.dom.children( "p" ).remove();
-					role.dom.children( "img" ).animate( { height: 200 } );
-
-					if( role.name == "Judge" ) {
-						role.dom.animate( { left: 200 }, 400, 'swing', function() {
-							var port = ':3088/';
-							var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
-							$.ajax( {
-								type:    'GET',
-								url:     url,
-								data:    {},
-								success: register.judges.show,
-								error:   function( response ) { },
-							});
-						});
-					} else {
-						$.cookie( "role", roleName.toLowerCase(), { path: '/' } );
-						role.dom.animate( { left: 200 }, 400, 'swing', function() {
-							role.dom .delay( 300 ) .fadeOut( 400, function () {
-								register.roles.view .fadeOut( 400, register.confirmation.show );
-							});
-						});
-					}
-				} else {
-					role.dom.fadeOut();
-				}
-			}
-		}};
-
-		// ------------------------------------------------------------
 		register.roles.add = function( name, left ) {
 		// ------------------------------------------------------------
 			var dom   = html.div.clone() .addClass( "role" ) .attr( "role", name ) .css( "top", 0 ) .css( "left", left );
@@ -162,66 +141,117 @@ $.widget( "freescore.register", {
 			dom.append( img, label );
 			dom.click( register.roles.select( name ));
 			return { name: name, x: left, dom: dom };
-		}
-
-		// ------------------------------------------------------------
-		register.judges.show = function( ajaxResponse ) {
-		// ------------------------------------------------------------
-			register.roles.view .hide();
-			o.max_judges = ajaxResponse.judges || 3;
-
-			text.html( "Which judge?" );
-			for( var k = 0; k < o.max_judges; k++ ) { 
-				var judge = register.judges.add( k+1 ); 
-				register.judges.data.push( judge ); 
-				register.judges.view.append( judge.dom ); 
-			}
-
-			register.judges.view.fadeIn( 500, function() {
-				var scale = 200;
-				if( register.judges.data.length == 5 ) { scale = 160; }
-				if( register.judges.data.length == 7 ) { scale = 120; }
-				for( var i = 0; i < register.judges.data.length; i++ ) {
-					var judge = register.judges.data[ i ];
-					judge.dom.animate( { left: i * scale } );
-				}
-			});
 		};
 
 		// ------------------------------------------------------------
-		register.judges.select = function( num ) { return function() {
+		register.roles.show = function() { 
 		// ------------------------------------------------------------
-			for( var i = 0; i < register.judges.data.length; i++ ) {
-				var judge = register.judges.data[ i ];
-				if( judge.num == num ) {
-					$.cookie( "role", "judge", { path: '/' } );
-					$.cookie( "judge", num, { path: '/' } );
-
-					judge.dom.children( "p" ).remove();
-					judge.dom.children( "img" ).animate( { height: 200 }, 400, 'swing' );
-					register.judges.view .delay( 800 ) .fadeOut( 400, register.confirmation.show );
-				} else {
-					judge.dom.fadeTo( 500, 0.25 );
-				}
+			if( defined( referer ) && (referer.match( /(judge|index|computer operator)/ ) != null)) {
+				if( referer == 'judge' )             { register.judges.show(); } else
+				if( referer == 'index' )             { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
+				if( referer == 'computer operator' ) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
+			} else {
+				text.html( "What is your role in Ring " + Cookies.get( 'ring' ) + ":" ); 
+				register.roles.view .fadeIn( 500 ); 
 			}
+		}; 
+
+		// ------------------------------------------------------------
+		register.roles.select = function( roleName ) { return function() {
+		// ------------------------------------------------------------
+			register.roles.data.forEach(( role, i ) => {
+				if( role.name == roleName ) {
+					role.dom.children( "p" ).remove(); // Remove labels
+					role.dom.children( "img" ).animate( { height: 200 } );
+
+					if( role.name == "Judge" ) {
+						e.sound.next.play();
+						role.dom.animate( { left: 200 }, 400, 'swing', register.judges.show );
+					} else {
+						e.sound.next.play();
+						Cookies.set( 'role', roleName.toLowerCase());
+						
+						// Make the selected role large and center, then fade to the confirmation view
+						role.dom .animate( { left: 200 }, 400, 'swing' ) .delay( 100 ) .fadeOut( 200 )
+						register.roles.view .delay( 450 ) .fadeOut( 200 ) .queue( register.confirmation.show );
+					}
+				} else {
+					role.dom.fadeOut();
+				}
+			});
 		}};
 
 		// ------------------------------------------------------------
 		register.judges.add  = function( num ) {
 		// ------------------------------------------------------------
-			var dom   = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
-			var src   = "../../images/roles/judge.png";
-			var img   = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
-			var label = html.p.clone() .append( num == 1 ? "Referee" : "Judge " + (num - 1) );
+			var dom     = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
+			var src     = "../../images/roles/judge.png";
+			var img     = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
+			var label   = html.p.clone() .append( num == 1 ? "Referee" : "Judge " + (num - 1) );
+			var disable = function() { this.dom.fadeTo( 500, 0.25 );   this.dom.off( 'click' ); };
+			var enable  = function() { this.dom.css({ opacity: 1.0 }); this.dom.click( register.judges.select( this.num )) };
+			var id      = defined( o.judges ) && defined( o.judges[ num - 1 ].id ) ? o.judges[ num - 1 ].id : undefined;
 			dom.append( img, label );
-			dom.click( register.judges.select( num ));
-			return { num: num, dom: dom };
-		}
+			var judge   = { id: id, num: num, dom: dom, enable: enable, disable: disable };
+			judge.enable();
+			return judge;
+		};
+
+		// ------------------------------------------------------------
+		register.judges.select = function( num ) { return function() {
+		// ------------------------------------------------------------
+			register.judges.data.forEach(( judge, i ) => {
+				if( judge.num != num ) { judge.disable(); return; }
+
+				e.sound.next.play();
+
+				// Generate random ID
+				var random = String( Math.round( Math.random() * Math.pow( 10, 16 )));
+				var id     = sha3_224( random );
+
+				// Save state to cookies
+				Cookies.set( 'role', 'judge' );
+				Cookies.set( 'judge', num );
+				Cookies.set( 'id',    id );
+
+				// Send registration request
+				var request = { data: { type: 'division', action: 'judge registration', num: num, id: id }};
+				request.json = JSON.stringify( request.data );
+				e.ws.send( request.json );
+
+				// Fade out to confirmation view
+				judge.dom.children( "p" ).remove(); // Remove labels
+				judge.dom.off( 'click' );
+				judge.dom.children( "img" ).animate( { height: 200 }, 400, 'swing' );
+				register.judges.view .delay( 800 ) .fadeOut( 400 ) .queue( register.confirmation.show );
+			});
+		}};
+
+		// ------------------------------------------------------------
+		register.judges.show = function() {
+		// ------------------------------------------------------------
+			register.roles.view .hide();
+			var judges = o.judges;
+
+			text.html( "Which judge?" );
+			judges.forEach(( j, i ) => {
+				var judge = register.judges.add( i + 1 ); 
+				register.judges.data.push( judge ); 
+				register.judges.view.append( judge.dom ); 
+			});
+
+			register.judges.view.fadeIn( 500, function() {
+				var scale = 200;
+				if( register.judges.data.length == 5 ) { scale = 160; }
+				if( register.judges.data.length == 7 ) { scale = 120; }
+				register.judges.data.forEach(( judge, i ) => { judge.dom.animate( { left: i * scale } ); });
+			});
+		};
 
 		// ------------------------------------------------------------
 		register.confirmation.show = function() {
 		// ------------------------------------------------------------
-			var selected = { ring: $.cookie( "ring" ), role: $.cookie( "role" ), judge: $.cookie( "judge" ) };
+			var selected = { ring: parseInt( Cookies.get( 'ring' )), role: String( Cookies.get( 'role' )), judge: parseInt( Cookies.get( 'judge' )) };
 
 			var label = selected.judge == 1 ? "Referee" : "Judge " + (selected.judge - 1);
 			if( selected.role == "judge" ) { text.html( "Confirm Registration for " + label + " in Ring " + selected.ring + ":" ); }
@@ -231,24 +261,24 @@ $.widget( "freescore.register", {
 			register.rings.view .attr( "animate", "none" );
 
 			// ===== SHOW RING NUMBER
-			var ring  = register.rings.add( parseInt( $.cookie( "ring" )), 0, 0, 0, 0, true );
+			var ring  = register.rings.add( selected.ring, 0, 0, 0, 0, true );
 			ring.dom.css( "left", "0px" );
-			var role  = String( $.cookie( "role" ));
 
 			// ===== SHOW JUDGE NUMBER OR OTHER ROLE
-			if( role == "judge" ) {
-				var num   = $.cookie( "judge" );
-				role = register.judges.add( num );
+			var role = undefined;
+			if( selected.role == "judge" ) {
+				var num   = selected.judge;
+				role      = register.judges.add( num );
 				role.dom.css( 'left', '200px' );
-				url = "./judge.php";
+				referer = "./judge.php";
 			} else {
-				if      ( role == "display"           ) { if( ! defined( url )) { url = "./index.php"; } }
-				else if ( role == "computer operator" ) { if( ! defined( url )) { url = "./coordinator.php"; } }
-				role = register.roles.add( role.capitalize(), '200px' );
+				if ( selected.role == "display"           ) { if( ! defined( referer )) { referer = "./index.php"; } } else 
+				if ( selected.role == "computer operator" ) { if( ! defined( referer )) { referer = "./coordinator.php"; } }
+				role = register.roles.add( selected.role.capitalize(), '200px' );
 			}
-			url = url.replace( /\/\/+/g, "/" );
+			referer = referer.replace( /\/\/+/g, "/" );
 			
-			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { location = url; } );
+			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { location = referer; } );
 			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { location.reload(); } );
 
 			// ===== DISABLE ON-CLICK HANDLERS
@@ -301,5 +331,6 @@ $.widget( "freescore.register", {
 		var o = this.options;
 		var e = this.options.elements;
 		var w = this.element;
+
 	}
 });

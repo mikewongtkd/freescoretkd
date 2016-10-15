@@ -166,29 +166,29 @@
 
 			ws.onopen      = function() {
 				if( divId != 'new' ) {
-					var request = { type : 'division', action : 'read', tournament : tournament, ring : ring, divid : divId };
+					var request = { type : 'division', action : 'read', divid : divId };
 					var json    = JSON.stringify( request );
 					ws.send( json );
 				}
 			};
-			ws.onmessage = function( ev ) {
-				var response = JSON.parse( ev.data );
+			ws.onmessage = function( response ) {
+				var update = JSON.parse( response.data );
 
-				if( response.type == 'division' ) {
-					if( response.action == 'update' ) {
-						var division = new Division( response.division );
+				if( update.type == 'division' ) {
+					if( update.action == 'update' ) {
+						var division = new Division( update.division );
 						init.settings( division );
 						init.description( division );
 						init.forms( division );
 						init.athletes( division );
 
-					} else if( response.action == 'write ok' ) {
-						var division = response.division;
+					} else if( update.action == 'write ok' ) {
+						var division = update.division;
 						sound.send.play();
 						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.close(); } );
 
-					} else if( response.action == 'write error' ) {
-						var division = response.division;
+					} else if( update.action == 'write error' ) {
+						var division = update.division;
 						sound.next.play();
 						bootbox.dialog({
 							title : "Division " + division.name.toUpperCase() + " already exists!",

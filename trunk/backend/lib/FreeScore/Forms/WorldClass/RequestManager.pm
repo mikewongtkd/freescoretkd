@@ -28,6 +28,7 @@ sub init {
 	$self->{ _ring }       = shift;
 	$self->{ _client }     = shift;
 	$self->{ _json }       = new JSON::XS();
+	$self->{ _judges }     = []; # Maybe merge this with clients?
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
 		athlete_delete     => \&handle_division_athlete_delete,
@@ -40,6 +41,9 @@ sub init {
 		edit_header        => \&handle_division_edit_header,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
+		judge_departure    => \&handle_division_judge_departure,
+		judge_query        => \&handle_division_judge_query,
+		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		round_next         => \&handle_division_round_next,
@@ -326,6 +330,55 @@ sub handle_division_form_prev {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
+}
+
+# ============================================================
+sub handle_division_judge_departure {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $judges   = $self->{ _judges };
+
+
+
+	print STDERR "Requesting judge departure.\n";
+}
+
+# ============================================================
+sub handle_division_judge_query {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $judges   = $self->{ _judges };
+	my $n        = $division->{ judges };
+
+	# ===== INITIALIZE IF NOT PREVIOUSLY SET
+	if( @$judges != $n ) { for( my $i = 0; $i < $n; $i++ ) { push $judges, { id => undef };}}
+
+	print STDERR "Requesting judge information.\n";
+
+	$client->send( { json => { type => 'division', action => 'judges', judges => $judges }} );
+}
+
+# ============================================================
+sub handle_division_judge_registration {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Requesting judge registration.\n";
 }
 
 # ============================================================

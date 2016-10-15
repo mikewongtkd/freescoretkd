@@ -3,8 +3,17 @@ body {
 	background: black;
 	background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
 	background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
-	font-family: Optima;
-	font-size: 24pt;
+	font-family: Optima !important;
+	font-size: 24pt !important;
+}
+
+.bootbox {
+	.modal-title {
+		font-size: 24pt;
+	}
+	.bootbox-body {
+		font-size: 18pt;
+	}
 }
 
 .register {
@@ -19,6 +28,8 @@ body {
 	padding: 0 32px 32px 32px;
 	h1 {
 		color: gold;
+		font-size: 48pt;
+		font-weight: bold;
 	}
 	code {
 		color: gold;
@@ -64,8 +75,8 @@ body {
 	.floorplan { position: relative; }
 	.mat {
 		position: absolute;
-		width:  180px;
-		height: 180px;
+		width:  160px;
+		height: 160px;
 		background: #7abcff;
 		background: -webkit-linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
 		background: linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
@@ -74,12 +85,12 @@ body {
 		.playing-field {
 			color: white;
 			font-weight: bold;
-			font-size: 48pt;
+			font-size: 48pt !important;
 			text-align: center;
-			padding: 32px;
+			padding: 18px;
 			position: absolute;
-			width:  76px;
-			height: 76px;
+			width:  120px;
+			height: 120px;
 			top: 20px;
 			left: 20px;
 			border-radius: 12px;
@@ -100,6 +111,7 @@ body {
 		height: 200px;
 		color: white;
 		text-align: center;
+		font-size: 22pt;
 	}
 
 	.court {
@@ -122,7 +134,7 @@ body {
 
 		.ok {
 			color: white;
-			line-height: 48pt;
+			line-height: 40pt;
 			position: absolute;
 			top: 0;
 			left: 600px;
@@ -138,7 +150,7 @@ body {
 
 		.back {
 			color: white;
-			line-height: 48pt;
+			line-height: 40pt;
 			position: absolute;
 			top: 104px;
 			left: 600px;

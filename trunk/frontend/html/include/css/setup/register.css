@@ -4,8 +4,13 @@ body {
   /* W3C */
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */
-  font-family: Optima;
+  font-family: Optima !important;
+  font-size: 24pt !important; }
+
+.bootbox .modal-title {
   font-size: 24pt; }
+.bootbox .bootbox-body {
+  font-size: 18pt; }
 
 .register {
   background: black;
@@ -20,7 +25,9 @@ body {
   margin: 20px auto 20px auto;
   padding: 0 32px 32px 32px; }
   .register h1 {
-    color: gold; }
+    color: gold;
+    font-size: 48pt;
+    font-weight: bold; }
   .register code {
     color: gold;
     font-size: 18pt; }
@@ -57,8 +64,8 @@ body {
     position: relative; }
   .register .mat {
     position: absolute;
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
     background: #7abcff;
     background: -webkit-linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
     background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
@@ -66,12 +73,12 @@ body {
     .register .mat .playing-field {
       color: white;
       font-weight: bold;
-      font-size: 48pt;
+      font-size: 48pt !important;
       text-align: center;
-      padding: 32px;
+      padding: 18px;
       position: absolute;
-      width: 76px;
-      height: 76px;
+      width: 120px;
+      height: 120px;
       top: 20px;
       left: 20px;
       border-radius: 12px;
@@ -87,7 +94,8 @@ body {
     width: 200px;
     height: 200px;
     color: white;
-    text-align: center; }
+    text-align: center;
+    font-size: 22pt; }
   .register .court {
     position: relative;
     height: 200px; }
@@ -104,7 +112,7 @@ body {
     height: 200px; }
     .register .confirmation .ok {
       color: white;
-      line-height: 48pt;
+      line-height: 40pt;
       position: absolute;
       top: 0;
       left: 600px;
@@ -118,7 +126,7 @@ body {
       text-align: center; }
     .register .confirmation .back {
       color: white;
-      line-height: 48pt;
+      line-height: 40pt;
       position: absolute;
       top: 104px;
       left: 600px;
