@@ -110,6 +110,7 @@ sub autopilot {
 	}
 
 	# ===== ENGAGE AUTOPILOT
+	try {
 		$division->autopilot( 'on' );
 		$division->write();
 	} catch {

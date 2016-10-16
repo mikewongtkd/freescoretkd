@@ -157,7 +157,7 @@ $.widget( "freescore.judgeController", {
 		};
 
 		ws.onmessage = function( response ) {
-			var update   = JSON.parse( response.data ); if( ! defined( update.division )) { return; }
+			var update   = JSON.parse( response.data ); if( ! defined( update.division ) || update.type != 'division' || update.action != 'update' ) { return; }
 			var digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division = new Division( update.division );
 
