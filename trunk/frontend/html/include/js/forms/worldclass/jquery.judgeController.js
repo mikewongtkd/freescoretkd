@@ -9,7 +9,7 @@ $.widget( "freescore.judgeController", {
 
 		widget.nodoubletapzoom();
 
-		o.num     = parseInt( $.cookie( "judge" )) - 1;
+		o.num     = parseInt( $.cookie( "judge" ));
 		o.ring    = parseInt( $.cookie( "ring" ));
 		o.current = {};
 
@@ -70,7 +70,7 @@ $.widget( "freescore.judgeController", {
 			};
 
 			e.send .off( 'click' ) .click( function() {
-				var request  = { data : { type : 'division', action : 'score', judge : o.num, score : score }};
+				var request  = { data : { type : 'division', action : 'score', score : score }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
 				e.sound.ok.play();
@@ -151,7 +151,7 @@ $.widget( "freescore.judgeController", {
 		var ws          = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 
 		ws.onopen = function() {
-			var request  = { data : { type : 'division', action : 'read', judge : o.num }};
+			var request  = { data : { type : 'division', action : 'read' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 		};
@@ -168,7 +168,7 @@ $.widget( "freescore.judgeController", {
 					button.button( 'enable' );
 					button.off( 'click' ); // Avoid multiple handlers
 					button.click( function() {
-						var request  = { data : { type : button.attr( 'type' ), action : button.attr( 'action' ), judge : o.num }}; 
+						var request  = { data : { type : button.attr( 'type' ), action : button.attr( 'action' ) }}; 
 						request.json = JSON.stringify( request.data );
 						ws.send( request.json ); 
 						e.sound[ button.attr( 'sound' ) ].play();
@@ -192,7 +192,7 @@ $.widget( "freescore.judgeController", {
 			if( division.state.is.score() ) { e.flipDisplay.button({ label : "Leaderboard" }); } 
 			else                            { e.flipDisplay.button({ label : "Athlete&nbsp;Score" }); }
 			e.flipDisplay .off( 'click' ) .click( function() {
-				var request  = { data : { type : 'division', action : 'display', judge : o.num }}; 
+				var request  = { data : { type : 'division', action : 'display' }}; 
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json ); 
 				e.sound.ok.play();

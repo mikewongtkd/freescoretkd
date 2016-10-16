@@ -11,11 +11,12 @@ use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
 use EV;
 
-our $json    = new JSON::XS();
-our $client  = {};
-our $watcher = {};
+our $json   = new JSON::XS();
+our $client = {};
+our $judge  = {};
 
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
@@ -31,7 +32,6 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	my $group      = sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
-	$manager->{ _autopilot } = \&autopilot;
 
 	# ===== REGISTER THE CLIENT
 	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
@@ -45,12 +45,21 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	$self->on( message => sub {
 		my $self    = shift;
 		my $request = $json->decode( shift );
-		my $judge   = exists $request->{ judge } && int( $request->{ judge } ) >= 0 ? $request->{ judge } : undef;
+
+		# ===== GET RELEVANT COOKIES
+		foreach my $name (qw( role judge id )) {
+			my $value = $self->cookie( $name );
+			$request->{ cookie }{ $name } = $value if defined $value;
+		}
 
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
 
-		print STDERR $json->canonical->encode( $request ), "\n\n";
+		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
+		my $log = clone( $request ); 
+		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
+		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
+		print STDERR $json->canonical->encode( $log ), "\n";
 
 		# ===== READ PROGRESS
 		try   { 
@@ -62,16 +71,18 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
-		$c->{ judge } = $judge if defined $judge;
-		print STDERR "JUDGE $judge: " if defined $judge;
-
-		# ===== WATCH FILESYSTEM FOR CHANGES
-		$manager->watch_files( $judge );
+		if( exists $request->{ cookie }{ judge } ) {
+			my $j = $c->{ judge } = $request->{ cookie }{ judge };
+			print STDERR $j == 0 ? "REFEREE: " : "JUDGE $j ";
+		}
 
 		# ===== HANDLE REQUEST
+		$judge->{ $group } = [] unless exists $judge->{ $group };
 		my $clients = $client->{ $group };
-		try   { $manager->handle( $request, $progress, $clients ); }
+		my $judges  = $judge->{ $group };
+		try   { $manager->handle( $request, $progress, $clients, $judges ); }
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+		print STDERR "\n";
 	});
 
 	# ----------------------------------------
@@ -102,12 +113,9 @@ sub autopilot {
 #   Called when judges finish scoring an athlete's form 
 #*
 	my $division = shift;
-	my $judge    = shift;
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
-	if( my $locked = $division->autopilot() ) {
-		return { warning => 'Autopilot is already engaged for this ring by ' . ($locked == 1 ? 'Referee' : 'Judge ' . ($locked - 1)) . '.' };
-	}
+	if( my $locked = $division->autopilot() ) { return { warning => 'Autopilot is already engaged.' }; }
 
 	# ===== ENGAGE AUTOPILOT
 	try {

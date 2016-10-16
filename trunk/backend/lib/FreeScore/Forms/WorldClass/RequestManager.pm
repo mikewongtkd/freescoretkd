@@ -5,11 +5,10 @@ use FreeScore;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
+use List::Util (qw( first ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
-use AnyEvent::Filesys::Notify;
-use AnyEvent;
 
 # ============================================================
 sub new {
@@ -29,7 +28,6 @@ sub init {
 	$self->{ _client }     = shift;
 	$self->{ _autopilot }  = shift;
 	$self->{ _json }       = new JSON::XS();
-	$self->{ _judges }     = []; # Maybe merge this with clients?
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
 		athlete_delete     => \&handle_division_athlete_delete,
@@ -69,6 +67,7 @@ sub broadcast_division_response {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
+	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
@@ -98,6 +97,7 @@ sub broadcast_ring_response {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
+	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
@@ -126,11 +126,12 @@ sub handle {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
 	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
 
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
-	return $self->$dispatch( $request, $progress, $clients ) if defined $dispatch;
+	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
 }
 
 # ============================================================
@@ -140,6 +141,7 @@ sub handle_division_award_penalty {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -162,6 +164,7 @@ sub handle_division_award_punitive {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -184,6 +187,7 @@ sub handle_division_athlete_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -207,6 +211,7 @@ sub handle_division_athlete_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -230,6 +235,7 @@ sub handle_division_display {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -253,6 +259,7 @@ sub handle_division_edit_athletes {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Editing division athletes.\n";
@@ -275,6 +282,7 @@ sub handle_division_edit_header {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -296,6 +304,7 @@ sub handle_division_form_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -318,6 +327,7 @@ sub handle_division_form_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -340,15 +350,19 @@ sub handle_division_judge_departure {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
-	my $judges   = $self->{ _judges };
 
 	print STDERR "Requesting judge departure.\n";
 
-	my $id = $request->{ id };
+	my $id = $request->{ cookie }{ id };
 	my $i  = first_index { $_->{ id } eq $id; } @$judges;
-	$judges->[ $i ] = { id => undef, num => $i + 1 } unless $i < 0;
+	$judges->[ $i ] = {} unless $i < 0;
+	$client->send( { json => { type => 'division', action => 'judge goodbye' }});
+	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
+
+	print STDERR "Goodbye $name\n";
 }
 
 # ============================================================
@@ -358,13 +372,16 @@ sub handle_division_judge_query {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
-	my $judges   = $self->{ _judges };
 	my $n        = $division->{ judges };
 
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
-	if( @$judges != $n ) { for( my $i = 0; $i < $n; $i++ ) { push $judges, { id => undef, num => $i + 1 };}}
+	if( @$judges != $n ) { 
+		foreach ( 1 .. $n ) { push @$judges, {}; }
+		print STDERR "Initializing $n judges\n";
+	}
 
 	print STDERR "Requesting judge information.\n";
 
@@ -378,16 +395,16 @@ sub handle_division_judge_registration {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
-	my $judges   = $self->{ _judges };
 	my $id       = $request->{ id };
 	my $num      = $request->{ num };
-	my $judge    = $num == 1 ? 'Referee' : 'Judge ' + ($num - 1);
+	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
 
 	print STDERR "Requesting $judge registration.\n";
 
-	$judges->[ $num - 1 ]{ id } = $id;
+	$judges->[ $num ]{ id } = $id;
 
 	print STDERR "  Broadcasting judge registration information to:\n";
 	foreach my $id (sort keys %$clients) {
@@ -407,6 +424,7 @@ sub handle_division_navigate {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -442,6 +460,7 @@ sub handle_division_read {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 
 	print STDERR "Request division data.\n";
 
@@ -455,6 +474,7 @@ sub handle_division_round_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -477,6 +497,7 @@ sub handle_division_round_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -499,6 +520,7 @@ sub handle_division_score {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -513,7 +535,7 @@ sub handle_division_score {
 		my $form_complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		my $autopilot = $self->{ _autopilot }->( $division, $judge ) if $form_complete;
+		my $autopilot = $self->{ _autopilot }->( $division ) if $form_complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -529,6 +551,7 @@ sub handle_division_write {
 	my $request    = shift;
 	my $progress   = shift;
 	my $clients    = shift;
+	my $judges     = shift;
 	my $client     = $self->{ _client };
 	my $tournament = $self->{ _tournament };
 	my $ring       = $self->{ _ring };
@@ -568,6 +591,7 @@ sub handle_ring_division_next {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Next division.\n";
@@ -588,6 +612,7 @@ sub handle_ring_division_prev {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Previous division.\n";
@@ -608,6 +633,7 @@ sub handle_ring_read {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 
 	print STDERR "Request ring data.\n";
 
@@ -621,6 +647,7 @@ sub send_division_response {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
+	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
@@ -634,8 +661,8 @@ sub send_division_response {
 	my $digest    = sha1_hex( $encoded );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-	print STDERR "  Sending division response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n";
-	print STDERR "    user: $id digest: $digest\n\n";
+	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : "client") . "\n";
+	print STDERR "    user: $id digest: $digest\n";
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
@@ -648,6 +675,7 @@ sub send_ring_response {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
+	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $unblessed = undef;
@@ -661,7 +689,7 @@ sub send_ring_response {
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n";
-	print STDERR "    user: $id digest: $digest\n\n";
+	print STDERR "    user: $id digest: $digest\n";
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
@@ -674,6 +702,7 @@ sub handle_ring_transfer {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
+	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $divid    = $request->{ name };
 	my $transfer = $request->{ transfer };
@@ -688,54 +717,6 @@ sub handle_ring_transfer {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
-}
-
-# ============================================================
-sub watch_files {
-# ============================================================
-	my $self     = shift; 
-	return if exists $self->{ _watcher } && defined $self->{ _watcher };
-
-	my $judge      = shift;
-	my $is_judge   = defined( $judge ) && int( $judge ) >= 0;
-	my $tournament = $self->{ _tournament };
-	my $ring       = $self->{ _ring };
-	my $path       = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $FreeScore::Forms::WorldClass::SUBDIR, $tournament, $ring );
-	my $json       = $self->{ _json };
-	my $client     = $self->{ _client };
-	my $id         = sprintf "%s", sha1_hex( $client );
-
-	printf STDERR "Watching '%s/ring%02d for deleted or moved divisions'\n", $tournament, $ring;
-
-	$self->{ _watcher } = new AnyEvent::Filesys::Notify(
-		dirs     => [ $path ],
-		interval => 2.0,
-		cb       => sub {
-			my $event = shift;
-			return if $event->is_created();      # Write requests are responsible for broadcasting modifications; this avoids latency
-			return if $event->is_modified();     # Edit requests are responsible for broadcasting modifications; this avoids latency
-			return if $event->path() =~ /\.swp/; # Ignore vim swap files
-
-			# ===== READ NEW PROGRESS 
-			my $progress   = undef;
-			try   { $progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); } 
-			catch { $self->{ _client }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); return; };
-			my $division = $progress->current();
-
-			print STDERR "\n  Notifying file changes in '" . $event->path() . "' to:\n";
-			my $unblessed = unbless ($is_judge ? $division->get_only( $judge ) : $division );
-			my $encoded   = $json->canonical->encode( $unblessed );
-			my $digest    = sha1_hex( $encoded );
-
-			if( $self->{ _last_state } eq $digest ) { print STDERR "    user: $id judge: $judge digest: $digest NO CHANGE; SKIP\n"; }
-			else                                    { print STDERR "    user: $id judge: $judge digest: $digest\n"; }
-			$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }})
-				unless $self->{ _last_state } eq $digest;
-			$self->{ _last_state } = $digest;
-			print STDERR "\n";
-		}
-	);
-	push @{$watch->{ $path }{ group }}, $self->{ _client };
 }
 
 1;

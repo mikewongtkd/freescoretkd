@@ -56,7 +56,7 @@ $.widget( "freescore.register", {
 
 			var id = Cookies.get( 'id' );
 			if( id ) {
-				var request = { data: { type: 'division', action: 'judge departure', id: id }};
+				var request = { data: { type: 'division', action: 'judge departure' }};
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 			}
@@ -72,7 +72,7 @@ $.widget( "freescore.register", {
 			var update = JSON.parse( response.data );
 
 			if( update.type == 'division' ) {
-				if( update.action == 'judges'   ) { 
+				if( update.action == 'judges' ) { 
 					var judges = o.judges = update.judges; 
 					if( register.judges.view.is( ':hidden' )) { return; }
 
@@ -81,6 +81,10 @@ $.widget( "freescore.register", {
 					register.judges.data.forEach((judge, i) => {
 						if( judge.id ) { judge.disable(); } else { judge.enable(); }
 					});
+				} else if( update.action == 'judge goodbye' ) {
+					console.log( 'Deleting ID cookie ' + Cookies.get( 'id' ));
+					Cookies.remove( 'id' );
+					console.log( 'Current ID cookie value: ' + Cookies.get( 'id' ));
 				}
 			}
 		};
@@ -187,10 +191,10 @@ $.widget( "freescore.register", {
 			var dom     = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
 			var src     = "../../images/roles/judge.png";
 			var img     = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
-			var label   = html.p.clone() .append( num == 1 ? "Referee" : "Judge " + (num - 1) );
+			var label   = html.p.clone() .append( num == 0 ? "Referee" : "Judge " + num );
 			var disable = function() { this.dom.fadeTo( 500, 0.25 );   this.dom.off( 'click' ); };
 			var enable  = function() { this.dom.css({ opacity: 1.0 }); this.dom.click( register.judges.select( this.num )) };
-			var id      = defined( o.judges ) && defined( o.judges[ num - 1 ].id ) ? o.judges[ num - 1 ].id : undefined;
+			var id      = defined( o.judges ) && defined( o.judges[ num ] ) && defined( o.judges[ num ].id ) ? o.judges[ num ].id : undefined;
 			dom.append( img, label );
 			var judge   = { id: id, num: num, dom: dom, enable: enable, disable: disable };
 			judge.enable();
@@ -214,7 +218,7 @@ $.widget( "freescore.register", {
 				Cookies.set( 'judge', num );
 				Cookies.set( 'id',    id );
 
-				// Send registration request
+				// Send registration request to broadcast to peers
 				var request = { data: { type: 'division', action: 'judge registration', num: num, id: id }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
@@ -235,7 +239,7 @@ $.widget( "freescore.register", {
 
 			text.html( "Which judge?" );
 			judges.forEach(( j, i ) => {
-				var judge = register.judges.add( i + 1 ); 
+				var judge = register.judges.add( i ); 
 				register.judges.data.push( judge ); 
 				register.judges.view.append( judge.dom ); 
 			});
@@ -253,7 +257,7 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 			var selected = { ring: parseInt( Cookies.get( 'ring' )), role: String( Cookies.get( 'role' )), judge: parseInt( Cookies.get( 'judge' )) };
 
-			var label = selected.judge == 1 ? "Referee" : "Judge " + (selected.judge - 1);
+			var label = selected.judge == 0 ? "Referee" : "Judge " + selected.judge;
 			if( selected.role == "judge" ) { text.html( "Confirm Registration for " + label + " in Ring " + selected.ring + ":" ); }
 			else                           { text.html( "Confirm Registration for " + selected.role.capitalize() + " in Ring " + selected.ring + ":" ); }
 
@@ -308,8 +312,8 @@ $.widget( "freescore.register", {
 				var ypos = y * 200;
 
 				if( odd ) {
-					if      ( width > height ) { if( i == half ) { ypos += 100; } else if( i > half ) { xpos -= 200; }}
-					else if ( height > width ) { if( i == k-1  ) { xpos -= 100; }}
+					if      ( width > height ) { if( i == half  ) { ypos += 100; } else if( i > half ) { xpos -= 200; }}
+					else if ( height > width ) { if( i == k - 1 ) { xpos -= 100; }}
 				}
 				var ring = register.rings.add( num, x, y, xpos, ypos );
 				register.rings.data.push( ring );
