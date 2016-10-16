@@ -410,7 +410,7 @@ sub handle_division_judge_registration {
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 
-		print STDERR "    user: $id digest: $digest\n";
+		print STDERR "    user: $id\n";
 		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
 	}
 	print STDERR "\n";
@@ -527,7 +527,7 @@ sub handle_division_score {
 	print STDERR "Send score.\n";
 
 	try {
-		$division->record_score( $request->{ judge }, $request->{ score } );
+		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
 		$division->write();
 		my $round         = $division->{ round };
 		my $form          = $division->{ form };
@@ -652,8 +652,8 @@ sub send_division_response {
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $unblessed = undef;
-	my $is_judge  = exists $request->{ judge } && int( $request->{ judge } ) >= 0;
-	my $judge     = $is_judge ? int($request->{ judge }) : undef;
+	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
+	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $unblessed = unbless ($is_judge ? $division->get_only( $judge ) : $division);
@@ -679,8 +679,8 @@ sub send_ring_response {
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $unblessed = undef;
-	my $is_judge  = exists $request->{ judge } && int( $request->{ judge } ) >= 0;
-	my $judge     = $is_judge ? int( $request->{ judge }) : undef;
+	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
+	my $judge     = $is_judge ? int( $request->{ cookie }{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $unblessed = unbless $progress;

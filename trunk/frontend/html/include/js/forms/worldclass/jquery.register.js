@@ -77,7 +77,8 @@ $.widget( "freescore.register", {
 					if( register.judges.view.is( ':hidden' )) { return; }
 
 					// Enable the button for non-registered judges; disable the button otherwise
-					judges.forEach(( judge, i ) => { register.judges.data.id = judge.id; });
+					console.log( judges );
+					judges.forEach(( judge, i ) => { register.judges.data[i].id = judge.id; });
 					register.judges.data.forEach((judge, i) => {
 						if( judge.id ) { judge.disable(); } else { judge.enable(); }
 					});
@@ -238,10 +239,13 @@ $.widget( "freescore.register", {
 			var judges = o.judges;
 
 			text.html( "Which judge?" );
+			register.judges.data = [];
 			judges.forEach(( j, i ) => {
 				var judge = register.judges.add( i ); 
+				judge.id = j.id;
 				register.judges.data.push( judge ); 
 				register.judges.view.append( judge.dom ); 
+				if( judge.id ) { judge.disable(); }
 			});
 
 			register.judges.view.fadeIn( 500, function() {
