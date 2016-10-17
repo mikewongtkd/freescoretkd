@@ -20,6 +20,9 @@ $.widget( "freescore.judgeController", {
 
 		widget.addClass( 'judgeController flippable' );
 
+		var btn = $.fn.button.noConflict() // reverts $.fn.button to jqueryui btn
+		$.fn.btn = btn // assigns bootstrap button functionality to $.fn.btn
+
 		var card         = e.card         = html.div.clone() .addClass( "card" );
 		var front        = e.front        = html.div.clone() .addClass( "front" );
 		var views        = e.views        = html.div.clone() .addClass( "view control-group" );
@@ -36,7 +39,7 @@ $.widget( "freescore.judgeController", {
 		var minor        = e.minor        = html.div.clone() .deductions({ value : 0.1, controller : this });
 		var controls     = e.controls     = html.div.clone() .addClass( "controls" );
 
-		var label        = e.label        = html.div.clone() .addClass( "label" ) .html( "Presentation Score" );
+		var label        = e.label        = html.div.clone() .addClass( "control-label" ) .html( "Presentation Score" );
 		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',      controller: this });
 		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Control',   controller: this });
 		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Energy', controller: this });
@@ -86,8 +89,8 @@ $.widget( "freescore.judgeController", {
 		front.append( views, controllers );
 
 		var arrow        = e.arrow = {
-			left : html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-l-white.svg', height: '24px', width: '24px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
-			right: html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-r-white.svg', height: '24px', width: '24px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
+			left : html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-l-white.svg', height: '28px', width: '28px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
+			right: html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-r-white.svg', height: '28px', width: '28px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
 		};
 
 		var back         = e.back         = html.div.clone() .addClass( "back" );
@@ -95,27 +98,27 @@ $.widget( "freescore.judgeController", {
 		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
 		var nav          = e.nav = {
 			athlete : {
-				label : html.div.clone() .addClass( "navigate label athlete-label" ) .html( "Athlete" ),
-				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev athlete" )  .attr({ type: 'division', action: 'athlete prev',  sound: 'prev' }),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next athlete" )  .attr({ type: 'division', action: 'athlete next',  sound: 'next' }),
+				label : html.div.clone() .addClass( "navigate navigate-label athlete-label" ) .html( "Athlete" ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate nav-button prev athlete" )  .attr({ type: 'division', action: 'athlete prev',  sound: 'prev' }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate nav-button next athlete" )  .attr({ type: 'division', action: 'athlete next',  sound: 'next' }),
 			},
 			form : {
-				label : html.div.clone() .addClass( "navigate label form-label" ) .html( "Form" ),
-				prev  : html.div.clone() .button({ label : '1<sup>st</sup>' })    .addClass( "navigate button prev form" )     .attr({ type: 'division', action: 'form prev',     sound: 'prev' }),
-				next  : html.div.clone() .button({ label : '2<sup>nd</sup>' })    .addClass( "navigate button next form" )     .attr({ type: 'division', action: 'form next',     sound: 'next' }),
+				label : html.div.clone() .addClass( "navigate navigate-label form-label" ) .html( "Form" ),
+				prev  : html.div.clone() .button({ label : '1<sup>st</sup>' })    .addClass( "navigate nav-button prev form" )     .attr({ type: 'division', action: 'form prev',     sound: 'prev' }),
+				next  : html.div.clone() .button({ label : '2<sup>nd</sup>' })    .addClass( "navigate nav-button next form" )     .attr({ type: 'division', action: 'form next',     sound: 'next' }),
 			},
 			round : {
-				label : html.div.clone() .addClass( "navigate label round-label" ) .html( "Round" ),
-				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev round" )    .attr({ type: 'division', action: 'round prev',    sound: 'prev' }),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next round" )    .attr({ type: 'division', action: 'round next',    sound: 'next' }),
+				label : html.div.clone() .addClass( "navigate navigate-label round-label" ) .html( "Round" ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate nav-button prev round" )    .attr({ type: 'division', action: 'round prev',    sound: 'prev' }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate nav-button next round" )    .attr({ type: 'division', action: 'round next',    sound: 'next' }),
 			},
 			division : {
-				label : html.div.clone() .addClass( "navigate label division-label" ) .html( "Division" ),
-				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate button prev division" ) .attr({ type: 'ring',     action: 'division prev', sound: 'prev' }),
-				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate button next division" ) .attr({ type: 'ring',     action: 'division next', sound: 'next' }),
+				label : html.div.clone() .addClass( "navigate navigate-label division-label" ) .html( "Division" ),
+				prev  : html.div.clone() .button({ label : arrow .left.clone() }) .addClass( "navigate nav-button prev division" ) .attr({ type: 'ring',     action: 'division prev', sound: 'prev' }),
+				next  : html.div.clone() .button({ label : arrow.right.clone() }) .addClass( "navigate nav-button next division" ) .attr({ type: 'ring',     action: 'division next', sound: 'next' }),
 			}
 		};
-		var flipDisplay  = e.flipDisplay  = html.div.clone() .button({ label : "Leaderboard" }) .addClass( "navigate button mode" ) .attr( 'action', 'display' ) .attr( 'sound', 'ok' );
+		var flipDisplay  = e.flipDisplay  = html.div.clone() .button({ label : "Leaderboard" }) .addClass( "navigate nav-button display-mode" ) .attr( 'action', 'display' ) .attr( 'sound', 'ok' );
 
 		back.append( 
 			nav.athlete  .label, nav.athlete  .prev, nav.athlete  .next, 

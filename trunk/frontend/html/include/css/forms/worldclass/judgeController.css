@@ -13,8 +13,8 @@ body {
 .deductions {
   float: left;
   font-family: Optima, Biolinum;
-  width: 180px;
-  height: 346px;
+  width: 188px;
+  height: 354px;
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   /* W3C */
@@ -23,17 +23,17 @@ body {
   border-radius: 16pt;
   border: 4px solid #999;
   margin: 0 6px 0 6px; }
-  .deductions .button-small, .deductions .button-large {
+  .deductions .deduction-button-small, .deductions .deduction-button-large {
     font-size: 18pt;
-    width: 160px;
+    width: 168px;
     border-radius: 12px;
     margin: 12px auto 12px auto;
     text-align: center; }
-  .deductions .button-small {
-    height: 40px;
+  .deductions .deduction-button-small {
+    height: 48px;
     line-height: 32pt; }
-  .deductions .button-large {
-    height: 120px;
+  .deductions .deduction-button-large {
+    height: 128px;
     line-height: 92pt; }
   .deductions .disabled {
     border: 4px solid #666;
@@ -49,6 +49,7 @@ body {
     color: black; }
   .deductions .add-minor {
     border: 4px solid blue;
+    font-size: 36pt;
     background: #6db3f2;
     background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
     background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
@@ -59,13 +60,13 @@ body {
     background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
     color: black; }
   .deductions .add-major {
-    width: 160px;
     border: 4px solid gold;
+    font-size: 36pt;
     background: #fceabb;
     background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
     background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
     color: black; }
-  .deductions .label {
+  .deductions .deduction-label {
     height: 32px;
     margin: 12px auto 12px auto;
     text-align: center;
@@ -102,12 +103,11 @@ body {
     .matposition .ring .mat {
       position: absolute;
       width: 22px;
-      height: 22px;
-      border-radius: 4px; }
+      height: 22px; }
     .matposition .ring .judge {
       position: absolute;
       width: 22px;
-      height: 20px;
+      height: 22px;
       padding: 2px 0 0 0;
       text-align: center; }
     .matposition .ring .j3R {
@@ -174,13 +174,15 @@ body {
       background: #f29696;
       background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
       background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
-  .matposition .label {
+  .matposition .instructions {
     position: absolute;
     font-size: 12pt;
     color: #ccf;
     top: 120px;
     left: 0;
-    text-align: center; }
+    width: 178px;
+    text-align: center;
+    white-space: normal; }
   .matposition .start-position {
     position: absolute;
     color: yellow;
@@ -207,8 +209,8 @@ body {
     border: 3px solid #36c;
     border-radius: 4px;
     position: absolute;
-    width: 174px;
-    height: 174px;
+    width: 180px;
+    height: 180px;
     top: 0px;
     left: 0px; }
 
@@ -218,7 +220,7 @@ body {
   width: 396px;
   height: 64px;
   margin: 0 0 0 20px; }
-  .presentationBar .label {
+  .presentationBar .pb-label {
     top: 0;
     left: 20px;
     position: absolute;
@@ -264,13 +266,13 @@ body {
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
   color: #999;
   font-size: 18pt;
-  width: 572px;
-  height: 580px;
+  width: 580px;
+  height: 588px;
   overflow: hidden;
   margin: 6px 6px 18px 6px; }
   .judgeNotes .view {
-    width: 572px;
-    height: 580px;
+    width: 580px;
+    height: 588px;
     overflow-y: auto; }
     .judgeNotes .view table {
       border: 0;
@@ -338,8 +340,8 @@ body {
           color: #ccf; }
 
 .flippable .card, .flippable .front, .flippable .back {
-  width: 800px;
-  height: 600px; }
+  width: 808px;
+  height: 608px; }
 .flippable .front, .flippable .back {
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -349,11 +351,11 @@ body {
 
 .judgeController {
   font-family: Optima, Biolinum;
-  width: 800px;
-  height: 600px;
+  width: 808px;
+  height: 608px;
   margin: 0 auto 0 auto;
   -webkit-user-select: none; }
-  .judgeController .button {
+  .judgeController .nav-button {
     font-family: Optima, Biolinum;
     font-size: 14pt;
     float: left;
@@ -369,8 +371,8 @@ body {
       position: absolute;
       font-size: 18pt;
       line-height: 128pt;
-      height: 172px;
-      width: 172px;
+      height: 188px;
+      width: 188px;
       color: white;
       border: 4px solid #93d;
       border-radius: 12px;
@@ -420,8 +422,9 @@ body {
       .judgeController .front .score > .accuracy, .judgeController .front .score > .presentation {
         position: absolute;
         width: 194px;
-        height: 160px;
+        height: 208px;
         font-size: 72pt;
+        line-height: 88pt;
         padding-top: 48px;
         text-align: center;
         top: 0; }
@@ -449,15 +452,15 @@ body {
       width: 400px;
       height: 280px;
       margin: auto; }
-      .judgeController .front .controls > .label {
+      .judgeController .front .controls > .control-label {
         font-size: 24pt;
         color: #ccc;
         margin: 0 0 12px 72px; }
       .judgeController .front .controls .send {
         font-size: 18pt;
         line-height: 28pt;
-        height: 40px;
-        width: 300px;
+        height: 48px;
+        width: 308px;
         color: white;
         border: 4px solid red;
         border-radius: 12px;
@@ -474,8 +477,8 @@ body {
       position: absolute;
       font-size: 18pt;
       line-height: 128pt;
-      height: 172px;
-      width: 172px;
+      height: 188px;
+      width: 188px;
       color: white;
       border: 4px solid #93d;
       border-radius: 12px;
@@ -489,22 +492,22 @@ body {
       position: absolute;
       font-size: 18pt;
       line-height: 38pt;
-      height: 32px;
-      width: 172px;
+      height: 40px;
+      width: 188px;
       text-align: center;
       color: white;
       left: 590px; }
     .judgeController .back .next {
       border-radius: 0 12px 12px 0;
-      left: 678px;
-      width: 80px; }
+      left: 684px;
+      width: 94px; }
     .judgeController .back .prev {
       border-radius: 12px 0 0 12px;
       left: 590px;
-      width: 80px; }
+      width: 94px; }
     .judgeController .back .next .ui-button-text, .judgeController .back .prev .ui-button-text {
       padding-top: 1px; }
-    .judgeController .back .label {
+    .judgeController .back .navigate-label {
       position: absolute;
       left: 604px;
       width: 166px;
@@ -548,8 +551,8 @@ body {
       background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%); }
     .judgeController .back .division-label {
       top: 228px; }
-    .judgeController .back .mode {
-      height: 48px;
+    .judgeController .back .display-mode {
+      height: 56px;
       border: 4px solid gold;
       background: #fceabb;
       background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);

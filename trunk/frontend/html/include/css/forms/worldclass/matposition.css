@@ -21,12 +21,11 @@
     .matposition .ring .mat {
       position: absolute;
       width: 22px;
-      height: 22px;
-      border-radius: 4px; }
+      height: 22px; }
     .matposition .ring .judge {
       position: absolute;
       width: 22px;
-      height: 20px;
+      height: 22px;
       padding: 2px 0 0 0;
       text-align: center; }
     .matposition .ring .j3R {
@@ -93,13 +92,15 @@
       background: #f29696;
       background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
       background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
-  .matposition .label {
+  .matposition .instructions {
     position: absolute;
     font-size: 12pt;
     color: #ccf;
     top: 120px;
     left: 0;
-    text-align: center; }
+    width: 178px;
+    text-align: center;
+    white-space: normal; }
   .matposition .start-position {
     position: absolute;
     color: yellow;
@@ -126,8 +127,8 @@
     border: 3px solid #36c;
     border-radius: 4px;
     position: absolute;
-    width: 174px;
-    height: 174px;
+    width: 180px;
+    height: 180px;
     top: 0px;
     left: 0px; }
 

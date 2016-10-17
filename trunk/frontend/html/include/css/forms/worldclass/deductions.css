@@ -1,8 +1,8 @@
 .deductions {
   float: left;
   font-family: Optima, Biolinum;
-  width: 180px;
-  height: 346px;
+  width: 188px;
+  height: 354px;
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   /* W3C */
@@ -11,17 +11,17 @@
   border-radius: 16pt;
   border: 4px solid #999;
   margin: 0 6px 0 6px; }
-  .deductions .button-small, .deductions .button-large {
+  .deductions .deduction-button-small, .deductions .deduction-button-large {
     font-size: 18pt;
-    width: 160px;
+    width: 168px;
     border-radius: 12px;
     margin: 12px auto 12px auto;
     text-align: center; }
-  .deductions .button-small {
-    height: 40px;
+  .deductions .deduction-button-small {
+    height: 48px;
     line-height: 32pt; }
-  .deductions .button-large {
-    height: 120px;
+  .deductions .deduction-button-large {
+    height: 128px;
     line-height: 92pt; }
   .deductions .disabled {
     border: 4px solid #666;
@@ -37,6 +37,7 @@
     color: black; }
   .deductions .add-minor {
     border: 4px solid blue;
+    font-size: 36pt;
     background: #6db3f2;
     background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
     background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
@@ -47,13 +48,13 @@
     background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
     color: black; }
   .deductions .add-major {
-    width: 160px;
     border: 4px solid gold;
+    font-size: 36pt;
     background: #fceabb;
     background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
     background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
     color: black; }
-  .deductions .label {
+  .deductions .deduction-label {
     height: 32px;
     margin: 12px auto 12px auto;
     text-align: center;

@@ -12,17 +12,17 @@ $.widget( "freescore.deductions", {
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
 
 		var controller = o.controller;
-		var label      = e.label  = html.div.clone() .addClass( "label" ) .html( o.value == 0.1 ? "Minor Deductions" : "Major Deductions" );
+		var label      = e.label  = html.div.clone() .addClass( "deduction-label" ) .html( o.value == 0.1 ? "Minor Deductions" : "Major Deductions" );
 		var view       = e.view   = html.div.clone() .addClass( "view" ) .html( o.count );
 		var remove     = e.remove = html.div.clone();
 		var add        = e.add    = html.div.clone();
 
 		if( o.value == 0.1 ) {
-			remove .addClass( "button-small remove-minor" ) .html( "+0.1" );
-			add    .addClass( "button-large add-minor" )    .html( "-0.1" );
+			remove .addClass( "deduction-button-small remove-minor" ) .html( "+0.1" );
+			add    .addClass( "deduction-button-large add-minor" )    .html( "-0.1" );
 		} else {
-			remove .addClass( "button-small remove-major" ) .html( "+0.3" );
-			add    .addClass( "button-large add-major" )    .html( "-0.3" );
+			remove .addClass( "deduction-button-small remove-major" ) .html( "+0.3" );
+			add    .addClass( "deduction-button-large add-major" )    .html( "-0.3" );
 		}
 
 		widget.append( label, remove, view, add );

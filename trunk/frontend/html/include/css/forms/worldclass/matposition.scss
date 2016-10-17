@@ -23,13 +23,12 @@
 			position: absolute;
 			width:  22px;
 			height: 22px;
-			border-radius: 4px;
 		}
 
 		.judge {
 			position: absolute;
 			width:  22px;
-			height: 20px;
+			height: 22px;
 			padding: 2px 0 0 0;
 			text-align: center;
 		}
@@ -78,13 +77,15 @@
 		}
 	}
 
-	.label {
+	.instructions {
 		position: absolute;
 		font-size: 12pt;
 		color: #ccf;
 		top: 120px;
 		left: 0;
+		width: 178px;
 		text-align: center;
+		white-space: normal;
 	}
 
 	.start-position {
@@ -117,8 +118,8 @@
 		border: 3px solid #36c;
 		border-radius: 4px;
 		position: absolute;
-		width: 174px;
-		height: 174px;
+		width: 180px;
+		height: 180px;
 		top: 0px;
 		left: 0px;
 	}

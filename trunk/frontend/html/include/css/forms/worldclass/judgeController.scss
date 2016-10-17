@@ -23,8 +23,8 @@ body {
 .flippable {
 
 	.card, .front, .back {
-		width: 800px;
-		height: 600px;
+		width: 808px;
+		height: 608px;
 	}
 
 	.front, .back {
@@ -38,12 +38,12 @@ body {
 
 .judgeController {
 	font-family: Optima, Biolinum;
-	width: 800px;
-	height: 600px;
+	width: 808px;
+	height: 608px;
 	margin: 0 auto 0 auto;
 	-webkit-user-select: none;
 
-	.button {
+	.nav-button {
 		font-family: Optima, Biolinum;
 		font-size: 14pt;
 		float: left;
@@ -62,8 +62,8 @@ body {
 			position: absolute;
 			font-size: 18pt;
 			line-height: 128pt;
-			height: 172px;
-			width: 172px;
+			height: 188px;
+			width: 188px;
 			color: white;
 			border: 4px solid #93d;
 			border-radius: 12px;
@@ -116,8 +116,9 @@ body {
 			& > .accuracy, & > .presentation {
 				position: absolute;
 				width: 194px;
-				height: 160px;
+				height: 208px;
 				font-size: 72pt;
+				line-height: 88pt;
 				padding-top: 48px;
 				text-align: center;
 				top: 0;
@@ -149,7 +150,7 @@ body {
 			height: 280px;
 			margin: auto;
 
-			& > .label {
+			& > .control-label {
 				font-size: 24pt;
 				color: #ccc;
 				margin: 0 0 12px 72px;
@@ -158,8 +159,8 @@ body {
 			.send {
 				font-size: 18pt;
 				line-height: 28pt;
-				height: 40px;
-				width: 300px;
+				height: 48px;
+				width: 308px;
 				color: white;
 				border: 4px solid red;
 				border-radius: 12px;
@@ -181,8 +182,8 @@ body {
 			position: absolute;
 			font-size: 18pt;
 			line-height: 128pt;
-			height: 172px;
-			width:  172px;
+			height: 188px;
+			width:  188px;
 			color: white;
 			border: 4px solid #93d;
 			border-radius: 12px;
@@ -198,8 +199,8 @@ body {
 			position: absolute;
 			font-size: 18pt;
 			line-height: 38pt;
-			height: 32px;
-			width:  172px;
+			height: 40px;
+			width:  188px;
 			text-align: center;
 			color: white;
 			left: 590px;
@@ -208,19 +209,19 @@ body {
 
 		.next {
 			border-radius: 0 12px 12px 0;
-			left: 678px;
-			width: 80px
+			left: 684px;
+			width: 94px
 		}
 
 		.prev {
 			border-radius: 12px 0 0 12px;
 			left: 590px;
-			width: 80px
+			width: 94px
 		}
 
 		.next, .prev { .ui-button-text { padding-top: 1px; }}
 
-		.label {
+		.navigate-label {
 			position: absolute;
 			left: 604px;
 			width: 166px;
@@ -273,8 +274,8 @@ body {
 		}
 		.division-label { top: 228px; }
 
-		.mode {
-			height: 48px;
+		.display-mode {
+			height: 56px;
 			border: 4px solid gold;
 			background: #fceabb;
 			background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);

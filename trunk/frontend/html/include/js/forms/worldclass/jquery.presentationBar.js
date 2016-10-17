@@ -9,7 +9,7 @@ $.widget( "freescore.presentationBar", {
 		o.value    = 1.2;
 
 		var controller = o.controller;
-		var label      = e.label     = html.div.clone() .addClass( "label" ) .html( o.label );
+		var label      = e.label     = html.div.clone() .addClass( "pb-label" ) .html( o.label );
 		var value      = e.value     = html.div.clone() .addClass( "value" ) .html( o.value );
 		var slider     = e.slider    = html.div.clone() .addClass( "slider" ) .slider( { isRTL: true, value : o.value, min : 0.5, max : 2.0, step : 0.1, slide: function( e, ui ) { o.value = ui.value; value.html( ui.value.toFixed( 1 )); }, change: function() { $( controller.element ).trigger( { type : "updateRequest", score : controller.options } ); }});
 		e.nudge        = {
