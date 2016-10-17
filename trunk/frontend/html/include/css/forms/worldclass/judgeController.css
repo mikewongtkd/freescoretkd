@@ -222,7 +222,7 @@ body {
   margin: 0 0 0 20px; }
   .presentationBar .pb-label {
     top: 0;
-    left: 20px;
+    left: 24px;
     position: absolute;
     font-size: 12pt;
     width: 400px;
@@ -233,7 +233,7 @@ body {
     position: absolute;
     top: 32px;
     left: 30px;
-    width: 250px; }
+    width: 254px; }
   .presentationBar .value {
     position: absolute;
     top: 32px;
@@ -252,11 +252,19 @@ body {
     margin: 0;
     padding: 0;
     top: 18px;
-    border-radius: 12px; }
+    border-radius: 6px; }
   .presentationBar .plus {
     left: -8px; }
   .presentationBar .minus {
     left: 280px; }
+
+.presentationButtons {
+  font-family: Optima, Biolinum;
+  margin: 22px 0 0 10px; }
+  .presentationButtons .pb-label {
+    font-size: 12pt; }
+  .presentationButtons label {
+    padding: 3px; }
 
 .judgeNotes {
   border: 4px solid #999;

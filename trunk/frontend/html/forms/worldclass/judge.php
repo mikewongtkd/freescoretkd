@@ -12,6 +12,7 @@
 		<link href="http://freescore.net/freescore/images/icons/apps/forms-worldclass/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed" />
 		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/judgeController.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/presentationWidgets.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/jquery.ui.slider-rtl.css" rel="stylesheet" />
@@ -34,6 +35,7 @@
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.deductions.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.matposition.js"></script>
+		<script src="../../include/js/forms/worldclass/jquery.presentationButtons.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.presentationBar.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.judgeNotes.js"></script>
 		<script src="../../include/js/forms/worldclass/jquery.judgeController.js"></script>

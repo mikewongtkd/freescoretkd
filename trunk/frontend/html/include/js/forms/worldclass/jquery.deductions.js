@@ -6,7 +6,7 @@ $.widget( "freescore.deductions", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
-		o.value    = (! defined( o.value )) ? 0.1 : o.value;
+		o.value    = defined( o.value ) ? o.value : 0.1;
 		o.count    = 0;
 
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
@@ -60,5 +60,13 @@ $.widget( "freescore.deductions", {
 		var o      = this.options;
 		var e      = this.options.elements;
 		e.view.html( o.count );
+	},
+	count: function() {
+		var o = this.options;
+		return parseInt( o.count );
+	},
+	value: function() {
+		var o = this.option;
+		return parseFloat( o.value );
 	}
 });

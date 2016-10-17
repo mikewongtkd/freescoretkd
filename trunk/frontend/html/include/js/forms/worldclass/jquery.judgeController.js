@@ -20,9 +20,12 @@ $.widget( "freescore.judgeController", {
 
 		widget.addClass( 'judgeController flippable' );
 
+		// ===== AVOID COLLISION BETWEEN BOOTSTRAP AND JQUERY
 		var btn = $.fn.button.noConflict() // reverts $.fn.button to jqueryui btn
 		$.fn.btn = btn // assigns bootstrap button functionality to $.fn.btn
+		$.fn.presentationWidget = $.fn.presentationButtons // Default to presentation buttons
 
+		// ===== INITIALIZE WIDGET ELEMENTS
 		var card         = e.card         = html.div.clone() .addClass( "card" );
 		var front        = e.front        = html.div.clone() .addClass( "front" );
 		var views        = e.views        = html.div.clone() .addClass( "view control-group" );
@@ -40,9 +43,9 @@ $.widget( "freescore.judgeController", {
 		var controls     = e.controls     = html.div.clone() .addClass( "controls" );
 
 		var label        = e.label        = html.div.clone() .addClass( "control-label" ) .html( "Presentation Score" );
-		var power        = e.power        = html.div.clone() .presentationBar({ label : 'Power and Speed',      controller: this });
-		var rhythm       = e.rhythm       = html.div.clone() .presentationBar({ label : 'Rhythm and Control',   controller: this });
-		var ki           = e.ki           = html.div.clone() .presentationBar({ label : 'Expression of Energy', controller: this });
+		var power        = e.power        = html.div.clone() .presentationWidget({ name : 'power',  label : 'Power and Speed',      controller: this });
+		var rhythm       = e.rhythm       = html.div.clone() .presentationWidget({ name : 'rhythm', label : 'Rhythm and Control',   controller: this });
+		var ki           = e.ki           = html.div.clone() .presentationWidget({ name : 'energy', label : 'Expression of Energy', controller: this });
 		var send         = e.send         = html.div.clone() .button({ label : "Send" }) .addClass( "send" );
 
 		// ===== UPDATE BEHAVIOR
@@ -56,9 +59,9 @@ $.widget( "freescore.judgeController", {
 			                 e.minor .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' );
 			o.accuracy     = o.accuracy < 0 ? 0 : o.accuracy; // The accuracy score cannot be lower than 0
 
-			o.presentation = parseFloat( e.rhythm .presentationBar( 'option', 'value' )) +
-			                 parseFloat( e.power  .presentationBar( 'option', 'value' )) +
-			                 parseFloat( e.ki     .presentationBar( 'option', 'value' ));
+			o.presentation = parseFloat( e.rhythm .presentationWidget( 'value' )) +
+			                 parseFloat( e.power  .presentationWidget( 'value' )) +
+			                 parseFloat( e.ki     .presentationWidget( 'value' ));
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
@@ -67,9 +70,9 @@ $.widget( "freescore.judgeController", {
 			var score = {
 				major  : (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' )) .toFixed( 1 ),
 				minor  : (e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' )) .toFixed( 1 ),
-				rhythm : (e.rhythm .presentationBar( 'option', 'value' )) .toFixed( 1 ),
-				power  : (e.power  .presentationBar( 'option', 'value' )) .toFixed( 1 ),
-				ki     : (e.ki     .presentationBar( 'option', 'value' )) .toFixed( 1 ),
+				rhythm : parseFloat( e.rhythm .presentationWidget( 'value' )).toFixed( 1 ),
+				power  : parseFloat( e.power  .presentationWidget( 'value' )).toFixed( 1 ),
+				ki     : parseFloat( e.ki     .presentationWidget( 'value' )).toFixed( 1 ),
 			};
 
 			e.send .off( 'click' ) .click( function() {
@@ -276,9 +279,9 @@ $.widget( "freescore.judgeController", {
 				// ===== RESET SCORE
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
 				o.minor  = 0.0; e.minor  .deductions( { count : 0 });
-				o.rhythm = 1.2; e.rhythm .presentationBar( { value : 1.2 });
-				o.power  = 1.2; e.power  .presentationBar( { value : 1.2 });
-				o.ki     = 1.2; e.ki     .presentationBar( { value : 1.2 });
+				o.rhythm = 1.2; e.rhythm .presentationWidget( 'reset' );
+				o.power  = 1.2; e.power  .presentationWidget( 'reset' );
+				o.ki     = 1.2; e.ki     .presentationWidget( 'reset' );
 
 				widget.trigger({ type : "updateRequest", score : o });
 			}

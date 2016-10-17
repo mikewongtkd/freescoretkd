@@ -20,8 +20,7 @@ $.widget( "freescore.presentationBar", {
 		e.nudge.plus  .button({ icons: { primary : "ui-icon-plus" },  text : false});
 		e.nudge.minus .button({ icons: { primary : "ui-icon-minus" }, text : false});
 		e.nudge.plus  .click( function( ev ) { if( o.value < 2.0 ) { o.value += 0.1; e.slider.slider({ value : parseFloat( o.value )}); e.value.html( parseFloat( o.value ).toFixed( 1 )); }});
-		e.nudge.minus .click( function( ev ) { if( o.value > 0.6 ) { o.value -= 0.1; e.slider.slider({ value : parseFloat( o.value )}); e.value.html( parseFloat( o.value ).toFixed( 1 )); }});
-
+		e.nudge.minus .click( function( ev ) { if( o.value > 0.5 ) { o.value -= 0.1; e.slider.slider({ value : parseFloat( o.value )}); e.value.html( parseFloat( o.value ).toFixed( 1 )); }});
 
 		widget.append( label, slider, value, e.nudge.plus, e.nudge.minus );
 		widget.addClass( "presentationBar" );
@@ -34,5 +33,16 @@ $.widget( "freescore.presentationBar", {
 		var score  = o.controller;
 		e.slider.slider({ value : parseFloat( o.value )});
 		e.value.html( parseFloat( o.value ).toFixed( 1 ));
+	},
+	reset: function() {
+		var o = this.options;
+		var e = this.options.elements;
+
+		o.value = 1.2;
+		e.slider.slider({ value : parseFloat( o.value )});
+	},
+	value: function() {
+		var o = this.options;
+		return parseFloat( o.value );
 	}
 });
