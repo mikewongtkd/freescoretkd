@@ -732,6 +732,7 @@ sub handle_software_check_updates {
 	my $progress = shift;
 	my $clients  = shift;
 	my $judges   = shift;
+	my $client   = $self->{ _client };
 
 	try {
 		my $repo    = new FreeScore::Repository();
@@ -739,7 +740,7 @@ sub handle_software_check_updates {
 		my $current = $repo->local_version();
 		my $update  = $current < $latest;
 
-		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update  }});
+		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update, version => $latest, current => $current  }});
 
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -754,6 +755,7 @@ sub handle_software_update {
 	my $progress = shift;
 	my $clients  = shift;
 	my $judges   = shift;
+	my $client   = $self->{ _client };
 
 	try {
 		my $repo = new FreeScore::Repository();

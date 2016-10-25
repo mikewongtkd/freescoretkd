@@ -3,10 +3,14 @@
 ?>
 <html>
 	<head>
-		<title>FreeScore TKD Wifi v<?=$freescore[ 'version' ] ?></title>
-		<link href="./include/jquery/mobile/jquery.mobile-1.4.5.min.css" rel="stylesheet" />
+		<title>FreeScore TKD v<?=$freescore[ 'version' ] ?></title>
+		<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="./include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<script src="./include/jquery/js/jquery.js"></script>
-		<script src="./include/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+		<script src="./include/jquery/js/jquery.howler.min.js"></script>
+		<script src="./include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="./include/bootstrap/add-ons/bootbox.min.js"></script>
+
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
 			@font-face {
@@ -16,59 +20,99 @@
 			  font-family: Biolinum;
 			  font-weight: bold;
 			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
-			div[data-role="header"]                   { font-family: Optima, helvetica, sans-serif; text-align: center; }
-			div[data-role="header"]      .title       { font-size: 24px; color: gold; }
-			div[data-role="header"]      .version     { font-size: 10px; color: silver; }
-			div[data-role="header"]      .description { color: silver; }
-			div[data-role="header"]      a            { text-decoration: none; }
-			div[data-role="footer"]                   { font-family: Optima, Biolinum, sans-serif; text-align: center; color: silver; }
-			li[data-role="list-divider"]              { font-size: 14pt !important; padding-left: 10px !important; }
-			li[data-role="list-divider"] .description { color: #888; font-weight: lighter; }
+			.page-footer { text-align: center; }
 		</style>
-		<script>
-			var go = {
-				grassroots : {
-					registration: function() { window.location="./forms/grassroots/register.php"; },
-					divisions:    function() { window.location="./forms/grassroots/divisions.php"; }
-				},
-				worldclass : {
-					registration: function() { window.location="./forms/worldclass/register.php"; },
-					divisions:    function() { window.location="./forms/worldclass/divisions.php"; }
-				},
-			};
-		</script>
 	</head>
 	<body>
-		<div data-role="page">
-			<div data-role="header" data-position-fixed="true" data-theme="b">
-				<div><span class="title">FreeScore TKD Wifi</span> <span class="version">v<?=$freescore[ 'version' ]?></span></div>
-				<span class="description"><a href="http://mikewongtkd.github.io/freescoretkd">Open Source Taekwondo Poomsae Scoring Software</a> available under the GPL v2.</span>
+		<div class="container">
+			<div class="page-header">
+				<h1>FreeScore TKD Wifi <small>v<?=$freescore[ 'version' ]?></small></h1>
+				<p><a href="http://mikewongtkd.github.io/freescoretkd">Open Source Taekwondo Poomsae Scoring Software</a> available under the GPL v2.</p>
 			</div>
-			<div data-role="main">
-					<ul data-role="listview">
-						<li data-role="list-divider">Sport Poomsae<span class="description">: Score poomsae following the WTF Sport Poomsae rules</span></li>
-						<li><a href="javascript:go.worldclass.registration()">
-							<h2>Register a Tablet or Computer for Sport Poomsae</h2>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h1 class="panel-title">Sport Poomsae: Score poomsae following the WTF Sport Poomsae rules</h1>
+				</div>
+				<div class="panel-body">
+					<div class="list-group">
+						<a class="list-group-item" href="./forms/worldclass/register.php">
+							<h4>Register a Tablet or Computer for Sport Poomsae</h4>
 							<p>Assign and ring and role for a ring laptop or judge tablet</p>
-						</a></li>
-						<li><a href="javascript:go.worldclass.divisions()">
-							<h2>Manage Sport Poomsae Divisions</h2>
+						</a>
+						<a class="list-group-item" href="./forms/worldclass/divisions.php">
+							<h4>Manage Sport Poomsae Divisions</h4>
 							<p>Add, remove, or edit divisions; also add or remove rings</p>
-						</a></li>
-						<li data-role="list-divider">Classic Poomsae<span class="description">: Score poomsae using an electronic version of the classic flip cards</span></li>
-						<li><a href="javascript:go.grassroots.registration()">
-							<h2>Register a Tablet or Computer for Classic Poomsae</h2>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h1 class="panel-title">Classic Poomsae: Score poomsae using an electronic version of the classic flip cards</h1>
+				</div>
+				<div class="panel-body">
+					<div class="list-group">
+						<a class="list-group-item" href="./forms/grassroots/register.php">
+							<h4>Register a Tablet or Computer for Classic Poomsae</h4>
 							<p>Assign and ring and role for a ring laptop or judge tablet</p>
-						</a></li>
-						<li><a href="javascript:go.grassroots.divisions()">
-							<h2>Manage Classic Poomsae Divisions</h2>
+						</a>
+						<a class="list-group-item" href="./forms/grassroots/divisions.php">
+							<h4>Manage Classic Poomsae Divisions</h4>
 							<p>Add, remove, or edit divisions; also add or remove rings</p>
-						</a></li>
-					</ul>
+						</a>
+					</div>
+				</div>
 			</div>
-			<div data-role="footer" data-position-fixed="true" data-theme="b">
-				&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved. 
-			</div>
+			<footer class="page-footer">
+				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved.</p>
+			</footer>
 		</div>
+		<script>
+
+var sound = {
+	send      : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg"   ]}),
+	confirmed : new Howl({ urls: [ "/freescore/sounds/received.mp3", "/freescore/sounds/received.ogg" ]}),
+	next      : new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"     ]}),
+};
+
+$( '.list-group a' ).click( function( ev ) { 
+	ev.preventDefault(); 
+	sound.next.play(); 
+	var href = $( this ).attr( 'href' );
+	setTimeout( function() { window.location = href }, 300 );
+});
+
+var host       = '<?= $host ?>';
+var tournament = <?= $tournament ?>;
+
+var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
+
+ws.onopen = function() {
+	var request = { data : { type : 'software', action : 'check updates' }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
+};
+
+ws.onmessage = function( response ) {
+	var update = JSON.parse( response.data );
+	if( update.type == 'software' ) {
+		if( update.available ) {
+			sound.send.play();
+			bootbox.confirm({
+				title:   "New version " + update.version + " is available.",
+				message: "Current installed version is " + update.current + ". Click OK to download and install update version " + update.version + ".",
+				callback: function( ok ) {
+					if( ok ) {
+						var request = { data : { type : 'software', action : 'update' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+						sound.confirmed.play();
+					}
+				}
+			});
+		}
+	}
+};
+		</script>
 	</body>
 </html>
