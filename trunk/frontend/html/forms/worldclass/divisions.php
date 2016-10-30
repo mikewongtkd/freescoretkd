@@ -29,8 +29,10 @@
 				$('#elfinder').elfinder({
 					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
 					getFileCallback: function( files, fm ) { 
-						console.log( files );
-						// window.open( files.url ); 
+						files.url = files.url.replace( /ring0/, '' );
+						files.url = files.url.replace( /\bdiv\./, '' );
+						files.url = files.url.replace( /\.txt$/, '' );
+						window.open( files.url ); 
 					},
 					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
 					contextmenu: {
