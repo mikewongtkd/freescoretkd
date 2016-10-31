@@ -4,6 +4,9 @@ Array.prototype.sum     = function() { return this.reduce( function( s, t ) { re
 
 const EventEmitter = require( 'events' );
 const WebSocket    = require( 'ws' );
+var Score          = require( 'score.class' );
+var Athlete        = require( 'athlete.class' );
+var Division       = require( 'division.class' );
 
 // ============================================================
 var roll = function( dice ) {
@@ -18,18 +21,17 @@ var roll = function( dice ) {
 
 module.exports = Judge;
 
-// class Judge extends EventEmitter {}
-
 // ============================================================
 function Judge( n ) {
 // ============================================================
-	this.id     = n;
-	this.name   = n == 0 ? 'Referee' : 'Judge ' + n;
-	this.queue  = [];
+	EventEmitter.call( this );
+	this.id        = n;
+	this.name      = n == 0 ? 'Referee' : 'Judge ' + n;
+	this.queue     = [];
+	this.sees      = undefined;
+	this.remembers = {};
 	this.register();
 
-	var request  = { data : { type : 'division', action : 'read', cookies: { judge : this.id }}};
-	this.queue.push( request );
 };
 
 // ============================================================
@@ -39,16 +41,28 @@ Judge.prototype.register = function() {
 	ws.on( 'open', () => { 
 		console.log( this.name + ' has registered their tablet device. ' );
 
-		while( this.queue.length > 0 ) {
-			var request = this.queue.shift();
-			request.json = JSON.stringify( request.data );
-			this.socket.send( request.json );
-		}
+		// ===== REQUEST DIVISION INFORMATION
+		var request  = { data : { type : 'division', action : 'read', cookies: { judge : this.id }}};
+		request.json = JSON.stringify( request.data );
+		this.socket.send( request.json );
 	});
 
 	ws.on( 'message', ( response ) => {
-		var message = JSON.parse( response );
-		console.log( this.name + ' receiving ' + message.type + ' ' + message.action );
+		var update = JSON.parse( response );
+		if( update.type == 'division' && update.action == 'update' ) {
+			console.log( update );
+			var division = this.sees = new Division( update.division );
+			var athlete  = division.current.athlete();
+			var i        = division.current.athleteId();
+			var round    = division.current.roundId();
+			var form     = division.current.formId();
+
+			var timeToThink = (Math.round( Math.random() * 5) * 100) + 300;
+			setTimeout( () => {
+				console.log( 'Scoring for ' + athlete.name() );
+				this.score( 'state' );
+			}, timeToThink );
+		}
 	});
 
 	ws.on( 'close', () => {

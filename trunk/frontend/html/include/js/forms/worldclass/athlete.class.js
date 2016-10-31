@@ -1,3 +1,4 @@
+module.exports = Athlete;
 function Athlete( athlete ) {
 	this.athlete = athlete;
 

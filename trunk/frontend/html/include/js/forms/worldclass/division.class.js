@@ -1,4 +1,5 @@
 
+module.exports = Division;
 function Division( division ) {
 	this.division = division;
 
