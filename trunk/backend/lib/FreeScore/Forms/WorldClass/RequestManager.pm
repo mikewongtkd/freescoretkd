@@ -27,7 +27,6 @@ sub init {
 	$self->{ _tournament } = shift;
 	$self->{ _ring }       = shift;
 	$self->{ _client }     = shift;
-	$self->{ _autopilot }  = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ software }    = {
@@ -534,13 +533,14 @@ sub handle_division_score {
 	try {
 		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
 		$division->write();
-		my $round         = $division->{ round };
-		my $form          = $division->{ form };
-		my $athlete       = $division->{ athletes }[ $division->{ curent } ];
-		my $form_complete = $athlete->{ scores }{ $round }->form_complete( $form );
+		my $round    = $division->{ round };
+		my $athlete  = $division->{ athletes }[ $division->{ current } ];
+		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		my $autopilot = $self->{ _autopilot }->( $division ) if $form_complete;
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n");
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -763,6 +763,97 @@ sub handle_software_update {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
+}
+
+# ============================================================
+sub autopilot {
+# ============================================================
+#** @method( request, progress, clients, judges )
+#   @brief Automatically advances to the next form/athlete/round/division
+#   Called when judges finish scoring an athlete's form 
+#*
+
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $division = $progress->current();
+	my $each     = $division->{ autodisplay } || 2;
+
+	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
+	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n"; return { warning => 'Autopilot is already engaged.' }; }
+
+	# ===== ENGAGE AUTOPILOT
+	try {
+		print STDERR "Engaging autopilot.\n";
+		$division->autopilot( 'on' );
+		$division->write();
+	} catch {
+		return { error => $_ };
+	};
+
+	my $pause = { leaderboard => 9, next => 6, brief => 1 };
+	my $round = $division->{ round };
+	my $order = $division->{ order }{ $round };
+	my $forms = $division->{ forms }{ $round };
+	my $j     = first_index { $_ == $division->{ current } } @$order;
+
+	my $last = {
+		athlete => ($division->{ current } == $order->[ -1 ]),
+		form    => ($division->{ form }    == int( @$forms ) - 1),
+		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
+		each    => (!($j % $each)),
+	};
+
+	# ===== AUTOPILOT BEHAVIOR
+	# Autopilot behavior comprises the two afforementioned actions in
+	# serial, with delays between.
+	my $delay = new Mojo::IOLoop::Delay();
+	$delay->steps(
+		sub {
+				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+		},
+		sub {
+			my $delay = shift;
+
+			die "Disengaging autopilot\n" unless $division->autopilot();
+
+			if( $last->{ form } && ( $last->{ each } || $last->{ athlete } )) { 
+				print STDERR "Showing leaderboard.\n";
+				$division->display() unless $division->is_display(); 
+				$division->write(); 
+				Mojo::IOLoop->timer( $pause->{ next } );
+
+			} else {
+				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+			}
+		},
+		sub {
+			my $delay = shift;
+
+			die "Disengaging autopilot\n" unless $division->autopilot();
+			print STDERR "Advancing the division to next item.\n";
+
+			my $go_next = {
+				round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
+				athlete => $last->{ form } && ! $last->{ athlete },
+				form    => ! $last->{ form }
+			};
+
+			if    ( $go_next->{ round }   ) { $division->next_round(); }
+			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
+			elsif ( $go_next->{ form }    ) { $division->next_form(); }
+			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
+			$division->write();
+
+			$self->broadcast_division_response( $request, $progress, $clients, $judges );
+		},
+	)->catch( sub {
+		my $delay = shift;
+		my $error = shift;
+
+	})->wait();
 }
 
 1;

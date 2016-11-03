@@ -25,7 +25,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
-	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $self->tx(), \&autopilot );
+	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $self->tx() );
 	my $progress   = undef;
 	my $staging    = undef;
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
@@ -108,79 +108,6 @@ any '*command' => sub {
 # ============================================================
 sub autopilot {
 # ============================================================
-#** @method( division, judge )
-#   @brief Automatically advances to the next form/athlete/round/division
-#   Called when judges finish scoring an athlete's form 
-#*
-	my $division = shift;
-
-	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
-	if( my $locked = $division->autopilot() ) { return { warning => 'Autopilot is already engaged.' }; }
-
-	# ===== ENGAGE AUTOPILOT
-	try {
-		$division->autopilot( 'on' );
-		$division->write();
-	} catch {
-		return { error => $_ };
-	};
-
-	my $delay = { leaderboard => 9, next => 6, total => 0 };
-	my $round = $division->{ round };
-	my $order = $division->{ order }{ $round };
-	my $forms = $division->{ forms }{ $round };
-	my $j     = first_index { $_ == $division->{ current } } @$order;
-
-	my $last = {
-		athlete => ($division->{ current } == $order->[ -1 ]),
-		form    => ($division->{ form }    == int( @$forms ) - 1),
-		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
-		each2   => (!($j % 2)),
-	};
-
-	# ===== AUTOPILOT ACTIONS
-	my $action = { show => {}, go => {} };
-	# ----------------------------------------
-	$action->{ show }{ leaderboard } = sub {
-	# ----------------------------------------
-		return unless $division->autopilot(); # Cancel request if autopilot is disengaged
-		if( $last->{ form } && ( $last->{ each2 } || $last->{ athlete } )) { 
-			$division->display() unless $division->is_display(); 
-			$division->write(); 
-			Mojo::IOLoop->timer( $delay->{ next } => $action->{ go }{ next } );
-			$delay->{ total } += $delay->{ next };
-
-		} else {
-			$action->{ go }{ next }();
-		}
-	};
-	# ----------------------------------------
-	$action->{ go }{ next } = sub {
-	# ----------------------------------------
-		return unless $division->autopilot(); # Cancel request if autopilot is disengaged
-		my $go_next = {
-			round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
-			athlete => $last->{ form } && ! $last->{ athlete },
-			form    => ! $last->{ form }
-		};
-
-		if    ( $go_next->{ round }   ) { $division->next_round(); }
-		elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
-		elsif ( $go_next->{ form }    ) { $division->next_form(); }
-		$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
-		$division->write();
-	};
-
-	# ===== AUTOPILOT BEHAVIOR
-	# Autopilot behavior comprises the two afforementioned actions in
-	# serial, with delays between.
-	try {
-		$delay->{ total } += $delay->{ leaderboard };
-		Mojo::IOLoop->timer( $delay->{ leaderboard } => $action->{ show }{ leaderboard } );
-		return { description => 'Autopilot is engaged', delay => $delay->{ total } };
-	} catch {
-		return { error => $_ };
-	};
 };
 
 # ============================================================

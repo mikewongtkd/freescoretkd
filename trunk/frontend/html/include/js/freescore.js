@@ -1,3 +1,4 @@
+module.exports = FreeScore;
 function defined( x ) { return ((typeof( x ) !== 'undefined') && (x !== null)); }
 function ordinal( x ) {
 	var d = x % 10;
@@ -8,12 +9,6 @@ function ordinal( x ) {
 	else                         { return x + 'th'; }
 }
 var FreeScore = { 
-	'event' : {
-		division : {
-			description : 'fsdesc',
-			forms       : 'fsforms',
-		}
-	},
 	html : { 
 		a        : $( "<a />" ), 
 		button   : $( "<button />" ), 
