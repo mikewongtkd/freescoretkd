@@ -812,7 +812,8 @@ sub autopilot {
 	my $delay = new Mojo::IOLoop::Delay();
 	$delay->steps(
 		sub {
-				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 		},
 		sub {
 			my $delay = shift;
@@ -823,7 +824,7 @@ sub autopilot {
 				print STDERR "Showing leaderboard.\n";
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
-				Mojo::IOLoop->timer( $pause->{ next } );
+				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
 
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
