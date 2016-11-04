@@ -137,7 +137,7 @@
       left: 572px; }
     .scoreboard .totalScores .round {
       position: absolute;
-      top: 520px;
+      top: 580px;
       left: 0;
       margin: 0;
       color: #999;
@@ -154,12 +154,12 @@
       position: absolute;
       top: 80px;
       left: 0;
-      height: 400px;
-      width: 992px; }
+      height: 500px;
+      width: 700px; }
       .scoreboard .totalScores .score .accuracy {
         position: absolute;
-        top: 18px;
-        left: 52px;
+        top: 16px;
+        left: 16px;
         width: 248px;
         height: 80px;
         color: #600;
@@ -168,8 +168,8 @@
         color: #f99; }
       .scoreboard .totalScores .score .presentation {
         position: absolute;
-        top: 18px;
-        left: 402px;
+        top: 16px;
+        left: 438px;
         width: 248px;
         height: 80px;
         color: #006;
@@ -178,7 +178,7 @@
         color: #99f; }
       .scoreboard .totalScores .score .total {
         position: absolute;
-        top: 54px;
+        top: 16px;
         left: 0;
         width: 700px;
         height: 290px;
@@ -186,7 +186,7 @@
         font-size: 300pt; }
     .scoreboard .totalScores .forms {
       position: absolute;
-      top: 600px;
+      top: 620px;
       left: 0;
       width: 700px;
       height: 80px; }
@@ -205,7 +205,7 @@
           color: #996;
           font-size: 14pt;
           position: absolute;
-          top: 0;
+          top: -6px;
           left: 0;
           width: 200px;
           height: 20px; }
@@ -214,7 +214,7 @@
           font-size: 48pt;
           line-height: 48pt;
           position: absolute;
-          top: 12px;
+          top: 6px;
           left: 0;
           width: 200px;
           height: 60px; }

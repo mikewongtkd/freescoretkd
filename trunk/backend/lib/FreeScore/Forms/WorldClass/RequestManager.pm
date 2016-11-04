@@ -10,6 +10,9 @@ use List::Util (qw( first ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
+
+our $DEBUG = 0;
 
 # ============================================================
 sub new {
@@ -77,19 +80,21 @@ sub broadcast_division_response {
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $client_id = sprintf "%s", sha1_hex( $client );
 
-	print STDERR "  Broadcasting division information to:\n";
+	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
+
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-		my $unblessed = unbless ( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $division ); 
+		my $message   = clone( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $division );
+		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
-		print STDERR "    user: $id digest: $digest\n";
+		print STDERR "    user: $id digest: $digest\n" if $DEBUG;
 		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
-	print STDERR "\n";
+	print STDERR "\n" if $DEBUG;
 }
 
 # ============================================================
@@ -107,20 +112,21 @@ sub broadcast_ring_response {
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $client_id = sprintf "%s", sha1_hex( $client );
 
-	print STDERR "  Broadcasting ring information to:\n";
+	print STDERR "  Broadcasting ring information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-		my $unblessed = unbless ( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $progress ); 
+		my $message   = clone( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $progress );
+		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed };
 
-		print STDERR "    user: $id digest: $digest\n";
+		print STDERR "    user: $id digest: $digest\n" if $DEBUG;
 		$broadcast->{ device }->send( { json => $response });
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
-	print STDERR "\n";
+	print STDERR "\n" if $DEBUG;
 }
 
 # ============================================================
@@ -149,7 +155,7 @@ sub handle_division_award_penalty {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Award penalty.\n";
+	print STDERR "Award penalty.\n" if $DEBUG;
 
 	try {
 		$division->record_penalties( $request->{ penalties });
@@ -172,7 +178,7 @@ sub handle_division_award_punitive {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n";
+	print STDERR "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n" if $DEBUG;
 
 	try {
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
@@ -195,7 +201,7 @@ sub handle_division_athlete_next {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Next athlete.\n";
+	print STDERR "Next athlete.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -219,7 +225,7 @@ sub handle_division_athlete_prev {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Previous athlete.\n";
+	print STDERR "Previous athlete.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -243,7 +249,7 @@ sub handle_division_display {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Change display.\n";
+	print STDERR "Change display.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -266,7 +272,7 @@ sub handle_division_edit_athletes {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 
-	print STDERR "Editing division athletes.\n";
+	print STDERR "Editing division athletes.\n" if $DEBUG;
 
 	try {
 		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
@@ -290,7 +296,7 @@ sub handle_division_edit_header {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Editing division header.\n";
+	print STDERR "Editing division header.\n" if $DEBUG;
 
 	try {
 		$division->write();
@@ -312,7 +318,7 @@ sub handle_division_form_next {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Next form.\n";
+	print STDERR "Next form.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -335,7 +341,7 @@ sub handle_division_form_prev {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Previous form.\n";
+	print STDERR "Previous form.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -358,7 +364,7 @@ sub handle_division_judge_departure {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Requesting judge departure.\n";
+	print STDERR "Requesting judge departure.\n" if $DEBUG;
 
 	my $id = $request->{ cookie }{ id };
 	my $i  = first_index { $_->{ id } eq $id; } @$judges;
@@ -366,7 +372,7 @@ sub handle_division_judge_departure {
 	$client->send( { json => { type => 'division', action => 'judge goodbye' }});
 	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
 
-	print STDERR "Goodbye $name\n";
+	print STDERR "Goodbye $name\n" if $DEBUG;
 }
 
 # ============================================================
@@ -384,10 +390,10 @@ sub handle_division_judge_query {
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
 	if( @$judges != $n ) { 
 		foreach ( 1 .. $n ) { push @$judges, {}; }
-		print STDERR "Initializing $n judges\n";
+		print STDERR "Initializing $n judges\n" if $DEBUG;
 	}
 
-	print STDERR "Requesting judge information.\n";
+	print STDERR "Requesting judge information.\n" if $DEBUG;
 
 	$client->send( { json => { type => 'division', action => 'judges', judges => $judges }} );
 }
@@ -406,18 +412,18 @@ sub handle_division_judge_registration {
 	my $num      = $request->{ num };
 	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
 
-	print STDERR "Requesting $judge registration.\n";
+	print STDERR "Requesting $judge registration.\n" if $DEBUG;
 
 	$judges->[ $num ]{ id } = $id;
 
-	print STDERR "  Broadcasting judge registration information to:\n";
+	print STDERR "  Broadcasting judge registration information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 
-		print STDERR "    user: $id\n";
+		print STDERR "    user: $id\n" if $DEBUG;
 		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
 	}
-	print STDERR "\n";
+	print STDERR "\n" if $DEBUG;
 
 }
 
@@ -435,7 +441,7 @@ sub handle_division_navigate {
 	my $object = $request->{ target }{ destination };
 	my $i      = exists $request->{ target }{ divid } ? $request->{ target }{ divid } : int( $request->{ target }{ index } );
 
-	print STDERR "Navigating to $object $i.\n";
+	print STDERR "Navigating to $object $i.\n" if $DEBUG;
 
 	try {
 		if( $object =~ /^division$/i ) { 
@@ -466,7 +472,7 @@ sub handle_division_read {
 	my $clients  = shift;
 	my $judges   = shift;
 
-	print STDERR "Request division data.\n";
+	print STDERR "Request division data.\n" if $DEBUG;
 
 	$self->send_division_response( $request, $progress, $clients );
 }
@@ -482,7 +488,7 @@ sub handle_division_round_next {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Next round.\n";
+	print STDERR "Next round.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -505,7 +511,7 @@ sub handle_division_round_prev {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Previous round.\n";
+	print STDERR "Previous round.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
@@ -528,7 +534,7 @@ sub handle_division_score {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Send score.\n";
+	print STDERR "Send score.\n" if $DEBUG;
 
 	try {
 		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
@@ -539,7 +545,7 @@ sub handle_division_score {
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n");
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
@@ -561,7 +567,7 @@ sub handle_division_write {
 	my $tournament = $self->{ _tournament };
 	my $ring       = $self->{ _ring };
 
-	print STDERR "Writing division data.\n";
+	print STDERR "Writing division data.\n" if $DEBUG;
 
 	my $valid = { map { ( $_ => 1 ) } qw( athletes description forms judges name ring round ) };
 
@@ -599,7 +605,7 @@ sub handle_ring_division_next {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 
-	print STDERR "Next division.\n";
+	print STDERR "Next division.\n" if $DEBUG;
 
 	try {
 		$progress->next();
@@ -620,7 +626,7 @@ sub handle_ring_division_prev {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 
-	print STDERR "Previous division.\n";
+	print STDERR "Previous division.\n" if $DEBUG;
 
 	try {
 		$progress->previous();
@@ -640,7 +646,7 @@ sub handle_ring_read {
 	my $clients  = shift;
 	my $judges   = shift;
 
-	print STDERR "Request ring data.\n";
+	print STDERR "Request ring data.\n" if $DEBUG;
 
 	$self->send_ring_response( $request, $progress, $clients );
 }
@@ -661,13 +667,14 @@ sub send_division_response {
 	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
-	my $unblessed = unbless ($is_judge ? $division->get_only( $judge ) : $division);
+	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
+	my $unblessed = unbless( $message ); 
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : "client") . "\n";
-	print STDERR "    user: $id digest: $digest\n";
+	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : "client") . "\n" if $DEBUG;
+	print STDERR "    user: $id digest: $digest\n" if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
@@ -688,13 +695,14 @@ sub send_ring_response {
 	my $judge     = $is_judge ? int( $request->{ cookie }{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
-	my $unblessed = unbless $progress;
+	my $message   = clone( $progress );
+	my $unblessed = unbless( $message ); 
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n";
-	print STDERR "    user: $id digest: $digest\n";
+	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n" if $DEBUG;
+	print STDERR "    user: $id digest: $digest\n" if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
@@ -713,7 +721,7 @@ sub handle_ring_transfer {
 	my $transfer = $request->{ transfer };
 
 	my $destination = $transfer eq 'staging' ? $transfer : sprintf( "Ring %d", $transfer );
-	print STDERR "Transfer division $divid to $destination.\n";
+	print STDERR "Transfer division $divid to $destination.\n" if $DEBUG;
 
 	try {
 		$progress->transfer( $divid, $transfer );
@@ -782,18 +790,18 @@ sub autopilot {
 	my $each     = $division->{ autodisplay } || 2;
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
-	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n"; return { warning => 'Autopilot is already engaged.' }; }
+	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
 
 	# ===== ENGAGE AUTOPILOT
 	try {
-		print STDERR "Engaging autopilot.\n";
+		print STDERR "Engaging autopilot.\n" if $DEBUG;
 		$division->autopilot( 'on' );
 		$division->write();
 	} catch {
 		return { error => $_ };
 	};
 
-	my $pause = { leaderboard => 9, next => 6, brief => 1 };
+	my $pause = { leaderboard => 9, next => 7, brief => 1 };
 	my $round = $division->{ round };
 	my $order = $division->{ order }{ $round };
 	my $forms = $division->{ forms }{ $round };
@@ -803,7 +811,7 @@ sub autopilot {
 		athlete => ($division->{ current } == $order->[ -1 ]),
 		form    => ($division->{ form }    == int( @$forms ) - 1),
 		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
-		each    => (!($j % $each)),
+		each    => (!(($j + 1) % $each)),
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
@@ -821,11 +829,11 @@ sub autopilot {
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
 			if( $last->{ form } && ( $last->{ each } || $last->{ athlete } )) { 
-				print STDERR "Showing leaderboard.\n";
+				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
 				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
-
+				$self->broadcast_division_response( $request, $progress, $clients, $judges );
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}
@@ -834,7 +842,7 @@ sub autopilot {
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
-			print STDERR "Advancing the division to next item.\n";
+			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
 			my $go_next = {
 				round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },

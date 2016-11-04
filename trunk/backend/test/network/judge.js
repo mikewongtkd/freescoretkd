@@ -67,7 +67,7 @@ Judge.prototype.register = function() {
 			var same      = current.division == this.previous.division && current.athlete == this.previous.athlete && current.round == this.previous.round && current.form == this.previous.form;
 
 			if( same ) { return; }
-			var timeToThink = (Math.round( Math.random() * 5) * 100) + 300;
+			var timeToThink = (Math.round( Math.random() * 20) * 100) + 300;
 			setTimeout( () => {
 				var score = this.score( 'world' );
 				console.log( this.name + ' scoring ' +  division.current.round.name() + ' ' + division.current.form.description() + ' for ' + athlete.name() + ' (' + score.accuracy + '/' + score.presentation + ')' );

@@ -17,6 +17,7 @@ use EV;
 our $json   = new JSON::XS();
 our $client = {};
 our $judge  = {};
+our $DEBUG  = 0;
 
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
@@ -35,9 +36,11 @@ websocket '/worldclass/:tournament/:ring' => sub {
 
 	# ===== REGISTER THE CLIENT
 	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
-	print STDERR "WORLDCLASS $tournament ring $ring\n";
-	print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
-	print STDERR "\n";
+	if( $DEBUG ) {
+		print STDERR "WORLDCLASS $tournament ring $ring\n";
+		print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
+		print STDERR "\n";
+	}
 
 	# ----------------------------------------
 	# Handle messages
@@ -59,7 +62,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		my $log = clone( $request ); 
 		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
 		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
-		print STDERR $json->canonical->encode( $log ), "\n";
+		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
 
 		# ===== READ PROGRESS
 		try   { 
@@ -73,7 +76,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
 		if( exists $request->{ cookie }{ judge } ) {
 			my $j = $c->{ judge } = $request->{ cookie }{ judge };
-			print STDERR $j == 0 ? "REFEREE: " : "JUDGE $j ";
+			print STDERR $j == 0 ? "REFEREE: " : "JUDGE $j " if $DEBUG;
 		}
 
 		# ===== HANDLE REQUEST
@@ -82,7 +85,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		my $judges  = $judge->{ $group };
 		try   { $manager->handle( $request, $progress, $clients, $judges ); }
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
-		print STDERR "\n";
+		print STDERR "\n" if $DEBUG;
 	});
 
 	# ----------------------------------------

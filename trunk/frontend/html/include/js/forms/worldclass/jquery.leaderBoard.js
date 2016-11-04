@@ -80,7 +80,7 @@ $.widget( "freescore.leaderboard", {
 					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
 					form1 : form_mean_score( score.form( 0 ), 'form1' ),
 					form2 : form_mean_score( score.form( 1 ), 'form2' ),
-					score : html.div.clone() .addClass( "score" ) .html( score.adjusted.total().toFixed( 2 ) + "<span class=\"notes\">&nbsp;" + notes + "</span>" ),
+					score : html.div.clone() .addClass( "score" ) .html( parseFloat( score.adjusted.total()).toFixed( 2 ) + "<span class=\"notes\">&nbsp;" + notes + "</span>" ),
 					medal : html.div.clone() .addClass( "medal" ),
 				};
 

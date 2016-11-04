@@ -1,7 +1,7 @@
-module.exports = FreeScore;
+var module = {};
 function defined( x ) { return ((typeof( x ) !== 'undefined') && (x !== null)); }
 function ordinal( x ) {
-	var d = x % 10;
+	var d = parseInt( x ) % 10;
 	if      ( x > 10 && x < 14 ) { return x + 'th'; }
 	else if ( d == 1           ) { return x + 'st'; }
 	else if ( d == 2           ) { return x + 'nd'; }

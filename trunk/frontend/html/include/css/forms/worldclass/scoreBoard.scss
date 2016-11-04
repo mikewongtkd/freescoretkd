@@ -128,7 +128,7 @@
 
 		.round {
 			position: absolute;
-			top: 520px;
+			top: 580px;
 			left: 0;
 			margin: 0;
 			color: #999;
@@ -149,13 +149,13 @@
 			position: absolute;
 			top: 80px;
 			left: 0;
-			height: 400px;
-			width: 992px;
+			height: 500px;
+			width: 700px;
 
 			.accuracy     { 
 				position: absolute; 
-				top: 18px;
-				left: 52px;
+				top: 16px;
+				left: 16px;
 				width: 248px;
 				height: 80px;
 				color: #600; 
@@ -165,8 +165,8 @@
 			}
 			.presentation { 
 				position: absolute; 
-				top: 18px;
-				left: 402px;
+				top: 16px;
+				left: 438px;
 				width: 248px;
 				height: 80px;
 				color: #006; 
@@ -176,7 +176,7 @@
 			}
 			.total {
 				position: absolute;
-				top: 54px;
+				top: 16px;
 				left: 0;
 				width: 700px;
 				height: 290px;
@@ -187,7 +187,7 @@
 
 		.forms {
 			position: absolute;
-			top: 600px;
+			top: 620px;
 			left: 0;
 			width: 700px;
 			height: 80px;
@@ -208,7 +208,7 @@
 					color: #996;
 					font-size: 14pt;
 					position: absolute;
-					top: 0;
+					top: -6px;
 					left: 0;
 					width: 200px;
 					height: 20px;
@@ -218,7 +218,7 @@
 					font-size: 48pt;
 					line-height: 48pt;
 					position: absolute;
-					top: 12px;
+					top: 6px;
 					left: 0;
 					width: 200px;
 					height: 60px;
