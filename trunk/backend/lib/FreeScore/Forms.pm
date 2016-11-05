@@ -59,7 +59,8 @@ sub load_ring {
 	}
 	push @divisions, sort keys %assigned;
 
-	$self->{ current } ||= @$divisions > 0 ? $divisions[ 0 ] : undef;
+	$self->{ current } ||= @divisions > 0 ? $divisions[ 0 ] : undef;
+
 	return [ @divisions ];
 }
 

@@ -28,7 +28,15 @@
 			$( function() {
 				$('#elfinder').elfinder({
 					url : '/freescore/include/opt/elfinder/php/connector.grassroots.php',  // connector URL (REQUIRED)
-					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ]
+					getFileCallback: function( files, fm ) {
+						window.open( files.url, '_blank' );
+					},
+					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
+					contextmenu: {
+						files: [
+							'getfile', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'edit', 'rename'
+						]
+					}
 				});
 			});
 		</script>

@@ -72,9 +72,9 @@
 			// ATHLETE LIST (CODEMIRROR)
 			// ============================================================
 			athletes.textarea = $( '#athletes' );
-			athletes.editor = CodeMirror.fromTextArea( document.getElementById( 'athletes' ), { lineNumbers: true, autofocus: true, mode : 'freescore' });
+			athletes.editor   = CodeMirror.fromTextArea( document.getElementById( 'athletes' ), { lineNumbers: true, autofocus: true, mode : 'freescore' });
+			athletes.doc      = athletes.editor.getDoc();
 			athletes.editor.setSize( '100%', '360px' );
-			athletes.doc = athletes.editor.getDoc();
 
 			// ===== BEHAVIOR
 			athletes.editor.on( "change", function( cm, key, ev ) {
@@ -235,6 +235,7 @@
 				}
 			};
 			ws.onclose   = function( reason ) {
+				bootbox.alert( { title: 'Network Error', message: 'An error occurred while attempting to connect to the server.', callback: function() { window.close(); }} );
 			};
 		</script>
 

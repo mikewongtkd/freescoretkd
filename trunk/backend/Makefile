@@ -1,4 +1,7 @@
-.PHONY: all test
+.PHONY: worldclass grassroots
 
-start:
+worldclass:
 	sudo hypnotoad -f ./bin/worldclass
+
+grassroots:
+	sudo hypnotoad -f ./bin/grassroots

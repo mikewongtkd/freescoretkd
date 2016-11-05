@@ -4,16 +4,17 @@ use FreeScore::Forms;
 use FreeScore::Forms::GrassRoots::Division;
 use base qw( FreeScore::Forms );
 
+our $SUBDIR = "forms-grassroots";
+
 # ============================================================
 sub init {
 # ============================================================
 	my $self       = shift;
 	my $tournament = shift;
 	my $ring       = shift;
-	my $subdir     = "forms-grassroots";
 
 	if( defined $ring ) { 
-		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 		my $divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
 
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
@@ -23,7 +24,7 @@ sub init {
 		}
 
 	} else { 
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 		my ($divisions, $rings) = $self->load_all(); # reads $self->{ divisions } from event progress file
 
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
@@ -34,7 +35,7 @@ sub init {
 
 		# ===== LOAD EACH RING
 		foreach my $ring (@$rings) {
-			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $subdir, $ring ); 
+			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );
 			foreach my $id (@$ring_divisions) {
 				push @{ $self->{ divisions }}, new FreeScore::Forms::GrassRoots::Division( $self->{ path }, $id, $ring );
@@ -42,7 +43,7 @@ sub init {
 		}
 
 		# ===== RESTORE THE CURRENT PATH
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $subdir ); 
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 	}
 }
 

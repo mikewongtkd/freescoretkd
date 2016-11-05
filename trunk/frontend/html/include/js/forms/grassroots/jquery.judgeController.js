@@ -9,6 +9,8 @@ $.widget( "freescore.judgeController", {
 		o.ring  = parseInt($.cookie( "ring" ));
 		o.judge = parseInt($.cookie( "judge" )) - 1;
 
+		console.log( o.ring, o.judge );
+
 		widget.nodoubletapzoom();
 		widget.addClass( 'judgeController' );
 		var controller  = e.controller  = html.div.clone() .addClass( "controller" );
@@ -78,8 +80,9 @@ $.widget( "freescore.judgeController", {
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
 		function refresh( update ) {
-			var forms    = JSON.parse( update.data );        if( typeof( forms    ) === 'undefined' ) { return; }
-			var division = forms.divisions[ forms.current ]; if( typeof( division ) === 'undefined' ) { return; }
+			var progress = JSON.parse( update.data );        if( typeof( progress    ) === 'undefined' ) { return; }
+			var division = progress.divisions.find((d) => { return d.name == progress.current; });
+			if( typeof( division ) === 'undefined' ) { return; }
 
 			// ===== IF THERE IS A TIE IN THE DIVISION
 			if( defined( division.tied )) {

@@ -30,10 +30,11 @@ $.widget( "freescore.judgeNotes", {
 
 		view.empty();
 		var table = h.table.clone();
+		var j     = parseInt( o.num );
 		table.append( h.tr.clone() 
 			.append( h.th.clone().html( "#" ))
 			.append( h.th.clone().html( "Name" ))
-			.append( h.th.clone().html( "Judge " + (Number( o.num ) + 1))));
+			.append( h.th.clone().html( j == 0 ? 'Referee' : 'Judge ' + j )));
 
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr        = h.tr.clone();

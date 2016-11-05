@@ -2,10 +2,12 @@
 
 use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
-use YAML;
+use JSON::XS;
 use FreeScore::Forms::GrassRoots::Division;
 use FreeScore::Forms::GrassRoots;
 use Try::Tiny;
+use Data::Dumper;
+use List::MoreUtils qw( first_index );
 
 srand();
 
@@ -189,6 +191,45 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 		$progress->write();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# WRITE NEW TOURNAMENT INFORMATION
+# ------------------------------------------------------------
+post '/:tournament/:ring/:divid' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $divid      = $self->param( 'divid' );
+	my $json       = new JSON::XS();
+	my $data       = $json->decode( $self->req->body());
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->find( $divid );
+
+	my $path  = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $FreeScore::Forms::GrassRoots::SUBDIR, $ring );
+	$division = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring ) unless( $division );
+
+	try {
+		foreach my $key (keys %{ $data->{ header }}) { $division->{ $key } = $data->{ header }{ $key }; }
+		my $athletes = [];
+		foreach my $i ( 0 .. $#{ $data->{ athletes }} ) {
+			my $athlete = { name => $data->{ athletes }[ $i ], index => $i, rank => undef, scores => [], tiebreakers => [] };
+			my $j       = first_index { $_->{ name } eq $athlete->{ name } } @{ $division->{ athletes }};
+			if( $j >= 0 ) { 
+				my $found = $division->{ athletes }[ $j ];
+				foreach my $key (qw( rank scores tiebreakers )) { $athlete->{ $key } = $found->{ $key }; }
+			}
+			push @$athletes, $athlete;
+		}
+		$division->{ athletes } = $athletes;
+		$division->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { division => $divid, status => 'saved' } );
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
