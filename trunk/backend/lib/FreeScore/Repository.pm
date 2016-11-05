@@ -17,7 +17,7 @@ sub init {
 
 	$self->{ _url } = "https://github.com/mikewongtkd/freescoretkd.git";
 
-	my $pi    = "~pi/freescore/trunk";
+	my $pi    = "/home/pi/freescore/trunk";
 	my $devel = "~/devel/freescore/trunk";
 
 	$self->{ _local } = -e $pi ? $pi : $devel;
