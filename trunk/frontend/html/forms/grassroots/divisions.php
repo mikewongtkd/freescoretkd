@@ -13,7 +13,6 @@
 		<link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<link href="../../include/opt/elfinder/css/elfinder.min.css" rel="stylesheet" />
 		<link href="../../include/opt/elfinder/css/theme.css" rel="stylesheet" />
-		<link href="../../include/css/forms/grassroots/divisions.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
