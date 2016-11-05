@@ -70,9 +70,9 @@
 		<script>
 
 var sound = {
-	send      : new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg"   ]}),
-	confirmed : new Howl({ urls: [ "/freescore/sounds/received.mp3", "/freescore/sounds/received.ogg" ]}),
-	next      : new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"     ]}),
+	send      : new Howl({ urls: [ "./sounds/upload.mp3",   "./sounds/upload.ogg"   ]}),
+	confirmed : new Howl({ urls: [ "./sounds/received.mp3", "./sounds/received.ogg" ]}),
+	next      : new Howl({ urls: [ "./sounds/next.mp3",     "./sounds/next.ogg"     ]}),
 };
 
 $( '.list-group a' ).click( function( ev ) { 

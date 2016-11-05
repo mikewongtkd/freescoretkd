@@ -6,7 +6,7 @@
 	};
 	date_default_timezone_set( "America/Los_Angeles" );
 
-	$freescore  = [ 'version' => 3.5, 'copyright' => (new DateTime( 'now' ))->format( 'Y' ) ];
+	$freescore  = [ 'version' => '4.0 beta', 'copyright' => (new DateTime( 'now' ))->format( 'Y' ) ];
 	$host       = "freescore.net";
 	$tournament = [ 
 		"name" => "FreeScore",

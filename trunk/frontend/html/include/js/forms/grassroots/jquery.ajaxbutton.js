@@ -8,8 +8,8 @@ $.widget( "freescore.ajaxbutton", {
 		var progress = e.progress = html.span.clone() .addClass( "candycane" );
 		var sound    = e.sound    = {};
 
-		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
-		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
+		sound.ok    = new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]});
+		sound.error = new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg" ]});
 
 		progress.hide();
 		this.element .append( button );

@@ -9,7 +9,7 @@
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/spinwheel.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/tiebreaker.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/judgeController.css">
-		<link rel="stylesheet" href="../../include/css/ajaxbutton.css">
+		<link rel="stylesheet" href="../../include/css/forms/grassroots/ajaxbutton.css">
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
@@ -18,7 +18,7 @@
 		<script src="../../include/jquery/js/jquery.touchswipe.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/jquery.ajaxbutton.js"></script>
+		<script src="../../include/js/forms/grassroots/jquery.ajaxbutton.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.spinwheel.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.tiebreaker.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeNotes.js"></script>
