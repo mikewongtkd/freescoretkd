@@ -20,9 +20,9 @@ $.widget( "freescore.register", {
 		};
 
 		var sound = e.sound = {};
-		sound.send  = new Howl({ urls: [ "/freescore/sounds/upload.mp3", "/freescore/sounds/upload.ogg"   ]});
-		sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",   "/freescore/sounds/next.ogg"   ]});
-		sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",   "/freescore/sounds/prev.ogg"   ]});
+		sound.send  = new Howl({ urls: [ "../../sounds/upload.mp3", "../../sounds/upload.ogg"   ]});
+		sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",   "../../sounds/next.ogg"   ]});
+		sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",   "../../sounds/prev.ogg"   ]});
 
 		register.rings        .view .addClass( "floorplan" )    .hide();
 		register.roles        .view .addClass( "roles" )        .hide();

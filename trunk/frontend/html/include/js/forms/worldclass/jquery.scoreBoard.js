@@ -186,7 +186,7 @@ $.widget( "freescore.scoreboard", {
 			current.round          != o.previous.round ||
 			current.form           != o.previous.form
 		)) {
-			var flag = defined( current.athlete.info( 'flag' ) ) ? '<img src="/freescore/images/flags/' + current.athlete.info( 'flag' ) + '.png" width="80px" />' : '';
+			var flag = defined( current.athlete.info( 'flag' ) ) ? '<img src="../../images/flags/' + current.athlete.info( 'flag' ) + '.png" width="80px" />' : '';
 			var name = html.span.clone() .append( current.athlete.display.name() );
 			e.athlete .fadeOut( 300, function() { e.athlete .empty() .html( name )           .fadeIn(); });
 			e.lflag   .fadeOut( 300, function() { e.lflag   .empty() .html( flag )           .fadeIn(); });

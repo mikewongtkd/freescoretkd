@@ -40,6 +40,8 @@ FreeScore requires a webserver and PHP 5 interpreter. They can be installed by i
 	
 ## Perl
 
+This will install all the Perl libraries and the GD graphics library dependency.
+
 	sudo su -
 	apt-get install cpanminus libgd-gd2-perl
 	cpanm \
@@ -60,5 +62,14 @@ FreeScore requires a webserver and PHP 5 interpreter. They can be installed by i
 		LWP::UserAgent \
 		Mojolicious \
 		Time::HiRes \
-		Try::Tiny
+		Try::Tiny \
+		Clone \
+		EV	
+		
+## FreeScore Services
+
+This will install the FreeScore web services to be configured to start on boot.
+
+	cp ../rpi2/etc/init.d/* /etc/init.d
+	sudo update-rc.d myscriptname defaults 97 03
 

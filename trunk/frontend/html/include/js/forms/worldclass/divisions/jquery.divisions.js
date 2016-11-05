@@ -8,8 +8,8 @@ $.widget( "freescore.divisions", {
 		var html = e.html      = FreeScore.html;
 
 		var sound = e.sound = {};
-		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
-		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg" ]});
+		sound.ok    = new Howl({ urls: [ "../../../sounds/upload.mp3",   "../../../sounds/upload.ogg" ]});
+		sound.error = new Howl({ urls: [ "../../../sounds/quack.mp3",    "../../../sounds/quack.ogg" ]});
 
 		var ring      = e.ring      = {
 			panel     : html.div.clone(),
