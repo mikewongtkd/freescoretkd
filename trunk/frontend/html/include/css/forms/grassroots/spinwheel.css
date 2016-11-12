@@ -3,9 +3,10 @@
   height: 140px;
   position: relative;
   background: white;
-  background: -webkit-linear-gradient(to bottom, #333 0%, #ccc 5%, #fff 45%, #fff 55%, #ccc 95%, #333 100%);
-  background: linear-gradient(to bottom, #333 0%, #ccc 5%, #fff 45%, #fff 55%, #ccc 95%, #333 100%);
-  border-radius: 12px;
+  background: -webkit-linear-gradient(to bottom, #333 0%, #ccc 30%, #fff 45%, #fff 55%, #ccc 70%, #333 100%);
+  background: linear-gradient(to bottom, #333 0%, #ccc 30%, #fff 45%, #fff 55%, #ccc 70%, #333 100%);
+  border: 1px solid #333;
+  border-radius: 8px;
   font-family: Optima;
   overflow: hidden; }
   .spinwheel .wheel {

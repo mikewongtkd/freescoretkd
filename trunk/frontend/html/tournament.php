@@ -4,9 +4,9 @@
 ?>
 <html>
 	<head>
-		<title>FreeScore TKD v<?=$freescore[ 'version' ] ?></title>
+		<title>Tournament Configuration</title>
 		<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="./include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
+		<link href="./include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<script src="./include/jquery/js/jquery.js"></script>
 		<script src="./include/jquery/js/jquery.howler.min.js"></script>
 		<script src="./include/bootstrap/js/bootstrap.min.js"></script>
@@ -47,7 +47,6 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<h1 class="panel-title">Classic Poomsae: Score poomsae using an electronic version of the classic flip cards</h1>
@@ -65,21 +64,6 @@
 					</div>
 				</div>
 			</div>
-
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h1 class="panel-title">Tournament Settings</h1>
-				</div>
-				<div class="panel-body">
-					<div class="list-group">
-						<a class="list-group-item" href="./tournament.php">
-							<h4>Rings</h4>
-							<p>Assign rings</p>
-						</a>
-					</div>
-				</div>
-			</div>
-
 			<footer class="page-footer">
 				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved.</p>
 			</footer>

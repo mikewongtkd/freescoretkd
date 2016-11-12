@@ -3,6 +3,7 @@ use FreeScore;
 use FreeScore::Forms::Division;
 use List::Util qw( first );
 use List::MoreUtils qw( first_index );
+use Data::Dumper;
 
 # ============================================================
 sub new {
@@ -31,32 +32,17 @@ sub load_ring {
 
 	$self->{ file } = "$self->{ path }/progress.txt";
 
+	# ===== READ DIVISION PROGRESS STATE INFORMATION
 	if( -e $self->{ file } ) {
 		open FILE, $self->{ file };
-		while( <FILE> ) {
-			chomp;
-			next if /^\s*$/;
-
-			# ===== READ DIVISION PROGRESS STATE INFORMATION
-			if( /^#/ ) {
-				s/^#\s+//;
-				my ($key, $value) = split /=/;
-				$self->{ $key } = $value;
-				next;
-			}
-		}
+		while( <FILE> ) { chomp; $self->{ $1 } = $2 if( /^#\s*([^=]+)=(.*)$/ ); }
 		close FILE;
 	}
 
-	my @divisions = ();
+	# ===== FIND DIVISIONS AND LIST THEM BY ID
 	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
 	my %assigned = map { /^div\.([\w\.]+)\.txt$/ ? ( $1 => 1 ) : (); } readdir DIR;
 	closedir DIR;
-
-	if( exists $self->{ divisions } ) { 
-		if( ref $self->{ divisions } ) { @divisions = @{ $self->{ divisions }}; }
-		foreach (@divisions) { delete $assigned{ $_ }; }
-	}
 	push @divisions, sort keys %assigned;
 
 	$self->{ current } ||= @divisions > 0 ? $divisions[ 0 ] : undef;

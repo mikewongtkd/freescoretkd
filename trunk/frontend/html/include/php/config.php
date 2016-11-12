@@ -4,9 +4,7 @@
 		$n = preg_replace( '/ring/', '', $n );
 		return intval( $n );
 	};
-	date_default_timezone_set( "America/Los_Angeles" );
 
-	$freescore  = [ 'version' => '4.0 beta', 'copyright' => (new DateTime( 'now' ))->format( 'Y' ) ];
 	$host       = "freescore.net";
 	$tournament = [ 
 		"name" => "FreeScore",
@@ -16,6 +14,7 @@
 	$rings[ 'grassroots' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-grassroots' ), PREG_GREP_INVERT );
 	$rings[ 'worldclass' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-worldclass' ), PREG_GREP_INVERT );
 	$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( $rings[ 'grassroots' ], $rings[ 'worldclass' ] )))));
+	asort( $rings );
 	$tournament[ 'rings' ] = $rings;
 	$tournament = json_encode( $tournament );
 ?>
