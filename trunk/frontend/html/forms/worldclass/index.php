@@ -44,7 +44,7 @@
 	<body>
 		<div id="worldclass"></div>
 		<script type="text/javascript">
-			$( '#worldclass' ).worldclass({ tournament : <?= $tournament ?>, ring : <?= $ring ?> });
+			$( '#worldclass' ).worldclass({ server: <?= $host ?>, tournament : <?= $tournament ?>, ring : <?= $ring ?> });
 			$( 'body' ).click( function() {
 				if( screenfull.enabled ) { screenfull.toggle(); }
 			});
