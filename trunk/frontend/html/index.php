@@ -66,20 +66,6 @@
 				</div>
 			</div>
 
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h1 class="panel-title">Tournament Settings</h1>
-				</div>
-				<div class="panel-body">
-					<div class="list-group">
-						<a class="list-group-item" href="./tournament.php">
-							<h4>Rings</h4>
-							<p>Assign rings</p>
-						</a>
-					</div>
-				</div>
-			</div>
-
 			<footer class="page-footer">
 				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved.</p>
 			</footer>

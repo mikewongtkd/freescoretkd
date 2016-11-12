@@ -1280,18 +1280,22 @@ h6 .small,
 h1,
 .h1 {
   font-size: 56px;
+  color: #ffd700;
 }
 h2,
 .h2 {
   font-size: 45px;
+  color: #ffe133;
 }
 h3,
 .h3 {
   font-size: 34px;
+  color: #ffeb66;
 }
 h4,
 .h4 {
   font-size: 24px;
+  color: #fff599;
 }
 h5,
 .h5 {
