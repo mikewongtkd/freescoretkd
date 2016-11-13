@@ -260,9 +260,13 @@ body {
 
 .presentationButtons {
   font-family: Optima, Biolinum;
-  margin: 22px 0 0 10px; }
+  margin: 22px 0 0 10px;
+  text-align: center; }
   .presentationButtons .pb-label {
+    text-align: left;
     font-size: 12pt; }
+  .presentationButtons .btn-group {
+    display: inline-block; }
   .presentationButtons label {
     padding: 3px 16px 3px 16px; }
     .presentationButtons label.context {

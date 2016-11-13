@@ -52,9 +52,15 @@
 .presentationButtons {
 	font-family: Optima, Biolinum;
 	margin: 22px 0 0 10px;
+	text-align: center;
 
 	.pb-label {
+		text-align: left;
 		font-size: 12pt;
+	}
+
+	.btn-group {
+		display: inline-block;
 	}
 
 	label { 
