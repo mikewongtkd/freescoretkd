@@ -48,6 +48,8 @@
   .presentationButtons .pb-label {
     font-size: 12pt; }
   .presentationButtons label {
-    padding: 3px; }
+    padding: 3px 16px 3px 16px; }
+    .presentationButtons label.context {
+      padding: 3px 5px 3px 5px; }
 
 /*# sourceMappingURL=presentationWidgets.css.map */

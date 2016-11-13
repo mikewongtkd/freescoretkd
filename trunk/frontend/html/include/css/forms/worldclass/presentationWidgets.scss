@@ -57,5 +57,8 @@
 		font-size: 12pt;
 	}
 
-	label { padding: 3px; }
+	label { 
+		padding: 3px 16px 3px 16px; 
+		&.context { padding: 3px 5px 3px 5px; }
+	}
 }
