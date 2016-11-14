@@ -176,9 +176,13 @@ sub ordinal {
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
-	if    ( -e '/var/www/html/freescore/include/php/config.php' ) { $php = '/var/www/html/freescore/include/php/config.php'; }
-	elsif ( -e '/var/www/freescore/include/php/config.php'      ) { $php = '/var/www/html/freescore/include/php/config.php'; }
-	else                                                          { die "Can't find configuration file 'config.php' $!"; }
+	my $config = {
+		redhat => '/var/www/html/freescore/include/php/config.php'
+		ubuntu => '/var/www/freescore/include/php/config.php'
+	};
+	if    ( -e $config->{ redhat } ) { $php = $config->{ redhat }; }
+	elsif ( -e $config->{ ubuntu } ) { $php = $config->{ ubuntu }; }
+	else                             { die "Can't find configuration file 'config.php' $!"; }
 
 	my $json = new JSON::XS();
 	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
