@@ -177,7 +177,7 @@ sub read_tournament_config {
 # ============================================================
 	my $php = '';
 	my $config = {
-		redhat => '/var/www/html/freescore/include/php/config.php'
+		redhat => '/var/www/html/freescore/include/php/config.php',
 		ubuntu => '/var/www/freescore/include/php/config.php'
 	};
 	if    ( -e $config->{ redhat } ) { $php = $config->{ redhat }; }
