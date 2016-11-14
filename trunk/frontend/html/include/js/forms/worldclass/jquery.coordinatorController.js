@@ -783,10 +783,18 @@ $.widget( "freescore.coordinatorController", {
 
 			var progress = update.ring;
 			if( ! defined( progress.divisions )) { return; }
-			var divid = defined( $.cookie( 'divid' )) ? $.cookie( 'divid' ) : progress.current;
 			o.progress = progress;
 
-			var division = new Division( progress.divisions.find((d) => { return d.name == divid; }));
+			var div = {};
+			div.id   = defined( $.cookie( 'divid' )) ? $.cookie( 'divid' ) : progress.current;
+			div.data = progress.divisions.find((d) => { return d.name == divid; });
+			if( ! defined( div.data )) {
+				$.removeCookie( 'divid' );
+				div.id   = progress.current;
+				div.data = progress.divisions.find((d) => { return d.name == divid; });
+			}
+
+			var division = new Division( div.data );
 			e.updateDivisions( progress.divisions, progress.current );
 			e.updateRounds( division, progress.current );
 			e.updateAthletes( division, progress.current );
