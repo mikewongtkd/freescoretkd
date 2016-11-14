@@ -8,11 +8,13 @@ $.widget( "freescore.presentationButtons", {
 
 		o.value = 1.2;
 
-		var label      = e.label  = html.div.clone() .addClass( "pb-label" ) .html( o.label ) .css({ color: '#ccc' });
-		var button     = e.button = {
+		var panel  = e.panel  = html.div.clone() .addClass( "pb-panel" );
+		var label  = e.label  = html.div.clone() .addClass( "pb-label" ) .html( o.label ) .css({ color: '#ccc' });
+		var button = e.button = {
 			group : html.div.clone() .addClass( 'btn-group' ) .attr({ 'data-toggle' : 'buttons' })
 		};
-		w.append( label, button.group );
+		panel.append( label, button.group );
+		w.append( panel );
 		w.addClass( "presentationButtons" );
 	},
 	_init: function( ) {
@@ -24,23 +26,32 @@ $.widget( "freescore.presentationButtons", {
 		var controller = o.controller;
 		var context    = {
 			lower: () => { 
+				e.button.group.fadeOut( 400, () => {
 					var buttons = [];
 					for( var i = 0.5; i < 0.9; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
 					buttons.push( addButton( 'middle' ));
-					e.button.group.empty().append( buttons.reverse() );
+					e.button.group.empty().append( buttons.reverse() ).fadeIn();
+					e.button.group.addClass( 'low' );
+				});
 			},
 			middle: () => {
-				var buttons = [];
-				buttons.push( addButton( 'lower' ));
-				for( var i = 1.0; i < 1.6; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
-				buttons.push( addButton( 'higher' ));
-				e.button.group.empty().append( buttons.reverse() );
+				e.button.group.fadeOut( 400, () => {
+					var buttons = [];
+					buttons.push( addButton( 'lower' ));
+					for( var i = 1.0; i < 1.6; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
+					buttons.push( addButton( 'higher' ));
+					e.button.group.empty().append( buttons.reverse() ).fadeIn();
+					e.button.group.removeClass( 'low high' );
+				});
 			},
 			higher: () => {
-				var buttons = [];
-				buttons.push( addButton( 'middle' ));
-				for( var i = 1.6; i < 2.1; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
-				e.button.group.empty().append( buttons.reverse() );
+				e.button.group.fadeOut( 400, () => {
+					var buttons = [];
+					buttons.push( addButton( 'middle' ));
+					for( var i = 1.6; i < 2.1; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
+					e.button.group.empty().append( buttons.reverse() ).fadeIn();
+					e.button.group.addClass( 'high' );
+				});
 			}
 		};
 		var addButton  = function( value ) {
@@ -50,9 +61,9 @@ $.widget( "freescore.presentationButtons", {
 			};
 			if( isNaN( value )) { button.label.addClass( 'context' ); }
 
-			if        ( value == 'lower' )  { button.label.click( context.lower );
-			} else if ( value == 'middle' ) { button.label.click( context.middle );
-			} else if ( value == 'higher' ) { button.label.click( context.higher );
+			if        ( value == 'lower' )  { button.label.addClass( "context" ); button.label.click( context.lower );
+			} else if ( value == 'middle' ) { button.label.addClass( "context" ); button.label.click( context.middle );
+			} else if ( value == 'higher' ) { button.label.addClass( "context" ); button.label.click( context.higher );
 			} else {
 				if( o.value == value ) { button.label.addClass( 'active' ); }
 				button.label.click( function() { 

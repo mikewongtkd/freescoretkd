@@ -50,21 +50,32 @@
 }
 
 .presentationButtons {
+	position: relative;
 	font-family: Optima, Biolinum;
 	margin: 22px 0 0 10px;
-	text-align: center;
 
-	.pb-label {
-		text-align: left;
-		font-size: 12pt;
-	}
+	.pb-panel {
+		width: 100%;
+		height: 48px;
+		text-align: center;
 
-	.btn-group {
-		display: inline-block;
+		.pb-label {
+			text-align: left;
+			font-size: 12pt;
+		}
+
+		.btn-group {
+			position: relative;
+			.btn-xs {
+				font-size: 10pt;
+			}
+		}
+		.low  { left: 45px; }
+		.high { left: 45px; }
 	}
 
 	label { 
-		padding: 3px 16px 3px 16px; 
-		&.context { padding: 3px 5px 3px 5px; }
+		padding: 4px 15px 2px 15px; 
+		&.context { padding: 4px 2px 2px 2px; }
 	}
 }

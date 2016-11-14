@@ -259,18 +259,28 @@ body {
     left: 280px; }
 
 .presentationButtons {
+  position: relative;
   font-family: Optima, Biolinum;
-  margin: 22px 0 0 10px;
-  text-align: center; }
-  .presentationButtons .pb-label {
-    text-align: left;
-    font-size: 12pt; }
-  .presentationButtons .btn-group {
-    display: inline-block; }
+  margin: 22px 0 0 10px; }
+  .presentationButtons .pb-panel {
+    width: 100%;
+    height: 48px;
+    text-align: center; }
+    .presentationButtons .pb-panel .pb-label {
+      text-align: left;
+      font-size: 12pt; }
+    .presentationButtons .pb-panel .btn-group {
+      position: relative; }
+      .presentationButtons .pb-panel .btn-group .btn-xs {
+        font-size: 10pt; }
+    .presentationButtons .pb-panel .low {
+      left: 45px; }
+    .presentationButtons .pb-panel .high {
+      left: 45px; }
   .presentationButtons label {
-    padding: 3px 16px 3px 16px; }
+    padding: 4px 15px 2px 15px; }
     .presentationButtons label.context {
-      padding: 3px 5px 3px 5px; }
+      padding: 4px 2px 2px 2px; }
 
 .judgeNotes {
   border: 4px solid #999;

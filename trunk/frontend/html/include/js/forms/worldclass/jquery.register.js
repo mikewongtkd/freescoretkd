@@ -77,7 +77,6 @@ $.widget( "freescore.register", {
 					if( register.judges.view.is( ':hidden' )) { return; }
 
 					// Enable the button for non-registered judges; disable the button otherwise
-					console.log( judges );
 					judges.forEach(( judge, i ) => { register.judges.data[i].id = judge.id; });
 					register.judges.data.forEach((judge, i) => {
 						if( judge.id ) { judge.disable(); } else { judge.enable(); }
