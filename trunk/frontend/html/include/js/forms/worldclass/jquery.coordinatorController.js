@@ -787,11 +787,11 @@ $.widget( "freescore.coordinatorController", {
 
 			var div = {};
 			div.id   = defined( $.cookie( 'divid' )) ? $.cookie( 'divid' ) : progress.current;
-			div.data = progress.divisions.find((d) => { return d.name == divid; });
+			div.data = progress.divisions.find((d) => { return d.name == div.id; });
 			if( ! defined( div.data )) {
 				$.removeCookie( 'divid' );
 				div.id   = progress.current;
-				div.data = progress.divisions.find((d) => { return d.name == divid; });
+				div.data = progress.divisions.find((d) => { return d.name == div.id; });
 			}
 
 			var division = new Division( div.data );
