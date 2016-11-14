@@ -23,6 +23,8 @@ sub init {
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
+			my $file = sprintf( "%s/div.%s.txt", $self->{ path }, $id );
+			next unless -e $file;
 			my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
 			$division->{ ring } = $ring eq 'staging' ? $ring : int( $ring );
 			push @{ $self->{ divisions }}, $division;

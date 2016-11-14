@@ -43,7 +43,7 @@ sub load_ring {
 	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
 	my %assigned = map { /^div\.([\w\.]+)\.txt$/ ? ( $1 => 1 ) : (); } readdir DIR;
 	closedir DIR;
-	push @divisions, sort keys %assigned;
+	my @divisions = sort keys %assigned;
 
 	$self->{ current } ||= @divisions > 0 ? $divisions[ 0 ] : undef;
 
