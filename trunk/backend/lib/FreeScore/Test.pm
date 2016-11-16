@@ -44,7 +44,7 @@ sub worldclass {
 	my $self    = shift;
 	my $command = shift;
 	my $ring    = shift || 1;
-	return $self->get( ":3088", $command, $ring );
+	return $self->get( ":3088", $command, $ring ); # AJAX calls deprecated in favor of websockets
 }
 
 # ============================================================

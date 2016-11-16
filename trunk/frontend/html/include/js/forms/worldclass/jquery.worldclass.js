@@ -19,7 +19,7 @@ $.widget( "freescore.worldclass", {
 	_init: function( ) {
 		var e  = this.options.elements;
 		var o  = this.options;
-		var ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
+		var ws = e.ws = new WebSocket( 'ws://' + o.server + '/worldclass/request/' + o.tournament.db + '/' + o.ring );
 		e.leaderboard.leaderboard();
 		e.scoreboard.scoreboard();
 
