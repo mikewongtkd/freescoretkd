@@ -147,7 +147,7 @@
 			var tournament = file.shift();
 			var ring       = file.shift();
 			var divId      = file.shift();
-			var ws         = new WebSocket( "ws://<?= $host ?>/worldclass/request/" + tournament + "/" + ring );
+			var ws         = new WebSocket( "ws://<?= $host ?>:3088/worldclass/" + tournament + "/" + ring );
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
 				button.removeClass( 'disabled' );

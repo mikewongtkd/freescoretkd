@@ -96,7 +96,7 @@ $( '.list-group a' ).click( function( ev ) {
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 
-/* var ws = new WebSocket( 'ws://' + host + '/worldclass/request/' + tournament.db + '/staging' );
+/* var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
 
 ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );

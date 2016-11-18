@@ -820,7 +820,7 @@ $.widget( "freescore.coordinatorController", {
 		var o  = this.options;
 		var w  = this.element;
 		var e  = this.options.elements;
-		var ws = e.ws = new WebSocket( 'ws://' + o.server + '/worldclass/request/' + o.tournament.db + '/' + o.ring );
+		var ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
 
 		ws.onopen = function() {
 			var request  = { data : { type : 'ring', action : 'read' }};
@@ -831,7 +831,7 @@ $.widget( "freescore.coordinatorController", {
 		ws.onmessage = e.refresh;
 
 		ws.onclose = function( reason ) {
-			ws = e.ws = new WebSocket( 'ws://' + o.server + '/worldclass/request/' + o.tournament.db + '/' + o.ring ); 
+			ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 			if( reason.code > 1001 ) {
 				e.dialog.popupdialog({
 					title:    'Network Error',

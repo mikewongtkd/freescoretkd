@@ -116,7 +116,7 @@ $.widget( "freescore.register", {
 				ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
 				Cookies.set( 'ring', selected );
 				register.rings.view .delay( 750 ) .fadeOut( 500 ) .queue( register.roles.show );
-				e.ws = new WebSocket( 'ws://' + o.server + '/worldclass/request/' + o.tournament.db + '/' + selected ); 
+				e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + selected ); 
 				e.ws.onopen = register.network.init;
 			});
 		}};

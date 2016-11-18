@@ -154,7 +154,7 @@ $.widget( "freescore.judgeController", {
 		var e           = this.options.elements;
 		var o           = this.options;
 		var html        = e.html;
-		var ws          = e.ws = new WebSocket( 'ws://' + o.server + '/worldclass/request/' + o.tournament.db + '/' + o.ring ); 
+		var ws          = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 
 		ws.onopen = function() {
 			var request  = { data : { type : 'division', action : 'read' }};
@@ -300,7 +300,7 @@ $.widget( "freescore.judgeController", {
 		};
 
 		ws.onclose = function() {
-			ws = new WebSocket( 'ws://' + o.server + '/worldclass/request/' + o.tournament.db + '/' + o.ring ); 
+			ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 		};
 	}
 });
