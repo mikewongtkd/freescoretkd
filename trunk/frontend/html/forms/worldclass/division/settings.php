@@ -68,9 +68,10 @@
 		},
 	}},
 		update: function( judges ) {
-			var divname = $( '#division-name' ).val().toUpperCase();
-			judges      = defined( judges ) ? judges : $( '#number-of-judges' ).find( 'label.active' ).text();
-			$( '#settings-title' ).html( 'Settings: <span class="setting">' + divname + ' ' + judges + '</span>' );
+			var divname = $( '#division-name' ).val() ? $( '#division-name' ).val() : $( '#division-name' ).attr( 'placeholder' );
+			divname = divname.toUpperCase();
+			judges  = defined( judges ) ? judges : $( '#number-of-judges' ).find( 'label.active' ).text();
+			$( '#settings-title' ).html( 'Settings: <span class="setting">' + divname + ' (' + judges + ')</span>' );
 	}};
 
 	// ============================================================
@@ -95,7 +96,6 @@
 		// Set division name
 		$( '#division-name' ).val( division.name() );
 		description.update();
-
 		settings.update();
 	};
 

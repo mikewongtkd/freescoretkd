@@ -109,6 +109,9 @@
 		$( 'title' ).html( division.summary() );
 		$( 'h1' ).html( division.summary() );
 
+		// ===== UPDATE SETTING HEADER
+		settings.update();
+
 		// ===== UPDATE FORM SELECTION LISTS
 		selected.update();
 	}};

@@ -27,6 +27,7 @@
 		<script>
 			$( function() {
 				$( '#new-division' ).css({ position: 'relative', top: '-120px', left: '28px' }).hide();
+				$( '#refresh' ).hide().click(( ev ) => { window.location.reload(); });
 				$( '#elfinder' ).elfinder({
 					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
 					getFileCallback: function( files, fm ) { 
@@ -43,11 +44,11 @@
 					},
 					handlers: {
 						open: function( ev, elfinder ) {
-							console.log( ev );
 							var ring = ev.data.cwd.name;
-							if( ! ring.match( /^ring/ )) { $( '#new-division' ).hide(); return; }
+							if( ! ring.match( /^(?:ring|staging)/ )) { $( '#new-division' ).hide(); $( '#refresh' ).hide(); return; }
 							ring = parseInt( ring.replace( /^ring/, '' ));
 							$( '#new-division' ).show();
+							$( '#refresh' ).show();
 							$( '#new-division' ).off( 'click' ).click(( ev ) => {
 								window.open( 'division/editor.php?file=test/' + ring + '/new' );
 							});
@@ -63,11 +64,11 @@
 
 			<p>You can drag-and-drop ring folders with divisions in them into
 			the <b>forms-worldclass</b> directory. You can also drag-and-drop
-			from FreeScore TKD to your computer. Right-click on a file to edit
-			or duplicate the division.</p>
+			from FreeScore TKD to your computer.</p>
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
+					<button id="refresh" class="btn btn-success btn-sm pull-right" type="button" style="margin-top: -6px">Refresh View <span class="glyphicon glyphicon-repeat"></span></button>
 					<h4 class="panel-title">World Class Sport Poomsae Rings and Divisions</h4>
 				</div>
 				<div id="elfinder" class="panel-body"></div>
