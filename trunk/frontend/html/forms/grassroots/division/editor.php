@@ -7,20 +7,24 @@
 	$ring_name  = array_shift( $url );
 	$file_name  = array_shift( $url );
 	$ring       = intval( preg_replace( '/ring/', '', $ring_name ));
-	$lines      = file( $file );
-	$header     = preg_grep( "/^#/", $lines );
-	$lines      = preg_grep( "/^\s*$/", $lines, true );  # Ignore empty lines
 	$id         = $_GET[ 'file' ]; $id = preg_replace( '/\w*\/forms-grassroots\/ring\d+\/div\./', '', $id ); $id = preg_replace( '/\.txt/', '', $id );
 	$setting    = [];
-	foreach( $header as $line ) {
-		$line = rtrim( $line );
-		$line = preg_replace( '/^#\s*/', '', $line );
-		$keyvalue = preg_split( "/=/", $line, 2 );
-		$setting[ $keyvalue[0] ] = $keyvalue[1];
+	$athletes   = [];
+
+	if( file_exists( $file )) {
+		$lines      = file( $file );
+		$header     = preg_grep( "/^#/", $lines );
+		$lines      = preg_grep( "/^\s*$/", $lines, true );  # Ignore empty lines
+		foreach( $header as $line ) {
+			$line = rtrim( $line );
+			$line = preg_replace( '/^#\s*/', '', $line );
+			$keyvalue = preg_split( "/=/", $line, 2 );
+			$setting[ $keyvalue[0] ] = $keyvalue[1];
+		}
+		$header   = join( "", $header );
+		$athletes = array_filter( array_map( function( $n ) { $n = preg_replace( '/\t.*/', '', $n ); $n = preg_replace( '/\n/', '', $n ); return $n; }, preg_grep( "/^#/", $lines, true ))); 
+		$list     = join( "\n", $athletes );
 	}
-	$header   = join( "", $header );
-	$athletes = array_filter( array_map( function( $n ) { $n = preg_replace( '/\t.*/', '', $n ); $n = preg_replace( '/\n/', '', $n ); return $n; }, preg_grep( "/^#/", $lines, true ))); 
-	$list     = join( "\n", $athletes );
 ?>
 <html>
 	<head>
@@ -31,6 +35,7 @@
 		<link href="../../../include/opt/codemirror/lib/codemirror.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootbox.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
@@ -41,14 +46,22 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 
 		<script>
+
+			var sound    = {
+				send      : new Howl({ urls: [ "../../../sounds/upload.mp3",   "../../../sounds/upload.ogg"   ]}),
+				confirmed : new Howl({ urls: [ "../../../sounds/received.mp3", "../../../sounds/received.ogg" ]}),
+				error     : new Howl({ urls: [ "../../../sounds/quack.mp3",    "../../../sounds/quack.ogg"    ]}),
+				next      : new Howl({ urls: [ "../../../sounds/next.mp3",     "../../../sounds/next.ogg"   ]}),
+				prev      : new Howl({ urls: [ "../../../sounds/prev.mp3",     "../../../sounds/prev.ogg"   ]}),
+			};
+
 			var athletes = {};
 			$( function() {
 				athletes = { textarea : document.getElementById( 'athletes' ) };
 				athletes.editor = CodeMirror.fromTextArea( athletes.textarea, { lineNumbers: true, mode : 'freescore' });
 				athletes.editor.setSize( '100%', '480' );
 				$( '.CodeMirror' ).css({ 'border-radius': '6px' });
-				athletes.list   = function() { return this.editor.getDoc().getValue() };
-
+				athletes.list = function() { return this.editor.getDoc().getValue() };
 			});
 		</script>
 		<style>
@@ -96,7 +109,10 @@ foreach ($setting as $key => $value) {
 				},
 				athletes: [ <?php echo join( ", ", array_map( function( $n ) { return "'$n'"; }, $athletes ));  ?> ]
 			};
-			var describe = function( division ) { return 'Divison ' + division.name.toUpperCase() + ' ' + division.header.description; }
+			division.header.judges = defined( division.header.judges ) ? division.header.judges : 3;
+			$( '#judges' ).html( division.header.judges );
+
+			var describe = function( division ) { return 'Division ' + division.name.toUpperCase() + ' ' + division.header.description; }
 			$( 'title' ).html( describe( division ));
 
 			$( '#division-description' ).click( function( ev ) {
@@ -104,7 +120,7 @@ foreach ($setting as $key => $value) {
 					title : 'Division Description',
 					callback: function( results ) {
 						if( ! results ) { return; }
-						division.description = results;
+						division.header.description = results;
 						$( '#panel-title' ).html( describe( division ) );
 					}
 				});
@@ -137,18 +153,66 @@ foreach ($setting as $key => $value) {
 				$( '#user-message' ).html( "Saving " + describe( division ) );
 				division.athletes = athletes.list().split( /\n/ ).reduce(( acc, cur ) => { if( cur ) { acc.push( cur ); }; return acc; }, [] );
 				
-				$.ajax({
-					type: 'POST',
-					url: 'http://' + host + ':3080/' + tournament.db + '/<?= $ring ?>/' + division.name,
-					data: JSON.stringify( division ),
-					success: function( response ) {
-						$( '#user-message' ).html( describe( division ) + ' has been saved.' );
-						setTimeout( () => { window.close(); }, 1000 );
-					},
-					error: function( response ) {
-						$( '#user-message' ).html( response.error );
-					},
-				});
+				function save( division ) {
+					$.ajax({
+						type: 'POST',
+						url: 'http://' + host + ':3080/' + tournament.db + '/<?= $ring ?>/' + division.name,
+						data: JSON.stringify( division ),
+						success: function( response ) {
+							console.log( response );
+							if( response.status == 'saved' ) {
+								sound.send.play();
+								$( '#user-message' ).html( describe( division ) + ' has been saved.' );
+								setTimeout( () => { window.close(); }, 5000 );
+							} else if( response.status == 'exists' ) {
+								bootbox.dialog({
+									title : "Division " + division.name.toUpperCase() + " already exists!",
+									message: "Do you want to overwrite the existing division " + division.name.toUpperCase() + "?",
+									buttons: {
+										cancel : {
+											label: 'Cancel',
+											className: 'btn-danger',
+											callback: () => { sound.prev.play(); }
+										},
+										confirm : {
+											label: 'Overwrite',
+											className: 'btn-primary',
+											callback: () => {
+												sound.next.play();
+												division.overwrite = true;
+												save( division );
+											}
+										},
+										rename : {
+											label: 'Save As...',
+											className: 'btn-success',
+											callback: () => {
+												sound.next.play();
+												bootbox.prompt({
+													title: 'Save Division As...',
+													value: division.name.toUpperCase(),
+													callback: ( name ) => {
+														if( name === null ) { sound.prev.play(); return; }
+														sound.next.play();
+														division.name = name.toLowerCase();
+														save( division );
+													}
+												});
+											}
+										},
+									},
+									closeButton : false,
+								});
+							}
+						},
+						error: function( response ) {
+							if( defined( response.statusText ) ) { response.error = 'ERROR Unable to connect to FreeScore server.'; }
+							$( '#user-message' ).html( response.error );
+						},
+					});
+				}
+
+				save( division );
 			});
 
 		</script>

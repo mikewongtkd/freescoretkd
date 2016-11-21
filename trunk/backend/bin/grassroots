@@ -215,6 +215,11 @@ post '/:tournament/:ring/:divid' => sub {
 	$division = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring ) unless( $division );
 
 	try {
+		if( $division->exists() && ! exists $data->{ overwrite } ) {
+			$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+			$self->render( json => { division => $divid, status => 'exists' } );
+			return;
+		}
 		foreach my $key (keys %{ $data->{ header }}) { $division->{ $key } = $data->{ header }{ $key }; }
 		my $athletes = [];
 		foreach my $i ( 0 .. $#{ $data->{ athletes }} ) {

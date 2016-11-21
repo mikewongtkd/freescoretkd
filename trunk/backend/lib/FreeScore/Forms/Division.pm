@@ -38,6 +38,6 @@ sub previous   { my $self = shift; $self->{ state } = 'score'; $self->{ current 
 
 sub is_display { my $self = shift; return $self->{ state } eq 'display'; }
 sub is_score   { my $self = shift; return $self->{ state } eq 'score';  }
-sub TO_JSON    { my $self = shift; return { %$self }; }
+sub exists     { my $self = shift; return -e $self->{ file }; }
 
 1;
