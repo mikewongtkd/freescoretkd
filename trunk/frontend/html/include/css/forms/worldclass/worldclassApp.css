@@ -284,10 +284,9 @@ body {
       height: 720px;
       overflow: hidden; }
       .worldclass .leaderboard .division .placement {
-        position: relative;
-        height: 704px;
-        color: lime;
-        font-size: 24pt;
+        position: absolute;
+        width: 984px;
+        font-size: 48pt;
         background: black;
         background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
         /* W3C */
@@ -308,47 +307,53 @@ body {
           color: #f93; }
         .worldclass .leaderboard .division .placement .athlete {
           position: relative;
-          height: 40px;
+          height: 92px;
           width: 100%; }
           .worldclass .leaderboard .division .placement .athlete .name {
             color: yellow;
             position: absolute;
             left: 0;
-            width: 40%;
+            width: 54%;
             font-weight: bold; }
           .worldclass .leaderboard .division .placement .athlete .form1 {
-            color: #939;
+            color: #f39;
             position: absolute;
-            left: 40%;
-            width: 15%;
-            text-align: right; }
+            left: 54%;
+            width: 13%;
+            text-align: center; }
           .worldclass .leaderboard .division .placement .athlete .form2 {
-            color: #399;
+            color: #39f;
             position: absolute;
-            left: 55%;
-            width: 15%;
-            text-align: right; }
+            left: 68%;
+            width: 13%;
+            text-align: center; }
           .worldclass .leaderboard .division .placement .athlete .score {
+            color: lime;
             position: absolute;
-            left: 70%;
+            left: 80%;
             width: 20%;
-            text-align: right; }
+            text-align: center; }
             .worldclass .leaderboard .division .placement .athlete .score .notes {
-              display: inline-block;
-              text-align: left;
-              width: 30px;
-              opacity: 0.5; }
+              font-size: 24pt;
+              color: green;
+              display: inline-block; }
           .worldclass .leaderboard .division .placement .athlete .medal {
-            position: absolute;
-            left: 90%;
-            width: 10%; }
+            position: relative;
+            left: 0;
+            top: 16px;
+            width: 0; }
+        .worldclass .leaderboard .division .placement .results {
+          line-height: 64pt; }
         .worldclass .leaderboard .division .placement .header {
           font-size: 14pt;
+          line-height: 14pt !important;
           height: 20px;
-          opacity: 0.5;
-          border-bottom: 2px solid #333; }
+          opacity: 0.7;
+          border-bottom: 2px solid #666;
+          vertical-align: top; }
       .worldclass .leaderboard .division .pending {
-        height: 704px;
+        position: absolute;
+        width: 984px;
         color: #999;
         font-size: 24pt;
         background: black;
@@ -363,24 +368,26 @@ body {
         overflow-y: auto; }
         .worldclass .leaderboard .division .pending h2 {
           color: white; }
-        .worldclass .leaderboard .division .pending ol li b {
+        .worldclass .leaderboard .division .pending .athlete {
           color: lime;
-          font-weight: bold; }
-      .worldclass .leaderboard .division .one-column {
-        width: 928px; }
-      .worldclass .leaderboard .division .two-column {
-        top: 0;
-        width: 400px; }
-        .worldclass .leaderboard .division .two-column h1 {
-          font-size: 28pt; }
-      .worldclass .leaderboard .division .left-column {
+          font-weight: bold;
+          font-size: 48pt;
+          line-height: 48pt; }
+      .worldclass .leaderboard .division .top-row {
         position: absolute;
+        height: 480px;
         top: 0;
         left: 0; }
-      .worldclass .leaderboard .division .right-column {
+      .worldclass .leaderboard .division .bottom-row {
         position: absolute;
+        height: 200px;
+        top: 500px;
+        left: 0; }
+      .worldclass .leaderboard .division .full-height {
+        position: absolute;
+        height: 704px;
         top: 0;
-        left: 500px; }
+        left: 0; }
 
 .usermessage {
   font-family: Optima, Biolinum;

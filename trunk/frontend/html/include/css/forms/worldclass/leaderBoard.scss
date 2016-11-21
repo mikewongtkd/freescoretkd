@@ -12,10 +12,9 @@
 		overflow: hidden;
 
 		.placement {
-			position: relative;
-			height: 704px;
-			color: lime;
-			font-size: 24pt;
+			position: absolute;
+			width: 984px;
+			font-size: 48pt;
 			background: black;
 			background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
 			background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
@@ -32,62 +31,70 @@
 
 			.athlete {
 				position: relative;
-				height: 40px;
+				height: 92px;
 				width: 100%;
 
 				.name {
 					color: yellow;
 					position: absolute;
 					left: 0;
-					width: 40%;
+					width: 54%;
 					font-weight: bold;
 				}
 				.form1 {
-					color: #939;
+					color: #f39;
 					position: absolute;
-					left: 40%;
-					width: 15%;
-					text-align: right;
+					left: 54%;
+					width: 13%;
+					text-align: center;
 				}
 				.form2 {
-					color: #399;
+					color: #39f;
 					position: absolute;
-					left: 55%;
-					width: 15%;
-					text-align: right;
+					left: 68%;
+					width: 13%;
+					text-align: center;
 				}
 				.score {
+					color: lime;
 					position: absolute;
-					left: 70%;
+					left: 80%;
 					width: 20%;
-					text-align: right;
+					text-align: center;
 
 					.notes {
+						font-size: 24pt;
+						color: green;
 						display: inline-block;
-						text-align: left;
-						width: 30px;
-						opacity: 0.5;
 					}
 				}
 				.medal {
-					position: absolute;
-					left: 90%;
-					width: 10%;
+					position: relative;
+					left: 0;
+					top: 16px;
+					width: 0;
 				}
+			}
+
+			.results {
+				line-height: 64pt;
 			}
 
 			.header {
 				font-size: 14pt;
+				line-height: 14pt !important;
 				height: 20px;
-				opacity: 0.5;
-				border-bottom: 2px solid #333;
+				opacity: 0.7;
+				border-bottom: 2px solid #666;
+				vertical-align: top;
 			}
 
 
 		}
 
 		.pending {
-			height: 704px;
+			position: absolute;
+			width: 984px;
 			color: #999;
 			font-size: 24pt;
 			background: black;
@@ -100,12 +107,16 @@
 			overflow-y: auto;
 
 			h2 { color: white; }
-			ol { li { b { color: lime; font-weight: bold; } } }
+			.athlete { 
+				color: lime; 
+				font-weight: bold; 
+				font-size: 48pt; 
+				line-height: 48pt; 
+			}
 		}
 
-		.one-column   { width: 928px; }
-		.two-column   { top: 0; width: 400px; h1 { font-size: 28pt; } }
-		.left-column  { position: absolute; top: 0; left: 0; }
-		.right-column { position: absolute; top: 0; left: 500px; }
+		.top-row     { position: absolute; height: 480px; top: 0; left: 0; }
+		.bottom-row  { position: absolute; height: 200px; top: 500px; left: 0; }
+		.full-height { position: absolute; height: 704px; top: 0; left: 0 }
 	}
 }

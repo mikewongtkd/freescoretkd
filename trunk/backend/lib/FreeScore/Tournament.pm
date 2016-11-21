@@ -27,26 +27,6 @@ sub init {
 }
 
 # ============================================================
-sub rings {
-# ============================================================
-	my $self = shift;
-	my @pairs = ();
-	foreach my $key (sort keys %{ $self->{ rings }}) {
-		if( $key eq "enabled" ) {
-			my $value = "[ " . join( ", ", @{$self->{ rings }{ $key }}) . " ]";
-			push @pairs, "\"$key\" => $value";
-			
-
-		} else {
-			my $value = $self->{ rings }{ $key };
-			$value = $value =~ /^\d+$/ ? int( $value ) : "\"$value\"";
-			push @pairs, "\"$key\" => $value";
-		}
-	}
-	return join( ", ", @pairs );
-}
-
-# ============================================================
 sub write {
 # ============================================================
 	my $self  = shift;
@@ -62,8 +42,8 @@ sub write {
 
 	\$host       = "freescore.net";
 	\$tournament = [ 
-		"name" => "FreeScore",
-		"db"   => "test", 
+		"name" => "$self->{ name }",
+		"db"   => "$self->{ db }", 
 	];
 	\$rings = [];
 	\$rings[ 'grassroots' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-grassroots' ), PREG_GREP_INVERT );

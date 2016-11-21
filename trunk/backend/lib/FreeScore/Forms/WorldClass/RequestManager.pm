@@ -830,7 +830,7 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { leaderboard => 9, next => 7, brief => 1 };
+	my $pause = { leaderboard => 9, next => 12, brief => 1 };
 	my $round = $division->{ round };
 	my $order = $division->{ order }{ $round };
 	my $forms = $division->{ forms }{ $round };

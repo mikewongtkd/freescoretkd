@@ -5,7 +5,7 @@ use Mojolicious::Lite;
 use Try::Tiny;
 use FreeScore;
 use FreeScore::Tournament;
-use FreeScore::Forms::WorldClass::RequestManager;
+use FreeScore::RequestManager;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
@@ -22,11 +22,11 @@ our $DEBUG  = 0;
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/setup/:tournament' => sub {
+websocket '/setup/:database' => sub {
 	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $self->tx() );
-	my $progress   = undef;
+	my $database   = $self->param( 'database' );
+	my $manager    = new FreeScore::RequestManager( $self->tx() );
+	my $tournament = undef;
 	my $staging    = undef;
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
 
@@ -35,7 +35,7 @@ websocket '/setup/:tournament' => sub {
 	# ===== REGISTER THE CLIENT
 	my $c = $client->{ $id } = { id => $id, device => $self->tx() }; 
 	if( $DEBUG ) {
-		print STDERR "SETUP $tournament\n";
+		print STDERR "SETUP $database\n";
 		print STDERR "  $_\n" foreach sort keys %$client;
 		print STDERR "\n";
 	}
@@ -47,7 +47,7 @@ websocket '/setup/:tournament' => sub {
 		my $self    = shift;
 		my $request = $json->decode( shift );
 
-		$request->{ tournament } = $tournament;
+		$request->{ tournament } = $database;
 
 		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
 		my $log = clone( $request ); 
@@ -55,26 +55,13 @@ websocket '/setup/:tournament' => sub {
 		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
 		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
 
-		# ===== READ PROGRESS
+		# ===== READ TOURNAMENT SETTINGS
 		try   { 
-			$progress = new FreeScore::Forms::WorldClass( $tournament ); 
-			if( $request->{ type } eq 'ring' ) {
-				$staging = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
-				push @{$progress->{ divisions }}, @{$staging->{ divisions }};
-			}
-		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
-
-		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
-		if( exists $request->{ cookie }{ judge } ) {
-			my $j = $c->{ judge } = $request->{ cookie }{ judge };
-			print STDERR $j == 0 ? "REFEREE: " : "JUDGE $j " if $DEBUG;
-		}
+			$tournament = new FreeScore::Tournament(); 
+		} catch { $c->{ device }->send( { json => { error => "Error reading database '$database': $_" }}); };
 
 		# ===== HANDLE REQUEST
-		$judge->{ $group } = [] unless exists $judge->{ $group };
-		my $clients = $client->{ $group };
-		my $judges  = $judge->{ $group };
-		try   { $manager->handle( $request, $progress, $clients, $judges ); }
+		try   { $manager->handle( $request, $tournament, $client ); }
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 		print STDERR "\n" if $DEBUG;
 	});
@@ -82,7 +69,7 @@ websocket '/setup/:tournament' => sub {
 	# ----------------------------------------
 	# Handle disconnects
 	# ----------------------------------------
-	$self->on( finish => sub { delete $client->{ $group }{ $id }; });
+	$self->on( finish => sub { delete $client->{ $id }; });
 };
 
 # ============================================================
@@ -96,18 +83,9 @@ any '*command' => sub {
 };
 
 # ============================================================
-# HELPER FUNCTIONS
-# ============================================================
-
-# ============================================================
-sub autopilot {
-# ============================================================
-};
-
-# ============================================================
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid', workers => 1 });
-app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'debug' ));
+app->config( hypnotoad => { listen => [ 'http://*:3085' ], pid_file => '/var/run/freescore-setup.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/setup.log', level => 'debug' ));
 app->start();

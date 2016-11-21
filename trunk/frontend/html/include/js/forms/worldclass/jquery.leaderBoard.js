@@ -18,7 +18,6 @@ $.widget( "freescore.leaderboard", {
 		var o      = this.options;
 		var html   = e.html;
 		var widget = this.element;
-		var list   = html.ol.clone();
 
 		if( ! defined( o.division )) { return; }
 		var pending   = o.division.pending();
@@ -27,17 +26,16 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
 		if( placement.length == 0 ) {
 			e.placement.hide();
-			e.placement.removeClass( "one-column", "two-column", "left-column" );
 
 		} else if( pending.length == 0 ) {
+			e.placement.addClass( "full-height" );
+			e.placement.removeClass( "top-row" );
 			e.placement.show();
-			e.placement.addClass( "one-column" );
-			e.placement.removeClass( "two-column", "left-column" );
 
 		} else {
+			e.placement.addClass( "top-row" );
+			e.placement.removeClass( "full-height" );
 			e.placement.show();
-			e.placement.addClass( "two-column left-column" );
-			e.placement.removeClass( "one-column" );
 		}
 
 		// ===== UPDATE THE 'CURRENT PLACEMENT' PANEL
@@ -56,11 +54,11 @@ $.widget( "freescore.leaderboard", {
 			var form = [ {}, html.span.clone() .html( divforms[ 0 ].replace( /\s/, '' )) ];
 			if( divforms.length == 2 ) { form.push( html.span.clone() .html( divforms[ 1 ].replace( /\s/, '' ))); } else { form.push( html.span.clone() ); }
 			var header = {
-				panel : html.div.clone() .addClass( "athlete" ) .addClass( "header" ),
+				panel : html.div.clone() .addClass( "athlete header" ),
 				name  : html.div.clone() .addClass( "name" ) .html( 'Name' ),
 			    form1 : html.div.clone() .addClass( "form1" ) .html( form[ 1 ] ),
 			    form2 : html.div.clone() .addClass( "form2" ) .html( form[ 2 ] ),
-				score : html.div.clone() .addClass( "score" ) .html( 'Average' ),
+				score : html.div.clone() .addClass( "score" ) .html( 'Total' ),
 			};
 
 			header.panel.append( header.name, header.form1, header.form2, header.score, header.medal );
@@ -72,15 +70,15 @@ $.widget( "freescore.leaderboard", {
 				var athlete    = placement[ i ];
 				var score      = athlete.score( round );
 				var notes      = defined( score.notes() ) ? score.notes() : '';
-				var name       = e.placement.hasClass( 'one-column' ) ? athlete.name() : athlete.display.name();
+				var name       = athlete.name();
 				var namespan = html.span.clone() .html( name );
 
 				var entry = {
-					panel : html.div.clone() .addClass( "athlete" ),
+					panel : html.div.clone() .addClass( "athlete results" ),
 					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
 					form1 : form_mean_score( score.form( 0 ), 'form1' ),
 					form2 : form_mean_score( score.form( 1 ), 'form2' ),
-					score : html.div.clone() .addClass( "score" ) .html( parseFloat( score.adjusted.total()).toFixed( 2 ) + "<span class=\"notes\">&nbsp;" + notes + "</span>" ),
+					score : html.div.clone() .addClass( "score" ) .html( parseFloat( score.adjusted.total()).toFixed( 2 ) + "<span class=\"notes\">" + notes + "</span>" ),
 					medal : html.div.clone() .addClass( "medal" ),
 				};
 
@@ -88,7 +86,7 @@ $.widget( "freescore.leaderboard", {
 
 				entry.panel.append( entry.name, entry.form1, entry.form2, entry.score, entry.medal );
 				e.placement.append( entry.panel );
-				entry.name .fitText( 0.55, { maxFontSize: '32pt' });
+				// entry.name .fitText( 0.55, { maxFontSize: '48pt' });
 			}
 		};
 		e.placement.empty();
@@ -115,29 +113,24 @@ $.widget( "freescore.leaderboard", {
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
 		if( pending.length == 0 ) { 
 			e.pending.hide();
-			e.pending.removeClass( "one-column", "two-column", "right-column" );
 
 		} else if( placement.length == 0 ) {
+			e.pending.addClass( "full-height" );
+			e.pending.removeClass( "bottom-row" );
 			e.pending.show();
-			e.pending.addClass( "one-column left-column" );
-			e.pending.removeClass( "two-column", "right-column" );
 
 		} else {
+			e.pending.addClass( "bottom-row" );
+			e.pending.removeClass( "full-height" );
 			e.pending.show();
-			e.pending.addClass( "two-column right-column" );
-			e.pending.removeClass( "one-column" );
 		}
 
 		// ===== UPDATE THE 'NEXT UP' PANEL
 		e.pending.empty();
 		e.pending.append( "<h2>Next Up</h2>" );
-		e.pending.append( list );
-		for( var i = 0; i < pending.length; i++ ) {
-			var athlete = pending[ i ];
-			var item    = html.li.clone();
-			item.append( "<b>" + athlete.name() + "</b>" );
-			list.append( item );
-		}
+		var athlete = pending[ 0 ];
+		e.pending.append( '<div class="athlete">' + athlete.name() + '</div>' );
+		if( pending.length > 1 ) { e.pending.append( '<div>' + (pending.length - 1) + ' athletes in queue</div>' ); }
 		widget.fadeIn( 500 );
 	},
 });
