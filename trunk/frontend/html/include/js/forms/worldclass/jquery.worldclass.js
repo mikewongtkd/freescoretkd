@@ -31,7 +31,8 @@ $.widget( "freescore.worldclass", {
 
 		ws.onmessage = function( response ) {
 			var update = JSON.parse( response.data );
-			if( update.type != 'division' || update.action != 'update' ) { return; } // Ignore all messages other than current division updates
+			if( update.action != 'update' ) { return; }
+			if( update.type != 'division' && update.type != 'ring' ) { return; }
 
 			// ===== EXTRACT THE DIVISION DATA FROM A DIVISION UPDATE OR RING UPDATE
 			var division     = undefined;

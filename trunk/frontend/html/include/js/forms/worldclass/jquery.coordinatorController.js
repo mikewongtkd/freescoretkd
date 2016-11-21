@@ -83,7 +83,7 @@ $.widget( "freescore.coordinatorController", {
 			navigate : {
 				panel      : html.fieldset.clone() .attr({ 'data-role' : 'controlgroup' }),
 				legend     : html.legend.clone() .html( "Go To This Division" ),
-				division   : button.clone() .addClass( 'navigation'  ) .iconlabel( "play", "Start Scoring" ),
+				division   : button.clone() .addClass( 'start'  ) .iconlabel( "play", "Start Scoring" ),
 			},
 
 			penalties : {
