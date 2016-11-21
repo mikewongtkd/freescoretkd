@@ -24,11 +24,11 @@ $.widget( "freescore.presentationButtons", {
 		var html = e.html;
 
 		var controller = o.controller;
-		var context    = {
+		var context    = o.context = {
 			lower: () => { 
 				e.button.group.fadeOut( 400, () => {
 					var buttons = [];
-					for( var i = 0.5; i < 0.9; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
+					for( var i = 0.5; i < 1.0; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
 					buttons.push( addButton( 'middle' ));
 					e.button.group.empty().append( buttons.reverse() ).fadeIn();
 					e.button.group.addClass( 'low' );
@@ -48,13 +48,13 @@ $.widget( "freescore.presentationButtons", {
 				e.button.group.fadeOut( 400, () => {
 					var buttons = [];
 					buttons.push( addButton( 'middle' ));
-					for( var i = 1.6; i < 2.1; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
+					for( var i = 1.5; i < 2.1; i += 0.1 ) { buttons.push( addButton( i.toFixed( 1 ))); }
 					e.button.group.empty().append( buttons.reverse() ).fadeIn();
 					e.button.group.addClass( 'high' );
 				});
 			}
 		};
-		var addButton  = function( value ) {
+		var addButton  = o.addButton = function( value ) {
 			var button = {
 				label : html.label.clone() .addClass( 'btn btn-xs btn-default' ),
 				radio : html.radio.clone() .attr({ name : o.name })
@@ -79,9 +79,16 @@ $.widget( "freescore.presentationButtons", {
 	},
 	reset: function() {
 		var o = this.options;
+		var e = this.options.elements;
 		var w = this.element;
+
+		var b = e.button.group;
+		if( b.hasClass( "low" ) || b.hasClass( "high" )) { o.context.middle(); }
+
 		w.find( ".active" ).removeClass( "active" );
 		w.find( 'label:contains("1.2")' ).click();
+
+		o.value = 1.2;
 	},
 	value: function() {
 		var o = this.options;
