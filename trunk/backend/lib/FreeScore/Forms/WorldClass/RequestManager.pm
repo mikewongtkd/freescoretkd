@@ -191,6 +191,29 @@ sub handle_division_award_punitive {
 }
 
 # ============================================================
+sub handle_division_athlete_delete {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Deleting athlete.\n" if $DEBUG;
+
+	try {
+		$division->remove_athlete( $request->{ athlete_id } );
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_division_athlete_next {
 # ============================================================
 	my $self     = shift;
@@ -386,11 +409,17 @@ sub handle_division_judge_query {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $n        = $division->{ judges };
+	my $j        = @$judges;
 
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
-	if( @$judges != $n ) { 
-		foreach ( 1 .. $n ) { push @$judges, {}; }
-		print STDERR "Initializing $n judges\n" if $DEBUG;
+	if( $j < $n ) { 
+		my $k = $n - $j;
+		foreach ( 1 .. $k ) { push @$judges, {}; }
+		print STDERR "Initializing $k judges\n" if $DEBUG;
+
+	# ===== IF THE NUMBER OF JUDGES HAS BEEN REDUCED, REMOVE THE EXTRA JUDGES
+	} elsif( $j > $n ) {
+		splice( @$judges, 0, $n );
 	}
 
 	print STDERR "Requesting judge information.\n" if $DEBUG;

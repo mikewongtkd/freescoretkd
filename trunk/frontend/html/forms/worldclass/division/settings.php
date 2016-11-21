@@ -66,7 +66,12 @@
 			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
 			division.round = 'finals';
 		},
-	}}};
+	}},
+		update: function( judges ) {
+			var divname = $( '#division-name' ).val().toUpperCase();
+			judges      = defined( judges ) ? judges : $( '#number-of-judges' ).find( 'label.active' ).text();
+			$( '#settings-title' ).html( 'Settings: <span class="setting">' + divname + ' ' + judges + '</span>' );
+	}};
 
 	// ============================================================
 	// AUTODETECT ROUND SETTINGS
@@ -74,7 +79,7 @@
 	$( settings.round.select.autodetect );
 
 	$( '#allow-any-form' ).on( 'switchChange.bootstrapSwitch', function( ev, state ) { selected.update(); });
-	$( '#division-name' ).change( function() { description.update(); } );
+	$( '#division-name' ).change( function() { description.update(); settings.update(); } );
 
 	// ============================================================
 	// SETTINGS INITIALIZATION
@@ -90,6 +95,8 @@
 		// Set division name
 		$( '#division-name' ).val( division.name() );
 		description.update();
+
+		settings.update();
 	};
 
 	// ============================================================
@@ -111,7 +118,9 @@
 	// ============================================================
 	$( 'input[name=judges]' ).parent().click( function( ev ) {
 		var clicked = $( ev.target );
-		division.judges = parseInt( clicked.find( 'input' ).val() );
+		var judges = parseInt( clicked.find( 'input' ).val() );
+		division.judges = judges
+		settings.update( judges + ' Judges' );
 	});
 
 </script>

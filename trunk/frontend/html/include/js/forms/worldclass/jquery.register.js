@@ -74,6 +74,7 @@ $.widget( "freescore.register", {
 			if( update.type == 'division' ) {
 				if( update.action == 'judges' ) { 
 					var judges = o.judges = update.judges; 
+					console.log( update );
 					if( register.judges.view.is( ':hidden' )) { return; }
 
 					// Enable the button for non-registered judges; disable the button otherwise

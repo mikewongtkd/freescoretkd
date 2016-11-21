@@ -26,7 +26,8 @@
 
 		<script>
 			$( function() {
-				$('#elfinder').elfinder({
+				$( '#new-division' ).css({ position: 'relative', top: '-120px', left: '28px' }).hide();
+				$( '#elfinder' ).elfinder({
 					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
 					getFileCallback: function( files, fm ) { 
 						files.url = files.url.replace( /ring0/, '' );
@@ -34,11 +35,23 @@
 						files.url = files.url.replace( /\.txt$/, '' );
 						window.open( files.url ); 
 					},
-					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
+					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'download', 'rm', 'duplicate', 'rename', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
 					contextmenu: {
 						files : [
 							'getfile', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'edit', 'rename'
 						]
+					},
+					handlers: {
+						open: function( ev, elfinder ) {
+							console.log( ev );
+							var ring = ev.data.cwd.name;
+							if( ! ring.match( /^ring/ )) { $( '#new-division' ).hide(); return; }
+							ring = parseInt( ring.replace( /^ring/, '' ));
+							$( '#new-division' ).show();
+							$( '#new-division' ).off( 'click' ).click(( ev ) => {
+								window.open( 'division/editor.php?file=test/' + ring + '/new' );
+							});
+						}
 					}
 				});
 			});
@@ -59,6 +72,9 @@
 				</div>
 				<div id="elfinder" class="panel-body"></div>
 			</div>
+
+			<button id="new-division" class="btn btn-success btn-lg" type='button'>Add New Division</button>
+
 		</div>
 	</body>
 </html>

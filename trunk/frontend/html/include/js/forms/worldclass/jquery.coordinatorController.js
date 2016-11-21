@@ -203,14 +203,15 @@ $.widget( "freescore.coordinatorController", {
 					input : html.text .clone() .attr({ placeholder: 'Add a new athlete' }),
 				};
 
-				add.input.change( function() {
+				add.input.change( function( ev ) {
 					var rows = $( 'tbody.athlete-list' ).children();
 					var j    = rows.length;
 					add.row.removeClass( "add" );
 					add.order.html( j + '.' ) .attr({ order : j }) .removeClass( "ui-btn-icon-notext ui-icon-plus" );
-					editAthletes( division, round ) ();
 					var next = (addNewAthlete( division, round ))();
 					e.athletes.tbody.append( next.row );
+					editAthletes( division, round ) ();
+					e.sound.confirmed.play();
 				});
 
 				add.input.focus( function() { 
@@ -262,7 +263,7 @@ $.widget( "freescore.coordinatorController", {
 				message:  'This removes an athlete that doesn\'t belong in the division. Once confirmed, this operation cannot be undone.',
 				buttons:  [
 					{ text : 'Cancel', style : 'cancel',    click : function( ev ) { e.sound.prev.play();      removeAthleteDialog(); } },
-					{ text : 'Delete', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'delete athlete', athlete_id: division.current.athleteId() })()); } },
+					{ text : 'Delete', style : 'important', click : function( ev ) { e.sound.confirmed.play(); $('#popupDialog').popup( 'close' ); (sendRequest({ type: 'division', action: 'athlete delete', athlete_id: division.current.athleteId() })()); } },
 				]
 			}).popup( 'open', { transition : 'pop', positionTo : 'window' });
 		};

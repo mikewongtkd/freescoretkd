@@ -30,7 +30,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	my $progress   = undef;
 	my $staging    = undef;
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
-	my $group      = sprintf "%s-ring-%d", $tournament, $ring;
+	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
 

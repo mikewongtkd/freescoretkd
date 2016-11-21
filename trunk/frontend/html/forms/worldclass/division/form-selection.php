@@ -91,9 +91,9 @@ EOD;
 
 		// ===== CREATE FORM SELECTION DESCRIPTION FROM SELECTIONS
 		selected.description =
-			(selected.forms.prelim.length > 0 ? '<span class="round">Preliminary Round</span> ' + selected.forms.prelim.join( ', ' ) + ' ' : '') +
-			(selected.forms.semfin.length > 0 ? '<span class="round">Semi-Final Round</span> '  + selected.forms.semfin.join( ', ' ) + ' ' : '') +
-			(selected.forms.finals.length > 0 ? '<span class="round">Final Round</span> '       + selected.forms.finals.join( ', ' )        : '');
+			(selected.forms.prelim.length > 0 ? '<span class="round">Preliminary Round</span><span class="forms">' + selected.forms.prelim.join( ', ' ) + '</span>' : '') +
+			(selected.forms.semfin.length > 0 ? '<span class="round">Semi-Final Round</span><span class="forms">'  + selected.forms.semfin.join( ', ' ) + '</span>' : '') +
+			(selected.forms.finals.length > 0 ? '<span class="round">Final Round</span><span class="forms">'       + selected.forms.finals.join( ', ' ) + '</span>' : '');
 
 		validate.input();
 

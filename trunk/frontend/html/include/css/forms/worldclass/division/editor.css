@@ -42,13 +42,10 @@ body {
 .panel-title .setting {
   color: #f0ad4e; }
 .panel-title .round {
-  background-color: #31b0d5;
-  border: 1px solid #269abc;
-  border-radius: 8px;
-  padding: 2px 8px 2px 8px;
-  color: white;
-  margin-left: 8px;
-  margin-right: 4px; }
+  padding: 2px 8px 2px 0;
+  color: #7ec5ff; }
+.panel-title .forms {
+  margin-right: 40px; }
 
 .division-setting .settings-content {
   height: 72;
@@ -98,4 +95,4 @@ body {
   font-size: 14pt;
   color: #a94442; }
 
-/*# sourceMappingURL=new.css.map */
+/*# sourceMappingURL=editor.css.map */
