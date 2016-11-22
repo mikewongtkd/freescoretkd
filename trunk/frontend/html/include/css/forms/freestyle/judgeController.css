@@ -1,0 +1,76 @@
+@font-face {
+  font-family: Nimbus;
+  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+@font-face {
+  font-family: Biolinum;
+  font-weight: bold;
+  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+#stances {
+  margin-right: 40px; }
+  #stances .btn-xs {
+    font-size: 12pt;
+    margin-top: -8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    width: 120px; }
+
+table {
+  background-color: transparent !important;
+  margin-bottom: 20px;
+  width: 100%; }
+  table th {
+    font-weight: normal;
+    color: #ccc;
+    width: 100px;
+    padding-right: 8px; }
+  table td.button-group {
+    color: #999;
+    font-size: 9pt;
+    width: calc( 100% - 80px ); }
+  table td[colspan='2'] {
+    padding: 8px; }
+
+.alert-default, .btn-default {
+  background-color: #777;
+  border-color: #666; }
+
+.alert-default {
+  color: white;
+  font-size: 18pt;
+  line-height: 18pt; }
+
+.btn-group[data-toggle=buttons] {
+  width: 100%; }
+  .btn-group[data-toggle=buttons] .btn {
+    width: 9%; }
+
+.performance-description {
+  width: 100%;
+  vertical-align: bottom; }
+  .performance-description .poor {
+    display: inline-block;
+    text-align: center;
+    width: 12%; }
+  .performance-description .good {
+    display: inline-block;
+    text-align: center;
+    width: 22%; }
+  .performance-description .very-good {
+    display: inline-block;
+    text-align: center;
+    width: 25%; }
+  .performance-description .excellent {
+    display: inline-block;
+    text-align: center;
+    width: 28%; }
+  .performance-description .perfect {
+    display: inline-block;
+    text-align: center;
+    width: 13%; }
+
+.subtotal {
+  font-size: 40pt;
+  line-height: 18pt;
+  color: yellow; }
+
+/*# sourceMappingURL=judgeController.css.map */
