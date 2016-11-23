@@ -59,10 +59,12 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		$request->{ ring }       = $ring;
 
 		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
-		my $log = clone( $request ); 
-		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
-		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
-		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
+		if( $DEBUG ) {
+			my $log = clone( $request ); 
+			$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
+			$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
+			print STDERR $json->canonical->encode( $log ), "\n";
+		}
 
 		# ===== READ PROGRESS
 		try   { 
