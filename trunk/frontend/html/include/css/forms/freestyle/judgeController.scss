@@ -17,14 +17,34 @@
 }
 
 #stances {
+	position: absolute;
+	left: 50%;
+	top: 200px;
+	width: 200px;
+	margin-left: -120px;
 	.btn-xs {
 		font-size: 12pt;
 		margin-top: -8px;
 		padding-top: 8px;
 		padding-bottom: 8px;
-		width: 120px;
+		width: 112px;
 	}
-	margin-right: 40px;
+
+	.mandatory-stances {
+		position: absolute;
+		top: 0;
+		font-size: 9pt;
+		img { height: 100px; opacity: 0.25;  }
+		width: 80px;
+		text-align: center;
+	}
+	.done {
+		color: lime;
+		img { opacity: 1.0; filter: sepia( 100% ) saturate( 100000% ) hue-rotate(  40deg ); };
+	}
+	#hakdari-seogi { left: 0; }
+	#beom-seogi    { left: 80px; }
+	#dwigubi       { left: 160px; }
 }
 
 table {
@@ -49,6 +69,12 @@ table {
 
 	tr {
 	}
+}
+
+#start { 
+	margin-left: 10%;
+	margin-right: 10%;
+	width: 80%; 
 }
 
 .technical-component {
@@ -88,17 +114,18 @@ table {
 	}
 }
 
-.jumping-side-kick   { left: 20px; }
-.jumping-front-kicks { left: calc( 25%  - 12px ); }
-.jumping-spin-kick   { left: calc( 50%  - 40px ); }
-.consecutive-kicks   { left: calc( 75%  - 68px ); }
-.acrobatic-kick      { left: calc( 100% - 100px ); }
+#jumping-side-kick-score   { left: 15px; }
+#jumping-front-kicks-score { left: calc( 20%  - 13px ); }
+#jumping-spin-kick-score   { left: calc( 40%  - 33px ); }
+#consecutive-kicks-score   { left: calc( 60%  - 53px ); }
+#acrobatic-kick-score      { left: calc( 80%  - 74px ); }
+#basic-movements-score     { left: calc( 100% - 103px ); }
 
-.controls {
+#controls {
 	position: absolute;
 	top: 266px;
-	left: 0;
-	width: 100%;
+	left: 15px;
+	width: calc( 100% - 30px );
 	img.mandatory-foot-technique-icon {
 		position: absolute;
 		top: 0;
@@ -116,6 +143,13 @@ table {
 		top: 0;
 		right: 0;
 	}
+}
+
+#presentation {
+	position: absolute;
+	top: 160px;
+	left: 15px;
+	width: calc( 100% - 30px );
 }
 
 .alert-default, .btn-default {

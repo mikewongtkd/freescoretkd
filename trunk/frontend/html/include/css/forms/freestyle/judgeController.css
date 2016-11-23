@@ -81,13 +81,37 @@
   top: 20px; }
 
 #stances {
-  margin-right: 40px; }
+  position: absolute;
+  left: 50%;
+  top: 200px;
+  width: 200px;
+  margin-left: -120px; }
   #stances .btn-xs {
     font-size: 12pt;
     margin-top: -8px;
     padding-top: 8px;
     padding-bottom: 8px;
-    width: 120px; }
+    width: 112px; }
+  #stances .mandatory-stances {
+    position: absolute;
+    top: 0;
+    font-size: 9pt;
+    width: 80px;
+    text-align: center; }
+    #stances .mandatory-stances img {
+      height: 100px;
+      opacity: 0.25; }
+  #stances .done {
+    color: lime; }
+    #stances .done img {
+      opacity: 1.0;
+      filter: sepia(100%) saturate(100000%) hue-rotate(40deg); }
+  #stances #hakdari-seogi {
+    left: 0; }
+  #stances #beom-seogi {
+    left: 80px; }
+  #stances #dwigubi {
+    left: 160px; }
 
 table {
   background-color: transparent !important;
@@ -104,6 +128,11 @@ table {
     width: calc( 100% - 80px ); }
   table td[colspan='2'] {
     padding: 8px; }
+
+#start {
+  margin-left: 10%;
+  margin-right: 10%;
+  width: 80%; }
 
 .technical-component {
   position: absolute;
@@ -138,39 +167,48 @@ table {
     line-height: 18pt;
     text-align: center; }
 
-.jumping-side-kick {
-  left: 20px; }
+#jumping-side-kick-score {
+  left: 15px; }
 
-.jumping-front-kicks {
-  left: calc( 25%  - 12px ); }
+#jumping-front-kicks-score {
+  left: calc( 20%  - 13px ); }
 
-.jumping-spin-kick {
-  left: calc( 50%  - 40px ); }
+#jumping-spin-kick-score {
+  left: calc( 40%  - 33px ); }
 
-.consecutive-kicks {
-  left: calc( 75%  - 68px ); }
+#consecutive-kicks-score {
+  left: calc( 60%  - 53px ); }
 
-.acrobatic-kick {
-  left: calc( 100% - 100px ); }
+#acrobatic-kick-score {
+  left: calc( 80%  - 74px ); }
 
-.controls {
+#basic-movements-score {
+  left: calc( 100% - 103px ); }
+
+#controls {
   position: absolute;
   top: 266px;
-  left: 0;
-  width: 100%; }
-  .controls img.mandatory-foot-technique-icon {
+  left: 15px;
+  width: calc( 100% - 30px ); }
+  #controls img.mandatory-foot-technique-icon {
     position: absolute;
     top: 0;
     left: 50%;
     margin-left: -110px; }
-  .controls #major-deductions {
+  #controls #major-deductions {
     position: absolute;
     top: 0;
     left: 0; }
-  .controls #minor-deductions {
+  #controls #minor-deductions {
     position: absolute;
     top: 0;
     right: 0; }
+
+#presentation {
+  position: absolute;
+  top: 160px;
+  left: 15px;
+  width: calc( 100% - 30px ); }
 
 .alert-default, .btn-default {
   background-color: #777;

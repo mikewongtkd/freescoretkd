@@ -22,14 +22,11 @@
 			<div id="technical-skills">
 				<div class="alert alert-default" role="alert"><strong>Technical Skills</strong>
 					<div id="technical-score" class="pull-right subtotal">0.0</div>
-					<div id="stances" class="btn-group pull-right" data-toggle="buttons-checkbox">
-						<button type="button" class="btn btn-xs btn-warning">Hakdari Seogi</button>
-						<button type="button" class="btn btn-xs btn-warning">Beom Seogi</button>
-						<button type="button" class="btn btn-xs btn-warning">Dwitkubi</button>
-					</div>
 				</div>
 
-				<table id="mandatory-foot-technique-1">
+				<button id="start" class="btn btn-lg btn-success">Start</button>
+
+				<table class="mandatory-foot-technique-1">
 					<tr>
 						<th rowspan=2>Jumping side kick height</td>
 						<td>
@@ -60,7 +57,7 @@
 					</tr>
 				</table>
 
-				<table id="mandatory-foot-technique-2">
+				<table class="mandatory-foot-technique-2">
 					<tr>
 						<th rowspan=2>Number of front kicks in a jump</th>
 						<td>
@@ -90,7 +87,7 @@
 						</td>
 					</tr>
 				</table>
-				<table id="mandatory-foot-technique-3">
+				<table class="mandatory-foot-technique-3">
 					<tr>
 						<th rowspan=2>Jump spin kick degree of rotation</th>
 						<td>
@@ -120,7 +117,7 @@
 						</td>
 					</tr>
 				</table>
-				<table id="mandatory-foot-technique-4">
+				<table class="mandatory-foot-technique-4">
 					<tr>
 						<th rowspan=2>Consecutive sparring kicks</th>
 						<td>
@@ -150,12 +147,12 @@
 						</td>
 					</tr>
 				</table>
-				<table id="mandatory-foot-technique-5">
+				<table class="mandatory-foot-technique-5">
 					<tr>
 						<th rowspan=2>Acrobatic actions</th>
 						<td>
 							<div class="performance-description">
-								<div class="poor">No TKD kick</div>
+								<div class="poor" style="font-size: 9pt !important;">No TKD kick</div>
 								<div class="good">Low difficulty</div>
 								<div class="very-good">Middle difficulty</div>
 								<div class="excellent">High difficulty</div>
@@ -180,7 +177,7 @@
 						</td>
 					</tr>
 				</table>
-				<table id="basic-movements-and-practicality">
+				<table class="basic-movements-and-practicality">
 					<tr>
 						<th>Technique &amp; practicality</th>
 						<td class="button-group">
@@ -201,28 +198,33 @@
 					</tr>
 				</table>
 
-				<div class="technical-component jumping-side-kick">
+				<div class="technical-component" id="jumping-side-kick-score">
 					<div class="component-label">Jumping side kick</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component jumping-front-kicks">
+				<div class="technical-component" id="jumping-front-kicks-score">
 					<div class="component-label">Jumping front kicks</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component jumping-spin-kick">
+				<div class="technical-component" id="jumping-spin-kick-score">
 					<div class="component-label">Jumping spin kick</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component consecutive-kicks">
+				<div class="technical-component" id="consecutive-kicks-score">
 					<div class="component-label">Consecutive kicks</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component acrobatic-kick">
+				<div class="technical-component" id="acrobatic-kick-score">
 					<div class="component-label">Acrobatic kick</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="technical-component" id="basic-movements-score">
+					<div class="component-label">Basic movements</div>
 					<div class="component-score">0.0</div>
 				</div>
 			</div>
@@ -310,10 +312,20 @@
 					</tr>
 				</table>
 			</div>
-			<div class="controls">
-				<img class="mandatory-foot-technique-icon" src="../../images/icons/freestyle/jumping-side-kick.png">
+			<div id="controls">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-1"       src="../../images/icons/freestyle/jumping-side-kick.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-2"       src="../../images/icons/freestyle/jumping-front-kick.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-3"       src="../../images/icons/freestyle/jumping-spin-kick.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-4"       src="../../images/icons/freestyle/consecutive-kicks.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-5"       src="../../images/icons/freestyle/acrobatic-kick.png">
+				<img class="mandatory-foot-technique-icon basic-movements-and-practicality" src="../../images/icons/freestyle/basic-movements.png">
 
 				<div id="major-deductions"></div>
+				<div id="stances">
+					<div class="mandatory-stances" id="hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
+					<div class="mandatory-stances" id="beom-seogi"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
+					<div class="mandatory-stances" id="dwigubi"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
+				</div>
 				<div id="minor-deductions"></div>
 			</div>
 
@@ -326,45 +338,49 @@
 			$( '#major-deductions' ).deductions({ value: 0.3 });
 
 			// ===== MANDATORY STANCES BUTTON BEHAVIOR
-			$( '#stances' ).find( '.btn' ).off( 'click' ).click(( b ) => {
+			$( '.mandatory-stances' ).find( 'img' ).removeClass( 'done' );
+			$( '.mandatory-stances' ).off( 'click' ).click(( b ) => {
 				var clicked = $( b.target );
-				if( clicked.hasClass( 'btn-warning' )) {
-					clicked.removeClass( 'btn-warning' ).addClass( 'btn-success' );
-				} else {
-					clicked.removeClass( 'btn-success active' ).addClass( 'btn-warning' );
-				}
-				setTimeout( function() { clicked.removeClass( 'active' ) }, 20 );
+				if( clicked.is( 'img' )) { clicked = clicked.parent(); }
+				if( clicked.hasClass( 'done' )) { clicked.removeClass( 'done' ); }
+				else                            { clicked.addClass( 'done' ); }
 			});
 
 			// ===== TECHNICAL SKILLS BUTTON BEHAVIOR
 			var display = { order : {
-				'mandatory-foot-technique-1'       : 'mandatory-foot-technique-2',
-				'mandatory-foot-technique-2'       : 'mandatory-foot-technique-3',
-				'mandatory-foot-technique-3'       : 'mandatory-foot-technique-4',
-				'mandatory-foot-technique-4'       : 'mandatory-foot-technique-5',
-				'mandatory-foot-technique-5'       : 'basic-movements-and-practicality',
-				'basic-movements-and-practicality' : false
+				'mandatory-foot-technique-1'       : { technique: 'mandatory-foot-technique-2',       score: 'jumping-side-kick-score'   },
+				'mandatory-foot-technique-2'       : { technique: 'mandatory-foot-technique-3',       score: 'jumping-front-kicks-score' },
+				'mandatory-foot-technique-3'       : { technique: 'mandatory-foot-technique-4',       score: 'jumping-spin-kick-score'   },
+				'mandatory-foot-technique-4'       : { technique: 'mandatory-foot-technique-5',       score: 'consecutive-kicks-score'   },
+				'mandatory-foot-technique-5'       : { technique: 'basic-movements-and-practicality', score: 'acrobatic-kick-score'      },
+				'basic-movements-and-practicality' : { technique: false,                              score: 'basic-movements-score'     },
 			}};
 
 			$( '#technical-skills' ).find( 'table' ).hide();
+			$( '.mandatory-foot-technique-icon' ).hide();
+			$( '.technical-component' ).css({ opacity: 0.2 });
 			$( '#presentation' ).hide();
-			$( '#technical-skills' ).find( '#mandatory-foot-technique-1' ).show();
+
+			$( '#start' ).click(( ev ) => { 
+				$( '#start' ).hide();
+				$( '.mandatory-foot-technique-1' ).fadeIn( 200 );
+			});
 			$( '#technical-skills' ).find( 'label' ).click(( ev ) => {
 				var name    = $( ev.target ).parent().attr( 'id' );
 				var value   = parseFloat( $( ev.target ).text());
-				var current = $( ev.target ).parents( 'table' ).attr( 'id' );
-				var next    = display.order[ current ];
+				var current = $( ev.target ).parents( 'table' ).attr( 'class' );
+				var next    = display.order[ current ].technique;
+				var results = display.order[ current ].score;
 
 				score.technical[ name ] = value;
+				$( '#' + results ).find( '.component-score' ).html( value.toFixed( 1 ) );
 
 				var sum = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
 				$( '#technical-score' ).html( sum.toFixed( 1 ));
 
-				if( next ) {
-					$( '#' + current ).fadeOut( 400, function() { $( '#' + next ).fadeIn(); });
-				} else {
-					$( '#' + current ).fadeOut( 400, function() { $( '#presentation' ).fadeIn(); });
-				}
+				if( next ) { $( '.' + current ).fadeOut( 200, function() { $( '.' + next ).fadeIn( 200 ); }); }
+				else       { $( '.' + current ).fadeOut( 200, function() { $( '#controls' ).fadeOut( 200 ); $( '.technical-component' ).animate({ top: '65px' }); $( '#presentation' ).fadeIn( 200 ); }); }
+				$( '#' + results ).animate({ opacity: 1.0 });
 			});
 
 			// ===== PRESENTATION BUTTON BEHAVIOR
