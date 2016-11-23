@@ -1,0 +1,90 @@
+.deductions {
+	float: left;
+	font-family: Optima, Biolinum;
+	width: 188px;
+	height: 354px;
+	background: black;
+	background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
+	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */
+	border-radius: 16pt;
+	border: 4px solid #999;
+	margin: 0 6px 0 6px;
+
+	.deduction-button-small, .deduction-button-large {
+		font-size: 18pt;
+		width: 168px;
+		border-radius: 12px;
+		margin: 12px auto 12px auto;
+		text-align: center;
+	}
+
+	.deduction-button-small {
+		height: 48px;
+		line-height: 32pt;
+	}
+
+	.deduction-button-large {
+		height: 128px;
+		line-height: 92pt;
+	}
+
+	.disabled {
+		border: 4px solid #666;
+		background: #e2e2e2;
+		background: -webkit-linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+		background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+		color: black;
+	}
+
+	.remove-minor {
+		border: 4px solid green;
+		background: #9dd53a;
+		background: -webkit-linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+		background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+		color: black;
+	}
+
+	.add-minor {
+		border: 4px solid blue;
+		font-size: 36pt;
+		background: #6db3f2;
+		background: -webkit-linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+		background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+		color: black;
+	}
+
+	.remove-major {
+		border: 4px solid orange;
+		background: #ffb76b;
+		background: -webkit-linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+		background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+		color: black;
+	}
+
+	.add-major {
+		border: 4px solid gold;
+		font-size: 36pt;
+		background: #fceabb;
+		background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+		background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+		color: black;
+	}
+
+	.deduction-label {
+		height: 32px;
+		margin: 12px auto 12px auto;
+		text-align: center;
+		font-size: 14pt;
+		color: #ccc;
+	}
+
+	.view {
+		height: 80px;
+		margin: 12px auto 12px auto;
+		text-align: center;
+		font-size: 64pt;
+		line-height: 64pt;
+		color: white;
+	}
+
+}

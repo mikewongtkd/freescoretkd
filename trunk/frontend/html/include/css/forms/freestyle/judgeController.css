@@ -5,6 +5,81 @@
   font-family: Biolinum;
   font-weight: bold;
   src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+.deductions {
+  float: left;
+  font-family: Optima, Biolinum;
+  width: 188px;
+  height: 354px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  border-radius: 16pt;
+  border: 4px solid #999;
+  margin: 0 6px 0 6px; }
+  .deductions .deduction-button-small, .deductions .deduction-button-large {
+    font-size: 18pt;
+    width: 168px;
+    border-radius: 12px;
+    margin: 12px auto 12px auto;
+    text-align: center; }
+  .deductions .deduction-button-small {
+    height: 48px;
+    line-height: 32pt; }
+  .deductions .deduction-button-large {
+    height: 128px;
+    line-height: 92pt; }
+  .deductions .disabled {
+    border: 4px solid #666;
+    background: #e2e2e2;
+    background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    color: black; }
+  .deductions .remove-minor {
+    border: 4px solid green;
+    background: #9dd53a;
+    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    color: black; }
+  .deductions .add-minor {
+    border: 4px solid blue;
+    font-size: 36pt;
+    background: #6db3f2;
+    background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+    color: black; }
+  .deductions .remove-major {
+    border: 4px solid orange;
+    background: #ffb76b;
+    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    color: black; }
+  .deductions .add-major {
+    border: 4px solid gold;
+    font-size: 36pt;
+    background: #fceabb;
+    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    color: black; }
+  .deductions .deduction-label {
+    height: 32px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 14pt;
+    color: #ccc; }
+  .deductions .view {
+    height: 80px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 64pt;
+    line-height: 64pt;
+    color: white; }
+
+.container {
+  position: relative;
+  top: 20px; }
+
 #stances {
   margin-right: 40px; }
   #stances .btn-xs {
@@ -29,6 +104,73 @@ table {
     width: calc( 100% - 80px ); }
   table td[colspan='2'] {
     padding: 8px; }
+
+.technical-component {
+  position: absolute;
+  height: 88px;
+  width: 88px;
+  border-radius: 12px;
+  border: 4px solid #999;
+  top: 154px; }
+  .technical-component .component-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 40px;
+    width: 80px;
+    padding: 4px 8px 4px 8px;
+    border-radius: 8px 8px 0 0;
+    background-color: #2a9fd6;
+    color: white;
+    font-size: 9pt;
+    text-align: center; }
+  .technical-component .component-score {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    height: 40px;
+    width: 80px;
+    padding: 8px;
+    border-radius: 0 0 8px 8px;
+    background-color: #666;
+    color: white;
+    font-size: 32pt;
+    line-height: 18pt;
+    text-align: center; }
+
+.jumping-side-kick {
+  left: 20px; }
+
+.jumping-front-kicks {
+  left: calc( 25%  - 12px ); }
+
+.jumping-spin-kick {
+  left: calc( 50%  - 40px ); }
+
+.consecutive-kicks {
+  left: calc( 75%  - 68px ); }
+
+.acrobatic-kick {
+  left: calc( 100% - 100px ); }
+
+.controls {
+  position: absolute;
+  top: 266px;
+  left: 0;
+  width: 100%; }
+  .controls img.mandatory-foot-technique-icon {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -110px; }
+  .controls #major-deductions {
+    position: absolute;
+    top: 0;
+    left: 0; }
+  .controls #minor-deductions {
+    position: absolute;
+    top: 0;
+    right: 0; }
 
 .alert-default, .btn-default {
   background-color: #777;

@@ -8,6 +8,10 @@
 		<link href="../../include/css/forms/freestyle/judgeController.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../include/jquery/js/jquery.tappy.js"></script>
+		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/forms/freestyle/jquery.deductions.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
 
@@ -55,6 +59,7 @@
 						</td>
 					</tr>
 				</table>
+
 				<table id="mandatory-foot-technique-2">
 					<tr>
 						<th rowspan=2>Number of front kicks in a jump</th>
@@ -195,8 +200,31 @@
 						</td>
 					</tr>
 				</table>
-				<table>
-				</table>
+
+				<div class="technical-component jumping-side-kick">
+					<div class="component-label">Jumping side kick</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="technical-component jumping-front-kicks">
+					<div class="component-label">Jumping front kicks</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="technical-component jumping-spin-kick">
+					<div class="component-label">Jumping spin kick</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="technical-component consecutive-kicks">
+					<div class="component-label">Consecutive kicks</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="technical-component acrobatic-kick">
+					<div class="component-label">Acrobatic kick</div>
+					<div class="component-score">0.0</div>
+				</div>
 			</div>
 
 			<div id="presentation">
@@ -282,10 +310,20 @@
 					</tr>
 				</table>
 			</div>
+			<div class="controls">
+				<img class="mandatory-foot-technique-icon" src="../../images/icons/freestyle/jumping-side-kick.png">
+
+				<div id="major-deductions"></div>
+				<div id="minor-deductions"></div>
+			</div>
+
 		</div>
 
 		<script>
 			var score = { technical: {}, presentation: {}, deduction: {} };
+
+			$( '#minor-deductions' ).deductions({ value: 0.1 });
+			$( '#major-deductions' ).deductions({ value: 0.3 });
 
 			// ===== MANDATORY STANCES BUTTON BEHAVIOR
 			$( '#stances' ).find( '.btn' ).off( 'click' ).click(( b ) => {
