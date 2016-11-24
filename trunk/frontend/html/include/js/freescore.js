@@ -32,6 +32,7 @@ var FreeScore = {
 		radio    : $( "<input type=\"radio\" />" ), 
 		search   : $( "<input type=\"search\" />" ), 
 		select   : $( "<select />" ), 
+		small    : $( "<small />" ), 
 		span     : $( "<span />" ), 
 		strong   : $( "<strong />" ), 
 		table    : $( "<table />" ), 

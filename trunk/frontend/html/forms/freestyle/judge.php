@@ -5,11 +5,13 @@
 	<head>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/add-ons/bootstrap-timeline.css" rel="stylesheet" />
 		<link href="../../include/css/forms/freestyle/judgeController.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
-		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
+		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
+		<script src="../../include/jquery/js/jquery.horizontal-timeline.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/freestyle/jquery.deductions.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
@@ -40,7 +42,7 @@
 						</td>
 					</tr><tr>
 						<td class="button-group">
-							<div id="jumping-side-kick-height" class="btn-group" data-toggle="buttons">
+							<div id="jumping-side-kick" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-danger" ><input type="radio" name="jumping-side-kick">0.0</label>
 								<label class="btn btn-warning"><input type="radio" name="jumping-side-kick">0.1</label>
 								<label class="btn btn-warning"><input type="radio" name="jumping-side-kick">0.2</label>
@@ -71,7 +73,7 @@
 						</td>
 					</tr><tr>
 						<td class="button-group">
-							<div id="jumping-front-kicks-count" class="btn-group" data-toggle="buttons">
+							<div id="jumping-front-kicks" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-danger" ><input type="radio" name="jumping-front-kicks">0.0</label>
 								<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks">0.1</label>
 								<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks">0.2</label>
@@ -101,18 +103,18 @@
 						</td>
 					</tr><tr>
 						<td class="button-group">
-							<div id="spinning-kick-degree" class="btn-group" data-toggle="buttons">
-								<label class="btn btn-danger" ><input type="radio" name="spinning-kick">0.0</label>
-								<label class="btn btn-warning"><input type="radio" name="spinning-kick">0.1</label>
-								<label class="btn btn-warning"><input type="radio" name="spinning-kick">0.2</label>
-								<label class="btn btn-warning"><input type="radio" name="spinning-kick">0.3</label>
-								<label class="btn btn-success"><input type="radio" name="spinning-kick">0.4</label>
-								<label class="btn btn-success"><input type="radio" name="spinning-kick">0.5</label>
-								<label class="btn btn-success"><input type="radio" name="spinning-kick">0.6</label>
-								<label class="btn btn-primary"><input type="radio" name="spinning-kick">0.7</label>
-								<label class="btn btn-primary"><input type="radio" name="spinning-kick">0.8</label>
-								<label class="btn btn-primary"><input type="radio" name="spinning-kick">0.9</label>
-								<label class="btn btn-default"><input type="radio" name="spinning-kick">1.0</label>
+							<div id="jumping-spin-kick" class="btn-group" data-toggle="buttons">
+								<label class="btn btn-danger" ><input type="radio" name="jumping-spin-kick">0.0</label>
+								<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick">0.1</label>
+								<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick">0.2</label>
+								<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick">0.3</label>
+								<label class="btn btn-success"><input type="radio" name="jumping-spin-kick">0.4</label>
+								<label class="btn btn-success"><input type="radio" name="jumping-spin-kick">0.5</label>
+								<label class="btn btn-success"><input type="radio" name="jumping-spin-kick">0.6</label>
+								<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick">0.7</label>
+								<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick">0.8</label>
+								<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick">0.9</label>
+								<label class="btn btn-default"><input type="radio" name="jumping-spin-kick">1.0</label>
 							</div>
 						</td>
 					</tr>
@@ -131,18 +133,18 @@
 						</td>
 					</tr><tr>
 						<td class="button-group">
-							<div id="sparring-kick-performance" class="btn-group" data-toggle="buttons">
-								<label class="btn btn-danger" ><input type="radio" name="sparring-kicks">0.0</label>
-								<label class="btn btn-warning"><input type="radio" name="sparring-kicks">0.1</label>
-								<label class="btn btn-warning"><input type="radio" name="sparring-kicks">0.2</label>
-								<label class="btn btn-warning"><input type="radio" name="sparring-kicks">0.3</label>
-								<label class="btn btn-success"><input type="radio" name="sparring-kicks">0.4</label>
-								<label class="btn btn-success"><input type="radio" name="sparring-kicks">0.5</label>
-								<label class="btn btn-success"><input type="radio" name="sparring-kicks">0.6</label>
-								<label class="btn btn-primary"><input type="radio" name="sparring-kicks">0.7</label>
-								<label class="btn btn-primary"><input type="radio" name="sparring-kicks">0.8</label>
-								<label class="btn btn-primary"><input type="radio" name="sparring-kicks">0.9</label>
-								<label class="btn btn-default"><input type="radio" name="sparring-kicks">1.0</label>
+							<div id="consecutive-kicks" class="btn-group" data-toggle="buttons">
+								<label class="btn btn-danger" ><input type="radio" name="consecutive-kicks">0.0</label>
+								<label class="btn btn-warning"><input type="radio" name="consecutive-kicks">0.1</label>
+								<label class="btn btn-warning"><input type="radio" name="consecutive-kicks">0.2</label>
+								<label class="btn btn-warning"><input type="radio" name="consecutive-kicks">0.3</label>
+								<label class="btn btn-success"><input type="radio" name="consecutive-kicks">0.4</label>
+								<label class="btn btn-success"><input type="radio" name="consecutive-kicks">0.5</label>
+								<label class="btn btn-success"><input type="radio" name="consecutive-kicks">0.6</label>
+								<label class="btn btn-primary"><input type="radio" name="consecutive-kicks">0.7</label>
+								<label class="btn btn-primary"><input type="radio" name="consecutive-kicks">0.8</label>
+								<label class="btn btn-primary"><input type="radio" name="consecutive-kicks">0.9</label>
+								<label class="btn btn-default"><input type="radio" name="consecutive-kicks">1.0</label>
 							</div>
 						</td>
 					</tr>
@@ -161,18 +163,18 @@
 						</td>
 					</tr><tr>
 						<td class="button-group">
-							<div id="acrobatic-difficulty" class="btn-group" data-toggle="buttons">
-								<label class="btn btn-danger" ><input type="radio" name="acrobatic-kicks">0.0</label>
-								<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.1</label>
-								<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.2</label>
-								<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.3</label>
-								<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.4</label>
-								<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.5</label>
-								<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.6</label>
-								<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.7</label>
-								<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.8</label>
-								<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.9</label>
-								<label class="btn btn-default"><input type="radio" name="acrobatic-kicks">1.0</label>
+							<div id="acrobatic-kick" class="btn-group" data-toggle="buttons">
+								<label class="btn btn-danger" ><input type="radio" name="acrobatic-kick">0.0</label>
+								<label class="btn btn-warning"><input type="radio" name="acrobatic-kick">0.1</label>
+								<label class="btn btn-warning"><input type="radio" name="acrobatic-kick">0.2</label>
+								<label class="btn btn-warning"><input type="radio" name="acrobatic-kick">0.3</label>
+								<label class="btn btn-success"><input type="radio" name="acrobatic-kick">0.4</label>
+								<label class="btn btn-success"><input type="radio" name="acrobatic-kick">0.5</label>
+								<label class="btn btn-success"><input type="radio" name="acrobatic-kick">0.6</label>
+								<label class="btn btn-primary"><input type="radio" name="acrobatic-kick">0.7</label>
+								<label class="btn btn-primary"><input type="radio" name="acrobatic-kick">0.8</label>
+								<label class="btn btn-primary"><input type="radio" name="acrobatic-kick">0.9</label>
+								<label class="btn btn-default"><input type="radio" name="acrobatic-kick">1.0</label>
 							</div>
 						</td>
 					</tr>
@@ -362,11 +364,19 @@
 			</div>
 
 			<div id="deductions">
+				<div class="alert alert-default" role="alert"><strong>Deductions</strong>
+					<div id="presentation-score" class="pull-right negative">0.0</div>
+				</div>
+
+				<div id="timeline">
+					<ul class="timeline timeline-horizontal">
+					</ul>
+				</div>
 			</div>
 		</div>
 
 		<script>
-			var score = { technical: {}, presentation: {}, deduction: {}, timeline: [] };
+			var score = { technical: {}, presentation: {}, deductions: { stances: {}, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: [], major: [] }, timeline: [] };
 
 			$( '#minor-deductions' ).deductions({ value: 0.1 });
 			$( '#major-deductions' ).deductions({ value: 0.3 });
@@ -386,12 +396,15 @@
 			$( '.mandatory-foot-technique-icon' ).hide();
 			$( '#presentation' ).hide();
 			$( '.presentation-component' ).hide();
+			$( '#deductions' ).hide();
 
 			// ===== WHEN USER CLICKS ON START, LET THE FUN BEGIN
 			$( '#start' ).click(( ev ) => { 
 				$( '#start' ).hide();
 				$( '.mandatory-foot-technique-1' ).fadeIn( 200 );
-				score.timeline.push( { time: new Date( 'now' ), name: 'start' } );
+				var t_event = { time: Date.now(), name: 'start' };
+				score.timeline.push( t_event );
+				score.deductions.timing.start = t_event;
 			});
 
 			// ============================================================
@@ -401,12 +414,12 @@
 				// ----------------------------------------
 				technical : { score: function( ev ) {
 				// ----------------------------------------
-					var name    = $( ev.target ).parent().attr( 'id' );
+					var name    = $( ev.target ).attr( 'id' ); name = defined( name ) ? name : $( ev.target ).parent().attr( 'id' );
 					var value   = parseFloat( $( ev.target ).text());
 					var current = $( ev.target ).parents( 'table' ).attr( 'class' );
 					var results = go[ current ].score;
 					var next    = go[ current ].next;
-					var t_event = { time: new Date( 'now' ), name: name };
+					var t_event = { time: Date.now(), name: name };
 
 					if( results ) {
 						score.technical[ name ] = value;
@@ -417,7 +430,7 @@
 						$( '#technical-score' ).html( sum.toFixed( 1 ));
 					}
 
-					return { name : current, next : next, results: results, value: value, t_event: t_event };
+					return { name : name, buttons: current, next : next, results: results, value: value, t_event: t_event };
 				}}
 			};
 
@@ -425,7 +438,7 @@
 				// ----------------------------------------
 				technical : function( current ) {
 				// ----------------------------------------
-					$( '#presentation' ).find( 'table, .alert' ).fadeOut( 200 );
+					$( '#presentation' ).find( 'table, .alert, .presentation-component' ).fadeOut( 200 );
 					$( '.technical-component' ).animate({ top: '154px' }).off( 'click' );
 					$( '.technical-component' ).css({ opacity: 0.5 });
 					$( '#' + current + '-score' ).css({ opacity: 1.0 });
@@ -436,10 +449,12 @@
 				// ----------------------------------------
 				presentation : function( current ) {
 				// ----------------------------------------
+					var done = Object.keys( score.presentation ).length == 4;
 					$( '.' + current ).fadeOut( 200 );
 					$( '#controls' ).fadeOut( 200 );
 					$( '.technical-component' ).animate({ top: '65px', opacity: 1.0 }); 
-					$( '#presentation' ).show().find( 'table, .alert' ).fadeIn( 200 ); 
+					if( done ) { $( '.presentation-component, .alert' ).fadeIn( 200 ); }
+					else       { $( '#presentation' ).show().find( 'table, .alert' ).fadeIn( 200 ); }
 					$( '#deductions' ).fadeOut( 200 );
 
 					// In the presentation phase, user can change technical 
@@ -458,7 +473,62 @@
 				}
 			};
 
-			// ===== TECHNICAL SKILLS BUTTON BEHAVIOR
+			var html = FreeScore.html;
+			var timeline = {
+				widget: $( '.timeline' ),
+				add: ( i, ev ) => {
+					console.log( ev.time, score.deductions.timing.start.time );
+					var seconds = parseFloat( Math.abs( ev.time - score.deductions.timing.start.time ))/1000;
+					var min     = (seconds / 60).toFixed( 0 );
+					var sec     = (seconds % 60).toFixed( 1 );
+					var time    = min + ':' + (sec < 10 ? '0' + sec : sec);
+					var does    = undefined;
+					if( defined( ev.value )) {
+						if( ev.name == 'jumping-front-kicks-count' || ev.name == 'consecutive-kicks' ) {
+							if( ev.value >= 0.6 ) { does = ' performed excellent '; } else
+							if( ev.value >= 0.3 ) { does = ' performed good ';      } else
+							if( ev.value >= 0.1 ) { does = ' performed poor ';      } else
+							if( ev.value == 0.0 ) { does = ' did not perform ';     } 
+						} else {
+							if( ev.value >= 0.6 ) { does = ' performed an excellent '; } else
+							if( ev.value >= 0.3 ) { does = ' performed a good ';       } else
+							if( ev.value >= 0.1 ) { does = ' performed a poor ';       } else
+							if( ev.value == 0.0 ) { does = ' did not perform a ';      }
+						}
+					}
+					var settings = {
+						'start':               { context: 'success', icon: 'glyphicon-time',         heading: 'Start',               text: 'Music and performance start' },
+						'jumping-side-kick':   { context: 'info',    icon: 'jumping-side-kick.png',  heading: 'Jumping Side Kick',   text: 'Athlete' + does + 'jumping side kick' },
+						'jumping-front-kicks': { context: 'info',    icon: 'jumping-front-kick.png', heading: 'Jumping Front Kicks', text: 'Athlete' + does + 'jumping front kicks' },
+						'jumping-spin-kick':   { context: 'info',    icon: 'jumping-spin-kick.png',  heading: 'Jumping Spin Kick',   text: 'Athlete' + does + 'jumping spin kick' },
+						'consecutive-kicks':   { context: 'info',    icon: 'consecutive-kicks.png',  heading: 'Consecutive Kicks',   text: 'Athlete' + does + 'sparring kicks' },
+						'acrobatic-kick':      { context: 'info',    icon: 'acrobatic-kick.png',     heading: 'Acrobatic Movements', text: 'Athlete' + does + 'acrobatic kick' },
+						'music-stop':          { context: 'danger',  icon: 'music.png',              heading: 'Music Stops',         text: 'Athlete' + does + 'acrobatic kick' },
+						'athlete-stop':        { context: 'danger',  icon: 'music.png',              heading: 'Athlete Stops',       text: 'Athlete' + does + 'acrobatic kick' },
+						'both-stop':           { context: 'danger',  icon: 'glyphicon-time',         heading: 'Finish',              text: 'Athlete finishes performance in time with the music' },
+						
+					}[ ev.name ];
+					settings.time = time;
+					var item    = html.li.clone().addClass( 'timeline-item' );
+					var badge   = html.div.clone().addClass( 'timeline-badge ' + settings.context );
+					var panel   = html.div.clone().addClass( 'timeline-panel' );
+					var heading = html.div.clone().addClass( 'timeline-heading' );
+					var body    = html.div.clone().addClass( 'timeline-body' ).append( html.p.clone().text( settings.text ) );
+					var notes   = html.p.clone().append( html.small.clone().addClass( 'text-muted' ), html.span.clone().addClass( 'glyphicon glyphicon-time' ), '&nbsp;', settings.time )
+
+					if( defined( ev.value )) {
+						if( ev.value >= 0 ) { notes.append( html.span.clone().addClass( 'points pull-right' ).text( '+' + ev.value.toFixed( 1 ) + ' points')); }
+						else                { notes.append( html.span.clone().addClass( 'deduction pull-right' ).text( ev.value.toFixed( 1 ) + ' points')); }
+					}
+
+					heading.append( html.h4.clone().addClass( 'timeline-title' ).text( settings.heading ), notes );
+
+					item.append( badge, panel.append( heading, body ));
+					$( '#deductions .timeline' ).append( item );
+				},
+			};
+
+			// ===== WHEN USER CLICKS ON A TECHNICAL SKILL, PROGRESS THROUGH THE SKILLS
 			var go = {
 				'mandatory-foot-technique-1'   : { score: 'mandatory-foot-technique-1-score', next: 'mandatory-foot-technique-2'   },
 				'mandatory-foot-technique-2'   : { score: 'mandatory-foot-technique-2-score', next: 'mandatory-foot-technique-3'   },
@@ -469,25 +539,34 @@
 				'basic-movements'              : { score: 'basic-movements-score',            next: false                          },
 			};
 
-			// ===== WHEN USER CLICKS ON A TECHNICAL SKILL, PROGRESS THROUGH THE SKILLS
+			// ===== TECHNICAL SKILLS BUTTON BEHAVIOR
 			$( '#technical-skills' ).find( 'label, .stop' ).off( 'click' ).click(( ev ) => {
-				var s = set.technical.score( ev );
+				var s  = set.technical.score( ev );
+
+				// ===== HANDLE MUSIC AND ATHLETE TIMING
+				if( s.name == 'athlete-stop' || s.name == 'music-stop' ) {
+					var other = s.name == 'athlete-stop' ? 'music-stop' : 'athlete-stop';
+					$( '#both-stop, #' + s.name ).off( 'click' );
+					$( '#both-stop, #' + s.name ).css({ opacity: 0.2 });
+					score.deductions.timing[ s.name ] = s.t_event;
+					if( ! defined( score.deductions.timing[ other ] ) ) { score.timeline.push( s.t_event ); return; }
+				}
 
 				// ===== NEXT SKILL
 				if( s.next ) { 
-					$( '.' + s.name ).fadeOut( 200, function() { $( '.' + s.next ).fadeIn( 200 ); });
+					$( '.' + s.buttons ).fadeOut( 200, function() { $( '.' + s.next ).fadeIn( 200 ); });
 
 				// ===== WHEN DONE, SHOW PRESENTATION
 				} else { 
-					show.presentation( s.name );
+					show.presentation( s.buttons );
 
 					$( '#technical-skills' ).find( 'label, .stop' ).off( 'click' ).click(( ev ) => {
 						var s = set.technical.score( ev );
-						show.presentation( s.name );
+						show.presentation( s.buttons );
 					});
 				}
 				$( '#' + s.results ).animate({ opacity: 1.0 });
-				score.timeline.push( s.t_event );
+				if( s.buttons != 'basic-movements' ) { score.timeline.push( s.t_event ); }
 			});
 
 			// ===== PRESENTATION BUTTON BEHAVIOR
@@ -496,9 +575,19 @@
 				var value = parseFloat( $( ev.target ).text());
 
 				score.presentation[ name ] = value;
+				$( '#' + name + '-score' ).find( '.component-score' ).html( value.toFixed( 1 ));
 
 				var sum = Object.keys( score.presentation ).reduce(( sum, key ) => { sum += score.presentation[ key ]; return sum; }, 0.0 );
 				$( '#presentation-score' ).html( sum.toFixed( 1 ));
+
+				// ===== WHEN DONE, SHOW DEDUCTIONS
+				if( Object.keys( score.presentation ).length == 4 ) {
+					$( '#presentation' ).find( 'table' ).fadeOut( 200, () => {
+						$( '.presentation-component' ).fadeIn().animate({ top: '65px' });
+						$.each( score.timeline, timeline.add );
+						$( '#deductions' ).fadeIn( 200 );
+					});
+				}
 			});
 
 		</script>

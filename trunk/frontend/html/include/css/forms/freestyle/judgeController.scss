@@ -134,9 +134,9 @@ table {
 }
 
 #creativity-score          { left: 0; }
-#harmony-score             { left: calc(  33% -  29px ); }
-#energy-score              { left: calc(  66% -  59px ); }
-#choreography-score        { left: calc( 100% - 103px ); }
+#harmony-score             { left: calc(  33% - 29px ); }
+#energy-score              { left: calc(  66% - 59px ); }
+#choreography-score        { left: calc( 100% - 88px ); }
 
 #controls {
 	position: absolute;
@@ -195,9 +195,27 @@ table {
 	.perfect   { display: inline-block; text-align: center; width: 13% }
 }
 
-.subtotal {
+.subtotal, .negative {
 	font-size: 40pt;
 	line-height: 18pt;
-	color: yellow;
 }
 
+.subtotal { color: yellow; }
+.negative { color: red; }
+
+#deductions {
+	position: absolute;
+	width: calc( 100% - 30px );
+	top: 320px;
+
+	#timeline {
+		display: inline-block;
+		width: 100%;
+		overflow-y: auto;
+	}
+}
+
+.timeline-heading {
+	.points    { color: green; }
+	.deduction { color: red; }
+}
