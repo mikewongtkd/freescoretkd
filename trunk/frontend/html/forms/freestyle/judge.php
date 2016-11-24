@@ -177,6 +177,16 @@
 						</td>
 					</tr>
 				</table>
+				<table class="performance-and-music-timing">
+					<tr>
+						<th>End of Performance</th>
+						<td class="button-group">
+							<button id="music-stop"   class="btn btn-lg btn-danger"  type="button">Music Stops</button>
+							<button id="athlete-stop" class="btn btn-lg btn-warning" type="button">Athlete Stops</button>
+							<button id="time-ok"      class="btn btn-lg btn-success" type="button">Athlete and Music Stop Together</button>
+						</td>
+					</tr>
+				</table>
 				<table class="basic-movements-and-practicality">
 					<tr>
 						<th>Technique &amp; practicality</th>
@@ -318,6 +328,7 @@
 				<img class="mandatory-foot-technique-icon mandatory-foot-technique-3"       src="../../images/icons/freestyle/jumping-spin-kick.png">
 				<img class="mandatory-foot-technique-icon mandatory-foot-technique-4"       src="../../images/icons/freestyle/consecutive-kicks.png">
 				<img class="mandatory-foot-technique-icon mandatory-foot-technique-5"       src="../../images/icons/freestyle/acrobatic-kick.png">
+				<img class="mandatory-foot-technique-icon performance-and-music-timing"     src="../../images/icons/freestyle/music.png">
 				<img class="mandatory-foot-technique-icon basic-movements-and-practicality" src="../../images/icons/freestyle/basic-movements.png">
 
 				<div id="major-deductions"></div>
@@ -332,7 +343,7 @@
 		</div>
 
 		<script>
-			var score = { technical: {}, presentation: {}, deduction: {} };
+			var score = { technical: {}, presentation: {}, deduction: {}, timeline: [] };
 
 			$( '#minor-deductions' ).deductions({ value: 0.1 });
 			$( '#major-deductions' ).deductions({ value: 0.3 });
@@ -352,35 +363,46 @@
 				'mandatory-foot-technique-2'       : { technique: 'mandatory-foot-technique-3',       score: 'jumping-front-kicks-score' },
 				'mandatory-foot-technique-3'       : { technique: 'mandatory-foot-technique-4',       score: 'jumping-spin-kick-score'   },
 				'mandatory-foot-technique-4'       : { technique: 'mandatory-foot-technique-5',       score: 'consecutive-kicks-score'   },
-				'mandatory-foot-technique-5'       : { technique: 'basic-movements-and-practicality', score: 'acrobatic-kick-score'      },
+				'mandatory-foot-technique-5'       : { technique: 'performance-and-music-timing',     score: 'acrobatic-kick-score'      },
+				'performance-and-music-timing'     : { technique: 'basic-movements-and-practicality', score: false                       },
 				'basic-movements-and-practicality' : { technique: false,                              score: 'basic-movements-score'     },
 			}};
 
+			// ===== SET INITIAL STATE: MOST EVERYTHING IS HIDDEN
 			$( '#technical-skills' ).find( 'table' ).hide();
 			$( '.mandatory-foot-technique-icon' ).hide();
 			$( '.technical-component' ).css({ opacity: 0.2 });
 			$( '#presentation' ).hide();
 
+			// ===== WHEN USER CLICKS ON START, LET THE FUN BEGIN
 			$( '#start' ).click(( ev ) => { 
 				$( '#start' ).hide();
 				$( '.mandatory-foot-technique-1' ).fadeIn( 200 );
+				score.timeline.push( { time: new Date( 'now' ), name: 'start' } );
 			});
-			$( '#technical-skills' ).find( 'label' ).click(( ev ) => {
+
+			// ===== WHEN USER CLICKS ON A TECHNICAL SKILL, PROGRESS THROUGH THE SKILLS
+			$( '#technical-skills' ).find( 'label, #time-ok' ).click(( ev ) => {
 				var name    = $( ev.target ).parent().attr( 'id' );
 				var value   = parseFloat( $( ev.target ).text());
 				var current = $( ev.target ).parents( 'table' ).attr( 'class' );
 				var next    = display.order[ current ].technique;
 				var results = display.order[ current ].score;
+				var tEvent  = { time: new Date( 'now' ), name: name };
 
-				score.technical[ name ] = value;
-				$( '#' + results ).find( '.component-score' ).html( value.toFixed( 1 ) );
+				if( ! isNaN( value )) {
+					score.technical[ name ] = value;
+					tEvent.value = value;
+					if( results ) { $( '#' + results ).find( '.component-score' ).html( value.toFixed( 1 ) ); }
 
-				var sum = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
-				$( '#technical-score' ).html( sum.toFixed( 1 ));
+					var sum = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
+					$( '#technical-score' ).html( sum.toFixed( 1 ));
+				}
 
 				if( next ) { $( '.' + current ).fadeOut( 200, function() { $( '.' + next ).fadeIn( 200 ); }); }
 				else       { $( '.' + current ).fadeOut( 200, function() { $( '#controls' ).fadeOut( 200 ); $( '.technical-component' ).animate({ top: '65px' }); $( '#presentation' ).fadeIn( 200 ); }); }
 				$( '#' + results ).animate({ opacity: 1.0 });
+				score.timeline.push( tEvent );
 			});
 
 			// ===== PRESENTATION BUTTON BEHAVIOR
