@@ -77,13 +77,12 @@ table {
 	width: 80%; 
 }
 
-.technical-component {
+.technical-component, .presentation-component {
 	position: absolute;
 	height: 88px;
 	width: 88px;
 	border-radius: 12px;
 	border: 4px solid #999;
-	top: 154px;
 
 	.component-label {
 		position: absolute;
@@ -93,7 +92,6 @@ table {
 		width: 80px;
 		padding: 4px 8px 4px 8px;
 		border-radius: 8px 8px 0 0;
-		background-color: #2a9fd6;
 		color: white;
 		font-size: 9pt;
 		text-align: center;
@@ -114,12 +112,31 @@ table {
 	}
 }
 
-#jumping-side-kick-score   { left: 15px; }
-#jumping-front-kicks-score { left: calc( 20%  - 13px ); }
-#jumping-spin-kick-score   { left: calc( 40%  - 33px ); }
-#consecutive-kicks-score   { left: calc( 60%  - 53px ); }
-#acrobatic-kick-score      { left: calc( 80%  - 74px ); }
-#basic-movements-score     { left: calc( 100% - 103px ); }
+.technical-component {
+	top: 154px;
+	.component-label {
+		background-color: #2a9fd6;
+	}
+}
+
+#mandatory-foot-technique-1-score { left: 15px;                 }
+#mandatory-foot-technique-2-score { left: calc(  20% -  13px ); }
+#mandatory-foot-technique-3-score { left: calc(  40% -  31px ); }
+#mandatory-foot-technique-4-score { left: calc(  60% -  53px ); }
+#mandatory-foot-technique-5-score { left: calc(  80% -  76px ); }
+#basic-movements-score            { left: calc( 100% - 103px ); }
+
+.presentation-component {
+	top: 344px;
+	.component-label {
+		background-color: #77b300;
+	}
+}
+
+#creativity-score          { left: 0; }
+#harmony-score             { left: calc(  33% -  29px ); }
+#energy-score              { left: calc(  66% -  59px ); }
+#choreography-score        { left: calc( 100% - 103px ); }
 
 #controls {
 	position: absolute;

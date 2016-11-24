@@ -181,17 +181,17 @@
 					<tr>
 						<th>End of Performance</th>
 						<td class="button-group">
-							<button id="music-stop"   class="btn btn-lg btn-danger"  type="button">Music Stops</button>
-							<button id="athlete-stop" class="btn btn-lg btn-warning" type="button">Athlete Stops</button>
-							<button id="time-ok"      class="btn btn-lg btn-success" type="button">Athlete and Music Stop Together</button>
+							<button id="music-stop"   class="btn btn-lg btn-danger  stop" type="button">Music Stops</button>
+							<button id="athlete-stop" class="btn btn-lg btn-warning stop" type="button">Athlete Stops</button>
+							<button id="both-stop"    class="btn btn-lg btn-success stop" type="button">Athlete and Music Stop Together</button>
 						</td>
 					</tr>
 				</table>
-				<table class="basic-movements-and-practicality">
+				<table class="basic-movements">
 					<tr>
 						<th>Technique &amp; practicality</th>
 						<td class="button-group">
-							<div id="basic-movements-and-practicality" class="btn-group" data-toggle="buttons">
+							<div id="basic-movements" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-warning"><input type="radio" name="basic-movements">0.0</label>
 								<label class="btn btn-warning"><input type="radio" name="basic-movements">0.1</label>
 								<label class="btn btn-warning"><input type="radio" name="basic-movements">0.2</label>
@@ -208,27 +208,27 @@
 					</tr>
 				</table>
 
-				<div class="technical-component" id="jumping-side-kick-score">
+				<div class="technical-component" id="mandatory-foot-technique-1-score">
 					<div class="component-label">Jumping side kick</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component" id="jumping-front-kicks-score">
+				<div class="technical-component" id="mandatory-foot-technique-2-score">
 					<div class="component-label">Jumping front kicks</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component" id="jumping-spin-kick-score">
+				<div class="technical-component" id="mandatory-foot-technique-3-score">
 					<div class="component-label">Jumping spin kick</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component" id="consecutive-kicks-score">
+				<div class="technical-component" id="mandatory-foot-technique-4-score">
 					<div class="component-label">Consecutive kicks</div>
 					<div class="component-score">0.0</div>
 				</div>
 
-				<div class="technical-component" id="acrobatic-kick-score">
+				<div class="technical-component" id="mandatory-foot-technique-5-score">
 					<div class="component-label">Acrobatic kick</div>
 					<div class="component-score">0.0</div>
 				</div>
@@ -237,6 +237,24 @@
 					<div class="component-label">Basic movements</div>
 					<div class="component-score">0.0</div>
 				</div>
+			</div>
+
+			<div id="controls">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-1"   src="../../images/icons/freestyle/jumping-side-kick.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-2"   src="../../images/icons/freestyle/jumping-front-kick.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-3"   src="../../images/icons/freestyle/jumping-spin-kick.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-4"   src="../../images/icons/freestyle/consecutive-kicks.png">
+				<img class="mandatory-foot-technique-icon mandatory-foot-technique-5"   src="../../images/icons/freestyle/acrobatic-kick.png">
+				<img class="mandatory-foot-technique-icon performance-and-music-timing" src="../../images/icons/freestyle/music.png">
+				<img class="mandatory-foot-technique-icon basic-movements"              src="../../images/icons/freestyle/basic-movements.png">
+
+				<div id="major-deductions"></div>
+				<div id="stances">
+					<div class="mandatory-stances" id="hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
+					<div class="mandatory-stances" id="beom-seogi"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
+					<div class="mandatory-stances" id="dwigubi"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
+				</div>
+				<div id="minor-deductions"></div>
 			</div>
 
 			<div id="presentation">
@@ -248,7 +266,7 @@
 					<tr>
 						<th>Creativity</th>
 						<td class="button-group">
-							<div id="creativity-score" class="btn-group" data-toggle="buttons">
+							<div id="creativity" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-success"><input type="radio" name="creativity">0.0</label>
 								<label class="btn btn-success"><input type="radio" name="creativity">0.1</label>
 								<label class="btn btn-success"><input type="radio" name="creativity">0.2</label>
@@ -267,7 +285,7 @@
 					</tr><tr>
 						<th>Harmony</th>
 						<td class="button-group">
-							<div id="harmony-score" class="btn-group" data-toggle="buttons">
+							<div id="harmony" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-success"><input type="radio" name="harmony">0.0</label>
 								<label class="btn btn-success"><input type="radio" name="harmony">0.1</label>
 								<label class="btn btn-success"><input type="radio" name="harmony">0.2</label>
@@ -286,7 +304,7 @@
 					</tr><tr>
 						<th>Expression of Energy</th>
 						<td class="button-group">
-							<div id="energy-score" class="btn-group" data-toggle="buttons">
+							<div id="energy" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-success"><input type="radio" name="energy">0.0</label>
 								<label class="btn btn-success"><input type="radio" name="energy">0.1</label>
 								<label class="btn btn-success"><input type="radio" name="energy">0.2</label>
@@ -305,7 +323,7 @@
 					</tr><tr>
 						<th>Music &amp; Choreography</th>
 						<td class="button-group">
-							<div id="choreography-score" class="btn-group" data-toggle="buttons">
+							<div id="choreography" class="btn-group" data-toggle="buttons">
 								<label class="btn btn-success"><input type="radio" name="choreography">0.0</label>
 								<label class="btn btn-success"><input type="radio" name="choreography">0.1</label>
 								<label class="btn btn-success"><input type="radio" name="choreography">0.2</label>
@@ -321,25 +339,30 @@
 						</td>
 					</tr>
 				</table>
-			</div>
-			<div id="controls">
-				<img class="mandatory-foot-technique-icon mandatory-foot-technique-1"       src="../../images/icons/freestyle/jumping-side-kick.png">
-				<img class="mandatory-foot-technique-icon mandatory-foot-technique-2"       src="../../images/icons/freestyle/jumping-front-kick.png">
-				<img class="mandatory-foot-technique-icon mandatory-foot-technique-3"       src="../../images/icons/freestyle/jumping-spin-kick.png">
-				<img class="mandatory-foot-technique-icon mandatory-foot-technique-4"       src="../../images/icons/freestyle/consecutive-kicks.png">
-				<img class="mandatory-foot-technique-icon mandatory-foot-technique-5"       src="../../images/icons/freestyle/acrobatic-kick.png">
-				<img class="mandatory-foot-technique-icon performance-and-music-timing"     src="../../images/icons/freestyle/music.png">
-				<img class="mandatory-foot-technique-icon basic-movements-and-practicality" src="../../images/icons/freestyle/basic-movements.png">
 
-				<div id="major-deductions"></div>
-				<div id="stances">
-					<div class="mandatory-stances" id="hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
-					<div class="mandatory-stances" id="beom-seogi"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
-					<div class="mandatory-stances" id="dwigubi"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
+				<div class="presentation-component" id="creativity-score">
+					<div class="component-label">Creativity</div>
+					<div class="component-score">0.0</div>
 				</div>
-				<div id="minor-deductions"></div>
+
+				<div class="presentation-component" id="harmony-score">
+					<div class="component-label">Harmony</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="presentation-component" id="energy-score">
+					<div class="component-label">Expression of Energy</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="presentation-component" id="choreography-score">
+					<div class="component-label">Music &amp; Choreography</div>
+					<div class="component-score">0.0</div>
+				</div>
 			</div>
 
+			<div id="deductions">
+			</div>
 		</div>
 
 		<script>
@@ -357,22 +380,12 @@
 				else                            { clicked.addClass( 'done' ); }
 			});
 
-			// ===== TECHNICAL SKILLS BUTTON BEHAVIOR
-			var display = { order : {
-				'mandatory-foot-technique-1'       : { technique: 'mandatory-foot-technique-2',       score: 'jumping-side-kick-score'   },
-				'mandatory-foot-technique-2'       : { technique: 'mandatory-foot-technique-3',       score: 'jumping-front-kicks-score' },
-				'mandatory-foot-technique-3'       : { technique: 'mandatory-foot-technique-4',       score: 'jumping-spin-kick-score'   },
-				'mandatory-foot-technique-4'       : { technique: 'mandatory-foot-technique-5',       score: 'consecutive-kicks-score'   },
-				'mandatory-foot-technique-5'       : { technique: 'performance-and-music-timing',     score: 'acrobatic-kick-score'      },
-				'performance-and-music-timing'     : { technique: 'basic-movements-and-practicality', score: false                       },
-				'basic-movements-and-practicality' : { technique: false,                              score: 'basic-movements-score'     },
-			}};
-
 			// ===== SET INITIAL STATE: MOST EVERYTHING IS HIDDEN
 			$( '#technical-skills' ).find( 'table' ).hide();
-			$( '.mandatory-foot-technique-icon' ).hide();
 			$( '.technical-component' ).css({ opacity: 0.2 });
+			$( '.mandatory-foot-technique-icon' ).hide();
 			$( '#presentation' ).hide();
+			$( '.presentation-component' ).hide();
 
 			// ===== WHEN USER CLICKS ON START, LET THE FUN BEGIN
 			$( '#start' ).click(( ev ) => { 
@@ -381,28 +394,100 @@
 				score.timeline.push( { time: new Date( 'now' ), name: 'start' } );
 			});
 
-			// ===== WHEN USER CLICKS ON A TECHNICAL SKILL, PROGRESS THROUGH THE SKILLS
-			$( '#technical-skills' ).find( 'label, #time-ok' ).click(( ev ) => {
-				var name    = $( ev.target ).parent().attr( 'id' );
-				var value   = parseFloat( $( ev.target ).text());
-				var current = $( ev.target ).parents( 'table' ).attr( 'class' );
-				var next    = display.order[ current ].technique;
-				var results = display.order[ current ].score;
-				var tEvent  = { time: new Date( 'now' ), name: name };
+			// ============================================================
+			// SCORE SET AND DISPLAY FUNCTIONS
+			// ============================================================
+			var set = {
+				// ----------------------------------------
+				technical : { score: function( ev ) {
+				// ----------------------------------------
+					var name    = $( ev.target ).parent().attr( 'id' );
+					var value   = parseFloat( $( ev.target ).text());
+					var current = $( ev.target ).parents( 'table' ).attr( 'class' );
+					var results = go[ current ].score;
+					var next    = go[ current ].next;
+					var t_event = { time: new Date( 'now' ), name: name };
 
-				if( ! isNaN( value )) {
-					score.technical[ name ] = value;
-					tEvent.value = value;
-					if( results ) { $( '#' + results ).find( '.component-score' ).html( value.toFixed( 1 ) ); }
+					if( results ) {
+						score.technical[ name ] = value;
+						t_event.value = value;
+						if( results ) { $( '#' + results ).find( '.component-score' ).html( value.toFixed( 1 ) ); }
 
-					var sum = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
-					$( '#technical-score' ).html( sum.toFixed( 1 ));
+						var sum = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
+						$( '#technical-score' ).html( sum.toFixed( 1 ));
+					}
+
+					return { name : current, next : next, results: results, value: value, t_event: t_event };
+				}}
+			};
+
+			var show = {
+				// ----------------------------------------
+				technical : function( current ) {
+				// ----------------------------------------
+					$( '#presentation' ).find( 'table, .alert' ).fadeOut( 200 );
+					$( '.technical-component' ).animate({ top: '154px' }).off( 'click' );
+					$( '.technical-component' ).css({ opacity: 0.5 });
+					$( '#' + current + '-score' ).css({ opacity: 1.0 });
+					$( '.' + current ).fadeIn( 200 );
+					$( '#controls' ).fadeIn( 200 );
+					$( '#deductions' ).fadeOut( 200 );
+				},
+				// ----------------------------------------
+				presentation : function( current ) {
+				// ----------------------------------------
+					$( '.' + current ).fadeOut( 200 );
+					$( '#controls' ).fadeOut( 200 );
+					$( '.technical-component' ).animate({ top: '65px', opacity: 1.0 }); 
+					$( '#presentation' ).show().find( 'table, .alert' ).fadeIn( 200 ); 
+					$( '#deductions' ).fadeOut( 200 );
+
+					// In the presentation phase, user can change technical 
+					// scores by tapping the score they want to change
+					$( '.technical-component' ).off( 'click' ).click(( ev ) => {
+						var clicked = $( ev.target );
+						if( ! clicked.hasClass( 'technical-component' )) { clicked = clicked.parent(); }
+						var current = clicked.attr( 'id' ).replace( /\-score$/, '' );
+						show.technical( current );
+					});
+				},
+				// ----------------------------------------
+				deductions: function() {
+				// ----------------------------------------
+					$( '#deductions' ).fadeIn( 200 );
 				}
+			};
 
-				if( next ) { $( '.' + current ).fadeOut( 200, function() { $( '.' + next ).fadeIn( 200 ); }); }
-				else       { $( '.' + current ).fadeOut( 200, function() { $( '#controls' ).fadeOut( 200 ); $( '.technical-component' ).animate({ top: '65px' }); $( '#presentation' ).fadeIn( 200 ); }); }
-				$( '#' + results ).animate({ opacity: 1.0 });
-				score.timeline.push( tEvent );
+			// ===== TECHNICAL SKILLS BUTTON BEHAVIOR
+			var go = {
+				'mandatory-foot-technique-1'   : { score: 'mandatory-foot-technique-1-score', next: 'mandatory-foot-technique-2'   },
+				'mandatory-foot-technique-2'   : { score: 'mandatory-foot-technique-2-score', next: 'mandatory-foot-technique-3'   },
+				'mandatory-foot-technique-3'   : { score: 'mandatory-foot-technique-3-score', next: 'mandatory-foot-technique-4'   },
+				'mandatory-foot-technique-4'   : { score: 'mandatory-foot-technique-4-score', next: 'mandatory-foot-technique-5'   },
+				'mandatory-foot-technique-5'   : { score: 'mandatory-foot-technique-5-score', next: 'performance-and-music-timing' },
+				'performance-and-music-timing' : { score: false,                              next: 'basic-movements'              },
+				'basic-movements'              : { score: 'basic-movements-score',            next: false                          },
+			};
+
+			// ===== WHEN USER CLICKS ON A TECHNICAL SKILL, PROGRESS THROUGH THE SKILLS
+			$( '#technical-skills' ).find( 'label, .stop' ).off( 'click' ).click(( ev ) => {
+				var s = set.technical.score( ev );
+
+				// ===== NEXT SKILL
+				if( s.next ) { 
+					$( '.' + s.name ).fadeOut( 200, function() { $( '.' + s.next ).fadeIn( 200 ); });
+
+				// ===== WHEN DONE, SHOW PRESENTATION
+				} else { 
+					show.presentation( s.name );
+
+					$( '#technical-skills' ).find( 'label, .stop' ).off( 'click' ).click(( ev ) => {
+						var s = set.technical.score( ev );
+						show.presentation( s.name );
+					});
+				}
+				$( '#' + s.results ).animate({ opacity: 1.0 });
+				score.timeline.push( s.t_event );
 			});
 
 			// ===== PRESENTATION BUTTON BEHAVIOR
