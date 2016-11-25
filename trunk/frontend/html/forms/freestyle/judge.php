@@ -254,9 +254,9 @@
 
 				<div id="major-deductions"></div>
 				<div id="stances">
-					<div class="mandatory-stances" id="hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
-					<div class="mandatory-stances" id="beom-seogi"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
-					<div class="mandatory-stances" id="dwigubi"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
+					<div class="mandatory-stances hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
+					<div class="mandatory-stances beom-seogi"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
+					<div class="mandatory-stances dwigubi"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
 				</div>
 				<div id="minor-deductions"></div>
 			</div>
@@ -387,9 +387,11 @@
 					<div class="component-label">Minor deductions</div>
 					<div class="component-score">0.0</div>
 				</div>
-
-				<div class="deduction-component" id="mandatory-stances-score">
-				</div>
+			</div>
+			<div id="stance-deductions">
+				<div class="mandatory-stances hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
+				<div class="mandatory-stances beom-seogi"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
+				<div class="mandatory-stances dwigubi"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
 			</div>
 		</div>
 
@@ -418,7 +420,6 @@
 				var s       = score.deductions.stances;
 				var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += 0.3; }; return acc; }, 0.0 );
 				$( '#major-deduction-score .component-score' ).text( (score.deductions.major + stances).toFixed( 1 ));
-				console.log( $( '#major-deduction-score .component-score' ).text() );
 			}
 
 			$( '#major-deductions' ).deductions({ value: 0.3 });
@@ -437,9 +438,10 @@
 			$( '.mandatory-stances' ).off( 'click' ).click(( b ) => {
 				var clicked = $( b.target );
 				if( clicked.is( 'img' )) { clicked = clicked.parent(); }
-				var name = clicked.attr( 'id' );
-				if( clicked.hasClass( 'done' )) { clicked.removeClass( 'done' ); score.deductions.stances[ name ] = true;  }
-				else                            { clicked.addClass( 'done' );    score.deductions.stances[ name ] = false; }
+				var name = (clicked.attr( 'class' ).match( /(?:hakdari-seogi|beom-seogi|dwigubi)/ )).shift();
+				console.log( name );
+				if( clicked.hasClass( 'done' )) { $( '.' + name ).removeClass( 'done' ); score.deductions.stances[ name ] = true;  }
+				else                            { $( '.' + name ).addClass( 'done' );    score.deductions.stances[ name ] = false; }
 
 				update_major_deductions();
 			});

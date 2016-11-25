@@ -106,11 +106,11 @@
     #stances .done img {
       opacity: 1.0;
       filter: sepia(100%) saturate(100000%) hue-rotate(40deg); }
-  #stances #hakdari-seogi {
+  #stances .hakdari-seogi {
     left: 0; }
-  #stances #beom-seogi {
+  #stances .beom-seogi {
     left: 80px; }
-  #stances #dwigubi {
+  #stances .dwigubi {
     left: 160px; }
 
 table {
@@ -134,13 +134,13 @@ table {
   margin-right: 10%;
   width: 80%; }
 
-.technical-component, .presentation-component {
+.technical-component, .presentation-component, .deduction-component {
   position: absolute;
   height: 88px;
   width: 88px;
   border-radius: 12px;
   border: 4px solid #999; }
-  .technical-component .component-label, .presentation-component .component-label {
+  .technical-component .component-label, .presentation-component .component-label, .deduction-component .component-label {
     position: absolute;
     top: 0;
     left: 0;
@@ -151,7 +151,7 @@ table {
     color: white;
     font-size: 9pt;
     text-align: center; }
-  .technical-component .component-score, .presentation-component .component-score {
+  .technical-component .component-score, .presentation-component .component-score, .deduction-component .component-score {
     position: absolute;
     top: 40px;
     left: 0;
@@ -311,31 +311,75 @@ table {
     display: inline-block;
     width: 100%;
     overflow-y: auto; }
-
-.timeline-heading .points {
-  color: green; }
-.timeline-heading .deduction {
-  color: red; }
-
-.timeline-item {
-  height: 200px !important;
-  min-width: 200px !important; }
-  .timeline-item .timeline-badge {
-    font-size: 28pt !important;
-    line-height: 38pt !important; }
-    .timeline-item .timeline-badge img {
-      height: 48px;
-      width: 48px; }
-  .timeline-item .timeline-panel {
-    border-radius: 6px !important;
-    padding: 10px !important; }
-    .timeline-item .timeline-panel .timeline-heading h4.timeline-title {
-      font-size: 12pt !important;
-      margin-bottom: 6px !important; }
-    .timeline-item .timeline-panel .timeline-heading .timeline-notes {
-      font-size: 9pt !important;
-      margin-bottom: 6px !important; }
-    .timeline-item .timeline-panel .timeline-body {
-      font-size: 9pt !important; }
+  #deductions .timeline-heading .points {
+    color: green; }
+  #deductions .timeline-heading .deduction {
+    color: red; }
+  #deductions .timeline-item {
+    height: 200px !important;
+    min-width: 200px !important; }
+    #deductions .timeline-item .timeline-badge {
+      font-size: 28pt !important;
+      line-height: 38pt !important; }
+      #deductions .timeline-item .timeline-badge img {
+        height: 48px;
+        width: 48px; }
+    #deductions .timeline-item .timeline-panel {
+      border-radius: 6px !important;
+      padding: 10px !important; }
+      #deductions .timeline-item .timeline-panel .timeline-heading h4.timeline-title {
+        font-size: 12pt !important;
+        margin-bottom: 6px !important; }
+      #deductions .timeline-item .timeline-panel .timeline-heading .timeline-notes {
+        font-size: 9pt !important;
+        margin-bottom: 6px !important; }
+      #deductions .timeline-item .timeline-panel .timeline-body {
+        font-size: 9pt !important; }
+  #deductions .deduction-component .component-label {
+    background-color: #ba1f1f; }
+  #deductions .deduction-scores {
+    position: absolute;
+    width: 100%;
+    top: -16px; }
+    #deductions .deduction-scores #major-deduction-score {
+      left: 240px; }
+    #deductions .deduction-scores #minor-deduction-score {
+      left: 340px; }
+    #deductions .deduction-scores #mandatory-stances-score {
+      left: 340px; }
+  #deductions #stance-deductions {
+    position: absolute;
+    left: 440px;
+    top: -16px;
+    width: 200px; }
+    #deductions #stance-deductions .btn-xs {
+      font-size: 12pt;
+      margin-top: -8px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      width: 112px; }
+    #deductions #stance-deductions .mandatory-stances {
+      position: absolute;
+      top: 0;
+      font-size: 9pt;
+      width: 80px;
+      text-align: center;
+      color: #ba1f1f; }
+      #deductions #stance-deductions .mandatory-stances img {
+        height: 80px; }
+      #deductions #stance-deductions .mandatory-stances img {
+        opacity: 1.0;
+        filter: sepia(100%) brightness(10%) saturate(100000%) hue-rotate(280deg); }
+    #deductions #stance-deductions .done {
+      color: #999; }
+      #deductions #stance-deductions .done img {
+        opacity: 0.2;
+        filter: sepia(0%) saturate(100%) hue-rotate(-280deg); }
+    #deductions #stance-deductions .hakdari-seogi {
+      left: 0; }
+    #deductions #stance-deductions .beom-seogi {
+      left: 80px; }
+    #deductions #stance-deductions .dwigubi {
+      left: 160px; }
 
 /*# sourceMappingURL=judgeController.css.map */
