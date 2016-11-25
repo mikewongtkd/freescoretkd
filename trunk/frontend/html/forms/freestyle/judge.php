@@ -376,24 +376,77 @@
 				<ul class="timeline timeline-horizontal">
 				</ul>
 			</div>
+
+			<div class="deduction-scores">
+				<div class="deduction-component" id="major-deduction-score">
+					<div class="component-label">Major deductions</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="deduction-component" id="minor-deduction-score">
+					<div class="component-label">Minor deductions</div>
+					<div class="component-score">0.0</div>
+				</div>
+
+				<div class="deduction-component" id="mandatory-stances-score">
+				</div>
+			</div>
 		</div>
 
 		<script>
-			var score = { technical: {}, presentation: {}, deductions: { stances: {}, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: [], major: [] }, timeline: [] };
+			var score = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': true, 'beom-seogi': true, 'dwigubi': true }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }, timeline: [] };
 
+			// ============================================================
+			// DEDUCTION BUTTON BEHAVIOR
+			// ============================================================
 			$( '#minor-deductions' ).deductions({ value: 0.1 });
-			$( '#major-deductions' ).deductions({ value: 0.3 });
+			$( '#minor-deductions' ).on( 'change', ( ev, value ) => {
+				score.deductions.minor = value;
+				var t_event = { time: Date.now(), name: 'minor-deduction', value: -0.1 };
+				var n       = score.timeline.length - 1;
+				var last    = score.timeline[ n ];
+				var near    = last.name == 'minor-deduction' && Math.abs( last.time - t_event.time ) < 1500; // Same penalty type and within 1.5 seconds
 
-			// ===== MANDATORY STANCES BUTTON BEHAVIOR
+				$( '#minor-deduction-score .component-score' ).text( value.toFixed( 1 ));
+
+				// Cluster together minor penalties that are near to each other
+				if( near ) { last.value -= 0.1; } 
+				else       { score.timeline.push( t_event ); }
+			});
+
+			var update_major_deductions = function() {
+				var s       = score.deductions.stances;
+				var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += 0.3; }; return acc; }, 0.0 );
+				$( '#major-deduction-score .component-score' ).text( (score.deductions.major + stances).toFixed( 1 ));
+				console.log( $( '#major-deduction-score .component-score' ).text() );
+			}
+
+			$( '#major-deductions' ).deductions({ value: 0.3 });
+			$( '#major-deductions' ).on( 'change', ( ev, value ) => {
+				score.deductions.major = value;
+				var t_event = { time: Date.now(), name: 'major-deduction', value: -0.3 };
+
+				update_major_deductions();
+				score.timeline.push( t_event );
+			});
+			
+			// ============================================================
+			// MANDATORY STANCES BUTTON BEHAVIOR
+			// ============================================================
 			$( '.mandatory-stances' ).find( 'img' ).removeClass( 'done' );
 			$( '.mandatory-stances' ).off( 'click' ).click(( b ) => {
 				var clicked = $( b.target );
 				if( clicked.is( 'img' )) { clicked = clicked.parent(); }
-				if( clicked.hasClass( 'done' )) { clicked.removeClass( 'done' ); }
-				else                            { clicked.addClass( 'done' ); }
+				var name = clicked.attr( 'id' );
+				if( clicked.hasClass( 'done' )) { clicked.removeClass( 'done' ); score.deductions.stances[ name ] = true;  }
+				else                            { clicked.addClass( 'done' );    score.deductions.stances[ name ] = false; }
+
+				update_major_deductions();
 			});
 
-			// ===== SET INITIAL STATE: MOST EVERYTHING IS HIDDEN
+			// ============================================================
+			// INITIAL STATE: MOST EVERYTHING IS HIDDEN
+			// ============================================================
 			$( '#technical-skills' ).find( 'table' ).hide();
 			$( '.technical-component' ).css({ opacity: 0.2 });
 			$( '.mandatory-foot-technique-icon' ).hide();
@@ -483,9 +536,12 @@
 				}
 			};
 
+			// ============================================================
+			// TIMELINE BEHAVIOR
+			// ============================================================
 			var html = FreeScore.html;
 			var timeline = {
-				widget: $( '.timeline' ),
+				widget: $( '#deductions .timeline' ),
 				add: ( i, ev ) => {
 					var seconds = parseFloat( Math.abs( ev.time - score.deductions.timing.start.time ))/1000;
 					var min     = (seconds / 60).toFixed( 0 );
@@ -505,16 +561,31 @@
 							if( ev.value == 0.0 ) { does = ' did not perform a ';      }
 						}
 					}
+
+					// ===== IF THE ATHLETE DOESN'T STOP IN TIME WITH THE MUSIC, ASSIGN PENALTY
+					var stop = { music: score.deductions.timing[ 'music-stop' ], athlete: score.deductions.timing[ 'athlete-stop' ] };
+					if( defined( stop.music ) && defined( stop.athlete )) {
+						var delta = (Math.abs( stop.music.time - stop.athlete.time )/1000);
+						if( stop.music.time < stop.athlete.time ) { 
+							stop.music.text   = 'Music stopped ' +   delta.toFixed( 1 ) + 's before the athlete'; 
+							stop.athlete.text = 'Athlete stopped ' + delta.toFixed( 1 ) + 's after the music'; 
+						} else {
+							stop.music.text   = 'Music stopped ' +   delta.toFixed( 1 ) + 's after the athlete'; 
+							stop.athlete.text = 'Athlete stopped ' + delta.toFixed( 1 ) + 's before the music'; 
+						}
+					}
 					var settings = {
-						'start':               { context: 'success', icon: 'glyphicon-time',         heading: 'Start',               text: 'Music and performance start' },
-						'jumping-side-kick':   { context: 'info',    icon: 'jumping-side-kick.png',  heading: 'Jumping Side Kick',   text: 'Athlete' + does + 'jumping side kick' },
-						'jumping-front-kicks': { context: 'info',    icon: 'jumping-front-kick.png', heading: 'Jumping Front Kicks', text: 'Athlete' + does + 'jumping front kicks' },
-						'jumping-spin-kick':   { context: 'info',    icon: 'jumping-spin-kick.png',  heading: 'Jumping Spin Kick',   text: 'Athlete' + does + 'jumping spin kick' },
-						'consecutive-kicks':   { context: 'info',    icon: 'consecutive-kicks.png',  heading: 'Consecutive Kicks',   text: 'Athlete' + does + 'sparring kicks' },
-						'acrobatic-kick':      { context: 'info',    icon: 'acrobatic-kick.png',     heading: 'Acrobatic Kick',      text: 'Athlete' + does + 'acrobatic kick' },
-						'music-stop':          { context: 'danger',  icon: 'music.png',              heading: 'Music Stops',         text: 'Athlete' + does + 'acrobatic kick' },
-						'athlete-stop':        { context: 'danger',  icon: 'music.png',              heading: 'Athlete Stops',       text: 'Athlete' + does + 'acrobatic kick' },
-						'both-stop':           { context: 'danger',  icon: 'glyphicon-time',         heading: 'Finish',              text: 'Athlete performance stops with the music' },
+						'start':               { context: 'success', icon: 'glyphicon-time',             heading: 'Start',               text: 'Music and performance start' },
+						'jumping-side-kick':   { context: 'info',    icon: 'jumping-side-kick.png',      heading: 'Jumping Side Kick',   text: 'Athlete' + does + 'jumping side kick' },
+						'jumping-front-kicks': { context: 'info',    icon: 'jumping-front-kick.png',     heading: 'Jumping Front Kicks', text: 'Athlete' + does + 'jumping front kicks' },
+						'jumping-spin-kick':   { context: 'info',    icon: 'jumping-spin-kick.png',      heading: 'Jumping Spin Kick',   text: 'Athlete' + does + 'jumping spin kick' },
+						'consecutive-kicks':   { context: 'info',    icon: 'consecutive-kicks.png',      heading: 'Consecutive Kicks',   text: 'Athlete' + does + 'sparring kicks' },
+						'acrobatic-kick':      { context: 'info',    icon: 'acrobatic-kick.png',         heading: 'Acrobatic Kick',      text: 'Athlete' + does + 'acrobatic kick' },
+						'major-deduction':     { context: 'danger',  icon: 'glyphicon-remove-sign',      heading: 'Major Deduction(s)',  text: 'Athlete is awarded a major penalty' },
+						'minor-deduction':     { context: 'danger',  icon: 'glyphicon-exclamation-sign', heading: 'Minor Deduction(s)',  text: 'Athlete is awarded ' + (Math.round( ev.value/-0.1 ) > 1 ? Math.round( ev.value/-0.1 ) + ' minor penalties' : 'a minor penalty') },
+						'music-stop':          { context: 'danger',  icon: 'music.png',                  heading: 'Music Stops',         text: ev.text },
+						'athlete-stop':        { context: 'danger',  icon: 'music.png',                  heading: 'Athlete Stops',       text: ev.text },
+						'both-stop':           { context: 'danger',  icon: 'glyphicon-time',             heading: 'Finish',              text: 'Athlete performance stops with the music' },
 						
 					}[ ev.name ];
 					settings.time = time;
@@ -539,11 +610,13 @@
 					heading.append( html.h4.clone().addClass( 'timeline-title' ).text( settings.heading ), notes );
 
 					item.append( badge, panel.append( heading, body ));
-					$( '#deductions .timeline' ).append( item );
+					timeline.widget.append( item );
 				},
 			};
 
-			// ===== WHEN USER CLICKS ON A TECHNICAL SKILL, PROGRESS THROUGH THE SKILLS
+			// ============================================================
+			// PROGRESS THROUGH THE TECHNICAL SKILLS
+			// ============================================================
 			var go = {
 				'mandatory-foot-technique-1'   : { score: 'mandatory-foot-technique-1-score', next: 'mandatory-foot-technique-2'   },
 				'mandatory-foot-technique-2'   : { score: 'mandatory-foot-technique-2-score', next: 'mandatory-foot-technique-3'   },
@@ -554,7 +627,9 @@
 				'basic-movements'              : { score: 'basic-movements-score',            next: false                          },
 			};
 
-			// ===== TECHNICAL SKILLS BUTTON BEHAVIOR
+			// ============================================================
+			// TECHNICAL SKILLS BUTTON BEHAVIOR
+			// ============================================================
 			$( '#technical-skills' ).find( 'label, .stop' ).off( 'click' ).click(( ev ) => {
 				var s  = set.technical.score( ev );
 
@@ -584,7 +659,9 @@
 				if( s.buttons != 'basic-movements' ) { score.timeline.push( s.t_event ); }
 			});
 
-			// ===== PRESENTATION BUTTON BEHAVIOR
+			// ============================================================
+			// PRESENTATION BUTTON BEHAVIOR
+			// ============================================================
 			$( '#presentation' ).find( 'label' ).click(( ev ) => {
 				var name  = $( ev.target ).parent().attr( 'id' );
 				var value = parseFloat( $( ev.target ).text());

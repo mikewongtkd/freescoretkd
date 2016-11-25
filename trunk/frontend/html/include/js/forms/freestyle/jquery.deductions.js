@@ -12,7 +12,7 @@ $.widget( "freescore.deductions", {
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
 
 		var label      = e.label  = html.div.clone() .addClass( "deduction-label" ) .html( o.value == 0.1 ? "Minor Deductions" : "Major Deductions" );
-		var view       = e.view   = html.div.clone() .addClass( "view" ) .html( o.count );
+		var view       = e.view   = html.div.clone() .addClass( "view" ) .html(( o.count * o.value ).toFixed( 1 ));
 		var remove     = e.remove = html.div.clone();
 		var add        = e.add    = html.div.clone();
 
@@ -35,22 +35,22 @@ $.widget( "freescore.deductions", {
 			if( o.count == 0 ) { return; }
 			else {
 				o.count--;
-				e.view.html( o.count );
+				e.view.html( '-' + ( o.count * o.value ).toFixed( 1 ));
 				if( o.count == 0 ) {
 					if( o.value == 0.1 ) { e.remove.removeClass( 'remove-minor' ) .addClass( 'disabled' ); }
 					else                 { e.remove.removeClass( 'remove-major' ) .addClass( 'disabled' ); }
 				}
-				widget.trigger( 'change' );
+				widget.trigger( 'change', [ o.value * o.count ]);
 				return;
 			}
 		});
 		add.on( 'tap', function() {
 			e.add.fadeTo( 75, 0.75, function() { e.add.fadeTo( 75, 1.0 ); } );
 			o.count++;
-			e.view.html( o.count );
+			e.view.html( '-' + ( o.count * o.value ).toFixed( 1 ));
 			if( o.value == 0.1 ) { e.remove.removeClass( 'disabled' ) .addClass( 'remove-minor' ); }
 			else                 { e.remove.removeClass( 'disabled' ) .addClass( 'remove-major' ); }
-			widget.trigger( 'change' );
+			widget.trigger( 'change', [ o.value * o.count ]);
 			return;
 		});
 	},
