@@ -165,45 +165,73 @@ table {
     line-height: 18pt;
     text-align: center; }
 
-.technical-component {
+.technical-component .component-label {
+  background-color: #2a9fd6; }
+
+.technical-scores {
+  position: absolute;
+  width: 100%;
   top: 154px; }
-  .technical-component .component-label {
-    background-color: #2a9fd6; }
+  .technical-scores #mandatory-foot-technique-1-score {
+    left: 15px; }
+  .technical-scores #mandatory-foot-technique-2-score {
+    left: calc(  20% -  13px ); }
+  .technical-scores #mandatory-foot-technique-3-score {
+    left: calc(  40% -  31px ); }
+  .technical-scores #mandatory-foot-technique-4-score {
+    left: calc(  60% -  53px ); }
+  .technical-scores #mandatory-foot-technique-5-score {
+    left: calc(  80% -  76px ); }
+  .technical-scores #basic-movements-score {
+    left: calc( 100% - 103px ); }
 
-#mandatory-foot-technique-1-score {
-  left: 15px; }
+.docked {
+  top: -16px; }
+  .docked #mandatory-foot-technique-1-score {
+    left: 240px; }
+  .docked #mandatory-foot-technique-2-score {
+    left: 340px; }
+  .docked #mandatory-foot-technique-3-score {
+    left: 440px; }
+  .docked #mandatory-foot-technique-4-score {
+    left: 540px; }
+  .docked #mandatory-foot-technique-5-score {
+    left: 640px; }
+  .docked #basic-movements-score {
+    left: 740px; }
 
-#mandatory-foot-technique-2-score {
-  left: calc(  20% -  13px ); }
+#presentation {
+  position: absolute;
+  top: 100px;
+  left: 15px;
+  width: calc( 100% - 30px ); }
 
-#mandatory-foot-technique-3-score {
-  left: calc(  40% -  31px ); }
+.presentation-component .component-label {
+  background-color: #77b300; }
 
-#mandatory-foot-technique-4-score {
-  left: calc(  60% -  53px ); }
+.presentation-scores {
+  position: absolute;
+  width: 100%;
+  top: -16px; }
+  .presentation-scores #creativity-score {
+    left: 0; }
+  .presentation-scores #harmony-score {
+    left: calc(  33% - 29px ); }
+  .presentation-scores #energy-score {
+    left: calc(  66% - 59px ); }
+  .presentation-scores #choreography-score {
+    left: calc( 100% - 88px ); }
 
-#mandatory-foot-technique-5-score {
-  left: calc(  80% -  76px ); }
-
-#basic-movements-score {
-  left: calc( 100% - 103px ); }
-
-.presentation-component {
-  top: 344px; }
-  .presentation-component .component-label {
-    background-color: #77b300; }
-
-#creativity-score {
-  left: 0; }
-
-#harmony-score {
-  left: calc(  33% - 29px ); }
-
-#energy-score {
-  left: calc(  66% - 59px ); }
-
-#choreography-score {
-  left: calc( 100% - 88px ); }
+.docked {
+  top: -16px; }
+  .docked #creativity-score {
+    left: 240px; }
+  .docked #harmony-score {
+    left: 340px; }
+  .docked #energy-score {
+    left: 440px; }
+  .docked #choreography-score {
+    left: 540px; }
 
 #controls {
   position: absolute;
@@ -223,12 +251,6 @@ table {
     position: absolute;
     top: 0;
     right: 0; }
-
-#presentation {
-  position: absolute;
-  top: 160px;
-  left: 15px;
-  width: calc( 100% - 30px ); }
 
 .alert-default, .btn-default {
   background-color: #777;
@@ -268,20 +290,23 @@ table {
     text-align: center;
     width: 13%; }
 
-.subtotal, .negative {
+.subtotal {
   font-size: 40pt;
   line-height: 18pt; }
 
-.subtotal {
-  color: yellow; }
+#technical-skills .subtotal {
+  color: #2a9fd6; }
 
-.negative {
-  color: red; }
+#presentation .subtotal {
+  color: #77b300; }
+
+#deductions .subtotal {
+  color: #ba1f1f; }
 
 #deductions {
   position: absolute;
   width: calc( 100% - 30px );
-  top: 320px; }
+  top: 200px; }
   #deductions #timeline {
     display: inline-block;
     width: 100%;
@@ -291,5 +316,26 @@ table {
   color: green; }
 .timeline-heading .deduction {
   color: red; }
+
+.timeline-item {
+  height: 200px !important;
+  min-width: 200px !important; }
+  .timeline-item .timeline-badge {
+    font-size: 28pt !important;
+    line-height: 38pt !important; }
+    .timeline-item .timeline-badge img {
+      height: 48px;
+      width: 48px; }
+  .timeline-item .timeline-panel {
+    border-radius: 6px !important;
+    padding: 10px !important; }
+    .timeline-item .timeline-panel .timeline-heading h4.timeline-title {
+      font-size: 12pt !important;
+      margin-bottom: 6px !important; }
+    .timeline-item .timeline-panel .timeline-heading .timeline-notes {
+      font-size: 9pt !important;
+      margin-bottom: 6px !important; }
+    .timeline-item .timeline-panel .timeline-body {
+      font-size: 9pt !important; }
 
 /*# sourceMappingURL=judgeController.css.map */

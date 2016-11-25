@@ -210,34 +210,36 @@
 					</tr>
 				</table>
 
-				<div class="technical-component" id="mandatory-foot-technique-1-score">
-					<div class="component-label">Jumping side kick</div>
-					<div class="component-score">0.0</div>
-				</div>
+				<div class="technical-scores">
+					<div class="technical-component" id="mandatory-foot-technique-1-score">
+						<div class="component-label">Jumping side kick</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="technical-component" id="mandatory-foot-technique-2-score">
-					<div class="component-label">Jumping front kicks</div>
-					<div class="component-score">0.0</div>
-				</div>
+					<div class="technical-component" id="mandatory-foot-technique-2-score">
+						<div class="component-label">Jumping front kicks</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="technical-component" id="mandatory-foot-technique-3-score">
-					<div class="component-label">Jumping spin kick</div>
-					<div class="component-score">0.0</div>
-				</div>
+					<div class="technical-component" id="mandatory-foot-technique-3-score">
+						<div class="component-label">Jumping spin kick</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="technical-component" id="mandatory-foot-technique-4-score">
-					<div class="component-label">Consecutive kicks</div>
-					<div class="component-score">0.0</div>
-				</div>
+					<div class="technical-component" id="mandatory-foot-technique-4-score">
+						<div class="component-label">Consecutive kicks</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="technical-component" id="mandatory-foot-technique-5-score">
-					<div class="component-label">Acrobatic kick</div>
-					<div class="component-score">0.0</div>
-				</div>
+					<div class="technical-component" id="mandatory-foot-technique-5-score">
+						<div class="component-label">Acrobatic kick</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="technical-component" id="basic-movements-score">
-					<div class="component-label">Basic movements</div>
-					<div class="component-score">0.0</div>
+					<div class="technical-component" id="basic-movements-score">
+						<div class="component-label">Basic movements</div>
+						<div class="component-score">0.0</div>
+					</div>
 				</div>
 			</div>
 
@@ -342,36 +344,37 @@
 					</tr>
 				</table>
 
-				<div class="presentation-component" id="creativity-score">
-					<div class="component-label">Creativity</div>
-					<div class="component-score">0.0</div>
-				</div>
+				<div class="presentation-scores">
+					<div class="presentation-component" id="creativity-score">
+						<div class="component-label">Creativity</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="presentation-component" id="harmony-score">
-					<div class="component-label">Harmony</div>
-					<div class="component-score">0.0</div>
-				</div>
+					<div class="presentation-component" id="harmony-score">
+						<div class="component-label">Harmony</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="presentation-component" id="energy-score">
-					<div class="component-label">Expression of Energy</div>
-					<div class="component-score">0.0</div>
-				</div>
+					<div class="presentation-component" id="energy-score">
+						<div class="component-label">Expression of Energy</div>
+						<div class="component-score">0.0</div>
+					</div>
 
-				<div class="presentation-component" id="choreography-score">
-					<div class="component-label">Music &amp; Choreography</div>
-					<div class="component-score">0.0</div>
+					<div class="presentation-component" id="choreography-score">
+						<div class="component-label">Music &amp; Choreography</div>
+						<div class="component-score">0.0</div>
+					</div>
 				</div>
+		</div>
+
+		<div id="deductions">
+			<div class="alert alert-default" role="alert"><strong>Deductions</strong>
+				<div id="presentation-score" class="pull-right subtotal">0.0</div>
 			</div>
 
-			<div id="deductions">
-				<div class="alert alert-default" role="alert"><strong>Deductions</strong>
-					<div id="presentation-score" class="pull-right negative">0.0</div>
-				</div>
-
-				<div id="timeline">
-					<ul class="timeline timeline-horizontal">
-					</ul>
-				</div>
+			<div id="timeline">
+				<ul class="timeline timeline-horizontal">
+				</ul>
 			</div>
 		</div>
 
@@ -439,12 +442,12 @@
 				technical : function( current ) {
 				// ----------------------------------------
 					$( '#presentation' ).find( 'table, .alert, .presentation-component' ).fadeOut( 200 );
-					$( '.technical-component' ).animate({ top: '154px' }).off( 'click' );
-					$( '.technical-component' ).css({ opacity: 0.5 });
+					$( '#deductions' ).fadeOut( 200 );
+					$( '.technical-scores' ).toggleClass( 'docked', false, 200 );
+					$( '.technical-component' ).off( 'click' ).css({ opacity: 0.5 });
 					$( '#' + current + '-score' ).css({ opacity: 1.0 });
 					$( '.' + current ).fadeIn( 200 );
 					$( '#controls' ).fadeIn( 200 );
-					$( '#deductions' ).fadeOut( 200 );
 				},
 				// ----------------------------------------
 				presentation : function( current ) {
@@ -452,8 +455,9 @@
 					var done = Object.keys( score.presentation ).length == 4;
 					$( '.' + current ).fadeOut( 200 );
 					$( '#controls' ).fadeOut( 200 );
-					$( '.technical-component' ).animate({ top: '65px', opacity: 1.0 }); 
-					if( done ) { $( '.presentation-component, .alert' ).fadeIn( 200 ); }
+					$( '.technical-scores' ).toggleClass( 'docked', true, 200 );
+					$( '.technical-component' ).css({ opacity: 1.0 });
+					if( done ) { show.deductions(); }
 					else       { $( '#presentation' ).show().find( 'table, .alert' ).fadeIn( 200 ); }
 					$( '#deductions' ).fadeOut( 200 );
 
@@ -469,6 +473,12 @@
 				// ----------------------------------------
 				deductions: function() {
 				// ----------------------------------------
+					$( '.presentation-component, .alert' ).fadeIn( 200 ); 
+					$( '#presentation' ).find( 'table' ).fadeOut( 200, () => {
+						$( '.presentation-scores' ).toggleClass( 'docked', true, 200 );
+						$( '.presentation-component' ).show();
+					});
+					$.each( score.timeline, timeline.add );
 					$( '#deductions' ).fadeIn( 200 );
 				}
 			};
@@ -477,14 +487,13 @@
 			var timeline = {
 				widget: $( '.timeline' ),
 				add: ( i, ev ) => {
-					console.log( ev.time, score.deductions.timing.start.time );
 					var seconds = parseFloat( Math.abs( ev.time - score.deductions.timing.start.time ))/1000;
 					var min     = (seconds / 60).toFixed( 0 );
 					var sec     = (seconds % 60).toFixed( 1 );
 					var time    = min + ':' + (sec < 10 ? '0' + sec : sec);
 					var does    = undefined;
 					if( defined( ev.value )) {
-						if( ev.name == 'jumping-front-kicks-count' || ev.name == 'consecutive-kicks' ) {
+						if( ev.name == 'jumping-front-kicks' || ev.name == 'consecutive-kicks' ) {
 							if( ev.value >= 0.6 ) { does = ' performed excellent '; } else
 							if( ev.value >= 0.3 ) { does = ' performed good ';      } else
 							if( ev.value >= 0.1 ) { does = ' performed poor ';      } else
@@ -502,10 +511,10 @@
 						'jumping-front-kicks': { context: 'info',    icon: 'jumping-front-kick.png', heading: 'Jumping Front Kicks', text: 'Athlete' + does + 'jumping front kicks' },
 						'jumping-spin-kick':   { context: 'info',    icon: 'jumping-spin-kick.png',  heading: 'Jumping Spin Kick',   text: 'Athlete' + does + 'jumping spin kick' },
 						'consecutive-kicks':   { context: 'info',    icon: 'consecutive-kicks.png',  heading: 'Consecutive Kicks',   text: 'Athlete' + does + 'sparring kicks' },
-						'acrobatic-kick':      { context: 'info',    icon: 'acrobatic-kick.png',     heading: 'Acrobatic Movements', text: 'Athlete' + does + 'acrobatic kick' },
+						'acrobatic-kick':      { context: 'info',    icon: 'acrobatic-kick.png',     heading: 'Acrobatic Kick',      text: 'Athlete' + does + 'acrobatic kick' },
 						'music-stop':          { context: 'danger',  icon: 'music.png',              heading: 'Music Stops',         text: 'Athlete' + does + 'acrobatic kick' },
 						'athlete-stop':        { context: 'danger',  icon: 'music.png',              heading: 'Athlete Stops',       text: 'Athlete' + does + 'acrobatic kick' },
-						'both-stop':           { context: 'danger',  icon: 'glyphicon-time',         heading: 'Finish',              text: 'Athlete finishes performance in time with the music' },
+						'both-stop':           { context: 'danger',  icon: 'glyphicon-time',         heading: 'Finish',              text: 'Athlete performance stops with the music' },
 						
 					}[ ev.name ];
 					settings.time = time;
@@ -514,11 +523,17 @@
 					var panel   = html.div.clone().addClass( 'timeline-panel' );
 					var heading = html.div.clone().addClass( 'timeline-heading' );
 					var body    = html.div.clone().addClass( 'timeline-body' ).append( html.p.clone().text( settings.text ) );
-					var notes   = html.p.clone().append( html.small.clone().addClass( 'text-muted' ), html.span.clone().addClass( 'glyphicon glyphicon-time' ), '&nbsp;', settings.time )
+					var notes   = html.p.clone().addClass( 'timeline-notes' ).append( html.span.clone().addClass( 'text-muted' ), html.span.clone().addClass( 'glyphicon glyphicon-time' ), '&nbsp;', settings.time )
 
 					if( defined( ev.value )) {
 						if( ev.value >= 0 ) { notes.append( html.span.clone().addClass( 'points pull-right' ).text( '+' + ev.value.toFixed( 1 ) + ' points')); }
 						else                { notes.append( html.span.clone().addClass( 'deduction pull-right' ).text( ev.value.toFixed( 1 ) + ' points')); }
+					}
+
+					if( settings.icon.match( /glyphicon/ )) {
+						badge.addClass( 'glyphicon ' + settings.icon );
+					} else if( settings.icon.match( /\.png$/ )) {
+						badge.append( html.img.clone().attr( 'src', '../../images/icons/freestyle/' + settings.icon ));
 					}
 
 					heading.append( html.h4.clone().addClass( 'timeline-title' ).text( settings.heading ), notes );
@@ -582,11 +597,7 @@
 
 				// ===== WHEN DONE, SHOW DEDUCTIONS
 				if( Object.keys( score.presentation ).length == 4 ) {
-					$( '#presentation' ).find( 'table' ).fadeOut( 200, () => {
-						$( '.presentation-component' ).fadeIn().animate({ top: '65px' });
-						$.each( score.timeline, timeline.add );
-						$( '#deductions' ).fadeIn( 200 );
-					});
+					show.deductions();
 				}
 			});
 
