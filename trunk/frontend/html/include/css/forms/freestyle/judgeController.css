@@ -322,8 +322,7 @@ table {
       font-size: 28pt !important;
       line-height: 38pt !important; }
       #deductions .timeline-item .timeline-badge img {
-        height: 48px;
-        width: 48px; }
+        height: 48px; }
     #deductions .timeline-item .timeline-panel {
       border-radius: 6px !important;
       padding: 10px !important; }

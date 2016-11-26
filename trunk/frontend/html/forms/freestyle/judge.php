@@ -396,39 +396,47 @@
 		</div>
 
 		<script>
-			var score = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': true, 'beom-seogi': true, 'dwigubi': true }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }, timeline: [] };
+			var score = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': true, 'beom-seogi': true, 'dwigubi': true }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
+			var performance = { timeline: [], start: false, complete: false };
 
 			// ============================================================
 			// DEDUCTION BUTTON BEHAVIOR
 			// ============================================================
 			$( '#minor-deductions' ).deductions({ value: 0.1 });
+			$( '#minor-deductions' ).deductions( 'disable' );
 			$( '#minor-deductions' ).on( 'change', ( ev, value ) => {
 				score.deductions.minor = value;
 				var t_event = { time: Date.now(), name: 'minor-deduction', value: -0.1 };
-				var n       = score.timeline.length - 1;
-				var last    = score.timeline[ n ];
+				var n       = performance.timeline.length - 1;
+				var last    = performance.timeline[ n ];
 				var near    = last.name == 'minor-deduction' && Math.abs( last.time - t_event.time ) < 1500; // Same penalty type and within 1.5 seconds
+				var s       = score.deductions.stances;
+				var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += 0.3; }; return acc; }, 0.0 );
+				$( '#major-deduction-score .component-score' ).text(( score.deductions.major + stances ).toFixed( 1 ));
 
 				$( '#minor-deduction-score .component-score' ).text( value.toFixed( 1 ));
+				$( '#deductions .subtotal' ).html(( score.deductions.minor + score.deductions.major + stances ).toFixed( 1 ));
 
 				// Cluster together minor penalties that are near to each other
 				if( near ) { last.value -= 0.1; } 
-				else       { score.timeline.push( t_event ); }
+				else       { performance.timeline.push( t_event ); }
 			});
 
 			var update_major_deductions = function() {
 				var s       = score.deductions.stances;
 				var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += 0.3; }; return acc; }, 0.0 );
-				$( '#major-deduction-score .component-score' ).text( (score.deductions.major + stances).toFixed( 1 ));
+				$( '#major-deduction-score .component-score' ).text(( score.deductions.major + stances ).toFixed( 1 ));
+				$( '#deductions .subtotal' ).html(( score.deductions.minor + score.deductions.major + stances ).toFixed( 1 ));
 			}
 
 			$( '#major-deductions' ).deductions({ value: 0.3 });
+			$( '#major-deductions' ).deductions( 'disable' );
 			$( '#major-deductions' ).on( 'change', ( ev, value ) => {
 				score.deductions.major = value;
 				var t_event = { time: Date.now(), name: 'major-deduction', value: -0.3 };
 
 				update_major_deductions();
-				score.timeline.push( t_event );
+				performance.timeline.push( t_event );
 			});
 			
 			// ============================================================
@@ -436,12 +444,26 @@
 			// ============================================================
 			$( '.mandatory-stances' ).find( 'img' ).removeClass( 'done' );
 			$( '.mandatory-stances' ).off( 'click' ).click(( b ) => {
+				if( ! performance.start ) { return; }
 				var clicked = $( b.target );
 				if( clicked.is( 'img' )) { clicked = clicked.parent(); }
+
 				var name = (clicked.attr( 'class' ).match( /(?:hakdari-seogi|beom-seogi|dwigubi)/ )).shift();
-				console.log( name );
-				if( clicked.hasClass( 'done' )) { $( '.' + name ).removeClass( 'done' ); score.deductions.stances[ name ] = true;  }
-				else                            { $( '.' + name ).addClass( 'done' );    score.deductions.stances[ name ] = false; }
+				var t_event = { time: Date.now(), name: name };
+				
+				if( clicked.hasClass( 'done' )) { 
+					$( '.' + name ).removeClass( 'done' ); 
+					score.deductions.stances[ name ] = true;  
+					if( ! performance.complete ) {
+						var found = performance.timeline.find(( n ) => { return n.name == name; });
+						var i     = performance.timeline.indexOf( found );
+						performance.timeline.splice( i, 1 ); // Delete the stance from the timeline
+					}
+				} else { 
+					$( '.' + name ).addClass( 'done' ); 
+					score.deductions.stances[ name ] = false; 
+					if( ! performance.complete ) { performance.timeline.push( t_event ); }
+				}
 
 				update_major_deductions();
 			});
@@ -460,8 +482,11 @@
 			$( '#start' ).click(( ev ) => { 
 				$( '#start' ).hide();
 				$( '.mandatory-foot-technique-1' ).fadeIn( 200 );
+				$( '#minor-deductions' ).deductions( 'enable' );
+				$( '#major-deductions' ).deductions( 'enable' );
+				performance.start = true;
 				var t_event = { time: Date.now(), name: 'start' };
-				score.timeline.push( t_event );
+				performance.timeline.push( t_event );
 				score.deductions.timing.start = t_event;
 			});
 
@@ -512,9 +537,9 @@
 					$( '#controls' ).fadeOut( 200 );
 					$( '.technical-scores' ).toggleClass( 'docked', true, 200 );
 					$( '.technical-component' ).css({ opacity: 1.0 });
+					$( '#deductions' ).fadeOut( 200 );
 					if( done ) { show.deductions(); }
 					else       { $( '#presentation' ).show().find( 'table, .alert' ).fadeIn( 200 ); }
-					$( '#deductions' ).fadeOut( 200 );
 
 					// In the presentation phase, user can change technical 
 					// scores by tapping the score they want to change
@@ -533,7 +558,7 @@
 						$( '.presentation-scores' ).toggleClass( 'docked', true, 200 );
 						$( '.presentation-component' ).show();
 					});
-					$.each( score.timeline, timeline.add );
+					$.each( performance.timeline, timeline.add );
 					$( '#deductions' ).fadeIn( 200 );
 				}
 			};
@@ -577,7 +602,10 @@
 						}
 					}
 					var settings = {
-						'start':               { context: 'success', icon: 'glyphicon-time',             heading: 'Start',               text: 'Music and performance start' },
+						'start':               { context: 'success', icon: 'glyphicon-time',             heading: 'Start',               text: 'Music and performance begin' },
+						'hakdari-seogi':       { context: 'warning', icon: 'hakdari-seogi.png',          heading: 'Mandatory Stance',    text: 'Athlete has performed <i>hakdari seogi</i>' },
+						'beom-seogi':          { context: 'warning', icon: 'beom-seogi.png',             heading: 'Mandatory Stance',    text: 'Athlete has performed <i>beom seogi</i>' },
+						'dwigubi':             { context: 'warning', icon: 'dwigubi.png',                heading: 'Mandatory Stance',    text: 'Athlete has performed <i>dwigubi</i>' },
 						'jumping-side-kick':   { context: 'info',    icon: 'jumping-side-kick.png',      heading: 'Jumping Side Kick',   text: 'Athlete' + does + 'jumping side kick' },
 						'jumping-front-kicks': { context: 'info',    icon: 'jumping-front-kick.png',     heading: 'Jumping Front Kicks', text: 'Athlete' + does + 'jumping front kicks' },
 						'jumping-spin-kick':   { context: 'info',    icon: 'jumping-spin-kick.png',      heading: 'Jumping Spin Kick',   text: 'Athlete' + does + 'jumping spin kick' },
@@ -595,7 +623,7 @@
 					var badge   = html.div.clone().addClass( 'timeline-badge ' + settings.context );
 					var panel   = html.div.clone().addClass( 'timeline-panel' );
 					var heading = html.div.clone().addClass( 'timeline-heading' );
-					var body    = html.div.clone().addClass( 'timeline-body' ).append( html.p.clone().text( settings.text ) );
+					var body    = html.div.clone().addClass( 'timeline-body' ).append( html.p.clone().html( settings.text ) );
 					var notes   = html.p.clone().addClass( 'timeline-notes' ).append( html.span.clone().addClass( 'text-muted' ), html.span.clone().addClass( 'glyphicon glyphicon-time' ), '&nbsp;', settings.time )
 
 					if( defined( ev.value )) {
@@ -641,7 +669,11 @@
 					$( '#both-stop, #' + s.name ).off( 'click' );
 					$( '#both-stop, #' + s.name ).css({ opacity: 0.2 });
 					score.deductions.timing[ s.name ] = s.t_event;
-					if( ! defined( score.deductions.timing[ other ] ) ) { score.timeline.push( s.t_event ); return; }
+					if( ! defined( score.deductions.timing[ other ] ) ) { performance.timeline.push( s.t_event ); return; }
+					performance.complete = true; console.log( 'Performance complete' );
+
+				} else if( s.name == 'both-stop' ) {
+					performance.complete = true; console.log( 'Performance complete' );
 				}
 
 				// ===== NEXT SKILL
@@ -658,7 +690,7 @@
 					});
 				}
 				$( '#' + s.results ).animate({ opacity: 1.0 });
-				if( s.buttons != 'basic-movements' ) { score.timeline.push( s.t_event ); }
+				if( s.buttons != 'basic-movements' ) { performance.timeline.push( s.t_event ); }
 			});
 
 			// ============================================================
@@ -675,9 +707,8 @@
 				$( '#presentation-score' ).html( sum.toFixed( 1 ));
 
 				// ===== WHEN DONE, SHOW DEDUCTIONS
-				if( Object.keys( score.presentation ).length == 4 ) {
-					show.deductions();
-				}
+				var done = Object.keys( score.presentation ).length == 4;
+				if( done ) { show.deductions(); }
 			});
 
 		</script>
