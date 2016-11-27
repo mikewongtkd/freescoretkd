@@ -256,7 +256,7 @@ table {
   background-color: #777;
   border-color: #666; }
 
-.alert-default {
+.alert-default, .alert-success {
   color: white;
   font-size: 18pt;
   line-height: 18pt; }
@@ -302,6 +302,9 @@ table {
 
 #deductions .subtotal {
   color: #ba1f1f; }
+
+#total .subtotal {
+  color: white; }
 
 #deductions {
   position: absolute;
@@ -380,5 +383,11 @@ table {
       left: 80px; }
     #deductions #stance-deductions .dwigubi {
       left: 160px; }
+
+#total {
+  position: absolute;
+  left: 15px;
+  top: 540px;
+  width: calc( 100% - 30px ); }
 
 /*# sourceMappingURL=judgeController.css.map */
