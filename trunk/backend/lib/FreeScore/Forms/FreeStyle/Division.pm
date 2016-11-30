@@ -153,12 +153,12 @@ sub _consensus {
 		my $j = int( $score->{ deductions }{ minor } / 0.3 );
 		$agreed->{ major }[ $_ ]++ foreach ( 0 .. $i );
 
-		$stances->{ $_ }++ if $score->{ stances }{ $_ } foreach @STANCES;
+		foreach (@STANCES) { $stances->{ $_ }++ if $score->{ stances }{ $_ }; }
 	}
 	my $i = last_index { $_ >= $n } @{ $agreed->{ minor }};
 	my $j = last_index { $_ >= $n } @{ $agreed->{ major }};
 
-	foreach @STANCES { delete $stances->{ $_ } if $stances->{ $_ } < $n; }
+	foreach (@STANCES) { delete $stances->{ $_ } if $stances->{ $_ } < $n; }
 	my $sum = ($i * 0.1) + ($j * 0.3) + (int(keys %$stances) * 0.3);
 	$agreed->{ stances } = $stances;
 	return ($sum, $agreed);
