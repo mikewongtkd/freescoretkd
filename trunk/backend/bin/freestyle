@@ -1,0 +1,91 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Mojolicious::Lite;
+use Try::Tiny;
+use FreeScore;
+use FreeScore::Tournament;
+use FreeScore::Forms::FreeStyle::RequestManager;
+use JSON::XS;
+use Digest::SHA1 qw( sha1_hex );
+use List::MoreUtils (qw( first_index ));
+use Data::Dumper;
+use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
+use EV;
+
+our $json   = new JSON::XS();
+our $client = {};
+our $judge  = {};
+our $DEBUG  = 0;
+
+# ------------------------------------------------------------
+# MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
+# ------------------------------------------------------------
+websocket '/setup/:database' => sub {
+	my $self       = shift;
+	my $database   = $self->param( 'database' );
+	my $manager    = new FreeScore::Forms::FreeStyle::RequestManager( $self->tx() );
+	my $tournament = undef;
+	my $staging    = undef;
+	my $id         = sprintf "%s", sha1_hex( $self->tx() );
+
+	$self->inactivity_timeout( 3600 ); # 1 hour
+
+	# ===== REGISTER THE CLIENT
+	my $c = $client->{ $id } = { id => $id, device => $self->tx() }; 
+	if( $DEBUG ) {
+		print STDERR "SETUP $database\n";
+		print STDERR "  $_\n" foreach sort keys %$client;
+		print STDERR "\n";
+	}
+
+	# ----------------------------------------
+	# Handle messages
+	# ----------------------------------------
+	$self->on( message => sub {
+		my $self    = shift;
+		my $request = $json->decode( shift );
+
+		$request->{ tournament } = $database;
+
+		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
+		my $log = clone( $request ); 
+		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
+		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
+		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
+
+		# ===== READ TOURNAMENT SETTINGS
+		try   { 
+			$tournament = new FreeScore::Tournament(); 
+		} catch { $c->{ device }->send( { json => { error => "Error reading database '$database': $_" }}); };
+
+		# ===== HANDLE REQUEST
+		try   { $manager->handle( $request, $tournament, $client ); }
+		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+		print STDERR "\n" if $DEBUG;
+	});
+
+	# ----------------------------------------
+	# Handle disconnects
+	# ----------------------------------------
+	$self->on( finish => sub { delete $client->{ $id }; });
+};
+
+# ============================================================
+# ERROR TRAPPING
+# ============================================================
+any '*command' => sub {
+	my $self = shift;
+	my $command = $self->param( 'command' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => { error => "FreeStyle Service Error: Unknown command: $command" });
+};
+
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
+app->config( hypnotoad => { listen => [ 'http://*:3085' ], pid_file => '/var/run/freescore-setup.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/setup.log', level => 'debug' ));
+app->start();

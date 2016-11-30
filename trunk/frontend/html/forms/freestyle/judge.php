@@ -27,7 +27,7 @@
 					<div id="technical-score" class="pull-right subtotal">0.0</div>
 				</div>
 
-				<button id="start" class="btn btn-lg btn-success"><span id="athlete-name">Athlete</span> Start</button>
+				<button id="start" class="btn btn-lg btn-success"><span class="athlete-name">Athlete</span> Start</button>
 
 				<table class="mandatory-foot-technique-1">
 					<tr>
@@ -397,13 +397,13 @@
 		</div>
 
 		<div id="total">
-			<div class="alert alert-success" role="alert"><strong>Total</strong>
+			<div class="alert alert-success" role="alert"><strong><span class="athlete-name">Athlete</span> Total</strong>
 				<div id="total-score" class="pull-right subtotal">0.0</div>
 			</div>
 		</div>
 
 		<script>
-			var score = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': true, 'beom-seogi': true, 'dwigubi': true }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
+			var score = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.0, 'beom-seogi': 0.0, 'dwigubi': 0.0 }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
 			var performance = { timeline: [], start: false, complete: false };
 
 			// ============================================================
@@ -449,14 +449,14 @@
 				
 				if( clicked.hasClass( 'done' )) { 
 					$( '.' + name ).removeClass( 'done' ); 
-					score.deductions.stances[ name ] = true;  
+					score.deductions.stances[ name ] = 0.3;  
 					if( ! performance.complete ) {
 						var i = performance.timeline.findIndex(( n ) => { return n.name == name; });
 						performance.timeline.splice( i, 1 ); // Delete the stance from the timeline
 					}
 				} else { 
 					$( '.' + name ).addClass( 'done' ); 
-					score.deductions.stances[ name ] = false; 
+					score.deductions.stances[ name ] = 0.0; 
 					if( ! performance.complete ) { performance.timeline.push( t_event ); }
 				}
 
@@ -523,7 +523,7 @@
 				deductions : { score: function( ev ) {
 				// ----------------------------------------
 					var s       = score.deductions.stances;
-					var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += 0.3; }; return acc; }, 0.0 );
+					var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += s[ cur ]; }; return acc; }, 0.0 );
 					$( '#minor-deduction-score .component-score' ).text( score.deductions.minor.toFixed( 1 ));
 					$( '#major-deduction-score .component-score' ).text(( score.deductions.major + stances ).toFixed( 1 ));
 					$( '#deductions .subtotal' ).html( '-' + ( score.deductions.minor + score.deductions.major + stances ).toFixed( 1 ));
@@ -535,7 +535,7 @@
 					var t       = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
 					var p       = Object.keys( score.presentation ).reduce(( sum, key ) => { sum += score.presentation[ key ]; return sum; }, 0.0 );
 					var s       = score.deductions.stances;
-					var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += 0.3; }; return acc; }, 0.0 );
+					var stances = Object.keys( s ).reduce(( acc, cur ) => { if( s[ cur ] ) { acc += s[ cur ]; }; return acc; }, 0.0 );
 					var d       = score.deductions.minor + score.deductions.major + stances;
 					$( '#total .subtotal' ).html(( t + p - d ).toFixed( 1 ));
 				}},
@@ -548,8 +548,7 @@
 					$( '#presentation' ).find( 'table, .alert, .presentation-component' ).fadeOut( 200 );
 					$( '#deductions' ).fadeOut( 200 );
 					$( '#total' ).fadeOut( 200 );
-					$( '.technical-scores' ).toggleClass( 'docked', false, 200 );
-					$( '.technical-component' ).off( 'click' ).css({ opacity: 0.5 });
+					$( '.technical-component' ).off( 'click' ).css({ opacity: 0.3 });
 					$( '#' + current + '-score' ).css({ opacity: 1.0 });
 					$( '.' + current ).fadeIn( 200 );
 					$( '#controls' ).fadeIn( 200 );
@@ -558,9 +557,9 @@
 				presentation : function( current ) {
 				// ----------------------------------------
 					var done = Object.keys( score.presentation ).length == 4;
-					$( '.' + current ).fadeOut( 200 );
+					if( defined( current )) { $( '.' + current ).fadeOut( 200 ); }
 					$( '#controls' ).fadeOut( 200 );
-					$( '.technical-scores' ).toggleClass( 'docked', true, 200 );
+					$( '.technical-scores' ).addClass( 'docked' );
 					$( '.technical-component' ).css({ opacity: 1.0 });
 					$( '#deductions' ).fadeOut( 200 );
 					$( '#total' ).fadeOut( 200 );
@@ -581,14 +580,28 @@
 				// ----------------------------------------
 					$( '.presentation-component, #presentation .alert' ).fadeIn( 200 ); 
 					$( '#presentation' ).find( 'table' ).fadeOut( 200, () => {
-						$( '.presentation-scores' ).toggleClass( 'docked', true, 200 );
-						$( '.presentation-component' ).show();
+						$( '.presentation-scores' ).addClass( 'docked' );
+						$( '.presentation-component' ).show().css({ opacity: 1.0 });
 					});
 					timeline.widget.empty();
 					$.each( performance.timeline, timeline.add );
 					set.deductions.score();
 					$( '#deductions' ).fadeIn( 200 );
 					$( '#total' ).fadeIn( 200 );
+
+					// In the deduction phase, user can change presentation
+					// scores by tapping the score they want to change
+					$( '.presentation-component' ).off( 'click' ).click(( ev ) => {
+						var clicked = $( ev.target );
+						if( ! clicked.hasClass( 'technical-component' )) { clicked = clicked.parent(); }
+						var current = clicked.attr( 'id' ).replace( /\-score$/, '' );
+						delete score.presentation[ current ];
+						$( '.presentation-component' ).css({ opacity: 0.3 });
+						$( '#' + current + '-score' ).css({ opacity: 1.0 });
+						$( '#' + current ).parents( 'table' ).find( 'tr' ).hide();
+						$( '#' + current ).parents( 'tr' ).show();
+						show.presentation();
+					});
 				}
 			};
 
