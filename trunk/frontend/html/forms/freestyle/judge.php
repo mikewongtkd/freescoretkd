@@ -403,8 +403,15 @@
 		</div>
 
 		<script>
-			var score = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.0, 'beom-seogi': 0.0, 'dwigubi': 0.0 }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
+			var score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.0, 'beom-seogi': 0.0, 'dwigubi': 0.0 }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
 			var performance = { timeline: [], start: false, complete: false };
+			var sound       = {};
+			var tournament  = <?= $tournament ?>;
+
+			sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
+			sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"  ]});
+			sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]});
+			sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]});
 
 			// ============================================================
 			// DEDUCTION BUTTON BEHAVIOR
@@ -675,6 +682,19 @@
 				var done = Object.keys( score.presentation ).length == 4;
 				if( done ) { show.deductions(); }
 			});
+
+			var ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/1' );
+
+			ws.onopen = function() {
+				var request  = { data : { type : 'division', action : 'read' }};
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+			};
+
+			ws.onmessage = function( response ) {
+				var update = JSON.parse( response.data );
+				console.log( update );
+			}
 
 		</script>
 	</body>

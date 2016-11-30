@@ -86,6 +86,6 @@ any '*command' => sub {
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3085' ], pid_file => '/var/run/freescore-setup.pid', workers => 1 });
-app->log( new Mojo::Log( path => '/var/log/freescore/setup.log', level => 'debug' ));
+app->config( hypnotoad => { listen => [ 'http://*:3082' ], pid_file => '/var/run/freestyle.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/freestyle.log', level => 'debug' ));
 app->start();
