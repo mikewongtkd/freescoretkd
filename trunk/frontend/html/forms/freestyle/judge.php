@@ -11,6 +11,7 @@
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
+		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.horizontal-timeline.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/freestyle/jquery.deductions.js"></script>
@@ -30,6 +31,7 @@
 				</div>
 
 				<button id="start" class="btn btn-lg btn-success">Start <span class="athlete-name">Athlete</span></button>
+				<button id="deductions-done" class="btn btn-lg btn-danger">Done</button>
 
 				<table class="mandatory-foot-technique-1">
 					<tr>
@@ -399,7 +401,7 @@
 		</div>
 
 		<div id="total">
-			<div class="alert alert-success" role="alert"><strong><span class="athlete-name">Athlete</span> Total</strong>
+			<div class="alert alert-success" role="alert"><strong>Send <span class="judge-name">Referee</span> Score for <span class="athlete-name">Athlete</span></strong>
 				<div id="total-score" class="pull-right subtotal">0.0</div>
 			</div>
 		</div>
@@ -409,11 +411,29 @@
 			var performance = { timeline: [], start: false, complete: false };
 			var sound       = {};
 			var tournament  = <?= $tournament ?>;
+			var judge       = { num: parseInt( isNaN( $.cookie( "judge" )) ? 0 : $.cookie( "judge" )) }; 
+			var ring        = { num: parseInt( isNaN( $.cookie( "ring"  )) ? 1 : $.cookie( "ring"  )) }; 
+
+			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
+			$( '.judge-name' ).html( judge.name );
 
 			sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
 			sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"  ]});
 			sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]});
 			sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]});
+
+			// ============================================================
+			// INITIAL STATE: MOST EVERYTHING IS HIDDEN
+			// ============================================================
+			$( '#deductions-done' ).hide();
+			$( '#technical-skills' ).find( 'table' ).hide();
+			$( '.technical-component' ).css({ opacity: 0.2 });
+			$( '.mandatory-foot-technique-icon' ).hide();
+			$( '#presentation' ).hide();
+			$( '.presentation-component' ).hide();
+			$( '#deductions' ).hide();
+			$( '#total' ).hide();
+			timeline.widget = $( '#deductions .timeline' );
 
 			// ============================================================
 			// DEDUCTION BUTTON BEHAVIOR
@@ -443,6 +463,13 @@
 				set.deductions.score();
 				performance.timeline.push( t_event );
 			});
+			$( '#deductions-done' ).off( 'click' ).click(( ev ) => {
+				var clicked = $( ev.target );
+				clicked.fadeOut( 200 );
+				$( '#controls' ).fadeOut( 200 );
+				$( '.technical-component' ).css({ opacity: 1.0 });
+				show.deductions();
+			});
 			
 			// ============================================================
 			// MANDATORY STANCES BUTTON BEHAVIOR
@@ -471,18 +498,6 @@
 
 				set.deductions.score()
 			});
-
-			// ============================================================
-			// INITIAL STATE: MOST EVERYTHING IS HIDDEN
-			// ============================================================
-			$( '#technical-skills' ).find( 'table' ).hide();
-			$( '.technical-component' ).css({ opacity: 0.2 });
-			$( '.mandatory-foot-technique-icon' ).hide();
-			$( '#presentation' ).hide();
-			$( '.presentation-component' ).hide();
-			$( '#deductions' ).hide();
-			$( '#total' ).hide();
-			timeline.widget = $( '#deductions .timeline' );
 
 			// ===== WHEN USER CLICKS ON START, LET THE FUN BEGIN
 			$( '#start' ).click(( ev ) => { 
@@ -581,6 +596,8 @@
 						var clicked = $( ev.target );
 						if( ! clicked.hasClass( 'technical-component' )) { clicked = clicked.parent(); }
 						var current = clicked.attr( 'id' ).replace( /\-score$/, '' );
+						$( '#major-deductions' ).deductions( 'disable' );
+						$( '#minor-deductions' ).deductions( 'disable' );
 						show.technical( current );
 					});
 				},
@@ -602,7 +619,7 @@
 					// scores by tapping the score they want to change
 					$( '.presentation-component' ).off( 'click' ).click(( ev ) => {
 						var clicked = $( ev.target );
-						if( ! clicked.hasClass( 'technical-component' )) { clicked = clicked.parent(); }
+						if( ! clicked.hasClass( 'presentation-component' )) { clicked = clicked.parent(); }
 						var current = clicked.attr( 'id' ).replace( /\-score$/, '' );
 						delete score.presentation[ current ];
 						$( '.presentation-component' ).css({ opacity: 0.3 });
@@ -611,6 +628,18 @@
 						$( '#' + current ).parents( 'tr' ).show();
 						show.presentation();
 					});
+
+					$( '.deduction-component' ).off( 'click' ).click(( ev ) => {
+						var clicked = $( ev.target );
+						if( ! clicked.hasClass( 'deduction-component' )) { clicked = clicked.parent(); }
+						var current = clicked.attr( 'id' ).replace( /\-score$/, '' );
+						$( '#major-deductions' ).deductions( 'enable' );
+						$( '#minor-deductions' ).deductions( 'enable' );
+						$( '.technical-component' ).off( 'click' ).css({ opacity: 0.3 });
+						$( '#deductions-done' ).show();
+						show.technical();
+					});
+
 				}
 			};
 
@@ -685,7 +714,7 @@
 				if( done ) { show.deductions(); }
 			});
 
-			var ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/1' );
+			var ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
 
 			ws.onopen = function() {
 				var request  = { data : { type : 'division', action : 'read' }};
