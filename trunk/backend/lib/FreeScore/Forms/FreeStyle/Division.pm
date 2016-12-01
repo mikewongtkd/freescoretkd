@@ -16,9 +16,11 @@ our @STANCES = qw( hakdari-seogi beom-seogi dwigubi );
 #
 # +- athletes[]
 #    +- name
+#    +- info
 #    +- adjusted
 #    +- findings
 #    +- original
+#    +- decision
 #    +- complete
 #    +- scores[]
 #       +- technical
@@ -57,7 +59,8 @@ sub read {
 	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) { chomp; $contents .= $_; }
 	close FILE;
-	$self = bless $json->parse( $contents ), 'FreeScore::Forms::FreeStyle::Division';
+	my $data = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
+	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
 
 	$self->{ judges } = 3; # Default value
 	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
@@ -72,9 +75,9 @@ sub calculate_placements {
 	my $self       = shift;
 	my $placements = [];
 	@$placements = sort { 
-		$b->{ adjusted }{ subtotal }  <=> $a->{ adjusted }{ subtotal }  ||
+		$b->{ adjusted }{ subtotal  } <=> $a->{ adjusted }{ subtotal  } ||
 		$b->{ adjusted }{ technical } <=> $a->{ adjusted }{ technical } ||
-		$b->{ original }{ subtotal }  <=> $a->{ original }{ subtotal }
+		$b->{ original }{ subtotal  } <=> $a->{ original }{ subtotal  }
 	} @{ $self->{ athletes }};
 
 	$self->{ placements } = $placements;

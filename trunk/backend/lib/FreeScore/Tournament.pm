@@ -1,4 +1,5 @@
 package FreeScore::Tournament;
+use JSON::XS;
 
 # ============================================================
 sub new {
@@ -14,15 +15,15 @@ sub init {
 # ============================================================
 	my $self   = shift;
 	$self->{ config } = '/var/www/html/freescore/include/php/config.php';
-	if( -e $self->{ config } && -e $self->{ php2pl } ) {
+	if( -e $self->{ config } ) {
 		my $json = new JSON::XS();
-		my $php = `cat $self->{ config } | php`;
+		my $php = `(cat $self->{ config } && echo '<?php echo "[\\"", \$host, "\\",", \$tournament, "]"; ?>') | php`;
 		my ($host, $tournament) = @{ $json->decode( $php )};
 		$self->{ host }       = $host;
 		$self->{ tournament } = $tournament;
 		$self->{ json }       = $json;
 	} else {
-		die "Can't find Tournament Configuration File '$config' and/or PHP-to-Perl adapter '$php2pl' $!";
+		die "Can't find Tournament Configuration File '$self->{ config }' $!";
 	}
 }
 

@@ -15,6 +15,8 @@
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/freestyle/jquery.deductions.js"></script>
 		<script src="../../include/js/forms/freestyle/timeline.js"></script>
+		<script src="../../include/js/forms/freestyle/athlete.class.js"></script>
+		<script src="../../include/js/forms/freestyle/division.class.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
 
@@ -27,7 +29,7 @@
 					<div id="technical-score" class="pull-right subtotal">0.0</div>
 				</div>
 
-				<button id="start" class="btn btn-lg btn-success"><span class="athlete-name">Athlete</span> Start</button>
+				<button id="start" class="btn btn-lg btn-success">Start <span class="athlete-name">Athlete</span></button>
 
 				<table class="mandatory-foot-technique-1">
 					<tr>
@@ -693,7 +695,10 @@
 
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
-				console.log( update );
+				if( ! defined( update.division )) { return; }
+				var division = new Division( update.division );
+				var athlete  = division.current.athlete();
+				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' Athlete: ' + athlete.display.name() );
 			}
 
 		</script>
