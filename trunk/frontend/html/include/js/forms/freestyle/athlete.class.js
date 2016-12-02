@@ -29,6 +29,7 @@ function Athlete( athlete ) {
 		presentation: () => { return athlete.adjusted.presentation; },
 		deductions:   () => { return athlete.adjusted.deductions; },
 		consensus:    () => { return athlete.findings; },
+		complete:     () => { return athlete.complete; },
 	};
 
 };

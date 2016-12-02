@@ -714,6 +714,9 @@
 				if( done ) { show.deductions(); }
 			});
 
+			// ============================================================
+			// COMMUNICATION WITH SERVICE
+			// ============================================================
 			var ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
 
 			ws.onopen = function() {
@@ -729,6 +732,19 @@
 				var athlete  = division.current.athlete();
 				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' Athlete: ' + athlete.display.name() );
 			}
+
+			$( '#total' ).off( 'click' ).click(( ev ) => {
+				var clicked = $( ev.target );
+				if( clicked.attr( 'sending' )) {
+				} else {
+					var request  = { data : { type : 'division', action : 'score', score: score, timeline: performance.timeline }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+					clicked .attr({ sending: true }) .animate({ 'background-color' : '#888', 'border-color' : '#999' }, 400, 'swing', () => {
+						clicked .removeAttr( 'sending' ) .animate({ 'background-color' : '#77b300', 'border-color' : '#809a00' }, 400 )
+					});
+				}
+			});
 
 		</script>
 	</body>

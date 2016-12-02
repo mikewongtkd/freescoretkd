@@ -4,7 +4,7 @@ use FreeScore::Forms::Division;
 use JSON::XS();
 use Clone qw( clone );
 use List::Util qw( reduce );
-use List::MoreUtils qw( last_index minmax );
+use List::MoreUtils qw( last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use base qw( FreeScore::Forms::Division );
 
@@ -62,8 +62,8 @@ sub read {
 	my $data = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
 	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
 
-	$self->{ judges } = 3; # Default value
-	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ judges } ||= 5; # Default value
+	$self->{ places } ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
 
 	$self->calculate_scores();
 	$self->calculate_placements();
@@ -73,14 +73,21 @@ sub read {
 sub calculate_placements {
 # ============================================================
 	my $self       = shift;
-	my $placements = [];
-	@$placements = sort { 
+	my $athletes   = $self->{ athletes };
+
+	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete } ? 0 : 1 } ( 0 .. $#$athletes );
+
+	my $placements = [ sort { 
+		$a = $athletes->[ $a ];
+		$b = $athletes->[ $b ];
+
 		$b->{ adjusted }{ subtotal  } <=> $a->{ adjusted }{ subtotal  } ||
 		$b->{ adjusted }{ technical } <=> $a->{ adjusted }{ technical } ||
 		$b->{ original }{ subtotal  } <=> $a->{ original }{ subtotal  }
-	} @{ $self->{ athletes }};
+	} @$complete ];
 
 	$self->{ placements } = $placements;
+	$self->{ pending }    = $pending;
 }
 
 # ============================================================
@@ -95,6 +102,9 @@ sub calculate_scores {
 		my $original = $athlete->{ original } = { deductions => 0.0, presentation => 0.0, technical => 0.0 };
 		my $adjusted = $athlete->{ adjusted } = { deductions => 0.0, presentation => 0.0, technical => 0.0 };
 		my $findings = $athlete->{ findings } = {};
+
+		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
+		if( @$scores >= $k ) { $athlete->{ complete } = 1; } else { next; }
 
 		foreach my $score (@$scores) {
 			$original->{ $_ } += _sum( $scores->{ $_ } ) foreach (qw( presentation technical deductions ));
@@ -160,6 +170,9 @@ sub _consensus {
 	}
 	my $i = last_index { $_ >= $n } @{ $agreed->{ minor }};
 	my $j = last_index { $_ >= $n } @{ $agreed->{ major }};
+
+	$agreed->{ minor } = { deductions: ($i * 0.1), agree: $agree->{ minor }[ $i ] };
+	$agreed->{ major } = { deductions: ($j * 0.3), agree: $agree->{ minor }[ $j ] };
 
 	foreach (@STANCES) { delete $stances->{ $_ } if $stances->{ $_ } < $n; }
 	my $sum = ($i * 0.1) + ($j * 0.3) + (int(keys %$stances) * 0.3);

@@ -267,7 +267,7 @@ sub handle_division_edit_athletes {
 
 	try {
 		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
-		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
+		$division->edit_athletes( $request->{ athletes } );
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -402,7 +402,7 @@ sub handle_division_navigate {
 			$division->write();
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
-		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
+		elsif( $object =~ /^(?:athlete)$/i ) { 
 			$division->navigate( $object, $i ); 
 			$division->autopilot( 'off' );
 			$division->write();
@@ -443,9 +443,7 @@ sub handle_division_score {
 	try {
 		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
 		$division->write();
-		my $round    = $division->{ round };
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
@@ -473,11 +471,8 @@ sub handle_division_write {
 
 	print STDERR "Writing division data.\n" if $DEBUG;
 
-	my $valid = { map { ( $_ => 1 ) } qw( athletes description forms judges name ring round ) };
-
 	try {
 		my $division = FreeScore::Forms::FreeStyle::Division->from_json( $request->{ division } );
-		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $ring, $division->{ name } );
 
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
@@ -640,7 +635,7 @@ sub handle_ring_transfer {
 sub autopilot {
 # ============================================================
 #** @method( request, progress, clients, judges )
-#   @brief Automatically advances to the next form/athlete/round/division
+#   @brief Automatically advances to the next athlete/division
 #   Called when judges finish scoring an athlete's form 
 #*
 
@@ -665,15 +660,11 @@ sub autopilot {
 	};
 
 	my $pause = { leaderboard => 9, next => 12, brief => 1 };
-	my $round = $division->{ round };
-	my $order = $division->{ order }{ $round };
-	my $forms = $division->{ forms }{ $round };
-	my $j     = first_index { $_ == $division->{ current } } @$order;
+	my $j     = $division->{ current };
+	my $n     = $#{ $division->{ athletes }};
 
 	my $last = {
-		athlete => ($division->{ current } == $order->[ -1 ]),
-		form    => ($division->{ form }    == int( @$forms ) - 1),
-		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
+		athlete => ($j == $n),
 		each    => (!(($j + 1) % $each)),
 	};
 
@@ -691,7 +682,7 @@ sub autopilot {
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
-			if( $last->{ form } && ( $last->{ each } || $last->{ athlete } )) { 
+			if( $last->{ each } || $last->{ athlete } ) { 
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
@@ -707,15 +698,9 @@ sub autopilot {
 			die "Disengaging autopilot\n" unless $division->autopilot();
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
-			my $go_next = {
-				round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
-				athlete => $last->{ form } && ! $last->{ athlete },
-				form    => ! $last->{ form }
-			};
+			my $go_next = { athlete => ! $last->{ athlete }};
 
-			if    ( $go_next->{ round }   ) { $division->next_round(); }
-			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
-			elsif ( $go_next->{ form }    ) { $division->next_form(); }
+			if ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 

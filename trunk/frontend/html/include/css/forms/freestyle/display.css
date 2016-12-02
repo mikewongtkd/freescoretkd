@@ -1,0 +1,128 @@
+.display {
+  position: absolute;
+  top: calc( 50% - 350px );
+  left: calc( 50% - 500px );
+  width: 1008px;
+  height: 708px;
+  border: 4px solid white;
+  border-radius: 16px; }
+  .display .judges {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 700px;
+    width: 320px; }
+    .display .judges .judge {
+      font-size: 56pt;
+      line-height: 72pt;
+      height: 100px;
+      width: 320px;
+      background-color: black;
+      background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+      /* W3C */
+      background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+      /* W3C */ }
+      .display .judges .judge::before {
+        padding-left: 12px;
+        font-size: 36pt;
+        line-height: 74pt;
+        opacity: 0.5; }
+      .display .judges .judge .ignore {
+        text-decoration: line-through;
+        opacity: 0.5; }
+      .display .judges .judge .technical, .display .judges .judge .presentation {
+        position: absolute;
+        top: 0;
+        width: 120px;
+        height: 100px;
+        text-align: center; }
+      .display .judges .judge .submitted {
+        font-size: 64pt;
+        position: absolute;
+        top: 0;
+        left: 60px;
+        width: 240px;
+        height: 100px;
+        color: lime;
+        text-align: center; }
+      .display .judges .judge .technical {
+        left: 60px;
+        color: #f99; }
+      .display .judges .judge .presentation {
+        left: 180px;
+        color: #99f; }
+    .display .judges .judge-disabled {
+      opacity: 0.2; }
+    .display .judges #referee {
+      border-radius: 12px 0 0 0; }
+      .display .judges #referee::before {
+        content: 'R'; }
+    .display .judges #j1::before {
+      content: "1"; }
+    .display .judges #j2::before {
+      content: "2"; }
+    .display .judges #j3::before {
+      content: "3"; }
+    .display .judges #j4::before {
+      content: "4"; }
+    .display .judges #j5::before {
+      content: "5"; }
+    .display .judges #j6 {
+      border-radius: 0 0 0 12px; }
+      .display .judges #j6::before {
+        content: "6"; }
+  .display .athlete {
+    position: absolute;
+    top: 0;
+    left: 320px;
+    height: 600px;
+    width: 680px; }
+    .display .athlete #flag {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100px;
+      width: 100px;
+      padding-top: 20px;
+      padding-left: 10px; }
+      .display .athlete #flag img {
+        width: 80px; }
+    .display .athlete #name {
+      color: yellow;
+      position: absolute;
+      top: 0;
+      left: 100px;
+      height: 100px;
+      width: 580px;
+      font-size: 64pt;
+      line-height: 64pt;
+      text-align: left;
+      padding-top: 20px; }
+    .display .athlete #deductions {
+      position: absolute;
+      top: 100px;
+      left: 0; }
+      .display .athlete #deductions .mandatory-stances {
+        position: absolute;
+        top: 0;
+        font-size: 9pt;
+        width: 80px;
+        text-align: center;
+        color: #ba1f1f; }
+        .display .athlete #deductions .mandatory-stances img {
+          height: 80px;
+          opacity: 1.0;
+          filter: sepia(100%) brightness(10%) saturate(100000%) hue-rotate(280deg); }
+      .display .athlete #deductions .done {
+        color: #999; }
+        .display .athlete #deductions .done img {
+          opacity: 0.2;
+          filter: sepia(0%) saturate(100%) hue-rotate(-280deg); }
+      .display .athlete #deductions .hakdari-seogi {
+        left: 0; }
+      .display .athlete #deductions .beom-seogi {
+        left: 80px; }
+      .display .athlete #deductions .dwigubi {
+        left: 160px; }
+
+/*# sourceMappingURL=display.css.map */
