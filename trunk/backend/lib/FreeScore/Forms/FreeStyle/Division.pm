@@ -171,8 +171,8 @@ sub _consensus {
 	my $i = last_index { $_ >= $n } @{ $agreed->{ minor }};
 	my $j = last_index { $_ >= $n } @{ $agreed->{ major }};
 
-	$agreed->{ minor } = { deductions: ($i * 0.1), agree: $agree->{ minor }[ $i ] };
-	$agreed->{ major } = { deductions: ($j * 0.3), agree: $agree->{ minor }[ $j ] };
+	$agreed->{ minor } = { deductions => ($i * 0.1), agree => $agree->{ minor }[ $i ] };
+	$agreed->{ major } = { deductions => ($j * 0.3), agree => $agree->{ minor }[ $j ] };
 
 	foreach (@STANCES) { delete $stances->{ $_ } if $stances->{ $_ } < $n; }
 	my $sum = ($i * 0.1) + ($j * 0.3) + (int(keys %$stances) * 0.3);
