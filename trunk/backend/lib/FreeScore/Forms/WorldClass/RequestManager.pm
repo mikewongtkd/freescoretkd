@@ -604,8 +604,11 @@ sub handle_division_write {
 		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } );
 
+		my $message   = clone( $division );
+		my $unblessed = unbless( $message ); 
+
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
-			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $division }});
+			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
 
 		} else {
 			$division->normalize();
@@ -613,7 +616,7 @@ sub handle_division_write {
 			$division->write();
 
 			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
-			$client->send( { json => {  type => 'division', action => 'write ok', division => $division }});
+			$client->send( { json => {  type => 'division', action => 'write ok', division => $unblessed }});
 
 			# ===== BROADCAST THE UPDATE
 			$self->broadcast_ring_response( $request, $progress, $clients );

@@ -69,6 +69,7 @@
 	}},
 		update: function( judges ) {
 			var divname = $( '#division-name' ).val() ? $( '#division-name' ).val() : $( '#division-name' ).attr( 'placeholder' );
+			divname = defined( divname ) ? divname : '';
 			divname = divname.toUpperCase();
 			judges  = defined( judges ) ? judges : $( '#number-of-judges' ).find( 'label.active' ).text();
 			$( '#settings-title' ).html( 'Settings: <span class="setting">' + divname + ' (' + judges + ')</span>' );

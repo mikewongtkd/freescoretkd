@@ -130,7 +130,6 @@
 		var age    = desc.match( /4-5|6-7|8-9|10-11|Youth|12-14|Cadet|15-17|Junior|18-29|Under 30|Under 40|Under 50|Under 60|Under 65|Over 66/i ); age = age ? age[ 0 ].toLowerCase() : '';
 		var map    = { '10-11' : 'youths', 'youth' : 'youths', '12-14' : 'cadets', 'cadet' : 'cadets', '15-17' : 'juniors', 'junior' : 'juniors' }; age = map[ age ] ? map[ age ] : age;
 		if((gender == 'm' && desc.match( /female/i )) || (gender == 'f' && desc.match( /\bmale/i ))) { gender = ''; }
-		console.log( division.description() );
 		if( ev && age ) {
 			$( 'a[href="#' + ev + '"]' ).click();
 			if( gender ) {
