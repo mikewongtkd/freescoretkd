@@ -39,7 +39,6 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
-		edit_header        => \&handle_division_edit_header,
 		judge_departure    => \&handle_division_judge_departure,
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
@@ -277,28 +276,6 @@ sub handle_division_edit_athletes {
 }
 
 # ============================================================
-sub handle_division_edit_header {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-
-	print STDERR "Editing division header.\n" if $DEBUG;
-
-	try {
-		$division->write();
-
-		$self->broadcast_division_response( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
 sub handle_division_judge_departure {
 # ============================================================
 	my $self     = shift;
@@ -402,7 +379,7 @@ sub handle_division_navigate {
 			$division->write();
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
-		elsif( $object =~ /^(?:athlete)$/i ) { 
+		elsif( $object =~ /^athlete$/i ) { 
 			$division->navigate( $object, $i ); 
 			$division->autopilot( 'off' );
 			$division->write();

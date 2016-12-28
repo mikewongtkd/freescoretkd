@@ -50,6 +50,32 @@ our @STANCES = qw( hakdari-seogi beom-seogi dwigubi );
 # ------------------------------------------------------------
 
 # ============================================================
+sub autopilot {
+# ============================================================
+	my $self  = shift;
+	my $state = shift;
+	# MW
+}
+
+# ============================================================
+sub edit_athletes {
+# ============================================================
+	my $self     = shift;
+	my $edits    = shift;
+	my $athletes = [];
+	foreach my $i ( 0 .. $#$edits ) {
+		my $edit  = $edits->[ $i ];
+		my $j     = $edit->{ order };
+		my $found = $j > 0 && $j < @{ $self->{ athletes }} ? $self->{ athletes }[ $j ] : undef;
+		my $entry = $found ? $found : {};
+
+		$entry->{ name } = $edit->{ name };
+		push @$athletes, $entry;
+	};
+	$self->{ athletes } = $athletes;
+}
+
+# ============================================================
 sub read {
 # ============================================================
 	my $self = shift;
@@ -125,6 +151,35 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub navigate {
+# ============================================================
+	my $self   = shift;
+	my $object = shift;
+	my $i      = shift;
+
+	local $_ = $object;
+	if( /^athlete$/ ) {
+		return unless $i > 0 && $i < @{$self->{ athletes }};
+		$self->{ current } = $i;
+		return $self->{ athletes }[ $i ];
+	}
+
+	return;
+}
+
+# ============================================================
+sub record_decision {
+# ============================================================
+	my $self     = shift;
+	my $decision = shift;
+	my $i        = shift;
+
+	return unless $i > 0 && $i < @{$self->{ athletes }};
+	$self->{ athletes }[ $i ]{ decision } = $decision;
+	$self->{ athletes }[ $i ]{ complete } = 1;
+}
+
+# ============================================================
 sub record_score {
 # ============================================================
 	my $self  = shift;
@@ -133,8 +188,16 @@ sub record_score {
 	my $i     = $self->{ current };
 
 	my $athlete = $self->{ athletes }[ $i ];
-
 	$athlete->{ scores }[ $judge ] = $score;
+}
+
+# ============================================================
+sub remove_athlete {
+# ============================================================
+	my $self = shift;
+	my $i    = shift;
+	return unless $i > 0 && $i < @{$self->{ athletes }};
+	splice @{$self->{ athletes }}, $i, 1;
 }
 
 # ============================================================
@@ -209,5 +272,11 @@ sub _sum {
 	}
 	return $sum;
 }
+
+sub display          { my $self = shift; $self->{ state } = 'display'; }
+sub is_display       { my $self = shift; return $self->{ state } eq 'display'; }
+sub next_athlete     { my $self = shift; $self->{ current } = $self->{ current } < @{ $self->{ athletes }} ? $self->{ current } + 1 : 0;  my $i = $self->{ current }; return $self->{ athletes }[ $i ]; }
+sub previous_athlete { my $self = shift; $self->{ current } = $self->{ current } > 0 ? $self->{ current } - 1 : $#{ $self->{ athletes }}; my $i = $self->{ current }; return $self->{ athletes }[ $i ]; }
+sub score            { my $self = shift; $self->{ state } = 'score'; }
 
 1;

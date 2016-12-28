@@ -44,7 +44,6 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
-		edit_header        => \&handle_division_edit_header,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
 		judge_departure    => \&handle_division_judge_departure,
@@ -300,28 +299,6 @@ sub handle_division_edit_athletes {
 	try {
 		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
 		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
-		$division->write();
-
-		$self->broadcast_division_response( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_edit_header {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-
-	print STDERR "Editing division header.\n" if $DEBUG;
-
-	try {
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
