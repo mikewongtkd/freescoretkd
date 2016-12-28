@@ -60,7 +60,7 @@
 	</head>
 	<body>
 		<div class="container">
-			<h1>Edit Rings and Divisions</h1>
+			<h1>Edit World Class Divisions</h1>
 
 			<p>You can drag-and-drop ring folders with divisions in them into
 			the <b>forms-worldclass</b> directory. You can also drag-and-drop

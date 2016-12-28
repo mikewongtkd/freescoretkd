@@ -7,7 +7,7 @@
 ?>
 <html>
 	<head>
-		<title>Grassroots Divisions</title>
+		<title>Freestyle Divisions</title>
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
@@ -28,7 +28,7 @@
 				$( '#new-division' ).css({ position: 'relative', top: '-120px', left: '28px' }).hide();
 				$( '#refresh' ).hide().click(( ev ) => { window.location.reload(); });
 				$('#elfinder').elfinder({
-					url : '/freescore/include/opt/elfinder/php/connector.grassroots.php',  // connector URL (REQUIRED)
+					url : '/freescore/include/opt/elfinder/php/connector.freestyle.php',  // connector URL (REQUIRED)
 					getFileCallback: function( files, fm ) {
 						window.open( files.url, '_blank' );
 					},
@@ -53,7 +53,7 @@
 							$( '#new-division' ).show();
 							$( '#refresh' ).show();
 							$( '#new-division' ).off( 'click' ).click(( ev ) => {
-								window.open( 'division/editor.php?file=test/forms-grassroots/' + ring + '/div.' + divid + '.txt' );
+								window.open( 'division/editor.php?file=test/forms-freestyle/' + ring + '/div.' + divid + '.txt' );
 							});
 						}
 					}
@@ -63,14 +63,14 @@
 	</head>
 	<body>
 		<div class="container">
-			<h1>Edit Grassroots Divisions</h1>
+			<h1>Edit Freestyle Divisions</h1>
 
-			<p>You can drag-and-drop ring folders with divisions in them into the <b>forms-grassroots</b> directory. You can also drag-and-drop from FreeScore TKD to your computer. Use the buttons to edit the rings and divisions.</p>
+			<p>You can drag-and-drop ring folders with divisions in them into the <b>forms-freestyle</b> directory. You can also drag-and-drop from FreeScore TKD to your computer. Use the buttons to edit the rings and divisions.</p>
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<button id="refresh" class="btn btn-success btn-sm pull-right" type="button" style="margin-top: -6px">Refresh View <span class="glyphicon glyphicon-repeat"></span></button>
-					<h4 class="panel-title">Grassroots Rings and Divisions</h4>
+					<h4 class="panel-title">Freestyle Rings and Divisions</h4>
 				</div>
 				<div id="elfinder" class="panel-body"></div>
 			</div>
