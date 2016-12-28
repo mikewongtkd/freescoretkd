@@ -14,7 +14,7 @@
 	if( file_exists( $file )) {
 		$contents = join( "\n", file( $file ));
 		$division = json_decode( $contents );
-		$athletes = array_map( function( $n ) { return $n[ 'name' ]; }, $division[ 'athletes' ] ); 
+		$athletes = array_map( function( $n ) { return $n->name; }, $division->athletes ); 
 		$list     = join( "\n", $athletes );
 	}
 ?>
@@ -25,6 +25,7 @@
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<link href="../../../include/opt/codemirror/lib/codemirror.css" rel="stylesheet" />
+		<link href="../../../include/css/forms/freestyle/division/editor.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
@@ -55,6 +56,8 @@
 				$( '.CodeMirror' ).css({ 'border-radius': '6px' });
 				athletes.list = function() { return this.editor.getDoc().getValue() };
 			});
+
+			var init = {};
 		</script>
 		<style>
 .btn-no-border {
@@ -69,13 +72,16 @@
 	<body>
 		<p>&nbsp;</p>
 		<div class="container">
+
+			<?php include( "description.php" ); ?>
+
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<button id="division-description" type="button" class="btn btn-primary btn-no-border pull-left"><span class="glyphicon glyphicon-pencil"></span></button>
 					<h4 class="panel-title pull-left" id="panel-title" style="margin-top: 4px; margin-left: 8px;">
 						Division <?= strtoupper( $id ) ?> <?= $setting[ 'description' ] ?>
 					</h4>
-					<button id="division-judges" class="btn btn-primary btn-no-border btn-sm pull-right"><span class="glyphicon glyphicon-user"></span>&nbsp;<span id="judges"><?= $setting[ 'judges' ] ?></span> Judges</button>
+					<button id="division-judges" class="btn btn-primary btn-no-border btn-sm pull-right"><span class="glyphicon glyphicon-user"></span>&nbsp;<span id="judges"><?= $division->judges ?></span> Judges</button>
 					<div class="clearfix"></div>
 				</div>
 				<div class="panel-body">
@@ -91,14 +97,16 @@
 		</div>
 		<script>
 			var division = {
-				name : '<?= $id ?>',
+				name : '<?= $division->name ?>',
 				header : {
 <?php
-foreach ($setting as $key => $value) {
+foreach ($division as $key => $value) {
+	if( ! preg_match( "/(?:current|file|judges|name|path|ring|state)/", $key )) { continue; }
 	echo "					$key: '$value',\n";
 }
 ?>
 				},
+				summary: function() { return this.name + ' ' + this.description; },
 				athletes: [ <?php echo join( ", ", array_map( function( $n ) { return "'$n'"; }, $athletes ));  ?> ]
 			};
 			division.header.judges = defined( division.header.judges ) ? division.header.judges : 3;
