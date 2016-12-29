@@ -51,6 +51,11 @@ body {
 }
 
 .panel-title {
+	.title {
+		display: inline-block;
+		width: 100px;
+	}
+
 	.setting {
 		color: #f0ad4e;
 	}

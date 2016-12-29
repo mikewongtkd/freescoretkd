@@ -1,6 +1,6 @@
 <div class="panel panel-primary division-header">
 	<div class="panel-heading">
-		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#description" id="description-title">Description</div>
+		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#description" id="description-title"><span class="title">Description</span></div>
 	</div>
 	<div class="division-setting collapse" id="description">
 		<div class="description-content">
@@ -96,8 +96,9 @@
 		description.divid -= { f : 2, m : 1, '' : 0 }[ description.gender ];
 		description.divid += description.idx * 3;
 		description.divid += { k: 0, y: 400, g: 300, b: 200, r: 100, '': 0 }[ description.rank ]
-		var text = FreeScore.html.span.clone().addClass( "setting" ).append( description.text );
-		$( "#description-title" ).empty().append( "Description: ", text );
+		var title = FreeScore.html.span.clone().addClass( "title" ).html( "Description" );
+		var text  = FreeScore.html.span.clone().addClass( "setting" ).append( description.text );
+		$( "#description-title" ).empty().append( title, text );
 		division.description = description.text;
 
 		// ===== UPDATE DIVISION NAME, IF NOT ALREADY DEFINED
@@ -119,8 +120,9 @@
 	// DESCRIPTION INITIALIZATION
 	// ============================================================
 	init.description = ( division ) => {
-		var text = FreeScore.html.span.clone().addClass( "setting" ).append( division.description() );
-		$( "#description-title" ).empty().append( "Description: ", text );
+		var title = FreeScore.html.span.clone().addClass( "title" ).html( "Description" );
+		var text  = FreeScore.html.span.clone().addClass( "setting" ).append( division.description() );
+		$( "#description-title" ).empty().append( title, text );
 		$( 'title' ).html( division.summary() );
 		$( 'h1' ).html( division.summary() );
 		var desc = division.description();

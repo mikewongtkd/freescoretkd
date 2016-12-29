@@ -42,7 +42,7 @@
 						</a>
 						<a class="list-group-item" href="./forms/worldclass/divisions.php">
 							<h4>Manage Sport Poomsae Divisions</h4>
-							<p>Add, remove, or edit divisions; also add or remove rings</p>
+							<p>Add, remove, or edit divisions</p>
 						</a>
 					</div>
 				</div>
@@ -50,7 +50,25 @@
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<h1 class="panel-title">Classic Poomsae: Score poomsae using an electronic version of the classic flip cards</h1>
+					<h1 class="panel-title">Freestyle Poomsae: Score poomsae following the WTF Freestyle Poomsae rules</h1>
+				</div>
+				<div class="panel-body">
+					<div class="list-group">
+						<a class="list-group-item" href="./forms/freestyle/register.php">
+							<h4>Register a Tablet or Computer for Freestyle Poomsae</h4>
+							<p>Assign and ring and role for a ring laptop or judge tablet</p>
+						</a>
+						<a class="list-group-item" href="./forms/freestyle/divisions.php">
+							<h4>Manage Freestyle Poomsae Divisions</h4>
+							<p>Add, remove, or edit divisions</p>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h1 class="panel-title">Classic Poomsae: Score poomsae with numbers 5.0 to 9.9</h1>
 				</div>
 				<div class="panel-body">
 					<div class="list-group">
@@ -60,7 +78,7 @@
 						</a>
 						<a class="list-group-item" href="./forms/grassroots/divisions.php">
 							<h4>Manage Classic Poomsae Divisions</h4>
-							<p>Add, remove, or edit divisions; also add or remove rings</p>
+							<p>Add, remove, or edit divisions</p>
 						</a>
 					</div>
 				</div>

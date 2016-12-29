@@ -52,7 +52,7 @@
 
 <?php include( "settings.php" ); ?>
 <?php include( "description.php" ); ?>
-<?php include( "form-selection.php" ); ?>
+<?php include( "forms.php" ); ?>
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
@@ -68,6 +68,9 @@
 		</div>
 
 		<script>
+			// ===== ENSURE ONLY ONE HEADING EDITOR IS SHOWN (EXPANDED) AT A TIME
+			$( ".collapse" ).on( "show.bs.collapse", ( ev ) => { $( ".collapse.in" ).collapse( 'hide' ); });
+
 			// ============================================================
 			// ATHLETE LIST (CODEMIRROR)
 			// ============================================================
@@ -75,6 +78,7 @@
 			athletes.editor   = CodeMirror.fromTextArea( document.getElementById( 'athletes' ), { lineNumbers: true, autofocus: true, mode : 'freescore' });
 			athletes.doc      = athletes.editor.getDoc();
 			athletes.editor.setSize( '100%', '360px' );
+			athletes.editor.on( "focus", ( ev ) => { $( ".collapse.in" ).collapse( 'hide' ); });
 
 			// ===== BEHAVIOR
 			athletes.editor.on( "change", function( cm, key, ev ) {

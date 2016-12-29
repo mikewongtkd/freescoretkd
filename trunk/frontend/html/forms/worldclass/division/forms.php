@@ -27,7 +27,7 @@ EOD;
 ?>
 <div class="panel panel-danger">
 	<div class="panel-heading">
-		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#form-selection" id="form-selection-title">Form Selection</div>
+		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#form-selection" id="form-selection-title"><span class="title">Forms</span></div>
 	</div>
 	<div class="division-setting collapse" id="form-selection">
 		<div class="form-selection-content">
@@ -97,7 +97,7 @@ EOD;
 
 		validate.input();
 
-		$( "#form-selection-title" ).html( "Form Selection: <span class=\"setting\">" + selected.description + "</span>" );
+		$( "#form-selection-title" ).html( "<span class=\"title\">Forms</span><span class=\"setting\">" + selected.description + "</span>" );
 		division.forms = selected.forms;
 	}};
 

@@ -39,6 +39,9 @@ body {
   float: right;
   color: white; }
 
+.panel-title .title {
+  display: inline-block;
+  width: 100px; }
 .panel-title .setting {
   color: #f0ad4e; }
 .panel-title .meta {

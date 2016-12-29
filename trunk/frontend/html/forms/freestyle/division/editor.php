@@ -53,6 +53,7 @@
 				athletes = { textarea : document.getElementById( 'athletes' ) };
 				athletes.editor = CodeMirror.fromTextArea( athletes.textarea, { lineNumbers: true, mode : 'freescore' });
 				athletes.editor.setSize( '100%', '480' );
+				athletes.editor.on( "focus", ( ev ) => { $( ".collapse.in" ).collapse( 'hide' ); });
 				$( '.CodeMirror' ).css({ 'border-radius': '6px' });
 				athletes.list = function() { return this.editor.getDoc().getValue() };
 			});
@@ -73,16 +74,12 @@
 		<p>&nbsp;</p>
 		<div class="container">
 
+			<?php include( "settings.php" ); ?>
 			<?php include( "description.php" ); ?>
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<button id="division-description" type="button" class="btn btn-primary btn-no-border pull-left"><span class="glyphicon glyphicon-pencil"></span></button>
-					<h4 class="panel-title pull-left" id="panel-title" style="margin-top: 4px; margin-left: 8px;">
-						Division <?= strtoupper( $id ) ?> <?= $setting[ 'description' ] ?>
-					</h4>
-					<button id="division-judges" class="btn btn-primary btn-no-border btn-sm pull-right"><span class="glyphicon glyphicon-user"></span>&nbsp;<span id="judges"><?= $division->judges ?></span> Judges</button>
-					<div class="clearfix"></div>
+					<h4 class="panel-title" id="panel-title">List of Athletes in this Division</h4>
 				</div>
 				<div class="panel-body">
 					<textarea id="athletes" class="panel-body"><?= $list?></textarea>
@@ -96,6 +93,10 @@
 
 		</div>
 		<script>
+			// ===== ENSURE ONLY ONE HEADING EDITOR IS SHOWN (EXPANDED) AT A TIME
+			$( ".collapse" ).on( "show.bs.collapse", ( ev ) => { $( ".collapse.in" ).collapse( 'hide' ); });
+
+			// ===== DIVISION INFORMATION FROM DATABASE
 			var division = {
 				name : '<?= $division->name ?>',
 				header : {

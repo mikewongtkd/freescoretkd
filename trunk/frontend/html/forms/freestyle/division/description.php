@@ -1,6 +1,6 @@
 <div class="panel panel-primary division-header">
 	<div class="panel-heading">
-		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#description" id="description-title">Description</div>
+		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#description" id="description-title"><span class="title">Description</span></div>
 	</div>
 	<div class="division-setting collapse" id="description">
 		<div class="description-content">
@@ -16,20 +16,20 @@
 						<label class="btn btn-default"><input type="radio" name="gender" value="m">Male</label>
 					</div>
 					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-default"><input type="radio" name="age" idx="00" value="12-17"   >12-17</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="01" value="18+"     >18+</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="03" value="12-17">12-17</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="18+"  >18+</label>
 					</div>
 				</div>
 				<div class="tab-pane" id="pair">
 					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-default"><input type="radio" name="age" idx="00" value="12-17"   >12-17</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="01" value="18+"     >18+</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="01" value="12-17">12-17</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="02" value="18+"  >18+</label>
 					</div>
 				</div>
 				<div class="tab-pane" id="team">
 					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-default"><input type="radio" name="age" idx="00" value="12-17"   >12-17</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="01" value="18+"     >18+</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="01" value="12-17">12-17</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="02" value="18+"  >18+</label>
 					</div>
 				</div>
 			</div>
@@ -42,14 +42,15 @@
 	// DESCRIPTION BEHAVIOR
 	// ============================================================
 	description = { category: '', gender: '', age: '', years: '', text: '', divid: 0, idx : 0, update : function() { 
-		description.text   = { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + description.age.capitalize();
+		description.text   = { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + { '': '', '12-17' : 'Juniors', '18+' : 'Seniors' }[ description.age ].capitalize();
 		description.text   = description.text.trim();
 		description.text   = description.text.replace( /\s+/g, ' ' );
-		description.divid  = { individual : 3, pair : 43, team : 73 }[ description.category ];
-		description.divid -= { f : 2, m : 1, '' : 0 }[ description.gender ];
-		description.divid += description.idx * 3;
-		var text = FreeScore.html.span.clone().addClass( "setting" ).append( description.text );
-		$( "#description-title" ).empty().append( "Description: ", text );
+		description.divid  = { individual : 0, pair : 7, team : 10 }[ description.category ];
+		description.divid += { f : 1, m : 2, '' : 3 }[ description.gender ];
+		description.divid += description.idx;
+		var title = FreeScore.html.span.clone().addClass( "title" ).html( "Description" );
+		var text  = FreeScore.html.span.clone().addClass( "setting" ).append( description.text );
+		$( "#description-title" ).empty().append( title, text );
 		division.description = description.text;
 
 		// ===== UPDATE DIVISION NAME, IF NOT ALREADY DEFINED
@@ -62,21 +63,22 @@
 		$( 'h1' ).html( division.summary() );
 
 		// ===== UPDATE SETTING HEADER
-		// settings.update();
+		settings.update();
 	}};
 	// ============================================================
 	// DESCRIPTION INITIALIZATION
 	// ============================================================
 	init.description = ( division ) => {
-		var text = FreeScore.html.span.clone().addClass( "setting" ).append( division.description() );
-		$( "#description-title" ).empty().append( "Description: ", text );
+		var title = FreeScore.html.span.clone().addClass( "title" ).html( "Description" );
+		var text  = FreeScore.html.span.clone().addClass( "setting" ).append( division.description() );
+		$( "#description-title" ).empty().append( title, text );
 		$( 'title' ).html( division.summary() );
 		$( 'h1' ).html( division.summary() );
 		var desc = division.description();
 		var gender = desc.match( /\b(Fem|M)ale/i ); gender = gender ? gender[ 0 ].substr( 0, 1 ).toLowerCase() : '';
 		var ev     = desc.match( /Individual|Pair|Team/i); ev = ev ? ev[ 0 ].toLowerCase() : '';
 		var age    = desc.match( /12-17|18 and over/i ); age = age ? age[ 0 ].toLowerCase() : '';
-		var map    = { '10-11' : 'youths', 'youth' : 'youths', '12-14' : 'cadets', 'cadet' : 'cadets', '15-17' : 'juniors', 'junior' : 'juniors' }; age = map[ age ] ? map[ age ] : age;
+		var map    = { '12-17' : 'juniors', 'junior' : 'juniors', '18+' : 'seniors', 'senior' : 'seniors' }; age = map[ age ] ? map[ age ] : age;
 		if((gender == 'm' && desc.match( /female/i )) || (gender == 'f' && desc.match( /\bmale/i ))) { gender = ''; }
 		if( ev && age ) {
 			$( 'a[href="#' + ev + '"]' ).click();
