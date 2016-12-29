@@ -729,7 +729,7 @@
 				var update = JSON.parse( response.data );
 				if( ! defined( update.division )) { return; }
 				var division = new Division( update.division );
-				var athlete  = division.current.athlete();
+				var athlete  = division.current.athlete(); 
 				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' Athlete: ' + athlete.display.name() );
 			}
 

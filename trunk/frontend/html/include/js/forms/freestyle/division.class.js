@@ -21,7 +21,7 @@ function Division( division ) {
 
 	var _current = this.current = {
 		athlete : function() {
-			var i = parseInt( division.current );
+			var i = parseInt( division.current ); if( isNaN( i )) { i = 0; }
 			return new Athlete( division.athletes[ i ] );
 		},
 		athletes :  function() { return division.athletes; },
