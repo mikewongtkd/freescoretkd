@@ -54,6 +54,7 @@
 				athletes.editor = CodeMirror.fromTextArea( athletes.textarea, { lineNumbers: true, mode : 'freescore' });
 				athletes.editor.setSize( '100%', '480' );
 				athletes.editor.on( "focus", ( ev ) => { $( ".collapse.in" ).collapse( 'hide' ); });
+				athletes.doc    = athletes.editor.getDoc();
 				$( '.CodeMirror' ).css({ 'border-radius': '6px' });
 				athletes.list = function() { return this.editor.getDoc().getValue() };
 			});
@@ -85,8 +86,8 @@
 					<textarea id="athletes" class="panel-body"><?= $list?></textarea>
 				</div>
 				<div class="panel-footer panel-primary clearfix">
-					<div id="user-message" class="text-muted pull-left" style="margin-top: 8px;">Please edit the list of athletes for this division</div>
-					<button id="save-division" type="button" class="btn btn-success pull-right">Save Changes</button>
+					<div id="user-message" class="text-muted pull-left" style="margin-top: 8px;"></div>
+					<button id="save-button" type="button" class="btn btn-success pull-right">Save Changes</button>
 				</div>
 			</div>
 
@@ -97,125 +98,178 @@
 			$( ".collapse" ).on( "show.bs.collapse", ( ev ) => { $( ".collapse.in" ).collapse( 'hide' ); });
 
 			// ===== DIVISION INFORMATION FROM DATABASE
-			var division = {
-				name : '<?= $division->name ?>',
-				header : {
-<?php
-foreach ($division as $key => $value) {
-	if( ! preg_match( "/(?:current|file|judges|name|path|ring|state)/", $key )) { continue; }
-	echo "					$key: '$value',\n";
-}
-?>
-				},
-				summary: function() { return this.name + ' ' + this.description; },
-				athletes: [ <?php echo join( ", ", array_map( function( $n ) { return "'$n'"; }, $athletes ));  ?> ]
-			};
-			division.header.judges = defined( division.header.judges ) ? division.header.judges : 3;
-			$( '#judges' ).html( division.header.judges );
+			var division = <?= json_encode( $division ) ?>;
+			division.judges = defined( division.judges ) ? division.judges : 3;
+			division.summary = function() { return this.name + ' ' + this.description; };
+			$( '#judges' ).html( division.judges );
 
-			var describe = function( division ) { return 'Division ' + division.name.toUpperCase() + ' ' + division.header.description; }
+			var describe = function( division ) { return division.name.toUpperCase() + ' ' + division.description; }
 			$( 'title' ).html( describe( division ));
 
-			$( '#division-description' ).click( function( ev ) {
-				bootbox.prompt({
-					title : 'Division Description',
-					callback: function( results ) {
-						if( ! results ) { return; }
-						division.header.description = results;
-						$( '#panel-title' ).html( describe( division ) );
-					}
-				});
-				$( 'input.bootbox-input' ).attr({ placeholder: '<?= $setting[ 'description' ] ?>' });
-			});
+			// ===== BEHAVIOR
+			$( function() {
+				var validate = {};
+				athletes.editor.on( "change", function( cm, key, ev ) {
+					division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map((name) => { return { name : name };});
 
-			$( '#division-judges' ).click( function( ev ) {
-				var judges = division.judges;
-				bootbox.prompt({
-					title: "Number of Judges for this Division ",
-					inputType: 'select',
-					inputOptions: [
-						{ text: '3 judges', value: '3', },
-						{ text: '5 judges', value: '5', },
-						{ text: '7 judges', value: '7', },
-					],
-					callback: function ( results ) {
-						if( ! results ) { return; }
-						division.header.judges = results; 
-						$( '#judges' ).html( division.header.judges );
-					}
-				});
-				$( 'option' ).prop( 'selected', false );
-				$( 'option[value=' + division.header.judges + ']' ).prop( 'selected', true );
-			});
+					var autodetect = $( 'label.active input[value=auto]' ).length > 0;
+					if( autodetect ) { settings.round.select.autodetect(); }
 
-			$( '#save-division' ).click( function( ev ) {
-				var tournament = <?= $tournament ?>;
-				var host       = '<?= $host ?>';
-				$( '#user-message' ).html( "Saving " + describe( division ) );
-				division.athletes = athletes.list().split( /\n/ ).reduce(( acc, cur ) => { if( cur ) { acc.push( cur ); }; return acc; }, [] );
-				
-				function save( division ) {
-					$.ajax({
-						type: 'POST',
-						url: 'http://' + host + ':3082/' + tournament.db + '/<?= $ring ?>/' + division.name,
-						data: JSON.stringify( division ),
-						success: function( response ) {
-							console.log( response );
-							if( response.status == 'saved' ) {
-								sound.send.play();
-								$( '#user-message' ).html( describe( division ) + ' has been saved.' );
-								setTimeout( () => { window.close(); }, 5000 );
-							} else if( response.status == 'exists' ) {
-								bootbox.dialog({
-									title : "Division " + division.name.toUpperCase() + " already exists!",
-									message: "Do you want to overwrite the existing division " + division.name.toUpperCase() + "?",
-									buttons: {
-										cancel : {
-											label: 'Cancel',
-											className: 'btn-danger',
-											callback: () => { sound.prev.play(); }
-										},
-										confirm : {
-											label: 'Overwrite',
-											className: 'btn-primary',
-											callback: () => {
-												sound.next.play();
-												division.overwrite = true;
-												save( division );
-											}
-										},
-										rename : {
-											label: 'Save As...',
-											className: 'btn-success',
-											callback: () => {
-												sound.next.play();
-												bootbox.prompt({
-													title: 'Save Division As...',
-													value: division.name.toUpperCase(),
-													callback: ( name ) => {
-														if( name === null ) { sound.prev.play(); return; }
-														sound.next.play();
-														division.name = name.toLowerCase();
-														save( division );
-													}
-												});
-											}
-										},
-									},
-									closeButton : false,
-								});
-							}
-						},
-						error: function( response ) {
-							if( defined( response.statusText ) ) { response.error = 'ERROR Unable to connect to FreeScore server.'; }
-							$( '#user-message' ).html( response.error );
-						},
-					});
+					validate.input();
+
+				});
+
+				init.athletes = ( division ) => {
+					var list = division.athletes;
+					var text = list.map( ( element ) => { return element.name; }).join( "\n" );
+					athletes.doc.setValue( text );
+				};
+
+				validate.athletes = {};
+
+				validate.athletes.count = function() {
+					if( division.athletes.length == 0 ) { return false; }
+					return (division.athletes[ 0 ].name);
+				}
+				validate.athletes.unique = function() {
+					var duplicates = [];
+					if( division.athletes.length > 1 ) {
+						var count = division.athletes
+							.map( (athlete) => { return athlete.name; })
+							.reduce((uniq, cur) => { uniq[ cur ] = (uniq[ cur ] || 0) + 1; return uniq; }, {});
+						duplicates = Object.keys( count ).filter((a) => count[a] > 1 );
+					}
+					return (duplicates.length == 0);
 				}
 
-				save( division );
+				validate.input = function() {
+					save.disable();
+					var ok = true;
+
+					if( validate.athletes.count() && validate.athletes.unique()) {
+						$( '#athletes' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
+
+					} else if( ! validate.athletes.count() ) {
+						ok = false;
+						$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
+						$( '#user-message' ).html( "Not enough athletes. Please add more athletes." );
+
+					} else if( ! validate.athletes.unique() ) {
+						ok = false;
+						$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
+						$( '#user-message' ).html( "Duplicate athletes. Please resolve athletes with the same name." );
+					}
+
+					if( ok ) {
+						$( '#user-message' ).html( "" );
+						save.enable();
+					}
+					return ok;
+				}
 			});
 
+			// ===== SERVICE COMMUNICATION
+			var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// );
+			var tournament = file.shift();
+			var freestyle  = file.shift();
+			var ring       = file.shift(); 
+			var ringnum    = ring.match( /^ring(\d+)/ ); ring = ringnum ? parseInt( ringnum[ 1 ] ) : ring;
+			var filename   = file.shift(); 
+			var divId      = filename.match( /^div\.(\w+)\.txt$/ ); divId = divId ? divId[ 1 ] : 'new';
+			var ws         = new WebSocket( "ws://<?= $host ?>:3082/freestyle/" + tournament + "/" + ring );
+			var save       = { enable : function() {
+				var button = $( '#save-button' );
+				button.removeClass( 'disabled' );
+				button.off( 'click' ).click( function() { 
+					division.ring = ring;
+					var request  = { data : { type : 'division', action : 'write', division : division }};
+					request.json = JSON.stringify( request.data );
+					sound.next.play();
+					ws.send( request.json );
+				});
+			}, disable : function() {
+				var button = $( '#save-button' );
+				button.addClass( 'disabled' );
+				button.off( 'click' );
+			}};
+
+			save.disable();
+
+			ws.onopen      = function() {
+				if( divId != 'new' ) {
+					var request = { type : 'division', action : 'read', divid : divId };
+					var json    = JSON.stringify( request );
+					ws.send( json );
+				}
+			};
+			ws.onmessage = function( response ) {
+				var update = JSON.parse( response.data );
+
+				if( update.type == 'division' ) {
+					if( update.action == 'update' ) {
+						var division = update.division;
+						division.summary = function() { return this.name + ' ' + this.description; };
+						init.settings( division );
+						init.description( division );
+						init.athletes( division );
+
+					} else if( update.action == 'write ok' ) {
+						var division = update.division;
+						sound.send.play();
+						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.close(); } );
+
+					} else if( update.action == 'write error' ) {
+						var division = update.division;
+						sound.next.play();
+						bootbox.dialog({
+							title : "Division " + division.name.toUpperCase() + " already exists!",
+							message: "Do you want to overwrite the existing division " + division.name.toUpperCase() + "?",
+							buttons: {
+								cancel : {
+									label: 'Cancel',
+									className: 'btn-danger',
+									callback: () => { sound.prev.play(); }
+								},
+								confirm : {
+									label: 'Overwrite',
+									className: 'btn-primary',
+									callback: () => {
+										sound.next.play();
+										var request  = { data : { type : 'division', action : 'write', overwrite: true, division : division }};
+										request.json = JSON.stringify( request.data );
+										ws.send( request.json );
+									}
+								},
+								rename : {
+									label: 'Save As...',
+									className: 'btn-success',
+									callback: () => {
+										sound.next.play();
+										bootbox.prompt({
+											title: 'Save Division As...',
+											value: division.name.toUpperCase(),
+											callback: ( name ) => {
+												if( name === null ) { sound.prev.play(); return; }
+												sound.next.play();
+												division.name = name.toLowerCase();
+												var request  = { data : { type : 'division', action : 'write', division : division }};
+												request.json = JSON.stringify( request.data );
+												ws.send( request.json );
+											}
+										});
+									}
+								},
+							},
+							closeButton : false,
+						});
+					} else {
+						console.log( update );
+					}
+				}
+			};
+			ws.onclose   = function( reason ) {
+				bootbox.alert( { title: 'Network Error', message: 'An error occurred while attempting to connect to the server.', callback: function() { window.close(); }} );
+			};
 		</script>
 	</body>
 </html>

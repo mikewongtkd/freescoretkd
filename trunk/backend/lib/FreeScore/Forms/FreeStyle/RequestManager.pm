@@ -12,7 +12,7 @@ use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Clone qw( clone );
 
-our $DEBUG = 0;
+our $DEBUG = 1;
 
 # ============================================================
 sub new {
@@ -452,16 +452,18 @@ sub handle_division_write {
 		my $division = FreeScore::Forms::FreeStyle::Division->from_json( $request->{ division } );
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $ring, $division->{ name } );
 
+		my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
+		my $unblessed = unbless( $message ); 
+			
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
-			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $division }});
+			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
 
 		} else {
-			$division->normalize();
 			$progress->update_division( $division );
 			$division->write();
 
 			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
-			$client->send( { json => {  type => 'division', action => 'write ok', division => $division }});
+			$client->send( { json => {  type => 'division', action => 'write ok', division => $unblessed }});
 
 			# ===== BROADCAST THE UPDATE
 			$self->broadcast_ring_response( $request, $progress, $clients );

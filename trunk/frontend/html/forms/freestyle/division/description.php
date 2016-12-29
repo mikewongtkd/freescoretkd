@@ -54,9 +54,9 @@
 		division.description = description.text;
 
 		// ===== UPDATE DIVISION NAME, IF NOT ALREADY DEFINED
-		// var name      = $( '#division-name' ).val().toLowerCase();
-		// division.name = name ? name : 'p' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
-		// $( '#division-name' ).attr({ placeholder: division.name.toUpperCase() });
+		var name      = $( '#division-name' ).val().toLowerCase();
+		division.name = name ? name : 'p' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
+		$( '#division-name' ).attr({ placeholder: division.name.toUpperCase() });
 
 		// ===== UPDATE TITLE AND HEADER
 		$( 'title' ).html( division.summary() );
@@ -70,15 +70,15 @@
 	// ============================================================
 	init.description = ( division ) => {
 		var title = FreeScore.html.span.clone().addClass( "title" ).html( "Description" );
-		var text  = FreeScore.html.span.clone().addClass( "setting" ).append( division.description() );
+		var text  = FreeScore.html.span.clone().addClass( "setting" ).append( division.description );
 		$( "#description-title" ).empty().append( title, text );
 		$( 'title' ).html( division.summary() );
 		$( 'h1' ).html( division.summary() );
-		var desc = division.description();
+		var desc = defined( division.description ) ? division.description : '';
 		var gender = desc.match( /\b(Fem|M)ale/i ); gender = gender ? gender[ 0 ].substr( 0, 1 ).toLowerCase() : '';
-		var ev     = desc.match( /Individual|Pair|Team/i); ev = ev ? ev[ 0 ].toLowerCase() : '';
-		var age    = desc.match( /12-17|18 and over/i ); age = age ? age[ 0 ].toLowerCase() : '';
-		var map    = { '12-17' : 'juniors', 'junior' : 'juniors', '18+' : 'seniors', 'senior' : 'seniors' }; age = map[ age ] ? map[ age ] : age;
+		var ev     = desc.match( /Individual|Pair|Team/i ); ev = ev ? ev[ 0 ].toLowerCase() : '';
+		var age    = desc.match( /juniors|seniors/i ); age = age ? age[ 0 ].toLowerCase() : '';
+		var map    = { 'junior' : '12-17', 'juniors' : '12-17', 'senior' : '18+', 'seniors' : '18+' }; age = map[ age ] ? map[ age ] : age;
 		if((gender == 'm' && desc.match( /female/i )) || (gender == 'f' && desc.match( /\bmale/i ))) { gender = ''; }
 		if( ev && age ) {
 			$( 'a[href="#' + ev + '"]' ).click();

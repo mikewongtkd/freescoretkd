@@ -1,4 +1,5 @@
 package FreeScore::Forms::FreeStyle;
+use List::MoreUtils qw( first_index );
 use FreeScore;
 use FreeScore::Forms;
 use FreeScore::Forms::FreeStyle::Division;
@@ -44,6 +45,30 @@ sub init {
 
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
+	}
+}
+
+# ============================================================
+sub update_division {
+# ============================================================
+	my $self     = shift;
+	my $division = shift;
+
+	my $i = first_index { $_->{ name } eq $division->{ name } } @{ $self->{ divisions }};
+	# New division
+	if( $i < 0 ) { 
+		push @{ $self->{ divisions }}, $division; 
+
+	# Merge with existing division
+	} else { 
+		my $previous = $self->{ divisions }[ $i ];
+		my $score    = {};
+		foreach my $athlete (@{ $previous->{ athletes }}) { $score->{ $athlete->{ name }} = $athlete; }
+		foreach my $i (0 .. $#{ $division->{ athletes }}) {
+			my $name = $division->{ athletes }[ $i ]{ name };
+			$division->{ athletes }[ $i ] = $score->{ $name } if( exists $score->{ $name } );
+		}
+		$self->{ divisions }[ $i ] = $division; 
 	}
 }
 

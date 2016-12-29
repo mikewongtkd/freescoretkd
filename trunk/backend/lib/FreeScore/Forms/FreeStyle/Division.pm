@@ -151,6 +151,18 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub from_json {
+# ============================================================
+#** @method ( json_division_data )
+#   @brief  Class method that returns an instance using the given JSON division data
+#   Call as my $division = FreeScore::Forms::FreeStyle->from_json( $json )
+#*
+	my $class = shift;
+	my $data  = shift;
+	return bless $data, $class;
+}
+
+# ============================================================
 sub navigate {
 # ============================================================
 	my $self   = shift;
@@ -206,7 +218,7 @@ sub write {
 	my $self  = shift;
 	my $json  = new JSON::XS();
 	
-	my $contents = $json->encode( unbless( clone( $self )));
+	my $contents = $json->pretty->canonical->encode( unbless( clone( $self )));
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
 	print FILE $contents;
 	close FILE;
