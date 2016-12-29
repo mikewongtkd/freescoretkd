@@ -41,7 +41,7 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 			bootbox.dialog({
 				title:   "Network Error!",
-				message: "Cannot contact the server. Check that the <code>worldclass</code> service is running and try to reconnect.",
+				message: "Cannot contact the server. Check that the <code>freestyle</code> service is running and try to reconnect.",
 				buttons: { confirm : { label: 'Reconnect', className: 'btn-success', callback: function() { location.reload( true ); }}},
 				closeButton: false
 			});
@@ -117,7 +117,7 @@ $.widget( "freescore.register", {
 				ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
 				Cookies.set( 'ring', selected );
 				register.rings.view .delay( 750 ) .fadeOut( 500 ) .queue( register.roles.show );
-				e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + selected ); 
+				e.ws = new WebSocket( 'ws://' + o.server + ':3082/freestyle/' + o.tournament.db + '/' + selected ); 
 				e.ws.onopen  = register.network.init;
 				e.ws.onerror = register.network.error;
 			});

@@ -390,7 +390,7 @@ sub handle_division_judge_query {
 
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
 	if( $j < $n ) { 
-		foreach my $i ( 0 .. ($n - 1)) { $judges[ $i ] ||= {}; }
+		foreach my $i ( 0 .. ($n - 1)) { $judges->[ $i ] ||= {}; }
 		print STDERR "Initializing $n judges\n" if $DEBUG;
 
 	# ===== IF THE NUMBER OF JUDGES HAS BEEN REDUCED, REMOVE THE EXTRA JUDGES
