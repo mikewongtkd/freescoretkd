@@ -54,7 +54,13 @@ sub autopilot {
 # ============================================================
 	my $self  = shift;
 	my $state = shift;
-	# MW
+	
+	if( defined $state ) {
+		if( $state eq 'off' ) { delete $self->{ autopilot }; } else { $self->{ autopilot } = $state; }
+	}
+
+	return $self->{ autopilot } if exists $self->{ autopilot };
+	return undef;
 }
 
 # ============================================================
@@ -130,7 +136,7 @@ sub calculate_scores {
 		my $findings = $athlete->{ findings } = {};
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores >= $k ) { $athlete->{ complete } = 1; } else { next; }
+		if( @$scores == $k ) { $athlete->{ complete } = 1; } else { next; }
 
 		foreach my $score (@$scores) {
 			$original->{ $_ } += _sum( $scores->{ $_ } ) foreach (qw( presentation technical deductions ));
@@ -180,15 +186,62 @@ sub navigate {
 }
 
 # ============================================================
+sub next_athlete {
+# ============================================================
+#** @method ()
+#   @brief Navigates the division to the next athlete
+#*
+	my $self     = shift;
+	my $athletes = $self->{ athletes };
+	my $i        = $self->{ current };
+
+	$self->{ state }   = 'score';
+	$self->{ current } = $i < $#$athletes ? $i + 1 : 0;
+	return $athletes->[ $self->{ current }];
+}
+
+# ============================================================
+sub next_available_athlete {
+# ============================================================
+#** @method ()
+#   @brief Navigates the division to the next athlete that needs a score and has not been withdrawn or disqualified
+#*
+	my $self      = shift;
+	my $round     = $self->{ round };
+	my $available = undef;
+	do {
+		my $athlete = $self->next_athlete();
+		$available = ! $athlete->{ complete };
+	} while( ! $available );
+	return $athletes->[ $self->{ current }];
+}
+
+# ============================================================
+sub previous_athlete {
+# ============================================================
+#** @method ()
+#   @brief Navigates the division to the previous athlete
+#*
+	my $self     = shift;
+	my $athletes = $self->{ athletes };
+	my $i        = $self->{ current };
+
+	$self->{ state }   = 'score';
+	$self->{ current } = $i > 0 ? $i - 1 : $#$athletes;
+	return $athletes->[ $self->{ current }];
+}
+
+# ============================================================
 sub record_decision {
 # ============================================================
 	my $self     = shift;
 	my $decision = shift;
 	my $i        = shift;
+	my $athletes = $self->{ athletes };
 
-	return unless $i > 0 && $i < @{$self->{ athletes }};
-	$self->{ athletes }[ $i ]{ decision } = $decision;
-	$self->{ athletes }[ $i ]{ complete } = 1;
+	return unless $i > 0 && $i < @$athletes;
+	$athletes->[ $i ]{ decision } = $decision;
+	$athletes->[ $i ]{ complete } = 1;
 }
 
 # ============================================================
@@ -209,7 +262,16 @@ sub remove_athlete {
 	my $self = shift;
 	my $i    = shift;
 	return unless $i > 0 && $i < @{$self->{ athletes }};
-	splice @{$self->{ athletes }}, $i, 1;
+	my $athlete = splice @{$self->{ athletes }}, $i, 1;
+	foreach my $list ( qw( order placement pending )) {
+		next unless exists $self->{ $list };
+		$self->{ $list } = [ map { 
+			if( $_ == $i ) { ();     }
+			if( $_ >  $i ) { $_ - 1; }
+			else           { $_;     }
+		} @{ $self->{ $list }} ];
+	}
+	return $athlete;
 }
 
 # ============================================================

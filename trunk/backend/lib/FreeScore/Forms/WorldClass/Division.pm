@@ -489,10 +489,8 @@ sub remove_athlete {
 	# Remove athlete
 	my $athlete = splice( @{ $self->{ athletes }}, $i, 1 );
 
-	# Update round orders, placement, and pending
-	$self->remove_from_list( 'order',     $i );
-	$self->remove_from_list( 'placement', $i );
-	$self->remove_from_list( 'pending',   $i );
+	# Update order, placement, and pending lists
+	$self->remove_from_list( $_, $i ) foreach (qw( order placement pending ));
 
 	return $athlete;
 }

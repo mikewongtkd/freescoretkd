@@ -421,7 +421,7 @@ sub handle_division_score {
 		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
 		$division->write();
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $complete = $athlete->{ complete };
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -617,7 +617,6 @@ sub autopilot {
 #   @brief Automatically advances to the next athlete/division
 #   Called when judges finish scoring an athlete's form 
 #*
-
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;

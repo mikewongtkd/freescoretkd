@@ -30,7 +30,7 @@
 					<div id="technical-score" class="pull-right subtotal">0.0</div>
 				</div>
 
-				<button id="start" class="btn btn-lg btn-success">Start <span class="athlete-name">Athlete</span></button>
+				<button id="start" class="btn btn-lg btn-success"><span class="judge-name"></span> touch to start scoring for <span class="athlete-name">athlete</span></button>
 				<button id="deductions-done" class="btn btn-lg btn-danger">Done</button>
 
 				<table class="mandatory-foot-technique-1">
@@ -401,13 +401,13 @@
 		</div>
 
 		<div id="total">
-			<div class="alert alert-success" role="alert"><strong>Send <span class="judge-name">Referee</span> Score for <span class="athlete-name">Athlete</span></strong>
+			<div class="alert alert-success" role="alert"><strong>Touch to send <span class="judge-name">Referee</span> score for <span class="athlete-name">athlete</span></strong>
 				<div id="total-score" class="pull-right subtotal">0.0</div>
 			</div>
 		</div>
 
 		<script>
-			var score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.0, 'beom-seogi': 0.0, 'dwigubi': 0.0 }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
+			var score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.3, 'beom-seogi': 0.3, 'dwigubi': 0.3 }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
 			var performance = { timeline: [], start: false, complete: false };
 			var sound       = {};
 			var tournament  = <?= $tournament ?>;
@@ -466,6 +466,7 @@
 			$( '#deductions-done' ).off( 'click' ).click(( ev ) => {
 				var clicked = $( ev.target );
 				clicked.fadeOut( 200 );
+				sound.next.play();
 				$( '#controls' ).fadeOut( 200 );
 				$( '.technical-component' ).css({ opacity: 1.0 });
 				show.deductions();
@@ -506,6 +507,7 @@
 				$( '#minor-deductions' ).deductions( 'enable' );
 				$( '#major-deductions' ).deductions( 'enable' );
 				performance.start = true;
+				sound.next.play();
 				var t_event = { time: Date.now(), name: 'start' };
 				performance.timeline.push( t_event );
 				score.deductions.timing.start = t_event;
@@ -525,11 +527,19 @@
 					var next    = go[ current ].next;
 					var t_event = { time: Date.now(), name: name };
 
+					console.log( name, value, current );
+
 					if( results ) {
+						// ===== UPDATE TECHNICAL SCORE
 						score.technical[ name ] = value;
 						t_event.value = value;
 						if( results ) { $( '#' + results ).find( '.component-score' ).html( value.toFixed( 1 ) ); }
 
+						// ===== UPDATE TIMELINE
+						var update = performance.timeline.find(( t ) => { return t.name == name; });
+						if( defined( update )) { update.value = value; }
+
+						// ===== UPDATE SUM
 						var sum = Object.keys( score.technical ).reduce(( sum, key ) => { sum += score.technical[ key ]; return sum; }, 0.0 );
 						$( '#technical-score' ).html( sum.toFixed( 1 ));
 					}
@@ -727,10 +737,11 @@
 
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
+				console.log( update );
 				if( ! defined( update.division )) { return; }
 				var division = new Division( update.division );
 				var athlete  = division.current.athlete(); 
-				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' Athlete: ' + athlete.display.name() );
+				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
 			}
 
 			$( '#total' ).off( 'click' ).click(( ev ) => {
