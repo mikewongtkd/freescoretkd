@@ -53,7 +53,8 @@
 								window.open( 'division/editor.php?file=test/' + ring + '/new' );
 							});
 						}
-					}
+					},
+					soundPath: '../../include/opt/elfinder/sounds',
 				});
 			});
 		</script>

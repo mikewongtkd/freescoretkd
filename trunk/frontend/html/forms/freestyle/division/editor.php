@@ -7,9 +7,9 @@
 	$ring_name  = array_shift( $url );
 	$file_name  = array_shift( $url );
 	$ring       = intval( preg_replace( '/ring/', '', $ring_name ));
-	$id         = $_GET[ 'file' ]; $id = preg_replace( '/\w*\/forms-freestyle\/ring\d+\/div\./', '', $id ); $id = preg_replace( '/\.txt/', '', $id );
 	$setting    = [];
 	$athletes   = [];
+	$division   = [ 'name' => '', 'description' => '' ];
 
 	if( file_exists( $file )) {
 		$contents = join( "\n", file( $file ));

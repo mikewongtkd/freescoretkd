@@ -284,6 +284,7 @@ sub write {
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
 	print FILE $contents;
 	close FILE;
+	chmod 0666, $self->{ file };
 
 	return 1;
 }

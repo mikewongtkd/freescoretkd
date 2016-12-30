@@ -55,7 +55,7 @@
 
 		// ===== UPDATE DIVISION NAME, IF NOT ALREADY DEFINED
 		var name      = $( '#division-name' ).val().toLowerCase();
-		division.name = name ? name : 'p' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
+		division.name = name ? name : 'fs' + (description.divid < 100 ? '0' : '' ) + (description.divid < 10 ? '0' + description.divid : description.divid);
 		$( '#division-name' ).attr({ placeholder: division.name.toUpperCase() });
 
 		// ===== UPDATE TITLE AND HEADER

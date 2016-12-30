@@ -877,6 +877,7 @@ sub write {
 		}
 	}
 	close FILE;
+	chmod 0666, $self->{ file };
 
 	return 1;
 }

@@ -41,22 +41,15 @@
 					handlers: {
 						open: function( ev, elfinder ) {
 							var ring = ev.data.cwd.name;
-							var divid = ev.data.files
-								.map(( f ) => { return f.name; })
-								.map(( f ) => { var match = f.match( /^div.\w+?(\d+).txt$/ ); return (match != null) ? match[ 1 ] : null })
-								.filter(( f ) => { return f != null; })
-								.map(( f ) => { return parseInt( f ); })
-								.reduce(( max, cur ) => Math.max( max, cur ));
-							divid++;
-							if( divid < 10 ) { divid = '0' + divid; }
-							divid = 'p' + divid;
+							var divid = 'new';
 							$( '#new-division' ).show();
 							$( '#refresh' ).show();
 							$( '#new-division' ).off( 'click' ).click(( ev ) => {
-								window.open( 'division/editor.php?file=test/forms-freestyle/' + ring + '/div.' + divid + '.txt' );
+								window.open( 'division/editor.php?file=test/forms-freestyle/' + ring + '/' + divid );
 							});
 						}
-					}
+					},
+					soundPath: '../../include/opt/elfinder/sounds',
 				});
 			});
 		</script>

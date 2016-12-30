@@ -220,6 +220,7 @@ sub write {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
 	close FILE;
+	chmod 0666, $self->{ file };
 
 	return 1;
 }

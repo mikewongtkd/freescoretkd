@@ -56,7 +56,8 @@
 								window.open( 'division/editor.php?file=test/forms-grassroots/' + ring + '/div.' + divid + '.txt' );
 							});
 						}
-					}
+					},
+					soundPath: '../../include/opt/elfinder/sounds',
 				});
 			});
 		</script>
