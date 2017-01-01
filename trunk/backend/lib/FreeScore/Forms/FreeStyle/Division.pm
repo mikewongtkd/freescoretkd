@@ -4,7 +4,7 @@ use FreeScore::Forms::Division;
 use JSON::XS();
 use Clone qw( clone );
 use List::Util qw( reduce );
-use List::MoreUtils qw( last_index minmax part );
+use List::MoreUtils qw( first_value last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use base qw( FreeScore::Forms::Division );
 
@@ -139,7 +139,7 @@ sub calculate_scores {
 		if( @$scores == $k ) { $athlete->{ complete } = 1; } else { next; }
 
 		foreach my $score (@$scores) {
-			$original->{ $_ } += _sum( $scores->{ $_ } ) foreach (qw( presentation technical deductions ));
+			$original->{ $_ } += _sum( $score->{ $_ } ) foreach (qw( presentation technical deductions ));
 		}
 		$original->{ subtotal } = $original->{ technical } + $original->{ presentation } - $original->{ deductions };
 
@@ -253,7 +253,6 @@ sub record_score {
 	my $i     = $self->{ current };
 
 	my $athlete = $self->{ athletes }[ $i ];
-	$score->{ judge } = $judge;
 	$athlete->{ scores }[ $judge ] = $score;
 }
 
@@ -281,6 +280,9 @@ sub write {
 	my $self  = shift;
 	my $json  = new JSON::XS();
 	
+	$self->calculate_scores();
+	$self->calculate_placements();
+
 	my $contents = $json->pretty->canonical->encode( unbless( clone( $self )));
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
 	print FILE $contents;

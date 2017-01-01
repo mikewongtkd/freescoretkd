@@ -416,7 +416,6 @@ sub handle_division_score {
 	my $division = $progress->current();
 
 	print STDERR "Send score.\n" if $DEBUG;
-	print STDERR Dumper $request;
 
 	try {
 		$division->record_score( $request->{ judge }, $request->{ score } );

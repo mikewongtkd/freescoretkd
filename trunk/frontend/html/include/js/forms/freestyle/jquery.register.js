@@ -74,18 +74,15 @@ $.widget( "freescore.register", {
 			if( update.type == 'division' ) {
 				if( update.action == 'judges' ) { 
 					var judges = o.judges = update.judges; 
-					console.log( update );
 					if( register.judges.view.is( ':hidden' )) { return; }
 
 					// Enable the button for non-registered judges; disable the button otherwise
-					judges.forEach(( judge, i ) => { register.judges.data[i].id = judge.id; });
+					judges.forEach(( judge, i ) => { if( defined( judge )) { register.judges.data[i].id = judge.id; }});
 					register.judges.data.forEach((judge, i) => {
 						if( judge.id ) { judge.disable(); } else { judge.enable(); }
 					});
 				} else if( update.action == 'judge goodbye' ) {
-					console.log( 'Deleting ID cookie ' + Cookies.get( 'id' ));
 					Cookies.remove( 'id' );
-					console.log( 'Current ID cookie value: ' + Cookies.get( 'id' ));
 				}
 			}
 		};

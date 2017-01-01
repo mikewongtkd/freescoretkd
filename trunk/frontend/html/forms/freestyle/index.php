@@ -121,16 +121,19 @@
 					} else { $.each( scores, refresh.judge.submitted ); }
 				},
 				judge: {
+					// ===== SHOW THE JUDGE'S SCORE
 					score: function( i, score ) {
-						var technical    = html.div.clone().addClass( 'technical' ).html( score.technical.sum() );
-						var presentation = html.div.clone().addClass( 'presentation' ).html( score.presentation.sum() );
-						$( '#' + judges.name[ i ] ).empty().append( technical, presentation );
+						var div          = $( '#' + judges.name[ i ] );
+						var technical    = html.div.clone().addClass( 'technical' )    .html( score.technical.sum() );
+						var presentation = html.div.clone().addClass( 'presentation' ) .html( score.presentation.sum() );
+						div.empty().append( technical, presentation );
 					},
+					// ===== SHOW THE JUDGE HAS SUBMITTED A SCORE
 					submitted: function( i, score ) {
-						if( ! defined( score )) { return; }
-						console.log( 'Received score from ' + ( i == 0 ? 'Referee' : 'Judge ' + i ) + ' ' + judges.name[ i ]);
+						var div = $( '#' + judges.name[ i ] );
+						if( ! defined( score )) { div.empty(); return; }
 						var checkmark = html.div.clone().addClass( 'submitted' ).html( '&#10004;' );
-						$( '#' + judges.name[ i ] ).empty().append( checkmark );
+						div.empty().append( checkmark );
 					},
 				}
 			};
