@@ -28,7 +28,7 @@ function Athlete( athlete ) {
 		technical:    () => { return athlete.adjusted.technical; },
 		presentation: () => { return athlete.adjusted.presentation; },
 		deductions:   () => { return athlete.adjusted.deductions; },
-		consensus:    () => { return athlete.findings; },
+		consensus:    () => { return athlete.consensus; },
 		complete:     () => { return athlete.complete; },
 	};
 

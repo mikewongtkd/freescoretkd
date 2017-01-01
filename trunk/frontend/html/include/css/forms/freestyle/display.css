@@ -115,17 +115,18 @@
       padding-top: 20px; }
     .display .athlete #deductions {
       position: absolute;
-      top: 100px;
+      top: 120px;
       left: 0; }
-      .display .athlete #deductions .mandatory-stances {
+      .display .athlete #deductions .mandatory-stances, .display .athlete #deductions .timing {
         position: absolute;
-        top: 0;
+        top: 340px;
         font-size: 9pt;
-        width: 80px;
+        width: 140px;
+        height: 200px;
         text-align: center;
         color: #ba1f1f; }
-        .display .athlete #deductions .mandatory-stances img {
-          height: 80px;
+        .display .athlete #deductions .mandatory-stances img, .display .athlete #deductions .timing img {
+          height: 200px;
           opacity: 1.0;
           filter: sepia(100%) brightness(10%) saturate(100000%) hue-rotate(280deg); }
       .display .athlete #deductions .done {
@@ -134,10 +135,50 @@
           opacity: 0.2;
           filter: sepia(0%) saturate(100%) hue-rotate(-280deg); }
       .display .athlete #deductions .hakdari-seogi {
-        left: 0; }
+        left: 60px; }
       .display .athlete #deductions .beom-seogi {
-        left: 80px; }
+        left: 200px; }
       .display .athlete #deductions .dwigubi {
-        left: 160px; }
+        left: 340px; }
+      .display .athlete #deductions .timing {
+        left: 480px;
+        font-size: 72pt;
+        color: #ba1f1f; }
+      .display .athlete #deductions .ok {
+        color: #444; }
+      .display .athlete #deductions .major, .display .athlete #deductions .minor, .display .athlete #deductions .unadjusted {
+        position: absolute;
+        top: 0;
+        width: 180px;
+        color: magenta;
+        line-height: 72pt;
+        font-size: 56pt;
+        text-align: center; }
+        .display .athlete #deductions .major .votes, .display .athlete #deductions .minor .votes, .display .athlete #deductions .unadjusted .votes {
+          position: absolute;
+          top: 60px;
+          left: 140px;
+          height: 32px;
+          width: 32px;
+          border-radius: 16px;
+          background-color: #609;
+          font-size: 24pt;
+          line-height: 24pt;
+          color: white; }
+      .display .athlete #deductions .unadjusted {
+        left: 80px;
+        color: #3ff; }
+      .display .athlete #deductions .major {
+        left: 320px; }
+      .display .athlete #deductions .minor {
+        left: 480px; }
+    .display .athlete #score {
+      position: absolute;
+      top: 200px;
+      width: 680px;
+      color: lime;
+      font-size: 216pt;
+      line-height: 216pt;
+      text-align: center; }
 
 /*# sourceMappingURL=display.css.map */

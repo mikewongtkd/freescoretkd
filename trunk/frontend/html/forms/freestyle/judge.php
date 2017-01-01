@@ -407,7 +407,7 @@
 		</div>
 
 		<script>
-			var score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.3, 'beom-seogi': 0.3, 'dwigubi': 0.3 }, timing: { start: undefined, 'athlete-stop': undefined, 'music-stop': undefined }, minor: 0.0, major: 0.0 }};
+			var score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.3, 'beom-seogi': 0.3, 'dwigubi': 0.3 }, timing: { start: undefined, stop: undefined }, minor: 0.0, major: 0.0 }};
 			var performance = { timeline: [], start: false, complete: false };
 			var sound       = {};
 			var tournament  = <?= $tournament ?>;
@@ -425,14 +425,33 @@
 			// ============================================================
 			// INITIAL STATE: MOST EVERYTHING IS HIDDEN
 			// ============================================================
-			$( '#deductions-done' ).hide();
-			$( '#technical-skills' ).find( 'table' ).hide();
-			$( '.technical-component' ).css({ opacity: 0.2 });
-			$( '.mandatory-foot-technique-icon' ).hide();
-			$( '#presentation' ).hide();
-			$( '.presentation-component' ).hide();
-			$( '#deductions' ).hide();
-			$( '#total' ).hide();
+			var reset = function() {
+
+				// ===== START IN TECHNICAL MODE
+				$( '#deductions-done' ).hide();
+				$( '#technical-skills' ).find( 'table' ).hide();
+				$( '.technical-component' ).css({ opacity: 0.2 });
+				$( '.mandatory-stances' ).removeClass( 'done' );
+				$( '.mandatory-foot-technique-icon' ).hide();
+				$( '#presentation' ).hide();
+				$( '.presentation-component' ).hide();
+				$( '#deductions' ).hide();
+				$( '#total' ).hide();
+				$( '.technical-scores' ).removeClass( 'docked' );
+				$( '.technical-component' ).off( 'click' );
+				$( '#start' ).show();
+				show.technical();
+
+				// ===== CLEAR ALL SCORES
+				score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.3, 'beom-seogi': 0.3, 'dwigubi': 0.3 }, timing: { start: undefined, stop: undefined }, minor: 0.0, major: 0.0 }};
+				performance = { timeline: [], start: false, complete: false };
+				$( '.technical-scores    .component-score' ).html( '0.0' );
+				$( '.presentation-scores .component-score' ).html( '0.0' );
+				$( '.deduction-scores    .component-score' ).html( '0.0' );
+				$( '.subtotal' ).html( '0.0' );
+
+			};
+			$( function() { reset(); } );
 			timeline.widget = $( '#deductions .timeline' );
 
 			// ============================================================
@@ -676,12 +695,12 @@
 				if( s.name.match( /stop$/ )) {
 					performance.complete = true; 
 					performance.timeline.push( s.t_event ); 
+					score.deductions.timing.stop = s.t_event;
 
 					if( s.name.match( /(?:athlete|music)/ )) {
 						var other = s.name == 'athlete-stop' ? 'music-stop' : 'athlete-stop';
 						$( '#both-stop, #' + s.name ).off( 'click' );
 						$( '#both-stop, #' + s.name ).css({ opacity: 0.2 });
-						score.deductions.timing[ s.name ] = s.t_event;
 						if( ! defined( score.deductions.timing[ other ] ) ) { return; }
 					}
 				}
@@ -727,7 +746,8 @@
 			// ============================================================
 			// COMMUNICATION WITH SERVICE
 			// ============================================================
-			var ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+			var ws       = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+			var previous = { athlete: { name: undefined }};
 
 			ws.onopen = function() {
 				var request  = { data : { type : 'division', action : 'read' }};
@@ -741,7 +761,11 @@
 				if( ! defined( update.division )) { return; }
 				var division = new Division( update.division );
 				var athlete  = division.current.athlete(); 
-				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
+				if( athlete.name() != previous.athlete.name ) {
+					reset();
+					$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
+					previous.athlete.name = athlete.name();
+				}
 			}
 
 			$( '#total' ).off( 'click' ).click(( ev ) => {

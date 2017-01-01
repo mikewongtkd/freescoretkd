@@ -107,25 +107,68 @@
 
 		#deductions {
 			position: absolute;
-			top: 100px;
+			top: 120px;
 			left: 0;
 
-			.mandatory-stances {
+			.mandatory-stances, .timing {
 				position: absolute;
-				top: 0;
+				top: 340px;
 				font-size: 9pt;
-				width: 80px;
+				width: 140px;
+				height: 200px;
 				text-align: center;
-				img { height: 80px; opacity: 1.0; filter: sepia( 100% ) brightness( 10% ) saturate( 100000% ) hue-rotate(  280deg ); };
+				img { height: 200px; opacity: 1.0; filter: sepia( 100% ) brightness( 10% ) saturate( 100000% ) hue-rotate(  280deg ); };
 				color: #ba1f1f;
 			}
 			.done {
 				color: #999;
 				img { opacity: 0.2; filter: sepia( 0% ) saturate( 100% ) hue-rotate( -280deg ); };
 			}
-			.hakdari-seogi { left: 0; }
-			.beom-seogi    { left: 80px; }
-			.dwigubi       { left: 160px; }
+			.hakdari-seogi { left: 60px;  }
+			.beom-seogi    { left: 200px; }
+			.dwigubi       { left: 340px; }
+			.timing        { 
+				left: 480px; 
+				font-size: 72pt; 
+				color: #ba1f1f;
+			}
+			.ok { color: #444; }
+
+			.major, .minor, .unadjusted {
+				position: absolute;
+				top: 0;
+				width: 180px;
+				color: magenta;
+				line-height: 72pt;
+				font-size: 56pt;
+				text-align: center;
+
+				.votes {
+					position: absolute;
+					top: 60px;
+					left: 140px;
+					height: 32px;
+					width: 32px;
+					border-radius: 16px;
+					background-color: #609;
+					font-size: 24pt;
+					line-height: 24pt;
+					color: white;
+				}
+			}
+			.unadjusted { left:  80px; color: #3ff; }
+			.major      { left: 320px; }
+			.minor      { left: 480px; }
+		}
+
+		#score {
+			position: absolute;
+			top: 200px;
+			width: 680px;
+			color: lime;
+			font-size: 216pt;
+			line-height: 216pt;
+			text-align: center;
 		}
 	}
 }

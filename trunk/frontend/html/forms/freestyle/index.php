@@ -44,9 +44,13 @@
 			<div class="athlete">
 				<div id="flag"></div><div id="name"></div>
 				<div id="deductions">
-					<div class="mandatory-stances done hakdari-seogi"><img src="../../images/icons/freestyle/hakdari-seogi.png"></div>
-					<div class="mandatory-stances done beom-seogi"   ><img src="../../images/icons/freestyle/beom-seogi.png"></div>
-					<div class="mandatory-stances done dwigubi"      ><img src="../../images/icons/freestyle/dwigubi.png"></div>
+					<div class="mandatory-stances hakdari-seogi done"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
+					<div class="mandatory-stances beom-seogi    done"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
+					<div class="mandatory-stances dwigubi       done"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
+					<div class="unadjusted"></div>
+					<div class="major"></div>
+					<div class="minor"></div>
+					<div class="timing ok"><div class="glyphicon glyphicon-time"></div><div id="time-over-under">&#10004;</div></div>
 				</div>
 				<div id="score"></div>
 			</div>
@@ -74,9 +78,8 @@
 				refresh.display( division );
 			}
 
-			Object.prototype.sum = function() {
-				var sum = parseFloat( Object.keys( this ).reduce(( acc, cur ) => { acc += this[ cur ]; return acc; }, 0.0));
-				return sum.toFixed( 1 );
+			var sum = function( obj ) {
+				return parseFloat( Object.keys( obj ).reduce(( acc, cur ) => { acc += obj[ cur ]; return acc; }, 0.0)).toFixed( 1 );
 			};
 
 			var refresh = { 
@@ -88,15 +91,37 @@
 					refresh.judges( athlete );
 
 					var complete = athlete.score.complete();
-					refresh.deductions( athlete );
+					if( complete ) {
+						refresh.deductions( athlete );
+						refresh.total( athlete );
+					}
 				},
 				athlete: function( athlete ) {
 					$( '.athlete #name' ).html( athlete.display.name() );
 					if( defined( athlete.info( 'flag' ))) { $( '.athlete #flag' ).html( html.img.clone().attr({ src: '../../images/flags/' + athlete.info( 'flag' ) })); }
 				},
 				deductions: function( athlete ) {
-					if( ! athlete.complete ) { return; }
-					Object.keys( athlete.findings.stances ).each(( i, stance ) => { $( '.' + stance ).removeClass( 'done' ); });
+					var consensus  = athlete.score.consensus();
+					var deductions = consensus.deductions;
+					console.log( consensus.deductions );
+					var stances    = Object.keys( deductions.stances );
+					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
+					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
+					var unadjusted = { subtotal : parseFloat( 0.0 ).toFixed( 2 ) };
+					var timing     = defined( deductions.timing ) ? parseInt( deductions.timing ) : '';
+
+					stances.forEach(( i, stance ) => { $( '.' + stance ).removeClass( 'done' ); });
+					major.subtotal = isNaN( major.subtotal ) ? '' : '-' + major.subtotal.toFixed( 1 );
+					minor.subtotal = isNaN( minor.subtotal ) ? '' : '-' + minor.subtotal.toFixed( 1 );
+					major.votes    = html.div.clone().addClass( 'votes' ).html( major.subtotal ? parseInt( deductions.major.agree ) : '' );
+					minor.votes    = html.div.clone().addClass( 'votes' ).html( minor.subtotal ? parseInt( deductions.minor.agree ) : '' );
+
+					$( '.unadjusted' ).empty().append( athlete.score.total().toFixed( 2 ) );
+					$( '.major' ).empty().append( major.subtotal );
+					$( '.minor' ).empty().append( minor.subtotal );
+					if( timing ) { $( '.timing' ).removeClass( 'ok' ); $( '#time-over-under' ).html( (timing < 0 ? timing : '+' + timing) + 's' ); } 
+					else         { $( '.timing' ).addClass( 'ok' );    $( '#time-over-under' ).html( '&#10004;' ); }
+
 				},
 				judges: function( athlete ) {
 					// ===== DISABLE UNUSED JUDGE POSITIONS
@@ -109,10 +134,10 @@
 					// ===== REFRESH EACH JUDGE
 					if( complete ) { 
 						$.each( scores, refresh.judge.score ); 
-						var findings = athlete.score.consensus();
+						var consensus = athlete.score.consensus();
 						$.each( [ 'technical', 'presentation' ], ( i, category ) => {
-							Object.keys( findings[ category ] ).each(( i, minmax ) => {
-								var j   = findings[ category ][ minmax ];
+							$.each( [ 'min', 'max' ], ( i, minmax ) => {
+								var j   = consensus[ category ][ minmax ];
 								var div = $( '#' + judges.name[ j ] + ' .' + category );
 								div.addClass( 'ignore' );
 							});
@@ -124,8 +149,8 @@
 					// ===== SHOW THE JUDGE'S SCORE
 					score: function( i, score ) {
 						var div          = $( '#' + judges.name[ i ] );
-						var technical    = html.div.clone().addClass( 'technical' )    .html( score.technical.sum() );
-						var presentation = html.div.clone().addClass( 'presentation' ) .html( score.presentation.sum() );
+						var technical    = html.div.clone().addClass( 'technical' )    .html( sum( score.technical ));
+						var presentation = html.div.clone().addClass( 'presentation' ) .html( sum( score.presentation ));
 						div.empty().append( technical, presentation );
 					},
 					// ===== SHOW THE JUDGE HAS SUBMITTED A SCORE
@@ -135,6 +160,16 @@
 						var checkmark = html.div.clone().addClass( 'submitted' ).html( '&#10004;' );
 						div.empty().append( checkmark );
 					},
+				},
+				total: function( athlete ) {
+					var div        = $( '#score' );
+					var consensus  = athlete.score.consensus();
+					var deductions = consensus.deductions;
+					console.log( consensus.deductions );
+					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
+					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
+					var total      = athlete.score.total() - (major.subtotal + minor.subtotal);
+					div.html( total.toFixed( 2 ));
 				}
 			};
 		</script>
