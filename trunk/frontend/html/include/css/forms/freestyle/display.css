@@ -13,6 +13,7 @@
     height: 700px;
     width: 320px; }
     .display .judges .judge {
+      position: absolute;
       font-size: 56pt;
       line-height: 72pt;
       height: 100px;
@@ -34,7 +35,7 @@
         position: absolute;
         top: 0;
         width: 120px;
-        height: 100px;
+        height: 80px;
         text-align: center; }
       .display .judges .judge .submitted {
         font-size: 64pt;
@@ -42,7 +43,7 @@
         top: 0;
         left: 60px;
         width: 240px;
-        height: 100px;
+        height: 80px;
         color: lime;
         text-align: center; }
       .display .judges .judge .technical {
@@ -51,26 +52,40 @@
       .display .judges .judge .presentation {
         left: 180px;
         color: #99f; }
+      .display .judges .judge:first-child {
+        border-top-left-radius: 12px; }
+      .display .judges .judge:last-child {
+        border-bottom-left-radius: 12px; }
     .display .judges .judge-disabled {
       opacity: 0.2; }
     .display .judges #referee {
-      border-radius: 12px 0 0 0; }
+      top: 0px; }
       .display .judges #referee::before {
         content: 'R'; }
-    .display .judges #j1::before {
-      content: "1"; }
-    .display .judges #j2::before {
-      content: "2"; }
-    .display .judges #j3::before {
-      content: "3"; }
-    .display .judges #j4::before {
-      content: "4"; }
-    .display .judges #j5::before {
-      content: "5"; }
+    .display .judges #j1 {
+      top: 100px; }
+      .display .judges #j1::before {
+        content: '1'; }
+    .display .judges #j2 {
+      top: 200px; }
+      .display .judges #j2::before {
+        content: '2'; }
+    .display .judges #j3 {
+      top: 300px; }
+      .display .judges #j3::before {
+        content: '3'; }
+    .display .judges #j4 {
+      top: 400px; }
+      .display .judges #j4::before {
+        content: '4'; }
+    .display .judges #j5 {
+      top: 500px; }
+      .display .judges #j5::before {
+        content: '5'; }
     .display .judges #j6 {
-      border-radius: 0 0 0 12px; }
+      top: 600px; }
       .display .judges #j6::before {
-        content: "6"; }
+        content: '6'; }
   .display .athlete {
     position: absolute;
     top: 0;

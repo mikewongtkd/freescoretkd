@@ -416,9 +416,10 @@ sub handle_division_score {
 	my $division = $progress->current();
 
 	print STDERR "Send score.\n" if $DEBUG;
+	print STDERR Dumper $request;
 
 	try {
-		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
+		$division->record_score( $request->{ judge }, $request->{ score } );
 		$division->write();
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
 		my $complete = $athlete->{ complete };

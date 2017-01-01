@@ -748,7 +748,7 @@
 				var clicked = $( ev.target );
 				if( clicked.attr( 'sending' )) {
 				} else {
-					var request  = { data : { type : 'division', action : 'score', score: score, timeline: performance.timeline }};
+					var request  = { data : { type : 'division', action : 'score', judge: judge.num, score: score, timeline: performance.timeline }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
 					clicked .attr({ sending: true }) .animate({ 'background-color' : '#888', 'border-color' : '#999' }, 400, 'swing', () => {

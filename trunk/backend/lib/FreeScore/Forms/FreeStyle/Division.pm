@@ -253,6 +253,7 @@ sub record_score {
 	my $i     = $self->{ current };
 
 	my $athlete = $self->{ athletes }[ $i ];
+	$score->{ judge } = $judge;
 	$athlete->{ scores }[ $judge ] = $score;
 }
 

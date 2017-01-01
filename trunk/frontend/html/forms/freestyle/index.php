@@ -95,6 +95,7 @@
 					if( defined( athlete.info( 'flag' ))) { $( '.athlete #flag' ).html( html.img.clone().attr({ src: '../../images/flags/' + athlete.info( 'flag' ) })); }
 				},
 				deductions: function( athlete ) {
+					if( ! athlete.complete ) { return; }
 					Object.keys( athlete.findings.stances ).each(( i, stance ) => { $( '.' + stance ).removeClass( 'done' ); });
 				},
 				judges: function( athlete ) {
@@ -127,8 +128,9 @@
 					},
 					submitted: function( i, score ) {
 						if( ! defined( score )) { return; }
-						var submitted = html.div.clone().addClass( 'submitted' ).html( '&#10004;' );
-						$( '#' + judges.name[ i ] ).empty().append( submitted );
+						console.log( 'Received score from ' + ( i == 0 ? 'Referee' : 'Judge ' + i ) + ' ' + judges.name[ i ]);
+						var checkmark = html.div.clone().addClass( 'submitted' ).html( '&#10004;' );
+						$( '#' + judges.name[ i ] ).empty().append( checkmark );
 					},
 				}
 			};

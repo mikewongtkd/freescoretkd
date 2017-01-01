@@ -16,6 +16,7 @@
 		width: 320px;
 
 		.judge {
+			position: absolute;
 			font-size: 56pt;
 			line-height: 72pt;
 			height: 100px;
@@ -40,7 +41,7 @@
 				position: absolute;
 				top: 0;
 				width: 120px;
-				height: 100px;
+				height: 80px;
 				text-align: center;
 			}
 
@@ -50,24 +51,27 @@
 				top: 0;
 				left: 60px;
 				width: 240px;
-				height: 100px;
+				height: 80px;
 				color: lime;
 				text-align: center;
 			}
 
 			.technical    { left:  60px; color: #f99; }
 			.presentation { left: 180px; color: #99f; }
+
+			&:first-child { border-top-left-radius:    12px; }
+			&:last-child  { border-bottom-left-radius: 12px; }
 		}
 
 		.judge-disabled { opacity: 0.2; }
 
-		#referee { border-radius: 12px 0 0 0; &::before { content: 'R'; }}
-		#j1 { &::before { content: '1' } }
-		#j2 { &::before { content: '2' } }
-		#j3 { &::before { content: '3' } }
-		#j4 { &::before { content: '4' } }
-		#j5 { &::before { content: '5' } }
-		#j6 { border-radius: 0 0 0 12px; &::before { content: '6' }  }
+		#referee { &::before { content: 'R'; } top: 0px;   }
+		#j1      { &::before { content: '1'; } top: 100px; }
+		#j2      { &::before { content: '2'; } top: 200px; }
+		#j3      { &::before { content: '3'; } top: 300px; }
+		#j4      { &::before { content: '4'; } top: 400px; }
+		#j5      { &::before { content: '5'; } top: 500px; }
+		#j6      { &::before { content: '6'; } top: 600px; }
 	}
 
 	.athlete {
