@@ -2,6 +2,8 @@ module.exports = Athlete;
 function Athlete( athlete ) {
 	this.athlete = athlete;
 
+	if( ! defined( athlete.penalty )) { athlete.penalty = {}; }
+
 	this.name   = () => { return athlete.name; };
 	this.scores = () => { return athlete.scores; };
 	this.info   = ( key ) => {
@@ -22,6 +24,15 @@ function Athlete( athlete ) {
 			return last;
 		}
 	};
+
+	this.penalty = {
+		bounds:       () => { athlete.penalty.bounds     += 0.3; return athlete.penalty.bounds; },
+		restart:      () => { athlete.penalty.restart    += 0.6; return athlete.penalty.restart; },
+		misconduct:   () => { athlete.penalty.misconduct += 1;   return athlete.penalty.misconduct; },
+		clear:        () => { Object.keys( athlete.penalty ).forEach(( key ) => { athlete.penalty[ key ] = 0; }); },
+	}
+
+	this.penalties  = () => { return athlete.penalty; }
 
 	this.score = {
 		total:        () => { return athlete.adjusted.subtotal; },

@@ -48,4 +48,32 @@ html, body {
 .active b {
   color: gold; }
 
+.row {
+  margin-left: -15px;
+  width: calc( 100% + 30px ); }
+  .row h4 {
+    margin-left: 8px; }
+
+.action-menu .list-group-item span {
+  margin-right: 12px; }
+.action-menu .navigate-division .list-group-item, .action-menu .navigate-athlete .list-group-item {
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: white; }
+.action-menu .administration p {
+  margin: 0 8px 0 8px;
+  font-size: 9pt; }
+.action-menu .administration .list-group-item {
+  background-color: #5bc0de;
+  border-color: #46b8da;
+  color: white; }
+.action-menu .decision .list-group-item {
+  background-color: #d9534f;
+  border-color: #d43f3a;
+  color: white; }
+.action-menu .penalties .list-group-item {
+  background-color: #f0ad4e;
+  border-color: #eea236;
+  color: white; }
+
 /*# sourceMappingURL=coordinator.css.map */

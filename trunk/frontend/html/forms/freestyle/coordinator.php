@@ -25,6 +25,7 @@
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/freestyle/athlete.class.js"></script>
@@ -32,16 +33,73 @@
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
+			<!-- ============================================================ -->
+			<!-- RING DIVISIONS -->
+			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
 				<div class="container">
 					<div id="ring-header">Ring <?= $i ?> Divisions</div>
-					<div class="list-group" id="ring">
-					</div>
+					<form role="form">
+						<div class="form-group">
+							<input id="search-ring" class="form-control" type="search" placeholder="Search..." />
+						</div>
+						<div class="list-group" id="ring">
+						</div>
+					</form>
 				</div>
 			</div>
+			<!-- ============================================================ -->
+			<!-- DIVISION ATHLETES -->
+			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
 				<div class="container">
 					<div id="division-header"></div>
+					<div class="row">
+						<div class="col-lg-9">
+							<h4>Athletes</h4>
+							<div class="list-group" id="athletes">
+							</div>
+						</div>
+						<div class="action-menu col-lg-3">
+							<div class="navigate-division">
+								<h4>Division</h4>
+								<div class="list-group">
+									<a class="list-group-item" id="navigate-division"><span class="glyphicon glyphicon-play"></span>Start Scoring this Division</a>
+								</div>
+							</div>
+							<div class="navigate-athlete">
+								<h4>Athlete</h4>
+								<div class="list-group">
+									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span>Start Scoring this Athlete</a>
+								</div>
+							</div>
+							<div class="penalties">
+								<h4>Penalties</h4>
+								<div class="list-group">
+									<a class="list-group-item" id="penalty-bounds"><span class="glyphicon glyphicon-log-out"></span>Out-of-bounds</a>
+									<a class="list-group-item" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
+									<a class="list-group-item" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
+									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
+								</div>
+							</div>
+							<div class="decision">
+								<h4>Decision</h4>
+								<div class="list-group">
+									<a class="list-group-item" id="decision-withdraw"><span class="glyphicon glyphicon-remove"></span>Withdraw</a>
+									<a class="list-group-item" id="decision-disqualify"><span class="glyphicon glyphicon-ban-circle"></span>Disqualify</a>
+								</div>
+							</div>
+							<div class="administration">
+								<h4>Administration</h4>
+								<div class="list-group">
+									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
+									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
+									<a class="list-group-item" id="admin-print"><span class="glyphicon glyphicon-print"></span>Print Results</a>
+								</div>
+								<p class="text-muted">Make sure athletes and judge are stopped before clicking any administration actions.</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -54,10 +112,8 @@
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
 
-			var page = {
-				num : 1,
-				transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
-				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
+			ws.onerror = function() {
+				bootbox.alert( "Network Error: Cannot connect to server!" );
 			};
 
 			ws.onopen = function() {
@@ -69,30 +125,97 @@
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
 				if( ! defined( update.ring )) { return; }
-				refresh.display( update.ring );
-			}
+				refresh.ring( update.ring );
+			};
+
+			var sound = {
+				ok    : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]}),
+				error : new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]}),
+				next  : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]}),
+				prev  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]}),
+			};
+
+			var page = {
+				num : 1,
+				transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
+				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
+			};
+
+			var sendRequest = ( request ) => {
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+			};
 
 			var refresh = { 
-				athletes: function( division ) {
+				athletes: function( division, current ) {
 					$( '#division-header' ).html( division.summary() );
-					$( '#division-header' ).off( 'click' ).click( page.transition );
+					$( '#division-header' ).off( 'click' ).click(( ev ) => { 
+						sound.prev.play();
+						page.transition(); 
+					});
+
+					// ===== POPULATE THE ATHLETE LIST
+					$( '#athletes' ).empty();
+					division.athletes().forEach(( athlete ) => {
+						var button  = html.a.clone().addClass( "list-group-item" );
+
+						if( athlete.name() == division.current.athlete().name() ) { 
+							button.addClass( "active" ); 
+							refresh.actions( athlete );
+						}
+						button.append( athlete.name() );
+						$( '#athletes' ).append( button );
+					});
+
+					// ===== ACTION MENU BEHAVIOR
+					if( current ) { $( ".navigate-division" ).hide(); } else { $( ".navigate-division" ).show(); }
+					$( ".navigate-athlete" ).hide();
 				},
-				display: function( ring ) {
-					refresh.ring( ring );
-					var division = ring.divisions.find(( d ) => { return d.name == ring.current; });
-					if( defined( division )) { 
-						division = new Division( division );
-						refresh.athletes( division ); 
-					}
+				actions : function( athlete ) {
+					var action = {
+						navigate : {
+							athlete   : () => { },
+							division  : () => { },
+						},
+						penalty : {
+							bounds     : () => { athlete.penalty.bounds();     actions.penalty.send(); },
+							restart    : () => { athlete.penalty.restart();    actions.penalty.send(); },
+							misconduct : () => { athlete.penalty.misconduct(); actions.penalty.send(); },
+							clear      : () => { athlete.penalty.clear();      actions.penalty.send(); },
+							send       : () => { sendRequest( { data : { type : 'division', penalties: athlete.penalties(), action : 'award penalty' }} ); }
+						},
+						decision : {
+							withdraw   : () => { bootbox.confirm( "Withdraw " + athlete.name() + "?", function() { actions.decision.send( 'withdraw' ); }); },
+							disqualify : () => { bootbox.confirm( "Withdraw " + athlete.name() + "?", function() { actions.decision.send( 'disqualify' ); }); },
+							send       : ( reason ) => { sendRequest( { data : { type : 'division', decision: reason, action : 'award punitive' }} ); }
+						},
+						administration : {
+							display    : () => {},
+							edit       : () => {},
+							print      : () => {},
+						}
+					};
+
+					$( "navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
+					$( "navigate-division" )   .off( 'click' ).click( action.navigate.division );
+					$( "penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
+					$( "penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
+					$( "penalty-misconduct" )  .off( 'click' ).click( action.penalty.misconduct );
+					$( "penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
+					$( "decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
+					$( "decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
+					$( "admin-display" )       .off( 'click' ).click( action.decision.disqualify );
+					$( "admin-edit" )          .off( 'click' ).click( action.decision.disqualify );
+					$( "admin-print" )         .off( 'click' ).click( action.decision.disqualify );
 				},
 				ring: function( ring ) {
 					$( '#ring' ).empty();
-					console.log( ring );
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );
 						var button      = html.a.clone().addClass( "list-group-item" );
-						var title       = html.h4.clone().html( division.summary );
-						var description = html.p.clone().append( '<b>' + division.athletes().length + ' Athletes:</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
+						var title       = html.h4.clone().html( division.summary() );
+						var count       = division.athletes().length;
+						var description = html.p.clone().append( '<b>' + count + ' Athlete' + (count > 1 ? 's' : '') + ':</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
 
 						button.empty();
 						button.append( title, description );
@@ -101,13 +224,15 @@
 							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
 							var divid    = clicked.attr( 'divid' );
 							var division = ring.divisions.find(( d ) => { return d.name == divid; });
-							refresh.athletes( new Division( division ));
+							refresh.athletes( new Division( division ), division.name == ring.current );
+							sound.next.play();
 							page.transition();
 						});
 						if( d.name == ring.current ) { button.addClass( "active" ); }
 
 						$( '#ring' ).append( button );
 					});
+					$('#ring').btsListFilter('#search-ring', { initial: false });
 				}
 			};
 		</script>

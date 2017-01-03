@@ -13,10 +13,10 @@ $.widget( "freescore.judgeController", {
 		o.ring    = parseInt( $.cookie( "ring" ));
 		o.current = {};
 
-		sound.ok    = new Howl({ urls: [ "/freescore/sounds/upload.mp3",   "/freescore/sounds/upload.ogg" ]});
-		sound.error = new Howl({ urls: [ "/freescore/sounds/quack.mp3",    "/freescore/sounds/quack.ogg"  ]});
-		sound.next  = new Howl({ urls: [ "/freescore/sounds/next.mp3",     "/freescore/sounds/next.ogg"   ]});
-		sound.prev  = new Howl({ urls: [ "/freescore/sounds/prev.mp3",     "/freescore/sounds/prev.ogg"   ]});
+		sound.ok    = new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]});
+		sound.error = new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]});
+		sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]});
+		sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]});
 
 		widget.addClass( 'judgeController flippable' );
 
@@ -138,7 +138,6 @@ $.widget( "freescore.judgeController", {
 
 		// ============================================================
 		// BEHAVIOR
-		// ============================================================
 		flipToBack.click( function() {
 			flipToBack.fadeTo( 50, 0.75, function() { flipToBack.fadeTo( 100, 1.0 ); } );
 			card.toggleClass( 'flipped' );
@@ -155,14 +154,20 @@ $.widget( "freescore.judgeController", {
 		var o           = this.options;
 		var html        = e.html;
 		var ws          = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+		var network     = { reconnect: 0 };
 
-		ws.onopen = function() {
+		ws.onerror = network.error = function( error ) {
+			e.athlete.empty();
+			e.athlete.append( [ 'Network Error', 'Trying to Reconnect', 'Cannot Connect to Server' ].map( function( i ) { return html.li.clone().append( html.span.clone().addClass( "details" ).html( i )); }));
+		};
+
+		ws.onopen = network.connect = function() {
 			var request  = { data : { type : 'division', action : 'read' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 		};
 
-		ws.onmessage = function( response ) {
+		ws.onmessage = network.message = function( response ) {
 			var update   = JSON.parse( response.data ); if( ! defined( update.division ) || update.type != 'division' || update.action != 'update' ) { return; }
 			var digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division = new Division( update.division );
@@ -299,8 +304,16 @@ $.widget( "freescore.judgeController", {
 			o.current.form     = division.current.formId();
 		};
 
-		ws.onclose = function() {
-			ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+		// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES
+		ws.onclose = network.close = function() {
+			if( network.reconnect < 10 ) {
+				network.reconnect++;
+				ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+				// No connection handler; do not interrupt the judge, who may be currently scoring an athlete
+				ws.onerror   = network.error;
+				ws.onmessage = network.message;
+				ws.onclose   = network.close;
+			}
 		};
 	}
 });
