@@ -161,52 +161,56 @@
 
 						if( athlete.name() == division.current.athlete().name() ) { 
 							button.addClass( "active" ); 
-							refresh.actions( athlete );
+							refresh.actions( division );
 						}
 						button.append( athlete.name() );
 						$( '#athletes' ).append( button );
 					});
 
 					// ===== ACTION MENU BEHAVIOR
-					if( current ) { $( ".navigate-division" ).hide(); } else { $( ".navigate-division" ).show(); }
+					if( current ) { $( ".navigate-division" ).hide(); } else { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 					$( ".navigate-athlete" ).hide();
 				},
-				actions : function( athlete ) {
+				actions : function( division ) {
+					var athlete = division.current.athlete();
+					var current = division.current.athleteId();
+					var ring    = division.ring();
+					var divid   = division.name();
 					var action = {
 						navigate : {
-							athlete   : () => { },
-							division  : () => { },
+							athlete   : () => { sound.ok.play(); },
+							division  : () => { sound.ok.play(); },
 						},
 						penalty : {
-							bounds     : () => { athlete.penalty.bounds();     actions.penalty.send(); },
-							restart    : () => { athlete.penalty.restart();    actions.penalty.send(); },
-							misconduct : () => { athlete.penalty.misconduct(); actions.penalty.send(); },
-							clear      : () => { athlete.penalty.clear();      actions.penalty.send(); },
-							send       : () => { sendRequest( { data : { type : 'division', penalties: athlete.penalties(), action : 'award penalty' }} ); }
+							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); },
+							restart    : () => { sound.next.play(); athlete.penalty.restart();    action.penalty.send(); },
+							misconduct : () => { sound.next.play(); athlete.penalty.misconduct(); action.penalty.send(); },
+							clear      : () => { sound.prev.play(); athlete.penalty.clear();      action.penalty.send(); },
+							send       : () => { console.log( athlete.penalties(), current ); sendRequest( { data : { type : 'division', penalty: athlete.penalties(), athlete_id: current, action : 'award penalty' }} ); }
 						},
 						decision : {
-							withdraw   : () => { bootbox.confirm( "Withdraw " + athlete.name() + "?", function() { actions.decision.send( 'withdraw' ); }); },
-							disqualify : () => { bootbox.confirm( "Withdraw " + athlete.name() + "?", function() { actions.decision.send( 'disqualify' ); }); },
-							send       : ( reason ) => { sendRequest( { data : { type : 'division', decision: reason, action : 'award punitive' }} ); }
+							withdraw   : () => { sound.next.play(); bootbox.confirm( "Withdraw " + athlete.name() + "?", function( ok ) { if( ok ) { sound.ok.play(); action.decision.send( 'withdraw'   ); } else { sound.prev.play(); }}); },
+							disqualify : () => { sound.next.play(); bootbox.confirm( "Withdraw " + athlete.name() + "?", function( ok ) { if( ok ) { sound.ok.play(); action.decision.send( 'disqualify' ); } else { sound.prev.play(); }}); },
+							send       : ( reason ) => { sendRequest( { data : { type : 'division', decision: reason, athlete_id: current, action : 'award punitive' }} ); }
 						},
 						administration : {
-							display    : () => {},
-							edit       : () => {},
-							print      : () => {},
+							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
+							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring < 10 ? '0' + ring : ring) + '/div.' + divid + '.txt', '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
 						}
 					};
 
-					$( "navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
-					$( "navigate-division" )   .off( 'click' ).click( action.navigate.division );
-					$( "penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
-					$( "penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
-					$( "penalty-misconduct" )  .off( 'click' ).click( action.penalty.misconduct );
-					$( "penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
-					$( "decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
-					$( "decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
-					$( "admin-display" )       .off( 'click' ).click( action.decision.disqualify );
-					$( "admin-edit" )          .off( 'click' ).click( action.decision.disqualify );
-					$( "admin-print" )         .off( 'click' ).click( action.decision.disqualify );
+					$( "#navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
+					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
+					$( "#penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
+					$( "#penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
+					$( "#penalty-misconduct" )  .off( 'click' ).click( action.penalty.misconduct );
+					$( "#penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
+					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
+					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
+					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
+					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
+					$( "#admin-print" )         .off( 'click' ).click( action.administration.print );
 				},
 				ring: function( ring ) {
 					$( '#ring' ).empty();

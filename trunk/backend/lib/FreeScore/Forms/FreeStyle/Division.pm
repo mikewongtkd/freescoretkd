@@ -240,9 +240,21 @@ sub record_decision {
 	my $i        = shift;
 	my $athletes = $self->{ athletes };
 
-	return unless $i > 0 && $i < @$athletes;
+	return unless $i >= 0 && $i < @$athletes;
 	$athletes->[ $i ]{ decision } = $decision;
 	$athletes->[ $i ]{ complete } = 1;
+}
+
+# ============================================================
+sub record_penalty {
+# ============================================================
+	my $self     = shift;
+	my $penalty  = shift;
+	my $i        = shift;
+	my $athletes = $self->{ athletes };
+
+	return unless $i >= 0 && $i < @$athletes;
+	$athletes->[ $i ]{ penalty } = $penalty;
 }
 
 # ============================================================
@@ -262,7 +274,7 @@ sub remove_athlete {
 # ============================================================
 	my $self = shift;
 	my $i    = shift;
-	return unless $i > 0 && $i < @{$self->{ athletes }};
+	return unless $i >= 0 && $i < @{$self->{ athletes }};
 	my $athlete = splice @{$self->{ athletes }}, $i, 1;
 	foreach my $list ( qw( order placement pending )) {
 		next unless exists $self->{ $list };

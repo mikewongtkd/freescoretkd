@@ -2,7 +2,7 @@ module.exports = Athlete;
 function Athlete( athlete ) {
 	this.athlete = athlete;
 
-	if( ! defined( athlete.penalty )) { athlete.penalty = {}; }
+	if( ! defined( athlete.penalty )) { athlete.penalty = { bounds : 0.0, restart: 0.0, misconduct: 0 }; }
 
 	this.name   = () => { return athlete.name; };
 	this.scores = () => { return athlete.scores; };

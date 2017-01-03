@@ -36,6 +36,7 @@ sub init {
 		athlete_delete     => \&handle_division_athlete_delete,
 		athlete_next       => \&handle_division_athlete_next,
 		athlete_prev       => \&handle_division_athlete_prev,
+		award_penalty      => \&handle_division_award_penalty,
 		award_punitive     => \&handle_division_award_punitive,
 		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
@@ -132,6 +133,29 @@ sub handle {
 
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
 	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
+}
+
+# ============================================================
+sub handle_division_award_penalty {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Award penalty " . join( ' ', %{$request->{ penalty }} ) . " to $request->{ athlete_id }.\n" if $DEBUG;
+
+	try {
+		$division->record_penalty( $request->{ penalty }, $request->{ athlete_id });
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
