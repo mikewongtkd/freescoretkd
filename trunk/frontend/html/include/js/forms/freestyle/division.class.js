@@ -28,14 +28,12 @@ function Division( division ) {
 		athleteId : function() { return division.current; },
 	};
 
-	this.pending = function( round ) { 
-		round = defined( round ) ? round : division.round;
-		return division.pending[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
+	this.pending = function() { 
+		return division.pending.map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	};
 
-	this.placement = function( round ) {
-		round = defined( round ) ? round : division.round;
-		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
+	this.placement = function() {
+		return division.placement.map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	}
 	var _state = this.state = {
 		is : {

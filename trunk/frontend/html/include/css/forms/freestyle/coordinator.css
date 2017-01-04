@@ -33,7 +33,7 @@ html, body {
   position: relative;
   height: 48px;
   width: 100%;
-  margin: 10px 0 10px 0;
+  margin: 10px 0 16px 0;
   padding: 8px 14px 8px 14px;
   background-color: black;
   color: gold;
@@ -42,11 +42,30 @@ html, body {
   font-weight: bold;
   border-radius: 4px; }
 
+.athlete-name {
+  position: relative; }
+  .athlete-name:before {
+    display: inline-block;
+    width: 60px;
+    content: ""; }
+
 .active h4 {
   font-weight: bold;
   color: gold; }
 .active b {
   color: gold; }
+.active .athlete-name:before {
+  content: 'Current';
+  color: gold; }
+
+.on-deck .athlete-name:before {
+  content: 'On Deck';
+  color: #aaa; }
+
+.selected-athlete {
+  background-color: #ccc; }
+  .selected-athlete .athlete-name:before {
+    color: #666; }
 
 .row {
   margin-left: -15px;

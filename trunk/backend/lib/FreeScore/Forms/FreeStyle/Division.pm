@@ -178,8 +178,8 @@ sub navigate {
 
 	local $_ = $object;
 	if( /^athlete$/ ) {
-		return unless $i > 0 && $i < @{$self->{ athletes }};
-		$self->{ current } = $i;
+		return unless $i >= 0 && $i < @{$self->{ athletes }};
+		$self->{ current } = int( $i );
 		return $self->{ athletes }[ $i ];
 	}
 
