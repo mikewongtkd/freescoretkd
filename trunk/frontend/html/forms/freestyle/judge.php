@@ -774,7 +774,6 @@
 			$( '#total' ).off( 'click' ).click(( ev ) => {
 				var clicked = $( ev.target );
 				if( ! clicked.is( '#total .alert' )) { clicked = clicked.parents( '#total' ).find( '.alert' ); }
-				console.log( clicked );
 				if( clicked.attr( 'sending' )) {
 				} else {
 					var request  = { data : { type : 'division', action : 'score', judge: judge.num, score: score, timeline: performance.timeline }};

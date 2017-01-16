@@ -79,7 +79,7 @@ $.widget( "freescore.judgeController", {
 				var request  = { data : { type : 'division', action : 'score', score : score }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
-				e.sound.ok.play();
+				e.send.attr({ 'sent': true });
 			});
 		} );
 
@@ -174,11 +174,16 @@ $.widget( "freescore.judgeController", {
 
 			if( ! defined( division.form.list())) { return; }
 
+			if( e.send.attr( 'sent' )) {
+				e.sound.ok.play();
+				alertify.success( 'Score sent and received.' );
+				e.send.attr({ 'sent': false });
+			}
+
 			var button = {
 				enable : function( button ) {
 					button.button( 'enable' );
-					button.off( 'click' ); // Avoid multiple handlers
-					button.click( function() {
+					button.off( 'click' ).click( function() {
 						var request  = { data : { type : button.attr( 'type' ), action : button.attr( 'action' ) }}; 
 						request.json = JSON.stringify( request.data );
 						ws.send( request.json ); 
