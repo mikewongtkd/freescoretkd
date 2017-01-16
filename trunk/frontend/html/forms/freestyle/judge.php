@@ -7,6 +7,8 @@
 		<link href="../../include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-timeline.css" rel="stylesheet" />
 		<link href="../../include/css/forms/freestyle/judgeController.css" rel="stylesheet" />
+		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
+		<link href="../../include/alertify/css/themes/default.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
@@ -19,7 +21,7 @@
 		<script src="../../include/js/forms/freestyle/athlete.class.js"></script>
 		<script src="../../include/js/forms/freestyle/division.class.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
-		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
+		<script src="../../include/alertify/alertify.min.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
@@ -546,8 +548,6 @@
 					var next    = go[ current ].next;
 					var t_event = { time: Date.now(), name: name };
 
-					console.log( name, value, current );
-
 					if( results ) {
 						// ===== UPDATE TECHNICAL SCORE
 						score.technical[ name ] = value;
@@ -757,8 +757,11 @@
 
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
-				console.log( update );
 				if( ! defined( update.division )) { return; }
+				if( $( '#total .alert' ).attr( 'sending' )) {
+					sound.ok.play();
+					alertify.success( "Score has been sent and received." );
+				}
 				var division = new Division( update.division );
 				var athlete  = division.current.athlete(); 
 				if( athlete.name() != previous.athlete.name ) {
@@ -770,6 +773,7 @@
 
 			$( '#total' ).off( 'click' ).click(( ev ) => {
 				var clicked = $( ev.target );
+				if( ! clicked.is( '#total .alert' )) { clicked = clicked.parents( '#total' ).find( '.alert' ); }
 				if( clicked.attr( 'sending' )) {
 				} else {
 					var request  = { data : { type : 'division', action : 'score', judge: judge.num, score: score, timeline: performance.timeline }};

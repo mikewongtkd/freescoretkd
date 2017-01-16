@@ -17,7 +17,6 @@
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/freestyle/display.css" rel="stylesheet" />
-		<link href="../../include/css/flippable.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>

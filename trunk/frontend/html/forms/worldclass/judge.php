@@ -17,6 +17,8 @@
 		<link href="../../include/jquery/css/smoothness/smoothness.min.css" rel="stylesheet" />
 		<link href="../../include/jquery/css/jquery.ui.slider-rtl.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
+		<link href="../../include/alertify/css/themes/default.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.tappy.js"></script>
@@ -28,7 +30,7 @@
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
-		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
+		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
