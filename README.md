@@ -4,13 +4,15 @@ FreeScoreTKD
 Open Source Taekwondo tournament software
 
 FreeScoreTKD is free and open source software for traditional and sport poomsae
-scoring on wireless tablets or smartphones.
+scoring on wireless tablets or smartphones. It is intended to be installed on
+a Raspberry Pi as a web appliance, which can be powered by a USB Lithium Ion 
+batteries for true portability or with a power adapter to plug to an outlet.
 
 Please see the [project website](http://mikewongtkd.github.io/freescoretkd/)
 or the [documentation](https://github.com/mikewongtkd/freescoretkd/blob/master/trunk/docs/README.md)
 for more details.
 
-Copyright (C) 2014 Mike Wong. 
+Copyright (C) 2014-2016 Mike Wong. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
