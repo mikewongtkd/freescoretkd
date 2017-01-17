@@ -42,6 +42,10 @@ html, body {
   font-weight: bold;
   border-radius: 4px; }
 
+#athletes {
+  height: 600px;
+  overflow-y: auto; }
+
 .athlete-name {
   position: relative; }
   .athlete-name:before {

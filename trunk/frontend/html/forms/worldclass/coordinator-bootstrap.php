@@ -29,8 +29,8 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/forms/freestyle/athlete.class.js"></script>
-		<script src="../../include/js/forms/freestyle/division.class.js"></script>
+		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -111,7 +111,7 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+			var ws         = new WebSocket( 'ws://<?= $host ?>:3088/worldclass/' + tournament.db + '/' + ring.num );
 
 			ws.onerror = function() {
 				alertify.error( "Network Error: Cannot connect to server!" );
@@ -264,7 +264,7 @@
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
-							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring < 10 ? '0' + ring : ring) + '/div.' + divid + '.txt', '_blank' )},
+							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-worldclass/ring' + (ring < 10 ? '0' + ring : ring) + '/div.' + divid + '.txt', '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
 						}
 					};
