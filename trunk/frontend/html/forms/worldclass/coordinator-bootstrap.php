@@ -15,7 +15,7 @@
 <html>
 	<head>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/freestyle/coordinator.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/coordinator-bootstrap.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/default.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -201,9 +201,11 @@
 						} else if( currentDivision ) {
 							if( i == j + 1 ) { button.addClass( "on-deck" ); } // Athlete on deck
 							button.off( 'click' ).click(( ev ) => { 
+								var clicked = $( ev.target );
+								if( ! clicked.is( 'a' )) { clicked = clicked.parents( 'a' ); }
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( ev.target ).addClass( 'selected-athlete' ); 
+								clicked.addClass( 'selected-athlete' ); 
 								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.name()); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).show(); 
@@ -231,12 +233,13 @@
 					var current = division.current.athleteId();
 					var ring    = division.ring();
 					var divid   = division.name();
+					console.log( athlete );
 					var action = {
 						penalty : {
-							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
-							restart    : () => { sound.next.play(); athlete.penalty.restart();    action.penalty.send(); alertify.warning( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
-							misconduct : () => { sound.next.play(); athlete.penalty.misconduct(); action.penalty.send(); alertify.warning( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
-							clear      : () => { sound.prev.play(); athlete.penalty.clear();      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
+							bounds     : () => { sound.next.play(); athlete.penalize.bounds();     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
+							restart    : () => { sound.next.play(); athlete.penalize.restart();    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
+							misconduct : () => { sound.next.play(); athlete.penalize.misconduct(); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
+							clear      : () => { sound.prev.play(); athlete.penalize.clear();      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
 							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalty: athlete.penalties(), athlete_id: current }} ); }
 						},
 						decision : {
