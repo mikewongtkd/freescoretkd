@@ -29,6 +29,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 	</head>
@@ -57,7 +58,7 @@
 					<div id="division-header"></div>
 					<div class="row">
 						<div class="col-lg-9">
-							<h4>Athletes</h4>
+							<h4 id="division-round">Round</h4>
 							<div class="list-group" id="athletes">
 							</div>
 						</div>
@@ -178,12 +179,38 @@
 						page.transition(); 
 					});
 
+					var round = division.current.roundId();
+					$( '#division-round' ).html( division.current.round.display.name() + ' Round' );
+
+					var iconize = function( penalties ) {
+						console.log( penalties );
+						var bounds     = html.span.clone().addClass( "penalty" );
+						var restart    = html.span.clone().addClass( "penalty" );
+						var misconduct = html.span.clone().addClass( "penalty" );
+
+						if( penalties.bounds > 0 ) {
+							bounds.addClass( "glyphicon glyphicon-log-out" );
+							bounds.html( penalties.bounds );
+						}
+						if( penalties.restart > 0 ) {
+							restart.addClass( "glyphicon glyphicon-retweet" );
+						}
+						if( penalties.misconduct > 0 ) {
+							misconduct.addClass( "glyphicon glyphicon-comment" );
+						}
+
+						return [ bounds, restart, misconduct ];
+					};
+
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#athletes' ).empty();
 					division.athletes().forEach(( athlete, i ) => {
-						var button  = html.a.clone().addClass( "list-group-item" );
-						var name    = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-						var j       = division.current.athleteId();
+						var score     = athlete.score( round );
+						var button    = html.a.clone().addClass( "list-group-item" );
+						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
+						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties()));
+						var total     = html.span.clone().addClass( "athlete-score" ).append( score.is.complete() ? score.adjusted.total() : '&nbsp;' );
+						var j         = division.current.athleteId();
 
 						// ===== CURRENT ATHLETE
 						if( i == j && currentDivision ) { 
@@ -217,7 +244,7 @@
 							button.off( 'click' );
 						}
 						refresh.navadmin( division );
-						button.append( name );
+						button.append( name, penalties, total );
 						$( '#athletes' ).append( button );
 					});
 
@@ -233,14 +260,16 @@
 					var current = division.current.athleteId();
 					var ring    = division.ring();
 					var divid   = division.name();
-					console.log( athlete );
+					var round   = division.current.roundId();
+					var form    = division.current.formId();
+
 					var action = {
 						penalty : {
-							bounds     : () => { sound.next.play(); athlete.penalize.bounds();     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
-							restart    : () => { sound.next.play(); athlete.penalize.restart();    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
-							misconduct : () => { sound.next.play(); athlete.penalize.misconduct(); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
-							clear      : () => { sound.prev.play(); athlete.penalize.clear();      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
-							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalty: athlete.penalties(), athlete_id: current }} ); }
+							bounds     : () => { sound.next.play(); athlete.penalize.bounds( round, form );     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
+							restart    : () => { sound.next.play(); athlete.penalize.restart( round, form );    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
+							misconduct : () => { sound.next.play(); athlete.penalize.misconduct( round, form ); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
+							clear      : () => { sound.prev.play(); athlete.penalize.clear( round, form );      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
+							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties(), athlete_id: current }} ); }
 						},
 						decision : {
 							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw " + athlete.name() + "?",   "Click OK to withdraw the athlete from competition. <strong>This action cannot be undone.</strong>",   function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' ); }, function() { sound.prev.play(); }); },

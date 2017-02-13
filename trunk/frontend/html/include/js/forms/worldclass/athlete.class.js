@@ -23,14 +23,24 @@ function Athlete( athlete ) {
 		}
 	};
 
-	this.penalty = { bounds: 0.0, restart: 0.0, misconduct: 0 };
 	this.penalize = {
-		bounds:     () => { this.penalty.bounds     += 0.3; },
-		restart:    () => { this.penalty.restart    += 0.6; },
-		misconduct: () => { this.penalty.misconduct += 1;   },
-		clear:      () => { this.penalty = { bounds: 0.0, restart: 0.0, misconduct: 0 }}
-
+		bounds:     ( round, i ) => { 
+			var score = new Score( athlete.scores[ round ] );
+			score.form( i ).award.penalty( 'bounds' );
+		},
+		restart:    ( round, i ) => { 
+			var score = new Score( athlete.scores[ round ] );
+			score.form( i ).award.penalty( 'restart' );
+		},
+		misconduct: ( round, i ) => { 
+			var score = new Score( athlete.scores[ round ] );
+			score.form( i ).award.penalty( 'misconduct' );
+		},
+		clear:      ( round, i ) => { 
+			var score = new Score( athlete.scores[ round ] );
+			score.form( i ).clear.penalty();
+		}
 	};
-	this.penalties = () => { return this.penalty; }
+	this.penalties = () => { return this.athlete.penalty; }
 };
 

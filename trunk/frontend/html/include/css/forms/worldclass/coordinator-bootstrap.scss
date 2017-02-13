@@ -1,0 +1,160 @@
+
+html, body { 
+	height: 100%; 
+	overflow-x: hidden; 
+	font-family: Optima;
+}
+
+.pt-perspective {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	perspective: 1200px;
+}
+
+.pt-page {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	visibility: hidden;
+	overflow: hidden;
+	backface-visibility: hidden;
+	transform: translate3d(0, 0, 0);
+	transform-style: preserve-3d;
+}
+
+.pt-page-current,
+.no-js .pt-page {
+	visibility: visible;
+	z-index: 1;
+}
+
+.pt-page-ontop {
+	z-index: 999;
+}
+
+#ring-header, #division-header {
+	position: relative;
+	height: 48px;
+	width: 100%;
+	margin: 10px 0 16px 0;
+	padding: 8px 14px 8px 14px;
+	background-color: black;
+	color: gold;
+	font-size: 24pt;
+	line-height: 24pt;
+	font-weight: bold;
+	border-radius: 4px;
+}
+
+#athletes {
+	height: 600px;
+	overflow-y: auto;
+}
+
+.athlete-name {
+	position: relative;
+	display: inline-block;
+	width: 75%;
+	&:before {
+		display: inline-block;
+		width: 60px;
+		content: ''
+	}
+}
+
+.athlete-penalties {
+	display: inline-block;
+	position: relative;
+	width: 10%;
+	text-align: right;
+	color: #ccc;
+
+	.penalty {
+		display: inline-block;
+		border-bottom: 1px solid #999;
+		width: 33.3%;
+	}
+}
+
+.athlete-score {
+	display: inline-block;
+	position: relative;
+	width: 10%;
+	margin-left: 5%;
+	text-align: right;
+	color: #666;
+}
+
+.active {
+	h4 { 
+		font-weight: bold; 
+		color: gold; 
+	}
+	b  { color: gold; }
+	.athlete-name:before {
+		content: 'Current';
+		color: gold;
+	}
+}
+
+.on-deck .athlete-name:before {
+	content: 'On Deck';
+	color: #aaa;
+}
+
+.selected-athlete {
+	background-color: gold;
+	&:hover {
+		background-color: yellow;
+	}
+	.athlete-name:before {
+		color: #666;
+	}
+}
+
+.row {
+	margin-left: -15px;
+	width: calc( 100% + 30px );
+	h4 { margin-left: 8px; }
+}
+
+.action-menu {
+	.list-group-item {
+		span { margin-right: 12px; }
+	}
+	.navigate-division, .navigate-athlete {
+		.list-group-item {
+			background-color: #337ab7;
+			border-color: #2e6da4;
+			color: white;
+		}
+	}
+	.administration {
+		p { 
+			margin: 0 8px 0 8px; 
+			font-size: 9pt; 
+		}
+		.list-group-item {
+			background-color: #5bc0de;
+			border-color: #46b8da;
+			color: white;
+		}
+	}
+	.decision {
+		.list-group-item {
+			background-color: #d9534f;
+			border-color: #d43f3a;
+		    color: white;
+		}
+	}
+	.penalties {
+		.list-group-item {
+			background-color: #f0ad4e;
+			border-color: #eea236;
+			color: white;
+		}
+	}
+}

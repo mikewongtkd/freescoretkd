@@ -74,6 +74,18 @@ function Score( score ) {
 			if( ! defined( form )) { return undefined; }
 			return { 
 				adjusted : function() { return form.adjusted; },
+				award : {
+					penalty: function( category ) {
+						if( category == 'bounds'     ) { form.penalty.bounds     += 0.3; }
+						if( category == 'restart'    ) { form.penalty.restart    += 0.3; }
+						if( category == 'misconduct' ) { form.penalty.misconduct += 1;   }
+					}
+				},
+				clear: {
+					penalties: function() {
+						form.penalty = { bounds: 0.0, restart: 0.0, misconduct: 0 };
+					}
+				}
 				decision : {
 					is : {
 						withdrawn    : function() { if( defined( form.decision )) { return form.decision.withdrawn;    } else { return false; } },
