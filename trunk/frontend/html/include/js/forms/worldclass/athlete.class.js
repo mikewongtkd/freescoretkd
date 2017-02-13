@@ -41,6 +41,11 @@ function Athlete( athlete ) {
 			score.form( i ).clear.penalty();
 		}
 	};
-	this.penalties = () => { return this.athlete.penalty; }
+	this.penalties = ( round, i ) => { 
+		var score   = new Score( athlete.scores[ round ] );
+		var penalty = score.form( i ).penalty();
+		if( defined( penalty )) { return penalty.data(); }
+		return undefined;
+	}
 };
 

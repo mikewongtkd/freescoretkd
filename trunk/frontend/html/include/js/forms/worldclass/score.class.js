@@ -85,7 +85,7 @@ function Score( score ) {
 					penalties: function() {
 						form.penalty = { bounds: 0.0, restart: 0.0, misconduct: 0 };
 					}
-				}
+				},
 				decision : {
 					is : {
 						withdrawn    : function() { if( defined( form.decision )) { return form.decision.withdrawn;    } else { return false; } },

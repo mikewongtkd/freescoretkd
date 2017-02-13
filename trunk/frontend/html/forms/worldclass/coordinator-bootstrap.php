@@ -180,9 +180,11 @@
 					});
 
 					var round = division.current.roundId();
+					var form  = division.current.formId();
 					$( '#division-round' ).html( division.current.round.display.name() + ' Round' );
 
 					var iconize = function( penalties ) {
+						if( ! defined( penalties )) { return; }
 						console.log( penalties );
 						var bounds     = html.span.clone().addClass( "penalty" );
 						var restart    = html.span.clone().addClass( "penalty" );
@@ -208,7 +210,7 @@
 						var score     = athlete.score( round );
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties()));
+						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, form )));
 						var total     = html.span.clone().addClass( "athlete-score" ).append( score.is.complete() ? score.adjusted.total() : '&nbsp;' );
 						var j         = division.current.athleteId();
 
@@ -269,7 +271,7 @@
 							restart    : () => { sound.next.play(); athlete.penalize.restart( round, form );    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
 							misconduct : () => { sound.next.play(); athlete.penalize.misconduct( round, form ); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
 							clear      : () => { sound.prev.play(); athlete.penalize.clear( round, form );      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
-							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties(), athlete_id: current }} ); }
+							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current }} ); }
 						},
 						decision : {
 							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw " + athlete.name() + "?",   "Click OK to withdraw the athlete from competition. <strong>This action cannot be undone.</strong>",   function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' ); }, function() { sound.prev.play(); }); },

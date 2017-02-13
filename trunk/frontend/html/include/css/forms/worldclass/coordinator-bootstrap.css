@@ -62,7 +62,6 @@ html, body {
   text-align: right;
   color: #ccc; }
   .athlete-penalties .penalty {
-    display: inline-block;
     border-bottom: 1px solid #999;
     width: 33.3%; }
 
