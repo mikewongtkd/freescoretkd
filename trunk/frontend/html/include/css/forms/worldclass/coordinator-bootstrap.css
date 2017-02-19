@@ -29,7 +29,7 @@ html, body {
 .pt-page-ontop {
   z-index: 999; }
 
-#ring-header, #division-header {
+.page-header {
   position: relative;
   height: 48px;
   width: 100%;
@@ -42,6 +42,9 @@ html, body {
   font-weight: bold;
   border-radius: 4px; }
 
+#back-to-divisions {
+  margin-top: -3px; }
+
 #athletes {
   height: 600px;
   overflow-y: auto; }
@@ -49,20 +52,23 @@ html, body {
 .athlete-name {
   position: relative;
   display: inline-block;
-  width: 75%; }
+  width: 65%; }
   .athlete-name:before {
     display: inline-block;
     width: 60px;
     content: ""; }
 
+.decision-punitive-header {
+  background-color: #d9534f !important;
+  color: white !important; }
+
 .athlete-penalties {
   display: inline-block;
   position: relative;
-  width: 10%;
+  width: 20%;
   text-align: right;
-  color: #ccc; }
+  color: white; }
   .athlete-penalties .penalty {
-    border-bottom: 1px solid #999;
     width: 33.3%; }
 
 .athlete-score {

@@ -76,9 +76,9 @@ function Score( score ) {
 				adjusted : function() { return form.adjusted; },
 				award : {
 					penalty: function( category ) {
-						if( category == 'bounds'     ) { form.penalty.bounds     += 0.3; }
-						if( category == 'restart'    ) { form.penalty.restart    += 0.3; }
-						if( category == 'misconduct' ) { form.penalty.misconduct += 1;   }
+						if( category == 'bounds'     ) { form.penalty.bounds     = parseFloat( form.penalty.bounds     ) + 0.3; }
+						if( category == 'restart'    ) { form.penalty.restart    = parseFloat( form.penalty.restart    ) + 0.3; }
+						if( category == 'misconduct' ) { form.penalty.misconduct = parseInt(   form.penalty.misconduct ) + 1;   }
 					}
 				},
 				clear: {
