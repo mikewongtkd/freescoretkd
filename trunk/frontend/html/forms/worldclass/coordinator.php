@@ -15,7 +15,7 @@
 <html>
 	<head>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/worldclass/coordinator-bootstrap.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -55,7 +55,7 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
 				<div class="container">
-					<div class="page-header"><a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> All Divisions</a> <span id="division-header"></span></div>
+				<div class="page-header"><a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Ring <?= $i ?></a> <span id="division-header"></span></div>
 					<div class="row">
 						<div class="col-lg-9">
 							<h4 id="division-round">Round</h4>
