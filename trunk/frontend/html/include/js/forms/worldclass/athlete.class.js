@@ -38,7 +38,7 @@ function Athlete( athlete ) {
 		},
 		clear:      ( round, i ) => { 
 			var score = new Score( athlete.scores[ round ] );
-			score.form( i ).clear.penalty();
+			score.form( i ).clear.penalties();
 		}
 	};
 	this.penalties = ( round, i ) => { 
