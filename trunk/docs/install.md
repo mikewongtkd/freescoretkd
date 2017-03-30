@@ -1,9 +1,6 @@
-# FreeScore
+# FreeScore Administrator Guide
 
-## User Documentation
-
-This document highlights the core concepts behind the FreeScore Taekwondo
-tournament software and its current implementation. It is a work in progress.
+This document assists technology-savvy administrators to install, operate, and troubleshoot the FreeScore Taekwondo tournament software. It is a work in progress.
 
 ## Installation
 
@@ -352,10 +349,10 @@ the session by identifying it's PID using
 
 ## Database Errors
 
-100 Database path read error
-110 Database path/file missing
-120 Database file unreadable
-130 Database file unwriteable
+- 100 Database path read error
+- 110 Database path/file missing
+- 120 Database file unreadable
+- 130 Database file unwriteable
 
 ## Division Object Errors
 

@@ -11,8 +11,8 @@
 SCRIPT="/usr/local/bin/hypnotoad /usr/local/freescore/bin/worldclass"
 RUNAS="root"
  
-PIDFILE=/var/run/worldclass.pid
-LOGFILE=/var/log/worldclass.log
+PIDFILE=/var/run/freescore/worldclass.pid
+LOGFILE=/var/log/freescore/worldclass.log
  
 status() {
   if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
