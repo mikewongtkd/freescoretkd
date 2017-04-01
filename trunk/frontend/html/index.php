@@ -21,6 +21,7 @@
 			  font-family: Biolinum;
 			  font-weight: bold;
 			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+			.register { margin-top: 18px; }
 			.page-footer { text-align: center; }
 		</style>
 	</head>
@@ -30,58 +31,23 @@
 				<h1>FreeScore TKD Wifi <small>v<?=$freescore[ 'version' ]?></small></h1>
 				<p><a href="http://mikewongtkd.github.io/freescoretkd">Open Source Taekwondo Poomsae Scoring Software</a> available under the GPL v2.</p>
 			</div>
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h1 class="panel-title">Sport Poomsae: Score poomsae following the WTF Sport Poomsae rules</h1>
-				</div>
-				<div class="panel-body">
-					<div class="list-group">
-						<a class="list-group-item" href="./forms/worldclass/register.php">
-							<h4>Register a Tablet or Computer for Sport Poomsae</h4>
-							<p>Assign and ring and role for a ring laptop or judge tablet</p>
-						</a>
-						<a class="list-group-item" href="./forms/worldclass/divisions.php">
-							<h4>Manage Sport Poomsae Divisions</h4>
-							<p>Add, remove, or edit divisions</p>
-						</a>
-					</div>
-				</div>
+
+			<div class="register">
+				<a class="btn btn-default" href="forms/worldclass/register.php?role=judge"       ><img src="images/roles/tablet-worldclass.png" width="200px" /><p>Sport Poomsae Referee Tablet</p></a>
+				<a class="btn btn-default" href="forms/worldclass/register.php?role=coordinator" ><img src="images/roles/coordinator-worldclass.png" width="200px" /><p>Sport Poomsae Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/worldclass/division/editor.php"           ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Sport Poomsae Divisions</p></a>
 			</div>
 
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h1 class="panel-title">Freestyle Poomsae: Score poomsae following the WTF Freestyle Poomsae rules</h1>
-				</div>
-				<div class="panel-body">
-					<div class="list-group">
-						<a class="list-group-item" href="./forms/freestyle/register.php">
-							<h4>Register a Tablet or Computer for Freestyle Poomsae</h4>
-							<p>Assign and ring and role for a ring laptop or judge tablet</p>
-						</a>
-						<a class="list-group-item" href="./forms/freestyle/divisions.php">
-							<h4>Manage Freestyle Poomsae Divisions</h4>
-							<p>Add, remove, or edit divisions</p>
-						</a>
-					</div>
-				</div>
+			<div class="register">
+				<a class="btn btn-default" href="forms/freestyle/register.php?role=judge"        ><img src="images/roles/tablet-freestyle.png" width="200px" /><p>Freestyle Referee Tablet</p></a>
+				<a class="btn btn-default" href="forms/freestyle/register.php?role=coordinator"  ><img src="images/roles/coordinator-freestyle.png" width="200px" /><p>Freestyle Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/freestyle/division/editor.php"            ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Freestyle Divisions</p></a>
 			</div>
 
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h1 class="panel-title">Classic Poomsae: Score poomsae with numbers 5.0 to 9.9</h1>
-				</div>
-				<div class="panel-body">
-					<div class="list-group">
-						<a class="list-group-item" href="./forms/grassroots/register.php">
-							<h4>Register a Tablet or Computer for Classic Poomsae</h4>
-							<p>Assign and ring and role for a ring laptop or judge tablet</p>
-						</a>
-						<a class="list-group-item" href="./forms/grassroots/divisions.php">
-							<h4>Manage Classic Poomsae Divisions</h4>
-							<p>Add, remove, or edit divisions</p>
-						</a>
-					</div>
-				</div>
+			<div class="register">
+				<a class="btn btn-default" href="forms/grassroots/register.php?role=judge"       ><img src="images/roles/tablet-grassroots.png" width="200px" /><p>Open Poomsae Referee Tablet</p></a>
+				<a class="btn btn-default" href="forms/grassroots/register.php?role=coordinator" ><img src="images/roles/coordinator-grassroots.png" width="200px" /><p>Open Poomsae Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/grassroots/division/editor.php"           ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Open Poomsae Divisions</p></a>
 			</div>
 
 			<footer class="page-footer">
