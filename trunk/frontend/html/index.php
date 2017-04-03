@@ -33,21 +33,21 @@
 			</div>
 
 			<div class="register">
-				<a class="btn btn-default" href="forms/worldclass/register.php?role=judge"       ><img src="images/roles/tablet-worldclass.png" width="200px" /><p>Sport Poomsae Referee Tablet</p></a>
-				<a class="btn btn-default" href="forms/worldclass/register.php?role=coordinator" ><img src="images/roles/coordinator-worldclass.png" width="200px" /><p>Sport Poomsae Ring Computer</p></a>
-				<a class="btn btn-default" href="forms/worldclass/division/editor.php"           ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Sport Poomsae Divisions</p></a>
+				<a class="btn btn-default" href="forms/worldclass/register.php?role=judge"             ><img src="images/roles/tablet-worldclass.png" width="200px" /><p>Sport Poomsae Referee Tablet</p></a>
+				<a class="btn btn-default" href="forms/worldclass/register.php?role=computer+operator" ><img src="images/roles/coordinator-worldclass.png" width="200px" /><p>Sport Poomsae Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/worldclass/divisions.php"                       ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Sport Poomsae Divisions</p></a>
 			</div>
 
 			<div class="register">
-				<a class="btn btn-default" href="forms/freestyle/register.php?role=judge"        ><img src="images/roles/tablet-freestyle.png" width="200px" /><p>Freestyle Referee Tablet</p></a>
-				<a class="btn btn-default" href="forms/freestyle/register.php?role=coordinator"  ><img src="images/roles/coordinator-freestyle.png" width="200px" /><p>Freestyle Ring Computer</p></a>
-				<a class="btn btn-default" href="forms/freestyle/division/editor.php"            ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Freestyle Divisions</p></a>
+				<a class="btn btn-default" href="forms/freestyle/register.php?role=judge"              ><img src="images/roles/tablet-freestyle.png" width="200px" /><p>Freestyle Referee Tablet</p></a>
+				<a class="btn btn-default" href="forms/freestyle/register.php?role=computer+operator"  ><img src="images/roles/coordinator-freestyle.png" width="200px" /><p>Freestyle Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/freestyle/divisions.php"                        ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Freestyle Divisions</p></a>
 			</div>
 
 			<div class="register">
-				<a class="btn btn-default" href="forms/grassroots/register.php?role=judge"       ><img src="images/roles/tablet-grassroots.png" width="200px" /><p>Open Poomsae Referee Tablet</p></a>
-				<a class="btn btn-default" href="forms/grassroots/register.php?role=coordinator" ><img src="images/roles/coordinator-grassroots.png" width="200px" /><p>Open Poomsae Ring Computer</p></a>
-				<a class="btn btn-default" href="forms/grassroots/division/editor.php"           ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Open Poomsae Divisions</p></a>
+				<a class="btn btn-default" href="forms/grassroots/register.php?role=judge"             ><img src="images/roles/tablet-grassroots.png" width="200px" /><p>Open Poomsae Referee Tablet</p></a>
+				<a class="btn btn-default" href="forms/grassroots/register.php?role=display"           ><img src="images/roles/coordinator-grassroots.png" width="200px" /><p>Open Poomsae Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/grassroots/divisions.php"                       ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Open Poomsae Divisions</p></a>
 			</div>
 
 			<footer class="page-footer">

@@ -6,7 +6,9 @@ $.widget( "freescore.register", {
 		var w            = this.element;
 		var html         = e.html     = FreeScore.html;
 		var tournament   = o.tournament;
-		var url          = o.url      = $.url().param( 'referer' );
+		var referer      = $.url().param( 'referer' );
+		var role         = $.url().param( 'role' );
+		var url          = o.url      = defined( referer ) ? referer : role;
 
 		var h1           = html.h1.clone() .html( "Register" );
 		var text         = html.p.clone();
@@ -84,14 +86,9 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 		register.roles.show = function() { 
 		// ------------------------------------------------------------
-			if(
-				defined( url ) && (
-					(url.match( /judge/ )       != null) ||
-					(url.match( /index/ )       != null) ||
-					(url.match( /coordinator/ ) != null)
-				)
-			) {
-				if( url.match( /judge/ )       != null ) { 
+			console.log( 'roles.show url:', o.url );
+			if( defined( o.url ) && ( o.url.match( /judge|index|display/   ) != null)) {
+				if( o.url.match( /judge/ )       != null ) { 
 					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES
 					var port = ':3080/';
 					var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
@@ -103,12 +100,12 @@ $.widget( "freescore.register", {
 						error:   function( response ) { },
 					});
 
-				} else if( url.match( /index/ )       != null ) { 
+				} else if( o.url.match( /index/ )       != null ) { 
 					$.cookie( "role", "display", { path: '/' } ); 
 					register.confirmation.show();
 
-				} else if( url.match( /coordinator/ ) != null ) { 
-					$.cookie( "role", "coordinator", { path: '/' } ); 
+				} else if( o.url.match( /display/ ) != null ) { 
+					$.cookie( "role", "display", { path: '/' } ); 
 					register.confirmation.show();
 				}
 			} else {
@@ -243,7 +240,6 @@ $.widget( "freescore.register", {
 				url = "./judge.php";
 			} else {
 				if      ( role == "display"           ) { if( ! defined( url )) { url = "./index.php"; } }
-				else if ( role == "computer operator" ) { if( ! defined( url )) { url = "./coordinator.php"; } }
 				role = register.roles.add( role.capitalize(), '200px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );

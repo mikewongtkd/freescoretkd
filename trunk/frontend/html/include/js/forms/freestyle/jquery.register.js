@@ -6,7 +6,7 @@ $.widget( "freescore.register", {
 		var w            = this.element;
 		var html         = e.html     = FreeScore.html;
 		var tournament   = o.tournament;
-		var referer      = o.referer  = $.url().param( 'referer' );
+		var referer      = o.referer  = defined( $.url().param( 'referer' )) ? $.url().param( 'referer' ) : $.url().param( 'role' );
 
 		var h1           = html.h1.clone() .html( "Register" );
 		var text         = html.p.clone();
@@ -149,10 +149,10 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 		register.roles.show = function() { 
 		// ------------------------------------------------------------
-			if( defined( referer ) && (referer.match( /(judge|index|computer operator)/ ) != null)) {
-				if( referer == 'judge' )             { register.judges.show(); } else
-				if( referer == 'index' )             { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
-				if( referer == 'computer operator' ) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
+			if( defined( o.referer ) && (o.referer.match( /(judge|index|computer operator)/ ) != null)) {
+				if( o.referer == 'judge' )             { register.judges.show(); } else
+				if( o.referer == 'index' )             { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
+				if( o.referer == 'computer operator' ) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
 			} else {
 				text.html( "What is your role in Ring " + Cookies.get( 'ring' ) + ":" ); 
 				register.roles.view .fadeIn( 500 ); 
