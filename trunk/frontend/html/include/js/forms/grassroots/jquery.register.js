@@ -239,7 +239,7 @@ $.widget( "freescore.register", {
 				role.dom.css( 'left', '200px' );
 				url = "./judge.php";
 			} else {
-				if      ( role == "display"           ) { if( ! defined( url )) { url = "./index.php"; } }
+				if      ( role == "display"           ) { url = "./index.php"; }
 				role = register.roles.add( role.capitalize(), '200px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );

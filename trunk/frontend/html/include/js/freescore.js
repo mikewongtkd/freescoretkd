@@ -48,7 +48,7 @@ var FreeScore = {
 		name  : { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Finals', 'finals' : 'Finals', 'ro8a' : '1st Finals', 'ro8b' : '1st Finals', 'ro8c': '1st Finals', 'ro8d' : '1st Finals', 'ro4a' : '2nd Finals', 'ro4b' : '2nd Finals', 'r02' : '3rd Finals' },
 	},
 	rulesUSAT : { 
-		// 2015 Rules, updated 5/1/2015
+		// 2017 Rules, updated 4/27/2017
 		// ------------------------------------------------------------
 		genders : function() { return [ "Female", "Male", "Male & Female" ]; },
 		// ------------------------------------------------------------
@@ -64,8 +64,8 @@ var FreeScore = {
 		// ------------------------------------------------------------
 		ageGroups : function( format ) {
 		// ------------------------------------------------------------
-			if( format == 'Team' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40+" ]; } else
-			if( format == 'Pair' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40+" ]; } else
+			if( format == 'Team' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30+" ]; } else
+			if( format == 'Pair' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30+" ]; } else
 			/* Individual */       { return [ "6-7", "8-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40-49", "50-59", "60-64", "65+" ]; }
 		},
 
@@ -90,15 +90,15 @@ var FreeScore = {
 					if( age <= 11 ) { forms = allForms.splice( 2, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
-									{ forms = allForms.splice( 7, 8 ); }      // 1st Masters
+					if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+									{ forms = allForms.splice( 7, 8 ); }      // Over 30
 
 				} else if( format.match( /pair/i ) ) {
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Seniors
-									{ forms = allForms.splice( 7, 8 ); }      // 1st Masters
+					if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+									{ forms = allForms.splice( 7, 8 ); }      // Over 30
 				} else { // Individual
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets

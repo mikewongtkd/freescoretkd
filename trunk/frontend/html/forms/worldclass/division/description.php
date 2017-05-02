@@ -45,8 +45,7 @@
 						<label class="btn btn-default"><input type="radio" name="age" idx="03" value="cadets"  >12-14</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="04" value="juniors" >15-17</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="05" value="under 30">18-29</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="under 40">30-39</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="07" value="over 40" >40+</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="over 30" >30+</label>
 					</div>
 					<div class="btn-group" data-toggle="buttons">
 						<label class="btn btn-default"><input type="radio" name="rank" value="y">Yellow</label>
@@ -68,8 +67,7 @@
 						<label class="btn btn-default"><input type="radio" name="age" idx="03" value="cadets"  >12-14</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="04" value="juniors" >15-17</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="05" value="under 30">18-29</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="under 40">30-39</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="07" value="over 40" >40+</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="over 30" >30+</label>
 					</div>
 					<div class="btn-group" data-toggle="buttons">
 						<label class="btn btn-default"><input type="radio" name="rank" value="y">Yellow</label>
@@ -129,7 +127,7 @@
 		var gender = desc.match( /\b(Fem|M)ale/i ); gender = gender ? gender[ 0 ].substr( 0, 1 ).toLowerCase() : '';
 		var ev     = desc.match( /Individual|Pair|Team/i); ev = ev ? ev[ 0 ].toLowerCase() : '';
 		var rank   = desc.match( /Yellow|Green|Blue|Red/i ); rank = rank ? rank[ 0 ].substr( 0, 1 ).toLowerCase() : '';
-		var age    = desc.match( /4-5|6-7|8-9|10-11|Youth|12-14|Cadet|15-17|Junior|18-29|Under 30|Under 40|Under 50|Under 60|Under 65|Over 66/i ); age = age ? age[ 0 ].toLowerCase() : '';
+		var age    = desc.match( /4-5|6-7|8-9|10-11|Youth|12-14|Cadet|15-17|Junior|18-29|Under 30|Over 30|Under 40|Under 50|Under 60|Under 65|Over 66/i ); age = age ? age[ 0 ].toLowerCase() : '';
 		var map    = { '10-11' : 'youths', 'youth' : 'youths', '12-14' : 'cadets', 'cadet' : 'cadets', '15-17' : 'juniors', 'junior' : 'juniors' }; age = map[ age ] ? map[ age ] : age;
 		if((gender == 'm' && desc.match( /female/i )) || (gender == 'f' && desc.match( /\bmale/i ))) { gender = ''; }
 		if( ev && age ) {

@@ -16,7 +16,8 @@ html, body {
   top: 0;
   left: 0;
   visibility: hidden;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
   transform-style: preserve-3d; }

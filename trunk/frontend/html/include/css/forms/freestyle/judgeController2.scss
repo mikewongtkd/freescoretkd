@@ -1,0 +1,296 @@
+
+@font-face {
+	font-family: Nimbus;
+	src: url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
+}
+@font-face {
+	font-family: Biolinum;
+	font-weight: bold;
+	src: url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
+}
+
+.container {
+	position: relative;
+	top: 20px;
+}
+
+#stances {
+	position: absolute;
+	left: 50%;
+	top: 200px;
+	width: 200px;
+	margin-left: -120px;
+	.btn-xs {
+		font-size: 12pt;
+		margin-top: -8px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		width: 112px;
+	}
+
+	.mandatory-stances {
+		position: absolute;
+		top: 0;
+		font-size: 9pt;
+		img { height: 100px; opacity: 0.25;  }
+		width: 80px;
+		text-align: center;
+	}
+	.done {
+		color: lime;
+		img { opacity: 1.0; filter: sepia( 100% ) saturate( 100000% ) hue-rotate(  40deg ); };
+	}
+	.hakdari-seogi { left: 0; }
+	.beom-seogi    { left: 80px; }
+	.dwigubi       { left: 160px; }
+}
+
+table {
+	background-color: transparent !important;
+	margin-bottom: 20px;
+	width: 100%;
+	th { 
+		font-weight: normal;
+		color: #ccc;
+		width: 100px;
+		padding-right: 8px;
+	}
+	td.button-group { 
+		color: #999;
+		font-size: 9pt;
+		width: calc( 100% - 80px );
+	}
+
+	td[colspan='2'] {
+		padding: 8px;
+	}
+
+	tr {
+	}
+}
+
+#start, #deductions-done { 
+	margin-left: 10%;
+	margin-right: 10%;
+	width: 80%; 
+}
+
+.technical-component, .presentation-component, .deduction-component {
+	position: absolute;
+	height: 88px;
+	width: 88px;
+	border-radius: 12px;
+	border: 4px solid #999;
+
+	.component-label {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 40px;
+		width: 80px;
+		padding: 4px 8px 4px 8px;
+		border-radius: 8px 8px 0 0;
+		color: white;
+		font-size: 9pt;
+		text-align: center;
+	}
+	.component-score {
+		position: absolute;
+		top: 40px;
+		left: 0;
+		height: 40px;
+		width: 80px;
+		padding: 8px;
+		border-radius: 0 0 8px 8px;
+		background-color: #666;
+		color: #ccc;
+		font-size: 32pt;
+		line-height: 18pt;
+		text-align: center;
+	}
+}
+
+.technical-component {
+	.component-label {
+		background-color: #2a9fd6;
+	}
+}
+
+#presentation {
+	position: absolute;
+	top: 100px;
+	left: 15px;
+	width: calc( 100% - 30px );
+}
+
+.presentation-component {
+	.component-label {
+		background-color: #77b300;
+	}
+}
+
+#controls {
+	position: absolute;
+	top: 266px;
+	left: 15px;
+	width: calc( 100% - 30px );
+	img.mandatory-foot-technique-icon {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		margin-left: -110px;
+	}
+	#major-deductions {
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	#minor-deductions {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+}
+
+.alert-default, .btn-default {
+	background-color: #777;
+	border-color: #666;
+}
+
+.alert-default, .alert-success {
+	color: white;
+	font-size: 18pt;
+	line-height: 18pt;
+}
+
+.btn-group[data-toggle=buttons] {
+	width: 100%;
+	.btn { width: 9%; }
+}
+
+.performance-description {
+	width: 100%;
+	vertical-align: bottom;
+	.poor      { display: inline-block; text-align: center; width: 12% }
+	.good      { display: inline-block; text-align: center; width: 22% }
+	.very-good { display: inline-block; text-align: center; width: 25% }
+	.excellent { display: inline-block; text-align: center; width: 28% }
+	.perfect   { display: inline-block; text-align: center; width: 13% }
+}
+
+.subtotal {
+	font-size: 40pt;
+	line-height: 18pt;
+}
+
+#technical-skills .subtotal { color: #2a9fd6; }
+#presentation     .subtotal { color: #77b300; }
+#deductions       .subtotal { color: #ba1f1f; }
+#total            .subtotal { color: white; }
+
+#deductions {
+	position: absolute;
+	width: calc( 100% - 30px );
+	top: 200px;
+
+	#timeline {
+		display: inline-block;
+		width: 100%;
+		overflow-y: auto;
+	}
+
+	.timeline-heading {
+		.points    { color: green; }
+		.deduction { color: red; }
+	}
+
+	.timeline-item {
+		height: 200px !important;
+		min-width: 200px !important;
+
+		.timeline-badge {
+			font-size: 28pt !important;
+			line-height: 38pt !important;
+			img {
+				height: 48px;
+			}
+		}
+
+		.timeline-panel {
+			border-radius: 6px !important;
+			padding: 10px !important;
+
+			.timeline-heading {
+				h4.timeline-title { 
+					font-size: 12pt !important; 
+					margin-bottom: 6px !important;
+				}
+
+				.timeline-notes {
+					font-size: 9pt !important;
+					margin-bottom: 6px !important;
+				}
+			}
+
+			.timeline-body {
+				font-size: 9pt !important;
+			}
+		}
+	}
+
+	.deduction-component {
+		.component-label {
+			background-color: #ba1f1f;
+		}
+	}
+
+	.deduction-scores {
+		position: absolute;
+		width: 100%;
+		top: -16px;
+		#major-deduction-score   { left: 240px; }
+		#minor-deduction-score   { left: 340px; }
+		#mandatory-stances-score { left: 340px; }
+	}
+
+	#stance-deductions {
+		position: absolute;
+		left: 440px;
+		top: -16px;
+		width: 200px;
+		.btn-xs {
+			font-size: 12pt;
+			margin-top: -8px;
+			padding-top: 8px;
+			padding-bottom: 8px;
+			width: 112px;
+		}
+
+		.mandatory-stances {
+			position: absolute;
+			top: 0;
+			font-size: 9pt;
+			img { height: 80px; }
+			width: 80px;
+			text-align: center;
+			img { opacity: 1.0; filter: sepia( 100% ) brightness( 10% ) saturate( 100000% ) hue-rotate(  280deg ); };
+			color: #ba1f1f;
+		}
+		.done {
+			color: #999;
+			img { opacity: 0.2; filter: sepia( 0% ) saturate( 100% ) hue-rotate( -280deg ); };
+		}
+		.hakdari-seogi { left: 0; }
+		.beom-seogi    { left: 80px; }
+		.dwigubi       { left: 160px; }
+	}
+}
+
+#total {
+	position: absolute;
+	left: 15px;
+	top: 580px;
+	width: calc( 100% - 30px );
+}
+

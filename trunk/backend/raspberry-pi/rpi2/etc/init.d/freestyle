@@ -16,10 +16,10 @@ LOGFILE=/var/log/freescore/freestyle.log
  
 status() {
   if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
-    echo 'Worldclass Poomsae service is not running' >&2
+    echo 'Freestyle Poomsae service is not running' >&2
     return 3
   else
-    echo 'Worldclass Poomsae service is running' >&2
+    echo 'Freestyle Poomsae service is running' >&2
     return 0
   fi
 }
