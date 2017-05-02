@@ -12,8 +12,7 @@ $.widget( "freescore.scoreboard", {
 		var judges       = e.judges       = new Array();
 		var totalScore   = e.totalScore   = html.div.clone() .addClass( "totalScores" );
 		var athlete      = e.athlete      = html.div.clone() .addClass( "athlete" );
-		var lflag        = e.lflag        = html.div.clone() .addClass( "left flag" );
-		var rflag        = e.rflag        = html.div.clone() .addClass( "right flag" );
+		var flag         = e.flag         = html.div.clone() .addClass( "flag" );
 		var round        = e.round        = html.div.clone() .addClass( "round" );
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var forms        = e.forms        = html.div.clone() .addClass( "forms" );
@@ -35,7 +34,7 @@ $.widget( "freescore.scoreboard", {
 		penalty.restart    .append( penalty.icon.clone() .html( penalty.display( 'retweet' )), penalty.value.clone() .html( '-0.6' )) .hide();
 		penalty.misconduct .append( penalty.icon.clone() .html( penalty.display( 'comment' )), penalty.value.clone() .html( '&nbsp;1' )) .hide();
 
-		totalScore.append( athlete, lflag, rflag, score, round, forms, penalty.bounds, penalty.timelimit, penalty.restart, penalty.misconduct );
+		totalScore.append( athlete, flag, score, round, forms, penalty.bounds, penalty.timelimit, penalty.restart, penalty.misconduct );
 		score.append( accuracy, presentation, total );
 
 		for( var i = 0; i < 7; i++ ) {
@@ -188,13 +187,13 @@ $.widget( "freescore.scoreboard", {
 		)) {
 			var flag = defined( current.athlete.info( 'flag' ) ) ? '<img src="../../images/flags/' + current.athlete.info( 'flag' ) + '.png" width="80px" />' : '';
 			var name = html.span.clone() .append( current.athlete.display.name() );
+			if( flag ) { e.athlete.css({ left: '120px', width: '574px' }); } // Make room for the flag
 			e.athlete .fadeOut( 300, function() { e.athlete .empty() .html( name )           .fadeIn(); });
-			e.lflag   .fadeOut( 300, function() { e.lflag   .empty() .html( flag )           .fadeIn(); });
-			e.rflag   .fadeOut( 300, function() { e.rflag   .empty() .html( flag )           .fadeIn(); });
+			e.flag    .fadeOut( 300, function() { e.flag    .empty() .html( flag )           .fadeIn(); });
 			e.round   .fadeOut( 300, function() { e.round   .empty() .append( round.ticker ) .fadeIn(); });
 			e.forms   .fadeOut( 300, function() { show_form_score( e.forms )                 .fadeIn(); });
 
-			e.athlete .fitText( 0.55 ); // Scale athlete name for best visibility and size
+			e.athlete .fitText( 0.75 ); // Scale athlete name for best visibility and size
 		}
 
 		// ===== CHANGE OF SCORE

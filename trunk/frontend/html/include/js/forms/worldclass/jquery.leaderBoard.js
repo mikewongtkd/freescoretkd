@@ -67,10 +67,10 @@ $.widget( "freescore.leaderboard", {
 			// ===== ADD ATHLETES
 			var round = o.division.current.roundId();
 			for( var i = 0; i < k; i++ ) {
-				var athlete    = placement[ i ];
-				var score      = athlete.score( round );
-				var notes      = defined( score.notes() ) ? score.notes() : '';
-				var name       = athlete.name();
+				var athlete  = placement[ i ];
+				var score    = athlete.score( round );
+				var notes    = defined( score.notes() ) ? score.notes() : '';
+				var name     = athlete.display.name();
 				var namespan = html.span.clone() .html( name );
 
 				var entry = {
@@ -126,11 +126,13 @@ $.widget( "freescore.leaderboard", {
 		}
 
 		// ===== UPDATE THE 'NEXT UP' PANEL
-		e.pending.empty();
-		e.pending.append( "<h2>Next Up</h2>" );
 		var athlete = pending[ 0 ];
-		e.pending.append( '<div class="athlete">' + athlete.name() + '</div>' );
-		if( pending.length > 1 ) { e.pending.append( '<div>' + (pending.length - 1) + ' athletes in queue</div>' ); }
-		widget.fadeIn( 500 );
+		if( defined( athlete )) {
+			e.pending.empty();
+			e.pending.append( "<h2>Next Up</h2>" );
+			e.pending.append( '<div class="athlete">' + athlete.name() + '</div>' );
+			if( pending.length > 1 ) { e.pending.append( '<div>' + (pending.length - 1) + ' athletes in queue</div>' ); }
+			widget.fadeIn( 500 );
+		}
 	},
 });
