@@ -140,7 +140,8 @@ body {
         width: 694px;
         font-size: 72pt;
         line-height: 72pt;
-        text-align: center; }
+        text-align: center;
+        overflow: hidden; }
       .worldclass .scoreboard .totalScores .flag {
         position: absolute;
         top: 0;
@@ -309,7 +310,9 @@ body {
             position: absolute;
             left: 0;
             width: 54%;
-            font-weight: bold; }
+            height: 92px;
+            font-weight: bold;
+            overflow: hidden; }
           .worldclass .leaderboard .division .placement .athlete .form1 {
             color: #f39;
             position: absolute;

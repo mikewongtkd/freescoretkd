@@ -122,7 +122,8 @@
       width: 694px;
       font-size: 72pt;
       line-height: 72pt;
-      text-align: center; }
+      text-align: center;
+      overflow: hidden; }
     .scoreboard .totalScores .flag {
       position: absolute;
       top: 0;

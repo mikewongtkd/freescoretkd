@@ -39,7 +39,9 @@
           position: absolute;
           left: 0;
           width: 54%;
-          font-weight: bold; }
+          height: 92px;
+          font-weight: bold;
+          overflow: hidden; }
         .leaderboard .division .placement .athlete .form1 {
           color: #f39;
           position: absolute;
