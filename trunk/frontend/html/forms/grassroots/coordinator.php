@@ -15,7 +15,7 @@
 <html>
 	<head>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="../../include/css/forms/grassroots/coordinator.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -29,9 +29,9 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/forms/worldclass/score.class.js"></script>
-		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
-		<script src="../../include/js/forms/worldclass/division.class.js"></script>
+		<script src="../../include/js/forms/grassroots/score.class.js"></script>
+		<script src="../../include/js/forms/grassroots/athlete.class.js"></script>
+		<script src="../../include/js/forms/grassroots/division.class.js"></script>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -58,7 +58,6 @@
 				<div class="page-header"><a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Ring <?= $i ?></a> <span id="division-header"></span></div>
 					<div class="row">
 						<div class="col-lg-9">
-							<h4 id="division-round">Round</h4>
 							<div class="list-group" id="athletes">
 							</div>
 						</div>
@@ -98,7 +97,6 @@
 		</div>
 		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
-			console.log( alertify.defaults );
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
@@ -107,37 +105,23 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( 'ws://<?= $host ?>:3080/grassroots/' + tournament.db + '/' + ring.num );
-
-			ws.onerror = function() {
-				alertify.error( "Network Error: Cannot connect to server!" );
-			};
-
-			ws.onopen = function() {
-				var request  = { data : { type : 'ring', action : 'read' }};
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
-			};
-
-			ws.onmessage = function( response ) {
+			
+			function handle_update( response ) {
 				var update = JSON.parse( response.data );
+				if( ! defined( update )) { return; }
 
-				console.log( update );
-
-				if( update.type == 'ring' && update.action == 'update' ) {
-					if( ! defined( update.ring )) { return; }
-					refresh.ring( update.ring );
+					refresh.ring( update );
 					var divid = $.cookie( 'divid' );
 					if( defined( divid )) {
-						var division = update.ring.divisions.find(( d ) => { return d.name == divid; });
-						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
+						var division = update.divisions.find(( d ) => { return d.name == divid; });
+						var current  = update.divisions.find(( d ) => { return d.name == update.current; });
 						var curDiv   = division.name == current.name;
 						if( ! defined( division )) { return; }
 						division = new Division( division );
 						refresh.athletes( division, curDiv );
 						if( page.num == 1 ) { page.transition() };
 					}
-				} else if( update.type == 'division' && update.action == 'update' ) {
+				if( update.type == 'division' && update.action == 'update' ) {
 					var division = update.division;
 					if( ! defined( division )) { return; }
 
@@ -146,6 +130,9 @@
 					if( page.num == 1 ) { page.transition() };
 				}
 			};
+
+			var source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + tournament.db );
+			source.addEventListener( 'message', handle_update, false );
 
 			var sound = {
 				ok    : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]}),
@@ -161,8 +148,11 @@
 			};
 
 			var sendRequest = ( request ) => {
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
+				var url = 'http://' + host + ':3080/' + tournament.db + '/' + ring.num + '/coordinator'
+				var data = JSON.stringify( request.data );
+				$.post({ 
+					url: url, data: data
+				});
 			};
 
 			var refresh = { 
@@ -174,40 +164,13 @@
 						page.transition(); 
 					});
 
-					var round = division.current.roundId();
-					var form  = division.current.formId();
-					$( '#division-round' ).html( division.current.round.display.name() + ' Round' );
-
-					var iconize = function( penalties ) {
-						if( ! defined( penalties )) { return; }
-						var bounds     = html.span.clone().addClass( "penalty" );
-						var restart    = html.span.clone().addClass( "penalty" );
-						var misconduct = html.span.clone().addClass( "penalty" );
-
-						if( penalties.bounds > 0 ) {
-							bounds.addClass( "glyphicon glyphicon-log-out" );
-							bounds.html( ' ' + penalties.bounds );
-						}
-						if( penalties.restart > 0 ) {
-							restart.addClass( "glyphicon glyphicon-retweet" );
-							restart.html( ' ' + penalties.restart );
-						}
-						if( penalties.misconduct > 0 ) {
-							misconduct.addClass( "glyphicon glyphicon-comment" );
-							misconduct.html( ' ' + penalties.misconduct );
-						}
-
-						return [ bounds, restart, misconduct ];
-					};
-
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#athletes' ).empty();
 					division.athletes().forEach(( athlete, i ) => {
-						var score     = athlete.score( round );
+						var score     = athlete.score();
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, form )));
-						var total     = html.span.clone().addClass( "athlete-score" ).append( score.is.complete() ? score.adjusted.total() : '&nbsp;' );
+						var total     = html.span.clone().addClass( "athlete-score" ).append( '&nbsp;' ); // MW
 						var j         = division.current.athleteId();
 
 						// ===== CURRENT ATHLETE
@@ -242,7 +205,7 @@
 							button.off( 'click' );
 						}
 						refresh.navadmin( division );
-						button.append( name, penalties, total );
+						button.append( name, total );
 						$( '#athletes' ).append( button );
 					});
 
@@ -258,8 +221,6 @@
 					var current = division.current.athleteId();
 					var ring    = division.ring();
 					var divid   = division.name();
-					var round   = division.current.roundId();
-					var form    = division.current.formId();
 
 					var action = {
 						penalty : {
@@ -284,8 +245,8 @@
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
 				},
 				navadmin : function( division ) {
-					var ring    = division.ring();
-					var divid   = division.name();
+					var ring    = division.ringName();
+					var divid   = 'div.' + division.name() + '.txt';
 					var action = {
 						navigate : {
 							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); console.log( i ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
@@ -294,7 +255,7 @@
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
-							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
+							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-grassroots/' + ring + '/' + divid, '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
 						}
 					};

@@ -199,6 +199,30 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 };
 
 # ------------------------------------------------------------
+# COORDINATOR INTERFACE
+# ------------------------------------------------------------
+post '/:tournament/:ring/coordinator' => sub {
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $divid      = $self->param( 'divid' );
+	my $json       = new JSON::XS();
+	my $data       = $json->decode( $self->req->body());
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	return unless exists $data->{ action };
+	local $_ = $data->{ action };
+	if      ( /navigate/ ) {
+		my $target = $data->{ target }{ destination };
+		if    ( $target eq 'athlete'  ) { $division->navigate( $data->{ target }{ index } ); } # MW
+		elsif ( $target eq 'division' ) { $progress->navigate( $data->{ target }{ divid } ); } # MW
+	} elsif ( /award penalty/ ) { # MW
+	} elsif ( /award punitive/ ) { # MW
+	}
+}
+
+# ------------------------------------------------------------
 # WRITE NEW TOURNAMENT INFORMATION
 # ------------------------------------------------------------
 post '/:tournament/:ring/:divid' => sub { 
