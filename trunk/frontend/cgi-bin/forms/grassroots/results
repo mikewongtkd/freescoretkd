@@ -10,15 +10,27 @@ use FreeScore::Forms::GrassRoots;
 my $cgi        = new CGI();
 my $results    = undef;
 my $tournament = read_tournament_config();
+my $ring       = $cgi->param( 'ring' );
+my $divid      = $cgi->param( 'divid' );
 
 my @divisions  = ();
 try {
-	foreach my $ring ( 1 .. $tournament->{ rings }{ count } ) {
-		$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-		push @divisions, @{ $results->{ divisions }};
+	if( defined $ring ) {
+		if( defined $divid ) {
+			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+		} else {
+			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
 	}
 } catch {
-	
+	die $_;
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -148,11 +160,17 @@ sub ordinal {
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = `cat /var/www/html/freescore/include/php/config.php`;
-	$php .= "<?php echo \$tournament ?>";
-	$php =~ s/\n/ /g;
+	my $php = '';
+	my $config = {
+		redhat => '/var/www/html/freescore/include/php/config.php',
+		ubuntu => '/var/www/freescore/include/php/config.php'
+	};
+	if    ( -e $config->{ redhat } ) { $php = $config->{ redhat }; }
+	elsif ( -e $config->{ ubuntu } ) { $php = $config->{ ubuntu }; }
+	else                             { die "Can't find configuration file 'config.php' $!"; }
 
 	my $json = new JSON::XS();
-	my $data = `echo '$php' | php`;
-	return $json->decode( $data );
+	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+	my $config = $json->decode( $data );
+	return $config;
 }

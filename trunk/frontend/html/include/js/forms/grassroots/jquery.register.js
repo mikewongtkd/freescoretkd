@@ -87,7 +87,7 @@ $.widget( "freescore.register", {
 		register.roles.show = function() { 
 		// ------------------------------------------------------------
 			console.log( 'roles.show url:', o.url );
-			if( defined( o.url ) && ( o.url.match( /judge|index|display/   ) != null)) {
+			if( defined( o.url ) && ( o.url.match( /judge|computer operator/   ) != null)) {
 				if( o.url.match( /judge/ )       != null ) { 
 					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES
 					var port = ':3080/';
@@ -100,12 +100,8 @@ $.widget( "freescore.register", {
 						error:   function( response ) { },
 					});
 
-				} else if( o.url.match( /index/ )       != null ) { 
-					$.cookie( "role", "display", { path: '/' } ); 
-					register.confirmation.show();
-
-				} else if( o.url.match( /display/ ) != null ) { 
-					$.cookie( "role", "display", { path: '/' } ); 
+				} else if( o.url.match( /computer operator/ ) != null ) { 
+					$.cookie( "role", "computer operator", { path: '/' } ); 
 					register.confirmation.show();
 				}
 			} else {
@@ -239,7 +235,7 @@ $.widget( "freescore.register", {
 				role.dom.css( 'left', '200px' );
 				url = "./judge.php";
 			} else {
-				if      ( role == "display"           ) { url = "./index.php"; }
+				if      ( role == "computer operator" ) { url = "./coordinator.php"; }
 				role = register.roles.add( role.capitalize(), '200px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );
@@ -287,7 +283,7 @@ $.widget( "freescore.register", {
 	
 		// ===== STEP 2. SHOW THE ROLES
 		register.roles.data.push( register.roles.add( 'Judge',   '0px'   ));
-		register.roles.data.push( register.roles.add( 'Display', '200px' ));
+		register.roles.data.push( register.roles.add( 'Computer Operator', '200px' ));
 		register.roles.view.append( register.roles.data.map( function( role ) { return role.dom; } ));
 
 		w.append( h1, text, register.rings.view, register.roles.view, register.judges.view, register.confirmation.view );

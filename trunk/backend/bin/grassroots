@@ -215,12 +215,10 @@ post '/:tournament/:ring/coordinator' => sub {
 	local $_ = $data->{ action };
 	if      ( /navigate/ ) {
 		my $target = $data->{ target }{ destination };
-		if    ( $target eq 'athlete'  ) { $division->navigate( $data->{ target }{ index } ); } # MW
-		elsif ( $target eq 'division' ) { $progress->navigate( $data->{ target }{ divid } ); } # MW
-	} elsif ( /award penalty/ ) { # MW
-	} elsif ( /award punitive/ ) { # MW
+		if    ( $target eq 'athlete'  ) { $division->navigate( $data->{ target }{ index } ); $division->write(); }
+		elsif ( $target eq 'division' ) { $progress->navigate( $data->{ target }{ divid } ); $progress->write(); }
 	}
-}
+};
 
 # ------------------------------------------------------------
 # WRITE NEW TOURNAMENT INFORMATION

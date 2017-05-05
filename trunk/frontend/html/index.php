@@ -46,7 +46,7 @@
 
 			<div class="register">
 				<a class="btn btn-default" href="forms/grassroots/register.php?role=judge"             ><img src="images/roles/tablet-grassroots.png" width="200px" /><p>Open Poomsae Referee Tablet</p></a>
-				<a class="btn btn-default" href="forms/grassroots/register.php?role=display"           ><img src="images/roles/coordinator-grassroots.png" width="200px" /><p>Open Poomsae Ring Computer</p></a>
+				<a class="btn btn-default" href="forms/grassroots/register.php?role=computer+operator" ><img src="images/roles/coordinator-grassroots.png" width="200px" /><p>Open Poomsae Ring Computer</p></a>
 				<a class="btn btn-default" href="forms/grassroots/divisions.php"                       ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Open Poomsae Divisions</p></a>
 			</div>
 

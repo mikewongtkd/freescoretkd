@@ -74,13 +74,6 @@
 									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
 								</div>
 							</div>
-							<div class="decision">
-								<h4>Decision</h4>
-								<div class="list-group">
-									<a class="list-group-item" id="decision-withdraw"><span class="glyphicon glyphicon-remove"></span>Withdraw</a>
-									<a class="list-group-item" id="decision-disqualify"><span class="glyphicon glyphicon-ban-circle"></span>Disqualify</a>
-								</div>
-							</div>
 							<div class="administration">
 								<h4>Administration</h4>
 								<div class="list-group">
@@ -111,11 +104,12 @@
 				if( ! defined( update )) { return; }
 
 					refresh.ring( update );
-					var divid = $.cookie( 'divid' );
+					var divid = $.cookie( 'grassroots-divid' );
 					if( defined( divid )) {
 						var division = update.divisions.find(( d ) => { return d.name == divid; });
 						var current  = update.divisions.find(( d ) => { return d.name == update.current; });
 						var curDiv   = division.name == current.name;
+						console.log( division );
 						if( ! defined( division )) { return; }
 						division = new Division( division );
 						refresh.athletes( division, curDiv );
@@ -150,9 +144,8 @@
 			var sendRequest = ( request ) => {
 				var url = 'http://' + host + ':3080/' + tournament.db + '/' + ring.num + '/coordinator'
 				var data = JSON.stringify( request.data );
-				$.post({ 
-					url: url, data: data
-				});
+				console.log( url, data );
+				$.post( url, data );
 			};
 
 			var refresh = { 
@@ -183,7 +176,6 @@
 								$( ".navigate-athlete" ).hide(); 
 								$( ".penalties,.decision" ).show(); 
 							});
-							refresh.actions( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
 						} else if( currentDivision ) {
@@ -216,37 +208,10 @@
 						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 					$( ".navigate-athlete" ).hide();
 				},
-				actions : function( division ) {
-					var athlete = division.current.athlete();
-					var current = division.current.athleteId();
-					var ring    = division.ring();
-					var divid   = division.name();
-
-					var action = {
-						penalty : {
-							bounds     : () => { sound.next.play(); athlete.penalize.bounds( round, form );     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
-							restart    : () => { sound.next.play(); athlete.penalize.restart( round, form );    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
-							misconduct : () => { sound.next.play(); athlete.penalize.misconduct( round, form ); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
-							clear      : () => { sound.prev.play(); athlete.penalize.clear( round, form );      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
-							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current }} ); }
-						},
-						decision : {
-							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", "Click OK to withdraw " + athlete.name() + " from competition.   <strong>This action cannot be undone.</strong>", function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", "Click OK to disqualify " + athlete.name() + " from competition. <strong>This action cannot be undone.</strong>", function() { sound.ok.play(); action.decision.send( 'disqualify' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							send       : ( reason ) => { sendRequest( { data : { type : 'division', action : 'award punitive', decision: reason, athlete_id: current }} ); }
-						},
-					};
-
-					$( "#penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
-					$( "#penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
-					$( "#penalty-misconduct" )  .off( 'click' ).click( action.penalty.misconduct );
-					$( "#penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
-					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
-					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
-				},
 				navadmin : function( division ) {
 					var ring    = division.ringName();
-					var divid   = 'div.' + division.name() + '.txt';
+					var ringid  = division.ring();
+					var divid   = division.name();
 					var action = {
 						navigate : {
 							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); console.log( i ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
@@ -255,8 +220,8 @@
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
-							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-grassroots/' + ring + '/' + divid, '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
+							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-grassroots/' + ring + '/div.' + divid + '.txt', '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/grassroots/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
 						}
 					};
 
@@ -283,7 +248,7 @@
 							var divid    = clicked.attr( 'divid' );
 							var division = ring.divisions.find(( d ) => { return d.name == divid; });
 
-							$.cookie( 'divid', divid, { expires: 1, path: '/' });
+							$.cookie( 'grassroots-divid', divid, { expires: 1, path: '/' });
 							refresh.athletes( new Division( division ), division.name == ring.current );
 							sound.next.play();
 							page.transition();

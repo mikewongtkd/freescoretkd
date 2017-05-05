@@ -304,7 +304,7 @@
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + ring + '&divid=' + divid, '_blank' )},
 						}
 					};
 
