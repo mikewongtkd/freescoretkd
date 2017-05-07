@@ -79,7 +79,7 @@ $.widget( "freescore.judgeController", {
 				var request  = { data : { type : 'division', action : 'score', score : score }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
-				e.send.attr({ 'sent': true });
+				e.send.attr({ 'sent': 'true' });
 			});
 		} );
 
@@ -174,10 +174,10 @@ $.widget( "freescore.judgeController", {
 
 			if( ! defined( division.form.list())) { return; }
 
-			if( e.send.attr( 'sent' )) {
+			if( e.send.attr( 'sent' ) == 'true' ) {
 				e.sound.ok.play();
 				alertify.success( 'Score sent and received.' );
-				e.send.attr({ 'sent': false });
+				e.send.attr({ 'sent': 'false' });
 			}
 
 			var button = {
@@ -273,6 +273,8 @@ $.widget( "freescore.judgeController", {
 			
 			// ===== RESET DEFAULTS FOR A DIFFERENT ATHLETE, FORM, ROUND, OR DIVISION
 			if( different.division || different.round || different.athlete || different.form ) {
+				e.sound.next.play();
+				alertify.success( 'Ready to score.' );
 				var athlete    = division.current.athlete();
 
 				// ===== UPDATE TICKER
