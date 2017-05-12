@@ -40,13 +40,13 @@
 					},
 					handlers: {
 						open: function( ev, elfinder ) {
-							var ring = ev.data.cwd.name;
-							var divid = ev.data.files
-								.map(( f ) => { return f.name; })
+							var ring   = ev.data.cwd.name;
+							var divids = ev.data.files
+								.map(( f ) => { return f.name })
 								.map(( f ) => { var match = f.match( /^div.\w+?(\d+).txt$/ ); return (match != null) ? match[ 1 ] : null })
 								.filter(( f ) => { return f != null; })
 								.map(( f ) => { return parseInt( f ); })
-								.reduce(( max, cur ) => Math.max( max, cur ));
+							var divid = divids.length > 0 ? divids.reduce(( max, cur ) => Math.max( max, cur )) : 0;
 							divid++;
 							if( divid < 10 ) { divid = '0' + divid; }
 							divid = 'p' + divid;

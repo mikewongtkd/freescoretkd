@@ -1005,7 +1005,8 @@ sub next_available_athlete {
 		$self->{ current } = $self->athletes_in_round( 'next' );
 		$available = ! $self->{ athletes }[ $self->{ current } ]{ scores }{ $round }->complete();
 	} while( ! $available );
-	$self->{ form } = 0;
+	$self->{ state } = 'score';
+	$self->{ form }  = 0;
 }
 
 # ============================================================
