@@ -94,11 +94,13 @@
 							<div class="administration">
 								<h4>Administration</h4>
 								<div class="list-group">
-									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
+								</div>
+								<div class="list-group">
+									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
 								</div>
-								<p class="text-muted">Make sure athletes and judge are stopped before clicking any administration actions.</p>
+								<p class="text-muted">Make sure the judges and athletes are stopped before editing the division. Changing the athlete name will clear that athlete's scores.</p>
 							</div>
 						</div>
 					</div>

@@ -12,7 +12,13 @@ $.widget( "freescore.worldclass", {
 		var usermessage = e.usermessage = html.div.clone();
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
+		// ===== ZOOM FUNCTION
 		o.zoom = 1.0;
+		e.zoom = function( zoom ) {
+			o.zoom += zoom;
+			$( 'body' ).css({ 'transform' : 'scale( ' + o.zoom.toFixed( 2 ) + ' )', 'transform-origin' : '0 0' });
+			alertify.notify( "Zoom: " + Math.round( o.zoom * 100 ) + "%" );
+		}
 
 		card.append( leaderboard, scoreboard );
 		widget .addClass( "worldclass flippable" );
@@ -25,22 +31,16 @@ $.widget( "freescore.worldclass", {
 		e.leaderboard.leaderboard();
 		e.scoreboard.scoreboard();
 
+		alertify.set( 'notifier', 'position', 'top-right' );
+
 		alertify.notify( "Click to toggle fullscreen. Press '-' or '=' to zoom" );
 
 		// ===== ENABLE SINGLE TAB ZOOM
 		var body = $( 'body' );
 		body.keydown(( ev ) => {
 			switch( ev.key ) {
-				case '=':
-					o.zoom += 0.05;
-					console.log( o.zoom.toFixed( 2 ) );
-					body.css({ 'transform' : 'scale( ' + o.zoom.toFixed( 2 ) + ' )', 'transform-origin' : '0 0' });
-					break;
-				case '-':
-					o.zoom -= 0.05;
-					console.log( o.zoom.toFixed( 2 ) );
-					body.css({ 'transform' : 'scale( ' + o.zoom.toFixed( 2 ) + ' )', 'transform-origin' : '0 0' });
-					break;
+				case '=': e.zoom(  0.05 ); break;
+				case '-': e.zoom( -0.05 ); break;
 			}
 		});
 

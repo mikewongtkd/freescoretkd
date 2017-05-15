@@ -276,8 +276,8 @@ $.widget( "freescore.judgeController", {
 			// ===== RESET DEFAULTS FOR A DIFFERENT ATHLETE, FORM, ROUND, OR DIVISION
 			if( different.division || different.round || different.athlete || different.form ) {
 				e.sound.next.play();
-				alertify.success( 'Ready to score.' );
 				var athlete    = division.current.athlete();
+				alertify.notify( 'Ready to score<br>' + athlete.display.name() + '<br>' + division.current.form.name() );
 
 				// ===== UPDATE TICKER
 				var info       = { 

@@ -27,22 +27,21 @@ function Score( score ) {
 	};
 
 	this.summary = function() {
-		if( ! score.complete ) { return '&nbsp;' }
 		var summary = '';
 		$.each( score.forms, ( i, form ) => { 
 			j = i + 1; 
-			var result = '';
+			// ===== SHOW DECISION IF THERE IS A DECISION
 			if( defined( form.decision )) {
 				var decisions = [ { name: 'disqualify', code: 'DQ'}, { name: 'withdraw', code: 'WD' } ];
-				var decision  = decisions.reduce(( selected, decision ) => { if( ! defined( selected ) && form.decision[ decision.name ] ) { return decision.code; } else { return undefined }}, undefined );
+				var decision  = decisions.reduce(( selected, decision ) => { if( ! selected && form.decision[ decision.name ] ) { return decision.code; } else { return selected }}, undefined );
 				if( defined( decision )) {
-					result = '<span class="form' + j + ' decision">' + decision + '</span>';
+					summary += '<span class="form' + j + ' decision">' + decision + '</span>';
 				}
-			} 
-			if( ! result ) {
-				result = '<span class="form' + j + ' total score">' + parseFloat( form.adjusted.total ).toFixed( 2 ) + '</span>'; 
+
+			// ===== SHOW SCORE IF THERE IS A COMPLETED SCORE
+			} else if( defined( form.adjusted )) {
+				summary += '<span class="form' + j + ' total score">' + parseFloat( form.adjusted.total ).toFixed( 2 ) + '</span>'; 
 			}
-			summary += result;
 		});
 		return summary;
 	};

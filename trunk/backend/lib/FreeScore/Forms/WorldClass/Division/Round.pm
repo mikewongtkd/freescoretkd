@@ -15,8 +15,8 @@ use Carp;
 #   - total
 # - complete
 # - decision
-#   - withdrawn
-#   - disqualified
+#   - withdraw
+#   - disqualify
 # - forms
 #   - [ form index ]
 #     - adjusted
@@ -25,8 +25,8 @@ use Carp;
 #       - total
 #     - complete
 #     - decision
-#       - withdrawn
-#       - disqualified
+#       - withdraw
+#       - disqualify
 #     - original
 #       - accuracy
 #       - presentation
@@ -139,10 +139,10 @@ sub calculate_means {
 		next unless exists $form->{ judge };
 
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
-		my $punitive_decision = exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified });
+		my $punitive_decision = exists $form->{ decision } && (exists $form->{ decision }{ withdraw } || exists $form->{ decision }{ disqualify });
 		if( $punitive_decision ) {
-			$self->{ decision }{ withdrawn }    = 1 if exists $form->{ decision }{ withdrawn };
-			$self->{ decision }{ disqualified } = 1 if exists $form->{ decision }{ disqualified };
+			$self->{ decision }{ withdraw }     = 1 if exists $form->{ decision }{ withdraw };
+			$self->{ decision }{ disqualify }   = 1 if exists $form->{ decision }{ disqualify };
 			$self->{ adjusted }{ total }        = sprintf( "%.2f", 0.0 );
 			$self->{ adjusted }{ presentation } = sprintf( "%.2f", 0.0 );
 			$self->{ total }                    = sprintf( "%.2f", 0.0 );
@@ -257,7 +257,7 @@ sub form_complete {
 	return 1 if $form->{ complete }; # Return previously resolved cached value
 
 	# ===== FORM IS COMPLETE IF THERE IS A PUNITIVE DECISION
-	my $punitive_declaration = exists $form->{ decision } && (exists $form->{ decision }{ withdrawn } || exists $form->{ decision }{ disqualified });
+	my $punitive_declaration = exists $form->{ decision } && (exists $form->{ decision }{ withdraw } || exists $form->{ decision }{ disqualify });
 	$form->{ complete }      = $punitive_declaration; 
 	return 1 if $form->{ complete };
 

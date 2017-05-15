@@ -7,7 +7,7 @@ $.widget( "freescore.matposition", {
 		var html   = e.html = FreeScore.html;
 
 		var ring          = e.ring   = html.div.clone() .addClass( "ring" );
-		var instructions  = e.instructions  = html.div.clone() .addClass( "instructions" ) .html( "Touch to Mark Athlete Start Position" );
+		var instructions  = e.instructions  = html.div.clone() .addClass( "instructions" ) .html( "Touch to Mark<br>Athlete Start Position" );
 		var judges        = e.judges = html.div.clone() .addClass( "judges" );
 		var layer         = e.layer  = html.div.clone() .addClass( "layer" );
 		var center        = e.center = html.div.clone() .addClass( "center" );

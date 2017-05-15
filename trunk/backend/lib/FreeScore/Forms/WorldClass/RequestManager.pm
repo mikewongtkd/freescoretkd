@@ -181,6 +181,7 @@ sub handle_division_award_punitive {
 
 	try {
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
+		$division->next_available_athlete();
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );

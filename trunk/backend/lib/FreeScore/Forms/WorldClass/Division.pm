@@ -22,15 +22,15 @@ use strict;
 # Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
 # - complete
 # - decision
-#   - withdrawn
-#   - disqualified
+#   - withdraw
+#   - disqualify
 # - forms
 #   - [ form index ]
 #     - complete
 #     - penalties
 #     - decision
-#       - withdrawn
-#       - disqualified
+#       - withdraw
+#       - disqualify
 #   - judge
 #     - [ judge index ]
 #       - Score Object
@@ -163,10 +163,10 @@ sub place_athletes {
 				if    ( $x->{ total } > $y->{ total } ) { $x->{ notes } = 'HL'; }
 				elsif ( $x->{ total } < $y->{ total } ) { $y->{ notes } = 'HL'; }
 				else {
-					if( exists $x->{ decision }{ withdrawn }    ) { $x->{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualified } ) { $x->{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdrawn }    ) { $y->{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualified } ) { $y->{ notes } = 'DQ'; }
+					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
+					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
+					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
+					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
 				}
 			}
 		}
@@ -220,7 +220,7 @@ sub detect_ties {
 		while( $j < $k ) {
 			my $b = $placement->[ $j ];
 			my $y = $self->{ athletes }[ $j ]{ scores }{ $round };
-			if( exists $y->{ decision }{ withdrawn } || exists $y->{ decision }{ disqualified } ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
+			if( exists $y->{ decision }{ withdraw } || exists $y->{ decision }{ disqualify } ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
 
 			my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
@@ -317,7 +317,7 @@ sub eligible_athletes {
 
 	foreach my $candidate (@candidates) {
 		my $r = $self->{ athletes }[ $candidate ]{ scores }{ $round };
-		next if( exists $r->{ decision } && (exists $r->{ decision }{ disqualified } || exists $r->{ decision }{ withdrawn }));
+		next if( exists $r->{ decision } && (exists $r->{ decision }{ disqualify } || exists $r->{ decision }{ withdraw }));
 		push @eligible, $candidate;
 	}
 
@@ -1000,10 +1000,13 @@ sub next_available_athlete {
 	my $self      = shift;
 	my $round     = $self->{ round };
 	my $available = undef;
+	my @athletes  = $self->athletes_in_round();
+	my $searched  = 0;
 	do {
 		$self->{ current } = $self->athletes_in_round( 'next' );
 		$available = ! $self->{ athletes }[ $self->{ current } ]{ scores }{ $round }->complete();
-	} while( ! $available );
+		$searched++;
+	} while( ! $available && $searched < int( @athletes ));
 	$self->{ state } = 'score';
 	$self->{ form }  = 0;
 }
