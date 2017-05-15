@@ -98,10 +98,14 @@ html, body {
 .athlete-score {
 	display: inline-block;
 	position: relative;
-	width: 10%;
-	margin-left: 5%;
+	width: 12%;
+	margin-left: 3%;
 	text-align: right;
-	color: #666;
+	.score, .decision { display: inline-block; width: 45%; }
+	.decision     { font-weight: bold; }
+	.accuracy     { color: #600; }
+	.presentation { color: #006; }
+	.total        { color: #666; }
 }
 
 .active {
@@ -114,6 +118,11 @@ html, body {
 		content: 'Current';
 		color: gold;
 	}
+	.athlete-score {
+		.accuracy     { color: #fcc; }
+		.presentation { color: #ccf; }
+		.total        { color: #fff; }
+	}
 }
 
 .on-deck .athlete-name:before {
@@ -122,13 +131,8 @@ html, body {
 }
 
 .selected-athlete {
-	background-color: gold;
-	&:hover {
-		background-color: yellow;
-	}
-	.athlete-name:before {
-		color: #666;
-	}
+	background-color: gold !important;
+	.athlete-name:before { color: #666; }
 }
 
 .row {

@@ -156,6 +156,8 @@ $.widget( "freescore.judgeController", {
 		var ws          = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 		var network     = { reconnect: 0 };
 
+		alertify.set( 'notifier', 'position', 'top-right' );
+
 		ws.onerror = network.error = function( error ) {
 			e.athlete.empty();
 			e.athlete.append( [ 'Network Error', 'Trying to Reconnect', 'Cannot Connect to Server' ].map( function( i ) { return html.li.clone().append( html.span.clone().addClass( "details" ).html( i )); }));

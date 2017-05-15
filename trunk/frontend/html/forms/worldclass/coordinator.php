@@ -96,7 +96,7 @@
 								<div class="list-group">
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
-									<a class="list-group-item" id="admin-print"><span class="glyphicon glyphicon-print"></span>Print Results</a>
+									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
 								</div>
 								<p class="text-muted">Make sure athletes and judge are stopped before clicking any administration actions.</p>
 							</div>
@@ -185,7 +185,9 @@
 
 					var round = division.current.roundId();
 					var form  = division.current.formId();
-					$( '#division-round' ).html( division.current.round.display.name() + ' Round' );
+					var forms = division.forms()[ round ];
+					var count = forms.length > 1 ? ', Form ' + (parseInt( form ) + 1) + ' of ' + forms.length + ': ' + forms[ form ] : ''
+					$( '#division-round' ).html( division.current.round.display.name() + ' Round' + count );
 
 					var iconize = function( penalties ) {
 						if( ! defined( penalties )) { return; }
@@ -216,8 +218,8 @@
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
 						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, form )));
-						var total     = html.span.clone().addClass( "athlete-score" ).append( score.is.complete() ? score.adjusted.total() : '&nbsp;' );
-						var j         = division.current.athleteId();
+						var total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
+						var j         = parseInt( division.current.athleteId());
 
 						// ===== CURRENT ATHLETE
 						if( i == j && currentDivision ) { 
@@ -240,7 +242,7 @@
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								clicked.addClass( 'selected-athlete' ); 
-								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.name()); 
+								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.display.name()); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).show(); 
 								$( ".penalties,.decision" ).hide(); 
@@ -304,7 +306,7 @@
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + ring + '&divid=' + divid, '_blank' )},
+							results    : () => { sound.next.play(); page.results = window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + ring + '&divid=' + divid, '_blank' )},
 						}
 					};
 
@@ -312,7 +314,7 @@
 					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
-					$( "#admin-print" )         .off( 'click' ).click( action.administration.print );
+					$( "#admin-results" )       .off( 'click' ).click( action.administration.results );
 				},
 				ring: function( ring ) {
 					$( '#ring' ).empty();

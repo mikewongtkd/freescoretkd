@@ -68,7 +68,7 @@ $.widget( "freescore.judgeNotes", {
 
 			var column = {
 				order : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "order" )   .html( i + 1 + "." ),
-				name  : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "name"  )   .html( athlete.name() ),
+				name  : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "name"  )   .html( athlete.display.name() ),
 				form1 : h.td.clone() .addClass( isCurrent( 0 ) ) .addClass( "form1" )   .html( form1 ),
 				form2 : h.td.clone() .addClass( isCurrent( 1 ) ) .addClass( "form2" )   .html( form2 ),
 				avg   : h.td.clone() .addClass( isCurrent(   ) ) .addClass( "average" ) .html( average )

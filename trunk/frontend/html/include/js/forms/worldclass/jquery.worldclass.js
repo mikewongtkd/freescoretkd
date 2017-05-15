@@ -12,6 +12,8 @@ $.widget( "freescore.worldclass", {
 		var usermessage = e.usermessage = html.div.clone();
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
+		o.zoom = 1.0;
+
 		card.append( leaderboard, scoreboard );
 		widget .addClass( "worldclass flippable" );
 		widget .append( card, usermessage );
@@ -22,6 +24,25 @@ $.widget( "freescore.worldclass", {
 		var ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
 		e.leaderboard.leaderboard();
 		e.scoreboard.scoreboard();
+
+		alertify.notify( "Click to toggle fullscreen. Press '-' or '=' to zoom" );
+
+		// ===== ENABLE SINGLE TAB ZOOM
+		var body = $( 'body' );
+		body.keydown(( ev ) => {
+			switch( ev.key ) {
+				case '=':
+					o.zoom += 0.05;
+					console.log( o.zoom.toFixed( 2 ) );
+					body.css({ 'transform' : 'scale( ' + o.zoom.toFixed( 2 ) + ' )', 'transform-origin' : '0 0' });
+					break;
+				case '-':
+					o.zoom -= 0.05;
+					console.log( o.zoom.toFixed( 2 ) );
+					body.css({ 'transform' : 'scale( ' + o.zoom.toFixed( 2 ) + ' )', 'transform-origin' : '0 0' });
+					break;
+			}
+		});
 
 		ws.onopen = function() {
 			var request  = { data : { type : 'division', action : 'read' }};

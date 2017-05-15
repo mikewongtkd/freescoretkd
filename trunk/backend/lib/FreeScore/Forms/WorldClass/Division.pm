@@ -454,7 +454,6 @@ sub record_decision {
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_decision( $form, $decision );
-	$self->next_athlete();
 }
 
 # ============================================================

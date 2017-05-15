@@ -12,7 +12,7 @@ use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Clone qw( clone );
 
-our $DEBUG = 0;
+our $DEBUG = 1;
 
 # ============================================================
 sub new {

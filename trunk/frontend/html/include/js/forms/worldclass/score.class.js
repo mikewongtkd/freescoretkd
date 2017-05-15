@@ -26,6 +26,27 @@ function Score( score ) {
 		total        : function() { return score.adjusted.total; }
 	};
 
+	this.summary = function() {
+		if( ! score.complete ) { return '&nbsp;' }
+		var summary = '';
+		$.each( score.forms, ( i, form ) => { 
+			j = i + 1; 
+			var result = '';
+			if( defined( form.decision )) {
+				var decisions = [ { name: 'disqualify', code: 'DQ'}, { name: 'withdraw', code: 'WD' } ];
+				var decision  = decisions.reduce(( selected, decision ) => { if( ! defined( selected ) && form.decision[ decision.name ] ) { return decision.code; } else { return undefined }}, undefined );
+				if( defined( decision )) {
+					result = '<span class="form' + j + ' decision">' + decision + '</span>';
+				}
+			} 
+			if( ! result ) {
+				result = '<span class="form' + j + ' total score">' + parseFloat( form.adjusted.total ).toFixed( 2 ) + '</span>'; 
+			}
+			summary += result;
+		});
+		return summary;
+	};
+
 	// ===== SINGLE JUDGE DATA
 	// Each judge device receives only the data from that judge, to insure
 	// independence and promote fairness

@@ -36,14 +36,14 @@ function Division( division ) {
 
 			return athletes;
 		},
-		athleteId : function() { return division.current; },
+		athleteId : function() { return parseInt( division.current ); },
 		form : {
 			description : function() {
 				var round       = division.round;
 				var form        = division.form;
 				var forms       = division.forms[ round ];
 				var name        = division.forms[ round ][ form ];
-				var description = forms.length > 1 ? ordinal( form + 1 ) + ' form ' + name : name;
+				var description = forms.length > 1 ? ordinal( parseInt( form ) + 1 ) + ' form ' + name : name;
 				return description;
 			},
 			is : {
@@ -54,7 +54,7 @@ function Division( division ) {
 				return division.forms[ division.round ][ division.form ];
 			},
 		},
-		formId    : function() { return division.form; },
+		formId    : function() { return parseInt( division.form ); },
 		order : function( i ) {
 			var round = division.round;
 			var order = division.order;

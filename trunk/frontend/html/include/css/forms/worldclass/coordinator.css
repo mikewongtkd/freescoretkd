@@ -81,10 +81,20 @@ html, body {
 .athlete-score {
   display: inline-block;
   position: relative;
-  width: 10%;
-  margin-left: 5%;
-  text-align: right;
-  color: #666; }
+  width: 12%;
+  margin-left: 3%;
+  text-align: right; }
+  .athlete-score .score, .athlete-score .decision {
+    display: inline-block;
+    width: 45%; }
+  .athlete-score .decision {
+    font-weight: bold; }
+  .athlete-score .accuracy {
+    color: #600; }
+  .athlete-score .presentation {
+    color: #006; }
+  .athlete-score .total {
+    color: #666; }
 
 .active h4 {
   font-weight: bold;
@@ -94,15 +104,19 @@ html, body {
 .active .athlete-name:before {
   content: 'Current';
   color: gold; }
+.active .athlete-score .accuracy {
+  color: #fcc; }
+.active .athlete-score .presentation {
+  color: #ccf; }
+.active .athlete-score .total {
+  color: #fff; }
 
 .on-deck .athlete-name:before {
   content: 'On Deck';
   color: #aaa; }
 
 .selected-athlete {
-  background-color: gold; }
-  .selected-athlete:hover {
-    background-color: yellow; }
+  background-color: gold !important; }
   .selected-athlete .athlete-name:before {
     color: #666; }
 
