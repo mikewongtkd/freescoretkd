@@ -25,9 +25,11 @@ $.widget( "freescore.worldclass", {
 		widget .append( card, usermessage );
 	},
 	_init: function( ) {
-		var e  = this.options.elements;
-		var o  = this.options;
-		var ws = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
+		var e       = this.options.elements;
+		var o       = this.options;
+		var ws      = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
+		var network = { reconnect: 0 };
+
 		e.leaderboard.leaderboard();
 		e.scoreboard.scoreboard();
 
@@ -44,13 +46,13 @@ $.widget( "freescore.worldclass", {
 			}
 		});
 
-		ws.onopen = function() {
+		ws.onopen = network.connect = function() {
 			var request  = { data : { type : 'division', action : 'read' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 		}
 
-		ws.onmessage = function( response ) {
+		ws.onmessage = network.message = function( response ) {
 			var update = JSON.parse( response.data );
 			if( update.action != 'update' ) { return; }
 			if( update.type != 'division' && update.type != 'ring' ) { return; }
@@ -94,6 +96,23 @@ $.widget( "freescore.worldclass", {
 						athlete     : division.current.athlete() 
 					}
 				});
+			}
+		};
+
+		ws.onerror = network.error = function() {
+			setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
+		};
+		
+		// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES
+		ws.onclose = network.close = function() {
+			if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
+				if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
+				network.reconnect++;
+				ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+				
+				ws.onerror   = network.error;
+				ws.onmessage = network.message;
+				ws.onclose   = network.close;
 			}
 		};
 	}

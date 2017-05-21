@@ -119,18 +119,19 @@
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3088/worldclass/' + tournament.db + '/' + ring.num );
+			var network    = { reconnect: 0 }
 
-			ws.onerror = function() {
-				alertify.error( "Network Error: Cannot connect to server!" );
+			ws.onerror = network.error = function() {
+				setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
 			};
 
-			ws.onopen = function() {
+			ws.onopen = network.connect = function() {
 				var request  = { data : { type : 'ring', action : 'read' }};
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 			};
 
-			ws.onmessage = function( response ) {
+			ws.onmessage = network.message = function( response ) {
 				var update = JSON.parse( response.data );
 
 				console.log( update );
@@ -155,6 +156,19 @@
 					division   = new Division( division );
 					refresh.athletes( division, true );
 					if( page.num == 1 ) { page.transition() };
+				}
+			};
+
+			// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES
+			ws.onclose = network.close = function() {
+				if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
+					if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
+					network.reconnect++;
+					ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/' + ring.num ); 
+					
+					ws.onerror   = network.error;
+					ws.onmessage = network.message;
+					ws.onclose   = network.close;
 				}
 			};
 
@@ -306,7 +320,7 @@
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
-							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
+							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=' + ring, '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
 							results    : () => { sound.next.play(); page.results = window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + ring + '&divid=' + divid, '_blank' )},
 						}

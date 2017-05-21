@@ -14,9 +14,6 @@ use Carp;
 #   - presentation
 #   - total
 # - complete
-# - decision
-#   - withdraw
-#   - disqualify
 # - forms
 #   - [ form index ]
 #     - adjusted
@@ -139,10 +136,8 @@ sub calculate_means {
 		next unless exists $form->{ judge };
 
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
-		my $punitive_decision = exists $form->{ decision } && (exists $form->{ decision }{ withdraw } || exists $form->{ decision }{ disqualify });
+		my $punitive_decision = $self->form_has_punitive_decision( $form );
 		if( $punitive_decision ) {
-			$self->{ decision }{ withdraw }     = 1 if exists $form->{ decision }{ withdraw };
-			$self->{ decision }{ disqualify }   = 1 if exists $form->{ decision }{ disqualify };
 			$self->{ adjusted }{ total }        = sprintf( "%.2f", 0.0 );
 			$self->{ adjusted }{ presentation } = sprintf( "%.2f", 0.0 );
 			$self->{ total }                    = sprintf( "%.2f", 0.0 );
@@ -251,20 +246,46 @@ sub form_complete {
 # An athlete's form is complete if there is a punitive declaration or when all judges have registered a valid score
 # ------------------------------------------------------------
 	my $self = shift;
-	my $i    = shift;
-	my $form = $self->{ forms }[ $i ];
+	my $i    = shift; # Index or reference to the form
+	my $form = ref $i ? $i : $self->{ forms }[ $i ];
 
-	return 1 if $form->{ complete }; # Return previously resolved cached value
-
-	# ===== FORM IS COMPLETE IF THERE IS A PUNITIVE DECISION
-	my $punitive_declaration = exists $form->{ decision } && (exists $form->{ decision }{ withdraw } || exists $form->{ decision }{ disqualify });
-	$form->{ complete }      = $punitive_declaration; 
-	return 1 if $form->{ complete };
+	return 1 if $form->{ complete };                     # Return previously resolved cached value
+	return 1 if $self->form_has_punitive_decision( $i ); # Form is complete if there is a punitive decision
 
 	# ===== FORM IS COMPLETE IF ALL JUDGES HAVE REGISTERED A VALID SCORE
 	return 0 unless exists $form->{ judge };
 	$form->{ complete } ||= all { $_->complete() } ( @{ $form->{ judge }} );
 	return $form->{ complete };
+}
+
+# ============================================================
+sub form_has_punitive_decision {
+# ============================================================
+	my $self = shift;
+	my $i    = shift; # Index or reference to the form
+	my $form = ref $i ? $i : $self->{ forms }[ $i ];
+
+	if( exists $form->{ decision } && ($form->{ decision }{ withdraw } || $form->{ decision }{ disqualify })) {
+		$form->{ adjusted }{ total }        = 0.0;
+		$form->{ adjusted }{ presentation } = 0.0;
+		return 1;
+	}
+}
+
+# ============================================================
+sub any_punitive_decision {
+# ============================================================
+	my $self = shift;
+
+	foreach my $form (@{ $self->{ forms }}) { 
+		$self->form_complete( $form ); 
+		if( $self->form_has_punitive_decision( $form )) {
+			$self->{ complete } = 1;
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 # ============================================================
@@ -275,8 +296,7 @@ sub complete {
 	my $self = shift;
 	return $self->{ complete } if $self->{ complete };
 
-	# ===== A FORM IS COMPLETE WHEN ALL JUDGE SCORES ARE COMPLETED
-	foreach my $i (0 .. $#{ $self->{ forms }}) { $self->form_complete( $i ); }
+	return 1 if $self->any_punitive_decision();
 
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
 	$self->{ complete } = all { $_->{ complete }; } @{ $self->{ forms }};

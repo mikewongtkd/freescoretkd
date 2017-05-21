@@ -21,8 +21,8 @@
     height: 48px;
     line-height: 32pt; }
   .deductions .deduction-button-large {
-    height: 128px;
-    line-height: 92pt; }
+    height: 168px;
+    line-height: 124pt; }
   .deductions .disabled {
     border: 4px solid #666;
     background: #e2e2e2;
@@ -61,11 +61,11 @@
     font-size: 14pt;
     color: #ccc; }
   .deductions .view {
-    height: 80px;
+    height: 40px;
     margin: 12px auto 12px auto;
     text-align: center;
-    font-size: 64pt;
-    line-height: 64pt;
+    font-size: 32pt;
+    line-height: 32pt;
     color: white; }
 
 /*# sourceMappingURL=deductions.css.map */

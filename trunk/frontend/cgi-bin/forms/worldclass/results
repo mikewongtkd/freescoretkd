@@ -136,8 +136,16 @@ EOF
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 				my $mean  = $score->{ adjusted };
 				if( defined $mean ) {
-					if( $score->{ complete } ) { printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation } ); }
-					else { print( "<td>&ndash;</td>" ); }
+					if( $score->{ complete } ) { 
+						if( exists $score->{ decision } ) {
+							my $codes = { disqualify => 'DQ', withdraw => 'WD' };
+							foreach my $decision (keys %$codes) {
+								printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $mean->{ accuracy }, $mean->{ presentation } ) if( $score->{ decision }{ $decision } );
+							}
+						} else {
+							printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation } ); 
+						}
+					} else { print( "<td>&ndash;</td>" ); }
 				} else {
 					print( "<td>&nbsp;</td>" );
 				}

@@ -7,13 +7,6 @@ function Score( score ) {
 		complete : function() { return score.complete; }
 	};
 
-	this.decision = {
-		is : {
-			withdrawn    : function() { return score.decision.withdrawn; },
-			disqualified : function() { return score.decision.disqualified; },
-		}
-	};
-
 	this.forms = {
 		count : function() { return score.forms.length; },
 		list  : function() { return score.forms; }
@@ -108,8 +101,8 @@ function Score( score ) {
 				},
 				decision : {
 					is : {
-						withdrawn    : function() { if( defined( form.decision )) { return form.decision.withdrawn;    } else { return false; } },
-						disqualified : function() { if( defined( form.decision )) { return form.decision.disqualified; } else { return false; } },
+						withdraw   : function() { if( defined( form.decision )) { return form.decision.withdraw;   } else { return false; } },
+						disqualify : function() { if( defined( form.decision )) { return form.decision.disqualify; } else { return false; } },
 					}
 				},
 				is : {

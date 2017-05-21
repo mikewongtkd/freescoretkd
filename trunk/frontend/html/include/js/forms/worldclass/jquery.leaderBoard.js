@@ -42,6 +42,8 @@ $.widget( "freescore.leaderboard", {
 		var form_mean_score = function( form, label ) {
 			var div = html.div.clone() .addClass( label );
 			if( ! defined( form ) || ! form.is.complete() ) { return ''; }
+			if( form.decision.is.withdraw()   ) { div.html( 'WD' ); return div; }
+			if( form.decision.is.disqualify() ) { div.html( 'DQ' ); return div; }
 			div.html( form.adjusted().total.toFixed( 2 ));
 
 			return div;
@@ -72,13 +74,14 @@ $.widget( "freescore.leaderboard", {
 				var notes    = defined( score.notes() ) ? score.notes() : '';
 				var name     = athlete.display.name();
 				var namespan = html.span.clone() .html( name );
+				var total    = parseFloat( score.adjusted.total()).toFixed( 2 );
 
 				var entry = {
 					panel : html.div.clone() .addClass( "athlete results" ),
 					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
 					form1 : form_mean_score( score.form( 0 ), 'form1' ),
 					form2 : form_mean_score( score.form( 1 ), 'form2' ),
-					score : html.div.clone() .addClass( "score" ) .html( parseFloat( score.adjusted.total()).toFixed( 2 ) + "<span class=\"notes\">" + notes + "</span>" ),
+					score : html.div.clone() .addClass( "score" ) .html( total + "<span class=\"notes\">" + notes + "</span>" ),
 					medal : html.div.clone() .addClass( "medal" ),
 				};
 

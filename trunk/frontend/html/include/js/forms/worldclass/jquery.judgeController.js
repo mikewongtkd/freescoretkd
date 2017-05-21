@@ -76,10 +76,20 @@ $.widget( "freescore.judgeController", {
 			};
 
 			e.send .off( 'click' ) .click( function() {
+				alertify.notify( "Sending score... please wait" );
 				var request  = { data : { type : 'division', action : 'score', score : score }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
 				e.send.attr({ 'sent': 'true' });
+				e.send.css({ opacity: 0.5 });
+				
+				setTimeout( function() { 
+					e.send.css({ opacity: 1.0 }); 
+					if( e.send.attr( 'sent' ) == 'true' ) { 
+						alertify.error( 'Send failed.' ); 
+						e.send.attr({ 'sent' : 'false' }); 
+					} 
+				}, 5000 );
 			});
 		} );
 
@@ -161,6 +171,7 @@ $.widget( "freescore.judgeController", {
 		ws.onerror = network.error = function( error ) {
 			e.athlete.empty();
 			e.athlete.append( [ 'Network Error', 'Trying to Reconnect', 'Cannot Connect to Server' ].map( function( i ) { return html.li.clone().append( html.span.clone().addClass( "details" ).html( i )); }));
+			setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
 		};
 
 		ws.onopen = network.connect = function() {
@@ -178,7 +189,8 @@ $.widget( "freescore.judgeController", {
 
 			if( e.send.attr( 'sent' ) == 'true' ) {
 				e.sound.ok.play();
-				alertify.success( 'Score sent and received.' );
+				e.send.css({ opacity: 1.0 });
+				alertify.success( 'Score received.' );
 				e.send.attr({ 'sent': 'false' });
 			}
 
@@ -315,7 +327,8 @@ $.widget( "freescore.judgeController", {
 
 		// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES
 		ws.onclose = network.close = function() {
-			if( network.reconnect < 10 ) {
+			if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
+				if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 				network.reconnect++;
 				ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
 				// No connection handler; do not interrupt the judge, who may be currently scoring an athlete

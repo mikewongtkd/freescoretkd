@@ -75,7 +75,6 @@ $.widget( "freescore.register", {
 			if( update.type == 'division' ) {
 				if( update.action == 'judges' ) { 
 					var judges = o.judges = update.judges; 
-					console.log( update );
 					if( register.judges.view.is( ':hidden' )) { return; }
 
 					// Enable the button for non-registered judges; disable the button otherwise
@@ -84,9 +83,7 @@ $.widget( "freescore.register", {
 						if( judge.id ) { judge.disable(); } else { judge.enable(); }
 					});
 				} else if( update.action == 'judge goodbye' ) {
-					console.log( 'Deleting ID cookie ' + Cookies.get( 'id' ));
 					Cookies.remove( 'id' );
-					console.log( 'Current ID cookie value: ' + Cookies.get( 'id' ));
 				}
 			}
 		};
@@ -158,9 +155,9 @@ $.widget( "freescore.register", {
 				defined( o.role )
 			) {
 				var role = defined( referer ) ? referer : o.role;
-				if( role == 'judge' )             { register.judges.show(); } else
-				if( role == 'index' )             { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
-				if( role == 'computer operator' ) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
+				if( role.match( /judge/ ))             { register.judges.show(); } else
+				if( role.match( /index/ ))             { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
+				if( role.match( /computer operator/ )) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
 			} else {
 				text.html( "What is your role in Ring " + Cookies.get( 'ring' ) + ":" ); 
 				register.roles.view .fadeIn( 500 ); 
@@ -198,15 +195,27 @@ $.widget( "freescore.register", {
 			var dom     = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
 			var src     = "../../images/roles/judge.png";
 			var img     = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
-			var label   = html.p.clone() .append( num == 0 ? "Referee" : "Judge " + num );
-			var disable = function() { this.dom.fadeTo( 500, 0.25 );   this.dom.off( 'click' ); };
-			var enable  = function() { this.dom.css({ opacity: 1.0 }); this.dom.click( register.judges.select( this.num )) };
+			var name    = num == 0 ? 'Referee' : 'Judge ' + num;
+			var label   = html.p.clone() .append( name );
+			var disable = function() { this.dom.fadeTo( 500, 0.25 );   this.dom.off( 'click' ).click( register.judges.override( this.num )); };
+			var enable  = function() { this.dom.css({ opacity: 1.0 }); this.dom.off( 'click' ).click( register.judges.select( this.num )) };
 			var id      = defined( o.judges ) && defined( o.judges[ num ] ) && defined( o.judges[ num ].id ) ? o.judges[ num ].id : undefined;
 			dom.append( img, label );
-			var judge   = { id: id, num: num, dom: dom, enable: enable, disable: disable };
+			var judge   = { id: id, num: num, name : name, dom: dom, enable: enable, disable: disable };
 			judge.enable();
 			return judge;
 		};
+
+		// ------------------------------------------------------------
+		register.judges.override = function( num ) { return function() {
+		// ------------------------------------------------------------
+			var judge   = register.judges.data[ num ];
+			var title   = judge.name + ' already registered';
+			var message = judge.name + ' is already registered on another device. Override?';
+			var ok      = register.judges.select( num );
+			var cancel  = function() {};
+			alertify.confirm( title, message, ok, cancel );
+		}},
 
 		// ------------------------------------------------------------
 		register.judges.select = function( num ) { return function() {
@@ -218,17 +227,13 @@ $.widget( "freescore.register", {
 
 				// Generate random ID
 				var random = String( Math.round( Math.random() * Math.pow( 10, 16 )));
-				var id     = sha3_224( random );
+				var cache  = defined( Cookies.get( 'id' )) ? Cookies.get( 'id' ) : undefined;
+				var id     = cache ? cache : sha3_224( random );
+				console.log( cache, id, num );
 
-				// Save state to cookies
+				Cookies.set( 'id', id );
 				Cookies.set( 'role', 'judge' );
-				Cookies.set( 'judge', num );
-				Cookies.set( 'id',    id );
-
-				// Send registration request to broadcast to peers
-				var request = { data: { type: 'division', action: 'judge registration', num: num, id: id }};
-				request.json = JSON.stringify( request.data );
-				e.ws.send( request.json );
+				Cookies.set( 'judge-request', num );
 
 				// Fade out to confirmation view
 				judge.dom.children( "p" ).remove(); // Remove labels
@@ -265,8 +270,10 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 		register.confirmation.show = function() {
 		// ------------------------------------------------------------
-			var selected = { ring: parseInt( Cookies.get( 'ring' )), role: String( Cookies.get( 'role' )), judge: parseInt( Cookies.get( 'judge' )) };
+			var selected = { ring: parseInt( Cookies.get( 'ring' )), role: String( Cookies.get( 'role' )), judge: parseInt( Cookies.get( 'judge-request' )) };
+			Cookies.remove( 'judge-request' );
 
+			var id = Cookies.get( 'id' );
 			var label = selected.judge == 0 ? "Referee" : "Judge " + selected.judge;
 			if( selected.role == "judge" ) { text.html( "Confirm Registration for " + label + " in Ring " + selected.ring + ":" ); }
 			else                           { text.html( "Confirm Registration for " + selected.role.capitalize() + " in Ring " + selected.ring + ":" ); }
@@ -279,7 +286,8 @@ $.widget( "freescore.register", {
 			ring.dom.css( "left", "0px" );
 
 			// ===== SHOW JUDGE NUMBER OR OTHER ROLE
-			var role = undefined;
+			var role    = undefined;
+			var referer = '';
 			if( selected.role == "judge" ) {
 				var num   = selected.judge;
 				role      = register.judges.add( num );
@@ -292,7 +300,17 @@ $.widget( "freescore.register", {
 			}
 			referer = referer.replace( /\/\/+/g, "/" );
 			
-			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { e.sound.send.play(); setTimeout( function() { location = referer; }, 500 ); } );
+			var ok   = html.div.clone() .addClass( "ok" )   .html( "OK" )   .click( function() { 
+				Cookies.set( 'role', selected.role );
+				if( selected.role == 'judge' ) { Cookies.set( 'judge', selected.judge ); }
+
+				// Send registration request to broadcast to peers
+				var request = { data: { type: 'division', action: 'judge registration', num: num, id: id }};
+				request.json = JSON.stringify( request.data );
+				e.ws.send( request.json );
+				e.sound.send.play(); 
+				setTimeout( function() { location = referer; }, 500 ); 
+			});
 			var back = html.div.clone() .addClass( "back" ) .html( "Back" ) .click( function() { e.sound.prev.play(); setTimeout( function() { location.reload(); }, 250 );} );
 
 			// ===== DISABLE ON-CLICK HANDLERS
