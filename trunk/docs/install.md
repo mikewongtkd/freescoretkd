@@ -136,6 +136,8 @@ The application logic architecture is Mojolicious web services using Perl.
   - Text::CSV
   - Time::HiRes
   - Try::Tiny
+  - Clone
+  - EV
 - Server Sent Events (SSE)
 - AJAX
 
