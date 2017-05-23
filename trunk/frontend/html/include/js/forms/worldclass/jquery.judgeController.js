@@ -288,8 +288,10 @@ $.widget( "freescore.judgeController", {
 			// ===== RESET DEFAULTS FOR A DIFFERENT ATHLETE, FORM, ROUND, OR DIVISION
 			if( different.division || different.round || different.athlete || different.form ) {
 				e.sound.next.play();
-				var athlete    = division.current.athlete();
-				alertify.notify( 'Ready to score<br>' + athlete.display.name() + '<br>' + division.current.form.name() );
+				var athlete = division.current.athlete();
+				var judge   = o.num == 0 ? 'Referee' : 'Judge ' + judge;
+				var ring    = 'Ring ' + o.ring;
+				alertify.notify( ring + ' ' + judge + ' ready to score<br>' + athlete.display.name() + '<br>' + division.current.form.name() );
 
 				// ===== UPDATE TICKER
 				var info       = { 

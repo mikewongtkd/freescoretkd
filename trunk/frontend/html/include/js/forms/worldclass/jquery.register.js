@@ -151,13 +151,13 @@ $.widget( "freescore.register", {
 		register.roles.show = function() { 
 		// ------------------------------------------------------------
 			if( 
-				defined( referer ) && (referer.match( /(judge|index|computer operator)/ ) != null) ||
+				defined( referer ) && (referer.match( /(judge|index|operator)/ ) != null) ||
 				defined( o.role )
 			) {
 				var role = defined( referer ) ? referer : o.role;
-				if( role.match( /judge/ ))             { register.judges.show(); } else
-				if( role.match( /index/ ))             { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
-				if( role.match( /computer operator/ )) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
+				if( role.match( /judge/ ))    { register.judges.show(); } else
+				if( role.match( /index/ ))    { Cookies.set( 'role', 'display' );           register.confirmation.show(); } else
+				if( role.match( /operator/ )) { Cookies.set( 'role', 'computer operator' ); register.confirmation.show(); }
 			} else {
 				text.html( "What is your role in Ring " + Cookies.get( 'ring' ) + ":" ); 
 				register.roles.view .fadeIn( 500 ); 
@@ -287,15 +287,15 @@ $.widget( "freescore.register", {
 
 			// ===== SHOW JUDGE NUMBER OR OTHER ROLE
 			var role    = undefined;
-			var referer = '';
-			if( selected.role == "judge" ) {
+			var referer = o.referer;
+			if( selected.role.match( /judge/ )) {
 				var num   = selected.judge;
 				role      = register.judges.add( num );
 				role.dom.css( 'left', '200px' );
 				referer = "./judge.php";
 			} else {
-				if ( selected.role == "display"           ) { if( ! defined( referer )) { referer = "./index.php"; } } else 
-				if ( selected.role == "computer operator" ) { if( ! defined( referer )) { referer = "./coordinator.php"; } }
+				if ( selected.role.match( /display/  )) { referer = "./index.php?ring=" + selected.ring; } else 
+				if ( selected.role.match( /operator/ )) { referer = "./coordinator.php?ring=" + selected.ring; }
 				role = register.roles.add( selected.role.capitalize(), '200px' );
 			}
 			referer = referer.replace( /\/\/+/g, "/" );
