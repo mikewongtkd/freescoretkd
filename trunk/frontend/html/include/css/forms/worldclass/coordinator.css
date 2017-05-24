@@ -96,19 +96,22 @@ html, body {
   .athlete-score .total {
     color: #666; }
 
-.active h4 {
+.tab-pane {
+  padding: 20px; }
+
+a.active h4 {
   font-weight: bold;
   color: gold; }
-.active b {
+a.active b {
   color: gold; }
-.active .athlete-name:before {
+a.active .athlete-name:before {
   content: 'Current';
   color: gold; }
-.active .athlete-score .accuracy {
+a.active .athlete-score .accuracy {
   color: #fcc; }
-.active .athlete-score .presentation {
+a.active .athlete-score .presentation {
   color: #ccf; }
-.active .athlete-score .total {
+a.active .athlete-score .total {
   color: #fff; }
 
 .on-deck .athlete-name:before {

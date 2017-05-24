@@ -41,13 +41,30 @@
 			<div class="pt-page pt-page-1">
 				<div class="container">
 					<div class="page-header"><span id="ring-header">Ring <?= $i ?> Divisions</span></div>
-					<form role="form">
-						<div class="form-group">
-							<input id="search-ring" class="form-control" type="search" placeholder="Search..." />
+					<ul class="nav nav-tabs">
+						<li class="active"><a data-toggle="tab" href="#ready">Ready</a></li>
+						<li><a data-toggle="tab" href="#completed">Completed</a></li>
+					</ul>
+					<div class="tab-content">
+						<div id="waiting" class="tab-pane fade in active">
+							<form role="form">
+								<div class="form-group">
+									<input id="search-ready" class="form-control" type="search" placeholder="Search..." />
+								</div>
+								<div class="list-group" id="ring-ready">
+								</div>
+							</form>
 						</div>
-						<div class="list-group" id="ring">
+						<div id="completed" class="tab-pane fade">
+							<form role="form">
+								<div class="form-group">
+									<input id="search-completed" class="form-control" type="search" placeholder="Search..." />
+								</div>
+								<div class="list-group" id="ring-completed">
+								</div>
+							</form>
 						</div>
-					</form>
+					</div>
 				</div>
 			</div>
 			<!-- ============================================================ -->
@@ -143,6 +160,7 @@
 					if( defined( divid )) {
 						var division = update.ring.divisions.find(( d ) => { return d.name == divid; });
 						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
+						console.log( division );
 						var curDiv   = division.name == current.name;
 						if( ! defined( division )) { return; }
 						division = new Division( division );
@@ -333,7 +351,7 @@
 					$( "#admin-results" )       .off( 'click' ).click( action.administration.results );
 				},
 				ring: function( ring ) {
-					$( '#ring' ).empty();
+					$( '#ring-ready' ).empty();
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );
 						var button      = html.a.clone().addClass( "list-group-item" );
@@ -356,9 +374,40 @@
 						});
 						if( d.name == ring.current ) { button.addClass( "active" ); }
 
-						$( '#ring' ).append( button );
+						if( ! division.is.complete()) {
+							$( '#ring-ready' ).append( button );
+						}
 					});
-					$('#ring').btsListFilter('#search-ring', { initial: false });
+					$( '#ring-ready' ).btsListFilter('#search-ready', { initial: false });
+
+					$( '#ring-completed' ).empty();
+					ring.divisions.forEach(( d ) => {
+						var division    = new Division( d );
+						var button      = html.a.clone().addClass( "list-group-item" );
+						var title       = html.h4.clone().html( division.summary() );
+						var count       = division.athletes().length;
+						var description = html.p.clone().append( '<b>' + count + ' Athlete' + (count > 1 ? 's' : '') + ':</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
+
+						button.empty();
+						button.append( title, description );
+						button.attr({ divid: division.name() });
+						button.off( 'click' ).click(( ev ) => {
+							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
+							var divid    = clicked.attr( 'divid' );
+							var division = ring.divisions.find(( d ) => { return d.name == divid; });
+
+							$.cookie( 'divid', divid, { expires: 1, path: '/' });
+							refresh.athletes( new Division( division ), division.name == ring.current );
+							sound.next.play();
+							page.transition();
+						});
+
+						if( division.is.complete()) {
+							$( '#ring-completed' ).append( button );
+						}
+					});
+					$( '#ring-completed' ).btsListFilter('#search-completed', { initial: false });
+
 				}
 			};
 		</script>

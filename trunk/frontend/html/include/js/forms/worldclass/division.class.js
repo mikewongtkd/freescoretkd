@@ -65,8 +65,7 @@ function Division( division ) {
 			display : { name : function() { return FreeScore.round.name[ division.round ]; }},
 			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
 		},
-		roundId : function() { return division.round; },
-		rounds :  function() { return $.grep( FreeScore.round.order, function( round ) { return round in division.order; }); },
+		roundId : function() { return division.round; }
 	};
 
 	// ============================================================
@@ -97,6 +96,22 @@ function Division( division ) {
 	}
 
 	// ============================================================
+	var _is = this.is = {
+	// ============================================================
+		complete : () => {
+			var rounds     = this.rounds();
+			var complete   = true;
+			rounds.forEach(( round ) => {
+				var athletes   = this.current.athletes( round );
+				var arePending = function( athlete ) { var score = athlete.score( round ); return ! score.is.complete(); };
+				complete = complete && ! athletes.some( arePending );
+			});
+
+			return complete;
+		}
+	};
+
+	// ============================================================
 	var _round = this.round = {
 	// ============================================================
 
@@ -122,6 +137,8 @@ function Division( division ) {
 		matches : function( round ) { return division.round == round; },
 		name : function() { return FreeScore.round.name[ division.round ]; },
 	};
+
+	this.rounds = function() { return $.grep( FreeScore.round.order, function( round ) { return round in division.order; }); };
 
 	var _state = this.state = {
 		is : {

@@ -108,7 +108,11 @@ html, body {
 	.total        { color: #666; }
 }
 
-.active {
+.tab-pane {
+	padding: 20px;
+}
+
+a.active {
 	h4 { 
 		font-weight: bold; 
 		color: gold; 
