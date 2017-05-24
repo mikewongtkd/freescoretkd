@@ -46,7 +46,7 @@
 						<li><a data-toggle="tab" href="#completed">Completed</a></li>
 					</ul>
 					<div class="tab-content">
-						<div id="waiting" class="tab-pane fade in active">
+						<div id="ready" class="tab-pane fade in active">
 							<form role="form">
 								<div class="form-group">
 									<input id="search-ready" class="form-control" type="search" placeholder="Search..." />
@@ -212,6 +212,12 @@
 				athletes: function( division, currentDivision ) {
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
+						// ===== GET THE LATEST RING STATUS
+						var request  = { data : { type : 'ring', action : 'read' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+
+						// ===== SWITCH THE PAGE
 						sound.prev.play();
 						$.removeCookie( 'divid' );
 						page.transition(); 
@@ -351,6 +357,7 @@
 					$( "#admin-results" )       .off( 'click' ).click( action.administration.results );
 				},
 				ring: function( ring ) {
+					console.log( "Updating ring" );
 					$( '#ring-ready' ).empty();
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );
@@ -401,6 +408,7 @@
 							sound.next.play();
 							page.transition();
 						});
+						if( d.name == ring.current ) { button.addClass( "active" ); }
 
 						if( division.is.complete()) {
 							$( '#ring-completed' ).append( button );
