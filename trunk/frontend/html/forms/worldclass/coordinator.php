@@ -126,7 +126,6 @@
 		</div>
 		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
-			console.log( alertify.defaults );
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
@@ -151,8 +150,6 @@
 			ws.onmessage = network.message = function( response ) {
 				var update = JSON.parse( response.data );
 
-				console.log( update );
-
 				if( update.type == 'ring' && update.action == 'update' ) {
 					if( ! defined( update.ring )) { return; }
 					refresh.ring( update.ring );
@@ -160,7 +157,6 @@
 					if( defined( divid )) {
 						var division = update.ring.divisions.find(( d ) => { return d.name == divid; });
 						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						console.log( division );
 						var curDiv   = division.name == current.name;
 						if( ! defined( division )) { return; }
 						division = new Division( division );
@@ -357,7 +353,6 @@
 					$( "#admin-results" )       .off( 'click' ).click( action.administration.results );
 				},
 				ring: function( ring ) {
-					console.log( "Updating ring" );
 					$( '#ring-ready' ).empty();
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );
