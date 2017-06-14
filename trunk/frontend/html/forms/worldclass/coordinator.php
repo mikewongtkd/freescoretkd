@@ -40,11 +40,27 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
 				<div class="container">
-					<div class="page-header"><span id="ring-header">Ring <?= $i ?> Divisions</span></div>
-					<ul class="nav nav-tabs">
-						<li class="active"><a data-toggle="tab" href="#ready">Ready</a></li>
-						<li><a data-toggle="tab" href="#completed">Completed</a></li>
-					</ul>
+					<div class="page-header"><span id="ring-header">Ring <?= $i ?></span></div>
+					<div class="clearfix">
+						<div class="pull-left">
+							<ul class="nav nav-tabs">
+								<li class="active"><a data-toggle="tab" href="#ready">Ready Divisions</a></li>
+								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
+							</ul>
+						</div>
+						<div class="pull-right">
+							<label for="judges">Judges</label>
+							<div class="btn-group" data-toggle="buttons" id="judges">
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="1">1</label>
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="2">2</label>
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="3">3</label>
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="4">4</label>
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="5">5</label>
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="6">6</label>
+								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="7">7</label>
+							</div>
+						</div>
+					</div>
 					<div class="tab-content">
 						<div id="ready" class="tab-pane fade in active">
 							<form role="form">

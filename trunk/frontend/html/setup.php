@@ -26,7 +26,7 @@
 			  font-weight: bold;
 			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
 			.page-footer { text-align: center; }
-			.btn-primary.active {
+			.btn-default.active {
 				background-color: #77b300;
 				border-color: #558000;
 			}
@@ -38,40 +38,47 @@
 				<h1>FreeScore Setup</h1>
 			</div>
 
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<h1 class="panel-title">Select the setup for this FreeScore WiFi Server</h1>
-				</div>
-				<div class="panel-body">
-					<form method="post">
+			<form method="post">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h1 class="panel-title">Tournament Rings</h1>
+					</div>
+					<div class="panel-body">
 						<div class="form-group row">
 							<label for="rings" class="col-xs-2 col-form-label">Rings</label>
 							<div class="col-xs-10">
 								<div class="btn-group" data-toggle="buttons" id="rings">
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="01">1</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="02">2</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="03">3</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="04">4</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="05">5</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="06">6</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="07">7</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="08">8</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="09">9</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="10">10</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="11">11</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="12">12</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="13">13</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="14">14</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="15">15</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="16">16</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="17">17</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="18">18</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="19">19</label>
-									<label class="btn btn-primary"><input type="checkbox" name="ring[]" value="20">20</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="01">1</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="02">2</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="03">3</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="04">4</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="05">5</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="06">6</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="07">7</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="08">8</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="09">9</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="10">10</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="11">11</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="12">12</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="13">13</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="14">14</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="15">15</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="16">16</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="17">17</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="18">18</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="19">19</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="20">20</label>
 								</div>
 							</div>
 						</div>
+					</div>
+				</div>
 
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h1 class="panel-title">FreeScore WiFi Server Configuration</h1>
+					</div>
+					<div class="panel-body">
 						<div class="form-group row">
 							<label for="wifi-ssid" class="col-xs-2 col-form-label">FreeScore Wifi Name</label>
 							<div class="col-xs-10">
@@ -89,28 +96,27 @@
 							<label for="wifi-channel" class="col-xs-2 col-form-label">Wifi Channel</label>
 							<div class="col-xs-10">
 								<div class="btn-group" data-toggle="buttons" id="wifi-channel">
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="01">1</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="02">2</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="03">3</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="04">4</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="05">5</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="06">6</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="07">7</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="08">8</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="09">9</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="10">10</label>
-									<label class="btn btn-primary"><input type="radio" name="wifi-channel" value="11">11</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="01">1</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="02">2</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="03">3</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="04">4</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="05">5</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="06">6</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="07">7</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="08">8</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="09">9</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="10">10</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="11">11</label>
 								</div>
 							</div>
 						</div>
-
-						<div class="clearfix">
-							<button type="button" id="cancel" class="btn btn-danger  pull-left" >Cancel</button> 
-							<button type="submit" id="accept" class="btn btn-success pull-right">Accept</button> 
-						</div>
-					</form>
+					</div>
 				</div>
-			</div>
+				<div class="clearfix">
+					<button type="submit" id="accept" class="btn btn-success pull-right">Accept</button> 
+					<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+				</div>
+			</form>
 		</div>
 		<script>
 

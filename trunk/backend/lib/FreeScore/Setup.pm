@@ -1,5 +1,6 @@
 package FreeScore::Setup;
 use JSON::XS();
+use FreeScore::Tournament;
 
 # ============================================================
 sub new {
@@ -15,12 +16,7 @@ sub init {
 # ============================================================
 	my $self = shift;
 
-	my $json = new JSON::XS();
-	my $php  = `cat /var/www/html/freescore/include/php/config.php | php`;
-	my ($host, $tournament) = @{ $json->decode( $php )};
-	$self->{ host }       = $host;
-	$self->{ tournament } = $tournament;
-
+	$self->{ tournament } = new FreeScore::Tournament();
 	$self->{ events } = { forms => [ qw( worldclass freestyle grassroots )]};
 }
 
