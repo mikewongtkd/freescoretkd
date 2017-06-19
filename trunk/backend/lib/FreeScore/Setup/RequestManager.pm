@@ -34,9 +34,9 @@ sub init {
 		check_updates      => \&handle_software_check_updates,
 		update             => \&handle_software_update
 	};
-	$self->{ tournament }  = {
-		read               => \&handle_tournament_read,
-		write              => \&handle_tournament_write,
+	$self->{ setup }  = {
+		read               => \&handle_setup_read,
+		write              => \&handle_setup_write,
 	};
 }
 
@@ -44,11 +44,11 @@ sub init {
 # ============================================================
 sub handle_software_check_updates {
 # ============================================================
-	my $self       = shift;
-	my $request    = shift;
-	my $tournament = shift;
-	my $clients    = shift;
-	my $client     = $self->{ _client };
+	my $self    = shift;
+	my $request = shift;
+	my $setup   = shift;
+	my $clients = shift;
+	my $client  = $self->{ _client };
 
 	try {
 		my $repo    = new FreeScore::Repository();
@@ -66,11 +66,11 @@ sub handle_software_check_updates {
 # ============================================================
 sub handle_software_update {
 # ============================================================
-	my $self       = shift;
-	my $request    = shift;
-	my $tournament = shift;
-	my $clients    = shift;
-	my $client     = $self->{ _client };
+	my $self    = shift;
+	my $request = shift;
+	my $setup   = shift;
+	my $clients = shift;
+	my $client  = $self->{ _client };
 
 	try {
 		my $repo = new FreeScore::Repository();
@@ -81,50 +81,54 @@ sub handle_software_update {
 }
 
 # ============================================================
-sub handle_tournament_read {
+sub handle_setup_read {
 # ============================================================
 	my $self       = shift;
 	my $request    = shift;
-	my $tournament = shift;
+	my $setup      = shift;
 	my $clients    = shift;
 	my $client     = $self->{ _client };
+	my $tournament = $setup->{ tournament };
 
-	$self->send_tournament_response( $request, $tournament, $clients );
+	$self->send_setup_response( $request, $tournament, $clients );
 }
 
 # ============================================================
-sub handle_tournament_write {
+sub handle_setup_write {
 # ============================================================
 	my $self       = shift;
 	my $request    = shift;
-	my $tournament = shift;
+	my $setup      = shift;
 	my $clients    = shift;
 	my $client     = $self->{ _client };
+	my $tournament = $setup->{ tournament };
 
-	$tournament->write();
+	if( exists $request->{ edits } ) {
+		$setup->update_rings( $request->{ edit }{ rings } ) if( exists $request->{ edits }{ rings } );
+	}
+	$setup->write();
 
-	$self->send_tournament_response( $request, $tournament, $clients );
+	$self->send_setup_response( $request, $tournament, $clients );
 }
 
 # ============================================================
-sub send_tournament_response {
+sub send_setup_response {
 # ============================================================
  	my $self       = shift;
 	my $request    = shift;
-	my $tournament = shift;
+	my $setup      = shift;
 	my $clients    = shift;
 	my $client     = $self->{ _client };
 	my $json       = $self->{ _json };
 	my $unblessed  = undef;
 
-	my $message    = clone( $tournament );
+	my $message    = clone( $setup );
 	my $unblessed  = unbless( $message ); 
 	my $encoded    = $json->canonical->encode( $unblessed );
 	my $digest     = sha1_hex( $encoded );
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, tournament => $unblessed, request => $request }});
+	$client->send( { json => { type => 'setup', action => 'update', digest => $digest, tournament => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
 }
-
 
 1;

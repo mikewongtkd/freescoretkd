@@ -4,8 +4,8 @@ use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
 use Try::Tiny;
 use FreeScore;
-use FreeScore::Tournament;
-use FreeScore::RequestManager;
+use FreeScore::Setup;
+use FreeScore::Setup::RequestManager;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
@@ -25,7 +25,8 @@ our $DEBUG  = 0;
 websocket '/setup/:database' => sub {
 	my $self       = shift;
 	my $database   = $self->param( 'database' );
-	my $manager    = new FreeScore::RequestManager( $self->tx() );
+	my $manager    = new FreeScore::Setup::RequestManager( $self->tx() );
+	my $setup      = undef;
 	my $tournament = undef;
 	my $staging    = undef;
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
@@ -55,13 +56,14 @@ websocket '/setup/:database' => sub {
 		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
 		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
 
-		# ===== READ TOURNAMENT SETTINGS
+		# ===== READ FREESCORE SETTINGS
 		try   { 
-			$tournament = new FreeScore::Tournament(); 
+			$setup = new FreeScore::Setup(); 
+			$tournament = $setup->tournament();
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$database': $_" }}); };
 
 		# ===== HANDLE REQUEST
-		try   { $manager->handle( $request, $tournament, $client ); }
+		try   { $manager->handle( $request, $setup, $client ); }
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 		print STDERR "\n" if $DEBUG;
 	});
@@ -79,7 +81,7 @@ any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
 	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-	$self->render( json => { error => "Worldclass Service Error: Unknown command: $command" });
+	$self->render( json => { error => "FreeScore Setup Service Error: Unknown command: $command" });
 };
 
 # ============================================================

@@ -49,7 +49,8 @@ sub write {
 	\$rings = [];
 	\$rings[ 'grassroots' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-grassroots' ), PREG_GREP_INVERT );
 	\$rings[ 'worldclass' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-worldclass' ), PREG_GREP_INVERT );
-	\$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( \$rings[ 'grassroots' ], \$rings[ 'worldclass' ] )))));
+	\$rings[ 'freestyle' ]  = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-freestyle'  ), PREG_GREP_INVERT );
+	\$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( \$rings[ 'grassroots' ], \$rings[ 'worldclass' ], \$rings[ 'freestyle' ] )))));
 	asort( \$rings );
 	\$tournament[ 'rings' ] = \$rings;
 	\$tournament = json_encode( \$tournament );
