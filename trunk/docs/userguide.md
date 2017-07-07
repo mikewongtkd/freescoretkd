@@ -1,4 +1,6 @@
-# FreeScore User Guide
+# FreeScoreTKD Wifi User Guide
+
+The FreeScoreTKD Wifi system is a standalone web appliance that uses a Raspberry Pi
 
 ## Activating the FreeScore TKD Wifi Server
 
@@ -11,6 +13,18 @@
 - Open Google Chrome web browser
 - Navigate to http://freescore.net
 - Follow the instructions to register your device
+
+## Order of Operations
+
+- Use the Division Manager to enter some division information
+- Connect the devices
+- Pray to a higher power
+
+## How it Works
+
+The FreeScore system creates a private wireless network when it is powered on. Devices such as the ring computer and the judge scoring tablets can connect to the wireless network.
+
+Once connected the devices can use the latest Google Chrome browser to navigate to the webpage at `http://freescore.net` to register the device and download the proper software (i.e. judge scoring system for judge scoring tablets, division management system and computer operator system for the ring computers). 
 
 ## Troubleshooting
 

@@ -73,7 +73,7 @@ apt-get install hostapd dnsmasq -y
 # to 192.168.88.200, and persist for 120 hours.
 #
 # ------------------------------------------------------------
-cat > /etc/dnsmasq.conf <<EOF
+cat > etc/dnsmasq.conf <<EOF
 interface=wlan0
 dhcp-range=192.168.88.100,192.168.88.200,255.255.255.0,120h
 dhcp-option=option:router,192.168.88.1
@@ -92,7 +92,7 @@ EOF
 # password, and channel.
 #
 # ------------------------------------------------------------
-cat > /etc/hostapd/hostapd.conf <<EOF
+cat > etc/hostapd/hostapd.conf <<EOF
 interface=wlan0
 driver=nl80211
 ctrl_interface=/var/run/hostapd

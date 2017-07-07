@@ -189,14 +189,28 @@ Disable sleep.
 
 A stand-alone FreeScore system can be installed on to a Raspberry Pi. As
 of May 2015, I recommend the Raspberry Pi 2 Model B, 900 MHz ARM v7 1GB RAM
-(~$40), along with an RT5370 chipset USB wifi adapter with antenna (~$15).
+(~$40), along with an RT5370 chipset USB wifi adapter with antenna (~$15). I have another build using the Raspberry Pi 3 in the prototyping phase and will release build instructions on that soon.
 
-### Current prototype
+### Raspberry Pi 2 SSH Login
 
-username: pi
-password: freescore
+username: `pi`
 
-### On first SSH
+password: `freescore`
+
+### Simple Installation Instructions
+
+    sudo su -
+    apt-get install vim git-all -y
+    svn co https://github.com/mikewongtkd/freescoretkd/trunk freescore
+    cd freescore/backend/raspberry-pi/rpi2
+    ./configure
+    make
+    
+## Detailed Build Instructions
+
+If the above simple instructions don't work, try the following.
+
+### On First Login
     
 1. raspi-config
 2. Install Development Tools

@@ -78,6 +78,14 @@ var tournament = <?= $tournament ?>;
 var services   = { setup: 3085, grassroots: 3080, worldclass: 3088, freestyle: 3082 };
 
 // ------------------------------------------------------------
+function disable_service( service ) {
+// ------------------------------------------------------------
+	var div = '#' + service;
+	$( div + ' a' ).addClass( 'disabled' ); // Disable clicking
+	$( div ).css({ opacity : 0.20 });
+}
+
+// ------------------------------------------------------------
 function test_service( service, port ) {
 // ------------------------------------------------------------
 	var url = 'http://' + host + ':' + port + '/status';
@@ -96,15 +104,18 @@ function test_service( service, port ) {
 		error:       function( response ) { 
 			sound.error.play(); 
 			alertify.error( "Cannot connect to " + service + " server" ); 
-			if( service != 'setup' ) { $( '#' + service ).hide(); }
+			if( service != 'setup' ) { disable_service( service ); }
 		},
 	});
 }
 
-for (service in services) {
-	var port = services[ service ];
-	test_service( service, port );
-}
+
+$( function() {
+	for (service in services) {
+		var port = services[ service ];
+		test_service( service, port );
+	}
+});
 
 /*
 var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
