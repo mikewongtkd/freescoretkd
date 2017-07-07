@@ -61,7 +61,7 @@ sub read_channels {
 		if( /quality=\s*(\d+)\/70/i         ) { $current->{ quality } = $1/70; next; }
 		if( /essid:\s*"(\w+)"/i             ) { $current->{ ssid } = $1; next; }
 	}
-	push @$channels, $entry;
+	push @$channels, $entry if exists $entry->{ ssid };
 	$self->{ channels } = $channels;
 
 	return $channels;
@@ -75,7 +75,7 @@ sub read_config {
 		interface => 'wlan0',
 		driver => 'nl80211',
 		ctrl_interface =>'/var/run/hostapd',
-		ctrl_interface_group => '0'
+		ctrl_interface_group => '0',
 		ssid =>'freescore',
 		hw_mode => 'g',
 		channel => '8',
@@ -106,6 +106,14 @@ sub read_config {
 sub write_config {
 # ============================================================
 	my $self = shift;
+	return unless( -e $self->{ file } );
+
+	open FILE, ">$self->{ file }" or die "Can't write to '$self->{ file }' $!";
+	foreach my $key (qw( interface driver ctrl_interface ctrl_interface_group ssid hw_mode channel wpa wpa_passphrase wpa_key_mgmt wpa_pairwise rsn_pairwise beacon_int auth_algs wmm_enabled )) {
+		print FILE "$key=$self->{ config }{ $key }\n";
+		print FILE "\n" if $key eq "channel"; # Put a newline to separate general wifi config with password/encryption config
+	}
+	close FILE;
 }
 
 1;

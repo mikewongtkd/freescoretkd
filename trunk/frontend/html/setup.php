@@ -8,12 +8,14 @@
 	<head>
 		<title>FreeScore Setup</title>
 		<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="./include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="./include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
 		<link href="./include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="./include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<script src="./include/jquery/js/jquery.js"></script>
 		<script src="./include/jquery/js/jquery.howler.min.js"></script>
 		<script src="./include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="./include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="./include/alertify/alertify.min.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -39,11 +41,17 @@
 			</div>
 
 			<form method="post">
-				<div class="panel panel-primary">
+				<div class="panel panel-primary" id="fs-rings">
 					<div class="panel-heading">
-						<h1 class="panel-title">Tournament Rings</h1>
+						<h1 class="panel-title">Tournament Configuration</h1>
 					</div>
 					<div class="panel-body">
+						<div class="form-group row">
+							<label for="tournament-name" class="col-xs-2 col-form-label">Tournament Name</label>
+							<div class="col-xs-10">
+								<input class="form-control" type="text" name="tournament-name" id="tournament-name" style="width:80%;">
+							</div>
+						</div>
 						<div class="form-group row">
 							<label for="rings" class="col-xs-2 col-form-label">Rings</label>
 							<div class="col-xs-10">
@@ -74,7 +82,7 @@
 					</div>
 				</div>
 
-				<div class="panel panel-primary">
+				<div class="panel panel-primary" id="fs-wifi">
 					<div class="panel-heading">
 						<h1 class="panel-title">FreeScore WiFi Server Configuration</h1>
 					</div>
@@ -82,7 +90,19 @@
 						<div class="form-group row">
 							<label for="wifi-ssid" class="col-xs-2 col-form-label">FreeScore Wifi Name</label>
 							<div class="col-xs-10">
-								<input class="form-control" type="text" name="wifi-ssid" id="wifi-ssid" style="width:80%;">
+								<select class="selectpicker">
+								  <optgroup label="Default">
+									<option>freescore</option>
+								  </optgroup>
+								  <optgroup label="Zones">
+									<option>freescore-zone-a</option>
+									<option>freescore-zone-b</option>
+									<option>freescore-zone-c</option>
+									<option>freescore-zone-d</option>
+									<option>freescore-zone-e</option>
+									<option>freescore-zone-f</option>
+								  </optgroup>
+								</select>
 							</div>
 						</div>
 						<div class="form-group row">

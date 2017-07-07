@@ -1,6 +1,7 @@
 package FreeScore::Setup;
 use JSON::XS();
 use FreeScore::Tournament;
+use FreeScore::Setup::Wifi;
 
 # ============================================================
 sub new {
@@ -17,7 +18,15 @@ sub init {
 	my $self = shift;
 
 	$self->{ tournament } = new FreeScore::Tournament();
-	$self->{ events } = { forms => [ qw( worldclass freestyle grassroots )]};
+	$self->{ events }     = { forms => [ qw( worldclass freestyle grassroots )]};
+	$self->{ wifi }       = new FreeScore::Setup::Wifi();
+}
+
+# ============================================================
+sub tournament {
+# ============================================================
+	my $self = shift;
+	return $self->{ tournament };
 }
 
 # ============================================================
@@ -46,6 +55,13 @@ sub update_rings {
 			mkdir "$path/staging" unless -e "$path/$staging";
 		}
 	}
+}
+
+# ============================================================
+sub write {
+# ============================================================
+	my $self = shift;
+	$self->{ tournament }->write();
 }
 
 1;
