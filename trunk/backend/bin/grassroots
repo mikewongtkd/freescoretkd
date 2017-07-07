@@ -264,10 +264,22 @@ post '/:tournament/:ring/:divid' => sub {
 	}
 };
 
+# ============================================================
+# STATUS
+# ============================================================
+get '/status' => sub {
+	my $self = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( text => 'OK' );
+};
+
+# ============================================================
+# ERROR TRAPPING
+# ============================================================
 any '*' => sub {
 	my $self = shift;
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-	$self->render( text => 'Forms::Grassroots: Unknown command' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => { error => 'FreeScore Grassroots: Unknown command' } );
 };
 
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';

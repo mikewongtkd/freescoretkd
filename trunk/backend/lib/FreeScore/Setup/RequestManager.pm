@@ -1,4 +1,4 @@
-package FreeScore::RequestManager;
+package FreeScore::Setup::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;

@@ -2,7 +2,6 @@ package FreeScore::Forms::WorldClass::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
-use FreeScore::Repository;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -32,10 +31,6 @@ sub init {
 	$self->{ _client }     = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
-	$self->{ software }    = {
-		check_updates      => \&handle_software_check_updates,
-		update             => \&handle_software_update
-	};
 	$self->{ division }    = {
 		athlete_delete     => \&handle_division_athlete_delete,
 		athlete_next       => \&handle_division_athlete_next,
@@ -736,47 +731,6 @@ sub handle_ring_transfer {
 		$progress->transfer( $divid, $transfer );
 
 		$self->broadcast_ring_response( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_software_check_updates {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-
-	try {
-		my $repo    = new FreeScore::Repository();
-		my $latest  = $repo->latest_release();
-		my $current = $repo->local_version();
-		my $update  = $current < $latest;
-
-		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update, version => $latest, current => $current  }});
-
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_software_update {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-
-	try {
-		my $repo = new FreeScore::Repository();
-		$repo->update_local_to_latest();
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

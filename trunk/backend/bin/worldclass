@@ -97,12 +97,22 @@ websocket '/worldclass/:tournament/:ring' => sub {
 };
 
 # ============================================================
+# STATUS
+# ============================================================
+get '/status' => sub {
+	my $self = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( text => 'OK' );
+};
+
+# ============================================================
 # ERROR TRAPPING
 # ============================================================
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
-	$self->render( json => { error => "Worldclass Service Error: Unknown command: $command" });
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => { error => "FreeScore Worldclass Service Error: Unknown command: $command" });
 };
 
 # ============================================================

@@ -30,8 +30,6 @@ sudo cpanm \
 	Time::HiRes \
 	Try::Tiny
 
-#!/bin/bash
-
 if [ "$EUID" -ne 0 ]
 	then echo "Must be root"
 	exit
@@ -44,8 +42,8 @@ if [[ $# -ne 1 ]];
 	exit
 fi
 
-$APPASS="3mfj1XAF"
-$APSSID="freescore"
+APPASS="3mfj1XAF"
+APSSID="freescore"
 
 if [[ $# -eq 2 ]]; 
 	$APSSID=$2
@@ -54,24 +52,69 @@ fi
 apt-get remove --purge hostapd -y
 apt-get install hostapd dnsmasq -y
 
+# ------------------------------------------------------------
+# Configure DNS Masq service
+# ------------------------------------------------------------
+# 
+# DNS Masq serves two roles: DNS resolution and DHCP service
+#
+# This configuration assigns the rasperry pi as the DNS server 
+# for any incoming domain name requests (i.e. freescore.net).
+# Any unresolved name requests are forwarded to Google's DNS
+# host at 8.8.8.8; this way, the rasperry pi will handle all
+# traffic directed to freescore.net and allow other requests
+# to pass through if other network is connected (e.g. eth0,
+# the built-in ethernet port on the raspberry pi).
+#
+# This configuration also tells DNS Masq to handle DHCP
+# requests. Incoming requests to connect to the freescore
+# wifi network will be given an IP address, managed by the
+# raspberry pi. The IP addresses range from 192.168.88.100
+# to 192.168.88.200, and persist for 120 hours.
+#
+# ------------------------------------------------------------
 cat > /etc/dnsmasq.conf <<EOF
 interface=wlan0
-dhcp-range=192.168.88.50,192.168.88.250,255.255.255.0,12h
+dhcp-range=192.168.88.100,192.168.88.200,255.255.255.0,120h
+dhcp-option=option:router,192.168.88.1
+server=192.168.88.1
+server=8.8.8.8
 EOF
 
+# ------------------------------------------------------------
+# Configure Wifi Service
+# ------------------------------------------------------------
+# 
+# HostAPD directs the wifi hardware to allow incoming connections.
+#
+# This configuration directs the raspberry pi to use WPA-2 (strong)
+# encryption on network traffic. It also configures the wifi name,
+# password, and channel.
+#
+# ------------------------------------------------------------
 cat > /etc/hostapd/hostapd.conf <<EOF
 interface=wlan0
+driver=nl80211
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
+
+ssid=$APSSID
 hw_mode=g
-channel=10
-auth_algs=1
+channel=8
+auth_algs=3
 wpa=2
+wpa_passphrase=$APPASS
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=CCMP
 rsn_pairwise=CCMP
-wpa_passphrase=$APPASS
-ssid=$APSSID
+beacon_int=100
+auth_algs=3
+wmm_enabled=1
 EOF
 
+# ------------------------------------------------------------
+# Configure HostAPD to start on boot
+# ------------------------------------------------------------
 sed -i -- 's/exit 0/ /g' /etc/rc.local
 
 cat >> /etc/rc.local <<EOF
