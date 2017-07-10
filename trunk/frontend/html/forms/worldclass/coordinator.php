@@ -48,16 +48,16 @@
 								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
 							</ul>
 						</div>
-						<div class="pull-right">
+						<div class="pull-right judges">
 							<label for="judges">Judges</label>
-							<div class="btn-group" data-toggle="buttons" id="judges">
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="1">1</label>
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="2">2</label>
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="3">3</label>
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="4">4</label>
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="5">5</label>
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="6">6</label>
-								<label class="btn btn-xs btn-default"><input type="checkbox" name="judges[]" value="7">7</label>
+							<div class="btn-group" data-toggle="buttons">
+								<button class="btn btn-xs btn-default judge0">R</button>
+								<button class="btn btn-xs btn-default judge1">1</button>
+								<button class="btn btn-xs btn-default judge2">2</button>
+								<button class="btn btn-xs btn-default judge3">3</button>
+								<button class="btn btn-xs btn-default judge4">4</button>
+								<button class="btn btn-xs btn-default judge5">5</button>
+								<button class="btn btn-xs btn-default judge6">6</button>
 							</div>
 						</div>
 					</div>
@@ -88,7 +88,21 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
 				<div class="container">
-				<div class="page-header"><a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Ring <?= $i ?></a> <span id="division-header"></span></div>
+				<div class="page-header">
+					<a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Ring <?= $i ?></a> <span id="division-header"></span>
+					<div class="pull-right judges">
+						<label for="judges">Judges</label>
+						<div class="btn-group" data-toggle="buttons">
+							<button class="btn btn-xs btn-default judge0">R</button>
+							<button class="btn btn-xs btn-default judge1">1</button>
+							<button class="btn btn-xs btn-default judge2">2</button>
+							<button class="btn btn-xs btn-default judge3">3</button>
+							<button class="btn btn-xs btn-default judge4">4</button>
+							<button class="btn btn-xs btn-default judge5">5</button>
+							<button class="btn btn-xs btn-default judge6">6</button>
+						</div>
+					</div>
+				</div>
 					<div class="row">
 						<div class="col-lg-9">
 							<h4 id="division-round">Round</h4>
@@ -158,13 +172,19 @@
 			};
 
 			ws.onopen = network.connect = function() {
-				var request  = { data : { type : 'ring', action : 'read' }};
+				var request;
+				request      = { data : { type : 'ring', action : 'read' }};
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+
+				request      = { data : { type : 'division', action : 'judge query' }};
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 			};
 
 			ws.onmessage = network.message = function( response ) {
 				var update = JSON.parse( response.data );
+				console.log( update );
 
 				if( update.type == 'ring' && update.action == 'update' ) {
 					if( ! defined( update.ring )) { return; }
@@ -177,8 +197,17 @@
 						if( ! defined( division )) { return; }
 						division = new Division( division );
 						refresh.athletes( division, curDiv );
+
 						if( page.num == 1 ) { page.transition() };
+
+						var request  = { data : { type : 'division', action : 'judge query' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+
 					}
+				} else if( update.type == 'division' && update.action == 'judges' ) {
+					refresh.judges( update );
+
 				} else if( update.type == 'division' && update.action == 'update' ) {
 					var division = update.division;
 					if( ! defined( division )) { return; }
@@ -186,6 +215,10 @@
 					division   = new Division( division );
 					refresh.athletes( division, true );
 					if( page.num == 1 ) { page.transition() };
+
+					var request  = { data : { type : 'division', action : 'judge query' }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
 				}
 			};
 
@@ -218,6 +251,27 @@
 			var sendRequest = ( request ) => {
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
+			};
+
+			var depart = function( i, judge ) {
+				return function() {
+					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
+					var title   = 'Unregister device for ' + name + '?'; 
+					var message = 'Click OK to unregister device for ' + name + ' or Cancel to do nothing.';
+					var ok      = function() {
+						var request  = { data : { type : 'division', action : 'judge departure', cookie : { id: judge.id }}};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+						alertify.success( name + ' device unregistered' );
+
+						var request  = { data : { type : 'division', action : 'judge query' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+						return true;
+					}
+					var cancel  = function() { return true; }
+					alertify.confirm( title, message, ok, cancel );
+				}
 			};
 
 			var refresh = { 
@@ -345,6 +399,19 @@
 					$( "#penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
 					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
+				},
+				judges : function( update ) {
+					for( var i = 0; i < 7; i++ ) {
+						var name = "judge" + i;
+						if( i < update.judges.length ) {
+							var judge = update.judges[ i ];
+							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge ) ); }
+							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ); }
+						} else {
+							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-primary' ).off( 'click' ); }
+							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' ); }
+						}
+					}
 				},
 				navadmin : function( division ) {
 					var ring    = division.ring();

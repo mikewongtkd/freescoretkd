@@ -36,7 +36,7 @@ html, body {
 	z-index: 999;
 }
 
-.page-header, {
+.page-header {
 	position: relative;
 	height: 48px;
 	width: 100%;
@@ -48,6 +48,23 @@ html, body {
 	line-height: 24pt;
 	font-weight: bold;
 	border-radius: 4px;
+
+	label[for=judges] {
+		font-size: 16px;
+		color: #ccc;
+		text-align: top;
+
+	}
+
+}
+
+.judges {
+	button {
+		&.disabled {
+			background-color: #eee;
+			color: #aaa;
+		}
+	}
 }
 
 #back-to-divisions {
