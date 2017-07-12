@@ -92,7 +92,7 @@
 					</div>
 				</div>
 
-				<div class="panel panel-primary" id="fs-wifi">
+				<div class="panel panel-primary" id="fs-wifi" style="display: none;">
 					<div class="panel-heading">
 						<h1 class="panel-title">FreeScore WiFi Server Configuration</h1>
 					</div>
@@ -100,17 +100,17 @@
 						<div class="form-group row">
 							<label for="wifi-ssid" class="col-xs-2 col-form-label">FreeScore Wifi Name</label>
 							<div class="col-xs-10">
-								<select class="selectpicker">
+								<select class="selectpicker" id="wifi-ssid">
 								  <optgroup label="Default">
-									<option>freescore</option>
+									<option value="freescore">freescore</option>
 								  </optgroup>
 								  <optgroup label="Zones">
-									<option>freescore-zone-a</option>
-									<option>freescore-zone-b</option>
-									<option>freescore-zone-c</option>
-									<option>freescore-zone-d</option>
-									<option>freescore-zone-e</option>
-									<option>freescore-zone-f</option>
+									<option value="freescore-zone-a">freescore-zone-a</option>
+									<option value="freescore-zone-b">freescore-zone-b</option>
+									<option value="freescore-zone-c">freescore-zone-c</option>
+									<option value="freescore-zone-d">freescore-zone-d</option>
+									<option value="freescore-zone-e">freescore-zone-e</option>
+									<option value="freescore-zone-f">freescore-zone-f</option>
 								  </optgroup>
 								</select>
 							</div>
@@ -126,15 +126,15 @@
 							<label for="wifi-channel" class="col-xs-2 col-form-label">Wifi Channel</label>
 							<div class="col-xs-10">
 								<div class="btn-group" data-toggle="buttons" id="wifi-channel">
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="01">1</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="02">2</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="03">3</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="04">4</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="05">5</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="06">6</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="07">7</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="08">8</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="09">9</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="1" >1</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="2" >2</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="3" >3</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="4" >4</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="5" >5</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="6" >6</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="7" >7</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="8" >8</label>
+									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="9" >9</label>
 									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="10">10</label>
 									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="11">11</label>
 								</div>
@@ -187,6 +187,29 @@ $( '#install-updates' ).off( 'click' ).click(() => {
 	sound.confirmed.play();
 });
 
+// ------------------------------------------------------------
+function set_wifi_form( wifi ) {
+// ------------------------------------------------------------
+	console.log( wifi );
+	$( '#ssid' ).val( wifi.config.ssid );
+	$( '#wifi-pass' ).val( wifi.config.wpa_passphrase );
+
+	if( wifi.channels ) {
+		$( '#wifi-channel label input' ).each( (i, el) => { 
+			var channel = $( el ).attr( 'value' );
+			var matches = wifi.channels.filter(( c ) => { return c.id == channel; });
+			var max     = matches.reduce(( max, cur ) => Math.max( max, cur.quality ), 0 );
+			if( channel == wifi.config.channel ) { return; }
+			var label = $( el ).parent();
+			if( max >= 0.66 ) { label.addClass( 'btn-danger' ); } else
+			if( max >= 0.33 ) { label.addClass( 'btn-warning' ); } else
+			                  { label.addClass( 'btn-default' ); }
+			console.log( channel, max );
+		});
+	}
+	$( '#wifi-channel label input[value=' + wifi.config.channel + ']' ).parent().addClass( 'active' );
+}
+
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
 
@@ -207,10 +230,14 @@ ws.onmessage = function( response ) {
 	if( update.type == 'software' ) {
 		if( update.available ) { $( '#fs-updates' ).fadeIn(); }
 	} else if( update.type == 'setup' ) {
+		var wifi = update.setup.wifi;
+		if( wifi.config ) { 
+			set_wifi_form( wifi );
+			$( '#fs-wifi' ).fadeIn(); 
+		}
 	}
 };
 
-var wifi = [{"address":"18:64:72:37:AD:E0","channel":"1","frequency":"2.412","id":1,"quality":0.428571428571429,"ssid":"SFState"},{"address":"18:64:72:37:AD:E1","channel":"1","frequency":"2.412","id":2,"quality":0.414285714285714,"ssid":"eduroam"},{"address":"F8:1E:DF:FC:64:89","channel":"2","frequency":"2.417","id":3,"quality":0.371428571428571},{"address":"FE:1E:DF:FC:64:89","channel":"2","frequency":"2.417","id":4,"quality":0.414285714285714,"ssid":"CSME"},{"address":"F4:F2:6D:40:D5:64","channel":"5","frequency":"2.432","id":5,"quality":0.385714285714286},{"address":"14:35:8B:0C:E0:A4","channel":"5","frequency":"2.432","id":6,"quality":0.314285714285714,"ssid":"habitablezone"},{"address":"10:9A:DD:84:03:5D","channel":"6","frequency":"2.437","id":7,"quality":0.314285714285714,"ssid":"WifiGspot"},{"address":"00:E1:B0:53:82:38","channel":"8","frequency":"2.447","id":8,"quality":1,"ssid":"freescore"},{"address":"66:2A:2F:53:7C:99","channel":"11","frequency":"2.462","id":9,"quality":0.4,"ssid":"SETUP"},{"address":"84:D4:7E:F1:A1:61","channel":"11","frequency":"2.462","id":10,"quality":0.9,"ssid":"SFState"},{"address":"70:3A:0E:22:CC:40","channel":"11","frequency":"2.462","id":11,"quality":0.357142857142857,"ssid":"SFState"},{"address":"70:3A:0E:22:CC:41","channel":"11","frequency":"2.462","id":12,"quality":0.385714285714286,"ssid":"eduroam"},{"address":"70:3A:0E:22:CC:42","channel":"11","frequency":"2.462","id":13,"quality":0.371428571428571},{"address":"18:64:72:37:B2:A0","channel":"11","frequency":"2.462","id":14,"quality":0.371428571428571,"ssid":"SFState"},{"address":"18:64:72:37:B2:A1","channel":"11","frequency":"2.462","id":15,"quality":0.4,"ssid":"eduroam"},{"address":"18:64:72:37:B2:A2","channel":"11","frequency":"2.462","id":16,"quality":0.4},{"address":"00:1F:33:34:94:C8","channel":"11","frequency":"2.462","id":17,"quality":0.357142857142857},{}];
 		</script>
 	</body>
 </html>

@@ -14,11 +14,10 @@ sub init {
 # ============================================================
 	my $self = shift;
 	$self->{ file } = '/etc/hostapd/hostapd.conf';
-	$self->{ scan } = `which iwlist`;
 
 	$self->read_config()             if -e $self->{ file };
 	$self->read_available_channels() if -e $self->{ file };
-	$self->read_channels()           if -e $self->{ scan };
+	$self->read_channels()           if `which iwlist`;
 }
 
 # ============================================================
@@ -89,6 +88,7 @@ sub read_config {
 		wmm_enabled => '1',
 	};
 
+=pod
 	open FILE, $self->{ file } or die "Can't read file '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
@@ -97,6 +97,7 @@ sub read_config {
 		$config->{ $key } = $value;
 	}
 	close FILE;
+=cut
 	$self->{ config } = $config;
 
 	return $config;
