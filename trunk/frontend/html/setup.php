@@ -1,8 +1,6 @@
 <?php
 	include "./include/php/version.php";
 	include "./include/php/config.php";
-
-	var_dump( $_POST );
 ?>
 <html>
 	<head>
@@ -40,7 +38,7 @@
 				<h1>FreeScore Setup</h1>
 			</div>
 
-			<form method="post">
+			<form>
 				<div class="panel panel-primary" id="fs-updates" style="display: none;">
 					<div class="panel-heading">
 						<h1 class="panel-title">Software Updates are Available</h1>
@@ -66,26 +64,26 @@
 							<label for="rings" class="col-xs-2 col-form-label">Rings</label>
 							<div class="col-xs-10">
 								<div class="btn-group" data-toggle="buttons" id="rings">
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="01">1</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="02">2</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="03">3</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="04">4</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="05">5</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="06">6</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="07">7</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="08">8</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="09">9</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="10">10</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="11">11</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="12">12</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="13">13</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="14">14</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="15">15</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="16">16</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="17">17</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="18">18</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="19">19</label>
-									<label class="btn btn-default"><input type="checkbox" name="ring[]" value="20">20</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="01">1</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="02">2</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="03">3</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="04">4</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="05">5</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="06">6</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="07">7</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="08">8</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="09">9</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="10">10</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="11">11</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="12">12</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="13">13</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="14">14</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="15">15</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="16">16</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="17">17</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="18">18</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="19">19</label>
+									<label class="btn btn-default"><input type="checkbox" name="ring" value="20">20</label>
 								</div>
 							</div>
 						</div>
@@ -143,7 +141,7 @@
 					</div>
 				</div>
 				<div class="clearfix">
-					<button type="submit" id="accept" class="btn btn-success pull-right">Accept</button> 
+					<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
 					<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 				</div>
 			</form>
@@ -166,7 +164,8 @@ $( '.list-group a' ).click( function( ev ) {
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 
-$( '#name' ).val( tournament.name );
+// ===== SET TOURNAMENT CONFIGURATION FORM
+$( '#tournament-name' ).val( tournament.name );
 $( '#rings label' ).removeClass( 'active' );
 $.each( tournament.rings, (i, r) => {
 	$( '#rings label' ).each(( j, b ) => { 
@@ -177,7 +176,17 @@ $.each( tournament.rings, (i, r) => {
 	});
 });
 $( '#cancel' ).off( 'click' ).click(() => { location = "index.php"; });
-$( '#accept' ).off( 'click' ).click(() => { console.log( "Submitting" ); });
+$( '#accept' ).off( 'click' ).click(() => { 
+	// Identify desired ring configuration
+	var rings    = $( 'label.active input[name=ring]' ).map(( i, el ) => { return parseInt($( el ).val()); }).toArray();
+	var name     = $( '#tournament-name' ).val();
+	var wifi     = { pass : $( '#wifi-pass' ).val(), ssid : $( '#wifi-ssid' ).val(), channel: $( '#wifi-channel' ).val() };
+	var request  = { data : { type : 'setup', action : 'write', edits : { rings : rings, name : name, wifi : wifi }}};
+	request.json = JSON.stringify( request.data );
+	console.log( request.json ); 
+	// ws.send( request.json );
+	// sound.confirmed.play();
+});
 
 // ===== SOFTWARE UPDATES
 $( '#install-updates' ).off( 'click' ).click(() => {

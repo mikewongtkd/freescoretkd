@@ -135,7 +135,6 @@ sub send_setup_response {
 
 	my $message    = clone( $setup );
 	my $unblessed  = unbless( $message ); 
-	print STDERR Dumper "UNBLESSED", $unblessed;
 	my $encoded    = $json->canonical->encode( $unblessed );
 	my $digest     = sha1_hex( $encoded );
 

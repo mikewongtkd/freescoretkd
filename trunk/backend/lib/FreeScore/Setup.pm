@@ -33,10 +33,10 @@ sub tournament {
 # ============================================================
 sub update_rings {
 # ============================================================
-	my $self  = shift;
-	my $rings = shift;
+	my $self   = shift;
+	my $wanted = shift;
 
-	my $wanted = { map {( $_ => 1 )} @$rings };
+	$wanted    = { map {( $_ => 1 )} @$wanted };
 
 	my $root = "/usr/local/freescore/data/$self->{ tournament }{ db }";
 	foreach my $competition (keys %{ $self->{ events }}) {
@@ -45,9 +45,9 @@ sub update_rings {
 			my $path = "$path/$subpath";
 			my $have = [ split /\n/, `ls -d $path/ring*` ];
 			$have = { map {( $_ => 1 )} @$have };
-			my $both = { $wanted, $have };
+			my $rings = [ keys %{ %$wanted, %$have } ];
 
-			foreach my $ring (keys %$both) {
+			foreach my $ring (@$rings) {
 				my $ring_name = sprintf( "ring%02d", $ring );
 				if( exists $wanted->{ $ring } && exists $have->{ $ring } ) { } # do nothing
 				elsif( exists $wanted->{ $ring } ) { mkdir "$path/$ring_name";  }
