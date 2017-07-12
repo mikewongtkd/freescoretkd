@@ -40,6 +40,20 @@ sub init {
 	};
 }
 
+# ============================================================
+sub handle {
+# ============================================================
+ 	my $self     = shift;
+	my $request  = shift;
+	my $setup    = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
+	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
+
+	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
+	return $self->$dispatch( $request, $setup, $clients, $judges ) if defined $dispatch;
+}
 
 # ============================================================
 sub handle_software_check_updates {
@@ -88,9 +102,8 @@ sub handle_setup_read {
 	my $setup      = shift;
 	my $clients    = shift;
 	my $client     = $self->{ _client };
-	my $tournament = $setup->{ tournament };
 
-	$self->send_setup_response( $request, $tournament, $clients );
+	$self->send_setup_response( $request, $setup, $clients );
 }
 
 # ============================================================
@@ -101,14 +114,13 @@ sub handle_setup_write {
 	my $setup      = shift;
 	my $clients    = shift;
 	my $client     = $self->{ _client };
-	my $tournament = $setup->{ tournament };
 
 	if( exists $request->{ edits } ) {
 		$setup->update_rings( $request->{ edit }{ rings } ) if( exists $request->{ edits }{ rings } );
 	}
 	$setup->write();
 
-	$self->send_setup_response( $request, $tournament, $clients );
+	$self->send_setup_response( $request, $setup, $clients );
 }
 
 # ============================================================
@@ -120,14 +132,14 @@ sub send_setup_response {
 	my $clients    = shift;
 	my $client     = $self->{ _client };
 	my $json       = $self->{ _json };
-	my $unblessed  = undef;
 
 	my $message    = clone( $setup );
 	my $unblessed  = unbless( $message ); 
+	print STDERR Dumper "UNBLESSED", $unblessed;
 	my $encoded    = $json->canonical->encode( $unblessed );
 	my $digest     = sha1_hex( $encoded );
 
-	$client->send( { json => { type => 'setup', action => 'update', digest => $digest, tournament => $unblessed, request => $request }});
+	$client->send( { json => { type => 'setup', action => 'update', digest => $digest, setup => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
 }
 

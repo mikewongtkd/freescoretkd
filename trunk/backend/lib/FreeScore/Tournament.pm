@@ -21,7 +21,6 @@ sub init {
 		my ($host, $tournament) = @{ $json->decode( $php )};
 		$self->{ host }       = $host;
 		$self->{ tournament } = $tournament;
-		$self->{ json }       = $json;
 	} else {
 		die "Can't find Tournament Configuration File '$self->{ config }' $!";
 	}

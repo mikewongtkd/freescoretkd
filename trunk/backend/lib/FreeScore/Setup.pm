@@ -2,6 +2,7 @@ package FreeScore::Setup;
 use JSON::XS();
 use FreeScore::Tournament;
 use FreeScore::Setup::Wifi;
+use Data::Dumper;
 
 # ============================================================
 sub new {

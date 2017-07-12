@@ -117,36 +117,6 @@ $( function() {
 	}
 });
 
-/*
-var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
-
-ws.onopen = function() {
-	var request = { data : { type : 'software', action : 'check updates' }};
-	request.json = JSON.stringify( request.data );
-	ws.send( request.json );
-};
-
-ws.onmessage = function( response ) {
-	var update = JSON.parse( response.data );
-	if( update.type == 'software' ) {
-		if( update.available ) {
-			sound.send.play();
-			alertify.confirm({
-				title:   "New version " + update.version + " is available.",
-				message: "Current installed version is " + update.current + ". Click OK to download and install update version " + update.version + ".",
-				callback: function( ok ) {
-					if( ok ) {
-						var request = { data : { type : 'software', action : 'update' }};
-						request.json = JSON.stringify( request.data );
-						ws.send( request.json );
-						sound.confirmed.play();
-					}
-				}
-			});
-		}
-	}
-};
-*/
 		</script>
 	</body>
 </html>

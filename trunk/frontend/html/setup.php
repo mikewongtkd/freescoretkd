@@ -41,6 +41,16 @@
 			</div>
 
 			<form method="post">
+				<div class="panel panel-primary" id="fs-updates" style="display: none;">
+					<div class="panel-heading">
+						<h1 class="panel-title">Software Updates are Available</h1>
+					</div>
+					<div class="panel-body">
+						<p>New software updates are available; click the Install Updates button to download and install the updates.</p>
+						<button class="btn btn-block btn-success" id="install-updates">Install Updates</button>
+					</div>
+				</div>
+
 				<div class="panel panel-primary" id="fs-rings">
 					<div class="panel-heading">
 						<h1 class="panel-title">Tournament Configuration</h1>
@@ -169,6 +179,36 @@ $.each( tournament.rings, (i, r) => {
 $( '#cancel' ).off( 'click' ).click(() => { location = "index.php"; });
 $( '#accept' ).off( 'click' ).click(() => { console.log( "Submitting" ); });
 
+// ===== SOFTWARE UPDATES
+$( '#install-updates' ).off( 'click' ).click(() => {
+	var request = { data : { type : 'software', action : 'update' }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
+	sound.confirmed.play();
+});
+
+// ===== SERVER COMMUNICATION
+var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
+
+ws.onopen = function() {
+	var request;
+	request = { data : { type : 'software', action : 'check updates' }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
+
+	request = { data : { type : 'setup', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
+};
+
+ws.onmessage = function( response ) {
+	var update = JSON.parse( response.data );
+	console.log( update );
+	if( update.type == 'software' ) {
+		if( update.available ) { $( '#fs-updates' ).fadeIn(); }
+	} else if( update.type == 'setup' ) {
+	}
+};
 
 var wifi = [{"address":"18:64:72:37:AD:E0","channel":"1","frequency":"2.412","id":1,"quality":0.428571428571429,"ssid":"SFState"},{"address":"18:64:72:37:AD:E1","channel":"1","frequency":"2.412","id":2,"quality":0.414285714285714,"ssid":"eduroam"},{"address":"F8:1E:DF:FC:64:89","channel":"2","frequency":"2.417","id":3,"quality":0.371428571428571},{"address":"FE:1E:DF:FC:64:89","channel":"2","frequency":"2.417","id":4,"quality":0.414285714285714,"ssid":"CSME"},{"address":"F4:F2:6D:40:D5:64","channel":"5","frequency":"2.432","id":5,"quality":0.385714285714286},{"address":"14:35:8B:0C:E0:A4","channel":"5","frequency":"2.432","id":6,"quality":0.314285714285714,"ssid":"habitablezone"},{"address":"10:9A:DD:84:03:5D","channel":"6","frequency":"2.437","id":7,"quality":0.314285714285714,"ssid":"WifiGspot"},{"address":"00:E1:B0:53:82:38","channel":"8","frequency":"2.447","id":8,"quality":1,"ssid":"freescore"},{"address":"66:2A:2F:53:7C:99","channel":"11","frequency":"2.462","id":9,"quality":0.4,"ssid":"SETUP"},{"address":"84:D4:7E:F1:A1:61","channel":"11","frequency":"2.462","id":10,"quality":0.9,"ssid":"SFState"},{"address":"70:3A:0E:22:CC:40","channel":"11","frequency":"2.462","id":11,"quality":0.357142857142857,"ssid":"SFState"},{"address":"70:3A:0E:22:CC:41","channel":"11","frequency":"2.462","id":12,"quality":0.385714285714286,"ssid":"eduroam"},{"address":"70:3A:0E:22:CC:42","channel":"11","frequency":"2.462","id":13,"quality":0.371428571428571},{"address":"18:64:72:37:B2:A0","channel":"11","frequency":"2.462","id":14,"quality":0.371428571428571,"ssid":"SFState"},{"address":"18:64:72:37:B2:A1","channel":"11","frequency":"2.462","id":15,"quality":0.4,"ssid":"eduroam"},{"address":"18:64:72:37:B2:A2","channel":"11","frequency":"2.462","id":16,"quality":0.4},{"address":"00:1F:33:34:94:C8","channel":"11","frequency":"2.462","id":17,"quality":0.357142857142857},{}];
 		</script>
