@@ -14,7 +14,8 @@ sub new {
 sub init {
 # ============================================================
 	my $self   = shift;
-	$self->{ config } = '/var/www/html/freescore/include/php/config.php';
+	my @search = ( '/var/www/html/include/php/config.php', '/var/www/html/freescore/include/php/config.php' );
+	($self->{ config }) = grep { -e } @search;
 	if( -e $self->{ config } ) {
 		my $json = new JSON::XS();
 		my $php = `(cat $self->{ config } && echo '<?php echo "[\\"", \$host, "\\",", \$tournament, "]"; ?>') | php`;
