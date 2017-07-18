@@ -28,7 +28,9 @@ sudo cpanm \
 	LWP::UserAgent \
 	Mojolicious \
 	Time::HiRes \
-	Try::Tiny
+	Try::Tiny \
+	Clone \
+	EV
 
 if [ "$EUID" -ne 0 ]
 	then echo "Must be root"
