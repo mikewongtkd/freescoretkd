@@ -3,6 +3,7 @@ use FreeScore;
 use FreeScore::Forms::Division;
 use List::Util qw( first );
 use List::MoreUtils qw( first_index );
+use File::Path qw( make_path );
 use Data::Dumper;
 
 # ============================================================
@@ -59,7 +60,14 @@ sub load_all {
 	my @rings     = map { /^ring(\d+)$/       ? $1 : (); } readdir DIR;
 	closedir DIR;
 
-	opendir DIR, "$self->{ path }/staging" or die "Database Read Error: Can't open directory '$self->{ path }/staging' $!";
+	if( @rings == 0 ) {
+		make_path( "$self->{ path }/ring01" );
+		@rings = ( 01 );
+	}
+
+	my $staging = "$self->{ path }/staging";
+	make_path( $staging ) unless -d $staging;
+	opendir DIR, $staging or die "Database Read Error: Can't open directory '$staging' $!";
 	my @divisions = map { /^div\.(\w+)\.txt$/ ? $1 : (); } readdir DIR;
 	closedir DIR;
 
