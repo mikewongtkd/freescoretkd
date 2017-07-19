@@ -26,6 +26,15 @@
 			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
 			.register { margin-top: 18px; }
 			.page-footer { text-align: center; }
+
+			.device {
+				width: 200px;
+			}
+
+			#setup {
+				margin: 20px 0 20px 0;
+				width: 686px;
+			}
 		</style>
 	</head>
 	<body>
@@ -37,23 +46,21 @@
 
 			<div id="devices">
 				<div class="register" id="judge">
-					<a class="btn btn-default worldclass" href="forms/worldclass/register.php?role=judge"             ><img src="images/roles/tablet-worldclass.png" width="200px" /><p>Sport Poomsae Referee Tablet</p></a>
-					<a class="btn btn-default freestyle" href="forms/freestyle/register.php?role=judge"              ><img src="images/roles/tablet-freestyle.png" width="200px" /><p>Freestyle Referee Tablet</p></a>
-					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=judge"             ><img src="images/roles/tablet-grassroots.png" width="200px" /><p>Open Poomsae Referee Tablet</p></a>
+					<a class="btn btn-default worldclass" href="forms/worldclass/register.php?role=judge" ><img class="device" src="images/roles/tablet-worldclass.png" /><p>Sport Poomsae Referee Tablet</p></a>
+					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=judge"  ><img class="device" src="images/roles/tablet-freestyle.png"  /><p>Freestyle Referee Tablet</p></a>
+					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=judge" ><img class="device" src="images/roles/tablet-grassroots.png" /><p>Open Poomsae Referee Tablet</p></a>
 				</div>
 
 				<div class="register" id="computer-operator">
-					<a class="btn btn-default worldclass" href="forms/worldclass/register.php?role=computer+operator" ><img src="images/roles/coordinator-worldclass.png" width="200px" /><p>Sport Poomsae Ring Computer</p></a>
-					<a class="btn btn-default freestyle" href="forms/freestyle/register.php?role=computer+operator"  ><img src="images/roles/coordinator-freestyle.png" width="200px" /><p>Freestyle Ring Computer</p></a>
-					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=computer+operator" ><img src="images/roles/coordinator-grassroots.png" width="200px" /><p>Open Poomsae Ring Computer</p></a>
+					<a class="btn btn-default worldclass" href="forms/worldclass/register.php?role=computer+operator" ><img class="device" src="images/roles/coordinator-worldclass.png" /><p>Sport Poomsae Ring Computer</p></a>
+					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=computer+operator"  ><img class="device" src="images/roles/coordinator-freestyle.png"  /><p>Freestyle Ring Computer</p></a>
+					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=computer+operator" ><img class="device" src="images/roles/coordinator-grassroots.png" /><p>Open Poomsae Ring Computer</p></a>
 				</div>
 
-				<div class="panel-body">
-					<div class="register" id="divisions">
-						<a class="btn btn-default worldclass" href="forms/worldclass/divisions.php" ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Sport Poomsae Divisions</p></a>
-						<a class="btn btn-default freestyle" href="forms/freestyle/divisions.php"   ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Freestyle Divisions</p></a>
-						<a class="btn btn-default grassroots" href="forms/grassroots/divisions.php" ><img src="images/roles/laptop-manage.png" width="200px" /><p>Edit Open Poomsae Divisions</p></a>
-					</div>
+				<div class="register" id="divisions">
+					<a class="btn btn-default worldclass" href="forms/worldclass/divisions.php" ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Sport Poomsae Divisions</p></a>
+					<a class="btn btn-default freestyle"  href="forms/freestyle/divisions.php"  ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Freestyle Divisions</p></a>
+					<a class="btn btn-default grassroots" href="forms/grassroots/divisions.php" ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Open Poomsae Divisions</p></a>
 				</div>
 
 				<a class="btn btn-success btn-block" id="setup" href="setup.php"> Tournament, Network, and Rings Setup </a>
@@ -87,9 +94,15 @@ var services   = { setup: 3085, grassroots: 3080, worldclass: 3088, freestyle: 3
 // ------------------------------------------------------------
 function disable_service( service ) {
 // ------------------------------------------------------------
-	var div = '#' + service;
-	$( div + ' a' ).addClass( 'disabled' ); // Disable clicking
-	$( div ).css({ opacity : 0.20 });
+	if( service == 'setup' ) {
+		var button = $( '#setup' );
+		button.addClass( 'disabled' );
+		button.css({ opacity: 0.20 });
+	} else {
+		var div = '.' + service;
+		$( div + ' a' ).addClass( 'disabled' ); // Disable clicking
+		$( div ).css({ opacity : 0.20 });
+	}
 }
 
 // ------------------------------------------------------------
@@ -105,13 +118,13 @@ function test_service( service, port ) {
 			if( defined( response.error )) {
 				sound.error.play();
 				alertify.error( response.error );
-				if( service != 'setup' ) { $( '.' + service ).hide(); }
+				if( service != 'setup' ) { disable_service( service ); }
 			}
 		},
 		error:       function( response ) { 
 			sound.error.play(); 
-			alertify.error( "Cannot connect to " + service + " server" ); 
-			if( service != 'setup' ) { disable_service( service ); }
+			alertify.error( "Cannot connect to " + service.capitalize() + " Server" ); 
+			disable_service( service );
 		},
 	});
 }

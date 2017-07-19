@@ -38,20 +38,29 @@ sub update_rings {
 
 	$wanted    = { map {( $_ => 1 )} @$wanted };
 
-	my $root = "/usr/local/freescore/data/$self->{ tournament }{ db }";
+	my $root = "/usr/local/freescore/data/$self->{ tournament }{ tournament }{ db }";
 	foreach my $competition (keys %{ $self->{ events }}) {
 		foreach my $event (@{$self->{ events }{ $competition }}) {
 			my $subpath = join( "-", $competition, $event );
-			my $path = "$path/$subpath";
-			my $have = [ split /\n/, `ls -d $path/ring*` ];
+			my $path = "$root/$subpath";
+			my $have = [ map { my ($r) = reverse split /\//, $_; $r =~ s/ring//; int( $r ); } split /\n/, `ls -d $path/ring*` ];
 			$have = { map {( $_ => 1 )} @$have };
-			my $rings = [ keys %{ %$wanted, %$have } ];
+			my $rings = {( %$wanted, %$have )};
+			$rings = [ sort { $a <=> $b } keys %$rings ];
 
 			foreach my $ring (@$rings) {
 				my $ring_name = sprintf( "ring%02d", $ring );
-				if( exists $wanted->{ $ring } && exists $have->{ $ring } ) { } # do nothing
-				elsif( exists $wanted->{ $ring } ) { mkdir "$path/$ring_name";  }
-				elsif( exists $have->{ $ring }   ) { `rm -rf $path/$ring_name`; }
+				my $ring_path = "$path/$ring_name";
+				if( exists $wanted->{ $ring } && exists $have->{ $ring } ) { 
+
+				} elsif( exists $wanted->{ $ring } ) { 
+					mkdir $ring_path; 
+					`touch $ring_path/progress.txt`; 
+
+				} elsif( exists $have->{ $ring }   ) { 
+					`rm -f $ring_path/progress.txt $ring_path/div.*.txt $ring_path/.*.swp $ring_path/.DS_Store`; 
+					`rmdir $ring_path`; 
+				}
 			}
 			mkdir "$path/staging" unless -e "$path/$staging";
 		}

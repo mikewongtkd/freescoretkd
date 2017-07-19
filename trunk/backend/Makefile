@@ -13,3 +13,6 @@ freestyle:
 
 setup:
 	sudo hypnotoad -f ./bin/fswifi &
+
+clean:
+	sudo kill `ps -ef | grep 'hypnotoad -f' | awk '{ if( $$1 == 0 ) { print $$2 }}'`

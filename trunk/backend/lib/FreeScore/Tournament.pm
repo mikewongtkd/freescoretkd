@@ -31,7 +31,6 @@ sub init {
 sub write {
 # ============================================================
 	my $self  = shift;
-	my $rings = $self->rings();
 	open FILE, ">$self->{ config }" or die "Can't write to '$self->{ config }' $!";
 	print FILE<<EOF;
 <?php
@@ -41,15 +40,15 @@ sub write {
 		return intval( \$n );
 	};
 
-	\$host       = "freescore.net";
+	\$host       = "$self->{ host }";
 	\$tournament = [ 
-		"name" => "$self->{ name }",
-		"db"   => "$self->{ db }", 
+		"name" => "$self->{ tournament }{ name }",
+		"db"   => "$self->{ tournament }{ db }", 
 	];
 	\$rings = [];
-	\$rings[ 'grassroots' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-grassroots' ), PREG_GREP_INVERT );
-	\$rings[ 'worldclass' ] = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-worldclass' ), PREG_GREP_INVERT );
-	\$rings[ 'freestyle' ]  = preg_grep( '/^\./', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-freestyle'  ), PREG_GREP_INVERT );
+	\$rings[ 'grassroots' ] = preg_grep( '/ring|staging/', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-grassroots' ));
+	\$rings[ 'worldclass' ] = preg_grep( '/ring|staging/', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-worldclass' ));
+	\$rings[ 'freestyle' ]  = preg_grep( '/ring|staging/', scandir( '/usr/local/freescore/data/' . \$tournament[ 'db' ] . '/forms-freestyle'  ));
 	\$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( \$rings[ 'grassroots' ], \$rings[ 'worldclass' ], \$rings[ 'freestyle' ] )))));
 	asort( \$rings );
 	\$tournament[ 'rings' ] = \$rings;

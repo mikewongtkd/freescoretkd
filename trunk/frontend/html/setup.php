@@ -184,8 +184,8 @@ $( '#accept' ).off( 'click' ).click(() => {
 	var request  = { data : { type : 'setup', action : 'write', edits : { rings : rings, name : name, wifi : wifi }}};
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
-	// ws.send( request.json );
-	// sound.confirmed.play();
+	ws.send( request.json );
+	sound.confirmed.play();
 });
 
 // ===== SOFTWARE UPDATES
