@@ -247,8 +247,8 @@ $.widget( "freescore.register", {
 
 			if( ! defined( judges )) { text.html( "Network Error" ); return; }
 			if( judges.length == 0 ) {
-				text.html( "Division Error" );
-				alertify.error( "No divisions for this ring; please instruct ring operator to create a division." );
+				text.html( "No Divisions Found" );
+				alertify.error( "Please instruct computer operator to create a division." );
 				setTimeout( function() { location.reload(); }, 5000 );
 				return;
 			}
