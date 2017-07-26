@@ -225,11 +225,12 @@ var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
 
 ws.onopen = function() {
 	var request;
-	request = { data : { type : 'software', action : 'check updates' }};
+
+	request = { data : { type : 'setup', action : 'read' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 
-	request = { data : { type : 'setup', action : 'read' }};
+	request = { data : { type : 'software', action : 'check updates' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 };
