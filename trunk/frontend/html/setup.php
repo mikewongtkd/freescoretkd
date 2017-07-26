@@ -137,7 +137,7 @@
 									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="11">11</label>
 								</div>
 								<div>
-									<p><code class="bg-danger text-white">Red</code> High noise; <code class="bg-warning text-white">Orange</code> Medium noise; <code class="bg-default text-white">Grey</code> Low noise; <code class="bg-success text-white">Green</code> Current channel</p>
+									<p><code class="bg-danger text-white">Red</code> High noise; <code class="bg-warning text-white">Orange</code> Medium noise; <code class="bg-inverse text-white">Grey</code> Low noise; <code class="bg-success text-white">Green</code> Current channel</p>
 								</div>
 							</div>
 						</div>
