@@ -20,11 +20,11 @@
 		<style type="text/css">
 			@font-face {
 			  font-family: Nimbus;
-			  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+			  src: url("include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
 			@font-face {
 			  font-family: Biolinum;
 			  font-weight: bold;
-			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+			  src: url("include/fonts/LinBiolinum_Rah.ttf"); }
 			.page-footer { text-align: center; }
 			.btn-default.active {
 				background-color: #77b300;
@@ -185,7 +185,8 @@ $( '#accept' ).off( 'click' ).click(() => {
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
 	ws.send( request.json );
-	sound.confirmed.play();
+	sound.send.play();
+	setTimeout( function() { window.location = 'index.php' }, 500 );
 });
 
 // ===== SOFTWARE UPDATES

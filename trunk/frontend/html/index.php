@@ -19,11 +19,11 @@
 		<style type="text/css">
 			@font-face {
 			  font-family: Nimbus;
-			  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+			  src: url("include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
 			@font-face {
 			  font-family: Biolinum;
 			  font-weight: bold;
-			  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+			  src: url("include/fonts/LinBiolinum_Rah.ttf"); }
 			.register { margin-top: 18px; }
 			.page-footer { text-align: center; }
 

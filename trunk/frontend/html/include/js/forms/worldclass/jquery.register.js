@@ -40,12 +40,8 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 		register.network.error = function() {
 		// ------------------------------------------------------------
-			bootbox.dialog({
-				title:   "Network Error!",
-				message: "Cannot contact the server. Check that the <code>worldclass</code> service is running and try to reconnect.",
-				buttons: { confirm : { label: 'Reconnect', className: 'btn-success', callback: function() { location.reload( true ); }}},
-				closeButton: false
-			});
+			alertify.error( "Cannot contact the worldclass server. Reconnecting..." );
+			setTimeout( function() { location.reload( true ); }, 5000 );
 		};
 
 		// ------------------------------------------------------------
@@ -249,6 +245,13 @@ $.widget( "freescore.register", {
 			register.roles.view .hide();
 			var judges = o.judges;
 
+			if( ! defined( judges )) { text.html( "Network Error" ); return; }
+			if( judges.length == 0 ) {
+				text.html( "Division Error" );
+				alertify.error( "No divisions for this ring; please create a division." );
+				setTimeout( function() { location.reload(); }, 5000 );
+				return;
+			}
 			text.html( "Which judge?" );
 			register.judges.data = [];
 			judges.forEach(( j, i ) => {
