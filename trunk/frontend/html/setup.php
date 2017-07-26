@@ -137,7 +137,7 @@
 									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="11">11</label>
 								</div>
 								<div>
-									<code class="bg-danger text-white">Red</code> High noise; <code class="bg-warning text-white">Orange</code> Medium noise; <code class="bg-primary text-white">Blue</code> Low noise; <code class="bg-success text-white">Green</code> Current channel
+									<p><code class="bg-danger text-white">Red</code> High noise; <code class="bg-warning text-white">Orange</code> Medium noise; <code class="bg-default text-white">Grey</code> Low noise; <code class="bg-success text-white">Green</code> Current channel</p>
 								</div>
 							</div>
 						</div>
@@ -216,7 +216,7 @@ function set_wifi_form( wifi ) {
 			var label = $( el ).parent();
 			if( max >= 0.66 ) { label.addClass( 'btn-danger' ); } else
 			if( max >= 0.33 ) { label.addClass( 'btn-warning' ); } else
-			                  { label.addClass( 'btn-primary' ); }
+			                  { label.addClass( 'btn-default' ); }
 			console.log( channel, max );
 		});
 	}
