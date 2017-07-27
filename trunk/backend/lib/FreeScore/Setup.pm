@@ -72,12 +72,13 @@ sub update_wifi {
 # ============================================================
 	my $self  = shift;
 	my $edits = shift;
+	my $wifi  = $self->{ wifi };
 
-	$self->{ wpa_passphrase } = $edits->{ pass }    if $edits->{ pass };
-	$self->{ ssid }           = $edits->{ ssid }    if $edits->{ ssid };
-	$self->{ channel }        = $edits->{ channel } if $edits->{ channel };
-	$self->{ wifi }->write_config();
-	$self->{ wifi }->restart();
+	$wifi->{ config }{ wpa_passphrase } = $edits->{ pass }    if $edits->{ pass };
+	$wifi->{ config }{ ssid }           = $edits->{ ssid }    if $edits->{ ssid };
+	$wifi->{ config }{ channel }        = $edits->{ channel } if $edits->{ channel };
+	$wifi->write_config();
+	$wifi->restart();
 }
 
 # ============================================================

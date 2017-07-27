@@ -35,8 +35,10 @@ sub read_available_channels {
 	my $available = [];
 
 	return unless -e $self->{ file };
+	my $hostapd = `which hostapd`;
+	return unless $hostapd;
 
-	@lines = split /\n/, `hostapd -dd $self->{ file } | grep -i 'allowed channel'`;
+	@lines = split /\n/, `$hostapd -dd $self->{ file } | grep -i 'allowed channel'`;
 	foreach (@lines) { push @$available, $1 if( /chan=(\d+)/ ); }
 	$self->{ available } = [ sort { $a <=> $b } @$available ];
 
@@ -52,9 +54,10 @@ sub read_channels {
 	my $entry    = {};
 	my $current  = undef;
 
-	return unless `which iwlist`;
+	my $iwlist = `which iwlist`;
+	return unless $iwlist;
 
-	@lines = split /\n/, `iwlist wlan0 scan`;
+	@lines = split /\n/, `$iwlist wlan0 scan`;
 	if( $lines[ 0 ] =~ /no scan results/i ) { $self->{ channels } = undef; }
 
 	foreach (@lines) {

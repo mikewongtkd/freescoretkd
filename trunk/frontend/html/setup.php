@@ -30,6 +30,13 @@
 				background-color: #77b300;
 				border-color: #558000;
 			}
+			.pill {
+				padding: 4px;
+				border-radius: 4px;
+			}
+			#wifi-pass {
+				font-family: monospace;
+			}
 		</style>
 	</head>
 	<body>
@@ -116,7 +123,8 @@
 						<div class="form-group row">
 							<label for="wifi-pass" class="col-xs-2 col-form-label">FreeScore Wifi Password</label>
 							<div class="col-xs-10">
-								<input class="form-control" type="text" name="wifi-pass" id="wifi-pass" style="width:80%;">
+								<button type="button" id="random-pass" class="btn btn-primary pull-right">Generate Random Password</button>
+								<input class="form-control" type="text" name="wifi-pass" id="wifi-pass" style="width:60%;">
 							</div>
 						</div>
 
@@ -137,7 +145,7 @@
 									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="11">11</label>
 								</div>
 								<div>
-									<p><code class="bg-danger text-white">Red</code> High noise; <code class="bg-warning text-white">Orange</code> Medium noise; <code class="bg-inverse text-white">Grey</code> Low noise; <code class="bg-success text-white">Green</code> Current channel</p>
+									<p style="margin-top: 10px;"><span class="bg-danger text-white pill">Red</span> High noise; <span class="bg-warning text-white pill">Orange</span> Medium noise; <span class="bg-inverse text-white pill">Grey</span> Low noise; <span class="bg-success text-white pill">Green</span> Current channel</p>
 								</div>
 							</div>
 						</div>
@@ -193,6 +201,18 @@ $( '#accept' ).off( 'click' ).click(() => {
 	ws.send( request.json );
 	sound.send.play();
 	setTimeout( function() { window.location = 'index.php' }, 500 );
+});
+$( '#random-pass' ).off( 'click' ).click(() => {
+	var password = '';
+	for( i = 0; i < 8; i++ ) {
+		var j = Math.floor( Math.random() * 62 );
+		var c = '';
+		if( j < 10 ) { c = String.fromCharCode( j + 48 ); } else
+		if( j < 36 ) { c = String.fromCharCode( j + 55 ); } else
+		             { c = String.fromCharCode( j + 61 ); }
+		password = password + c;
+	}
+	$( '#wifi-pass' ).val( password );
 });
 
 // ===== SOFTWARE UPDATES
