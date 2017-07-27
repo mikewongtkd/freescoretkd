@@ -186,7 +186,7 @@ $( '#accept' ).off( 'click' ).click(() => {
 	// Identify desired ring configuration
 	var rings    = $( 'label.active input[name=ring]' ).map(( i, el ) => { return parseInt($( el ).val()); }).toArray();
 	var name     = $( '#tournament-name' ).val();
-	var wifi     = { pass : $( '#wifi-pass' ).val(), ssid : $( '#wifi-ssid' ).val(), channel: $( '#wifi-channel' ).val() };
+	var wifi     = { pass : $( '#wifi-pass' ).val(), ssid : $( '#wifi-ssid' ).val(), channel: $( '#wifi-channel input[name=wifi-channel]:checked' ).val() };
 	var request  = { data : { type : 'setup', action : 'write', edits : { rings : rings, name : name, wifi : wifi }}};
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
