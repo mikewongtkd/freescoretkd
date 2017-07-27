@@ -178,7 +178,10 @@ $.each( tournament.rings, (i, r) => {
 		} 
 	});
 });
-$( '#cancel' ).off( 'click' ).click(() => { location = "index.php"; });
+$( '#cancel' ).off( 'click' ).click(() => { 
+	sound.next.play();
+	setTimeout( function() { window.location = 'index.php' }, 500 ); 
+});
 $( '#accept' ).off( 'click' ).click(() => { 
 	// Identify desired ring configuration
 	var rings    = $( 'label.active input[name=ring]' ).map(( i, el ) => { return parseInt($( el ).val()); }).toArray();
@@ -217,7 +220,6 @@ function set_wifi_form( wifi ) {
 			if( max >= 0.66 ) { label.addClass( 'btn-danger' ); } else
 			if( max >= 0.33 ) { label.addClass( 'btn-warning' ); } else
 			                  { label.addClass( 'btn-default' ); }
-			console.log( channel, max );
 		});
 	}
 	$( '#wifi-channel label input[value=' + wifi.config.channel + ']' ).parent().addClass( 'active' );

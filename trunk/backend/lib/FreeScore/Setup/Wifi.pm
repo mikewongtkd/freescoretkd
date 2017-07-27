@@ -15,9 +15,9 @@ sub init {
 	my $self = shift;
 	$self->{ file } = '/etc/hostapd/hostapd.conf';
 
-	$self->read_config()             if -e $self->{ file };
-	$self->read_available_channels() if -e $self->{ file };
-	$self->read_channels()           if `which iwlist`;
+	$self->read_config();
+	$self->read_available_channels();
+	$self->read_channels();
 }
 
 # ============================================================
@@ -31,9 +31,12 @@ sub channels {
 sub read_available_channels {
 # ============================================================
 	my $self      = shift;
-	my @lines     = split /\n/, `hostapd -dd $self->{ file } | grep -i 'allowed channel'`;
+	my @lines     = ();
 	my $available = [];
 
+	return unless -e $self->{ file };
+
+	@lines = split /\n/, `hostapd -dd $self->{ file } | grep -i 'allowed channel'`;
 	foreach (@lines) { push @$available, $1 if( /chan=(\d+)/ ); }
 	$self->{ available } = [ sort { $a <=> $b } @$available ];
 
@@ -44,11 +47,14 @@ sub read_available_channels {
 sub read_channels {
 # ============================================================
 	my $self     = shift;
-	my @lines    = split /\n/, `iwlist wlan0 scan`;
+	my @lines    = ();
 	my $channels = [];
 	my $entry    = {};
 	my $current  = undef;
 
+	return unless `which iwlist`;
+
+	@lines = split /\n/, `iwlist wlan0 scan`;
 	if( $lines[ 0 ] =~ /no scan results/i ) { $self->{ channels } = undef; }
 
 	foreach (@lines) {
@@ -70,25 +76,10 @@ sub read_channels {
 sub read_config {
 # ============================================================
 	my $self   = shift;
-	my $config = {
-		interface => 'wlan0',
-		driver => 'nl80211',
-		ctrl_interface =>'/var/run/hostapd',
-		ctrl_interface_group => '0',
-		ssid =>'freescore',
-		hw_mode => 'g',
-		channel => '8',
-		wpa => '2',
-		wpa_passphrase => 'password',
-		wpa_key_mgmt => 'WPA-PSK',
-		wpa_pairwise => 'CCMP',
-		rsn_pairwise => 'CCMP',
-		beacon_int => '100',
-		auth_algs => '3',
-		wmm_enabled => '1',
-	};
+	my $config = {};
 
-=pod
+	return unless( -e $self->{ file });
+
 	open FILE, $self->{ file } or die "Can't read file '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
@@ -97,10 +88,17 @@ sub read_config {
 		$config->{ $key } = $value;
 	}
 	close FILE;
-=cut
 	$self->{ config } = $config;
 
 	return $config;
+}
+
+# ============================================================
+sub restart {
+# ============================================================
+	my $self = shift;
+	if   ( `which systemctl` ) { `systemctl restart hostapd`; }
+	elsif( `which service`   ) { `service hostapd restart`; }
 }
 
 # ============================================================
@@ -108,9 +106,26 @@ sub write_config {
 # ============================================================
 	my $self = shift;
 	return unless( -e $self->{ file } );
+	my @keys = ( qw( 
+		interface 
+		driver 
+		ctrl_interface 
+		ctrl_interface_group 
+		ssid 
+		hw_mode 
+		channel 
+		wpa 
+		wpa_passphrase 
+		wpa_key_mgmt 
+		wpa_pairwise 
+		rsn_pairwise 
+		beacon_int 
+		auth_algs 
+		wmm_enabled 
+	));
 
 	open FILE, ">$self->{ file }" or die "Can't write to '$self->{ file }' $!";
-	foreach my $key (qw( interface driver ctrl_interface ctrl_interface_group ssid hw_mode channel wpa wpa_passphrase wpa_key_mgmt wpa_pairwise rsn_pairwise beacon_int auth_algs wmm_enabled )) {
+	foreach my $key (@keys) {
 		print FILE "$key=$self->{ config }{ $key }\n";
 		print FILE "\n" if $key eq "channel"; # Put a newline to separate general wifi config with password/encryption config
 	}

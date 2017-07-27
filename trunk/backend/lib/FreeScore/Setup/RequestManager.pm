@@ -116,7 +116,8 @@ sub handle_setup_write {
 	my $client     = $self->{ _client };
 
 	if( exists $request->{ edits } ) {
-		$setup->update_rings( $request->{ edits }{ rings } ) if( exists $request->{ edits }{ rings } );
+		$setup->update_rings( $request->{ edits }{ rings }) if( exists $request->{ edits }{ rings });
+		$setup->update_wifi( $request->{ edits }{ wifi })   if( exists $request->{ edits }{ wifi });
 	}
 	$setup->write();
 
