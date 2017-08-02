@@ -100,8 +100,21 @@ sub read_config {
 sub restart {
 # ============================================================
 	my $self = shift;
-	if   ( `which systemctl` ) { `systemctl restart hostapd`; }
-	elsif( `which service`   ) { `service hostapd restart`; }
+
+	# Try System V or System D commands
+	my $systemctl = `which systemctl`;
+	my $service   = `which service`;
+	if   ( $systemctl ) { `$systemctl restart hostapd`; }
+	elsif( $service   ) { `$service hostapd restart`; }
+
+	# Brute force if all else fails
+	my $running = grep { /hostapd/ } split /\n/, `ps -ef`;
+	my $hostapd = `which hostapd`;
+	if( ! $running ) { `$hostapd -B /etc/hostapd/hostapd.conf &`; }
+
+	# The nuclear option
+	$running = grep { /hostapd/ } split /\n/, `ps -ef`;
+	if( ! $running ) { `shutdown -r now`; }
 }
 
 # ============================================================
