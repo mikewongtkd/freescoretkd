@@ -110,7 +110,7 @@ sub restart {
 	# Brute force if all else fails
 	my $running = grep { /hostapd/ } split /\n/, `ps -ef`;
 	my $hostapd = `which hostapd`;
-	if( ! $running ) { `$hostapd -B /etc/hostapd/hostapd.conf &`; }
+	if( ! $running ) { `$hostapd -B -P /run/hostapd.pid $self->{ file } &`; }
 
 	# The nuclear option
 	$running = grep { /hostapd/ } split /\n/, `ps -ef`;
