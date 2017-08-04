@@ -111,10 +111,6 @@ sub restart {
 	my $running = grep { /hostapd/ } split /\n/, `ps -ef`;
 	my $hostapd = `which hostapd`;
 	if( ! $running ) { `$hostapd -B -P /run/hostapd.pid $self->{ file } &`; }
-
-	# The nuclear option
-	$running = grep { /hostapd/ } split /\n/, `ps -ef`;
-	if( ! $running ) { `shutdown -r now`; }
 }
 
 # ============================================================

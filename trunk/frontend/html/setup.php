@@ -15,6 +15,7 @@
 		<script src="./include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="./include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="./include/alertify/alertify.min.js"></script>
+		<script src="./include/js/freescore.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -202,8 +203,6 @@ $( '#accept' ).off( 'click' ).click(() => {
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
 	ws.send( request.json );
-	sound.send.play();
-	setTimeout( function() { window.location = 'index.php' }, 500 );
 });
 $( '#random-pass' ).off( 'click' ).click(() => {
 	var password = '';
@@ -239,6 +238,11 @@ function set_wifi_form( wifi ) {
 	$( '#wifi-pass' ).removeAttr( 'disabled' );
 	$( '#random-pass' ).removeClass( 'disabled' );
 	$( '#wifi-channel label' ).removeClass( 'disabled' );
+
+	if( wifi.config.ssid ) {
+		$( '#wifi-ssid' ).val( wifi.config.ssid );
+		$( '.selectpicker' ).selectpicker( 'refresh' );
+	}
 
 	if( wifi.channels ) {
 		$( '#wifi-channel label input' ).each( (i, el) => { 
@@ -281,6 +285,12 @@ ws.onmessage = function( response ) {
 			set_wifi_form( wifi );
 		} else {
 			$( '#fs-wifi .panel-title' ).html( "FreeScore WiFi Server Configuration [Error: Configuration File Not Found]" );
+		}
+		if( defined( update.request ) && update.request.action == 'write' ) {
+			alertify.success( 'Configuration Saved.' );
+			alertify.notify( 'Reboot system if freescore wifi fails to restart.' );
+			sound.send.play();
+			setTimeout( function() { window.location = 'index.php' }, 5000 );
 		}
 	}
 };
