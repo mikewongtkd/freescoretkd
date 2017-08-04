@@ -37,6 +37,9 @@
 			#wifi-pass {
 				font-family: monospace;
 			}
+			label.disabled {
+				pointer-events: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -97,15 +100,15 @@
 					</div>
 				</div>
 
-				<div class="panel panel-primary" id="fs-wifi" style="display: none;">
+				<div class="panel panel-primary" id="fs-wifi">
 					<div class="panel-heading">
-						<h1 class="panel-title">FreeScore WiFi Server Configuration</h1>
+						<h1 class="panel-title">FreeScore WiFi Server Configuration [Loading... ]</h1>
 					</div>
 					<div class="panel-body">
 						<div class="form-group row">
 							<label for="wifi-ssid" class="col-xs-2 col-form-label">FreeScore Wifi Name</label>
 							<div class="col-xs-10">
-								<select class="selectpicker" id="wifi-ssid">
+								<select class="selectpicker" id="wifi-ssid" disabled>
 								  <optgroup label="Default">
 									<option value="freescore">freescore</option>
 								  </optgroup>
@@ -123,8 +126,8 @@
 						<div class="form-group row">
 							<label for="wifi-pass" class="col-xs-2 col-form-label">FreeScore Wifi Password</label>
 							<div class="col-xs-10">
-								<button type="button" id="random-pass" class="btn btn-primary pull-right">Generate Random Password</button>
-								<input class="form-control" type="text" name="wifi-pass" id="wifi-pass" style="width:60%;">
+								<button type="button" id="random-pass" class="btn btn-primary pull-right disabled">Generate Random Password</button>
+								<input class="form-control" type="text" name="wifi-pass" id="wifi-pass" style="width:60%;" disabled>
 							</div>
 						</div>
 
@@ -132,17 +135,17 @@
 							<label for="wifi-channel" class="col-xs-2 col-form-label">Wifi Channel</label>
 							<div class="col-xs-10">
 								<div class="btn-group" data-toggle="buttons" id="wifi-channel">
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="1" >1</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="2" >2</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="3" >3</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="4" >4</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="5" >5</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="6" >6</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="7" >7</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="8" >8</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="9" >9</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="10">10</label>
-									<label class="btn btn-default"><input type="radio" name="wifi-channel" value="11">11</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="1" >1</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="2" >2</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="3" >3</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="4" >4</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="5" >5</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="6" >6</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="7" >7</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="8" >8</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="9" >9</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="10">10</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="11">11</label>
 								</div>
 								<div>
 									<p style="margin-top: 10px;"><span class="bg-danger text-white pill">Red</span> High noise; <span class="bg-warning text-white pill">Orange</span> Medium noise; <span class="bg-inverse text-white pill">Grey</span> Low noise; <span class="bg-success text-white pill">Green</span> Current channel</p>
@@ -226,9 +229,16 @@ $( '#install-updates' ).off( 'click' ).click(() => {
 // ------------------------------------------------------------
 function set_wifi_form( wifi ) {
 // ------------------------------------------------------------
-	console.log( wifi );
 	$( '#ssid' ).val( wifi.config.ssid );
 	$( '#wifi-pass' ).val( wifi.config.wpa_passphrase );
+	$( '#fs-wifi .panel-title' ).html( "FreeScore WiFi Server Configuration" );
+
+	// ===== ENABLE ELEMENTS
+	$( '.selectpicker' ).removeAttr( 'disabled' );
+	$( '.selectpicker' ).selectpicker( 'refresh' );
+	$( '#wifi-pass' ).removeAttr( 'disabled' );
+	$( '#random-pass' ).removeClass( 'disabled' );
+	$( '#wifi-channel label' ).removeClass( 'disabled' );
 
 	if( wifi.channels ) {
 		$( '#wifi-channel label input' ).each( (i, el) => { 
@@ -269,7 +279,8 @@ ws.onmessage = function( response ) {
 		var wifi = update.setup.wifi;
 		if( wifi.config ) { 
 			set_wifi_form( wifi );
-			$( '#fs-wifi' ).fadeIn(); 
+		} else {
+			$( '#fs-wifi .panel-title' ).html( "FreeScore WiFi Server Configuration [Error: Configuration File Not Found]" );
 		}
 	}
 };
