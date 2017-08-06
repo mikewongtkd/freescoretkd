@@ -73,8 +73,10 @@ html, body {
 
 		td, th {
 			font-size: 10pt;
-			padding: 2px;
-			border: 1px solid #ddd;
+			text-align: center;
+			.btn-xs {
+				padding: 0 8px 2px 8px;
+			}
 		}
 		.acc { color: #d9534f; }
 		.pre { color: #337ab7; }

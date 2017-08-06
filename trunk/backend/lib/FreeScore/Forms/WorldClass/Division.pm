@@ -104,6 +104,27 @@ sub autopilot {
 }
 
 # ============================================================
+sub clear_score {
+# ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Clears the score for the given judge
+#*
+	my $self    = shift;
+	my $judge   = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	$athlete->{ scores }{ $round }->clear_score( $form, $judge );
+}
+
+
+# ============================================================
 sub distribute_evenly {
 # ============================================================
 #** @method ( group_name_array, athlete_array )

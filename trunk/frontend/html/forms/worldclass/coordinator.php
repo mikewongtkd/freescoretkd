@@ -127,15 +127,15 @@
 								<table>
 									<tr>
 										<td>&nbsp;</td>
-										<td id="j0-col">R</td>
-										<td id="j1-col">1</td>
-										<td id="j2-col">2</td>
-										<td id="j3-col">3</td>
-										<td id="j4-col">4</td>
-										<td id="j5-col">5</td>
-										<td id="j6-col">6</td>
-										<td>Score</td>
-										<td>Spread</td>
+										<th id="j0-col">R</th>
+										<th id="j1-col">1</th>
+										<th id="j2-col">2</th>
+										<th id="j3-col">3</th>
+										<th id="j4-col">4</th>
+										<th id="j5-col">5</th>
+										<th id="j6-col">6</th>
+										<th>Score</th>
+										<th>Spread</th>
 									</tr>
 									<tr>
 										<th class="acc">A</th>
@@ -161,6 +161,19 @@
 										<td id="score-pre" class="pre"></td>
 										<td id="spread-pre" class="pre"></td>
 									</tr>
+									<tr id="clear-judge-scores">
+										<td>&nbsp;</td>
+										<th id="j0-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th id="j1-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th id="j2-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th id="j3-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th id="j4-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th id="j5-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th id="j6-clr"><button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></button></th>
+										<th>&nbsp;</th>
+										<th>&nbsp;</th>
+									</tr>
+
 								</table>
 							</div>
 							<div class="penalties">
@@ -169,13 +182,13 @@
 									<a class="list-group-item" id="penalty-bounds"><span class="glyphicon glyphicon-log-out"></span>Out-of-bounds</a>
 									<a class="list-group-item" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
 									<a class="list-group-item" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
-									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
+									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-remove"  ></span>Clear Penalties</a>
 								</div>
 							</div>
 							<div class="decision">
 								<h4>Decision</h4>
 								<div class="list-group">
-									<a class="list-group-item" id="decision-withdraw"><span class="glyphicon glyphicon-remove"></span>Withdraw</a>
+									<a class="list-group-item" id="decision-withdraw"><span class="glyphicon glyphicon-minus"></span>Withdraw</a>
 									<a class="list-group-item" id="decision-disqualify"><span class="glyphicon glyphicon-ban-circle"></span>Disqualify</a>
 								</div>
 							</div>
@@ -315,6 +328,25 @@
 				}
 			};
 
+			var clearJudgeScore = function( i, judge, athlete ) {
+				return function() {
+					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
+					var title   = 'Clear ' + name + ' score for athlete ' + athlete + '?'; 
+					var message = 'Click OK to clear ' + name + ' score ' + athlete + ' or Cancel to do nothing.';
+					var ok      = function() {
+						var request  = { data : { type : 'division', action : 'clear judge score', judge: i }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+						sound.ok.play();
+						alertify.success( name + ' score cleared for ' + athlete );
+
+						return true;
+					}
+					var cancel  = function() { return true; }
+					alertify.confirm( title, message, ok, cancel );
+				};
+			};
+
 			var refresh = { 
 				athletes: function( division, currentDivision ) {
 					$( '#division-header' ).html( division.summary() );
@@ -378,9 +410,9 @@
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).hide(); 
 								$( ".penalties,.decision" ).show(); 
-								refresh.score( score.score.forms[ k ] );
+								refresh.score( score.score.forms[ k ], athlete.name(), true );
 							});
-							refresh.score( score.score.forms[ k ] );
+							refresh.score( score.score.forms[ k ], athlete.name(), true );
 							refresh.actions( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
@@ -396,7 +428,7 @@
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).show(); 
 								$( ".penalties,.decision" ).hide(); 
-								refresh.score( score.score.forms[ k ] );
+								refresh.score( score.score.forms[ k ], athlete.name(), false );
 							});
 
 						// ===== ATHLETE IN ANOTHER DIVISION
@@ -461,6 +493,7 @@
 							$( '#j' + i + '-col' ).show();
 							$( '#j' + i + '-acc' ).show();
 							$( '#j' + i + '-pre' ).show();
+							$( '#j' + i + '-clr' ).show();
 						} else {
 							// Judge registered but not needed
 							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-primary' ).off( 'click' ); }
@@ -470,6 +503,7 @@
 							$( '#j' + i + '-col' ).hide();
 							$( '#j' + i + '-acc' ).hide();
 							$( '#j' + i + '-pre' ).hide();
+							$( '#j' + i + '-clr' ).hide();
 						}
 					}
 				},
@@ -555,8 +589,7 @@
 					$( '#ring-completed' ).btsListFilter('#search-completed', { initial: false });
 
 				},
-				score: function( score ) {
-					console.log( 'SCORE:', score );
+				score: function( score, athlete, isCurrent ) {
 					var spread = { acc : [], pre : [] };
 					score.judge.forEach(( judge, i ) => {
 						var name = '#j' + i;
@@ -570,7 +603,12 @@
 						if( defined( judge.presentation )) { pre.html( judge.presentation.toFixed( 1 )); } else { pre.empty(); }
 						if( judge.minacc || judge.maxacc ) { acc.addClass( 'ignore' ); } else if( defined( judge.accuracy     )) { spread.acc.push( parseFloat( judge.accuracy ));     }
 						if( judge.minpre || judge.maxpre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
+
+						var clear = $( name + '-clr' );
+						clear.find( 'button' ).off( 'click' ).click( clearJudgeScore( i, judge, athlete ));
 					});
+					if( isCurrent ) { $( '#clear-judge-scores' ).show(); }
+					else            { $( '#clear-judge-scores' ).hide(); }
 
 					if( score.complete ) {
 						var acc = (Math.max.apply( null, spread.acc ) - Math.min.apply( null, spread.acc )).toFixed( 1 )

@@ -55,8 +55,9 @@ html, body {
   width: 100%; }
   #judge-scores table td, #judge-scores table th {
     font-size: 10pt;
-    padding: 2px;
-    border: 1px solid #ddd; }
+    text-align: center; }
+    #judge-scores table td .btn-xs, #judge-scores table th .btn-xs {
+      padding: 0 8px 2px 8px; }
   #judge-scores table .acc {
     color: #d9534f; }
   #judge-scores table .pre {

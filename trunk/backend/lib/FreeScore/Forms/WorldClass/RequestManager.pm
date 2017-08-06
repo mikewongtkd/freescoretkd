@@ -37,6 +37,7 @@ sub init {
 		athlete_prev       => \&handle_division_athlete_prev,
 		award_penalty      => \&handle_division_award_penalty,
 		award_punitive     => \&handle_division_award_punitive,
+		clear_judge_score  => \&handle_division_clear_judge_score,
 		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
 		form_next          => \&handle_division_form_next,
@@ -248,6 +249,29 @@ sub handle_division_athlete_prev {
 	try {
 		$division->autopilot( 'off' );
 		$division->previous_athlete();
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_clear_judge_score {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Clear score.\n" if $DEBUG;
+
+	try {
+		$division->clear_score( $request->{ judge } );
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );

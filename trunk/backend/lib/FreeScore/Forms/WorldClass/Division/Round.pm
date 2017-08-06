@@ -1,6 +1,6 @@
 package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
-use List::Util qw( all sum );
+use List::Util qw( all any sum );
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Dumper;
@@ -68,6 +68,20 @@ sub tiebreakers {
 	my $self = shift;
 
 	return $self->{ tiebreakers };
+}
+
+# ============================================================
+sub clear_score {
+# ============================================================
+# Records a given score. Will overwrite if the same judge has
+# given a previous score for the same form.
+#------------------------------------------------------------
+ 	my $self  = shift;
+	my $form  = shift;
+	my $judge = shift;
+
+	$self->{ forms }[ $form ]{ judge }[ $judge ] = new FreeScore::Forms::WorldClass::Division::Round::Score();
+	$self->{ forms }[ $form ]->{ complete } = 0;
 }
 
 # ============================================================
@@ -357,8 +371,8 @@ sub string {
 		}
 
 		# ===== RECORD PENALTIES
-		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} ) {
-			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds timelimit restart misconduct time ) } ) . "\n";
+		if( exists $form->{ penalty } && keys %{ $form->{ penalty }}) {
+			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds restart misconduct ) } ) . "\n";
 		}
 
 		# ===== RECORD SCORES
