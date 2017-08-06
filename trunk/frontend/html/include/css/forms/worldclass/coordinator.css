@@ -51,6 +51,20 @@ html, body {
   background-color: #eee;
   color: #aaa; }
 
+#judge-scores table {
+  width: 100%; }
+  #judge-scores table td, #judge-scores table th {
+    font-size: 10pt;
+    padding: 2px;
+    border: 1px solid #ddd; }
+  #judge-scores table .acc {
+    color: #d9534f; }
+  #judge-scores table .pre {
+    color: #337ab7; }
+  #judge-scores table .ignore {
+    text-decoration: line-through;
+    opacity: 0.2; }
+
 #back-to-divisions {
   margin-top: -3px; }
 

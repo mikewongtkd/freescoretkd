@@ -122,6 +122,47 @@
 									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
 								</div>
 							</div>
+							<div id="judge-scores">
+								<h4>Judge scores</h4>
+								<table>
+									<tr>
+										<td>&nbsp;</td>
+										<td id="j0-col">R</td>
+										<td id="j1-col">1</td>
+										<td id="j2-col">2</td>
+										<td id="j3-col">3</td>
+										<td id="j4-col">4</td>
+										<td id="j5-col">5</td>
+										<td id="j6-col">6</td>
+										<td>Score</td>
+										<td>Spread</td>
+									</tr>
+									<tr>
+										<th class="acc">A</th>
+										<td id="j0-acc" class="acc"></td>
+										<td id="j1-acc" class="acc"></td>
+										<td id="j2-acc" class="acc"></td>
+										<td id="j3-acc" class="acc"></td>
+										<td id="j4-acc" class="acc"></td>
+										<td id="j5-acc" class="acc"></td>
+										<td id="j6-acc" class="acc"></td>
+										<td id="score-acc" class="acc"></td>
+										<td id="spread-acc" class="acc"></td>
+									</tr>
+									<tr>
+										<th class="pre">P</th>
+										<td id="j0-pre" class="pre"></td>
+										<td id="j1-pre" class="pre"></td>
+										<td id="j2-pre" class="pre"></td>
+										<td id="j3-pre" class="pre"></td>
+										<td id="j4-pre" class="pre"></td>
+										<td id="j5-pre" class="pre"></td>
+										<td id="j6-pre" class="pre"></td>
+										<td id="score-pre" class="pre"></td>
+										<td id="spread-pre" class="pre"></td>
+									</tr>
+								</table>
+							</div>
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -326,6 +367,7 @@
 						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, form )));
 						var total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
 						var j         = parseInt( division.current.athleteId());
+						var k         = division.current.formId();
 
 						// ===== CURRENT ATHLETE
 						if( i == j && currentDivision ) { 
@@ -336,7 +378,9 @@
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).hide(); 
 								$( ".penalties,.decision" ).show(); 
+								refresh.score( score.score.forms[ k ] );
 							});
+							refresh.score( score.score.forms[ k ] );
 							refresh.actions( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
@@ -352,6 +396,7 @@
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).show(); 
 								$( ".penalties,.decision" ).hide(); 
+								refresh.score( score.score.forms[ k ] );
 							});
 
 						// ===== ATHLETE IN ANOTHER DIVISION
@@ -365,10 +410,13 @@
 
 					// ===== ACTION MENU BEHAVIOR
 					if( currentDivision ) { 
-						$( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show();
+						$( '#judge-scores' ).show();
+						$( '.navigate-division' ).hide(); $( '.penalties,.decision' ).show();
 					} else { 
-						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
-					$( ".navigate-athlete" ).hide();
+						$( '#judge-scores' ).hide();
+						$( '.navigate-division' ).show(); $( '.penalties,.decision' ).hide(); 
+					}
+					$( '.navigate-athlete' ).hide();
 				},
 				actions : function( division ) {
 					var athlete = division.current.athlete();
@@ -405,11 +453,23 @@
 						var name = "judge" + i;
 						if( i < update.judges.length ) {
 							var judge = update.judges[ i ];
+							// Judge registered and communicating
 							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge ) ); }
+							// Judge not registered or not communicating
 							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ); }
+
+							$( '#j' + i + '-col' ).show();
+							$( '#j' + i + '-acc' ).show();
+							$( '#j' + i + '-pre' ).show();
 						} else {
+							// Judge registered but not needed
 							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-primary' ).off( 'click' ); }
+							// Judge not needed
 							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' ); }
+
+							$( '#j' + i + '-col' ).hide();
+							$( '#j' + i + '-acc' ).hide();
+							$( '#j' + i + '-pre' ).hide();
 						}
 					}
 				},
@@ -494,6 +554,34 @@
 					});
 					$( '#ring-completed' ).btsListFilter('#search-completed', { initial: false });
 
+				},
+				score: function( score ) {
+					console.log( 'SCORE:', score );
+					var spread = { acc : [], pre : [] };
+					score.judge.forEach(( judge, i ) => {
+						var name = '#j' + i;
+						var acc = $( name + '-acc' );
+						var pre = $( name + '-pre' );
+
+						acc.removeClass( 'ignore' );
+						pre.removeClass( 'ignore' );
+
+						if( defined( judge.accuracy     )) { acc.html( judge.accuracy.toFixed( 1 ));     } else { acc.empty(); }
+						if( defined( judge.presentation )) { pre.html( judge.presentation.toFixed( 1 )); } else { pre.empty(); }
+						if( judge.minacc || judge.maxacc ) { acc.addClass( 'ignore' ); } else if( defined( judge.accuracy     )) { spread.acc.push( parseFloat( judge.accuracy ));     }
+						if( judge.minpre || judge.maxpre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
+					});
+
+					if( score.complete ) {
+						var acc = (Math.max.apply( null, spread.acc ) - Math.min.apply( null, spread.acc )).toFixed( 1 )
+						var pre = (Math.max.apply( null, spread.pre ) - Math.min.apply( null, spread.pre )).toFixed( 1 )
+						$( '#spread-acc' ).html( acc );
+						$( '#spread-pre' ).html( pre );
+						$( '#score-acc' ).html( score.adjusted.accuracy );
+						$( '#score-pre' ).html( score.adjusted.presentation );
+					} else {
+						$( '#spread-acc, #spread-pre, #score-acc, #score-pre' ).empty();
+					}
 				}
 			};
 		</script>

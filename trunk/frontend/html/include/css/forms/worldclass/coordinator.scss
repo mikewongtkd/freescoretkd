@@ -67,6 +67,24 @@ html, body {
 	}
 }
 
+#judge-scores {
+	table {
+		width: 100%;
+
+		td, th {
+			font-size: 10pt;
+			padding: 2px;
+			border: 1px solid #ddd;
+		}
+		.acc { color: #d9534f; }
+		.pre { color: #337ab7; }
+		.ignore { 
+			text-decoration: line-through;
+			opacity: 0.2;
+		}
+	}
+}
+
 #back-to-divisions {
 	margin-top: -3px;
 }
