@@ -38,6 +38,8 @@ sub checkout {
 	my $file        = $target->{ file } or die "No file specified for RCS checkout $!";
 	my $description = $target->{ description } || "$file";
 
+	return unless $self->{ available };
+
 	my @history = $self->history( $target );
 
 	# ===== INITIAL CHECK-IN, IF NO PREVIOUS HISTORY
@@ -58,6 +60,8 @@ sub commit {
 	my $message = shift;
 	my $file    = $target->{ file } or die "No file specified for RCS commit $!";
 
+	return unless $self->{ available };
+
 	chomp $message;
 	$message =~ s/'/\\'/g;
 	$message = "-m'$message'" if( $message );
@@ -74,6 +78,8 @@ sub history {
 	my @log         = split /\n/, `$self->{ log } $file 2>/dev/null`;
 	my $current     = {};
 	my @history     = ();
+
+	return unless $self->{ available };
 
 	while( @log ) {
 		local $_ = shift @log;
@@ -102,6 +108,8 @@ sub restore {
 	my $target      = shift;
 	my $version     = shift;
 	my $file        = $target->{ file } or die "No file specified for RCS history $!";
+
+	return unless $self->{ available };
 
 	my $command = "co -r$version $file 2>/dev/null";
 	system( $command );
