@@ -2,6 +2,7 @@ package FreeScore::Forms::WorldClass::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
+use FreeScore::RCS;
 use FreeScore::Forms::WorldClass;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -149,12 +150,19 @@ sub handle_division_award_penalty {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $penalty  = join( ", ", grep { $request->{ penalties }{ $_ } > 0 } sort keys %{ $request->{ penalties }} );
+	my $message  = $penalty ? "Award $penalty penalty to $athlete->{ name }\n" : "Clear penalties for $athlete->{ name }\n";
 
-	print STDERR "Award penalty.\n" if $DEBUG;
+	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->record_penalties( $request->{ penalties });
 		$division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -172,13 +180,20 @@ sub handle_division_award_punitive {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $request->{ athlete_id };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $decision = $request->{ decision };
+	my $message  = "Award punitive decision $decision penalty to $athlete->{ name }\n";
 
-	print STDERR "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n" if $DEBUG;
+	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division);
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
 		$division->next_available_athlete();
 		$division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -196,12 +211,18 @@ sub handle_division_athlete_delete {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $message  = "Deleting $athlete->{ name } from division\n";
 
-	print STDERR "Deleting athlete.\n" if $DEBUG;
+	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->remove_athlete( $request->{ athlete_id } );
 		$division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -267,12 +288,19 @@ sub handle_division_clear_judge_score {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' + $request->{ judge };
+	my $message  = "Clearing $jname score for $athlete->{ name }\n";
 
-	print STDERR "Clear score.\n" if $DEBUG;
+	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->clear_score( $request->{ judge } );
 		$division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -558,12 +586,20 @@ sub handle_division_score {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' + $request->{ judge };
+	my $message  = "$jname score for $athlete->{ name }\n";
 
-	print STDERR "Send score.\n" if $DEBUG;
+	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
 		$division->write();
+		$version->commit( $division, $message );
+
 		my $round    = $division->{ round };
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];

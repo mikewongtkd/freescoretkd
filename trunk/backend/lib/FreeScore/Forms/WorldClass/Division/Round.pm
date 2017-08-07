@@ -371,7 +371,7 @@ sub string {
 		}
 
 		# ===== RECORD PENALTIES
-		if( exists $form->{ penalty } && keys %{ $form->{ penalty }}) {
+		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} && any { $_ } values %{ $form->{ penalty }}) {
 			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds restart misconduct ) } ) . "\n";
 		}
 

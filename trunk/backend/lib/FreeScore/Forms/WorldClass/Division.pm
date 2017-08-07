@@ -1,5 +1,6 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
+use FreeScore::RCS;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
@@ -847,7 +848,7 @@ sub write {
 #** @method ()
 #   @brief Writes the division to the database
 #*
-	my $self = shift;
+	my $self    = shift;
 
 	$self->update_status();
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };

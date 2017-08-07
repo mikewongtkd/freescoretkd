@@ -19,12 +19,12 @@
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
+		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
-		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
@@ -173,7 +173,6 @@
 										<th>&nbsp;</th>
 										<th>&nbsp;</th>
 									</tr>
-
 								</table>
 							</div>
 							<div class="penalties">
@@ -189,7 +188,7 @@
 								<h4>Decision</h4>
 								<div class="list-group">
 									<a class="list-group-item" id="decision-withdraw"><span class="glyphicon glyphicon-minus"></span>Withdraw</a>
-									<a class="list-group-item" id="decision-disqualify"><span class="glyphicon glyphicon-ban-circle"></span>Disqualify</a>
+									<a class="list-group-item" id="decision-disqualify"><span class="glyphicon glyphicon-alert"></span>Disqualify</a>
 								</div>
 							</div>
 							<div class="administration">
@@ -200,6 +199,7 @@
 								<div class="list-group">
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
+									<a class="list-group-item" id="admin-results"><span class="fa fa-history"></span>Restore Backup</a>
 								</div>
 								<p class="text-muted">Make sure the judges and athletes are stopped before editing the division. Changing the athlete name will clear that athlete's scores.</p>
 							</div>
