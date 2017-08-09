@@ -43,11 +43,13 @@ sub init {
 		edit_athletes      => \&handle_division_edit_athletes,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
+		history            => \&handle_division_history,
 		judge_departure    => \&handle_division_judge_departure,
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
+		restore            => \&handle_division_restore,
 		round_next         => \&handle_division_round_next,
 		round_prev         => \&handle_division_round_prev,
 		score              => \&handle_division_score,
@@ -402,6 +404,26 @@ sub handle_division_form_prev {
 }
 
 # ============================================================
+sub handle_division_history {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+
+	print STDERR "Request history log\n" if $DEBUG;
+
+	my @history = $version->history( $division );
+	$self->broadcast_division_response( $request, $progress, $clients );
+
+	$client->send( { json => { type => 'division', action => 'history', history => \@history, division => { description => $division->{ description }} }} );
+}
+
+# ============================================================
 sub handle_division_judge_departure {
 # ============================================================
 	my $self     = shift;
@@ -528,6 +550,31 @@ sub handle_division_read {
 	print STDERR "Request division data.\n" if $DEBUG;
 
 	$self->send_division_response( $request, $progress, $clients );
+}
+
+# ============================================================
+sub handle_division_restore {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+
+	print STDERR "Restoring division to version $request->{ version }\n" if $DEBUG;
+
+	try {
+		$version->restore( $request->{ version } );
+		$division->read();
+		$self->broadcast_division_response( $request, $progress, $clients );
+
+		$self->send_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================

@@ -199,9 +199,9 @@
 								<div class="list-group">
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
-									<a class="list-group-item" id="admin-results"><span class="fa fa-history"></span>Restore Backup</a>
+									<a class="list-group-item" id="admin-history"><span class="fa fa-history"></span>Division History</a>
 								</div>
-								<p class="text-muted">Make sure the judges and athletes are stopped before editing the division. Changing the athlete name will clear that athlete's scores.</p>
+								<p class="text-muted">Make sure the judges and athletes are stopped before editing the division.</p>
 							</div>
 						</div>
 					</div>
@@ -444,9 +444,11 @@
 					if( currentDivision ) { 
 						$( '#judge-scores' ).show();
 						$( '.navigate-division' ).hide(); $( '.penalties,.decision' ).show();
+						$( '#admin-history' ).show();
 					} else { 
 						$( '#judge-scores' ).hide();
 						$( '.navigate-division' ).show(); $( '.penalties,.decision' ).hide(); 
+						$( '#admin-history' ).hide();
 					}
 					$( '.navigate-athlete' ).hide();
 				},
@@ -520,6 +522,7 @@
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=' + ring, '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
 							results    : () => { sound.next.play(); page.results = window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + ring + '&divid=' + divid, '_blank' )},
+							history    : () => { sound.next.play(); page.results = window.open( 'history.php?ring=' + ring, '_blank' )},
 						}
 					};
 
@@ -528,6 +531,7 @@
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
 					$( "#admin-results" )       .off( 'click' ).click( action.administration.results );
+					$( "#admin-history" )       .off( 'click' ).click( action.administration.history );
 				},
 				ring: function( ring ) {
 					$( '#ring-ready' ).empty();

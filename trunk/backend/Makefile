@@ -15,4 +15,4 @@ setup:
 	sudo hypnotoad -f ./bin/fswifi &
 
 clean:
-	sudo kill `ps -ef | grep 'hypnotoad -f' | awk '{ if( $$1 == 0 ) { print $$2 }}'`
+	sudo pkill -f hypnotoad
