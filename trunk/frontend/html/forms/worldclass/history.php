@@ -15,7 +15,7 @@
 <html>
 	<head>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/history.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -89,13 +89,12 @@
 				var update = JSON.parse( response.data );
 				console.log( update );
 
-				if( update.type == 'division' && update.action == 'history' ) {
+				if( update.type == 'division' && update.action == 'update' ) {
 					var division = update.division;
-					var history  = update.history;
-					if( ! defined( history )) { return; }
-					console.log( history );
+					if( ! defined( division )) { return; }
+					division = new Division( division );
 
-					refresh.history( division, history );
+					refresh.history( division );
 					if( page.num == 2 ) { page.transition() };
 				}
 			};
@@ -132,13 +131,15 @@
 			};
 
 			var refresh = { 
-				history: function( division, history ) {
-					$( '#division-header' ).html( division.description );
+				history: function( division ) {
+					$( '#division-header' ).html( division.summary() );
+					var history = division.history();
 
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#history' ).empty();
 					history.forEach(( revision, i ) => {
 						var button    = html.a.clone().addClass( "list-group-item" );
+						var datetime  = html.span.clone().addClass( "datetime" ).append( revision.datetime );
 						var name      = html.span.clone().addClass( "revision" ).append( revision.description );
 
 						button.off( 'click' ).click(( ev ) => { 
@@ -146,7 +147,7 @@
 						});
 						refresh.actions( division );
 
-						button.append( name );
+						button.append( datetime, name );
 						$( '#history' ).append( button );
 					});
 				},

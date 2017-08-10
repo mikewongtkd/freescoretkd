@@ -1,0 +1,125 @@
+
+html, body { 
+	height: 100%; 
+	overflow-x: hidden; 
+	font-family: Optima;
+}
+
+.pt-perspective {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	perspective: 1200px;
+}
+
+.pt-page {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	visibility: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
+	backface-visibility: hidden;
+	transform: translate3d(0, 0, 0);
+	transform-style: preserve-3d;
+}
+
+.pt-page-current,
+.no-js .pt-page {
+	visibility: visible;
+	z-index: 1;
+}
+
+.pt-page-ontop {
+	z-index: 999;
+}
+
+.page-header {
+	position: relative;
+	height: 48px;
+	width: 100%;
+	margin: 10px 0 16px 0;
+	padding: 8px 14px 8px 14px;
+	background-color: black;
+	color: gold;
+	font-size: 24pt;
+	line-height: 24pt;
+	font-weight: bold;
+	border-radius: 4px;
+
+	label[for=judges] {
+		font-size: 16px;
+		color: #ccc;
+		text-align: top;
+
+	}
+
+}
+
+#history {
+	height: 600px;
+	overflow-y: auto;
+
+	.list-group-item {
+		padding-top: 10px;
+		padding-bottom: 6px;
+	}
+}
+
+.datetime {
+	position: relative;
+	display: inline-block;
+	width: 20%;
+	font-size: 10pt;
+	color: #999;
+}
+
+.revision {
+	position: relative;
+	display: inline-block;
+	width: 80%;
+	font-size: 14pt;
+	line-height: 14pt;
+}
+
+.tab-pane {
+	padding: 20px;
+}
+
+a.active {
+	h4 { 
+		font-weight: bold; 
+		color: gold; 
+	}
+	b  { color: gold; }
+}
+
+.selected-revision {
+	background-color: gold !important;
+	.revision:before { color: #666; }
+}
+
+.row {
+	margin-left: -15px;
+	width: calc( 100% + 30px );
+	h4 { margin-left: 8px; }
+}
+
+.action-menu {
+	.list-group-item {
+		span { margin-right: 12px; }
+	}
+	.administration {
+		p { 
+			margin: 0 8px 0 8px; 
+			font-size: 9pt; 
+		}
+		.list-group-item {
+			background-color: #5bc0de;
+			border-color: #46b8da;
+			color: white;
+		}
+	}
+}

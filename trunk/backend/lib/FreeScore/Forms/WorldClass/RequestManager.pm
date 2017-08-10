@@ -417,10 +417,13 @@ sub handle_division_history {
 
 	print STDERR "Request history log\n" if $DEBUG;
 
-	my @history = $version->history( $division );
-	$self->broadcast_division_response( $request, $progress, $clients );
-
-	$client->send( { json => { type => 'division', action => 'history', history => \@history, division => { description => $division->{ description }} }} );
+	try {
+		my @history = $version->history( $division );
+		$division->{ history } = [ @history ];
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================

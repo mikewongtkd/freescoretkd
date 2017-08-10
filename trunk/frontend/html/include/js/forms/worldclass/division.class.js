@@ -10,6 +10,7 @@ function Division( division ) {
 	this.judges      = function() { return parseInt( division.judges ); }
 	this.forms       = function() { return division.forms;       }
 	this.ring        = function() { return division.ring;        }
+	this.history     = function() { return division.history;     }
 
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };

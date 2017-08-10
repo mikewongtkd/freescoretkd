@@ -409,7 +409,6 @@
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).hide(); 
-								$( ".penalties,.decision" ).show(); 
 								refresh.score( score.score.forms[ k ], athlete.name(), true );
 							});
 							refresh.score( score.score.forms[ k ], athlete.name(), true );
@@ -427,7 +426,6 @@
 								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.display.name()); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).show(); 
-								$( ".penalties,.decision" ).hide(); 
 								refresh.score( score.score.forms[ k ], athlete.name(), false );
 							});
 
@@ -443,11 +441,11 @@
 					// ===== ACTION MENU BEHAVIOR
 					if( currentDivision ) { 
 						$( '#judge-scores' ).show();
-						$( '.navigate-division' ).hide(); $( '.penalties,.decision' ).show();
+						$( '.navigate-division' ).hide();
 						$( '#admin-history' ).show();
 					} else { 
 						$( '#judge-scores' ).hide();
-						$( '.navigate-division' ).show(); $( '.penalties,.decision' ).hide(); 
+						$( '.navigate-division' ).show();
 						$( '#admin-history' ).hide();
 					}
 					$( '.navigate-athlete' ).hide();
