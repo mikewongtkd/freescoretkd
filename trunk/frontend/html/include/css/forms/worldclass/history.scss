@@ -71,15 +71,24 @@ html, body {
 .datetime {
 	position: relative;
 	display: inline-block;
-	width: 20%;
+	width: 18%;
 	font-size: 10pt;
+	color: #999;
+}
+
+.version {
+	position: relative;
+	display: inline-block;
+	width: 7%;
+	font-size: 14pt;
+	line-height: 14pt;
 	color: #999;
 }
 
 .revision {
 	position: relative;
 	display: inline-block;
-	width: 80%;
+	width: 75%;
 	font-size: 14pt;
 	line-height: 14pt;
 }
@@ -94,6 +103,8 @@ a.active {
 		color: gold; 
 	}
 	b  { color: gold; }
+	.datetime { color: gold; }
+	.version { color: gold; }
 }
 
 .selected-revision {

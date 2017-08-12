@@ -52,7 +52,7 @@
 							<div class="administration">
 								<h4>Administration</h4>
 								<div class="list-group">
-									<a class="list-group-item" id="admin-restore"><span class="glyphicon glyphicon-save"></span>Restore this Version</a>
+									<a class="list-group-item" id="admin-restore"><span class="glyphicon glyphicon-save"></span>Restore <span id='restore-version'>this Version</span></a>
 								</div>
 								<p class="text-muted">Make sure the judges and athletes are stopped before editing the division.</p>
 							</div>
@@ -130,35 +130,61 @@
 				ws.send( request.json );
 			};
 
+			var administration = {
+				restore : ( revision, division ) => {
+					return () => { 
+						sound.ok.play();
+						alertify.success( "Division restored to version " + revision.number );
+						console.log( "Restoring" );
+					}
+				}
+			};
+
 			var refresh = { 
 				history: function( division ) {
 					$( '#division-header' ).html( division.summary() );
 					var history = division.history();
 
-					// ===== POPULATE THE ATHLETE LIST
+					// ===== POPULATE THE HISTORY LIST
 					$( '#history' ).empty();
 					history.forEach(( revision, i ) => {
 						var button    = html.a.clone().addClass( "list-group-item" );
+						var version   = html.span.clone().addClass( "version" ).append( revision.number );
 						var datetime  = html.span.clone().addClass( "datetime" ).append( revision.datetime );
 						var name      = html.span.clone().addClass( "revision" ).append( revision.description );
 
 						button.off( 'click' ).click(( ev ) => { 
+							$( '#history a.list-group-item' ).removeClass( 'active' );
+							button.addClass( 'active' );
+							refresh.actions( revision, division );
+							$( '#restore-version' ).html( ' Version ' + revision.number );
 							sound.prev.play(); 
 						});
-						refresh.actions( division );
 
-						button.append( datetime, name );
+						button.append( version, datetime, name );
 						$( '#history' ).append( button );
 					});
+
+					// ===== DISABLE THE RESTORE BUTTON
+					$( '#admin-restore' ).css({ opacity: 0.25 }).off( 'click' );
 				},
-				actions : function( division ) {
+				actions : function( revision, division ) {
+					console.log( revision );
 					var action = {
 						administration : {
-							restore     : () => { sound.next.play(); administration.restore(); alertify.success( 'Restored' ); },
+							restore     : () => { 
+								sound.next.play(); 
+								alertify.confirm( 
+									'Restore Division ' + division.name().toUpperCase() + ' to Previous Version?', 
+									'<p>Restore Division ' + division.name().toUpperCase() + ' to version ' + revision.number + '?</p><p><span class="text-danger">' + revision.description + '</span></p><p>Click <b>OK</b> to restore, <b>Cancel</b> to not restore</p>',  
+									administration.restore( revision, division ),
+									() => { sound.prev.play(); }
+								); 
+							},
 						},
 					};
 
-					$( "#admin-restore" ) .off( 'click' ).click( action.administration.restore );
+					$( '#admin-restore' ) .css({ opacity: 1.0 }).off( 'click' ).click( action.administration.restore );
 				}
 			};
 		</script>

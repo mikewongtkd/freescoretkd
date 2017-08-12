@@ -57,14 +57,22 @@ html, body {
 .datetime {
   position: relative;
   display: inline-block;
-  width: 20%;
+  width: 18%;
   font-size: 10pt;
+  color: #999; }
+
+.version {
+  position: relative;
+  display: inline-block;
+  width: 7%;
+  font-size: 14pt;
+  line-height: 14pt;
   color: #999; }
 
 .revision {
   position: relative;
   display: inline-block;
-  width: 80%;
+  width: 75%;
   font-size: 14pt;
   line-height: 14pt; }
 
@@ -75,6 +83,10 @@ a.active h4 {
   font-weight: bold;
   color: gold; }
 a.active b {
+  color: gold; }
+a.active .datetime {
+  color: gold; }
+a.active .version {
   color: gold; }
 
 .selected-revision {

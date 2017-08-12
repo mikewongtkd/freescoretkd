@@ -85,18 +85,18 @@ sub history {
 		local $_ = shift @log;
 
 		if( /^revision (\d+\.\d+)/ ) {
-			if( exists $current->{ revision }) {
+			if( exists $current->{ number }) {
 				push @history, $current;
 				$current = {};
 			}
-			$current->{ revision } = $1;
+			$current->{ number } = $1;
 		}
 		if( /^date: ([^;]+);/ ) {
 			$current->{ datetime }    = $1;
 			$current->{ description } = shift @log;
 		}
 	}
-	push @history, $current if( exists $current->{ revision });
+	push @history, $current if( exists $current->{ number });
 
 	return @history;
 }
