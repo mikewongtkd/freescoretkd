@@ -28,7 +28,7 @@
 				$( '#new-division' ).css({ position: 'relative', top: '-120px', left: '28px' }).hide();
 				$( '#refresh' ).hide().click(( ev ) => { window.location.reload(); });
 				$('#elfinder').elfinder({
-					url : '/freescore/include/opt/elfinder/php/connector.grassroots.php',  // connector URL (REQUIRED)
+					url : '../../include/opt/elfinder/php/connector.grassroots.php',  // connector URL (REQUIRED)
 					getFileCallback: function( files, fm ) {
 						window.open( files.url, '_blank' );
 					},

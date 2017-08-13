@@ -29,7 +29,7 @@
 				$( '#new-division' ).css({ position: 'relative', top: '-120px', left: '28px' }).hide();
 				$( '#refresh' ).hide().click(( ev ) => { window.location.reload(); });
 				$( '#elfinder' ).elfinder({
-					url : '/freescore/include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
+					url : '../../include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
 					getFileCallback: function( files, fm ) { 
 						files.url = files.url.replace( /ring0/, '' );
 						files.url = files.url.replace( /\bdiv\./, '' );
