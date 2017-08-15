@@ -136,7 +136,7 @@
 					return () => { 
 						sound.ok.play();
 						alertify.success( "Division restored to version " + revision.number + ". Returning to Coordinator screen." );
-						setTimeout( () => { window.close(); }, 3000 );
+						setTimeout( () => { window.close(); }, 2500 );
 
 						request      = { data : { type : 'division', action : 'restore', divid : division.name(), version : revision.number }};
 						request.json = JSON.stringify( request.data );

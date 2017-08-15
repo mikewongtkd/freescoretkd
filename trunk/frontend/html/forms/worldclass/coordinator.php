@@ -330,9 +330,10 @@
 
 			var clearJudgeScore = function( i, judge, athlete ) {
 				return function() {
+					sound.next.play();
 					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
-					var title   = 'Clear ' + name + ' score for athlete ' + athlete + '?'; 
-					var message = 'Click OK to clear ' + name + ' score ' + athlete + ' or Cancel to do nothing.';
+					var title   = 'Clear ' + name + '\'s score for athlete ' + athlete + '?'; 
+					var message = 'Click <b class="text-danger">OK</b> to clear <b class="text-danger">' + name + '\'s</b> score for <b class="text-danger">' + athlete + '</b> or <b class="text-warning">Cancel</b> to do nothing.';
 					var ok      = function() {
 						var request  = { data : { type : 'division', action : 'clear judge score', judge: i }};
 						request.json = JSON.stringify( request.data );
@@ -342,7 +343,7 @@
 
 						return true;
 					}
-					var cancel  = function() { return true; }
+					var cancel  = function() { sound.prev.play(); return true; }
 					alertify.confirm( title, message, ok, cancel );
 				};
 			};
@@ -467,8 +468,8 @@
 							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current }} ); }
 						},
 						decision : {
-							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", "Click OK to withdraw " + athlete.name() + " from competition.   <strong>This action cannot be undone.</strong>", function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", "Click OK to disqualify " + athlete.name() + " from competition. <strong>This action cannot be undone.</strong>", function() { sound.ok.play(); action.decision.send( 'disqualify' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to disqualify <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'disqualify' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
 							send       : ( reason ) => { sendRequest( { data : { type : 'division', action : 'award punitive', decision: reason, athlete_id: current }} ); }
 						},
 					};
