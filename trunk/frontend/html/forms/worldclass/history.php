@@ -135,13 +135,12 @@
 				restore : ( revision, division ) => {
 					return () => { 
 						sound.ok.play();
-						alertify.success( "Division restored to version " + revision.number );
+						alertify.success( "Division restored to version " + revision.number + ". Returning to Coordinator screen." );
+						setTimeout( () => { window.close(); }, 3000 );
 
 						request      = { data : { type : 'division', action : 'restore', divid : division.name(), version : revision.number }};
 						request.json = JSON.stringify( request.data );
 						ws.send( request.json );
-
-						console.log( request.json );
 					}
 				}
 			};
