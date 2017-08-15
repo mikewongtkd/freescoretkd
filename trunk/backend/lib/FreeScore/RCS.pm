@@ -45,10 +45,10 @@ sub checkout {
 	# ===== INITIAL CHECK-IN, IF NO PREVIOUS HISTORY
 	if( ! @history ) {
 		$description =~ s/'/\\'/g;
-		`$self->{ ci } -t-'$description' -u $file`;
+		`$self->{ ci } -t-'$description' -u $file 2>/dev/null`;
 	}
 
-	my $command = "$self->{ co } -l $file 2>/dev/null";
+	my $command = "$self->{ co } -f -l $file 2>/dev/null";
 	system( $command );
 }
 
@@ -63,9 +63,9 @@ sub commit {
 	return unless $self->{ available };
 
 	chomp $message;
-	$message =~ s/'/\\'/g;
-	$message = "-m'$message'" if( $message );
-	my $command = "$self->{ ci } -u $message $file 2>/dev/null";
+	$message =~ s/"/\\"/g;
+	$message = "-m\"$message\"" if( $message );
+	my $command = "$self->{ ci } -u $message $file";
 	system( $command );
 }
 
