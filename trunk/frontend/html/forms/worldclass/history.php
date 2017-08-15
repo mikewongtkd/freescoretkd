@@ -29,6 +29,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/date.format.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
@@ -135,22 +136,43 @@
 					return () => { 
 						sound.ok.play();
 						alertify.success( "Division restored to version " + revision.number );
-						console.log( "Restoring" );
+
+						request      = { data : { type : 'division', action : 'restore', divid : division.name(), version : revision.number }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+
+						console.log( request.json );
 					}
 				}
+			};
+
+			var dateformat = ( datetime ) => {
+				var a = new Date( datetime + ' UTC');
+				var b = new Date();
+
+				if( a.getYear() == b.getYear()) {
+					if( a.getMonth() == b.getMonth()) {
+						if     ( a.getDate() == b.getDate()     ) { return a.format( "h:MM:ss TT" ); }
+						else if( a.getDate() == b.getDate() - 1 ) { return 'Yesterday, ' + a.format( "h:MM:ss TT" ); } 
+						else                                      { return a.format( "dddd, h:MM:ss TT" ); }
+					}
+					return a.format( "mm-dd h:MM:ss TT" );
+				}
+				return a.format( "yyyy-mm-dd h:MM:ss TT" );
 			};
 
 			var refresh = { 
 				history: function( division ) {
 					$( '#division-header' ).html( division.summary() );
 					var history = division.history();
+					if( ! defined( history )) { return; }
 
 					// ===== POPULATE THE HISTORY LIST
 					$( '#history' ).empty();
 					history.forEach(( revision, i ) => {
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var version   = html.span.clone().addClass( "version" ).append( revision.number );
-						var datetime  = html.span.clone().addClass( "datetime" ).append( revision.datetime );
+						var datetime  = html.span.clone().addClass( "datetime" ).append( dateformat( revision.datetime ));
 						var name      = html.span.clone().addClass( "revision" ).append( revision.description );
 
 						button.off( 'click' ).click(( ev ) => { 

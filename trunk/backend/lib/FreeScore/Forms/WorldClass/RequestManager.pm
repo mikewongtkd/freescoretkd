@@ -81,15 +81,15 @@ sub broadcast_division_response {
 	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
 
 	foreach my $id (sort keys %$clients) {
-		my $broadcast = $clients->{ $id };
-		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $division );
+		my $user      = $clients->{ $id };
+		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
+		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
-		print STDERR "    user: $id digest: $digest\n" if $DEBUG;
-		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
@@ -112,16 +112,16 @@ sub broadcast_ring_response {
 
 	print STDERR "  Broadcasting ring information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
-		my $broadcast = $clients->{ $id };
-		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $progress );
+		my $user      = $clients->{ $id };
+		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
+		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $progress );
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed };
 
-		print STDERR "    user: $id digest: $digest\n" if $DEBUG;
-		$broadcast->{ device }->send( { json => $response });
+		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+		$user->{ device }->send( { json => $response });
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
@@ -570,11 +570,11 @@ sub handle_division_restore {
 	print STDERR "Restoring division to version $request->{ version }\n" if $DEBUG;
 
 	try {
-		$version->restore( $request->{ version } );
+		$version->restore( $division, $request->{ version } );
 		$division->read();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$progress->update_division( $division );
 
-		$self->send_division_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -788,7 +788,7 @@ sub send_division_response {
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : "client") . "\n" if $DEBUG;
-	print STDERR "    user: $id digest: $digest\n" if $DEBUG;
+	printf STDERR "    user: %s message: %s\n", substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
@@ -816,7 +816,7 @@ sub send_ring_response {
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n" if $DEBUG;
-	print STDERR "    user: $id digest: $digest\n" if $DEBUG;
+	printf STDERR "    user: %s message: %s\n", substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
