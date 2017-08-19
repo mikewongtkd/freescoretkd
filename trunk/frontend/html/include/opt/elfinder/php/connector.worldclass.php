@@ -38,7 +38,9 @@ include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elFinderVolumeLocalFileSyste
  * @return bool|null
  **/
 function access($attr, $path, $data, $volume) {
-	return strpos(basename($path), '.') === 0       // if file/folder begins with '.' (dot)
+	$hidden = strpos(basename($path), '.')  === 0;     // if file/folder begins with '.' (dot)
+	$rcs    = strpos(basename($path), ',v') !== false; // if file/folder has ,v
+	return $hidden || $rcs
 		? !($attr == 'read' || $attr == 'write')    // set read+write to false, other (locked+hidden) set to true
 		:  null;                                    // else elFinder decide it itself
 }

@@ -1,18 +1,31 @@
 .PHONY: all setup worldclass grassroots freestyle
 
-all: setup grassroots worldclass freestyle
+all: all-start
 
-worldclass:
+all-start: setup-start grassroots-start worldclass-start freestyle-start
+
+worldclass-start:
 	sudo hypnotoad -f ./bin/worldclass &
 
-grassroots:
+grassroots-start:
 	sudo hypnotoad -f ./bin/grassroots &
 
-freestyle:
+freestyle-start:
 	sudo hypnotoad -f ./bin/freestyle &
 
-setup:
+setup-start:
 	sudo hypnotoad -f ./bin/fswifi &
 
-clean:
-	sudo pkill -f hypnotoad
+worldclass-stop:
+	pkill -f 'hypnotoad -f ./bin/worldclass'
+
+grassroots-stop:
+	pkill -f 'hypnotoad -f ./bin/grassroots'
+
+freestyle-stop:
+	pkill -f 'hypnotoad -f ./bin/freestyle'
+
+setup-stop:
+	pkill -f 'hypnotoad -f ./bin/setup'
+
+all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop

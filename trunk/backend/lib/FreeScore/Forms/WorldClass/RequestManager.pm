@@ -759,8 +759,9 @@ sub handle_ring_read {
 	my $progress = shift;
 	my $clients  = shift;
 	my $judges   = shift;
+	my $ring     = $request->{ ring } eq 'staging' ? 'Staging' : sprintf( "Ring %02d", $request->{ ring } );
 
-	print STDERR "Request ring data.\n" if $DEBUG;
+	print STDERR "Request $ring data.\n" if $DEBUG;
 
 	$self->send_ring_response( $request, $progress, $clients );
 }
