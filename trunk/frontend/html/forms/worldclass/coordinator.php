@@ -262,6 +262,9 @@
 				} else if( update.type == 'division' && update.action == 'judges' ) {
 					refresh.judges( update );
 
+				} else if( update.type == 'division' && update.action == 'judge goodbye' ) {
+					refresh.judge( update );
+
 				} else if( update.type == 'division' && update.action == 'update' ) {
 					var division = update.division;
 					if( ! defined( division )) { return; }
@@ -307,10 +310,10 @@
 				ws.send( request.json );
 			};
 
-			var depart = function( i, judge ) {
+			var depart = function( i, judge, state ) {
 				return function() {
 					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
-					var title   = 'Unregister device for ' + name + '?'; 
+					var title   = name + ' is ' + state; 
 					var message = 'Click OK to unregister device for ' + name + ' or Cancel to do nothing.';
 					var ok      = function() {
 						var request  = { data : { type : 'division', action : 'judge departure', cookie : { id: judge.id }}};
@@ -327,6 +330,13 @@
 					alertify.confirm( title, message, ok, cancel );
 				}
 			};
+
+			var judgeStatus = function( i, judge, state ) {
+				return function() {
+					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
+					alertify.error( name + ' is ' + state );
+				}
+			}
 
 			var clearJudgeScore = function( i, judge, athlete ) {
 				return function() {
@@ -481,15 +491,25 @@
 					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
 				},
+				judge: function( update ) {
+					var i      = update.judge;
+					var name   = "judge" + i;
+					var button = $( ".judges button." + name );
+					if( button.hasClass( 'btn-success' )) {
+						button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ).click( judgeStatus( i, {}, 'not registered' ));
+					} else if( button.hasClass( 'btn-primary' )) {
+							button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' );
+					}
+				},
 				judges : function( update ) {
 					for( var i = 0; i < 7; i++ ) {
 						var name = "judge" + i;
 						if( i < update.judges.length ) {
 							var judge = update.judges[ i ];
 							// Judge registered and communicating
-							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge ) ); }
+							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge, 'Ready' ) ); }
 							// Judge not registered or not communicating
-							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ); }
+							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ).click( judgeStatus( i, judge, 'not registered' )); }
 
 							$( '#j' + i + '-col' ).show();
 							$( '#j' + i + '-acc' ).show();
@@ -497,7 +517,7 @@
 							$( '#j' + i + '-clr' ).show();
 						} else {
 							// Judge registered but not needed
-							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-primary' ).off( 'click' ); }
+							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-primary' ).off( 'click' ).click( depart( i, judge, 'Not Needed' )); }
 							// Judge not needed
 							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' ); }
 

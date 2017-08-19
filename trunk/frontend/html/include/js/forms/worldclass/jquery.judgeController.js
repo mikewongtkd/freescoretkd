@@ -289,7 +289,7 @@ $.widget( "freescore.judgeController", {
 			if( different.division || different.round || different.athlete || different.form ) {
 				e.sound.next.play();
 				var athlete = division.current.athlete();
-				var judge   = o.num == 0 ? 'Referee' : 'Judge ' + judge;
+				var judge   = o.num == 0 ? 'Referee' : 'Judge ' + o.num;
 				var ring    = 'Ring ' + o.ring;
 				alertify.notify( ring + ' ' + judge + ' ready to score<br>' + athlete.display.name() + '<br>' + division.current.form.name() );
 

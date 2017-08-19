@@ -97,7 +97,18 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	# ----------------------------------------
 	# Handle disconnects
 	# ----------------------------------------
-	$self->on( finish => sub { delete $client->{ $group }{ $id }; });
+	$self->on( finish => sub { 
+		my $c = $client->{ $group }{ $id };
+		if( exists $c->{ judge } ) {
+			my $j = $c->{ judge };
+			foreach my $id (keys %{ $client->{ $group }}) {
+				$c = $client->{ $group }{ $id };
+				next if( exists $c->{ judge });
+				$c->{ device }->send({ json => { type => 'division', action => 'judge goodbye', judge => $j }});
+			}
+		}
+		delete $client->{ $group }{ $id }; 
+	});
 };
 
 # ============================================================
