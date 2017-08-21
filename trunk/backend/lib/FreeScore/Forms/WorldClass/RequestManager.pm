@@ -496,10 +496,10 @@ sub handle_division_judge_registration {
 
 	print STDERR "  Broadcasting judge registration information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
-		my $broadcast = $clients->{ $id };
+		my $user = $clients->{ $id };
 
-		print STDERR "    user: $id\n" if $DEBUG;
-		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
+		printf STDERR "    user: %s (%s)\n", $user->{ role }, substr( $id, 0, 4 ) if $DEBUG;
+		$user->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
 	}
 	print STDERR "\n" if $DEBUG;
 
