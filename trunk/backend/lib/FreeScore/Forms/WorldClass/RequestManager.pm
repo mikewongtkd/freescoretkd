@@ -56,6 +56,7 @@ sub init {
 		write              => \&handle_division_write,
 	};
 	$self->{ ring }        = {
+		division_delete    => \&handle_ring_division_delete,
 		division_next      => \&handle_ring_division_next,
 		division_prev      => \&handle_ring_division_prev,
 		read               => \&handle_ring_read,
@@ -140,6 +141,7 @@ sub handle {
 
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
 	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
+	print STDERR "Unknown request $type, $action\n";
 }
 
 # ============================================================
@@ -704,6 +706,27 @@ sub handle_division_write {
 			# ===== BROADCAST THE UPDATE
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_ring_division_delete {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Deleting division $request->{ divid }.\n" if $DEBUG;
+
+	try {
+		$progress->delete_division( $request->{ divid });
+		$progress->write();
+		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

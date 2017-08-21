@@ -61,6 +61,7 @@
 				<textarea id="athletes" class="panel-body"></textarea>
 				<div class="panel-footer">
 					<span id="user-message">Not enough forms selected. Please select forms.</span>
+					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
 					<button type="button" id="save-button" class="btn btn-success pull-right disabled"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
 					<div class="clearfix"></div>
 				</div>
@@ -166,7 +167,9 @@
 				var button = $( '#save-button' );
 				button.addClass( 'disabled' );
 				button.off( 'click' );
-			}}
+			}};
+			$( '#cancel-button' ).off( 'click' ).click(() => { sound.prev.play(); setTimeout( () => { window.close(); }, 500 ); });
+
 
 			ws.onopen      = function() {
 				if( divId != 'new' ) {

@@ -2,7 +2,7 @@
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
 	setcookie( 'judge', '', $clear_cookie, '/' );
-	setcookie( 'role', 'display', 0, '/' );
+	setcookie( 'role', 'history', 0, '/' );
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 	$k = json_decode( $tournament )->rings->count;
 	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 

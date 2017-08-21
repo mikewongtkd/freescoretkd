@@ -38,11 +38,9 @@
 
 a.list-group-item {
   display: block;
-  padding: 2px 10px 2px 10px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: hidden; }
-  a.list-group-item p {
-    margin: 0; }
+  padding: 2px 10px 2px 10px; }
+  a.list-group-item p.athletes {
+    font-size: 9pt;
+    margin: 12px 0 6px 0; }
 
 /*# sourceMappingURL=divisions.css.map */

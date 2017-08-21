@@ -66,7 +66,7 @@
 							<h4>Division</h4>
 							<div class="btn-group-vertical btn-block">
 								<a class="btn btn-success" href="division/editor.php?file=test/staging/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
-								<a class="btn btn-default disabled" id="staging-div-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+								<a class="btn btn-default disabled" id="staging-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
 								<a class="btn btn-default disabled" id="staging-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
 							</div>
 						</div>
@@ -91,7 +91,7 @@
 							<h4>Division</h4>
 							<div class="btn-group-vertical btn-block">
 								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
-								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
 							</div>
 						</div>
@@ -111,6 +111,9 @@
 				</div>
 		</div>
 		<script>
+			alertify.defaults.theme.ok     = "btn btn-danger";
+			alertify.defaults.theme.cancel = "btn btn-warning";
+
 			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
 			var html       = FreeScore.html;
@@ -157,7 +160,6 @@
 
 				ws.onmessage = network.message = function( response ) {
 					var update = JSON.parse( response.data );
-					console.log( update );
 
 					if( update.type == 'ring' && update.action == 'update' ) {
 						if( ! defined( update.ring )) { return; }
@@ -168,7 +170,7 @@
 
 			var refresh = {
 				rings : function( update ) {
-					var ring = { num: update.request.ring, divisions : update.ring.divisions };
+					var ring = { num: update.ring.name, divisions : update.ring.divisions };
 					if( ring.num == 'staging' ) { ring.name = 'staging'; ring.num = undefined; }
 					else {
 						if( ring.num < 10 ) { ring.name = 'ring0' + ring.num; } else { ring.name = 'ring' + ring.num; }
@@ -180,12 +182,21 @@
 						list.append( '<a class="list-group-item disabled">No Divisions</a>' );
 					}
 
+					// ===== DISABLE DIVISION-SPECIFIC ACTION BUTTONS UNTIL A DIVISION IS SELECTED
+					var action = { button: { edit: $( '#' + ring.name + '-div-edit' ), delete: $( '#' + ring.name + '-div-delete' ) }};
+					action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' );
+					action.button.delete.removeClass( 'btn-danger' ).addClass( 'disabled' );
+					action.button.edit.attr({ 'href': '#' });
+					action.button.delete.off( 'click' );
+
+					// ===== DISPLAY THE DIVISIONS
+					ring.divisions.sort(( a, b ) => { return a.name < b.name ? -1 : a.name > b.name; });
 					ring.divisions.forEach(( d ) => {
 						var division = new Division( d );
 						var button   = html.a.clone().addClass( "list-group-item" );
 						var summary  = html.span.clone().html( division.summary() ).addClass( 'division-summary' );
 						var count    = html.span.clone().html( division.athletes().length ).addClass( "badge" );
-						var athletes = html.p.clone().append( division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'hidden' );
+						var athletes = html.p.clone().append( division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'athletes hidden' );
 
 						button.empty();
 						button.append( summary, count, athletes );
@@ -197,8 +208,38 @@
 
 							$.cookie( 'divid', divid, { expires: 1, path: '/' });
 							sound.next.play();
-							$( 'a.list-group-item.active' ).removeClass( 'active' );
-							button.addClass( 'active' );
+
+							if( button.hasClass( 'active' )) {
+								$( 'a.list-group-item.active' ).removeClass( 'active' );
+								button.find( 'p.athletes' ).addClass( 'hidden' );
+								action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' );
+								action.button.delete.removeClass( 'btn-danger' ).addClass( 'disabled' );
+								action.button.edit.attr({ 'href': '#' });
+								action.button.delete.off( 'click' );
+
+							} else {
+								$( 'a.list-group-item.active' ).removeClass( 'active' );
+								$( 'a.list-group-item p.athletes' ).addClass( 'hidden' );
+								button.addClass( 'active' );
+								button.find( 'p.athletes' ).removeClass( 'hidden' );
+								action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' );
+								action.button.delete.addClass( 'btn-danger' ).removeClass( 'disabled' );
+								action.button.edit.attr({ 'href': 'division/editor.php?file=test/' + ring.num + '/' + divid });
+								action.button.delete.off( 'click' ).click(() => {
+									var title   = 'Delete Division ' + division.description + '?';
+									var message = 'Click <span class="txt-danger">OK</span> to delete division ' + division.description + ', or <span class="txt-warning">Cancel</span> to do nothing.';
+									var ok      = function() {
+										var request;
+										request      = { data : { type : 'ring', action : 'division delete', divid : divid }};
+										request.json = JSON.stringify( request.data );
+										ws.send( request.json );
+										sound.ok.play();
+									};
+									var cancel = function() { sound.prev.play(); }
+
+									alertify.confirm( title, message, ok, cancel );
+								});
+							}
 						});
 
 						list.append( button );

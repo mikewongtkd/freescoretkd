@@ -20,6 +20,7 @@ sub init {
 		# Note: the application may need to load both the ring and staging;
 		# this is application specific, so we do not facilitate it here
 		$self->{ path } = $ring eq 'staging' ? join( "/", $FreeScore::PATH, $tournament, $SUBDIR, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
+		$self->{ name } = $ring;
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
@@ -56,6 +57,27 @@ sub init {
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 	}
+}
+
+# ============================================================
+sub delete_division {
+# ============================================================
+	my $self     = shift;
+	my $divid    = shift;
+	my $i        = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
+
+	return unless $i >= 0;
+
+	# Advance to next division if deleting the current division
+	if( $divid == $self->{ current } ) { $self->next(); }
+
+	# Delete the division file
+	my $division = splice @{ $self->{ divisions }}, $i, 1;
+	unlink $division->{ file } if -e $division->{ file };
+
+	# Delete the division history
+	my $history = $division->{ file } . ",v";
+	unlink $history if -e $history;
 }
 
 # ============================================================

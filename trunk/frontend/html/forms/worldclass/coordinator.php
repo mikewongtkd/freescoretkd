@@ -1,8 +1,8 @@
 <?php 
-	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
+	$an_hour_ago = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
-	setcookie( 'judge', '', $clear_cookie, '/' );
-	setcookie( 'role', 'display', 0, '/' );
+	setcookie( 'judge', '', $an_hour_ago, '/' );
+	setcookie( 'role', 'computer operator', 0, '/' );
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 	$k = json_decode( $tournament )->rings->count;
 	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
