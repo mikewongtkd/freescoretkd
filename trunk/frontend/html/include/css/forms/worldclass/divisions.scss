@@ -32,6 +32,10 @@ body {
 }
 
 .list-group {
+	.list-group-item {
+		font-size: 12pt;
+	}
+
 	.ring {
 		font-size: 14pt;
 		color: #fff;
@@ -42,6 +46,12 @@ body {
 			color: #fff;
 			background-color: #337ab7;
 			border-color: #2e6da4;
+			cursor: default;
+		}
+	}
+
+	.disabled {
+		&:hover {
 			cursor: default;
 		}
 	}
@@ -57,13 +67,5 @@ a.list-group-item {
 	p {
 		margin: 0;
 	}
-}
-
-a.active {
-	h4 { 
-		font-weight: bold; 
-		color: gold; 
-	}
-	b  { color: gold; }
 }
 

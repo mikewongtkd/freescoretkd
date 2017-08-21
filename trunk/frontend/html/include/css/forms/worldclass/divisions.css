@@ -21,6 +21,8 @@
 .tab-pane {
   padding: 20px; }
 
+.list-group .list-group-item {
+  font-size: 12pt; }
 .list-group .ring {
   font-size: 14pt;
   color: #fff;
@@ -31,6 +33,8 @@
     background-color: #337ab7;
     border-color: #2e6da4;
     cursor: default; }
+.list-group .disabled:hover {
+  cursor: default; }
 
 a.list-group-item {
   display: block;
@@ -40,11 +44,5 @@ a.list-group-item {
   overflow-x: hidden; }
   a.list-group-item p {
     margin: 0; }
-
-a.active h4 {
-  font-weight: bold;
-  color: gold; }
-a.active b {
-  color: gold; }
 
 /*# sourceMappingURL=divisions.css.map */

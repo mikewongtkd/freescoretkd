@@ -56,7 +56,7 @@
 						<div class="col-sm-10">
 							<form role="form">
 								<div class="form-group">
-									<input id="staging-search" class="form-control" type="search" placeholder="Search..." />
+									<input id="staging-search" class="form-control" type="search" placeholder="Search Staging..." />
 								</div>
 								<div class="list-group" id="staging-divisions">
 								</div>
@@ -81,7 +81,7 @@
 						<div class="col-sm-10">
 							<form role="form">
 								<div class="form-group">
-									<input id="ring<?= $num ?>-search" class="form-control" type="search" placeholder="Search..." />
+									<input id="ring<?= $num ?>-search" class="form-control" type="search" placeholder="Search Ring <?= $i ?>..." />
 								</div>
 								<div class="list-group" id="ring<?= $num ?>-divisions">
 								</div>
@@ -103,7 +103,8 @@
 					<h4>File Manager</h4>
 
 					<p>You can drag-and-drop ring folders with divisions in them into
-					the <b>forms-worldclass</b> directory. You can also drag-and-drop
+					the <code class="text-muted">forms-worldclass</code> directory, or drag-and-drop division
+					files to one of the ring directories. You can also drag-and-drop
 					ring folders and/or division files files to your computer.</p>
 
 					<div id="elfinder" class="panel-body"></div>
@@ -129,8 +130,11 @@
 				target = target.replace( 'ring', '' );
 
 				if( target == 'files' ) {
+					// ElFinder rendering height "patch"
 					var height = $( '#elfinder .elfinder-workzone' ).height();
-					$( '#elfinder' ).height( height + 60 );
+					if( $( '#elfinder' ).height() < height + 60 ) {
+						$( '#elfinder' ).height( height + 60 );
+					}
 					return;
 				}
 
@@ -177,14 +181,14 @@
 					}
 
 					ring.divisions.forEach(( d ) => {
-						var division    = new Division( d );
-						var button      = html.a.clone().addClass( "list-group-item" );
-						var title       = html.p.clone().html( division.summary() );
-						var count       = division.athletes().length;
-						var description = html.p.clone().append( '<b>' + count + ' Athlete' + (count > 1 ? 's' : '') + ':</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'hidden' );
+						var division = new Division( d );
+						var button   = html.a.clone().addClass( "list-group-item" );
+						var summary  = html.span.clone().html( division.summary() ).addClass( 'division-summary' );
+						var count    = html.span.clone().html( division.athletes().length ).addClass( "badge" );
+						var athletes = html.p.clone().append( division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'hidden' );
 
 						button.empty();
-						button.append( title, description );
+						button.append( summary, count, athletes );
 						button.attr({ divid: division.name() });
 						button.off( 'click' ).click(( ev ) => {
 							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
