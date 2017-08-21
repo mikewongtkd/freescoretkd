@@ -35,31 +35,11 @@
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 
-		<script>
-			$( function() {
-				$( '#refresh' ).hide().click(( ev ) => { window.location.reload(); });
-				$( '#elfinder' ).elfinder({
-					url : '../../include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
-					getFileCallback: function( files, fm ) { 
-						files.url = files.url.replace( /ring0/, '' );
-						files.url = files.url.replace( /\bdiv\./, '' );
-						files.url = files.url.replace( /\.txt$/, '' );
-						window.open( files.url ); 
-					},
-					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'download', 'rm', 'duplicate', 'rename', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
-					contextmenu: {
-						files : [
-							'getfile', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'edit', 'rename'
-						]
-					},
-					soundPath: '../../include/opt/elfinder/sounds',
-				});
-			});
-		</script>
 	</head>
 	<body>
 		<div class="container">
 			<div class="page-header">Division Manager</div>
+
 			<ul class="nav nav-tabs">
 				<li><a data-toggle="tab" id="staging-tab" href="#staging">Staging</a></li>
 				<?php foreach( $t->rings as $i ): 
@@ -68,51 +48,66 @@
 					?>
 					<li><a data-toggle="tab" href="#ring<?= $num ?>">Ring <?= $i ?></a></li>
 				<?php endforeach; ?>
-				<li><a data-toggle="tab" href="#files">All Files</a></li>
+				<li><a data-toggle="tab" id="files-tab" href="#files">All Files</a></li>
 			</ul>
 			<div class="tab-content">
 				<div id="staging" class="tab-pane fade in">
-					<form role="form">
-						<div class="form-group">
-							<input id="search-completed" class="form-control" type="search" placeholder="Search..." />
+					<div class="row">
+						<div class="col-sm-10">
+							<form role="form">
+								<div class="form-group">
+									<input id="staging-search" class="form-control" type="search" placeholder="Search..." />
+								</div>
+								<div class="list-group" id="staging-divisions">
+								</div>
+							</form>
 						</div>
-						<div>
-							<a class="btn btn-block btn-success" href="division/editor.php?file=test/staging/new" target="_blank">New Division for Staging</a>
+						<div class="col-sm-2">
+							<h4>Division</h4>
+							<div class="btn-group-vertical btn-block">
+								<a class="btn btn-success" href="division/editor.php?file=test/staging/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
+								<a class="btn btn-default disabled" id="staging-div-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+								<a class="btn btn-default disabled" id="staging-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+							</div>
 						</div>
-						<div class="list-group" id="staging-divisions">
-						</div>
-					</form>
+					</div>
 				</div>
 				<?php foreach( $t->rings as $i ): 
 						$num = $i;
 						if( $num < 10 ) { $num = '0' . $num; }
-					?>
-					<div id="ring<?= $num ?>" class="tab-pane fade in">
-						<form role="form">
-							<div class="form-group">
-								<input id="search-completed" class="form-control" type="search" placeholder="Search..." />
+				?>
+				<div id="ring<?= $num ?>" class="tab-pane fade in">
+					<div class="row">
+						<div class="col-sm-10">
+							<form role="form">
+								<div class="form-group">
+									<input id="ring<?= $num ?>-search" class="form-control" type="search" placeholder="Search..." />
+								</div>
+								<div class="list-group" id="ring<?= $num ?>-divisions">
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-2">
+							<h4>Division</h4>
+							<div class="btn-group-vertical btn-block">
+								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
 							</div>
-							<div>
-								<a class="btn btn-block btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank">New Division for Ring <?= $num ?></a>
-							</div>
-							<div class="list-group" id="ring<?= $num ?>-divisions">
-							</div>
-						</form>
+						</div>
 					</div>
+				</div>
+				
 				<?php endforeach; ?>
 				<div id="files" class="tab-pane fade in">
-					<h4>Ring and Division Files</h4>
-					<p>FreeScore treats folders with the names like <code>ring01</code> as rings, 
-					where <code>01</code> is the two-digit ring number.</p>
+					<h4>File Manager</h4>
 
 					<p>You can drag-and-drop ring folders with divisions in them into
 					the <b>forms-worldclass</b> directory. You can also drag-and-drop
-					from FreeScore TKD to your computer.</p>
+					ring folders and/or division files files to your computer.</p>
 
-					<h4>File Manager</h4>
 					<div id="elfinder" class="panel-body"></div>
 				</div>
-			</div>
 		</div>
 		<script>
 			var host       = '<?= $host ?>';
@@ -132,6 +127,13 @@
 				var target = $( e.target ).attr( "href" );
 				target = target.replace( '#', '' );
 				target = target.replace( 'ring', '' );
+
+				if( target == 'files' ) {
+					var height = $( '#elfinder .elfinder-workzone' ).height();
+					$( '#elfinder' ).height( height + 60 );
+					return;
+				}
+
 				if( target != 'staging' ) { target = parseInt( target ); }
 
 				if( defined( ws )) { ws.close(); }
@@ -170,12 +172,16 @@
 					var list = $( '#' + ring.name + '-divisions' );
 					list.empty();
 
+					if( ring.divisions.length == 0 ) {
+						list.append( '<a class="list-group-item disabled">No Divisions</a>' );
+					}
+
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );
 						var button      = html.a.clone().addClass( "list-group-item" );
-						var title       = html.h4.clone().html( division.summary() );
+						var title       = html.p.clone().html( division.summary() );
 						var count       = division.athletes().length;
-						var description = html.p.clone().append( '<b>' + count + ' Athlete' + (count > 1 ? 's' : '') + ':</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
+						var description = html.p.clone().append( '<b>' + count + ' Athlete' + (count > 1 ? 's' : '') + ':</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'hidden' );
 
 						button.empty();
 						button.append( title, description );
@@ -193,11 +199,42 @@
 
 						list.append( button );
 					});
+					var search = $( '#' + ring.name + '-search' );
+					list.btsListFilter( search, { initial: false, resetOnBlur: false });
 				}
 			};
 
 			$( function() {
+				// ===== START WITH STAGING TAB
 				$( '#staging-tab' ).click();
+				
+				// ===== PREVENT LIST FILTER FORM FROM SUBMITTING ON ENTER
+				$( 'form' ).keydown(( ev ) => {
+					if( ev.keyCode == 13 ) {
+						ev.preventDefault();
+						$( ev.target ).blur();
+						return false;
+					}
+				});
+
+				// ===== CONFIGURE ELFINDER
+				$( '#elfinder' ).elfinder({
+					url : '../../include/opt/elfinder/php/connector.worldclass.php',  // connector URL (REQUIRED)
+					getFileCallback: function( files, fm ) { 
+						files.url = files.url.replace( /ring0/, '' );
+						files.url = files.url.replace( /\bdiv\./, '' );
+						files.url = files.url.replace( /\.txt$/, '' );
+						window.open( files.url ); 
+					},
+					commands : [ 'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'download', 'rm', 'duplicate', 'rename', 'upload', 'copy', 'cut', 'paste', 'edit', 'search', 'info', 'view', 'help', 'sort' ],
+					contextmenu: {
+						files : [
+							'getfile', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'edit', 'rename'
+						]
+					},
+					soundPath: '../../include/opt/elfinder/sounds',
+					height: '400px'
+				});
 			});
 		</script>
 	</body>

@@ -31,20 +31,39 @@ body {
 	padding: 20px;
 }
 
+.list-group {
+	.ring {
+		font-size: 14pt;
+		color: #fff;
+		background-color: #337ab7;
+		border-color: #2e6da4;
+
+		&:hover {
+			color: #fff;
+			background-color: #337ab7;
+			border-color: #2e6da4;
+			cursor: default;
+		}
+	}
+}
+
+a.list-group-item {
+	display: block;
+	padding: 2px 10px 2px 10px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+
+	p {
+		margin: 0;
+	}
+}
+
 a.active {
 	h4 { 
 		font-weight: bold; 
 		color: gold; 
 	}
 	b  { color: gold; }
-	.athlete-name:before {
-		content: 'Current';
-		color: gold;
-	}
-	.athlete-score {
-		.accuracy     { color: #fcc; }
-		.presentation { color: #ccf; }
-		.total        { color: #fff; }
-	}
 }
 

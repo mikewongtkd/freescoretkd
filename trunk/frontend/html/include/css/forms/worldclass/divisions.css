@@ -21,19 +21,30 @@
 .tab-pane {
   padding: 20px; }
 
+.list-group .ring {
+  font-size: 14pt;
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #2e6da4; }
+  .list-group .ring:hover {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    cursor: default; }
+
+a.list-group-item {
+  display: block;
+  padding: 2px 10px 2px 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden; }
+  a.list-group-item p {
+    margin: 0; }
+
 a.active h4 {
   font-weight: bold;
   color: gold; }
 a.active b {
   color: gold; }
-a.active .athlete-name:before {
-  content: 'Current';
-  color: gold; }
-a.active .athlete-score .accuracy {
-  color: #fcc; }
-a.active .athlete-score .presentation {
-  color: #ccf; }
-a.active .athlete-score .total {
-  color: #fff; }
 
 /*# sourceMappingURL=divisions.css.map */
