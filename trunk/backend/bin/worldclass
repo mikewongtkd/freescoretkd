@@ -73,7 +73,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		# ===== READ PROGRESS
 		try   { 
 			$progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); 
-			if( $request->{ type } eq 'ring' ) {
+			if( $request->{ type } eq 'ring' && $ring ne 'staging' ) {
 				$staging = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
 				push @{$progress->{ divisions }}, @{$staging->{ divisions }};
 			}

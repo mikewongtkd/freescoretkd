@@ -88,8 +88,15 @@ sub transfer {
 	$division->{ file } = "$self->{ path }/../$to/div.$divid.txt";
 	$division->{ ring } = $to;
 
-	if( $division->write() ) { unlink $source; return 1; }
-	else                     { return 0; }
+	if( $division->write() ) { 
+		unlink $source; 
+		$self->next() if( $self->{ current } eq $divid );
+		my $i = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
+		splice @{ $self->{ divisions }}, $i, 1 if( $i >= 0 );
+		return 1; 
+	} else { 
+		return 0; 
+	}
 }
 
 # ============================================================
