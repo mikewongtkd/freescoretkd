@@ -53,6 +53,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		foreach my $name (qw( role judge id )) {
 			my $value = $self->cookie( $name );
 			if( defined $value ) {
+				$value =~ s/\+/ /g;
 				$request->{ cookie }{ $name } = $value;
 				if   ( $name eq 'judge'  ) { $client->{ $group }{ $id }{ role } = $value == 0 ? 'referee': 'judge' . $value; }
 				elsif( $name eq 'role'   ) { $client->{ $group }{ $id }{ role } = lc $value; }

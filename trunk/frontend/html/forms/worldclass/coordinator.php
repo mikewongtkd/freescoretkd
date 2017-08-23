@@ -46,6 +46,7 @@
 							<ul class="nav nav-tabs">
 								<li class="active"><a data-toggle="tab" href="#ready">Ready Divisions</a></li>
 								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
+								<li><a data-toggle="tab" href="#staging">Staging</a></li>
 							</ul>
 						</div>
 						<div class="pull-right judges">
@@ -77,6 +78,15 @@
 									<input id="search-completed" class="form-control" type="search" placeholder="Search..." />
 								</div>
 								<div class="list-group" id="ring-completed">
+								</div>
+							</form>
+						</div>
+						<div id="staging" class="tab-pane fade">
+							<form role="form">
+								<div class="form-group">
+									<input id="search-staging" class="form-control" type="search" placeholder="Search..." />
+								</div>
+								<div class="list-group" id="staging-divisions">
 								</div>
 							</form>
 						</div>
@@ -244,7 +254,7 @@
 					if( ! defined( update.ring )) { return; }
 					refresh.ring( update.ring );
 					var divid = $.cookie( 'divid' );
-					if( defined( divid )) {
+					if( defined( divid ) && divid != 'undefined' ) {
 						var division = update.ring.divisions.find(( d ) => { return d.name == divid; });
 						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
 						var curDiv   = division.name == current.name;
@@ -453,11 +463,11 @@
 					if( currentDivision ) { 
 						$( '#judge-scores' ).show();
 						$( '.navigate-division' ).hide();
-						$( '#admin-history' ).show();
+						$( '.penalties, .decision, .administration' ).show();
 					} else { 
 						$( '#judge-scores' ).hide();
 						$( '.navigate-division' ).show();
-						$( '#admin-history' ).hide();
+						$( '.penalties, .decision, .administration' ).hide();
 					}
 					$( '.navigate-athlete' ).hide();
 				},
@@ -534,7 +544,7 @@
 					var action = {
 						navigate : {
 							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); console.log( i ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
-							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); },
+							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); if( ring == 'staging' ) { alertify.success( "Transferred division from staging to ring. Starting to score division." ); setTimeout( function() { location.reload(); }, 3000 );}},
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
@@ -554,6 +564,8 @@
 				},
 				ring: function( ring ) {
 					$( '#ring-ready' ).empty();
+					$( '#ring-completed' ).empty();
+					$( '#staging-divisions' ).empty();
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );
 						var button      = html.a.clone().addClass( "list-group-item" );
@@ -576,40 +588,17 @@
 						});
 						if( d.name == ring.current ) { button.addClass( "active" ); }
 
-						if( ! division.is.complete()) {
+						if       ( division.ring() == 'staging' ) {
+							$( '#staging-divisions' ).append( button );
+						} else if( division.is.complete()) {
+							$( '#ring-completed' ).append( button );
+						} else {
 							$( '#ring-ready' ).append( button );
 						}
 					});
-					$( '#ring-ready' ).btsListFilter('#search-ready', { initial: false });
-
-					$( '#ring-completed' ).empty();
-					ring.divisions.forEach(( d ) => {
-						var division    = new Division( d );
-						var button      = html.a.clone().addClass( "list-group-item" );
-						var title       = html.h4.clone().html( division.summary() );
-						var count       = division.athletes().length;
-						var description = html.p.clone().append( '<b>' + count + ' Athlete' + (count > 1 ? 's' : '') + ':</b> ', division.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
-
-						button.empty();
-						button.append( title, description );
-						button.attr({ divid: division.name() });
-						button.off( 'click' ).click(( ev ) => {
-							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
-							var divid    = clicked.attr( 'divid' );
-							var division = ring.divisions.find(( d ) => { return d.name == divid; });
-
-							$.cookie( 'divid', divid, { expires: 1, path: '/' });
-							refresh.athletes( new Division( division ), division.name == ring.current );
-							sound.next.play();
-							page.transition();
-						});
-						if( d.name == ring.current ) { button.addClass( "active" ); }
-
-						if( division.is.complete()) {
-							$( '#ring-completed' ).append( button );
-						}
-					});
-					$( '#ring-completed' ).btsListFilter('#search-completed', { initial: false });
+					$( '#ring-ready' ).btsListFilter('#search-ready', { initial: false, resetOnBlur: false });
+					$( '#ring-completed' ).btsListFilter('#search-completed', { initial: false, resetOnBlur: false });
+					$( '#staging-divisions' ).btsListFilter('#search-staging', { initial: false, resetOnBlur: false });
 
 				},
 				score: function( score, athlete, isCurrent ) {
@@ -645,6 +634,17 @@
 					}
 				}
 			};
+
+			$( function() {
+				// ===== PREVENT LIST FILTER FORM FROM SUBMITTING ON ENTER
+				$( 'form' ).keydown(( ev ) => {
+					if( ev.keyCode == 13 ) {
+						ev.preventDefault();
+						$( ev.target ).blur();
+						return false;
+					}
+				});
+			});
 		</script>
 	</body>
 </html>

@@ -4,6 +4,7 @@ use FreeScore::Forms::Division;
 use List::Util qw( first );
 use List::MoreUtils qw( first_index );
 use File::Path qw( make_path );
+use File::Copy qw( mv cp );
 use Data::Dumper;
 
 # ============================================================
@@ -77,34 +78,56 @@ sub load_all {
 # ============================================================
 sub transfer {
 # ============================================================
-	my $self  = shift;
-	my $divid = shift;
-	my $to    = shift;
+	my $self      = shift;
+	my $divid     = shift;
+	my $ring_num  = shift;
 
-	$to = $to eq 'staging' ? $to : sprintf( "ring%02d", $to );
+	my $ring_name = $ring_num eq 'staging' ? $ring_num : sprintf( "ring%02d", $ring_num );
 
-	my $division        = $self->find( $divid ) || die "Can't find division $divid (found: " . join( ', ', map { $_->{ name }; } @{$self->{ divisions }} ) . ")$!";
-	my $source          = $division->{ file };
-	$division->{ file } = "$self->{ path }/../$to/div.$divid.txt";
-	$division->{ ring } = $to;
+	my $division  = $self->find( $divid );
+	my $source    = undef;
+	my $target    = undef;
 
-	if( $division->write() ) { 
-		unlink $source; 
-		$self->next() if( $self->{ current } eq $divid );
-		my $i = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
-		splice @{ $self->{ divisions }}, $i, 1 if( $i >= 0 );
-		return 1; 
-	} else { 
-		return 0; 
+	my @db_path   = split /\//, $self->{ path };
+	pop @db_path;
+	my $db_path   = join '/', @db_path;
+
+	# Division found, modify file, ring, and path
+	if( $division ) {
+		$source = $division->{ file };
+		$target = "$db_path/$ring_name/div.$divid.txt";
+		$division->{ file } = $target;
+		$division->{ path } = "$db_path/$ring_name/";
+		$division->{ ring } = $ring_num;
+
+	# Division not found, try looking in staging
+	} else {
+		$source = "$db_path/staging/div.$divid.txt";
+		$target = "$db_path/$ring_name/div.$divid.txt";
 	}
+
+	# Division still not found, give up
+	die "Can't find division $divid (found: " . join( ', ', map { $_->{ name }; } @{$self->{ divisions }} ) . ")$!" unless -e $source;
+
+	# ===== TRANSFER THE FILE
+	cp( $source, $target );
+	unlink $source if( -s $source == -s $target ); 
+	chmod 0666, $target;
+	$self->next() if( $self->{ current } eq $divid );
+	my $i = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
+	splice @{ $self->{ divisions }}, $i, 1 if( $i >= 0 );
+	return 1; 
 }
 
 # ============================================================
 sub navigate {
 # ============================================================
 	my $self  = shift;
-	my $value = shift;
-	$self->{ current } = $value;
+	my $divid = shift;
+
+	my $division = $self->find( $divid );
+	$self->transfer( $divid, $self->{ name } ) unless defined $division;
+	$self->{ current } = $divid;
 }
 
 # ============================================================

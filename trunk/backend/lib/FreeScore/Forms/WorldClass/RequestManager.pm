@@ -803,6 +803,7 @@ sub send_division_response {
 	my $unblessed = undef;
 	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
+	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
@@ -811,8 +812,8 @@ sub send_division_response {
 	my $digest    = sha1_hex( $encoded );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : "client") . "\n" if $DEBUG;
-	printf STDERR "    user: %s message: %s\n", substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : $role) . "\n" if $DEBUG;
+	printf STDERR "    user: %s (%s) message: %s\n", substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
@@ -831,6 +832,7 @@ sub send_ring_response {
 	my $unblessed = undef;
 	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int( $request->{ cookie }{ judge }) : undef;
+	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $message   = clone( $progress );
@@ -839,8 +841,8 @@ sub send_ring_response {
 	my $digest    = sha1_hex( $encoded );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n" if $DEBUG;
-	printf STDERR "    user: %s message: %s\n", substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : $role) . "\n" if $DEBUG;
+	printf STDERR "    user: %s (%s) message: %s\n", substr( $id, 0, 4 ), $role, substr( $digest, 0, 4 ) if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;

@@ -1,7 +1,7 @@
 <?php 
 	$an_hour_ago = time() - 3600;
 	setcookie( 'judge', '', $an_hour_ago, '/' );
-	setcookie( 'role',  '', $an_hour_ago, '/' );
+	setcookie( 'role',  'division manager', 0, '/' );
 	setcookie( 'ring',  '', $an_hour_ago, '/' );
 	include( "../../include/php/config.php" ); 
 
@@ -41,16 +41,46 @@
 			<div class="page-header">Division Manager</div>
 
 			<ul class="nav nav-tabs">
-				<li><a data-toggle="tab" id="staging-tab" href="#staging">Staging</a></li>
 				<?php foreach( $t->rings as $i ): 
 						$num = $i;
 						if( $num < 10 ) { $num = '0' . $num; }
 					?>
-					<li><a data-toggle="tab" href="#ring<?= $num ?>">Ring <?= $i ?></a></li>
+					<li><a data-toggle="tab" id="ring<?= $num ?>-tab" href="#ring<?= $num ?>">Ring <?= $i ?></a></li>
 				<?php endforeach; ?>
+				<li><a data-toggle="tab" id="staging-tab" href="#staging">Staging</a></li>
 				<li><a data-toggle="tab" id="files-tab" href="#files">All Files</a></li>
 			</ul>
 			<div class="tab-content">
+				<?php foreach( $t->rings as $i ): 
+						$num = $i;
+						if( $num < 10 ) { $num = '0' . $num; }
+				?>
+				<div id="ring<?= $num ?>" class="tab-pane fade in">
+					<div class="row">
+						<div class="col-sm-10">
+							<form role="form">
+								<div class="form-group">
+									<input id="ring<?= $num ?>-search" class="form-control" type="search" placeholder="Search Ring <?= $i ?>..." />
+								</div>
+								<div class="list-group" id="ring<?= $num ?>-divisions">
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-2">
+							<h4>Division</h4>
+							<div class="btn-group-vertical btn-block">
+								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-restage" target="_blank"><span class="glyphicon glyphicon-arrow-left"></span> Restage</a>
+							</div>
+							<div class="btn-group-vertical btn-block">
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<?php endforeach; ?>
 				<div id="staging" class="tab-pane fade in">
 					<div class="row">
 						<div class="col-sm-10">
@@ -73,34 +103,6 @@
 						</div>
 					</div>
 				</div>
-				<?php foreach( $t->rings as $i ): 
-						$num = $i;
-						if( $num < 10 ) { $num = '0' . $num; }
-				?>
-				<div id="ring<?= $num ?>" class="tab-pane fade in">
-					<div class="row">
-						<div class="col-sm-10">
-							<form role="form">
-								<div class="form-group">
-									<input id="ring<?= $num ?>-search" class="form-control" type="search" placeholder="Search Ring <?= $i ?>..." />
-								</div>
-								<div class="list-group" id="ring<?= $num ?>-divisions">
-								</div>
-							</form>
-						</div>
-						<div class="col-sm-2">
-							<h4>Division</h4>
-							<div class="btn-group-vertical btn-block">
-								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
-								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-restage" target="_blank"><span class="glyphicon glyphicon-arrow-left"></span> Restage</a>
-								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
-							</div>
-						</div>
-					</div>
-				</div>
-				
-				<?php endforeach; ?>
 				<div id="files" class="tab-pane fade in">
 					<h4>File Manager</h4>
 
@@ -142,6 +144,7 @@
 					}
 					return;
 				}
+
 
 				if( target != 'staging' ) { target = parseInt( target ); }
 
@@ -208,7 +211,6 @@
 
 			var refresh = {
 				rings : function( update ) {
-					console.log( update );
 					var ring = { num: update.ring.name, divisions : update.ring.divisions };
 					if( ring.num == 'staging' ) { ring.name = 'staging'; ring.num = undefined; }
 					else {
@@ -222,10 +224,16 @@
 					}
 
 					// ===== DISABLE DIVISION-SPECIFIC ACTION BUTTONS UNTIL A DIVISION IS SELECTED
-					var action = { button: { edit: $( '#' + ring.name + '-div-edit' ), restage: $( '#' + ring.name + '-div-restage' ), send: $( '#staging-div-send' ), delete: $( '#' + ring.name + '-div-delete' ) }};
+					var action     = { button: { edit: $( '#' + ring.name + '-div-edit' ), restage: $( '#' + ring.name + '-div-restage' ), send: $( '#staging-div-send' ), delete: $( '#' + ring.name + '-div-delete' ) }};
 					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, };
 					action.restage = { disable: () => { action.button.restage.removeClass( 'btn-warning' ).addClass( 'disabled' ); action.button.restage.off( 'click' ); } };
+					action.send    = { disable: () => { action.button.send.removeClass( 'btn-warning' ).addClass( 'disabled' ); action.button.send.off( 'click' ); } };
 					action.delete  = { disable: () => { action.button.delete.removeClass( 'btn-danger' ).addClass( 'disabled' ); action.button.delete.off( 'click' ); } };
+
+					action.edit.disable();
+					action.restage.disable();
+					action.send.disable();
+					action.delete.disable();
 
 					// ===== DISPLAY THE DIVISIONS
 					ring.divisions.sort(( a, b ) => { return a.name < b.name ? -1 : a.name > b.name; });
@@ -255,6 +263,7 @@
 								button.find( 'p.athletes' ).addClass( 'hidden' );
 								action.edit.disable();
 								action.restage.disable();
+								action.send.disable();
 								action.delete.disable();
 
 							} else {
@@ -271,6 +280,7 @@
 								if( ring.name == 'staging' ) {
 									action.button.send.addClass( 'btn-warning' ).removeClass( 'disabled' );
 									action.button.send.off( 'click' ).click(() => {
+										sound.next.play();
 										var divname = divid.toUpperCase() + ' ' + division.description;
 										var title    = 'Which Ring?';
 										var message  = 'Click on one of the buttons below to send <b>' + divname + '</b> to that ring';
@@ -295,6 +305,7 @@
 								} else {
 									action.button.restage.addClass( 'btn-warning' ).removeClass( 'disabled' );
 									action.button.restage.off( 'click' ).click(() => {
+										sound.next.play();
 										var divname = divid.toUpperCase() + ' ' + division.description;
 										var title   = 'Send Division <b>' + divname + '</b> back to Staging?';
 										var message = 'Click <span class="txt-warning">OK</span> to send division <b>' + divname + '</b> back to staging, or <span class="txt-warning">Cancel</span> to do nothing.';
@@ -308,6 +319,7 @@
 				
 											action.edit.disable();
 											action.restage.disable();
+											action.send.disable();
 											action.delete.disable();
 										};
 										var cancel = function() { sound.prev.play(); }
@@ -319,6 +331,7 @@
 								// Delete button
 								action.button.delete.addClass( 'btn-danger' ).removeClass( 'disabled' );
 								action.button.delete.off( 'click' ).click(() => {
+									sound.next.play();
 									var title   = 'Delete Division ' + division.description + '?';
 									var message = 'Click <span class="txt-danger">OK</span> to delete division ' + division.description + ', or <span class="txt-warning">Cancel</span> to do nothing.';
 									var ok      = function() {
@@ -331,6 +344,7 @@
 			
 										action.edit.disable();
 										action.restage.disable();
+										action.send.disable();
 										action.delete.disable();
 									};
 									var cancel = function() { sound.prev.play(); }
@@ -348,8 +362,14 @@
 			};
 
 			$( function() {
-				// ===== START WITH STAGING TAB
-				$( '#staging-tab' ).click();
+				// ===== START WITH FIRST RING TAB
+				if( tournament.rings.length > 0 ) {
+					var first = tournament.rings[ 0 ];
+					first = first < 10 ? 'ring0' + first : 'ring' + first;
+					$( '#' + first + '-tab' ).click();
+				} else {
+					$( '#staging-tab' ).click();
+				}
 				
 				// ===== PREVENT LIST FILTER FORM FROM SUBMITTING ON ENTER
 				$( 'form' ).keydown(( ev ) => {
