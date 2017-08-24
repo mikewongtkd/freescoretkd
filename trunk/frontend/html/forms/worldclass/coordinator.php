@@ -46,7 +46,7 @@
 							<ul class="nav nav-tabs">
 								<li class="active"><a data-toggle="tab" href="#ready">Ready Divisions</a></li>
 								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
-								<li><a data-toggle="tab" href="#staging">Staging</a></li>
+								<li><a data-toggle="tab" href="#staging">Staging Divisions</a></li>
 							</ul>
 						</div>
 						<div class="pull-right judges">
