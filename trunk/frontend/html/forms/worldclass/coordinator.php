@@ -126,12 +126,6 @@
 									<a class="list-group-item" id="navigate-division"><span class="glyphicon glyphicon-play"></span><span id="navigate-division-label">Start Scoring this Division</span></a>
 								</div>
 							</div>
-							<div class="navigate-athlete">
-								<h4>Athlete</h4>
-								<div class="list-group">
-									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
-								</div>
-							</div>
 							<div id="judge-scores">
 								<h4>Judge scores</h4>
 								<table>
@@ -184,6 +178,12 @@
 										<th>&nbsp;</th>
 									</tr>
 								</table>
+							</div>
+							<div class="navigate-athlete">
+								<h4>Athlete</h4>
+								<div class="list-group">
+									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
+								</div>
 							</div>
 							<div class="penalties">
 								<h4>Penalties</h4>
@@ -255,10 +255,9 @@
 					refresh.ring( update.ring );
 					var divid = $.cookie( 'divid' );
 					if( defined( divid ) && divid != 'undefined' ) {
-						var division = update.ring.divisions.find(( d ) => { return d.name == divid; });
+						var division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
 						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						var curDiv   = division.name == current.name;
-						if( ! defined( division )) { return; }
+						var curDiv   = defined( current ) ? division.name == current.name : false;
 						division = new Division( division );
 						refresh.athletes( division, curDiv );
 
@@ -433,6 +432,7 @@
 								refresh.score( score.score.forms[ k ], athlete.name(), true );
 							});
 							refresh.score( score.score.forms[ k ], athlete.name(), true );
+							$( '.penalties, .decision' ).show();
 							refresh.actions( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
@@ -448,6 +448,7 @@
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).show(); 
 								refresh.score( score.score.forms[ k ], athlete.name(), false );
+								$( '.penalties, .decision' ).hide();
 							});
 
 						// ===== ATHLETE IN ANOTHER DIVISION

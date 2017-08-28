@@ -185,12 +185,12 @@ sub read_tournament_config {
 # ============================================================
 	my $php = '';
 	my $config = {
-		redhat => '/var/www/html/freescore/include/php/config.php',
-		ubuntu => '/var/www/freescore/include/php/config.php'
+		redhat   => '/var/www/html/freescore/include/php/config.php',
+		ubuntu   => '/var/www/freescore/include/php/config.php',
+		raspbian => '/var/www/html/include/php/config.php',
 	};
-	if    ( -e $config->{ redhat } ) { $php = $config->{ redhat }; }
-	elsif ( -e $config->{ ubuntu } ) { $php = $config->{ ubuntu }; }
-	else                             { die "Can't find configuration file 'config.php' $!"; }
+	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
 	my $json = new JSON::XS();
 	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;

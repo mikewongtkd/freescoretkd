@@ -55,6 +55,11 @@ body {
 			cursor: default;
 		}
 	}
+
+	.badge {
+		margin-top: 3px;
+		margin-bottom: -3px;
+	}
 }
 
 a.list-group-item {

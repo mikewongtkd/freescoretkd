@@ -1,49 +1,33 @@
 # Raspberry Pi 3
 
-The following instructions are a guide to create a FreeScoreWifi unit using Raspberry Pi 3.
+2017 August 24
 
-## FreeScore WiFi Access Point
+The following instructions are a guide to create a FreeScoreWifi unit using Raspberry Pi 3 using the latest installation of Raspbian `2017-08-16-raspbian-stretch`
 
-Unfortunately as of Sept. 2016, the included `hostapd` (v2.3) does not seem to work properly. Building `hostapd` 2.5 or later from source remedies this problem.
+### Upgrade to the latest version of Raspbian
 
-You can download the `hostapd` source tarball from https://w1.fi/hostapd
-
-### Dependencies
-
-The following dependencies Netlink library and SSL library (`libnl` and `libssl`) must be installed prior to building from source.
-
-	sudo apt-get install -y libnl-dev libssl-dev
+	sudo su -
+	apt-get update
+	apt-get upgrade
 	
-### Build and Installation
+## Developer Tools and Network Services
 
-The following commands will accept the default configuration, build, and install `hostapd` under `/usr/local/bin/hostapd`.
+	apt-get install -y vim-gnome git-all hostapd dnsmasq
 
-	tar -xvzf hostapd-2.6.tar.gz
-	cd hostapd-2.6
-	cp defconfig .config
-	make
-	sudo make install
-	
-### Integration into System V Services
-
-You must edit `/etc/init.d/hostapd` to call `/usr/local/bin/hostapd` instead of `/usr/sbin/hostapd`. You must also edit `/etc/default/hostapd` to point to `/etc/hostapd/hostapd.conf`. A properly configured `hostapd.conf` file is included in this repository under `./etc/hostapd/hostapd.conf`
 
 ## Apache and PHP 5
 
 FreeScore requires a webserver and PHP 5 interpreter. They can be installed by issuing the following command:
 
-	sudo su -
-	apt-get install -y apache2 php5
+	apt-get install -y apache2 php7.0
 	a2enmod cgi
-	apachectl -M
-	service apache2 restart	
+	systemctl restart apache2	
 	
 ## Perl
 
 This will install all the Perl libraries and the GD graphics library dependency.
 
-	sudo su -
-	apt-get install cpanminus libgd-gd2-perl
+	apt-get install -y cpanminus libgd-gd2-perl
 	cpanm \
 		YAML \
 		Test::Tester \
@@ -128,7 +112,6 @@ Quit the Editor by typing `<escape>-wq` or going to `File > Save-Exit`
 	
 ### Turn Everything On
 
-	sudo a2enmod cgi
 	sudo systemctl daemon-reload
 	sudo systemctl start apache2
 

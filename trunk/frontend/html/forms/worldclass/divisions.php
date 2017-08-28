@@ -48,7 +48,7 @@
 					<li><a data-toggle="tab" id="ring<?= $num ?>-tab" href="#ring<?= $num ?>">Ring <?= $i ?></a></li>
 				<?php endforeach; ?>
 				<li><a data-toggle="tab" id="staging-tab" href="#staging">Staging</a></li>
-				<li><a data-toggle="tab" id="files-tab" href="#files">All Files</a></li>
+				<li><a data-toggle="tab" id="files-tab" href="#files">File Manager</a></li>
 			</ul>
 			<div class="tab-content">
 				<?php foreach( $t->rings as $i ): 
@@ -104,8 +104,6 @@
 					</div>
 				</div>
 				<div id="files" class="tab-pane fade in">
-					<h4>File Manager</h4>
-
 					<p>You can drag-and-drop ring folders with divisions in them into
 					the <code class="text-muted">forms-worldclass</code> directory, or drag-and-drop division
 					files to one of the ring directories. You can also drag-and-drop

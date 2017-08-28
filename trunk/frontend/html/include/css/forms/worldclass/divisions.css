@@ -35,6 +35,9 @@
     cursor: default; }
 .list-group .disabled:hover {
   cursor: default; }
+.list-group .badge {
+  margin-top: 3px;
+  margin-bottom: -3px; }
 
 a.list-group-item {
   display: block;
