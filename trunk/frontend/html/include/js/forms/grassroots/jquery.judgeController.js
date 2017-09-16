@@ -108,13 +108,16 @@ $.widget( "freescore.judgeController", {
 				}
 
 			} else if((defined( division.mode ) && division.mode == 'single-elimination' )) {
-				o.command = o.judge + '/single-elimination';
+				o.command = o.judge + '/vote';
+				console.log( division );
 				var i        = division.current;
-				var brackets = division.bracket[ 0 ];
-				while( i > division.bracket
+				var j        = 0;
+				while( i > division.brackets[ j ].length ) { i -= division.brackets[ j ].length; j++; }
+				var brackets = division.brackets[ j ];
+				var bracket  = division.brackets[ j ][ i ];
 				var athletes = division.athletes;
 
-				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : division.current, red : division.current + 1, name : division.name, description : 'Single Elimination' });
+				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : bracket.blue.athlete, red : bracket.red.athlete, name : division.name, description : 'Single Elimination' });
 				e.score.hide();
 				e.vote.show();
 				e.clearButton .ajaxbutton( { command : o.command + '/-10' } );

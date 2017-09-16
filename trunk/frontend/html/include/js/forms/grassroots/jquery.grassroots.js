@@ -50,10 +50,15 @@ $.widget( "freescore.grassroots", {
 				
 			} else if( defined( division.mode ) && division.mode == 'single-elimination' ) {
 				var athletes = [];
-				athletes.push( division.athletes[ division.current ] );
-				if( division.current + 1 < division.athletes.length ) {
-					athletes.push( division.athletes[ division.current + 1 ] );
-				}
+				var i        = division.current;
+				var j        = 0;
+				while( i > division.brackets[ j ].length ) { i -= division.brackets[ j ].length; j++; }
+				var bracket  = division.brackets[ j ][ i ];
+
+				var blue = division.athletes[ bracket.blue.athlete ];
+				var red  = defined( bracket.red.athlete ) ? division.athletes[ bracket.red.athlete ] : { name : '[Bye]' };
+				athletes.push({ name : blue.name, votes : bracket.blue.votes });
+				athletes.push({ name : red.name,  votes : bracket.red.votes });
 
 				e.scoreboard.hide();
 				e.tiebreaker.show();

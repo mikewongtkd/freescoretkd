@@ -161,7 +161,7 @@ sub calculate_scores {
 
 		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
-			my $score = $athlete->{ tiebreakers }[ $j ] == 2;
+			my $score = $athlete->{ tiebreakers }[ $j ];
 			$stats->{ tb } += $score;
 			$resolved++ if( $score > 0 );
 		}
@@ -211,16 +211,16 @@ sub record_tiebreaker {
 	my $score = shift;
 	my $tie   = $self->{ tied }[ 0 ];
 
-	if( (int( @{ $tie->{ tied }}) == 2) && $score eq 'red' || $score eq 'blue' ) {
+	if( (int( @{ $tie->{ tied }}) == 2) && ($score eq 'red' || $score eq 'blue')) {
 		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
 		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
 		if      ( $score eq 'blue' ) { 
-			$blue->{ tiebreakers }[ $judge ] = 2;
-			$red->{ tiebreakers }[ $judge ]  = 1;
+			$blue->{ tiebreakers }[ $judge ] = 1;
+			$red->{ tiebreakers }[ $judge ]  = 0;
 
 		} elsif ( $score eq 'red'  ) {
-			$blue->{ tiebreakers }[ $judge ] = 1;
-			$red->{ tiebreakers }[ $judge ]  = 2;
+			$blue->{ tiebreakers }[ $judge ] = 0;
+			$red->{ tiebreakers }[ $judge ]  = 1;
 		}
 	} else {
 		$score      = sprintf( "%.1f", $score );
@@ -290,12 +290,12 @@ sub _build_brackets {
 		my $red  = @$b ? $b->[ 0 ] : undef;
 		my $bracket = $bye ?
 		{
-			blue => { athlete => $blue, score => $judges },
-			red  => { athlete => $red,  score => 0 },
+			blue => { athlete => $blue, votes => $judges },
+			red  => { athlete => $red,  votes => 0 },
 			complete => 1
 		} : {
-			blue => { athlete => $blue, score => 0 },
-			red  => { athlete => $red,  score => 0 },
+			blue => { athlete => $blue, votes => 0 },
+			red  => { athlete => $red,  votes => 0 },
 			complete => 0
 		};
 

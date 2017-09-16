@@ -24,19 +24,24 @@ $.widget( "freescore.voteDisplay", {
 		var athletes = o.athletes;
 
 		var addAthlete = o.addAthlete = function( athlete, color ) {
-			var display = html.div.clone() .addClass( color );
-			var name    = html.div.clone() .addClass( "athlete" ) .html( athlete.name );
-			var count   = html.div.clone() .addClass( "count" );
-			var awarded = [];
-			var n       = 0;
+			var display  = html.div.clone() .addClass( color );
+			var name     = html.div.clone() .addClass( "athlete" ) .html( athlete.name );
+			var count    = html.div.clone() .addClass( "count" );
+			var awarded  = [];
+			var n        = 0;
+			var scale    = o.judges <= 3 ? 120 : 80;
+			var width    = (o.judges - 1) * scale;
+
 			for( var i = 0; i < o.judges; i++ ) {
-				var offset = (484 - (o.judges * 120)) / 2;
-				var x = i * 120;
+				var margin = (480 - width) / 4;
+				var x      = (i * scale);
 				awarded[ i ] = html.div.clone() .addClass( "vote" ) .addClass( "awarded" );
 				if( defined( athlete.tiebreakers )) {
-					if( athlete.tiebreakers[ i ] == 2 ) { awarded[ i ].css( "opacity", "1.0" ); n++; }
+					if( athlete.tiebreakers[ i ] ) { awarded[ i ].css( "opacity", "1.0" ); n++; }
+				} else if( defined( athlete.votes )) {
+					if( athlete.votes ) { awarded[ i ].css( "opacity", "1.0" ); n++; }
 				}
-				awarded[ i ] .css( "left", x + offset );
+				awarded[ i ] .css({ left: x + margin, border : 'none' });
 				display.append( awarded[ i ] );
 			}
 			count.html( n );

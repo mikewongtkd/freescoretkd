@@ -182,8 +182,6 @@ get '/:tournament/:ring/:judge/vote/:score' => sub {
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
 
-	$score /= 10 if( $score =~ /^\d+$/ );
-
 	# $division->record_vote( $judge, $score );
 
 	try {
