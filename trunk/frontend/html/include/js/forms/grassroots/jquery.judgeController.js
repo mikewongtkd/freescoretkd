@@ -80,7 +80,7 @@ $.widget( "freescore.judgeController", {
 		var html    = { div : $( "<div />" ), a : $( "<a />" ), select : $( "<select />" ), option : $( "<option />" ) };
 
 		function refresh( update ) {
-			var progress = JSON.parse( update.data );        if( typeof( progress    ) === 'undefined' ) { return; }
+			var progress = JSON.parse( update.data ); if( ! defined( progress )) { return; } if( ! defined( progress.divisions )) { return; }
 			var division = progress.divisions.find((d) => { return d.name == progress.current; });
 			if( typeof( division ) === 'undefined' ) { return; }
 
@@ -106,6 +106,19 @@ $.widget( "freescore.judgeController", {
 					e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
 					e.sendButton  .ajaxbutton( { command : o.command + '/' + o.score });
 				}
+
+			} else if((defined( division.mode ) && division.mode == 'single-elimination' )) {
+				o.command = o.judge + '/single-elimination';
+				var i        = division.current;
+				var brackets = division.bracket[ 0 ];
+				while( i > division.bracket
+				var athletes = division.athletes;
+
+				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : division.current, red : division.current + 1, name : division.name, description : 'Single Elimination' });
+				e.score.hide();
+				e.vote.show();
+				e.clearButton .ajaxbutton( { command : o.command + '/-10' } );
+				e.sendButton  .ajaxbutton( { command : o.command + '/' + o.vote });
 
 			// ===== IF THERE IS NO TIE, THEN SIMPLY UPDATE THE UI FOR NORMAL SCORING
 			}  else {

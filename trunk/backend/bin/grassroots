@@ -171,6 +171,34 @@ get '/:tournament/:ring/:judge/:score' => sub {
 };
 
 # ------------------------------------------------------------
+# WRITE JUDGE VOTE FOR ATHLETE IN SINGLE-ELIMINATION DIVISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/:judge/vote/:score' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $judge      = $self->param( 'judge' );
+	my $score      = $self->param( 'score' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	$score /= 10 if( $score =~ /^\d+$/ );
+
+	# $division->record_vote( $judge, $score );
+
+	try {
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
 # WRITE JUDGE TIEBREAKER FOR ATHLETE
 # ------------------------------------------------------------
 get '/:tournament/:ring/:judge/tb/:score' => sub { 
@@ -284,5 +312,5 @@ any '*' => sub {
 
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
 app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid' });
-app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'error' ));
+app->log( new Mojo::Log( path => '/var/log/freescore/grassroots.log', level => 'error' ));
 app->start();

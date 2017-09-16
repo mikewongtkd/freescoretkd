@@ -1,7 +1,9 @@
 package FreeScore::Forms::GrassRoots::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
+use JSON::XS;
 use base qw( FreeScore::Forms::Division );
+use POSIX qw( ceil );
 
 # ============================================================
 sub read {
@@ -22,9 +24,10 @@ sub read {
 		if( /^#/ ) {
 			s/^#\s+//;
 			my ($key, $value) = split /=/;
-			if      ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; } 
-			elsif   ( $key eq 'tied' ) {} # Do nothing; better to calculate this fresh
-			elsif ( $key eq 'places' ) {
+			if    ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; } 
+			elsif ( $key eq 'brackets'   ) { my $json = new JSON::XS(); $self->{ $key } = $json->decode( $value ); }
+			elsif ( $key eq 'tied'       ) {} # Do nothing; better to calculate this fresh
+			elsif ( $key eq 'places'     ) {
 				my $places = [];
 				foreach my $entry (split /,/, $value) {
 					my ($place, $medals) = split /:/, $entry;
@@ -52,6 +55,21 @@ sub read {
 
 	$self->calculate_scores();
 	$self->calculate_placements();
+}
+
+# ============================================================
+sub build_brackets {
+# ============================================================
+	my $self     = shift;
+
+	if( exists $self->{ brackets } ) {
+		$self->update_brackets();
+	} else {
+		my $brackets = [[]];
+		_build_brackets( $self->{ judges }, $brackets, [( 0 .. $#{$self->{ athletes }})] );
+		$self->{ brackets } = $brackets;
+	}
+
 }
 
 # ============================================================
@@ -83,6 +101,11 @@ sub calculate_placements {
 
 		my $ties = $#{ $place_ties->{ tied }};
 		push @$tied, $place_ties if($#{ $place_ties->{ tied }});
+	}
+
+	# ===== CALCULATE BRACKETS
+	if( $self->{ mode } eq 'single-elimination' ) {
+		$self->build_brackets();
 	}
 
 	# ===== FILTER UNIMPORTANT TIES
@@ -210,9 +233,11 @@ sub record_tiebreaker {
 # ============================================================
 sub write {
 # ============================================================
-	my $self   = shift;
-	my $tied   = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
-	my $places = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
+	my $self     = shift;
+	my $json     = new JSON::XS();
+	my $brackets = exists $self->{ brackets } ? $json->encode( $self->{ brackets } ) : undef;
+	my $tied     = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
+	my $places   = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
 	$self->{ state } = 'tiebreaker' if( exists $self->{ tied } && $self->{ state } eq 'score');
 
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
@@ -221,10 +246,12 @@ sub write {
 	print FILE "# round=$self->{ round }\n" if exists $self->{ round };
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
+	print FILE "# mode=$self->{ mode }\n" if $self->{ mode };
 	print FILE "# places=$places\n" if $places;
 	print FILE "# tied=$tied\n" if( exists $self->{ tied } && @{ $self->{ tied }});
 	print FILE "# placements=" . join( ",", @{$self->{ placements }}) . "\n" if( exists $self->{ placements } && @{ $self->{ placements }});
 	print FILE "# pending=" . join( ",", @{$self->{ pending }}) . "\n" if( exists $self->{ pending } && @{ $self->{ pending }});
+	print FILE "# brackets=$brackets\n" if defined $brackets;
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
@@ -232,6 +259,53 @@ sub write {
 	chmod 0666, $self->{ file };
 
 	return 1;
+}
+
+# ============================================================
+sub _build_brackets {
+# ============================================================
+	my $judges       = shift;
+	my $brackets     = shift;
+	my $athletes     = shift;
+	my $byes         = shift;
+
+	my $number       = int( @$athletes );                 # Total number of athletes
+	my $depth        = ceil( log( $number ) / log( 2 ));  # Depth of the tree
+	my $n            = $number - 1;                       # Max array index of athletes
+	my $size         = 2 ** $depth;                       # Size of the division
+	my $group_size   = $size / 2;                         # Size of the subdivisions
+	my $number_b     = int( $number/ 2 );                 # Number of athletes in Group B
+	my $number_a     = $number - $number_b;               # Number of athletes in Group A
+	my $byes_a       = $group_size - $number_a;           # Number of byes for Group A
+	my $byes_b       = $group_size - $number_b;           # Number of byes for Group B
+	my $a            = [];                                # Group A
+	my $b            = [];                                # Group B
+
+	@$a = splice @$athletes, 0, $number_a;
+	@$b = @$athletes;
+
+	if( $group_size <= 1 ) {
+		my $blue = $a->[ 0 ];
+		my $bye  = @$b ? 0 : 1;
+		my $red  = @$b ? $b->[ 0 ] : undef;
+		my $bracket = $bye ?
+		{
+			blue => { athlete => $blue, score => $judges },
+			red  => { athlete => $red,  score => 0 },
+			complete => 1
+		} : {
+			blue => { athlete => $blue, score => 0 },
+			red  => { athlete => $red,  score => 0 },
+			complete => 0
+		};
+
+		push @{$brackets->[ 0 ]}, $bracket;
+
+		return;
+	}
+
+	_build_brackets( $judges, $brackets, $a, $byes_a);
+	_build_brackets( $judges, $brackets, $b, $byes_b);
 }
 
 # ============================================================

@@ -48,6 +48,17 @@ $.widget( "freescore.grassroots", {
 					e.scoreboard.scoreboard( { title: title, current: { athlete : athlete }, judges : division.judges } );
 				}
 				
+			} else if( defined( division.mode ) && division.mode == 'single-elimination' ) {
+				var athletes = [];
+				athletes.push( division.athletes[ division.current ] );
+				if( division.current + 1 < division.athletes.length ) {
+					athletes.push( division.athletes[ division.current + 1 ] );
+				}
+
+				e.scoreboard.hide();
+				e.tiebreaker.show();
+				e.tiebreaker.voteDisplay({ title: title, athletes : athletes, judges : division.judges });
+
 			} else if( division.state == 'display' ) {
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 				e.leaderboard.leaderboard( { division : division } );

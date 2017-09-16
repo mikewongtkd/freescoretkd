@@ -39,7 +39,7 @@ $.widget( "freescore.judgeNotes", {
 		for( var i = 0; i < athletes.length; i++ ) {
 			var tr        = h.tr.clone();
 			var athlete   = athletes[ i ];
-			var score     = athlete.scores[ o.num ]; score = score <= 0 ? "" : parseFloat( score ).toFixed( 1 );
+			var score     = athlete.scores[ o.num ]; score = score <= 0 || isNaN( score ) ? "" : parseFloat( score ).toFixed( 1 );
 			var getClass  = function() { if( i == current ) { return "current"; } else if( i == red ) { return "red"; } else if( i == blue ) { return "blue"; }};
 
 			tr
