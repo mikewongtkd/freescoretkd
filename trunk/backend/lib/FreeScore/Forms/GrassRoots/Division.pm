@@ -5,6 +5,7 @@ use JSON::XS;
 use base qw( FreeScore::Forms::Division );
 use POSIX qw( ceil );
 use List::Util qw( sum );
+use Data::Dumper;
 
 # ============================================================
 sub read {
@@ -59,21 +60,6 @@ sub read {
 }
 
 # ============================================================
-sub build_brackets {
-# ============================================================
-	my $self     = shift;
-
-	if( exists $self->{ brackets } ) {
-		$self->update_brackets();
-	} else {
-		my $brackets = [[]];
-		_build_brackets( $self->{ judges }, $brackets, [( 0 .. $#{$self->{ athletes }})] );
-		$self->{ brackets } = $brackets;
-	}
-
-}
-
-# ============================================================
 sub calculate_placements {
 # ============================================================
 	my $self       = shift;
@@ -105,8 +91,16 @@ sub calculate_placements {
 	}
 
 	# ===== CALCULATE BRACKETS
-	if( $self->{ mode } eq 'single-elimination' ) {
-		$self->build_brackets();
+	if( $self->is_single_elimination() ) {
+		if( exists $self->{ brackets } ) {
+			print STDERR "UPDATING BRACKETS\n";
+			$self->update_brackets();
+		} else {
+			print STDERR "BUILDING BRACKETS\n";
+			my $brackets = [[]];
+			_build_brackets( $self->{ judges }, $brackets, [( 0 .. $#{$self->{ athletes }})] );
+			$self->{ brackets } = $brackets;
+		}
 	}
 
 	# ===== FILTER UNIMPORTANT TIES
@@ -200,12 +194,68 @@ sub current_bracket {
 }
 
 # ============================================================
+sub is_single_elimination {
+# ============================================================
+	my $self = shift;
+	return exists $self->{ mode } && $self->{ mode } eq 'single-elimination';
+}
+
+# ============================================================
 sub navigate {
 # ============================================================
 	my $self  = shift;
 	my $index = shift;
 
 	$self->{ current } = $index;
+}
+
+# ============================================================
+sub next {
+# ============================================================
+	my $self = shift;
+	if( $self->is_single_elimination() ) {
+		my $i = $self->{ current };
+		my $j = 0;
+		my $k = int( @{$self->{ brackets }[ $j ]});
+
+		while( $i > $k ) {
+			$i -= $k;
+			$j++;
+			$k = int( @{$self->{ brackets }[ $j ]});
+		}
+
+		if( $k == 1 ) { $self->{ current } = 0; } # Finals round
+		else          { $self->{ current }++;   } # Any other round
+
+	} else {
+		$self->SUPER::next();
+	}
+}
+
+# ============================================================
+sub previous {
+# ============================================================
+	my $self = shift;
+	if( $self->is_single_elimination() ) {
+		my $i   = $self->{ current };
+		my $j   = 0;
+		my $k   = int( @{$self->{ brackets }[ $j ]});
+		my $max = $k;
+
+		while( $i > $k ) {
+			$i -= $k;
+			$j++;
+			$k = int( @{$self->{ brackets }[ $j ]});
+			$max += $k;
+		}
+
+		my $start = $self->{ current } == 0;
+		if( $start ) { $self->{ current } = $max - 1; }
+		else         { $self->{ current }--; }
+
+	} else {
+		$self->SUPER::previous();
+	}
 }
 
 # ============================================================
@@ -268,7 +318,7 @@ sub record_tiebreaker {
 sub update_brackets {
 # ============================================================
 	my $self   = shift;
-	my $n      = $self->{ judges };
+	my $judges = $self->{ judges };
 	my $rounds = $#{ $self->{ brackets }};
 
 	foreach my $r ( 0 .. $rounds ) {
@@ -276,16 +326,17 @@ sub update_brackets {
 		my $complete = 1;
 		my $next     = $r + 1;
 		foreach my $bracket (@$round) {
-			my $total = sum @{$bracket->{ blue }{ votes }} + sum @{$bracket->{ red }{ votes }};
-			if( $total < $n ) { $complete = 0; last; }
+			my $total = sum( @{$bracket->{ blue }{ votes }}, @{$bracket->{ red }{ votes }});
+			if( $total < $judges ) { $complete = 0; last; }
 		}
 		last unless( $complete );       # If the current round is still in progress, do nothing
 		next if( $rounds >= $next );    # If the next round is already built, move on
 		last if( int( @$round ) == 0 ); # If the round only has one match, then that is the final round; there is no next round
 		
 		# ===== BUILD THE NEXT ROUND OF BRACKETS
-		$round = []; # New round
-		push @{$self->{ brackets }}, $round;
+		print STDERR "Creating a new round...\n";
+		my $new_round = []; # New round
+		push @{$self->{ brackets }}, $new_round;
 		for( my $i = 0; $i < $#$round; $i += 2 ) {
 			my $j = $i + 1;
 			my $a = $round->[ $i ];
@@ -295,16 +346,16 @@ sub update_brackets {
 			foreach my $bracket ( $a, $b ) {
 				my $blue = $bracket->{ blue };
 				my $red  = $bracket->{ red };
-				if( $blue->{ votes } > $red->{ votes } ) {
+				if( sum( @{$blue->{ votes }}) > sum( @{$red->{ votes }}) ) {
 					push @$advances, $blue->{ athlete };
 				} else {
 					push @$advances, $red->{ athlete };
 				}
 			}
-			my $blue = { athlete => shift @$advances, vote => 0 };
-			my $red  = { athlete => shift @$advances, vote => 0 };
+			my $blue = { athlete => shift @$advances, votes => [(0) x $judges] };
+			my $red  = { athlete => shift @$advances, votes => [(0) x $judges] };
 
-			push @$round, { blue => $blue, red => $red };
+			push @$new_round, { blue => $blue, red => $red };
 		}
 	}
 }
@@ -314,7 +365,7 @@ sub write {
 # ============================================================
 	my $self     = shift;
 	my $json     = new JSON::XS();
-	my $brackets = exists $self->{ brackets } ? $json->encode( $self->{ brackets } ) : undef;
+	my $brackets = exists $self->{ brackets } ? $json->canonical->encode( $self->{ brackets } ) : undef;
 	my $tied     = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
 	my $places   = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
 	$self->{ state } = 'tiebreaker' if( exists $self->{ tied } && $self->{ state } eq 'score');

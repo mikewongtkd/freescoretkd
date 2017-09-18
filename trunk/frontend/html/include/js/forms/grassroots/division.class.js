@@ -24,12 +24,13 @@ function Division( division ) {
 		var i = division.current;
 		var j = 0;
 		var brackets = division.brackets[ j ];
-		while( i > brackets.length ) {
+		while( i >= brackets.length ) {
 			i -= brackets.length;
 			j++;
 			brackets = division.brackets[ j ];
 		}
-		return { list : brackets, current : brackets[ i ] };
+		console.log( { index: i, list : brackets, current : brackets[ i ], round : j, blueAthlete : (2 * i), redAthlete : (2 * i) + 1 } );
+		return { list : brackets, current : brackets[ i ], round : j, blueAthlete : (2 * i), redAthlete : (2 * i) + 1 };
 	}
 
 	var _current = this.current = {
@@ -58,8 +59,13 @@ function Division( division ) {
 
 		},
 		athleteId : function() { return division.current; },
+		blueAthlete : function() {
+			var brackets = _brackets();
+			return brackets.blueAthlete;
+		},
 		bracket: function() {
 			var brackets = _brackets();
+			console.log( brackets );
 			return brackets.current;
 		},
 		order : function( i ) {
@@ -67,6 +73,10 @@ function Division( division ) {
 			if( defined( i )) { return order[ i ]; }
 			else              { return order; }
 		},
+		redAthlete : function() {
+			var brackets = _brackets();
+			return brackets.redAthlete;
+		}
 	};
 
 	var _is = this.is = {
