@@ -219,14 +219,18 @@ sub next {
 		my $j = 0;
 		my $k = int( @{$self->{ brackets }[ $j ]});
 
-		while( $i > $k ) {
+		while( $i >= $k ) {
 			$i -= $k;
 			$j++;
 			$k = int( @{$self->{ brackets }[ $j ]});
 		}
 
-		if( $k == 1 ) { $self->{ current } = 0; } # Finals round
-		else          { $self->{ current }++;   } # Any other round
+		my $last    = $i == ($k - 1);
+		my $no_next = ! defined $self->{ brackets }[ $j + 1 ];
+
+		if   ( $k == 1           ) { $self->{ current } = 0; } # Finals round
+		elsif( $last && $no_next ) { $self->{ current } = 0; } # No next round, so go to beginning of round
+		else                       { $self->{ current }++;   } # Any other round
 
 	} else {
 		$self->SUPER::next();
@@ -243,15 +247,17 @@ sub previous {
 		my $k   = int( @{$self->{ brackets }[ $j ]});
 		my $max = $k;
 
-		while( $i > $k ) {
+		while( $i >= $k ) {
 			$i -= $k;
 			$j++;
 			$k = int( @{$self->{ brackets }[ $j ]});
 			$max += $k;
 		}
 
+		$max += int( @{ $self->{ brackets }[ $j + 1 ]}) if defined $self->{ brackets }[ $j + 1 ];
+
 		my $start = $self->{ current } == 0;
-		if( $start ) { $self->{ current } = $max - 1; }
+		if( $start ) { $self->{ current } = ($max - 1); }
 		else         { $self->{ current }--; }
 
 	} else {
