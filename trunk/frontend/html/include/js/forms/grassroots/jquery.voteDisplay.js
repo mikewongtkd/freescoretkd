@@ -36,10 +36,12 @@ $.widget( "freescore.voteDisplay", {
 				var margin = (480 - width) / 4;
 				var x      = (i * scale);
 				awarded[ i ] = html.div.clone() .addClass( "vote" ) .addClass( "awarded" );
+
 				if( defined( athlete.tiebreakers )) {
 					if( athlete.tiebreakers[ i ] ) { awarded[ i ].css( "opacity", "1.0" ); n++; }
+
 				} else if( defined( athlete.votes )) {
-					if( athlete.votes ) { awarded[ i ].css( "opacity", "1.0" ); n++; }
+					if( athlete.votes[ i ] ) { awarded[ i ].css( "opacity", "1.0" ); n++; }
 				}
 				awarded[ i ] .css({ left: x + margin, border : 'none' });
 				display.append( awarded[ i ] );

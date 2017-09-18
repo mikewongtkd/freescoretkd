@@ -20,47 +20,59 @@ function Division( division ) {
 		json : function() { return JSON.stringify( division ); },
 	};
 
+	var _brackets = function() {
+		var i = division.current;
+		var j = 0;
+		var brackets = division.brackets[ j ];
+		while( i > brackets.length ) {
+			i -= brackets.length;
+			j++;
+			brackets = division.brackets[ j ];
+		}
+		return { list : brackets, current : brackets[ i ] };
+	}
+
 	var _current = this.current = {
 		athlete : function() {
 			var i = parseInt( division.current );
 			return new Athlete( division.athletes[ i ] );
 		},
-		athletes : function( round ) {
-			var athletes = [];
-			round = defined( round ) ? round : division.round;
-			if( ! defined( division.order[ round ] )) { return athletes; }
+		athletes : function() {
+			// For single elimination, show all athletes in the current round
+			if( defined( division.mode ) && division.mode == 'single-elimination' ) {
+				var athletes = [];
+				var brackets = _brackets();
+				for( var i = 0; i < brackets.list.length; i++ ) {
+					var bracket = brackets.list[ i ];
+					var blue    = new Athlete( division.athletes[ bracket.blue.athlete ]);
+					var red     = new Athlete( division.athletes[ bracket.red.athlete ]);
+					athletes.push( blue );
+					athletes.push( red );
+				}
+				return athletes;
 
-			for( var i = 0; i < division.order[ round ].length; i++ ) {
-				var j = division.order[ round ][ i ];
-				athletes.push( new Athlete( division.athletes[ j ] ));
+			// Show all athletes.
+			} else {
+				return division.athletes.map( function( athlete ) { return new Athlete( athlete ); });
 			}
 
-			return athletes;
 		},
 		athleteId : function() { return division.current; },
+		bracket: function() {
+			var brackets = _brackets();
+			return brackets.current;
+		},
 		order : function( i ) {
-			var round = division.round;
 			var order = division.order;
-			if( defined( i )) { return order[ round ][ i ]; }
-			else              { return order[ round ]; }
+			if( defined( i )) { return order[ i ]; }
+			else              { return order; }
 		},
-		round : {
-			display : { name : function() { return FreeScore.round.name[ division.round ]; }},
-			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
-		},
-		roundId : function() { return division.round; },
-		rounds :  function() { return $.grep( FreeScore.round.order, function( round ) { return round in division.order; }); },
 	};
 
-	this.pending = function( round ) { 
-		round = defined( round ) ? round : division.round;
-		return division.pending[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
+	var _is = this.is = {
+		single : { elimination: function() { return defined( division.mode ) && division.mode == 'single-elimination'; }},
+		tied : function() { return defined( division.tied ); }
 	};
-
-	this.placement = function( round ) {
-		round = defined( round ) ? round : division.round;
-		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
-	}
 
 	var _state = this.state = {
 		is : {
@@ -69,6 +81,11 @@ function Division( division ) {
 		}
 	};
 
-
+	var _tied = this.tied = {
+		athletes: function() {
+			var athletes = division.tied[ 0 ];
+			return athletes.tied.map( function( i ) { return division.athletes[ i ]; });
+		}
+	};
 };
 

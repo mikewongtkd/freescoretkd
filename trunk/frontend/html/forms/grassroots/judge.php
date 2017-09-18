@@ -23,6 +23,9 @@
 		<script src="../../include/js/forms/grassroots/jquery.tiebreaker.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeNotes.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeController.js"></script>
+		<script src="../../include/js/forms/grassroots/score.class.js"></script>
+		<script src="../../include/js/forms/grassroots/athlete.class.js"></script>
+		<script src="../../include/js/forms/grassroots/division.class.js"></script>
 	</head>
 	<body>
 		<div id="judgeController"></div>

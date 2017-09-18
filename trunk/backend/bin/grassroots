@@ -173,22 +173,22 @@ get '/:tournament/:ring/:judge/:score' => sub {
 # ------------------------------------------------------------
 # WRITE JUDGE VOTE FOR ATHLETE IN SINGLE-ELIMINATION DIVISION
 # ------------------------------------------------------------
-get '/:tournament/:ring/:judge/vote/:score' => sub { 
+get '/:tournament/:ring/:judge/vote/:vote' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $judge      = $self->param( 'judge' );
-	my $score      = $self->param( 'score' );
+	my $vote       = $self->param( 'vote' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
 
-	# $division->record_vote( $judge, $score );
+	$division->record_vote( $judge, $vote );
 
 	try {
 		$division->write();
 		$progress->write();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
+		$self->render( json => { bracket => $division->current_bracket(), judge => ($judge + 1), vote => $vote } );
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );

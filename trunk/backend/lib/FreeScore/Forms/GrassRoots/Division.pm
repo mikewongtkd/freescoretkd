@@ -4,6 +4,7 @@ use FreeScore::Forms::Division;
 use JSON::XS;
 use base qw( FreeScore::Forms::Division );
 use POSIX qw( ceil );
+use List::Util qw( sum );
 
 # ============================================================
 sub read {
@@ -182,12 +183,45 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub current_bracket {
+# ============================================================
+	my $self = shift; return undef unless exists $self->{ brackets } && defined $self->{ brackets };
+	my $i    = $self->{ current };
+	my $j    = 0;
+	my $k    = int( @{$self->{ brackets }[ $j ]});
+
+	while( $i > $k ) {
+		$i -= $k;
+		$j++;
+		$k = int( @{$self->{ brackets }[ $j ]});
+	}
+
+	return $self->{ brackets }[ $j ][ $i ];
+}
+
+# ============================================================
 sub navigate {
 # ============================================================
 	my $self  = shift;
 	my $index = shift;
 
 	$self->{ current } = $index;
+}
+
+# ============================================================
+sub record_vote {
+# ============================================================
+	my $self  = shift;
+	my $judge = shift;
+	my $vote  = shift;
+
+	my $bracket = $self->current_bracket();
+	my $blue    = $bracket->{ blue }{ votes };
+	my $red     = $bracket->{ red }{ votes };
+
+	if   ( $vote eq 'blue'  ) { $blue->[ $judge ] = 1; $red->[ $judge ] = 0; }
+	elsif( $vote eq 'red'   ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 1; }
+	elsif( $vote eq 'clear' ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 0; }
 }
 
 # ============================================================
@@ -227,6 +261,51 @@ sub record_tiebreaker {
 		my $i       = $self->{ current };
 		my $athlete = $self->{ athletes }[ $i ];
 		$athlete->{ tiebreakers }[ $judge ] = $score;
+	}
+}
+
+# ============================================================
+sub update_brackets {
+# ============================================================
+	my $self   = shift;
+	my $n      = $self->{ judges };
+	my $rounds = $#{ $self->{ brackets }};
+
+	foreach my $r ( 0 .. $rounds ) {
+		my $round    = $self->{ brackets }[ $r ];
+		my $complete = 1;
+		my $next     = $r + 1;
+		foreach my $bracket (@$round) {
+			my $total = sum @{$bracket->{ blue }{ votes }} + sum @{$bracket->{ red }{ votes }};
+			if( $total < $n ) { $complete = 0; last; }
+		}
+		last unless( $complete );       # If the current round is still in progress, do nothing
+		next if( $rounds >= $next );    # If the next round is already built, move on
+		last if( int( @$round ) == 0 ); # If the round only has one match, then that is the final round; there is no next round
+		
+		# ===== BUILD THE NEXT ROUND OF BRACKETS
+		$round = []; # New round
+		push @{$self->{ brackets }}, $round;
+		for( my $i = 0; $i < $#$round; $i += 2 ) {
+			my $j = $i + 1;
+			my $a = $round->[ $i ];
+			my $b = $round->[ $j ];
+
+			my $advances = [];
+			foreach my $bracket ( $a, $b ) {
+				my $blue = $bracket->{ blue };
+				my $red  = $bracket->{ red };
+				if( $blue->{ votes } > $red->{ votes } ) {
+					push @$advances, $blue->{ athlete };
+				} else {
+					push @$advances, $red->{ athlete };
+				}
+			}
+			my $blue = { athlete => shift @$advances, vote => 0 };
+			my $red  = { athlete => shift @$advances, vote => 0 };
+
+			push @$round, { blue => $blue, red => $red };
+		}
 	}
 }
 
@@ -287,16 +366,14 @@ sub _build_brackets {
 	if( $group_size <= 1 ) {
 		my $blue = $a->[ 0 ];
 		my $bye  = @$b ? 0 : 1;
-		my $red  = @$b ? $b->[ 0 ] : undef;
+		my $red  = @$b ? $b->[ 0 ] : { name => '[Bye]' };
 		my $bracket = $bye ?
 		{
-			blue => { athlete => $blue, votes => $judges },
-			red  => { athlete => $red,  votes => 0 },
-			complete => 1
+			blue => { athlete => $blue, votes => [ (1) x $judges ] },
+			red  => { athlete => $red,  votes => [ (0) x $judges ] },
 		} : {
-			blue => { athlete => $blue, votes => 0 },
-			red  => { athlete => $red,  votes => 0 },
-			complete => 0
+			blue => { athlete => $blue, votes => [ (0) x $judges ] },
+			red  => { athlete => $red,  votes => [ (0) x $judges ] },
 		};
 
 		push @{$brackets->[ 0 ]}, $bracket;

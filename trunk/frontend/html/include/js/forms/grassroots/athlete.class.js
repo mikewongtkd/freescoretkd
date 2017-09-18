@@ -3,7 +3,7 @@ function Athlete( athlete ) {
 	this.athlete = athlete;
 
 	this.name  = function() { return athlete.name; }
-	this.score = function( round ) { return new Score(); };
+	this.score = function() { return new Score( athlete.scores ); };
 	this.info  = function( key ) {
 		if( ! defined( athlete.info )) { return undefined; }
 		if( key in athlete.info ) { return athlete.info[ key ]; }
@@ -31,30 +31,5 @@ function Athlete( athlete ) {
 			return last.substr( 0, max_length );
 		}
 	};
-
-	this.penalize = {
-		bounds:     ( round, i ) => { 
-			var score = new Score( athlete.scores[ round ] );
-			score.form( i ).award.penalty( 'bounds' );
-		},
-		restart:    ( round, i ) => { 
-			var score = new Score( athlete.scores[ round ] );
-			score.form( i ).award.penalty( 'restart' );
-		},
-		misconduct: ( round, i ) => { 
-			var score = new Score( athlete.scores[ round ] );
-			score.form( i ).award.penalty( 'misconduct' );
-		},
-		clear:      ( round, i ) => { 
-			var score = new Score( athlete.scores[ round ] );
-			score.form( i ).clear.penalties();
-		}
-	};
-	this.penalties = ( round, i ) => { 
-		var score   = new Score( athlete.scores[ round ] );
-		var penalty = score.form( i ).penalty();
-		if( defined( penalty )) { return penalty.data(); }
-		return undefined;
-	}
 };
 

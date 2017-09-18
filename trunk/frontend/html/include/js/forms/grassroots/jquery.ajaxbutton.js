@@ -4,8 +4,9 @@ $.widget( "freescore.ajaxbutton", {
 		var o        = this.options;
 		var e        = this.options.elements = {};
 		var html     = o.html     = FreeScore.html;
-		var button   = e.button   = html.div.clone() .addClass( "button" ) .addClass( o.type ) .html( o.label );
+		var button   = e.button   = html.div.clone() .addClass( "button" ) .addClass( o.type );
 		var progress = e.progress = html.span.clone() .addClass( "candycane" );
+		var label    = e.label    = html.span.clone() .addClass( "label" ) .html( o.label );
 		var sound    = e.sound    = {};
 
 		sound.ok    = new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]});
@@ -60,15 +61,8 @@ $.widget( "freescore.ajaxbutton", {
 		var b = this.element;
 
 		e.button.empty();
-		e.button.append( e.progress, o.label );
+		e.button.append( e.progress, e.label );
 
-		/* // MW delete this code if it proves unused
-		function refresh( update ) {
-			console.log( "Refreshing ajax button" );
-			var division = JSON.parse( update.data );
-			b.click( o.clickUpdate() );
-		}
-		*/
 	},
 	disable: function() {
 		var o = this.options;
