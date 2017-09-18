@@ -48,15 +48,15 @@ $.widget( "freescore.grassroots", {
 					e.scoreboard.scoreboard( { title: title, current: { athlete : athlete }, judges : division.judges } );
 				}
 				
-			} else if( defined( division.mode ) && division.mode == 'single-elimination' ) {
+			} else if( defined( division.mode ) && division.mode == 'single-elimination' && division.state == 'score' ) {
 				var athletes = [];
 				var i        = division.current;
 				var j        = 0;
-				while( i > division.brackets[ j ].length ) { i -= division.brackets[ j ].length; j++; }
+				while( i >= division.brackets[ j ].length ) { i -= division.brackets[ j ].length; j++; }
 				var bracket  = division.brackets[ j ][ i ];
 
 				var blue = division.athletes[ bracket.blue.athlete ];
-				var red  = defined( bracket.red.athlete ) ? division.athletes[ bracket.red.athlete ] : { name : '[Bye]' };
+				var red  = defined( bracket.red.athlete ) ? division.athletes[ bracket.red.athlete ] : { name : '<span style="opacity: 0.5;">Bye</span>' };
 				athletes.push({ name : blue.name, votes : bracket.blue.votes });
 				athletes.push({ name : red.name,  votes : bracket.red.votes });
 

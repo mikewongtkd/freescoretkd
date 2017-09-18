@@ -69,6 +69,20 @@ sub calculate_placements {
 	my $placements = [];
 	my $places     = [ @{ $self->{ places }} ];
 
+	# ===== CALCULATE BRACKETS
+	if( $self->is_single_elimination() ) {
+		if( exists $self->{ brackets } ) {
+			$self->update_brackets();
+			@$placements = sort { $self->{ athletes }[ $b ]{ score } <=> $self->{ athletes }[ $a ]{ score } } (0 .. $#{ $self->{ athletes }});
+			$self->{ placements } = $placements;
+		} else {
+			my $brackets = [[]];
+			_build_brackets( $self->{ judges }, $brackets, [( 0 .. $#{$self->{ athletes }})] );
+			$self->{ brackets } = $brackets;
+		}
+		return;
+	}
+
 	# ===== CALCULATE TIES
 	for( my $i = 0; $i <= $#sorted; $i++ ) {
 		my $a = $sorted[ $i ];
@@ -88,19 +102,6 @@ sub calculate_placements {
 
 		my $ties = $#{ $place_ties->{ tied }};
 		push @$tied, $place_ties if($#{ $place_ties->{ tied }});
-	}
-
-	# ===== CALCULATE BRACKETS
-	if( $self->is_single_elimination() ) {
-		if( exists $self->{ brackets } ) {
-			print STDERR "UPDATING BRACKETS\n";
-			$self->update_brackets();
-		} else {
-			print STDERR "BUILDING BRACKETS\n";
-			my $brackets = [[]];
-			_build_brackets( $self->{ judges }, $brackets, [( 0 .. $#{$self->{ athletes }})] );
-			$self->{ brackets } = $brackets;
-		}
 	}
 
 	# ===== FILTER UNIMPORTANT TIES
@@ -165,7 +166,7 @@ sub calculate_scores {
 		# ===== IF THE SCORES ARE ALL THE SAME, THEN THE MIN WILL EQUAL MAX, SO DIFFERENTIATE THEM
 		$stats->{ max }++ if( $stats->{ min } == $stats->{ max });
 
-		if( $judges == 3 ) { $athlete->{ score } = $stats->{ sum }; } 
+		if( $judges <= 3 ) { $athlete->{ score } = $stats->{ sum }; } 
 		else {
 			$athlete->{ min }   = $stats->{ min };
 			$athlete->{ max }   = $stats->{ max };
@@ -184,7 +185,7 @@ sub current_bracket {
 	my $j    = 0;
 	my $k    = int( @{$self->{ brackets }[ $j ]});
 
-	while( $i > $k ) {
+	while( $i >= $k ) {
 		$i -= $k;
 		$j++;
 		$k = int( @{$self->{ brackets }[ $j ]});
@@ -321,17 +322,28 @@ sub update_brackets {
 	my $judges = $self->{ judges };
 	my $rounds = $#{ $self->{ brackets }};
 
+	foreach my $athlete ( @{ $self->{ athletes }}) { $athlete->{ score } = 0; }
+
 	foreach my $r ( 0 .. $rounds ) {
 		my $round    = $self->{ brackets }[ $r ];
 		my $complete = 1;
 		my $next     = $r + 1;
 		foreach my $bracket (@$round) {
+			my $i      = $bracket->{ blue }{ athlete };
+			my $j      = $bracket->{ red }{ athlete };
+			my $blue   = sum( @{$bracket->{ blue }{ votes }});
+			my $red    = sum( @{$bracket->{ red }{ votes }});
+			my $winner = undef;
+			if( $blue > $red ) { $winner = $i; } elsif( $red > $blue ) { $winner = $j; }
+
+			$self->{ athletes }[ $winner ]{ score }++ if defined $winner; # Give the winner a point
+
 			my $total = sum( @{$bracket->{ blue }{ votes }}, @{$bracket->{ red }{ votes }});
 			if( $total < $judges ) { $complete = 0; last; }
 		}
 		last unless( $complete );       # If the current round is still in progress, do nothing
 		next if( $rounds >= $next );    # If the next round is already built, move on
-		last if( int( @$round ) == 0 ); # If the round only has one match, then that is the final round; there is no next round
+		last if( int( @$round ) == 1 ); # If the round only has one match, then that is the final round; there is no next round
 		
 		# ===== BUILD THE NEXT ROUND OF BRACKETS
 		print STDERR "Creating a new round...\n";
@@ -364,6 +376,10 @@ sub update_brackets {
 sub write {
 # ============================================================
 	my $self     = shift;
+
+	$self->calculate_scores();
+	$self->calculate_placements();
+
 	my $json     = new JSON::XS();
 	my $brackets = exists $self->{ brackets } ? $json->canonical->encode( $self->{ brackets } ) : undef;
 	my $tied     = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
@@ -417,11 +433,11 @@ sub _build_brackets {
 	if( $group_size <= 1 ) {
 		my $blue = $a->[ 0 ];
 		my $bye  = @$b ? 0 : 1;
-		my $red  = @$b ? $b->[ 0 ] : { name => '[Bye]' };
+		my $red  = @$b ? $b->[ 0 ] : undef;
 		my $bracket = $bye ?
 		{
 			blue => { athlete => $blue, votes => [ (1) x $judges ] },
-			red  => { athlete => $red,  votes => [ (0) x $judges ] },
+			red  => { athlete => undef, votes => [ (0) x $judges ] },
 		} : {
 			blue => { athlete => $blue, votes => [ (0) x $judges ] },
 			red  => { athlete => $red,  votes => [ (0) x $judges ] },

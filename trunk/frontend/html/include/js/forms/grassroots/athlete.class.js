@@ -2,16 +2,17 @@ module.exports = Athlete;
 function Athlete( athlete ) {
 	this.athlete = athlete;
 
-	this.name  = function() { return athlete.name; }
-	this.score = function() { return new Score( athlete.scores ); };
+	this.name  = function() { if( defined( athlete )) { return athlete.name; } else { return 'Bye'; }}
+	this.score = function() { if( defined( athlete )) { return new Score( athlete.scores ); } else { return new Score( [] ); }};
 	this.info  = function( key ) {
-		if( ! defined( athlete.info )) { return undefined; }
+		if( ! defined( athlete ) || ! defined( athlete.info )) { return undefined; }
 		if( key in athlete.info ) { return athlete.info[ key ]; }
 		return undefined;
 	};
 
 	this.display = {
 		name : function() {
+			if( ! defined( athlete )) { return 'Bye'; }
 			var max_length = 16;
 			if( athlete.name.length <= max_length ) { return athlete.name; }
 			var names   = athlete.name.split( /\s+/ );
