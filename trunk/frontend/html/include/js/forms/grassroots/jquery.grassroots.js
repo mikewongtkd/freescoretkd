@@ -49,6 +49,8 @@ $.widget( "freescore.grassroots", {
 				}
 				
 			} else if( defined( division.mode ) && division.mode == 'single-elimination' && division.state == 'score' ) {
+				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
+
 				var athletes = [];
 				var i        = division.current;
 				var j        = 0;
@@ -65,8 +67,19 @@ $.widget( "freescore.grassroots", {
 				e.tiebreaker.voteDisplay({ title: title, athletes : athletes, judges : division.judges });
 
 			} else if( division.state == 'display' ) {
+				
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
-				e.leaderboard.leaderboard( { division : division } );
+
+				if( defined( division.mode ) && division.mode == 'single-elimination' ) {
+					var i        = division.current;
+					var j        = 0;
+					while( i >= division.brackets[ j ].length ) { i -= division.brackets[ j ].length; j++; }
+					var bracket  = division.brackets[ j ][ i ];
+					console.log( 'SHOW BRACKET', i, j );
+					e.leaderboard.leaderboard( { division : division, round: j, current: i });
+				} else {
+					e.leaderboard.leaderboard( { division : division } );
+				}
 
 			} else {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }

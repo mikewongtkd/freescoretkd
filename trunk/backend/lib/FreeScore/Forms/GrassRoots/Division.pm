@@ -73,8 +73,19 @@ sub calculate_placements {
 	if( $self->is_single_elimination() ) {
 		if( exists $self->{ brackets } ) {
 			$self->update_brackets();
-			@$placements = sort { $self->{ athletes }[ $b ]{ score } <=> $self->{ athletes }[ $a ]{ score } } (0 .. $#{ $self->{ athletes }});
-			$self->{ placements } = $placements;
+			my $round    = $self->current_round();
+			my $final    = @$round == 1;
+			my $bracket  = $self->current_bracket();
+			my $complete = sum( @{ $bracket->{ blue }{ votes }}, @{ $bracket->{ red }{ votes }} ) == $self->{ judges };
+			if( $final && $complete ) {
+				@$placements = sort { $self->{ athletes }[ $b ]{ score } <=> $self->{ athletes }[ $a ]{ score } } (0 .. $#{ $self->{ athletes }});
+				$self->{ placements } = $placements;
+				$self->{ pending }    = [];
+
+			} else {
+				$self->{ placements } = [];
+				$self->{ pending }    = [ $bracket->{ blue }{ athlete }, $bracket->{ red }{ athlete } ];
+			}
 		} else {
 			my $brackets = [[]];
 			_build_brackets( $self->{ judges }, $brackets, [( 0 .. $#{$self->{ athletes }})] );
@@ -192,6 +203,23 @@ sub current_bracket {
 	}
 
 	return $self->{ brackets }[ $j ][ $i ];
+}
+
+# ============================================================
+sub current_round {
+# ============================================================
+	my $self = shift; return undef unless exists $self->{ brackets } && defined $self->{ brackets };
+	my $i    = $self->{ current };
+	my $j    = 0;
+	my $k    = int( @{$self->{ brackets }[ $j ]});
+
+	while( $i >= $k ) {
+		$i -= $k;
+		$j++;
+		$k = int( @{$self->{ brackets }[ $j ]});
+	}
+
+	return $self->{ brackets }[ $j ];
 }
 
 # ============================================================

@@ -7,8 +7,9 @@ $.widget( "freescore.leaderboard", {
 		var division  = e.division  = html.div.clone() .addClass( "division" );
 		var pending   = e.pending   = html.div.clone() .addClass( "pending" );
 		var standings = e.standings = html.div.clone() .addClass( "standings" );
+		var brackets  = e.brackets  = html.div.clone() .addClass( "brackets" );
 
-		division .append( pending, standings );
+		division .append( pending, standings, brackets );
 
 		this.element .addClass( "leaderboard" );
 		this.element .append( division );
@@ -22,6 +23,8 @@ $.widget( "freescore.leaderboard", {
 		var pending   = { list: html.ol.clone(), athletes: [] };
 		var standings = { athletes: [] };
 
+		e.brackets.css({ display: 'none' });
+
 		if( ! defined( o.division.placements )) { o.division.placements = []; }
 		if( ! defined( o.division.pending    )) { o.division.pending    = []; }
 
@@ -29,11 +32,54 @@ $.widget( "freescore.leaderboard", {
 		pending.athletes   = o.division.pending    .map( function( i ) { return athletes[ i ]; } );
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
-		if( standings.athletes.length == 0 ) {
+		if( defined( o.division.mode ) && o.division.mode == 'single-elimination' ) {
+			console.log( 'SHOWING BRACKETS' );
+			if( standings.athletes.length == 0 ) {
+				// Brackets at full screen
+				e.brackets.css({ display: 'block' });
+				e.pending.css({ display: 'block' });
+				e.standings.css({ display: 'none' });
+				e.brackets.empty();
+				var drawing = html.div.clone().attr({ id: 'drawing' });;
+				e.brackets.append( '<h2>Brackets</h2>', drawing );
+				var teams = o.division.brackets[ 0 ].map( function( match ) { 
+					var blue = match.blue.athlete;
+					var red  = match.red.athlete;
+
+					blue = o.division.athletes[ blue ].name;
+					red  = defined( red ) ? o.division.athletes[ red ].name : 'Bye';
+					
+					return [ blue, red ];
+				});
+				var sum     = function( acc, cur ) { return acc + cur; };
+				var results = o.division.brackets.map( function( round ) { 
+					var results = [];
+					for( var i = 0; i < round.length; i++ ) {
+						var match = round[ i ];
+						var votes = [ match.blue.votes.reduce( sum ), match.red.votes.reduce( sum ) ];
+						results.push( votes );
+					}
+					return results;
+				});
+				console.log( 'TEAMS:', teams, 'RESULTS:', results );
+
+				drawing.bracket({ init: { teams: teams, results: results }});
+
+			} else {
+				e.brackets.css({ display: 'none' });
+				e.pending.css({ display: 'none' }); 
+				e.standings.css({ display: 'block', 'font-size' : '48pt', width: '913px' });
+			}
+
+		} else if( standings.athletes.length == 0 ) {
+			// Full screen
 			e.standings.css( 'display', 'none' );
 			e.pending.css( 'font-size', '48pt' );
 			e.pending.css( 'width', '913px' );
+
+
 		} else {
+			// Half screen
 			e.standings.css( 'display', 'block' );
 			e.pending.css( 'font-size', '24pt' );
 			e.pending.css( 'width', '400px' );
@@ -51,11 +97,15 @@ $.widget( "freescore.leaderboard", {
 		}
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
-		if( pending.athletes.length == 0 ) { 
+		if( defined( o.division.mode ) && o.division.mode == 'single-elimination' ) {
+		} else if( pending.athletes.length == 0 ) { 
+			// Full screen
 			e.pending.css( 'display', 'none' ); 
 			e.standings.css( 'font-size', '48pt' );
 			e.standings.css( 'width', '913px' );
+
 		} else {
+			// Half screen
 			e.pending.css( 'display', 'block' ); 
 			e.standings.css( 'font-size', '24pt' );
 			e.standings.css( 'width', '400px' );
