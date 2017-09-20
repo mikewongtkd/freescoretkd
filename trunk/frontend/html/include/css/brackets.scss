@@ -1,0 +1,95 @@
+.brackets {
+	.drawing {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 800px;
+		height: 400px;
+
+		.match {
+			position: absolute;
+			width: 180px;
+			height: 80px;
+
+			.athlete {
+				font-family: HelveticaNeue-CondensedBold;
+				font-size: 24pt;
+				position: absolute;
+				width: 156px;
+				height: 40px;
+				color: white;
+				padding: 0 12px 0 12px;
+				overflow-x: hidden;
+			}
+			.hong {
+				position: absolute;
+				top: 40px;
+				left: 0;
+				background-color: #f00;
+				border-radius: 0 0 6px 6px;
+			}
+			.chung {
+				position: absolute;
+				top: 0;
+				left: 0;
+				background-color: #00f;
+				border-radius: 6px 6px 0 0;
+			}
+			.lost {
+				text-decoration: line-through;
+				opacity: 0.75;
+			}
+			.current {
+				font-size: 36pt;
+				position: absolute;
+				top: 40px;
+				left: -52px;
+				color: lime;
+				z-index: 2;
+			}
+		}
+		.connect {
+			$color: gold;
+			position: absolute;
+			color: $color;
+			font-size: 18pt;
+			z-index: 1;
+
+			.line-down {
+				width: 50%;
+				height: 50%;
+				border-top: 4px solid $color;
+				border-right: 4px solid $color;
+			}
+			.line-up {
+				width: 50%;
+				height: 50%;
+				border-bottom: 4px solid $color;
+				border-right: 4px solid $color;
+			}
+			.line-across {
+				position: absolute;
+				top: calc( 50% + 2px );
+				left: 50%;
+				width: 50%;
+				height: 50%;
+				border-top: 4px solid $color;
+			}
+			.start-high {
+				position: absolute;
+				top: -11px;
+				left: -11px;
+			}
+			.start-low {
+				position: absolute;
+				top: calc( 100% - 6px );
+				left: -11px;
+			}
+			.stop {
+				position: absolute;
+				top:  calc( 50% - 8px );
+				left: calc( 100% - 11px );
+			}
+		}
+	}
+}

@@ -1,281 +1,77 @@
-@media screen {
-	body {
-		font-family: Calibri, Helvetica, Arial, sans-serif;
-		color: #000;
-		background-color: #eee;
-	}
+.brackets .drawing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 800px;
+  height: 400px; }
+  .brackets .drawing .match {
+    position: absolute;
+    width: 180px;
+    height: 80px; }
+    .brackets .drawing .match .athlete {
+      font-family: HelveticaNeue-CondensedBold;
+      font-size: 24pt;
+      position: absolute;
+      width: 156px;
+      height: 40px;
+      color: white;
+      padding: 0 12px 0 12px;
+      overflow-x: hidden; }
+    .brackets .drawing .match .hong {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: #f00;
+      border-radius: 0 0 6px 6px; }
+    .brackets .drawing .match .chung {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #00f;
+      border-radius: 6px 6px 0 0; }
+    .brackets .drawing .match .lost {
+      text-decoration: line-through;
+      opacity: 0.75; }
+    .brackets .drawing .match .current {
+      font-size: 36pt;
+      position: absolute;
+      top: 40px;
+      left: -52px;
+      color: lime;
+      z-index: 2; }
+  .brackets .drawing .connect {
+    position: absolute;
+    color: gold;
+    font-size: 18pt;
+    z-index: 1; }
+    .brackets .drawing .connect .line-down {
+      width: 50%;
+      height: 50%;
+      border-top: 4px solid gold;
+      border-right: 4px solid gold; }
+    .brackets .drawing .connect .line-up {
+      width: 50%;
+      height: 50%;
+      border-bottom: 4px solid gold;
+      border-right: 4px solid gold; }
+    .brackets .drawing .connect .line-across {
+      position: absolute;
+      top: calc( 50% + 2px );
+      left: 50%;
+      width: 50%;
+      height: 50%;
+      border-top: 4px solid gold; }
+    .brackets .drawing .connect .start-high {
+      position: absolute;
+      top: -11px;
+      left: -11px; }
+    .brackets .drawing .connect .start-low {
+      position: absolute;
+      top: calc( 100% - 6px );
+      left: -11px; }
+    .brackets .drawing .connect .stop {
+      position: absolute;
+      top: calc( 50% - 8px );
+      left: calc( 100% - 11px ); }
 
-	h1 {
-		font-size: 24pt;
-		color: white;
-		border-radius: 8px;
-		background-color: #333;
-		padding-left: 20px;
-	}
-
-	h2 {
-		clear: both;
-		font-size: 18pt;
-		border-radius: 8px;
-		color: #666;
-		padding-left: 20px;
-		background-color: #ccc;
-	}
-
-	.meta {
-		clear: both;
-		margin-left: 20px;
-	}
-
-	.meta .keyword {
-		float: left;
-		width: 120px;
-		font-weight: bold;
-	}
-
-	.meta .value .reference {
-		color: #999;
-	}
-
-	.division {
-		position: relative;
-	}
-
-	.match {
-		position: absolute;
-		page-break-inside: avoid;
-		background-color: #fff;
-		border: 1px solid #ccc;
-		border-radius: 8px;
-		width: 224px;
-	}
-
-	.match .athlete {
-		clear: both;
-		background-color: #fff;
-		color: #333;
-		padding-left: 20px;
-		width: 200px;
-	}
-
-	.match .athlete .id {
-		float: left;
-		color: #ccc;
-		width: 40px;
-	}
-
-	.match .athlete .age-weight {
-		display: none;
-		color: #666;
-	}
-
-	.match .bye .name {
-		color: #ccc;
-	}
-
-	.match .meta {
-		clear: both;
-		font-size: 6pt;
-		color: #ccc;
-		border-radius: 8px;
-		margin: 0;
-	}
-
-	.match .meta .name-chung {
-		float: left;
-		width: 80px;
-		padding-left: 60px;
-		background-color: #99f;
-		border-right: 1px solid #ccc;
-		border-bottom: 1px solid #ccc;
-		border-radius: 8px 0 0 0;
-		color: #009;
-	}
-
-	.match .meta .name-hong {
-		float: left;
-		width: 80px;
-		padding-left: 60px;
-		background-color: #f99;
-		border-top: 1px solid #ccc;
-		border-radius: 0 0 0 8px;
-		color: #900;
-	}
-	
-	.match .meta .score-chung {
-		float: left;
-		width: 63px;
-		padding-left: 20px;
-		background-color: #99f;
-		border-bottom: 1px solid #ccc;
-		border-radius: 0 8px 0 0;
-		color: #009;
-	}
-
-	.match .meta .score-hong {
-		float: left;
-		width: 63px;
-		padding-left: 20px;
-		background-color: #f99;
-		border-bottom: 1px solid #ccc;
-		border-radius: 0 0 8px 0;
-		color: #900;
-	}
-
-	#Q101 {
-		top:  0;
-		left: 0;
-	}
-
-	#Q102 {
-		top:  320px;
-		left:  0;
-	}
-
-	#Q103 {
-		top:  0;
-		left: 1020px;
-	}
-
-	#Q104 {
-		top:  320px;
-		left: 1020px;
-	}
-
-	#S201 {
-		top:  160px;
-		left: 240px;
-	}
-
-	#S202 {
-		top:  160px;
-		left: 780px;
-	}
-}
-
-@media print {
-	@page { size: landscape; }
-	body {
-		font-family: Calibri, Helvetica, Arial, sans-serif;
-	}
-
-	h1 {
-		font-size: 24pt;
-		border-top: 4px solid black;
-	}
-
-	h2 {
-		font-size: 18pt;
-		border-top: 2px solid #666;
-	}
-
-	.meta {
-		clear: both;
-		margin-left: 20px;
-	}
-
-	.meta .keyword {
-		float: left;
-		width: 120px;
-		font-weight: bold;
-	}
-
-	.meta .value .reference {
-		color: #eee;
-	}
-
-	.division {
-		position: relative;
-	}
-
-	.athlete {
-		background-color: #fff;
-		color: #333;
-		padding-left: 20px;
-		width: 200px;
-	}
-
-	.athlete .id {
-		display: inline;
-		float: left;
-		color: #ccc;
-		width: 40px;
-	}
-
-	.athlete .age-weight {
-		display: none;
-		color: #666;
-	}
-
-	.bye .name {
-		color: #ccc;
-	}
-
-	.match {
-		position: absolute;
-		page-break-inside: avoid;
-		background-color: #fff;
-		border: 1px solid black;
-		border-radius: 8px;
-	}
-
-	.match .meta {
-		clear: both;
-		font-size: 6pt;
-		color: #ccc;
-		border-radius: 8px;
-	}
-
-	.match .meta .color {
-		float: left;
-		width: 60px;
-		padding-left: 40px;
-		border-right: 1px solid #ccc;
-		border-radius: 8px;
-	}
-
-	.match .meta .chung {
-		border-bottom: 1px solid #ccc;
-	}
-
-	.match .meta .hong {
-		border-top: 1px solid #ccc;
-	}
-	
-	.match .meta .score {
-		float: left;
-		width: 80px;
-		padding-left: 20px;
-		border-radius: 8px;
-	}
-
-	#Q101 {
-		left: 0;
-		top:  0;
-	}
-
-	#Q102 {
-		left:  0;
-		top:  320px;
-	}
-
-	#Q103 {
-		left: 1020px;
-		top:  0;
-	}
-
-	#Q104 {
-		left: 1020px;
-		top:  320px;
-	}
-
-	#S201 {
-		left: 240px;
-		top:  160px;
-	}
-
-	#S202 {
-		left: 780px;
-		top:  160px;
-	}
-}
+/*# sourceMappingURL=brackets.css.map */

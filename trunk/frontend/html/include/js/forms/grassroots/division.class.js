@@ -11,6 +11,7 @@ function Division( division ) {
 	this.forms       = function() { return division.forms;       }
 	this.ring        = function() { return division.ring;        }
 	this.ringName    = function() { return division.ring < 10 ? 'ring0' + division.ring : 'ring' + division.ring; }
+	this.brackets    = function() { return division.brackets;    }
 
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };
@@ -29,7 +30,6 @@ function Division( division ) {
 			j++;
 			brackets = division.brackets[ j ];
 		}
-		console.log( { index: i, list : brackets, current : brackets[ i ], round : j, blueAthlete : (2 * i), redAthlete : (2 * i) + 1 } );
 		return { list : brackets, current : brackets[ i ], round : j, blueAthlete : (2 * i), redAthlete : (2 * i) + 1 };
 	}
 
@@ -65,7 +65,6 @@ function Division( division ) {
 		},
 		bracket: function() {
 			var brackets = _brackets();
-			console.log( brackets );
 			return brackets.current;
 		},
 		order : function( i ) {
