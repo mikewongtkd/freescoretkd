@@ -15,8 +15,6 @@ $.widget( "freescore.brackets", {
 		var division = new Division( o.division );
 		var brackets = division.brackets();
 		var athletes = division.athletes();
-		var position = [[{ x: 0, y: 0 }, { x: 0, y: 100 }, { x: 0, y: 200 }, { x: 0, y: 300 }], [{ x: 300, y: 50 }, { x: 300, y: 250 }], [{ x: 600, y: 150 }]];
-		var connect  = [[ undefined, { x: 180, y: 38, height: 96, width: 120 }, undefined, { x: 180, y: 238, height: 96, width: 120 }], [ undefined, { x: 480, y: 88, height: 196, width: 120 }]];
 		var current  = html.div.clone().addClass( 'current' ).html( '<span class="fa fa-location-arrow"></span>' );
 		var line     = {
 			connect : html.div.clone().addClass( 'connect' ).append( html.div.clone().addClass( 'line-down' ), html.div.clone().addClass( 'line-up' ),html.div.clone().addClass( 'line-across' )),
@@ -28,10 +26,11 @@ $.widget( "freescore.brackets", {
 
 		for( var j = 0; j < brackets.length; j++ ) {
 			var round = brackets[ j ];
+			var x     = j * 300;
 
 			for( var i = 0; i < round.length; i++ ) {
-				var x        = position[ j ][ i ].x;
-				var y        = position[ j ][ i ].y;
+				var block    = 400/(4/Math.pow( 2, j ));
+				var y        = (i + 0.5) * block - 50;
 				var bracket  = round[ i ];
 				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: 'Bye' }};
 				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: 'Bye' }};
@@ -59,8 +58,10 @@ $.widget( "freescore.brackets", {
 
 				drawing.append( match );
 				if( i % 2 ) {
-					var c = connect[ j ][ i ];
-					drawing.append( line.connect.clone().css({ top: c.y, left: c.x, height: c.height + 'px', width: c.width + 'px' }));
+					var cx = x + 180;
+					var cy = y - (100 * j) - 62;
+					var height = (j + 1) * 100 - 4;
+					drawing.append( line.connect.clone().css({ top: cy, left: cx, height: height + 'px', width: '120px' }));
 				}
 			}
 		}
