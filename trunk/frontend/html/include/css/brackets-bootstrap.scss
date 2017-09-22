@@ -1,0 +1,84 @@
+.brackets {
+	.drawing {
+		position: absolute;
+		top: 0;
+		left: 35px;
+
+		.match {
+			position: absolute;
+			width: 180px;
+			height: 80px;
+
+			.athlete {
+				font-size: 14pt;
+				position: absolute;
+				width: 180px;
+				height: 40px;
+				color: white;
+				padding: 8px 12px 8px 12px;
+				overflow-x: hidden;
+			}
+			.hong {
+				position: absolute;
+				top: 40px;
+				left: 0;
+				background-color: #d9534f;
+				border-radius: 0 0 6px 6px;
+				color: #ffb9a5;
+			}
+			.chung {
+				position: absolute;
+				top: 0;
+				left: 0;
+				background-color: #337ab7;
+				border-radius: 6px 6px 0 0;
+				color: #99e0ff;
+			}
+		}
+		.current:after {
+			position: absolute;
+			top: 80px;
+			left: 60px;
+			content: 'Current';
+			color: black;
+		}
+		.selected {
+			.hong {
+				background-color: #c9302c;
+				color: white;
+			}
+			.chung {
+				background-color: #286090;
+				color: white;
+			}
+		}
+		.connect {
+			$color: #ddd;
+			position: absolute;
+			color: $color;
+			font-size: 18pt;
+			z-index: 1;
+
+			.line-down {
+				width: 50%;
+				height: 50%;
+				border-top: 2px solid $color;
+				border-right: 2px solid $color;
+			}
+			.line-up {
+				width: 50%;
+				height: 50%;
+				border-bottom: 2px solid $color;
+				border-right: 2px solid $color;
+			}
+			.line-across {
+				position: absolute;
+				top: calc( 50% + 2px );
+				left: 50%;
+				width: 50%;
+				height: 50%;
+				border-top: 2px solid $color;
+			}
+		}
+	}
+}

@@ -19,6 +19,8 @@
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
+		<link href="../../include/css/brackets-bootstrap.css" rel="stylesheet" type="text/css" />
+		<link href="../../include/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
@@ -27,6 +29,7 @@
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/brackets.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/grassroots/score.class.js"></script>
@@ -60,6 +63,7 @@
 						<div class="col-lg-9">
 							<div class="list-group" id="athletes">
 							</div>
+							<div class="brackets" id="brackets"></div>
 						</div>
 						<div class="action-menu col-lg-3">
 							<div class="navigate-division">
@@ -112,7 +116,17 @@
 						console.log( division );
 						if( ! defined( division )) { return; }
 						division = new Division( division );
-						refresh.athletes( division, curDiv );
+						if( division.is.single.elimination()) {
+							$( '#athletes' ).hide();
+							$( '#brackets' ).show();
+							$( '#brackets' ).empty();
+							refresh.brackets( division, curDiv );
+							$( '.drawing' ).css({ position: 'absolute;', top: '0px;', left: '80px;' }); 
+						} else {
+							$( '#athletes' ).show();
+							$( '#brackets' ).hide();
+							refresh.athletes( division, curDiv );
+						}
 						if( page.num == 1 ) { page.transition() };
 					}
 				if( update.type == 'division' && update.action == 'update' ) {
@@ -149,7 +163,9 @@
 			};
 
 			var refresh = { 
+				// ------------------------------------------------------------
 				athletes: function( division, currentDivision ) {
+				// ------------------------------------------------------------
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
@@ -208,7 +224,51 @@
 						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 					$( ".navigate-athlete" ).hide();
 				},
+				// ------------------------------------------------------------
+				brackets : function( division, currentDivision ) {
+				// ------------------------------------------------------------
+					$( '#brackets' ).brackets( division );
+
+					$( '.match' ).each( function( k, match ) { if( k == division.current.athleteId() ) { $( match ).addClass( 'current selected' ); } });
+
+					$( '.match' ).off( 'click' ).click( function( ev ) {
+						var clicked  = $( ev.target ); clicked = clicked.hasClass( 'athlete' ) ? clicked.parent() : clicked;
+						var brackets = division.brackets();
+						var i        = parseInt( clicked.attr( 'match' ));
+						var j        = parseInt( clicked.attr( 'round' ));
+						var k        = parseInt( clicked.attr( 'index' ));
+						var bracket  = brackets[ j ][ i ];
+						var athletes = division.athletes();
+						var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return '[Bye]' }} };
+						var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: () => { return '[Bye]' }} };
+
+						$( '.match' ).removeClass( 'selected' );
+						if( k == division.current.athleteId() && currentDivision ) {
+							sound.prev.play();
+							$( ".navigate-athlete" ).hide(); 
+
+						} else if( currentDivision ) {
+							sound.next.play(); 
+							$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
+							$( "#navigate-athlete-label" ).html( "Start scoring for " + blue.athlete.name() + ' vs ' + red.athlete.name() ); 
+							$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
+							$( ".navigate-athlete" ).show(); 
+						}
+						clicked.addClass( 'selected' ); 
+						refresh.navadmin( division );
+					});
+
+					// ===== ACTION MENU BEHAVIOR
+					if( currentDivision ) { 
+						$( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show();
+					} else { 
+						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+					$( ".navigate-athlete" ).hide();
+
+				},
+				// ------------------------------------------------------------
 				navadmin : function( division ) {
+				// ------------------------------------------------------------
 					var ring    = division.ringName();
 					var ringid  = division.ring();
 					var divid   = division.name();
@@ -231,7 +291,9 @@
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
 					$( "#admin-print" )         .off( 'click' ).click( action.administration.print );
 				},
+				// ------------------------------------------------------------
 				ring: function( ring ) {
+				// ------------------------------------------------------------
 					$( '#ring' ).empty();
 					ring.divisions.forEach(( d ) => {
 						var division    = new Division( d );

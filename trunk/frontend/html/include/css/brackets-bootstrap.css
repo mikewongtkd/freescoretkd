@@ -1,0 +1,66 @@
+.brackets .drawing {
+  position: absolute;
+  top: 0;
+  left: 35px; }
+  .brackets .drawing .match {
+    position: absolute;
+    width: 180px;
+    height: 80px; }
+    .brackets .drawing .match .athlete {
+      font-size: 14pt;
+      position: absolute;
+      width: 180px;
+      height: 40px;
+      color: white;
+      padding: 8px 12px 8px 12px;
+      overflow-x: hidden; }
+    .brackets .drawing .match .hong {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: #d9534f;
+      border-radius: 0 0 6px 6px;
+      color: #ffb9a5; }
+    .brackets .drawing .match .chung {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #337ab7;
+      border-radius: 6px 6px 0 0;
+      color: #99e0ff; }
+  .brackets .drawing .current:after {
+    position: absolute;
+    top: 80px;
+    left: 60px;
+    content: 'Current';
+    color: black; }
+  .brackets .drawing .selected .hong {
+    background-color: #c9302c;
+    color: white; }
+  .brackets .drawing .selected .chung {
+    background-color: #286090;
+    color: white; }
+  .brackets .drawing .connect {
+    position: absolute;
+    color: #ddd;
+    font-size: 18pt;
+    z-index: 1; }
+    .brackets .drawing .connect .line-down {
+      width: 50%;
+      height: 50%;
+      border-top: 2px solid #ddd;
+      border-right: 2px solid #ddd; }
+    .brackets .drawing .connect .line-up {
+      width: 50%;
+      height: 50%;
+      border-bottom: 2px solid #ddd;
+      border-right: 2px solid #ddd; }
+    .brackets .drawing .connect .line-across {
+      position: absolute;
+      top: calc( 50% + 2px );
+      left: 50%;
+      width: 50%;
+      height: 50%;
+      border-top: 2px solid #ddd; }
+
+/*# sourceMappingURL=brackets-bootstrap.css.map */
