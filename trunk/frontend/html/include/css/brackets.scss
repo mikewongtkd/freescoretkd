@@ -35,9 +35,15 @@
 				background-color: #00f;
 				border-radius: 6px 6px 0 0;
 			}
+			.score {
+				font-family: HelveticaNeue-CondensedBold;
+				font-size: 24pt;
+				position: absolute;
+				left: 150px;
+				color: white;
+			}
 			.lost {
 				text-decoration: line-through;
-				opacity: 0.75;
 			}
 			.current {
 				font-size: 36pt;

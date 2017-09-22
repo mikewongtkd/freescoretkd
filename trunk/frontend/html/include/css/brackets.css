@@ -29,9 +29,14 @@
       left: 0;
       background-color: #00f;
       border-radius: 6px 6px 0 0; }
+    .brackets .drawing .match .score {
+      font-family: HelveticaNeue-CondensedBold;
+      font-size: 24pt;
+      position: absolute;
+      left: 150px;
+      color: white; }
     .brackets .drawing .match .lost {
-      text-decoration: line-through;
-      opacity: 0.75; }
+      text-decoration: line-through; }
     .brackets .drawing .match .current {
       font-size: 36pt;
       position: absolute;

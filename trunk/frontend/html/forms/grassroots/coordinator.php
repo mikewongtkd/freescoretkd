@@ -113,7 +113,7 @@
 						var division = update.divisions.find(( d ) => { return d.name == divid; });
 						var current  = update.divisions.find(( d ) => { return d.name == update.current; });
 						var curDiv   = division.name == current.name;
-						console.log( division );
+
 						if( ! defined( division )) { return; }
 						division = new Division( division );
 						if( division.is.single.elimination()) {
@@ -232,7 +232,7 @@
 					$( '.match' ).each( function( k, match ) { if( k == division.current.athleteId() ) { $( match ).addClass( 'current selected' ); } });
 
 					$( '.match' ).off( 'click' ).click( function( ev ) {
-						var clicked  = $( ev.target ); clicked = clicked.hasClass( 'athlete' ) ? clicked.parent() : clicked;
+						var clicked  = $( ev.target ); clicked = ! clicked.is( 'match' ) ? clicked.parent() : clicked;
 						var brackets = division.brackets();
 						var i        = parseInt( clicked.attr( 'match' ));
 						var j        = parseInt( clicked.attr( 'round' ));

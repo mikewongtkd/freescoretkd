@@ -47,12 +47,12 @@ $.widget( "freescore.brackets", {
 				blue.label   = html.div.clone().addClass( 'athlete chung' ).html( blue.athlete.name );
 				red.label    = html.div.clone().addClass( 'athlete hong' ).html( red.athlete.name );
 
-				if( blue.lost ) { blue.label.addClass( 'lost' ); }
-				if( red.lost )  { red.label.addClass( 'lost' ); }
+				blue.score   = html.div.clone().addClass( 'chung score' ).html( blue.votes );
+				red.score    = html.div.clone().addClass( 'hong score' ).html( red.votes );
 
 				if( bracket === division.current.bracket()) {};
 
-				match.append( blue.label, red.label );
+				match.append( blue.label, blue.score, red.label, red.score );
 				match.attr({ round : j, match: i, index: k });
 
 				drawing.append( match );

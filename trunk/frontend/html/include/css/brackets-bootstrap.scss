@@ -34,13 +34,19 @@
 				border-radius: 6px 6px 0 0;
 				color: #99e0ff;
 			}
+			.score {
+				font-size: 14pt;
+				position: absolute;
+				left: 160px;
+				margin-top: 8px;
+			}
 		}
 		.current:after {
 			position: absolute;
 			top: 80px;
-			left: 60px;
-			content: 'Current';
-			color: black;
+			left: 50px;
+			content: '\2191  Current';
+			color: #333;
 		}
 		.selected {
 			.hong {

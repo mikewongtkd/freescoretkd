@@ -52,9 +52,13 @@ $.widget( "freescore.brackets", {
 				if( blue.lost ) { blue.label.addClass( 'lost' ); }
 				if( red.lost )  { red.label.addClass( 'lost' ); }
 
+				blue.score   = html.div.clone().addClass( 'chung score' ).html( blue.votes );
+				red.score    = html.div.clone().addClass( 'hong score' ).html( red.votes );
+
 				if( bracket === division.current.bracket()) { match.append( current ); }
 
 				match.append( blue.label, red.label );
+				match.append( blue.score, red.score );
 
 				drawing.append( match );
 				if( i % 2 ) {
