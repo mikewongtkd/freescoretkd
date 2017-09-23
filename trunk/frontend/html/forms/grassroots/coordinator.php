@@ -227,6 +227,13 @@
 				// ------------------------------------------------------------
 				brackets : function( division, currentDivision ) {
 				// ------------------------------------------------------------
+					$( '#division-header' ).html( division.summary() );
+					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
+						sound.prev.play();
+						$.removeCookie( 'divid' );
+						page.transition(); 
+					});
+
 					$( '#brackets' ).brackets( division );
 
 					$( '.match' ).each( function( k, match ) { if( k == division.current.athleteId() ) { $( match ).addClass( 'current selected' ); } });
