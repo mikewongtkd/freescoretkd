@@ -159,7 +159,6 @@ foreach ($setting as $key => $value) {
 						url: 'http://' + host + ':3080/' + tournament.db + '/<?= $ring ?>/' + division.name,
 						data: JSON.stringify( division ),
 						success: function( response ) {
-							console.log( response );
 							if( response.status == 'saved' ) {
 								sound.send.play();
 								$( '#user-message' ).html( describe( division ) + ' has been saved.' );

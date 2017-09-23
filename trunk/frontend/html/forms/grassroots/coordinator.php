@@ -233,6 +233,7 @@
 						$.removeCookie( 'divid' );
 						page.transition(); 
 					});
+					refresh.navadmin( division );
 
 					$( '#brackets' ).brackets( division );
 
