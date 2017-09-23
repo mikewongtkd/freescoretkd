@@ -122,8 +122,6 @@ $.widget( "freescore.judgeController", {
 				var athletes = division.current.athletes();
 				var i        = (division.current.athleteId() * 2);
 
-				console.log( bracket );
-
 				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : division.current.blueAthlete(), red : division.current.redAthlete(), name : division.name(), description : 'Single Elimination', bracket : bracket });
 				e.score.hide();
 				e.vote.show();

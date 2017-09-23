@@ -10,6 +10,7 @@
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/tiebreaker.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/judgeController.css">
 		<link rel="stylesheet" href="../../include/css/forms/grassroots/ajaxbutton.css">
+		<link rel="stylesheet" href="../../include/fontawesome/css/font-awesome.min.css">
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>

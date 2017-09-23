@@ -376,13 +376,13 @@ sub update_brackets {
 			if( $total < $judges ) { $complete = 0; last; }
 		}
 		last unless( $complete );       # If the current round is still in progress, do nothing
-		next if( $rounds >= $next );    # If the next round is already built, move on
 		last if( int( @$round ) == 1 ); # If the round only has one match, then that is the final round; there is no next round
-		
-		# ===== BUILD THE NEXT ROUND OF BRACKETS
-		print STDERR "Creating a new round...\n";
-		my $new_round = []; # New round
-		push @{$self->{ brackets }}, $new_round;
+
+		# ===== BUILD OR UPDATE THE NEXT ROUND OF BRACKETS
+		my $update = $rounds >= $next;
+		push @{$self->{ brackets }}, $new_round if( ! $update );
+		my $next_round = $self->{ brackets }[ $next ];
+
 		for( my $i = 0; $i < $#$round; $i += 2 ) {
 			my $j = $i + 1;
 			my $a = $round->[ $i ];
@@ -398,10 +398,25 @@ sub update_brackets {
 					push @$advances, $red->{ athlete };
 				}
 			}
-			my $blue = { athlete => shift @$advances, votes => [(0) x $judges] };
-			my $red  = { athlete => shift @$advances, votes => [(0) x $judges] };
+			my $blue    = { athlete => shift @$advances, votes => [(0) x $judges] };
+			my $red     = { athlete => shift @$advances, votes => [(0) x $judges] };
+			my $bracket = { blue => $blue, red => $red };
 
-			push @$new_round, { blue => $blue, red => $red };
+			if( $update ) {
+				my $k = int( $i / 2 );
+				my $before      = $next_round->[ $k ];
+				my $same_blue   = $before->{ blue }{ athlete } == $blue->{ athlete };
+				my $same_red    = $before->{ red }{ athlete }  == $red->{ athlete };
+				my $dont_update = $same_blue && $same_red; # No changes, don't update
+
+				next if( $dont_update );
+
+				$before->{ blue }{ athlete } = $blue->{ athlete };
+				$before->{ red }{ athlete }  = $red->{ athlete };
+
+			} else {
+				push @$next_round, $bracket;
+			}
 		}
 	}
 }
