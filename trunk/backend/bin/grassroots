@@ -272,6 +272,7 @@ post '/:tournament/:ring/:divid' => sub {
 			$data->{ header }{ $key } = $json->decode( $data->{ header }{ $key } ) if( $key eq 'brackets' );
 			$division->{ $key } = $data->{ header }{ $key }; 
 		}
+		delete $division->{ mode } if( ! exists $data->{ header }{ mode } );
 		my $athletes = [];
 		foreach my $i ( 0 .. $#{ $data->{ athletes }} ) {
 			my $athlete = { name => $data->{ athletes }[ $i ], index => $i, rank => undef, scores => [], tiebreakers => [] };

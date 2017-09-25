@@ -25,6 +25,14 @@
 		$athletes = array_filter( array_map( function( $n ) { $n = preg_replace( '/\t.*/', '', $n ); $n = preg_replace( '/\n/', '', $n ); return $n; }, preg_grep( "/^#/", $lines, true ))); 
 		$list     = join( "\n", $athletes );
 	}
+
+	if( $setting[ mode ] == 'single-elimination' ) {
+		$mode     = 'Single Elimination';
+		$modeicon = 'fa fa-thumbs-up';
+	} else {
+		$mode     = 'Numeric Score';
+		$modeicon = 'fa fa-list-ol';
+	}
 ?>
 <html>
 	<head>
@@ -33,6 +41,7 @@
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<link href="../../../include/opt/codemirror/lib/codemirror.css" rel="stylesheet" />
+		<link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
@@ -84,6 +93,7 @@
 						Division <?= strtoupper( $id ) ?> <?= $setting[ 'description' ] ?>
 					</h4>
 					<button id="division-judges" class="btn btn-primary btn-no-border btn-sm pull-right"><span class="glyphicon glyphicon-user"></span>&nbsp;<span id="judges"><?= $setting[ 'judges' ] ?></span> Judges</button>
+					<button id="division-mode" class="btn btn-primary btn-no-border btn-sm pull-right"><span id="mode-icon" class="<?= $modeicon ?>"></span>&nbsp;<span id="mode"><?= $mode ?></span></button>
 					<div class="clearfix"></div>
 				</div>
 				<div class="panel-body">
@@ -127,7 +137,7 @@ foreach ($setting as $key => $value) {
 				$( 'input.bootbox-input' ).attr({ placeholder: '<?= $setting[ 'description' ] ?>' });
 			});
 
-			$( '#division-judges' ).click( function( ev ) {
+			$( '#division-judges' ).off( 'click' ).click( function( ev ) {
 				var judges = division.judges;
 				bootbox.prompt({
 					title: "Number of Judges for this Division ",
@@ -147,7 +157,21 @@ foreach ($setting as $key => $value) {
 				$( 'option[value=' + division.header.judges + ']' ).prop( 'selected', true );
 			});
 
-			$( '#save-division' ).click( function( ev ) {
+			$( '#division-mode' ).off( 'click' ).click( function( ev ) {
+				if( division.header.mode == 'single-elimination' ) {
+					delete division.header.mode;
+					$( '#mode' ).html( 'Numeric Score' );
+					$( '#mode-icon' ).removeClass( 'fa-thumbs-up' );
+					$( '#mode-icon' ).addClass( 'fa-list-ol' );
+				} else {
+					division.header.mode = 'single-elimination';
+					$( '#mode' ).html( 'Single Elimination' );
+					$( '#mode-icon' ).removeClass( 'fa-list-ol' );
+					$( '#mode-icon' ).addClass( 'fa-thumbs-up' );
+				}
+			});
+
+			$( '#save-division' ).off( 'click' ).click( function( ev ) {
 				var tournament = <?= $tournament ?>;
 				var host       = '<?= $host ?>';
 				$( '#user-message' ).html( "Saving " + describe( division ) );
