@@ -11,61 +11,74 @@ $.widget( "freescore.brackets", {
 		var w = this.element;
 		var html = o.html;
 
-		var drawing  = html.div.clone().addClass( 'drawing' );
+		var draw     = SVG( 'brackets' ).size( '100%', '100%' );
 		var division = new Division( o.division );
 		var brackets = division.brackets();
 		var athletes = division.athletes();
-		var line     = {
-			connect : html.div.clone().addClass( 'connect' ).append( html.div.clone().addClass( 'line-down' ), html.div.clone().addClass( 'line-up' ),html.div.clone().addClass( 'line-across' )),
-		};
-
 		var sum      = function( acc, cur ) { return acc + cur; }
+		var poly     = function( line ) { return line.start.x + ',' + line.start.y + ' ' + line.head.x + ',' + line.head.y + ' ' + line.foot.x + ',' + line.foot.y + ' ' + line.stop.x + ',' + line.stop.y; };
 		var k        = 0;
+		var color    = { blue: '#286090', red: '#c9302c', white: 'white', current: '#f0ad4e', selected: '#5bc0de', line: '#ccc' };
+
+		var selected = draw.rect( 180, 80 ).attr({ id: 'bracket-selection' }).fill( 'none' ).stroke({ width: 20, color: color.selected }).radius( 6 ).hide();
+		var current  = draw.rect( 180, 80 ).attr({ id: 'bracket-current'   }).fill( 'none' ).stroke({ width: 20, color: color.current  }).radius( 6 );
 
 		for( var j = 0; j < brackets.length; j++ ) {
 			var round = brackets[ j ];
-			var x     = j * 300;
+			var x     = (j * 300) + 10;
 
 			for( var i = 0; i < round.length; i++ ) {
-				var block    = 400/(4/Math.pow( 2, j ));
+				var block    = 800/(4/Math.pow( 2, j ));
 				var y        = (i + 0.5) * block - 50;
 				var bracket  = round[ i ];
-				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: 'Bye' }};
-				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: 'Bye' }};
-				var match    = html.div.clone().addClass( 'match' ).css({ top: y + 'px', left: x + 'px' });
+				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return 'Bye' }}};
+				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: () => { return 'Bye' }}};
+				var id       = i + '-' + j + '-' + k;
+				var line     = { start: { x: x + 180, y: 0 }, head: { x: x + 200, y: 0 }, foot: { x: x + 280, y: y - (100 * j) - 60 }, stop: { x: x + 300, y: y - (100 * j) -60 }};
+				var match    = draw.group().attr({ id: id });
 
+				// ===== CLICK HANDLER
+				var clicked  = (function( id, x, y ) { var ijk = id.split( '-' ).map( function( x ) { return parseInt( x ); }); var clickEvent = { type: 'matchClicked', i: ijk[ 0 ], j: ijk[ 1 ], k: ijk[ 2 ]}; return function() { $( w ).trigger( clickEvent ); selected.move( x, y ); selected.show() }})( id, x, y );
+				
+				// ===== CALCULATE SCORES
 				blue.votes   = bracket.blue.votes.reduce( sum );
 				red.votes    = bracket.red.votes.reduce( sum );
 
 				var complete = blue.votes + red.votes == division.judges();
 
-				blue.lost    = ! defined( bracket.blue.athlete ) || (blue.votes < red.votes  && complete);
-				blue.won     = defined( bracket.blue.athlete )   && (blue.votes > red.votes  && complete);
-				red.lost     = ! defined( bracket.red.athlete )  || (red.votes  < blue.votes && complete);
-				red.won      = defined( bracket.red.athlete )    && (red.votes  > blue.votes && complete);
+				if( complete ) {
+					blue.won     = defined( bracket.blue.athlete )   && (blue.votes > red.votes  && complete);
+					red.won      = defined( bracket.red.athlete )    && (red.votes  > blue.votes && complete);
 
-				blue.label   = html.div.clone().addClass( 'athlete chung' ).html( blue.athlete.name );
-				red.label    = html.div.clone().addClass( 'athlete hong' ).html( red.athlete.name );
-
-				blue.score   = html.div.clone().addClass( 'chung score' ).html( blue.votes );
-				red.score    = html.div.clone().addClass( 'hong score' ).html( red.votes );
-
-				if( bracket === division.current.bracket()) {};
-
-				match.append( blue.label, blue.score, red.label, red.score );
-				match.attr({ round : j, match: i, index: k });
-
-				drawing.append( match );
-				if( i % 2 ) {
-					var cx = x + 180;
-					var cy = y - (100 * j) - 62;
-					var height = (j + 1) * 100 - 4;
-					drawing.append( line.connect.clone().css({ top: cy, left: cx, height: height + 'px', width: '120px' }));
+					if( blue.won ) { line.start.y = y + 20; line.head.y = line.start.y; }
+					if( red.won  ) { line.start.y = y + 60; line.head.y = line.start.y; }
 				}
+
+				// ===== RENDER THE MATCH
+				match.path('M 0 0 L 0 -30 Q 0 -40 10 -40 L 170 -40 Q 180 -40 180 -30 L 180 0 Z' ).fill( color.blue ).attr({ id: id + '-blue' }).move( 0,  0 );
+				match.path('M 0 0 L 0  30 Q 0  40 10  40 L 170  40 Q 180  40 180  30 L 180 0 Z' ).fill( color.red  ).attr({ id: id + '-red'  }).move( 0, 40 );
+				match.text( blue.athlete.name() ).font({ size: 24 }).fill( color.white ).move(  12,  8 );
+				match.text( red.athlete.name()  ).font({ size: 24 }).fill( color.white ).move(  12, 44 );
+				match.text( String( blue.votes )).font({ size: 24 }).fill( color.white ).move( 160,  8 );
+				match.text( String( red.votes  )).font({ size: 24 }).fill( color.white ).move( 160, 44 );
+
+				match.move( x, y );
+				match.click( clicked ); // Apply click behavior
+
+				// ===== RENDER THE LINES
+				if( complete ) {
+					if( !( i % 2 )) { line.foot.y = (i + 1) * block - 10; line.stop.y = line.foot.y; }
+					draw.polyline( poly( line )).fill( 'none' ).stroke({ width: 1, color: color.line });
+				}
+
+				if( division.current.athleteId() == k ) {
+					current.move( x, y );
+				}
+
 				k++;
 			}
 		}
 
-		w.append( drawing );
+		w.append( draw );
 	}
 });

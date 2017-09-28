@@ -21,6 +21,7 @@
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../include/css/brackets-bootstrap.css" rel="stylesheet" type="text/css" />
 		<link href="../../include/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
+		<script src="../../include/opt/svg/svg.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
@@ -237,14 +238,12 @@
 
 					$( '#brackets' ).brackets( division );
 
-					$( '.match' ).each( function( k, match ) { if( k == division.current.athleteId() ) { $( match ).addClass( 'current selected' ); } });
-
-					$( '.match' ).off( 'click' ).click( function( ev ) {
-						var clicked  = $( ev.target ); clicked = ! clicked.is( 'match' ) ? clicked.parent() : clicked;
+					$( '#brackets' ).on( 'matchClicked', function( ev ) {
+						console.log( ev );
 						var brackets = division.brackets();
-						var i        = parseInt( clicked.attr( 'match' ));
-						var j        = parseInt( clicked.attr( 'round' ));
-						var k        = parseInt( clicked.attr( 'index' ));
+						var i        = ev.i;
+						var j        = ev.j;
+						var k        = ev.k;
 						var bracket  = brackets[ j ][ i ];
 						var athletes = division.athletes();
 						var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return '[Bye]' }} };
@@ -262,7 +261,6 @@
 							$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
 							$( ".navigate-athlete" ).show(); 
 						}
-						clicked.addClass( 'selected' ); 
 						refresh.navadmin( division );
 					});
 
