@@ -11,17 +11,25 @@ $.widget( "freescore.brackets", {
 		var w = this.element;
 		var html = o.html;
 
-		var draw     = SVG( 'brackets' ).size( '100%', '100%' );
 		var division = new Division( o.division );
 		var brackets = division.brackets();
+		var draw     = SVG( 'brackets' ).size( '100%', '100%' );
 		var athletes = division.athletes();
 		var sum      = function( acc, cur ) { return acc + cur; }
 		var poly     = function( line ) { return line.start.x + ',' + line.start.y + ' ' + line.head.x + ',' + line.head.y + ' ' + line.foot.x + ',' + line.foot.y + ' ' + line.stop.x + ',' + line.stop.y; };
 		var k        = 0;
+		var m        = brackets[ 0 ].length;
+		var n        = Math.round((Math.log( m )/Math.log( 2 )));
+		var height   = m * 200;
+		var width    = (n + 1) * 300;
 		var color    = { blue: '#286090', red: '#c9302c', white: 'white', current: '#f0ad4e', selected: '#5bc0de', line: '#ccc' };
+
+		draw.viewbox( 0, 0, width, height );
 
 		var selected = draw.rect( 180, 80 ).attr({ id: 'bracket-selection' }).fill( 'none' ).stroke({ width: 20, color: color.selected }).radius( 6 ).hide();
 		var current  = draw.rect( 180, 80 ).attr({ id: 'bracket-current'   }).fill( 'none' ).stroke({ width: 20, color: color.current  }).radius( 6 );
+
+		console.log( brackets );
 
 		for( var j = 0; j < brackets.length; j++ ) {
 			var round = brackets[ j ];
@@ -59,15 +67,19 @@ $.widget( "freescore.brackets", {
 				match.path('M 0 0 L 0  30 Q 0  40 10  40 L 170  40 Q 180  40 180  30 L 180 0 Z' ).fill( color.red  ).attr({ id: id + '-red'  }).move( 0, 40 );
 				match.text( blue.athlete.name() ).font({ size: 24 }).fill( color.white ).move(  12,  8 );
 				match.text( red.athlete.name()  ).font({ size: 24 }).fill( color.white ).move(  12, 44 );
-				match.text( String( blue.votes )).font({ size: 24 }).fill( color.white ).move( 160,  8 );
-				match.text( String( red.votes  )).font({ size: 24 }).fill( color.white ).move( 160, 44 );
+				if( defined( bracket.blue.athlete )) { match.text( String( blue.votes )).font({ size: 24 }).fill( color.white ).move( 160,  8 ); }
+				if( defined( bracket.red.athlete  )) { match.text( String( red.votes  )).font({ size: 24 }).fill( color.white ).move( 160, 44 ); }
 
 				match.move( x, y );
 				match.click( clicked ); // Apply click behavior
 
 				// ===== RENDER THE LINES
-				if( complete ) {
-					if( !( i % 2 )) { line.foot.y = (i + 1) * block - 10; line.stop.y = line.foot.y; }
+				var final_round = j == brackets.length - 1;
+				var semi_finals = j == brackets.length - 2;
+				if( complete && ! final_round ) {
+					var next_block = 800/(4/Math.pow( 2, j + 1 ));
+					if( !( i % 2 ))   { line.foot.y = (i + 1) * block - 10; line.stop.y = line.foot.y; }
+					else if( semi_finals ) { line.foot.y = (i - 0.5) * next_block - 10; line.stop.y = line.foot.y; }
 					draw.polyline( poly( line )).fill( 'none' ).stroke({ width: 1, color: color.line });
 				}
 

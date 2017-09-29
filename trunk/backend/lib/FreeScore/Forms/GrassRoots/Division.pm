@@ -379,9 +379,10 @@ sub update_brackets {
 		last if( int( @$round ) == 1 ); # If the round only has one match, then that is the final round; there is no next round
 
 		# ===== BUILD OR UPDATE THE NEXT ROUND OF BRACKETS
-		my $update = $rounds >= $next;
-		push @{$self->{ brackets }}, $new_round if( ! $update );
-		my $next_round = $self->{ brackets }[ $next ];
+		my $update    = $rounds >= $next;
+		my $new_round = [];
+		push @{$self->{ brackets }}, $new_round unless( $update );
+		my $next_round = defined $self->{ brackets }[ $next ] ? $self->{ brackets }[ $next ] : [];
 
 		for( my $i = 0; $i < $#$round; $i += 2 ) {
 			my $j = $i + 1;
@@ -462,10 +463,11 @@ sub _build_brackets {
 	my $judges       = shift;
 	my $brackets     = shift;
 	my $athletes     = shift;
-	my $byes         = shift;
+	my $byes         = shift || 0;
 
 	my $number       = int( @$athletes );                 # Total number of athletes
-	my $depth        = ceil( log( $number ) / log( 2 ));  # Depth of the tree
+	my $total        = $number + $byes;                   # Total number in round (might not be power of 2 for initial call)
+	my $depth        = ceil( log( $total ) / log( 2 ));   # Depth of the tree
 	my $n            = $number - 1;                       # Max array index of athletes
 	my $size         = 2 ** $depth;                       # Size of the division
 	my $group_size   = $size / 2;                         # Size of the subdivisions
@@ -481,7 +483,7 @@ sub _build_brackets {
 
 	if( $group_size <= 1 ) {
 		my $blue = $a->[ 0 ];
-		my $bye  = @$b ? 0 : 1;
+		my $bye  = @$b ? undef : 1;
 		my $red  = @$b ? $b->[ 0 ] : undef;
 		my $bracket = $bye ?
 		{
