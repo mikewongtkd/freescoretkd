@@ -108,34 +108,20 @@
 				var update = JSON.parse( response.data );
 				if( ! defined( update )) { return; }
 
-					refresh.ring( update );
-					var divid = $.cookie( 'grassroots-divid' );
-					if( defined( divid )) {
-						var division = update.divisions.find(( d ) => { return d.name == divid; });
-						var current  = update.divisions.find(( d ) => { return d.name == update.current; });
-						var curDiv   = division.name == current.name;
+				refresh.ring( update );
+				var divid = $.cookie( 'grassroots-divid' );
+				if( defined( divid )) {
+					var division = update.divisions.find(( d ) => { return d.name == divid; });
+					var current  = update.divisions.find(( d ) => { return d.name == update.current; });
+					var curDiv   = division.name == current.name;
 
-						if( ! defined( division )) { return; }
-						division = new Division( division );
-						if( division.is.single.elimination()) {
-							$( '#athletes' ).hide();
-							$( '#brackets' ).show();
-							$( '#brackets' ).empty();
-							refresh.brackets( division, curDiv );
-							$( '.drawing' ).css({ position: 'absolute;', top: '0px;', left: '80px;' }); 
-						} else {
-							$( '#athletes' ).show();
-							$( '#brackets' ).hide();
-							refresh.athletes( division, curDiv );
-						}
-						if( page.num == 1 ) { page.transition() };
-					}
-				if( update.type == 'division' && update.action == 'update' ) {
-					var division = update.division;
 					if( ! defined( division )) { return; }
-
-					division   = new Division( division );
-					refresh.athletes( division, true );
+					division = new Division( division );
+					if( division.is.single.elimination()) {
+						refresh.brackets( division, curDiv );
+					} else {
+						refresh.athletes( division, curDiv );
+					}
 					if( page.num == 1 ) { page.transition() };
 				}
 			};
@@ -167,10 +153,12 @@
 				// ------------------------------------------------------------
 				athletes: function( division, currentDivision ) {
 				// ------------------------------------------------------------
+					$( '#athletes' ).show();
+					$( '#brackets' ).hide();
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
-						$.removeCookie( 'divid' );
+						$.removeCookie( 'grassroots-divid' );
 						page.transition(); 
 					});
 
@@ -219,56 +207,62 @@
 					});
 
 					// ===== ACTION MENU BEHAVIOR
-					if( currentDivision ) { 
-						$( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show();
-					} else { 
-						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+					if( currentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); } 
+					else                  { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+
 					$( ".navigate-athlete" ).hide();
 				},
 				// ------------------------------------------------------------
 				brackets : function( division, currentDivision ) {
 				// ------------------------------------------------------------
+					$( '#athletes' ).hide();
+					$( '#brackets' ).show();
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
-						$.removeCookie( 'divid' );
+						$.removeCookie( 'grassroots-divid' );
 						page.transition(); 
 					});
 					refresh.navadmin( division );
 
+					// ===== CLEAR BRACKETS AND REDRAW THEM
+					$( '#brackets' ).empty();
 					$( '#brackets' ).brackets( division );
 
-					$( '#brackets' ).on( 'matchClicked', function( ev ) {
-						console.log( ev );
-						var brackets = division.brackets();
-						var i        = ev.i;
-						var j        = ev.j;
-						var k        = ev.k;
-						var bracket  = brackets[ j ][ i ];
-						var athletes = division.athletes();
-						var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return '[Bye]' }} };
-						var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: () => { return '[Bye]' }} };
+					if( currentDivision ) {
+						// ===== PROVIDE BEHAVIOR WHEN CLICKING ON BRACKETS
+						$( '#brackets' ).on( 'matchClicked', function( ev ) {
+							var brackets = division.brackets();
+							var i        = ev.i;
+							var j        = ev.j;
+							var k        = ev.k;
+							var bracket  = brackets[ j ][ i ];
+							var athletes = division.athletes();
+							var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return '[Bye]' }} };
+							var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: () => { return '[Bye]' }} };
 
-						$( '.match' ).removeClass( 'selected' );
-						if( k == division.current.athleteId() && currentDivision ) {
-							sound.prev.play();
-							$( ".navigate-athlete" ).hide(); 
+							$( '.match' ).removeClass( 'selected' );
+							if( k == division.current.athleteId() && currentDivision ) {
+								sound.prev.play();
+								$( ".navigate-athlete" ).hide(); 
 
-						} else if( currentDivision ) {
-							sound.next.play(); 
-							$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-							$( "#navigate-athlete-label" ).html( "Start scoring for " + blue.athlete.name() + ' vs ' + red.athlete.name() ); 
-							$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
-							$( ".navigate-athlete" ).show(); 
-						}
-						refresh.navadmin( division );
-					});
+							} else if( currentDivision ) {
+								sound.next.play(); 
+								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
+								$( "#navigate-athlete-label" ).html( "Start scoring for " + blue.athlete.name() + ' vs ' + red.athlete.name() ); 
+								$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
+								$( ".navigate-athlete" ).show(); 
+							}
+							refresh.navadmin( division );
+						});
+					} else {
+						$( '#brackets' ).off( 'matchClicked' );
+					}
 
 					// ===== ACTION MENU BEHAVIOR
-					if( currentDivision ) { 
-						$( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show();
-					} else { 
-						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+					if( currentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); }
+					else                  { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+
 					$( ".navigate-athlete" ).hide();
 
 				},
@@ -280,7 +274,7 @@
 					var divid   = division.name();
 					var action = {
 						navigate : {
-							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); console.log( i ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
+							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); },
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
@@ -317,7 +311,10 @@
 							var division = ring.divisions.find(( d ) => { return d.name == divid; });
 
 							$.cookie( 'grassroots-divid', divid, { expires: 1, path: '/' });
-							refresh.athletes( new Division( division ), division.name == ring.current );
+							division = new Division( division );
+							var se = division.is.single.elimination();
+							if( se ) { refresh.brackets( division, division.name() == ring.current ); } 
+							else     { refresh.athletes( division, division.name() == ring.current ); }
 							sound.next.play();
 							page.transition();
 						});

@@ -10,7 +10,6 @@
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
-		<script src="../../include/js/jquery.brackets.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/grassroots/score.class.js"></script>
 		<script src="../../include/js/forms/grassroots/athlete.class.js"></script>
@@ -20,6 +19,8 @@
 		<script src="../../include/js/forms/grassroots/jquery.leaderboard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.scoreboard.js"></script>
 		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
+		<script src="../../include/opt/svg/svg.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/brackets.js"></script>
 	</head>
 	<body>
 		<div id="grassroots"></div>

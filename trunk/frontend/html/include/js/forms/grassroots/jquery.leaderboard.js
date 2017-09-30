@@ -40,30 +40,12 @@ $.widget( "freescore.leaderboard", {
 				e.pending.css({ display: 'block' });
 				e.standings.css({ display: 'none' });
 				e.brackets.empty();
-				var draw = html.div.clone().attr({ id: 'drawing' });;
-				e.brackets.append( '<h2>Brackets</h2>', draw );
-				var teams = o.division.brackets[ 0 ].map( function( match ) { 
-					var blue = match.blue.athlete;
-					var red  = match.red.athlete;
-
-					blue = o.division.athletes[ blue ].name;
-					red  = defined( red ) ? o.division.athletes[ red ].name : 'Bye';
-					
-					return [ blue, red ];
-				});
-				var sum     = function( acc, cur ) { return acc + cur; };
-				var results = o.division.brackets.map( function( round ) { 
-					var results = [];
-					for( var i = 0; i < round.length; i++ ) {
-						var match = round[ i ];
-						var votes = [ match.blue.votes.reduce( sum ), match.red.votes.reduce( sum ) ];
-						if( votes.reduce( sum ) == o.division.judges ) {
-							results.push( votes );
-						}
-					}
-					return results;
-				});
-				draw.brackets({ division: o.division });
+				var draw = html.div.clone().attr({ id: 'brackets' });
+				var division = new Division( o.division );
+				var color    = { blue: '#00f', red: '#f00', white: '#fff', current: '#fc0', selected: 'lime', line: '#ccc' };
+				var scale    = { height: 400, width: 240, match : { height: 80, width: 180 }};
+				e.brackets.append( draw );
+				e.brackets.brackets( division, { color: color, scale: scale, stroke: 6 });
 
 			} else {
 				e.brackets.css({ display: 'none' });
