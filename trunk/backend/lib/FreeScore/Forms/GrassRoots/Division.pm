@@ -375,7 +375,7 @@ sub update_brackets {
 			my $total = sum( @{$bracket->{ blue }{ votes }}, @{$bracket->{ red }{ votes }});
 			if( $total < $judges ) { $complete = 0; last; }
 		}
-		last unless( $complete );       # If the current round is still in progress, do nothing
+		# last unless( $complete );       # If the current round is still in progress, do nothing
 		last if( int( @$round ) == 1 ); # If the round only has one match, then that is the final round; there is no next round
 
 		# ===== BUILD OR UPDATE THE NEXT ROUND OF BRACKETS
@@ -391,13 +391,11 @@ sub update_brackets {
 
 			my $advances = [];
 			foreach my $bracket ( $a, $b ) {
-				my $blue = $bracket->{ blue };
-				my $red  = $bracket->{ red };
-				if( sum( @{$blue->{ votes }}) > sum( @{$red->{ votes }}) ) {
-					push @$advances, $blue->{ athlete };
-				} else {
-					push @$advances, $red->{ athlete };
-				}
+				my $blue  = $bracket->{ blue };
+				my $red   = $bracket->{ red };
+				my $votes = { blue => sum( @{ $blue->{ votes }}), red => sum( @{ $red->{ votes }}) };
+				if   ( $votes->{ blue } > $votes->{ red } ) { push @$advances, $blue->{ athlete }; }
+				elsif( $votes->{ red } > $votes->{ blue } ) { push @$advances, $red->{ athlete };  }
 			}
 			my $blue    = { athlete => shift @$advances, votes => [(0) x $judges] };
 			my $red     = { athlete => shift @$advances, votes => [(0) x $judges] };

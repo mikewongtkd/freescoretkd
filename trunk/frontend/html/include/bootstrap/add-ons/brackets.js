@@ -38,8 +38,8 @@ $.widget( "freescore.brackets", {
 				var block    = scale.height/(4/Math.pow( 2, j ));
 				var y        = (i + 0.5) * block - 50;
 				var bracket  = round[ i ];
-				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return 'Bye' }}};
-				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: () => { return 'Bye' }}};
+				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: ( depth ) => { return depth == 0 ? 'Bye' : '—' }}};
+				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: ( depth ) => { return depth == 0 ? 'Bye' : '—' }}};
 				var id       = i + '-' + j + '-' + k;
 				var line     = { start: { x: x + scale.match.width, y: 0 }, head: { x: x + scale.match.width + 20, y: 0 }, foot: { x: x + scale.width - 20, y: y - (100 * j) - 60 }, stop: { x: x + scale.width, y: y - (100 * j) -60 }};
 				var match    = draw.group().attr({ id: id });
@@ -53,19 +53,18 @@ $.widget( "freescore.brackets", {
 
 				var complete = blue.votes + red.votes == division.judges();
 
-				if( complete ) {
-					blue.won     = defined( bracket.blue.athlete )   && (blue.votes > red.votes  && complete);
-					red.won      = defined( bracket.red.athlete )    && (red.votes  > blue.votes && complete);
+				blue.won     = defined( bracket.blue.athlete ) && (blue.votes > red.votes  && complete);
+				red.won      = defined( bracket.red.athlete )  && (red.votes  > blue.votes && complete);
 
-					if( blue.won ) { line.start.y = y + 20; line.head.y = line.start.y; }
-					if( red.won  ) { line.start.y = y + 60; line.head.y = line.start.y; }
-				}
+				if( blue.won ) { line.start.y = y + 20; line.head.y = line.start.y; } else
+				if( red.won  ) { line.start.y = y + 60; line.head.y = line.start.y; } else
+							   { line.start.y = y + 40; line.head.y = line.start.y; }
 
 				// ===== RENDER THE MATCH
 				match.path('M 0 0 L 0 -30 Q 0 -40 10 -40 L 170 -40 Q 180 -40 180 -30 L 180 0 Z' ).fill( color.blue ).attr({ id: id + '-blue' }).move( 0,  0 );
 				match.path('M 0 0 L 0  30 Q 0  40 10  40 L 170  40 Q 180  40 180  30 L 180 0 Z' ).fill( color.red  ).attr({ id: id + '-red'  }).move( 0, 40 );
-				match.text( blue.athlete.name() ).font({ size: 24 }).fill( color.white ).move(  12,  8 );
-				match.text( red.athlete.name()  ).font({ size: 24 }).fill( color.white ).move(  12, 44 );
+				match.text( blue.athlete.name( j ) ).font({ size: 24 }).fill( color.white ).move(  12,  8 );
+				match.text( red.athlete.name( j )  ).font({ size: 24 }).fill( color.white ).move(  12, 44 );
 				if( defined( bracket.blue.athlete )) { match.text( String( blue.votes )).font({ size: 24 }).fill( color.white ).move( 160,  8 ); }
 				if( defined( bracket.red.athlete  )) { match.text( String( red.votes  )).font({ size: 24 }).fill( color.white ).move( 160, 44 ); }
 
@@ -75,7 +74,7 @@ $.widget( "freescore.brackets", {
 				// ===== RENDER THE LINES
 				var final_round = j == brackets.length - 1;
 				var semi_finals = j == brackets.length - 2;
-				if( complete && ! final_round ) {
+				if( ! final_round ) {
 					var next_block = scale.height/(4/Math.pow( 2, j + 1 ));
 					if( !( i % 2 )) { line.foot.y = (i + 1.0) * block      - 10; line.stop.y = line.foot.y; }
 					else            { line.foot.y =  i        * block      - 10; line.stop.y = line.foot.y; }
