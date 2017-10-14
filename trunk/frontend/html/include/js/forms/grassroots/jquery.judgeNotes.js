@@ -36,20 +36,38 @@ $.widget( "freescore.judgeNotes", {
 			.append( h.th.clone().html( "Name" ))
 			.append( h.th.clone().html( j == 0 ? 'Referee' : 'Judge ' + j )));
 
-		for( var i = 0; i < athletes.length; i++ ) {
-			console.log( o.bracket );
-			var tr        = h.tr.clone();
-			var athlete   = athletes[ i ];
-			var color     = defined( o.bracket ) ? [ 'blue', 'red' ][ i % 2 ] : undefined; console.log( 'COLOR', i, color );
-			var check     = '<span class="fa fa-thumbs-up"></span>';
-			var score     = defined( o.bracket ) ? (o.bracket[ color ].votes[ o.num ] ? check : '' ) : athlete.score().forJudge( o.num );
-			var getClass  = function() { if( i == current ) { return "current"; } else if( i == red ) { return "red"; } else if( i == blue ) { return "blue"; }};
+		if( defined( o.bracket )) {
+			var bracket = o.bracket;
+			var colors   = [ 'blue', 'red' ];
+			for( var i = 0; i < colors.length; i++ ) {
+				var color     = colors[ i ];
+				var tr        = h.tr.clone();
+				var check     = '<span class="fa fa-thumbs-up"></span>';
+				var score     = bracket[ color ].votes[ o.num ] ? check : '';
+				var j         = bracket[ color ].athlete;
+				var athlete   = athletes[ j ]
+				var getClass  = function() { return color };
+				console.log( j, athletes );
 
-			tr
-				.append( h.td.clone() .addClass( getClass() ) .addClass( "td-order" ) .html( i + 1 + "." ))
-				.append( h.td.clone() .addClass( getClass() ) .addClass( "td-name"  ) .html( athlete.display.name() ))
-				.append( h.td.clone() .addClass( getClass() ) .addClass( "td-score" ) .html( score ));
-			table.append( tr );
+				tr
+					.append( h.td.clone() .addClass( getClass() ) .addClass( "td-order" ) .html( i + 1 + "." ))
+					.append( h.td.clone() .addClass( getClass() ) .addClass( "td-name"  ) .html( athlete.display.name() ))
+					.append( h.td.clone() .addClass( getClass() ) .addClass( "td-score" ) .html( score ));
+				table.append( tr );
+			}
+		} else {
+			for( var i = 0; i < athletes.length; i++ ) {
+				var tr        = h.tr.clone();
+				var athlete   = athletes[ i ];
+				var score     = athlete.score().forJudge( o.num );
+				var getClass  = function() { if( i == current ) { return "current"; } else if( i == red ) { return "red"; } else if( i == blue ) { return "blue"; }};
+
+				tr
+					.append( h.td.clone() .addClass( getClass() ) .addClass( "td-order" ) .html( i + 1 + "." ))
+					.append( h.td.clone() .addClass( getClass() ) .addClass( "td-name"  ) .html( athlete.display.name() ))
+					.append( h.td.clone() .addClass( getClass() ) .addClass( "td-score" ) .html( score ));
+				table.append( tr );
+			}
 		}
 		view.append( description, table );
 	}

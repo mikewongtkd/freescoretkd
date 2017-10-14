@@ -119,10 +119,10 @@ $.widget( "freescore.judgeController", {
 				o.command = o.judge + '/vote';
 				console.log( division );
 				var bracket  = division.current.bracket();
-				var athletes = division.current.athletes();
+				var athletes = division.athletes();
 				var i        = (division.current.athleteId() * 2);
 
-				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : division.current.blueAthlete(), red : division.current.redAthlete(), name : division.name(), description : 'Single Elimination', bracket : bracket });
+				e.notes.judgeNotes({ num : o.judge, athletes : athletes, current : null, blue : null, red : null, name : division.name(), description : 'Single Elimination', bracket : bracket });
 				e.score.hide();
 				e.vote.show();
 				e.clearButton .ajaxbutton( { command : o.command + '/clear' } );
