@@ -375,7 +375,7 @@ sub update_brackets {
 			my $total = sum( @{$bracket->{ blue }{ votes }}, @{$bracket->{ red }{ votes }});
 			if( $total < $judges ) { $complete = 0; last; }
 		}
-		# last unless( $complete );       # If the current round is still in progress, do nothing
+
 		last if( int( @$round ) == 1 ); # If the round only has one match, then that is the final round; there is no next round
 
 		# ===== BUILD OR UPDATE THE NEXT ROUND OF BRACKETS
@@ -466,7 +466,6 @@ sub _build_brackets {
 	my $number       = int( @$athletes );                 # Total number of athletes
 	my $total        = $number + $byes;                   # Total number in round (might not be power of 2 for initial call)
 	my $depth        = ceil( log( $total ) / log( 2 ));   # Depth of the tree
-	my $n            = $number - 1;                       # Max array index of athletes
 	my $size         = 2 ** $depth;                       # Size of the division
 	my $group_size   = $size / 2;                         # Size of the subdivisions
 	my $number_b     = int( $number/ 2 );                 # Number of athletes in Group B

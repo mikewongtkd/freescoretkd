@@ -278,8 +278,9 @@ $.widget( "freescore.register", {
 				role.dom.css( 'left', '200px' );
 				referer = "./judge.php";
 			} else {
-				if ( selected.role == "display"           ) { if( ! defined( referer )) { referer = "./index.php"; } } else 
-				if ( selected.role == "computer operator" ) { if( ! defined( referer )) { referer = "./coordinator.php"; } }
+				if ( selected.role == "display"           ) { referer = "./index.php"; } else 
+				if ( selected.role == "computer operator" ) { referer = "./coordinator.php"; }
+				console.log( selected.role, referer );
 				role = register.roles.add( selected.role.capitalize(), '200px' );
 			}
 			referer = referer.replace( /\/\/+/g, "/" );
