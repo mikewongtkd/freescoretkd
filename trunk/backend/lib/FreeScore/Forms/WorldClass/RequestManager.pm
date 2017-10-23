@@ -900,7 +900,7 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { leaderboard => 9, next => 12, brief => 1 };
+	my $pause = { score => 9, leaderboard => 12, brief => 1 };
 	my $round = $division->{ round };
 	my $order = $division->{ order }{ $round };
 	my $forms = $division->{ forms }{ $round };
@@ -918,26 +918,29 @@ sub autopilot {
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
 	$delay->steps(
-		sub {
+		sub { # Display the athlete's score for 9 seconds
 			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 		},
-		sub {
+		sub { 
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
+			# Display the leaderboard for 12 seconds every $each athlete, or last athlete
 			if( $last->{ form } && ( $last->{ each } || $last->{ athlete } )) { 
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
-				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
+				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+
+			# Otherwise keep displaying the score for another second
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}
 		},
-		sub {
+		sub { # Advance to the next form/athlete/round
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $division->autopilot();

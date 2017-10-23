@@ -81,6 +81,7 @@ sub calculate_placements {
 				@$placements = sort { $self->{ athletes }[ $b ]{ score } <=> $self->{ athletes }[ $a ]{ score } } (0 .. $#{ $self->{ athletes }});
 				$self->{ placements } = $placements;
 				$self->{ pending }    = [];
+				$self->{ complete }   = 1;
 
 			} else {
 				$self->{ placements } = [];
@@ -296,9 +297,10 @@ sub previous {
 # ============================================================
 sub record_vote {
 # ============================================================
-	my $self  = shift;
-	my $judge = shift;
-	my $vote  = shift;
+	my $self   = shift;
+	my $judge  = shift;
+	my $vote   = shift;
+	my $judges = $self->{ judges };
 
 	my $bracket = $self->current_bracket();
 	my $blue    = $bracket->{ blue }{ votes };
@@ -307,29 +309,46 @@ sub record_vote {
 	if   ( $vote eq 'blue'  ) { $blue->[ $judge ] = 1; $red->[ $judge ] = 0; }
 	elsif( $vote eq 'red'   ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 1; }
 	elsif( $vote eq 'clear' ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 0; }
+
+	# Score is complete when all judges have voted
+	foreach my $i ( 0 .. $judges - 1 ) {
+		my $voted = $blue->[ $i ] || $red->[ $i ];
+		return 0 unless $voted;
+	}
+	return 1;
 }
 
 # ============================================================
 sub record_score {
 # ============================================================
-	my $self  = shift;
-	my $judge = shift;
-	my $score = shift;
+	my $self   = shift;
+	my $judge  = shift;
+	my $score  = shift;
+	my $judges = $self->{ judges };
 
 	my $i       = $self->{ current };
 	my $athlete = $self->{ athletes }[ $i ];
 
 	$athlete->{ scores }[ $judge ] = $score;
+
+	# Score is complete when all judges have scored
+	foreach my $i ( 0 .. $judges - 1 ) {
+		my $scored = $athlete->{ scores }[ $i ] > 0;
+		return 0 unless $scored;
+	}
+	return 1;
 }
 
 # ============================================================
 sub record_tiebreaker {
 # ============================================================
-	my $self  = shift;
-	my $judge = shift;
-	my $score = shift;
-	my $tie   = $self->{ tied }[ 0 ];
+	my $self   = shift;
+	my $judge  = shift;
+	my $score  = shift;
+	my $judges = $self->{ judges };
+	my $tie    = $self->{ tied }[ 0 ];
 
+	# Two-way tie
 	if( (int( @{ $tie->{ tied }}) == 2) && ($score eq 'red' || $score eq 'blue')) {
 		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
 		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
@@ -341,11 +360,27 @@ sub record_tiebreaker {
 			$blue->{ tiebreakers }[ $judge ] = 0;
 			$red->{ tiebreakers }[ $judge ]  = 1;
 		}
+
+		# Score is complete when all judges have voted
+		foreach my $i ( 0 .. $judges - 1 ) {
+			my $voted = $blue->{ tiebreakers }[ $i ] || $red->{ tiebreakers }[ $i ];
+			return 0 unless $voted;
+		}
+		return 1;
+
+	# N-way tie (N > 2)
 	} else {
 		$score      = sprintf( "%.1f", $score );
 		my $i       = $self->{ current };
 		my $athlete = $self->{ athletes }[ $i ];
 		$athlete->{ tiebreakers }[ $judge ] = $score;
+
+		# Score is complete when all judges have scored
+		foreach my $i ( 0 .. $judges - 1 ) {
+			my $scored = $athlete->{ tiebreakers }[ $i ] > 0;
+			return 0 unless $scored;
+		}
+		return 1;
 	}
 }
 
