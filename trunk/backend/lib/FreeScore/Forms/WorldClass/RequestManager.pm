@@ -195,7 +195,7 @@ sub handle_division_award_punitive {
 	try {
 		$version->checkout( $division);
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
-		$division->next_available_athlete();
+		$division->next_available_athlete() unless $request->{ decision } eq 'clear';
 		$division->write();
 		$version->commit( $division, $message );
 

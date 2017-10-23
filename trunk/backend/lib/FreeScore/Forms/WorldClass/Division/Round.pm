@@ -122,8 +122,13 @@ sub record_decision {
 	my $decision = shift;
 
 	my $form = $self->{ forms }[ $i ];
-	$form->{ decision }{ $decision } = 1;
-	$form->{ complete }              = 1;
+	if( $decision eq 'clear' ) {
+		delete $form->{ decision }{ $_ } foreach (keys %{ $form->{ decision }});
+		$form->{ complete }              = 0;
+	} else {
+		$form->{ decision }{ $decision } = 1;
+		$form->{ complete }              = 1;
+	}
 }
 
 # ============================================================

@@ -211,14 +211,13 @@
 								<div class="list-group">
 									<a class="list-group-item" id="decision-withdraw"><span class="glyphicon glyphicon-minus"></span>Withdraw</a>
 									<a class="list-group-item" id="decision-disqualify"><span class="glyphicon glyphicon-alert"></span>Disqualify</a>
+									<a class="list-group-item" id="decision-clear"><span class="glyphicon glyphicon-remove"></span>Clear Decisions</a>
 								</div>
 							</div>
 							<div class="administration">
 								<h4>Administration</h4>
 								<div class="list-group">
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
-								</div>
-								<div class="list-group">
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
 									<a class="list-group-item" id="admin-history"><span class="fa fa-history"></span>Division History</a>
@@ -503,6 +502,7 @@
 						decision : {
 							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
 							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to disqualify <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'disqualify' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							clear      : () => { sound.next.play(); alertify.confirm( "Clear Decisions for " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to clear WD and DQ decisions for <b class="text-danger">' + athlete.name() + '</b> or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'clear' ); alertify.success( athlete.name() + ' has been cleared of punitive decisions' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
 							send       : ( reason ) => { sendRequest( { data : { type : 'division', action : 'award punitive', decision: reason, athlete_id: current }} ); }
 						},
 					};
@@ -513,6 +513,7 @@
 					$( "#penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
 					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
+					$( "#decision-clear" )      .off( 'click' ).click( action.decision.clear );
 				},
 				judge: function( update ) {
 					var i      = update.judge;
