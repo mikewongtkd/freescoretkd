@@ -98,6 +98,7 @@ EOD;
 		validate.input();
 
 		$( "#form-selection-title" ).html( "<span class=\"title\">Forms</span><span class=\"setting\">" + selected.description + "</span>" );
+
 		division.forms = selected.forms;
 	}};
 

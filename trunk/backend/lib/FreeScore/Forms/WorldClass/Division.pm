@@ -1085,9 +1085,11 @@ sub calculate_means {
 	my $self = shift;
 
 	foreach my $round (keys %{ $self->{ forms }}) {
-		my @athletes_in_round = exists $self->{ order }{ $round } ? @{$self->{ order }{ $round }} : ();
+		next unless exists $self->{ order }{ $round } && defined $self->{ order }{ $round };
+		my @athletes_in_round = @{$self->{ order }{ $round }};
 		foreach my $i (@athletes_in_round) {
 			my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
+			$scores = $self->{ athletes }[ $i ]{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() if( ! defined $scores );
 			$scores->calculate_means( $self->{ judges } );
 		}
 	}

@@ -100,6 +100,21 @@
 		$( '#division-name' ).val( division.name() );
 		description.update();
 		settings.update();
+
+		// Set the starting round
+		var athletes = division.athletes();
+		var n        = athletes.length;
+		var shouldbe = { prelim: n > 20, semfin: n > 8 && n <= 20, finals: n <= 8 };
+		var round    = { is: division.round.is };
+		$( '#start-round label' ).removeClass( 'active' );
+		$( '#start-round input' ).removeAttr( 'checked' );
+		if( round.is.prelim() && ! shouldbe.prelim ) { round.button = $( '#start-round input[value="prelim"]' ); } else
+		if( round.is.semfin() && ! shouldbe.semfin ) { round.button = $( '#start-round input[value="semfin"]' ); } else
+		if( round.is.finals() && ! shouldbe.finals ) { round.button = $( '#start-round input[value="finals"]' ); } else
+		                                             { round.button = $( '#start-round input[value="auto"]'   ); }
+		round.label = round.button.parent();
+		round.button.attr({ checked: 'checked' });
+		round.label.addClass( 'active' );
 	};
 
 	// ============================================================

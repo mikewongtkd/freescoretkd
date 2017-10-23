@@ -96,6 +96,8 @@ body {
 #user-message {
   line-height: 24pt;
   font-size: 14pt;
-  color: #a94442; }
+  color: #a94442;
+  margin-left: 10px;
+  margin-right: 10px; }
 
 /*# sourceMappingURL=editor.css.map */

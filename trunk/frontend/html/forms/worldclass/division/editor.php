@@ -180,6 +180,7 @@
 			};
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
+				console.log( update );
 
 				if( update.type == 'division' ) {
 					if( update.action == 'update' ) {
