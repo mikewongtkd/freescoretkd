@@ -26,6 +26,14 @@
 		<div id="grassroots"></div>
 		<script type="text/javascript">
 			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
+			var zoom       = { scale: 1.0 };
+
+			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };
+			$( 'body' ).keydown(( ev ) => {
+				switch( ev.key ) {
+				case '=': zoom.screen(  0.05 );break;
+				case '-': zoom.screen( -0.05 );break;
+			}});
 		</script>
 	</body>
 </html>

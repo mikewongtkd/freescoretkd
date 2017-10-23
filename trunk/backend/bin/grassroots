@@ -327,21 +327,18 @@ sub autopilot {
 	my $show  = {
 		score => sub {
 			my $delay = shift;
-			print STDERR "Displaying the score\n";
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 		},
 		leaderboard => sub {
 			my $delay = shift;
-			print STDERR "Displaying the leaderboard\n";
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
 		},
 		next => sub {
 			my $delay = shift;
-			print STDERR "Displaying the next athlete for scoring\n";
 			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
@@ -350,7 +347,6 @@ sub autopilot {
 	my $go = {
 		next => sub {
 			my $delay = shift;
-			print STDERR "Moving to next athlete\n";
 			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
 			$division->next();
 			$division->write();

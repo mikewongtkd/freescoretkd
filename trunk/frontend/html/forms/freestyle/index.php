@@ -63,6 +63,14 @@
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+			var zoom       = { scale: 1.0 };
+
+			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };
+			$( 'body' ).keydown(( ev ) => {
+				switch( ev.key ) {
+				case '=': zoom.screen(  0.05 );break;
+				case '-': zoom.screen( -0.05 );break;
+			}});
 
 			ws.onopen = function() {
 				var request  = { data : { type : 'division', action : 'read' }};
@@ -101,8 +109,7 @@
 				},
 				deductions: function( athlete ) {
 					var consensus  = athlete.score.consensus();
-					var deductions = consensus.deductions;
-					console.log( consensus.deductions );
+					var deductions = consensus.deductions; if( ! defined( deductions )) { return; }
 					var stances    = Object.keys( deductions.stances );
 					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
 					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
@@ -136,6 +143,8 @@
 						var consensus = athlete.score.consensus();
 						$.each( [ 'technical', 'presentation' ], ( i, category ) => {
 							$.each( [ 'min', 'max' ], ( i, minmax ) => {
+								if( ! defined( consensus[ category ] )) { return; }
+								if( ! defined( consensus[ category ][ minmax ] )) { return; }
 								var j   = consensus[ category ][ minmax ];
 								var div = $( '#' + judges.name[ j ] + ' .' + category );
 								div.addClass( 'ignore' );
@@ -147,6 +156,7 @@
 				judge: {
 					// ===== SHOW THE JUDGE'S SCORE
 					score: function( i, score ) {
+						if( ! defined( score )) { score = { technical: [], presentation: [] }; }
 						var div          = $( '#' + judges.name[ i ] );
 						var technical    = html.div.clone().addClass( 'technical' )    .html( sum( score.technical ));
 						var presentation = html.div.clone().addClass( 'presentation' ) .html( sum( score.presentation ));
@@ -163,8 +173,7 @@
 				total: function( athlete ) {
 					var div        = $( '#score' );
 					var consensus  = athlete.score.consensus();
-					var deductions = consensus.deductions;
-					console.log( consensus.deductions );
+					var deductions = consensus.deductions; if( ! defined( deductions )) { return; }
 					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
 					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
 					var total      = athlete.score.total() - (major.subtotal + minor.subtotal);
