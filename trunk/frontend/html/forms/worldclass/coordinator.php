@@ -127,7 +127,7 @@
 								</div>
 							</div>
 							<div id="judge-scores">
-								<h4>Judge scores</h4>
+								<h4>Judge Scores</h4>
 								<table>
 									<tr>
 										<td>&nbsp;</td>
@@ -164,6 +164,18 @@
 										<td id="j6-pre" class="pre"></td>
 										<td id="score-pre" class="pre"></td>
 										<td id="spread-pre" class="pre"></td>
+									</tr>
+									<tr>
+										<th class="sum">=</th>
+										<td id="j0-sum" class="sum"></td>
+										<td id="j1-sum" class="sum"></td>
+										<td id="j2-sum" class="sum"></td>
+										<td id="j3-sum" class="sum"></td>
+										<td id="j4-sum" class="sum"></td>
+										<td id="j5-sum" class="sum"></td>
+										<td id="j6-sum" class="sum"></td>
+										<td id="score-sum" class="sum"></td>
+										<td id="spread-sum" class="sum"></td>
 									</tr>
 									<tr id="clear-judge-scores">
 										<td>&nbsp;</td>
@@ -525,6 +537,7 @@
 							$( '#j' + i + '-col' ).show();
 							$( '#j' + i + '-acc' ).show();
 							$( '#j' + i + '-pre' ).show();
+							$( '#j' + i + '-sum' ).show();
 							$( '#j' + i + '-clr' ).show();
 						} else {
 							// Judge registered but not needed
@@ -535,6 +548,7 @@
 							$( '#j' + i + '-col' ).hide();
 							$( '#j' + i + '-acc' ).hide();
 							$( '#j' + i + '-pre' ).hide();
+							$( '#j' + i + '-sum' ).hide();
 							$( '#j' + i + '-clr' ).hide();
 						}
 					}
@@ -603,11 +617,12 @@
 
 				},
 				score: function( score, athlete, isCurrent ) {
-					var spread = { acc : [], pre : [] };
+					var spread = { acc : [], pre : [], sum: [] };
 					score.judge.forEach(( judge, i ) => {
 						var name = '#j' + i;
 						var acc = $( name + '-acc' );
 						var pre = $( name + '-pre' );
+						var sum = $( name + '-sum' );
 
 						acc.removeClass( 'ignore' );
 						pre.removeClass( 'ignore' );
@@ -617,19 +632,26 @@
 						if( judge.minacc || judge.maxacc ) { acc.addClass( 'ignore' ); } else if( defined( judge.accuracy     )) { spread.acc.push( parseFloat( judge.accuracy ));     }
 						if( judge.minpre || judge.maxpre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
 
+						var total = judge.accuracy + judge.presentation;
+						if( defined( judge.accuracy ) && defined( judge.presentation )) { sum.html( total.toFixed( 1 )); spread.sum.push( total ); }
+
 						var clear = $( name + '-clr' );
 						clear.find( 'button' ).off( 'click' ).click( clearJudgeScore( i, judge, athlete ));
 					});
 					if( isCurrent ) { $( '#clear-judge-scores' ).show(); }
 					else            { $( '#clear-judge-scores' ).hide(); }
 
-					if( score.complete ) {
-						var acc = (Math.max.apply( null, spread.acc ) - Math.min.apply( null, spread.acc )).toFixed( 1 )
-						var pre = (Math.max.apply( null, spread.pre ) - Math.min.apply( null, spread.pre )).toFixed( 1 )
-						$( '#spread-acc' ).html( acc );
-						$( '#spread-pre' ).html( pre );
+					if( score.complete && spread.acc.length > 0 && spread.pre.length > 0 ) {
+						console.log( score );
+						var acc = (Math.max.apply( null, spread.acc ) - Math.min.apply( null, spread.acc ));
+						var pre = (Math.max.apply( null, spread.pre ) - Math.min.apply( null, spread.pre ));
+						var sum = (Math.max.apply( null, spread.sum ) - Math.min.apply( null, spread.sum ));
+						$( '#spread-acc' ).html( acc.toFixed( 1 ));
+						$( '#spread-pre' ).html( pre.toFixed( 1 ));
+						$( '#spread-sum' ).html( sum.toFixed( 1 ));
 						$( '#score-acc' ).html( score.adjusted.accuracy );
 						$( '#score-pre' ).html( score.adjusted.presentation );
+						$( '#score-sum' ).html( score.adjusted.total );
 					} else {
 						$( '#spread-acc, #spread-pre, #score-acc, #score-pre' ).empty();
 					}
