@@ -634,7 +634,7 @@
 						if( judge.minpre || judge.maxpre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
 
 						var total = judge.accuracy + judge.presentation;
-						if( defined( judge.accuracy ) && defined( judge.presentation )) { sum.html( total.toFixed( 1 )); spread.sum.push( total ); }
+						if( defined( judge.accuracy ) && defined( judge.presentation )) { sum.html( total.toFixed( 1 )); spread.sum.push( total ); } else { sum.empty(); }
 
 						var clear = $( name + '-clr' );
 						clear.find( 'button' ).off( 'click' ).click( clearJudgeScore( i, judge, athlete ));
@@ -654,7 +654,7 @@
 						$( '#score-pre' ).html( score.adjusted.presentation );
 						$( '#score-sum' ).html( score.adjusted.total );
 					} else {
-						$( '#spread-acc, #spread-pre, #score-acc, #score-pre' ).empty();
+						$( '#spread-acc, #spread-pre, #score-acc, #score-pre, #spread-sum, #score-sum' ).empty();
 					}
 				}
 			};
