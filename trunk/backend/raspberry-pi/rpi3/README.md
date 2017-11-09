@@ -115,4 +115,65 @@ Quit the Editor by typing `<escape>-wq` or going to `File > Save-Exit`
 	sudo systemctl daemon-reload
 	sudo systemctl start apache2
 
+## Network Configurations
+
+There are multiple network choices that you can use with FreeScore to get the best communication at different venues.
+
+### 2.4 GHz
+
+The simplest choice is a simple USB wifi dongle with 2.4 GHz 802.11 protocol. The advantages of this configuration are portability, value, and ease-of-setup. Three channels (1, 6, and 11) present no overlap; if the competing signals in these channels can be overpowered, then communication should be fairly clear and responsive.
+
+**Recommended Hardware**
+
+- Detroit DIY Electronics Wifi with Antenna for Raspberry Pi
+
+**Software**
+
+- `hostapd` service to configure the Raspberry Pi as an access point
+- `dnsmasq` service to configure the Raspberry Pi as a DNS and DHCP router
+
+### External 2.4/5.0 GHz Router
+
+Using a separate dual band powered router might allow for even better communication reliability, however this requires reconfiguring the Raspberry Pi to **not** be configured as an access point; that is, **disable** `hostapd`. Instead, the Pi can be configured simply as a DHCP, DNS, and web server.
+
+**Disabling hostapd**
+
+	sudo su -
+	systemctl stop hostapd
+	systemctl disable hostapd
+	
+**Configuring Raspberry Pi for Static IP on eth0**
+
+Edit `/etc/dnsmasq.conf`. Change the interface line
+
+	interface=wlan0
+	dhcp-range=192.168.88.100,192.168.88.200,255.255.255.0,120h
+	dhcp-option=option:router,192.168.88.1
+	server=192.168.88.1
+	server=8.8.8.8
+	
+To
+
+	interface=eth0
+	...
+
+Leave the `dhcp-range` and other options alone.
+
+**Configuring the Router**
+
+Please read the manufacturer's instructions on how to configure the wifi router as an access point. Use the SSID `freescore` and constrain the DHCP range to match that in the `/etc/dnsmasq.conf` as shown above.
+	
+**Suggested Hardware**
+
+- TP-Link AC1200 Dual Band Wifi Router
+
+### 2.4/5.0 GHz
+
+Sometimes a venue has a lot of competing access points attempting to service the 2.4 GHz channel, causing a lot of interference. The 5.0 GHz band has a number of channels, each of which do *not* overlap, allowing for more channels at the cost of shorter range and reduced ability to communicate out of line-of-sight. For the purposes of FreeScore, line-of-sight and short range can safely be assumed. 
+
+#### Panda Wireless PAU09 N600 Dual Band
+
+**Problem:** Cannot configure `hostapd` to use 5.0 GHz channels on Raspberry Pi.
+
+
 

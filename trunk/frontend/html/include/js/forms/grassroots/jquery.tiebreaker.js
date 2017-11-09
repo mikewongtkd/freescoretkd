@@ -9,8 +9,8 @@ $.widget( "freescore.tiebreaker", {
 		var left    = e.left  = html.div.clone() .addClass( "left" );
 		var right   = e.right = html.div.clone() .addClass( "right" );
 
-		var lhand   = e.lhand = html.img.clone() .prop( "src", "/freescore/images/icons/votes/left.png" );
-		var rhand   = e.rhand = html.img.clone() .prop( "src", "/freescore/images/icons/votes/right.png" );
+		var lhand   = e.lhand = html.img.clone() .prop( "src", "../../images/icons/votes/left.png" );
+		var rhand   = e.rhand = html.img.clone() .prop( "src", "../../images/icons/votes/right.png" );
 
 		if( o.swap ) {
 			left  .addClass( "red"  ) .prop( "vote", "red"  );
