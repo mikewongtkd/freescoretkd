@@ -21,10 +21,13 @@ function Score( score ) {
 
 	this.summary = function() {
 		var summary = '';
+		var total   = 0.0;
+		var state   = { decision: false, scored: false };
 		$.each( score.forms, ( i, form ) => { 
 			j = i + 1; 
 			// ===== SHOW DECISION IF THERE IS A DECISION
 			if( defined( form.decision )) {
+				state.decision = true;
 				var decisions = [ { name: 'disqualify', code: 'DQ'}, { name: 'withdraw', code: 'WD' } ];
 				var decision  = decisions.reduce(( selected, decision ) => { if( ! selected && form.decision[ decision.name ] ) { return decision.code; } else { return selected }}, undefined );
 				if( defined( decision )) {
@@ -33,9 +36,14 @@ function Score( score ) {
 
 			// ===== SHOW SCORE IF THERE IS A COMPLETED SCORE
 			} else if( defined( form.adjusted )) {
+				state.scored = true;
+				total += parseFloat( form.adjusted.total );
 				summary += '<span class="form' + j + ' total score">' + parseFloat( form.adjusted.total ).toFixed( 2 ) + '</span>'; 
 			}
 		});
+		if( state.scored && ! state.decision ) {
+			summary += ' = <span class="formsum total score">' + total.toFixed( 2 ) + '</span>'; 
+		}
 		return summary;
 	};
 

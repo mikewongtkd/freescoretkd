@@ -139,7 +139,7 @@
 										<th id="j5-col">5</th>
 										<th id="j6-col">6</th>
 										<th>Score</th>
-										<th>Spread</th>
+										<th>Range</th>
 									</tr>
 									<tr>
 										<th class="acc">A</th>
