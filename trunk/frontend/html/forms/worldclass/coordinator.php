@@ -115,7 +115,10 @@
 				</div>
 					<div class="row">
 						<div class="col-lg-9">
-							<h4 id="division-round">Round</h4>
+							<div>
+								<div id="division-round">Round</div>
+								<div id="current-form"></div>
+							</div>
 							<div class="list-group" id="athletes">
 							</div>
 						</div>
@@ -394,10 +397,15 @@
 					});
 
 					var round = division.current.roundId();
-					var form  = division.current.formId();
+					var n     = division.current.formId();
 					var forms = division.forms()[ round ];
-					var count = forms.length > 1 ? ', Form ' + (parseInt( form ) + 1) + ' of ' + forms.length + ': ' + forms[ form ] : ''
-					$( '#division-round' ).html( division.current.round.display.name() + ' Round' + count );
+					var count = forms.reduce(( acc, cur, i ) => { 
+						console.log( 'FORM', i, n );
+						if( i == n ) { cur = '<span class="current">' + cur + '</span>'; }
+						return acc + '&nbsp;' + cur; 
+					}, '');
+					$( '#division-round' ).html( division.current.round.display.name() + ' Round' );
+					$( '#current-form' ).html( count );
 
 					var iconize = function( penalties ) {
 						if( ! defined( penalties )) { return; }
@@ -427,7 +435,7 @@
 						var score     = athlete.score( round );
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, form )));
+						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, n )));
 						var total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
 						var j         = parseInt( division.current.athleteId());
 						var k         = division.current.formId();

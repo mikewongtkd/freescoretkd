@@ -78,6 +78,24 @@ html, body {
     padding-top: 10px;
     padding-bottom: 6px; }
 
+#division-round {
+  font-size: 18pt;
+  margin-top: 0;
+  margin-bottom: 8px; }
+
+#current-form {
+  position: absolute;
+  top: 8px;
+  right: 15px;
+  font-size: 12pt;
+  margin-bottom: 8px; }
+  #current-form .current {
+    border: 1px solid #337ab7;
+    border-radius: 8px;
+    background-color: #337ab7;
+    color: white;
+    padding: 2px 6px 4px 6px; }
+
 .athlete-name {
   position: relative;
   display: inline-block;
@@ -109,9 +127,18 @@ html, body {
   width: 12%;
   margin-left: 3%;
   text-align: right; }
-  .athlete-score .score, .athlete-score .decision {
-    display: inline-block;
-    width: 45%; }
+  .athlete-score .form1of2, .athlete-score .form2of2 {
+    position: absolute;
+    font-size: 10pt; }
+  .athlete-score .form1of2 {
+    top: -8px;
+    left: 0; }
+  .athlete-score .form2of2 {
+    top: 10px;
+    left: 0; }
+  .athlete-score .form1of1, .athlete-score .sum {
+    font-size: 18pt;
+    line-height: 14pt; }
   .athlete-score .decision {
     font-weight: bold; }
   .athlete-score .accuracy {

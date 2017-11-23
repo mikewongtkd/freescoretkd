@@ -102,6 +102,23 @@ html, body {
 	}
 }
 
+#division-round { font-size: 18pt; margin-top: 0; margin-bottom: 8px; }
+#current-form {
+	position: absolute;
+	top: 8px;
+	right: 15px;
+	font-size: 12pt;
+	margin-bottom: 8px;
+
+	.current {
+		border: 1px solid #337ab7;
+		border-radius: 8px;
+		background-color: #337ab7;
+		color: white;
+		padding: 2px 6px 4px 6px;
+	}
+}
+
 .athlete-name {
 	position: relative;
 	display: inline-block;
@@ -139,7 +156,10 @@ html, body {
 	width: 12%;
 	margin-left: 3%;
 	text-align: right;
-	.score, .decision { display: inline-block; width: 45%; }
+	.form1of2, .form2of2 { position: absolute; font-size: 10pt; }
+	.form1of2 { top: -8px; left: 0; }
+	.form2of2 { top: 10px; left: 0; }
+	.form1of1, .sum { font-size: 18pt; line-height: 14pt; }
 	.decision     { font-weight: bold; }
 	.accuracy     { color: #600; }
 	.presentation { color: #006; }
