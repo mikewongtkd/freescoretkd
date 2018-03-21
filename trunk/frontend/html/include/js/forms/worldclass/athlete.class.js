@@ -3,6 +3,7 @@ function Athlete( athlete ) {
 	this.athlete = athlete;
 
 	this.name  = function() { return athlete.name; }
+	this.id    = function() { return athlete.id; }
 	this.score = function( round ) { return new Score( athlete.scores[ round ] ); };
 	this.info  = function( key ) {
 		if( ! defined( athlete.info )) { return undefined; }

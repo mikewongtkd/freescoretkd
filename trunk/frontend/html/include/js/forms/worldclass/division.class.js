@@ -69,6 +69,16 @@ function Division( division ) {
 		roundId : function() { return division.round; }
 	};
 
+	var _next = this.next = {
+		athleteId: function() {
+			var round = division.round
+			var order = division.order[ round ];
+			var i     = division.current;
+			var j     = order.findIndex( function( athleteId ) { return athleteId == i; });
+			return order[ j + 1 ];
+		}
+	};
+
 	// ============================================================
 	var _form = this.form = {
 	// ============================================================

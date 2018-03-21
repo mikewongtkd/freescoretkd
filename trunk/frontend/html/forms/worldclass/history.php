@@ -55,6 +55,9 @@
 								<div class="list-group">
 									<a class="list-group-item" id="admin-restore"><span class="glyphicon glyphicon-save"></span>Restore <span id='restore-version'>this Version</span></a>
 								</div>
+								<div class="list-group">
+									<a class="list-group-item" id="exit"><span class="glyphicon glyphicon-home"></span>Exit History</span></a>
+								</div>
 								<p class="text-muted">Make sure the judges and athletes are stopped before editing the division.</p>
 							</div>
 						</div>
@@ -209,6 +212,7 @@
 					$( '#admin-restore' ) .css({ opacity: 1.0 }).off( 'click' ).click( action.administration.restore );
 				}
 			};
+			$( '#exit' ).off( 'click' ).click( () => { sound.prev.play(); setTimeout( () => { window.close(); }, 250 ); } );
 		</script>
 	</body>
 </html>

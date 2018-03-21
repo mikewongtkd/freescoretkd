@@ -400,7 +400,6 @@
 					var n     = division.current.formId();
 					var forms = division.forms()[ round ];
 					var count = forms.reduce(( acc, cur, i ) => { 
-						console.log( 'FORM', i, n );
 						if( i == n ) { cur = '<span class="current">' + cur + '</span>'; }
 						return acc + '&nbsp;' + cur; 
 					}, '');
@@ -431,22 +430,23 @@
 
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#athletes' ).empty();
-					division.current.athletes( round ).forEach(( athlete, i ) => {
+					division.current.athletes( round ).forEach(( athlete ) => {
 						var score     = athlete.score( round ); 
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
 						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, n )));
 						var total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
-						var j         = parseInt( division.current.athleteId());
+						var current   = parseInt( division.current.athleteId());
 						var k         = division.current.formId();
+						var id        = athlete.id();
 
 						// ===== CURRENT ATHLETE
-						if( i == j && currentDivision ) { 
+						if( id == current && currentDivision ) { 
 							button.addClass( "active" ); 
 							button.off( 'click' ).click(( ev ) => { 
 								sound.prev.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
+								$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
 								$( ".navigate-athlete" ).hide(); 
 								refresh.score( score.score.forms[ k ], athlete.name(), true );
 							});
@@ -456,7 +456,7 @@
 
 						// ===== ATHLETE IN CURRENT DIVISION
 						} else if( currentDivision ) {
-							if( i == j + 1 ) { button.addClass( "on-deck" ); } // Athlete on deck
+							if( id == division.next.athleteId() ) { button.addClass( "on-deck" ); } // Athlete on deck
 							button.off( 'click' ).click(( ev ) => { 
 								var clicked = $( ev.target );
 								if( ! clicked.is( 'a' )) { clicked = clicked.parents( 'a' ); }
@@ -464,7 +464,7 @@
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								clicked.addClass( 'selected-athlete' ); 
 								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.display.name()); 
-								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
+								$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
 								$( ".navigate-athlete" ).show(); 
 								refresh.score( score.score.forms[ k ], athlete.name(), false );
 								$( '.penalties, .decision' ).hide();
@@ -567,7 +567,7 @@
 					var divid   = division.name();
 					var action = {
 						navigate : {
-							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); console.log( i ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
+							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); if( ring == 'staging' ) { alertify.success( "Transferred division from staging to ring. Starting to score division." ); setTimeout( function() { location.reload(); }, 3000 );}},
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
@@ -651,7 +651,6 @@
 					else            { $( '#clear-judge-scores' ).hide(); }
 
 					if( score.complete && spread.acc.length > 0 && spread.pre.length > 0 ) {
-						console.log( score );
 						var acc = (Math.max.apply( null, spread.acc ) - Math.min.apply( null, spread.acc ));
 						var pre = (Math.max.apply( null, spread.pre ) - Math.min.apply( null, spread.pre ));
 						var sum = (Math.max.apply( null, spread.sum ) - Math.min.apply( null, spread.sum ));

@@ -45,7 +45,8 @@ sub checkout {
 	# ===== INITIAL CHECK-IN, IF NO PREVIOUS HISTORY
 	if( ! @history ) {
 		$description =~ s/'/\\'/g;
-		`$self->{ ci } -t-'$description' -u $file 2>/dev/null`;
+		my $result = `$self->{ ci } -t-'$description' -u $file 2>&1`;
+		print STDERR $result if( $result !~ /done/ );
 	}
 
 	my $command = "$self->{ co } -f -l $file 2>/dev/null";

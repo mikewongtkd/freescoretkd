@@ -682,7 +682,7 @@ sub read {
 		delete $order->{ 'autodetect_required' };
 	}
 
-	# ===== READ THE ATHLETE ASSIGNATION FOR THE ROUND SUB-HEADER IN THE FILE
+	# ===== READ THE ATHLETE ASSIGNMENT FOR THE ROUND SUB-HEADER IN THE FILE
 	my $initial_order = {};
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		next unless exists $order->{ $round };
@@ -698,6 +698,7 @@ sub read {
 			my $i = 0;
 			foreach my $name (@{ $order->{ $round }}) {
 				$initial_order->{ $name } = $i;
+				$athletes->{ $name }{ id } = $i unless exists $athletes->{ $name }{ id };
 				push @{$self->{ order }{ $round }}, $i;
 				push @{ $self->{ athletes }}, $athletes->{ $name };
 				$i++;
