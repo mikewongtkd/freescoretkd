@@ -431,8 +431,8 @@
 
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#athletes' ).empty();
-					division.athletes().forEach(( athlete, i ) => {
-						var score     = athlete.score( round );
+					division.current.athletes( round ).forEach(( athlete, i ) => {
+						var score     = athlete.score( round ); 
 						var button    = html.a.clone().addClass( "list-group-item" );
 						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
 						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, n )));

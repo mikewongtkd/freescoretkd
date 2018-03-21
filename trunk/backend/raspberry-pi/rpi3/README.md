@@ -54,11 +54,13 @@ This will install all the Perl libraries and the GD graphics library dependency.
 
 This will install the FreeScore web services to be configured to start on boot.
 
+	sudo su -
+	cd ~pi/freescore
 	cp ../rpi2/etc/init.d/* /etc/init.d
-	sudo update-rc.d worldclass defaults 97 03
-	sudo update-rc.d freestyle defaults 97 03
-	sudo update-rc.d grassroots defaults 97 03
-	sudo update-rc.d fswifi defaults 97 03
+	update-rc.d worldclass defaults 97 03
+	update-rc.d freestyle defaults 97 03
+	update-rc.d grassroots defaults 97 03
+	update-rc.d fswifi defaults 97 03
 
 	
 ## FreeScore CGI

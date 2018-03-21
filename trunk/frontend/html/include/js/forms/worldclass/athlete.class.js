@@ -12,18 +12,18 @@ function Athlete( athlete ) {
 
 	this.display = {
 		name : function() {
-			var max_length = 16;
+			var max_length = 12;
 			if( athlete.name.length <= max_length ) { return athlete.name; }
-			var names   = athlete.name.split( /\s+/ );
+			var names = athlete.name.split( /\s+/ );
 			if( names.length == 1 ) { return athlete.name.substr( 0, max_length ); }
-			var first   = undefined;
-			var last    = undefined;
-			first   = $.grep( names, ( val, i ) => { return val != val.toUpperCase(); });
-			last    = $.grep( names, ( val, i ) => { return val == val.toUpperCase(); });
+			var first = undefined;
+			var last  = undefined;
+			first = $.grep( names, ( val, i ) => { return val != val.toUpperCase(); });
+			last  = $.grep( names, ( val, i ) => { return val == val.toUpperCase(); });
 			if( last.length == 0 ) { last = first; first = [ last.shift() ]; }
 
-			first = first.join( ' ' );
-			last  = last.join( ' ' );
+			first = first.join( '&nbsp;' );
+			last  = last.join( '&nbsp;' );
 
 			var initial = first.substr( 0, 1 );
 			var abbrev  = [ initial, last ].join( ' ' );

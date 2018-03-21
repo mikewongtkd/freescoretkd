@@ -122,6 +122,7 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 			text.html( "Choose your ring number:" );
 			register.rings.view .fadeIn();
+			console.log( register );
 			for( var j = 0; j < register.rings.data.length; j++ ) {
 				var ring    = register.rings.data[ j ];
 				var x       = ring.start.x;
