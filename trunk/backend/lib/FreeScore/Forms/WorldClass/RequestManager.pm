@@ -473,7 +473,14 @@ sub handle_division_judge_query {
 		splice( @$judges, 0, $n );
 	}
 
-	print STDERR "Requesting judge information.\n" if $DEBUG;
+	if( $DEBUG ) {
+		print STDERR "Requesting judge information for $n judges.\n";
+		foreach my $i ( 0 .. ($n - 1)) {
+			my $name = $i == 0 ? 'Referee' : 'Judge ' . $i;
+			my $judge = $judges->[ $i ];
+			printf STDERR "  Found %s (%s)\n", $name, substr( $judge->{ id }, 0, 4 ) if exists $judge->{ id };
+		}
+	}
 
 	$client->send( { json => { type => 'division', action => 'judges', judges => $judges }} );
 }
@@ -492,7 +499,7 @@ sub handle_division_judge_registration {
 	my $num      = $request->{ num };
 	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
 
-	print STDERR "Requesting $judge registration.\n" if $DEBUG;
+	print STDERR "Requesting $judge registration (" . substr( $id, 0, 4 ) . ").\n" if $DEBUG;
 
 	$judges->[ $num ]{ id } = $id;
 
@@ -813,7 +820,7 @@ sub send_division_response {
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : $role) . "\n" if $DEBUG;
-	printf STDERR "    user: %s (%s) message: %s\n", substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+	printf STDERR "    user: %s (%s) message: %s\n", $role, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 
 	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;

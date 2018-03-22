@@ -45,12 +45,13 @@ sub checkout {
 	# ===== INITIAL CHECK-IN, IF NO PREVIOUS HISTORY
 	if( ! @history ) {
 		$description =~ s/'/\\'/g;
-		my $result = `$self->{ ci } -t-'$description' -u $file 2>&1`;
-		print STDERR $result if( $result !~ /done/ );
+		my $result = `$self->{ ci } -t-'$description' -u $file 2>\&1`;
+		print STDERR $result unless( $result =~ /done/ );
 	}
 
 	my $command = "$self->{ co } -f -l $file 2>/dev/null";
-	system( $command );
+	my $result  = `$command`;
+	print STDERR $result unless $result =~ /done/;
 }
 
 # ============================================================
@@ -66,8 +67,18 @@ sub commit {
 	chomp $message;
 	$message =~ s/"/\\"/g;
 	$message = "-m\"$message\"" if( $message );
-	my $command = "$self->{ ci } -u $message $file";
-	system( $command );
+	my $command = "$self->{ ci } -u $message $file 2>&1";
+	my $result  = `$command`;
+	if( $result =~ /done/ ) {
+		if( $result =~ /file is unchanged/ ) {
+			print STDERR "  No changes to commit to division history.\n";
+
+		} else {
+			print STDERR "  Change committed to division history.\n";
+		}
+	} else {
+		print STDERR $result;
+	}
 }
 
 # ============================================================
@@ -113,7 +124,8 @@ sub restore {
 	return unless $self->{ available };
 
 	my $command = "co -r$version $file 2>/dev/null";
-	system( $command );
+	my $result  = `$command`;
+	print STDERR $result unless $result =~ /done/;
 }
 
 1;

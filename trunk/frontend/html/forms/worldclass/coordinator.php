@@ -255,9 +255,6 @@
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 
-				request      = { data : { type : 'division', action : 'judge query' }};
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
 			};
 
 			ws.onmessage = network.message = function( response ) {
@@ -660,6 +657,7 @@
 						$( '#score-acc' ).html( score.adjusted.accuracy );
 						$( '#score-pre' ).html( score.adjusted.presentation );
 						$( '#score-sum' ).html( score.adjusted.total );
+
 					} else {
 						$( '#spread-acc, #spread-pre, #score-acc, #score-pre, #spread-sum, #score-sum' ).empty();
 					}
