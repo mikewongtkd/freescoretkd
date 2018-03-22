@@ -221,6 +221,8 @@
 								<h4>Administration</h4>
 								<div class="list-group">
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
+									<a class="list-group-item" id="admin-split"><span class="glyphicon glyphicon-resize-full"></span>Split Division</a>
+									<a class="list-group-item" id="admin-merge"><span class="glyphicon glyphicon-resize-small"></span>Merge Flights</a>
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
 									<a class="list-group-item" id="admin-history"><span class="fa fa-history"></span>Division History</a>
@@ -400,7 +402,7 @@
 						if( i == n ) { cur = '<span class="current">' + cur + '</span>'; }
 						return acc + '&nbsp;' + cur; 
 					}, '');
-					$( '#division-round' ).html( division.current.round.display.name() + ' Round' );
+					$( '#division-round' ).html( division.current.round.display.name() + ' Round &ndash; ' + division.current.athletes().length + ' athlete' + ( division.current.athletes().length > 1 ? 's' : '' ));
 					$( '#current-form' ).html( count );
 
 					var iconize = function( penalties ) {
@@ -481,6 +483,17 @@
 						$( '#judge-scores' ).show();
 						$( '.navigate-division' ).hide();
 						$( '.penalties, .decision, .administration' ).show();
+						if( division.flight()) {
+							$( '#admin-merge' ).show();
+							$( '#admin-split' ).hide();
+						} else if( division.current.athletes().length > 20 ) {
+							$( '#admin-split' ).show();
+							$( '#admin-merge' ).hide();
+						} else {
+							$( '#admin-split' ).hide();
+							$( '#admin-merge' ).hide();
+						}
+
 					} else { 
 						$( '#judge-scores' ).hide();
 						$( '.navigate-division' ).show();

@@ -8,6 +8,7 @@ function Division( division ) {
 	this.description = function() { return division.description; }
 	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description; }
 	this.judges      = function() { return parseInt( division.judges ); }
+	this.flight      = function() { if( 'flight' in division ) { return division.flight; } else { return null; }}
 	this.forms       = function() { return division.forms;       }
 	this.ring        = function() { return division.ring;        }
 	this.history     = function() { return division.history;     }
