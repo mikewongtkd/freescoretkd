@@ -63,7 +63,7 @@ html, body {
   #judge-scores table .pre {
     color: #337ab7; }
   #judge-scores table .sum {
-    color: #999; }
+    color: #333; }
   #judge-scores table .ignore {
     text-decoration: line-through;
     opacity: 0.2; }
