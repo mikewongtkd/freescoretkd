@@ -4,13 +4,13 @@ use FreeScore::RCS;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
-use List::Util qw( all any none first shuffle reduce );
+use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
+use Math::Round qw( round );
 use JSON::XS;
 use Try::Tiny;
-use Clone qw( clone );
 use Data::Dumper;
-use base qw( FreeScore::Forms::Division );
+use base qw( FreeScore::Forms::Division Clone );
 use strict;
 
 #**
@@ -354,7 +354,7 @@ sub get_only {
 #*
 	my $self  = shift;
 	my $judge = shift;
-	my $clone = clone $self;
+	my $clone = $self->clone();
 	my $round = $clone->{ round };
 
 	foreach my $athlete (@{ $clone->{ athletes }}) {
@@ -572,7 +572,8 @@ sub read {
 			if( /=/ ) {
 				s/^#\s+//;
 				my ($key, $value) = split /=/;
-				if    ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
+				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );     }
+				elsif ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
 				elsif ( $key eq 'tiebreakers' ) { $self->{ $key } = _parse_forms( $value );     }
 				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );    }
 				elsif ( $key eq 'placement'   ) { $self->{ $key } = _parse_placement( $value ); }
@@ -721,6 +722,25 @@ sub split {
 	my $round = $self->{ round };
 	
 	return if $round ne 'prelim'; # Can only split prior to the preliminary round
+
+	my @athletes = shuffle @{$self->{ athletes }};
+	my $j        = round( int( @athletes )/$n );
+	my @flights  = ();
+
+	foreach my $i ( 1 .. $n ) {
+		my $id     = chr( ord( 'a' ) + ($i - 1));
+		my $flight = $self->clone();
+		my $k      = min( int( @athletes ), $j ); 
+		$flight->{ flight }{ id } = $id;
+		$flight->{ athletes } = [ splice( @athletes, 0, $k ) ];
+		push @flights, $flight;
+	}
+
+	my $group = [ map { "$_->{ name }$_->{ flight }{ id }"; } @flights ];
+	foreach my $flight (@flights) {
+		$flight->{ flight }{ group } = $group;
+		$flight->write();
+	}
 }
 
 # ============================================================
@@ -880,11 +900,12 @@ sub write {
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
-	print FILE "# autopilot=$self->{ autopilot }\n" if defined( $self->{ autopilot } );
-	print FILE "# method=" . lc( $self->{ method } ) . "\n" if defined( $self->{ method } );
+	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
+	print FILE "# method=" . lc( $self->{ method } ) . "\n" if exists( $self->{ method } ) && defined( $self->{ method } );
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
+	print FILE "# flight=id:$self->{ flight }{ id };group:" . join( ";", @{ $self->{ flight }{ group }}) . "\n" if exists( $self->{ flight }) && defined( $self->{ flight } );
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		my $order = $self->{ order }{ $round };
 		next unless defined $order && int( @$order );
@@ -1143,6 +1164,23 @@ sub _is_tie {
 #*
 	my $comparison = shift;
 	return abs( $comparison ) < 0.010;
+}
+
+# ============================================================
+sub _parse_flights {
+# ============================================================
+#** @function ( flight_text )
+#   @brief Parses serialized flight text
+#   @details For use with 'flight' header
+#*
+	my $value = shift;
+	my ($id, $groups) = split /;/, $value;
+	my $key = undef;
+	($key, $id)     = split /\s*:\s*/, $id;
+	($key, $groups) = split /\s*:\s*/, $groups;
+	$groups = [ split /\s*,\s*/, $groups ];
+
+	return { id => $id, groups => $groups }; 
 }
 
 # ============================================================

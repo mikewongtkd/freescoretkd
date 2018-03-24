@@ -19,7 +19,8 @@
       /* W3C */
       border: 4px solid white;
       border-radius: 24px;
-      padding: 0 32px 8px 32px; }
+      padding: 0 32px 8px 32px;
+      overflow-y: auto; }
       .leaderboard .division .placement h2 {
         color: white; }
       .leaderboard .division .placement .rank1 {
@@ -32,14 +33,21 @@
         color: #f93; }
       .leaderboard .division .placement .athlete {
         position: relative;
-        height: 92px;
+        height: 72px;
         width: 100%; }
+        .leaderboard .division .placement .athlete .number {
+          color: #999;
+          font-size: 36pt;
+          position: absolute;
+          left: 0;
+          width: 4%;
+          font-weight: bold;
+          overflow: hidden; }
         .leaderboard .division .placement .athlete .name {
           color: yellow;
           position: absolute;
-          left: 0;
-          width: 54%;
-          height: 92px;
+          left: 4%;
+          width: 50%;
           font-weight: bold;
           overflow: hidden; }
         .leaderboard .division .placement .athlete .form1 {

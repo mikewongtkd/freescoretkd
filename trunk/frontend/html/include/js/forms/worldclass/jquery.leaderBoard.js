@@ -72,12 +72,14 @@ $.widget( "freescore.leaderboard", {
 				var athlete  = placement[ i ];
 				var score    = athlete.score( round );
 				var notes    = defined( score.notes() ) ? score.notes() : '';
+				var number   = i+1;
 				var name     = athlete.display.name();
 				var namespan = html.span.clone() .html( name );
 				var total    = parseFloat( score.adjusted.total()).toFixed( 2 );
 
 				var entry = {
 					panel : html.div.clone() .addClass( "athlete results" ),
+					number: html.div.clone() .addClass( "number" ) .append( number ),
 					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
 					form1 : form_mean_score( score.form( 0 ), 'form1' ),
 					form2 : form_mean_score( score.form( 1 ), 'form2' ),
@@ -87,7 +89,7 @@ $.widget( "freescore.leaderboard", {
 
 				if( defined( callback )) { callback( i, entry.name, entry.medal ); }
 
-				entry.panel.append( entry.name, entry.form1, entry.form2, entry.score, entry.medal );
+				entry.panel.append( entry.number, entry.name, entry.form1, entry.form2, entry.score, entry.medal );
 				e.placement.append( entry.panel );
 				// entry.name .fitText( 0.55, { maxFontSize: '48pt' });
 			}
