@@ -268,9 +268,9 @@
 					if( defined( divid ) && divid != 'undefined' ) {
 						var division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
 						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						var curDiv   = defined( current ) ? division.name == current.name : false;
+						var isCurDiv = defined( current ) ? division.name == current.name : false;
 						division = new Division( division );
-						refresh.athletes( division, curDiv );
+						refresh.athletes( division, isCurDiv );
 
 						if( page.num == 1 ) { page.transition() };
 
@@ -296,6 +296,7 @@
 					var request  = { data : { type : 'division', action : 'judge query' }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
+
 				}
 			};
 

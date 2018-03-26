@@ -103,9 +103,7 @@
 
 			validate.athletes.count = function() {
 				if( division.athletes.length == 0 ) { return false; }
-				if( division.round == 'prelim' || division.round == 'semfin' ) {
-					randomize.enable();
-				}
+				randomize.enable();
 				return (division.athletes[ 0 ].name);
 			}
 			validate.athletes.unique = function() {
@@ -214,11 +212,11 @@
 						init.athletes( division );
 
 					} else if( update.action == 'write ok' ) {
-						var division = update.division;
+						var division = new Division( update.division );
 						sound.send.play();
-						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.close(); } );
+						bootbox.alert( "Division " + division.name().toUpperCase() + " saved.", () => { window.close(); } );
 
-					init.athletes( division );
+						init.athletes( division );
 
 					} else if( update.action == 'write error' ) {
 						var division = update.division;

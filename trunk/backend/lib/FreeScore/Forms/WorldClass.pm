@@ -69,7 +69,7 @@ sub delete_division {
 	return unless $i >= 0;
 
 	# Advance to next division if deleting the current division
-	if( $divid == $self->{ current } ) { $self->next(); }
+	if( $divid eq $self->{ current } ) { $self->next(); }
 
 	# Delete the division file
 	my $division = splice @{ $self->{ divisions }}, $i, 1;
@@ -154,6 +154,7 @@ sub update_division {
 		foreach my $i (0 .. $#{ $division->{ athletes }}) {
 			my $name = $division->{ athletes }[ $i ]{ name };
 			$division->{ athletes }[ $i ] = $score->{ $name } if( exists $score->{ $name } );
+			$division->{ athletes }[ $i ]{ id } = $i;
 		}
 		$self->{ divisions }[ $i ] = $division; 
 	}
