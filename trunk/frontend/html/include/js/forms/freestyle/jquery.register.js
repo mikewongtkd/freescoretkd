@@ -276,10 +276,10 @@ $.widget( "freescore.register", {
 				var num   = selected.judge;
 				role      = register.judges.add( num );
 				role.dom.css( 'left', '200px' );
-				referer = "./judge.php";
+				referer = "./judge.php?ring="+selected.ring;
 			} else {
-				if ( selected.role == "display"           ) { referer = "./index.php"; } else 
-				if ( selected.role == "computer operator" ) { referer = "./coordinator.php"; }
+				if ( selected.role == "display"           ) { referer = "./index.php?ring=" + selected.ring; } else 
+				if ( selected.role == "computer operator" ) { referer = "./coordinator.php?ring=" + selected.ring; }
 				console.log( selected.role, referer );
 				role = register.roles.add( selected.role.capitalize(), '200px' );
 			}

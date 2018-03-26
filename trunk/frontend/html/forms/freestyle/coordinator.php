@@ -3,10 +3,10 @@
 	include( "../../include/php/config.php" ); 
 	setcookie( 'judge', '', $clear_cookie, '/' );
 	setcookie( 'role', 'display', 0, '/' );
-	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
+	$ring = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 	$k = json_decode( $tournament )->rings->count;
-	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
-		setcookie( 'ring', $i, 0, '/' ); 
+	if( $ring == 'staging' || (ctype_digit( $ring ) && (integer) $ring >= 1 && (integer) $ring <= $k)) { 
+		setcookie( 'ring', $ring, 0, '/' ); 
 		$cookie_set = true;
 	} else {
 		setcookie( 'ring', 1, 0, '/' ); 
@@ -39,7 +39,7 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
 				<div class="container">
-					<div id="ring-header">Ring <?= $i ?> Divisions</div>
+					<div id="ring-header"> Ring <?= $ring ?> Divisions </div>
 					<form role="form">
 						<div class="form-group">
 							<input id="search-ring" class="form-control" type="search" placeholder="Search..." />
@@ -54,10 +54,12 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
 				<div class="container">
-					<div id="division-header"></div>
+					<div id="division-header">
+						<a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Back to Ring <?= $ring ?> Divisions</a> <span id="division-summary"></span>
+					</div>
 					<div class="row">
 						<div class="col-lg-9">
-							<h4>Athletes</h4>
+							<h4><span id="round-and-athlete-count"></span></h4>
 							<div class="list-group" id="athletes">
 							</div>
 						</div>
@@ -108,7 +110,7 @@
 		<script>
 			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
-			var ring       = { num: <?= $i ?> };
+			var ring       = { num: <?= $ring ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
@@ -171,12 +173,13 @@
 
 			var refresh = { 
 				athletes: function( division, currentDivision ) {
-					$( '#division-header' ).html( division.summary() );
-					$( '#division-header' ).off( 'click' ).click(( ev ) => { 
+					$( '#division-summary' ).html( division.summary() + ' Freestyle' );
+					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
 						$.removeCookie( 'divid' );
 						page.transition(); 
 					});
+					$( '#round-and-athlete-count' ).html( division.current.round() + ' Round &ndash; ' + division.current.athletes().length + ' Athletes' );
 
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#athletes' ).empty();
@@ -229,7 +232,6 @@
 				actions : function( division ) {
 					var athlete = division.current.athlete();
 					var current = division.current.athleteId();
-					var ring    = division.ring();
 					var divid   = division.name();
 					var action = {
 						penalty : {
@@ -254,7 +256,6 @@
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
 				},
 				navadmin : function( division ) {
-					var ring    = division.ring();
 					var divid   = division.name();
 					var action = {
 						navigate : {
@@ -264,7 +265,7 @@
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
-							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring < 10 ? '0' + ring : ring) + '/div.' + divid + '.txt', '_blank' )},
+							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring.num < 10 ? '0' + ring.num : ring.num) + '/div.' + divid + '.txt', '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
 						}
 					};

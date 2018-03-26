@@ -5,6 +5,7 @@ function Athlete( athlete ) {
 	if( ! defined( athlete.penalty )) { athlete.penalty = { bounds : 0.0, restart: 0.0, misconduct: 0 }; }
 
 	this.name   = () => { return athlete.name; };
+	this.id     = () => { return athlete.id; };
 	this.scores = () => { return athlete.scores; };
 	this.info   = ( key ) => {
 		if( ! defined( athlete.info )) { return undefined; }

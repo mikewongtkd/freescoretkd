@@ -66,9 +66,8 @@
 				<a class="btn btn-success btn-block" id="setup" href="setup.php"> Tournament, Network, and Rings Setup </a>
 			</div>
 
-
 			<footer class="page-footer">
-				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved.</p>
+				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved. </p>
 			</footer>
 		</div>
 		<script>

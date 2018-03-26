@@ -2,11 +2,12 @@ package FreeScore::Forms::FreeStyle::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use JSON::XS();
-use Clone qw( clone );
 use List::Util qw( min reduce );
 use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );
-use base qw( FreeScore::Forms::Division );
+use File::Slurp qw( read_file );
+use Math::Round qw( nearest_ceil );
+use base qw( FreeScore::Forms::Division Clone );
 use Data::Dumper;
 
 our @STANCES = qw( hakdari-seogi beom-seogi dwigubi );
@@ -88,18 +89,22 @@ sub read {
 	my $self = shift;
 	my $json = new JSON::XS();
 
-	my $contents = '';
-	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
-	while( <FILE> ) { chomp; $contents .= $_; }
-	close FILE;
-	my $data = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
+	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
+	my $data      = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
 	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
 
-	$self->{ judges } ||= 5; # Default value
-	$self->{ places } ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ current } ||= 0;
+	$self->{ judges }  ||= 5; # Default value
+	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ file }    = $self->{ file };
+	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
 
-	$self->calculate_scores();
-	$self->calculate_placements();
+	foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
+		my $athlete = $self->{ athletes }[ $i ];
+		$athlete->{ id } = $i;
+	}
+
+	$self->update();
 }
 
 # ============================================================
@@ -107,20 +112,60 @@ sub calculate_placements {
 # ============================================================
 	my $self       = shift;
 	my $athletes   = $self->{ athletes };
+	my $round      = $self->{ round };
 
-	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete } ? 0 : 1 } ( 0 .. $#$athletes );
+	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete } ? 1 : 0 } ( 0 .. $#$athletes );
 
 	my $placements = [ sort { 
-		$a = $athletes->[ $a ];
-		$b = $athletes->[ $b ];
+		my $i = $athletes->[ $a ];
+		my $j = $athletes->[ $b ];
 
-		$b->{ adjusted }{ subtotal  } <=> $a->{ adjusted }{ subtotal  } ||
-		$b->{ adjusted }{ technical } <=> $a->{ adjusted }{ technical } ||
-		$b->{ original }{ subtotal  } <=> $a->{ original }{ subtotal  }
+		$j->{ adjusted }{ subtotal  } <=> $i->{ adjusted }{ subtotal  } ||
+		$j->{ adjusted }{ technical } <=> $i->{ adjusted }{ technical } ||
+		$j->{ original }{ subtotal  } <=> $i->{ original }{ subtotal  }
 	} @$complete ];
 
-	$self->{ placements } = $placements;
-	$self->{ pending }    = $pending;
+	$self->{ placements } = {} if not exists $self->{ placements };
+	$self->{ pending }    = {} if not exists $self->{ pending };
+
+	$self->{ placements }{ $round } = $placements;
+	$self->{ pending }{ $round }    = $pending;
+}
+
+# ============================================================
+sub calculate_round {
+# ============================================================
+	my $self     = shift;
+	my $athletes = $self->{ athletes };
+
+	# ===== CALCULATE CURRENT ROUND
+	if( ! exists $self->{ round } || ! defined $self->{ round } ) {
+		my $n = int( @$athletes );
+		if    ( $n <= 8  ) { $self->{ round } = 'finals'; }
+		elsif ( $n <= 20 ) { $self->{ round } = 'semfin'; }
+		else               { $self->{ round } = 'prelim'; }
+	}
+
+	# ===== CALCULATE ORDER
+	my $round = $self->{ round };
+	my $order = $self->{ order } || {};
+	if( ! exists $order->{ $round } || ! defined $order->{ $round } ) {
+		if      ( $round eq 'prelim' ) { 
+			$order->{ $round } = [( 0 .. $#$athletes )]; 
+
+		} elsif ( $round eq 'semfin' ) { 
+			my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
+			my $n              = nearest_ceil( 1, int( @eligible )/2 ); # Advance the top half of division, rounded up
+			@eligible          = splice( @eligible, 0, $n );
+			$order->{ $round } = [ shuffle( @eligible ) ];
+
+		}  elsif ( $round eq 'finals' ) {
+			my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
+			@eligible          = splice( @eligible, 0, 8 );
+			$order->{ $round } = [ reverse @eligible ];
+		}
+	}
+	$self->{ order } = $order;
 }
 
 # ============================================================
@@ -131,13 +176,13 @@ sub calculate_scores {
 	my $n    = $k <= 3 ? $k : $k - 2;
 
 	foreach my $athlete (@{$self->{ athletes }}) {
-		my $scores    = $athlete->{ scores };
+		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores } : [];
 		my $original  = $athlete->{ original }  = { presentation => 0.0, technical => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }  = { presentation => 0.0, technical => 0.0 };
 		my $consensus = $athlete->{ consensus } = {};
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete } = 1; } else { next; }
+		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete } = 1; } else { delete $athlete->{ complete }; next; }
 
 		foreach my $score (@$scores) {
 			$original->{ $_ } += _sum( $score->{ $_ } ) foreach (qw( presentation technical ));
@@ -235,6 +280,9 @@ sub previous_athlete {
 # ============================================================
 sub record_decision {
 # ============================================================
+#** @method ()
+#   @brief Updates punitive decisions
+#*
 	my $self     = shift;
 	my $decision = shift;
 	my $i        = shift;
@@ -248,6 +296,9 @@ sub record_decision {
 # ============================================================
 sub record_penalty {
 # ============================================================
+#** @method ()
+#   @brief Updates penalties
+#*
 	my $self     = shift;
 	my $penalty  = shift;
 	my $i        = shift;
@@ -260,6 +311,9 @@ sub record_penalty {
 # ============================================================
 sub record_score {
 # ============================================================
+#** @method ()
+#   @brief Updates a score
+#*
 	my $self  = shift;
 	my $judge = shift;
 	my $score = shift;
@@ -278,13 +332,19 @@ sub remove_athlete {
 	my $athlete = splice @{$self->{ athletes }}, $i, 1;
 	foreach my $list ( qw( order placement pending )) {
 		next unless exists $self->{ $list };
-		$self->{ $list } = [ map { 
-			if( $_ == $i ) { ();     }
-			if( $_ >  $i ) { $_ - 1; }
-			else           { $_;     }
-		} @{ $self->{ $list }} ];
+		my $j = first_index { $_ == $i } @{ $self->{ list }};
+		splice( @{ $self->{ list }}, $j, 1 );
 	}
 	return $athlete;
+}
+
+# ============================================================
+sub update {
+# ============================================================
+	my $self  = shift;
+
+	$self->calculate_scores();
+	$self->calculate_placements();
 }
 
 # ============================================================
@@ -293,10 +353,9 @@ sub write {
 	my $self  = shift;
 	my $json  = new JSON::XS();
 	
-	$self->calculate_scores();
-	$self->calculate_placements();
+	$self->update();
 
-	my $contents = $json->pretty->canonical->encode( unbless( clone( $self )));
+	my $contents = $json->pretty->canonical->encode( unbless( $self->clone()));
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
 	print FILE $contents;
 	close FILE;
@@ -372,6 +431,17 @@ sub _drop_hilo {
 	$sum -= $min + $max;
 
 	return (($sum / $n), $i, $j);
+}
+
+# ============================================================
+sub _not_disqualified {
+# ============================================================
+	my $athletes = shift;
+	my $group    = shift;
+	return grep {
+		my $athlete = $athletes->[ $_ ];
+		! exists $athlete->{ decision } || ! $athlete->{ decision } =~ /^disqual/i
+	} @$group;
 }
 
 # ============================================================

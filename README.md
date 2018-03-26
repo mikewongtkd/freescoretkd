@@ -1,5 +1,4 @@
-FreeScoreTKD
-============
+# FreeScoreTKD
 
 Open Source Taekwondo tournament software
 
@@ -12,7 +11,20 @@ Please see the [project website](http://mikewongtkd.github.io/freescoretkd/)
 or the [documentation](https://github.com/mikewongtkd/freescoretkd/blob/master/trunk/docs/README.md)
 for more details.
 
-Copyright (C) 2014-2017 Mike Wong. 
+## Acknowledgements
+
+Huge thanks to **LC** for advice and corrections. 
+
+All bugs and errors are my own.
+
+## Contact
+
+All feedback, comments, questions, bug reports can be sent to
+mikewongtkd@gmail.com. This is a hobby project, so please be patient.
+
+## Copyrights and License
+
+Copyright (C) 2014-2018 Mike Wong. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

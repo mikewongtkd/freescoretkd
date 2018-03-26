@@ -26,6 +26,11 @@ function Division( division ) {
 		},
 		athletes :  function() { return division.athletes; },
 		athleteId : function() { return division.current; },
+		round:      function() { return FreeScore.round.name[ division.round ]; }
+	};
+
+	var _is = this.is = {
+		complete: function() { return division.complete; }
 	};
 
 	this.pending = function() { 
