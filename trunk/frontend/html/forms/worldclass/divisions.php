@@ -168,6 +168,12 @@
 					if( update.type == 'ring' && update.action == 'update' ) {
 						if( ! defined( update.ring )) { return; }
 						refresh.rings( update );
+
+					} else if( update.type == 'division', action == 'write ok' ) {
+						var request;
+						request      = { data : { type : 'ring', action : 'read' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
 					}
 				};
 			});

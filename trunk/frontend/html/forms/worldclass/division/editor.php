@@ -218,6 +218,8 @@
 						sound.send.play();
 						bootbox.alert( "Division " + division.name.toUpperCase() + " saved.", () => { window.close(); } );
 
+					init.athletes( division );
+
 					} else if( update.action == 'write error' ) {
 						var division = update.division;
 						sound.next.play();
