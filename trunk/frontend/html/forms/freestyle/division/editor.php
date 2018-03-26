@@ -87,7 +87,9 @@
 				</div>
 				<div class="panel-footer panel-primary clearfix">
 					<div id="user-message" class="text-muted pull-left" style="margin-top: 8px;"></div>
+					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
 					<button id="save-button" type="button" class="btn btn-success pull-right">Save Changes</button>
+					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
 				</div>
 			</div>
 
@@ -129,6 +131,7 @@
 
 				validate.athletes.count = function() {
 					if( division.athletes.length == 0 ) { return false; }
+					randomize.enable();
 					return (division.athletes[ 0 ].name);
 				}
 				validate.athletes.unique = function() {
@@ -189,6 +192,28 @@
 				});
 			}, disable : function() {
 				var button = $( '#save-button' );
+				button.addClass( 'disabled' );
+				button.off( 'click' );
+			}};
+
+			$( '#cancel-button' ).off( 'click' ).click(() => { sound.prev.play(); setTimeout( () => { window.close(); }, 500 ); });
+			var randomize  = { enable : function() {
+				var button = $( '#randomize-button' );
+				button.removeClass( 'disabled' );
+				button.off( 'click' ).click( function() {
+					var list = athletes.doc.getValue().split( '\n' );
+					for( var i = list.length - 1; i >= 0; i-- ) {
+						var j    = Math.floor( Math.random() * (i + 1));
+						var swap = list[ i ];
+						list[ i ] = list[ j ];
+						list[ j ] = swap;
+					}
+					var text = list.join( '\n' );
+					athletes.doc.setValue( text );
+				});
+
+			}, disable : function() {
+				var button = $( '#randomize-button' );
 				button.addClass( 'disabled' );
 				button.off( 'click' );
 			}};

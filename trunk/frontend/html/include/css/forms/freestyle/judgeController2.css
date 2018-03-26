@@ -5,77 +5,6 @@
   font-family: Biolinum;
   font-weight: bold;
   src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
-.deductions {
-  float: left;
-  font-family: Optima, Biolinum;
-  width: 188px;
-  height: 354px;
-  background: black;
-  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
-  /* W3C */
-  background: linear-gradient(to top, #45484d 0%, #000000 100%);
-  /* W3C */
-  border-radius: 16pt;
-  border: 4px solid #999;
-  margin: 0 6px 0 6px; }
-  .deductions .deduction-button-small, .deductions .deduction-button-large {
-    font-size: 18pt;
-    width: 168px;
-    border-radius: 12px;
-    margin: 12px auto 12px auto;
-    text-align: center; }
-  .deductions .deduction-button-small {
-    height: 48px;
-    line-height: 32pt; }
-  .deductions .deduction-button-large {
-    height: 128px;
-    line-height: 92pt; }
-  .deductions .disabled {
-    border: 4px solid #666;
-    background: #e2e2e2;
-    background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    color: black; }
-  .deductions .remove-minor {
-    border: 4px solid green;
-    background: #9dd53a;
-    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-    color: black; }
-  .deductions .add-minor {
-    border: 4px solid blue;
-    font-size: 36pt;
-    background: #6db3f2;
-    background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
-    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
-    color: black; }
-  .deductions .remove-major {
-    border: 4px solid orange;
-    background: #ffb76b;
-    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    color: black; }
-  .deductions .add-major {
-    border: 4px solid gold;
-    font-size: 36pt;
-    background: #fceabb;
-    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    color: black; }
-  .deductions .deduction-label {
-    height: 32px;
-    margin: 12px auto 12px auto;
-    text-align: center;
-    font-size: 14pt;
-    color: #ccc; }
-  .deductions .view {
-    height: 80px;
-    margin: 12px auto 12px auto;
-    text-align: center;
-    font-size: 64pt;
-    line-height: 64pt;
-    color: white; }
-
 .container {
   position: relative;
   top: 20px; }
@@ -168,38 +97,6 @@ table {
 .technical-component .component-label {
   background-color: #2a9fd6; }
 
-.technical-scores {
-  position: absolute;
-  width: 100%;
-  top: 154px; }
-  .technical-scores #mandatory-foot-technique-1-score {
-    left: 15px; }
-  .technical-scores #mandatory-foot-technique-2-score {
-    left: calc(  20% -  13px ); }
-  .technical-scores #mandatory-foot-technique-3-score {
-    left: calc(  40% -  31px ); }
-  .technical-scores #mandatory-foot-technique-4-score {
-    left: calc(  60% -  53px ); }
-  .technical-scores #mandatory-foot-technique-5-score {
-    left: calc(  80% -  76px ); }
-  .technical-scores #basic-movements-score {
-    left: calc( 100% - 103px ); }
-
-.docked {
-  top: -16px; }
-  .docked #mandatory-foot-technique-1-score {
-    left: 240px; }
-  .docked #mandatory-foot-technique-2-score {
-    left: 340px; }
-  .docked #mandatory-foot-technique-3-score {
-    left: 440px; }
-  .docked #mandatory-foot-technique-4-score {
-    left: 540px; }
-  .docked #mandatory-foot-technique-5-score {
-    left: 640px; }
-  .docked #basic-movements-score {
-    left: 740px; }
-
 #presentation {
   position: absolute;
   top: 100px;
@@ -208,30 +105,6 @@ table {
 
 .presentation-component .component-label {
   background-color: #77b300; }
-
-.presentation-scores {
-  position: absolute;
-  width: 100%;
-  top: -16px; }
-  .presentation-scores #creativity-score {
-    left: 0; }
-  .presentation-scores #harmony-score {
-    left: calc(  33% - 29px ); }
-  .presentation-scores #energy-score {
-    left: calc(  66% - 59px ); }
-  .presentation-scores #choreography-score {
-    left: calc( 100% - 88px ); }
-
-.docked {
-  top: -16px; }
-  .docked #creativity-score {
-    left: 240px; }
-  .docked #harmony-score {
-    left: 340px; }
-  .docked #energy-score {
-    left: 440px; }
-  .docked #choreography-score {
-    left: 540px; }
 
 #controls {
   position: absolute;

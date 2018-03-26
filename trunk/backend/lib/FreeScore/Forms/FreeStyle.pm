@@ -17,6 +17,7 @@ sub init {
 	if( defined $ring ) { 
 		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 		my $divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
+		$self->{ name } = $ring;
 
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
 		$self->{ divisions } = [];
