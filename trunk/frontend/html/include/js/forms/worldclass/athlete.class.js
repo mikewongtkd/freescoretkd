@@ -22,12 +22,12 @@ function Athlete( athlete ) {
 			first = $.grep( names, ( val, i ) => { return val != val.toUpperCase(); });
 			last  = $.grep( names, ( val, i ) => { return val == val.toUpperCase(); });
 			if( last.length == 0 ) { last = first; first = [ last.shift() ]; }
+			var initials = first.map((x) => { return x.substr( 0, 1 ); }).join( '' );
 
-			first = first.join( '&nbsp;' );
-			last  = last.join( '&nbsp;' );
+			first = first.join( ' ' );
+			last  = last.join( ' ' );
 
-			var initial = first.substr( 0, 1 );
-			var abbrev  = [ initial, last ].join( ' ' );
+			var abbrev  = [ initials, last ].join( ' ' );
 			if( abbrev.length <= max_length ) { return abbrev; }
 			return last.substr( 0, max_length );
 		}

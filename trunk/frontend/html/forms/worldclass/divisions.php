@@ -70,7 +70,9 @@
 							<div class="btn-group-vertical btn-block">
 								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-restage" target="_blank"><span class="glyphicon glyphicon-arrow-left"></span> Restage</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-split"><span class="glyphicon glyphicon-resize-full"></span> Split Division</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-merge" style="display: none;" ><span class="glyphicon glyphicon-resize-small"></span> Merge Flights</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-restage"><span class="glyphicon glyphicon-arrow-left"></span> Restage</a>
 							</div>
 							<div class="btn-group-vertical btn-block">
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>

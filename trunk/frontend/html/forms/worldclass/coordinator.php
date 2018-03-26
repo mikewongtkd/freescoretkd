@@ -221,8 +221,6 @@
 								<h4>Administration</h4>
 								<div class="list-group">
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
-									<a class="list-group-item" id="admin-split"><span class="glyphicon glyphicon-resize-full"></span>Split Division</a>
-									<a class="list-group-item" id="admin-merge"><span class="glyphicon glyphicon-resize-small"></span>Merge Flights</a>
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
 									<a class="list-group-item" id="admin-history"><span class="fa fa-history"></span>Division History</a>
@@ -483,16 +481,6 @@
 						$( '#judge-scores' ).show();
 						$( '.navigate-division' ).hide();
 						$( '.penalties, .decision, .administration' ).show();
-						if( division.flight()) {
-							$( '#admin-merge' ).show();
-							$( '#admin-split' ).hide();
-						} else if( division.current.athletes().length > 20 ) {
-							$( '#admin-split' ).show();
-							$( '#admin-merge' ).hide();
-						} else {
-							$( '#admin-split' ).hide();
-							$( '#admin-merge' ).hide();
-						}
 
 					} else { 
 						$( '#judge-scores' ).hide();

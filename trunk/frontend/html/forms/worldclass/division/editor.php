@@ -63,6 +63,7 @@
 					<span id="user-message">Not enough forms selected. Please select forms.</span>
 					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
 					<button type="button" id="save-button" class="btn btn-success pull-right disabled"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
+					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
 					<div class="clearfix"></div>
 				</div>
 			</div>
@@ -102,6 +103,9 @@
 
 			validate.athletes.count = function() {
 				if( division.athletes.length == 0 ) { return false; }
+				if( division.round == 'prelim' || division.round == 'semfin' ) {
+					randomize.enable();
+				}
 				return (division.athletes[ 0 ].name);
 			}
 			validate.athletes.unique = function() {
@@ -169,7 +173,26 @@
 				button.off( 'click' );
 			}};
 			$( '#cancel-button' ).off( 'click' ).click(() => { sound.prev.play(); setTimeout( () => { window.close(); }, 500 ); });
+			var randomize  = { enable : function() {
+				var button = $( '#randomize-button' );
+				button.removeClass( 'disabled' );
+				button.off( 'click' ).click( function() {
+					var list = athletes.doc.getValue().split( '\n' );
+					for( var i = list.length - 1; i >= 0; i-- ) {
+						var j    = Math.floor( Math.random() * (i + 1));
+						var swap = list[ i ];
+						list[ i ] = list[ j ];
+						list[ j ] = swap;
+					}
+					var text = list.join( '\n' );
+					athletes.doc.setValue( text );
+				});
 
+			}, disable : function() {
+				var button = $( '#randomize-button' );
+				button.addClass( 'disabled' );
+				button.off( 'click' );
+			}};
 
 			ws.onopen      = function() {
 				if( divId != 'new' ) {
