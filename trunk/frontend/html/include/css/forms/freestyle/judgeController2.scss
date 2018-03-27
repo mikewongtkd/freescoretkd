@@ -9,17 +9,25 @@
 	src: url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
 }
 
+$menu-width: 200px;
+
 .container {
 	position: relative;
 	top: 20px;
 }
 
+.menu {
+	position: absolute;
+	left: 0;
+	top: 40px;
+	width: $menu-width;
+}
+
 #stances {
 	position: absolute;
 	left: 50%;
-	top: 200px;
 	width: 200px;
-	margin-left: -120px;
+	margin-left: -240px;
 	.btn-xs {
 		font-size: 12pt;
 		margin-top: -8px;
@@ -32,8 +40,8 @@
 		position: absolute;
 		top: 0;
 		font-size: 9pt;
-		img { height: 100px; opacity: 0.25;  }
-		width: 80px;
+		img { height: 200px; opacity: 0.25;  }
+		width: 160px;
 		text-align: center;
 	}
 	.done {
@@ -41,8 +49,8 @@
 		img { opacity: 1.0; filter: sepia( 100% ) saturate( 100000% ) hue-rotate(  40deg ); };
 	}
 	.hakdari-seogi { left: 0; }
-	.beom-seogi    { left: 80px; }
-	.dwigubi       { left: 160px; }
+	.beom-seogi    { left: 160px; }
+	.dwigubi       { left: 320px; }
 }
 
 table {
@@ -73,6 +81,13 @@ table {
 	margin-left: 10%;
 	margin-right: 10%;
 	width: 80%; 
+}
+
+#tabpanels {
+	position: absolute;
+	top: 0;
+	left: $menu-width + 20;
+	width: 780px;
 }
 
 .technical-component, .presentation-component, .deduction-component {
@@ -129,17 +144,15 @@ table {
 	}
 }
 
+img.mandatory-foot-technique-icon {
+	margin-top: -20px;
+}
+
 #controls {
 	position: absolute;
-	top: 266px;
-	left: 15px;
+	top: 0;
+	left: 0;
 	width: calc( 100% - 30px );
-	img.mandatory-foot-technique-icon {
-		position: absolute;
-		top: 0;
-		left: 50%;
-		margin-left: -110px;
-	}
 	#major-deductions {
 		position: absolute;
 		top: 0;

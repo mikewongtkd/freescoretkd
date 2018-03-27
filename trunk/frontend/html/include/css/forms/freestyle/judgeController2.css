@@ -9,12 +9,17 @@
   position: relative;
   top: 20px; }
 
+.menu {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  width: 200px; }
+
 #stances {
   position: absolute;
   left: 50%;
-  top: 200px;
   width: 200px;
-  margin-left: -120px; }
+  margin-left: -240px; }
   #stances .btn-xs {
     font-size: 12pt;
     margin-top: -8px;
@@ -25,10 +30,10 @@
     position: absolute;
     top: 0;
     font-size: 9pt;
-    width: 80px;
+    width: 160px;
     text-align: center; }
     #stances .mandatory-stances img {
-      height: 100px;
+      height: 200px;
       opacity: 0.25; }
   #stances .done {
     color: lime; }
@@ -38,9 +43,9 @@
   #stances .hakdari-seogi {
     left: 0; }
   #stances .beom-seogi {
-    left: 80px; }
-  #stances .dwigubi {
     left: 160px; }
+  #stances .dwigubi {
+    left: 320px; }
 
 table {
   background-color: transparent !important;
@@ -62,6 +67,12 @@ table {
   margin-left: 10%;
   margin-right: 10%;
   width: 80%; }
+
+#tabpanels {
+  position: absolute;
+  top: 0;
+  left: 220px;
+  width: 780px; }
 
 .technical-component, .presentation-component, .deduction-component {
   position: absolute;
@@ -106,16 +117,14 @@ table {
 .presentation-component .component-label {
   background-color: #77b300; }
 
+img.mandatory-foot-technique-icon {
+  margin-top: -20px; }
+
 #controls {
   position: absolute;
-  top: 266px;
-  left: 15px;
+  top: 0;
+  left: 0;
   width: calc( 100% - 30px ); }
-  #controls img.mandatory-foot-technique-icon {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    margin-left: -110px; }
   #controls #major-deductions {
     position: absolute;
     top: 0;
