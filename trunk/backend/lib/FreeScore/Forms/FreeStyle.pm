@@ -15,8 +15,17 @@ sub init {
 	my $ring       = shift;
 
 	if( defined $ring ) { 
-		$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
-		my $divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
+		my $divisions = undef;
+		if( $ring =~ /staging/i ) {
+			$self->{ path } = sprintf( "%s/%s/%s/staging", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
+			mkdir $self->{ path } unless -e $self->{ path };
+			$divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
+
+		} else {
+			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
+			$divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
+		}
+
 		$self->{ name } = $ring;
 
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
@@ -47,6 +56,23 @@ sub init {
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 	}
+}
+
+# ============================================================
+sub delete_division {
+# ============================================================
+	my $self     = shift;
+	my $divid    = shift;
+	my $i        = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
+
+	return unless $i >= 0;
+
+	# Advance to next division if deleting the current division
+	if( $divid eq $self->{ current } ) { $self->next(); }
+
+	# Delete the division file
+	my $division = splice @{ $self->{ divisions }}, $i, 1;
+	unlink $division->{ file } if -e $division->{ file };
 }
 
 # ============================================================

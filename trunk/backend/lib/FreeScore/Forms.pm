@@ -83,17 +83,15 @@ sub transfer {
 	my $ring_num  = shift;
 
 	my $ring_name = $ring_num eq 'staging' ? $ring_num : sprintf( "ring%02d", $ring_num );
-
 	my $division  = $self->find( $divid );
 	my $source    = undef;
 	my $target    = undef;
-
 	my @db_path   = split /\//, $self->{ path };
 	pop @db_path;
 	my $db_path   = join '/', @db_path;
 
 	# Division found, modify file, ring, and path
-	if( $division ) {
+	if( $division && -e $division->{ file } ) {
 		$source = $division->{ file };
 		$target = "$db_path/$ring_name/div.$divid.txt";
 		$division->{ file } = $target;
@@ -107,7 +105,7 @@ sub transfer {
 	}
 
 	# Division still not found, give up
-	die "Can't find division $divid (found: " . join( ', ', map { $_->{ name }; } @{$self->{ divisions }} ) . ")$!" unless -e $source;
+	die "Can't find division '$divid' at '$source' (found: " . join( ', ', map { $_->{ name }; } @{$self->{ divisions }} ) . ") $!" unless -e $source;
 
 	# ===== TRANSFER THE FILE
 	cp( $source, $target );

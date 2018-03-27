@@ -67,7 +67,7 @@
 						<div class="col-sm-2">
 							<h4>Division</h4>
 							<div class="btn-group-vertical btn-block">
-								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
+								<a class="btn btn-success" href="division/editor.php?file=test/forms-freestyle/ring<?= $num ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-restage"><span class="glyphicon glyphicon-arrow-left"></span> Restage</a>
 							</div>
@@ -167,7 +167,7 @@
 						if( ! defined( update.ring )) { return; }
 						refresh.rings( update );
 
-					} else if( update.type == 'division', action == 'write ok' ) {
+					} else if( update.type == 'division' && update.action == 'write ok' ) {
 						var request;
 						request      = { data : { type : 'ring', action : 'read' }};
 						request.json = JSON.stringify( request.data );
