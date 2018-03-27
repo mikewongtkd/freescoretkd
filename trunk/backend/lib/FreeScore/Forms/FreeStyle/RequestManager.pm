@@ -669,7 +669,7 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $each     = $division->{ autodisplay } || 2;
+	my $cycle    = $division->{ autodisplay } || 2;
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
@@ -689,7 +689,8 @@ sub autopilot {
 
 	my $last = {
 		athlete => ($j == $n),
-		each    => (!(($j + 1) % $each)),
+		cycle   => (!(($j + 1) % $cycle)),
+		round   => ($division->{ round } eq 'finals'),
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
@@ -706,7 +707,7 @@ sub autopilot {
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
-			if( $last->{ each } || $last->{ athlete } ) { 
+			if( $last->{ cycle } || $last->{ athlete } ) { 
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
@@ -722,9 +723,13 @@ sub autopilot {
 			die "Disengaging autopilot\n" unless $division->autopilot();
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
-			my $go_next = { athlete => ! $last->{ athlete }};
+			my $go_next = { 
+				round   =>   $last->{ athlete } && ! $last->{ round },
+				athlete => ! $last->{ athlete }
+			};
 
-			if ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
+			if    ( $go_next->{ round }   ) { $division->next_round(); }
+			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 

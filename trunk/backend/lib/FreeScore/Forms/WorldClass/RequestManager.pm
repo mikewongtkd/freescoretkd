@@ -893,7 +893,7 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $each     = $division->{ autodisplay } || 2;
+	my $cycle    = $division->{ autodisplay } || 2;
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
@@ -917,7 +917,7 @@ sub autopilot {
 		athlete => ($division->{ current } == $order->[ -1 ]),
 		form    => ($division->{ form }    == int( @$forms ) - 1),
 		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
-		each    => (!(($j + 1) % $each)),
+		cycle   => (!(($j + 1) % $cycle)),
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
@@ -934,8 +934,8 @@ sub autopilot {
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
-			# Display the leaderboard for 12 seconds every $each athlete, or last athlete
-			if( $last->{ form } && ( $last->{ each } || $last->{ athlete } )) { 
+			# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+			if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
@@ -954,8 +954,8 @@ sub autopilot {
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
 			my $go_next = {
-				round   => $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
-				athlete => $last->{ form } && ! $last->{ athlete },
+				round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
+				athlete =>   $last->{ form } && ! $last->{ athlete },
 				form    => ! $last->{ form }
 			};
 
