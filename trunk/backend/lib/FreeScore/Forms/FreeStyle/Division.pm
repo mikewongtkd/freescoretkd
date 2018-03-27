@@ -345,6 +345,7 @@ sub update {
 
 	$self->calculate_scores();
 	$self->calculate_placements();
+	$self->calculate_round();
 }
 
 # ============================================================

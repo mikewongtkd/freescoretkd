@@ -235,6 +235,16 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 			register.roles.view .hide();
 			var judges = o.judges;
+			
+			if( judges.length == 0 ) {
+				bootbox.dialog({
+					title:   "Database Error!",
+					message: "No division started. Please select a division using the <code>Computer Operator</code> interface and start scoring.",
+					buttons: { confirm : { label: 'Division has been selected', className: 'btn-success', callback: function() { location.reload( true ); }}},
+					closeButton: false
+				});
+				return;
+			}
 
 			text.html( "Which judge?" );
 			register.judges.data = [];

@@ -5,6 +5,77 @@
   font-family: Biolinum;
   font-weight: bold;
   src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+.deductions {
+  float: left;
+  font-family: Optima, Biolinum;
+  width: 188px;
+  height: 354px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  border-radius: 16pt;
+  border: 4px solid #999;
+  margin: 0 6px 0 6px; }
+  .deductions .deduction-button-small, .deductions .deduction-button-large {
+    font-size: 18pt;
+    width: 168px;
+    border-radius: 12px;
+    margin: 12px auto 12px auto;
+    text-align: center; }
+  .deductions .deduction-button-small {
+    height: 48px;
+    line-height: 32pt; }
+  .deductions .deduction-button-large {
+    height: 168px;
+    line-height: 124pt; }
+  .deductions .disabled {
+    border: 4px solid #666;
+    background: #e2e2e2;
+    background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    color: black; }
+  .deductions .remove-minor {
+    border: 4px solid green;
+    background: #9dd53a;
+    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    color: black; }
+  .deductions .add-minor {
+    border: 4px solid blue;
+    font-size: 36pt;
+    background: #6db3f2;
+    background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+    color: black; }
+  .deductions .remove-major {
+    border: 4px solid orange;
+    background: #ffb76b;
+    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    color: black; }
+  .deductions .add-major {
+    border: 4px solid gold;
+    font-size: 36pt;
+    background: #fceabb;
+    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    color: black; }
+  .deductions .deduction-label {
+    height: 32px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 14pt;
+    color: #ccc; }
+  .deductions .view {
+    height: 40px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 32pt;
+    line-height: 32pt;
+    color: white; }
+
 .container {
   position: relative;
   top: 20px; }
@@ -13,7 +84,7 @@
   position: absolute;
   left: 0;
   top: 40px;
-  width: 200px; }
+  width: 180px; }
 
 #stances {
   position: absolute;
@@ -48,6 +119,9 @@
     left: 320px; }
 
 table {
+  position: absolute;
+  top: 140px;
+  left: 0;
   background-color: transparent !important;
   margin-bottom: 20px;
   width: 100%; }
@@ -71,8 +145,13 @@ table {
 #tabpanels {
   position: absolute;
   top: 0;
-  left: 220px;
+  left: 200px;
   width: 780px; }
+  #tabpanels h1 {
+    font-size: 32pt; }
+  #tabpanels p {
+    color: #ccc;
+    font-size: 14pt; }
 
 .technical-component, .presentation-component, .deduction-component {
   position: absolute;
@@ -110,9 +189,9 @@ table {
 
 #presentation {
   position: absolute;
-  top: 100px;
-  left: 15px;
-  width: calc( 100% - 30px ); }
+  top: 0;
+  left: 0;
+  width: 100%; }
 
 .presentation-component .component-label {
   background-color: #77b300; }
@@ -125,14 +204,37 @@ img.mandatory-foot-technique-icon {
   top: 0;
   left: 0;
   width: calc( 100% - 30px ); }
-  #controls #major-deductions {
-    position: absolute;
-    top: 0;
-    left: 0; }
-  #controls #minor-deductions {
-    position: absolute;
-    top: 0;
-    right: 0; }
+
+.deductions {
+  position: absolute;
+  top: 240px; }
+
+.major-deductions {
+  left: 0; }
+
+.minor-deductions {
+  right: 0; }
+
+.info {
+  position: absolute;
+  top: 240px;
+  left: 220px;
+  width: 348px;
+  height: 300px;
+  overflow-y: auto; }
+  .info p {
+    color: #999 !important; }
+  .info h4 {
+    color: #cc9900; }
+
+.next-button {
+  position: absolute;
+  top: 540px;
+  left: 220px;
+  width: 340px;
+  font-size: 24pt;
+  padding-top: 2px;
+  padding-bottom: 0; }
 
 .alert-default, .btn-default {
   background-color: #777;
@@ -192,33 +294,6 @@ img.mandatory-foot-technique-icon {
   position: absolute;
   width: calc( 100% - 30px );
   top: 200px; }
-  #deductions #timeline {
-    display: inline-block;
-    width: 100%;
-    overflow-y: auto; }
-  #deductions .timeline-heading .points {
-    color: green; }
-  #deductions .timeline-heading .deduction {
-    color: red; }
-  #deductions .timeline-item {
-    height: 200px !important;
-    min-width: 200px !important; }
-    #deductions .timeline-item .timeline-badge {
-      font-size: 28pt !important;
-      line-height: 38pt !important; }
-      #deductions .timeline-item .timeline-badge img {
-        height: 48px; }
-    #deductions .timeline-item .timeline-panel {
-      border-radius: 6px !important;
-      padding: 10px !important; }
-      #deductions .timeline-item .timeline-panel .timeline-heading h4.timeline-title {
-        font-size: 12pt !important;
-        margin-bottom: 6px !important; }
-      #deductions .timeline-item .timeline-panel .timeline-heading .timeline-notes {
-        font-size: 9pt !important;
-        margin-bottom: 6px !important; }
-      #deductions .timeline-item .timeline-panel .timeline-body {
-        font-size: 9pt !important; }
   #deductions .deduction-component .component-label {
     background-color: #ba1f1f; }
   #deductions .deduction-scores {
