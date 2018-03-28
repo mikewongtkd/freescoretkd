@@ -21,6 +21,9 @@
 		<script src="../../include/alertify/alertify.min.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta charset="UTF-8">
+		<meta name="google" content="notranslate">
+		<meta http-equiv="Content-Language" content="en">
 	</head>
 	<body>
 		<div class="container">
@@ -39,7 +42,7 @@
 			</div>
 			<div id="tabpanels" class="tab-content">
 				<div id="mft1" role="tabpanel" class="tab-pane active fade in">
-					<img class="mandatory-foot-technique-icon" src="../../images/icons/freestyle/jumping-side-kick.png" align="right" width=150>
+					<img class="mft-icon" src="../../images/icons/freestyle/jumping-side-kick.png" width=150>
 					<h1>Jumping Side Kick</h1>
 					<p>Height of the jumping side kick</p>
 					<table>
@@ -57,52 +60,27 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="jumping-side-kick" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="jumping-side-kick">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-side-kick">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-side-kick">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-side-kick">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-side-kick">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-side-kick">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-side-kick">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-side-kick">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-side-kick">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-side-kick">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="jumping-side-kick">1.0</label>
+									<label class="btn btn-danger" ><input type="radio" name="jumping-side-kick" value="0.0">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-side-kick" value="0.1">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-side-kick" value="0.2">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-side-kick" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-side-kick" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-side-kick" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-side-kick" value="0.6">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-side-kick" value="0.7">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-side-kick" value="0.8">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-side-kick" value="0.9">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="jumping-side-kick" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
 					</table>
-					<div id="mft1-major-deductions" class="major-deductions"></div>
-					<div id="mft1-info" class="info">
-						<div class="card athlete-info-card">
-							<div class="card-header athlete-info-btn">
-								<a class="btn btn-primary btn-block" data-toggle="collapse" data-target="athlete-info"><span class="athlete-name"></span></a>
-							</div>
-							<div id="athlete-info" class="collapse show" data-parent="#mft1-info">
-								<div class="card-body">
-								</div>
-							</div>
-						</div>
-						<div class="card mft1-guidelines-card">
-							<div class="card-header mft1-guidelines-btn">
-								<a class="btn btn-primary btn-block" data-toggle="collapse" data-target="mft1-guidelines">Scoring Guidelines</a>
-							</div>
-							<div id="mft1-guidelines" class="collapsed" data-parent="#mft1-info">
-								<div class="card-body">
-									<p>Too many run-up steps; more than 5 steps: -0.1 per extra step</p>
-									<p>Crossing the boundary line; both feet out-of-bounds: -0.3 each time (anytime)</p>
-									<p>Techniques completed outside the boundary line are not scored (anytime)</p>
-									<p>Pairs and Teams: All athletes must perform a jumping side kick; score the best</p>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div id="mft1-minor-deductions" class="minor-deductions"></div>
-					<a id="mft1-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="mft1-next" class="btn btn-success next-button disabled">OK</a>
 				</div>
 
 				<div id="mft2" role="tabpanel" class="tab-pane fade">
-					<img class="mandatory-foot-technique-icon" src="../../images/icons/freestyle/jumping-front-kick.png" align="right" width=150>
+					<img class="mft-icon" src="../../images/icons/freestyle/jumping-front-kick.png" width=150>
 					<h1>Jumping Front Kicks</h1>
 					<p>Number of front kicks in a jump</p>
 					<table>
@@ -110,41 +88,35 @@
 							<td>
 								<div class="performance-description">
 									<div class="poor">&lt;3</div>
-									<div class="good">3 Apchagi</div>
-									<div class="very-good">4 Apchagi</div>
-									<div class="excellent">5 Apchagi</div>
+									<div class="good">3 kicks</div>
+									<div class="very-good">4 kicks</div>
+									<div class="excellent">5 kicks</div>
 									<div class="perfect"></div>
 								</div>
 							</td>
 						</tr><tr>
 							<td class="button-group">
 								<div id="jumping-front-kicks" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="jumping-front-kicks">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-front-kicks">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-front-kicks">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-front-kicks">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-front-kicks">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-front-kicks">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-front-kicks">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="jumping-front-kicks">1.0</label>
+									<label class="btn btn-danger" ><input type="radio" name="jumping-front-kicks" value="0.0">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks" value="0.1">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks" value="0.2">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-front-kicks" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-front-kicks" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-front-kicks" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-front-kicks" value="0.6">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-front-kicks" value="0.7">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-front-kicks" value="0.8">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-front-kicks" value="0.9">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="jumping-front-kicks" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
 					</table>
-					<div id="mft2-major-deductions" class="major-deductions"></div>
-					<div class="guidelines">
-						<h4>Scoring Guidelines</h4>
-						<p>Too many run-up steps; more than 5 steps: -0.1 per extra step</p>
-						<p>Loss of balance: -0.1 for slight loss of balance, -0.2 for for a more serious loss of balance, give a lower score for a fall, plus deductions (anytime)</p>
-					</div>
-					<div id="mft2-minor-deductions" class="minor-deductions"></div>
-					<a id="mft2-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="mft2-next" class="btn btn-success next-button disabled">OK</a>
 				</div>
 				<div id="mft3" role="tabpanel" class="tab-pane fade">
-					<img class="mandatory-foot-technique-icon mandatory-foot-technique-3"   src="../../images/icons/freestyle/jumping-spin-kick.png" align="right" width=150>
+					<img class="mft-icon"   src="../../images/icons/freestyle/jumping-spin-kick.png" width=150>
 					<h1>Jumping Spin Kick</h1>
 					<p>Jump spin kick degree of rotation</p>
 					<table>
@@ -152,8 +124,8 @@
 							<td>
 								<div class="performance-description">
 									<div class="poor">&lt;360&deg;</div>
-									<div class="good">360&deg;&ndash;540&deg;</div>
-									<div class="very-good">540&deg;&ndash;720&deg;</div>
+									<div class="good">&gt;360&deg;</div>
+									<div class="very-good">&gt;540&deg;</div>
 									<div class="excellent">&gt;720&deg</div>
 									<div class="perfect"></div>
 								</div>
@@ -161,43 +133,36 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="jumping-spin-kick" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="jumping-spin-kick">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-spin-kick">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-spin-kick">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="jumping-spin-kick">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="jumping-spin-kick">1.0</label>
+									<label class="btn btn-danger" ><input type="radio" name="jumping-spin-kick" value="0.0">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick" value="0.1">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick" value="0.2">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="jumping-spin-kick" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-spin-kick" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-spin-kick" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="jumping-spin-kick" value="0.6">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick" value="0.7">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick" value="0.8">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="jumping-spin-kick" value="0.9">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="jumping-spin-kick" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
 					</table>
-					<div id="mft3-major-deductions" class="major-deductions"></div>
-					<div class="guidelines">
-						<h4>Scoring Guidelines</h4>
-						<p>Too many run-up steps; more than 5 steps: -0.1 per extra step</p>
-						<p>Crossing the boundary line; both feet out-of-bounds: -0.3 each time (anytime)</p>
-						<p>Techniques completed outside the boundary line are not scored (anytime)</p>
-						<p>Pairs and Teams: All athletes must perform a jumping side kick; score the best</p>
-					</div>
-					<div id="mft3-minor-deductions" class="minor-deductions"></div>
-					<a id="mft3-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="mft3-next" class="btn btn-success next-button disabled">OK</a>
 				</div>
 				<div id="mft4" role="tabpanel" class="tab-pane fade">
-					<img class="mandatory-foot-technique-icon mandatory-foot-technique-4"   src="../../images/icons/freestyle/consecutive-kicks.png" align="right" width=150>
+					<img class="mft-icon"   src="../../images/icons/freestyle/consecutive-kicks.png" width=150>
 					<h1>Consecutive Kicks</h1>
+					<p>Up to 5 consecutive kicking techniques</p>
 					<table>
 						<tr>
 							<td>
 								<div class="performance-description">
 									<div class="poor">&lt;3 kicks</div>
-									<div class="good">3&ndash;5 kicks; good</div>
-									<div class="very-good">3&ndash;5 kicks; very good</div>
-									<div class="excellent">3&ndash;5 kicks; excellent</div>
+									<div class="good">Average</div>
+									<div class="very-good">Good</div>
+									<div class="excellent">Excellent</div>
 									<div class="perfect"></div>
 								</div>
 							</td>
@@ -219,64 +184,48 @@
 							</td>
 						</tr>
 					</table>
-					<div id="mft4-major-deductions" class="major-deductions"></div>
-					<div class="guidelines">
-						<h4>Scoring Guidelines</h4>
-						<p>Too many run-up steps; more than 5 steps: -0.1 per extra step</p>
-						<p>Crossing the boundary line; both feet out-of-bounds: -0.3 each time (anytime)</p>
-						<p>Techniques completed outside the boundary line are not scored (anytime)</p>
-						<p>Pairs and Teams: All athletes must perform a jumping side kick; score the best</p>
-					</div>
-					<div id="mft4-minor-deductions" class="minor-deductions"></div>
-					<a id="mft4-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="mft4-next" class="btn btn-success next-button disabled">OK</a>
 				</div>
 				<div id="mft5" role="tabpanel" class="tab-pane fade">
-					<img class="mandatory-foot-technique-icon mandatory-foot-technique-5"   src="../../images/icons/freestyle/acrobatic-kick.png" align="right" width=150>
+					<img class="mft-icon"   src="../../images/icons/freestyle/acrobatic-kick.png" width=150>
 					<h1>Acrobatic Kicks</h1>
 					<p>Difficulty of acrobatic action with one or more kicks</p>
-					<table class="mandatory-foot-technique-5">
+					<table>
 						<tr>
 							<td>
 								<div class="performance-description">
 									<div class="poor" style="font-size: 9pt !important;">No TKD kick</div>
-									<div class="good">Low difficulty</div>
-									<div class="very-good">Middle difficulty</div>
-									<div class="excellent">High difficulty</div>
+									<div class="good">Average</div>
+									<div class="very-good">Good</div>
+									<div class="excellent">Excellent</div>
 									<div class="perfect"></div>
 								</div>
 							</td>
 						</tr><tr>
 							<td class="button-group">
-								<div id="acrobatic-kick" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="acrobatic-kick">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="acrobatic-kick">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="acrobatic-kick">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="acrobatic-kick">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="acrobatic-kick">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="acrobatic-kick">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="acrobatic-kick">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="acrobatic-kick">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="acrobatic-kick">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="acrobatic-kick">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="acrobatic-kick">1.0</label>
+								<div id="acrobatic-kicks" class="btn-group" data-toggle="buttons">
+									<label class="btn btn-danger" ><input type="radio" name="acrobatic-kicks">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="acrobatic-kicks">1.0</label>
 								</div>
 							</td>
 						</tr>
 					</table>
-					<div id="mft5-major-deductions" class="major-deductions"></div>
-					<div class="guidelines">
-						<h4>Scoring Guidelines</h4>
-						<p>Too many run-up steps; more than 5 steps: -0.1 per extra step</p>
-						<p>Crossing the boundary line; both feet out-of-bounds: -0.3 each time (anytime)</p>
-						<p>Techniques completed outside the boundary line are not scored (anytime)</p>
-						<p>Pairs and Teams: All athletes must perform a jumping side kick; score the best</p>
-					</div>
-					<div id="mft5-minor-deductions" class="minor-deductions"></div>
-					<a id="mft5-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="mft5-next" class="btn btn-success next-button disabled">OK</a>
 				</div>
 
 				<div id="basic" role="tabpanel" class="tab-pane fade">
-					<img class="mandatory-foot-technique-icon basic-movements" src="../../images/icons/freestyle/basic-movements.png" align="right" width=150>
+					<img class="mft-icon basic-movements" src="../../images/icons/freestyle/basic-movements.png" width=150>
 					<h1>Basic Movements</h1>
 					<p>Technique &amp; Practicality</p>
 					<table class="basic-movements">
@@ -285,8 +234,8 @@
 							<td>
 								<div class="performance-description">
 									<div class="poor">Poor</div>
-									<div class="good">Good</div>
-									<div class="very-good">Very good</div>
+									<div class="good">Average</div>
+									<div class="very-good">Good</div>
 									<div class="excellent">Excellent</div>
 									<div class="perfect"></div>
 								</div>
@@ -309,16 +258,8 @@
 							</td>
 						</tr>
 					</table>
-					<div id="basic-major-deductions" class="major-deductions"></div>
-					<div class="guidelines">
-						<h4>Scoring Guidelines</h4>
-						<p>Too many run-up steps; more than 5 steps: -0.1 per extra step</p>
-						<p>Crossing the boundary line; both feet out-of-bounds: -0.3 each time (anytime)</p>
-						<p>Techniques completed outside the boundary line are not scored (anytime)</p>
-						<p>Pairs and Teams: All athletes must perform a jumping side kick; score the best</p>
-					</div>
-					<div id="basic-minor-deductions" class="minor-deductions"></div>
-					<a id="basic-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="basic-next" class="btn btn-success next-button disabled">OK</a>
 				</div>
 
 				<div id="controls" role="tabpanel" class="tab-pane fade">
@@ -330,14 +271,16 @@
 						<div class="mandatory-stances dwigubi"       ><img src="../../images/icons/freestyle/dwigubi.png"       ><br>Dwigubi</div>
 					</div>
 					<div class="minor-deductions"></div>
-					<a id="controls-next" class="btn btn-success next-button">Next</a>
+					<div class="athlete"></div>
+					<a id="controls-next" class="btn btn-success next-button">OK</a>
 				</div>
 
 				<div id="presentation" role="tabpanel" class="tab-pane fade">
 					<h1>Presentation</h1>
 					<table>
 						<tr>
-							<th>Creativity</th>
+							<td colspan=2>Creativity</td>
+						</tr><tr>
 							<td class="button-group">
 								<div id="creativity" class="btn-group" data-toggle="buttons">
 									<label class="btn btn-success"><input type="radio" name="creativity">0.0</label>
@@ -354,9 +297,8 @@
 								</div>
 							</td>
 						</tr><tr>
-							<td colspan=2>&nbsp;</td>
+							<td colspan=2>Harmony</td>
 						</tr><tr>
-							<th>Harmony</th>
 							<td class="button-group">
 								<div id="harmony" class="btn-group" data-toggle="buttons">
 									<label class="btn btn-success"><input type="radio" name="harmony">0.0</label>
@@ -373,9 +315,8 @@
 								</div>
 							</td>
 						</tr><tr>
-							<td colspan=2>&nbsp;</td>
+							<td colspan=2>Expression of Energy</td>
 						</tr><tr>
-							<th>Expression of Energy</th>
 							<td class="button-group">
 								<div id="energy" class="btn-group" data-toggle="buttons">
 									<label class="btn btn-success"><input type="radio" name="energy">0.0</label>
@@ -392,9 +333,8 @@
 								</div>
 							</td>
 						</tr><tr>
-							<td colspan=2>&nbsp;</td>
+							<td colspan=2>Music &amp; Choreography</td>
 						</tr><tr>
-							<th>Music &amp; Choreography</th>
 							<td class="button-group">
 								<div id="choreography" class="btn-group" data-toggle="buttons">
 									<label class="btn btn-success"><input type="radio" name="choreography">0.0</label>
@@ -412,7 +352,7 @@
 							</td>
 						</tr>
 					</table>
-					<a id="presentation-next" class="btn btn-success next-button">Next</a>
+					<a id="presentation-next" class="btn btn-success next-button disabled">Review</a>
 				</div>
 
 				<div id="review" role="tabpanel" class="tab-pane fade">
@@ -445,6 +385,7 @@
 			var tournament  = <?= $tournament ?>;
 			var judge       = { num: parseInt( isNaN( $.cookie( "judge" )) ? 0 : $.cookie( "judge" )) }; 
 			var ring        = { num: parseInt( isNaN( $.cookie( "ring"  )) ? 1 : $.cookie( "ring"  )) }; 
+			var html        = FreeScore.html;
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -468,6 +409,8 @@
 
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
+				console.log( update );
+
 				if( ! defined( update.division )) { return; }
 				if( $( '#total .alert' ).attr( 'sending' )) {
 					sound.ok.play();
@@ -476,24 +419,49 @@
 				var division = new Division( update.division );
 				var athlete  = division.current.athlete(); 
 				if( athlete.name() != previous.athlete.name ) {
+					alertify.success( 'Ready to score for ' + athlete.display.name() );
 					$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
 					previous.athlete.name = athlete.name();
+					$( '.athlete' ).empty().append( 
+						html.div.clone().addClass( 'division' ).append( division.summary()),
+						html.div.clone().addClass( 'name' ).append( athlete.display.name()),
+						html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' Athletes in the ' + division.current.round() + ' Round' )
+					);
 				}
 			}
+			// ===== SCORING RADIO BUTTONS
+			var presentation = { creativity : {}, harmony : {}, energy : {}, choreography : {} };
+			presentation.complete = () => {
+			};
+			$( "input[type=radio][name='jumping-side-kick']"   ).change( ( e ) => { score.technical.mft1            = $( e.target ).val(); $( '#mft1-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-front-kicks']" ).change( ( e ) => { score.technical.mft2            = $( e.target ).val(); $( '#mft2-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-spin-kick']"   ).change( ( e ) => { score.technical.mft3            = $( e.target ).val(); $( '#mft3-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='consecutive-kicks']"   ).change( ( e ) => { score.technical.mft4            = $( e.target ).val(); $( '#mft4-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='acrobatic-kicks']"     ).change( ( e ) => { score.technical.mft5            = $( e.target ).val(); $( '#mft5-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='basic-movements']"     ).change( ( e ) => { score.technical.basic           = $( e.target ).val(); $( '#basic-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='creativity']"          ).change( ( e ) => { score.presentation.creativity   = $( e.target ).val(); presentation.complete(); });
+			$( "input[type=radio][name='harmony']"             ).change( ( e ) => { score.presentation.harmony      = $( e.target ).val(); presentation.complete(); });
+			$( "input[type=radio][name='energy']"              ).change( ( e ) => { score.presentation.energy       = $( e.target ).val(); presentation.complete(); });
+			$( "input[type=radio][name='choreography']"        ).change( ( e ) => { score.presentation.choreography = $( e.target ).val(); presentation.complete(); });
+
 
 			// ===== MAJOR AND MINOR DEDUCTIONS
 			$( '.major-deductions' ).deductions({ value : 0.3 });
 			$( '.minor-deductions' ).deductions({ value : 0.1 });
 
 			// ===== NEXT BUTTONS
-			$( '#mft1-next' ).off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
-			$( '#mft2-next' ).off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
-			$( '#mft3-next' ).off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });
-			$( '#mft4-next' ).off( 'click' ).click(() => { $( '#mft5-tab'         ).tab( 'show' ); });
-			$( '#mft5-next' ).off( 'click' ).click(() => { $( '#basic-tab'        ).tab( 'show' ); });
-			$( '#basic-next' ).off( 'click' ).click(() => { $( '#controls-tab' ).tab( 'show' ); });
-			$( '#controls-next' ).off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
-			$( '#presentation-next' ).off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
+			$( '#mft1-next' )     .off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
+			$( '#mft2-next' )     .off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
+			$( '#mft3-next' )     .off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });
+			$( '#mft4-next' )     .off( 'click' ).click(() => { $( '#mft5-tab'         ).tab( 'show' ); });
+			$( '#mft5-next' )     .off( 'click' ).click(() => { $( '#basic-tab'        ).tab( 'show' ); });
+			$( '#basic-next' )    .off( 'click' ).click(() => { $( '#controls-tab' ).tab( 'show' ); });
+			$( '#controls-next' ) .off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
+
+			$( '#creativity' )    .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
+			$( '#harmony' )       .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
+			$( '#energy' )        .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
+			$( '#choreography' )  .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
 
 			// ===== SEND BUTTON
 			$( '#total' ).off( 'click' ).click(( ev ) => {

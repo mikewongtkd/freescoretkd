@@ -29,7 +29,7 @@ $menu-width: 180px;
 	position: absolute;
 	left: 50%;
 	width: 200px;
-	margin-left: -240px;
+	margin-left: -160px;
 	.btn-xs {
 		font-size: 12pt;
 		margin-top: -8px;
@@ -42,8 +42,8 @@ $menu-width: 180px;
 		position: absolute;
 		top: 0;
 		font-size: 9pt;
-		img { height: 200px; opacity: 0.25;  }
-		width: 160px;
+		img { height: 120px; opacity: 0.25;  }
+		width: 90px;
 		text-align: center;
 	}
 	.done {
@@ -51,13 +51,13 @@ $menu-width: 180px;
 		img { opacity: 1.0; filter: sepia( 100% ) saturate( 100000% ) hue-rotate(  40deg ); };
 	}
 	.hakdari-seogi { left: 0; }
-	.beom-seogi    { left: 160px; }
-	.dwigubi       { left: 320px; }
+	.beom-seogi    { left: 112px; }
+	.dwigubi       { left: 224px; }
 }
 
 table {
 	position: absolute;
-	top: 140px;
+	top: 120px;
 	left: 0;
 	background-color: transparent !important;
 	margin-bottom: 20px;
@@ -75,10 +75,8 @@ table {
 	}
 
 	td[colspan='2'] {
-		padding: 8px;
-	}
-
-	tr {
+		padding-top: 4px;
+		padding-left: 8px;
 	}
 }
 
@@ -99,6 +97,27 @@ table {
 	p {
 		color: #ccc;
 		font-size: 14pt;
+	}
+	img.mft-icon {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+	.athlete { 
+		position: absolute;
+		top: 240px;
+		left: 220px; 
+		color: #999 !important; 
+		border-radius: 8px;
+		border: solid gold 4px;
+		padding: 8px;
+		width: 310px;
+		height: 120px;
+		text-align: center;
+		.division { color: gold; }
+		.name     { color: white; font-size: 24pt; }
+		.progress { color: #999; font-size: 12pt; background: transparent; }
+		overflow: hidden;
 	}
 }
 
@@ -169,30 +188,17 @@ img.mandatory-foot-technique-icon {
 
 .deductions {
 	position: absolute;
-	top: 240px;
+	top: 80px;
 }
 
 .major-deductions  { left:  0; }
 .minor-deductions  { right: 0; }
-.info { 
-	position: absolute;
-	top: 240px;
-	left: 220px; 
-	width: 348px; 
-	height: 300px;
-	overflow-y: auto;
-	p { 
-		color: #999 !important; 
-	}
-	h4 {
-		color: #cc9900;
-	}
-}
+
 .next-button {
 	position: absolute;
-	top: 540px;
+	top: 380px;
 	left: 220px;
-	width: 340px;
+	width: 310px;
 	font-size: 24pt;
 	padding-top: 2px;
 	padding-bottom: 0;
@@ -217,11 +223,11 @@ img.mandatory-foot-technique-icon {
 .performance-description {
 	width: 100%;
 	vertical-align: bottom;
-	.poor      { display: inline-block; text-align: center; width: 12% }
-	.good      { display: inline-block; text-align: center; width: 22% }
-	.very-good { display: inline-block; text-align: center; width: 25% }
-	.excellent { display: inline-block; text-align: center; width: 28% }
-	.perfect   { display: inline-block; text-align: center; width: 13% }
+	.poor      { display: inline-block; text-align: left;   width: 15% }
+	.good      { display: inline-block; text-align: right;  width: 45% }
+	.very-good { display: inline-block; text-align: right;  width: 8% }
+	.excellent { display: inline-block; text-align: center; width: 12% }
+	.perfect   { display: inline-block; text-align: right;  width: 20% }
 }
 
 .subtotal {

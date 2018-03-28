@@ -26,6 +26,7 @@ function Division( division ) {
 		},
 		athletes :  function() { return division.athletes; },
 		athleteId : function() { return division.current; },
+		progress :  function() { var round = division.round; var order = division.order; var i = order[ round ].findIndex(( x ) => { return x == division.current; }); return ordinal(i + 1) + ' of ' + order[ round ].length; },
 		round:      function() { return FreeScore.round.name[ division.round ]; }
 	};
 

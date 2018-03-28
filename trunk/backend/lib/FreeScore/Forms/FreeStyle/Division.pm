@@ -2,7 +2,7 @@ package FreeScore::Forms::FreeStyle::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use JSON::XS();
-use List::Util qw( min reduce );
+use List::Util qw( min reduce shuffle );
 use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use File::Slurp qw( read_file );
@@ -149,20 +149,36 @@ sub calculate_round {
 	# ===== CALCULATE ORDER
 	my $round = $self->{ round };
 	my $order = $self->{ order } || {};
-	if( ! exists $order->{ $round } || ! defined $order->{ $round } ) {
+	if( ! exists $order->{ $round } || ! defined $order->{ $round } || @{$order->{ $round }} == 0 ) {
 		if      ( $round eq 'prelim' ) { 
 			$order->{ $round } = [( 0 .. $#$athletes )]; 
 
 		} elsif ( $round eq 'semfin' ) { 
-			my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
-			my $n              = nearest_ceil( 1, int( @eligible )/2 ); # Advance the top half of division, rounded up
-			@eligible          = splice( @eligible, 0, $n );
-			$order->{ $round } = [ shuffle( @eligible ) ];
+
+			# Advance athletes from previous round
+			if( exists $order->{ 'prelim' } && ref( $order->{ 'prelim' }) eq 'ARRAY' && @{ $order->{ 'prelim' }} ) {
+				my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
+				my $n              = nearest_ceil( 1, int( @eligible )/2 ); # Advance the top half of division, rounded up
+				@eligible          = splice( @eligible, 0, $n );
+				$order->{ $round } = [ shuffle( @eligible ) ];
+
+			# Starting round
+			} else {
+				$order->{ $round } = [( 0 .. $#$athletes )];
+			}
 
 		}  elsif ( $round eq 'finals' ) {
-			my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
-			@eligible          = splice( @eligible, 0, 8 );
-			$order->{ $round } = [ reverse @eligible ];
+
+			# Advance athletes from previous round
+			if( exists $order->{ 'semfin' } && ref( $order->{ 'semfin' }) eq 'ARRAY' && @{ $order->{ 'semfin' }} ) {
+				my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
+				@eligible          = splice( @eligible, 0, 8 );
+				$order->{ $round } = [ reverse @eligible ];
+
+			# Starting round
+			} else {
+				$order->{ $round } = [( 0 .. $#$athletes )];
+			}
 		}
 	}
 	$self->{ order } = $order;

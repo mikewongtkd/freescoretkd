@@ -90,7 +90,7 @@
   position: absolute;
   left: 50%;
   width: 200px;
-  margin-left: -240px; }
+  margin-left: -160px; }
   #stances .btn-xs {
     font-size: 12pt;
     margin-top: -8px;
@@ -101,10 +101,10 @@
     position: absolute;
     top: 0;
     font-size: 9pt;
-    width: 160px;
+    width: 90px;
     text-align: center; }
     #stances .mandatory-stances img {
-      height: 200px;
+      height: 120px;
       opacity: 0.25; }
   #stances .done {
     color: lime; }
@@ -114,13 +114,13 @@
   #stances .hakdari-seogi {
     left: 0; }
   #stances .beom-seogi {
-    left: 160px; }
+    left: 112px; }
   #stances .dwigubi {
-    left: 320px; }
+    left: 224px; }
 
 table {
   position: absolute;
-  top: 140px;
+  top: 120px;
   left: 0;
   background-color: transparent !important;
   margin-bottom: 20px;
@@ -135,7 +135,8 @@ table {
     font-size: 9pt;
     width: calc( 100% - 80px ); }
   table td[colspan='2'] {
-    padding: 8px; }
+    padding-top: 4px;
+    padding-left: 8px; }
 
 #start, #deductions-done {
   margin-left: 10%;
@@ -152,6 +153,31 @@ table {
   #tabpanels p {
     color: #ccc;
     font-size: 14pt; }
+  #tabpanels img.mft-icon {
+    position: absolute;
+    top: 0;
+    right: 0; }
+  #tabpanels .athlete {
+    position: absolute;
+    top: 240px;
+    left: 220px;
+    color: #999 !important;
+    border-radius: 8px;
+    border: solid gold 4px;
+    padding: 8px;
+    width: 310px;
+    height: 120px;
+    text-align: center;
+    overflow: hidden; }
+    #tabpanels .athlete .division {
+      color: gold; }
+    #tabpanels .athlete .name {
+      color: white;
+      font-size: 24pt; }
+    #tabpanels .athlete .progress {
+      color: #999;
+      font-size: 12pt;
+      background: transparent; }
 
 .technical-component, .presentation-component, .deduction-component {
   position: absolute;
@@ -207,7 +233,7 @@ img.mandatory-foot-technique-icon {
 
 .deductions {
   position: absolute;
-  top: 240px; }
+  top: 80px; }
 
 .major-deductions {
   left: 0; }
@@ -215,23 +241,11 @@ img.mandatory-foot-technique-icon {
 .minor-deductions {
   right: 0; }
 
-.info {
-  position: absolute;
-  top: 240px;
-  left: 220px;
-  width: 348px;
-  height: 300px;
-  overflow-y: auto; }
-  .info p {
-    color: #999 !important; }
-  .info h4 {
-    color: #cc9900; }
-
 .next-button {
   position: absolute;
-  top: 540px;
+  top: 380px;
   left: 220px;
-  width: 340px;
+  width: 310px;
   font-size: 24pt;
   padding-top: 2px;
   padding-bottom: 0; }
@@ -255,24 +269,24 @@ img.mandatory-foot-technique-icon {
   vertical-align: bottom; }
   .performance-description .poor {
     display: inline-block;
-    text-align: center;
-    width: 12%; }
+    text-align: left;
+    width: 15%; }
   .performance-description .good {
     display: inline-block;
-    text-align: center;
-    width: 22%; }
+    text-align: right;
+    width: 45%; }
   .performance-description .very-good {
     display: inline-block;
-    text-align: center;
-    width: 25%; }
+    text-align: right;
+    width: 8%; }
   .performance-description .excellent {
     display: inline-block;
     text-align: center;
-    width: 28%; }
+    width: 12%; }
   .performance-description .perfect {
     display: inline-block;
-    text-align: center;
-    width: 13%; }
+    text-align: right;
+    width: 20%; }
 
 .subtotal {
   font-size: 40pt;
