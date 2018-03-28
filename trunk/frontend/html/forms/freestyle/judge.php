@@ -1,5 +1,7 @@
 <?php 
 	include( "../../include/php/config.php" ); 
+	$judge = $_GET[ 'judge' ] ? $_GET[ 'judge' ] : ($_COOKIE[ 'judge' ] ? $_COOKIE[ 'judge' ] : 0);
+	$ring  = $_GET[ 'ring' ]  ? $_GET[ 'ring' ]  : ($_COOKIE[ 'ring' ]  ? $_COOKIE[ 'ring' ]  : 1);
 ?>
 <html>
 	<head>
@@ -264,13 +266,13 @@
 
 				<div id="controls" role="tabpanel" class="tab-pane fade">
 					<h1>Stances &amp; Deductions</h1>
-					<div class="major-deductions"></div>
+					<div id="major-deductions" class="major-deductions"></div>
 					<div id="stances">
-						<div class="mandatory-stances hakdari-seogi" ><img src="../../images/icons/freestyle/hakdari-seogi.png" ><br>Hakdari Seogi</div>
-						<div class="mandatory-stances beom-seogi"    ><img src="../../images/icons/freestyle/beom-seogi.png"    ><br>Beom Seogi</div>
-						<div class="mandatory-stances dwigubi"       ><img src="../../images/icons/freestyle/dwigubi.png"       ><br>Dwigubi</div>
+						<div id="ms-hakdari"   class="mandatory-stances hakdari-seogi" ><img src="../../images/icons/freestyle/hakdari-seogi.png" ><br>Hakdari Seogi</div>
+						<div id="ms-beomseogi" class="mandatory-stances beom-seogi"    ><img src="../../images/icons/freestyle/beom-seogi.png"    ><br>Beom Seogi</div>
+						<div id="ms-dwigubi"   class="mandatory-stances dwigubi"       ><img src="../../images/icons/freestyle/dwigubi.png"       ><br>Dwigubi</div>
 					</div>
-					<div class="minor-deductions"></div>
+					<div id="minor-deductions" class="minor-deductions"></div>
 					<div class="athlete"></div>
 					<a id="controls-next" class="btn btn-success next-button">OK</a>
 				</div>
@@ -356,22 +358,71 @@
 				</div>
 
 				<div id="review" role="tabpanel" class="tab-pane fade">
-					<div id="deductions">
-						<div class="deduction-scores">
-							<div class="deduction-component" id="major-deduction-score">
-								<div class="component-label">Major deductions</div>
-								<div class="component-score">0.0</div>
-							</div>
-
-							<div class="deduction-component" id="minor-deduction-score">
-								<div class="component-label">Minor deductions</div>
-								<div class="component-score">0.0</div>
-							</div>
+					<h1>Review &amp; Send</h1>
+					<p>Review your score. Choose from the menu on the left to make changes.</p>
+					<div class="technical-scores">
+						<div class="technical-component" id="mft1-score">
+							<div class="component-label">Jumping side kick</div>
+							<div class="component-score">0.0</div>
 						</div>
-						<div id="stance-deductions">
-							<div class="mandatory-stances hakdari-seogi" ><img src="../../images/icons/freestyle/hakdari-seogi.png" ><br>Hakdari Seogi</div>
-							<div class="mandatory-stances beom-seogi"    ><img src="../../images/icons/freestyle/beom-seogi.png"    ><br>Beom Seogi</div>
-							<div class="mandatory-stances dwigubi"       ><img src="../../images/icons/freestyle/dwigubi.png"       ><br>Dwigubi</div>
+
+						<div class="technical-component" id="mft2-score">
+							<div class="component-label">Jumping front kicks</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="technical-component" id="mft3-score">
+							<div class="component-label">Jumping spin kick</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="technical-component" id="mft4-score">
+							<div class="component-label">Consecutive kicks</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="technical-component" id="mft5-score">
+							<div class="component-label">Acrobatic kick</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="technical-component" id="basics-score">
+							<div class="component-label">Basic movements</div>
+							<div class="component-score">0.0</div>
+						</div>
+					</div>
+
+					<div class="presentation-scores">
+						<div class="presentation-component" id="creativity-score">
+							<div class="component-label">Creativity</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="presentation-component" id="harmony-score">
+							<div class="component-label">Harmony</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="presentation-component" id="energy-score">
+							<div class="component-label">Expression of Energy</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="presentation-component" id="choreography-score">
+							<div class="component-label">Music &amp; Choreography</div>
+							<div class="component-score">0.0</div>
+						</div>
+					</div>
+
+					<div class="deduction-scores">
+						<div class="deduction-component" id="major-deduction-score">
+							<div class="component-label">Major deductions</div>
+							<div class="component-score">0.0</div>
+						</div>
+
+						<div class="deduction-component" id="minor-deduction-score">
+							<div class="component-label">Minor deductions</div>
+							<div class="component-score">0.0</div>
 						</div>
 					</div>
 				</div>
@@ -379,13 +430,15 @@
 		</div>
 
 		<script>
-			var score       = { technical: {}, presentation: {}, deductions: { stances: { 'hakdari-seogi': 0.3, 'beom-seogi': 0.3, 'dwigubi': 0.3 }, timing: { start: undefined, stop: undefined }, minor: 0.0, major: 0.0 }};
+			var score       = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.0 }};
 			var performance = { timeline: [], start: false, complete: false };
 			var sound       = {};
 			var tournament  = <?= $tournament ?>;
-			var judge       = { num: parseInt( isNaN( $.cookie( "judge" )) ? 0 : $.cookie( "judge" )) }; 
-			var ring        = { num: parseInt( isNaN( $.cookie( "ring"  )) ? 1 : $.cookie( "ring"  )) }; 
+			var judge       = { num: parseInt( <?= $judge ?> )}; 
+			var ring        = { num: parseInt( <?= $ring ?> )}; 
 			var html        = FreeScore.html;
+			var refresh     = {};
+			console.log( judge, ring, "<?= $_GET[ 'ring' ] . ' ' . $_GET[ 'judge' ] ?>" );
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -420,48 +473,65 @@
 				var athlete  = division.current.athlete(); 
 				if( athlete.name() != previous.athlete.name ) {
 					alertify.success( 'Ready to score for ' + athlete.display.name() );
-					$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
+					refresh.division( division );
 					previous.athlete.name = athlete.name();
-					$( '.athlete' ).empty().append( 
-						html.div.clone().addClass( 'division' ).append( division.summary()),
-						html.div.clone().addClass( 'name' ).append( athlete.display.name()),
-						html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' Athletes in the ' + division.current.round() + ' Round' )
-					);
 				}
 			}
-			// ===== SCORING RADIO BUTTONS
-			var presentation = { creativity : {}, harmony : {}, energy : {}, choreography : {} };
-			presentation.complete = () => {
-			};
-			$( "input[type=radio][name='jumping-side-kick']"   ).change( ( e ) => { score.technical.mft1            = $( e.target ).val(); $( '#mft1-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='jumping-front-kicks']" ).change( ( e ) => { score.technical.mft2            = $( e.target ).val(); $( '#mft2-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='jumping-spin-kick']"   ).change( ( e ) => { score.technical.mft3            = $( e.target ).val(); $( '#mft3-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='consecutive-kicks']"   ).change( ( e ) => { score.technical.mft4            = $( e.target ).val(); $( '#mft4-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='acrobatic-kicks']"     ).change( ( e ) => { score.technical.mft5            = $( e.target ).val(); $( '#mft5-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='basic-movements']"     ).change( ( e ) => { score.technical.basic           = $( e.target ).val(); $( '#basic-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='creativity']"          ).change( ( e ) => { score.presentation.creativity   = $( e.target ).val(); presentation.complete(); });
-			$( "input[type=radio][name='harmony']"             ).change( ( e ) => { score.presentation.harmony      = $( e.target ).val(); presentation.complete(); });
-			$( "input[type=radio][name='energy']"              ).change( ( e ) => { score.presentation.energy       = $( e.target ).val(); presentation.complete(); });
-			$( "input[type=radio][name='choreography']"        ).change( ( e ) => { score.presentation.choreography = $( e.target ).val(); presentation.complete(); });
 
+			// ===== REFRESH DIVISION
+			refresh.division = ( division ) => {
+				var athlete = division.current.athlete();
+				$( 'input[type=radio]' ).prop( 'checked', false );
+				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
+				$( '.athlete' ).empty().append( 
+					html.div.clone().addClass( 'division' ).append( division.summary()),
+					html.div.clone().addClass( 'name'     ).append( athlete.display.name()),
+					html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' Athletes in the ' + division.current.round() + ' Round' )
+				);
+			};
+
+			// ===== SCORING RADIO BUTTONS
+			var presentation = { creativity : false, harmony : false, energy : false, choreography : false };
+			presentation.complete = ( category ) => {
+				console.log( category );
+				presentation[ category ] = true;
+				var complete = true;
+				[ 'creativity', 'harmony', 'energy', 'choreography' ].forEach(( c ) => {
+					if( ! presentation[ c ] ) { console.log( presentation ); complete = false; return; }
+				});
+				if( complete ) { $( '#presentation-next' ).removeClass( 'disabled' ); }
+			};
+			$( "input[type=radio][name='jumping-side-kick']"   ).change(( e ) => { score.technical.mft1            = $( e.target ).val(); $( '#mft1-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-front-kicks']" ).change(( e ) => { score.technical.mft2            = $( e.target ).val(); $( '#mft2-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-spin-kick']"   ).change(( e ) => { score.technical.mft3            = $( e.target ).val(); $( '#mft3-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='consecutive-kicks']"   ).change(( e ) => { score.technical.mft4            = $( e.target ).val(); $( '#mft4-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='acrobatic-kicks']"     ).change(( e ) => { score.technical.mft5            = $( e.target ).val(); $( '#mft5-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='basic-movements']"     ).change(( e ) => { score.technical.basic           = $( e.target ).val(); $( '#basic-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='creativity']"          ).change(( e ) => { score.presentation.creativity   = $( e.target ).val(); presentation.complete( 'creativity' ); });
+			$( "input[type=radio][name='harmony']"             ).change(( e ) => { score.presentation.harmony      = $( e.target ).val(); presentation.complete( 'harmony' ); });
+			$( "input[type=radio][name='energy']"              ).change(( e ) => { score.presentation.energy       = $( e.target ).val(); presentation.complete( 'energy' ); });
+			$( "input[type=radio][name='choreography']"        ).change(( e ) => { score.presentation.choreography = $( e.target ).val(); presentation.complete( 'choreography' ); });
+
+			// ===== STANCES
+			$( '#ms-hakdari'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.hakdari   ) { score.deductions.stances.hakdari   = true; $( '#ms-hakdari'   ).addClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) - 1 }); } else { score.deductions.stances.hakdari   = false; $( '#ms-hakdari'   ).removeClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) + 1 });} });
+			$( '#ms-beomseogi' ).off( 'click' ).click(() => { if( ! score.deductions.stances.beomseogi ) { score.deductions.stances.beomseogi = true; $( '#ms-beomseogi' ).addClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) - 1 }); } else { score.deductions.stances.beomseogi = false; $( '#ms-beomseogi' ).removeClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) + 1 });} });
+			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.dwigubi   ) { score.deductions.stances.dwigubi   = true; $( '#ms-dwigubi'   ).addClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) - 1 }); } else { score.deductions.stances.dwigubi   = false; $( '#ms-dwigubi'   ).removeClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) + 1 });} });
 
 			// ===== MAJOR AND MINOR DEDUCTIONS
-			$( '.major-deductions' ).deductions({ value : 0.3 });
-			$( '.minor-deductions' ).deductions({ value : 0.1 });
+			$( '#major-deductions' ).deductions({ value : 0.3, count : 3 });
+			$( '#major-deductions' ).on( 'change', ( e, total ) => { score.deductions.major = total; });
+			$( '#minor-deductions' ).deductions({ value : 0.1 });
+			$( '#minor-deductions' ).on( 'change', ( e, total ) => { score.deductions.minor = total; });
 
 			// ===== NEXT BUTTONS
-			$( '#mft1-next' )     .off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
-			$( '#mft2-next' )     .off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
-			$( '#mft3-next' )     .off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });
-			$( '#mft4-next' )     .off( 'click' ).click(() => { $( '#mft5-tab'         ).tab( 'show' ); });
-			$( '#mft5-next' )     .off( 'click' ).click(() => { $( '#basic-tab'        ).tab( 'show' ); });
-			$( '#basic-next' )    .off( 'click' ).click(() => { $( '#controls-tab' ).tab( 'show' ); });
-			$( '#controls-next' ) .off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
-
-			$( '#creativity' )    .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
-			$( '#harmony' )       .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
-			$( '#energy' )        .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
-			$( '#choreography' )  .off( 'click' ).click(() => { $( '#review-tab' ).tab( 'show' ); });
+			$( '#mft1-next' )         .off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
+			$( '#mft2-next' )         .off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
+			$( '#mft3-next' )         .off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });
+			$( '#mft4-next' )         .off( 'click' ).click(() => { $( '#mft5-tab'         ).tab( 'show' ); });
+			$( '#mft5-next' )         .off( 'click' ).click(() => { $( '#basic-tab'        ).tab( 'show' ); });
+			$( '#basic-next' )        .off( 'click' ).click(() => { $( '#controls-tab'     ).tab( 'show' ); });
+			$( '#controls-next' )     .off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
+			$( '#presentation-next' ) .off( 'click' ).click(() => { $( '#review-tab'       ).tab( 'show' ); });
 
 			// ===== SEND BUTTON
 			$( '#total' ).off( 'click' ).click(( ev ) => {

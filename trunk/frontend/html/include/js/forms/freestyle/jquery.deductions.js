@@ -7,12 +7,12 @@ $.widget( "freescore.deductions", {
 		var html   = e.html = FreeScore.html;
 
 		o.value    = defined( o.value ) ? o.value : 0.1;
-		o.count    = 0;
+		o.count    = defined( o.count ) ? o.count : 0;
 
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
 
 		var label  = e.label  = html.div.clone() .addClass( "deduction-label" ) .html( o.value == 0.1 ? "Minor Deductions" : "Major Deductions" );
-		var view   = e.view   = html.div.clone() .addClass( "view" ) .html(( o.count * o.value ).toFixed( 1 ));
+		var view   = e.view   = html.div.clone() .addClass( "view" ) .html( '-' + ( o.count * o.value ).toFixed( 1 ));
 		var remove = e.remove = html.div.clone();
 		var add    = e.add    = html.div.clone();
 
@@ -32,7 +32,7 @@ $.widget( "freescore.deductions", {
 		var widget = this.element;
 		var o      = this.options;
 		var e      = this.options.elements;
-		e.view.html( o.count.toFixed( 1 ));
+		e.view.html( '-' + (o.count * o.value).toFixed( 1 ));
 
 		this.enable();
 	},

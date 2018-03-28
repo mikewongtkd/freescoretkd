@@ -138,11 +138,6 @@ table {
     padding-top: 4px;
     padding-left: 8px; }
 
-#start, #deductions-done {
-  margin-left: 10%;
-  margin-right: 10%;
-  width: 80%; }
-
 #tabpanels {
   position: absolute;
   top: 0;
@@ -210,17 +205,11 @@ table {
     line-height: 18pt;
     text-align: center; }
 
-.technical-component .component-label {
-  background-color: #2a9fd6; }
-
 #presentation {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%; }
-
-.presentation-component .component-label {
-  background-color: #77b300; }
 
 img.mandatory-foot-technique-icon {
   margin-top: -20px; }
@@ -304,61 +293,46 @@ img.mandatory-foot-technique-icon {
 #total .subtotal {
   color: white; }
 
-#deductions {
+.technical-scores {
   position: absolute;
-  width: calc( 100% - 30px );
-  top: 200px; }
-  #deductions .deduction-component .component-label {
-    background-color: #ba1f1f; }
-  #deductions .deduction-scores {
-    position: absolute;
-    width: 100%;
-    top: -16px; }
-    #deductions .deduction-scores #major-deduction-score {
-      left: 240px; }
-    #deductions .deduction-scores #minor-deduction-score {
-      left: 340px; }
-    #deductions .deduction-scores #mandatory-stances-score {
-      left: 340px; }
-  #deductions #stance-deductions {
-    position: absolute;
-    left: 440px;
-    top: -16px;
-    width: 200px; }
-    #deductions #stance-deductions .btn-xs {
-      font-size: 12pt;
-      margin-top: -8px;
-      padding-top: 8px;
-      padding-bottom: 8px;
-      width: 112px; }
-    #deductions #stance-deductions .mandatory-stances {
-      position: absolute;
-      top: 0;
-      font-size: 9pt;
-      width: 80px;
-      text-align: center;
-      color: #ba1f1f; }
-      #deductions #stance-deductions .mandatory-stances img {
-        height: 80px; }
-      #deductions #stance-deductions .mandatory-stances img {
-        opacity: 1.0;
-        filter: sepia(100%) brightness(10%) saturate(100000%) hue-rotate(280deg); }
-    #deductions #stance-deductions .done {
-      color: #999; }
-      #deductions #stance-deductions .done img {
-        opacity: 0.2;
-        filter: sepia(0%) saturate(100%) hue-rotate(-280deg); }
-    #deductions #stance-deductions .hakdari-seogi {
-      left: 0; }
-    #deductions #stance-deductions .beom-seogi {
-      left: 80px; }
-    #deductions #stance-deductions .dwigubi {
-      left: 160px; }
+  top: 120px; }
+  .technical-scores #mft1-score {
+    left: 0; }
+  .technical-scores #mft2-score {
+    left: 100px; }
+  .technical-scores #mft3-score {
+    left: 200px; }
+  .technical-scores #mft4-score {
+    left: 300px; }
+  .technical-scores #mft5-score {
+    left: 400px; }
+  .technical-scores #basics-score {
+    left: 500px; }
+  .technical-scores .component-label {
+    background-color: #2a9fd6; }
 
-#total {
+.presentation-scores {
   position: absolute;
-  left: 15px;
-  top: 580px;
-  width: calc( 100% - 30px ); }
+  top: 220px; }
+  .presentation-scores #creativity-score {
+    left: 0; }
+  .presentation-scores #harmony-score {
+    left: 100px; }
+  .presentation-scores #energy-score {
+    left: 200px; }
+  .presentation-scores #choreography-score {
+    left: 300px; }
+  .presentation-scores .component-label {
+    background-color: #77b300; }
+
+.deduction-scores {
+  position: absolute;
+  top: 320px; }
+  .deduction-scores #major-deduction-score {
+    left: 0; }
+  .deduction-scores #minor-deduction-score {
+    left: 100px; }
+  .deduction-scores .deduction-component .component-label {
+    background-color: #ba1f1f; }
 
 /*# sourceMappingURL=judgeController2.css.map */
