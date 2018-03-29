@@ -439,15 +439,16 @@
 		</div>
 
 		<script>
-			var score       = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
-			var performance = { timeline: [], start: false, complete: false };
-			var sound       = {};
-			var tournament  = <?= $tournament ?>;
-			var judge       = { num: parseInt( <?= $judge ?> )}; 
-			var ring        = { num: parseInt( <?= $ring ?> )}; 
-			var html        = FreeScore.html;
-			var refresh     = {};
-			var division    = undefined;
+			var score        = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
+			var performance  = { timeline: [], start: false, complete: false };
+			var sound        = {};
+			var tournament   = <?= $tournament ?>;
+			var judge        = { num: parseInt( <?= $judge ?> )}; 
+			var ring         = { num: parseInt( <?= $ring ?> )}; 
+			var html         = FreeScore.html;
+			var refresh      = {};
+			var division     = undefined;
+			var presentation = { creativity : false, harmony : false, energy : false, choreography : false };
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -456,6 +457,31 @@
 			sound.error = new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]});
 			sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]});
 			sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]});
+
+			// ============================================================
+			// BEHAVIOR
+			// ============================================================
+			$( "input[type=radio][name='jumping-side-kick']"   ).change(( e ) => { score.technical.mft1            = $( e.target ).val(); refresh.score( 'technical', 'mft1'  ); $( '#mft1-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-front-kicks']" ).change(( e ) => { score.technical.mft2            = $( e.target ).val(); refresh.score( 'technical', 'mft2'  ); $( '#mft2-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-spin-kick']"   ).change(( e ) => { score.technical.mft3            = $( e.target ).val(); refresh.score( 'technical', 'mft3'  ); $( '#mft3-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='consecutive-kicks']"   ).change(( e ) => { score.technical.mft4            = $( e.target ).val(); refresh.score( 'technical', 'mft4'  ); $( '#mft4-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='acrobatic-kicks']"     ).change(( e ) => { score.technical.mft5            = $( e.target ).val(); refresh.score( 'technical', 'mft5'  ); $( '#mft5-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='basic-movements']"     ).change(( e ) => { score.technical.basic           = $( e.target ).val(); refresh.score( 'technical', 'basic' ); $( '#basic-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='creativity']"          ).change(( e ) => { score.presentation.creativity   = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'creativity' ); });
+			$( "input[type=radio][name='harmony']"             ).change(( e ) => { score.presentation.harmony      = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'harmony' ); });
+			$( "input[type=radio][name='energy']"              ).change(( e ) => { score.presentation.energy       = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'energy' ); });
+			$( "input[type=radio][name='choreography']"        ).change(( e ) => { score.presentation.choreography = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'choreography' ); });
+
+			// ===== MAJOR AND MINOR DEDUCTIONS
+			$( '#major-deductions' ).deductions({ value : 0.3, count: 3, limit: 3 });
+			$( '#major-deductions' ).on( 'change', ( e, total ) => { score.deductions.major = total; refresh.score( 'deductions' ); });
+			$( '#minor-deductions' ).deductions({ value : 0.1 });
+			$( '#minor-deductions' ).on( 'change', ( e, total ) => { score.deductions.minor = total; refresh.score( 'deductions' ); });
+
+			// ===== STANCES
+			$( '#ms-hakdari'   ).off( 'click' ).click(() => { refresh.deductions( 'hakdari' )});
+			$( '#ms-beomseogi' ).off( 'click' ).click(() => { refresh.deductions( 'beomseogi' )});
+			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { refresh.deductions( 'dwigubi' )});
 
 			// ============================================================
 			// COMMUNICATION WITH SERVICE
@@ -497,6 +523,37 @@
 				}
 			}
 
+			// ===== REFRESH UI
+			refresh.ui = ( score ) => {
+				var tech = { mft1 : 'jumping-side-kick', mft2 : 'jumping-front-kicks', mft3 : 'jumping-spin-kicks', mft4 : 'consecutive-kicks', mft5 : 'acrobatic-kicks', basic : 'basic-movements' };
+				for( i in score.technical ) {
+					var value = score.technical[ i ];
+					var id    = "input[type=radio][name='" + tech[ i ] + "'][value='" + value + "']";
+					$( id ).click();
+				}
+				for( i in score.presentation ) {
+					var value = score.presentation[ i ];
+					var id    = "input[type=radio][name='" + i + "'][value='" + value + "']";
+					$( id ).click();
+				}
+				var missed = 3;
+				for( i in score.deductions.stances ) {
+					console.log( i, score.deductions.stances[ i ] );
+					if( ! score.deductions.stances[ i ] ) { continue; }
+					var id = '#ms-' + i;
+					$( id ).click();
+					$( id ).addClass( 'done' );
+					missed--;
+				}
+				var m = Math.round( score.deductions.major / 0.3 );
+				var n = Math.round( score.deductions.minor / 0.1 );
+				var major = $( '#major-deductions' );
+				var minor = $( '#minor-deductions' );
+
+				major.deductions({ count: m + missed, limit: missed });
+				minor.deductions({ count: n });
+			};
+
 			// ===== REFRESH DIVISION
 			refresh.division = ( division ) => {
 				var athlete = division.current.athlete();
@@ -507,7 +564,13 @@
 				$( '#controls-next' ).removeClass( 'disabled' );
 
 				// Reset the Score
-				score = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
+				if( defined( athlete.scores() )) {
+					score = (athlete.scores())[ <?= $judge ?> ];
+					refresh.ui( score );
+					setTimeout(() => { $( '#review-tab' ).tab( 'show' ); }, 150 );
+				} else {
+					score = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
+				}
 				[ 'mft1', 'mft2', 'mft3', 'mft4', 'mft5' ].forEach(( category ) => { refresh.score( 'technical', category ); });
 				var major = $( '#major-deductions' );
 				major.deductions({ count: 3 });
@@ -528,7 +591,6 @@
 			};
 
 			// ===== SCORING RADIO BUTTONS
-			var presentation = { creativity : false, harmony : false, energy : false, choreography : false };
 			presentation.complete = ( category ) => {
 				presentation[ category ] = true;
 				var complete = true;
@@ -537,24 +599,8 @@
 				});
 				if( complete ) { $( '#presentation-next' ).removeClass( 'disabled' ); }
 			};
-			$( "input[type=radio][name='jumping-side-kick']"   ).change(( e ) => { score.technical.mft1            = $( e.target ).val(); refresh.score( 'technical', 'mft1'  ); $( '#mft1-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='jumping-front-kicks']" ).change(( e ) => { score.technical.mft2            = $( e.target ).val(); refresh.score( 'technical', 'mft2'  ); $( '#mft2-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='jumping-spin-kick']"   ).change(( e ) => { score.technical.mft3            = $( e.target ).val(); refresh.score( 'technical', 'mft3'  ); $( '#mft3-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='consecutive-kicks']"   ).change(( e ) => { score.technical.mft4            = $( e.target ).val(); refresh.score( 'technical', 'mft4'  ); $( '#mft4-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='acrobatic-kicks']"     ).change(( e ) => { score.technical.mft5            = $( e.target ).val(); refresh.score( 'technical', 'mft5'  ); $( '#mft5-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='basic-movements']"     ).change(( e ) => { score.technical.basic           = $( e.target ).val(); refresh.score( 'technical', 'basic' ); $( '#basic-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='creativity']"          ).change(( e ) => { score.presentation.creativity   = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'creativity' ); });
-			$( "input[type=radio][name='harmony']"             ).change(( e ) => { score.presentation.harmony      = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'harmony' ); });
-			$( "input[type=radio][name='energy']"              ).change(( e ) => { score.presentation.energy       = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'energy' ); });
-			$( "input[type=radio][name='choreography']"        ).change(( e ) => { score.presentation.choreography = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'choreography' ); });
 
-			// ===== MAJOR AND MINOR DEDUCTIONS
-			$( '#major-deductions' ).deductions({ value : 0.3, count: 3, limit: 3 });
-			$( '#major-deductions' ).on( 'change', ( e, total ) => { score.deductions.major = total; refresh.score( 'deductions' ); });
-			$( '#minor-deductions' ).deductions({ value : 0.1 });
-			$( '#minor-deductions' ).on( 'change', ( e, total ) => { score.deductions.minor = total; refresh.score( 'deductions' ); });
-
-			// ===== STANCES
+			// ===== REFRESH DEDUCTIONS AND STANCES
 			refresh.deductions = ( category ) => {
 				var major  = $( '#major-deductions' );
 				var n      = major.deductions( 'count' );
@@ -573,9 +619,6 @@
 				score.deductions.major = major.deductions( 'total' ); 
 				refresh.score( 'deductions' ); 
 			};
-			$( '#ms-hakdari'   ).off( 'click' ).click(() => { refresh.deductions( 'hakdari' )});
-			$( '#ms-beomseogi' ).off( 'click' ).click(() => { refresh.deductions( 'beomseogi' )});
-			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { refresh.deductions( 'dwigubi' )});
 
 			// ===== NEXT BUTTONS
 			refresh.score = ( group, category ) => {
