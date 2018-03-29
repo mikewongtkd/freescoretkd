@@ -91,7 +91,7 @@ table {
 	position: absolute;
 	top: 0;
 	left: $menu-width + 20;
-	width: 740px;
+	width: 700px;
 	h1 {
 		font-size: 32pt;
 	}
@@ -112,12 +112,12 @@ table {
 		border-radius: 8px;
 		border: solid gold 4px;
 		padding: 8px;
-		width: 290px;
+		width: 250px;
 		height: 120px;
 		text-align: center;
 		.division { color: gold; }
 		.name     { color: white; font-size: 24pt; }
-		.progress { color: #999; font-size: 12pt; background: transparent; }
+		.progress { color: #999; background: transparent; }
 		overflow: hidden;
 	}
 }
@@ -152,7 +152,7 @@ img.mandatory-foot-technique-icon {
 	position: absolute;
 	top: 380px;
 	left: 210px;
-	width: 290px;
+	width: 250px;
 	font-size: 24pt;
 	padding-top: 2px;
 	padding-bottom: 0;

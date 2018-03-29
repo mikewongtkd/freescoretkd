@@ -148,7 +148,7 @@ table {
   position: absolute;
   top: 0;
   left: 200px;
-  width: 740px; }
+  width: 700px; }
   #tabpanels h1 {
     font-size: 32pt; }
   #tabpanels p {
@@ -166,7 +166,7 @@ table {
     border-radius: 8px;
     border: solid gold 4px;
     padding: 8px;
-    width: 290px;
+    width: 250px;
     height: 120px;
     text-align: center;
     overflow: hidden; }
@@ -177,7 +177,6 @@ table {
       font-size: 24pt; }
     #tabpanels .athlete .progress {
       color: #999;
-      font-size: 12pt;
       background: transparent; }
 
 #presentation {
@@ -209,7 +208,7 @@ img.mandatory-foot-technique-icon {
   position: absolute;
   top: 380px;
   left: 210px;
-  width: 290px;
+  width: 250px;
   font-size: 24pt;
   padding-top: 2px;
   padding-bottom: 0; }

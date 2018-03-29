@@ -509,7 +509,7 @@
 				$( '.athlete' ).empty().append( 
 					html.div.clone().addClass( 'division' ).append( division.summary()),
 					html.div.clone().addClass( 'name'     ).append( athlete.display.name()),
-					html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' Athletes in the ' + division.current.round() + ' Round' )
+					html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' in the ' + division.current.round() + ' Round' )
 				);
 
 				// Start with Jumping Side Kick
