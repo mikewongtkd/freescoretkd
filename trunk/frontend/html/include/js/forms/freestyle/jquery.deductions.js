@@ -44,6 +44,12 @@ $.widget( "freescore.deductions", {
 		var o = this.option;
 		return parseFloat( o.value );
 	},
+	total: function() {
+		var o = this.option;
+		if( ! defined( o.count ) || ! defined( o.value )) { return 0; }
+		console.log( 'TOTAL', o.count, o.value );
+		return parseFloat( o.count * o.value );
+	},
 	disable: function() {
 		var w = this.element;
 		var o = this.options;

@@ -171,17 +171,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="consecutive-kicks" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="consecutive-kicks">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="consecutive-kicks">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="consecutive-kicks">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="consecutive-kicks">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="consecutive-kicks">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="consecutive-kicks">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="consecutive-kicks">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="consecutive-kicks">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="consecutive-kicks">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="consecutive-kicks">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="consecutive-kicks">1.0</label>
+									<label class="btn btn-danger" ><input type="radio" name="consecutive-kicks" value="0.0">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="consecutive-kicks" value="0.1">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="consecutive-kicks" value="0.2">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="consecutive-kicks" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="consecutive-kicks" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="consecutive-kicks" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="consecutive-kicks" value="0.6">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="consecutive-kicks" value="0.7">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="consecutive-kicks" value="0.8">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="consecutive-kicks" value="0.9">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="consecutive-kicks" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
@@ -207,17 +207,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="acrobatic-kicks" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="acrobatic-kicks">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="acrobatic-kicks">1.0</label>
+									<label class="btn btn-danger" ><input type="radio" name="acrobatic-kicks" value="0.0">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks" value="0.1">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks" value="0.2">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="acrobatic-kicks" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="acrobatic-kicks" value="0.6">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks" value="0.7">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks" value="0.8">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="acrobatic-kicks" value="0.9">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="acrobatic-kicks" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
@@ -245,17 +245,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="basic-movements" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-danger" ><input type="radio" name="basic-movements">0.0</label>
-									<label class="btn btn-warning"><input type="radio" name="basic-movements">0.1</label>
-									<label class="btn btn-warning"><input type="radio" name="basic-movements">0.2</label>
-									<label class="btn btn-warning"><input type="radio" name="basic-movements">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="basic-movements">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="basic-movements">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="basic-movements">0.6</label>
-									<label class="btn btn-primary"><input type="radio" name="basic-movements">0.7</label>
-									<label class="btn btn-primary"><input type="radio" name="basic-movements">0.8</label>
-									<label class="btn btn-primary"><input type="radio" name="basic-movements">0.9</label>
-									<label class="btn btn-info"   ><input type="radio" name="basic-movements">1.0</label>
+									<label class="btn btn-danger" ><input type="radio" name="basic-movements" value="0.0">0.0</label>
+									<label class="btn btn-warning"><input type="radio" name="basic-movements" value="0.1">0.1</label>
+									<label class="btn btn-warning"><input type="radio" name="basic-movements" value="0.2">0.2</label>
+									<label class="btn btn-warning"><input type="radio" name="basic-movements" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="basic-movements" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="basic-movements" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="basic-movements" value="0.6">0.6</label>
+									<label class="btn btn-primary"><input type="radio" name="basic-movements" value="0.7">0.7</label>
+									<label class="btn btn-primary"><input type="radio" name="basic-movements" value="0.8">0.8</label>
+									<label class="btn btn-primary"><input type="radio" name="basic-movements" value="0.9">0.9</label>
+									<label class="btn btn-info"   ><input type="radio" name="basic-movements" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
@@ -285,17 +285,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="creativity" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-success"><input type="radio" name="creativity">0.0</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.1</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.2</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.6</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.7</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.8</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">0.9</label>
-									<label class="btn btn-success"><input type="radio" name="creativity">1.0</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.0">0.0</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.1">0.1</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.2">0.2</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.6">0.6</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.7">0.7</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.8">0.8</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="0.9">0.9</label>
+									<label class="btn btn-success"><input type="radio" name="creativity" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr><tr>
@@ -303,17 +303,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="harmony" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-success"><input type="radio" name="harmony">0.0</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.1</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.2</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.6</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.7</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.8</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">0.9</label>
-									<label class="btn btn-success"><input type="radio" name="harmony">1.0</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.0">0.0</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.1">0.1</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.2">0.2</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.6">0.6</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.7">0.7</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.8">0.8</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="0.9">0.9</label>
+									<label class="btn btn-success"><input type="radio" name="harmony" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr><tr>
@@ -321,17 +321,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="energy" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-success"><input type="radio" name="energy">0.0</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.1</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.2</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.6</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.7</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.8</label>
-									<label class="btn btn-success"><input type="radio" name="energy">0.9</label>
-									<label class="btn btn-success"><input type="radio" name="energy">1.0</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.0">0.0</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.1">0.1</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.2">0.2</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.6">0.6</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.7">0.7</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.8">0.8</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="0.9">0.9</label>
+									<label class="btn btn-success"><input type="radio" name="energy" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr><tr>
@@ -339,17 +339,17 @@
 						</tr><tr>
 							<td class="button-group">
 								<div id="choreography" class="btn-group" data-toggle="buttons">
-									<label class="btn btn-success"><input type="radio" name="choreography">0.0</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.1</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.2</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.3</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.4</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.5</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.6</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.7</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.8</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">0.9</label>
-									<label class="btn btn-success"><input type="radio" name="choreography">1.0</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.0">0.0</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.1">0.1</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.2">0.2</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.3">0.3</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.4">0.4</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.5">0.5</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.6">0.6</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.7">0.7</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.8">0.8</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="0.9">0.9</label>
+									<label class="btn btn-success"><input type="radio" name="choreography" value="1.0">1.0</label>
 								</div>
 							</td>
 						</tr>
@@ -386,7 +386,7 @@
 							<div class="component-score">0.0</div>
 						</div>
 
-						<div class="technical-component" id="basics-score">
+						<div class="technical-component" id="basic-score">
 							<div class="component-label">Basic movements</div>
 							<div class="component-score">0.0</div>
 						</div>
@@ -415,22 +415,31 @@
 					</div>
 
 					<div class="deduction-scores">
-						<div class="deduction-component" id="major-deduction-score">
+						<div class="deduction-component" id="major-score">
 							<div class="component-label">Major deductions</div>
 							<div class="component-score">0.0</div>
 						</div>
 
-						<div class="deduction-component" id="minor-deduction-score">
+						<div class="deduction-component" id="minor-score">
 							<div class="component-label">Minor deductions</div>
 							<div class="component-score">0.0</div>
 						</div>
 					</div>
+
+					<div class="total-scores">
+						<div class="total-component" id="total-score">
+							<div class="component-label"><div class="athlete-name"></div><div class="score-label">Total Score</div></div>
+							<div class="component-score">0.0</div>
+						</div>
+					</div>
+
+					<a id="send" class="btn btn-success">Send</a>
 				</div>
 			</div>
 		</div>
 
 		<script>
-			var score       = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.0 }};
+			var score       = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
 			var performance = { timeline: [], start: false, complete: false };
 			var sound       = {};
 			var tournament  = <?= $tournament ?>;
@@ -438,7 +447,6 @@
 			var ring        = { num: parseInt( <?= $ring ?> )}; 
 			var html        = FreeScore.html;
 			var refresh     = {};
-			console.log( judge, ring, "<?= $_GET[ 'ring' ] . ' ' . $_GET[ 'judge' ] ?>" );
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -481,49 +489,100 @@
 			// ===== REFRESH DIVISION
 			refresh.division = ( division ) => {
 				var athlete = division.current.athlete();
-				$( 'input[type=radio]' ).prop( 'checked', false );
+
+				// Reset the UI
+				$( '.btn-group' ).find( 'label' ).removeClass( 'active' ).end().find( "[type='radio']" ).prop( 'checked', false );
+				$( '.next-button' ).addClass( 'disabled' );
+
+				// Reset the Score
+				score = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
+				[ 'mft1', 'mft2', 'mft3', 'mft4', 'mft5' ].forEach(( category ) => { refresh.score( 'technical', category ); });
+				var major = $( '#major-deductions' );
+				major.deductions({ count: 3 });
+				$( '.mandatory-stances' ).removeClass( 'done' );
+				refresh.score( 'deductions' );
+				refresh.score( 'presentation' );
+
+				// Reset the athlete ID
 				$( '.athlete-name' ).html( ordinal( division.current.athleteId() + 1) + ' athlete ' + athlete.display.name() );
 				$( '.athlete' ).empty().append( 
 					html.div.clone().addClass( 'division' ).append( division.summary()),
 					html.div.clone().addClass( 'name'     ).append( athlete.display.name()),
 					html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' Athletes in the ' + division.current.round() + ' Round' )
 				);
+
+				// Start with Jumping Side Kick
+				$( '#mft1-tab' ).tab( 'show' );
 			};
 
 			// ===== SCORING RADIO BUTTONS
 			var presentation = { creativity : false, harmony : false, energy : false, choreography : false };
 			presentation.complete = ( category ) => {
-				console.log( category );
 				presentation[ category ] = true;
 				var complete = true;
 				[ 'creativity', 'harmony', 'energy', 'choreography' ].forEach(( c ) => {
-					if( ! presentation[ c ] ) { console.log( presentation ); complete = false; return; }
+					if( ! presentation[ c ] ) { complete = false; return; }
 				});
 				if( complete ) { $( '#presentation-next' ).removeClass( 'disabled' ); }
 			};
-			$( "input[type=radio][name='jumping-side-kick']"   ).change(( e ) => { score.technical.mft1            = $( e.target ).val(); $( '#mft1-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='jumping-front-kicks']" ).change(( e ) => { score.technical.mft2            = $( e.target ).val(); $( '#mft2-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='jumping-spin-kick']"   ).change(( e ) => { score.technical.mft3            = $( e.target ).val(); $( '#mft3-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='consecutive-kicks']"   ).change(( e ) => { score.technical.mft4            = $( e.target ).val(); $( '#mft4-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='acrobatic-kicks']"     ).change(( e ) => { score.technical.mft5            = $( e.target ).val(); $( '#mft5-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='basic-movements']"     ).change(( e ) => { score.technical.basic           = $( e.target ).val(); $( '#basic-next' ).removeClass( 'disabled' ); });
-			$( "input[type=radio][name='creativity']"          ).change(( e ) => { score.presentation.creativity   = $( e.target ).val(); presentation.complete( 'creativity' ); });
-			$( "input[type=radio][name='harmony']"             ).change(( e ) => { score.presentation.harmony      = $( e.target ).val(); presentation.complete( 'harmony' ); });
-			$( "input[type=radio][name='energy']"              ).change(( e ) => { score.presentation.energy       = $( e.target ).val(); presentation.complete( 'energy' ); });
-			$( "input[type=radio][name='choreography']"        ).change(( e ) => { score.presentation.choreography = $( e.target ).val(); presentation.complete( 'choreography' ); });
-
-			// ===== STANCES
-			$( '#ms-hakdari'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.hakdari   ) { score.deductions.stances.hakdari   = true; $( '#ms-hakdari'   ).addClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) - 1 }); } else { score.deductions.stances.hakdari   = false; $( '#ms-hakdari'   ).removeClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) + 1 });} });
-			$( '#ms-beomseogi' ).off( 'click' ).click(() => { if( ! score.deductions.stances.beomseogi ) { score.deductions.stances.beomseogi = true; $( '#ms-beomseogi' ).addClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) - 1 }); } else { score.deductions.stances.beomseogi = false; $( '#ms-beomseogi' ).removeClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) + 1 });} });
-			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.dwigubi   ) { score.deductions.stances.dwigubi   = true; $( '#ms-dwigubi'   ).addClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) - 1 }); } else { score.deductions.stances.dwigubi   = false; $( '#ms-dwigubi'   ).removeClass( 'done' ); $( '#major-deductions' ).deductions({ count: $( '#major-deductions' ).deductions( 'count' ) + 1 });} });
+			$( "input[type=radio][name='jumping-side-kick']"   ).change(( e ) => { score.technical.mft1            = $( e.target ).val(); refresh.score( 'technical', 'mft1'  ); $( '#mft1-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-front-kicks']" ).change(( e ) => { score.technical.mft2            = $( e.target ).val(); refresh.score( 'technical', 'mft2'  ); $( '#mft2-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='jumping-spin-kick']"   ).change(( e ) => { score.technical.mft3            = $( e.target ).val(); refresh.score( 'technical', 'mft3'  ); $( '#mft3-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='consecutive-kicks']"   ).change(( e ) => { score.technical.mft4            = $( e.target ).val(); refresh.score( 'technical', 'mft4'  ); $( '#mft4-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='acrobatic-kicks']"     ).change(( e ) => { score.technical.mft5            = $( e.target ).val(); refresh.score( 'technical', 'mft5'  ); $( '#mft5-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='basic-movements']"     ).change(( e ) => { score.technical.basic           = $( e.target ).val(); refresh.score( 'technical', 'basic' ); $( '#basic-next' ).removeClass( 'disabled' ); });
+			$( "input[type=radio][name='creativity']"          ).change(( e ) => { score.presentation.creativity   = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'creativity' ); });
+			$( "input[type=radio][name='harmony']"             ).change(( e ) => { score.presentation.harmony      = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'harmony' ); });
+			$( "input[type=radio][name='energy']"              ).change(( e ) => { score.presentation.energy       = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'energy' ); });
+			$( "input[type=radio][name='choreography']"        ).change(( e ) => { score.presentation.choreography = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'choreography' ); });
 
 			// ===== MAJOR AND MINOR DEDUCTIONS
 			$( '#major-deductions' ).deductions({ value : 0.3, count : 3 });
-			$( '#major-deductions' ).on( 'change', ( e, total ) => { score.deductions.major = total; });
+			$( '#major-deductions' ).on( 'change', ( e, total ) => { score.deductions.major = total; refresh.score( 'deductions' ); });
 			$( '#minor-deductions' ).deductions({ value : 0.1 });
-			$( '#minor-deductions' ).on( 'change', ( e, total ) => { score.deductions.minor = total; });
+			$( '#minor-deductions' ).on( 'change', ( e, total ) => { score.deductions.minor = total; refresh.score( 'deductions' ); });
+
+			// ===== STANCES
+			var major = $( '#major-deductions' );
+			$( '#ms-hakdari'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.hakdari   ) { score.deductions.stances.hakdari   = true; $( '#ms-hakdari'   ).addClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) - 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); } else { score.deductions.stances.hakdari   = false; $( '#ms-hakdari'   ).removeClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) + 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); }});
+			$( '#ms-beomseogi' ).off( 'click' ).click(() => { if( ! score.deductions.stances.beomseogi ) { score.deductions.stances.beomseogi = true; $( '#ms-beomseogi' ).addClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) - 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); } else { score.deductions.stances.beomseogi = false; $( '#ms-beomseogi' ).removeClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) + 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); }});
+			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.dwigubi   ) { score.deductions.stances.dwigubi   = true; $( '#ms-dwigubi'   ).addClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) - 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); } else { score.deductions.stances.dwigubi   = false; $( '#ms-dwigubi'   ).removeClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) + 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); }});
+			console.log( major.deductions( 'total' ))
 
 			// ===== NEXT BUTTONS
+			refresh.score = ( group, category ) => {
+				if( group == 'technical' ) {
+					var value = parseFloat( score[ group ][ category ] );
+					var id    = '#' + category + '-score';
+					var view  = $( id + ' .component-score' );
+					view.html( value.toFixed( 1 ));
+
+				} else if( group == 'deductions' ) {
+					[ 'major', 'minor' ].forEach(( category ) => {
+						var value = parseFloat( score[ group ][ category ] );
+						var id    = '#' + category + '-score';
+						var view  = $( id + ' .component-score' );
+						view.html( '-' + value.toFixed( 1 ));
+					});
+
+				} else if( group =='presentation' ) {
+					[ 'creativity', 'harmony', 'energy', 'choreography' ].forEach(( category ) => {
+						var value = parseFloat( score[ group ][ category ] );
+						var id    = '#' + category + '-score';
+						var view  = $( id + ' .component-score' );
+						view.html( value.toFixed( 1 ));
+					});
+
+				} else {
+					return;
+				}
+				var technical    = 0.0; for( i in score.technical    ) { technical    += parseFloat( score.technical[ i ]); }
+				var presentation = 0.0; for( i in score.presentation ) { presentation += parseFloat( score.presentation[ i ]); }
+				var deductions   = parseFloat( score.deductions.major ) + parseFloat( score.deductions.minor );
+				var total        = technical + presentation - deductions;
+				$( '#total-score .component-score' ).html( total.toFixed( 1 ));
+			};
+			refresh.score( 'deductions' );
 			$( '#mft1-next' )         .off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
 			$( '#mft2-next' )         .off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
 			$( '#mft3-next' )         .off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });

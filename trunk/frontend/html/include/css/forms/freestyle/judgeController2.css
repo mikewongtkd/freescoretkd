@@ -174,37 +174,6 @@ table {
       font-size: 12pt;
       background: transparent; }
 
-.technical-component, .presentation-component, .deduction-component {
-  position: absolute;
-  height: 88px;
-  width: 88px;
-  border-radius: 12px;
-  border: 4px solid #999; }
-  .technical-component .component-label, .presentation-component .component-label, .deduction-component .component-label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 40px;
-    width: 80px;
-    padding: 4px 8px 4px 8px;
-    border-radius: 8px 8px 0 0;
-    color: white;
-    font-size: 9pt;
-    text-align: center; }
-  .technical-component .component-score, .presentation-component .component-score, .deduction-component .component-score {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    height: 40px;
-    width: 80px;
-    padding: 8px;
-    border-radius: 0 0 8px 8px;
-    background-color: #666;
-    color: #ccc;
-    font-size: 32pt;
-    line-height: 18pt;
-    text-align: center; }
-
 #presentation {
   position: absolute;
   top: 0;
@@ -293,6 +262,37 @@ img.mandatory-foot-technique-icon {
 #total .subtotal {
   color: white; }
 
+.technical-component, .presentation-component, .deduction-component, .total-component {
+  position: absolute;
+  height: 88px;
+  width: 88px;
+  border-radius: 12px;
+  border: 4px solid #999; }
+  .technical-component .component-label, .presentation-component .component-label, .deduction-component .component-label, .total-component .component-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 40px;
+    width: 80px;
+    padding: 4px 8px 4px 8px;
+    border-radius: 8px 8px 0 0;
+    color: white;
+    font-size: 9pt;
+    text-align: center; }
+  .technical-component .component-score, .presentation-component .component-score, .deduction-component .component-score, .total-component .component-score {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    height: 40px;
+    width: 80px;
+    padding: 8px;
+    border-radius: 0 0 8px 8px;
+    background-color: #666;
+    color: #ccc;
+    font-size: 32pt;
+    line-height: 18pt;
+    text-align: center; }
+
 .technical-scores {
   position: absolute;
   top: 120px; }
@@ -306,7 +306,7 @@ img.mandatory-foot-technique-icon {
     left: 300px; }
   .technical-scores #mft5-score {
     left: 400px; }
-  .technical-scores #basics-score {
+  .technical-scores #basic-score {
     left: 500px; }
   .technical-scores .component-label {
     background-color: #2a9fd6; }
@@ -328,11 +328,49 @@ img.mandatory-foot-technique-icon {
 .deduction-scores {
   position: absolute;
   top: 320px; }
-  .deduction-scores #major-deduction-score {
+  .deduction-scores #major-score {
     left: 0; }
-  .deduction-scores #minor-deduction-score {
+  .deduction-scores #minor-score {
     left: 100px; }
   .deduction-scores .deduction-component .component-label {
     background-color: #ba1f1f; }
+  .deduction-scores .deduction-component .component-score {
+    font-size: 28pt; }
+
+.total-scores {
+  position: absolute;
+  top: 220px; }
+  .total-scores #total-score {
+    left: 400px; }
+  .total-scores .total-component {
+    height: 128px;
+    width: 188px; }
+    .total-scores .total-component .component-label {
+      width: 180px;
+      height: 60px;
+      background-color: black; }
+      .total-scores .total-component .component-label .score-label {
+        color: #f0ad4e;
+        font-size: 18pt; }
+      .total-scores .total-component .component-label .athlete-name {
+        color: white;
+        font-size: 9pt; }
+    .total-scores .total-component .component-score {
+      top: 60px;
+      width: 180px;
+      height: 60px;
+      font-size: 48pt;
+      line-height: 32pt;
+      background-color: #333;
+      color: lime; }
+
+#send {
+  position: absolute;
+  top: 380px;
+  left: 220px;
+  width: 310px;
+  font-size: 24pt;
+  padding-top: 2px;
+  padding-bottom: 0; }
 
 /*# sourceMappingURL=judgeController2.css.map */
