@@ -493,6 +493,7 @@
 				// Reset the UI
 				$( '.btn-group' ).find( 'label' ).removeClass( 'active' ).end().find( "[type='radio']" ).prop( 'checked', false );
 				$( '.next-button' ).addClass( 'disabled' );
+				$( '#controls-next' ).removeClass( 'disabled' );
 
 				// Reset the Score
 				score = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
