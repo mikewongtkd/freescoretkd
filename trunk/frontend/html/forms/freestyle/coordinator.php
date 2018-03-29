@@ -79,7 +79,7 @@
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
-									<a class="list-group-item" id="penalty-bounds"><span class="glyphicon glyphicon-log-out"></span>Out-of-bounds</a>
+									<a class="list-group-item" id="penalty-time"><span class="glyphicon glyphicon-time"></span>Over/Under Time</a>
 									<a class="list-group-item" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
 									<a class="list-group-item" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
 									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
@@ -235,7 +235,7 @@
 					var divid   = division.name();
 					var action = {
 						penalty : {
-							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
+							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); }, // MW ADD TIMER
 							restart    : () => { sound.next.play(); athlete.penalty.restart();    action.penalty.send(); alertify.warning( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
 							misconduct : () => { sound.next.play(); athlete.penalty.misconduct(); action.penalty.send(); alertify.warning( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
 							clear      : () => { sound.prev.play(); athlete.penalty.clear();      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
@@ -264,7 +264,7 @@
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
-							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
+							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=<?= $ring?>', '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring.num < 10 ? '0' + ring.num : ring.num) + '/div.' + divid + '.txt', '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
 						}

@@ -66,7 +66,7 @@ $.widget( "freescore.deductions", {
 		return parseInt( o.count );
 	},
 	value: function() {
-		var o = this.option;
+		var o = this.options;
 		return parseFloat( o.value );
 	}
 });

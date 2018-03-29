@@ -96,13 +96,13 @@ body {
   position: absolute;
   left: 50%;
   width: 200px;
-  margin-left: -160px; }
+  margin-left: -120px; }
   #stances .btn-xs {
     font-size: 12pt;
     margin-top: -8px;
     padding-top: 8px;
     padding-bottom: 8px;
-    width: 112px; }
+    width: 80px; }
   #stances .mandatory-stances {
     position: absolute;
     top: 0;
@@ -120,9 +120,9 @@ body {
   #stances .hakdari-seogi {
     left: 0; }
   #stances .beom-seogi {
-    left: 112px; }
+    left: 80px; }
   #stances .dwigubi {
-    left: 224px; }
+    left: 160px; }
 
 table {
   position: absolute;
@@ -372,8 +372,8 @@ img.mandatory-foot-technique-icon {
 #send {
   position: absolute;
   top: 380px;
-  left: 220px;
-  width: 310px;
+  left: 210px;
+  width: 250px;
   font-size: 24pt;
   padding-top: 2px;
   padding-bottom: 0; }

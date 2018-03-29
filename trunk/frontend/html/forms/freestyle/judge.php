@@ -359,7 +359,7 @@
 
 				<div id="review" role="tabpanel" class="tab-pane fade">
 					<h1>Review &amp; Send</h1>
-					<p>Review your score. Choose from the menu on the left to make changes.</p>
+					<p>Review your score and touch <b>Send</b> when ready.</p>
 					<div class="technical-scores">
 						<div class="technical-component" id="mft1-score">
 							<div class="component-label">Jumping side kick</div>
@@ -447,6 +447,7 @@
 			var ring        = { num: parseInt( <?= $ring ?> )}; 
 			var html        = FreeScore.html;
 			var refresh     = {};
+			var division    = undefined;
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -477,12 +478,22 @@
 					sound.ok.play();
 					alertify.success( "Score has been sent and received." );
 				}
-				var division = new Division( update.division );
-				var athlete  = division.current.athlete(); 
-				if( athlete.name() != previous.athlete.name ) {
-					alertify.success( 'Ready to score for ' + athlete.display.name() );
-					refresh.division( division );
-					previous.athlete.name = athlete.name();
+				division = new Division( update.division );
+				if( ! defined( division )) { return; }
+
+				if( update.action == 'update' && update.type == 'division' ) {
+					if( defined( update.request )) {
+						if( update.request.action == 'score' ) {
+							alertify.success( 'Score for ' + previous.athlete.name + ' received.' );
+							sound.ok.play();
+						}
+					}
+					var athlete  = division.current.athlete(); 
+					if( athlete.name() != previous.athlete.name ) {
+						alertify.success( 'Ready to score for ' + athlete.display.name() );
+						refresh.division( division );
+						previous.athlete.name = athlete.name();
+					}
 				}
 			}
 
@@ -538,17 +549,33 @@
 			$( "input[type=radio][name='choreography']"        ).change(( e ) => { score.presentation.choreography = $( e.target ).val(); refresh.score( 'presentation'       ); presentation.complete( 'choreography' ); });
 
 			// ===== MAJOR AND MINOR DEDUCTIONS
-			$( '#major-deductions' ).deductions({ value : 0.3, count : 3 });
+			$( '#major-deductions' ).deductions({ value : 0.3, count: 3, limit: 3 });
 			$( '#major-deductions' ).on( 'change', ( e, total ) => { score.deductions.major = total; refresh.score( 'deductions' ); });
 			$( '#minor-deductions' ).deductions({ value : 0.1 });
 			$( '#minor-deductions' ).on( 'change', ( e, total ) => { score.deductions.minor = total; refresh.score( 'deductions' ); });
 
 			// ===== STANCES
-			var major = $( '#major-deductions' );
-			$( '#ms-hakdari'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.hakdari   ) { score.deductions.stances.hakdari   = true; $( '#ms-hakdari'   ).addClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) - 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); } else { score.deductions.stances.hakdari   = false; $( '#ms-hakdari'   ).removeClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) + 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); }});
-			$( '#ms-beomseogi' ).off( 'click' ).click(() => { if( ! score.deductions.stances.beomseogi ) { score.deductions.stances.beomseogi = true; $( '#ms-beomseogi' ).addClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) - 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); } else { score.deductions.stances.beomseogi = false; $( '#ms-beomseogi' ).removeClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) + 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); }});
-			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { if( ! score.deductions.stances.dwigubi   ) { score.deductions.stances.dwigubi   = true; $( '#ms-dwigubi'   ).addClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) - 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); } else { score.deductions.stances.dwigubi   = false; $( '#ms-dwigubi'   ).removeClass( 'done' ); major.deductions({ count: major.deductions( 'count' ) + 1 }); score.deductions.major = major.deductions( 'total' ); refresh.score( 'deductions' ); }});
-			console.log( major.deductions( 'total' ))
+			refresh.deductions = ( category ) => {
+				var major  = $( '#major-deductions' );
+				var n      = major.deductions( 'count' );
+				if( ! score.deductions.stances[ category ]   ) { 
+					score.deductions.stances[ category ] = true; 
+					$( '#ms-' + category  ).addClass( 'done' ); 
+					n--;
+
+				} else { 
+					score.deductions.stances[ category ] = false; 
+					$( '#ms-' + category  ).removeClass( 'done' ); 
+					n++;
+				} 
+				var missing = [ 'hakdari', 'beomseogi', 'dwigubi' ].reduce(( acc, stance ) => { if( score.deductions.stances[ stance ] ) { return acc - 1; } else { return acc; }}, 3);
+				major.deductions({ count: n, limit: missing }); 
+				score.deductions.major = major.deductions( 'total' ); 
+				refresh.score( 'deductions' ); 
+			};
+			$( '#ms-hakdari'   ).off( 'click' ).click(() => { refresh.deductions( 'hakdari' )});
+			$( '#ms-beomseogi' ).off( 'click' ).click(() => { refresh.deductions( 'beomseogi' )});
+			$( '#ms-dwigubi'   ).off( 'click' ).click(() => { refresh.deductions( 'dwigubi' )});
 
 			// ===== NEXT BUTTONS
 			refresh.score = ( group, category ) => {
@@ -593,19 +620,26 @@
 			$( '#controls-next' )     .off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
 			$( '#presentation-next' ) .off( 'click' ).click(() => { $( '#review-tab'       ).tab( 'show' ); });
 
+			// ===== REVIEW BUTTONS
+			$( '#mft1-score' )          .off( 'click' ).click(() => { $( '#mft1-tab'         ).tab( 'show' ); });
+			$( '#mft2-score' )          .off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
+			$( '#mft3-score' )          .off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
+			$( '#mft4-score' )          .off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });
+			$( '#mft5-score' )          .off( 'click' ).click(() => { $( '#mft5-tab'         ).tab( 'show' ); });
+			$( '#basic-score' )         .off( 'click' ).click(() => { $( '#basic-tab'        ).tab( 'show' ); });
+			$( '.presentation-scores' ) .off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
+			$( '.deduction-scores' )    .off( 'click' ).click(() => { $( '#controls-tab'     ).tab( 'show' ); });
+
 			// ===== SEND BUTTON
-			$( '#total' ).off( 'click' ).click(( ev ) => {
-				var clicked = $( ev.target );
-				if( ! clicked.is( '#total .alert' )) { clicked = clicked.parents( '#total' ).find( '.alert' ); }
-				if( clicked.attr( 'sending' )) {
-				} else {
-					var request  = { data : { type : 'division', action : 'score', judge: judge.num, score: score, timeline: performance.timeline }};
-					request.json = JSON.stringify( request.data );
-					ws.send( request.json );
-					clicked .attr({ sending: true }) .animate({ 'background-color' : '#888', 'border-color' : '#999' }, 400, 'swing', () => {
-						clicked .removeAttr( 'sending' ) .animate({ 'background-color' : '#77b300', 'border-color' : '#809a00' }, 400 )
-					});
-				}
+			$( '#send' ).off( 'click' ).click(( ev ) => {
+				var athlete = division.current.athlete();
+				sound.next.play();
+				alertify.notify( 'Score for ' + athlete.display.name() + ' sent.' );
+				var request  = { data : { type : 'division', action : 'score', judge: judge.num, score: score }};
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+				$( '#send' ).addClass( 'disabled' );
+				setTimeout( () => { $( '#send' ).removeClass( 'disabled' ) }, 1500 );
 			});
 
 		</script>

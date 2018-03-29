@@ -7,7 +7,8 @@ $.widget( "freescore.deductions", {
 		var html   = e.html = FreeScore.html;
 
 		o.value    = defined( o.value ) ? o.value : 0.1;
-		o.count    = defined( o.count ) ? o.count : 0;
+		o.count    = defined( o.count ) ? ((o.count < 3 ) ? 3 : o.count ) : 0;
+		o.limit    = defined( o.limit ) ? o.limit : 0;
 
 		if( o.value != 0.1 && o.value != 0.3 ) { throw new Error( "FreeScore jQuery Deductions widget has an invalid value of " + o.value + " instead of 0.1 or 0.3" ); }
 
@@ -41,13 +42,12 @@ $.widget( "freescore.deductions", {
 		return parseInt( o.count );
 	},
 	value: function() {
-		var o = this.option;
-		return parseFloat( o.value );
+		var o = this.options;
+		return o.value;
 	},
 	total: function() {
-		var o = this.option;
+		var o = this.options;
 		if( ! defined( o.count ) || ! defined( o.value )) { return 0; }
-		console.log( 'TOTAL', o.count, o.value );
 		return parseFloat( o.count * o.value );
 	},
 	disable: function() {
@@ -66,7 +66,8 @@ $.widget( "freescore.deductions", {
 		widget.css({ opacity: 1.0 });
 		e.remove.off( 'tap' ).on( 'tap', function() {
 			e.remove.fadeTo( 75, 0.75, function() { e.remove.fadeTo( 75, 1.0 ); } );
-			if( o.count == 0 ) { return; }
+			if     ( o.count <= 0 && o.value == 0.1 ) { return; }
+			else if( o.count <= o.limit && o.value == 0.3 ) { return; }
 			else {
 				o.count--;
 				e.view.html( '-' + ( o.count * o.value ).toFixed( 1 ));

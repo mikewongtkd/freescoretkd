@@ -43,9 +43,6 @@
 			<div class="athlete">
 				<div id="flag"></div><div id="name"></div>
 				<div id="deductions">
-					<div class="mandatory-stances hakdari-seogi done"><img src="../../images/icons/freestyle/hakdari-seogi.png"><br>Hakdari Seogi</div>
-					<div class="mandatory-stances beom-seogi    done"><img src="../../images/icons/freestyle/beom-seogi.png"><br>Beom Seogi</div>
-					<div class="mandatory-stances dwigubi       done"><img src="../../images/icons/freestyle/dwigubi.png"><br>Dwigubi</div>
 					<div class="unadjusted"></div>
 					<div class="major"></div>
 					<div class="minor"></div>
@@ -59,11 +56,12 @@
 		<script>
 			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
-			var ring       = { num: 1 };
+			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
 			var zoom       = { scale: 1.0 };
+			console.log( ring );
 
 			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };
 			$( 'body' ).keydown(( ev ) => {
@@ -110,13 +108,11 @@
 				deductions: function( athlete ) {
 					var consensus  = athlete.score.consensus();
 					var deductions = consensus.deductions; if( ! defined( deductions )) { return; }
-					var stances    = Object.keys( deductions.stances );
 					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
 					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
 					var unadjusted = { subtotal : parseFloat( 0.0 ).toFixed( 2 ) };
 					var timing     = defined( deductions.timing ) ? parseInt( deductions.timing ) : '';
 
-					stances.forEach(( i, stance ) => { $( '.' + stance ).removeClass( 'done' ); });
 					major.subtotal = isNaN( major.subtotal ) ? '' : '-' + major.subtotal.toFixed( 1 );
 					minor.subtotal = isNaN( minor.subtotal ) ? '' : '-' + minor.subtotal.toFixed( 1 );
 					major.votes    = html.div.clone().addClass( 'votes' ).html( major.subtotal ? parseInt( deductions.major.agree ) : '' );

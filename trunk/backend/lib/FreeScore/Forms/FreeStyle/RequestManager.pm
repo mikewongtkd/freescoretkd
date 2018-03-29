@@ -83,7 +83,7 @@ sub broadcast_division_response {
 		my $digest    = sha1_hex( $encoded );
 
 		print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . "\n" if $DEBUG;
-		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, request => $request, division => $unblessed }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
@@ -112,7 +112,7 @@ sub broadcast_ring_response {
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
-		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed };
+		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
 
 		print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . "\n" if $DEBUG;
 		$broadcast->{ device }->send( { json => $response });
