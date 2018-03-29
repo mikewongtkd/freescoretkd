@@ -495,7 +495,7 @@
 				$( '.next-button' ).addClass( 'disabled' );
 
 				// Reset the Score
-				score = { technical: {}, presentation: {}, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
+				score = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
 				[ 'mft1', 'mft2', 'mft3', 'mft4', 'mft5' ].forEach(( category ) => { refresh.score( 'technical', category ); });
 				var major = $( '#major-deductions' );
 				major.deductions({ count: 3 });

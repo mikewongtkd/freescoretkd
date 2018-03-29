@@ -14,8 +14,9 @@
 $menu-width: 180px;
 
 .container {
-	position: relative;
-	top: 20px;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .menu {
@@ -84,7 +85,7 @@ table {
 	position: absolute;
 	top: 0;
 	left: $menu-width + 20;
-	width: 780px;
+	width: 740px;
 	h1 {
 		font-size: 32pt;
 	}
@@ -100,12 +101,12 @@ table {
 	.athlete { 
 		position: absolute;
 		top: 240px;
-		left: 220px; 
+		left: 210px; 
 		color: #999 !important; 
 		border-radius: 8px;
 		border: solid gold 4px;
 		padding: 8px;
-		width: 310px;
+		width: 290px;
 		height: 120px;
 		text-align: center;
 		.division { color: gold; }
@@ -144,8 +145,8 @@ img.mandatory-foot-technique-icon {
 .next-button {
 	position: absolute;
 	top: 380px;
-	left: 220px;
-	width: 310px;
+	left: 210px;
+	width: 290px;
 	font-size: 24pt;
 	padding-top: 2px;
 	padding-bottom: 0;
