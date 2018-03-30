@@ -499,6 +499,10 @@
 				var update = JSON.parse( response.data );
 				console.log( update );
 
+				if( defined( update.error )) {
+					if( update.error.match( /Division not in ring/i )) { alertify.error( "No division in ring" ); }
+				}
+
 				if( ! defined( update.division )) { return; }
 				if( $( '#total .alert' ).attr( 'sending' )) {
 					sound.ok.play();

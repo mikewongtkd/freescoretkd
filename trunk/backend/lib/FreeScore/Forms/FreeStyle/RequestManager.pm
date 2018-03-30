@@ -77,7 +77,7 @@ sub broadcast_division_response {
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $division );
+		my $message   = $division->clone();
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
@@ -108,7 +108,7 @@ sub broadcast_ring_response {
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $broadcast->{ judge } ) : $progress );
+		my $message   = $progress->clone();
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
@@ -477,7 +477,7 @@ sub handle_division_write {
 		my $division = FreeScore::Forms::FreeStyle::Division->from_json( $request->{ division } );
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $ring, $division->{ name } );
 
-		my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
+		my $message   = $division->clone();
 		my $unblessed = unbless( $message ); 
 			
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
@@ -585,13 +585,13 @@ sub send_division_response {
 	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
-	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current() or die "Division not in ring $!";
 	my $unblessed = undef;
 	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
 	my $id        = sprintf "%s", sha1_hex( $client );
 
-	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
+	my $message   = $division->clone();
 	my $unblessed = unbless( $message ); 
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );

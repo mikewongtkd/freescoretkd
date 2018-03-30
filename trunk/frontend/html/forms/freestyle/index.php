@@ -61,7 +61,6 @@
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
 			var zoom       = { scale: 1.0 };
-			console.log( ring );
 
 			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };
 			$( 'body' ).keydown(( ev ) => {
@@ -78,6 +77,8 @@
 
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
+				console.log( update );
+
 				if( ! defined( update.division )) { return; }
 				var division = new Division( update.division );
 				refresh.display( division );
@@ -89,15 +90,15 @@
 
 			var refresh = { 
 				display: function( division ) {
+					console.log( division );
 					var athlete = division.current.athlete();
 					refresh.athlete( athlete );
 
 					judges.num   = division.judges();
-					refresh.judges( athlete );
+					refresh.judges( division );
 
 					var complete = athlete.score.complete();
 					if( complete ) {
-						refresh.deductions( athlete );
 						refresh.total( athlete );
 					}
 				},
@@ -105,33 +106,17 @@
 					$( '.athlete #name' ).html( athlete.display.name() );
 					if( defined( athlete.info( 'flag' ))) { $( '.athlete #flag' ).html( html.img.clone().attr({ src: '../../images/flags/' + athlete.info( 'flag' ) })); }
 				},
-				deductions: function( athlete ) {
-					var consensus  = athlete.score.consensus();
-					var deductions = consensus.deductions; if( ! defined( deductions )) { return; }
-					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
-					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
-					var unadjusted = { subtotal : parseFloat( 0.0 ).toFixed( 2 ) };
-					var timing     = defined( deductions.timing ) ? parseInt( deductions.timing ) : '';
+				judges: function( division ) {
+					var athlete = division.current.athlete();
 
-					major.subtotal = isNaN( major.subtotal ) ? '' : '-' + major.subtotal.toFixed( 1 );
-					minor.subtotal = isNaN( minor.subtotal ) ? '' : '-' + minor.subtotal.toFixed( 1 );
-					major.votes    = html.div.clone().addClass( 'votes' ).html( major.subtotal ? parseInt( deductions.major.agree ) : '' );
-					minor.votes    = html.div.clone().addClass( 'votes' ).html( minor.subtotal ? parseInt( deductions.minor.agree ) : '' );
-
-					$( '.unadjusted' ).empty().append( athlete.score.total().toFixed( 2 ) );
-					$( '.major' ).empty().append( major.subtotal );
-					$( '.minor' ).empty().append( minor.subtotal );
-					if( timing ) { $( '.timing' ).removeClass( 'ok' ); $( '#time-over-under' ).html( (timing < 0 ? timing : '+' + timing) + 's' ); } 
-					else         { $( '.timing' ).addClass( 'ok' );    $( '#time-over-under' ).html( '&#10004;' ); }
-
-				},
-				judges: function( athlete ) {
 					// ===== DISABLE UNUSED JUDGE POSITIONS
 					$( '.judge' ).removeClass( 'judge-disabled' );
 					for( var i = judges.num; i < 7; i++ ) { $( '#' + judges.name[ i ] ).addClass( 'judge-disabled' ); }
 
+					var round    = division.current.roundId();
 					var complete = athlete.score.complete();
-					var scores   = athlete.scores();
+					var scores   = athlete.scores( round );
+					console.log( scores );
 
 					// ===== REFRESH EACH JUDGE
 					if( complete ) { 

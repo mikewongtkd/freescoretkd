@@ -232,6 +232,25 @@ sub from_json {
 }
 
 # ============================================================
+sub get_only {
+# ============================================================
+#** @method ( judge_index )
+#   @brief Erases all scores except the given judge; used prior to sending updates to a judge
+#*
+	my $self  = shift;
+	my $judge = shift;
+	my $clone = $self->clone();
+	my $round = $clone->{ round };
+
+	foreach my $athlete (@{ $clone->{ athletes }}) {
+		foreach my $score ( qw( scores original adjusted )) {
+			$athlete->{ $score } = { $round => $athlete->{ $score }{ $round } }; # Prune all but the current round
+		}
+	}
+	return $clone;
+}
+
+# ============================================================
 sub navigate {
 # ============================================================
 	my $self   = shift;

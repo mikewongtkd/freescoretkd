@@ -3,7 +3,7 @@ use List::MoreUtils qw( first_index );
 use FreeScore;
 use FreeScore::Forms;
 use FreeScore::Forms::FreeStyle::Division;
-use base qw( FreeScore::Forms );
+use base qw( FreeScore::Forms Clone );
 
 our $SUBDIR = "forms-freestyle";
 

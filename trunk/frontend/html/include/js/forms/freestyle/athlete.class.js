@@ -6,7 +6,7 @@ function Athlete( athlete ) {
 
 	this.name   = () => { return athlete.name; };
 	this.id     = () => { return athlete.id; };
-	this.scores = () => { return athlete.scores; };
+	this.scores = ( round ) => { return athlete.scores[ round ]; };
 	this.info   = ( key ) => {
 		if( ! defined( athlete.info )) { return undefined; }
 		if( key in athlete.info ) { return athlete.info[ key ]; }
