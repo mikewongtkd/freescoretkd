@@ -6,7 +6,7 @@ use List::Util qw( min reduce shuffle );
 use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use File::Slurp qw( read_file );
-use Math::Round qw( nearest_ceil );
+use Math::Round qw( nearest_ceil round );
 use base qw( FreeScore::Forms::Division Clone );
 use Data::Dumper;
 
@@ -20,27 +20,26 @@ our @STANCES = qw( hakdari-seogi beom-seogi dwigubi );
 #    +- name
 #    +- info
 #    +- adjusted
-#    +- findings
 #    +- original
 #    +- decision
 #    +- complete
-#    +- scores[]
-#       +- technical
-#          +- side kick
-#          +- front kicks
-#          +- turn kick
-#          +- flip kick
-#          +- basic movements
-#       +- presentation
-#          +- creativity
-#          +- harmony
-#          +- energy
-#          +- choreography
-#       +- deductions
-#          +- stances[]
-#          +- major
-#          +- minor
-#       +- timeline
+#    +- scores
+#       +- round[]
+#          +- technical
+#             +- side kick
+#             +- front kicks
+#             +- turn kick
+#             +- flip kick
+#             +- basic movements
+#          +- presentation
+#             +- creativity
+#             +- harmony
+#             +- energy
+#             +- choreography
+#          +- deductions
+#             +- stances[]
+#             +- major
+#             +- minor
 # +- current
 # +- file
 # +- judges
@@ -114,15 +113,15 @@ sub calculate_placements {
 	my $athletes   = $self->{ athletes };
 	my $round      = $self->{ round };
 
-	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete } ? 1 : 0 } ( 0 .. $#$athletes );
+	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } ( 0 .. $#$athletes );
 
 	my $placements = [ sort { 
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
-		$j->{ adjusted }{ subtotal  } <=> $i->{ adjusted }{ subtotal  } ||
-		$j->{ adjusted }{ technical } <=> $i->{ adjusted }{ technical } ||
-		$j->{ original }{ subtotal  } <=> $i->{ original }{ subtotal  }
+		$j->{ adjusted }{ $round }{ total  }    <=> $i->{ adjusted }{ $round }{ total  }    ||
+		$j->{ adjusted }{ $round }{ technical } <=> $i->{ adjusted }{ $round }{ technical } ||
+		$j->{ original }{ $round }{ total  }    <=> $i->{ original }{ $round }{ total  }
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -187,33 +186,35 @@ sub calculate_round {
 # ============================================================
 sub calculate_scores {
 # ============================================================
-	my $self = shift;
-	my $k    = $self->{ judges };
-	my $n    = $k <= 3 ? $k : $k - 2;
+	my $self  = shift;
+	my $k     = $self->{ judges };
+	my $n     = $k <= 3 ? $k : $k - 2;
+	my $round = $self->{ round };
 
 	foreach my $athlete (@{$self->{ athletes }}) {
-		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores } : [];
-		my $original  = $athlete->{ original }  = { presentation => 0.0, technical => 0.0 };
-		my $adjusted  = $athlete->{ adjusted }  = { presentation => 0.0, technical => 0.0 };
-		my $consensus = $athlete->{ consensus } = {};
+		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
+		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
+		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
 		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete } = 1; } else { delete $athlete->{ complete }; next; }
 
 		foreach my $score (@$scores) {
-			$original->{ $_ } += _sum( $score->{ $_ } ) foreach (qw( presentation technical ));
+			foreach my $category (qw( presentation technical )) {
+				$original->{ $category } += reduce { $a += $score->{ $category }{ $b }; } keys %{$score->{ $category }};
+			}
+			$original->{ technical } -= $score->{ deductions }{ major } + $score->{ deductions }{ minor };
 		}
-		$consensus->{ deductions } = _consensus( $scores, $n );
-		$original->{ subtotal } = ($original->{ technical } + $original->{ presentation }) / $k;
+		$original->{ total } = ($original->{ technical } + $original->{ presentation }) / $k;
 
 		# ===== LEAVE SCORES AS THEY ARE FOR SMALL COURTS (3 JUDGES)
 		if( $n == $k ) { 
-			$adjusted->{ $_ } = $original->{ $_ } foreach (qw( presentation technical deductions subtotal )); 
+			$adjusted->{ $_ } = $original->{ $_ } foreach (qw( presentation technical deductions total )); 
 
 		# ===== ADJUST SCORES FOR LARGER COURTS
 		} else { 
-			($adjusted->{ $_ }, $consensus->{ $_ }{ min }, $consensus->{ $_ }{ max }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
-			$adjusted->{ subtotal } = $adjusted->{ technical } + $adjusted->{ presentation };
+			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_ ) foreach (qw( presentation technical ));
+			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) / $n;
 		}
 	}
 }
@@ -303,10 +304,11 @@ sub record_decision {
 	my $decision = shift;
 	my $i        = shift;
 	my $athletes = $self->{ athletes };
+	my $round    = $self->{ round };
 
 	return unless $i >= 0 && $i < @$athletes;
-	$athletes->[ $i ]{ decision } = $decision;
-	$athletes->[ $i ]{ complete } = 1;
+	$athletes->[ $i ]{ decision }{ $round } = $decision;
+	$athletes->[ $i ]{ complete }{ $round } = 1;
 }
 
 # ============================================================
@@ -319,9 +321,10 @@ sub record_penalty {
 	my $penalty  = shift;
 	my $i        = shift;
 	my $athletes = $self->{ athletes };
+	my $round    = $self->{ round };
 
 	return unless $i >= 0 && $i < @$athletes;
-	$athletes->[ $i ]{ penalty } = $penalty;
+	$athletes->[ $i ]{ penalty }{ $round } = $penalty;
 }
 
 # ============================================================
@@ -334,9 +337,10 @@ sub record_score {
 	my $judge = shift;
 	my $score = shift;
 	my $i     = $self->{ current };
+	my $round    = $self->{ round };
 
 	my $athlete = $self->{ athletes }[ $i ];
-	$athlete->{ scores }[ $judge ] = $score;
+	$athlete->{ scores }{ $round }[ $judge ] = $score;
 }
 
 # ============================================================
@@ -382,72 +386,26 @@ sub write {
 }
 
 # ============================================================
-sub _consensus {
-# ============================================================
-	my $scores  = shift;
-	my $n       = shift;
-	my $agreed  = { minor => [], major => [] };
-	my $stances = { map { $_ => 0 } @STANCES };
-	my $time    = { under => [], over => [] };
-
-	# ===== COUNT ALL VOTES FOR DEDUCTIONS FROM EACH JUDGE
-	foreach my $score (@$scores) {
-		my $i = int( $score->{ deductions }{ minor } / 0.1 );
-		$agreed->{ minor }[ $_ ]++ foreach ( 0 .. $i );
-
-		my $j = int( $score->{ deductions }{ minor } / 0.3 );
-		$agreed->{ major }[ $_ ]++ foreach ( 0 .. $i );
-
-		my $timing   = $score->{ deductions }{ timing };
-		my $start    = exists $timing->{ start } ? int( $timing->{ start }{ time } ) : 0;
-		my $stop     = exists $timing->{ stop  } ? int( $timing->{ stop  }{ time } ) : $start + 65_000; # Default; assume no penalty
-		my $duration = ($stop - $start) / 1000;
-
-		if   ( $duration < 60 ) { push @{$time->{ under }}, 60 - $duration; } # A vote for under time
-		elsif( $duration > 70 ) { push @{$time->{ over  }}, $duration - 70; } # A vote for over time
-
-		foreach (@STANCES) { $stances->{ $_ }++ if $score->{ stances }{ $_ }; }
-	}
-
-	# ===== TALLY ALL SIMPLE DEDUCTIONS
-	my $i = last_index { $_ >= $n } @{ $agreed->{ minor }};
-	my $j = last_index { $_ >= $n } @{ $agreed->{ major }};
-
-	# ===== TALLY ALL STANCE DEDUCTIONS AND ADD THEM AS MAJORS
-	foreach (@STANCES) { delete $stances->{ $_ } if $stances->{ $_ } < $n; }
-	$agreed->{ stances } = $stances; # Report each missing stance to display to the audience
-	$j += int( keys %$stances );
-
-	# ===== TALLY TIMING DEDUCTIONS AND ADD THEM ACCORDINGLY
-	# For each second under/over time, if less than 3 seconds total then a
-	# minor penalty; for more than 3 seconds, a major penalty for each second. 
-	# Bear in mind athlete has +/- 5 seconds free time if they aim for 65
-	# second performance.
-	if   ( @{ $time->{ under }} > $n ) { $time->{ penalty } = min @{ $time->{ under }}; $agreed->{ timing } = - $time->{ penalty }; }
-	elsif( @{ $time->{ over  }} > $n ) { $time->{ penalty } = min @{ $time->{ over  }}; $agreed->{ timing } =   $time->{ penalty }; }
-	if( $time->{ penalty } < 3 ) { $i += $time->{ penalty }; } else { $j += $time->{ penalty } - 2; }
-
-	$agreed->{ minor }  = { count => $i, subtotal => ($i * 0.1), agree => $agreed->{ minor }[ $i ] };
-	$agreed->{ major }  = { count => $j, subtotal => ($j * 0.3), agree => $agreed->{ major }[ $j ] };
-
-	return $agreed;
-}
-
-# ============================================================
 sub _drop_hilo {
 # ============================================================
 	my $scores   = shift;
 	my $category = shift;
-	my $n        = shift;
 
-	my @subtotals = map { my $criteria = $_->{ $category }; reduce { $a += $criteria->{ $b }; } 0.0, keys %$criteria } @$scores;
+	my @subtotals = map { 
+		my $subcats  = $_->{ $category }; 
+		my $subtotal = reduce { $a += $subcats->{ $b }; } 0.0, keys %$subcats;
+		my $major    = $_->{ deductions }{ major };
+		my $minor    = $_->{ deductions }{ minor };
+		$subtotal   -= ($major + $minor) if( $category eq 'technical' );
+		$subtotal;
+	} @$scores;
 	my ($min, $max) = minmax @subtotals;
 	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
 	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
 	my $sum = reduce { $a += $b } @subtotals;
 	$sum -= $min + $max;
 
-	return (($sum / $n), $i, $j);
+	return ($sum, $i, $j);
 }
 
 # ============================================================
