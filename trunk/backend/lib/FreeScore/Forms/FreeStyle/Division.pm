@@ -111,7 +111,7 @@ sub calculate_placements {
 	my $athletes   = $self->{ athletes };
 	my $round      = $self->{ round };
 
-	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } ( 0 .. $#$athletes );
+	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
 	my $placements = [ sort { 
 		my $i = $athletes->[ $a ];
@@ -144,33 +144,41 @@ sub calculate_round {
 	}
 
 	# ===== CALCULATE ORDER
-	my $round = $self->{ round };
-	my $order = $self->{ order } || {};
+	my $round      = $self->{ round };
+	my $order      = $self->{ order } || {};
+	my $placements = $self->{ placements };
 	if( ! exists $order->{ $round } || ! defined $order->{ $round } || @{$order->{ $round }} == 0 ) {
 		if      ( $round eq 'prelim' ) { 
 			$order->{ $round } = [( 0 .. $#$athletes )]; 
+			print STDERR "Starting $round order " . join( ", ", @{ $order->{ $round }}) . "\n";
 
 		} elsif ( $round eq 'semfin' ) { 
 
 			# Advance athletes from previous round
 			if( exists $order->{ 'prelim' } && ref( $order->{ 'prelim' }) eq 'ARRAY' && @{ $order->{ 'prelim' }} ) {
-				my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
+				my @eligible       = _not_disqualified( $self->{ athletes }, $placements->{ 'prelim' } );
 				my $n              = nearest_ceil( 1, int( @eligible )/2 ); # Advance the top half of division, rounded up
 				@eligible          = splice( @eligible, 0, $n );
 				$order->{ $round } = [ shuffle( @eligible ) ];
 
+				print STDERR "$round order= " . join( ", ", @{ $order->{ $round }}) . "\n";
 			# Starting round
 			} else {
 				$order->{ $round } = [( 0 .. $#$athletes )];
+
+				print STDERR "Starting $round order " . join( ", ", @{ $order->{ $round }}) . "\n";
 			}
 
 		}  elsif ( $round eq 'finals' ) {
 
 			# Advance athletes from previous round
 			if( exists $order->{ 'semfin' } && ref( $order->{ 'semfin' }) eq 'ARRAY' && @{ $order->{ 'semfin' }} ) {
-				my @eligible       = _not_disqualified( $self->{ athletes }, $self->{ placements }{ $round } );
+				print STDERR Dumper 'CALC_ROUND PLACEMENTS', $placements;
+				my @eligible       = _not_disqualified( $self->{ athletes }, $placements->{ 'semfin' } );
 				@eligible          = splice( @eligible, 0, 8 );
 				$order->{ $round } = [ reverse @eligible ];
+
+				print STDERR "$round order: " . join( ", ", @{ $order->{ $round }}) . "\n";
 
 			# Starting round
 			} else {
@@ -297,6 +305,19 @@ sub next_available_athlete {
 }
 
 # ============================================================
+sub next_round {
+# ============================================================
+	my $self   = shift;
+	my $round  = $self->{ round };
+
+	if    ( $round eq 'prelim' ) { $self->{ round } = 'semfin'; }
+	elsif ( $round eq 'semfin' ) { $self->{ round } = 'finals'; }
+	print STDERR "NEXT ROUND: $self->{ round }\n";
+
+	$self->{ current } = $self->{ order }{ $round }[ 0 ];
+}
+
+# ============================================================
 sub previous_athlete {
 # ============================================================
 #** @method ()
@@ -360,7 +381,6 @@ sub record_score {
 
 	my $athlete = $self->{ athletes }[ $i ];
 	$athlete->{ scores }{ $round }[ $judge ] = $score;
-	print STDERR "DIVISION: $judge $round " . $json->canonical->encode( $score ) . "\n";
 }
 
 # ============================================================
@@ -414,7 +434,6 @@ sub _drop_hilo {
 	my @subtotals = map { 
 		my $subcats  = $_->{ $category }; 
 		my $subtotal = reduce { $a += $subcats->{ $b }; } 0.0, keys %$subcats;
-		print STDERR "   $category $subtotal\n";
 		if( $category eq 'technical' ) {
 			my $major    = $_->{ deductions }{ major };
 			my $minor    = $_->{ deductions }{ minor };
@@ -426,7 +445,6 @@ sub _drop_hilo {
 	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
 	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
 	my $sum = reduce { $a += $b } 0, @subtotals;
-	print STDERR "    min: $min ($i) max: $max ($j) " . join( ', ', @subtotals ) . " sum: $sum\n";
 	$sum -= $min + $max;
 
 	return ($sum, $i, $j);
@@ -437,6 +455,7 @@ sub _not_disqualified {
 # ============================================================
 	my $athletes = shift;
 	my $group    = shift;
+	print STDERR Dumper 'NOT_DISQ GROUP', $group;
 	return grep {
 		my $athlete = $athletes->[ $_ ];
 		! exists $athlete->{ decision } || ! $athlete->{ decision } =~ /^disqual/i

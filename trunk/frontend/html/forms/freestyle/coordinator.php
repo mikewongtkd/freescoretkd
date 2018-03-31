@@ -183,13 +183,14 @@
 
 					// ===== POPULATE THE ATHLETE LIST
 					$( '#athletes' ).empty();
-					division.athletes().forEach(( athlete, i ) => {
+					division.current.athletes().forEach(( athlete, i ) => {
 						var button  = html.a.clone().addClass( "list-group-item" );
 						var name    = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
 						var j       = division.current.athleteId();
+						var order   = division.current.order();
 
 						// ===== CURRENT ATHLETE
-						if( i == j && currentDivision ) { 
+						if( j == order[ i ] && currentDivision ) { 
 							button.addClass( "active" ); 
 							button.off( 'click' ).click(( ev ) => { 
 								sound.prev.play(); 
@@ -202,7 +203,7 @@
 
 						// ===== ATHLETE IN CURRENT DIVISION
 						} else if( currentDivision ) {
-							if( i == j + 1 ) { button.addClass( "on-deck" ); } // Athlete on deck
+							if( i < (order.length -1) && j == order[ i + 1 ] ) { button.addClass( "on-deck" ); } // Athlete on deck
 							button.off( 'click' ).click(( ev ) => { 
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 

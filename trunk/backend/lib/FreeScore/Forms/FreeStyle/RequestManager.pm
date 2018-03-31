@@ -670,6 +670,7 @@ sub autopilot {
 	my $judges   = shift;
 	my $division = $progress->current();
 	my $cycle    = $division->{ autodisplay } || 2;
+	my $round    = $division->{ round };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
@@ -684,13 +685,13 @@ sub autopilot {
 	};
 
 	my $pause = { leaderboard => 9, next => 12, brief => 1 };
-	my $j     = $division->{ current };
-	my $n     = $#{ $division->{ athletes }};
+	my $j     = first_index { $division->{ current } == $_ } @{ $division->{ order }{ $round }};
+	my $n     = $#{ $division->{ order }{ $round }};
 
 	my $last = {
 		athlete => ($j == $n),
 		cycle   => (!(($j + 1) % $cycle)),
-		round   => ($division->{ round } eq 'finals'),
+		round   => ($round eq 'finals'),
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
