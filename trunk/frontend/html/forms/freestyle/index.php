@@ -90,7 +90,6 @@
 
 			var refresh = { 
 				display: function( division ) {
-					console.log( division );
 					var athlete = division.current.athlete();
 					refresh.athlete( athlete );
 
@@ -114,19 +113,16 @@
 					for( var i = judges.num; i < 7; i++ ) { $( '#' + judges.name[ i ] ).addClass( 'judge-disabled' ); }
 
 					var round    = division.current.roundId();
-					var complete = athlete.score.complete();
+					var complete = athlete.score.complete( round );
 					var scores   = athlete.scores( round );
-					console.log( scores );
+					var adjusted = athlete.adjusted( round );
 
 					// ===== REFRESH EACH JUDGE
 					if( complete ) { 
 						$.each( scores, refresh.judge.score ); 
-						var consensus = athlete.score.consensus();
 						$.each( [ 'technical', 'presentation' ], ( i, category ) => {
 							$.each( [ 'min', 'max' ], ( i, minmax ) => {
-								if( ! defined( consensus[ category ] )) { return; }
-								if( ! defined( consensus[ category ][ minmax ] )) { return; }
-								var j   = consensus[ category ][ minmax ];
+								var j   = adjusted[ minmax ][ category ];
 								var div = $( '#' + judges.name[ j ] + ' .' + category );
 								div.addClass( 'ignore' );
 							});

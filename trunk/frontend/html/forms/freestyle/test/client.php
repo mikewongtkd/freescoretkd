@@ -89,7 +89,7 @@
 				var scores = [];
 
 				for( i = 0; i < j; i++ ) {
-					var score  = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
+					var score  = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: true, beomseogi: true, dwigubi: true }, minor: 0.0, major: 0.9 }};
 					for( subcat in score.technical )    { score.technical[ subcat ]    = (parseInt( skills ) + parseInt( rand( 3 )))/10; }
 					for( subcat in score.presentation ) { score.presentation[ subcat ] = (parseInt( skills ) + parseInt( rand( 3 )))/10; }
 					var minor = rand( 8 ) - skill;

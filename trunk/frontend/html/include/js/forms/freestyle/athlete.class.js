@@ -4,10 +4,11 @@ function Athlete( athlete ) {
 
 	if( ! defined( athlete.penalty )) { athlete.penalty = { bounds : 0.0, restart: 0.0, misconduct: 0 }; }
 
-	this.name   = () => { return athlete.name; };
-	this.id     = () => { return athlete.id; };
-	this.scores = ( round ) => { return athlete.scores[ round ]; };
-	this.info   = ( key ) => {
+	this.name     = () => { return athlete.name; };
+	this.id       = () => { return athlete.id; };
+	this.adjusted = ( round ) => { return athlete.adjusted[ round ]; };
+	this.scores   = ( round ) => { return athlete.scores[ round ]; };
+	this.info     = ( key ) => {
 		if( ! defined( athlete.info )) { return undefined; }
 		if( key in athlete.info ) { return athlete.info[ key ]; }
 		return undefined;
@@ -36,12 +37,11 @@ function Athlete( athlete ) {
 	this.penalties  = () => { return athlete.penalty; }
 
 	this.score = {
-		total:        () => { return athlete.adjusted.subtotal; },
-		technical:    () => { return athlete.adjusted.technical; },
-		presentation: () => { return athlete.adjusted.presentation; },
-		deductions:   () => { return athlete.adjusted.deductions; },
-		consensus:    () => { return athlete.consensus; },
-		complete:     () => { return athlete.complete; },
+		total:        ( round ) => { return athlete.adjusted[ round ].total; },
+		technical:    ( round ) => { return athlete.adjusted[ round ].technical; },
+		presentation: ( round ) => { return athlete.adjusted[ round ].presentation; },
+		deductions:   ( round ) => { return athlete.adjusted[ round ].deductions; },
+		complete:     ( round ) => { return athlete.complete[ round ]; },
 	};
 
 };

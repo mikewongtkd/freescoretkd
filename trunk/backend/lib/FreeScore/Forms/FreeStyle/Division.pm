@@ -197,7 +197,7 @@ sub calculate_scores {
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete } = 1; } else { delete $athlete->{ complete }; next; }
+		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
 
 		foreach my $score (@$scores) {
 			foreach my $category (qw( presentation technical )) {
@@ -293,7 +293,7 @@ sub next_available_athlete {
 	my $available = undef;
 	do {
 		my $athlete = $self->next_athlete();
-		$available = ! $athlete->{ complete };
+		$available = ! $athlete->{ complete }{ $round };
 	} while( ! $available );
 	return $athletes->[ $self->{ current }];
 }
@@ -356,10 +356,13 @@ sub record_score {
 	my $judge = shift;
 	my $score = shift;
 	my $i     = $self->{ current };
-	my $round    = $self->{ round };
+	my $round = $self->{ round };
+
+	my $json = new JSON::XS();
 
 	my $athlete = $self->{ athletes }[ $i ];
 	$athlete->{ scores }{ $round }[ $judge ] = $score;
+	print STDERR "DIVISION: $judge $round " . $json->canonical->encode( $score ) . "\n";
 }
 
 # ============================================================

@@ -446,7 +446,7 @@ sub handle_division_score {
 		$division->record_score( $request->{ judge }, $request->{ score } );
 		$division->write();
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
-		my $complete = $athlete->{ complete };
+		my $complete = $athlete->{ complete }{ $division->{ round }};
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
