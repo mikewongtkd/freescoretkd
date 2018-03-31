@@ -88,8 +88,8 @@
 				<div class="panel-footer panel-primary clearfix">
 					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
 					<div id="user-message" class="text-muted pull-left" style="margin-top: 8px;"></div>
-					<button id="save-button" type="button" class="btn btn-success pull-right">Save Changes</button>
-					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
+					<button id="save-button" type="button" class="btn btn-success pull-right"><span class="glyphicon glyphicon-save"></span> Save Changes</button>
+					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="glyphicon glyphicon-random"></span> Randomize Order</button>
 				</div>
 			</div>
 

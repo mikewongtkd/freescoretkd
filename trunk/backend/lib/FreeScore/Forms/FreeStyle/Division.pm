@@ -312,9 +312,8 @@ sub next_round {
 
 	if    ( $round eq 'prelim' ) { $self->{ round } = 'semfin'; }
 	elsif ( $round eq 'semfin' ) { $self->{ round } = 'finals'; }
-	print STDERR "NEXT ROUND: $self->{ round }\n";
 
-	$self->{ current } = $self->{ order }{ $round }[ 0 ];
+	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
 }
 
 # ============================================================
@@ -330,6 +329,19 @@ sub previous_athlete {
 	$self->{ state }   = 'score';
 	$self->{ current } = $i > 0 ? $i - 1 : $#$athletes;
 	return $athletes->[ $self->{ current }];
+}
+
+# ============================================================
+sub previous_round {
+# ============================================================
+	my $self  = shift;
+	my $round = $self->{ round };
+	my $order = $self->{ order };
+
+	if    ( $round eq 'finals' && exists $order->{ semfin } && @{ $order->{ semfin }} > 0 ) { $self->{ round } = 'semfin'; }
+	elsif ( $round eq 'semfin' && exists $order->{ prelim } && @{ $order->{ prelim }} > 0 ) { $self->{ round } = 'prelim'; }
+
+	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
 }
 
 # ============================================================

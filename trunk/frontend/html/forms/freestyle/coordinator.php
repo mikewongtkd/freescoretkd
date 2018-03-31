@@ -76,6 +76,13 @@
 									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
 								</div>
 							</div>
+							<div class="navigate-round">
+								<h4>Round</h4>
+								<div class="btn-group">
+									<a class="btn btn-primary" style="width:130px;" id="navigate-round-prev"><span class="glyphicon glyphicon-step-backward"></span>Previous</a>
+									<a class="btn btn-primary" style="width:130px;" id="navigate-round-next">Next <span class="glyphicon glyphicon-step-forward"></span></a>
+								</div>
+							</div>
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -195,7 +202,7 @@
 							button.off( 'click' ).click(( ev ) => { 
 								sound.prev.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
+								$( "#navigate-athlete" ).attr({ 'athlete-id' : order[ i ] });
 								$( ".navigate-athlete" ).hide(); 
 								$( ".penalties,.decision" ).show(); 
 							});
@@ -203,13 +210,13 @@
 
 						// ===== ATHLETE IN CURRENT DIVISION
 						} else if( currentDivision ) {
-							if( i < (order.length -1) && j == order[ i + 1 ] ) { button.addClass( "on-deck" ); } // Athlete on deck
+							if( i < (order.length -1) && j == order[ i - 1 ] ) { button.addClass( "on-deck" ); } // Athlete on deck
 							button.off( 'click' ).click(( ev ) => { 
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								$( ev.target ).addClass( 'selected-athlete' ); 
-								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.name()); 
-								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
+								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.display.name()); 
+								$( "#navigate-athlete" ).attr({ 'athlete-id' : order[ i ] });
 								$( ".navigate-athlete" ).show(); 
 								$( ".penalties,.decision" ).hide(); 
 							});
@@ -260,8 +267,9 @@
 					var divid   = division.name();
 					var action = {
 						navigate : {
-							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); console.log( i ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
+							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); },
+							round     : { next : () => { sound.ok.play(); sendRequest( { data : { type : 'division', action : 'round next' }} ); }, prev : () => { sound.ok.play(); sendRequest({ data : { type : 'division', action : 'round prev' }} ); }},
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
@@ -271,6 +279,8 @@
 						}
 					};
 
+					$( "#navigate-round-next" ) .off( 'click' ).click( action.navigate.round.next );
+					$( "#navigate-round-prev" ) .off( 'click' ).click( action.navigate.round.prev );
 					$( "#navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
 					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );

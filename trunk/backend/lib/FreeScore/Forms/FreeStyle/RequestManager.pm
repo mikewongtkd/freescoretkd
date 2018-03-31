@@ -44,6 +44,8 @@ sub init {
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
+		round_next         => \&handle_division_round_next,
+		round_prev         => \&handle_division_round_prev,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
 		write              => \&handle_division_write,
@@ -428,6 +430,55 @@ sub handle_division_read {
 
 	$self->send_division_response( $request, $progress, $clients );
 }
+
+# ============================================================
+sub handle_division_round_next {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Next round.\n" if $DEBUG;
+
+	try {
+		$division->autopilot( 'off' );
+		$division->next_round();
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_round_prev {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Next round.\n" if $DEBUG;
+
+	try {
+		$division->autopilot( 'off' );
+		$division->previous_round();
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
 
 # ============================================================
 sub handle_division_score {
