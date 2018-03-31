@@ -499,5 +499,6 @@ sub _sum {
 sub display          { my $self = shift; $self->{ state } = 'display'; }
 sub is_display       { my $self = shift; return $self->{ state } eq 'display'; }
 sub score            { my $self = shift; $self->{ state } = 'score'; }
+sub list             { my $self = shift; $self->{ state } = 'list'; }
 
 1;

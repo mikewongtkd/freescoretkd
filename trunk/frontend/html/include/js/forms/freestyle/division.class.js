@@ -41,6 +41,7 @@ function Division( division ) {
 		is : {
 			score   : function() { return division.state == 'score'; },
 			display : function() { return division.state == 'display'; },
+			list    : function() { return division.state == 'list'; },
 		}
 	};
 };

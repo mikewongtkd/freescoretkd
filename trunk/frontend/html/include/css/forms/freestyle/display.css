@@ -180,26 +180,26 @@
       font-size: 216pt;
       line-height: 216pt;
       text-align: center; }
-  #display #leaderboard {
+  #display #leaderboard, #display #order-list {
     padding: 20px;
     overflow-y: auto; }
-    #display #leaderboard table {
+    #display #leaderboard table, #display #order-list table {
       background: transparent;
       width: 100%; }
-      #display #leaderboard table th {
+      #display #leaderboard table th, #display #order-list table th {
         font-size: 24pt;
         color: #999; }
-      #display #leaderboard table td {
+      #display #leaderboard table td, #display #order-list table td {
         font-size: 36pt; }
-        #display #leaderboard table td.num {
+        #display #leaderboard table td.num, #display #order-list table td.num {
           color: #ccc; }
-        #display #leaderboard table td.name {
+        #display #leaderboard table td.name, #display #order-list table td.name {
           color: yellow; }
-        #display #leaderboard table td.tech {
+        #display #leaderboard table td.tech, #display #order-list table td.tech {
           color: #f39; }
-        #display #leaderboard table td.pres {
+        #display #leaderboard table td.pres, #display #order-list table td.pres {
           color: #39f; }
-        #display #leaderboard table td.total {
+        #display #leaderboard table td.total, #display #order-list table td.total {
           color: lime; }
 
 /*# sourceMappingURL=display.css.map */

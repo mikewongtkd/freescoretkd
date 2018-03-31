@@ -48,6 +48,7 @@ sub init {
 		round_prev         => \&handle_division_round_prev,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
+		view_next          => \&handle_division_view_next,
 		write              => \&handle_division_write,
 	};
 	$self->{ ring }        = {
@@ -279,6 +280,7 @@ sub handle_division_display {
 		$client->send( { json => { error => "$_" }});
 	}
 }
+
 # ============================================================
 sub handle_division_edit_athletes {
 # ============================================================
@@ -503,6 +505,33 @@ sub handle_division_score {
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_view_next {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	print STDERR "Change display.\n" if $DEBUG;
+
+	try {
+		$division->autopilot( 'off' );
+		local $_ = $division->{ state };
+		if    ( /score/i   ) { $division->display(); }
+		elsif ( /display/i ) { $division->list();    }
+		elsif ( /list/i    ) { $division->score();   }
+		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {

@@ -103,6 +103,7 @@
 								<h4>Administration</h4>
 								<div class="list-group">
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
+									<a class="list-group-item" id="admin-view"><span class="glyphicon glyphicon-list"></span>Change View</a>
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
 									<a class="list-group-item" id="admin-print"><span class="glyphicon glyphicon-print"></span>Print Results</a>
 								</div>
@@ -273,6 +274,7 @@
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
+							view       : () => { sound.next.play(); sendRequest({ data : { type : 'division', action: 'view next' }})},
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=<?= $ring?>', '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring.num < 10 ? '0' + ring.num : ring.num) + '/div.' + divid + '.txt', '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
@@ -283,6 +285,7 @@
 					$( "#navigate-round-prev" ) .off( 'click' ).click( action.navigate.round.prev );
 					$( "#navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
 					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
+					$( "#admin-view" )          .off( 'click' ).click( action.administration.view );
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
 					$( "#admin-print" )         .off( 'click' ).click( action.administration.print );

@@ -58,6 +58,10 @@
 				<table id="leaderboard-table">
 				</table>
 			</div>
+			<div id="order-list">
+				<table id="order-table">
+				</table>
+			</div>
 		</div>
 		<script>
 			var host       = '<?= $host ?>';
@@ -87,8 +91,9 @@
 
 				if( ! defined( update.division )) { return; }
 				var division = new Division( update.division );
-				if( division.state.is.score() ) { refresh.scoreboard( division ); }
-				else                            { refresh.leaderboard( division ); }
+				if     ( division.state.is.score() ) { refresh.scoreboard( division ); }
+				else if( division.state.is.list()  ) { refresh.list( division ); }
+				else                                 { refresh.leaderboard( division ); }
 			}
 
 			var sum = function( obj ) {
@@ -99,6 +104,7 @@
 				scoreboard: function( division ) {
 					$( '#scoreboard' ).show();
 					$( '#leaderboard' ).hide();
+					$( '#order-list' ).hide();
 					var athlete = division.current.athlete();
 					var round   = division.current.roundId();
 					refresh.athlete( athlete );
@@ -164,6 +170,7 @@
 				leaderboard: function( division ) {
 					$( '#scoreboard' ).hide();
 					$( '#leaderboard' ).show();
+					$( '#order-list' ).hide();
 					var round = division.current.roundId();
 					var table = $( '#leaderboard-table' );
 					table.empty();
@@ -176,7 +183,6 @@
 					);
 					table.append( header );
 					var placements = division.current.placements();
-					console.log( placements );
 					placements.forEach(( athlete, i ) => {
 						console.log( athlete, i );
 						var row = html.tr.clone().append( 
@@ -185,6 +191,28 @@
 							html.td.clone().addClass( 'tech'  ).html( athlete.score.technical( round ).toFixed( 2 )),
 							html.td.clone().addClass( 'pres'  ).html( athlete.score.presentation( round ).toFixed( 2 )),
 							html.td.clone().addClass( 'total' ).html( athlete.score.total( round ).toFixed( 2 ))
+						);
+						table.append( row );
+					});
+				},
+				list: function( division ) {
+					$( '#scoreboard' ).hide();
+					$( '#leaderboard' ).hide();
+					$( '#order-list' ).show();
+					var round = division.current.roundId();
+					var table = $( '#order-table' );
+					table.empty();
+					var header = html.tr.clone().append( 
+						html.th.clone().html( '#' ),
+						html.th.clone().html( 'Name' ),
+					);
+					table.append( header );
+					var order = division.current.athletes();
+					order.forEach(( athlete, i ) => {
+						console.log( athlete, i );
+						var row = html.tr.clone().append( 
+							html.td.clone().addClass( 'num'   ).html( i + 1 ),
+							html.td.clone().addClass( 'name'  ).html( athlete.display.name() ),
 						);
 						table.append( row );
 					});
