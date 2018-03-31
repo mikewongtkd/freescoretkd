@@ -8,6 +8,7 @@
 		<link href="../../../include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/default.min.css" rel="stylesheet" />
+		<link href="../../../include/css/forms/freestyle/test/client.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
@@ -34,7 +35,7 @@
 			</div>
 
 			<div id="athlete"></div>
-			<div><a id="send-scores" class="btn btn-success disabled">Send scores</a></div>
+			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a></div>
 
 		</div>
 		<script>

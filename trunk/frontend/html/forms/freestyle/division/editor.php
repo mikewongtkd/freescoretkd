@@ -101,7 +101,7 @@
 
 			// ===== DIVISION INFORMATION FROM DATABASE
 			var division = <?= json_encode( $division ) ?>;
-			division.judges = defined( division.judges ) ? division.judges : 3;
+			division.judges = defined( division.judges ) ? division.judges : 5;
 			division.summary = function() { return this.name + ' ' + this.description; };
 			$( '#judges' ).html( division.judges );
 

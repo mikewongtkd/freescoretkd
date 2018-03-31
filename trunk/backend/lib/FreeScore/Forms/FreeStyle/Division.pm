@@ -93,6 +93,7 @@ sub read {
 	$self->{ current } ||= 0;
 	$self->{ judges }  ||= 5; # Default value
 	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ state }   ||= 'score';
 	$self->{ file }    = $self->{ file };
 	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
 
@@ -396,6 +397,7 @@ sub record_score {
 
 	my $json = new JSON::XS();
 
+	$self->{ state } = 'score';
 	my $athlete = $self->{ athletes }[ $i ];
 	$athlete->{ scores }{ $round }[ $judge ] = $score;
 }
