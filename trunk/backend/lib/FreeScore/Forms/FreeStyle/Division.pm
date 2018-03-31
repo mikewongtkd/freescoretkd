@@ -150,7 +150,6 @@ sub calculate_round {
 	if( ! exists $order->{ $round } || ! defined $order->{ $round } || @{$order->{ $round }} == 0 ) {
 		if      ( $round eq 'prelim' ) { 
 			$order->{ $round } = [( 0 .. $#$athletes )]; 
-			print STDERR "Starting $round order " . join( ", ", @{ $order->{ $round }}) . "\n";
 
 		} elsif ( $round eq 'semfin' ) { 
 
@@ -161,24 +160,18 @@ sub calculate_round {
 				@eligible          = splice( @eligible, 0, $n );
 				$order->{ $round } = [ shuffle( @eligible ) ];
 
-				print STDERR "$round order= " . join( ", ", @{ $order->{ $round }}) . "\n";
 			# Starting round
 			} else {
 				$order->{ $round } = [( 0 .. $#$athletes )];
-
-				print STDERR "Starting $round order " . join( ", ", @{ $order->{ $round }}) . "\n";
 			}
 
 		}  elsif ( $round eq 'finals' ) {
 
 			# Advance athletes from previous round
 			if( exists $order->{ 'semfin' } && ref( $order->{ 'semfin' }) eq 'ARRAY' && @{ $order->{ 'semfin' }} ) {
-				print STDERR Dumper 'CALC_ROUND PLACEMENTS', $placements;
 				my @eligible       = _not_disqualified( $self->{ athletes }, $placements->{ 'semfin' } );
 				@eligible          = splice( @eligible, 0, 8 );
 				$order->{ $round } = [ reverse @eligible ];
-
-				print STDERR "$round order: " . join( ", ", @{ $order->{ $round }}) . "\n";
 
 			# Starting round
 			} else {
@@ -211,16 +204,19 @@ sub calculate_scores {
 			}
 			$original->{ technical } -= $score->{ deductions }{ major } + $score->{ deductions }{ minor };
 		}
-		$original->{ total } = ($original->{ technical } + $original->{ presentation }) / $k;
+		$original->{ total } = ($original->{ technical } + $original->{ presentation });
 
 		# ===== LEAVE SCORES AS THEY ARE FOR SMALL COURTS (3 JUDGES)
 		if( $n == $k ) { 
-			$adjusted->{ $_ } = $original->{ $_ } foreach (qw( presentation technical deductions total )); 
+			foreach (qw( presentation technical total )) {
+				$original->{ $_ } /= $n;
+				$adjusted->{ $_ } = $original->{ $_ };
+			}
 
 		# ===== ADJUST SCORES FOR LARGER COURTS
 		} else { 
-			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_ ) foreach (qw( presentation technical ));
-			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) / $n;
+			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
+			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation });
 		}
 	}
 }
@@ -282,9 +278,12 @@ sub next_athlete {
 	my $self     = shift;
 	my $athletes = $self->{ athletes };
 	my $i        = $self->{ current };
+	my $round    = $self->{ round };
+	my $order    = $self->{ order }{ $round };
+	my $j        = first_index { $_ == $i } @$order;
 
 	$self->{ state }   = 'score';
-	$self->{ current } = $i < $#$athletes ? $i + 1 : 0;
+	$self->{ current } = $j < $#$order ? $order->[ $j + 1 ] : $order->[ 0 ];
 	return $athletes->[ $self->{ current }];
 }
 
@@ -296,11 +295,15 @@ sub next_available_athlete {
 #*
 	my $self      = shift;
 	my $round     = $self->{ round };
+	my $order     = $self->{ order }{ $round };
 	my $available = undef;
+	my $i         = 0;
+
 	do {
 		my $athlete = $self->next_athlete();
 		$available = ! $athlete->{ complete }{ $round };
-	} while( ! $available );
+		$i++;
+	} while((! $available ) && $i < $#$order);
 	return $athletes->[ $self->{ current }];
 }
 
@@ -313,6 +316,7 @@ sub next_round {
 	if    ( $round eq 'prelim' ) { $self->{ round } = 'semfin'; }
 	elsif ( $round eq 'semfin' ) { $self->{ round } = 'finals'; }
 
+	$self->{ state } = 'score';
 	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
 }
 
@@ -341,6 +345,7 @@ sub previous_round {
 	if    ( $round eq 'finals' && exists $order->{ semfin } && @{ $order->{ semfin }} > 0 ) { $self->{ round } = 'semfin'; }
 	elsif ( $round eq 'semfin' && exists $order->{ prelim } && @{ $order->{ prelim }} > 0 ) { $self->{ round } = 'prelim'; }
 
+	$self->{ state } = 'score';
 	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
 }
 
@@ -442,6 +447,7 @@ sub _drop_hilo {
 # ============================================================
 	my $scores   = shift;
 	my $category = shift;
+	my $n        = shift;
 
 	my @subtotals = map { 
 		my $subcats  = $_->{ $category }; 
@@ -458,6 +464,7 @@ sub _drop_hilo {
 	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
 	my $sum = reduce { $a += $b } 0, @subtotals;
 	$sum -= $min + $max;
+	$sum /= $n;
 
 	return ($sum, $i, $j);
 }
@@ -467,7 +474,6 @@ sub _not_disqualified {
 # ============================================================
 	my $athletes = shift;
 	my $group    = shift;
-	print STDERR Dumper 'NOT_DISQ GROUP', $group;
 	return grep {
 		my $athlete = $athletes->[ $_ ];
 		! exists $athlete->{ decision } || ! $athlete->{ decision } =~ /^disqual/i
@@ -490,8 +496,6 @@ sub _sum {
 
 sub display          { my $self = shift; $self->{ state } = 'display'; }
 sub is_display       { my $self = shift; return $self->{ state } eq 'display'; }
-sub next_athlete     { my $self = shift; $self->{ current } = $self->{ current } < @{ $self->{ athletes }} ? $self->{ current } + 1 : 0;  my $i = $self->{ current }; return $self->{ athletes }[ $i ]; }
-sub previous_athlete { my $self = shift; $self->{ current } = $self->{ current } > 0 ? $self->{ current } - 1 : $#{ $self->{ athletes }}; my $i = $self->{ current }; return $self->{ athletes }[ $i ]; }
 sub score            { my $self = shift; $self->{ state } = 'score'; }
 
 1;

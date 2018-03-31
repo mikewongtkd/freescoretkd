@@ -1,5 +1,5 @@
 
-.display {
+#display {
 	position: absolute;
 	top: calc( 50% - 350px );
 	left: calc( 50% - 500px );
@@ -171,4 +171,26 @@
 			text-align: center;
 		}
 	}
+
+	#leaderboard {
+		padding: 20px;
+		overflow-y: auto;
+		table {
+			background: transparent;
+			width: 100%;
+			th {
+				font-size: 24pt;
+				color: #999;
+			}
+			td {
+				font-size: 36pt;
+				&.num   { color: #ccc; }
+				&.name  { color: yellow; }
+				&.tech  { color: #f39; }
+				&.pres  { color: #39f; }
+				&.total { color: lime; }
+			}
+		}
+	}
 }
+

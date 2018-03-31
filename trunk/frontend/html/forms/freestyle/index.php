@@ -30,27 +30,33 @@
 		<script src="../../include/js/forms/freestyle/division.class.js"></script>
 	</head>
 	<body>
-		<div class="display">
-			<div class="judges">
-				<div class="judge" id="referee"></div>
-				<div class="judge" id="j1"></div>
-				<div class="judge" id="j2"></div>
-				<div class="judge" id="j3"></div>
-				<div class="judge" id="j4"></div>
-				<div class="judge" id="j5"></div>
-				<div class="judge" id="j6"></div>
-			</div>
-			<div class="athlete">
-				<div id="flag"></div><div id="name"></div>
-				<div id="deductions">
-					<div class="unadjusted"></div>
-					<div class="major"></div>
-					<div class="minor"></div>
-					<div class="timing ok"><div class="glyphicon glyphicon-time"></div><div id="time-over-under">&#10004;</div></div>
+		<div id="display">
+			<div id="scoreboard">
+				<div class="judges">
+					<div class="judge" id="referee"></div>
+					<div class="judge" id="j1"></div>
+					<div class="judge" id="j2"></div>
+					<div class="judge" id="j3"></div>
+					<div class="judge" id="j4"></div>
+					<div class="judge" id="j5"></div>
+					<div class="judge" id="j6"></div>
 				</div>
-				<div id="score"></div>
+				<div class="athlete">
+					<div id="flag"></div><div id="name"></div>
+					<div id="deductions">
+						<div class="unadjusted"></div>
+						<div class="major"></div>
+						<div class="minor"></div>
+						<div class="timing ok"><div class="glyphicon glyphicon-time"></div><div id="time-over-under">&#10004;</div></div>
+					</div>
+					<div id="score"></div>
+				</div>
+				<div id="division">
+				</div>
 			</div>
-			<div id="division">
+			<div id="leaderboard">
+				<table id="leaderboard-table">
+				</table>
 			</div>
 		</div>
 		<script>
@@ -81,7 +87,8 @@
 
 				if( ! defined( update.division )) { return; }
 				var division = new Division( update.division );
-				refresh.display( division );
+				if( division.state.is.score() ) { refresh.scoreboard( division ); }
+				else                            { refresh.leaderboard( division ); }
 			}
 
 			var sum = function( obj ) {
@@ -89,7 +96,9 @@
 			};
 
 			var refresh = { 
-				display: function( division ) {
+				scoreboard: function( division ) {
+					$( '#scoreboard' ).show();
+					$( '#leaderboard' ).hide();
 					var athlete = division.current.athlete();
 					var round   = division.current.roundId();
 					refresh.athlete( athlete );
@@ -131,7 +140,9 @@
 							});
 						});
 
-					} else { $.each( scores, refresh.judge.submitted ); }
+					} else if( defined( scores )) { 
+						$.each( scores, refresh.judge.submitted ); 
+					}
 				},
 				judge: {
 					// ===== SHOW THE JUDGE'S SCORE
@@ -149,6 +160,34 @@
 						var checkmark = html.div.clone().addClass( 'submitted' ).html( '&#10004;' );
 						div.empty().append( checkmark );
 					},
+				},
+				leaderboard: function( division ) {
+					$( '#scoreboard' ).hide();
+					$( '#leaderboard' ).show();
+					var round = division.current.roundId();
+					var table = $( '#leaderboard-table' );
+					table.empty();
+					var header = html.tr.clone().append( 
+						html.th.clone().html( '#' ),
+						html.th.clone().html( 'Name' ),
+						html.th.clone().html( 'Tech.' ),
+						html.th.clone().html( 'Pres.' ),
+						html.th.clone().html( 'Score' )
+					);
+					table.append( header );
+					var placements = division.current.placements();
+					console.log( placements );
+					placements.forEach(( athlete, i ) => {
+						console.log( athlete, i );
+						var row = html.tr.clone().append( 
+							html.td.clone().addClass( 'num'   ).html( i + 1 ),
+							html.td.clone().addClass( 'name'  ).html( athlete.display.name() ),
+							html.td.clone().addClass( 'tech'  ).html( athlete.score.technical( round ).toFixed( 2 )),
+							html.td.clone().addClass( 'pres'  ).html( athlete.score.presentation( round ).toFixed( 2 )),
+							html.td.clone().addClass( 'total' ).html( athlete.score.total( round ).toFixed( 2 ))
+						);
+						table.append( row );
+					});
 				},
 				total: function( athlete, round ) {
 					var div        = $( '#score' );

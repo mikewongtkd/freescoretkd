@@ -24,25 +24,19 @@ function Division( division ) {
 			var i = parseInt( division.current ); if( isNaN( i )) { i = 0; }
 			return new Athlete( division.athletes[ i ] );
 		},
-		athletes :  function() { var round = division.round; var order = division.order[ round ]; return order.map(( i ) => { return new Athlete( division.athletes[ i ] ); }) },
-		athleteId : function() { return division.current; },
-		order :     function() { var round = division.round; return division.order[ round ]; },
-		progress :  function() { var round = division.round; var order = division.order; var i = order[ round ].findIndex(( x ) => { return x == division.current; }); return ordinal(i + 1) + ' of ' + order[ round ].length; },
-		round:      function() { return FreeScore.round.name[ division.round ]; },
-		roundId:    function() { return division.round; }
+		athletes :   function() { var round = division.round; var order = division.order[ round ]; return order.map(( i ) => { return new Athlete( division.athletes[ i ] ); }) },
+		athleteId :  function() { return division.current; },
+		order :      function() { var round = division.round; return division.order[ round ]; },
+		placements : function() { var round = division.round; return division.placements[ round ].map(( i ) => { return new Athlete( division.athletes[ i ] ); }); },
+		progress :   function() { var round = division.round; var order = division.order; var i = order[ round ].findIndex(( x ) => { return x == division.current; }); return ordinal(i + 1) + ' of ' + order[ round ].length; },
+		round:       function() { return FreeScore.round.name[ division.round ]; },
+		roundId:     function() { return division.round; }
 	};
 
 	var _is = this.is = {
 		complete: function() { return division.complete; }
 	};
 
-	this.pending = function() { 
-		return division.pending.map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
-	};
-
-	this.placement = function() {
-		return division.placement.map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
-	}
 	var _state = this.state = {
 		is : {
 			score   : function() { return division.state == 'score'; },

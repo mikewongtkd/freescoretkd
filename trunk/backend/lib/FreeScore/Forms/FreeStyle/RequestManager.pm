@@ -781,7 +781,7 @@ sub autopilot {
 			};
 
 			if    ( $go_next->{ round }   ) { $division->next_round(); }
-			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
+			elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 
