@@ -10,8 +10,6 @@ use Math::Round qw( nearest_ceil round );
 use base qw( FreeScore::Forms::Division Clone );
 use Data::Dumper;
 
-our @STANCES = qw( hakdari-seogi beom-seogi dwigubi );
-
 # ============================================================
 # File format is specified as follows:
 # ============================================================
@@ -416,15 +414,19 @@ sub _drop_hilo {
 	my @subtotals = map { 
 		my $subcats  = $_->{ $category }; 
 		my $subtotal = reduce { $a += $subcats->{ $b }; } 0.0, keys %$subcats;
-		my $major    = $_->{ deductions }{ major };
-		my $minor    = $_->{ deductions }{ minor };
-		$subtotal   -= ($major + $minor) if( $category eq 'technical' );
+		print STDERR "   $category $subtotal\n";
+		if( $category eq 'technical' ) {
+			my $major    = $_->{ deductions }{ major };
+			my $minor    = $_->{ deductions }{ minor };
+			$subtotal   -= ($major + $minor);
+		}
 		$subtotal;
 	} @$scores;
 	my ($min, $max) = minmax @subtotals;
 	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
 	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
-	my $sum = reduce { $a += $b } @subtotals;
+	my $sum = reduce { $a += $b } 0, @subtotals;
+	print STDERR "    min: $min ($i) max: $max ($j) " . join( ', ', @subtotals ) . " sum: $sum\n";
 	$sum -= $min + $max;
 
 	return ($sum, $i, $j);

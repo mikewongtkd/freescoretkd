@@ -91,19 +91,22 @@
 			var refresh = { 
 				display: function( division ) {
 					var athlete = division.current.athlete();
+					var round   = division.current.roundId();
 					refresh.athlete( athlete );
 
 					judges.num   = division.judges();
 					refresh.judges( division );
 
-					var complete = athlete.score.complete();
+					var complete = athlete.score.complete( round );
 					if( complete ) {
-						refresh.total( athlete );
+						refresh.total( athlete, round );
 					}
 				},
 				athlete: function( athlete ) {
 					$( '.athlete #name' ).html( athlete.display.name() );
 					if( defined( athlete.info( 'flag' ))) { $( '.athlete #flag' ).html( html.img.clone().attr({ src: '../../images/flags/' + athlete.info( 'flag' ) })); }
+					$( '#score' ).empty();
+					$( '.judge' ).empty();
 				},
 				judges: function( division ) {
 					var athlete = division.current.athlete();
@@ -147,13 +150,9 @@
 						div.empty().append( checkmark );
 					},
 				},
-				total: function( athlete ) {
+				total: function( athlete, round ) {
 					var div        = $( '#score' );
-					var consensus  = athlete.score.consensus();
-					var deductions = consensus.deductions; if( ! defined( deductions )) { return; }
-					var major      = { subtotal : parseFloat( deductions.major.subtotal ) }; 
-					var minor      = { subtotal : parseFloat( deductions.minor.subtotal ) }; 
-					var total      = athlete.score.total() - (major.subtotal + minor.subtotal);
+					var total      = athlete.score.total( round );
 					div.html( total.toFixed( 2 ));
 				}
 			};
