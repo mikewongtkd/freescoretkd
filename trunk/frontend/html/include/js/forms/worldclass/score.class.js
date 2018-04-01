@@ -149,7 +149,7 @@ function Score( score ) {
 						total : function() {
 							var total = 0.0;
 							Object.keys( form.penalty ).forEach( function( category ) { 
-								if( category == 'misconduct' ) { continue; } // Gamjeoms do not deduct from points
+								if( category == 'misconduct' ) { return; } // Gamjeoms do not deduct from points
 								var value = defined( form.penalty[ category ] ) ? parseFloat( form.penalty[ category ]) : 0.0;
 								total += value;
 							});
