@@ -57,8 +57,10 @@ sub init {
 	};
 	$self->{ ring }        = {
 		division_delete    => \&handle_ring_division_delete,
+		division_merge     => \&handle_ring_division_merge,
 		division_next      => \&handle_ring_division_next,
 		division_prev      => \&handle_ring_division_prev,
+		division_split     => \&handle_ring_division_split,
 		read               => \&handle_ring_read,
 		transfer           => \&handle_ring_transfer,
 	};
@@ -732,6 +734,27 @@ sub handle_ring_division_delete {
 
 	try {
 		$progress->delete_division( $request->{ divid });
+		$progress->write();
+		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_ring_division_merge {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Merging flights for division $request->{ divid }.\n" if $DEBUG;
+
+	try {
+		$progress->merge_division( $request->{ divid });
 		$progress->write();
 		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {

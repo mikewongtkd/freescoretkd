@@ -120,6 +120,9 @@ function Division( division ) {
 			});
 
 			return complete;
+		},
+		flight : () => {
+			return 'flight' in division;
 		}
 	};
 

@@ -70,7 +70,7 @@
 							<div class="btn-group-vertical btn-block">
 								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-split"><span class="glyphicon glyphicon-resize-full"></span> Split Division</a>
+								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-split" style="display:none;"><span class="glyphicon glyphicon-resize-full"></span> Split into Flights</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-merge" style="display: none;" ><span class="glyphicon glyphicon-resize-small"></span> Merge Flights</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-restage"><span class="glyphicon glyphicon-arrow-left"></span> Restage</a>
 							</div>
@@ -98,6 +98,8 @@
 							<div class="btn-group-vertical btn-block">
 								<a class="btn btn-success" href="division/editor.php?file=test/staging/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
 								<a class="btn btn-default disabled" id="staging-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+								<a class="btn btn-default disabled" id="staging-div-split" style="display:none;"><span class="glyphicon glyphicon-resize-full"></span> Split into Flights</a>
+								<a class="btn btn-default disabled" id="staging-div-merge" style="display: none;" ><span class="glyphicon glyphicon-resize-small"></span> Merge Flights</a>
 								<a class="btn btn-default disabled" id="staging-div-send" target="_blank"><span class="glyphicon glyphicon-arrow-right"></span> Send to Ring</a>
 								<a class="btn btn-default disabled" id="staging-div-delete"><span class="glyphicon glyphicon-remove"></span> Delete</a>
 							</div>
@@ -214,6 +216,56 @@
 				};
 			});
 
+			// ===== DEFINE THE DIVISION SPLIT FACTORY
+			alertify.dialog( 'divisionSplit', function() {
+				return {
+					main: function( title, message, athletes, callback ) {
+						this.set( 'title', title );
+						this.message  = message;
+						this.callback = callback;
+						return this;
+					},
+					setup: function() {
+						var flights = [ 2, 3, 4 ];
+						var buttons = flights.map(( i ) => { 
+							return { text: i + ' flights', value: i, className: 'btn btn-info' };
+						});
+						buttons.push({ text: 'Cancel', value: 'cancel', className: 'btn btn-warning' });
+						return {
+							buttons: buttons,
+							focus: { element: 0 },
+							options: {
+								closable: false,
+								closableByDimmer: false,
+								maximizable: false,
+								modal: true,
+								movable: false,
+								resizeable: false,
+							},
+						};
+					},
+					build: function() {
+						$( this.elements.header ).html( this.title );
+					},
+					prepare: function() {
+						this.setContent( this.message );
+						var matches = this.message.match( /(\d+) athletes/ );
+						var n       = parseInt( matches[ 1 ] );
+						var max     = 2;
+						if( n > 60 ) { max = 4; } else if( n > 40 ) { max = 3; } else if( n > 20 ) { max = 2; }
+						buttons = $( this.elements.buttons.primary ).find( 'button' );
+						buttons.each(( i, button ) => {
+							var matches = $( button ).html().match( /(\d) flights/i );
+							if( matches ) {
+								var flights = matches[ 1 ];
+								if( flights > max ) { $( button ).hide(); }
+							}
+						});
+					}
+				};
+			});
+
+
 			var refresh = {
 				rings : function( update ) {
 					var ring = { num: update.ring.name, divisions : update.ring.divisions };
@@ -229,8 +281,10 @@
 					}
 
 					// ===== DISABLE DIVISION-SPECIFIC ACTION BUTTONS UNTIL A DIVISION IS SELECTED
-					var action     = { button: { edit: $( '#' + ring.name + '-div-edit' ), restage: $( '#' + ring.name + '-div-restage' ), send: $( '#staging-div-send' ), delete: $( '#' + ring.name + '-div-delete' ) }};
-					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, };
+					var action     = { button: { edit: $( '#' + ring.name + '-div-edit' ), split: $( '#' + ring.name + '-div-split' ), merge: $( '#' + ring.name + '-div-merge' ), restage: $( '#' + ring.name + '-div-restage' ), send: $( '#staging-div-send' ), delete: $( '#' + ring.name + '-div-delete' ) }};
+					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, enable: ( ring, divid ) => { action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' ); action.button.edit.attr({ 'href': 'division/editor.php?file=test/' + ring + '/' + divid }); }};
+					action.merge   = { disable: () => { action.button.merge.removeClass( 'btn-primary' ).addClass( 'disabled' ).hide(); }, enable: () => { action.button.merge.addClass( 'btn-primary' ).removeClass( 'disabled' ).show(); }};
+					action.split   = { disable: () => { action.button.split.removeClass( 'btn-primary' ).addClass( 'disabled' ).hide(); }, enable: () => { action.button.split.addClass( 'btn-primary' ).removeClass( 'disabled' ).show(); }};
 					action.restage = { disable: () => { action.button.restage.removeClass( 'btn-warning' ).addClass( 'disabled' ); action.button.restage.off( 'click' ); } };
 					action.send    = { disable: () => { action.button.send.removeClass( 'btn-warning' ).addClass( 'disabled' ); action.button.send.off( 'click' ); } };
 					action.delete  = { disable: () => { action.button.delete.removeClass( 'btn-danger' ).addClass( 'disabled' ); action.button.delete.off( 'click' ); } };
@@ -258,7 +312,9 @@
 						button.off( 'click' ).click(( ev ) => {
 							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
 							var divid    = clicked.attr( 'divid' );
-							var division = ring.divisions.find(( d ) => { return d.name == divid; });
+							var division = new Division( ring.divisions.find(( d ) => { return d.name == divid; }));
+							var round    = division.current.roundId();
+							var athletes = division.current.athletes();
 
 							$.cookie( 'divid', divid, { expires: 1, path: '/' });
 							sound.next.play();
@@ -267,6 +323,8 @@
 								$( 'a.list-group-item.active' ).removeClass( 'active' );
 								button.find( 'p.athletes' ).addClass( 'hidden' );
 								action.edit.disable();
+								action.merge.disable();
+								action.split.disable();
 								action.restage.disable();
 								action.send.disable();
 								action.delete.disable();
@@ -278,15 +336,40 @@
 								button.find( 'p.athletes' ).removeClass( 'hidden' );
 
 								// Edit button
-								action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' );
-								action.button.edit.attr({ 'href': 'division/editor.php?file=test/' + ring.num + '/' + divid });
+								action.edit.enable( ring.num, divid );
+
+								// Merge button
+								if( round == 'semfin' && division.is.flight() ) { action.merge.enable(); } else { action.merge.disable(); }
+
+								// Split button
+								if( round == 'prelim' && athletes.length > 20 ) { action.split.enable(); } else { action.split.disable(); }
+								action.button.split.off( 'click' ).click(() => {
+									sound.next.play();
+									var divname  = division.summary();
+									var title    = 'Split ' + divname;
+									var message  = 'Click on one of the buttons below to split the ' + athletes.length + ' athletes of <b>' + divname + '</b> into that number of flights';
+									var callback = function( ev ) {
+										var option = ev.button.value;
+										if( option == 'cancel' ) {
+											sound.prev.play();
+										} else {
+											var request;
+											request      = { data : { type : 'ring', action : 'division split', name: divid, split: option }};
+											request.json = JSON.stringify( request.data );
+											ws.send( request.json );
+											sound.ok.play();
+											alertify.success( 'Division ' + divname + ' sent split into ' + option + ' flights' );
+										}
+									};
+									alertify.divisionSplit( title, message, athletes, callback );
+								});
 
 								// Transfer button
 								if( ring.name == 'staging' ) {
 									action.button.send.addClass( 'btn-warning' ).removeClass( 'disabled' );
 									action.button.send.off( 'click' ).click(() => {
 										sound.next.play();
-										var divname = divid.toUpperCase() + ' ' + division.description;
+										var divname  = division.summary();
 										var title    = 'Which Ring?';
 										var message  = 'Click on one of the buttons below to send <b>' + divname + '</b> to that ring';
 										var callback = function( ev ) {
@@ -311,7 +394,7 @@
 									action.button.restage.addClass( 'btn-warning' ).removeClass( 'disabled' );
 									action.button.restage.off( 'click' ).click(() => {
 										sound.next.play();
-										var divname = divid.toUpperCase() + ' ' + division.description;
+										var divname = division.summary();
 										var title   = 'Send Division <b>' + divname + '</b> back to Staging?';
 										var message = 'Click <span class="txt-warning">OK</span> to send division <b>' + divname + '</b> back to staging, or <span class="txt-warning">Cancel</span> to do nothing.';
 										var ok      = function() {
@@ -320,7 +403,7 @@
 											request.json = JSON.stringify( request.data );
 											ws.send( request.json );
 											sound.ok.play();
-											alertify.success( 'Division ' + division.description + ' sent back to staging.' );
+											alertify.success( 'Division ' + division.summary() + ' sent back to staging.' );
 				
 											action.edit.disable();
 											action.restage.disable();
@@ -337,15 +420,15 @@
 								action.button.delete.addClass( 'btn-danger' ).removeClass( 'disabled' );
 								action.button.delete.off( 'click' ).click(() => {
 									sound.next.play();
-									var title   = 'Delete Division ' + division.description + '?';
-									var message = 'Click <span class="txt-danger">OK</span> to delete division ' + division.description + ', or <span class="txt-warning">Cancel</span> to do nothing.';
+									var title   = 'Delete Division ' + division.summary() + '?';
+									var message = 'Click <span class="txt-danger">OK</span> to delete division ' + division.summary() + ', or <span class="txt-warning">Cancel</span> to do nothing.';
 									var ok      = function() {
 										var request;
 										request      = { data : { type : 'ring', action : 'division delete', divid : divid }};
 										request.json = JSON.stringify( request.data );
 										ws.send( request.json );
 										sound.ok.play();
-										alertify.success( 'Division ' + division.description + ' deleted.' );
+										alertify.success( 'Division ' + division.summary() + ' deleted.' );
 			
 										action.edit.disable();
 										action.restage.disable();
