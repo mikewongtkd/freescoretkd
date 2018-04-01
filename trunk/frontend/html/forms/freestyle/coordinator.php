@@ -277,7 +277,7 @@
 							view       : () => { sound.next.play(); sendRequest({ data : { type : 'division', action: 'view next' }})},
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=<?= $ring?>', '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring.num < 10 ? '0' + ring.num : ring.num) + '/div.' + divid + '.txt', '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( 'index.php', '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/freestyle/results?ring=' + ring.num + '&divid=' + divid, '_blank' )},
 						}
 					};
 
