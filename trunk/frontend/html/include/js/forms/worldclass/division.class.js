@@ -6,7 +6,7 @@ function Division( division ) {
 	// ===== DIVISION HEADER
 	this.name        = function() { return division.name;        }
 	this.description = function() { return division.description; }
-	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description; }
+	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description + (this.is.flight() ? ' (Flight ' + division.flight.id.toUpperCase() + ')':''); }
 	this.judges      = function() { return parseInt( division.judges ); }
 	this.flight      = function() { if( 'flight' in division ) { return division.flight; } else { return null; }}
 	this.forms       = function() { return division.forms;       }
@@ -111,6 +111,8 @@ function Division( division ) {
 	var _is = this.is = {
 	// ============================================================
 		complete : () => {
+			if( this.is.flight() && (division.flight.state == 'complete' || division.flight.state == 'merged')) { return true; }
+
 			var rounds     = this.rounds();
 			var complete   = true;
 			rounds.forEach(( round ) => {
@@ -122,7 +124,7 @@ function Division( division ) {
 			return complete;
 		},
 		flight : () => {
-			return 'flight' in division;
+			return 'flight' in division && defined( division.flight );
 		}
 	};
 

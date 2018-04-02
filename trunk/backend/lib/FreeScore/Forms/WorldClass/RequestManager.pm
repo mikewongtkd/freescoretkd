@@ -121,7 +121,7 @@ sub broadcast_ring_response {
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
-		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed };
+		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 		$user->{ device }->send( { json => $response });
@@ -751,10 +751,10 @@ sub handle_ring_division_merge {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 
-	print STDERR "Merging flights for division $request->{ divid }.\n" if $DEBUG;
+	print STDERR "Merging flights for division $request->{ name }.\n" if $DEBUG;
 
 	try {
-		$progress->merge_division( $request->{ divid });
+		$progress->merge_division( $request->{ name });
 		$progress->write();
 		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {
@@ -797,6 +797,29 @@ sub handle_ring_division_prev {
 
 	try {
 		$progress->previous();
+		$progress->write();
+		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_ring_division_split {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $divid    = $request->{ name };
+	my $flights  = $request->{ flights };
+
+	print STDERR "Splitting division $divid into $flights flights.\n" if $DEBUG;
+
+	try {
+		$progress->split_division( $divid, $flights );
 		$progress->write();
 		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {

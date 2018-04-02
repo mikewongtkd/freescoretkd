@@ -2,9 +2,12 @@ package FreeScore::Forms::WorldClass;
 use FreeScore;
 use FreeScore::Forms;
 use FreeScore::Forms::WorldClass::Division;
+use Clone qw( clone );
 use base qw( FreeScore::Forms );
-use List::Util qw( first min max );
+use List::Util qw( first min max shuffle );
 use List::MoreUtils qw( first_index );
+use Math::Round qw( nearest_ceil );
+use Data::Dumper;
 
 our $SUBDIR = "forms-worldclass";
 
@@ -92,6 +95,56 @@ sub get_only {
 }
 
 # ============================================================
+sub merge_division {
+# ============================================================
+	my $self     = shift;
+	my $divid    = shift;
+	my $flights  = shift;
+	my $i        = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
+
+	return unless $i >= 0;
+	my $division = $self->{ divisions }[ $i ]; return unless $division->is_flight();
+	my @group    = @{$division->{ flight }{ group }};
+	my @flights  = ();
+	my @advance  = ();
+
+	# Flight check: make sure all flights are in the same ring or in staging
+	foreach my $id (@group) {
+		my $i = first_index { $_->{ name } eq $id } @{ $self->{ divisions }};
+		die "Flight $id not found" unless $i >= 0;
+
+		my $flight = $self->{ divisions }[ $i ];
+		die "Flight $id is still in progress" if $flight->{ flight }{ state } ne 'complete';
+
+		push @flights, $flight;
+	}
+
+	# Only the top half of each flight advance
+	foreach my $flight (@flights) {
+		my $n        = nearest_ceil( 1, @{ $flight->{ athletes }}/2 ) - 1;
+		my $top_half = [ @{$flight->{ placement }{ prelim }}[ 0 .. $n ] ];
+		my @athletes = map { clone( $flight->{ athletes }[ $_ ]) } @$top_half;
+		push @advance, @athletes;
+		$flight->{ flight }{ state } = 'merged';
+		$flight->write();
+	}
+	foreach my $athlete (@advance) { delete $athlete->{ scores }{ prelim }; }
+
+	my $merged = $division->clone();
+	$merged->{ name }    =~ s/$merged->{ flight }{ id }$//;
+	$merged->{ file }    =~ s/$merged->{ flight }{ id }\.txt$/.txt/;
+	$merged->{ round }   = 'semfin';
+	$merged->{ current } = 0;
+	$merged->{ order }   = { semfin => [ 0 .. $#advance ]};
+	foreach my $key (qw( order placement pending forms )) {
+		delete $merged->{ $key }{ prelim } if exists $merged->{ $key }{ prelim };
+	}
+	$merged->{ athletes } = [ shuffle @advance ]; # Merge athletes in random order
+	delete $merged->{ flight }; # The merged division is no longer a flight;
+	$merged->write();
+}
+
+# ============================================================
 sub next_available {
 # ============================================================
 	my $self      = shift;
@@ -133,6 +186,21 @@ sub next_available {
 		} keys %$divisions;
 		return sprintf( "%s%02d", $largest, (shift @{ $divisions->{ $largest }}));
 	}
+}
+
+# ============================================================
+sub split_division {
+# ============================================================
+	my $self     = shift;
+	my $divid    = shift;
+	my $flights  = shift;
+	my $i        = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
+
+	return unless $i >= 0;
+	my $division = $self->{ divisions }[ $i ];
+	my @flights  = $division->split( $flights );
+
+	$self->delete_division( $divid );
 }
 
 # ============================================================

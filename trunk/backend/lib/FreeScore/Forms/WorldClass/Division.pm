@@ -6,7 +6,7 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
-use Math::Round qw( round );
+use Math::Round qw( round nearest_ceil );
 use JSON::XS;
 use Try::Tiny;
 use Data::Dumper;
@@ -365,6 +365,16 @@ sub get_only {
 		}
 	}
 	return $clone;
+}
+
+# ============================================================
+sub is_flight {
+# ============================================================
+#** @is_flight ()
+#   @brief Returns true if the division is a flight;
+#*
+	my $self   = shift;
+	return exists $self->{ flight } && defined $self->{ flight };
 }
 
 # ============================================================
@@ -727,20 +737,40 @@ sub split {
 	my $j        = round( int( @athletes )/$n );
 	my @flights  = ();
 
+	my $group = [ map { $self->{ name } . chr( ord( 'a' ) + ($_ - 1)) } (1 .. $n) ];
+
 	foreach my $i ( 1 .. $n ) {
 		my $id     = chr( ord( 'a' ) + ($i - 1));
 		my $flight = $self->clone();
 		my $k      = min( int( @athletes ), $j ); 
 		$flight->{ flight }{ id } = $id;
+		$flight->{ file } =~ s/$flight->{ name }\.txt$/$flight->{ name }$id.txt/;
+		$flight->{ name } = $flight->{ name } . $id;
 		$flight->{ athletes } = [ splice( @athletes, 0, $k ) ];
+		$flight->{ order }{ prelim } = [ 0 .. $#{ $flight->{ athletes }} ];
+		$flight->{ flight }{ state } = 'in-progress';
+
+		# ----------------------------------------
+		# MW
+		foreach my $i ( 0 .. $#{ $flight->{ athletes }}) {
+			$flight->{ current } = $i;
+			foreach my $judge ( 0 .. 4 ) {
+				my $minor  = (int( rand() * 10) * 0.1) + 0.5;
+				my $rhythm = (int( rand() * 15) * 0.1) + 0.5;
+				my $power  = (int( rand() * 15) * 0.1) + 0.5;
+				my $ki     = (int( rand() * 15) * 0.1) + 0.5;
+				$flight->record_score( $judge, { major => 0.0, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki, complete => 1 });
+			}
+		}
+		$flight->{ flight }{ state } = 'complete';
+		# ----------------------------------------
+
+		$flight->{ flight }{ group } = $group;
+		$flight->write();
 		push @flights, $flight;
 	}
 
-	my $group = [ map { "$_->{ name }$_->{ flight }{ id }"; } @flights ];
-	foreach my $flight (@flights) {
-		$flight->{ flight }{ group } = $group;
-		$flight->write();
-	}
+	return @flights;
 }
 
 # ============================================================
@@ -772,7 +802,12 @@ sub update_status {
 
 	# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
 	my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
-	if     ( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
+
+	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
+	if     ( $round eq 'prelim' && $self->is_flight() && $self->round_complete( 'prelim' ) && $self->{ flight }{ state } ne 'merged' ) {
+		$self->{ flight }{ state } = 'complete';
+
+	} elsif( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
 
 		# Skip if athletes have already been assigned to the semi-finals
 		my $semfin = $self->{ order }{ semfin };
@@ -905,7 +940,7 @@ sub write {
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
-	print FILE "# flight=id:$self->{ flight }{ id };group:" . join( ";", @{ $self->{ flight }{ group }}) . "\n" if exists( $self->{ flight }) && defined( $self->{ flight } );
+	print FILE "# flight=id:$self->{ flight }{ id };group:" . join( ",", @{ $self->{ flight }{ group }}) . ";state:$self->{ flight }{ state }\n" if $self->is_flight();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		my $order = $self->{ order }{ $round };
 		next unless defined $order && int( @$order );
@@ -972,6 +1007,8 @@ sub next_round {
 	my $first   = $i[ 0 ];
 	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
 	my $i       = $map->{ $round };
+
+	return if( $self->is_flight() ); # Flights have only one round: prelim
 
 	if( $self->{ method } eq 'combination' ) {
 		if    ( $round eq 'semfin' ) { $i = $map->{ ro8a }; } # semfin goes to ro8a
@@ -1174,13 +1211,14 @@ sub _parse_flights {
 #   @details For use with 'flight' header
 #*
 	my $value = shift;
-	my ($id, $groups) = split /;/, $value;
+	my ($id, $group, $state) = split /;/, $value;
 	my $key = undef;
 	($key, $id)     = split /\s*:\s*/, $id;
-	($key, $groups) = split /\s*:\s*/, $groups;
-	$groups = [ split /\s*,\s*/, $groups ];
+	($key, $group)  = split /\s*:\s*/, $group;
+	$group          = [ split /\s*,\s*/, $group ];
+	($key, $state)  = split /\s*:\s*/, $state;
 
-	return { id => $id, groups => $groups }; 
+	return { id => $id, group => $group, state => $state }; 
 }
 
 # ============================================================

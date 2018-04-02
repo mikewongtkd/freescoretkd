@@ -32,6 +32,7 @@
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
+		<title>World Class Ring <?= $i ?> Operations</title>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -40,7 +41,7 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
 				<div class="container">
-					<div class="page-header"><span id="ring-header">Ring <?= $i ?></span></div>
+					<div class="page-header"><span id="ring-header">Ring <?= $i ?> Operations</span></div>
 					<div class="clearfix">
 						<div class="pull-left">
 							<ul class="nav nav-tabs">

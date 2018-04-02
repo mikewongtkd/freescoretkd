@@ -9,7 +9,7 @@
 ?>
 <html>
 	<head>
-		<title>World Class Divisions</title>
+		<title>World Class Division Manager</title>
 		<link href="../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
@@ -167,8 +167,23 @@
 				ws.onmessage = network.message = function( response ) {
 					var update = JSON.parse( response.data );
 
+					console.log( update );
 					if( update.type == 'ring' && update.action == 'update' ) {
 						if( ! defined( update.ring )) { return; }
+						if( defined( update.request )) {
+							// Merge and split events are fulfilled by the backend; request the latest data
+							var request = { data : { type : 'ring', action : 'read' }};
+							request.json = JSON.stringify( request.data );
+
+							if       ( update.request.action == 'division split' ) {
+								ws.send( request.json );
+
+							} else if( update.request.action == 'division merge' ) {
+								sound.ok.play();
+								alertify.success( 'Division ' + update.request.name.toUpperCase() + ' has been merged!' );
+								ws.send( request.json );
+							}
+						}
 						refresh.rings( update );
 
 					} else if( update.type == 'division' && update.action == 'write ok' ) {
@@ -306,6 +321,9 @@
 						// Don't display staging (unless you mean it)
 						if( division.ring() == 'staging' && ring.name != 'staging' ) { return; } 
 
+						// Don't display merged flights
+						if( division.is.flight() && division.flight().state == 'merged' ) { return; }
+
 						button.empty();
 						button.append( summary, count, athletes );
 						button.attr({ divid: division.name() });
@@ -339,7 +357,14 @@
 								action.edit.enable( ring.num, divid );
 
 								// Merge button
-								if( round == 'semfin' && division.is.flight() ) { action.merge.enable(); } else { action.merge.disable(); }
+								if( division.is.flight() && division.flight().state == 'complete' ) { action.merge.enable(); } else { action.merge.disable(); }
+								action.button.merge.off( 'click' ).click(() => {
+									var request;
+									request      = { data : { type : 'ring', action : 'division merge', name: divid }};
+									request.json = JSON.stringify( request.data );
+									ws.send( request.json );
+									action.merge.disable();
+								});
 
 								// Split button
 								if( round == 'prelim' && athletes.length > 20 ) { action.split.enable(); } else { action.split.disable(); }
@@ -354,10 +379,11 @@
 											sound.prev.play();
 										} else {
 											var request;
-											request      = { data : { type : 'ring', action : 'division split', name: divid, split: option }};
+											request      = { data : { type : 'ring', action : 'division split', name: divid, flights: option }};
 											request.json = JSON.stringify( request.data );
 											ws.send( request.json );
 											sound.ok.play();
+											action.split.disable();
 											alertify.success( 'Division ' + divname + ' sent split into ' + option + ' flights' );
 										}
 									};
