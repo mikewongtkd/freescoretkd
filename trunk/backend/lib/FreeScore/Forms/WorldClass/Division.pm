@@ -749,22 +749,6 @@ sub split {
 		$flight->{ athletes } = [ splice( @athletes, 0, $k ) ];
 		$flight->{ order }{ prelim } = [ 0 .. $#{ $flight->{ athletes }} ];
 		$flight->{ flight }{ state } = 'in-progress';
-
-		# ----------------------------------------
-		# MW
-		foreach my $i ( 0 .. $#{ $flight->{ athletes }}) {
-			$flight->{ current } = $i;
-			foreach my $judge ( 0 .. 4 ) {
-				my $minor  = (int( rand() * 10) * 0.1) + 0.5;
-				my $rhythm = (int( rand() * 15) * 0.1) + 0.5;
-				my $power  = (int( rand() * 15) * 0.1) + 0.5;
-				my $ki     = (int( rand() * 15) * 0.1) + 0.5;
-				$flight->record_score( $judge, { major => 0.0, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki, complete => 1 });
-			}
-		}
-		$flight->{ flight }{ state } = 'complete';
-		# ----------------------------------------
-
 		$flight->{ flight }{ group } = $group;
 		$flight->write();
 		push @flights, $flight;
