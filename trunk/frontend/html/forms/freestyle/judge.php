@@ -450,6 +450,7 @@
 			var division     = undefined;
 			var presentation = { creativity : false, harmony : false, energy : false, choreography : false };
 			var scored       = {};
+			var sent         = false;
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -514,9 +515,10 @@
 
 				if( update.action == 'update' && update.type == 'division' ) {
 					if( defined( update.request )) {
-						if( update.request.action == 'score' ) {
+						if( update.request.action == 'score' && sent ) {
 							alertify.success( 'Score for ' + previous.athlete.name + ' received.' );
 							sound.ok.play();
+							sent = false;
 						}
 					}
 					var athlete  = division.current.athlete(); 
@@ -557,6 +559,9 @@
 
 				major.deductions({ count: m + missed, limit: missed });
 				minor.deductions({ count: n });
+
+				$( '.next-button' ).html( 'OK' );
+				$( '#presentation-next' ).html( 'Review' );
 			};
 
 			// ===== REFRESH DIVISION
@@ -570,12 +575,16 @@
 
 				// Reset the Score
 				if( defined( athlete.scores() )) {
-					score = (athlete.scores())[ <?= $judge ?> ];
+					score  = (athlete.scores())[ <?= $judge ?> ];
 					refresh.ui( score );
 					setTimeout(() => { $( '#review-tab' ).tab( 'show' ); }, 150 );
+
 				} else {
+					scored = {};
 					score = { technical: { mft1: 0, mft2: 0, mft3: 0, mft4: 0, mft5: 0, basic: 0 }, presentation: { creativity: 0, harmony: 0, energy: 0, choreography: 0 }, deductions: { stances: { hakdari: false, beomseogi: false, dwigubi: false }, minor: 0.0, major: 0.9 }};
 				}
+					console.log( scored );
+
 				[ 'mft1', 'mft2', 'mft3', 'mft4', 'mft5' ].forEach(( category ) => { refresh.score( 'technical', category ); });
 				var major = $( '#major-deductions' );
 				major.deductions({ count: 3 });
@@ -659,14 +668,14 @@
 				$( '#total-score .component-score' ).html( total.toFixed( 1 ));
 			};
 			refresh.score( 'deductions' );
-			$( '#mft1-next' )         .off( 'click' ).click(() => { scored.mft1         = true; if( scored.mft2         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft2-tab'         ).tab( 'show' ); }});
-			$( '#mft2-next' )         .off( 'click' ).click(() => { scored.mft2         = true; if( scored.mft3         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft3-tab'         ).tab( 'show' ); }});
-			$( '#mft3-next' )         .off( 'click' ).click(() => { scored.mft3         = true; if( scored.mft4         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft4-tab'         ).tab( 'show' ); }});
-			$( '#mft4-next' )         .off( 'click' ).click(() => { scored.mft4         = true; if( scored.mft5         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft5-tab'         ).tab( 'show' ); }});
-			$( '#mft5-next' )         .off( 'click' ).click(() => { scored.mft5         = true; if( scored.basic        ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#basic-tab'        ).tab( 'show' ); }});
-			$( '#basic-next' )        .off( 'click' ).click(() => { scored.basic        = true; if( scored.controls     ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#controls-tab'     ).tab( 'show' ); }});
-			$( '#controls-next' )     .off( 'click' ).click(() => { scored.controls     = true; if( scored.presentation ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#presentation-tab' ).tab( 'show' ); }});
-			$( '#presentation-next' ) .off( 'click' ).click(() => { scored.presentation = true; $( '#review-tab'       ).tab( 'show' ); });
+			$( '#mft1-next' )         .off( 'click' ).click(() => { sound.next.play(); scored.mft1         = true; setTimeout( () => { $( '#mft1-next'     ).html( 'Review' ); }, 750 ); if( scored.mft2         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft2-tab'         ).tab( 'show' ); }});
+			$( '#mft2-next' )         .off( 'click' ).click(() => { sound.next.play(); scored.mft2         = true; setTimeout( () => { $( '#mft2-next'     ).html( 'Review' ); }, 750 ); if( scored.mft3         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft3-tab'         ).tab( 'show' ); }});
+			$( '#mft3-next' )         .off( 'click' ).click(() => { sound.next.play(); scored.mft3         = true; setTimeout( () => { $( '#mft3-next'     ).html( 'Review' ); }, 750 ); if( scored.mft4         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft4-tab'         ).tab( 'show' ); }});
+			$( '#mft4-next' )         .off( 'click' ).click(() => { sound.next.play(); scored.mft4         = true; setTimeout( () => { $( '#mft4-next'     ).html( 'Review' ); }, 750 ); if( scored.mft5         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft5-tab'         ).tab( 'show' ); }});
+			$( '#mft5-next' )         .off( 'click' ).click(() => { sound.next.play(); scored.mft5         = true; setTimeout( () => { $( '#mft5-next'     ).html( 'Review' ); }, 750 ); if( scored.basic        ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#basic-tab'        ).tab( 'show' ); }});
+			$( '#basic-next' )        .off( 'click' ).click(() => { sound.next.play(); scored.basic        = true; setTimeout( () => { $( '#basic-next'    ).html( 'Review' ); }, 750 ); if( scored.controls     ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#controls-tab'     ).tab( 'show' ); }});
+			$( '#controls-next' )     .off( 'click' ).click(() => { sound.next.play(); scored.controls     = true; setTimeout( () => { $( '#controls-next' ).html( 'Review' ); }, 750 ); if( scored.presentation ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#presentation-tab' ).tab( 'show' ); }});
+			$( '#presentation-next' ) .off( 'click' ).click(() => { sound.next.play(); scored.presentation = true; $( '#review-tab'       ).tab( 'show' ); });
 
 			// ===== REVIEW BUTTONS
 			$( '#mft1-score' )          .off( 'click' ).click(() => { $( '#mft1-tab'         ).tab( 'show' ); });
@@ -687,7 +696,8 @@
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 				$( '#send' ).addClass( 'disabled' );
-				setTimeout( () => { $( '#send' ).removeClass( 'disabled' ) }, 1500 );
+				setTimeout( () => { $( '#send' ).removeClass( 'disabled' ) }, 3000 );
+				sent = true;
 			});
 
 		</script>
