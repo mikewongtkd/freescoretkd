@@ -1,7 +1,7 @@
 package FreeScore::Forms::FreeStyle::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
-use JSON::XS();
+use JSON::XS;
 use List::Util qw( min reduce shuffle );
 use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );

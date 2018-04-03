@@ -650,8 +650,8 @@ sub handle_division_score {
 	my $version  = new FreeScore::RCS();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' + $request->{ judge };
-	my $message  = "$jname score for $athlete->{ name }\n";
+	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
+	my $message  = "  $jname score for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 

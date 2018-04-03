@@ -20,12 +20,14 @@ sudo cpanm \
 	Data::Structure::Util \
 	Date::Calc \
 	Digest::SHA1 \
+	File::Slurp \
 	Filesys::Notify::Simple \
 	GD \
 	GD::Barcode \
 	JSON::XS \
 	List::MoreUtils \
 	LWP::UserAgent \
+	Math::Round \
 	Mojolicious \
 	Time::HiRes \
 	Try::Tiny \

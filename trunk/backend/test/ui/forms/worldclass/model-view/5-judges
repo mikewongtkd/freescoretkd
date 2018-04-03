@@ -3,7 +3,7 @@
 # Testing using referee piloting
 #
 use lib qw( ./lib ../lib );
-use Algorithm::Numerical::Shuffle qw( shuffle );
+use List::Util qw( shuffle );
 use FreeScore::Test qw( score_worldclass );
 use Time::HiRes qw( usleep );
 
