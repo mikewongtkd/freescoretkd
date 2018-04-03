@@ -449,6 +449,7 @@
 			var refresh      = {};
 			var division     = undefined;
 			var presentation = { creativity : false, harmony : false, energy : false, choreography : false };
+			var scored       = {};
 
 			judge.name = judge.num == 0 ? 'Referee' : 'Judge ' + judge.num;
 			$( '.judge-name' ).html( judge.name );
@@ -658,14 +659,14 @@
 				$( '#total-score .component-score' ).html( total.toFixed( 1 ));
 			};
 			refresh.score( 'deductions' );
-			$( '#mft1-next' )         .off( 'click' ).click(() => { $( '#mft2-tab'         ).tab( 'show' ); });
-			$( '#mft2-next' )         .off( 'click' ).click(() => { $( '#mft3-tab'         ).tab( 'show' ); });
-			$( '#mft3-next' )         .off( 'click' ).click(() => { $( '#mft4-tab'         ).tab( 'show' ); });
-			$( '#mft4-next' )         .off( 'click' ).click(() => { $( '#mft5-tab'         ).tab( 'show' ); });
-			$( '#mft5-next' )         .off( 'click' ).click(() => { $( '#basic-tab'        ).tab( 'show' ); });
-			$( '#basic-next' )        .off( 'click' ).click(() => { $( '#controls-tab'     ).tab( 'show' ); });
-			$( '#controls-next' )     .off( 'click' ).click(() => { $( '#presentation-tab' ).tab( 'show' ); });
-			$( '#presentation-next' ) .off( 'click' ).click(() => { $( '#review-tab'       ).tab( 'show' ); });
+			$( '#mft1-next' )         .off( 'click' ).click(() => { scored.mft1         = true; if( scored.mft2         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft2-tab'         ).tab( 'show' ); }});
+			$( '#mft2-next' )         .off( 'click' ).click(() => { scored.mft2         = true; if( scored.mft3         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft3-tab'         ).tab( 'show' ); }});
+			$( '#mft3-next' )         .off( 'click' ).click(() => { scored.mft3         = true; if( scored.mft4         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft4-tab'         ).tab( 'show' ); }});
+			$( '#mft4-next' )         .off( 'click' ).click(() => { scored.mft4         = true; if( scored.mft5         ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#mft5-tab'         ).tab( 'show' ); }});
+			$( '#mft5-next' )         .off( 'click' ).click(() => { scored.mft5         = true; if( scored.basic        ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#basic-tab'        ).tab( 'show' ); }});
+			$( '#basic-next' )        .off( 'click' ).click(() => { scored.basic        = true; if( scored.controls     ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#controls-tab'     ).tab( 'show' ); }});
+			$( '#controls-next' )     .off( 'click' ).click(() => { scored.controls     = true; if( scored.presentation ) { $( '#review-tab' ).tab( 'show' ); } else { $( '#presentation-tab' ).tab( 'show' ); }});
+			$( '#presentation-next' ) .off( 'click' ).click(() => { scored.presentation = true; $( '#review-tab'       ).tab( 'show' ); });
 
 			// ===== REVIEW BUTTONS
 			$( '#mft1-score' )          .off( 'click' ).click(() => { $( '#mft1-tab'         ).tab( 'show' ); });
