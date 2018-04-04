@@ -92,7 +92,7 @@ sub broadcast_division_response {
 		my $digest    = sha1_hex( $encoded );
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed }});
+		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
@@ -121,7 +121,7 @@ sub broadcast_ring_response {
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
-		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
+		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 		$user->{ device }->send( { json => $response });
@@ -656,8 +656,9 @@ sub handle_division_score {
 	print STDERR $message if $DEBUG;
 
 	try {
+		my $score = clone( $request->{ score } );
 		$version->checkout( $division );
-		$division->record_score( $request->{ cookie }{ judge }, $request->{ score } );
+		$division->record_score( $request->{ cookie }{ judge }, $score );
 		$division->write();
 		$version->commit( $division, $message );
 
