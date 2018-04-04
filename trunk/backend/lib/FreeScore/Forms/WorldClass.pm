@@ -6,7 +6,7 @@ use Clone qw( clone );
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max shuffle );
 use List::MoreUtils qw( first_index );
-use Math::Round qw( nearest_ceil );
+use Math::Utils qw( ceil );
 use Data::Dumper;
 
 our $SUBDIR = "forms-worldclass";
@@ -121,7 +121,7 @@ sub merge_division {
 
 	# Only the top half of each flight advance
 	foreach my $flight (@flights) {
-		my $n        = nearest_ceil( 1, @{ $flight->{ athletes }}/2 ) - 1;
+		my $n        = ceil( @{ $flight->{ athletes }}/2 ) - 1;
 		my $top_half = [ @{$flight->{ placement }{ prelim }}[ 0 .. $n ] ];
 		my @athletes = map { clone( $flight->{ athletes }[ $_ ]) } @$top_half;
 		push @advance, @athletes;

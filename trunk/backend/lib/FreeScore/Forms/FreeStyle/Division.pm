@@ -6,7 +6,7 @@ use List::Util qw( min reduce shuffle );
 use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use File::Slurp qw( read_file );
-use Math::Round qw( nearest_ceil round );
+use Math::Utils qw( ceil );
 use base qw( FreeScore::Forms::Division Clone );
 use Data::Dumper;
 
@@ -157,7 +157,7 @@ sub calculate_round {
 			# Advance athletes from previous round
 			if( exists $order->{ 'prelim' } && ref( $order->{ 'prelim' }) eq 'ARRAY' && @{ $order->{ 'prelim' }} ) {
 				my @eligible       = _not_disqualified( $self->{ athletes }, $placements->{ 'prelim' } );
-				my $n              = nearest_ceil( 1, int( @eligible )/2 ); # Advance the top half of division, rounded up
+				my $n              = ceil( int( @eligible )/2 ); # Advance the top half of division, rounded up
 				@eligible          = splice( @eligible, 0, $n );
 				$order->{ $round } = [ shuffle( @eligible ) ];
 

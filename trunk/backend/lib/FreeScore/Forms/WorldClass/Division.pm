@@ -6,7 +6,7 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
-use Math::Round qw( round nearest_ceil );
+use Math::Round qw( round );
 use JSON::XS;
 use Try::Tiny;
 use Data::Dumper;
