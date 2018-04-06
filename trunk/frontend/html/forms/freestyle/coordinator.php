@@ -22,9 +22,8 @@
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
-		<script src="../../include/jquery/js/jquery.purl.js"></script>
+		<script src="../../include/jquery/js/jquery.timer.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
-		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
@@ -83,6 +82,7 @@
 									<a class="btn btn-primary" style="width:130px;" id="navigate-round-next">Next <span class="glyphicon glyphicon-step-forward"></span></a>
 								</div>
 							</div>
+							<!--
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -92,6 +92,7 @@
 									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
 								</div>
 							</div>
+							-->
 							<div class="decision">
 								<h4>Decision</h4>
 								<div class="list-group">
@@ -244,7 +245,8 @@
 					var divid   = division.name();
 					var action = {
 						penalty : {
-							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); }, // MW ADD TIMER
+							time       : () => { sound.next.play(); athlete.penalty.time();       action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>over/under&nbsp;time&nbsp;penalty</strong>' ); },
+							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
 							restart    : () => { sound.next.play(); athlete.penalty.restart();    action.penalty.send(); alertify.warning( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
 							misconduct : () => { sound.next.play(); athlete.penalty.misconduct(); action.penalty.send(); alertify.warning( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
 							clear      : () => { sound.prev.play(); athlete.penalty.clear();      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
@@ -257,6 +259,7 @@
 						},
 					};
 
+					$( "#penalty-time" )        .off( 'click' ).click( action.penalty.time );
 					$( "#penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
 					$( "#penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
 					$( "#penalty-misconduct" )  .off( 'click' ).click( action.penalty.misconduct );

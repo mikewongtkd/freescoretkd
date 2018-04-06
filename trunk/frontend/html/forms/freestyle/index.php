@@ -44,10 +44,6 @@
 				<div class="athlete">
 					<div id="flag"></div><div id="name"></div>
 					<div id="deductions">
-						<div class="unadjusted"></div>
-						<div class="major"></div>
-						<div class="minor"></div>
-						<div class="timing ok"><div class="glyphicon glyphicon-time"></div><div id="time-over-under">&#10004;</div></div>
 					</div>
 					<div id="score"></div>
 				</div>

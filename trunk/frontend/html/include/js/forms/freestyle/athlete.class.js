@@ -28,10 +28,11 @@ function Athlete( athlete ) {
 	};
 
 	this.penalty = {
+		time:         () => { athlete.penalty.time       += 0.1; return athlete.penalty.time; },
 		bounds:       () => { athlete.penalty.bounds     += 0.3; return athlete.penalty.bounds; },
 		restart:      () => { athlete.penalty.restart    += 0.6; return athlete.penalty.restart; },
 		misconduct:   () => { athlete.penalty.misconduct += 1;   return athlete.penalty.misconduct; },
-		clear:        () => { Object.keys( athlete.penalty ).forEach(( key ) => { athlete.penalty[ key ] = 0; }); },
+		clear:        () => { Object.keys( athlete.penalty ).forEach(( key ) => { delete athlete.penalty[ key ]; }); },
 	}
 
 	this.penalties  = () => { return athlete.penalty; }

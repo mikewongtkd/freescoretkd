@@ -195,6 +195,7 @@ sub calculate_scores {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
 		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
