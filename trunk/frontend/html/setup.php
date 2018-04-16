@@ -4,7 +4,7 @@
 ?>
 <html>
 	<head>
-		<title>FreeScore Setup</title>
+		<title>Tournament Setup</title>
 		<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="./include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="./include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
@@ -35,9 +35,6 @@
 				padding: 4px;
 				border-radius: 4px;
 			}
-			#wifi-pass {
-				font-family: monospace;
-			}
 			label.disabled {
 				pointer-events: none;
 			}
@@ -46,7 +43,7 @@
 	<body>
 		<div class="container">
 			<div class="page-header">
-				<h1>FreeScore Setup</h1>
+				<h1>Tournament Setup</h1>
 			</div>
 
 			<form>
@@ -101,60 +98,6 @@
 					</div>
 				</div>
 
-				<div class="panel panel-primary" id="fs-wifi">
-					<div class="panel-heading">
-						<h1 class="panel-title">FreeScore WiFi Server Configuration [Loading... ]</h1>
-					</div>
-					<div class="panel-body">
-						<div class="form-group row">
-							<label for="wifi-ssid" class="col-xs-2 col-form-label">FreeScore Wifi Name</label>
-							<div class="col-xs-10">
-								<select class="selectpicker" id="wifi-ssid" disabled>
-								  <optgroup label="Default">
-									<option value="freescore">freescore</option>
-								  </optgroup>
-								  <optgroup label="Zones">
-									<option value="freescore-zone-a">freescore-zone-a</option>
-									<option value="freescore-zone-b">freescore-zone-b</option>
-									<option value="freescore-zone-c">freescore-zone-c</option>
-									<option value="freescore-zone-d">freescore-zone-d</option>
-									<option value="freescore-zone-e">freescore-zone-e</option>
-									<option value="freescore-zone-f">freescore-zone-f</option>
-								  </optgroup>
-								</select>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="wifi-pass" class="col-xs-2 col-form-label">FreeScore Wifi Password</label>
-							<div class="col-xs-10">
-								<button type="button" id="random-pass" class="btn btn-primary pull-right disabled">Generate Random Password</button>
-								<input class="form-control" type="text" name="wifi-pass" id="wifi-pass" style="width:60%;" disabled>
-							</div>
-						</div>
-
-						<div class="form-group row">
-							<label for="wifi-channel" class="col-xs-2 col-form-label">Wifi Channel</label>
-							<div class="col-xs-10">
-								<div class="btn-group" data-toggle="buttons" id="wifi-channel">
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="1" >1</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="2" >2</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="3" >3</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="4" >4</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="5" >5</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="6" >6</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="7" >7</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="8" >8</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="9" >9</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="10">10</label>
-									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="11">11</label>
-								</div>
-								<div>
-									<p style="margin-top: 10px;"><span class="bg-danger text-white pill">Red</span> High noise; <span class="bg-warning text-white pill">Orange</span> Medium noise; <span class="bg-inverse text-white pill">Grey</span> Low noise; <span class="bg-success text-white pill">Green</span> Current channel</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
 				<div class="clearfix">
 					<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
 					<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
@@ -198,23 +141,10 @@ $( '#accept' ).off( 'click' ).click(() => {
 	// Identify desired ring configuration
 	var rings    = $( 'label.active input[name=ring]' ).map(( i, el ) => { return parseInt($( el ).val()); }).toArray();
 	var name     = $( '#tournament-name' ).val();
-	var wifi     = { pass : $( '#wifi-pass' ).val(), ssid : $( '#wifi-ssid' ).val(), channel: $( '#wifi-channel input[name=wifi-channel]:checked' ).val() };
-	var request  = { data : { type : 'setup', action : 'write', edits : { rings : rings, name : name, wifi : wifi }}};
+	var request  = { data : { type : 'setup', action : 'write', edits : { rings : rings, name : name }}};
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
 	ws.send( request.json );
-});
-$( '#random-pass' ).off( 'click' ).click(() => {
-	var password = '';
-	for( i = 0; i < 8; i++ ) {
-		var j = Math.floor( Math.random() * 62 );
-		var c = '';
-		if( j < 10 ) { c = String.fromCharCode( j + 48 ); } else
-		if( j < 36 ) { c = String.fromCharCode( j + 55 ); } else
-		             { c = String.fromCharCode( j + 61 ); }
-		password = password + c;
-	}
-	$( '#wifi-pass' ).val( password );
 });
 
 // ===== SOFTWARE UPDATES
@@ -224,40 +154,6 @@ $( '#install-updates' ).off( 'click' ).click(() => {
 	ws.send( request.json );
 	sound.confirmed.play();
 });
-
-// ------------------------------------------------------------
-function set_wifi_form( wifi ) {
-// ------------------------------------------------------------
-	$( '#ssid' ).val( wifi.config.ssid );
-	$( '#wifi-pass' ).val( wifi.config.wpa_passphrase );
-	$( '#fs-wifi .panel-title' ).html( "FreeScore WiFi Server Configuration" );
-
-	// ===== ENABLE ELEMENTS
-	$( '.selectpicker' ).removeAttr( 'disabled' );
-	$( '.selectpicker' ).selectpicker( 'refresh' );
-	$( '#wifi-pass' ).removeAttr( 'disabled' );
-	$( '#random-pass' ).removeClass( 'disabled' );
-	$( '#wifi-channel label' ).removeClass( 'disabled' );
-
-	if( wifi.config.ssid ) {
-		$( '#wifi-ssid' ).val( wifi.config.ssid );
-		$( '.selectpicker' ).selectpicker( 'refresh' );
-	}
-
-	if( wifi.channels ) {
-		$( '#wifi-channel label input' ).each( (i, el) => { 
-			var channel = $( el ).attr( 'value' );
-			var matches = wifi.channels.filter(( c ) => { return c.id == channel; });
-			var max     = matches.reduce(( max, cur ) => Math.max( max, cur.quality ), 0 );
-			if( channel == wifi.config.channel ) { return; }
-			var label = $( el ).parent();
-			if( max >= 0.66 ) { label.addClass( 'btn-danger' ); } else
-			if( max >= 0.33 ) { label.addClass( 'btn-warning' ); } else
-			                  { label.addClass( 'btn-default' ); }
-		});
-	}
-	$( '#wifi-channel label input[value=' + wifi.config.channel + ']' ).parent().addClass( 'active' );
-}
 
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
@@ -280,15 +176,8 @@ ws.onmessage = function( response ) {
 	if( update.type == 'software' ) {
 		if( update.available ) { $( '#fs-updates' ).fadeIn(); }
 	} else if( update.type == 'setup' ) {
-		var wifi = update.setup.wifi;
-		if( wifi.config ) { 
-			set_wifi_form( wifi );
-		} else {
-			$( '#fs-wifi .panel-title' ).html( "FreeScore WiFi Server Configuration [Error: Configuration File Not Found]" );
-		}
 		if( defined( update.request ) && update.request.action == 'write' ) {
 			alertify.success( 'Configuration Saved.' );
-			alertify.notify( 'Reboot system if freescore wifi fails to restart.' );
 			sound.send.play();
 			setTimeout( function() { window.location = 'index.php' }, 5000 );
 		}

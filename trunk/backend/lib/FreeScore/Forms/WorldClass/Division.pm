@@ -788,7 +788,7 @@ sub update_status {
 	my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
-	if     ( $round eq 'prelim' && $self->is_flight() && $self->round_complete( 'prelim' ) && $self->{ flight }{ state } ne 'merged' ) {
+	if     (($round eq 'prelim' || $round eq 'semfin') && $self->is_flight() && $self->round_complete( 'prelim' ) && $self->{ flight }{ state } ne 'merged' ) {
 		$self->{ flight }{ state } = 'complete';
 
 	} elsif( $round eq 'semfin' && $self->round_complete( 'prelim' )) {

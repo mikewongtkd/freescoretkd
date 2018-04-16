@@ -574,7 +574,7 @@
 				$( '#controls-next' ).removeClass( 'disabled' );
 
 				// Reset the Score
-				if( defined( athlete.scores() )) {
+				if( defined( athlete.scores() ) && defined( athlete.scores())[ <?= $judge ?> ]) {
 					score  = (athlete.scores())[ <?= $judge ?> ];
 					refresh.ui( score );
 					setTimeout(() => { $( '#review-tab' ).tab( 'show' ); }, 150 );

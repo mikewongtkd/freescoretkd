@@ -31,10 +31,10 @@
 				width: 200px;
 			}
 
-			#setup {
-				margin: 20px 0 20px 0;
-				width: 686px;
+			.config {
+				width: 226px;
 			}
+
 		</style>
 	</head>
 	<body>
@@ -63,7 +63,11 @@
 					<a class="btn btn-default grassroots" href="forms/grassroots/divisions.php" ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Open Poomsae Divisions</p></a>
 				</div>
 
-				<a class="btn btn-success btn-block" id="setup" href="setup.php"> Tournament, Network, and Rings Setup </a>
+				<div class="register" id="tournament">
+					<a class="btn btn-primary config" id="forms" href="forms/worldclass/draws.php"> Sport Poomsae Draws </a>
+					<a class="btn btn-primary config" id="setup" href="setup.php"> Tournament and Rings Setup </a>
+					<a class="btn btn-primary config" id="wifi" href="wifi.php"> Network Setup </a>
+				</div>
 			</div>
 
 			<footer class="page-footer">

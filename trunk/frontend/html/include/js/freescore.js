@@ -47,7 +47,7 @@ var FreeScore = {
 		order : [ 'prelim', 'semfin', 'finals', 'ro8a', 'ro8b', 'ro8c', 'ro8d', 'ro4a', 'ro4b', 'r02' ],
 		name  : { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Finals', 'finals' : 'Finals', 'ro8a' : '1st Finals', 'ro8b' : '1st Finals', 'ro8c': '1st Finals', 'ro8d' : '1st Finals', 'ro4a' : '2nd Finals', 'ro4b' : '2nd Finals', 'r02' : '3rd Finals' },
 	},
-	rulesUSAT : { 
+	rulesUSAT2017 : { 
 		// 2017 Rules, updated 4/27/2017
 		// ------------------------------------------------------------
 		genders : function() { return [ "Female", "Male", "Male & Female" ]; },
@@ -80,7 +80,7 @@ var FreeScore = {
 			var forms = [];
 			if( rank == 'Yellow' || rank == 'y' ) { forms = allForms.splice( 0, 2 ); } else
 			if( rank == 'Green'  || rank == 'g' ) { forms = allForms.splice( 0, 4 ); } else
-			if( rank == 'Blue'   || rank == 'b' ) { forms = allForms.splice( 0, 5 ); } else
+			if( rank == 'Blue'   || rank == 'b' ) { forms = allForms.splice( 0, 6 ); } else
 			if( rank == 'Red'    || rank == 'r' ) { forms = allForms.splice( 0, 8 ); } else
 			{
 				age = parseInt( age );
@@ -113,8 +113,70 @@ var FreeScore = {
 			return forms;
 		},
 	},
+	rulesWT2018 : { 
+		// 2018 Rules, updated 4/16/2018
+		// ------------------------------------------------------------
+		genders : function() { return [ "Female", "Male", "Male & Female" ]; },
+		// ------------------------------------------------------------
+		
+		// ------------------------------------------------------------
+		ranks : function() { return [ "Black Belt" ]; },
+		// ------------------------------------------------------------
+
+		// ------------------------------------------------------------
+		poomsaeEvents : function() { return [ "Individual", "Pair", "Team" ]; },
+		// ------------------------------------------------------------
+
+		// ------------------------------------------------------------
+		ageGroups : function( format ) {
+		// ------------------------------------------------------------
+			if( format == 'Team' ) { return [ "10-11", "12-14", "15-17", "18-29", "30+" ]; } else
+			if( format == 'Pair' ) { return [ "10-11", "12-14", "15-17", "18-29", "30+" ]; } else
+			/* Individual */       { return [ "10-11", "12-14", "15-17", "18-29", "30-39", "40-49", "50+" ]; }
+		},
+
+		// ------------------------------------------------------------
+		recognizedPoomsae : function( format, age, rank ) {
+		// ------------------------------------------------------------
+			var allForms = [ 
+				'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 
+				'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu', 
+				'Bigak 1', 'Bigak 2', 'Bigak 3'
+			];
+			var forms = [];
+			age = parseInt( age );
+			if( isNaN( age )) { return allForms; }
+/*
+			if( format.match( /team/i ) ) {
+				if( age <=  9 ) { forms = allForms.splice( 1, 8 ); } else // Youth
+				if( age <= 11 ) { forms = allForms.splice( 2, 8 ); } else // Youth
+				if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
+				if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
+				if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+								{ forms = allForms.splice( 7, 8 ); }      // Over 30
+
+			} else if( format.match( /pair/i ) ) {
+				if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
+				if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
+				if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
+				if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+								{ forms = allForms.splice( 7, 8 ); }      // Over 30
+			} else { // Individual
+				if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
+				if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
+				if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
+				if( age <  40 ) { forms = allForms.splice( 5, 8 ); } else
+								{ forms = allForms.splice( 8, 8 ); }     
+			}
+*/
+			return forms;
+		},
+	},
 	websocket : {}
 };
+
+FreeScore.rulesUSAT = FreeScore.rulesUSAT2017;
+
 String.prototype.capitalize = function() {
 	return this.charAt( 0 ).toUpperCase() + this.slice( 1 );
 };
