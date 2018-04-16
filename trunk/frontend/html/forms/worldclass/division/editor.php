@@ -150,11 +150,11 @@
 			}
 
 			// ===== SERVICE COMMUNICATION
-			var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// );
-			var tournament = file.shift();
+			var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// ); file.shift(); // Tournament name
+			var tournament = <?= $tournament ?>;
 			var ring       = file.shift();
 			var divId      = file.shift();
-			var ws         = new WebSocket( "ws://<?= $host ?>:3088/worldclass/" + tournament + "/" + ring );
+			var ws         = new WebSocket( "ws://<?= $host ?>:3088/worldclass/" + tournament.db + "/" + ring );
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
 				button.removeClass( 'disabled' );
