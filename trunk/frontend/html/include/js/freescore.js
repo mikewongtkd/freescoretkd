@@ -44,8 +44,8 @@ var FreeScore = {
 		ul       : $( "<ul />" ), 
 	},
 	round : {
-		order : [ 'prelim', 'semfin', 'finals', 'ro8a', 'ro8b', 'ro8c', 'ro8d', 'ro4a', 'ro4b', 'r02' ],
-		name  : { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Finals', 'finals' : 'Finals', 'ro8a' : '1st Finals', 'ro8b' : '1st Finals', 'ro8c': '1st Finals', 'ro8d' : '1st Finals', 'ro4a' : '2nd Finals', 'ro4b' : '2nd Finals', 'r02' : '3rd Finals' },
+		order : [ 'prelim', 'semfin', 'finals', 'final1', 'final2', 'final3' ],
+		name  : { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Finals', 'finals' : 'Finals', 'final1' : '1st Finals', 'final2' : '2nd Finals', 'final3' : '3rd Finals' },
 	},
 	rulesUSAT2017 : { 
 		// 2017 Rules, updated 4/27/2017

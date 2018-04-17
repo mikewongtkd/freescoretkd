@@ -42,6 +42,9 @@
 			}
 
 			.row { margin-bottom: 8px; }
+			table { width: 100%; background: transparent; }
+			table th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
+			table td { color: #ccc; }
 		</style>
 	</head>
 	<body>
@@ -62,29 +65,29 @@
 									<label for="rings" class="col-xs-4 col-form-label">Format</label>
 									<div class="col-xs-8">
 										<div class="btn-group format" data-toggle="buttons" id="competition-format">
-											<label class="btn btn-default"><input type="radio" name="competition-format" value="cutoff">Cutoff</label>
+											<label class="btn btn-default active"><input type="radio" name="competition-format" value="cutoff" checked>Cutoff</label>
 											<label class="btn btn-default"><input type="radio" name="competition-format" value="combination">Combination</label>
 											<label class="btn btn-default"><input type="radio" name="competition-format" value="team-trials">Team Trials</label>
 										</div>
 									</div>
 								</div>
 								<div class="row">
-									<label for="gender-draw" class="col-xs-4 col-form-label">Separate Draws for Male and Female?</label>
-									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="gender-draw" data-on="Yes" data-onstyle="success" data-off="No" data-offstyle="primary"></div>
+									<label for="gender-draw" class="col-xs-4 col-form-label">Male and Female divisions have:</label>
+									<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="success" data-off="Same Forms" data-offstyle="primary"></div>
 								</div>
 							</div>
 							<div class="col-xs-6">
 								<div class="row">
 									<label for="prelim-count" class="col-xs-4 col-form-label">Preliminary Round</label>
-									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="prelim-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary"></div>
+									<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="prelim-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
 								</div>
 								<div class="row">
 									<label for="semfin-count" class="col-xs-4 col-form-label">Semi-Final Round</label>
-									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="semfin-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary"></div>
+									<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="semfin-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
 								</div>
 								<div class="row">
 									<label for="finals-count" class="col-xs-4 col-form-label">Final Round</label>
-									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary"></div>
+									<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
 								</div>
 							</div>
 						</div>
@@ -102,6 +105,21 @@
 					<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 				</div>
 			</form>
+			<div class="panel panel-primary" id="draws">
+				<div class="panel-heading">
+					<h1 class="panel-title">Designated Poomsae Draws</h1>
+				</div>
+				<div class="panel-body">
+					<table class="individual female" id="individual-female" style="display: none;">
+					</table>
+					<table class="individual male" id="individual-male" style="display: none;">
+					</table>
+					<table class="individual" id="individual">
+					</table>
+				</div>
+				</div>
+				</div>
+			</div>
 		</div>
 		<script>
 
@@ -120,12 +138,21 @@ $( '.list-group a' ).click( function( ev ) {
 
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
-var draws      = {};
-var method     = undefined;
-var count      = {};
+var draws      = undefined;
+var method     = 'cutoff';
+var genderdraw = false;
+var count      = { prelim : 1, semfin : 1, finals : 1 };
 
 // ===== BUSINESS LOGIC
 var draw = () => {
+	draws = {};
+
+	var autovivify = ( ev, age, round ) => {
+		if( ! defined( draws[ ev ] ))                 { draws[ ev ]                 = {}; }
+		if( ! defined( draws[ ev ][ age ] ))          { draws[ ev ][ age ]          = {}; }
+		if( ! defined( draws[ ev ][ age ][ round ] )) { draws[ ev ][ age ][ round ] = []; }
+	};
+
 	// ------------------------------------------------------------
 	if( method == 'cutoff' ) {
 	// ------------------------------------------------------------
@@ -133,9 +160,9 @@ var draw = () => {
 		events.forEach(( ev ) => {
 			var genders = [];
 			var rank    = 'k'; // Black belt
-			if( ev == 'Pair' ) { genders.push( 'Male & Female' ); }
-			else               { genders.push( 'Female', 'Male' ); }
 			var ages    = FreeScore.rulesUSAT.ageGroups( ev );
+			if( ev == 'Pair' ) { genders.push( 'Male & Female' );  }
+			else               { genders.push( 'Female', 'Male' ); }
 
 			ages.forEach(( age ) => {
 				var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
@@ -144,9 +171,8 @@ var draw = () => {
 
 				rounds.forEach(( round ) => {
 					if( round == 'finals' ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
-					if( ! defined( draws[ ev ] )) { draws[ ev ] = {}; }
-					if( ! defined( draws[ ev ][ age ] )) { draws[ ev ][ age ] = {}; }
-					if( ! defined( draws[ ev ][ age ][ round ] )) { draws[ ev ][ age ][ round ] = []; }
+					autovivify( ev, age, round );
+
 					for( var i = 0; i < count[ round ]; i++ ) {
 						var j = Math.floor( Math.random() * pool.length );
 						draws[ ev ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
@@ -156,28 +182,26 @@ var draw = () => {
 		});
 
 	// ------------------------------------------------------------
-	} else if( method == 'combination' ) {
+	} else { // Combination or Team Trials
 	// ------------------------------------------------------------
 		var events  = FreeScore.rulesUSAT.poomsaeEvents();
 		events.forEach(( ev ) => {
 			var genders = [];
 			var rank    = 'k'; // Black belt
-			if( ev == 'Pair' ) { genders.push( 'Male & Female' ); }
-			else               { genders.push( 'Female', 'Male' ); }
 			var ages    = FreeScore.rulesUSAT.ageGroups( ev );
+			if( ev == 'Pair' ) { genders.push( 'Male & Female' );  }
+			else               { genders.push( 'Female', 'Male' ); }
 
 			ages.forEach(( age ) => {
 				var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
-				var rounds  = [ 'prelim', 'semfin', 'ro8', 'ro4', 'ro2' ];
+				var rounds  = [ 'prelim', 'semfin', 'finals1', 'finals2', 'finals3' ];
 				var pool    = choices.slice( 0 ); // clone the choices
 
 				rounds.forEach(( round ) => {
-					if( round == 'ro8' ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
-					if( ! defined( draws[ ev ] )) { draws[ ev ] = {}; }
-					if( ! defined( draws[ ev ][ age ] )) { draws[ ev ][ age ] = {}; }
-					if( ! defined( draws[ ev ][ age ][ round ] )) { draws[ ev ][ age ][ round ] = []; }
+					if( round == 'finals1' ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
+					autovivify( ev, age, round );
 
-					var r = round.match( /prelim|semfin/ ) ? round : 'finals';
+					var r = round.match( /prelim|semfin/ ) ? round : 'finals'; // final1, final2, and final3 are all finals
 					var n = count[ r ];
 
 					for( var i = 0; i < n; i++ ) {
@@ -192,23 +216,70 @@ var draw = () => {
 	console.log( draws );
 };
 
-// ===== INITIALIZE FORM
-$( 'label' ).removeClass( 'active' );
+var show = {
+	table : () => {
+		var html = FreeScore.html;
+
+		if( genderdraw ) {
+			$( '#individual-female' ).show();
+			$( '#individual-male' ).show();
+
+		} else {
+			var table = $( '#individual' );
+			table.show();
+			table.empty();
+
+			var individual = draws[ 'Individual' ];
+			var header     = [];
+			var rows       = [];
+			var rounds     = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+
+			for( var age in individual ) {
+				header.push( html.th.clone().text( age ));
+			}
+			for( var round of rounds ) {
+				var row = [ round ];
+				for( var age in individual ) {
+					var forms = individual[ age ][ round ].join( ', ' );
+					row.push( html.td.clone().text( forms ));
+				}
+				rows.push( row );
+			}
+
+			table.append( html.tr.clone().append( html.th.clone().text( 'Age' ), header ));
+			for( var row of rows ) {
+				var round = { prelim: 'Prelim.', semfin: 'Semi-Fin.', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' }[ row.shift() ];
+				table.append( html.tr.clone().append( html.th.clone().text( round ), row ));
+			}
+		}
+	}
+};
 
 // ===== FORM ELEMENT BEHAVIOR
 $( '.format label' ).off( 'click' ).click(( ev ) => { 
-	var clicked = $( ev.target ).find( 'input[type=radio]' );
+	var clicked = $( ev.target ).find( 'input[type="radio"]' );
 	method      = clicked.val();
+	sound.next.play();
 });
 
-$( '.count label' ).off( 'click' ).click(( ev ) => {
-	var clicked = $( ev.target ).find( 'input[type=radio]' );
-	var name    = clicked.attr( 'name' );
-	var value   = parseInt( clicked.val());
-	count[ name ] = value;
+// Draws per round
+$( '#gender-draw' ).change(( ev ) => {
+	var clicked = $( ev.target );
+	var value   = clicked.prop( 'checked' );
+	genderdraw  = value;
+	sound.next.play();
 });
 
-$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); draw() });
+// Draws per round
+$( 'input[type="checkbox"].count' ).change(( ev ) => {
+	var clicked = $( ev.target );
+	var name    = clicked.attr( 'id' ).replace( /\-count$/i, '' );
+	var value   = clicked.prop( 'checked' ) ? clicked.attr( 'data-on' ) : clicked.attr( 'data-off' );
+	count[ name ] = parseInt( value );
+	sound.next.play();
+});
+
+$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); draw(); show.table(); });
 
 $( '#cancel' ).off( 'click' ).click(() => { 
 	sound.next.play();

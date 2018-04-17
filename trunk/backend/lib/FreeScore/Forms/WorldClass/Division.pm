@@ -406,9 +406,9 @@ sub normalize {
 		else { 
 			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
 			if( $self->{ method } eq 'combination' ) {
-				if    ( $n > 4 ) { $round = 'ro8'; $self->distribute_evenly( 'ro8' ); } 
-				elsif ( $n > 2 ) { $round = 'ro4'; $self->distribute_evenly( 'ro4' ); } 
-				else             { $round = 'ro2'; $self->distribute_evenly( 'ro2' ); }
+				if    ( $n > 4 ) { $round = 'final1'; $self->distribute_evenly( 'final1' ); } 
+				elsif ( $n > 2 ) { $round = 'final2'; $self->distribute_evenly( 'final2' ); } 
+				else             { $round = 'final3'; $self->distribute_evenly( 'final3' ); }
 
 			# ===== CUTOFF METHOD USES SAME METHODOLOGY AS BEFORE
 			} else { $round = 'finals'; $self->assign( $_, 'finals' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
@@ -591,7 +591,7 @@ sub read {
 
 				$round = $self->{ round } if( defined $self->{ round } );
 
-			} elsif( /prelim|semfin|finals|ro8|ro4|ro2/i ) {
+			} elsif( /prelim|semfin|finals|final1|final2|final3/i ) {
 				s/^#\s+//;
 
 				# Store the last athlete
@@ -804,9 +804,9 @@ sub update_status {
 		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$self->assign( $_, 'semfin' ) foreach @order;
 
-	} elsif( $method eq 'combination' && $round eq 'ro8' && $self->round_complete( 'semfin' )) {
+	} elsif( $method eq 'combination' && $round eq 'final1' && $self->round_complete( 'semfin' )) {
 		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ ro8 };
+		my $finals = $self->{ order }{ final1 };
 		return if( defined $finals && int( @$finals ) > 0 );
 
 		# Finals go in reverse placement order of semi-finals
@@ -814,37 +814,30 @@ sub update_status {
 		my @candidates = @{ $self->{ placement }{ semfin }};
 		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
 		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
-		$self->distribute_evenly( 'ro8', \@order );
+		$self->distribute_evenly( 'final1', \@order );
 
-	} elsif( $method eq 'combination' && $round eq 'ro4a' && $self->round_complete( 'ro8' )) {
+	} elsif( $method eq 'combination' && $round eq 'final2' && $self->round_complete( 'final1' )) {
 		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ ro4 };
+		my $finals = $self->{ order }{ final2 };
 		return if( defined $finals && int( @$finals ) > 0 );
 
-		my $goto = { ro8 => 'ro4' };
-		foreach my $match (qw( ro8 )) { # MW Figure this out when sober
+		my $goto = { final1 => 'final2' };
+		foreach my $match (qw( final1 )) { # MW Figure this out when sober
 			my @candidates = @{ $self->{ placement }{ $match }};
 			my @eligible   = $self->eligible_athletes( $match, @candidates );
 			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
 
 			my $winner = shift @eligible; # Advance the first place athlete of the previous match
-			my $ro4    = $goto->{ $match };
-			$self->assign( $winner, $ro4 );
+			my $final2 = $goto->{ $match };
+			$self->assign( $winner, $final2 );
 		}
 
-	} elsif( $method eq 'combination' && $round eq 'ro2' && $self->round_complete( 'ro4a' ) && $self->round_complete( 'ro4b' )) {
+	} elsif( $method eq 'combination' && $round eq 'final3' && $self->round_complete( 'final2' )) {
 		# Skip if athletes have already been assigned to the finals
 		my $finals = $self->{ order }{ ro2 };
 		return if( defined $finals && int( @$finals ) > 0 );
 
-		foreach my $match (qw( ro4a ro4b )) {
-			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = $self->eligible_athletes( $match, @candidates );
-			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
-
-			my $winner = shift @eligible; # Advance the first place athlete of the previous match
-			$self->assign( $winner, 'ro2' );
-		}
+		# TODO: Use bracket variable to determine winner of finals2 to move them to finals3
 
 	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
 		# Skip if athletes have already been assigned to the finals
@@ -995,9 +988,9 @@ sub next_round {
 	return if( $self->is_flight() ); # Flights have only one round: prelim
 
 	if( $self->{ method } eq 'combination' ) {
-		if    ( $round eq 'semfin' ) { $i = $map->{ ro8a }; } # semfin goes to ro8a
-		elsif ( $round eq 'ro2'    ) { $i = $first;         } # ro2 wraps around to first available round
-		else                         { $i++;                }
+		if    ( $round eq 'semfin' ) { $i = $map->{ final1 }; } # semfin goes to final1
+		elsif ( $round eq 'ro2'    ) { $i = $first;           } # ro2 wraps around to first available round
+		else                         { $i++;                  }
 
 	} else {
 		if    ( $round eq 'finals' ) { $i = $first; }
@@ -1028,7 +1021,7 @@ sub previous_round {
 
 	if( $self->{ method } eq 'combination' ) {
 		if    ( $round eq $rounds[ $first ] ) { $i = $map->{ ro2 };    } # first round wraps around to ro2
-		elsif ( $round eq 'ro8a'            ) { $i = $map->{ semfin }; } # ro8a goes to semfin
+		elsif ( $round eq 'final1'          ) { $i = $map->{ semfin }; } # final1 goes to semfin
 		else                                  { $i--;                  }
 
 	} else {
@@ -1252,7 +1245,7 @@ sub _parse_placement {
 	return { @rounds };
 }
 
-our @round_order = ( qw( prelim semfin finals ro8 ro4 ro2 ) );
-our $round_name  = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals', ro8 => 'Finals 1', ro4 => 'Finals 2', ro2 => 'Finals 3' };
+our @round_order = ( qw( prelim semfin finals final1 final2 final3 ) );
+our $round_name  = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals', final1 => 'Finals 1', final2 => 'Finals 2', final3 => 'Finals 3' };
 
 1;
