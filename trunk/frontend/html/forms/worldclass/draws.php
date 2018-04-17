@@ -7,6 +7,7 @@
 		<title>Sport Poomsae Draws</title>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
@@ -14,6 +15,7 @@
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 
@@ -38,6 +40,8 @@
 			label.disabled {
 				pointer-events: none;
 			}
+
+			.row { margin-bottom: 8px; }
 		</style>
 	</head>
 	<body>
@@ -53,39 +57,34 @@
 					</div>
 					<div class="panel-body">
 						<div class="form-group row">
-							<label for="rings" class="col-xs-2 col-form-label">Format</label>
-							<div class="col-xs-10">
-								<div class="btn-group format" data-toggle="buttons" id="competition-format">
-									<label class="btn btn-default"><input type="radio" name="competition-format" value="cutoff">Cutoff</label>
-									<label class="btn btn-default"><input type="radio" name="competition-format" value="combination">Combination</label>
-									<label class="btn btn-default"><input type="radio" name="competition-format" value="team-trials">Team Trials</label>
+							<div class="col-xs-6">
+								<div class="row">
+									<label for="rings" class="col-xs-4 col-form-label">Format</label>
+									<div class="col-xs-8">
+										<div class="btn-group format" data-toggle="buttons" id="competition-format">
+											<label class="btn btn-default"><input type="radio" name="competition-format" value="cutoff">Cutoff</label>
+											<label class="btn btn-default"><input type="radio" name="competition-format" value="combination">Combination</label>
+											<label class="btn btn-default"><input type="radio" name="competition-format" value="team-trials">Team Trials</label>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<label for="gender-draw" class="col-xs-4 col-form-label">Separate Draws for Male and Female?</label>
+									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="gender-draw" data-on="Yes" data-onstyle="success" data-off="No" data-offstyle="primary"></div>
 								</div>
 							</div>
-						</div>
-						<div class="form-group row">
-							<label for="rings" class="col-xs-2 col-form-label">Preliminary Round</label>
-							<div class="col-xs-10">
-								<div class="btn-group count" data-toggle="buttons" id="prelim-count">
-									<label class="btn btn-default"><input type="radio" name="prelim" value="1">1 Form</label>
-									<label class="btn btn-default"><input type="radio" name="prelim" value="2">2 Forms</label>
+							<div class="col-xs-6">
+								<div class="row">
+									<label for="prelim-count" class="col-xs-4 col-form-label">Preliminary Round</label>
+									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="prelim-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary"></div>
 								</div>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="rings" class="col-xs-2 col-form-label">Semi-Final Round</label>
-							<div class="col-xs-10">
-								<div class="btn-group count" data-toggle="buttons" id="semfin-count">
-									<label class="btn btn-default"><input type="radio" name="semfin" value="1">1 Form</label>
-									<label class="btn btn-default"><input type="radio" name="semfin" value="2">2 Forms</label>
+								<div class="row">
+									<label for="semfin-count" class="col-xs-4 col-form-label">Semi-Final Round</label>
+									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="semfin-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary"></div>
 								</div>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label for="rings" class="col-xs-2 col-form-label">Final Round</label>
-							<div class="col-xs-10">
-								<div class="btn-group count" data-toggle="buttons" id="finals-count">
-									<label class="btn btn-default"><input type="radio" name="finals" value="1">1 Form</label>
-									<label class="btn btn-default"><input type="radio" name="finals" value="2">2 Forms</label>
+								<div class="row">
+									<label for="finals-count" class="col-xs-4 col-form-label">Final Round</label>
+									<div class="col-xs-8"><input type="checkbox" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary"></div>
 								</div>
 							</div>
 						</div>
