@@ -202,17 +202,18 @@ sub calculate_scores {
 
 		foreach my $score (@$scores) {
 			foreach my $category (qw( presentation technical )) {
-				$original->{ $category } += reduce { $a += $score->{ $category }{ $b }; } keys %{$score->{ $category }};
+				my $subtotal = 0.0;
+				$subtotal += $score->{ $category }{ $_ } foreach (sort keys %{ $score->{ $category }});
+				$original->{ $category } += $subtotal;
 			}
-			$original->{ technical } -= $score->{ deductions }{ major } + $score->{ deductions }{ minor };
+			$original->{ technical } -= ($score->{ deductions }{ major } + $score->{ deductions }{ minor });
 		}
 		$original->{ total } = ($original->{ technical } + $original->{ presentation });
 
 		# ===== LEAVE SCORES AS THEY ARE FOR SMALL COURTS (3 JUDGES)
 		if( $n == $k ) { 
 			foreach (qw( presentation technical total )) {
-				$original->{ $_ } /= $n;
-				$adjusted->{ $_ } = $original->{ $_ };
+				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n));
 			}
 
 		# ===== ADJUST SCORES FOR LARGER COURTS

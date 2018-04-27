@@ -93,7 +93,7 @@
 			}
 
 			var sum = function( obj ) {
-				return parseFloat( Object.keys( obj ).reduce(( acc, cur ) => { acc += obj[ cur ]; return acc; }, 0.0)).toFixed( 1 );
+				return parseFloat( Object.keys( obj ).reduce(( acc, cur ) => { acc += parseFloat( obj[ cur ] ); return acc; }, 0.0)).toFixed( 1 );
 			};
 
 			var refresh = { 
@@ -135,6 +135,7 @@
 					if( complete ) { 
 						$.each( scores, refresh.judge.score ); 
 						$.each( [ 'technical', 'presentation' ], ( i, category ) => {
+							if( ! defined( adjusted[ 'min' ] ) || ! defined( adjusted[ 'max' ] )) { return; }
 							$.each( [ 'min', 'max' ], ( i, minmax ) => {
 								var j   = adjusted[ minmax ][ category ];
 								var div = $( '#' + judges.name[ j ] + ' .' + category );
@@ -149,10 +150,11 @@
 				judge: {
 					// ===== SHOW THE JUDGE'S SCORE
 					score: function( i, score ) {
-						if( ! defined( score )) { score = { technical: [], presentation: [] }; }
+						if( ! defined( score )) { score = { technical: [], presentation: [], deductions: [] }; }
 						var div          = $( '#' + judges.name[ i ] );
-						var technical    = html.div.clone().addClass( 'technical' )    .html( sum( score.technical ));
-						var presentation = html.div.clone().addClass( 'presentation' ) .html( sum( score.presentation ));
+						var deductions   = score.deductions.minor + score.deductions.major;
+						var technical    = html.div.clone().addClass( 'technical' )    .html( (parseFloat( sum( score.technical )) - deductions).toFixed( 1 ));
+						var presentation = html.div.clone().addClass( 'presentation' ) .html( (parseFloat( sum( score.presentation ))).toFixed( 1 ));
 						div.empty().append( technical, presentation );
 					},
 					// ===== SHOW THE JUDGE HAS SUBMITTED A SCORE
@@ -180,7 +182,6 @@
 					table.append( header );
 					var placements = division.current.placements();
 					placements.forEach(( athlete, i ) => {
-						console.log( athlete, i );
 						var row = html.tr.clone().append( 
 							html.td.clone().addClass( 'num'   ).html( i + 1 ),
 							html.td.clone().addClass( 'name'  ).html( athlete.display.name() ),
@@ -205,7 +206,6 @@
 					table.append( header );
 					var order = division.current.athletes();
 					order.forEach(( athlete, i ) => {
-						console.log( athlete, i );
 						var row = html.tr.clone().append( 
 							html.td.clone().addClass( 'num'   ).html( i + 1 ),
 							html.td.clone().addClass( 'name'  ).html( athlete.display.name() ),

@@ -232,7 +232,6 @@
 					<p>Technique &amp; Practicality</p>
 					<table class="basic-movements">
 						<tr>
-							<th rowspan=2>Technique &amp; Practicality</th>
 							<td>
 								<div class="performance-description">
 									<div class="poor">Poor</div>
@@ -585,7 +584,7 @@
 				}
 					console.log( scored );
 
-				[ 'mft1', 'mft2', 'mft3', 'mft4', 'mft5' ].forEach(( category ) => { refresh.score( 'technical', category ); });
+				[ 'mft1', 'mft2', 'mft3', 'mft4', 'mft5', 'basic' ].forEach(( category ) => { refresh.score( 'technical', category ); });
 				var major = $( '#major-deductions' );
 				major.deductions({ count: 3 });
 				$( '.mandatory-stances' ).removeClass( 'done' );
