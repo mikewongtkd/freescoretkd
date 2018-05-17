@@ -134,6 +134,25 @@ The simplest choice is a simple USB wifi dongle with 2.4 GHz 802.11 protocol. Th
 - `hostapd` service to configure the Raspberry Pi as an access point
 - `dnsmasq` service to configure the Raspberry Pi as a DNS and DHCP router
 
+**/etc/hostapd/hostapd.conf**
+
+	interface=wlan0
+	driver=nl80211
+	ctrl_interface=/var/run/hostapd
+	ctrl_interface_group=0
+	ssid=freescore
+	hw_mode=g
+	channel=6
+	
+	wpa=2
+	wpa_passphrase=********
+	wpa_key_mgmt=WPA-PSK
+	wpa_pairwise=CCMP
+	rsn_pairwise=CCMP
+	beacon_int=100
+	auth_algs=3
+	wmm_enabled=1
+
 ### External 2.4/5.0 GHz Router
 
 Using a separate dual band powered router might allow for even better communication reliability, however this requires reconfiguring the Raspberry Pi to **not** be configured as an access point; that is, **disable** `hostapd`. Instead, the Pi can be configured simply as a DHCP, DNS, and web server.
@@ -175,7 +194,26 @@ Sometimes a venue has a lot of competing access points attempting to service the
 
 #### Panda Wireless PAU09 N600 Dual Band
 
-**Problem:** Cannot configure `hostapd` to use 5.0 GHz channels on Raspberry Pi.
+The 2.4GHz configuration above works for the Panda PAU09 N600 out-of-the-box, with no additional configuration. Configuring `hostapd` for 5GHz can be done by editing `/etc/hostapd/hostapd.conf` as follows:
 
-
-
+	interface=wlan0
+	driver=nl80211
+	country_code=US
+	ctrl_interface=/var/run/hostapd
+	ctrl_interface_group=0
+	ssid=freescore
+	hw_mode=a
+	channel=44
+	ieee80211d=1
+	
+	wpa=3
+	wpa_passphrase=********
+	wpa_key_mgmt=WPA-PSK
+	rsn_pairwise=CCMP
+	beacon_int=100
+	auth_algs=1
+	wmm_enabled=1
+	eap_reauth_period=360000000
+	
+Other supported channels include: 36, 40, 44, and 48. Channels 52, 56, 60, and 64 are evidently unsupported by the Ubuntu drivers and/or the Panda PAU09 N600 wifi adapter.
+	
