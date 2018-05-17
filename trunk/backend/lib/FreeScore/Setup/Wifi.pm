@@ -21,6 +21,44 @@ sub init {
 }
 
 # ============================================================
+sub apply_2_4_ghz_config {
+# ============================================================
+	my $self = shift;
+	my $keys = [ qw( interface driver ctrl_interface ctrl_interface_group ssid hw_mode channel wpa wpa_passphrase wpa_key_mgmt wpa_pairwise rsn_pairwise beacon_int auth_algs wmm_enabled )];
+
+	# Remove unnecessary configurations
+	delete $self->{ config }{ $_ } foreach( qw( country_code ieee80211d eap_reauth_period ));
+	# Apply required configurations specific to 2.4GHz
+	$self->{ config }{ wpa_pairwise }      = 'CCMP';
+	# Apply configuration for 5GHz
+	$self->{ config }{ hw_mode }           = 'g';
+	$self->{ config }{ auth_algs }         = 3;
+	$self->{ config }{ wpa }               = 2;
+
+	return @$keys;
+}
+
+# ============================================================
+sub apply_5_ghz_config {
+# ============================================================
+	my $self = shift;
+	my $keys = [ qw( interface country_code driver ctrl_interface ctrl_interface_group ssid hw_mode channel ieee80211d wpa wpa_passphrase wpa_key_mgmt rsn_pairwise beacon_int auth_algs wmm_enabled eap_reauth_period )];
+
+	# Remove unnecessary configurations
+	delete $self->{ config }{ wpa_pairwise };
+	# Apply required configurations specific to 5GHz
+	$self->{ config }{ country_code }      = 'US';
+	$self->{ config }{ ieee80211d }        = 1;
+	$self->{ config }{ eap_reauth_period } = 360000000;
+	# Apply configuration for 5GHz
+	$self->{ config }{ hw_mode }           = 'a';
+	$self->{ config }{ auth_algs }         = 1;
+	$self->{ config }{ wpa }               = 3;
+
+	return @$keys;
+}
+
+# ============================================================
 sub channels {
 # ============================================================
 	my $self = shift;
@@ -118,23 +156,11 @@ sub write_config {
 # ============================================================
 	my $self = shift;
 	return unless( -e $self->{ file } );
-	my @keys = ( qw( 
-		interface 
-		driver 
-		ctrl_interface 
-		ctrl_interface_group 
-		ssid 
-		hw_mode 
-		channel 
-		wpa 
-		wpa_passphrase 
-		wpa_key_mgmt 
-		wpa_pairwise 
-		rsn_pairwise 
-		beacon_int 
-		auth_algs 
-		wmm_enabled 
-	));
+	my @keys        = ();
+
+	my $channel = $self->{ config }{ channel };
+	if( $channel >= 1 && $channel <= 11 ) { @keys = $self->apply_2_4_ghz_config(); }
+	else                                  { @keys = $self->apply_5_ghz_config(); }
 
 	open FILE, ">$self->{ file }" or die "Can't write to '$self->{ file }' $!";
 	foreach my $key (@keys) {

@@ -38,6 +38,10 @@
 			#wifi-pass {
 				font-family: monospace;
 			}
+			label.active {
+				background-color: #2a9fd6 !important;
+				border-color: #337ab7 !important;
+			}
 			label.disabled {
 				pointer-events: none;
 			}
@@ -62,6 +66,12 @@
 								  <optgroup label="Default">
 									<option value="freescore">freescore</option>
 								  </optgroup>
+								  <optgroup label="Rings">
+<?php $t = json_decode( $tournament ); foreach( $t->rings as $ring ): ?>
+									<option value="freescore-ring-<?= $ring ?>">freescore-ring-<?= $ring ?></option>
+<?php endforeach; ?>
+
+								  </optgroup>
 								  <optgroup label="Zones">
 									<option value="freescore-zone-a">freescore-zone-a</option>
 									<option value="freescore-zone-b">freescore-zone-b</option>
@@ -82,7 +92,7 @@
 						</div>
 
 						<div class="form-group row">
-							<label for="wifi-channel" class="col-xs-2 col-form-label">Wifi Channel</label>
+							<label for="wifi-channel" class="col-xs-2 col-form-label">Wifi Channel<br>1-11 are long-range<br>36-48 are noise-resistant</label>
 							<div class="col-xs-10">
 								<div class="btn-group" data-toggle="buttons" id="wifi-channel">
 									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="1" >1</label>
@@ -96,6 +106,10 @@
 									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="9" >9</label>
 									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="10">10</label>
 									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="11">11</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="36">36</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="40">40</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="44">44</label>
+									<label class="btn btn-default disabled"><input type="radio" name="wifi-channel" value="48">48</label>
 								</div>
 								<div>
 									<p style="margin-top: 10px;"><span class="bg-danger text-white pill">Red</span> High noise; <span class="bg-warning text-white pill">Orange</span> Medium noise; <span class="bg-success text-white pill">Green</span> Low noise; <span class="bg-primary text-white pill">Blue</span> Current channel</p>
@@ -186,7 +200,7 @@ function set_wifi_form( wifi ) {
 			                  { label.addClass( 'btn-success' ); }
 		});
 	}
-	$( '#wifi-channel label input[value=' + wifi.config.channel + ']' ).parent().addClass( 'active btn-success' );
+	$( '#wifi-channel label input[value=' + wifi.config.channel + ']' ).parent().addClass( 'active' );
 }
 
 // ===== SERVER COMMUNICATION
