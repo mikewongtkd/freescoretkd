@@ -66,7 +66,7 @@
 				<div class="register" id="tournament">
 					<a class="btn btn-primary config" id="forms" href="forms/worldclass/draws.php"> Sport Poomsae Draws </a>
 					<a class="btn btn-primary config" id="setup" href="setup.php"> Tournament and Rings Setup </a>
-					<a class="btn btn-primary config" id="wifi" href="wifi.php"> Network Setup </a>
+					<a class="btn btn-primary config" id="wifi"  href="wifi.php"> Network Setup </a>
 				</div>
 			</div>
 
@@ -98,9 +98,12 @@ var services   = { setup: 3085, grassroots: 3080, worldclass: 3088, freestyle: 3
 function disable_service( service ) {
 // ------------------------------------------------------------
 	if( service == 'setup' ) {
-		var button = $( '#setup' );
-		button.addClass( 'disabled' );
-		button.css({ opacity: 0.20 });
+		for( var setup of [ 'setup', 'wifi' ]) {
+			var button = $( '#' + setup );
+			console.log( button );
+			button.addClass( 'disabled' );
+			button.css({ opacity: 0.20 });
+		}
 	} else {
 		var div = '.' + service;
 		$( div + ' a' ).addClass( 'disabled' ); // Disable clicking
