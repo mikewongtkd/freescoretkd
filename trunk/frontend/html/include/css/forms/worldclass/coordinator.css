@@ -46,6 +46,8 @@ html, body {
     font-size: 16px;
     color: #ccc;
     text-align: top; }
+  .page-header #division-header {
+    margin-left: 20px; }
 
 .judges button.disabled {
   background-color: #eee;

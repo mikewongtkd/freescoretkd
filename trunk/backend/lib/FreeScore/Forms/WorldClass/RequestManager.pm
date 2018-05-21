@@ -466,13 +466,16 @@ sub handle_division_judge_query {
 	my $j        = @$judges;
 
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
+	foreach my $i ( 0 .. ($n - 1)) { $judges->[ $i ] ||= {}; }
+
+	# ===== BUILD UP THE COURT IF NEEDED
 	if( $j < $n ) { 
-		foreach my $i ( 0 .. ($n - 1)) { $judges->[ $i ] ||= {}; }
-		print STDERR "Initializing $n judges\n" if $DEBUG;
+		print STDERR "Have $j judges, building up to $n judges, initializing " . ($n - $j) . " judges\n" if $DEBUG;
 
 	# ===== IF THE NUMBER OF JUDGES HAS BEEN REDUCED, REMOVE THE EXTRA JUDGES
 	} elsif( $j > $n ) {
-		splice( @$judges, 0, $n );
+		print STDERR "Reducing from $j to $n judges\n" if $DEBUG;
+		splice( @$judges, $n );
 	}
 
 	if( $DEBUG ) {

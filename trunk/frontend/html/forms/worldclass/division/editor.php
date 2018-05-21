@@ -56,7 +56,7 @@
 
 			<div class="panel panel-primary">
 				<div class="panel-heading">
-					<h4 class="panel-title">List of Athletes in this Division</h4>
+					<h4 class="panel-title">List of Athletes in this Division <span class="meta" style="float: right;">Please type LAST NAME in UPPERCASE</span></h4>
 				</div>
 				<textarea id="athletes" class="panel-body"></textarea>
 				<div class="panel-footer">
@@ -170,6 +170,7 @@
 				button.addClass( 'disabled' );
 				button.off( 'click' );
 			}};
+
 			$( '#cancel-button' ).off( 'click' ).click(() => { sound.prev.play(); setTimeout( () => { window.close(); }, 500 ); });
 			var randomize  = { enable : function() {
 				var button = $( '#randomize-button' );

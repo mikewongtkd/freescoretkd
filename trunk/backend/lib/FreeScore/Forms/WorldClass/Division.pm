@@ -10,6 +10,7 @@ use Math::Round qw( round );
 use JSON::XS;
 use Try::Tiny;
 use Data::Dumper;
+use Clone qw( clone );
 use base qw( FreeScore::Forms::Division Clone );
 use strict;
 
@@ -153,7 +154,8 @@ sub from_json {
 #*
 	my $class = shift;
 	my $data  = shift;
-	return bless $data, $class;
+	my $clone = clone( $data );
+	return bless $clone, $class;
 }
 
 # ============================================================

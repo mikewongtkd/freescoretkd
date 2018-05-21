@@ -447,6 +447,8 @@
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
 								$( ".navigate-athlete" ).hide(); 
+								$( ".penalties" ).show();
+								$( ".decision" ).show();
 								refresh.score( score.score.forms[ k ], athlete.name(), true );
 							});
 							refresh.score( score.score.forms[ k ], athlete.name(), true );
