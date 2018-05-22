@@ -128,7 +128,7 @@ $.widget( "freescore.scoreboard", {
 				if( penalty.from( 'timelimit' )  > 0 ) { e.penalty.timelimit  .show(); } else { e.penalty.timelimit  .hide(); }
 				if( penalty.from( 'misconduct' ) > 0 ) { e.penalty.misconduct .show(); } else { e.penalty.misconduct .hide(); }
 			} else {
-				[ 'bounds', 'restart', 'misconduct' ].forEach((p) => { e.penalty[ p ].hide(); });
+				[ 'bounds', 'restart', 'timelimit', 'misconduct' ].forEach((p) => { e.penalty[ p ].hide(); });
 			}
 
 			if( defined( adjusted )) { 
