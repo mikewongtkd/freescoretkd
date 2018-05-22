@@ -98,15 +98,20 @@ function Score( score ) {
 				adjusted : function() { return form.adjusted; },
 				award : {
 					penalty: function( category ) {
-						if( ! defined( form.penalty )) { form.penalty = { bounds: 0.0, restart: 0.0, misconduct: 0 }; }
+						// Initialize penalties
+						if( ! defined( form.penalty )) { form.penalty = { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 }; }
+						[ 'bounds', 'timelimit', 'restart', 'misconduct' ].forEach(( category, i ) => { form.penalty[ category ] = defined( form.penalty[ category ]) ? form.penalty[ category ] : 0; });
+
+						// Award the penalty
 						if( category == 'bounds'     ) { form.penalty.bounds     = parseFloat( form.penalty.bounds     ) + 0.3; }
+						if( category == 'timelimit'  ) { form.penalty.timelimit  = parseFloat( form.penalty.timelimit  ) + 0.3; }
 						if( category == 'restart'    ) { form.penalty.restart    = parseFloat( form.penalty.restart    ) + 0.6; }
 						if( category == 'misconduct' ) { form.penalty.misconduct = parseInt(   form.penalty.misconduct ) + 1;   }
 					}
 				},
 				clear: {
 					penalties: function() {
-						form.penalty = { bounds: 0.0, restart: 0.0, misconduct: 0 };
+						form.penalty = { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 };
 					}
 				},
 				decision : {
@@ -143,8 +148,9 @@ function Score( score ) {
 					return {
 						data : function() { return form.penalty; },
 						from : function( key ) {
-							if( key in form.penalty ) { return form.penalty[ key ]; }
-							return undefined;
+							if( ! key in form.penalty           ) { return 0; }
+							if( ! defined( form.penalty[ key ] )) { return 0; }
+							return parseFloat( form.penalty[ key ]); 
 						},
 						total : function() {
 							var total = 0.0;

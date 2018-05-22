@@ -24,15 +24,17 @@ $.widget( "freescore.scoreboard", {
 			value :      html.span.clone() .addClass( "value" ),
 			bounds :     html.div.clone()  .addClass( "bounds penalty" ), 
 			restart:     html.div.clone()  .addClass( "restart penalty" ), 
+			timelimit:   html.div.clone()  .addClass( "timelimit penalty" ), 
 			misconduct : html.div.clone()  .addClass( "misconduct penalty" ),
 			display : function( icon ) { return html.span.clone() .addClass( "glyphicon glyphicon-" + icon ); },
 		};
 
 		penalty.bounds     .append( penalty.icon.clone() .html( penalty.display( 'share'   )), penalty.value.clone() .html( '-0.3' )) .hide();
 		penalty.restart    .append( penalty.icon.clone() .html( penalty.display( 'retweet' )), penalty.value.clone() .html( '-0.6' )) .hide();
+		penalty.timelimit  .append( penalty.icon.clone() .html( penalty.display( 'time'    )), penalty.value.clone() .html( '-0.3' )) .hide();
 		penalty.misconduct .append( penalty.icon.clone() .html( penalty.display( 'comment' )), penalty.value.clone() .html( '&nbsp;1' )) .hide();
 
-		totalScore.append( athlete, flag, score, round, forms, penalty.bounds, penalty.restart, penalty.misconduct );
+		totalScore.append( athlete, flag, score, round, forms, penalty.bounds, penalty.restart, penalty.timelimit, penalty.misconduct );
 		score.append( accuracy, presentation, total );
 
 		for( var i = 0; i < 7; i++ ) {
@@ -72,10 +74,8 @@ $.widget( "freescore.scoreboard", {
 				var score = current.athlete.score( current.round ).form( i );
 				var adjusted = score.adjusted();
 				if( ! defined( adjusted )) { continue; }
-				var penalties = 0;
 				var penalty = score.penalty();
-				if( defined( penalty ) && defined( penalty.bounds )) { penalties = parseFloat( penalty.bounds ) + parseFloat( penalty.restart ); }
-				var total = (parseFloat( adjusted.accuracy ) + parseFloat( adjusted.presentation ) - penalties).toFixed( 2 );
+				var total = (parseFloat( adjusted.accuracy ) + parseFloat( adjusted.presentation ) - penalty.total()).toFixed( 2 );
 				total = total == 'NaN' ? '' : total;
 				mean += parseFloat( total );
 				n++;
@@ -125,6 +125,7 @@ $.widget( "freescore.scoreboard", {
 				e.penalty.misconduct .find( 'span.value' ).html( '&nbsp;' + penalty.from( 'misconduct' ) );
 				if( penalty.from( 'bounds' )     > 0 ) { e.penalty.bounds     .show(); } else { e.penalty.bounds     .hide(); }
 				if( penalty.from( 'restart' )    > 0 ) { e.penalty.restart    .show(); } else { e.penalty.restart    .hide(); }
+				if( penalty.from( 'timelimit' )  > 0 ) { e.penalty.timelimit  .show(); } else { e.penalty.timelimit  .hide(); }
 				if( penalty.from( 'misconduct' ) > 0 ) { e.penalty.misconduct .show(); } else { e.penalty.misconduct .hide(); }
 			} else {
 				[ 'bounds', 'restart', 'misconduct' ].forEach((p) => { e.penalty[ p ].hide(); });

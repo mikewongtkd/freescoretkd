@@ -36,6 +36,10 @@ use Carp;
 #   (same substructure as forms)
 # - total
 
+our @PENALTIES = qw( bounds timelimit restart );
+our @GAMJEOMS  = qw( misconduct );
+our @TIME      = qw( time );
+
 # ============================================================
 sub new {
 # ============================================================
@@ -225,7 +229,7 @@ sub calculate_means {
 		}
 
 		# ===== CALCULATE PENALTIES
-		my $penalties = sum @{$form->{ penalty }}{ ( qw( bounds timelimit restart )) };
+		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
 		# ===== CALCULATE ORIGINAL (UNADJUSTED) MEANS
 		$original = { map { ( $_ => sprintf( "%.2f", ($original->{ $_ }/$judges))) } keys %$original };
@@ -375,9 +379,9 @@ sub string {
 			}
 		}
 
-		# ===== RECORD PENALTIES
+		# ===== RECORD PENALTIES AND TIME
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} && any { $_ } values %{ $form->{ penalty }}) {
-			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ qw( bounds restart misconduct ) } ) . "\n";
+			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )} ) . "\n";
 		}
 
 		# ===== RECORD SCORES

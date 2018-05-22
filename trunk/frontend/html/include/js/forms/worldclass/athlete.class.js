@@ -42,6 +42,10 @@ function Athlete( athlete ) {
 			var score = new Score( athlete.scores[ round ] );
 			score.form( i ).award.penalty( 'restart' );
 		},
+		timelimit: ( round, i ) => { 
+			var score = new Score( athlete.scores[ round ] );
+			score.form( i ).award.penalty( 'timelimit' );
+		},
 		misconduct: ( round, i ) => { 
 			var score = new Score( athlete.scores[ round ] );
 			score.form( i ).award.penalty( 'misconduct' );
