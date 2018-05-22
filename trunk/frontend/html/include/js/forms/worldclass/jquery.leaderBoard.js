@@ -91,7 +91,6 @@ $.widget( "freescore.leaderboard", {
 
 				entry.panel.append( entry.number, entry.name, entry.form1, entry.form2, entry.score, entry.medal );
 				e.placement.append( entry.panel );
-				// entry.name .fitText( 0.55, { maxFontSize: '48pt' });
 			}
 		};
 		e.placement.empty();
@@ -103,7 +102,7 @@ $.widget( "freescore.leaderboard", {
 			var show_medals = function( i, name, medal ) {
 				var j          = i + 1;
 				name  .addClass( "rank" + j );
-				medal .append( html.img.clone() .attr( "src", "/freescore/images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
+				medal .append( html.img.clone() .attr( "src", "../../images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 			}
 
 			update_placements( k, show_medals );
