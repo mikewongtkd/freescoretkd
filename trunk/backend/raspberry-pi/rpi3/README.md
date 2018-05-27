@@ -182,7 +182,7 @@ Leave the `dhcp-range` and other options alone.
 
 **Configuring the Router**
 
-Please read the manufacturer's instructions on how to configure the wifi router as an access point. Use the SSID `freescore` and constrain the DHCP range to match that in the `/etc/dnsmasq.conf` as shown above.
+Please read the manufacturer's instructions on how to configure the wifi router as an access point. Use the SSID `freescore` and constrain the DHCP range to match that in the `/etc/dnsmasq.conf` as shown above. Disable the guest network, if the router provides a guest network.
 	
 **Suggested Hardware**
 
