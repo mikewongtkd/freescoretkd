@@ -136,7 +136,7 @@ $.widget( "freescore.leaderboard", {
 
 			// ===== SCROLL UP AND DOWN ENDLESSLY
 			var duration  = pending.length * 1000;
-			e.pending.clearQueue();
+			e.pending.stop( true );
 			e.pending.off( 'scroll-up' ).on( 'scroll-up', ( ev ) => {
 				$( e.pending ).animate({ scrollTop: 0 }, duration, 'swing', () => { e.pending.trigger( 'scroll-down' ); });
 			});
@@ -150,6 +150,8 @@ $.widget( "freescore.leaderboard", {
 		} else {
 			e.pending.addClass( "bottom-row" );
 			e.pending.removeClass( "full-height" );
+			e.pending.empty().off( 'scroll-up' ).off( 'scroll-down' );
+			e.pending.stop( true );
 			e.pending.show();
 
 			// ===== UPDATE THE 'NEXT UP' SINGLE ATHLETE PANEL
@@ -158,7 +160,6 @@ $.widget( "freescore.leaderboard", {
 				var i = athlete.id();
 				var j = 1 + order.findIndex(( o ) => { return o == i; });
 					
-				e.pending.empty().off( 'scroll-up' ).off( 'scroll-down' ).clearQueue();
 				e.pending.append( "<h2>Next Up</h2>" );
 				e.pending.append( '<div class="athlete"><span class="number">' + j + '</span><span class="name">' + athlete.name() + '</span></div>' );
 				if( pending.length > 1 ) { e.pending.append( '<div>' + (pending.length - 1) + ' athletes in queue</div>' ); }

@@ -204,10 +204,11 @@
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
-									<a class="list-group-item" id="penalty-bounds"><span class="glyphicon glyphicon-log-out"></span>Out-of-bounds</a>
-									<a class="list-group-item" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
-									<a class="list-group-item" id="penalty-time"><span class="glyphicon glyphicon-time"></span>Over/Under Time</a>
-									<a class="list-group-item" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
+									<a class="list-group-item" id="penalty-give"><span class="glyphicon glyphicon-hand-right"></span><span class="text">Give a Penalty</span></a>
+									<a class="list-group-item penalty-button" id="penalty-bounds"><span class="glyphicon glyphicon-log-out"></span>Out-of-bounds</a>
+									<a class="list-group-item penalty-button" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
+									<a class="list-group-item penalty-button" id="penalty-time"><span class="glyphicon glyphicon-time"></span>Over/Under Time</a>
+									<a class="list-group-item penalty-button" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
 									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-remove"  ></span>Clear Penalties</a>
 								</div>
 							</div>
@@ -224,6 +225,7 @@
 								<div class="list-group">
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
 									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
+									<a class="list-group-item" id="admin-view"><span class="glyphicon glyphicon-list"></span>Change View</a>
 									<a class="list-group-item" id="admin-results"><span class="glyphicon glyphicon-list-alt"></span>Show Results</a>
 									<a class="list-group-item" id="admin-history"><span class="fa fa-history"></span>Division History</a>
 								</div>
@@ -381,6 +383,23 @@
 				};
 			};
 
+			var changeCurrentForm = function( i, form ) {
+				return function() {
+					sound.next.play();
+					var title   = 'Start scoring ' + ordinal(( parseInt( i ) +1)) + ' form ' + form + '?'; 
+					var message = 'Click <b class="text-danger">OK</b> to start scoring ' + form + ' or <b class="text-warning">Cancel</b> to do nothing.';
+					var ok      = function() {
+						sendRequest( { data : { type : 'division', action : 'navigate', target : { destination: 'form', index: i }}} );
+						sound.ok.play();
+						alertify.success( 'Scoring for ' + form );
+
+						return true;
+					}
+					var cancel  = function() { sound.prev.play(); return true; }
+					alertify.confirm( title, message, ok, cancel );
+				};
+			};
+
 			var refresh = { 
 				athletes: function( division, currentDivision ) {
 					$( '#division-header' ).html( division.summary() );
@@ -400,11 +419,19 @@
 					var n     = division.current.formId();
 					var forms = division.forms()[ round ];
 					var count = forms.reduce(( acc, cur, i ) => { 
-						if( i == n ) { cur = '<span class="current">' + cur + '</span>'; }
+						if( i == n ) { cur = '<a class="btn btn-sm btn-primary disabled">' + cur + '</a>'; } else { cur = '<a class="btn btn-sm btn-default navigate-form" data-navigate="' + i + '" data-form-name="' + cur + '">' + cur + '</a>' }
 						return acc + '&nbsp;' + cur; 
 					}, '');
 					$( '#division-round' ).html( division.current.round.display.name() + ' Round &ndash; ' + division.current.athletes().length + ' athlete' + ( division.current.athletes().length > 1 ? 's' : '' ));
 					$( '#current-form' ).html( count );
+					$( '#current-form>.navigate-form' ).each(( i, btn ) => {
+						var button = $( btn );
+						button.off( 'click' ).click(( ev ) => {
+							var j    = button.attr( 'data-navigate' );
+							var form = button.attr( 'data-form-name' );
+							changeCurrentForm( j, form )();
+						});
+					});
 
 					var iconize = function( penalties ) {
 						if( ! defined( penalties )) { return; }
@@ -459,6 +486,7 @@
 							});
 							refresh.score( score.score.forms[ k ], athlete.name(), true );
 							$( '.penalties, .decision' ).show();
+							$( '.penalty-button' ).hide();
 							refresh.actions( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
@@ -509,12 +537,14 @@
 
 					var action = {
 						penalty : {
-							bounds     : () => { sound.next.play(); athlete.penalize.bounds( round, form );     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
-							restart    : () => { sound.next.play(); athlete.penalize.restart( round, form );    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); },
-							time       : () => { sound.next.play(); athlete.penalize.timelimit( round, form );  action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>under/over time penalty</strong>' ); },
-							misconduct : () => { sound.next.play(); athlete.penalize.misconduct( round, form ); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); },
-							clear      : () => { sound.prev.play(); athlete.penalize.clear( round, form );      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); },
-							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current }} ); }
+							show       : () => { sound.next.play(); action.penalty.toggle(); },
+							bounds     : () => { sound.next.play(); athlete.penalize.bounds( round, form );     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); action.penalty.toggle(); },
+							restart    : () => { sound.next.play(); athlete.penalize.restart( round, form );    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); action.penalty.toggle(); },
+							time       : () => { sound.next.play(); athlete.penalize.timelimit( round, form );  action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>under/over time penalty</strong>' ); action.penalty.toggle(); },
+							misconduct : () => { sound.next.play(); athlete.penalize.misconduct( round, form ); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); action.penalty.toggle(); },
+							clear      : () => { sound.prev.play(); athlete.penalize.clear( round, form );      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); if( $( '#penalty-give>.text' ).text().match( /hide/i )) { action.penalty.toggle();}},
+							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current }} ); },
+							toggle     : () => { if( $( '#penalty-give>.text' ).text().match( /give/i )) { $( '.penalty-button' ).show(); $( '#penalty-give>.glyphicon' ).removeClass( 'glyphicon-hand-right' ).addClass( 'glyphicon-menu-up' );  $( '#penalty-give>.text' ).text( 'Hide penalties' ); } else {$( '.penalty-button' ).hide(); $( '#penalty-give>.glyphicon' ).removeClass( 'glyphicon-menu-up' ).addClass( 'glyphicon-hand-right' );  $( '#penalty-give>.text' ).text( 'Give a penalty' );  }}
 						},
 						decision : {
 							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'withdraw'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
@@ -524,6 +554,7 @@
 						},
 					};
 
+					$( "#penalty-give" )        .off( 'click' ).click( action.penalty.show );
 					$( "#penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
 					$( "#penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
 					$( "#penalty-time" )        .off( 'click' ).click( action.penalty.time );
@@ -582,6 +613,7 @@
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
+							view       : () => { sound.next.play(); sendRequest( { data: { type: 'division', action: 'display' }});},
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=' + ring, '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
 							results    : () => { sound.next.play(); page.results = window.open( '/cgi-bin/freescore/forms/worldclass/results?ring=' + ring + '&divid=' + divid, '_blank' )},
@@ -591,6 +623,7 @@
 
 					$( "#navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
 					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
+					$( "#admin-view" )          .off( 'click' ).click( action.administration.view );
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
 					$( "#admin-results" )       .off( 'click' ).click( action.administration.results );

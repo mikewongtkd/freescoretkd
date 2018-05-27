@@ -204,5 +204,9 @@ a.active .athlete-score .total {
   background-color: #f0ad4e;
   border-color: #eea236;
   color: white; }
+  .action-menu .penalties .list-group-item.disabled {
+    background-color: #995c00;
+    border-color: #804d00;
+    color: #cc7a00; }
 
 /*# sourceMappingURL=coordinator.css.map */

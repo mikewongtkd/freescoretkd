@@ -240,6 +240,12 @@ a.active {
 			background-color: #f0ad4e;
 			border-color: #eea236;
 			color: white;
+
+			&.disabled {
+				background-color: #995c00;
+				border-color: #804d00;
+				color: #cc7a00;
+			}
 		}
 	}
 }

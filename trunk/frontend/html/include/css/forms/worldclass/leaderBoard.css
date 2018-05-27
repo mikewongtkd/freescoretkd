@@ -101,7 +101,7 @@
       border-radius: 24px;
       padding: 0 32px 8px 32px;
       overflow-x: hidden;
-      overflow-y: auto; }
+      overflow-y: hidden; }
       .leaderboard .division .pending h2 {
         color: white; }
       .leaderboard .division .pending .athlete {
