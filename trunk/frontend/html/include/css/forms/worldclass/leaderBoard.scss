@@ -119,11 +119,34 @@
 			overflow-y: auto;
 
 			h2 { color: white; }
-			.athlete { 
-				color: lime; 
-				font-weight: bold; 
-				font-size: 48pt; 
-				line-height: 48pt; 
+			.athlete {
+				position: relative;
+				height: 72px;
+				width: 100%;
+
+				.number {
+					color: #999;
+					font-size: 36pt;
+					position: absolute;
+					left: 0;
+					width: 8%;
+					height: 100%;
+					font-weight: bold;
+					overflow: hidden;
+				}
+				.name {
+					color: lime;
+					font-weight: bold; 
+					font-size: 48pt; 
+					line-height: 48pt; 
+					position: absolute;
+					left: 8%;
+					width: 92%;
+					height: 100%;
+					font-weight: bold;
+					text-overflow: ellipse;
+					overflow: hidden;
+				}
 			}
 		}
 

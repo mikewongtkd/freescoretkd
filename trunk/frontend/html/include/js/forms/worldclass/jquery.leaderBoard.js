@@ -22,6 +22,7 @@ $.widget( "freescore.leaderboard", {
 		if( ! defined( o.division )) { return; }
 		var pending   = o.division.pending();
 		var placement = o.division.placement();
+		var order     = o.division.current.order();
 
 		// ===== HIDE 'CURRENT STANDINGS' PANEL IF THERE ARE NO COMPLETED ATHLETES
 		if( placement.length == 0 ) {
@@ -118,24 +119,50 @@ $.widget( "freescore.leaderboard", {
 		if( pending.length == 0 ) { 
 			e.pending.hide();
 
+		// ===== SHOW LIST OF ALL PLAYERS IF STARTING
 		} else if( placement.length == 0 ) {
 			e.pending.addClass( "full-height" );
 			e.pending.removeClass( "bottom-row" );
 			e.pending.show();
 
+			e.pending.empty();
+			e.pending.append( "<h2>Athlete Order</h2>" );
+			for( var i = 0; i < pending.length; i++ ) {
+				var athlete = pending[ i ];
+				var j       = i + 1;
+				e.pending.append( '<div class="athlete"><span class="number">' + j + '</span><span class="name">' + athlete.name() + '</span></div>' );
+			}
+			widget.fadeIn( 500 );
+
+			// ===== SCROLL UP AND DOWN ENDLESSLY
+			var duration  = pending.length * 1000;
+			e.pending.clearQueue();
+			e.pending.off( 'scroll-up' ).on( 'scroll-up', ( ev ) => {
+				$( e.pending ).animate({ scrollTop: 0 }, duration, 'swing', () => { e.pending.trigger( 'scroll-down' ); });
+			});
+			e.pending.off( 'scroll-down' ).on( 'scroll-down', ( ev ) => {
+				var bottom = $( e.pending ).height();
+				$( e.pending ).animate({ scrollTop: bottom }, duration, 'swing', () => { e.pending.trigger( 'scroll-up' ); });
+			});
+			e.pending.trigger( 'scroll-down' );
+
+		// ===== SHOW ATHLETE NEXT UP
 		} else {
 			e.pending.addClass( "bottom-row" );
 			e.pending.removeClass( "full-height" );
 			e.pending.show();
-		}
 
-		// ===== UPDATE THE 'NEXT UP' PANEL
-		var athlete = pending[ 0 ];
-		if( defined( athlete )) {
-			e.pending.empty();
-			e.pending.append( "<h2>Next Up</h2>" );
-			e.pending.append( '<div class="athlete">' + athlete.name() + '</div>' );
-			if( pending.length > 1 ) { e.pending.append( '<div>' + (pending.length - 1) + ' athletes in queue</div>' ); }
+			// ===== UPDATE THE 'NEXT UP' SINGLE ATHLETE PANEL
+			var athlete = pending[ 0 ];
+			if( defined( athlete )) {
+				var i = athlete.id();
+				var j = 1 + order.findIndex(( o ) => { return o == i; });
+					
+				e.pending.empty().off( 'scroll-up' ).off( 'scroll-down' ).clearQueue();
+				e.pending.append( "<h2>Next Up</h2>" );
+				e.pending.append( '<div class="athlete"><span class="number">' + j + '</span><span class="name">' + athlete.name() + '</span></div>' );
+				if( pending.length > 1 ) { e.pending.append( '<div>' + (pending.length - 1) + ' athletes in queue</div>' ); }
+			}
 			widget.fadeIn( 500 );
 		}
 	},
