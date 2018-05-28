@@ -54,7 +54,7 @@
 			<div class="pt-page pt-page-2">
 				<div class="container">
 					<div id="division-header">
-						<a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Back to Ring <?= $ring ?> Divisions</a> <span id="division-summary"></span>
+						<a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Division List</a> <span id="division-summary"></span>
 					</div>
 					<div class="row">
 						<div class="col-lg-9">
