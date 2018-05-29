@@ -22,7 +22,7 @@
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
-		<script src="../../include/jquery/js/jquery.timer.min.js"></script>
+		<script src="../../include/jquery/js/jquery.easytimer.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
@@ -78,11 +78,19 @@
 							<div class="navigate-round">
 								<h4>Round</h4>
 								<div class="btn-group">
-									<a class="btn btn-primary" style="width:130px;" id="navigate-round-prev"><span class="glyphicon glyphicon-step-backward"></span>Previous</a>
+									<a class="btn btn-primary" style="width:130px;" id="navigate-round-prev"><span class="glyphicon glyphicon-step-backward"></span> Previous</a>
 									<a class="btn btn-primary" style="width:130px;" id="navigate-round-next">Next <span class="glyphicon glyphicon-step-forward"></span></a>
 								</div>
 							</div>
-							<!--
+							<div class="timer">
+								<h4>Timer</h4>
+								<div id="timer-display">0:00.0</div>
+								<div class="btn-group" style="width:100%">
+									<a class="btn btn-success" id="timer-start"><span class="glyphicon glyphicon-play"></span> Start</a>
+									<a class="btn btn-danger disabled"  id="timer-reset"><span class="glyphicon glyphicon-repeat"></span> Reset</a>
+								</div>
+								<p style="font-size:9pt; margin-left: 8px;">Press <code>Enter</code> to start/pause the timer</p>
+							</div>
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -92,7 +100,6 @@
 									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
 								</div>
 							</div>
-							-->
 							<div class="decision">
 								<h4>Decision</h4>
 								<div class="list-group">
@@ -123,6 +130,15 @@
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+			var timer      = new Timer();
+
+			timer.addEventListener( 'secondTenthsUpdated', function( e ) {
+				var time    = timer.getTimeValues();
+				var minutes = time.minutes;
+				var seconds = time.seconds; seconds = seconds < 10 ? '0' + seconds: seconds;
+				var tenths  = time.secondTenths;
+				$( '#timer-display' ).html( minutes + ':' + seconds + '.' + tenths );
+			});
 
 			ws.onerror = function() {
 				alertify.error( "Network Error: Cannot connect to server!" );
@@ -208,6 +224,7 @@
 								$( ".navigate-athlete" ).hide(); 
 								$( ".penalties,.decision" ).show(); 
 							});
+							timer.stop(); $( '#timer-display' ).html( '0:00.0' );
 							refresh.actions( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
@@ -244,6 +261,12 @@
 					var current = division.current.athleteId();
 					var divid   = division.name();
 					var action = {
+						timer : {
+							start      : () => { sound.next.play(); timer.start({ precision: 'secondTenths' }); },
+							pause      : () => { sound.prev.play(); timer.pause(); },
+							reset      : () => { sound.prev.play(); timer.stop(); $( '#timer-display' ).html( '0:00.0' ); },
+							toggle     : () => { var button = $( '#timer-start' ); if( button.text().match( /start/i )) { action.timer.start(); button.removeClass( 'btn-success' ).addClass( 'btn-warning' ); button.html( '<span class="glyphicon glyphicon-pause"></span> Pause' ); $( '#timer-reset' ).removeClass( 'disabled' ); } else { action.timer.pause(); button.removeClass( 'btn-warning' ).addClass( 'btn-success' ); button.html( '<span class="glyphicon glyphicon-play"></span> Start' ); } }
+						},
 						penalty : {
 							time       : () => { sound.next.play(); athlete.penalty.time();       action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>over/under&nbsp;time&nbsp;penalty</strong>' ); },
 							bounds     : () => { sound.next.play(); athlete.penalty.bounds();     action.penalty.send(); alertify.warning( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); },
@@ -259,6 +282,9 @@
 						},
 					};
 
+					$( "#timer-start" )         .off( 'click' ).click( action.timer.toggle );
+					$( "#timer-pause" )         .off( 'click' ).click( action.timer.pause );
+					$( "#timer-reset" )         .off( 'click' ).click( action.timer.reset );
 					$( "#penalty-time" )        .off( 'click' ).click( action.penalty.time );
 					$( "#penalty-bounds" )      .off( 'click' ).click( action.penalty.bounds );
 					$( "#penalty-restart" )     .off( 'click' ).click( action.penalty.restart );
@@ -266,6 +292,14 @@
 					$( "#penalty-clear" )       .off( 'click' ).click( action.penalty.clear );
 					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
+
+					$( 'body' ).off( 'keypress' ).keypress(( ev ) => {
+						switch( ev.keyCode ) {
+							case 13: 
+								action.timer.toggle();
+								break;
+						}
+					});
 				},
 				navadmin : function( division ) {
 					var divid   = division.name();

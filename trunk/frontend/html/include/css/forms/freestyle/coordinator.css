@@ -102,5 +102,20 @@ html, body {
   background-color: #f0ad4e;
   border-color: #eea236;
   color: white; }
+.action-menu .timer #timer-display {
+  background-color: black;
+  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+  background: linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+  color: white;
+  font-size: 18pt;
+  text-align: center;
+  border-radius: 4px 4px 0 0;
+  width: 260px; }
+.action-menu .timer .btn {
+  width: 50%; }
+.action-menu .timer #timer-start {
+  border-radius: 0 0 0 4px; }
+.action-menu .timer #timer-reset {
+  border-radius: 0 0 4px 0; }
 
 /*# sourceMappingURL=coordinator.css.map */
