@@ -91,6 +91,7 @@
 								</div>
 								<p style="font-size:9pt; margin-left: 8px;">Press <code>Enter</code> to start/pause the timer</p>
 							</div>
+<!--
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -100,6 +101,7 @@
 									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
 								</div>
 							</div>
+-->
 							<div class="decision">
 								<h4>Decision</h4>
 								<div class="list-group">
