@@ -155,6 +155,7 @@
 			var ring       = file.shift();
 			var divId      = file.shift();
 			var ws         = new WebSocket( "ws://<?= $host ?>:3088/worldclass/" + tournament.db + "/" + ring );
+			var draws      = undefined;
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
 				button.removeClass( 'disabled' );
@@ -199,12 +200,21 @@
 					var json    = JSON.stringify( request );
 					ws.send( json );
 				}
+				var request = { type : 'ring', action : 'read', ring : ring };
+				var json    = JSON.stringify( request );
+				ws.send( json );
 			};
+
 			ws.onmessage = function( response ) {
 				var update = JSON.parse( response.data );
 				console.log( update );
-
-				if( update.type == 'division' ) {
+				if( update.type == 'ring' ) {
+					if( update.action = 'ring' ) {
+						if( defined( update.ring ) && defined( update.ring.draws )) {
+							draws = update.ring.draws;
+						}
+					}
+				} else if( update.type == 'division' ) {
 					if( update.action == 'update' ) {
 						var division = new Division( update.division );
 						init.settings( division );

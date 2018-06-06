@@ -58,14 +58,16 @@ sub load_all {
 	my $self = shift;
 	
 	opendir DIR, $self->{ path } or die "Database Read Error: Can't open directory '$self->{ path }' $!";
-	my @rings     = map { /^ring(\d+)$/       ? $1 : (); } readdir DIR;
+	my @rings = map { /^ring(\d+)$/ ? $1 : (); } readdir DIR;
 	closedir DIR;
 
-	if( @rings == 0 ) {
+	# ===== ALWAYS HAVE AT LEAST ONE RING
+	if( int( @rings ) == 0 ) {
 		make_path( "$self->{ path }/ring01" );
 		@rings = ( 01 );
 	}
 
+	# ===== CREATE A STAGING DIRECTIORY IF ONE DOES NOT EXIST
 	my $staging = "$self->{ path }/staging";
 	make_path( $staging ) unless -d $staging;
 	opendir DIR, $staging or die "Database Read Error: Can't open directory '$staging' $!";

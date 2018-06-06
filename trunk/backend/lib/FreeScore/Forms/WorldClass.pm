@@ -7,6 +7,8 @@ use base qw( FreeScore::Forms );
 use List::Util qw( first min max shuffle );
 use List::MoreUtils qw( first_index );
 use Math::Utils qw( ceil );
+use File::Slurp qw( read_file );
+use JSON::XS;
 use Data::Dumper;
 
 our $SUBDIR = "forms-worldclass";
@@ -33,6 +35,7 @@ sub init {
 			$division->{ ring } = $ring eq 'staging' ? $ring : int( $ring );
 			push @{ $self->{ divisions }}, $division;
 		}
+		$self->read_draws();
 
 	} else { 
 		# ==== LOAD THE DIVISIONS IN STAGING
@@ -59,6 +62,7 @@ sub init {
 
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
+		$self->read_draws();
 	}
 }
 
@@ -186,6 +190,26 @@ sub next_available {
 		} keys %$divisions;
 		return sprintf( "%s%02d", $largest, (shift @{ $divisions->{ $largest }}));
 	}
+}
+
+# ============================================================
+sub read_draws {
+# ============================================================
+	my $self  = shift;
+	my $file  = undef;
+	if( $self->{ path } =~ /\b(?:staging|ring\d+)/i ) {
+		$file = $self->{ path };
+		$file =~ s/(?:staging|ring\d+)\/?/draws.json/i;
+	} else {
+		$file = "$self->{ path }/draws.json";
+	}
+	return undef unless( -e $file );
+
+	my $data  = read_file( $file );
+	my $json  = new JSON::XS();
+	my $draws = $json->decode( $data );
+	$self->{ draws } = $draws;
+	return $draws;
 }
 
 # ============================================================
