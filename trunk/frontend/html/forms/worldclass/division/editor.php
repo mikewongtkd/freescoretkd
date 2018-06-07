@@ -195,14 +195,15 @@
 			}};
 
 			ws.onopen      = function() {
-				if( divId != 'new' ) {
+				if( divId == 'new' ) {
+					var request = { type : 'ring', action : 'read', ring : ring };
+					var json    = JSON.stringify( request );
+					ws.send( json );
+				} else {
 					var request = { type : 'division', action : 'read', divid : divId };
 					var json    = JSON.stringify( request );
 					ws.send( json );
 				}
-				var request = { type : 'ring', action : 'read', ring : ring };
-				var json    = JSON.stringify( request );
-				ws.send( json );
 			};
 
 			ws.onmessage = function( response ) {
@@ -212,6 +213,24 @@
 					if( update.action = 'ring' ) {
 						if( defined( update.ring ) && defined( update.ring.draws )) {
 							draws = update.ring.draws;
+							draws.select = ( description, forms ) => {
+								var category = description.category;
+								var gender   = description.gender ? description.gender : 'c'; // Default to (c)oed
+								var age      = description.years;
+								var rank     = description.rank   ? description.rank   : 'k'; // Default to blac(k) belt
+								var ready    = category && gender && age && rank;
+								if( ! ready ) { return; }
+
+								var d = draws[ category ];
+								if( defined( d )) { d = d[ gender ]; }
+								if( defined( d )) { d = d[ age ]; }
+								if( defined( d )) { d = d[ rank ]; }
+								if( ! defined( d )) { return; }
+
+								for( var round in d ) { forms[ round ] = d[ round ]; }
+							};
+							$( '#form-selection' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
+							$( '#user-message' ).html( 'Draws are available; complete the division <b>Description</b> to get the forms' );
 						}
 					}
 				} else if( update.type == 'division' ) {

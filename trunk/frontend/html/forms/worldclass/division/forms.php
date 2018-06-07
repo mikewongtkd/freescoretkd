@@ -79,8 +79,12 @@ EOD;
 		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
 
+		// ===== IF THE DRAWS ARE DEFINED, USE THE DRAWS
+		if( defined( draws )) {
+			draws.select( description, selected.forms );
+
 		// ===== IF ANY FORM IS ALLOWED, SHOW ALL FORMS
-		if( $( '#allow-any-form' ).bootstrapSwitch( 'state' )) {
+		} else if( $( '#allow-any-form' ).bootstrapSwitch( 'state' )) {
 			$.each( forms,   function( i, form ) { $( 'option:contains("' + form + '")' ).show(); });
 
 		// ===== OTHERWISE, APPLY RULES

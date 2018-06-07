@@ -252,4 +252,23 @@ sub update_division {
 	}
 }
 
+# ============================================================
+sub write_draws {
+# ============================================================
+	my $self  = shift;
+	my $draws = shift;
+	my $file  = undef;
+	if( $self->{ path } =~ /\b(?:staging|ring\d+)/i ) {
+		$file = $self->{ path };
+		$file =~ s/(?:staging|ring\d+)\/?/draws.json/i;
+	} else {
+		$file = "$self->{ path }/draws.json";
+	}
+
+	my $json  = new JSON::XS();
+	open FILE, ">$file" or die "Database Error: Can't write draws to '$file' $!";
+	print FILE $json->canonical->pretty->encode( $draws );
+	close FILE;
+}
+
 1;

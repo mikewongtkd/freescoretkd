@@ -63,6 +63,7 @@ sub init {
 		division_split     => \&handle_ring_division_split,
 		read               => \&handle_ring_read,
 		transfer           => \&handle_ring_transfer,
+		write_draws        => \&handle_ring_write_draws,
 	};
 }
 
@@ -922,6 +923,28 @@ sub handle_ring_transfer {
 
 	try {
 		$progress->transfer( $divid, $transfer );
+
+		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_ring_write_draws {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $draws    = $request->{ draws };
+
+	print STDERR "Writing draws to database.\n" if $DEBUG;
+
+	try {
+		$progress->write_draws( $draws );
 
 		$self->broadcast_ring_response( $request, $progress, $clients );
 	} catch {
