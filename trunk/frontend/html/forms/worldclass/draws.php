@@ -286,14 +286,14 @@ $( '#cancel' ).off( 'click' ).click(() => {
 	setTimeout( function() { window.location = 'index.php' }, 500 ); 
 });
 $( '#accept' ).off( 'click' ).click(() => { 
-	var request  = { data : { type : 'setup', action : 'write', edits : { draws: draws }}};
+	var request  = { data : { type : 'ring', action : 'write draws', draws: draws }};
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
 	ws.send( request.json );
 });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
+var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db );
 
 ws.onopen = function() {
 	var request;
@@ -306,8 +306,8 @@ ws.onopen = function() {
 ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( update );
-	if( update.type == 'setup' ) {
-		if( defined( update.request ) && update.request.action == 'write' ) {
+	if( update.type == 'ring' ) {
+		if( defined( update.request ) && update.request.action == 'write draws' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
 			sound.send.play();
 			setTimeout( function() { window.location = '../../index.php' }, 5000 );

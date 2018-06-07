@@ -31,19 +31,6 @@ sub tournament {
 }
 
 # ============================================================
-sub update_draws {
-# ============================================================
-	my $self    = shift;
-	my $draws   = shift;
-	my $staging = "/usr/local/freescore/data/$self->{ tournament }{ tournament }{ db }/staging";
-	mkdir $staging unless -e $staging;
-
-	open FILE, ">$staging/draws.json" or die $!;
-	print FILE $draws;
-	close FILE;
-}
-
-# ============================================================
 sub update_rings {
 # ============================================================
 	my $self   = shift;
