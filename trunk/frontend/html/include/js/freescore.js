@@ -50,7 +50,7 @@ var FreeScore = {
 	rulesUSAT2017 : { 
 		// 2017 Rules, updated 4/27/2017
 		// ------------------------------------------------------------
-		genders : function() { return [ "Female", "Male", "Male & Female" ]; },
+		genders : function() { return [ "Female", "Male", "Coed" ]; },
 		// ------------------------------------------------------------
 		
 		// ------------------------------------------------------------
@@ -64,9 +64,9 @@ var FreeScore = {
 		// ------------------------------------------------------------
 		ageGroups : function( format ) {
 		// ------------------------------------------------------------
-			if( format == 'Team' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30+" ]; } else
-			if( format == 'Pair' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-29", "30+" ]; } else
-			/* Individual */       { return [ "6-7", "8-9", "10-11", "12-14", "15-17", "18-29", "30-39", "40-49", "50-59", "60-64", "65+" ]; }
+			if( format == 'Team' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-30", "31+" ]; } else
+			if( format == 'Pair' ) { return [ "6-9", "10-11", "12-14", "15-17", "18-30", "31+" ]; } else
+			/* Individual */       { return [ "6-7", "8-9", "10-11", "12-14", "15-17", "18-30", "31-40", "41-50", "51-60", "61-65", "66+" ]; }
 		},
 
 		// ------------------------------------------------------------
@@ -90,23 +90,23 @@ var FreeScore = {
 					if( age <= 11 ) { forms = allForms.splice( 2, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-					if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
 									{ forms = allForms.splice( 7, 8 ); }      // Over 30
 
 				} else if( format.match( /pair/i ) ) {
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-					if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+					if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
 									{ forms = allForms.splice( 7, 8 ); }      // Over 30
 				} else { // Individual
 					if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 					if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 					if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-					if( age <  40 ) { forms = allForms.splice( 5, 8 ); } else
-					if( age <  50 ) { forms = allForms.splice( 7, 8 ); } else
-					if( age <  60 ) { forms = allForms.splice( 8, 8 ); } else
-					if( age <  65 ) { forms = allForms.splice( 8, 8 ); } else
+					if( age <= 40 ) { forms = allForms.splice( 5, 8 ); } else
+					if( age <= 50 ) { forms = allForms.splice( 7, 8 ); } else
+					if( age <= 60 ) { forms = allForms.splice( 8, 8 ); } else
+					if( age <= 65 ) { forms = allForms.splice( 8, 8 ); } else
 					                { forms = allForms.splice( 8, 8 ); }     
 				}
 			}
@@ -116,7 +116,7 @@ var FreeScore = {
 	rulesWT2018 : { 
 		// 2018 Rules, updated 4/16/2018
 		// ------------------------------------------------------------
-		genders : function() { return [ "Female", "Male", "Male & Female" ]; },
+		genders : function() { return [ "Female", "Male", "Coed" ]; },
 		// ------------------------------------------------------------
 		
 		// ------------------------------------------------------------
@@ -159,7 +159,7 @@ var FreeScore = {
 				if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth
 				if( age <= 14 ) { forms = allForms.splice( 3, 7 ); } else // Cadets
 				if( age <= 17 ) { forms = allForms.splice( 3, 8 ); } else // Juniors
-				if( age <  30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
+				if( age <= 30 ) { forms = allForms.splice( 5, 8 ); } else // Under 30
 								{ forms = allForms.splice( 7, 8 ); }      // Over 30
 			} else { // Individual
 				if( age <= 11 ) { forms = allForms.splice( 1, 8 ); } else // Youth

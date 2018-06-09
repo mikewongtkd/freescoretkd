@@ -39,6 +39,7 @@
 				padding: 4px;
 				border-radius: 4px;
 			}
+			.bootstrap-select { width: 120px !important; }
 			label.disabled {
 				pointer-events: none;
 			}
@@ -105,22 +106,43 @@
 			</div>
 			<div class="pt-page pt-page-2">
 				<div class="container">
-					<div class="page-header"> <a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Re-draw </a> <span id="page-2-title">Instant Draw Results</span></div>
+					<div class="page-header"> <a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Reconfigure</a> <span id="page-2-title">Instant Draw Results</span></div>
 
-					<div class="panel panel-primary" id="draws">
+					<div class="panel panel-primary">
 						<div class="panel-heading">
-							<h1 class="panel-title">Designated Poomsae Draws</h1>
+							<div class="panel-title">
+								Individual
+								<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="glyphicon glyphicon-question-sign"></span> Keyboard Shortcuts</a>
+							</div>
 						</div>
 						<div class="panel-body">
-							<table class="individual female" id="individual-female" style="display: none;">
-							</table>
-							<table class="individual male" id="individual-male" style="display: none;">
-							</table>
 							<table class="individual" id="individual">
 							</table>
 						</div>
 					</div>
+
+					<div class="panel panel-primary">
+						<div class="panel-heading">
+							<div class="panel-title"> Pairs </div>
+						</div>
+						<div class="panel-body">
+							<table class="pairs" id="pairs">
+							</table>
+						</div>
+					</div>
+
+					<div class="panel panel-primary">
+						<div class="panel-heading">
+							<div class="panel-title"> Team </div>
+						</div>
+						<div class="panel-body">
+							<table class="team" id="team">
+							</table>
+						</div>
+					</div>
+
 					<div class="clearfix">
+						<!-- TODO: Add download PDF or high-res PNG option -->
 						<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
 						<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 					</div>
@@ -238,38 +260,43 @@ var show = {
 	table : () => {
 		var html = FreeScore.html;
 
-		if( genderdraw ) {
-			$( '#individual-female' ).show();
-			$( '#individual-male' ).show();
+		var table = $( '#individual' );
+		table.show();
+		table.empty();
 
-		} else {
-			var table = $( '#individual' );
-			table.show();
-			table.empty();
+		var individual = draws[ 'Individual' ];
+		var header     = [];
+		var rows       = [];
+		var rounds     = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
 
-			var individual = draws[ 'Individual' ];
-			var header     = [];
-			var rows       = [];
-			var rounds     = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
-
-			for( var age in individual ) {
-				header.push( html.th.clone().text( age ));
-			}
-			for( var round of rounds ) {
-				var row = [ round ];
-				for( var age in individual ) {
-					var forms = individual[ age ][ round ].join( ', ' );
-					row.push( html.td.clone().text( forms ));
-				}
-				rows.push( row );
-			}
-
-			table.append( html.tr.clone().append( html.th.clone().text( 'Age' ), header ));
-			for( var row of rows ) {
-				var round = { prelim: 'Prelim.', semfin: 'Semi-Fin.', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' }[ row.shift() ];
-				table.append( html.tr.clone().append( html.th.clone().text( round ), row ));
-			}
+		for( var round of rounds ) {
+			var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
+			header.push( html.th.clone().text( text[ round ] ));
 		}
+
+		for( var age in individual ) {
+			var row = [ html.th.clone().text( age ) ];
+			for( var round of rounds ) {
+				var forms = individual[ age ][ round ];
+				var td    = html.td.clone();
+				for( var i in forms ) {
+					var form   = forms[ i ];
+					var id     = 'form' + String( parseInt( i ) + 1 ) + '_' + age + '_' + round;
+					var picker = html.select.clone().addClass( 'selectpicker ' + round ).attr({ id: id, 'data-style': 'btn-xs' });
+					picker.append( html.option.clone().text( form ));
+					td.append( picker );
+				}
+				row.push( td );
+			}
+			rows.push( row );
+		}
+
+		table.append( html.tr.clone().append( html.th.clone().html( '&nbsp;' ), header ));
+		for( var row of rows ) {
+			table.append( html.tr.clone().append( row ));
+		}
+
+		$( '.selectpicker' ).selectpicker( 'refresh' );
 	}
 };
 
@@ -306,6 +333,13 @@ $( '#back-to-draws' ).off( 'click' ).click(( ev ) => {
 	page.transition(); 
 });
 
+$( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
+	alertify.confirm().set({ 
+		title:      'Keyboard Shortcuts',
+		message:    '<table> <thead> <tr><th>Key</th><th>Form</th></tr> </thead> <tbody> <tr><td>1-8</td><td>Taegeuk 1-8</td></tr> <tr><td>k</td><td>Koryo</td></tr> <tr><td>g</td><td>Keumgang</td></tr> <tr><td>t</td><td>Taebaek</td></tr> <tr><td>p</td><td>Pyongwon</td></tr> <tr><td>s</td><td>Sipjin</td></tr> <tr><td>j</td><td>Jitae</td></tr> <tr><td>c</td><td>Chonkwon</td></tr> <tr><td>h</td><td>Hansu</td></tr> <tr><td>o</td><td>Other</td></tr> </tbody> </table>',
+		transition: 'zoom'
+	}).show();
+});
 
 $( '#cancel' ).off( 'click' ).click(() => { 
 	sound.next.play();

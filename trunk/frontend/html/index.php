@@ -64,7 +64,7 @@
 				</div>
 
 				<div class="register" id="tournament">
-					<a class="btn btn-primary config" id="forms" href="forms/worldclass/draws.php"> Sport Poomsae Draws </a>
+					<a class="btn btn-primary config worldclass" id="forms" href="forms/worldclass/draws.php"> Sport Poomsae Draws </a>
 					<a class="btn btn-primary config" id="setup" href="setup.php"> Tournament and Rings Setup </a>
 					<a class="btn btn-primary config" id="wifi"  href="wifi.php"> Network Setup </a>
 				</div>
@@ -129,7 +129,7 @@ function test_service( service, port ) {
 		},
 		error:       function( response ) { 
 			sound.error.play(); 
-			alertify.error( "Cannot connect to " + service.capitalize() + " Server" ); 
+			alertify.error( "FreeScore " + service.capitalize() + " system failed to start." ); 
 			disable_service( service );
 		},
 	});

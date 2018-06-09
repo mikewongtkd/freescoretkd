@@ -20,9 +20,6 @@ function formsList( $round, $id ) {
 	<option>Jitae</option>
 	<option>Chonkwon</option>
 	<option>Hansu</option>
-	<option>Bigak 1</option>
-	<option>Bigak 2</option>
-	<option>Bigak 3</option>
 </select>
 EOD;
 	echo $list;
