@@ -6,11 +6,13 @@
 	<head>
 		<title>Sport Poomsae Draws</title>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
-		<link href="../../include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
+		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
@@ -44,89 +46,106 @@
 			.row { margin-bottom: 8px; }
 			table { width: 100%; background: transparent; }
 			table th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
-			table td { color: #ccc; }
 		</style>
 	</head>
 	<body>
-		<div class="container">
-			<div class="page-header">
-				<h1>Sport Poomsae Draws</h1>
-			</div>
+		<div id="pt-main" class="pt-perspective">
+			<div class="pt-page pt-page-1">
+				<div class="container">
+					<div class="page-header"> Sport Poomsae Draws </div>
 
-			<form>
-				<div class="panel panel-primary" id="format">
-					<div class="panel-heading">
-						<h1 class="panel-title">Competition Format</h1>
-					</div>
-					<div class="panel-body">
-						<div class="form-group row">
-							<div class="col-xs-6">
-								<div class="row">
-									<label for="rings" class="col-xs-4 col-form-label">Format</label>
-									<div class="col-xs-8">
-										<div class="btn-group format" data-toggle="buttons" id="competition-format">
-											<label class="btn btn-default active"><input type="radio" name="competition-format" value="cutoff" checked>Cutoff</label>
-											<label class="btn btn-default"><input type="radio" name="competition-format" value="combination">Combination</label>
-											<label class="btn btn-default"><input type="radio" name="competition-format" value="team-trials">Team Trials</label>
+					<form>
+						<div class="panel panel-primary" id="format">
+							<div class="panel-heading">
+								<h1 class="panel-title">Competition Format</h1>
+							</div>
+							<div class="panel-body">
+								<div class="form-group row">
+									<div class="col-xs-6">
+										<div class="row">
+											<label for="rings" class="col-xs-4 col-form-label">Format</label>
+											<div class="col-xs-8">
+												<div class="btn-group format" data-toggle="buttons" id="competition-format">
+													<label class="btn btn-default active"><input type="radio" name="competition-format" value="cutoff" checked>Cutoff</label>
+													<label class="btn btn-default"><input type="radio" name="competition-format" value="combination">Combination</label>
+													<label class="btn btn-default"><input type="radio" name="competition-format" value="team-trials">Team Trials</label>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<label for="gender-draw" class="col-xs-4 col-form-label">Male and Female divisions have:</label>
+											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="success" data-off="Same Forms" data-offstyle="primary"></div>
+										</div>
+									</div>
+									<div class="col-xs-6">
+										<div class="row">
+											<label for="prelim-count" class="col-xs-4 col-form-label">Preliminary Round</label>
+											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="prelim-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
+										</div>
+										<div class="row">
+											<label for="semfin-count" class="col-xs-4 col-form-label">Semi-Final Round</label>
+											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="semfin-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
+										</div>
+										<div class="row">
+											<label for="finals-count" class="col-xs-4 col-form-label">Final Round</label>
+											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
 										</div>
 									</div>
 								</div>
-								<div class="row">
-									<label for="gender-draw" class="col-xs-4 col-form-label">Male and Female divisions have:</label>
-									<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="success" data-off="Same Forms" data-offstyle="primary"></div>
-								</div>
-							</div>
-							<div class="col-xs-6">
-								<div class="row">
-									<label for="prelim-count" class="col-xs-4 col-form-label">Preliminary Round</label>
-									<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="prelim-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
-								</div>
-								<div class="row">
-									<label for="semfin-count" class="col-xs-4 col-form-label">Semi-Final Round</label>
-									<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="semfin-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
-								</div>
-								<div class="row">
-									<label for="finals-count" class="col-xs-4 col-form-label">Final Round</label>
-									<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
-								</div>
 							</div>
 						</div>
-						<div class="form-group row">
-							<div class="clearfix">
-								<button type="button draw" id="instant-draw" class="btn btn-primary pull-right" style="margin-right: 20px;">Instant Draw</button> 
-								<button type="button draw" id="slow-draw"    class="btn btn-primary pull-left"  style="margin-left: 20px;">Slow Draw</button> 
-							</div>
+						<div class="clearfix">
+							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right">Instant Draw</button> 
+							<button type="button draw" id="slow-draw" class="btn btn-primary pull-right" style="margin-right: 40px;">Slow Draw</button> 
+							<button type="button draw" id="select-manually" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
+							<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="pt-page pt-page-2">
+				<div class="container">
+					<div class="page-header"> <a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Re-draw </a> <span id="page-2-title">Instant Draw Results</span></div>
+
+					<div class="panel panel-primary" id="draws">
+						<div class="panel-heading">
+							<h1 class="panel-title">Designated Poomsae Draws</h1>
+						</div>
+						<div class="panel-body">
+							<table class="individual female" id="individual-female" style="display: none;">
+							</table>
+							<table class="individual male" id="individual-male" style="display: none;">
+							</table>
+							<table class="individual" id="individual">
+							</table>
 						</div>
 					</div>
-				</div>
-
-				<div class="clearfix">
-					<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
-					<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
-				</div>
-			</form>
-			<div class="panel panel-primary" id="draws">
-				<div class="panel-heading">
-					<h1 class="panel-title">Designated Poomsae Draws</h1>
-				</div>
-				<div class="panel-body">
-					<table class="individual female" id="individual-female" style="display: none;">
-					</table>
-					<table class="individual male" id="individual-male" style="display: none;">
-					</table>
-					<table class="individual" id="individual">
-					</table>
-				</div>
-				</div>
+					<div class="clearfix">
+						<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
+						<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+					</div>
 				</div>
 			</div>
 		</div>
+		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
 
 var sound = {
 	send      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"   ]}),
 	confirmed : new Howl({ urls: [ "../../sounds/received.mp3", "../../sounds/received.ogg" ]}),
 	next      : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"     ]}),
+	prev      : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"     ]}),
+};
+
+var page = {
+	num : 1,
+	transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
+	animation:  ( pn ) => {
+		switch( pn ) {
+			case 1: return 1;
+			case 2: return 2;
+		}
+	}
 };
 
 $( '.list-group a' ).click( function( ev ) { 
@@ -213,7 +232,6 @@ var draw = () => {
 		});
 
 	}
-	console.log( draws );
 };
 
 var show = {
@@ -279,7 +297,15 @@ $( 'input[type="checkbox"].count' ).change(( ev ) => {
 	sound.next.play();
 });
 
-$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); draw(); show.table(); });
+// ===== BUTTON BEHAVIOR
+$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition(); });
+
+$( '#back-to-draws' ).off( 'click' ).click(( ev ) => { 
+	// ===== SWITCH THE PAGE
+	sound.prev.play();
+	page.transition(); 
+});
+
 
 $( '#cancel' ).off( 'click' ).click(() => { 
 	sound.next.play();
@@ -293,7 +319,7 @@ $( '#accept' ).off( 'click' ).click(() => {
 });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db );
+var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
 
 ws.onopen = function() {
 	var request;
