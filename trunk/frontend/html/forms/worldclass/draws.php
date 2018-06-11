@@ -15,7 +15,8 @@
 		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
-		<script src="../../include/jquery/js/jquery.typeahead.js"></script>
+		<script src="../../include/jquery/js/bloodhound.min.js"></script>
+		<script src="../../include/jquery/js/jquery.typeahead.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
@@ -48,6 +49,10 @@
 			.row { margin-bottom: 8px; }
 			table { width: 100%; background: transparent; }
 			table th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
+
+			input[type=text] {
+				border: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -113,7 +118,6 @@
 						<div class="panel-heading">
 							<div class="panel-title">
 								Individual
-								<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="glyphicon glyphicon-question-sign"></span> Keyboard Shortcuts</a>
 							</div>
 						</div>
 						<div class="panel-body">
@@ -283,14 +287,13 @@ var show = {
 				for( var i in forms ) {
 					var selected = forms[ i ];
 					var id       = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
-					var choices  = FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' );
-					var picker   = html.select.clone().addClass( 'selectpicker ' + round ).attr({ id: id, 'data-style': 'btn-xs' });
-					for( var form of choices ) {
-						var option = html.option.clone().text( form );
-						picker.append( option );
-					}
-					picker.val( selected );
-					td.append( picker );
+					var choices  = FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' ); 
+					var list     = new Bloodhound({ datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace, local: choices });
+					var input    = html.text.clone().addClass( 'typeahead' );
+
+					input.typeahead({ hint: true, highlight: true, minLength: 1 }, { name: 'forms', source: list });
+					input.typeahead( 'val', selected );
+					td.append( input );
 				}
 				row.push( td );
 			}
@@ -302,7 +305,7 @@ var show = {
 			table.append( html.tr.clone().append( row ));
 		}
 
-		$( '.selectpicker' ).selectpicker( 'refresh' );
+		$( 'input[type=text].typeahead' ).typeahead( 'refresh' );
 	}
 };
 
@@ -313,7 +316,7 @@ $( '.format label' ).off( 'click' ).click(( ev ) => {
 	sound.next.play();
 });
 
-// Draws per round
+// Draws for each gender
 $( '#gender-draw' ).change(( ev ) => {
 	var clicked = $( ev.target );
 	var value   = clicked.prop( 'checked' );
@@ -337,14 +340,6 @@ $( '#back-to-draws' ).off( 'click' ).click(( ev ) => {
 	// ===== SWITCH THE PAGE
 	sound.prev.play();
 	page.transition(); 
-});
-
-$( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
-	alertify.confirm().set({ 
-		title:      'Keyboard Shortcuts',
-		message:    '<table> <thead> <tr><th>Key</th><th>Form</th></tr> </thead> <tbody> <tr><td>1-8</td><td>Taegeuk 1-8</td></tr> <tr><td>k</td><td>Koryo</td></tr> <tr><td>g</td><td>Keumgang</td></tr> <tr><td>t</td><td>Taebaek</td></tr> <tr><td>p</td><td>Pyongwon</td></tr> <tr><td>s</td><td>Sipjin</td></tr> <tr><td>j</td><td>Jitae</td></tr> <tr><td>c</td><td>Chonkwon</td></tr> <tr><td>h</td><td>Hansu</td></tr> <tr><td>o</td><td>Other</td></tr> </tbody> </table>',
-		transition: 'zoom'
-	}).show();
 });
 
 $( '#cancel' ).off( 'click' ).click(() => { 
