@@ -15,6 +15,7 @@
 		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../include/jquery/js/jquery.typeahead.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
@@ -280,10 +281,15 @@ var show = {
 				var forms = individual[ age ][ round ];
 				var td    = html.td.clone();
 				for( var i in forms ) {
-					var form   = forms[ i ];
-					var id     = 'form' + String( parseInt( i ) + 1 ) + '_' + age + '_' + round;
-					var picker = html.select.clone().addClass( 'selectpicker ' + round ).attr({ id: id, 'data-style': 'btn-xs' });
-					picker.append( html.option.clone().text( form ));
+					var selected = forms[ i ];
+					var id       = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
+					var choices  = FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' );
+					var picker   = html.select.clone().addClass( 'selectpicker ' + round ).attr({ id: id, 'data-style': 'btn-xs' });
+					for( var form of choices ) {
+						var option = html.option.clone().text( form );
+						picker.append( option );
+					}
+					picker.val( selected );
 					td.append( picker );
 				}
 				row.push( td );
@@ -358,7 +364,7 @@ var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '
 ws.onopen = function() {
 	var request;
 
-	request = { data : { type : 'setup', action : 'read' }};
+	request = { data : { type : 'ring', action : 'read' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 };
