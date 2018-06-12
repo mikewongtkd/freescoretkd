@@ -15,8 +15,6 @@
 		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
-		<script src="../../include/jquery/js/bloodhound.min.js"></script>
-		<script src="../../include/jquery/js/jquery.typeahead.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
@@ -105,7 +103,7 @@
 							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right">Instant Draw</button> 
 							<button type="button draw" id="slow-draw" class="btn btn-primary pull-right" style="margin-right: 40px;">Slow Draw</button> 
 							<button type="button draw" id="select-manually" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
-							<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+							<button type="button" id="cancel" class="btn btn-danger pull-right" style="margin-right: 40px;">Cancel</button> 
 						</div>
 					</form>
 				</div>
@@ -118,6 +116,7 @@
 						<div class="panel-heading">
 							<div class="panel-title">
 								Individual
+								<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="fa fa-keyboard-o"></span> Keyboard Shortcuts</a>
 							</div>
 						</div>
 						<div class="panel-body">
@@ -285,14 +284,11 @@ var show = {
 				var forms = individual[ age ][ round ];
 				var td    = html.td.clone();
 				for( var i in forms ) {
-					var selected = forms[ i ];
-					var id       = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
-					var choices  = FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' ); 
-					var list     = new Bloodhound({ datumTokenizer: Bloodhound.tokenizers.whitespace, queryTokenizer: Bloodhound.tokenizers.whitespace, local: choices });
-					var input    = html.text.clone().addClass( 'typeahead' );
+					var form    = forms[ i ];
+					var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
+					var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' )); 
+					var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices }).val( form );
 
-					input.typeahead({ hint: true, highlight: true, minLength: 1 }, { name: 'forms', source: list });
-					input.typeahead( 'val', selected );
 					td.append( input );
 				}
 				row.push( td );
@@ -305,7 +301,16 @@ var show = {
 			table.append( html.tr.clone().append( row ));
 		}
 
-		$( 'input[type=text].typeahead' ).typeahead( 'refresh' );
+		$( 'input#form1_6_prelim' ).focus();
+		$( 'input.form-draw' ).off( 'focusout' ).focusout(( ev ) => { 
+			var target  = $( ev.target );
+			var val     = target.val().toLowerCase();
+			var choices = JSON.parse( target.attr( 'data-list' )); choices.push( 'Other' );
+			var map     = { 1: 'Taegeuk 1', 2: 'Taegeuk 2', 3: 'Taegeuk 3', 4: 'Taegeuk 4', 5: 'Taegeuk 5', 6: 'Taegeuk 6', 7: 'Taegeuk 7', 8: 'Taegeuk 8', k: 'Koryo', g: 'Keumgang', t: 'Taebaek', p: 'Pyongwon', s: 'Sipjin', j: 'Jitae', c: 'Chonkwon', h: 'Hansu', o: 'Other' };
+			var choice  = map[ val ];
+			if( ! defined( choice )) { return; }
+			if( choices.includes( choice )) { target.val( choice ); }
+		});
 	}
 };
 
@@ -340,6 +345,14 @@ $( '#back-to-draws' ).off( 'click' ).click(( ev ) => {
 	// ===== SWITCH THE PAGE
 	sound.prev.play();
 	page.transition(); 
+});
+
+$( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
+	alertify.confirm().set({ 
+		title:      'Keyboard Shortcuts',
+		message:    '<table> <thead> <tr><th>Key</th><th>Form</th></tr> </thead> <tbody> <tr><td>1-8</td><td>Taegeuk 1-8</td></tr> <tr><td>k</td><td>Koryo</td></tr> <tr><td>g</td><td>Keumgang</td></tr> <tr><td>t</td><td>Taebaek</td></tr> <tr><td>p</td><td>Pyongwon</td></tr> <tr><td>s</td><td>Sipjin</td></tr> <tr><td>j</td><td>Jitae</td></tr> <tr><td>c</td><td>Chonkwon</td></tr> <tr><td>h</td><td>Hansu</td></tr> <tr><td>o</td><td>Other</td></tr> </tbody> </table>',
+		transition: 'zoom'
+	}).show();
 });
 
 $( '#cancel' ).off( 'click' ).click(() => { 
