@@ -48,8 +48,9 @@
 			table { width: 100%; background: transparent; }
 			table th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
 
-			input[type=text] {
+			input[type=text].form-draw {
 				border: none;
+				width: 80px;
 			}
 		</style>
 	</head>
@@ -79,7 +80,11 @@
 										</div>
 										<div class="row">
 											<label for="gender-draw" class="col-xs-4 col-form-label">Male and Female divisions have:</label>
-											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="success" data-off="Same Forms" data-offstyle="primary"></div>
+											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="danger" data-off="Same Forms" data-offstyle="primary"></div>
+										</div>
+										<div class="row">
+											<label for="replacement" class="col-xs-4 col-form-label">Finals pool</label>
+											<div class="col-xs-8"><input type="checkbox" checked class="replacement" data-toggle="toggle" id="replacement" data-on="Replace" data-onstyle="success" data-off="Do not replace" data-offstyle="danger"></div>
 										</div>
 									</div>
 									<div class="col-xs-6">
@@ -110,37 +115,78 @@
 			</div>
 			<div class="pt-page pt-page-2">
 				<div class="container">
-					<div class="page-header"> <a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Reconfigure</a> <span id="page-2-title">Instant Draw Results</span></div>
+					<div class="page-header">
+						<a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Reconfigure</a>
+						<span id="page-2-title">Instant Draw Results</span>
+						<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="fa fa-keyboard-o"></span> Keyboard Shortcuts</a>
+					</div>
 
-					<div class="panel panel-primary">
+					<div class="panel panel-primary individual" id="individual-coed">
 						<div class="panel-heading">
-							<div class="panel-title">
-								Individual
-								<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="fa fa-keyboard-o"></span> Keyboard Shortcuts</a>
-							</div>
+							<div class="panel-title"> Individual </div>
 						</div>
 						<div class="panel-body">
-							<table class="individual" id="individual">
+							<table>
 							</table>
 						</div>
 					</div>
 
-					<div class="panel panel-primary">
+					<div class="panel panel-primary individual" id="individual-female">
+						<div class="panel-heading">
+							<div class="panel-title"> Individual Female </div>
+						</div>
+						<div class="panel-body">
+							<table>
+							</table>
+						</div>
+					</div>
+
+					<div class="panel panel-primary individual" id="individual-male">
+						<div class="panel-heading">
+							<div class="panel-title"> Individual Male </div>
+						</div>
+						<div class="panel-body">
+							<table>
+							</table>
+						</div>
+					</div>
+
+					<div class="panel panel-primary pair" id="pair-coed">
 						<div class="panel-heading">
 							<div class="panel-title"> Pairs </div>
 						</div>
 						<div class="panel-body">
-							<table class="pairs" id="pairs">
+							<table>
 							</table>
 						</div>
 					</div>
 
-					<div class="panel panel-primary">
+					<div class="panel panel-primary team" id="team-coed">
 						<div class="panel-heading">
 							<div class="panel-title"> Team </div>
 						</div>
 						<div class="panel-body">
-							<table class="team" id="team">
+							<table>
+							</table>
+						</div>
+					</div>
+
+					<div class="panel panel-primary team" id="team-female">
+						<div class="panel-heading">
+							<div class="panel-title"> Team Female</div>
+						</div>
+						<div class="panel-body">
+							<table>
+							</table>
+						</div>
+					</div>
+
+					<div class="panel panel-primary team" id="team-male">
+						<div class="panel-heading">
+							<div class="panel-title"> Team Male</div>
+						</div>
+						<div class="panel-body">
+							<table>
 							</table>
 						</div>
 					</div>
@@ -191,11 +237,13 @@ var count      = { prelim : 1, semfin : 1, finals : 1 };
 // ===== BUSINESS LOGIC
 var draw = () => {
 	draws = {};
+	var replacement = $( '#replacement' ).prop( 'checked' );
 
-	var autovivify = ( ev, age, round ) => {
-		if( ! defined( draws[ ev ] ))                 { draws[ ev ]                 = {}; }
-		if( ! defined( draws[ ev ][ age ] ))          { draws[ ev ][ age ]          = {}; }
-		if( ! defined( draws[ ev ][ age ][ round ] )) { draws[ ev ][ age ][ round ] = []; }
+	var autovivify = ( ev, gender, age, round ) => {
+		if( ! defined( draws[ ev ] ))                           { draws[ ev ]                           = {}; }
+		if( ! defined( draws[ ev ][ gender ] ))                 { draws[ ev ][ gender ]                 = {}; }
+		if( ! defined( draws[ ev ][ gender ][ age ] ))          { draws[ ev ][ gender ][ age ]          = {}; }
+		if( ! defined( draws[ ev ][ gender ][ age ][ round ] )) { draws[ ev ][ gender ][ age ][ round ] = []; }
 	};
 
 	// ------------------------------------------------------------
@@ -206,22 +254,25 @@ var draw = () => {
 			var genders = [];
 			var rank    = 'k'; // Black belt
 			var ages    = FreeScore.rulesUSAT.ageGroups( ev );
-			if( ev == 'Pair' ) { genders.push( 'Male & Female' );  }
-			else               { genders.push( 'Female', 'Male' ); }
+			var coed    = ! $( '#gender-draw' ).prop( 'checked' ); 
+			var pairs   = ev.match( /pair/i );
+			if( pairs || coed ) { genders.push( 'c' );  } else { genders.push( 'f', 'm' ); }
 
-			ages.forEach(( age ) => {
-				var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
-				var rounds  = [ 'prelim', 'semfin', 'finals' ];
-				var pool    = choices.slice( 0 ); // clone the choices
+			genders.forEach(( gender ) => {
+				ages.forEach(( age ) => {
+					var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
+					var rounds  = [ 'prelim', 'semfin', 'finals' ];
+					var pool    = choices.slice( 0 ); // clone the choices
 
-				rounds.forEach(( round ) => {
-					if( round == 'finals' ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
-					autovivify( ev, age, round );
+					rounds.forEach(( round ) => {
+						if( round == 'finals' && replacement ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
+						autovivify( ev, gender, age, round );
 
-					for( var i = 0; i < count[ round ]; i++ ) {
-						var j = Math.floor( Math.random() * pool.length );
-						draws[ ev ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
-					}
+						for( var i = 0; i < count[ round ]; i++ ) {
+							var j = Math.floor( Math.random() * pool.length );
+							draws[ ev ][ gender ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
+						}
+					});
 				});
 			});
 		});
@@ -234,25 +285,28 @@ var draw = () => {
 			var genders = [];
 			var rank    = 'k'; // Black belt
 			var ages    = FreeScore.rulesUSAT.ageGroups( ev );
-			if( ev == 'Pair' ) { genders.push( 'Male & Female' );  }
-			else               { genders.push( 'Female', 'Male' ); }
+			var coed    = $( '#gender-draw' ).val() == 'on'; 
+			var pairs   = ev.match( /pair/i );
+			if( pairs || coed ) { genders.push( 'c' );  } else  { genders.push( 'f', 'm' ); }
 
-			ages.forEach(( age ) => {
-				var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
-				var rounds  = [ 'prelim', 'semfin', 'finals1', 'finals2', 'finals3' ];
-				var pool    = choices.slice( 0 ); // clone the choices
+			genders.forEach(( gender ) => { 
+				ages.forEach(( age ) => {
+					var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
+					var rounds  = [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+					var pool    = choices.slice( 0 ); // clone the choices
 
-				rounds.forEach(( round ) => {
-					if( round == 'finals1' ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
-					autovivify( ev, age, round );
+					rounds.forEach(( round ) => {
+						if( round == 'final1' ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
+						autovivify( ev, gender, age, round );
 
-					var r = round.match( /prelim|semfin/ ) ? round : 'finals'; // final1, final2, and final3 are all finals
-					var n = count[ r ];
+						var r = round.match( /prelim|semfin/ ) ? round : 'finals'; // final1, final2, and final3 are all finals
+						var n = count[ r ];
 
-					for( var i = 0; i < n; i++ ) {
-						var j = Math.floor( Math.random() * pool.length );
-						draws[ ev ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
-					}
+						for( var i = 0; i < n; i++ ) {
+							var j = Math.floor( Math.random() * pool.length );
+							draws[ ev ][ gender ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
+						}
+					});
 				});
 			});
 		});
@@ -262,44 +316,59 @@ var draw = () => {
 
 var show = {
 	table : () => {
-		var html = FreeScore.html;
-
-		var table = $( '#individual' );
-		table.show();
-		table.empty();
-
+		var html       = FreeScore.html;
 		var individual = draws[ 'Individual' ];
-		var header     = [];
-		var rows       = [];
 		var rounds     = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+		var table      = undefined;
+		var tables     = { c: '-coed', f: '-female', m: '-male' };
 
-		for( var round of rounds ) {
-			var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
-			header.push( html.th.clone().text( text[ round ] ));
-		}
+		for( var ev in draws ) {
+			var draw = draws[ ev ];
+			var e    = ev.toLowerCase();
+			$( '.' + e ).hide();
 
-		for( var age in individual ) {
-			var row = [ html.th.clone().text( age ) ];
-			for( var round of rounds ) {
-				var forms = individual[ age ][ round ];
-				var td    = html.td.clone();
-				for( var i in forms ) {
-					var form    = forms[ i ];
-					var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
-					var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' )); 
-					var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices }).val( form );
+			for( var gender in draw ) {
+				var header     = [];
+				var rows       = [];
 
-					td.append( input );
+				$( '#' + e + tables[ gender ] ).show();
+				table = $( '#' + e + tables[ gender ] + ' table' );
+				table.empty();
+
+				for( var round of rounds ) {
+					var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
+					header.push( html.th.clone().text( text[ round ] ));
 				}
-				row.push( td );
+
+				for( var age in draw[ gender ] ) {
+					var row = [ html.th.clone().text( age ) ];
+					for( var round of rounds ) {
+						var forms = draw[ gender ][ age ][ round ];
+						var td    = html.td.clone();
+						for( var i in forms ) {
+							var form    = forms[ i ];
+							var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
+							var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' )); 
+							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices }).val( form );
+
+							td.append( input );
+						}
+						row.push( td );
+					}
+					rows.push( row );
+				}
+
+				if       ( gender == 'f' ) {
+				} else if( gender == 'm' ) {
+				}
+
+				table.append( html.tr.clone().append( html.th.clone().html( '&nbsp;' ), header ));
+				for( var row of rows ) {
+					table.append( html.tr.clone().append( row ));
+				}
 			}
-			rows.push( row );
 		}
 
-		table.append( html.tr.clone().append( html.th.clone().html( '&nbsp;' ), header ));
-		for( var row of rows ) {
-			table.append( html.tr.clone().append( row ));
-		}
 
 		$( 'input#form1_6_prelim' ).focus();
 		$( 'input.form-draw' ).off( 'focusout' ).focusout(( ev ) => { 
