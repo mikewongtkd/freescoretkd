@@ -237,7 +237,7 @@ var tournament = <?= $tournament ?>;
 var draws      = undefined;
 var method     = 'cutoff';
 var genderdraw = false;
-var count      = { prelim : 1, semfin : 1, finals : 1 };
+var count      = { prelim : 1, semfin : 1, finals : 2 };
 
 // ===== BUSINESS LOGIC
 var draw = () => {
