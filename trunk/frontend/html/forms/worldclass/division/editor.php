@@ -214,17 +214,16 @@
 						if( defined( update.ring ) && defined( update.ring.draws )) {
 							draws = update.ring.draws;
 							draws.select = ( description, forms ) => {
-								var category = description.category;
+								var category = description.category.capitalize();
 								var gender   = description.gender ? description.gender : 'c'; // Default to (c)oed
 								var age      = description.years;
 								var rank     = description.rank   ? description.rank   : 'k'; // Default to blac(k) belt
-								var ready    = category && gender && age && rank;
+								var ready    = category && gender && age;
 								if( ! ready ) { return; }
 
 								var d = draws[ category ];
-								if( defined( d )) { d = d[ gender ]; }
+								if( defined( d )) { d = d[ gender ]; if( ! defined( d )) { d = draws[ category ].c; }}
 								if( defined( d )) { d = d[ age ]; }
-								if( defined( d )) { d = d[ rank ]; }
 								if( ! defined( d )) { return; }
 
 								for( var round in d ) { forms[ round ] = d[ round ]; }

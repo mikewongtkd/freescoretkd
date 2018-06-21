@@ -46,12 +46,18 @@
 
 			.row { margin-bottom: 8px; }
 			table { width: 100%; background: transparent; }
+			table tr th { padding-bottom: 4px; }
 			table th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
+			table tr:nth-child( odd )>th { border-bottom: 1px solid #ccc; }
+			table tr:nth-child( odd )>td { border-bottom: 1px solid #ccc; }
 
 			input[type=text].form-draw {
 				border: none;
 				width: 80px;
 			}
+
+			#back-to-draws { margin-top: -4px; }
+			#keyboard-shortcuts { margin-top: 4px; }
 		</style>
 	</head>
 	<body>
@@ -83,7 +89,7 @@
 											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="danger" data-off="Same Forms" data-offstyle="primary"></div>
 										</div>
 										<div class="row">
-											<label for="replacement" class="col-xs-4 col-form-label">Finals pool</label>
+											<label for="replacement" class="col-xs-4 col-form-label">Before drawing the forms for the final round:</label>
 											<div class="col-xs-8"><input type="checkbox" checked class="replacement" data-toggle="toggle" id="replacement" data-on="Replace" data-onstyle="success" data-off="Do not replace" data-offstyle="danger"></div>
 										</div>
 									</div>
@@ -98,7 +104,7 @@
 										</div>
 										<div class="row">
 											<label for="finals-count" class="col-xs-4 col-form-label">Final Round</label>
-											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
+											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small" checked></div>
 										</div>
 									</div>
 								</div>
@@ -106,8 +112,7 @@
 						</div>
 						<div class="clearfix">
 							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right">Instant Draw</button> 
-							<button type="button draw" id="slow-draw" class="btn btn-primary pull-right" style="margin-right: 40px;">Slow Draw</button> 
-							<button type="button draw" id="select-manually" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
+							<button type="button draw" id="edit" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
 							<button type="button" id="cancel" class="btn btn-danger pull-right" style="margin-right: 40px;">Cancel</button> 
 						</div>
 					</form>
@@ -116,8 +121,8 @@
 			<div class="pt-page pt-page-2">
 				<div class="container">
 					<div class="page-header">
-						<a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Reconfigure</a>
-						<span id="page-2-title">Instant Draw Results</span>
+						<a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Redraw</a>
+						<span id="page-2-title">Draw Results</span>
 						<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="fa fa-keyboard-o"></span> Keyboard Shortcuts</a>
 					</div>
 
@@ -314,6 +319,8 @@ var draw = () => {
 	}
 };
 
+var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
+
 var show = {
 	table : () => {
 		var html       = FreeScore.html;
@@ -322,12 +329,13 @@ var show = {
 		var table      = undefined;
 		var tables     = { c: '-coed', f: '-female', m: '-male' };
 
-		for( var ev in draws ) {
+		for( var ev of sort.alphabetically( draws )) {
 			var draw = draws[ ev ];
 			var e    = ev.toLowerCase();
 			$( '.' + e ).hide();
 
-			for( var gender in draw ) {
+			for( var gender of sort.alphabetically( draw )) {
+				var ages       = draw[ gender ];
 				var header     = [];
 				var rows       = [];
 
@@ -340,7 +348,7 @@ var show = {
 					header.push( html.th.clone().text( text[ round ] ));
 				}
 
-				for( var age in draw[ gender ] ) {
+				for( var age of sort.numerically( ages )) {
 					var row = [ html.th.clone().text( age ) ];
 					for( var round of rounds ) {
 						var forms = draw[ gender ][ age ][ round ];
@@ -369,8 +377,6 @@ var show = {
 			}
 		}
 
-
-		$( 'input#form1_6_prelim' ).focus();
 		$( 'input.form-draw' ).off( 'focusout' ).focusout(( ev ) => { 
 			var target  = $( ev.target );
 			var val     = target.val().toLowerCase();
@@ -425,8 +431,14 @@ $( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
 });
 
 $( '#cancel' ).off( 'click' ).click(() => { 
+	sound.prev.play();
+	setTimeout( function() { window.location = '../../index.php' }, 500 ); 
+});
+
+$( '#edit' ).off( 'click' ).click(() => {
 	sound.next.play();
-	setTimeout( function() { window.location = 'index.php' }, 500 ); 
+	show.table();
+	page.transition();
 });
 $( '#accept' ).off( 'click' ).click(() => { 
 	var request  = { data : { type : 'ring', action : 'write draws', draws: draws }};
@@ -450,7 +462,14 @@ ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( update );
 	if( update.type == 'ring' ) {
-		if( defined( update.request ) && update.request.action == 'write draws' ) {
+		if( ! defined( update.request )) { return; };
+		if( update.request.action == 'read' ) {
+			draws = update.ring.draws;
+			$( '#edit' ).text( 'Edit' );
+			show.table();
+			page.transition();
+
+		} else if( update.request.action == 'write draws' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
 			sound.send.play();
 			setTimeout( function() { window.location = '../../index.php' }, 5000 );
