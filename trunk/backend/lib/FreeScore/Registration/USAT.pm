@@ -39,15 +39,21 @@ sub init {
 # ============================================================
 sub breaking {
 # ============================================================
-	my $self = shift;
-	return map { $_ => $self->{ $_ } } sort grep { /breaking/i } keys %$self;
+	my $self     = shift;
+	my $json     = new JSON::XS();
+	my $breaking = { map { $_ => $self->{ $_ } } sort grep { /breaking/i } keys %$self };
+
+	return $json->canonical->encode( $breaking );
 }
 
 # ============================================================
 sub demonstration_team {
 # ============================================================
-	my $self = shift;
-	return map { $_ => $self->{ $_ } } sort grep { /demonstration team/i } keys %$self;
+	my $self      = shift;
+	my $json      = new JSON::XS();
+	my $demo_team = { map { $_ => $self->{ $_ } } sort grep { /demonstration team/i } keys %$self };
+
+	return $json->canonical->encode( $demo_team );
 }
 
 # ============================================================
@@ -60,8 +66,11 @@ sub events {
 # ============================================================
 sub freestyle {
 # ============================================================
-	my $self = shift;
-	return map { $_ => $self->{ $_ } } sort grep { /freestyle/i } keys %$self;
+	my $self      = shift;
+	my $json      = new JSON::XS();
+	my $freestyle = { map { $_ => $self->{ $_ } } sort grep { /freestyle/i } keys %$self };
+
+	return $json->canonical->encode( $freestyle );
 }
 
 # ============================================================
@@ -87,8 +96,11 @@ sub parse_event {
 # ============================================================
 sub poomsae {
 # ============================================================
-	my $self = shift;
-	return map { $_ => $self->{ $_ } } sort grep { !/(?:sparring|breaking|demonstration team|freestyle)/i } keys %$self;
+	my $self    = shift;
+	my $json    = new JSON::XS();
+	my $poomsae = { map { $_ => $self->{ $_ } } sort grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
+
+	return $json->canonical->pretty->encode( $poomsae );
 }
 
 # ============================================================
@@ -130,6 +142,16 @@ sub sparring {
 # ============================================================
 	my $self = shift;
 	return map { $_ => $self->{ $_ } } sort grep { /sparring/i } keys %$self;
+}
+
+# ============================================================
+sub world_class_poomsae {
+# ============================================================
+	my $self    = shift;
+	my $json    = new JSON::XS();
+	my $poomsae = { map { $_ => $self->{ $_ } } sort grep { /world class/i } grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
+
+	return $json->canonical->pretty->encode( $poomsae );
 }
 
 # ============================================================
