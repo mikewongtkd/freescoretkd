@@ -4,6 +4,7 @@ use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::WorldClass;
+use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::Util (qw( first ));
@@ -65,6 +66,9 @@ sub init {
 		transfer           => \&handle_ring_transfer,
 		write_draws        => \&handle_ring_write_draws,
 	};
+	$self->{ registration } = {
+		read               => \&handle_registration_read
+	}
 }
 
 # ============================================================
@@ -723,6 +727,15 @@ sub handle_division_write {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
+}
+
+# ============================================================
+sub handle_registration_read {
+# ============================================================
+	my $self         = shift;
+	my $request      = shift;
+	my $registration = new FreeScore::Registration::USAT( $request->{ female }, $request->{ male });
+	my $poomsae      = $registration->world_class_poomsae();
 }
 
 # ============================================================
