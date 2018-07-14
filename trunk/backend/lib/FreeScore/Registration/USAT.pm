@@ -18,18 +18,16 @@ sub new {
 sub init {
 # ============================================================
 	my $self   = shift;
-	my $data   = { male => shift, female => shift };
+	my $data   = { female => shift, male => shift };
 	my $female = $self->parse( 'female', $data->{ female } );
 	my $male   = $self->parse( 'male',   $data->{ male } );
 
 	foreach my $subevent (keys %$female) {
-		next if $subevent =~ /sparring/;
 		foreach my $division (keys %{$female->{ $subevent }}) {
 			$self->{ $subevent }{ $division } = $female->{ $subevent }{ $division };
 		}
 	}
 	foreach my $subevent (keys %$male) {
-		next if $subevent =~ /sparring/;
 		foreach my $division (keys %{$male->{ $subevent }}) {
 			$self->{ $subevent }{ $division } = $male->{ $subevent }{ $division };
 		}

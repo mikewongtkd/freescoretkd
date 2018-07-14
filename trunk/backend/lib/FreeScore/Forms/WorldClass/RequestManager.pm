@@ -734,8 +734,18 @@ sub handle_registration_read {
 # ============================================================
 	my $self         = shift;
 	my $request      = shift;
-	my $registration = new FreeScore::Registration::USAT( $request->{ female }, $request->{ male });
-	my $poomsae      = $registration->world_class_poomsae();
+	my $client       = $self->{ _client };
+
+	print STDERR "Importing USAT Registration information\n" if $DEBUG;
+	# TODO Save registration as a cache
+
+	try {
+		my $registration = new FreeScore::Registration::USAT( $request->{ female }, $request->{ male });
+		my $poomsae      = $registration->world_class_poomsae();
+		$client->send({ json => $poomsae });
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
