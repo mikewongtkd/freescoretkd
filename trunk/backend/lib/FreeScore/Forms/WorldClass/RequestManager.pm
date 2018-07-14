@@ -12,6 +12,8 @@ use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Clone qw( clone );
+use File::Slurp qw( read_file );
+use Encode qw( encode );
 
 our $DEBUG = 1;
 
@@ -732,15 +734,35 @@ sub handle_division_write {
 # ============================================================
 sub handle_registration_read {
 # ============================================================
-	my $self         = shift;
-	my $request      = shift;
-	my $client       = $self->{ _client };
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
 
-	print STDERR "Importing USAT Registration information\n" if $DEBUG;
-	# TODO Save registration as a cache
+	print STDERR "Importing USAT Registration $request->{ gender } information\n" if $DEBUG;
+	
+	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
+	return unless defined $gender;
+
+	my $path = $progress->{ path };
+	my $json = new JSON::XS();
+
+	open FILE, ">$path/registration.$gender.txt" or die $!;
+	print FILE encode( 'UTF-8', $request->{ data });
+	close FILE;
+	try {
+		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
+
+	} catch {
+		print STDERR "Error: $_\n";
+		$client->send( { json => { error => "$_" }});
+	}
+	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
 	try {
-		my $registration = new FreeScore::Registration::USAT( $request->{ female }, $request->{ male });
+		my $female       = read_file( "$path/registration.female.txt" );
+		my $male         = read_file( "$path/registration.male.txt" );
+		my $registration = new FreeScore::Registration::USAT( $female, $male );
 		my $poomsae      = $registration->world_class_poomsae();
 		$client->send({ json => $poomsae });
 	} catch {

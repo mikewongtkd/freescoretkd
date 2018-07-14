@@ -72,10 +72,17 @@ html, body {
 label.disabled {
   pointer-events: none; }
 
-#upload {
-  text-align: center;
-  padding-top: 12px;
-  font-size: 36px; }
+.drop-zones {
+  clear: both; }
+  .drop-zones .file-drop-zone {
+    text-align: center;
+    padding-top: 12px;
+    font-size: 36px;
+    height: 200px;
+    width: 45%;
+    float: left;
+    padding: 12px;
+    margin: 2.5%; }
 
 .panel-body table {
   width: 100%; }

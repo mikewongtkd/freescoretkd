@@ -35,8 +35,12 @@
 			<div class="pt-page pt-page-1">
 				<div class="container">
 					<div class="page-header"> Import USAT Registration </div>
+					<h1>Drag &amp; Drop USAT Weight Divisions Below</h1>
 
-					<div class="file-drop-zone" id="upload" action="#">Drag &amp; Drop<br>USAT Weight Divisions File<br>for Females Here</div>
+					<div class="drop-zones">
+						<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Division File Here</div>
+						<div class="file-drop-zone" id="male" action="#"><span class="fa fa-male">&nbsp;</span><br>Male<br>Division File Here</div>
+					</div>
 				</div>
 			</div>
 			<div class="pt-page pt-page-2">
@@ -113,7 +117,7 @@ var ws = {
 	// grassroots : new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
 };
 
-var registration = { male: '', female: '', wanted: 'female' };
+var registration = { male: '', female: '' };
 
 $( '.file-drop-zone' )
 	.on( 'dragover', ( ev ) => {
@@ -127,6 +131,8 @@ $( '.file-drop-zone' )
 	.on( 'drop', ( ev ) => {
 		ev.preventDefault();
 		ev.stopPropagation();
+		var target = $( ev.target ).attr( 'id' );
+		if( registration[ target ] ) { sound.next.play(); return; }
 
 		var upload = ev.originalEvent;
 		var reader = new FileReader();
@@ -139,28 +145,20 @@ $( '.file-drop-zone' )
 		for( file of upload.files ) {
 			reader.onload = (( f ) => {
 				return ( e ) => { 
-					if( ! registration.female ) {
-						registration.wanted = 'female';
-						registration.female = e.target.result;
-						$( '#upload' ).css({ 'padding-top' : '12px' }).html( 'Drag &amp; Drop<br>USAT Weight Divisions File<br>for Males Here' );
-
-					} else if( registration.female && ! registration.male ) {
-						registration.wanted = 'male';
-						if( e.target.result == registration.female ) {
-							alertify.error( 'Same file uploaded twice; possible user error?' );
-							return;
-						}
-						registration.male = e.target.result;
-					} 
-
-					// TODO Send for each file
-					if( registration.female && registration.male ) { 
-						$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Importing Registrations...' );
-						var request;
-						request = { data : { type : 'registration', action : 'read', male: registration.male}};
-						request.json = JSON.stringify( request.data );
-						ws.worldclass.send( request.json );
+					if( e.target.result == registration.female || e.target.result == registration.male ) {
+						alertify.error( 'Same file uploaded twice; possible user error?' );
+						return;
 					}
+					$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+
+					registration[ target ] = e.target.result;
+					sound.send.play();
+
+					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Importing Registrations...' );
+					var request;
+					request = { data : { type : 'registration', action : 'read', gender: target, data: registration[ target ] }};
+					request.json = JSON.stringify( request.data );
+					ws.worldclass.send( request.json );
 				};
 			})( file );
 
@@ -170,6 +168,7 @@ $( '.file-drop-zone' )
 	});
 
 ws.worldclass.onmessage = ( response ) => {
+	console.log( response );
 	var update = JSON.parse( response.data );
 	if( ! defined( update )) { return; }
 	console.log( update );
@@ -188,9 +187,7 @@ ws.worldclass.onmessage = ( response ) => {
 		if( !( subevent in update )) { continue; }
 		var id    = '#' + map[ subevent ] + ' .panel-body table';
 		var table = $( id );
-		console.log( subevent, id );
 		for( var division in update[ subevent ] ) {
-			console.log( division );
 			var tr = html.tr.clone();
 			var row = {
 				name : html.td.clone().html( division ),
