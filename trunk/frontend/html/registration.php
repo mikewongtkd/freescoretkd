@@ -167,6 +167,24 @@ $( '.file-drop-zone' )
 
 	});
 
+function sport_poomsae_division_description( d ) {
+	d = d.replace( /12-14/, 'Cadet' );
+	d = d.replace( /15-17/, 'Junior' );
+	d = d.replace( /18-30/, 'Senior' );
+	d = d.replace( /31-40/, 'Under 40' );
+	d = d.replace( /41-50/, 'Under 50' );
+	d = d.replace( /51-60/, 'Under 60' );
+	d = d.replace( /61-65/, 'Under 65' );
+	d = d.replace( /66-99/, 'Over 65' );
+	d = d.replace( /31-99/, 'Over 30' );
+	d = d.replace( /black all/, '' );
+	d = d.replace( /coed/, '' );
+	d = d.replace( /female/, 'Female' );
+	d = d.replace( /\bmale/, 'Male' );
+
+	return d;
+};
+
 ws.worldclass.onmessage = ( response ) => {
 	console.log( response );
 	var update = JSON.parse( response.data );
@@ -187,15 +205,30 @@ ws.worldclass.onmessage = ( response ) => {
 		if( !( subevent in update )) { continue; }
 		var id    = '#' + map[ subevent ] + ' .panel-body table';
 		var table = $( id );
+		table.empty();
+		var tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Num.' ));
+		table.append( tr );
+		var sum = 0;
 		for( var division in update[ subevent ] ) {
-			var tr = html.tr.clone();
+			var tr    = html.tr.clone();
+			var count = update[ subevent ][ division ].length;
+
+			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
+			if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
+
 			var row = {
-				name : html.td.clone().html( division ),
+				name : html.td.clone().html( sport_poomsae_division_description( division )),
 				count: html.td.clone().html( update[ subevent ][ division ].length )
 			};
 			tr.append( row.name, row.count );
 			table.append( tr );
+			sum += count;
 		}
+
+		tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
+		table.append( tr );
 	}
 
 };
