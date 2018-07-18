@@ -68,6 +68,10 @@
 					<a class="btn btn-primary config" id="setup" href="setup.php"> Tournament and Rings Setup </a>
 					<a class="btn btn-primary config" id="wifi"  href="wifi.php"> Network Setup </a>
 				</div>
+
+				<div class="register" id="registration">
+					<a class="btn btn-primary config" id="registration"  href="registration.php"> Import USAT Registration </a>
+				</div>
 			</div>
 
 			<footer class="page-footer">

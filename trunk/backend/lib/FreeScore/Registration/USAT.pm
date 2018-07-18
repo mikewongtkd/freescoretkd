@@ -3,6 +3,7 @@ package FreeScore::Registration::USAT;
 use JSON::XS;
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use List::Util qw( reduce );
 use base qw( Clone );
 
 # ============================================================
@@ -43,6 +44,83 @@ sub demonstration_team {
 	my $demo_team = { map { $_ => $self->{ $_ } } sort grep { /demonstration team/i } keys %$self };
 
 	return $demo_team;
+}
+
+# ============================================================
+sub description {
+# ============================================================
+	my $s    = shift;
+	my $d    = shift;
+	my $json = new JSON::XS();
+
+	$d = $json->decode( $d );
+
+	my $event = '';
+	if   ( $s =~ /pair/i ) { $event = 'Pair' }
+	elsif( $s =~ /team/i ) { $event = 'Team' }
+	else                   { $event = 'Individual' }
+
+	my $gender = lc substr( $d->{ gender }, 0, 1 );
+	if   ( $gender eq 'm' ) { $gender = 'Male '; }
+	elsif( $gender eq 'f' ) { $gender = 'Female '; }
+	else                    { $gender = ''; }
+
+	my $age   = $d->{ age }; $age =~ s/\-99/+/;
+	my $group = undef;
+	if   ( $age eq '10-11' ) { $group = 'Youths'; }
+	elsif( $age eq '12-14' ) { $group = 'Cadets'; }
+	elsif( $age eq '15-17' ) { $group = 'Juniors'; }
+	elsif( $age eq '18-30' ) { $group = 'Seniors'; }
+	elsif( $age eq '31-40' ) { $group = 'Under 40'; }
+	elsif( $age eq '41-50' ) { $group = 'Under 50'; }
+	elsif( $age eq '51-60' ) { $group = 'Under 60'; }
+	elsif( $age eq '61-65' ) { $group = 'Under 65'; }
+	elsif( $age eq '66+'   ) { $group = 'Over 65'; }
+	elsif( $age eq '31+'   ) { $group = 'Over 30'; }
+
+	return ("$gender$event $group", { age => $age, event => $event, gender => lc substr( $d->{ gender }, 0, 1 ) || 'c' });
+}
+
+# ============================================================
+sub divid {
+# ============================================================
+	my $s    = shift;
+	my $d    = shift;
+	my $json = new JSON::XS();
+
+	$d = $json->decode( $d );
+
+	my $id = {
+		gender => { c => 0, m => 1, f => 2 },
+		event  => { individual => 3, pair => 43, team => 73 },
+		belt   => { yellow => 'y', green => 'g', blue => 'b', red => 'r', black => 'k' },
+		rank   => { y => 400, g => 300, b => 200, r => 100, k => 0 }
+	};
+	my $gender  = lc substr( $d->{ gender }, 0, 1 ) || 'c';
+	my ($event) = $s =~ /(pair|team)/i; $event ||= 'individual';
+	my $age     = int( $d->{ age });
+
+	$id->{ division } = 0;
+	if( $event =~ /individual/i ) {
+		my $index = { 
+			'4' => 0, '6' => 1, '8' => 2, '10' => 3, '12' => 4, '15' => 5, 
+			'18' => 6, '31' => 7, '41' => 8, '51' => 9, '61' => 10, '66' => 11 
+		};
+		$id->{ division } = $index->{ "$age" } * 3;
+	} elsif( $event =~ /pair|team/i ) {
+		my $index = { 
+			'4' => 0, '6' => 1, '10' => 2, '12' => 3, 
+			'15' => 4, '18' => 5, '31' => 6 
+		};
+		$id->{ division } = $index->{ "$age" } * 3;
+	}
+
+	$divid = 0;
+	$divid -= int( $id->{ gender }{ $gender });
+	$divid += int( $id->{ event }{ $event });
+	$divid += int( $id->{ division });
+
+	return sprintf( "p%03d", $divid );
 }
 
 # ============================================================
@@ -107,18 +185,34 @@ sub parse_event {
 	my $self = shift;
 	local $_ = shift;
 
-	my ($age, $gender, $belt, $weight, $comment) = /^(\d+(?:\-\d+)?(?: & under)?)\s+(male|female|coed)\s+([\w\s\/]+?)\s*(all|over \d+\.\d kg|\d+\.\d+ - \d+\.\d+ kg|\d+\.\d kg & under)/i;
+	return $_ unless $_;
+
+	my ($age, $gender, $belt, $weight, $comment) = /
+		^(\d+(?:\-\d+)?(?:\ &\ under)?)\s+ # Age
+		(male|female|coed)\s+              # Gender
+		([\w\s\/]+?)\s*                    # Belt
+		  (all|                            # All weights
+		  over\ \d+\.\d\ kg|               # Heavy weight
+		  \d+\.\d+\ -\ \d+\.\d+\ kg|       # Weight range
+		  \d+\.\d\ kg\ &\ under)\s*        # Under weight
+		(\([^)]+\))?                       # Comment
+	/ix;
+
+	# Clean up after regex match
 	$weight =~ s/\s//g;
 	if( $weight =~ /over/ ) { $weight =~ s/over//i; $weight .= '+'; }
 	if( $weight =~ /\&\s*under/ ) { $weight =~ s/\&\s*under//i; $weight .= '-'; }
 	$belt = 'black' if $belt =~ /black/i;
-	if( $age ) {
+	$comment =~ s/[\(\)]//g;
+
+	# Provide a cleaned-up version of the USAT divisions
+	if( $age && $gender ) {
+		my $json = new JSON::XS();
 		my $d = { age => $age, gender => $gender, belt => $belt, weight => $weight, comment => $comment };
-		return "$d->{ age } $d->{ gender } $d->{ belt } $d->{ weight }";
-	} else {
-		print STDERR "$_\n" if $_;
-		return $_;
+		return $json->canonical->encode( $d );
 	}
+
+	return $_;
 }
 
 # ============================================================
@@ -141,9 +235,25 @@ sub sparring {
 sub world_class_poomsae {
 # ============================================================
 	my $self    = shift;
-	my $poomsae = { map { $_ => $self->{ $_ } } sort grep { /world class/i } grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
+	my $poomsae = { map { $_ => $self->{ $_ } } grep { /world class/ } sort grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
+	my $count   = reduce { $a + int( keys %{ $poomsae->{ $b }}) } keys %$poomsae;
+	my $json    = new JSON::XS();
 
-	return $poomsae;
+	if( $count > 0 ) { return $poomsae; }
+	return $poomsae if $count;
+
+	$poomsae = { map { 
+		my $orig = $_; 
+		my $key  = "world class $_"; 
+		$key => { map { 
+			$_ => $self->{ $orig }{ $_ } 
+			} grep { 
+				my $d    = $json->decode( $_ );
+				my $age  = int( $d->{ age }); 
+				my $belt = $d->{ belt };
+				$belt =~ /black/ && $age >= 10 
+			} keys %{$self->{ $_ }} 
+		}} sort grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
 }
 
 # ============================================================

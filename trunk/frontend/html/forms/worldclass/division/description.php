@@ -22,11 +22,11 @@
 						<label class="btn btn-default"><input type="radio" name="age" idx="03" value="youths"  >10-11</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="04" value="cadets"  >12-14</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="05" value="juniors" >15-17</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="under 30">18-29</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="07" value="under 40">30-39</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="08" value="under 50">40-49</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="09" value="under 60">50-59</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="10" value="under 65">60-65</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="under 30">18-30</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="07" value="under 40">31-40</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="08" value="under 50">41-50</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="09" value="under 60">51-60</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="10" value="under 65">61-65</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="11" value="over 65" >66+</label>
 					</div>
 					<div class="btn-group" data-toggle="buttons" style="margin-top: 4px;">
@@ -44,8 +44,8 @@
 						<label class="btn btn-default"><input type="radio" name="age" idx="02" value="youths"  >10-11</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="03" value="cadets"  >12-14</label>
 						<label class="btn btn-default"><input type="radio" name="age" idx="04" value="juniors" >15-17</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="05" value="under 30">18-29</label>
-						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="over 30" >30+</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="05" value="under 30">18-30</label>
+						<label class="btn btn-default"><input type="radio" name="age" idx="06" value="over 30" >31+</label>
 					</div>
 					<div class="btn-group" data-toggle="buttons">
 						<label class="btn btn-default"><input type="radio" name="rank" value="y">Yellow</label>

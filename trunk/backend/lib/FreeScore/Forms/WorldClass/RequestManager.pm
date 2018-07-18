@@ -69,6 +69,7 @@ sub init {
 		write_draws        => \&handle_ring_write_draws,
 	};
 	$self->{ registration } = {
+		upload             => \&handle_registration_upload,
 		read               => \&handle_registration_read
 	}
 }
@@ -732,19 +733,19 @@ sub handle_division_write {
 }
 
 # ============================================================
-sub handle_registration_read {
+sub handle_registration_upload {
 # ============================================================
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
 	my $client   = $self->{ _client };
 
-	print STDERR "Importing USAT Registration $request->{ gender } information\n" if $DEBUG;
+	print STDERR "Uploading USAT Registration $request->{ gender } information\n" if $DEBUG;
 	
 	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
 	return unless defined $gender;
 
-	my $path = $progress->{ path };
+	my $path = "$progress->{ path }/../..";
 	my $json = new JSON::XS();
 
 	open FILE, ">$path/registration.$gender.txt" or die $!;
@@ -759,12 +760,78 @@ sub handle_registration_read {
 	}
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
+	my $draws = undef;
+	if( -e "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" ) {
+		my $contents = read_file( "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" );
+		$draws = $json->decode( $contents );
+	}
+
 	try {
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
 		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $poomsae      = $registration->world_class_poomsae();
-		$client->send({ json => $poomsae });
+		my $divisions    = $registration->world_class_poomsae();
+		my $copy         = clone( $request ); delete $copy->{ data };
+
+		foreach my $subevent (keys %$divisions) {
+			foreach my $key (keys %{$divisions->{ $subevent }}) {
+				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
+				my $athletes                   = $divisions->{ $subevent }{ $key };
+				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
+				my $forms                      = $draws->{ $draw->{ event } }{ $draw->{ gender }}{ $draw->{ age }};
+				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes <= 20 ) { $round = 'semfin'; }
+				my $division                   = $progress->create_division( $divid ); 
+				$division->{ athletes }        = [ map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
+				$division->{ current }         = 0;
+				$division->{ description }     = $description;
+				$division->{ form }            = 0;
+				$division->{ forms }           = $forms;
+				$division->{ judges }          = 5;
+				$division->{ order }{ $round } = [ 0 .. $#$athletes ];
+				$division->{ round }           = $round;
+
+				print STDERR "  $divid: $description\n" if $DEBUG;
+				$division->write();
+			}
+		}
+		$client->send({ json => { request => $copy, divisions => $divisions }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_registration_read {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Reading USAT Registration information\n" if $DEBUG;
+	
+	my $path = "$progress->{ path }/../..";
+
+	try {
+		my $female    = "$path/registration.female.txt";
+		my $male      = "$path/registration.male.txt";
+		my $copy      = clone( $request );
+		my @divisions = ();
+		if( -e $male && -e $female ) {
+			$female = read_file( $female );
+			$male   = read_file( $male );
+			my $registration = new FreeScore::Registration::USAT( $female, $male );
+			my $poomsae      = $registration->world_class_poomsae();
+			@divisions       = ( divisions => $poomsae );
+			$copy->{ action } = 'upload';
+
+			$female = \1;
+			$male   = \1;
+		} 
+		elsif( -e $male   ) { $female = \0; $male = \1; }
+		elsif( -e $female ) { $female = \1; $male = \0; }
+		else                { $female = \0; $male = \0; }
+		$client->send({ json => { request => $copy, male => $male, female => $female, @divisions }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

@@ -46,7 +46,7 @@
 			<div class="pt-page pt-page-2">
 				<div class="container">
 					<div class="page-header">
-						<a id="back-to-import" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Redraw</a>
+						<a id="back-to-import" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Back to Import</a>
 						<span id="page-2-title">Imported Divisions</span>
 					</div>
 
@@ -81,7 +81,7 @@
 					</div>
 
 					<div class="clearfix">
-						<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
+						<button type="button" id="import" class="btn btn-success pull-right">Import</button> 
 						<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 					</div>
 				</div>
@@ -93,6 +93,7 @@
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var html       = FreeScore.html;
+var divisions  = undefined;
 
 var sound = {
 	send      : new Howl({ urls: [ "sounds/upload.mp3",   "sounds/upload.ogg"   ]}),
@@ -118,6 +119,19 @@ var ws = {
 };
 
 var registration = { male: '', female: '' };
+var dropzone     = { 
+	disable: ( target ) => {
+		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+	},
+	enable: ( target ) => {
+		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
+	}
+};
+
+$( '#back-to-import' ).off( 'click' ).click( ( ev ) => {
+	sound.prev.play();
+	page.transition( 1 );
+});
 
 $( '.file-drop-zone' )
 	.on( 'dragover', ( ev ) => {
@@ -149,14 +163,14 @@ $( '.file-drop-zone' )
 						alertify.error( 'Same file uploaded twice; possible user error?' );
 						return;
 					}
-					$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+					dropzone.disable( target );
 
 					registration[ target ] = e.target.result;
 					sound.send.play();
 
 					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Importing Registrations...' );
 					var request;
-					request = { data : { type : 'registration', action : 'read', gender: target, data: registration[ target ] }};
+					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
 					ws.worldclass.send( request.json );
 				};
@@ -167,10 +181,17 @@ $( '.file-drop-zone' )
 
 	});
 
-function sport_poomsae_division_description( d ) {
-	d = d.replace( /12-14/, 'Cadet' );
-	d = d.replace( /15-17/, 'Junior' );
-	d = d.replace( /18-30/, 'Senior' );
+function sport_poomsae_division_description( s, d ) {
+	d = JSON.parse( d );
+	d = d.gender + ' ' + d.age;
+	var format = '';
+	if( s.match( /pair/i ))      { format = 'Pair' }
+	else if( s.match( /team/i )) { format = 'Team' }
+	else                         { format = 'Individual' }
+	d = d.replace( /10-11/, 'Youths' );
+	d = d.replace( /12-14/, 'Cadets' );
+	d = d.replace( /15-17/, 'Juniors' );
+	d = d.replace( /18-30/, 'Seniors' );
 	d = d.replace( /31-40/, 'Under 40' );
 	d = d.replace( /41-50/, 'Under 50' );
 	d = d.replace( /51-60/, 'Under 60' );
@@ -178,59 +199,81 @@ function sport_poomsae_division_description( d ) {
 	d = d.replace( /66-99/, 'Over 65' );
 	d = d.replace( /31-99/, 'Over 30' );
 	d = d.replace( /black all/, '' );
-	d = d.replace( /coed/, '' );
-	d = d.replace( /female/, 'Female' );
-	d = d.replace( /\bmale/, 'Male' );
+	d = d.replace( /coed/, format );
+	d = d.replace( /female/, 'Female ' + format );
+	d = d.replace( /\bmale/, 'Male ' + format );
 
 	return d;
 };
 
+$( '#import' ).off( 'click' ).click(( ev ) => {
+	sound.send.play();
+	var request;
+	request = { data : { type : 'registration', action : 'import' }};
+	request.json = JSON.stringify( request.data );
+	ws.worldclass.send( request.json );
+});
+
+ws.worldclass.onopen = () => {
+	var request;
+	request = { data : { type : 'registration', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	ws.worldclass.send( request.json );
+};
+
 ws.worldclass.onmessage = ( response ) => {
-	console.log( response );
 	var update = JSON.parse( response.data );
 	if( ! defined( update )) { return; }
 	console.log( update );
 
-	page.transition( 2 );
+	if( update.request.action == 'read' ) {
+		if( update.male   ) { dropzone.disable( 'male'   ); } else { dropzone.enable( 'male'   ); }
+		if( update.female ) { dropzone.disable( 'female' ); } else { dropzone.enable( 'female' ); }
+	
+	} else if( update.request.action == 'upload' ) {
+		sound.next.play();
+		page.transition( 2 );
 
-	var map = {
-		'world class poomsae' : 'worldclass-individuals',
-		'world class pairs poomsae' : 'worldclass-pairs',
-		'world class team poomsae' : 'worldclass-teams',
-	};
+		var map = {
+			'world class poomsae' : 'worldclass-individuals',
+			'world class pairs poomsae' : 'worldclass-pairs',
+			'world class team poomsae' : 'worldclass-teams',
+		};
 
-	var events = [ 'world class poomsae', 'world class pairs poomsae', 'world class team poomsae' ];
+		var events = [ 'world class poomsae', 'world class pairs poomsae', 'world class team poomsae' ];
 
-	for( var subevent of events) {
-		if( !( subevent in update )) { continue; }
-		var id    = '#' + map[ subevent ] + ' .panel-body table';
-		var table = $( id );
-		table.empty();
-		var tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Num.' ));
-		table.append( tr );
-		var sum = 0;
-		for( var division in update[ subevent ] ) {
-			var tr    = html.tr.clone();
-			var count = update[ subevent ][ division ].length;
+		divisions = update.divisions;
 
-			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
-			if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
-
-			var row = {
-				name : html.td.clone().html( sport_poomsae_division_description( division )),
-				count: html.td.clone().html( update[ subevent ][ division ].length )
-			};
-			tr.append( row.name, row.count );
+		for( var subevent of events) {
+			if( !( subevent in divisions )) { continue; }
+			var id    = '#' + map[ subevent ] + ' .panel-body table';
+			var table = $( id );
+			table.empty();
+			var tr = html.tr.clone();
+			tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Num.' ));
 			table.append( tr );
-			sum += count;
+			var sum = 0;
+			for( var division in divisions[ subevent ] ) {
+				var tr    = html.tr.clone();
+				var count = divisions[ subevent ][ division ].length;
+
+				if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
+				if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
+
+				var row = {
+					name : html.td.clone().html( sport_poomsae_division_description( subevent, division )),
+					count: html.td.clone().html( divisions[ subevent ][ division ].length )
+				};
+				tr.append( row.name, row.count );
+				table.append( tr );
+				sum += count;
+			}
+
+			tr = html.tr.clone();
+			tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
+			table.append( tr );
 		}
-
-		tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
-		table.append( tr );
 	}
-
 };
 		</script>
 	</body>
