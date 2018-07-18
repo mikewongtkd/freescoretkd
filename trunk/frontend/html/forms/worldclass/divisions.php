@@ -297,7 +297,7 @@
 
 					// ===== DISABLE DIVISION-SPECIFIC ACTION BUTTONS UNTIL A DIVISION IS SELECTED
 					var action     = { button: { edit: $( '#' + ring.name + '-div-edit' ), split: $( '#' + ring.name + '-div-split' ), merge: $( '#' + ring.name + '-div-merge' ), restage: $( '#' + ring.name + '-div-restage' ), send: $( '#staging-div-send' ), delete: $( '#' + ring.name + '-div-delete' ) }};
-					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, enable: ( ring, divid ) => { action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' ); action.button.edit.attr({ 'href': 'division/editor.php?file=test/' + ring + '/' + divid }); }};
+					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, enable: ( ring, divid ) => { action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' ); if( ! defined( ring )) { ring = 'staging'; } action.button.edit.attr({ 'href': 'division/editor.php?file=test/' + ring + '/' + divid }); }};
 					action.merge   = { disable: () => { action.button.merge.removeClass( 'btn-primary' ).addClass( 'disabled' ).hide(); }, enable: () => { action.button.merge.addClass( 'btn-primary' ).removeClass( 'disabled' ).show(); }};
 					action.split   = { disable: () => { action.button.split.removeClass( 'btn-primary' ).addClass( 'disabled' ).hide(); }, enable: () => { action.button.split.addClass( 'btn-primary' ).removeClass( 'disabled' ).show(); }};
 					action.restage = { disable: () => { action.button.restage.removeClass( 'btn-warning' ).addClass( 'disabled' ); action.button.restage.off( 'click' ); } };
