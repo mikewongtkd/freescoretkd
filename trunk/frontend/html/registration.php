@@ -4,7 +4,7 @@
 ?>
 <html>
 	<head>
-		<title>Import USAT Registration</title>
+		<title>Upload USAT Registration</title>
 		<link href="include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="include/css/registration.css" rel="stylesheet" />
 		<link href="include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
@@ -35,6 +35,50 @@
 			<div class="pt-page pt-page-1">
 				<div class="container">
 					<div class="page-header"> Import USAT Registration </div>
+<?php
+	$t = json_decode( $tournament );
+	if( ! file_exists( "/usr/local/freescore/data/" . $t->db . "/forms-worldclass/draws.json" )):
+?>
+	<script>
+		alertify.dialog( 'drawPoomsae', function() {
+			return {
+				main: function( message ) {
+					this.message = message;
+				},
+				build: function() {
+					$( this.elements.header ).css({ 'background-color':'#dc3545', 'color':'white' });
+				},
+				setup: function() {
+					return {
+						buttons: [ { text: "Draw Poomsae", key: 13 /* Enter */ }, { text: "Continue Import" }],
+						focus: { element: 0 },
+						options: {
+							title: 'Warning: Designated Poomsae Have Not Been Drawn',
+						},
+					};
+				},
+				prepare: function() {
+					this.setContent( this.message );
+				},
+				callback: function( closeEvent ) {
+					switch( closeEvent.index ) {
+						case 0:
+							window.location = 'forms/worldclass/draws.php';
+							break;
+						case 1:
+							alertify.error( 'After importing, please remember to edit each division to include the proper poomsae' );
+							break;
+					}
+				}
+			}
+		});
+		alertify.drawPoomsae(
+			'Designated Poomsae have not yet been drawn. If you proceed without drawing the designated poomsae, you will have to edit each division. Drawing poomsae first is highly recommended.',
+		);
+	</script>
+<?php
+	endif
+?>
 					<h1>Drag &amp; Drop USAT Weight Divisions Below</h1>
 
 					<div class="drop-zones">
@@ -46,7 +90,7 @@
 			<div class="pt-page pt-page-2">
 				<div class="container">
 					<div class="page-header">
-						<a id="back-to-import" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Back to Import</a>
+						<a id="back-to-upload" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Back to Upload</a>
 						<span id="page-2-title">Imported Divisions</span>
 					</div>
 
@@ -98,6 +142,7 @@ var divisions  = undefined;
 var sound = {
 	send      : new Howl({ urls: [ "sounds/upload.mp3",   "sounds/upload.ogg"   ]}),
 	confirmed : new Howl({ urls: [ "sounds/received.mp3", "sounds/received.ogg" ]}),
+	error     : new Howl({ urls: [ "sounds/warning.mp3",  "sounds/warning.ogg"  ]}),
 	next      : new Howl({ urls: [ "sounds/next.mp3",     "sounds/next.ogg"     ]}),
 	prev      : new Howl({ urls: [ "sounds/prev.mp3",     "sounds/prev.ogg"     ]}),
 };
@@ -128,7 +173,7 @@ var dropzone     = {
 	}
 };
 
-$( '#back-to-import' ).off( 'click' ).click( ( ev ) => {
+$( '#back-to-upload' ).off( 'click' ).click( ( ev ) => {
 	sound.prev.play();
 	page.transition( 1 );
 });
@@ -207,7 +252,6 @@ function sport_poomsae_division_description( s, d ) {
 };
 
 $( '#import' ).off( 'click' ).click(( ev ) => {
-	sound.send.play();
 	var request;
 	request = { data : { type : 'registration', action : 'import' }};
 	request.json = JSON.stringify( request.data );
@@ -272,6 +316,14 @@ ws.worldclass.onmessage = ( response ) => {
 			tr = html.tr.clone();
 			tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
 			table.append( tr );
+		}
+
+	} else if( update.request.action == 'import' ) {
+		if( update.result == 'success' ) {
+			sound.send.play();
+			setTimeout(() => { window.location = 'index.php'; }, 750 );
+		} else {
+			sound.warning.play();
 		}
 	}
 };

@@ -69,6 +69,7 @@ sub init {
 		write_draws        => \&handle_ring_write_draws,
 	};
 	$self->{ registration } = {
+		import             => \&handle_registration_import,
 		upload             => \&handle_registration_upload,
 		read               => \&handle_registration_read
 	}
@@ -733,6 +734,82 @@ sub handle_division_write {
 }
 
 # ============================================================
+sub handle_registration_clear {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Clearing USAT Registration information\n" if $DEBUG;
+	
+	my $path = "$progress->{ path }/../..";
+	try {
+		unlink( "$path/registration.female.txt" );
+		unlink( "$path/registration.male.txt" );
+		$client->send({ json => { request => $copy, result => 'success' }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_registration_import {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Importing USAT Registration information\n" if $DEBUG;
+	
+	my $path = "$progress->{ path }/../..";
+	my $json = new JSON::XS();
+	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
+
+	my $draws = undef;
+	if( -e "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" ) {
+		my $contents = read_file( "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" );
+		$draws = $json->decode( $contents );
+	}
+
+	try {
+		my $female       = read_file( "$path/registration.female.txt" );
+		my $male         = read_file( "$path/registration.male.txt" );
+		my $registration = new FreeScore::Registration::USAT( $female, $male );
+		my $divisions    = $registration->world_class_poomsae();
+		my $copy         = clone( $request ); delete $copy->{ data };
+
+		foreach my $subevent (keys %$divisions) {
+			foreach my $key (keys %{$divisions->{ $subevent }}) {
+				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
+				my $athletes                   = $divisions->{ $subevent }{ $key };
+				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
+				my $forms                      = negotiate_draws( $draws, $draw ) if $draws;
+				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes <= 20 ) { $round = 'semfin'; }
+				my $division                   = $progress->create_division( $divid ); 
+				$division->{ athletes }        = [ map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
+				$division->{ current }         = 0;
+				$division->{ description }     = $description;
+				$division->{ form }            = 0;
+				$division->{ forms }           = $draws ? $forms : { prelim => [ 'Open' ], semfin => [ 'Open' ], finals => [ 'Open', 'Open' ]};
+				$division->{ judges }          = 5;
+				$division->{ order }{ $round } = [ 0 .. $#$athletes ];
+				$division->{ round }           = $round;
+
+				print STDERR "  $divid: $description\n" if $DEBUG;
+				$division->write();
+			}
+		}
+		unlink( "$path/registration.female.txt" );
+		unlink( "$path/registration.male.txt" );
+		$client->send({ json => { request => $copy, result => 'success' }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_registration_upload {
 # ============================================================
 	my $self     = shift;
@@ -760,12 +837,6 @@ sub handle_registration_upload {
 	}
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
-	my $draws = undef;
-	if( -e "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" ) {
-		my $contents = read_file( "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" );
-		$draws = $json->decode( $contents );
-	}
-
 	try {
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
@@ -773,27 +844,6 @@ sub handle_registration_upload {
 		my $divisions    = $registration->world_class_poomsae();
 		my $copy         = clone( $request ); delete $copy->{ data };
 
-		foreach my $subevent (keys %$divisions) {
-			foreach my $key (keys %{$divisions->{ $subevent }}) {
-				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
-				my $athletes                   = $divisions->{ $subevent }{ $key };
-				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
-				my $forms                      = $draws->{ $draw->{ event } }{ $draw->{ gender }}{ $draw->{ age }};
-				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes <= 20 ) { $round = 'semfin'; }
-				my $division                   = $progress->create_division( $divid ); 
-				$division->{ athletes }        = [ map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
-				$division->{ current }         = 0;
-				$division->{ description }     = $description;
-				$division->{ form }            = 0;
-				$division->{ forms }           = $forms;
-				$division->{ judges }          = 5;
-				$division->{ order }{ $round } = [ 0 .. $#$athletes ];
-				$division->{ round }           = $round;
-
-				print STDERR "  $divid: $description\n" if $DEBUG;
-				$division->write();
-			}
-		}
 		$client->send({ json => { request => $copy, divisions => $divisions }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -1062,6 +1112,27 @@ sub handle_ring_write_draws {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
+}
+
+# ============================================================
+sub negotiate_draws {
+# ============================================================
+	my $draws = shift;
+	my $draw  = shift;
+
+	my $event  = $draw->{ event };
+	my $gender = $draw->{ gender };
+	my $age    = $draw->{ age };
+	
+	return undef unless exists $draws->{ $event };
+	my $forms = $draws->{ $event };
+
+	if   ( exists $forms->{ $gender }) { $forms = $forms->{ $gender }; }
+	elsif( exists $forms->{ c }      ) { $forms = $forms->{ c };       }
+	else { return undef; }
+
+	return undef unless exists $forms->{ $age };
+	return $forms->{ $age };
 }
 
 # ============================================================
