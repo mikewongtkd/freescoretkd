@@ -7,18 +7,18 @@ body {
 
 @font-face {
   font-family: Nimbus;
-  src: url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+  src: url("/include/fonts/nimbus-sans-l_bold-condensed.ttf"), url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
 @font-face {
   font-family: Biolinum;
   font-weight: bold;
-  src: url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
 .worldclass {
   margin: 0 auto 0 auto;
   width: 1000px; }
 @font-face {
   .worldclass {
     font-family: GlyphiconHalfling;
-    src: url(/include/bootstrap/fonts/glyphicons-halflings-regular.ttf); } }
+    src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"); } }
   .worldclass .scoreboard {
     font-family: HelveticaNeue-CondensedBold, Nimbus;
     display: none;
@@ -272,7 +272,7 @@ body {
   .worldclass .leaderboard {
     width: 1000px;
     height: 720px;
-    font-family: HelveticaNeue-CondensedBold, Nimbus;
+    font-family: Nimbus;
     color: white;
     overflow: hidden; }
     .worldclass .leaderboard .division {
