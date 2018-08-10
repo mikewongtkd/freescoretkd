@@ -508,7 +508,6 @@
 				if( $( '#total .alert' ).attr( 'sending' )) {
 					sound.ok.play();
 					alertify.success( "Score has been sent and received." );
-					$( '#send' ).html( 'Resend' );
 				}
 				division = new Division( update.division );
 				if( ! defined( division )) { return; }
@@ -518,6 +517,7 @@
 						if( update.request.action == 'score' && sent ) {
 							alertify.success( 'Score for ' + previous.athlete.name + ' received.' );
 							sound.ok.play();
+							$( '#send' ).html( 'Resend' );
 							sent = false;
 						}
 					}
