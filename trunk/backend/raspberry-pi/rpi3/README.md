@@ -44,6 +44,8 @@ This will install all the Perl libraries and the GD graphics library dependency.
 		JSON::XS \
 		List::MoreUtils \
 		LWP::UserAgent \
+		Math::Round \
+		Math::Utils \
 		Mojolicious \
 		Time::HiRes \
 		Try::Tiny \
@@ -65,6 +67,7 @@ This will install the FreeScore web services to be configured to start on boot.
 	
 ## FreeScore CGI
 
+Some of the simple reporting in FreeScore still uses the Common Gateway Interface (CGI).
 
 ### Update CGI Configuration Settings 
 	cd /etc/apache2/
@@ -112,6 +115,16 @@ Quit the Editor by typing `<escape>-wq` or going to `File > Save-Exit`
 	cd /var/www/cgi-bin
 	sudo ln -s ~pi/freescore/trunk/frontend/cgi-bin freescore
 	
+### Assign IP Address to FreeScore.net
+
+**/etc/hosts**
+
+Add the following line to the end of the file
+
+	192.168.88.1	freescore.net
+	
+This associates the IP address `192.168.88.1` with `freescore.net`. Later we'll configure the network to use `192.168.88.1` as its IP address.
+	
 ### Turn Everything On
 
 	sudo systemctl daemon-reload
@@ -119,22 +132,41 @@ Quit the Editor by typing `<escape>-wq` or going to `File > Save-Exit`
 
 ## Network Configurations
 
-There are multiple network choices that you can use with FreeScore to get the best communication at different venues.
+There are multiple network choices that you can use with FreeScore to get the best communication at different venues. The two main configurations are with a **USB Wifi Adapter** and with a separate **Wifi Access Point**. 
 
-### 2.4 GHz
+| Configure| USB Wifi Adapter | Wifi Access Point |
+| --- | --- | --- |
+| Network Services | `hostapd` and `dnsmasq` | `dnsmasq` alone |
+| Network Hardware | `wlan0` or `wlan1` | `eth0` |
 
-The simplest choice is a simple USB wifi dongle with 2.4 GHz 802.11 protocol. The advantages of this configuration are portability, value, and ease-of-setup. Three channels (1, 6, and 11) present no overlap; if the competing signals in these channels can be overpowered, then communication should be fairly clear and responsive.
+
+### USB Wifi Adapter 2.4 GHz
+
+The simplest choice is a simple USB wifi adapter with 2.4 GHz 802.11 protocol. The advantages of this configuration are portability, value, and ease-of-setup. Three channels (1, 6, and 11) present no overlap; if the competing signals in these channels can be overpowered, then communication should be fairly clear and responsive.
 
 **Recommended Hardware**
 
 - Detroit DIY Electronics Wifi with Antenna for Raspberry Pi
 
-**Software**
+**Network Services**
 
 - `hostapd` service to configure the Raspberry Pi as an access point
 - `dnsmasq` service to configure the Raspberry Pi as a DNS and DHCP router
 
+ 
+	sudo su -
+	systemctl enable hostapd
+	systemctl enable dnsmasq
+
+
 **/etc/hostapd/hostapd.conf**
+
+Depending on your model of the Raspberry Pi, the interface may be different. I do not recommend the RPi3 on-board wifi adapter as an access point, but if the wifi traffic in your area is very low, it might work, which will save you $15 from not having to buy a USB wifi adapter.
+
+| Interface | Raspberry Pi 2 | Raspberry Pi 3 |
+| --- | --- | --- |
+| `wlan0` | USB Wifi Adapter | On-board Wifi Adapter |
+| `wlan1` | N/A | USB Wifi Adapter |
 
 	interface=wlan0
 	driver=nl80211
@@ -163,23 +195,33 @@ Using a separate dual band powered router might allow for even better communicat
 	systemctl stop hostapd
 	systemctl disable hostapd
 	
-**Configuring Raspberry Pi for Static IP on eth0**
+We'll still need DNSMasq to handle *domain name server* lookups.
 
-Edit `/etc/dnsmasq.conf`. Change the interface line
+**Switching Network from WiFi to Ethernet**
 
-	interface=wlan0
-	dhcp-range=192.168.88.100,192.168.88.200,255.255.255.0,120h
-	dhcp-option=option:router,192.168.88.1
-	server=192.168.88.1
-	server=8.8.8.8
+Since the TP Link access point will handle most network tasks, we'll need the ethernet port to go from DHCP to static IP. 
+
+Edit `/etc/network/interfaces`:
+
+Comment out the DHCP-on-boot for `eth0`
+
+	# iface eth0 inet dhcp
 	
-To
+Add (or uncomment) the static IP for `eth0`
 
-	interface=eth0
-	...
+	iface eth0 inet static
+		address 192.168.88.1
+		gateway 192.168.88.1
+		netmask 255.255.255.0
+		network 192.168.88.0
+		broadcast 192.168.88.255
+		
+Enforce DHCP Client service to use a static IP
 
-Leave the `dhcp-range` and other options alone.
-
+	interface eth0
+	static ip_address=192.168.88.1
+	static domain_name_servers=192.168.88.1
+		
 **Configuring the Router**
 
 Please read the manufacturer's instructions on how to configure the wifi router as an access point. Use the SSID `freescore` and constrain the DHCP range to match that in the `/etc/dnsmasq.conf` as shown above. Disable the guest network, if the router provides a guest network.
@@ -187,6 +229,48 @@ Please read the manufacturer's instructions on how to configure the wifi router 
 **Suggested Hardware**
 
 - TP-Link AC1200 Dual Band Wifi Router
+
+The router acts as a bridge between a local network (LAN) and the internet (WAN). Each side of the bridge needs to be configured for the router to work. 
+
+We will use the LAN side only, since the TP-Link won't be connected to the internet. However, the TP-Link firmware still requires that we configure the WAN as well; we place this on the 192.168.1.0 subnet.
+
+#### WAN
+
+| Setting | Value |
+| --- | --- |
+| Internet Connection Type | Static IP |
+| IP Address | 192.168.1.10 |
+| Subnet Mask | 255.255.255.0 |
+| Default Gateway | 192.168.1.1 |
+| Primary DNS | 192.168.1.1 |
+| Secondary DNS | 8.8.8.8 |
+
+#### LAN
+
+| Setting | Value |
+| --- | --- |
+| IP Address | 192.168.88.10 |
+| Subnet Mask | 255.255.255.0 |
+
+#### LAN DHCP
+
+| Setting | Value |
+| --- | --- |
+| Enable DHCP | Checked / DHCP Server |
+| IP Address Pool | 192.168.88.100 - 192.168.88.199 |
+| Address Lease Time | 1200 |
+| Default Gateway | 192.168.88.1 |
+| Default Domain | [Blank] |
+| Primary DNS | 192.168.88.1 |
+| Secondary DNS | 0.0.0.0 |
+
+The *Default Gateway* and *Primary DNS* are critical settings here; this delegates network access and domain name resolution to the Raspberry Pi. The Raspberry Pi 
+
+#### Guest Network
+
+| Setting | Value |
+| --- | --- |
+| Allow Guests to See Each Other | Disable |
 
 ### 2.4/5.0 GHz
 
