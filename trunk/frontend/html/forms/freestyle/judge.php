@@ -508,6 +508,7 @@
 				if( $( '#total .alert' ).attr( 'sending' )) {
 					sound.ok.play();
 					alertify.success( "Score has been sent and received." );
+					$( '#send' ).html( 'Resend' );
 				}
 				division = new Division( update.division );
 				if( ! defined( division )) { return; }
@@ -598,6 +599,9 @@
 					html.div.clone().addClass( 'name'     ).append( athlete.display.name()),
 					html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' in the ' + division.current.round() + ' Round' )
 				);
+
+				// Re-label the Send button as 'Send' instead of 'Resend'
+				$( '#send' ).html( 'Send' );
 
 				// Start with Jumping Side Kick
 				$( '#mft1-tab' ).tab( 'show' );
