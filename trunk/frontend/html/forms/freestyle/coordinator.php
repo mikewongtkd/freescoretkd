@@ -89,19 +89,8 @@
 									<a class="btn btn-success" id="timer-start"><span class="glyphicon glyphicon-play"></span> Start</a>
 									<a class="btn btn-danger disabled"  id="timer-reset"><span class="glyphicon glyphicon-repeat"></span> Reset</a>
 								</div>
-								<p style="font-size:9pt; margin-left: 8px;">Press <code>Enter</code> to start/pause the timer</p>
+								<p style="font-size:8pt; margin-left: 8px;">Press <code>Space</code> to start/pause the timer, <code>0</code> to reset</p>
 							</div>
-<!--
-							<div class="penalties">
-								<h4>Penalties</h4>
-								<div class="list-group">
-									<a class="list-group-item" id="penalty-time"><span class="glyphicon glyphicon-time"></span>Over/Under Time</a>
-									<a class="list-group-item" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
-									<a class="list-group-item" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
-									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-trash"  ></span>Clear Penalties</a>
-								</div>
-							</div>
--->
 							<div class="decision">
 								<h4>Decision</h4>
 								<div class="list-group">
@@ -295,10 +284,15 @@
 					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
 
-					$( 'body' ).off( 'keypress' ).keypress(( ev ) => {
+					$( document ).off( 'keydown' ).keypress(( ev ) => {
+						console.log( ev.keyCode, ev.charCode, ev.key );
 						switch( ev.keyCode ) {
-							case 13: 
+							case 32: 
 								action.timer.toggle();
+								break;
+
+							case 48: 
+								action.timer.reset();
 								break;
 						}
 					});
