@@ -64,9 +64,10 @@ sub init {
 		division_next      => \&handle_ring_division_next,
 		division_prev      => \&handle_ring_division_prev,
 		division_split     => \&handle_ring_division_split,
+		draws_delete       => \&handle_ring_draws_delete,
+		draws_write        => \&handle_ring_draws_write,
 		read               => \&handle_ring_read,
 		transfer           => \&handle_ring_transfer,
-		write_draws        => \&handle_ring_write_draws,
 	};
 	$self->{ registration } = {
 		import             => \&handle_registration_import,
@@ -785,7 +786,7 @@ sub handle_registration_import {
 				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
 				my $athletes                   = $divisions->{ $subevent }{ $key };
 				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
-				my $forms                      = negotiate_draws( $draws, $draw ) if $draws;
+				my $forms                      = assign_draws( $draws, $draw ) if $draws;
 				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes <= 20 ) { $round = 'semfin'; }
 				my $division                   = $progress->create_division( $divid ); 
 				$division->{ athletes }        = [ map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
@@ -1093,7 +1094,27 @@ sub handle_ring_transfer {
 }
 
 # ============================================================
-sub handle_ring_write_draws {
+sub handle_ring_draws_delete {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Deleting draws in database.\n" if $DEBUG;
+
+	try {
+		$progress->delete_draws();
+
+		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+# ============================================================
+sub handle_ring_draws_write {
 # ============================================================
 	my $self     = shift;
 	my $request  = shift;
@@ -1115,7 +1136,7 @@ sub handle_ring_write_draws {
 }
 
 # ============================================================
-sub negotiate_draws {
+sub assign_draws {
 # ============================================================
 	my $draws = shift;
 	my $draw  = shift;

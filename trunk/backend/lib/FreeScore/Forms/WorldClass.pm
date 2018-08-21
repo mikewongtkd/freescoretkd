@@ -98,6 +98,21 @@ sub delete_division {
 }
 
 # ============================================================
+sub delete_draws {
+# ============================================================
+	my $self  = shift;
+	my $file  = undef;
+	if( $self->{ path } =~ /\b(?:staging|ring\d+)/i ) {
+		$file = $self->{ path };
+		$file =~ s/(?:staging|ring\d+)\/?/draws.json/i;
+	} else {
+		$file = "$self->{ path }/draws.json";
+	}
+	$self->{ ring }{ draws } = undef;
+	unlink $file;
+}
+
+# ============================================================
 sub get_only {
 # ============================================================
 	my $self     = shift;

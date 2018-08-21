@@ -111,9 +111,10 @@
 							</div>
 						</div>
 						<div class="clearfix">
+							<button type="button" id="cancel" class="btn btn-warning pull-left" style="margin-right: 40px;">Cancel</button> 
+							<button type="button" id="delete" class="btn btn-danger pull-left disabled" style="margin-right: 40px;">Delete Draws</button> 
 							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right">Instant Draw</button> 
-							<button type="button draw" id="edit" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
-							<button type="button" id="cancel" class="btn btn-danger pull-right" style="margin-right: 40px;">Cancel</button> 
+							<button type="button" id="edit" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
 						</div>
 					</form>
 				</div>
@@ -319,15 +320,38 @@ var draw = () => {
 	}
 };
 
+var blank = () => {
+	var rules  = FreeScore.rulesUSAT;
+	var rounds;
+	if( method == 'cutoff' ) { rounds = [ 'prelim', 'semfin', 'finals' ]; } 
+	else                     { rounds = [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ]; }
+	draws = {};
+	for( ev of rules.poomsaeEvents()) {
+		draws[ ev ] = {};
+		var genders;
+		if( ev.match( /pair/i ) || ! genderdraw ) { genders = [ 'c' ]; }
+		else if( genderdraw ) { genders = [ 'f', 'm' ] }
+		for( gender of genders) { 
+			draws[ ev ][ gender ] = {}; 
+			for( age of rules.ageGroups( ev )) {
+				draws[ ev ][ gender ][ age ] = {};
+				for( round of rounds ) {
+					draws[ ev ][ gender ][ age ][ round ] = [];
+				}
+			}
+		}
+	}
+}
+
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 var show = {
 	table : () => {
-		var html       = FreeScore.html;
-		var individual = draws[ 'Individual' ];
-		var rounds     = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
-		var table      = undefined;
-		var tables     = { c: '-coed', f: '-female', m: '-male' };
+		var html   = FreeScore.html;
+		var rounds = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+		var table  = undefined;
+		var tables = { c: '-coed', f: '-female', m: '-male' };
+		var focus  = undefined;
 
 		for( var ev of sort.alphabetically( draws )) {
 			var draw = draws[ ev ];
@@ -360,6 +384,8 @@ var show = {
 							var div     = JSON.stringify( { 'event': ev, gender: gender, age: age, round: round, form: i });
 							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices, 'data-division': div }).val( form );
 
+							if( ! defined( focus )) { focus = id; }
+
 							td.append( input );
 						}
 						row.push( td );
@@ -377,11 +403,14 @@ var show = {
 				}
 			}
 		}
+
+		// Select all input text when clicked
 		$( 'input.form-draw' ).off( 'click' ).click(( ev ) => { 
 			var target  = $( ev.target );
 			target.select();
 		});
 
+		// Update when input changes
 		$( 'input.form-draw' ).off( 'change' ).on( 'change', ( ev ) => { 
 			var target  = $( ev.target );
 			var val     = target.val().toLowerCase();
@@ -398,9 +427,9 @@ var show = {
 			forms[ div.form ] = target.val();
 			draws[ div.event ][ div.gender ][ div.age ][ div.round ] = forms.filter(( name ) => { return name; });
 			forms = draws[ div.event ][ div.gender ][ div.age ][ div.round ];
-
-			console.log( div, forms );
 		});
+
+		setTimeout(() => { $( '#' + focus ).click(); }, 750 );
 	}
 };
 
@@ -450,13 +479,32 @@ $( '#cancel' ).off( 'click' ).click(() => {
 	setTimeout( function() { window.location = '../../index.php' }, 500 ); 
 });
 
+$( '#delete' ).off( 'click' ).click(() => {
+	if( $( '#delete' ).hasClass( 'disabled' )) { return; }
+	alertify.confirm( 
+		'Delete Poomsae Draws?', 
+		'Click <code>Delete</code> to delete the poomsae draws. Deleting cannot be undone!', 
+		() => {
+			var request;
+
+			request = { data : { type : 'ring', action : 'draws delete' }};
+			request.json = JSON.stringify( request.data );
+			ws.send( request.json );
+		},
+		() => {}
+	).set( 'labels', { ok: 'Delete', cancel: 'Cancel' });
+});
+
 $( '#edit' ).off( 'click' ).click(() => {
+	if( $( '#edit' ).text() == 'Select Manually' ) { blank(); }
+
 	sound.next.play();
 	show.table();
 	page.transition();
 });
+
 $( '#accept' ).off( 'click' ).click(() => { 
-	var request  = { data : { type : 'ring', action : 'write draws', draws: draws }};
+	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
 	ws.send( request.json );
@@ -477,17 +525,29 @@ ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( update );
 	if( update.type == 'ring' ) {
-		if( ! defined( update.request )) { return; };
+		if( ! defined( update.request )) { 
+			$( '#delete' ).addClass( 'disabled' );
+			$( '#edit' ).text( 'Select Manually' );
+			return; 
+		};
+
 		if( update.request.action == 'read' ) {
 			draws = update.ring.draws;
+			if( ! defined( draws )) { return; }
+
+			$( '#delete' ).removeClass( 'disabled' );
 			$( '#edit' ).text( 'Edit' );
 			show.table();
 			page.transition();
 
-		} else if( update.request.action == 'write draws' ) {
+		} else if( update.request.action == 'draws write' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
 			sound.send.play();
 			setTimeout( function() { window.location = '../../index.php' }, 5000 );
+
+		} else if( update.request.action == 'draws delete' ) {
+			alertify.success( 'Sport Poomsae Draws Deleted.' );
+			sound.send.play();
 		}
 	}
 };
