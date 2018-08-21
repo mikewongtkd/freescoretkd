@@ -1,7 +1,7 @@
 package FreeScore::Test;
 use LWP::UserAgent;
 use JSON::XS;
-use parent qw( Exporter );
+use base qw( Exporter );
 
 our @EXPORT_OK = qw( roll highest lowest sum score_grassroots score_worldclass );
 

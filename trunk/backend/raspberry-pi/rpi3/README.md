@@ -2,7 +2,10 @@
 
 2017 August 24
 
-The following instructions are a guide to create a FreeScoreWifi unit using Raspberry Pi 3 using the latest installation of Raspbian `2017-08-16-raspbian-stretch`
+The following instructions are a guide to create a FreeScoreWifi unit using Raspberry Pi 3 using the latest installation of Raspbian 
+- Raspbian Stretch
+	- 2018-08-15
+	- 2017-08-16
 
 ### Upgrade to the latest version of Raspbian
 
@@ -29,16 +32,14 @@ This will install all the Perl libraries and the GD graphics library dependency.
 
 	apt-get install -y cpanminus libgd-gd2-perl
 	cpanm \
-		YAML \
-		Test::Tester \
-		Test::NoWarnings \
-		Test::Deep \
-		Test::Warn \
 		CGI \
 		CGI::Carp \
+		Carp \
+		Clone \
 		Data::Structure::Util \
 		Date::Calc \
 		Digest::SHA1 \
+		EV \
 		Filesys::Notify::Simple \
 		GD::Barcode \
 		JSON::XS \
@@ -47,10 +48,14 @@ This will install all the Perl libraries and the GD graphics library dependency.
 		Math::Round \
 		Math::Utils \
 		Mojolicious \
+		Scalar::Util \
+		Test::Tester \
+		Test::NoWarnings \
+		Test::Deep \
+		Test::Warn \
 		Time::HiRes \
 		Try::Tiny \
-		Clone \
-		EV	
+		YAML
 		
 ## FreeScore Services
 
@@ -92,7 +97,7 @@ To:
 Quit the Editor by typing `<escape>-wq` or going to `File > Save-Exit`
 
 
-### Update Current Server to use CGI settings
+### Update Server to use CGI settings
 Uncomment the line to `Include` the server settings we just updated.
 
 	sudo gvim sites-enabled/000-default.conf
@@ -115,7 +120,16 @@ Quit the Editor by typing `<escape>-wq` or going to `File > Save-Exit`
 	cd /var/www/cgi-bin
 	sudo ln -s ~pi/freescore/trunk/frontend/cgi-bin freescore
 	
-### Assign IP Address to FreeScore.net
+### Install FreeScore Directories Using Links
+
+	sudo su -
+	mv /var/www/html /var/www/html.orig
+	ln -s ~pi/freescore/trunk/frontend/html /var/www/html
+	ln -s ~pi/freescore/trunk/backend /usr/local/freescore
+	
+### Assign Name IP Address to FreeScore.net
+
+	sudo hostname freescore.net
 
 **/etc/hosts**
 
@@ -206,6 +220,7 @@ Edit `/etc/network/interfaces`:
 Comment out the DHCP-on-boot for `eth0`
 
 	# iface eth0 inet dhcp
+	# auto eth0
 	
 Add (or uncomment) the static IP for `eth0`
 
@@ -215,13 +230,26 @@ Add (or uncomment) the static IP for `eth0`
 		netmask 255.255.255.0
 		network 192.168.88.0
 		broadcast 192.168.88.255
+	auto eth0
+	
+**Switching back to Update Mode**
+
+If you want to use `apt-get` and/or `git` to get the latest FreeScore code, you'll need to switch `eth0` back to DHCP. To do so, comment-out the static IP lines above, and uncomment the DHCP-on-boot lines.
 		
 Enforce DHCP Client service to use a static IP
+
+Edit `/etc/dhcpcd.conf`
 
 	interface eth0
 	static ip_address=192.168.88.1
 	static domain_name_servers=192.168.88.1
 		
+Edit `/etc/dnsmasq.conf`
+
+	interface=eth0
+	listen-address=192.168.88.1
+	no-dhcp-interface=eth0
+
 **Configuring the Router**
 
 Please read the manufacturer's instructions on how to configure the wifi router as an access point. Use the SSID `freescore` and constrain the DHCP range to match that in the `/etc/dnsmasq.conf` as shown above. Disable the guest network, if the router provides a guest network.

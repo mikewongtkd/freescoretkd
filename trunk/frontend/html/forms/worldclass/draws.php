@@ -78,9 +78,9 @@
 											<label for="rings" class="col-xs-4 col-form-label">Format</label>
 											<div class="col-xs-8">
 												<div class="btn-group format" data-toggle="buttons" id="competition-format">
-													<label class="btn btn-default active"><input type="radio" name="competition-format" value="cutoff" checked>Cutoff</label>
-													<label class="btn btn-default"><input type="radio" name="competition-format" value="combination">Combination</label>
-													<label class="btn btn-default"><input type="radio" name="competition-format" value="team-trials">Team Trials</label>
+													<label class="btn btn-default active"><input type="radio" name="competition-format" class="text-light" value="cutoff" checked>Cutoff</label>
+													<label class="btn btn-default"><input type="radio" name="competition-format" class="text-light" value="combination">Combination</label>
+													<label class="btn btn-default"><input type="radio" name="competition-format" class="text-light" value="team-trials">Team Trials</label>
 												</div>
 											</div>
 										</div>
@@ -292,7 +292,7 @@ var draw = () => {
 			var ages    = FreeScore.rulesUSAT.ageGroups( ev );
 			var coed    = $( '#gender-draw' ).val() == 'on'; 
 			var pairs   = ev.match( /pair/i );
-			if( pairs || coed ) { genders.push( 'c' );  } else  { genders.push( 'f', 'm' ); }
+			if( pairs || coed ) { genders.push( 'c' ); } else  { genders.push( 'f', 'm' ); }
 
 			genders.forEach(( gender ) => { 
 				ages.forEach(( age ) => {
@@ -353,11 +353,12 @@ var show = {
 					for( var round of rounds ) {
 						var forms = draw[ gender ][ age ][ round ];
 						var td    = html.td.clone();
-						for( var i in forms ) {
+						for( var i = 0; i < count[ round ]; i++ ) {
 							var form    = forms[ i ];
 							var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
-							var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( 'Individual', age, 'k' )); 
-							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices }).val( form );
+							var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( ev, age, 'k' )); 
+							var div     = JSON.stringify( { 'event': ev, gender: gender, age: age, round: round, form: i });
+							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices, 'data-division': div }).val( form );
 
 							td.append( input );
 						}
@@ -376,15 +377,29 @@ var show = {
 				}
 			}
 		}
+		$( 'input.form-draw' ).off( 'click' ).click(( ev ) => { 
+			var target  = $( ev.target );
+			target.select();
+		});
 
-		$( 'input.form-draw' ).off( 'focusout' ).focusout(( ev ) => { 
+		$( 'input.form-draw' ).off( 'change' ).on( 'change', ( ev ) => { 
 			var target  = $( ev.target );
 			var val     = target.val().toLowerCase();
 			var choices = JSON.parse( target.attr( 'data-list' )); choices.push( 'Other' );
+			var div     = JSON.parse( target.attr( 'data-division' ));
+			var forms   = draws[ div.event ][ div.gender ][ div.age ][ div.round ];
+			var draw    = forms[ div.form ]
+			var n       = forms.length;
 			var map     = { 1: 'Taegeuk 1', 2: 'Taegeuk 2', 3: 'Taegeuk 3', 4: 'Taegeuk 4', 5: 'Taegeuk 5', 6: 'Taegeuk 6', 7: 'Taegeuk 7', 8: 'Taegeuk 8', k: 'Koryo', g: 'Keumgang', t: 'Taebaek', p: 'Pyongwon', s: 'Sipjin', j: 'Jitae', c: 'Chonkwon', h: 'Hansu', o: 'Other' };
 			var choice  = map[ val ];
-			if( ! defined( choice )) { return; }
-			if( choices.includes( choice )) { target.val( choice ); }
+			if( ! defined( choice ) && target.val()) { alertify.confirm( 'Non-Regulation Form Selected', target.val() + ' is not among the list of compulsory forms: ' + choices.join( ', ' ), ( ev ) => {}, ( ev ) => { target.val( draw ); }) }
+			else if( choices.includes( choice )) { target.val( choice ); }
+
+			forms[ div.form ] = target.val();
+			draws[ div.event ][ div.gender ][ div.age ][ div.round ] = forms.filter(( name ) => { return name; });
+			forms = draws[ div.event ][ div.gender ][ div.age ][ div.round ];
+
+			console.log( div, forms );
 		});
 	}
 };
@@ -425,7 +440,7 @@ $( '#back-to-draws' ).off( 'click' ).click(( ev ) => {
 $( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
 	alertify.confirm().set({ 
 		title:      'Keyboard Shortcuts',
-		message:    '<table> <thead> <tr><th>Key</th><th>Form</th></tr> </thead> <tbody> <tr><td>1-8</td><td>Taegeuk 1-8</td></tr> <tr><td>k</td><td>Koryo</td></tr> <tr><td>g</td><td>Keumgang</td></tr> <tr><td>t</td><td>Taebaek</td></tr> <tr><td>p</td><td>Pyongwon</td></tr> <tr><td>s</td><td>Sipjin</td></tr> <tr><td>j</td><td>Jitae</td></tr> <tr><td>c</td><td>Chonkwon</td></tr> <tr><td>h</td><td>Hansu</td></tr> <tr><td>o</td><td>Other</td></tr> </tbody> </table>',
+		message:    '<table> <thead> <tr><th>Key</th><th>Form</th></tr> </thead> <tbody> <tr><td>1-8</td><td>Taegeuk 1-8</td></tr> <tr><td>k</td><td>Koryo</td></tr> <tr><td>g</td><td>Keumgang</td></tr> <tr><td>t</td><td>Taebaek</td></tr> <tr><td>p</td><td>Pyongwon</td></tr> <tr><td>s</td><td>Sipjin</td></tr> <tr><td>j</td><td>Jitae</td></tr> <tr><td>c</td><td>Chonkwon</td></tr> <tr><td>h</td><td>Hansu</td></tr> <tr><td>o</td><td>Other</td></tr>  <tr><td>&lt;delete&gt;</td><td>None</td></tr> </tbody> </table>',
 		transition: 'zoom'
 	}).show();
 });
