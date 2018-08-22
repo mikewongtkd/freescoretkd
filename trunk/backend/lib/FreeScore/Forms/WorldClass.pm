@@ -233,6 +233,25 @@ sub read_draws {
 	my $data  = read_file( $file );
 	my $json  = new JSON::XS();
 	my $draws = $json->decode( $data );
+
+	# Prune leafless branches
+	foreach my $event (keys %$draws) {
+		my $genders = $draws->{ $event };
+		foreach my $gender (keys %$genders) {
+			my $ages = $genders->{ $gender };
+			foreach my $age (keys %$ages) {
+				my $rounds = $ages->{ $age };
+				foreach my $round (keys %$rounds) {
+					my $forms = $rounds->{ $round };
+					delete $draws->{ $event }{ $gender }{ $age }{ $round } unless @$forms;
+				}
+				delete $draws->{ $event }{ $gender }{ $age } unless keys %$rounds;
+			}
+			delete $draws->{ $event }{ $gender } unless keys %$ages;
+		}
+		delete $draws->{ $event } unless keys %$genders;
+	}
+
 	$self->{ draws } = $draws;
 	return $draws;
 }

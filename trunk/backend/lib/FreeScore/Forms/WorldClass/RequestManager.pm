@@ -7,7 +7,7 @@ use FreeScore::Forms::WorldClass;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
-use List::Util (qw( first ));
+use List::Util (qw( first shuffle ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
@@ -768,11 +768,7 @@ sub handle_registration_import {
 	my $json = new JSON::XS();
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
-	my $draws = undef;
-	if( -e "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" ) {
-		my $contents = read_file( "$path/$FreeScore::Forms::WorldClass::SUBDIR/draws.json" );
-		$draws = $json->decode( $contents );
-	}
+	my $draws = $progress->{ draws };
 
 	try {
 		my $female       = read_file( "$path/registration.female.txt" );
@@ -789,7 +785,7 @@ sub handle_registration_import {
 				my $forms                      = assign_draws( $draws, $draw ) if $draws;
 				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes <= 20 ) { $round = 'semfin'; }
 				my $division                   = $progress->create_division( $divid ); 
-				$division->{ athletes }        = [ map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
+				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
 				$division->{ current }         = 0;
 				$division->{ description }     = $description;
 				$division->{ form }            = 0;
@@ -1141,18 +1137,19 @@ sub assign_draws {
 	my $draws = shift;
 	my $draw  = shift;
 
-	my $event  = $draw->{ event };
-	my $gender = $draw->{ gender };
-	my $age    = $draw->{ age };
+	my $event   = $draw->{ event };
+	my $gender  = $draw->{ gender };
+	my $age     = $draw->{ age };
+	my $default = { prelim => [ 'Open' ], semfin => [ 'Open' ], finals => [ 'Open', 'Open' ]};
 	
-	return undef unless exists $draws->{ $event };
+	return $default unless exists $draws->{ $event };
 	my $forms = $draws->{ $event };
 
 	if   ( exists $forms->{ $gender }) { $forms = $forms->{ $gender }; }
 	elsif( exists $forms->{ c }      ) { $forms = $forms->{ c };       }
-	else { return undef; }
+	else { return $default; }
 
-	return undef unless exists $forms->{ $age };
+	return $default unless exists $forms->{ $age };
 	return $forms->{ $age };
 }
 

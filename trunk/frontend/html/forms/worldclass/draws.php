@@ -44,6 +44,10 @@
 				pointer-events: none;
 			}
 
+			.btn-group .btn.active {
+				color: white;
+			}
+
 			.row { margin-bottom: 8px; }
 			table { width: 100%; background: transparent; }
 			table tr th { padding-bottom: 4px; }
@@ -86,7 +90,7 @@
 										</div>
 										<div class="row">
 											<label for="gender-draw" class="col-xs-4 col-form-label">Male and Female divisions have:</label>
-											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="danger" data-off="Same Forms" data-offstyle="primary"></div>
+											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="primary" data-off="Same Forms" data-offstyle="primary"></div>
 										</div>
 										<div class="row">
 											<label for="replacement" class="col-xs-4 col-form-label">Before drawing the forms for the final round:</label>
@@ -111,10 +115,10 @@
 							</div>
 						</div>
 						<div class="clearfix">
-							<button type="button" id="cancel" class="btn btn-warning pull-left" style="margin-right: 40px;">Cancel</button> 
-							<button type="button" id="delete" class="btn btn-danger pull-left disabled" style="margin-right: 40px;">Delete Draws</button> 
-							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right">Instant Draw</button> 
-							<button type="button" id="edit" class="btn btn-primary pull-right" style="margin-right: 40px;">Select Manually</button> 
+							<button type="button" class="btn btn-danger pull-left cancel" style="margin-right: 40px; width: 180px;">Cancel</button> 
+							<button type="button" id="delete" class="btn btn-primary pull-left disabled" style="margin-right: 40px; width: 180px;">Delete Draws</button> 
+							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right" style="width: 180px;">Instant Draw</button> 
+							<button type="button" id="edit" class="btn btn-primary pull-right" style="margin-right: 40px; width: 180px;">Select Manually</button> 
 						</div>
 					</form>
 				</div>
@@ -197,10 +201,10 @@
 						</div>
 					</div>
 
-					<div class="clearfix">
+					<div class="clearfix" style="height: 200px;">
 						<!-- TODO: Add download PDF or high-res PNG option -->
-						<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
-						<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+						<button type="button" class="btn btn-danger pull-left cancel" style="width: 180px;">Cancel</button> 
+						<button type="button" id="accept" class="btn btn-success pull-right" style="width: 180px;">Accept</button> 
 					</div>
 				</div>
 			</div>
@@ -352,14 +356,16 @@ var show = {
 		var table  = undefined;
 		var tables = { c: '-coed', f: '-female', m: '-male' };
 		var focus  = undefined;
+		var rules  = FreeScore.rulesUSAT;
 
-		for( var ev of sort.alphabetically( draws )) {
+		for( var ev of rules.poomsaeEvents()) {
 			var draw = draws[ ev ];
 			var e    = ev.toLowerCase();
 			$( '.' + e ).hide();
 
-			for( var gender of sort.alphabetically( draw )) {
-				var ages       = draw[ gender ];
+			var genders = genderdraw ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
+			for( var gender of genders ) {
+				var ages       = rules.ageGroups( ev );
 				var header     = [];
 				var rows       = [];
 
@@ -372,10 +378,13 @@ var show = {
 					header.push( html.th.clone().text( text[ round ] ));
 				}
 
-				for( var age of sort.numerically( ages )) {
+				for( var age of ages ) {
 					var row = [ html.th.clone().text( age ) ];
 					for( var round of rounds ) {
-						var forms = draw[ gender ][ age ][ round ];
+						var forms = [].fill( '', 0, count[ round ] );
+						if( gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
+							forms = draw[ gender ][ age ][ round ];
+						}
 						var td    = html.td.clone();
 						for( var i = 0; i < count[ round ]; i++ ) {
 							var form    = forms[ i ];
@@ -448,6 +457,10 @@ $( '#gender-draw' ).change(( ev ) => {
 	sound.next.play();
 });
 
+$( '#replacement' ).change(( ev ) => {
+	sound.next.play();
+});
+
 // Draws per round
 $( 'input[type="checkbox"].count' ).change(( ev ) => {
 	var clicked = $( ev.target );
@@ -474,7 +487,7 @@ $( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
 	}).show();
 });
 
-$( '#cancel' ).off( 'click' ).click(() => { 
+$( '.cancel' ).off( 'click' ).click(() => { 
 	sound.prev.play();
 	setTimeout( function() { window.location = '../../index.php' }, 500 ); 
 });
@@ -535,6 +548,10 @@ ws.onmessage = function( response ) {
 			draws = update.ring.draws;
 			if( ! defined( draws )) { return; }
 
+			if( Object.keys( draws ).some(( ev ) => { return Object.keys( draws[ ev ] ).some(( g ) => { return g.match( /^[fm]/i ); })})) {
+				$( '#gender-draw' ).bootstrapToggle( 'on' );
+			}
+
 			$( '#delete' ).removeClass( 'disabled' );
 			$( '#edit' ).text( 'Edit' );
 			show.table();
@@ -543,7 +560,7 @@ ws.onmessage = function( response ) {
 		} else if( update.request.action == 'draws write' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
 			sound.send.play();
-			setTimeout( function() { window.location = '../../index.php' }, 5000 );
+			setTimeout( function() { window.location = '../../index.php' }, 3000 );
 
 		} else if( update.request.action == 'draws delete' ) {
 			alertify.success( 'Sport Poomsae Draws Deleted.' );
