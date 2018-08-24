@@ -113,6 +113,15 @@ $.widget( "freescore.leaderboard", {
 			if     ( o.division.round.is.prelim() ) { k = k > half ? half : k; }
 			else if( o.division.round.is.semfin() ) { k = k > 8 ? 8 : k; }
 			update_placements( k );
+
+			// ===== SCROLL DOWN ONCE
+			var duration  = 9000;
+			e.placement.off( 'scroll-down' ).on( 'scroll-down', ( ev ) => {
+				var bottom = $( e.placement ).height();
+				$( e.placement ).animate({ scrollTop: bottom }, duration, 'swing' );
+			});
+			e.placement.scrollTop( 0 );
+			e.placement.trigger( 'scroll-down' );
 		}
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
@@ -144,6 +153,7 @@ $.widget( "freescore.leaderboard", {
 				var bottom = $( e.pending ).height();
 				$( e.pending ).animate({ scrollTop: bottom }, duration, 'swing', () => { e.pending.trigger( 'scroll-up' ); });
 			});
+			e.pending.scrollTop( 0 );
 			e.pending.trigger( 'scroll-down' );
 
 		// ===== SHOW ATHLETE NEXT UP
