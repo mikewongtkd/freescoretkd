@@ -102,8 +102,8 @@ $.widget( "freescore.judgeController", {
 		front.append( views, controllers );
 
 		var arrow        = e.arrow = {
-			left : html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-l-white.svg', height: '28px', width: '28px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
-			right: html.img.clone() .attr({ src : '/freescore/include/jquery/mobile/images/icons-svg/arrow-r-white.svg', height: '28px', width: '28px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
+			left : html.img.clone() .attr({ src : '../../include/jquery/mobile/images/icons-svg/arrow-l-white.svg', height: '28px', width: '28px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
+			right: html.img.clone() .attr({ src : '../../include/jquery/mobile/images/icons-svg/arrow-r-white.svg', height: '28px', width: '28px' }) .css({ paddingTop: '4px', opacity : 0.75 }),
 		};
 
 		var back         = e.back         = html.div.clone() .addClass( "back" );
