@@ -30,6 +30,10 @@
 			  font-family: Biolinum;
 			  font-weight: bold;
 			  src: url("include/fonts/LinBiolinum_Rah.ttf"); }
+			@media print {
+				.btn { display: none; }
+				.page-header { display: none; }
+			}
 			.page-footer { text-align: center; }
 			.btn-default.active {
 				background-color: #77b300;
@@ -383,7 +387,8 @@ var show = {
 					for( var round of rounds ) {
 						var forms = [].fill( '', 0, count[ round ] );
 						if( gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
-							forms = draw[ gender ][ age ][ round ];
+							forms          = draw[ gender ][ age ][ round ];
+							count[ round ] = forms.length;
 						}
 						var td    = html.td.clone();
 						for( var i = 0; i < count[ round ]; i++ ) {
