@@ -94,40 +94,51 @@
 						<span id="page-2-title">Imported Divisions</span>
 					</div>
 
-					<div class="panel panel-primary poomsae" id="worldclass-individuals">
-						<div class="panel-heading">
-							<div class="panel-title">Sport Poomsae World Class Individuals</div>
+					<ul class="nav nav-tabs">
+						<li class="active"><a data-toggle="tab" href="#poomsae-divisions">Poomsae Divisions</a></li>
+						<li><a data-toggle="tab" href="#sparring-divisions">Sparring Divisions</a></li>
+					</ul>
+
+					<div class="tab-content">
+						<div class="tab-pane fade in active" id="poomsae-divisions">
+							<div class="panel panel-primary poomsae" id="worldclass-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Sport Poomsae World Class Individuals</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary poomsae" id="worldclass-pairs">
+								<div class="panel-heading">
+									<div class="panel-title">Sport Poomsae World Class Pairs</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary poomsae" id="worldclass-teams">
+								<div class="panel-heading">
+									<div class="panel-title">Sport Poomsae World Class Teams</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
 						</div>
-						<div class="panel-body">
-							<table>
-							</table>
+						<div class="tab-pane fade in" id="sparring-divisions">
 						</div>
 					</div>
-
-					<div class="panel panel-primary poomsae" id="worldclass-pairs">
-						<div class="panel-heading">
-							<div class="panel-title">Sport Poomsae World Class Pairs</div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary poomsae" id="worldclass-teams">
-						<div class="panel-heading">
-							<div class="panel-title">Sport Poomsae World Class Teams</div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
 					<div class="clearfix">
 						<button type="button" id="import" class="btn btn-success pull-right">Import</button> 
 						<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 					</div>
+
 				</div>
 			</div>
 		</div>
@@ -160,6 +171,7 @@ var page = {
 
 var ws = {
 	worldclass : new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
+	sparring   : new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
 	// grassroots : new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
 };
 
@@ -212,12 +224,14 @@ $( '.file-drop-zone' )
 
 					registration[ target ] = e.target.result;
 					sound.send.play();
+					alertify.success( target.capitalize() + ' divisions uploaded' );
 
 					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Importing Registrations...' );
 					var request;
 					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
 					ws.worldclass.send( request.json );
+					ws.sparring.send( request.json );
 				};
 			})( file );
 
@@ -279,9 +293,9 @@ ws.worldclass.onmessage = ( response ) => {
 		page.transition( 2 );
 
 		var map = {
-			'world class poomsae' : 'worldclass-individuals',
+			'world class poomsae'       : 'worldclass-individuals',
 			'world class pairs poomsae' : 'worldclass-pairs',
-			'world class team poomsae' : 'worldclass-teams',
+			'world class team poomsae'  : 'worldclass-teams',
 		};
 
 		var events = [ 'world class poomsae', 'world class pairs poomsae', 'world class team poomsae' ];

@@ -56,29 +56,35 @@ sub description {
 	$d = $json->decode( $d );
 
 	my $event = '';
-	if   ( $s =~ /pair/i ) { $event = 'Pair' }
-	elsif( $s =~ /team/i ) { $event = 'Team' }
-	else                   { $event = 'Individual' }
+	if   ( $s =~ /sparring/i ) { $event = $s;           }
+	elsif( $s =~ /pair/i     ) { $event = 'Pair';       }
+	elsif( $s =~ /team/i     ) { $event = 'Team';       }
+	else                       { $event = 'Individual'; }
 
 	my $gender = lc substr( $d->{ gender }, 0, 1 );
 	if   ( $gender eq 'm' ) { $gender = 'Male '; }
 	elsif( $gender eq 'f' ) { $gender = 'Female '; }
 	else                    { $gender = ''; }
 
-	my $age   = $d->{ age }; $age =~ s/\-99/+/;
-	my $group = undef;
-	if   ( $age eq '10-11' ) { $group = 'Youths'; }
-	elsif( $age eq '12-14' ) { $group = 'Cadets'; }
-	elsif( $age eq '15-17' ) { $group = 'Juniors'; }
-	elsif( $age eq '18-30' ) { $group = 'Seniors'; }
-	elsif( $age eq '31-40' ) { $group = 'Under 40'; }
-	elsif( $age eq '41-50' ) { $group = 'Under 50'; }
-	elsif( $age eq '51-60' ) { $group = 'Under 60'; }
-	elsif( $age eq '61-65' ) { $group = 'Under 65'; }
-	elsif( $age eq '66+'   ) { $group = 'Over 65'; }
-	elsif( $age eq '31+'   ) { $group = 'Over 30'; }
+	if( $event =~ /sparring/i ) {
+		my $age    = $d->{ age };
+		my $weight = $d->{ weight };
+	} else {
+		my $age   = $d->{ age }; $age =~ s/\-99/+/;
+		my $group = undef;
+		if   ( $age eq '10-11' ) { $group = 'Youths'; }
+		elsif( $age eq '12-14' ) { $group = 'Cadets'; }
+		elsif( $age eq '15-17' ) { $group = 'Juniors'; }
+		elsif( $age eq '18-30' ) { $group = 'Seniors'; }
+		elsif( $age eq '31-40' ) { $group = 'Under 40'; }
+		elsif( $age eq '41-50' ) { $group = 'Under 50'; }
+		elsif( $age eq '51-60' ) { $group = 'Under 60'; }
+		elsif( $age eq '61-65' ) { $group = 'Under 65'; }
+		elsif( $age eq '66+'   ) { $group = 'Over 65'; }
+		elsif( $age eq '31+'   ) { $group = 'Over 30'; }
 
-	return ("$gender$event $group", { age => $age, event => $event, gender => lc substr( $d->{ gender }, 0, 1 ) || 'c' });
+		return ("$gender$event $group", { age => $age, event => $event, gender => lc substr( $d->{ gender }, 0, 1 ) || 'c' });
+	}
 }
 
 # ============================================================
@@ -200,8 +206,8 @@ sub parse_event {
 
 	# Clean up after regex match
 	$weight =~ s/\s//g;
-	if( $weight =~ /over/ ) { $weight =~ s/over//i; $weight .= '+'; }
-	if( $weight =~ /\&\s*under/ ) { $weight =~ s/\&\s*under//i; $weight .= '-'; }
+	if( $weight =~ /over/i       ) { $weight =~ s/over//i;       $weight .= '+'; }
+	if( $weight =~ /\&\s*under/i ) { $weight =~ s/\&\s*under//i; $weight .= '-'; }
 	$belt = 'black' if $belt =~ /black/i;
 	$comment =~ s/[\(\)]//g;
 
