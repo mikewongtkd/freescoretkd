@@ -234,7 +234,7 @@ sub poomsae {
 sub sparring {
 # ============================================================
 	my $self = shift;
-	return map { $_ => $self->{ $_ } } sort grep { /sparring/i } keys %$self;
+	return { map { $_ => $self->{ $_ } } sort grep { /sparring/i } keys %$self };
 }
 
 # ============================================================

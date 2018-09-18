@@ -132,6 +132,35 @@
 							</div>
 						</div>
 						<div class="tab-pane fade in" id="sparring-divisions">
+							<div class="panel panel-primary sparring" id="worldclass-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">World Class Olympic Sparring</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary sparring" id="blackbelt-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">Black Belt Olympic Sparring</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary sparring" id="colorbelt-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">Color Belt Olympic Sparring</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="clearfix">
@@ -265,11 +294,95 @@ function sport_poomsae_division_description( s, d ) {
 	return d;
 };
 
+function display_sport_poomsae_divisions( divisions ) {
+	var map = {
+		'world class poomsae'       : 'worldclass-individuals',
+		'world class pairs poomsae' : 'worldclass-pairs',
+		'world class team poomsae'  : 'worldclass-teams',
+	};
+
+	var events = [ 'world class poomsae', 'world class pairs poomsae', 'world class team poomsae' ];
+
+	for( var subevent of events) {
+		if( !( subevent in divisions )) { continue; }
+		var id    = '#' + map[ subevent ] + ' .panel-body table';
+		var table = $( id );
+		table.empty();
+		var tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Num.' ));
+		table.append( tr );
+		var sum = 0;
+		for( var division in divisions[ subevent ] ) {
+			var tr    = html.tr.clone();
+			var count = divisions[ subevent ][ division ].length;
+
+			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
+			if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
+
+			var row = {
+				name : html.td.clone().html( sport_poomsae_division_description( subevent, division )),
+				count: html.td.clone().html( divisions[ subevent ][ division ].length )
+			};
+			tr.append( row.name, row.count );
+			table.append( tr );
+			sum += count;
+		}
+
+		tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
+		table.append( tr );
+	}
+}
+
+function sparring_division_description( s, d ) {
+	d = JSON.parse( d );
+
+	if( s.match( /world class/i )) {
+		d = d.gender.capitalize() + ' ' + d.age + ' ' + ' ' + d.comment.capitalize() + ' (' + d.weight + ')';
+	} else {
+		d = d.gender.capitalize() + ' ' + d.age + ' ' + d.belt.capitalize() + ' ' + d.comment.capitalize() + ' (' + d.weight + ')';
+	}
+	return d;
+};
+
+function display_sparring_divisions( divisions ) {
+	for( var subevent in divisions ) {
+		if( !( subevent in divisions )) { continue; }
+		var name = '';
+		if( subevent.match( /world class/i )) { name = 'worldclass-sparring'; }
+		if( ! name ) { continue; }
+		var id    = '#' + name + ' .panel-body table';
+		var table = $( id );
+		console.log( id );
+		table.empty();
+		var tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Num.' ));
+		table.append( tr );
+		var sum = 0;
+		for( var division in divisions[ subevent ] ) {
+			var tr    = html.tr.clone();
+			var count = divisions[ subevent ][ division ].length;
+			var row = {
+				name : html.td.clone().html( sparring_division_description( subevent, division )),
+				count: html.td.clone().html( divisions[ subevent ][ division ].length )
+			};
+			tr.append( row.name, row.count );
+			table.append( tr );
+			sum += count;
+		}
+
+		tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
+		table.append( tr );
+	}
+}
+
 $( '#import' ).off( 'click' ).click(( ev ) => {
 	var request;
 	request = { data : { type : 'registration', action : 'import' }};
 	request.json = JSON.stringify( request.data );
 	ws.worldclass.send( request.json );
+	ws.sparring( request.json );
 });
 
 ws.worldclass.onopen = () => {
@@ -291,52 +404,38 @@ ws.worldclass.onmessage = ( response ) => {
 	} else if( update.request.action == 'upload' ) {
 		sound.next.play();
 		page.transition( 2 );
+		display_sport_poomsae_divisions( update.divisions );
 
-		var map = {
-			'world class poomsae'       : 'worldclass-individuals',
-			'world class pairs poomsae' : 'worldclass-pairs',
-			'world class team poomsae'  : 'worldclass-teams',
-		};
-
-		var events = [ 'world class poomsae', 'world class pairs poomsae', 'world class team poomsae' ];
-
-		divisions = update.divisions;
-
-		for( var subevent of events) {
-			if( !( subevent in divisions )) { continue; }
-			var id    = '#' + map[ subevent ] + ' .panel-body table';
-			var table = $( id );
-			table.empty();
-			var tr = html.tr.clone();
-			tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Num.' ));
-			table.append( tr );
-			var sum = 0;
-			for( var division in divisions[ subevent ] ) {
-				var tr    = html.tr.clone();
-				var count = divisions[ subevent ][ division ].length;
-
-				if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
-				if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
-
-				var row = {
-					name : html.td.clone().html( sport_poomsae_division_description( subevent, division )),
-					count: html.td.clone().html( divisions[ subevent ][ division ].length )
-				};
-				tr.append( row.name, row.count );
-				table.append( tr );
-				sum += count;
-			}
-
-			tr = html.tr.clone();
-			tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
-			table.append( tr );
-		}
 
 	} else if( update.request.action == 'import' ) {
 		if( update.result == 'success' ) {
 			sound.send.play();
 			setTimeout(() => { window.location = 'index.php'; }, 750 );
 		} else {
+			alertify.error( 'Import failed for World Class Poomsae' );
+			sound.warning.play();
+		}
+	}
+};
+
+ws.sparring.onopen = () => {
+	var request;
+	request = { data : { type : 'registration', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	ws.sparring.send( request.json );
+};
+
+ws.sparring.onmessage = ( response ) => { 
+	var update = JSON.parse( response.data );
+	if( ! defined( update )) { return; }
+	console.log( update );
+
+	if( update.request.action == 'upload' ) {
+		display_sparring_divisions( update.divisions );
+
+	} else if( update.request.action == 'import' ) {
+		if( ! update.result == 'success' ) {
+			alertify.error( 'Import failed for Olympic Sparring' );
 			sound.warning.play();
 		}
 	}

@@ -121,8 +121,6 @@ sub handle {
 	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
 	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
 
-	print STDERR "Handling request $type $action\n";
-
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
 	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
 	print STDERR "Unknown request $type, $action\n";
@@ -206,12 +204,8 @@ sub handle_registration_upload {
 	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
 	return unless defined $gender;
 
-	my $path = "$progress->{ path }/../..";
 	my $json = new JSON::XS();
 
-	open FILE, ">$path/registration.$gender.txt" or die $!;
-	print FILE encode( 'UTF-8', $request->{ data });
-	close FILE;
 	try {
 		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
 
@@ -225,7 +219,7 @@ sub handle_registration_upload {
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
 		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->world_class_poomsae();
+		my $divisions    = $registration->sparring();
 		my $copy         = clone( $request ); delete $copy->{ data };
 
 		$client->send({ json => { request => $copy, divisions => $divisions }});
@@ -255,8 +249,8 @@ sub handle_registration_read {
 			$female = read_file( $female );
 			$male   = read_file( $male );
 			my $registration = new FreeScore::Registration::USAT( $female, $male );
-			my $poomsae      = $registration->world_class_poomsae();
-			@divisions       = ( divisions => $poomsae );
+			my $sparring     = $registration->sparring();
+			@divisions       = ( divisions => $sparring );
 			$copy->{ action } = 'upload';
 
 			$female = \1;
