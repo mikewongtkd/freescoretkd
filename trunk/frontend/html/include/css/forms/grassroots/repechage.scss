@@ -1,0 +1,95 @@
+
+html, body { 
+	height: 100%; 
+	overflow-x: hidden; 
+	font-family: Optima;
+	background-color: black;
+}
+
+.pt-perspective {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	perspective: 1200px;
+}
+
+.pt-page {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	visibility: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
+	backface-visibility: hidden;
+	transform: translate3d(0, 0, 0);
+	transform-style: preserve-3d;
+}
+
+.pt-page-current,
+.no-js .pt-page {
+	visibility: visible;
+	z-index: 1;
+}
+
+.pt-page-ontop {
+	z-index: 999;
+}
+
+.page-header {
+	position: relative;
+	height: 48px;
+	width: 100%;
+	margin: 10px 0 16px 0;
+	padding: 8px 14px 8px 14px;
+	background-color: #337ab7;
+	border: 0;
+	color: gold;
+	font-size: 24pt;
+	line-height: 24pt;
+	font-weight: bold;
+	border-radius: 4px;
+}
+
+.pt-page-1 {
+	background-color: white;
+	.page-header {
+		background-color: black;
+	}
+}
+
+#back-to-divisions {
+	margin-top: -3px;
+}
+
+.brackets-svg {
+	width: 100%;
+	height: calc( 100% - 260px );
+}
+
+#controls {
+	width: 100%;
+	height: calc( 100% - 760px );
+}
+
+table.controls {
+	border-spacing: 0;
+	color: white;
+	td {
+		padding: 8px;
+
+		input.disabled {
+			opacity: 0.5;
+		}
+
+		input {
+			color: black;
+		}
+
+		.score-input {
+			width: 30px;
+		}
+	}
+}
+

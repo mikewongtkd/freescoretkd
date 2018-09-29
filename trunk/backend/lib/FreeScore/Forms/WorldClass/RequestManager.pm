@@ -798,8 +798,6 @@ sub handle_registration_import {
 				$division->write();
 			}
 		}
-		unlink( "$path/registration.female.txt" );
-		unlink( "$path/registration.male.txt" );
 		$client->send({ json => { request => $copy, result => 'success' }});
 	} catch {
 		$client->send( { json => { error => "$_" }});

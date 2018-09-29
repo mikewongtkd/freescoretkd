@@ -96,37 +96,73 @@ sub divid {
 
 	$d = $json->decode( $d );
 
-	my $id = {
-		gender => { c => 0, m => 1, f => 2 },
-		event  => { individual => 3, pair => 43, team => 73 },
-		belt   => { yellow => 'y', green => 'g', blue => 'b', red => 'r', black => 'k' },
-		rank   => { y => 400, g => 300, b => 200, r => 100, k => 0 }
-	};
-	my $gender  = lc substr( $d->{ gender }, 0, 1 ) || 'c';
-	my ($event) = $s =~ /(pair|team)/i; $event ||= 'individual';
-	my $age     = int( $d->{ age });
+	if( $s =~ /poomsae/i ) {
+		my $id = {
+			gender => { c => 0, m => 1, f => 2 },
+			event  => { individual => 3, pair => 43, team => 73 },
+			belt   => { yellow => 'y', green => 'g', blue => 'b', red => 'r', black => 'k' },
+			rank   => { y => 400, g => 300, b => 200, r => 100, k => 0 }
+		};
+		my $gender  = lc substr( $d->{ gender }, 0, 1 ) || 'c';
+		my ($event) = $s =~ /(pair|team)/i; $event ||= 'individual';
+		my $age     = int( $d->{ age });
 
-	$id->{ division } = 0;
-	if( $event =~ /individual/i ) {
-		my $index = { 
-			'4' => 0, '6' => 1, '8' => 2, '10' => 3, '12' => 4, '15' => 5, 
-			'18' => 6, '31' => 7, '41' => 8, '51' => 9, '61' => 10, '66' => 11 
+		$id->{ division } = 0;
+		if( $event =~ /individual/i ) {
+			my $index = { 
+				'4' => 0, '6' => 1, '8' => 2, '10' => 3, '12' => 4, '15' => 5, 
+				'18' => 6, '31' => 7, '41' => 8, '51' => 9, '61' => 10, '66' => 11 
+			};
+			$id->{ division } = $index->{ "$age" } * 3;
+		} elsif( $event =~ /pair|team/i ) {
+			my $index = { 
+				'4' => 0, '6' => 1, '10' => 2, '12' => 3, 
+				'15' => 4, '18' => 5, '31' => 6 
+			};
+			$id->{ division } = $index->{ "$age" } * 3;
+		}
+
+		$divid = 0;
+		$divid -= int( $id->{ gender }{ $gender });
+		$divid += int( $id->{ event }{ $event });
+		$divid += int( $id->{ division });
+
+		return sprintf( "p%03d", $divid );
+
+	} elsif( $s =~ /sparring/i ) {
+		# MW Figure out how to number sparring divisions
+		my $id = {
+			gender => { c => 0, m => 1, f => 2 },
+			event  => { individual => 3, pair => 43, team => 73 },
+			belt   => { yellow => 'y', green => 'g', blue => 'b', red => 'r', black => 'k' },
+			rank   => { y => 400, g => 300, b => 200, r => 100, k => 0 }
 		};
-		$id->{ division } = $index->{ "$age" } * 3;
-	} elsif( $event =~ /pair|team/i ) {
-		my $index = { 
-			'4' => 0, '6' => 1, '10' => 2, '12' => 3, 
-			'15' => 4, '18' => 5, '31' => 6 
-		};
-		$id->{ division } = $index->{ "$age" } * 3;
+		my $gender  = lc substr( $d->{ gender }, 0, 1 ) || 'c';
+		my ($event) = $s =~ /(pair|team)/i; $event ||= 'individual';
+		my $age     = int( $d->{ age });
+
+		$id->{ division } = 0;
+		if( $event =~ /individual/i ) {
+			my $index = { 
+				'4' => 0, '6' => 1, '8' => 2, '10' => 3, '12' => 4, '15' => 5, 
+				'18' => 6, '31' => 7, '41' => 8, '51' => 9, '61' => 10, '66' => 11 
+			};
+			$id->{ division } = $index->{ "$age" } * 3;
+		} elsif( $event =~ /pair|team/i ) {
+			my $index = { 
+				'4' => 0, '6' => 1, '10' => 2, '12' => 3, 
+				'15' => 4, '18' => 5, '31' => 6 
+			};
+			$id->{ division } = $index->{ "$age" } * 3;
+		}
+
+		$divid = 0;
+		$divid -= int( $id->{ gender }{ $gender });
+		$divid += int( $id->{ event }{ $event });
+		$divid += int( $id->{ division });
+
+		return sprintf( "p%03d", $divid );
 	}
-
-	$divid = 0;
-	$divid -= int( $id->{ gender }{ $gender });
-	$divid += int( $id->{ event }{ $event });
-	$divid += int( $id->{ division });
-
-	return sprintf( "p%03d", $divid );
 }
 
 # ============================================================

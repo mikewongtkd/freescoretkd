@@ -126,27 +126,6 @@ sub handle {
 	print STDERR "Unknown request $type, $action\n";
 }
 
-
-# ============================================================
-sub handle_registration_clear {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Clearing USAT Registration information\n" if $DEBUG;
-	
-	my $path = "$progress->{ path }/../..";
-	try {
-		unlink( "$path/registration.female.txt" );
-		unlink( "$path/registration.male.txt" );
-		$client->send({ json => { request => $copy, result => 'success' }});
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
 # ============================================================
 sub handle_registration_import {
 # ============================================================
@@ -183,8 +162,6 @@ sub handle_registration_import {
 				$division->write();
 			}
 		}
-		unlink( "$path/registration.female.txt" );
-		unlink( "$path/registration.male.txt" );
 		$client->send({ json => { request => $copy, result => 'success' }});
 	} catch {
 		$client->send( { json => { error => "$_" }});

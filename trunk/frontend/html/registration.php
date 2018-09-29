@@ -206,6 +206,7 @@ var ws = {
 };
 
 var registration = { male: '', female: '' };
+var imported     = { poomsae: false, sparring: false };
 var dropzone     = { 
 	disable: ( target ) => {
 		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
@@ -256,7 +257,7 @@ $( '.file-drop-zone' )
 					sound.send.play();
 					alertify.success( target.capitalize() + ' divisions uploaded' );
 
-					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Importing Registrations...' );
+					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Uploading Registrations...' );
 					var request;
 					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
@@ -433,7 +434,7 @@ $( '#import' ).off( 'click' ).click(( ev ) => {
 	request = { data : { type : 'registration', action : 'import' }};
 	request.json = JSON.stringify( request.data );
 	ws.worldclass.send( request.json );
-	ws.sparring( request.json );
+	ws.sparring.send( request.json );
 });
 
 ws.worldclass.onopen = () => {
@@ -457,8 +458,20 @@ ws.worldclass.onmessage = ( response ) => {
 		page.transition( 2 );
 		display_sport_poomsae_divisions( update.divisions );
 
-
 	} else if( update.request.action == 'import' ) {
+		if( update.result == 'success' ) {
+			imported.poomsae = true;
+			if( imported.poomsae && imported.sparring ) {
+				var request;
+				request = { data : { type : 'registration', action : 'clear' }};
+				request.json = JSON.stringify( request.data );
+				ws.worldclass.send( request.json );
+			}
+		} else {
+			alertify.error( 'Import failed for World Class Poomsae' );
+			sound.warning.play();
+		}
+	} else if( update.request.action == 'clear' ) {
 		if( update.result == 'success' ) {
 			sound.send.play();
 			setTimeout(() => { window.location = 'index.php'; }, 750 );
@@ -485,7 +498,15 @@ ws.sparring.onmessage = ( response ) => {
 		display_sparring_divisions( update.divisions );
 
 	} else if( update.request.action == 'import' ) {
-		if( ! update.result == 'success' ) {
+		if( update.result == 'success' ) {
+			imported.sparring = true;
+			if( imported.poomsae && imported.sparring ) {
+				var request;
+				request = { data : { type : 'registration', action : 'clear' }};
+				request.json = JSON.stringify( request.data );
+				ws.worldclass.send( request.json );
+			}
+		} else {
 			alertify.error( 'Import failed for Olympic Sparring' );
 			sound.warning.play();
 		}
