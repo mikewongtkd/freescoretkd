@@ -10,7 +10,6 @@
 	font-weight: normal;
 	font-style: italic;
 }
-
 @font-face {
 	font-family: 'Lato';
 	src: url( '/include/fonts/Lato-Bold.ttf' ), url( '/freescore/include/fonts/Lato-Bold.ttf' );
@@ -35,4 +34,18 @@
 	font-weight: normal;
 	font-style: normal;
 }
+@font-face {
+	font-family: 'FjallaOne';
+	src: url( '/include/fonts/FjallaOne-Regular.ttf' ), url( '/freescore/include/fonts/FjallaOne-Regular.ttf' );
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Glyphicons Halflings';
+	src: url( '/include/bootstrap/fonts/glyphicons-halflings-regular.ttf' ), url( '/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf' );
+	font-weight: normal;
+	font-style: normal;
+}
 
+$text-font-stack: Optima, Biolinum, Lato;
+$condensed-font-stack: Barlow, FjallaOne;

@@ -28,14 +28,13 @@ body {
 }
 
 .judgeController {
-	font-family: Optima, Biolinum;
+	font-family: $text-font-stack;
 	width: 808px;
 	height: 608px;
 	margin: 0 auto 0 auto;
 	-webkit-user-select: none;
 
 	.nav-button {
-		font-family: Optima, Biolinum;
 		font-size: 14pt;
 		float: left;
 		height: 60px;

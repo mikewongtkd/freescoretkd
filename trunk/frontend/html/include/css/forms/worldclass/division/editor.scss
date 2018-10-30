@@ -1,7 +1,7 @@
 @import '../fonts';
 
 body {
-	font-family: Optima, Barlow;
+	font-family: $text-font-stack;
 }
 
 .dropdown-toggle {
@@ -21,13 +21,13 @@ body {
 .CodeMirror {
 	border-radius: 6px;
 	pre {
-		font-family: Optima, Barlow;
+		font-family: $text-font-stack;
 		font-size: 18pt;
 	}
 }
 
 .CodeMirror-linenumber {
-	font-family: Optima, Barlow;
+	font-family: $text-font-stack;
 	font-size: 18pt;
 }
 
@@ -36,7 +36,7 @@ body {
 }
 
 .panel-heading div.panel-title:after {
-	font-family:'Glyphicons Halflings';
+	font-family: 'Glyphicons Halflings';
 	content:"\270f";
 	float: right;
 	color: white;

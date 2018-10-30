@@ -33,9 +33,19 @@ body {
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
   font-style: normal; }
+@font-face {
+  font-family: 'FjallaOne';
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
 .deductions {
   float: left;
-  font-family: Optima, Biolinum;
+  font-family: Optima, Biolinum, Lato;
   width: 188px;
   height: 354px;
   background: black;
@@ -105,7 +115,7 @@ body {
 
 .matposition {
   position: absolute;
-  font-family: Optima, Biolinum;
+  font-family: Optima, Biolinum, Lato;
   width: 180px;
   height: 180px;
   margin: 16px 10px 42px 10px;
@@ -239,7 +249,7 @@ body {
 
 .presentationBar {
   position: relative;
-  font-family: Optima, Biolinum;
+  font-family: Optima, Biolinum, Lato;
   width: 396px;
   height: 64px;
   margin: 0 0 0 20px; }
@@ -397,13 +407,12 @@ body {
   border: 4px solid white; }
 
 .judgeController {
-  font-family: Optima, Biolinum;
+  font-family: Optima, Biolinum, Lato;
   width: 808px;
   height: 608px;
   margin: 0 auto 0 auto;
   -webkit-user-select: none; }
   .judgeController .nav-button {
-    font-family: Optima, Biolinum;
     font-size: 14pt;
     float: left;
     height: 60px;

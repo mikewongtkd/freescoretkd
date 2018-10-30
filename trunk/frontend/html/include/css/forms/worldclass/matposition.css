@@ -1,135 +1,68 @@
-.matposition {
-  position: absolute;
-  font-family: Optima, Biolinum;
-  width: 180px;
-  height: 180px;
-  margin: 16px 10px 42px 10px;
-  top: 0;
-  left: 600px; }
-  .matposition .ring {
-    position: absolute;
-    width: 178px;
-    height: 178px;
-    border-radius: 4px;
-    background: #7abcff;
-    background: -webkit-linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
-    background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%); }
-    .matposition .ring .blue {
-      border: 1px solid #4096ee; }
-    .matposition .ring .red {
-      border: 1px solid #e24848; }
-    .matposition .ring .mat {
-      position: absolute;
-      width: 22px;
-      height: 22px; }
-    .matposition .ring .judge {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      padding: 2px 0 0 0;
-      text-align: center; }
-    .matposition .ring .j3R {
-      top: -11px;
-      left: 34px; }
-    .matposition .ring .j31 {
-      top: -11px;
-      left: 79px; }
-    .matposition .ring .j32 {
-      top: -11px;
-      left: 124px; }
-    .matposition .ring .j5R {
-      top: -11px;
-      left: 34px; }
-    .matposition .ring .j51 {
-      top: -11px;
-      left: 79px; }
-    .matposition .ring .j52 {
-      top: -11px;
-      left: 124px; }
-    .matposition .ring .j53 {
-      top: 168px;
-      left: 109px; }
-    .matposition .ring .j54 {
-      top: 168px;
-      left: 49px; }
-    .matposition .ring .j7R {
-      top: -11px;
-      left: 12px; }
-    .matposition .ring .j71 {
-      top: -11px;
-      left: 56px; }
-    .matposition .ring .j72 {
-      top: -11px;
-      left: 101px; }
-    .matposition .ring .j73 {
-      top: -11px;
-      left: 145px; }
-    .matposition .ring .j74 {
-      top: 168px;
-      left: 124px; }
-    .matposition .ring .j75 {
-      top: 168px;
-      left: 79px; }
-    .matposition .ring .j76 {
-      top: 168px;
-      left: 34px; }
-    .matposition .ring .notme {
-      border-radius: 4px;
-      background: #fceabb;
-      background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%); }
-    .matposition .ring .me {
-      border-radius: 11px;
-      background: #ffb76b;
-      background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-      background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%); }
-    .matposition .ring .center {
-      position: absolute;
-      top: 66px;
-      left: 66px;
-      height: 45px;
-      width: 45px;
-      background: #f29696;
-      background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
-      background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
-  .matposition .instructions {
-    position: absolute;
-    font-size: 12pt;
-    color: #ccf;
-    top: 120px;
-    left: 0;
-    width: 178px;
-    text-align: center;
-    white-space: normal; }
-  .matposition .start-position {
-    position: absolute;
-    color: yellow;
-    font-size: 18pt;
-    top: 0px;
-    left: 0px; }
-  .matposition .timer {
-    color: white;
-    font-family: HelveticaNeue-CondensedBold, Barlow;
-    font-size: 24pt;
-    text-align: center;
-    position: absolute;
-    background: #4c4c4c;
-    background: -webkit-linear-gradient(to bottom, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
-    background: linear-gradient(to bottom, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
-    top: 14px;
-    left: 30px;
-    width: 114px;
-    height: 40px;
-    border: 4px solid black;
-    border-radius: 12px;
-    opacity: 0.75; }
-  .matposition .layer {
-    border: 3px solid #36c;
-    border-radius: 4px;
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    top: 0px;
-    left: 0px; }
+/*
+Error: Undefined variable: "$text-font-stack".
+        on line 3 of matposition.scss
 
-/*# sourceMappingURL=matposition.css.map */
+1: .matposition {
+2: 	position: absolute;
+3: 	font-family: $text-font-stack;
+4: 	width:  180px;
+5: 	height: 180px;
+6: 	margin: 16px 10px 42px 10px;
+7: 	top: 0;
+8: 	left: 600px;
+
+Backtrace:
+matposition.scss:3
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/script/tree/variable.rb:49:in `_perform'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/script/tree/node.rb:50:in `perform'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:402:in `visit_prop'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `block in visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `block in with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:135:in `with_frame'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `block (2 levels) in visit_rule'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `map'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `block in visit_rule'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:183:in `with_environment'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:442:in `visit_rule'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `block in visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `block in with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:135:in `with_frame'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `map'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:171:in `block in visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:183:in `with_environment'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:170:in `visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `block in visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:190:in `visit_root'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:161:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:10:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/root_node.rb:36:in `css_tree'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/engine.rb:389:in `_render_with_sourcemap'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/engine.rb:307:in `render_with_sourcemap'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:462:in `update_stylesheet'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:209:in `each'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:294:in `watch'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin.rb:109:in `method_missing'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/sass_scss.rb:360:in `watch_or_update'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/sass_scss.rb:51:in `process_result'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/base.rb:52:in `parse'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/base.rb:19:in `parse!'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/bin/sass:13:in `<top (required)>'
+/usr/local/bin/sass:22:in `load'
+/usr/local/bin/sass:22:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Error: Undefined variable: \"$text-font-stack\".\A         on line 3 of matposition.scss\A \A 1: .matposition {\A 2: 	position: absolute;\A 3: 	font-family: $text-font-stack;\A 4: 	width:  180px;\A 5: 	height: 180px;\A 6: 	margin: 16px 10px 42px 10px;\A 7: 	top: 0;\A 8: 	left: 600px;"; }

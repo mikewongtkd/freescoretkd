@@ -1,148 +1,70 @@
-.leaderboard {
-  width: 1000px;
-  height: 720px;
-  font-family: Barlow;
-  color: white;
-  overflow: hidden; }
-  .leaderboard .division {
-    width: 1000px;
-    height: 720px;
-    overflow: hidden; }
-    .leaderboard .division .placement {
-      position: absolute;
-      width: 984px;
-      font-size: 48pt;
-      background: black;
-      background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
-      /* W3C */
-      background: linear-gradient(to top, #45484d 0%, #000000 100%);
-      /* W3C */
-      border: 4px solid white;
-      border-radius: 24px;
-      padding: 0 32px 8px 32px;
-      overflow-y: auto; }
-      .leaderboard .division .placement h2 {
-        color: white; }
-      .leaderboard .division .placement .rank1 {
-        color: #fe0; }
-      .leaderboard .division .placement .rank2 {
-        color: #ccc; }
-      .leaderboard .division .placement .rank3 {
-        color: #f93; }
-      .leaderboard .division .placement .rank4 {
-        color: #f93; }
-      .leaderboard .division .placement .athlete {
-        position: relative;
-        height: 72px;
-        width: 100%; }
-        .leaderboard .division .placement .athlete .number {
-          color: #999;
-          font-size: 36pt;
-          position: absolute;
-          left: 0;
-          width: 4%;
-          font-weight: bold;
-          overflow: hidden; }
-        .leaderboard .division .placement .athlete .name {
-          color: yellow;
-          position: absolute;
-          left: 4%;
-          width: 50%;
-          font-weight: bold;
-          text-overflow: ellipse;
-          overflow: hidden; }
-        .leaderboard .division .placement .athlete .form1 {
-          color: #f39;
-          position: absolute;
-          left: 54%;
-          width: 13%;
-          text-align: center; }
-        .leaderboard .division .placement .athlete .form2 {
-          color: #39f;
-          position: absolute;
-          left: 68%;
-          width: 13%;
-          text-align: center; }
-        .leaderboard .division .placement .athlete .score {
-          color: lime;
-          position: absolute;
-          left: 80%;
-          width: 20%;
-          text-align: center; }
-          .leaderboard .division .placement .athlete .score .notes {
-            font-size: 24pt;
-            color: green;
-            display: inline-block; }
-        .leaderboard .division .placement .athlete .medal {
-          position: relative;
-          left: 0;
-          top: 16px;
-          width: 0; }
-      .leaderboard .division .placement .results {
-        line-height: 64pt; }
-      .leaderboard .division .placement .header {
-        font-size: 14pt;
-        line-height: 14pt !important;
-        height: 20px;
-        opacity: 0.7;
-        border-bottom: 2px solid #666;
-        vertical-align: top; }
-    .leaderboard .division .pending {
-      position: absolute;
-      width: 984px;
-      color: #999;
-      font-size: 24pt;
-      background: black;
-      background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
-      /* W3C */
-      background: linear-gradient(to top, #45484d 0%, #000000 100%);
-      /* W3C */
-      border: 4px solid white;
-      border-radius: 24px;
-      padding: 0 32px 8px 32px;
-      overflow-x: hidden;
-      overflow-y: hidden; }
-      .leaderboard .division .pending h2 {
-        color: white; }
-      .leaderboard .division .pending .athlete {
-        position: relative;
-        height: 72px;
-        width: 100%; }
-        .leaderboard .division .pending .athlete .number {
-          color: #999;
-          font-size: 36pt;
-          position: absolute;
-          left: 0;
-          width: 8%;
-          height: 100%;
-          font-weight: bold;
-          overflow: hidden; }
-        .leaderboard .division .pending .athlete .name {
-          color: lime;
-          font-weight: bold;
-          font-size: 48pt;
-          line-height: 48pt;
-          position: absolute;
-          left: 8%;
-          width: 92%;
-          height: 100%;
-          font-weight: bold;
-          text-overflow: ellipse;
-          overflow: hidden; }
-    .leaderboard .division .top-row {
-      position: absolute;
-      height: 480px;
-      top: 0;
-      left: 0; }
-    .leaderboard .division .bottom-row {
-      position: absolute;
-      height: 200px;
-      top: 500px;
-      left: 0; }
-    .leaderboard .division .full-height {
-      position: absolute;
-      height: 704px;
-      top: 0;
-      left: 0; }
+/*
+Error: Undefined variable: "$condensed-font-stack".
+        on line 5 of leaderBoard.scss
 
-/*# sourceMappingURL=leaderBoard.css.map */
+1: 
+2: .leaderboard {
+3: 	width: 1000px;
+4: 	height: 720px;
+5: 	font-family: $condensed-font-stack;
+6: 	color: white;
+7: 	overflow: hidden;
+8: 
+9: 	.division {
+10: 		width: 1000px;
+
+Backtrace:
+leaderBoard.scss:5
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/script/tree/variable.rb:49:in `_perform'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/script/tree/node.rb:50:in `perform'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:402:in `visit_prop'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `block in visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `block in with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:135:in `with_frame'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `block (2 levels) in visit_rule'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `map'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `block in visit_rule'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:183:in `with_environment'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:442:in `visit_rule'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `block in visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `block in with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:135:in `with_frame'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `with_base'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `map'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:171:in `block in visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:183:in `with_environment'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:170:in `visit_children'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `block in visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:190:in `visit_root'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:161:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:10:in `visit'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/root_node.rb:36:in `css_tree'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/engine.rb:389:in `_render_with_sourcemap'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/engine.rb:307:in `render_with_sourcemap'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:462:in `update_stylesheet'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:209:in `each'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:294:in `watch'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin.rb:109:in `method_missing'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/sass_scss.rb:360:in `watch_or_update'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/sass_scss.rb:51:in `process_result'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/base.rb:52:in `parse'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/base.rb:19:in `parse!'
+/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/bin/sass:13:in `<top (required)>'
+/usr/local/bin/sass:22:in `load'
+/usr/local/bin/sass:22:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Error: Undefined variable: \"$condensed-font-stack\".\A         on line 5 of leaderBoard.scss\A \A 1: \A 2: .leaderboard {\A 3: 	width: 1000px;\A 4: 	height: 720px;\A 5: 	font-family: $condensed-font-stack;\A 6: 	color: white;\A 7: 	overflow: hidden;\A 8: \A 9: 	.division {\A 10: 		width: 1000px;"; }

@@ -16,7 +16,7 @@ body {
 }
 
 .usermessage {
-	font-family: Optima, Biolinum;
+	font-family: $text-font-stack;
 	font-size: 24pt;
 	color: #ccc;
 	display: none;

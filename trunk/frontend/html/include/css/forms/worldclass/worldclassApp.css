@@ -35,11 +35,21 @@ body {
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
   font-style: normal; }
+@font-face {
+  font-family: 'FjallaOne';
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
 .worldclass {
   margin: 0 auto 0 auto;
   width: 1000px; }
   .worldclass .scoreboard {
-    font-family: HelveticaNeue-CondensedBold, Barlow;
+    font-family: Barlow, FjallaOne;
     display: none;
     width: 1000px;
     height: 720px;
@@ -291,7 +301,7 @@ body {
   .worldclass .leaderboard {
     width: 1000px;
     height: 720px;
-    font-family: Barlow;
+    font-family: Barlow, FjallaOne;
     color: white;
     overflow: hidden; }
     .worldclass .leaderboard .division {
@@ -436,7 +446,7 @@ body {
         left: 0; }
 
 .usermessage {
-  font-family: Optima, Biolinum;
+  font-family: Optima, Biolinum, Lato;
   font-size: 24pt;
   color: #ccc;
   display: none;
