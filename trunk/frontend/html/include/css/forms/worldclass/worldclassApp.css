@@ -6,21 +6,40 @@ body {
   /* W3C */ }
 
 @font-face {
-  font-family: Nimbus;
-  src: url("/include/fonts/nimbus-sans-l_bold-condensed.ttf"), url("/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
 @font-face {
-  font-family: Biolinum;
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf"); }
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic; }
+@font-face {
+  font-family: 'Biolinum';
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Barlow';
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal; }
 .worldclass {
   margin: 0 auto 0 auto;
   width: 1000px; }
-@font-face {
-  .worldclass {
-    font-family: GlyphiconHalfling;
-    src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"); } }
   .worldclass .scoreboard {
-    font-family: HelveticaNeue-CondensedBold, Nimbus;
+    font-family: HelveticaNeue-CondensedBold, Barlow;
     display: none;
     width: 1000px;
     height: 720px;
@@ -272,7 +291,7 @@ body {
   .worldclass .leaderboard {
     width: 1000px;
     height: 720px;
-    font-family: Nimbus;
+    font-family: Barlow;
     color: white;
     overflow: hidden; }
     .worldclass .leaderboard .division {

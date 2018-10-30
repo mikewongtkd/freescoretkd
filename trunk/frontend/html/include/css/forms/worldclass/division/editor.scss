@@ -1,15 +1,7 @@
-@font-face {
-	font-family: Nimbus;
-	src: url( '/include/fonts/nimbus-sans-l_bold-condensed.ttf' ), url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
-}
-@font-face {
-	font-family: Biolinum;
-	font-weight: bold;
-	src: url( '/include/fonts/LinBiolinum_Rah.ttf' ), url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
-}
+@import '../fonts';
 
 body {
-	font-family: Optima, Nimbus;
+	font-family: Optima, Barlow;
 }
 
 .dropdown-toggle {
@@ -29,13 +21,13 @@ body {
 .CodeMirror {
 	border-radius: 6px;
 	pre {
-		font-family: Optima, Nimbus;
+		font-family: Optima, Barlow;
 		font-size: 18pt;
 	}
 }
 
 .CodeMirror-linenumber {
-	font-family: Optima, Nimbus;
+	font-family: Optima, Barlow;
 	font-size: 18pt;
 }
 

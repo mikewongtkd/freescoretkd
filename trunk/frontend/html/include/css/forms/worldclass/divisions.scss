@@ -1,17 +1,5 @@
 
-@font-face {
-	font-family: Nimbus;
-	src: url( '/include/fonts/nimbus-sans-l_bold-condensed.ttf' ), url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
-}
-@font-face {
-	font-family: Biolinum;
-	font-weight: bold;
-	src: url( '/include/fonts/LinBiolinum_Rah.ttf' ), url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
-}
-
-body {
-}
-
+@import 'fonts';
 .page-header {
 	position: relative;
 	height: 48px;

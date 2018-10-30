@@ -23,5 +23,10 @@
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
   font-style: normal; }
+@font-face {
+  font-family: 'Barlow';
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal; }
 
 /*# sourceMappingURL=fonts.css.map */
