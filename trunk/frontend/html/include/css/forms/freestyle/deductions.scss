@@ -1,6 +1,8 @@
+@import '../../fonts';
+
 .deductions {
 	float: left;
-	font-family: Optima, Biolinum;
+	font-family: $text-font-stack;
 	width: 188px;
 	height: 354px;
 	background: black;

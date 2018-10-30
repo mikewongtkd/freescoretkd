@@ -1,16 +1,4 @@
-
-@font-face {
-	font-family: Nimbus;
-	src: url( '/include/fonts/nimbus-sans-l_bold-condensed.ttf' ), url( '/freescore/include/fonts/nimbus-sans-l_bold-condensed.ttf' );
-}
-@font-face {
-	font-family: Biolinum;
-	font-weight: bold;
-	src: url( '/include/fonts/LinBiolinum_Rah.ttf' ), url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
-}
-
-body {
-}
+@import '../../fonts';
 
 .page-header {
 	position: relative;
@@ -23,7 +11,7 @@ body {
 	font-size: 24pt;
 	line-height: 24pt;
 	font-weight: bold;
-	font-family: Optima, Biolinum;
+	font-family: $text-font-stack;
 	border-radius: 4px;
 
 }

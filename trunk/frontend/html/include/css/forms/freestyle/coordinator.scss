@@ -1,14 +1,9 @@
-
-@font-face {
-	font-family: Biolinum;
-	font-weight: bold;
-	src: url( '/include/fonts/LinBiolinum_Rah.ttf' ), url( '/freescore/include/fonts/LinBiolinum_Rah.ttf' );
-}
+@import '../../fonts';
 
 html, body { 
 	height: 100%; 
 	overflow-x: hidden; 
-	font-family: Optima, Biolinum;
+	font-family: $text-font-stack;
 }
 
 .pt-perspective {
