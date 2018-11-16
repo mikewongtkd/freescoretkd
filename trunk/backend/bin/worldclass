@@ -10,7 +10,6 @@ use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
-use Data::Structure::Util qw( unbless );
 use Clone qw( clone );
 use EV;
 
