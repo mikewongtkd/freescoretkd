@@ -1,5 +1,5 @@
 <?php
-	include "../../../include/php/config.php"
+	include "../../../include/php/config.php";
 ?>
 <html>
 	<head>
@@ -11,13 +11,17 @@
 		<link href="../../../include/bootstrap/add-ons/bootstrap-switch.min.css" rel="stylesheet" />
 		<link href="../../../include/opt/codemirror/lib/codemirror.css" rel="stylesheet" />
 		<link href="../../../include/css/forms/worldclass/division/editor.css" rel="stylesheet" />
+		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
+		<link href="../../../include/alertify/css/themes/default.min.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootbox.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-switch.min.js"></script>
+		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/opt/codemirror/lib/codemirror.js"></script>
 		<script src="../../../include/opt/codemirror/mode/freescore/freescore.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
@@ -90,7 +94,6 @@
 				if( autodetect ) { settings.round.select.autodetect(); }
 
 				validate.input();
-
 			});
 
 			init.athletes = ( division ) => {

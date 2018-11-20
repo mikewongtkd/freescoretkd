@@ -1,3 +1,18 @@
+<?php
+	$default_n = isset( $_COOKIE[ 'judges' ]) ? $_COOKIE[ 'judges' ] : 5;
+	function judge_checked( $i ) {
+		$checked = $_COOKIE[ 'judges' ] == $i;
+		$default = (! isset( $_COOKIE[ 'judges' ])) && ($i == 5);
+		if( $checked || $default ) { return ' checked'; }
+		return '';
+	}
+	function judge_active( $i ) {
+		$active  = $_COOKIE[ 'judges' ] == $i;
+		$default = (! isset( $_COOKIE[ 'judges' ])) && ($i == 5);
+		if( $active || $default ) { return ' active'; }
+		return '';
+	}
+?>
 <div class="panel panel-primary division-header">
 	<div class="panel-heading">
 		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#settings" id="settings-title"><span class="title">Settings</span></div>
@@ -11,9 +26,9 @@
 			<div class="col-md-3">
 				<label for="number-of-judges">Judges in Ring</label><br>
 				<div class="btn-group" data-toggle="buttons" id="number-of-judges">
-					<label class="btn btn-default"       ><input type="radio" name="judges" value="3"        >3 Judges</label>
-					<label class="btn btn-default active"><input type="radio" name="judges" value="5" checked>5 Judges</label>
-					<label class="btn btn-default"       ><input type="radio" name="judges" value="7"        >7 Judges</label>
+					<label class="btn btn-default<?= judge_active( 3 ); ?>"><input type="radio" name="judges" value="3"<?= judge_checked( 3 ); ?>>3 Judges</label>
+					<label class="btn btn-default<?= judge_active( 5 ); ?>"><input type="radio" name="judges" value="5"<?= judge_checked( 5 ); ?>>5 Judges</label>
+					<label class="btn btn-default<?= judge_active( 7 ); ?>"><input type="radio" name="judges" value="7"<?= judge_checked( 7 ); ?>>7 Judges</label>
 				</div>
 			</div>
 			<div class="col-md-4">
@@ -93,7 +108,24 @@
 		$.each( $( 'input[name=judges]' ), ( i, j ) => {
 			var judges = $( j );
 			var button = judges.parent();
-			if( judges.val() == division.judges()) { button.click(); }
+			var k      = division.judges();
+			var n      = <?= $default_n ?>;
+
+			if( judges.val() == n && k != n ) {
+				alertify.confirm(
+					'Set division for ' + n + ' judges?',
+					'This division is configured for ' + k + ' judges; the default is ' + n + '. Configure this ring for ' + n + ' judges?',
+					() => { 
+						division.judges( n );
+						button.click(); 
+						var request  = { data : { type : 'division', action : 'write', overwrite: true, division : division.data() }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+						sound.send.play();
+					},
+					() => {}
+				);
+			} else if( judges.val() == k ) { button.click(); }
 		});
 
 		// Set division name
@@ -136,7 +168,15 @@
 	// ============================================================
 	$( 'input[name=judges]' ).parent().click( function( ev ) {
 		var clicked = $( ev.target );
-		var judges = parseInt( clicked.find( 'input' ).val() );
+		var judges  = parseInt( clicked.find( 'input' ).val() );
+		if( division.judges() != judges ) {
+			alertify.confirm( 
+				'Shall ' + judges + ' be the default number of judges?',
+				'<b>OK:</b> The editor will default to ' + judges + ' judges today.<br><b>Cancel:</b> The editor will default to <?= $default_n ?> judges.',
+				() => { $.cookie( 'judges', judges ); },
+				() => {},
+			);
+		}
 		division.judges = judges
 		settings.update( judges + ' Judges' );
 	});

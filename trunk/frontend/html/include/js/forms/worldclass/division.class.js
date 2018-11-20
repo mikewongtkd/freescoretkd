@@ -7,7 +7,7 @@ function Division( division ) {
 	this.name        = function() { return division.name;        }
 	this.description = function() { return division.description; }
 	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description + (this.is.flight() ? ' (Flight ' + division.flight.id.toUpperCase() + ')':''); }
-	this.judges      = function() { return parseInt( division.judges ); }
+	this.judges      = function( n ) { if( defined( n )) { division.judges = n; } return parseInt( division.judges ); }
 	this.flight      = function() { if( 'flight' in division ) { return division.flight; } else { return null; }}
 	this.forms       = function() { return division.forms;       }
 	this.ring        = function() { return division.ring;        }
