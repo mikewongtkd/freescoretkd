@@ -70,7 +70,7 @@
 				</div>
 
 				<div class="register" id="registration">
-					<a class="btn btn-primary config" id="registration"  href="registration.php"> Import USAT Registration </a>
+					<a class="btn btn-primary config" id="registration"  href="registration/index.php"> Import USAT Registration </a>
 				</div>
 			</div>
 

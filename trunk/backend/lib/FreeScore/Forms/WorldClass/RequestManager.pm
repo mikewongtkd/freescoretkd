@@ -72,7 +72,8 @@ sub init {
 	$self->{ registration } = {
 		import             => \&handle_registration_import,
 		upload             => \&handle_registration_upload,
-		read               => \&handle_registration_read
+		read               => \&handle_registration_read,
+		remove             => \&handle_registration_remove,
 	}
 }
 
@@ -877,6 +878,31 @@ sub handle_registration_read {
 		elsif( -e $female ) { $female = \1; $male = \0; }
 		else                { $female = \0; $male = \0; }
 		$client->send({ json => { request => $copy, male => $male, female => $female, @divisions }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_registration_remove {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Removing USAT Registration information\n" if $DEBUG;
+	
+	my $path = "$progress->{ path }/../..";
+	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
+
+	try {
+		my $female       = "$path/registration.female.txt";
+		my $male         = "$path/registration.male.txt";
+		unlink $female;
+		unlink $male;
+
+		$client->send({ json => { type => 'registration', action => 'remove', result => "Division files removed" }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

@@ -50,6 +50,11 @@
 		<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Division File Here</div>
 		<div class="file-drop-zone" id="male" action="#"><span class="fa fa-male">&nbsp;</span><br>Male<br>Division File Here</div>
 	</div>
+	<div class="clearfix">
+		<button type="button" id="upload" class="btn btn-success pull-right disabled">Accept</button> 
+		<button type="button" id="remove" class="btn btn-danger  pull-right disabled" style="margin-right: 40px;">Remove</button> 
+	</div>
+	<p>&nbsp;</p>
 </div>
 <script>
 	var registration = { male: '', female: '' };
@@ -62,4 +67,68 @@
 			$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
 		}
 	};
+
+	$( '.file-drop-zone' )
+	.on( 'dragover', ( ev ) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+	})
+	.on( 'dragenter', ( ev ) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+	})
+	.on( 'drop', ( ev ) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+		var target = $( ev.target ).attr( 'id' );
+		if( registration[ target ] ) { sound.next.play(); return; }
+
+		var upload = ev.originalEvent;
+		var reader = new FileReader();
+
+		if( ! defined( upload )) { return; }
+		upload = upload.dataTransfer;
+		if( ! defined( upload )) { return; }
+
+		var data = '';
+		for( file of upload.files ) {
+			reader.onload = (( f ) => {
+				return ( e ) => { 
+					if( e.target.result == registration.female || e.target.result == registration.male ) {
+						alertify.error( 'Same file uploaded twice; possible user error?' );
+						return;
+					}
+					dropzone.disable( target );
+
+					registration[ target ] = e.target.result;
+					sound.send.play();
+					alertify.success( target.capitalize() + ' divisions uploaded' );
+
+					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Uploading Registrations...' );
+					var request;
+					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
+					request.json = JSON.stringify( request.data );
+					ws.worldclass.send( request.json );
+					ws.sparring.send( request.json );
+				};
+			})( file );
+
+			data = reader.readAsText( file );
+		}
+	});
+
+	$( '#upload' ).off( 'click' ).click(( ev ) => {
+		sound.next.play();
+		page.transition( 2 );
+	});
+
+	$( '#remove' ).off( 'click' ).click(( ev ) => {
+		request = { data : { type : 'registration', action : 'remove' }};
+		request.json = JSON.stringify( request.data );
+		ws.worldclass.send( request.json );
+		dropzone.enable( 'male'   );
+		dropzone.enable( 'female' );
+		sound.prev.play();
+	});
+
 </script>
