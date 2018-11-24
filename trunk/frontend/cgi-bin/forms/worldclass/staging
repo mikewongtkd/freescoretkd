@@ -1,0 +1,174 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use CGI;
+use CGI::Carp qw( fatalsToBrowser );
+use JSON::XS;
+use Data::Dumper;
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::WorldClass;
+
+my $cgi        = new CGI();
+my $results    = undef;
+my $tournament = read_tournament_config();
+my $ring       = $cgi->param( 'ring' );
+my $divid      = $cgi->param( 'divid' );
+my @rounds     = ($cgi->param( 'round' ));
+
+my @divisions  = ();
+my $results    = undef;
+try {
+	if( defined $ring ) {
+		if( defined $divid ) { 
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} else {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	}
+} catch {
+	die $_;
+	
+};
+
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+
+print $cgi->header();
+
+print <<EOF;
+<html>
+	<head>
+		<title>Sport Poomsae</title>
+		<style type="text/css">
+			body {
+				font-family: Optima;
+			}
+			.division {
+				clear: both;
+				margin-top: 28px;
+				width: 640px;
+				height: 20px;
+			}
+			.division .description {
+				float: left;
+			}
+			.division .ring {
+				float: right;
+			}
+			.staging {
+				page-break-inside: avoid;
+			}
+			.staging table {
+				width: 640px;
+			}
+			.staging th {
+				margin-top: 8px;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
+				padding: 0 4px 0 4px;
+				text-align: left;
+			}
+			.staging th.number  { width: 32px; }
+			.staging th.athlete { width: 200px; }
+			.staging th.form    { width: 100px; text-align: center; }
+
+			.staging td         { padding: 2px 4px 2px 4px; }
+			.staging td.score   { text-align: center; }
+			.staging td .preacc { font-size: 8pt; }
+			.staging td .notes  { font-size: 9pt; }
+			.staging tr:nth-child( even ) { background: #fff; }
+			.staging tr:nth-child( odd  ) { background: #eee; }
+			.staging tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
+			.staging tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+
+			.placement {
+				page-break-after: always;
+				position: fixed;
+				bottom: 0;
+				right: 0;
+			}
+			.placement th         { text-align: left; }
+			.placement td         { padding: 2px 4px 2px 4px; }
+			.placement td.place   { text-align: bottom; height: 36px; width: 40px; }
+			.placement td.name    { border-bottom: 1px solid black; height: 36px; width: 400px; }
+
+		</style>
+	</head>
+	<body>
+EOF
+foreach my $division (@divisions) {
+	my $name   = uc $division->{ name };
+	my $judges = $division->{ judges } || 3;
+	@rounds = @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	my $round = undef;
+	while( @rounds ) {
+		$round = shift @rounds;
+		next unless exists $division->{ order }{ $round };
+		last;
+	}
+	my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
+	my $forms  = join ", ", @{$division->{ forms }{ $round }};
+	my $i      = 0;
+
+	print <<EOF;
+	<div class="staging">
+	<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="ring"><b>$rname:</b> $forms</div></div>
+	<table border=0 cellpadding=0 cellspacing=0>
+		<tr>
+			<th class="number">#</th>
+			<th class="athlete">Name</th>
+		</tr>
+EOF
+	my $n = $#{$division->{ order }{ $round }};
+	foreach my $i (0 .. $n) {
+		my $j       = $division->{ order }{ $round }[ $i ];
+		my $athlete = $division->{ athletes }[ $j ];
+		my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
+		my $sum     = 0.0;
+		print "<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ name }</td>";
+		print "</tr>\n";
+	}
+	print <<EOF;
+	</table>
+	</div>
+	<div class="placement">
+		<table border=0 cellpadding=0 cellspacing=0>
+			<tr><th>Place</th><th>Athlete</th></tr>
+			<tr><td class="place">1st</td><td class="name">&nbsp;</td></tr>
+			<tr><td class="place">2nd</td><td class="name">&nbsp;</td></tr>
+			<tr><td class="place">3rd</td><td class="name">&nbsp;</td></tr>
+			<tr><td class="place">3rd</td><td class="name">&nbsp;</td></tr>
+		</table>
+	</div>
+EOF
+}
+
+print <<EOF;
+	</body>
+</html>
+EOF
+
+# ============================================================
+sub read_tournament_config {
+# ============================================================
+	my $php = '';
+	my $config = {
+		redhat   => '/var/www/html/freescore/include/php/config.php',
+		ubuntu   => '/var/www/freescore/include/php/config.php',
+		raspbian => '/var/www/html/include/php/config.php',
+	};
+	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+
+	my $json = new JSON::XS();
+	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+	my $config = $json->decode( $data );
+	return $config;
+}
