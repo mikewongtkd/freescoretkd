@@ -56,40 +56,75 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 640px;
+				width: 920px;
 				height: 20px;
-			}
-			.division .description {
-				float: left;
-			}
-			.division .ring {
-				float: right;
+				text-align: center;
 			}
 
+			.list {
+				position: fixed;
+				top: 80px;
+				left: calc( 50% - 220px );
+				width: 360px;
+				font-size: 9pt;
+			}
+
+			.list .col1,.col2 {
+				position: absolute;
+				width: 180px;
+			}
+
+			.list .col1 { top: 0; left: 0; }
+			.list .col2 { top: 0; left: 180px; }
+
 			table.bracket {
-				border-spacing: 0;
-				border-collapse: separate;
-				width: 800px;
+				position: fixed;
+				border-spacing: 2px;
+				width: 920px;
 			}
 
 			.bracket td {
 			}
 
-			.bracket td.match {
-				border: 1px solid #333;
-				padding: 20px;
+			.match {
+				position: relative;
+				height: 40px;
+				font-size: 9pt;
 			}
+
+			.match .match-num {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 10%;
+				height: calc( 100% - 5px );
+				padding: 2px;
+				border: 1px solid #999;
+				text-align: center;
+				font-size: 6pt;
+			}
+
+			.match .player {
+				position: absolute;
+				left: calc( 10% + 5px );
+				width: calc( 90% - 8px );
+				height: calc( 50% - 5px );
+				padding: 2px;
+				border: 1px solid #999;
+			}
+			.match .blue { top:  0%; }
+			.match .red  { top: 50%; }
 
 			.placement {
 				page-break-after: always;
 				position: fixed;
 				bottom: 0;
-				right: 0;
+				left: calc( 50% - 140px );
 			}
 			.placement th         { text-align: left; }
 			.placement td         { padding: 2px 4px 2px 4px; }
 			.placement td.place   { text-align: bottom; height: 36px; width: 40px; }
-			.placement td.name    { border-bottom: 1px solid black; height: 36px; width: 400px; }
+			.placement td.name    { border-bottom: 1px solid black; height: 36px; width: 200px; }
 
 		</style>
 	</head>
@@ -113,7 +148,14 @@ foreach my $division (@divisions) {
 		$division->{ athletes }[ $j ];
 	} ( 0 .. $n );
 
-	my @athletes = qw( a b c d e f g h i j k l m n o p q r s t u v w x y z );
+	# @athletes = map { { name => $_ } } qw( a b c d e f g h i j k l m n o p ); $n = $#athletes;
+	# @athletes = map { { name => $_ } } qw( a b c d e f g h i j k l m n o p q r s t u v w x y z ); $n = $#athletes;
+	
+	print "<div class=\"list\"><div class=\"col1\"><ol>";
+	foreach my $athlete (map { $athletes[ $_ ] } ( 0 .. int($n/2))) { print "<li>$athlete->{ name }</li>"; }
+	print "</ol></div><div class=\"col2\"><ol>";
+	foreach my $athlete (map { $athletes[ $_ ] } ( int($n/2)) .. $n ) { print "<li>$athlete->{ name }</li>"; }
+	print "</ol></div></div>";
 
 	# Calculate bracket size
 	my $depth = ceil( log( int( @athletes ))/log( 2 ));
@@ -136,6 +178,7 @@ foreach my $division (@divisions) {
 	my @nodes = ();
 
 	# First half of the bracket
+	my $s = 1; # Match number
 	foreach my $i (0 .. $c) {
 		my $m = 2 ** ($c - $i) - 1; # Number of matches per depth level
 		foreach my $j (0 .. $m) {
@@ -143,12 +186,19 @@ foreach my $division (@divisions) {
 			my $l = ($k - 1); # Offset
 			my $x = $i;
 			my $y = (2 * $j * $k) + $l;
-			push @nodes, [ $x, $y ];
+			if( $i == 0 ) {
+				push @nodes, [ $x, $y, $s, $matches[ $s - 1 ]];
+			} else {
+				push @nodes, [ $x, $y, $s ];
+			}
+			$s += 2;
 		}
 	}
 	# Final match
-	push @nodes, [ $h, (2 ** $c) - 1 ];
+	push @nodes, [ $h, (2 ** $c) - 1, (2 ** $depth) - 1 ];
+
 	# Second half of the bracket
+	my $s = 2; # Match number
 	foreach my $i (0 .. $c) {
 		my $m = 2 ** ($c - $i) - 1; # Number of matches per depth level
 		foreach my $j (0 .. $m) {
@@ -156,15 +206,23 @@ foreach my $division (@divisions) {
 			my $l = ($k - 1); # Offset
 			my $x = (2 * $h) - $i;
 			my $y = (2 * $j * $k) + $l;
-			push @nodes, [ $x, $y ];
+			if( $i == 0 ) {
+				push @nodes, [ $x, $y, $s, $matches[ $s - 1 ]];
+			} else {
+				push @nodes, [ $x, $y, $s ];
+			}
+			$s += 2;
 		}
 	}
 	@nodes = sort { $a->[ 0 ] <=> $b->[ 0 ] || $a->[ 1 ] <=> $b->[ 1 ] } @nodes;
 
+	my $top = ([ 600, 300, 300, 150, 0, 0, 0, 0 ]->[ $h ]) . 'px';
+
 	# Header
 	print <<EOF;
+	<style>table.bracket { top: $top; }</style>
 	<div class="staging">
-	<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="ring"><b>$rname:</b> $forms</div></div>
+	<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div>
 EOF
 
 	# Bracket
@@ -177,8 +235,18 @@ EOF
 		foreach my $col ( 0 .. $cols ) {
 			my $i   = first_index { $_->[ 0 ] == $col && $_->[ 1 ] == $row; } @nodes;
 			if( $i >= 0 ) {
-				my $pos = splice @nodes, $i, 1;
-				print "<td class=\"match\"></td>";
+				my $pos    = splice @nodes, $i, 1;
+				my $player = $pos->[ 3 ];
+				my $num    = $pos->[ 2 ];
+				print <<EOF;
+<td class="match">
+<div class="match">
+	<div class="match-num">$num</div>
+	<div class="blue player">$player->{ blue }{ name }</div>
+	<div class="red player">$player->{ red }{ name }</div>
+</div>
+</td>
+EOF
 			} else {
 				print "<td></td>";
 			}
