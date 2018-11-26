@@ -86,6 +86,50 @@ print <<EOF;
 			.bracket td {
 			}
 
+			.branch {
+				position: relative;
+			}
+
+			.branch .ld {
+				position: absolute;
+				top: 50%;
+				left: 0;
+				width: 50%;
+				height: 20px;
+				border-top: 1px solid #333;
+				border-right: 1px solid #333;
+			}
+
+			.branch .lu {
+				position: absolute;
+				top: -20px;
+				left: 0;
+				width: 50%;
+				height: 20px;
+				border-bottom: 1px solid #333;
+				border-right: 1px solid #333;
+			}
+
+			.branch .rd {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 50%;
+				height: 20px;
+				border-top: 1px solid #333;
+				border-left: 1px solid #333;
+			}
+
+			.branch .ru {
+				position: absolute;
+				top: -20px;
+				left: 50%;
+				width: 50%;
+				height: 20px;
+				border-bottom: 1px solid #333;
+				border-left: 1px solid #333;
+			}
+
 			.match {
 				position: relative;
 				height: 40px;
@@ -114,6 +158,7 @@ print <<EOF;
 			}
 			.match .blue { top:  0%; }
 			.match .red  { top: 50%; }
+			.match .bye  { color: #999; }
 
 			.placement {
 				page-break-after: always;
@@ -148,13 +193,15 @@ foreach my $division (@divisions) {
 		$division->{ athletes }[ $j ];
 	} ( 0 .. $n );
 
+	# @athletes = map { { name => $_ } } qw( a b ); $n = $#athletes;
 	# @athletes = map { { name => $_ } } qw( a b c d e f g h i j k l m n o p ); $n = $#athletes;
 	# @athletes = map { { name => $_ } } qw( a b c d e f g h i j k l m n o p q r s t u v w x y z ); $n = $#athletes;
 	
+	my $half = int( $n/2 );
 	print "<div class=\"list\"><div class=\"col1\"><ol>";
-	foreach my $athlete (map { $athletes[ $_ ] } ( 0 .. int($n/2))) { print "<li>$athlete->{ name }</li>"; }
-	print "</ol></div><div class=\"col2\"><ol>";
-	foreach my $athlete (map { $athletes[ $_ ] } ( int($n/2)) .. $n ) { print "<li>$athlete->{ name }</li>"; }
+	foreach my $athlete (map { $athletes[ $_ ] } ( 0 .. $half)) { print "<li>$athlete->{ name }</li>"; }
+	print "</ol></div><div class=\"col2\"><ol start=\"" . ($half + 2) . "\">";
+	foreach my $athlete (map { $athletes[ $_ ] } (($half + 1) .. $n )) { print "<li>$athlete->{ name }</li>"; }
 	print "</ol></div></div>";
 
 	# Calculate bracket size
@@ -162,7 +209,7 @@ foreach my $division (@divisions) {
 	my $bracket = { size => 2 ** $depth };
 
 	# Add byes
-	for(($n + 1) .. ($bracket->{ size } - 1)) { push @athletes, { name => 'BYE', is_bye => 1 };}
+	for(($n + 1) .. ($bracket->{ size } - 1)) { push @athletes, { name => '<span class="bye">BYE</span>', is_bye => 1 };}
 
 	# Build initial matches
 	my @matches = ();
@@ -188,6 +235,21 @@ foreach my $division (@divisions) {
 			my $y = (2 * $j * $k) + $l;
 			if( $i == 0 ) {
 				push @nodes, [ $x, $y, $s, $matches[ $s - 1 ]];
+
+			} elsif( $i == 1 ) {
+				my $advance = {};
+				my $a = first_index { $_->[ 0 ] == $x - 1 && $_->[ 1 ] == $y - 1 } @nodes;
+				my $b = first_index { $_->[ 0 ] == $x - 1 && $_->[ 1 ] == $y + 1 } @nodes;
+				if( $a >= 0 ) {
+					my $match = $nodes[ $a ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ blue } = $match->{ blue }; }
+				}
+				if( $b >= 0 ) {
+					my $match = $nodes[ $b ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ red } = $match->{ blue }; }
+				}
+				push @nodes, [ $x, $y, $s, $advance ];
+
 			} else {
 				push @nodes, [ $x, $y, $s ];
 			}
@@ -208,6 +270,21 @@ foreach my $division (@divisions) {
 			my $y = (2 * $j * $k) + $l;
 			if( $i == 0 ) {
 				push @nodes, [ $x, $y, $s, $matches[ $s - 1 ]];
+
+			} elsif( $i == 1 ) {
+				my $advance = {};
+				my $a = first_index { $_->[ 0 ] == $x + 1 && $_->[ 1 ] == $y - 1 } @nodes;
+				my $b = first_index { $_->[ 0 ] == $x + 1 && $_->[ 1 ] == $y + 1 } @nodes;
+				if( $a >= 0 ) {
+					my $match = $nodes[ $a ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ blue } = $match->{ blue }; }
+				}
+				if( $b >= 0 ) {
+					my $match = $nodes[ $b ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ red } = $match->{ blue }; }
+				}
+				push @nodes, [ $x, $y, $s, $advance ];
+
 			} else {
 				push @nodes, [ $x, $y, $s ];
 			}
@@ -216,7 +293,7 @@ foreach my $division (@divisions) {
 	}
 	@nodes = sort { $a->[ 0 ] <=> $b->[ 0 ] || $a->[ 1 ] <=> $b->[ 1 ] } @nodes;
 
-	my $top = ([ 600, 300, 300, 150, 0, 0, 0, 0 ]->[ $h ]) . 'px';
+	my $top = ([ 600, 300, 300, 150, 0, 0, 0, 0 ]->[ $h ]) . 'px'; # Position bracket to center of the page
 
 	# Header
 	print <<EOF;
@@ -247,6 +324,18 @@ EOF
 </div>
 </td>
 EOF
+			} elsif( $col == 1 && $row == 0 ) {
+				print "<td><div class=\"branch\"><div class=\"ld\">&nbsp;</div></div></td>";
+
+			} elsif( $col == 1 && $row == 2 ) {
+				print "<td><div class=\"branch\"><div class=\"lu\">&nbsp;</div></div></td>";
+
+			} elsif( $col == 3 && $row == 0 ) {
+				print "<td><div class=\"branch\"><div class=\"rd\">&nbsp;</div></div></td>";
+
+			} elsif( $col == 3 && $row == 2 ) {
+				print "<td><div class=\"branch\"><div class=\"ru\">&nbsp;</div></div></td>";
+
 			} else {
 				print "<td></td>";
 			}
