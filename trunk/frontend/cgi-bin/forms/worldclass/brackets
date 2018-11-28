@@ -109,6 +109,15 @@ print <<EOF;
 				border-bottom: 1px solid #333;
 				border-right: 1px solid #333;
 			}
+			
+			.branch .lud {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 50%;
+				height: 40px;
+				border-right: 1px solid #333;
+			}
 
 			.branch .rd {
 				position: absolute;
@@ -127,6 +136,15 @@ print <<EOF;
 				width: 50%;
 				height: 20px;
 				border-bottom: 1px solid #333;
+				border-left: 1px solid #333;
+			}
+
+			.branch .rud {
+				position: absolute;
+				top: 0;
+				left: 50%;
+				width: 50%;
+				height: 40px;
 				border-left: 1px solid #333;
 			}
 
@@ -193,9 +211,7 @@ foreach my $division (@divisions) {
 		$division->{ athletes }[ $j ];
 	} ( 0 .. $n );
 
-	# @athletes = map { { name => $_ } } qw( a b ); $n = $#athletes;
-	# @athletes = map { { name => $_ } } qw( a b c d e f g h i j k l m n o p ); $n = $#athletes;
-	# @athletes = map { { name => $_ } } qw( a b c d e f g h i j k l m n o p q r s t u v w x y z ); $n = $#athletes;
+	@athletes = map { { name => '' } } (0 .. 8); $n = $#athletes;
 	
 	my $half = int( $n/2 );
 	print "<div class=\"list\"><div class=\"col1\"><ol>";
@@ -220,8 +236,8 @@ foreach my $division (@divisions) {
 	}
 
 	# Render the brackets
-	my $h     = $depth - 1; # Half bracket depth
-	my $c     = $h - 1;     # Number of columns per half
+	my $h     = $depth - 1;          # Half bracket depth
+	my $c     = $h > 0 ? $h - 1 : 0; # Number of columns per half
 	my @nodes = ();
 
 	# First half of the bracket
@@ -293,7 +309,7 @@ foreach my $division (@divisions) {
 	}
 	@nodes = sort { $a->[ 0 ] <=> $b->[ 0 ] || $a->[ 1 ] <=> $b->[ 1 ] } @nodes;
 
-	my $top = ([ 600, 300, 300, 150, 0, 0, 0, 0 ]->[ $h ]) . 'px'; # Position bracket to center of the page
+	my $top = ([ 300, 300, 300, 150, 0, 0, 0, 0 ]->[ $h ]) . 'px'; # Position bracket to center of the page
 
 	# Header
 	print <<EOF;
@@ -317,35 +333,22 @@ EOF
 				my $num    = $pos->[ 2 ];
 				print <<EOF;
 <td class="match">
-<div class="match">
+<div class="match" id="match-$num">
 	<div class="match-num">$num</div>
 	<div class="blue player">$player->{ blue }{ name }</div>
 	<div class="red player">$player->{ red }{ name }</div>
 </div>
 </td>
 EOF
-			} elsif( $col == 1 && $row == 0 ) {
-				print "<td><div class=\"branch\"><div class=\"ld\">&nbsp;</div></div></td>";
-
-			} elsif( $col == 1 && $row == 2 ) {
-				print "<td><div class=\"branch\"><div class=\"lu\">&nbsp;</div></div></td>";
-
-			} elsif( $col == 3 && $row == 0 ) {
-				print "<td><div class=\"branch\"><div class=\"rd\">&nbsp;</div></div></td>";
-
-			} elsif( $col == 3 && $row == 2 ) {
-				print "<td><div class=\"branch\"><div class=\"ru\">&nbsp;</div></div></td>";
-
 			} else {
 				print "<td></td>";
 			}
 		}
 		print "</tr>\n";
 	}
-	print "</table>\n";
 
 	print <<EOF;
-	</table>
+</table>
 	</div>
 	<div class="placement">
 		<table border=0 cellpadding=0 cellspacing=0>
