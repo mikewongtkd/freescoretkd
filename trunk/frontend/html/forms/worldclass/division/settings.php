@@ -169,7 +169,7 @@
 	$( 'input[name=judges]' ).parent().click( function( ev ) {
 		var clicked = $( ev.target );
 		var judges  = parseInt( clicked.find( 'input' ).val() );
-		if( division.judges() != judges ) {
+		if( division.judges != judges ) {
 			alertify.confirm( 
 				'Shall ' + judges + ' be the default number of judges?',
 				'<b>OK:</b> The editor will default to ' + judges + ' judges today.<br><b>Cancel:</b> The editor will default to <?= $default_n ?> judges.',
