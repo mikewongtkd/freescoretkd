@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" id="settings">
 	<div class="page-header"> Import Settings</div>
 	<h1>Sport Poomsae</h1>
 	<div class="row">
@@ -17,11 +17,15 @@
 	</div>
 
 	<div class="clearfix">
-		<button type="button" id="accept" class="btn btn-success pull-right">Accept</button> 
-		<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+		<button type="button" class="accept btn btn-success pull-right">Accept</button> 
+		<button type="button" class="cancel btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 	</div>
 	<p>&nbsp;</p>
 </div>
 <script>
 	$( 'input.toggle' ).bootstrapToggle();
+	$( '#settings .accept' ).off( 'click' ).click(( ev ) => {
+		sound.next.play();
+		page.transition( 2 );
+	});
 </script>

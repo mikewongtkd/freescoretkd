@@ -42,7 +42,7 @@
 <?php
 	endif
 ?>
-<div class="container">
+<div class="container" id="upload">
 	<div class="page-header"> Import USAT Registration </div>
 	<h1>Drag &amp; Drop USAT Weight Divisions Below</h1>
 
@@ -51,8 +51,8 @@
 		<div class="file-drop-zone" id="male" action="#"><span class="fa fa-male">&nbsp;</span><br>Male<br>Division File Here</div>
 	</div>
 	<div class="clearfix">
-		<button type="button" id="upload" class="btn btn-success pull-right disabled">Accept</button> 
-		<button type="button" id="remove" class="btn btn-danger  pull-right disabled" style="margin-right: 40px;">Remove</button> 
+		<button type="button" class="accept btn btn-success pull-right disabled">Accept</button> 
+		<button type="button" class="cancel btn btn-danger  pull-right disabled" style="margin-right: 40px;">Cancel</button> 
 	</div>
 	<p>&nbsp;</p>
 </div>
@@ -117,12 +117,13 @@
 		}
 	});
 
-	$( '#upload' ).off( 'click' ).click(( ev ) => {
+	$( '#upload .accept' ).off( 'click' ).click(( ev ) => {
 		sound.next.play();
-		page.transition( 2 );
+		page.transition( 3 );
 	});
 
-	$( '#remove' ).off( 'click' ).click(( ev ) => {
+	$( '#upload .cancel' ).off( 'click' ).click(( ev ) => {
+		page.transition( 1 )
 		request = { data : { type : 'registration', action : 'remove' }};
 		request.json = JSON.stringify( request.data );
 		ws.worldclass.send( request.json );

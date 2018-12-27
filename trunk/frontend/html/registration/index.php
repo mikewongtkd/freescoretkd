@@ -60,7 +60,7 @@ var sound = {
 
 var page = {
 	num : 1,
-	transition: ( to ) => { PageTransitions.nextPage({ animation: page.animation( page.num, to )}); page.num = to; },
+	transition: ( to ) => { PageTransitions.nextPage({ animation: page.animation( page.num, to ), showPage: (to - 1) }); page.num = to; },
 	animation:  ( from, to ) => {
 		if     ( from > to ) { return 2; }
 		else if( from < to ) { return 1; }

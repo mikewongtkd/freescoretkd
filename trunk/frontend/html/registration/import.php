@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" id="import">
 	<div class="page-header">
 		<a id="back-to-upload" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Back to Upload</a>
 		<span id="page-2-title">Imported Divisions</span>
@@ -74,8 +74,8 @@
 		</div>
 	</div>
 	<div class="clearfix">
-		<button type="button" id="import" class="btn btn-success pull-right">Import</button> 
-		<button type="button" id="cancel" class="btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
+		<button type="button" class="accept btn btn-success pull-right">Accept</button> 
+		<button type="button" class="cancel btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 	</div>
 	<p>&nbsp;</p>
 
@@ -83,15 +83,20 @@
 <script>
 $( '#back-to-upload' ).off( 'click' ).click( ( ev ) => {
 	sound.prev.play();
-	page.transition( 1 );
+	page.transition( 2 );
 });
 
-$( '#import' ).off( 'click' ).click(( ev ) => {
+$( '#import .accept' ).off( 'click' ).click(( ev ) => {
 	var request;
 	request = { data : { type : 'registration', action : 'import' }};
 	request.json = JSON.stringify( request.data );
 	ws.worldclass.send( request.json );
 	ws.sparring.send( request.json );
+});
+
+$( '#import .cancel' ).off( 'click' ).click(( ev ) => {
+	sound.prev.play();
+	page.transition( 2 );
 });
 
 function sport_poomsae_division_description( s, d ) {
