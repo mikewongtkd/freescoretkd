@@ -2,7 +2,7 @@
 
 all: all-start
 
-all-start: setup-start grassroots-start worldclass-start freestyle-start
+all-start: setup-start grassroots-start worldclass-start freestyle-start sparring-start
 
 worldclass-start:
 	sudo hypnotoad -f ./bin/worldclass &
@@ -12,6 +12,9 @@ grassroots-start:
 
 freestyle-start:
 	sudo hypnotoad -f ./bin/freestyle &
+
+sparring-start:
+	sudo hypnotoad -f ./bin/sparring &
 
 setup-start:
 	sudo hypnotoad -f ./bin/fswifi &
@@ -25,7 +28,10 @@ grassroots-stop:
 freestyle-stop:
 	pkill -f 'hypnotoad -f ./bin/freestyle'
 
+sparring-stop:
+	pkill -f 'hypnotoad -f ./bin/sparring'
+
 setup-stop:
 	pkill -f 'hypnotoad -f ./bin/setup'
 
-all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop
+all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop sparring-stop

@@ -23,7 +23,16 @@
 	<p>&nbsp;</p>
 </div>
 <script>
+	var settings = {};
 	$( 'input.toggle' ).bootstrapToggle();
+	$( '#settings input' ).on( 'change', ( ev ) => {
+		let input = $( ev.target );
+		let id    = input.attr( 'id' );
+		if( input.hasClass( 'toggle' )) {
+			let val = ev.target.checked;
+			settings[ id ] = val;
+		}
+	});
 	$( '#settings .accept' ).off( 'click' ).click(( ev ) => {
 		sound.next.play();
 		page.transition( 2 );
