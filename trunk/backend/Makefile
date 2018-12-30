@@ -32,6 +32,6 @@ sparring-stop:
 	pkill -f 'hypnotoad -f ./bin/sparring'
 
 setup-stop:
-	pkill -f 'hypnotoad -f ./bin/setup'
+	pkill -f 'hypnotoad -f ./bin/fswifi'
 
 all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop sparring-stop
