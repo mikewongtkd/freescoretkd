@@ -772,10 +772,11 @@ sub handle_registration_import {
 	my $draws = $progress->{ draws };
 
 	try {
+		my $settings     = $request->{ settings };
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
 		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->world_class_poomsae();
+		my $divisions    = $registration->world_class_poomsae( $settings );
 		my $copy         = clone( $request ); delete $copy->{ data };
 
 		foreach my $subevent (keys %$divisions) {

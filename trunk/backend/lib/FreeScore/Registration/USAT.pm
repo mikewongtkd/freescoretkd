@@ -276,13 +276,16 @@ sub sparring {
 # ============================================================
 sub world_class_poomsae {
 # ============================================================
-	my $self    = shift;
-	my $poomsae = { map { $_ => $self->{ $_ } } grep { /world class/ } sort grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
-	my $count   = reduce { $a + int( keys %{ $poomsae->{ $b }}) } keys %$poomsae;
-	my $json    = new JSON::XS();
+	my $self     = shift;
+	my $settings = shift;
+	my $poomsae  = { map { $_ => $self->{ $_ } } grep { /world class/ } sort grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
+	my $count    = reduce { $a + int( keys %{ $poomsae->{ $b }}) } keys %$poomsae;
+	my $json     = new JSON::XS();
 
 	if( $count > 0 ) { return $poomsae; }
 	return $poomsae if $count;
+
+	my $min_age = $settings->{ 'youth-sport-poosmae' } ? 10 : 12;
 
 	$poomsae = { map { 
 		my $orig = $_; 
@@ -293,7 +296,7 @@ sub world_class_poomsae {
 				my $d    = $json->decode( $_ );
 				my $age  = int( $d->{ age }); 
 				my $belt = $d->{ belt };
-				$belt =~ /black/ && $age >= 10 
+				$belt =~ /black/ && $age >= $min_age;
 			} keys %{$self->{ $_ }} 
 		}} sort grep { !/(?:sparring|breaking|demonstration team|freestyle|para)/i } keys %$self };
 }
