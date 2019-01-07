@@ -71,6 +71,7 @@
 
 				<div class="register" id="registration">
 					<a class="btn btn-primary config" id="registration"  href="registration/index.php"> Import USAT Registration </a>
+					<a class="btn btn-primary config" id="update"  href="update.php"> Check for Software Updates </a>
 				</div>
 			</div>
 
