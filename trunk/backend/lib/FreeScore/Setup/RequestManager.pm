@@ -10,6 +10,7 @@ use List::Util (qw( first ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use Date::Manip;
 use Clone qw( clone );
 
 our $DEBUG = 0;
@@ -65,13 +66,34 @@ sub handle_software_check_updates {
 	my $client  = $self->{ _client };
 
 	try {
-		my $repo    = new FreeScore::Repository();
-		my $latest  = $repo->latest_release();
-		my $current = $repo->local_version();
-		my $update  = $current < $latest;
+		my $repo     = new FreeScore::Repository();
+		my $logs     = $repo->log();
+		my $hash     = $repo->installed_version();
+		my $current  = (grep { $_->{ hash } eq $hash } @$logs)[ 0 ];
+		my $latest   = $logs[ -1 ];
 
-		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update, version => $latest, current => $current  }});
+		$_->{ date } = new Date::Manip::Date( $_->{ date }) foreach ( $current, $latest );
+		my $update   = ($latest->{ date }->cmp( $current->{ date })) > 0;
 
+		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update, version => $latest, current => $current, revisions => $logs }});
+
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_software_rollback {
+# ============================================================
+	my $self    = shift;
+	my $request = shift;
+	my $setup   = shift;
+	my $clients = shift;
+	my $client  = $self->{ _client };
+
+	try {
+		my $repo = new FreeScore::Repository();
+		$repo->install_revision( $request->{ hash });
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -88,7 +110,7 @@ sub handle_software_update {
 
 	try {
 		my $repo = new FreeScore::Repository();
-		$repo->update_local_to_latest();
+		$repo->install_latest();
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

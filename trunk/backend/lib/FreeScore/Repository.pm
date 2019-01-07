@@ -19,52 +19,70 @@ sub init {
 
 	my $pi    = "/home/pi/freescore/trunk";
 	my $devel = "~/devel/freescore/trunk";
+	my $local = `pwd` . "/freescore/trunk";
 
-	$self->{ _local } = -e $pi ? $pi : $devel;
+	($self->{ _local }) = grep { -e $_ } ( $pi, $local, $devel );
 }
 
 # ============================================================
-sub latest_release {
+sub log {
 # ============================================================
 	my $self     = shift;
-	my $response = `git ls-remote --tags $self->{ _url } 2>&1`;
+	my $response = `cd $self->{ _local } && git fetch --all && git log 2>&1`;
 
 	if( $response =~ /\bfatal\b/ ) { chomp $response; die "Network error \"$response\"$!" ; }
 
-	my @versions = split /\n/, $response;
-
-	@versions = sort { $b <=> $a } map { 
+	# Parse the log
+	my @lines = split /\n/, $response;
+	my $log   = [];
+	my $entry = undef;
+	local $_;
+	foreach $_ (@lines) {
 		chomp;
-		my ($hash, $tag) = split /\t/;
-		$tag =~ s/^.*\/v//;
-		$tag =~ /^(\d+\.\d+)$/ ? $1 : ();
-	} @versions;
+		if      ( /^commit\s(\w+)/ ) {
+			my $hash = $1;
+			push @$log, $entry if( defined $entry );
+			$entry = { hash => $hash };
 
-	my $latest = shift @versions;
+		} elsif ( /^Date:\s+(\w[\w\s\-:]+)/ ) {
+			my $date = $1;
 
-	return $latest;
+			$entry->{ datetime } = $date;
+		}
+	}
+	push @$log, $entry;
+
+	return $log;
 }
 
 # ============================================================
-sub local_version {
+sub installed_version {
 # ============================================================
 	$self        = shift;
-	my $response = `cd $self->{ _local } && git describe --tags --abbrev=0 2>&1`;
+	my $response = `cd $self->{ _local } && git rev-parse HEAD`;
 
 	chomp $response;
 	if( $response =~ /\bfatal\b/ ) { die "Error: \"$response\"$!"; }
 
-	$response =~ s/^v//;
 	return $response;
 }
 
 # ============================================================
-sub update_local_to_latest {
+sub install_latest {
 # ============================================================
 	my $self   = shift;
 
-	my $latest   = $self->latest_release();
-	my $response = `cd $self->{ _local } && git pull +ref/tags/v$latest 2>&1`;
+	my $response = `cd $self->{ _local } && git pull 2>&1`;
+	if( $response =~ /\bfatal\b/ ) { chomp $response; die "Error: \"$response\"$!"; }
+}
+
+# ============================================================
+sub install_revision {
+# ============================================================
+	my $self = shift;
+	my $hash = shift;
+
+	my $response = `cd $self->{ _local } && git reset --hard $hash 2>&1`;
 	if( $response =~ /\bfatal\b/ ) { chomp $response; die "Error: \"$response\"$!"; }
 }
 
