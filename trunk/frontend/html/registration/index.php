@@ -22,13 +22,6 @@
 		<script src="../include/js/freescore.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<style type="text/css">
-			.file-drop-zone {
-				height: 200px;
-				border: 3px dashed #17a2b8;
-				border-radius: 8px;
-			}
-		</style>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">

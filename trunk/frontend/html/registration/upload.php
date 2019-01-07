@@ -48,11 +48,11 @@
 
 	<div class="drop-zones">
 		<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Division File Here</div>
-		<div class="file-drop-zone" id="male" action="#"><span class="fa fa-male">&nbsp;</span><br>Male<br>Division File Here</div>
+		<div class="file-drop-zone" id="male"   action="#"><span class="fa fa-male"  >&nbsp;</span><br>Male<br>Division File Here</div>
 	</div>
 	<div class="clearfix">
 		<button type="button" class="accept btn btn-success pull-right disabled">Accept</button> 
-		<button type="button" class="cancel btn btn-danger  pull-right disabled" style="margin-right: 40px;">Cancel</button> 
+		<button type="button" class="cancel btn btn-danger  pull-right" style="margin-right: 40px;">Cancel</button> 
 	</div>
 	<p>&nbsp;</p>
 </div>
@@ -61,10 +61,10 @@
 	var imported     = { poomsae: false, sparring: false };
 	var dropzone     = { 
 		disable: ( target ) => {
-			$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+			$( '#' + target ).addClass( 'file-uploaded' ).removeClass( 'file-drop-zone' ).html( '<span class="fa fa-' + target + '">&nbsp;</span>' + target.capitalize() + '<br>File Uploaded' );
 		},
 		enable: ( target ) => {
-			$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
+			$( '#' + target ).addClass( 'file-drop-zone' ).removeClass( 'file-uploaded' ).html( '<span class="fa fa-' + target + '">&nbsp;</span>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
 		}
 	};
 

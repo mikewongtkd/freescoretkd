@@ -74,7 +74,7 @@ label.disabled {
 
 .drop-zones {
   clear: both; }
-  .drop-zones .file-drop-zone {
+  .drop-zones .file-uploaded, .drop-zones .file-drop-zone {
     text-align: center;
     padding-top: 12px;
     font-size: 36px;
@@ -83,6 +83,9 @@ label.disabled {
     float: left;
     padding: 12px;
     margin: 2.5%; }
+  .drop-zones .file-drop-zone {
+    border: 3px dashed #17a2b8;
+    border-radius: 8px; }
 
 .panel-body table {
   width: 100%; }
