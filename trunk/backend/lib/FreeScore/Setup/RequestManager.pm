@@ -32,6 +32,7 @@ sub init {
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ software }    = {
+		connect_to_repo    => \&handle_software_connect_to_repo,
 		check_updates      => \&handle_software_check_updates,
 		update             => \&handle_software_update
 	};
@@ -77,6 +78,27 @@ sub handle_software_check_updates {
 
 		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update, version => $latest, current => $current, revisions => $logs }});
 
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_software_connect_to_repo {
+# ============================================================
+	my $self    = shift;
+	my $request = shift;
+	my $setup   = shift;
+	my $clients = shift;
+	my $client  = $self->{ _client };
+
+	try {
+		my $repo = new FreeScore::Repository();
+		if( $repo->connect()) {
+			$client->send( { json => { type => $request->{ type }, action => 'connect_to_repo', connected => 1 }});
+		} else {
+			$client->send( { json => { type => $request->{ type }, action => 'connect_to_repo', connected => 0 }});
+		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

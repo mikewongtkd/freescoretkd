@@ -46,21 +46,27 @@
 				<h1>FreeScore Software Updates</h1>
 			</div>
 
-			<form>
-				<div class="panel panel-primary" id="fs-updates">
-					<div class="panel-heading">
-						<h1 class="panel-title">Check for Software Updates</h1>
-					</div>
-					<div class="panel-body">
-						<button class="btn btn-warning" id="check-updates">Check for Software Updates</button>
-						<button class="btn btn-success" id="install-updates">Install Updates</button>
+			<div class="panel panel-primary" id="fs-updates">
+				<div class="panel-heading">
+					<h1 class="panel-title">Software Updates</h1>
+				</div>
+				<div class="panel-body">
+					<div style="float: left;"><img src="images/help/rpi-eth0.png" style="width: 200px; border-radius: 8px; margin-right: 40px;"></div>
+					<div style="float: left;">
+						<p>To check for updates, the Raspberry Pi must be connected to the Internet.</p>
+						<ul>
+							<li>Please connect an internet-enabled ethernet cable to the Raspberry Pi as shown.</li>
+							<li>Wait 10-15 seconds for the network to connect.</li>
+							<li>Click on <i>Check for Updates</i> button below.</li>
+						</ul>
+						<button class="btn btn-warning disabled" id="updates">Check for Updates</button>
 					</div>
 				</div>
+			</div>
 
-				<div class="clearfix">
-					<button type="button" id="cancel" class="btn btn-danger">Cancel</button> 
-				</div>
-			</form>
+			<div class="clearfix">
+				<button type="button" id="cancel" class="btn btn-danger">Cancel</button> 
+			</div>
 		</div>
 		<script>
 
@@ -72,30 +78,43 @@ var sound = {
 
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
+var mode       = 'connect';
+var attempts   = 0;
 
 // ===== SET TOURNAMENT CONFIGURATION FORM
 $( '#cancel' ).off( 'click' ).click(() => { 
 	sound.next.play();
-	setTimeout( function() { window.location = 'index.php' }, 500 ); 
+	// setTimeout( function() { window.location = 'index.php' }, 500 ); 
 });
 $( '#accept' ).off( 'click' ).click(() => { 
 });
 
 // ===== SOFTWARE UPDATES
-$( '#install-updates' ).off( 'click' ).click(() => {
-	var request = { data : { type : 'software', action : 'update' }};
-	request.json = JSON.stringify( request.data );
-	ws.send( request.json );
-	sound.confirmed.play();
+$( '#updates' ).off( 'click' ).click(() => {
+	var request;
+
+	if(        mode == 'connected' ) {
+		console.log( 'Checking for updates' );
+		request = { data : { type : 'software', action : 'check updates' }};
+		request.json = JSON.stringify( request.data );
+		ws.send( request.json );
+		sound.confirmed.play();
+
+	} else if( mode == 'updates-found' ) {
+		console.log( 'Installing updates' );
+		request = { data : { type : 'software', action : 'update' }};
+		request.json = JSON.stringify( request.data );
+		ws.send( request.json );
+		sound.confirmed.play();
+	}
 });
 
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
 
 ws.onopen = function() {
-	var request;
 
-	request = { data : { type : 'software', action : 'check updates' }};
+	var request = { data : { type : 'software', action : 'connect to repo' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 };
@@ -104,7 +123,27 @@ ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( update );
 	if( update.type == 'software' ) {
-		if( update.available ) { $( '#fs-updates' ).fadeIn(); }
+		if( update.action == 'connect_to_repo' ) {
+			if( update.connected ) {
+				alertify.success( "Network detected!<br>Click on <i>Check for Updates</i> button to check for updates." );
+				$( '#updates' ).removeClass( 'disabled' );
+				mode = 'connected';
+			} else {
+				if( attempts < 5 ) {
+					attempts++;
+					alertify.error( "No network detected; please plug in the ethernet cable" );
+					setTimeout( () => {
+						var request = { data : { type : 'software', action : 'connect_to_repo' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+					}, 10000 );
+
+				} else {
+					alertify.error( "Can't connect to software server. Ethernet cable not connected to internet." );
+				}
+			}
+		} else if( update.action == 'updates' ) {
+		}
 	}
 };
 

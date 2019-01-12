@@ -1,5 +1,6 @@
 package FreeScore::Repository;
 use Data::Dumper;
+use Cwd qw( getcwd );
 
 # ============================================================
 sub new {
@@ -17,34 +18,73 @@ sub init {
 
 	$self->{ _url } = "https://github.com/mikewongtkd/freescoretkd.git";
 
-	my $pi    = "/home/pi/freescore/trunk";
-	my $devel = "~/devel/freescore/trunk";
-	my $local = `pwd` . "/freescore/trunk";
+	my $cwd    = getcwd();
+	my $pi     = "/home/pi/freescore/trunk";
+	my $devel  = "~/devel/freescore/trunk";
+	my $local0 = "$cwd/freescore/trunk";
+	my $local1 = "$cwd/../freescore/trunk";
+	my $local2 = "$cwd/../../freescore/trunk";
+	my $local3 = "$cwd/../../../freescore/trunk";
 
-	($self->{ _local }) = grep { -e $_ } ( $pi, $local, $devel );
+	($self->{ _local }) = grep { -e $_ } ( $pi, $local0, $local1, $local2, $local3, $devel );
+}
+
+# ============================================================
+sub connect {
+# ============================================================
+	my $self    = shift;
+	my $network = '/etc/network/interfaces';
+
+	my $can_connect = sub {
+		`ping -c 1 github.com > /dev/null`;
+		return $? ? 0 : 1;
+	};
+
+	return $can_connect->() if( ! -e $network);
+
+	my $wap = {
+		rpi  => `grep wlan $network | grep static`,
+		eth0 => `grep eth0 $network | grep static`
+	};
+
+	# Is the Raspberry Pi is the Wifi Access Point
+	if( $wap->{ rpi }) { return $can_connect->(); }
+
+	# Nope, and the Wifi Access Point isn't on eth0 either
+	elsif( ! $wap->{ eth0 }) { return 0; }
+
+	`ifdown eth0`;
+	`cp $network $network.fswifi`;
+	open FILE, ">$network" or die "Can't write to '/etc/network/interfaces' to go to update mode";
+
+	return 0;
+}
+
+# ============================================================
+sub disconnect {
+# ============================================================
+	my $self = shift;
 }
 
 # ============================================================
 sub log {
 # ============================================================
-	my $self     = shift;
-	my $response = `cd $self->{ _local } && git fetch --all && git log 2>&1`;
-
-	if( $response =~ /\bfatal\b/ ) { chomp $response; die "Network error \"$response\"$!" ; }
+	my $self = shift;
+	system( "cd $self->{ _local } && git fetch --all" );
+	my $response = `cd $self->{ _local } && git log 2>&1`;
 
 	# Parse the log
 	my @lines = split /\n/, $response;
 	my $log   = [];
 	my $entry = undef;
-	local $_;
-	foreach $_ (@lines) {
-		chomp;
-		if      ( /^commit\s(\w+)/ ) {
+	foreach $line (@lines) {
+		chomp $line;
+		if      ( $line =~ /^commit\s(\w+)/ ) {
 			my $hash = $1;
 			push @$log, $entry if( defined $entry );
 			$entry = { hash => $hash };
 
-		} elsif ( /^Date:\s+(\w[\w\s\-:]+)/ ) {
+		} elsif ( $line =~ /^Date:\s+(\w[\w\s\-:]+)/ ) {
 			my $date = $1;
 
 			$entry->{ datetime } = $date;
