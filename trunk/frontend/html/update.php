@@ -35,6 +35,9 @@
 				height: 300px;
 				overflow-x: auto;
 			}
+			#instructions a {
+				width: 360px;
+			}
 			#instructions .version {
 				display: inline-block;
 				width: 80px;
