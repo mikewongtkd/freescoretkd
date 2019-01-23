@@ -70,21 +70,41 @@ sub disconnect {
 # ============================================================
 sub log {
 # ============================================================
-	my $self = shift;
+	my $self     = shift;
+	my $response = undef;
+	my @lines    = ();
+
+	# ===== GET VERSIONS
+	$response = `cd $self->{ _local } \&\& git ls-remote --tags`;
+	@lines    = split /\n/, $response;
+	my $tags  = {};
+
+	# Parse the versions
+	foreach $line (@lines) {
+		chomp $line;
+		my ($hash, $version) = split /\s+/, $line;
+		$version =~ s/^refs\/tags\///;
+		$tags->{ $hash } = $version;
+	}
+
+	# ===== GET PATCHES
 	system( "cd $self->{ _local } \&\& git fetch --all 2>\&1" );
-	my $response = `cd $self->{ _local } \&\& git log origin/HEAD`;
+	$response = `cd $self->{ _local } \&\& git log origin/HEAD`;
+	@lines    = split /\n/, $response;
 
 	# Parse the log
-	my @lines = split /\n/, $response;
-	my $log   = [];
-	my $entry = undef;
-	my $old   = new Date::Manip::Date( '-6 months' );
+	my $log     = [];
+	my $entry   = undef;
+	my $old     = new Date::Manip::Date( '-6 months' );
+	my $current = '1.0';
 	foreach $line (@lines) {
 		chomp $line;
 		if      ( $line =~ /^commit\s(\w+)/ ) {
 			my $hash = $1;
 			push @$log, $entry if( defined $entry );
 			$entry = { hash => $hash };
+			$entry->{ tag } = $tags->{ $hash } if( exists $tags->{ $hash });
+			print STDERR "$hash\n";
 
 		} elsif ( $line =~ /^Date:\s+(\w[\w\s\-:]+)/ ) {
 			my $date = $1;

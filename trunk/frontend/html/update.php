@@ -35,6 +35,14 @@
 				height: 300px;
 				overflow-x: auto;
 			}
+			#instructions .version {
+				display: inline-block;
+				width: 80px;
+			}
+			#instructions .date {
+				display: inline-block;
+				width: 200px;
+			}
 		</style>
 	</head>
 	<body>
@@ -107,6 +115,10 @@ ws.onopen = function() {
 	ws.send( request.json );
 };
 
+ws.onerror = function() {
+	alertify.error( "FreeScore Setup system failed to start" );
+};
+
 ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( update );
@@ -148,7 +160,8 @@ ws.onmessage = function( response ) {
 				$( '#instructions' ).append( '<ul class="list-group">' );
 				update.revisions.forEach(( revision ) => {
 					if( revision.hash == update.current.hash ) { return; }
-					$( '#instructions' ).append( '<a class="list-group-item list-group-item-primary" data-datetime="' + revision.datetime + '" data-hash="' + revision.hash + '">' + revision.datetime + '</a>' );
+					var version = defined( revision.tag ) ? revision.tag : 'Patch';
+					$( '#instructions' ).append( '<a class="list-group-item list-group-item-primary" data-datetime="' + revision.datetime + '" data-hash="' + revision.hash + '"><div class="version">' + version + '</div><div class="date">' + revision.datetime + '</div></a>' );
 				});
 				$( '#instructions' ).append( '</ul>' );
 				$( '#instructions a' ).off( 'click' ).click(( ev ) => {
