@@ -117,6 +117,7 @@ sub handle_software_update {
 	try {
 		my $repo = new FreeScore::Repository();
 		$repo->install_revision( $request->{ hash });
+		$client->send( { json => { type => $request->{ type }, action => 'update', hash => $request->{ hash }, datetime => $request->{ datetime } }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

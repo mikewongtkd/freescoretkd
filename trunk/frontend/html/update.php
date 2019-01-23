@@ -85,8 +85,6 @@ $( '#cancel' ).off( 'click' ).click(() => {
 	sound.next.play();
 	setTimeout( function() { window.location = 'index.php' }, 500 ); 
 });
-$( '#accept' ).off( 'click' ).click(() => { 
-});
 
 // ===== SOFTWARE UPDATES
 $( '#updates' ).off( 'click' ).click(() => {
@@ -165,6 +163,10 @@ ws.onmessage = function( response ) {
 				});
 				$( '#updates' ).html( 'Install previous version' ).addClass( 'btn-primary' ).removeClass( 'btn-success' );
 			}
+		} else if( update.action == 'update' ) {
+			alertify.success( 'Version dated ' + update.datetime + ' installed!' );
+			sound.next.play();
+			setTimeout( function() { window.location = 'index.php' }, 750 ); 
 		}
 	}
 };
