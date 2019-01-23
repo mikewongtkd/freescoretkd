@@ -463,7 +463,7 @@ ws.worldclass.onmessage = ( response ) => {
 			imported.poomsae = true;
 			if( imported.poomsae && imported.sparring ) {
 				var request;
-				request = { data : { type : 'registration', action : 'clear' }};
+				request = { data : { type : 'registration', action : 'remove' }};
 				request.json = JSON.stringify( request.data );
 				ws.worldclass.send( request.json );
 			}
@@ -471,7 +471,7 @@ ws.worldclass.onmessage = ( response ) => {
 			alertify.error( 'Import failed for World Class Poomsae' );
 			sound.warning.play();
 		}
-	} else if( update.request.action == 'clear' ) {
+	} else if( update.request.action == 'remove' ) {
 		if( update.result == 'success' ) {
 			sound.send.play();
 			setTimeout(() => { window.location = 'index.php'; }, 750 );

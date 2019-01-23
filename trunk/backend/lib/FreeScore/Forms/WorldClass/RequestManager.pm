@@ -898,12 +898,17 @@ sub handle_registration_remove {
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
 	try {
-		my $female       = "$path/registration.female.txt";
-		my $male         = "$path/registration.male.txt";
+		my $female = "$path/registration.female.txt";
+		my $male   = "$path/registration.male.txt";
+		my $copy   = clone( $request );
+
 		unlink $female;
 		unlink $male;
+		$copy->{ action } = 'remove';
 
-		$client->send({ json => { type => 'registration', action => 'remove', result => "Division files removed" }});
+		my $result = -e $female || -e $male ? 'failed' : 'success';
+
+		$client->send({ json => { request => $copy, type => 'registration', action => 'remove', result => $result }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
