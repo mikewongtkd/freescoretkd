@@ -72,7 +72,7 @@ sub log {
 # ============================================================
 	my $self = shift;
 	system( "cd $self->{ _local } \&\& git fetch --all 2>\&1" );
-	my $response = `cd $self->{ _local } \&\& git log`;
+	my $response = `cd $self->{ _local } \&\& git log origin/HEAD`;
 
 	# Parse the log
 	my @lines = split /\n/, $response;

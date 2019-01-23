@@ -141,9 +141,9 @@ ws.onmessage = function( response ) {
 		} else if( update.action == 'updates' ) {
 			if( defined( message.checking )) { message.checking.dismiss(); }
 			if( update.available ) {
-				$( '#instructions' ).html( "<h3>Updates Available</h3>" )
+				selected.revision = update.version;
+				$( '#instructions' ).html( "<h3>Updates Available</h3><p>Version dated " + selected.revision.datetime + " available to install</p>" );
 				$( '#updates' ).html( 'Install Updates' ).removeClass( 'disabled btn-primary' ).addClass( 'btn-success' );
-				selected.revision = update.latest;
 			} else {
 				$( '#instructions' ).html( "<h3>No Updates Available</h3>" )
 				$( '#instructions' ).append( "<p>You can install older versions of FreeScore by clicking on the <i>Install previous version</i> button.</p>" );
