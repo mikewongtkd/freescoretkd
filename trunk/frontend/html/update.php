@@ -83,7 +83,7 @@ var selected   = { 'revision' : undefined };
 // ===== SET TOURNAMENT CONFIGURATION FORM
 $( '#cancel' ).off( 'click' ).click(() => { 
 	sound.next.play();
-	// setTimeout( function() { window.location = 'index.php' }, 500 ); 
+	setTimeout( function() { window.location = 'index.php' }, 500 ); 
 });
 $( '#accept' ).off( 'click' ).click(() => { 
 });
