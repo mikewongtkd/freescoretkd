@@ -31,12 +31,9 @@
 				background-color: #77b300;
 				border-color: #558000;
 			}
-			.pill {
-				padding: 4px;
-				border-radius: 4px;
-			}
-			label.disabled {
-				pointer-events: none;
+			#instructions {
+				height: 300px;
+				overflow-x: auto;
 			}
 		</style>
 	</head>
@@ -51,21 +48,21 @@
 					<h1 class="panel-title">Software Updates</h1>
 				</div>
 				<div class="panel-body">
-					<div style="float: left;"><img src="images/help/rpi-eth0.png" style="width: 200px; border-radius: 8px; margin-right: 40px;"></div>
-					<div style="float: left;">
-						<p>To check for updates, the Raspberry Pi must be connected to the Internet.</p>
-						<ul>
-							<li>Please connect an internet-enabled ethernet cable to the Raspberry Pi as shown.</li>
-							<li>Wait 10-15 seconds for the network to connect.</li>
-							<li>Click on <i>Check for Updates</i> button below.</li>
-						</ul>
-						<button class="btn btn-warning disabled" id="updates">Check for Updates</button>
+					<div>
+						<div class="row">
+							<div class="col-lg-3"><img id="instructions-image" src="images/help/rpi-eth0.png" style="width: 200px;"></div>
+							<div class="col-lg-9" id="instructions">
+								<p>To check for updates, the Raspberry Pi must be connected to the Internet.</p>
+								<ul>
+									<li>Please connect an internet-enabled ethernet cable to the Raspberry Pi as shown.</li>
+									<li>Wait 10-15 seconds for the network to connect.</li>
+								</ul>
+							</div>
+						</div>
 					</div>
+					<button type="button" id="cancel" class="btn btn-danger pull-right">Cancel</button> 
+					<button class="btn btn-success disabled pull-right" id="updates" style="margin-right: 20px;">Install Updates</button>
 				</div>
-			</div>
-
-			<div class="clearfix">
-				<button type="button" id="cancel" class="btn btn-danger">Cancel</button> 
 			</div>
 		</div>
 		<script>
@@ -80,6 +77,8 @@ var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var mode       = 'connect';
 var attempts   = 0;
+var message    = { 'checking' : undefined };
+var selected   = { 'revision' : undefined };
 
 // ===== SET TOURNAMENT CONFIGURATION FORM
 $( '#cancel' ).off( 'click' ).click(() => { 
@@ -92,27 +91,18 @@ $( '#accept' ).off( 'click' ).click(() => {
 // ===== SOFTWARE UPDATES
 $( '#updates' ).off( 'click' ).click(() => {
 	var request;
-
-	if(        mode == 'connected' ) {
-		console.log( 'Checking for updates' );
-		request = { data : { type : 'software', action : 'check updates' }};
-		request.json = JSON.stringify( request.data );
-		ws.send( request.json );
-		sound.confirmed.play();
-
-	} else if( mode == 'updates-found' ) {
-		console.log( 'Installing updates' );
-		request = { data : { type : 'software', action : 'update' }};
-		request.json = JSON.stringify( request.data );
-		ws.send( request.json );
-		sound.confirmed.play();
-	}
+	alertify.message( 'Installing update' );
+	sound.confirmed.play();
+	request = { data : { type : 'software', action : 'update', 'hash' : selected.revision.hash, 'datetime': selected.revision.datetime }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
 });
 
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
 
 ws.onopen = function() {
+	$( '#instructions' ).append( "<p>Detecting network.</p>" );
 
 	var request = { data : { type : 'software', action : 'connect to repo' }};
 	request.json = JSON.stringify( request.data );
@@ -125,13 +115,19 @@ ws.onmessage = function( response ) {
 	if( update.type == 'software' ) {
 		if( update.action == 'connect_to_repo' ) {
 			if( update.connected ) {
-				alertify.success( "Network detected!<br>Click on <i>Check for Updates</i> button to check for updates." );
-				$( '#updates' ).removeClass( 'disabled' );
-				mode = 'connected';
+				$( '#instructions' ).append( "<p>Network detected!</p>" );
+
+				setTimeout( () => {
+					$( '#instructions' ).append( "<p>Checking for updates.</p>" );
+					var request = { data : { type : 'software', action : 'check updates' }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+				}, 500 );
+
 			} else {
 				if( attempts < 5 ) {
 					attempts++;
-					alertify.error( "No network detected; please plug in the ethernet cable" );
+					alertify.error( "No network detected; please plug in the ethernet cable." + (attempts > 1 ? '<br>' + attempts + ' out of 5 attempts.' : ''));
 					setTimeout( () => {
 						var request = { data : { type : 'software', action : 'connect_to_repo' }};
 						request.json = JSON.stringify( request.data );
@@ -143,6 +139,32 @@ ws.onmessage = function( response ) {
 				}
 			}
 		} else if( update.action == 'updates' ) {
+			if( defined( message.checking )) { message.checking.dismiss(); }
+			if( update.available ) {
+				$( '#instructions' ).html( "<h3>Updates Available</h3>" )
+				$( '#updates' ).html( 'Install Updates' ).removeClass( 'disabled btn-primary' ).addClass( 'btn-success' );
+				selected.revision = update.latest;
+			} else {
+				$( '#instructions' ).html( "<h3>No Updates Available</h3>" )
+				$( '#instructions' ).append( "<p>You can install older versions of FreeScore by clicking on the <i>Install previous version</i> button.</p>" );
+				$( '#instructions' ).append( '<ul class="list-group">' );
+				update.revisions.forEach(( revision ) => {
+					if( revision.hash == update.current.hash ) { return; }
+					$( '#instructions' ).append( '<a class="list-group-item list-group-item-primary" data-datetime="' + revision.datetime + '" data-hash="' + revision.hash + '">' + revision.datetime + '</a>' );
+				});
+				$( '#instructions' ).append( '</ul>' );
+				$( '#instructions a' ).off( 'click' ).click(( ev ) => {
+					var target   = $( ev.target );
+					var hash     = target.attr( 'data-hash' );
+					var datetime = target.attr( 'data-datetime' );
+					target.siblings().removeClass( 'active' );
+					target.addClass( 'active' );
+					selected.revision = { hash: hash, datetime: datetime };
+					console.log( 'Selecting ' + target.text() + ', (' + selected.revision + ')' );
+					$( '#updates' ).html( 'Install revision dated ' + datetime ).removeClass( 'disabled' );
+				});
+				$( '#updates' ).html( 'Install previous version' ).addClass( 'btn-primary' ).removeClass( 'btn-success' );
+			}
 		}
 	}
 };

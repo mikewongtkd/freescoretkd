@@ -6,14 +6,14 @@ use FreeScore::Repository;
 use FreeScore::Tournament;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
-use List::Util (qw( first ));
+use List::Util (qw( first uniq ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
 use Clone qw( clone );
 
-our $DEBUG = 0;
+our $DEBUG = 1;
 
 # ============================================================
 sub new {
@@ -71,10 +71,11 @@ sub handle_software_check_updates {
 		my $logs     = $repo->log();
 		my $hash     = $repo->installed_version();
 		my $current  = (grep { $_->{ hash } eq $hash } @$logs)[ 0 ];
-		my $latest   = $logs[ -1 ];
+		my $latest   = $logs->[ 0 ];
 
-		$_->{ date } = new Date::Manip::Date( $_->{ date }) foreach ( $current, $latest );
-		my $update   = ($latest->{ date }->cmp( $current->{ date })) > 0;
+		print STDERR int( @$logs ) . " versions found.\n" if $DEBUG;
+		my $update   = ($latest->{ datetime }->cmp( $current->{ datetime })) > 0 ? 1 : 0;
+		$_->{ datetime } = $_->{ datetime }->printf( '%a %h %e, %Y, %i:%M %p' ) foreach uniq (@$logs);
 
 		$client->send( { json => { type => $request->{ type }, action => 'updates', available => $update, version => $latest, current => $current, revisions => $logs }});
 
@@ -105,23 +106,6 @@ sub handle_software_connect_to_repo {
 }
 
 # ============================================================
-sub handle_software_rollback {
-# ============================================================
-	my $self    = shift;
-	my $request = shift;
-	my $setup   = shift;
-	my $clients = shift;
-	my $client  = $self->{ _client };
-
-	try {
-		my $repo = new FreeScore::Repository();
-		$repo->install_revision( $request->{ hash });
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
 sub handle_software_update {
 # ============================================================
 	my $self    = shift;
@@ -132,7 +116,7 @@ sub handle_software_update {
 
 	try {
 		my $repo = new FreeScore::Repository();
-		$repo->install_latest();
+		$repo->install_revision( $request->{ hash });
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

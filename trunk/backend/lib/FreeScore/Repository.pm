@@ -1,5 +1,6 @@
 package FreeScore::Repository;
 use Data::Dumper;
+use Date::Manip;
 use Cwd qw( getcwd );
 
 # ============================================================
@@ -70,13 +71,14 @@ sub disconnect {
 sub log {
 # ============================================================
 	my $self = shift;
-	system( "cd $self->{ _local } && git fetch --all" );
-	my $response = `cd $self->{ _local } && git log 2>&1`;
+	system( "cd $self->{ _local } \&\& git fetch --all 2>\&1" );
+	my $response = `cd $self->{ _local } \&\& git log`;
 
 	# Parse the log
 	my @lines = split /\n/, $response;
 	my $log   = [];
 	my $entry = undef;
+	my $old   = new Date::Manip::Date( '-6 months' );
 	foreach $line (@lines) {
 		chomp $line;
 		if      ( $line =~ /^commit\s(\w+)/ ) {
@@ -87,10 +89,10 @@ sub log {
 		} elsif ( $line =~ /^Date:\s+(\w[\w\s\-:]+)/ ) {
 			my $date = $1;
 
-			$entry->{ datetime } = $date;
+			$entry->{ datetime } = new Date::Manip::Date( $date );
+			last if( @$log > 5 && $entry->{ datetime }->cmp( $old ) < 0 ); # Always show the latest 5 versions
 		}
 	}
-	push @$log, $entry;
 
 	return $log;
 }
