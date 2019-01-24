@@ -93,25 +93,47 @@ sub log {
 	@lines    = split /\n/, $response;
 
 	# Parse the log
-	my $log     = [];
+	my @logs    = ();
 	my $entry   = undef;
-	my $old     = new Date::Manip::Date( '-6 months' );
-	my $current = '1.0';
+	my $old     = new Date::Manip::Date( '-3 months' );
 	foreach $line (@lines) {
 		chomp $line;
 		if      ( $line =~ /^commit\s(\w+)/ ) {
 			my $hash = $1;
-			push @$log, $entry if( defined $entry );
+			push @logs, $entry if( defined $entry );
 			$entry = { hash => $hash };
 			$entry->{ tag } = $tags->{ $hash } if( exists $tags->{ $hash });
-			print STDERR "$hash\n";
 
 		} elsif ( $line =~ /^Date:\s+(\w[\w\s\-:]+)/ ) {
 			my $date = $1;
-
-			$entry->{ datetime } = new Date::Manip::Date( $date );
-			last if( @$log > 5 && $entry->{ datetime }->cmp( $old ) < 0 ); # Always show the latest 5 versions
+			$entry->{ datetime } = $date;
 		}
+	}
+
+	# Assign version and patch numbers
+	my $current = '1.0';
+	my $patch   = 0;
+	foreach my $log (reverse @logs) {
+		if( ! exists $log->{ tag }) {
+			$log->{ tag }   = $current;
+			$log->{ patch } = $patch;
+			$patch++;
+		} else {
+			$current = $log->{ tag };
+			$patch   = 0;
+			$log->{ tag }   = $current;
+			$log->{ patch } = $patch;
+			$patch++;
+		}
+	}
+
+	# Take the top 10 and/or last 3 months
+	my $log = [];
+	while( @logs ) {
+		my $entry = shift @logs;
+		$entry->{ datetime } = new Date::Manip::Date( $entry->{ datetime });
+		push @$log, $entry;
+		last if( $entry->{ datetime }->cmp( $old ) < 0 && @$log > 10);
 	}
 
 	return $log;

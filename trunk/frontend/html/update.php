@@ -163,19 +163,19 @@ ws.onmessage = function( response ) {
 				$( '#instructions' ).append( '<ul class="list-group">' );
 				update.revisions.forEach(( revision ) => {
 					if( revision.hash == update.current.hash ) { return; }
-					var version = defined( revision.tag ) ? revision.tag : 'Patch';
-					$( '#instructions' ).append( '<a class="list-group-item list-group-item-primary" data-datetime="' + revision.datetime + '" data-hash="' + revision.hash + '"><div class="version">' + version + '</div><div class="date">' + revision.datetime + '</div></a>' );
+					$( '#instructions' ).append( '<a class="list-group-item list-group-item-primary" data-version="' + revision.tag + '.' + revision.patch + '" data-datetime="' + revision.datetime + '" data-hash="' + revision.hash + '"><div class="version">' + revision.tag + '.' + revision.patch + '</div> <div class="date">' + revision.datetime + '</div></a>' );
 				});
 				$( '#instructions' ).append( '</ul>' );
 				$( '#instructions a' ).off( 'click' ).click(( ev ) => {
-					var target   = $( ev.target );
+					var target   = $( ev.target ); if( ! target.hasClass( 'list-group-item' )) { target = target.parent(); }
 					var hash     = target.attr( 'data-hash' );
 					var datetime = target.attr( 'data-datetime' );
+					var version  = target.attr( 'data-version' );
 					target.siblings().removeClass( 'active' );
 					target.addClass( 'active' );
-					selected.revision = { hash: hash, datetime: datetime };
-					console.log( 'Selecting ' + target.text() + ', (' + selected.revision + ')' );
-					$( '#updates' ).html( 'Install revision dated ' + datetime ).removeClass( 'disabled' );
+					selected.revision = { hash: hash, datetime: datetime, version: version };
+					console.log( 'Selecting ' + target.text() + ', (' + selected.revision.hash + ')' );
+					$( '#updates' ).html( 'Install ' + version ).removeClass( 'disabled' );
 				});
 				$( '#updates' ).html( 'Install previous version' ).addClass( 'btn-primary' ).removeClass( 'btn-success' );
 			}
