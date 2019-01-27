@@ -1,68 +1,111 @@
-/*
-Error: Undefined variable: "$text-font-stack".
-        on line 3 of deductions.scss
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic; }
+@font-face {
+  font-family: 'Biolinum';
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Barlow';
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'FjallaOne';
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+.deductions {
+  float: left;
+  font-family: Optima, Biolinum, Lato;
+  width: 188px;
+  height: 354px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  border-radius: 16pt;
+  border: 4px solid #999;
+  margin: 0 6px 0 6px; }
+  .deductions .deduction-button-small, .deductions .deduction-button-large {
+    font-size: 18pt;
+    width: 168px;
+    border-radius: 12px;
+    margin: 12px auto 12px auto;
+    text-align: center; }
+  .deductions .deduction-button-small {
+    height: 48px;
+    line-height: 32pt; }
+  .deductions .deduction-button-large {
+    height: 168px;
+    line-height: 124pt; }
+  .deductions .disabled {
+    border: 4px solid #666;
+    background: #e2e2e2;
+    background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+    color: black; }
+  .deductions .remove-minor {
+    border: 4px solid green;
+    background: #9dd53a;
+    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+    color: black; }
+  .deductions .add-minor {
+    border: 4px solid blue;
+    font-size: 36pt;
+    background: #6db3f2;
+    background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
+  .deductions .remove-major {
+    border: 4px solid orange;
+    background: #ffb76b;
+    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+    color: black; }
+  .deductions .add-major {
+    border: 4px solid gold;
+    font-size: 36pt;
+    background: #fceabb;
+    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    color: black; }
+  .deductions .deduction-label {
+    height: 32px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 14pt;
+    color: #ccc; }
+  .deductions .view {
+    height: 40px;
+    margin: 12px auto 12px auto;
+    text-align: center;
+    font-size: 32pt;
+    line-height: 32pt;
+    color: white; }
 
-1: .deductions {
-2: 	float: left;
-3: 	font-family: $text-font-stack;
-4: 	width: 188px;
-5: 	height: 354px;
-6: 	background: black;
-7: 	background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C *\/
-8: 	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C *\/
-
-Backtrace:
-deductions.scss:3
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/script/tree/variable.rb:49:in `_perform'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/script/tree/node.rb:50:in `perform'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:402:in `visit_prop'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `block in visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `block in with_base'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:135:in `with_frame'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `with_base'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `block (2 levels) in visit_rule'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `map'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:444:in `block in visit_rule'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:183:in `with_environment'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:442:in `visit_rule'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `block in visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `block in with_base'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:135:in `with_frame'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/stack.rb:79:in `with_base'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:162:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `block in visit_children'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `map'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:52:in `visit_children'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:171:in `block in visit_children'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:183:in `with_environment'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:170:in `visit_children'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `block in visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:190:in `visit_root'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/base.rb:36:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:161:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/visitors/perform.rb:10:in `visit'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/root_node.rb:36:in `css_tree'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/tree/root_node.rb:29:in `render_with_sourcemap'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/engine.rb:389:in `_render_with_sourcemap'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/engine.rb:307:in `render_with_sourcemap'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:462:in `update_stylesheet'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:209:in `each'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin/compiler.rb:294:in `watch'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/plugin.rb:109:in `method_missing'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/sass_scss.rb:360:in `watch_or_update'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/sass_scss.rb:51:in `process_result'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/base.rb:52:in `parse'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/lib/sass/exec/base.rb:19:in `parse!'
-/Library/Ruby/Gems/2.3.0/gems/sass-3.5.3/bin/sass:13:in `<top (required)>'
-/usr/local/bin/sass:22:in `load'
-/usr/local/bin/sass:22:in `<main>'
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Error: Undefined variable: \"$text-font-stack\".\A         on line 3 of deductions.scss\A \A 1: .deductions {\A 2: 	float: left;\A 3: 	font-family: $text-font-stack;\A 4: 	width: 188px;\A 5: 	height: 354px;\A 6: 	background: black;\A 7: 	background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */\A 8: 	background: linear-gradient(to top, #45484d 0%,#000000 100%); /* W3C */"; }
+/*# sourceMappingURL=deductions.css.map */
