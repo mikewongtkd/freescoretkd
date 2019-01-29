@@ -246,7 +246,7 @@ $.widget( "freescore.register", {
 			register.roles.view .hide();
 			var judges = o.judges;
 
-			if( ! defined( judges )) { text.html( "Network Error" ); return; }
+			if( ! defined( judges )) { text.html( "Database Error: Judges not defined." ); return; }
 			if( judges.length == 0 ) {
 				text.html( "No Divisions Found" );
 				alertify.error( "Please instruct computer operator to create a division." );
