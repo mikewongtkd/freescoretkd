@@ -74,7 +74,13 @@ sub init {
 		upload             => \&handle_registration_upload,
 		read               => \&handle_registration_read,
 		remove             => \&handle_registration_remove,
-	}
+	};
+	$self->{ schedule }    = {
+		read               => \&handle_schedule_read,
+		write              => \&handle_schedule_write,
+		remove             => \&handle_schedule_remove,
+	};
+
 }
 
 # ============================================================
@@ -747,6 +753,7 @@ sub handle_registration_clear {
 	
 	my $path = "$progress->{ path }/../..";
 	try {
+		my $copy = clone( $request );
 		unlink( "$path/registration.female.txt" );
 		unlink( "$path/registration.male.txt" );
 		$client->send({ json => { request => $copy, result => 'success' }});
@@ -1156,6 +1163,80 @@ sub handle_ring_draws_write {
 		$progress->write_draws( $draws );
 
 		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_schedule_read {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $json     = $self->{ _json };
+	my $client   = $self->{ _client };
+
+	print STDERR "Reading schedule information\n" if $DEBUG;
+	
+	my $copy       = clone( $request );
+	my $path       = "$progress->{ path }/../..";
+	my $file       = "$path/schedule.json";
+	my $schedule   = undef;
+	my $tournament = $request->{ tournament };
+	my $all        = new FreeScore::Forms::WorldClass( $tournament );
+
+	$divisions = unbless( $all->{ divisions } );
+	try {
+		if( -e $file ) {
+			my $contents = read_file( $file );
+			$schedule = $json->decode( $contents );
+		}
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule, divisions => $divisions }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_schedule_remove {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Removing schedule information\n" if $DEBUG;
+	
+	my $path = "$progress->{ path }/../..";
+	try {
+		unlink( "$path/registration.female.txt" );
+		unlink( "$path/registration.male.txt" );
+		$client->send({ json => { request => $copy, result => 'success' }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_schedule_write {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+	my $json     = $self->{ _json };
+
+	print STDERR "Writing schedule information\n" if $DEBUG;
+	
+	my $schedule = {};
+	my $path     = "$progress->{ path }/../..";
+	try {
+		open FILE, ">$path/schedule.json" or die $!;
+		print FILE $json->canonical->pretty->encode( $schedule );
+		close FILE;
+		
+		$client->send( { json => {  type => 'schedule', action => 'write ok' }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
