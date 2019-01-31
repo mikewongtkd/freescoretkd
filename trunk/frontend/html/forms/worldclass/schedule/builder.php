@@ -9,7 +9,7 @@
 </div>
 
 <script>
-handler.configure = () => {
+handler.write.push(( update ) => {
 	var n = tournament.rings.length;
 	var w = n >= 6 ? 6 : n;
 	var h = Math.ceil( n/6 );
@@ -25,5 +25,5 @@ handler.configure = () => {
 		}
 		$( '#schedule' ).append( row );
 	}
-}
+});
 </script>

@@ -1180,7 +1180,7 @@ sub handle_schedule_read {
 	print STDERR "Reading schedule information\n" if $DEBUG;
 	
 	my $copy       = clone( $request );
-	my $path       = "$progress->{ path }/../..";
+	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
 	my $schedule   = undef;
 	my $tournament = $request->{ tournament };
@@ -1208,7 +1208,7 @@ sub handle_schedule_remove {
 
 	print STDERR "Removing schedule information\n" if $DEBUG;
 	
-	my $path = "$progress->{ path }/../..";
+	my $path = "$progress->{ path }/..";
 	try {
 		unlink( "$path/registration.female.txt" );
 		unlink( "$path/registration.male.txt" );
@@ -1229,14 +1229,21 @@ sub handle_schedule_write {
 
 	print STDERR "Writing schedule information\n" if $DEBUG;
 	
-	my $schedule = {};
-	my $path     = "$progress->{ path }/../..";
+	my $schedule   = $request->{ schedule };
+	my $path       = "$progress->{ path }/..";
+	my $tournament = $request->{ tournament };
+	my $all        = new FreeScore::Forms::WorldClass( $tournament );
+
+	# ===== DO NOT CACHE DIVISION INFORMATION; RETRIEVE IT FRESH FROM THE DB EVERY TIME
+	delete $schedule->{ divisions };
+	$divisions = unbless( $all->{ divisions } );
+
 	try {
 		open FILE, ">$path/schedule.json" or die $!;
 		print FILE $json->canonical->pretty->encode( $schedule );
 		close FILE;
 		
-		$client->send( { json => {  type => 'schedule', action => 'write ok' }});
+		$client->send( { json => {  type => 'schedule', schedule => $request->{ schedule }, divisions => $divisions, action => 'write ok' }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
