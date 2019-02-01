@@ -30,8 +30,7 @@ sub find {
 # ============================================================
 sub load_ring {
 # ============================================================
-	my $self       = shift;
-
+	my $self        = shift;
 	$self->{ file } = "$self->{ path }/progress.txt";
 
 	# ===== READ DIVISION PROGRESS STATE INFORMATION
@@ -137,7 +136,7 @@ sub write {
 
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	foreach my $key (sort keys %$self) {
-		next if ($key =~ /^(?:divisions|file|path|staging)$/ );
+		next if ($key =~ /^(?:divisions|draws|file|path|staging)$/ );
 		print FILE "# $key=$self->{ $key }\n";
 	}
 	close FILE;

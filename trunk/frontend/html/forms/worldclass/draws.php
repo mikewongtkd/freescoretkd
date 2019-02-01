@@ -345,6 +345,9 @@ var blank = () => {
 				draws[ ev ][ gender ][ age ] = {};
 				for( round of rounds ) {
 					draws[ ev ][ gender ][ age ][ round ] = [];
+					for( var i = 0; i < count[ round ]; i++ ) {
+						draws[ ev ][ gender ][ age ][ round ].push( '' );
+					}
 				}
 			}
 		}
@@ -386,9 +389,11 @@ var show = {
 					var row = [ html.th.clone().text( age ) ];
 					for( var round of rounds ) {
 						var forms = [].fill( '', 0, count[ round ] );
-						if( gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
-							forms          = draw[ gender ][ age ][ round ];
-							count[ round ] = forms.length;
+						if( defined( draw ) && gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
+							var n = Math.min( draw[ gender ][ age ][ round ].length, count[ round ]);
+							for( var i = 0; i < n; i++ ) {
+								forms[ i ] = draw[ gender ][ age ][ round ][ i ];
+							}
 						}
 						var td    = html.td.clone();
 						for( var i = 0; i < count[ round ]; i++ ) {
@@ -565,11 +570,12 @@ ws.onmessage = function( response ) {
 		} else if( update.request.action == 'draws write' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
 			sound.send.play();
-			setTimeout( function() { window.location = '../../index.php' }, 3000 );
+			setTimeout(() => { window.location = '../../index.php' }, 3000 );
 
 		} else if( update.request.action == 'draws delete' ) {
 			alertify.success( 'Sport Poomsae Draws Deleted.' );
 			sound.send.play();
+			setTimeout(() => { location.reload()}, 3000 );
 		}
 	}
 };

@@ -222,6 +222,7 @@ sub read_draws {
 # ============================================================
 	my $self  = shift;
 	my $file  = undef;
+
 	if( $self->{ path } =~ /\b(?:staging|ring\d+)/i ) {
 		$file = $self->{ path };
 		$file =~ s/(?:staging|ring\d+)\/?/draws.json/i;
@@ -307,6 +308,31 @@ sub write_draws {
 		$file =~ s/(?:staging|ring\d+)\/?/draws.json/i;
 	} else {
 		$file = "$self->{ path }/draws.json";
+	}
+
+	# Filter out blanks
+	my $count = { event => 0, gender => 0, age => 0 };
+	foreach my $ev (keys %$draws) {
+		$count->{ event } = 0;
+		foreach my $gender (keys %{$draws->{ $ev }}) {
+			$count->{ gender } = 0;
+			foreach my $age (keys %{$draws->{ $ev }{ $gender }}) {
+				$count->{ age } = 0;
+				foreach my $round (keys %{$draws->{ $ev }{ $gender }{ $age }}) {
+					my @forms = grep { $_ ne '' } @{$draws->{ $ev }{ $gender }{ $age }{ $round }};
+					my $n     = int( @forms );
+					if( $n > 0 ) {
+						$draws->{ $ev }{ $gender }{ $age }{ $round } = [ @forms ];
+						$count->{ $_ } += $n foreach( qw( event gender age ));
+					} else {
+						delete $draws->{ $ev }{ $gender }{ $age }{ $round };
+					}
+				}
+				delete $draws->{ $ev }{ $gender }{ $age } unless $count->{ age } > 0;
+			}
+			delete $draws->{ $ev }{ $gender } unless $count->{ gender } > 0;
+		}
+		delete $draws->{ $ev } unless $count->{ event } > 0;
 	}
 
 	my $json  = new JSON::XS();

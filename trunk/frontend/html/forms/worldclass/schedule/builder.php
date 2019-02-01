@@ -44,6 +44,11 @@ show.daySchedule = () => {
 	}
 };
 
+var rule = {
+	mutex : {
+	}
+};
+
 var init = {
 	timeline: ( update ) => {
 		if( defined( update.schedule )) {
@@ -55,13 +60,17 @@ var init = {
 			}
 		}
 	},
-	rounds: ( update ) => {
-		if( defined( update.divisions )) {
-			update.divisions.forEach(( division, i ) => { 
-				settings.divisions[ division.name ] = division; 
-				settings.rounds[ division.name ] = []; // Generate the rounds and mark dependencies and mutually exclusive rounds
-			});
-		}
+	rounds: ( division ) => {
+		
+	},
+	divisions: ( update ) => {
+		if( ! defined( update.divisions )) { return; }
+
+		update.divisions.forEach(( division, i ) => { 
+			var name = division.name;
+			settings.divisions[ name ] = division; 
+			settings.rounds[ name ]    = init.rounds( division );
+		});
 	}
 };
 
