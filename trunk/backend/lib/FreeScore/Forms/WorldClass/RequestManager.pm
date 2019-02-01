@@ -1243,7 +1243,7 @@ sub handle_schedule_write {
 		print FILE $json->canonical->pretty->encode( $schedule );
 		close FILE;
 		
-		$client->send( { json => {  type => 'schedule', schedule => $request->{ schedule }, divisions => $divisions, action => 'write ok' }});
+		$client->send( { json => {  type => 'schedule', schedule => $request->{ schedule }, divisions => $divisions, action => 'write', result => 'ok' }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

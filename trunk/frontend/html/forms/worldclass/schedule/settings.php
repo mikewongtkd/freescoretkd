@@ -33,7 +33,7 @@ show.days = () => {
 	for( var i = 0; i < schedule.days; i++ ) {
 		var day = html.div.clone().addClass( 'panel panel-primary' ).attr({ id: `day-${ i + 1 }` });
 		day.append( html.h4.clone().addClass( 'panel-heading' ).html( `Day ${ i + 1 }` ).css({ 'margin' : 0 }));
-		day.append( html.ul.clone().addClass( 'list-group list-group-sortable-connected schedule' ).attr({ id: `day-${ i + 1 }-schedule` }));
+		day.append( html.ul.clone().addClass( 'list-group list-group-sortable-connected day' ).attr({ id: `day-${ i + 1 }-schedule` }));
 		$( '#days' ).append( day );
 	}
 
@@ -57,10 +57,15 @@ $( '#num-days' ).change(( ev ) => {
 });
 
 $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
-	var lists = $( '.list-group-sortable-connected.schedule' );
+	var lists = $( '.list-group-sortable-connected.day' );
 	for( var i = 0; i < lists.length; i++ ) {
-		var day = $( lists[ i ] ).children().map(( i, item ) => { var j = $( item ).attr( 'data-index' ); var division = schedule.divisions[ j ]; return division.name; }).toArray();
-		schedule.day[ i ] = day;
+		var divisions = $( lists[ i ] ).children().map(( i, item ) => { var j = $( item ).attr( 'data-index' ); var division = schedule.divisions[ j ]; return division.name; }).toArray();
+		if( defined( schedule.day[ i ] )) {
+			schedule.day[ i ].divisions = divisions;
+		} else {
+			schedule.day[ i ] = { divisions: divisions };
+		}
+		console.log( 'DAY', i, schedule.day[ i ] );
 	}
 
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
