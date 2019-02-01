@@ -80,9 +80,9 @@ $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
 });
 
 // ===== ON MESSAGE BEHAVIOR
-handler.read.push(( update ) => {
+handler.read[ 'settings' ] = ( update ) => {
 	if( defined( update )) { schedule.divisions = update.divisions; if( defined( update.schedule )) { schedule.days = update.schedule.days; }}
 	show.days();
-});
+};
 </script>
 
