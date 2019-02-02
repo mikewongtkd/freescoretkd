@@ -5,7 +5,8 @@
 			<div class="panel panel-primary">
 				<h4 class="panel-heading" style="margin-top: 0">Settings</h4>
 				<div class="panel-body">
-					<label for="num-days">Number of days of competition:</label>&nbsp;<input type="number" id="num-days" name="num-days" value=1 min=1 max=20 style="width: 40px;">
+					<label for="num-days">Number of days of competition:</label>&nbsp;<input type="number" id="num-days" name="num-days" value=1 min=1 max=20 style="width: 40px;">&nbsp;
+					<label for="teams-grouped">Registration for Pairs and Teams</label>&nbsp;<input type="checkbox" data-toggle="toggle" id="teams-grouped" name="teams-grouped" data-on="In Groups" data-onstyle="success" data-off="As Individuals" data-offstyle="primary">
 				</div>
 			</div>
 			<div class="row">
@@ -65,8 +66,8 @@ $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
 		} else {
 			schedule.day[ i ] = { divisions: divisions };
 		}
-		console.log( 'DAY', i, schedule.day[ i ] );
 	}
+	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
