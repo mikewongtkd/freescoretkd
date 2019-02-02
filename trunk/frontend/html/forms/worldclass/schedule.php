@@ -79,6 +79,12 @@
 				transform: translateY( -50% );
 			}
 
+			a.active {
+				background-color: #cce5ff !important;
+				border-color: #b8daff !important;
+				color: #004085 !important;
+			}
+
 		</style>
 	</head>
 	<body>

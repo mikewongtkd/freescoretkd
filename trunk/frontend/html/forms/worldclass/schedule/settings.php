@@ -5,6 +5,7 @@
 			<div class="panel panel-primary">
 				<h4 class="panel-heading" style="margin-top: 0">Settings</h4>
 				<div class="panel-body">
+					<p>Drag-and-drop individual divisions to the desired day, or to <i>Unscheduled Divisions</i>. You can also click to select one or more divisions and then click on a <i>Move</i> button to move those divisions to the desired day.</p>
 					<label for="num-days">Number of days of competition:</label>&nbsp;<input type="number" id="num-days" name="num-days" value=1 min=1 max=20 style="width: 40px;">&nbsp;
 					<label for="teams-grouped">Registration for Pairs and Teams</label>&nbsp;<input type="checkbox" data-toggle="toggle" id="teams-grouped" name="teams-grouped" data-on="In Groups" data-onstyle="success" data-off="As Individuals" data-offstyle="primary">
 				</div>
@@ -12,7 +13,7 @@
 			<div class="row">
 				<div class="col-xs-4" id="divisions">
 					<div class="panel panel-primary">
-						<h4 class="panel-heading" style="margin: 0;">Unscheduled Divisions</h4>
+						<h4 class="panel-heading" style="margin: 0;">Unscheduled Divisions<a class="btn btn-xs btn-info pull-right disabled">Unschedule</a></h4>
 						<ul class="list-group list-group-sortable-connected" id="unscheduled-divisions">
 						</ul>
 					</div>
@@ -33,7 +34,7 @@ show.days = () => {
 	$( '#days' ).empty();
 	for( var i = 0; i < schedule.days; i++ ) {
 		var day = html.div.clone().addClass( 'panel panel-primary' ).attr({ id: `day-${ i + 1 }` });
-		day.append( html.h4.clone().addClass( 'panel-heading' ).html( `Day ${ i + 1 }` ).css({ 'margin' : 0 }));
+		day.append( html.h4.clone().addClass( 'panel-heading' ).html( `Day ${ i + 1 }<a class="btn btn-xs btn-info pull-right disabled">Move to Day ${ i + 1 }</a>` ).css({ 'margin' : 0 }));
 		day.append( html.ul.clone().addClass( 'list-group list-group-sortable-connected day' ).attr({ id: `day-${ i + 1 }-schedule` }));
 		$( '#days' ).append( day );
 	}
@@ -41,14 +42,39 @@ show.days = () => {
 	if( schedule.day.length > 0 ) {
 	} else {
 		var list = undefined;
-		if( schedule.days == 1 ) { list = $( '#day-1 ul' );              alertify.notify( 'To unschedule a division, drag-and-drop the division from Day 1 to Unscheduled Divisions.', 20 ); } 
-		else                     { list = $( '#unscheduled-divisions' ); alertify.notify( 'To schedule a division, drag-and-drop the divisions below to the desired day.', 20 ); }
+		$( 'ul' ).empty();
+		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); } 
+		else                     { list = $( '#unscheduled-divisions' );}
 	}
 
 	schedule.divisions.forEach(( division, i ) => {
-		list.append( html.li.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-index': i }).html( division.description ));
+		list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-index': i }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
 	});
 	$( '.list-group-sortable-connected' ).sortable({ placeholderClass: 'list-group-item', connectWith: '.connected' });
+
+	$( 'a.list-group-item' ).off( 'click' ).click(( ev ) => {
+		var target = $( ev.target );
+		target.toggleClass( 'active' );
+		var list   = target.parent();
+		var others = $( '.list-group' ).not( list );
+		others.children().removeClass( 'active' );
+		if( $( 'a.list-group-item.active' ).length > 0 ) {
+			others.siblings( '.panel-heading' ).children( 'a' ).removeClass( 'disabled' );
+		} else {
+			others.siblings( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
+		}
+		list.siblings( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
+	});
+
+	$( '.panel-heading a' ).off( 'click' ).click(( ev ) => {
+		var target = $( ev.target );
+		var list   = target.parent().parent().children( 'ul.list-group' );
+		var items  = $( 'a.list-group-item.active' );
+		items.detach();
+		list.append( items );
+		items.removeClass( 'active' );
+		$( '.panel-heading a' ).addClass( 'disabled' );
+	});
 }
 
 // ===== PAGE BEHAVIOR
