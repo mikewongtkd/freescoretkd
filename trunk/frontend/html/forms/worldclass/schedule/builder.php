@@ -19,6 +19,7 @@ show.daySchedule = () => {
 	var h = Math.ceil( n/6 );
 	var width = Math.floor( 10 / w );
 	var rmap  = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
+	var scale = { top: 60, fourMinutes: 8 };
 	for( var y = 0; y < h; y++ ) {
 		// ===== ROW AND TIMELINE
 		var row      = html.div.clone().addClass( 'row' );
@@ -27,7 +28,7 @@ show.daySchedule = () => {
 		for( var hr = 0; hr < time.duration; hr++ ) {
 			var ampm = 'AM';
 			var hour = hr + time.start; if( hour >= 12 ) { if( hour > 12 ) { hour -= 12; } ampm = 'PM'; };
-			var tick = html.div.clone().addClass( 'hour' ).html( `${ hour }:00 ${ ampm }` ).css({ top: (hr * 240) + 60 + 'px' });
+			var tick = html.div.clone().addClass( 'hour' ).html( `${ hour }:00 ${ ampm }` ).css({ top: (hr * 15 * scale.fourMinutes) + scale.top + 'px' });
 			timeline.append( tick );
 		}
 		row.append( timeline );
@@ -38,20 +39,28 @@ show.daySchedule = () => {
 			if( i > n ) { continue; }
 			var ring = html.div.clone().addClass( `ring panel panel-primary col-xs-${width}` ).attr({ id : `ring-${i}` }).css({ padding: 0 });
 			ring.append( html.h4.clone().addClass( 'panel-heading' ).html( `Ring ${i}` )).css({ 'margin' : 0 });
-			ring.append( html.ul.clone().addClass( 'list-group list-group-sortable-connected' ));
+			ring.append( html.div.clone().addClass( 'schedule' ));
 			row.append( ring );
 		}
 		$( '#schedule' ).append( row );
 	}
 
+	var topOffset = scale.top;
 	settings.rounds.forEach(( round ) => {
-		var li = html.li.clone()
-			.addClass( 'list-group-item round' )
-			.css({ height: (round.athletes * 16) + 'px' })
-			.html( `${round.description}<br>${rmap[ round.round ]} (${round.athletes})<br>` );
-		$( '#ring-1 ul' ).append( li );
+		var height = (round.round.match( /finals/i ) ? (2 * scale.fourMinutes * round.athletes) : (scale.fourMinutes * round.athletes)) + 'px';
+		var gender = 'coed';
+		if( round.description.match( /pair/i ))   { gender = 'coed'; } else 
+		if( round.description.match( /female/i )) { gender = 'female'; } else 
+		if( round.description.match( /male/i ))   { gender = 'male'; }
+
+		var div = html.div.clone()
+			.addClass( 'round ' + gender )
+			.attr({ 'data-athletes' : round.athletes, 'data-round' : round.round, 'data-height' : height })
+			.css({ height: height, top: topOffset, 'line-height': height })
+			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
+		$( '#ring-1 .schedule' ).append( div );
+		topOffset += parseInt( height );
 	});
-	$( '.list-group-sortable-connected' ).sortable({ placeholderClass: 'list-group-item', connectWith: '.connected' });
 };
 
 var rule = {

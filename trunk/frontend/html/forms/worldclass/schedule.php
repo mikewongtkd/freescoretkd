@@ -72,11 +72,12 @@
 				right: 12px;
 			}
 
-			.round {
+			.schedule .round {
+				position: absolute;
+				left: 0;
+				width: calc( 100% - 8px );
+				margin-left: 8px;
 				text-align: center;
-				position: relative;
-				top: 50%;
-				transform: translateY( -50% );
 			}
 
 			a.active {
@@ -84,6 +85,10 @@
 				border-color: #b8daff !important;
 				color: #004085 !important;
 			}
+
+			.coed   { background-color: #f0e0a2; border: 1px solid #a38f3d; }
+			.male   { background-color: #abe1fd; border: 1px solid #56b8ed; }
+			.female { background-color: #fed1be; border: 1px solid #b26d4f; }
 
 		</style>
 	</head>
