@@ -72,12 +72,23 @@
 				right: 12px;
 			}
 
+			.droptarget {
+				background-color: #cccccc;
+			}
+
+			.schedule {
+				height: 1200px;
+			}
+
 			.schedule .round {
 				position: absolute;
 				left: 0;
 				width: calc( 100% - 8px );
 				margin-left: 8px;
 				text-align: center;
+				border-radius: 4px;
+				border: 1px solid #ccc;
+				cursor: move;
 			}
 
 			a.active {
@@ -86,9 +97,17 @@
 				color: #004085 !important;
 			}
 
-			.coed   { background-color: #f0e0a2; border: 1px solid #a38f3d; }
-			.male   { background-color: #abe1fd; border: 1px solid #56b8ed; }
-			.female { background-color: #fed1be; border: 1px solid #b26d4f; }
+			.coed   { background-color: #ffddc0; }
+			.male   { background-color: #b0e9e9; }
+			.female { background-color: #ffc0c0; }
+
+			.coed.error      { background-color: #6b482b; }
+			.male.error      { background-color: #1a4040; }
+			.female.error    { background-color: #6b2b2b; }
+
+			.coed.selected   { background-color: #af550b; }
+			.male.selected   { background-color: #af0b0b; }
+			.female.selected { background-color: #076969; }
 
 		</style>
 	</head>

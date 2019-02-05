@@ -12,6 +12,9 @@
 </div>
 
 <script>
+var drop = ( ev ) => {
+	console.log( 'DROP', ev );
+};
 show.daySchedule = () => {
 	$( '#schedule' ).empty();
 	var n = tournament.rings.length;
@@ -39,10 +42,18 @@ show.daySchedule = () => {
 			if( i > n ) { continue; }
 			var ring = html.div.clone().addClass( `ring panel panel-primary col-xs-${width}` ).attr({ id : `ring-${i}` }).css({ padding: 0 });
 			ring.append( html.h4.clone().addClass( 'panel-heading' ).html( `Ring ${i}` )).css({ 'margin' : 0 });
-			ring.append( html.div.clone().addClass( 'schedule' ));
+			ring.append( html.div.clone().addClass( 'schedule' ).attr({ ondrop: 'console.log( "HELLO" )' }));
 			row.append( ring );
+
 		}
 		$( '#schedule' ).append( row );
+
+		$( '.schedule' ).off( 'dragenter' ).on( 'dragenter', ( ev ) => {
+			var target = $( ev.target );
+			if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
+			$( '.schedule' ).removeClass( 'droptarget' );
+			target.addClass( 'droptarget' );
+		});
 	}
 
 	var topOffset = scale.top;
@@ -55,11 +66,15 @@ show.daySchedule = () => {
 
 		var div = html.div.clone()
 			.addClass( 'round ' + gender )
-			.attr({ 'data-athletes' : round.athletes, 'data-round' : round.round, 'data-height' : height })
+			.attr({ 'draggable' : 'true', 'data-athletes' : round.athletes, 'data-round' : round.round, 'data-height' : height })
 			.css({ height: height, top: topOffset, 'line-height': height })
 			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
+
+		div.off( 'drop' ).on( 'drop', ( ev ) => {
+			console.log( "DROPPING" );
+		});
 		$( '#ring-1 .schedule' ).append( div );
-		topOffset += parseInt( height );
+		topOffset += parseInt( height ) + 4;
 	});
 };
 
