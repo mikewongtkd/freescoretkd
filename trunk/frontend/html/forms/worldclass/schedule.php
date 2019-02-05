@@ -73,18 +73,20 @@
 			}
 
 			.droptarget {
-				background-color: #cccccc;
+				border: 2px dashed #333;
 			}
 
 			.schedule {
 				height: 1200px;
+				width: calc( 100% - 8px );
+				margin-left: 8px;
 			}
 
 			.schedule .round {
 				position: absolute;
 				left: 0;
-				width: calc( 100% - 8px );
-				margin-left: 8px;
+				width: calc( 100% - 12px );
+				margin-left: 10px;
 				text-align: center;
 				border-radius: 4px;
 				border: 1px solid #ccc;

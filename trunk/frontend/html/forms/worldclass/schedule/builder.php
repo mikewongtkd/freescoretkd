@@ -1,5 +1,6 @@
 <script>
 	var settings = { day : 0, divisions : {}, rounds: [] };
+	var scale    = { top: 60, fourMinutes: 8, padding: 4 };
 </script>
 <div class="pt-page pt-page-2">
 	<div class="container">
@@ -12,9 +13,70 @@
 </div>
 
 <script>
-var drop = ( ev ) => {
-	console.log( 'DROP', ev );
+var insert = function( list, position, item ) {
 };
+
+var dnd = { item: undefined, source: undefined, handle : {
+	drag : {
+		start : function( ev ) {
+			dnd.item   = $( ev.target );
+			dnd.source = $( this );
+		},
+		enter : function( ev ) {
+			this.classList.add( 'dropTarget' );
+		},
+		leave : function( ev ) {
+			this.classList.remove( 'dropTarget' );
+		},
+		over : function( ev ) { 
+			if( ev.preventDefault ) { ev.preventDefault(); } 
+			return false;
+		},
+		end : function( ev ) {
+			$( '.schedule' ).removeClass( 'dropTarget' );
+		},
+	},
+	drop : function( ev ) {
+		if( ev.stopPropogation ) { ev.stopPropogation(); }
+		var target    = $( ev.target ); if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
+		var item      = dnd.item;
+		var position  = { x: ev.originalEvent.offsetX, y: ev.originalEvent.offsetY };
+		var topOffset = undefined;
+
+		item.detach();
+
+		// ===== TIDY SOURCE
+		topOffset = scale.top + scale.padding;
+		$.each( dnd.source.children( '.round' ), ( i, round ) => {
+			$( round ).css({ top: topOffset });
+			var height = parseInt( $( round ).attr( 'data-height' ));
+			topOffset += height + scale.padding;
+		});
+
+		// ===== TIDY TARGET
+		topOffset = scale.top + scale.padding;
+		var list = target.children( '.round' ).toArray();
+		for( var i = 0; i <= list.length; i++ ) {
+			if( position.y < topOffset ) { list.splice( i, 0, item ); break; } else
+			if( i == list.length )       { list.push( item );         break; }
+			var round = $( list[ i ] );
+			var height = parseInt( $( round ).attr( 'data-height' ));
+			topOffset += height + scale.padding;
+		}
+
+		topOffset = scale.top + scale.padding;
+		list.forEach(( round, i ) => {
+			target.append($( round ));
+			$( round ).css({ top: topOffset });
+			var height = parseInt( $( round ).attr( 'data-height' ));
+			topOffset += height + scale.padding;
+		});
+
+		dnd.item   = undefined;
+		dnd.source = undefined;
+		return false;
+	}
+}};
 show.daySchedule = () => {
 	$( '#schedule' ).empty();
 	var n = tournament.rings.length;
@@ -22,7 +84,6 @@ show.daySchedule = () => {
 	var h = Math.ceil( n/6 );
 	var width = Math.floor( 10 / w );
 	var rmap  = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
-	var scale = { top: 60, fourMinutes: 8 };
 	for( var y = 0; y < h; y++ ) {
 		// ===== ROW AND TIMELINE
 		var row      = html.div.clone().addClass( 'row' );
@@ -42,21 +103,20 @@ show.daySchedule = () => {
 			if( i > n ) { continue; }
 			var ring = html.div.clone().addClass( `ring panel panel-primary col-xs-${width}` ).attr({ id : `ring-${i}` }).css({ padding: 0 });
 			ring.append( html.h4.clone().addClass( 'panel-heading' ).html( `Ring ${i}` )).css({ 'margin' : 0 });
-			ring.append( html.div.clone().addClass( 'schedule' ).attr({ ondrop: 'console.log( "HELLO" )' }));
+			ring.append( html.div.clone().addClass( 'schedule' ).attr({}));
 			row.append( ring );
-
 		}
 		$( '#schedule' ).append( row );
-
-		$( '.schedule' ).off( 'dragenter' ).on( 'dragenter', ( ev ) => {
-			var target = $( ev.target );
-			if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
-			$( '.schedule' ).removeClass( 'droptarget' );
-			target.addClass( 'droptarget' );
-		});
 	}
+	$( '.schedule' )
+		.on( 'dragstart', dnd.handle.drag.start )
+		.on( 'dragenter', dnd.handle.drag.enter )
+		.on( 'dragover',  dnd.handle.drag.over )
+		.on( 'dragleave', dnd.handle.drag.leave )
+		.on( 'drop',      dnd.handle.drop )
+		.on( 'dragend',   dnd.handle.drag.end )
 
-	var topOffset = scale.top;
+	var topOffset = scale.top + scale.padding;
 	settings.rounds.forEach(( round ) => {
 		var height = (round.round.match( /finals/i ) ? (2 * scale.fourMinutes * round.athletes) : (scale.fourMinutes * round.athletes)) + 'px';
 		var gender = 'coed';
@@ -70,11 +130,8 @@ show.daySchedule = () => {
 			.css({ height: height, top: topOffset, 'line-height': height })
 			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
 
-		div.off( 'drop' ).on( 'drop', ( ev ) => {
-			console.log( "DROPPING" );
-		});
 		$( '#ring-1 .schedule' ).append( div );
-		topOffset += parseInt( height ) + 4;
+		topOffset += parseInt( height ) + scale.padding;
 	});
 };
 
