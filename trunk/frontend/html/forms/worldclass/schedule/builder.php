@@ -40,7 +40,8 @@ var dnd = { item: undefined, source: undefined, handle : {
 		if( ev.stopPropogation ) { ev.stopPropogation(); }
 		var target    = $( ev.target ); if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
 		var item      = dnd.item;
-		var position  = { x: ev.originalEvent.offsetX, y: ev.originalEvent.offsetY };
+		var offset    = target.offset();
+		var position  = { x: ev.originalEvent.pageX - offset.left, y: ev.originalEvent.pageY - offset.top};
 		var topOffset = undefined;
 
 		item.detach();
@@ -56,14 +57,17 @@ var dnd = { item: undefined, source: undefined, handle : {
 		// ===== TIDY TARGET
 		topOffset = scale.top + scale.padding;
 		var list = target.children( '.round' ).toArray();
+		// Find location of target drop
 		for( var i = 0; i <= list.length; i++ ) {
-			if( position.y < topOffset ) { list.splice( i, 0, item ); break; } else
-			if( i == list.length )       { list.push( item );         break; }
 			var round = $( list[ i ] );
 			var height = parseInt( $( round ).attr( 'data-height' ));
+			var limit  = topOffset - height; 
+			if( position.y < limit ) { list.splice( i, 0, item ); break; } else
+			if( i == list.length )   { list.push( item );         break; }
 			topOffset += height + scale.padding;
 		}
 
+		// Order target list
 		topOffset = scale.top + scale.padding;
 		list.forEach(( round, i ) => {
 			target.append($( round ));
@@ -71,6 +75,22 @@ var dnd = { item: undefined, source: undefined, handle : {
 			var height = parseInt( $( round ).attr( 'data-height' ));
 			topOffset += height + scale.padding;
 		});
+
+		// ===== UPDATE THE SCHEDULE
+		var day = schedule.day[ settings.current.day ];
+		$( '.ring' ).each(( i, ring ) => {
+			ringid = $( ring ).attr( 'id' );
+			if( ! defined( day.plan )) { day.plan = {}; }
+			var plan = day.plan[ ringid ] = [];
+			$( `#${ringid} .schedule` ).children( '.round' ).each(( j, round ) => {
+				var item = JSON.parse( $( round ).attr( 'data-round' ));
+				plan.push( item );
+			});
+		});
+
+		var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
+		request.json = JSON.stringify( request.data );
+		ws.send( request.json );
 
 		dnd.item   = undefined;
 		dnd.source = undefined;
@@ -102,7 +122,7 @@ show.daySchedule = () => {
 			if( i > n ) { continue; }
 			var ring = html.div.clone().addClass( `ring panel panel-primary col-xs-${width}` ).attr({ id : `ring-${i}` }).css({ padding: 0 });
 			ring.append( html.h4.clone().addClass( 'panel-heading' ).html( `Ring ${i}` )).css({ 'margin' : 0 });
-			ring.append( html.div.clone().addClass( 'schedule' ).attr({}));
+			ring.append( html.div.clone().addClass( 'schedule' ));
 			row.append( ring );
 		}
 		$( '.pt-page-2 #schedule' ).append( row );
@@ -115,17 +135,20 @@ show.daySchedule = () => {
 		.on( 'drop',      dnd.handle.drop )
 		.on( 'dragend',   dnd.handle.drag.end )
 
-	var topOffset = scale.top + scale.padding;
 	var day       = schedule.day[ settings.current.day ];
-	if( defined( day.plans )) {
-		Object.keys( day.plans ).forEach(( ringid ) => {
-			day.plans[ ringid ].forEach(( round ) => {
-				var item = init.round( round, topOffset );
-				$( `.pt-page2 ${ringid} .schedule` ).append( item );
-				topOffset += parseInt( item.attr( 'data-height' )) + scale.padding;
+	if( defined( day.plan )) {
+		topOffset = {};
+		Object.keys( day.plan ).forEach(( ringid ) => {
+			topOffset[ ringid ] = scale.top + scale.padding;
+			day.plan[ ringid ].forEach(( round ) => {
+				var item = init.round( round, topOffset[ ringid ] );
+				var ring = $( `#${ringid} .schedule` );
+				ring.append( item );
+				topOffset[ ringid ] += parseInt( item.attr( 'data-height' )) + scale.padding;
 			});
 		});
 	} else {
+		var topOffset = scale.top + scale.padding;
 		settings.rounds[ settings.current.day ].forEach(( round ) => {
 			var item = init.round( round, topOffset );
 			$( '.pt-page-2 #ring-1 .schedule' ).append( item );
@@ -204,9 +227,14 @@ var init = {
 		if( round.description.match( /female/i )) { gender = 'female'; } else 
 		if( round.description.match( /male/i ))   { gender = 'male'; }
 
+		// Make a copy without circular references (prev, next)
+		var data = {};
+		[ 'athletes', 'description', 'division', 'mutexes', 'round' ].forEach(( key ) => { data[ key ] = round[ key ]; });
+		data = JSON.stringify( data );
+
 		var div = html.div.clone()
 			.addClass( 'round ' + gender )
-			.attr({ 'draggable' : 'true', 'data-athletes' : round.athletes, 'data-round' : round.round, 'data-divid': round.division, 'data-height' : height })
+			.attr({ 'draggable' : 'true', 'data-round' : data, 'data-divid': round.division, 'data-height' : height })
 			.css({ height: height, top: topOffset, 'line-height': height })
 			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
 
@@ -275,6 +303,7 @@ var init = {
 		init.mutexes( update.divisions );
 
 		var width = Math.ceil( 12/update.schedule.days );
+		$( '.pt-page-2 #days' ).empty();
 		for( var i = 0; i < update.schedule.days; i++ ) {
 			var day = html.button.clone().addClass( 'btn btn-xs btn-primary day-select' ).attr({ 'data-day': i }).css({ margin: '4px' }).html( `Day ${i + 1}` );
 			day.off( 'click' ).click(( ev ) => {
@@ -297,7 +326,6 @@ var init = {
 		// ===== BUILD DAY SCHEDULE
 		settings.rounds = [];
 		update.schedule.day.forEach(( day, i ) => {
-			console.log( day );
 			day.divisions.forEach(( divid, j ) => { 
 				if( ! defined( settings.rounds[ i ]) ) { settings.rounds[ i ] = []; }
 				var division         = settings.divisions[ divid ];
