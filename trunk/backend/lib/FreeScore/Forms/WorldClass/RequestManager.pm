@@ -1234,6 +1234,8 @@ sub handle_schedule_write {
 	my $tournament = $request->{ tournament };
 	my $all        = new FreeScore::Forms::WorldClass( $tournament );
 
+	if( exists $schedule->{ day } && ref( $schedule->{ day }) eq 'ARRAY') { $schedule->{ day } = [ grep { int( @{$_->{ divisions }}) > 0; } @{$schedule->{ day }}]; }
+
 	# ===== DO NOT CACHE DIVISION INFORMATION; RETRIEVE IT FRESH FROM THE DB EVERY TIME
 	delete $schedule->{ divisions };
 	$divisions = unbless( $all->{ divisions } );

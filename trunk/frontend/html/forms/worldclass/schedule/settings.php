@@ -40,16 +40,23 @@ show.days = () => {
 	}
 
 	if( schedule.day.length > 0 ) {
+		schedule.day.forEach(( day, i ) => {
+			var list = $( `#day-${i + 1} ul` );
+			day.divisions.forEach(( divid, j ) => {
+				var division = schedule.divisions.find(( el ) => { return el.name == divid; });
+				list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+			});
+		});
 	} else {
 		var list = undefined;
 		$( 'ul' ).empty();
-		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); } 
-		else                     { list = $( '#unscheduled-divisions' );}
+		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); }             // There's only one day, schedule all divisions for that day
+		else                     { list = $( '#unscheduled-divisions' );} // Multiple days; need to make decisions
+		schedule.divisions.forEach(( division, i ) => {
+			list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+		});
 	}
 
-	schedule.divisions.forEach(( division, i ) => {
-		list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-index': i }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
-	});
 	$( '.list-group-sortable-connected' ).sortable({ placeholderClass: 'list-group-item', connectWith: '.connected' });
 
 	$( 'a.list-group-item' ).off( 'click' ).click(( ev ) => {
@@ -86,7 +93,7 @@ $( '#num-days' ).change(( ev ) => {
 $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
 	var lists = $( '.list-group-sortable-connected.day' );
 	for( var i = 0; i < lists.length; i++ ) {
-		var divisions = $( lists[ i ] ).children().map(( i, item ) => { var j = $( item ).attr( 'data-index' ); var division = schedule.divisions[ j ]; return division.name; }).toArray();
+		var divisions = $( lists[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
 		if( defined( schedule.day[ i ] )) {
 			schedule.day[ i ].divisions = divisions;
 		} else {
@@ -108,7 +115,14 @@ $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
 
 // ===== ON MESSAGE BEHAVIOR
 handler.read[ 'settings' ] = ( update ) => {
-	if( defined( update )) { schedule.divisions = update.divisions; if( defined( update.schedule )) { schedule.days = update.schedule.days; }}
+	if( defined( update )) { 
+		schedule.divisions = update.divisions; 
+		if( defined( update.schedule )) { 
+			[ 'days', 'day', 'teams' ].forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
+			$( '#num-days' ).val( schedule.days );
+			if( schedule.teams == 'groups' ) { $( '#teams-grouped' ).prop({ 'checked': 'checked' }); }
+		}
+	}
 	show.days();
 };
 </script>

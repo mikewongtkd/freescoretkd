@@ -1,11 +1,13 @@
 <script>
-	var settings = { day : 0, divisions : {}, rounds: [] };
+	var settings = { day: 0, divisions : {}, rounds: [] };
 	var scale    = { top: 60, fourMinutes: 8, padding: 4 };
 </script>
 <div class="pt-page pt-page-2">
 	<div class="container">
 		<div class="page-header"> Sport Poomsae Schedule Builder </div>
 		<div>
+			<div id="days" class="row">
+			</div>
 			<div id="schedule">
 			</div>
 		</div>
@@ -78,7 +80,7 @@ var dnd = { item: undefined, source: undefined, handle : {
 	}
 }};
 show.daySchedule = () => {
-	$( '#schedule' ).empty();
+	$( '.pt-page-2 #schedule' ).empty();
 	var n = tournament.rings.length;
 	var w = n >= 6 ? 6 : n;
 	var h = Math.ceil( n/6 );
@@ -106,7 +108,7 @@ show.daySchedule = () => {
 			ring.append( html.div.clone().addClass( 'schedule' ).attr({}));
 			row.append( ring );
 		}
-		$( '#schedule' ).append( row );
+		$( '.pt-page-2 #schedule' ).append( row );
 	}
 	$( '.schedule' )
 		.on( 'dragstart', dnd.handle.drag.start )
@@ -130,7 +132,7 @@ show.daySchedule = () => {
 			.css({ height: height, top: topOffset, 'line-height': height })
 			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
 
-		$( '#ring-1 .schedule' ).append( div );
+		$( '.pt-page-2 #ring-1 .schedule' ).append( div );
 		topOffset += parseInt( height ) + scale.padding;
 	});
 };
@@ -261,12 +263,27 @@ var init = {
 
 		init.mutexes( update.divisions );
 
-		update.divisions.forEach(( division, i ) => { 
-			var name   = division.name;
-			var rounds = init.rounds( division );
+		var width = Math.ceil( 12/update.schedule.days );
+		for( var i = 0; i < update.schedule.days; i++ ) {
+			var day = html.button.clone().addClass( 'btn btn-block btn-primary' ).html( `Day ${i + 1}` );
+			if( i == settings.day ) { day.removeClass( 'btn-primary' ).addClass( 'btn-success' ); }
+			$( '.pt-page-2 #days' ).append( html.div.clone().addClass( `col-xs-${width}` ).append( day ));
+		}
 
+		// ===== INITIALIZE LOOKUP TABLE
+		update.divisions.forEach(( division, i ) => { 
+			var name                   = division.name;
 			settings.divisions[ name ] = division; 
-			settings.rounds            = settings.rounds.concat( rounds );
+		});
+
+		// ===== SHOW DAY SCHEDULE
+		var day = update.schedule.day[ settings.day ];
+		settings.rounds = [];
+		console.log( day );
+		day.divisions.forEach(( divid, i ) => { 
+			var division    = settings.divisions[ divid ];
+			var rounds      = init.rounds( division );
+			settings.rounds = settings.rounds.concat( rounds );
 		});
 	}
 };
