@@ -1,13 +1,11 @@
 <script>
-	var settings = { day: 0, divisions : {}, rounds: [] };
+	var settings = { day: [], current: { day: 0 }, divisions : {}, rounds: [] };
 	var scale    = { top: 60, fourMinutes: 8, padding: 4 };
 </script>
 <div class="pt-page pt-page-2">
 	<div class="container">
-		<div class="page-header"> Sport Poomsae Schedule Builder </div>
+		<div class="page-header"> Sport Poomsae Schedule Builder <div id="days" class="pull-right"></div></div>
 		<div>
-			<div id="days" class="row">
-			</div>
 			<div id="schedule">
 			</div>
 		</div>
@@ -90,7 +88,7 @@ show.daySchedule = () => {
 		// ===== ROW AND TIMELINE
 		var row      = html.div.clone().addClass( 'row' );
 		var timeline = html.div.clone().addClass( 'time col-xs-2' );
-		var time     = schedule.time[ settings.day ];
+		var time     = schedule.time[ settings.current.day ];
 		for( var hr = 0; hr < time.duration; hr++ ) {
 			var ampm = 'AM';
 			var hour = hr + time.start; if( hour >= 12 ) { if( hour > 12 ) { hour -= 12; } ampm = 'PM'; };
@@ -119,7 +117,7 @@ show.daySchedule = () => {
 		.on( 'dragend',   dnd.handle.drag.end )
 
 	var topOffset = scale.top + scale.padding;
-	settings.rounds.forEach(( round ) => {
+	settings.rounds[ settings.current.day ].forEach(( round ) => {
 		var height = (round.round.match( /finals/i ) ? (2 * scale.fourMinutes * round.athletes) : (scale.fourMinutes * round.athletes)) + 'px';
 		var gender = 'coed';
 		if( round.description.match( /pair/i ))   { gender = 'coed'; } else 
@@ -265,9 +263,16 @@ var init = {
 
 		var width = Math.ceil( 12/update.schedule.days );
 		for( var i = 0; i < update.schedule.days; i++ ) {
-			var day = html.button.clone().addClass( 'btn btn-block btn-primary' ).html( `Day ${i + 1}` );
-			if( i == settings.day ) { day.removeClass( 'btn-primary' ).addClass( 'btn-success' ); }
-			$( '.pt-page-2 #days' ).append( html.div.clone().addClass( `col-xs-${width}` ).append( day ));
+			var day = html.button.clone().addClass( 'btn btn-xs btn-primary day-select' ).attr({ 'data-day': i }).css({ margin: '4px' }).html( `Day ${i + 1}` );
+			day.off( 'click' ).click(( ev ) => {
+				var target = $( ev.target );
+				settings.current.day = parseInt( target.attr( 'data-day' ));
+				show.daySchedule();
+				$( '.day-select' ).addClass( 'btn-primary' ).removeClass( 'btn-success' );
+				target.addClass( 'btn-success' ).removeClass( 'btn-primary' );
+			});
+			if( i == settings.current.day ) { day.removeClass( 'btn-primary' ).addClass( 'btn-success' ); }
+			$( '.pt-page-2 #days' ).append( day );
 		}
 
 		// ===== INITIALIZE LOOKUP TABLE
@@ -277,13 +282,15 @@ var init = {
 		});
 
 		// ===== SHOW DAY SCHEDULE
-		var day = update.schedule.day[ settings.day ];
 		settings.rounds = [];
-		console.log( day );
-		day.divisions.forEach(( divid, i ) => { 
-			var division    = settings.divisions[ divid ];
-			var rounds      = init.rounds( division );
-			settings.rounds = settings.rounds.concat( rounds );
+		update.schedule.day.forEach(( day, i ) => {
+			console.log( day );
+			day.divisions.forEach(( divid, j ) => { 
+				if( ! defined( settings.rounds[ i ]) ) { settings.rounds[ i ] = []; }
+				var division         = settings.divisions[ divid ];
+				var rounds           = init.rounds( division );
+				settings.rounds[ i ] = settings.rounds[ i ].concat( rounds );
+			});
 		});
 	}
 };
