@@ -112,6 +112,7 @@
 			function handle_update( response ) {
 				var update = JSON.parse( response.data );
 				if( ! defined( update )) { return; }
+				console.log( update );
 
 				refresh.ring( update );
 				var divid = $.cookie( 'grassroots-divid' );
@@ -135,10 +136,11 @@
 			source.addEventListener( 'message', handle_update, false );
 
 			var sound = {
-				ok    : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]}),
-				error : new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]}),
-				next  : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]}),
-				prev  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]}),
+				ok      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"  ]}),
+				warning : new Howl({ urls: [ "../../sounds/warning.mp3",  "../../sounds/warning.ogg" ]}),
+				error   : new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"   ]}),
+				next    : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"    ]}),
+				prev    : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"    ]}),
 			};
 
 			var page = {
@@ -307,18 +309,28 @@
 					}
 
 					// ===== KEYBOARD SCORING BEHAVIOR
-					$( 'body' ).off( 'keypress' ).keypress(( ev ) => {
-						var code   = ev.charCode;
+					$( 'body' ).off( 'keydown' ).keydown(( ev ) => {
+						var code   = ev.keyCode;
 						var target = $( '#judge-scores .active' );
 						var judge  = parseInt( target.attr( 'data-judge' ));
+						var prev   = judge - 1 < 0 ? k - 1 : judge - 1;
+						var name   = judge == 0 ? 'Referee' : `Judge ${judge}`;
+						console.log( ev );
 						if       ( code == 66 || code == 98 ) { /* B|b */
 							sound.prev.play();
 							target.removeClass( 'btn-default btn-danger' ).addClass( 'btn-primary' );
 							sendVote( judge, 'blue' );
+							alertify.message( `Sending ${name} vote for Blue. Please wait.`, 1 );
 						} else if( code == 82 || code == 114 ) { /* R|r */
 							sound.next.play();
 							target.removeClass( 'btn-default btn-primary' ).addClass( 'btn-danger' );
 							sendVote( judge, 'red' );
+							alertify.message( `Sending ${name} vote for Red. Please wait.`, 1 );
+						} else if( code == 8 || code == 46 ) { /* Backspace|Delete */
+							sound.warning.play();
+							target.removeClass( 'btn-danger btn-primary' ).addClass( 'btn-default' );
+							sendVote( prev, 'clear' );
+							alertify.message( `Clearing ${name} vote. Please wait.`, 1 );
 						}
 						target.removeClass( 'active' );
 					});
