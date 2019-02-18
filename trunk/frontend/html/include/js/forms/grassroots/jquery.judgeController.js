@@ -8,6 +8,7 @@ $.widget( "freescore.judgeController", {
 
 		o.ring  = parseInt($.cookie( "ring" ));
 		o.judge = parseInt($.cookie( "judge" )) - 1;
+		if( isNaN( o.judge )) { o.judge = 0; }
 
 		console.log( 'RING: ', o.ring, 'JUDGE: ', o.judge );
 

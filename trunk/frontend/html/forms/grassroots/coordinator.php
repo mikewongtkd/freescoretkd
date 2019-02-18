@@ -79,6 +79,11 @@
 									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
 								</div>
 							</div>
+							<div class="scoring">
+								<h4>Scoring</h4>
+								<div class="btn-group btn-group-justified" role="group" id="judge-scores">
+								</div>
+							</div>
 							<div class="administration">
 								<h4>Administration</h4>
 								<div class="list-group">
@@ -149,12 +154,19 @@
 				$.post( url, data );
 			};
 
+			var sendVote = ( judge, vote ) => {
+				var url = 'http://' + host + ':3080/' + tournament.db + '/' + ring.num + '/' + judge + '/vote/' + vote;
+				console.log( url );
+				$.get( url );
+			};
+
 			var refresh = { 
 				// ------------------------------------------------------------
 				athletes: function( division, currentDivision ) {
 				// ------------------------------------------------------------
 					$( '#athletes' ).show();
 					$( '#brackets' ).hide();
+					$( 'body' ).off( 'keypress' );
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
@@ -211,12 +223,14 @@
 					else                  { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 
 					$( ".navigate-athlete" ).hide();
+					$( ".scoring" ).hide();
 				},
 				// ------------------------------------------------------------
 				brackets : function( division, currentDivision ) {
 				// ------------------------------------------------------------
 					$( '#athletes' ).hide();
 					$( '#brackets' ).show();
+					$( '.scoring' ).show();
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
@@ -224,6 +238,7 @@
 						page.transition(); 
 					});
 					refresh.navadmin( division );
+					refresh.judges( division );
 
 					// ===== CLEAR BRACKETS AND REDRAW THEM
 					$( '#brackets' ).empty();
@@ -265,6 +280,48 @@
 
 					$( ".navigate-athlete" ).hide();
 
+				},
+				// ------------------------------------------------------------
+				judges : function( division ) {
+				// ------------------------------------------------------------
+					$( '#judge-scores' ).empty();
+					var k = division.judges();
+
+					for( var i = 0; i < k; i++ ) {
+						var match   = division.current.bracket();
+						var vote    = undefined;
+						var judge   = i == 0 ? 'R' : `J${i}`;
+						var button  = html.a.clone().attr({ 'data-judge' : i }).addClass( 'btn btn-default' ).html( judge );
+
+						if( match.blue.votes[ i ]) { vote = 'blue'; button.removeClass( 'btn-default' ).addClass( 'btn-primary' )}
+						if( match.red.votes[ i ])  { vote = 'red';  button.removeClass( 'btn-default' ).addClass( 'btn-danger' )}
+
+						var others = $( '#judge-scores .active' );
+						if( ! vote && others.length == 0 ) { button.toggleClass( 'active' ); } // Select the first judge that has not voted
+						button.off( 'click' ).click(( ev ) => {
+							var target = $( ev.target );
+							$( '#judge-scores a.active' ).toggleClass( 'active' );
+							target.toggleClass( 'active' );
+						});
+						$( '#judge-scores' ).append( button );
+					}
+
+					// ===== KEYBOARD SCORING BEHAVIOR
+					$( 'body' ).off( 'keypress' ).keypress(( ev ) => {
+						var code   = ev.charCode;
+						var target = $( '#judge-scores .active' );
+						var judge  = parseInt( target.attr( 'data-judge' ));
+						if       ( code == 66 || code == 98 ) { /* B|b */
+							sound.prev.play();
+							target.removeClass( 'btn-default btn-danger' ).addClass( 'btn-primary' );
+							sendVote( judge, 'blue' );
+						} else if( code == 82 || code == 114 ) { /* R|r */
+							sound.next.play();
+							target.removeClass( 'btn-default btn-primary' ).addClass( 'btn-danger' );
+							sendVote( judge, 'red' );
+						}
+						target.removeClass( 'active' );
+					});
 				},
 				// ------------------------------------------------------------
 				navadmin : function( division ) {

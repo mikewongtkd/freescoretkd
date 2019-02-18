@@ -30,7 +30,7 @@ $.widget( "freescore.judgeNotes", {
 
 		view.empty();
 		var table = h.table.clone();
-		var j     = parseInt( o.num );
+		var j     = parseInt( o.num ); if( isNaN( j )) { j = 0; } 
 		table.append( h.tr.clone() 
 			.append( h.th.clone().html( "#" ))
 			.append( h.th.clone().html( "Name" ))
