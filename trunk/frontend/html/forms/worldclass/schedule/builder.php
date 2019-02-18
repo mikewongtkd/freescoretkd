@@ -114,6 +114,8 @@ show.daySchedule = () => {
 			var tick = html.div.clone().addClass( 'hour' ).html( `${ hour }:00 ${ ampm }` ).css({ top: (hr * 15 * scale.fourMinutes) + scale.top + 'px' });
 			timeline.append( tick );
 		}
+		timeline.off( 'click' ).click(( ev ) => {
+		});
 		row.append( timeline );
 
 		// ===== RINGS
@@ -135,7 +137,7 @@ show.daySchedule = () => {
 		.on( 'drop',      dnd.handle.drop )
 		.on( 'dragend',   dnd.handle.drag.end )
 
-	var day       = schedule.day[ settings.current.day ];
+	var day = schedule.day[ settings.current.day ];
 	if( defined( day.plan )) {
 		topOffset = {};
 		Object.keys( day.plan ).forEach(( ringid ) => {
