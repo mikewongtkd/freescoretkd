@@ -1,5 +1,5 @@
 $.widget( "freescore.brackets", {
-	options: { autoShow: true, height: '100%', width: '100%', stroke: 1 },
+	options: { autoShow: true, height: '8in', width: '8in', stroke: 1 },
 	_create: function() {
 		var o        = this.options;
 		var e        = this.options.elements = {};
@@ -24,8 +24,11 @@ $.widget( "freescore.brackets", {
 		var height   = m * (scale.height/4);
 		var width    = (n + 1) * scale.width;
 		var color    = defined( o.color ) ? o.color : { blue: '#286090', red: '#c9302c', white: 'white', current: '#f0ad4e', selected: '#5bc0de', line: '#ccc' };
+		var font     = "<style>@font-face { font-family: 'FjallaOne'; src: url( '/include/fonts/FjallaOne-Regular.ttf' ), url( '/freescore/include/fonts/FjallaOne-Regular.ttf' ); font-weight: normal; font-style: normal; }</style>";
+
 
 		draw.viewbox( 0, 0, width, height );
+		$( 'svg' ).prepend( font );
 
 		var selected = draw.rect( scale.match.width, scale.match.height ).attr({ id: 'bracket-selection' }).fill( 'none' ).stroke({ width: 20, color: color.selected }).radius( 6 ).hide();
 		var current  = draw.rect( scale.match.width, scale.match.height ).attr({ id: 'bracket-current'   }).fill( 'none' ).stroke({ width: 20, color: color.current  }).radius( 6 );
@@ -38,14 +41,14 @@ $.widget( "freescore.brackets", {
 				var block    = scale.height/(4/Math.pow( 2, j ));
 				var y        = (i + 0.5) * block - 50;
 				var bracket  = round[ i ];
-				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: ( depth ) => { return depth == 0 ? 'Bye' : '—' }}};
-				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: ( depth ) => { return depth == 0 ? 'Bye' : '—' }}};
-				var id       = i + '-' + j + '-' + k;
+				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { display: { name: ( depth ) => { return depth == 0 ? 'Bye' : '—' }}}};
+				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { display: { name: ( depth ) => { return depth == 0 ? 'Bye' : '—' }}}};
+				var id       = 'match-' + i + '-' + j + '-' + k;
 				var line     = { start: { x: x + scale.match.width, y: 0 }, head: { x: x + scale.match.width + 20, y: 0 }, foot: { x: x + scale.width - 20, y: y - (100 * j) - 60 }, stop: { x: x + scale.width, y: y - (100 * j) -60 }};
 				var match    = draw.group().attr({ id: id });
 
 				// ===== CLICK HANDLER
-				var clicked  = (function( id, x, y ) { var ijk = id.split( '-' ).map( function( x ) { return parseInt( x ); }); var clickEvent = { type: 'matchClicked', i: ijk[ 0 ], j: ijk[ 1 ], k: ijk[ 2 ]}; return function() { $( w ).trigger( clickEvent ); selected.move( x, y ); selected.show() }})( id, x, y );
+				var clicked  = (function( id, x, y ) { id = id.replace( /match-/, '' ); var ijk = id.split( '-' ).map( x => parseInt( x )); var clickEvent = { type: 'matchClicked', i: ijk[ 0 ], j: ijk[ 1 ], k: ijk[ 2 ]}; return function() { $( w ).trigger( clickEvent ); selected.move( x, y ); selected.show() }})( id, x, y );
 				
 				// ===== CALCULATE SCORES
 				blue.votes   = bracket.blue.votes.reduce( sum );
@@ -63,10 +66,10 @@ $.widget( "freescore.brackets", {
 				// ===== RENDER THE MATCH
 				match.path('M 0 0 L 0 -30 Q 0 -40 10 -40 L 170 -40 Q 180 -40 180 -30 L 180 0 Z' ).fill( color.blue ).attr({ id: id + '-blue' }).move( 0,  0 );
 				match.path('M 0 0 L 0  30 Q 0  40 10  40 L 170  40 Q 180  40 180  30 L 180 0 Z' ).fill( color.red  ).attr({ id: id + '-red'  }).move( 0, 40 );
-				match.text( blue.athlete.name( j ) ).font({ size: 24 }).fill( color.white ).move(  12,  8 );
-				match.text( red.athlete.name( j )  ).font({ size: 24 }).fill( color.white ).move(  12, 44 );
-				if( defined( bracket.blue.athlete )) { match.text( String( blue.votes )).font({ size: 24 }).fill( color.white ).move( 160,  8 ); }
-				if( defined( bracket.red.athlete  )) { match.text( String( red.votes  )).font({ size: 24 }).fill( color.white ).move( 160, 44 ); }
+				match.text( blue.athlete.display.name( j ) ).font({ 'font-family': 'FjallaOne', 'font-size': 24 }).fill( color.white ).move(  8,  7 );
+				match.text( red.athlete.display.name( j )  ).font({ 'font-family': 'FjallaOne', 'font-size': 24 }).fill( color.white ).move(  8, 45 );
+				if( defined( bracket.blue.athlete )) { match.text( String( blue.votes )).font({ 'font-family': 'FjallaOne', 'font-size': 24 }).fill( color.white ).move( 160,  7 ); }
+				if( defined( bracket.red.athlete  )) { match.text( String( red.votes  )).font({ 'font-family': 'FjallaOne', 'font-size': 24 }).fill( color.white ).move( 160, 45 ); }
 
 				match.move( x, y );
 				match.click( clicked ); // Apply click behavior
