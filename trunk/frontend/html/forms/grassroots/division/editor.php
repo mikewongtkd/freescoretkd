@@ -71,6 +71,7 @@
 				athletes.editor.setSize( '100%', '480' );
 				$( '.CodeMirror' ).css({ 'border-radius': '6px' });
 				athletes.list = function() { return this.editor.getDoc().getValue() };
+				athletes.doc  = athletes.editor.getDoc();
 			});
 		</script>
 		<style>
@@ -102,6 +103,7 @@
 				<div class="panel-footer panel-primary clearfix">
 					<div id="user-message" class="text-muted pull-left" style="margin-top: 8px;">Please edit the list of athletes for this division</div>
 					<button id="save-division" type="button" class="btn btn-success pull-right">Save Changes</button>
+					<button type="button" id="randomize-button" class="btn btn-primary pull-right" style="margin-right: 30px;">Randomize Order</button>
 				</div>
 			</div>
 
@@ -169,6 +171,18 @@ foreach ($setting as $key => $value) {
 					$( '#mode-icon' ).removeClass( 'fa-list-ol' );
 					$( '#mode-icon' ).addClass( 'fa-thumbs-up' );
 				}
+			});
+
+			$( '#randomize-button' ).off( 'click' ).click( function() {
+				var list = athletes.doc.getValue().split( '\n' );
+				for( var i = list.length - 1; i >= 0; i-- ) {
+					var j    = Math.floor( Math.random() * (i + 1));
+					var swap = list[ i ];
+					list[ i ] = list[ j ];
+					list[ j ] = swap;
+				}
+				var text = list.join( '\n' );
+				athletes.doc.setValue( text );
 			});
 
 			$( '#save-division' ).off( 'click' ).click( function( ev ) {
