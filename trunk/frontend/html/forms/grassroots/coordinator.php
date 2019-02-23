@@ -332,6 +332,7 @@
 							sendVote( prev, 'clear' );
 							alertify.message( `Clearing ${name} vote. Please wait.`, 1 );
 						}
+						$( 'body' ).off( 'keydown' );
 						target.removeClass( 'active' );
 					});
 				},
