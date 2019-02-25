@@ -19,6 +19,10 @@
 }
 
 #divisions-by-status, #divisions-by-event {
+	.progress {
+		width: 100%;
+		background-color: #ccc;
+	}
 	.event-progress {
 		position: relative;
 		height: 40px; 

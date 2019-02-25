@@ -206,6 +206,16 @@ refresh.checkin = ( registration ) => {
 	var cols      = 4;
 	var width     = Math.ceil( 12/cols );
 	var divisions = [];
+	var overall   = { staging: 0, staged: 0, all: 0 };
+
+	overall.div      = html.div.clone().addClass( 'overall-progress' );
+	overall.progress = html.div.clone().addClass( 'progress' );
+	overall.label    = html.div.clone().addClass( 'overall-label' ).html( 'Staging Progress' );
+	overall.bar      = html.div.clone().addClass( 'progress-bar' ).attr({ role: 'progress-bar' });
+	overall.div.append( overall.label, overall.progress );
+	overall.progress.append( overall.bar );
+	$( '#divisions-by-event .thumbnails' ).append( overall.div );
+	
 	Object.keys( registration.events ).forEach(( ev ) => {
 		var progress = html.div.clone().addClass( 'event-progress' );
 		var label    = html.div.clone().addClass( 'event-label' ).html( ev );
@@ -241,7 +251,8 @@ refresh.checkin = ( registration ) => {
 			else if( div.status == 'competing' ) { return; }
 			else if( div.status == 'done'      ) { return; }
 
-			if( div.status ) { count[ div.status ]++; }
+			if( div.status ) { count[ div.status ]++; overall[ div.status ]++; }
+			overall[ 'all' ]++;
 			count[ 'all' ]++;
 
 			if(! ( i % cols)) {
@@ -252,13 +263,22 @@ refresh.checkin = ( registration ) => {
 			i++;
 		});
 		var percent = count.all == 0 ? 100 : Math.round((count.staged * 100)/count.all);
-		if     ( percent < 25  ) { bar.addClass( 'progress-bar-danger' ); }
-		else if( percent < 50  ) { bar.addClass( 'progress-bar-warning' ); }
-		else if( percent < 75  ) { bar.addClass( 'progress-bar-info' ); }
-		else if( percent < 100 ) { bar.addClass( 'progress-bar-success' ); }
+		if     ( percent <   25 ) { bar.addClass( 'progress-bar-danger' ); }
+		else if( percent <   50 ) { bar.addClass( 'progress-bar-warning' ); }
+		else if( percent <   75 ) { bar.addClass( 'progress-bar-info' ); }
+		else if( percent <= 100 ) { bar.addClass( 'progress-bar-success' ); }
 		bar.attr({ style : `width: ${percent}%`});
 		bar.empty().html( `${percent}%` );
 	});
+
+	var percent = overall.all == 0 ? 100 : Math.round((overall.staged * 100)/overall.all);
+	if     ( percent < 25  ) { overall.bar.addClass( 'progress-bar-danger' ); }
+	else if( percent < 50  ) { overall.bar.addClass( 'progress-bar-warning' ); }
+	else if( percent < 75  ) { overall.bar.addClass( 'progress-bar-info' ); }
+	else if( percent < 100 ) { overall.bar.addClass( 'progress-bar-success' ); }
+	overall.bar.attr({ style : `width: ${percent}%`});
+	overall.bar.empty().html( `${percent}%` );
+
 };
 
 </script>

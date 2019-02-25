@@ -9,6 +9,9 @@
   margin-left: 4px;
   margin-right: 4px; }
 
+#divisions-by-status .progress, #divisions-by-event .progress {
+  width: 100%;
+  background-color: #ccc; }
 #divisions-by-status .event-progress, #divisions-by-event .event-progress {
   position: relative;
   height: 40px; }
