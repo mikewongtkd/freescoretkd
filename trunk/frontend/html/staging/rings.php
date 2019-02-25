@@ -1,5 +1,5 @@
-<div class="pt-page pt-page-1">
-	<div id="rings-view">
+<div class="pt-page pt-page-4 page-rings">
+	<div class="rings-view">
 	</div>
 </div>
 <script>
@@ -7,7 +7,7 @@ $(() => {
 	refresh.rings();
 });
 refresh.rings = ( schedule ) => {
-	$( '#rings-view' ).empty();
+	$( '.page-rings .rings-view' ).empty();
 
 	var n   = tournament.rings.length;
 	var w   = n < 3 ? n : 3;

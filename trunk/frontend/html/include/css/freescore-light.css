@@ -1,0 +1,121 @@
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic; }
+@font-face {
+  font-family: 'Biolinum';
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Barlow';
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'FjallaOne';
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  font-family: Optima, Biolinum, Lato; }
+
+.pt-perspective {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px; }
+
+.pt-page {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d; }
+
+.pt-page-current,
+.no-js .pt-page {
+  visibility: visible;
+  z-index: 1; }
+
+.pt-page-ontop {
+  z-index: 999; }
+
+.page-header {
+  position: relative;
+  top: 0;
+  height: 48px;
+  width: 100%;
+  margin: 10px 0 16px 0;
+  padding: 8px 14px 8px 14px;
+  background-color: black;
+  color: gold;
+  font-size: 24pt;
+  line-height: 24pt;
+  font-weight: bold;
+  border-radius: 4px; }
+  .page-header .page-header-content {
+    margin-left: 20px; }
+
+.back {
+  margin-top: -3px; }
+
+.action-menu .list-group-item span {
+  margin-right: 12px; }
+.action-menu .navigate-division .list-group-item, .action-menu .navigate-athlete .list-group-item {
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: white; }
+.action-menu .fs-primary p {
+  margin: 0 8px 0 8px;
+  font-size: 9pt; }
+.action-menu .fs-primary .list-group-item {
+  background-color: #5bc0de;
+  border-color: #46b8da;
+  color: white; }
+.action-menu .fs-danger .list-group-item {
+  background-color: #d9534f;
+  border-color: #d43f3a;
+  color: white; }
+.action-menu .fs-warning .list-group-item {
+  background-color: #f0ad4e;
+  border-color: #eea236;
+  color: white; }
+  .action-menu .fs-warning .list-group-item.disabled {
+    background-color: #995c00;
+    border-color: #804d00;
+    color: #cc7a00; }
+
+.tab-content {
+  margin-top: 20px; }
+
+/*# sourceMappingURL=freescore-light.css.map */

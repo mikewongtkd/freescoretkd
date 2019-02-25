@@ -7,15 +7,20 @@
 		<title>Staging</title>
 		<link href="include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
-		<link href="include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
+		<link href="include/css/freescore-light.css" rel="stylesheet" />
+		<link href="include/css/staging.css" rel="stylesheet" />
 		<link href="include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
+		<link href="include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<link href="include/css/fonts.css" rel="stylesheet" />
+		<script src="include/later/js/later.min.js"></script>
 		<script src="include/jquery/js/jquery.js"></script>
 		<script src="include/jquery/js/jquery.howler.min.js"></script>
+		<script src="include/jquery/js/jquery-dateformat.min.js"></script>
 		<script src="include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="include/bootstrap/add-ons/bootstrap-select.min.js"></script>
+		<script src="include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="include/alertify/alertify.min.js"></script>
 		<script src="include/js/freescore.js"></script>
 
@@ -31,6 +36,7 @@ body {
 var refresh = {};
 </script>
 		<div id="pt-main" class="pt-perspective">
+<?php include( 'staging/checkin.php' ); ?>
 <?php include( 'staging/rings.php' ); ?>
 		</div>
 <script src="include/page-transitions/js/pagetransitions.js"></script>
@@ -59,14 +65,16 @@ var page = {
 
 // ===== SERVER COMMUNICATION
 var server = {
-	worldclass: new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
-	grassroots: new EventSource( 'http://' + host + '/cgi-bin/freescore/forms/grassroots/update?tournament=' + tournament.db ),
+//	worldclass: new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
+//	grassroots: new EventSource( 'http://' + host + '/cgi-bin/freescore/forms/grassroots/update?tournament=' + tournament.db ),
 //	sparring:   new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
 };
 
+/*
 server.grassroots.addEventListener( 'message', ( update ) => {
 	console.log( 'Grassroots', update );
 }, false );
+ */
 
 /* Sparring server doesn't handle reads yet
 server.sparring.onopen = () => {
@@ -83,6 +91,7 @@ server.sparring.onmessage = ( response ) => {
 };
 */
 
+/*
 server.worldclass.onopen = () => {
 	var request;
 
@@ -95,7 +104,7 @@ server.worldclass.onmessage = ( response ) => {
 	var update = JSON.parse( response.data );
 	console.log( 'Worldclass', update );
 };
-
+ */
 </script>
 	</body>
 </html>
