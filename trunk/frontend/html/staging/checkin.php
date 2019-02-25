@@ -7,6 +7,8 @@
 			<ul class="nav nav-pills">
 				<li class="active"><a data-toggle="tab" href="#athletes-registered">Registered Athletes</a></li>
 				<li><a data-toggle="tab" href="#athletes-confirmed">Confirmed Athletes</a></li>
+				<li><a data-toggle="tab" href="#divisions-by-status">Division Staging Progress</a></li>
+				<li><a data-toggle="tab" href="#divisions-by-event">Event Staging Progress</a></li>
 			</ul>
 		</div>
 		<div class="tab-content">
@@ -24,11 +26,33 @@
 			<div id="athletes-confirmed" class="tab-pane fade">
 				<form role="form">
 					<div class="form-group">
-						<input id="search-registered" class="form-control" type="search" placeholder="Search..." />
+						<input id="search-confirmed" class="form-control" type="search" placeholder="Search..." />
 					</div>
 					<div class="btn-group btn-group-justified" role=group>
 					</div>
 					<div class="list-group">
+					</div>
+				</form>
+			</div>
+			<div id="divisions-by-status" class="tab-pane fade">
+				<form role="form">
+					<div class="form-group">
+						<input id="search-confirmed" class="form-control" type="search" placeholder="Search..." />
+					</div>
+					<div class="btn-group btn-group-justified" role=group>
+					</div>
+					<div class="thumbnails">
+					</div>
+				</form>
+			</div>
+			<div id="divisions-by-event" class="tab-pane fade">
+				<form role="form">
+					<div class="form-group">
+						<input id="search-confirmed" class="form-control" type="search" placeholder="Search..." />
+					</div>
+					<div class="btn-group btn-group-justified" role=group>
+					</div>
+					<div class="thumbnails">
 					</div>
 				</form>
 			</div>
@@ -49,18 +73,21 @@ refresh.checkin = ( registration ) => {
 	};
 
 	var none_checked_in = ( a, b ) => {
-		var athlete = registration.athletes[ b ];
-		return a && ! athlete.checkedin;
+		var athleteA = a in registration.athletes ? registration.athletes[ a ] : { checkedin : true };
+		var athleteB = registration.athletes[ b ];
+		return athleteA.checkedin && ! athleteB.checkedin;
 	};
 
 	var some_checked_in = ( a, b ) => {
-		var athlete = registration.athletes[ b ];
-		return a || athlete.checkedin;
+		var athleteA = a in registration.athletes ? registration.athletes[ a ] : { checkedin : true };
+		var athleteB = registration.athletes[ b ];
+		return athleteA || athleteB.checkedin;
 	};
 
 	var all_checked_in = ( a, b ) => {
-		var athlete = registration.athletes[ b ];
-		return a && athlete.checkedin;
+		var athleteA = a in registration.athletes ? registration.athletes[ a ] : { checkedin : true };
+		var athleteB = registration.athletes[ b ];
+		return athleteA.checkedin && athleteB.checkedin;
 	};
 
 	registration.divisions = {};
@@ -102,6 +129,9 @@ refresh.checkin = ( registration ) => {
 				var checkout = html.a.clone().addClass( 'btn btn-xs btn-danger' ).append( 'Checked in at ' + timestamp );
 				buttons.append( checkout );
 				checkout.off( 'click' ).click(( ev ) => {
+					var target  = $( ev.target );
+					var key     = target.parents( 'li.list-group-item' ).attr( 'data-key' );
+					var athlete = registration.athletes[ key ];
 					alertify.confirm( 
 						`Undo check-in for ${athlete.name}?`, 
 						`Click OK to confirm that ${athlete.name} was mistakenly checked-in or has gone missing.`,
@@ -176,6 +206,47 @@ refresh.checkin = ( registration ) => {
 			list.append( listing );
 		}
 	);
-}
+
+	$( '#divisions-by-status .thumbnails' ).empty();
+	$( '#divisions-by-event  .thumbnails' ).empty();
+
+	var cols      = 4;
+	var width     = Math.ceil( 12/cols );
+	var divisions = [];
+	Object.keys( registration.events ).forEach(( ev ) => {
+		var label = html.h2.clone().html( ev );
+		$( '#divisions-by-event .thumbnails' ).append( label );
+
+		var row = html.div.clone().addClass( 'row' );
+		$( '#divisions-by-event .thumbnails' ).append( row );
+
+		var i = 0;
+		Object.keys( registration.events[ ev ]).forEach(( divid ) => {
+			var div = registration.events[ ev ][ divid ];
+			divisions.push( div );
+			var desc         = div.description; desc = desc.replace( /\[/, "<br>[" );
+			var cell         = html.div.clone().addClass( `col-xs-${width}` );
+			var title        = html.div.clone().addClass( 'thumbnail-header' ).html( `<div class="title">${desc}</div>` );
+			var count        = html.div.clone().addClass( 'pull-right' ).append( div.athletes.length );
+			var id           = html.div.clone().addClass( 'thumbnail-divid' ).append( divid.toUpperCase(), count );
+			var athletes     = div.athletes.sort( sort_by_name ).map( key => registration.athletes[ key ]);
+			var participants = html.div.clone().addClass( 'thumbnail-athletes' ).html( athletes.map( athlete => { if( athlete.checkedin ) { return athlete.name; } else { return `<span class="text-danger">${athlete.name}</span>`; }} ).join( ', ' ));
+			var thumb        = html.div.clone().addClass( `thumbnail` ).attr({ 'data-divid' : divid }).append( title, id, participants );
+			cell.append( thumb );
+
+			if( ! div.status )                   { title.addClass( 'bg-primary' ); }
+			else if( div.status == 'staging'   ) { title.addClass( 'bg-info' ); }
+			else if( div.status == 'staged'    ) { title.addClass( 'bg-success' ); }
+			else if( div.status == 'competing' ) { return; }
+
+			if(! ( i % cols)) {
+				row = html.div.clone().addClass( 'row' );
+				$( '#divisions-by-event .thumbnails' ).append( row );
+			}
+			row.append( cell );
+			i++;
+		});
+	});
+};
 
 </script>
