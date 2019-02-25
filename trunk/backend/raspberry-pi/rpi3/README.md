@@ -24,7 +24,10 @@ FreeScore requires a webserver and PHP 5 interpreter. They can be installed by i
 
 	apt-get install -y apache2 php7.0
 	a2enmod cgi
+	a2enmod cgid
 	systemctl restart apache2	
+
+Also confirm that `conf-enabled/serve-cgi-bin.conf` is configured correctly (especially that the CGI directory has a trailing slash `/`.
 	
 ## Perl
 

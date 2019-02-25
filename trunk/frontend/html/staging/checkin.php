@@ -35,26 +35,16 @@
 				</form>
 			</div>
 			<div id="divisions-by-status" class="tab-pane fade">
-				<form role="form">
-					<div class="form-group">
-						<input id="search-confirmed" class="form-control" type="search" placeholder="Search..." />
-					</div>
-					<div class="btn-group btn-group-justified" role=group>
-					</div>
-					<div class="thumbnails">
-					</div>
-				</form>
+				<div class="btn-group btn-group-justified" role=group>
+				</div>
+				<div class="thumbnails">
+				</div>
 			</div>
 			<div id="divisions-by-event" class="tab-pane fade">
-				<form role="form">
-					<div class="form-group">
-						<input id="search-confirmed" class="form-control" type="search" placeholder="Search..." />
-					</div>
-					<div class="btn-group btn-group-justified" role=group>
-					</div>
-					<div class="thumbnails">
-					</div>
-				</form>
+				<div class="btn-group btn-group-justified" role=group>
+				</div>
+				<div class="thumbnails">
+				</div>
 			</div>
 		</div>
 	</div>
@@ -142,7 +132,7 @@ refresh.checkin = ( registration ) => {
 								var div = registration.events[ ev ][ divid ];
 								if( div.athletes.reduce( none_checked_in )) {
 									div.status = undefined;
-									alertify.error( `Division ${divid.toUpperCase()} is no longer to compete`, 30 );
+									alertify.error( `Division ${divid.toUpperCase()} is no longer to compete` );
 								} else if( div.athletes.reduce( some_checked_in )) {
 									div.status = 'staging';
 								}
@@ -150,7 +140,7 @@ refresh.checkin = ( registration ) => {
 							refresh.checkin( registration ); 
 						},
 						( ev ) => {}
-						);
+					);
 				});
 			} else {
 				// ===== CHECK-IN BEHAVIOR
@@ -207,6 +197,9 @@ refresh.checkin = ( registration ) => {
 		}
 	);
 
+	// ============================================================
+	// DIVISION CARDS
+	// ============================================================
 	$( '#divisions-by-status .thumbnails' ).empty();
 	$( '#divisions-by-event  .thumbnails' ).empty();
 
@@ -214,12 +207,18 @@ refresh.checkin = ( registration ) => {
 	var width     = Math.ceil( 12/cols );
 	var divisions = [];
 	Object.keys( registration.events ).forEach(( ev ) => {
-		var label = html.h2.clone().html( ev );
-		$( '#divisions-by-event .thumbnails' ).append( label );
+		var progress = html.div.clone().addClass( 'event-progress' );
+		var label    = html.div.clone().addClass( 'event-label' ).html( ev );
+		var bar_div  = html.div.clone().addClass( 'progress' );
+		var bar      = html.div.clone().addClass( 'progress-bar' ).attr({ role : 'progress-bar' });
+		bar_div.append( bar );
+		progress.append( label, bar_div );
+		$( '#divisions-by-event .thumbnails' ).append( progress );
 
 		var row = html.div.clone().addClass( 'row' );
 		$( '#divisions-by-event .thumbnails' ).append( row );
 
+		var count = { staging: 0, staged: 0, all: 0 };
 		var i = 0;
 		Object.keys( registration.events[ ev ]).forEach(( divid ) => {
 			var div = registration.events[ ev ][ divid ];
@@ -227,17 +226,23 @@ refresh.checkin = ( registration ) => {
 			var desc         = div.description; desc = desc.replace( /\[/, "<br>[" );
 			var cell         = html.div.clone().addClass( `col-xs-${width}` );
 			var title        = html.div.clone().addClass( 'thumbnail-header' ).html( `<div class="title">${desc}</div>` );
-			var count        = html.div.clone().addClass( 'pull-right' ).append( div.athletes.length );
-			var id           = html.div.clone().addClass( 'thumbnail-divid' ).append( divid.toUpperCase(), count );
+			var n            = html.div.clone().addClass( 'pull-right' ).append( div.athletes.length );
+			var id           = html.div.clone().addClass( 'thumbnail-divid' ).append( divid.toUpperCase(), n );
 			var athletes     = div.athletes.sort( sort_by_name ).map( key => registration.athletes[ key ]);
 			var participants = html.div.clone().addClass( 'thumbnail-athletes' ).html( athletes.map( athlete => { if( athlete.checkedin ) { return athlete.name; } else { return `<span class="text-danger">${athlete.name}</span>`; }} ).join( ', ' ));
 			var thumb        = html.div.clone().addClass( `thumbnail` ).attr({ 'data-divid' : divid }).append( title, id, participants );
 			cell.append( thumb );
 
-			if( ! div.status )                   { title.addClass( 'bg-primary' ); }
-			else if( div.status == 'staging'   ) { title.addClass( 'bg-info' ); }
-			else if( div.status == 'staged'    ) { title.addClass( 'bg-success' ); }
+			if( ! div.status )                   { title.addClass( 'thumbnail-waiting' ); }
+			else if( div.status == 'staging'   ) { title.addClass( 'thumbnail-inprogress' ); }
+			else if( div.status == 'staged'    ) { title.addClass( 'thumbnail-ready' ); }
+			else if( div.status == 'at-ring'   ) { return; }
+			else if( div.status == 'on-deck'   ) { return; }
 			else if( div.status == 'competing' ) { return; }
+			else if( div.status == 'done'      ) { return; }
+
+			if( div.status ) { count[ div.status ]++; }
+			count[ 'all' ]++;
 
 			if(! ( i % cols)) {
 				row = html.div.clone().addClass( 'row' );
@@ -246,6 +251,13 @@ refresh.checkin = ( registration ) => {
 			row.append( cell );
 			i++;
 		});
+		var percent = count.all == 0 ? 100 : Math.round((count.staged * 100)/count.all);
+		if     ( percent < 25  ) { bar.addClass( 'progress-bar-danger' ); }
+		else if( percent < 50  ) { bar.addClass( 'progress-bar-warning' ); }
+		else if( percent < 75  ) { bar.addClass( 'progress-bar-info' ); }
+		else if( percent < 100 ) { bar.addClass( 'progress-bar-success' ); }
+		bar.attr({ style : `width: ${percent}%`});
+		bar.empty().html( `${percent}%` );
 	});
 };
 

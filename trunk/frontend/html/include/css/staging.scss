@@ -19,6 +19,26 @@
 }
 
 #divisions-by-status, #divisions-by-event {
+	.event-progress {
+		position: relative;
+		height: 40px; 
+		$progress-bar-width: 200px;
+
+		.event-label {
+			position: absolute;
+			top: 0;
+			left: 0;
+			font-size: 18pt;
+			width: calc( 100% - $progress-bar-width );
+		}
+		.progress {
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: $progress-bar-width;
+			background-color: #ccc;
+		}
+	}
 	.thumbnail {
 		padding: 0;
 
@@ -27,11 +47,18 @@
 			padding-right: 8px;
 			display: flex;
 			min-height: 64px;
+			border-radius: 4px 4px 0 0;
 			.title {
 				font-size: 14pt;
 				text-align: center;
 				margin: auto;
+				color: #fff;
 			}
+			&.thumbnail-ready      { background-color: #5cb85c; }
+			&.thumbnail-waiting    { background-color: #337ab7; }
+			&.thumbnail-inprogress { background-color: #5bc0de; }
+			&.thumbnail-warning    { background-color: #f0ad4e; }
+			&.thumbnail-danger     { background-color: #d9534f; }
 		}
 
 		.thumbnail-divid, .thumbnail-athletes {

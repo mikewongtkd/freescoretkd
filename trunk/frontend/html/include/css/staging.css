@@ -9,17 +9,44 @@
   margin-left: 4px;
   margin-right: 4px; }
 
+#divisions-by-status .event-progress, #divisions-by-event .event-progress {
+  position: relative;
+  height: 40px; }
+  #divisions-by-status .event-progress .event-label, #divisions-by-event .event-progress .event-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 18pt;
+    width: calc( 100% - $progress-bar-width ); }
+  #divisions-by-status .event-progress .progress, #divisions-by-event .event-progress .progress {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    background-color: #ccc; }
 #divisions-by-status .thumbnail, #divisions-by-event .thumbnail {
   padding: 0; }
   #divisions-by-status .thumbnail .thumbnail-header, #divisions-by-event .thumbnail .thumbnail-header {
     padding-left: 8px;
     padding-right: 8px;
     display: flex;
-    min-height: 64px; }
+    min-height: 64px;
+    border-radius: 4px 4px 0 0; }
     #divisions-by-status .thumbnail .thumbnail-header .title, #divisions-by-event .thumbnail .thumbnail-header .title {
       font-size: 14pt;
       text-align: center;
-      margin: auto; }
+      margin: auto;
+      color: #fff; }
+    #divisions-by-status .thumbnail .thumbnail-header.thumbnail-ready, #divisions-by-event .thumbnail .thumbnail-header.thumbnail-ready {
+      background-color: #5cb85c; }
+    #divisions-by-status .thumbnail .thumbnail-header.thumbnail-waiting, #divisions-by-event .thumbnail .thumbnail-header.thumbnail-waiting {
+      background-color: #337ab7; }
+    #divisions-by-status .thumbnail .thumbnail-header.thumbnail-inprogress, #divisions-by-event .thumbnail .thumbnail-header.thumbnail-inprogress {
+      background-color: #5bc0de; }
+    #divisions-by-status .thumbnail .thumbnail-header.thumbnail-warning, #divisions-by-event .thumbnail .thumbnail-header.thumbnail-warning {
+      background-color: #f0ad4e; }
+    #divisions-by-status .thumbnail .thumbnail-header.thumbnail-danger, #divisions-by-event .thumbnail .thumbnail-header.thumbnail-danger {
+      background-color: #d9534f; }
   #divisions-by-status .thumbnail .thumbnail-divid, #divisions-by-status .thumbnail .thumbnail-athletes, #divisions-by-event .thumbnail .thumbnail-divid, #divisions-by-event .thumbnail .thumbnail-athletes {
     padding-top: 8px;
     padding-left: 12px;
