@@ -3,6 +3,7 @@
 		cursor: s-resize;
 	}
 	.go-top {
+		margin-top: 3px;
 		cursor: n-resize;
 		&:hover {
 			text-decoration: none;
@@ -27,20 +28,35 @@
 		position: relative;
 		height: 40px; 
 		$progress-bar-width: 200px;
+		$go-top-width: 24px;
 
 		.event-label {
 			position: absolute;
 			top: 0;
 			left: 0;
 			font-size: 18pt;
-			width: calc( 100% - $progress-bar-width );
+			width: calc( 100% - ($progress-bar-width + $go-top-width));
 		}
 		.progress {
 			position: absolute;
 			top: 0;
-			right: 0;
+			right: $go-top-width;
 			width: $progress-bar-width;
 			background-color: #ccc;
+		}
+		.go-top {
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: $go-top-width;
+			text-align: center;
+			span {
+				margin-top: 3px;
+				cursor: n-resize;
+				&:hover { 
+					text-decoration: none; 
+				}
+			}
 		}
 	}
 	.thumbnail {
@@ -75,6 +91,16 @@
 			padding-bottom: 20px;
 			font-size: 9pt;
 			min-height: 80px;
+		}
+	}
+}
+
+.event-staging-dashboard {
+	.list-group {
+		.list-group-item {
+			span {
+				margin-right: 12px;
+			}
 		}
 	}
 }

@@ -187,7 +187,7 @@ refresh.checkin = ( registration ) => {
 			if( list.children( '#' + letterid ).length == 0 ) {
 
 				var separator = html.li.clone().addClass( 'list-group-item list-group-item-info' ).attr({ id: letterid });
-				var go_top    = html.a.clone().addClass( 'go-top fa fa-angle-up' ).html( '&nbsp;' );
+				var go_top    = html.a.clone().addClass( 'go-top fa fa-chevron-circle-up' ).html( '&nbsp;' );
 				var top_arrow = html.div.clone().addClass( 'pull-right' ).append( go_top );
 
 				go_top.off( 'click' ).click(() => { $( '.page-checkin' ).animate({ scrollTop: 0 }, 350); })
@@ -221,16 +221,23 @@ refresh.checkin = ( registration ) => {
 	var width     = Math.ceil( 12/cols );
 	var divisions = [];
 	var overall   = { staging: 0, staged: 0, all: 0 };
-	overall.div   = `<?php include( 'checkin/event-staging-overall-control.php' ) ?>`;
-	$( '#divisions-by-event .thumbnails' ).append( overall.div );
-	
+	overall.dashboard   = `<?php include( 'checkin/event-staging-dashboard.php' ) ?>`;
+	$( '#divisions-by-event .thumbnails' ).append( overall.dashboard );
+	$( '.event-staging-dashboard .list-group' ).append( registration.event.order.map( ev => `<a class="list-group-item" draggable="true" data-event="${ev}"><span class="fa fa-arrows-v sortable-handles"></span>${ev}</a>` ));
+	$( '.event-staging-dashboard .list-group a.list-group-item' ).off( 'click' ).click(( ev ) => { 
+		var target = $( ev.target ).hasClass( 'list-group-item' ) ? $( ev.target ) : $( ev.target ).parents( '.list-group-item' );
+		var label  = target.attr( 'data-event' );
+		var el     = $( `.event-progress[data-event="${label}"` );
+		$( '.page-checkin' ).animate({ scrollTop: el.offset().top - 12 }, 350); 
+	});
+	$( '.event-staging-dashboard .list-group' ).sortable({ placeholderClass: 'list-group-item', handle: 'span.sortable-handles' }).off( 'sortupdate' ).bind( 'sortupdate', ( ev, ui ) => {
+		var target = $( ev.target );
+		registration.event.order = target.children( 'a' ).map(( i, item ) => { return $( item ).attr( 'data-event' ) }).toArray();
+		refresh.checkin( registration );
+	});
+
 	registration.event.order.forEach(( ev ) => {
-		var progress = html.div.clone().addClass( 'event-progress' );
-		var label    = html.div.clone().addClass( 'event-label' ).html( ev );
-		var bar_div  = html.div.clone().addClass( 'progress' );
-		var bar      = html.div.clone().addClass( 'progress-bar' ).attr({ role : 'progress-bar' });
-		bar_div.append( bar );
-		progress.append( label, bar_div );
+		var progress = `<?php include( 'checkin/event-label.php' ) ?>`;
 		$( '#divisions-by-event .thumbnails' ).append( progress );
 
 		var row = html.div.clone().addClass( 'row' );
@@ -271,6 +278,7 @@ refresh.checkin = ( registration ) => {
 			i++;
 		});
 		var percent = count.all == 0 ? 100 : Math.round((count.staged * 100)/count.all);
+		var bar     = $( `.event-progress[data-event="${ev}"] .progress-bar` );
 		if     ( percent <   25 ) { bar.addClass( 'progress-bar-danger' ); }
 		else if( percent <   50 ) { bar.addClass( 'progress-bar-warning' ); }
 		else if( percent <   75 ) { bar.addClass( 'progress-bar-info' ); }
@@ -280,14 +288,14 @@ refresh.checkin = ( registration ) => {
 	});
 
 	var percent = overall.all == 0 ? 100 : Math.round((overall.staged * 100)/overall.all);
-	var pb      = $( '.overall-progress .progress-bar' );
-	if     ( percent < 25  ) { pb.addClass( 'progress-bar-danger' ); }
-	else if( percent < 50  ) { pb.addClass( 'progress-bar-warning' ); }
-	else if( percent < 75  ) { pb.addClass( 'progress-bar-info' ); }
-	else if( percent < 100 ) { pb.addClass( 'progress-bar-success' ); }
+	var pb      = $( '.event-staging-dashboard .progress-bar' );
+	if     ( percent <   25 ) { pb.addClass( 'progress-bar-danger' ); }
+	else if( percent <   50 ) { pb.addClass( 'progress-bar-warning' ); }
+	else if( percent <   75 ) { pb.addClass( 'progress-bar-info' ); }
+	else if( percent <= 100 ) { pb.addClass( 'progress-bar-success' ); }
 	pb.attr({ style : `width: ${percent}%`});
 	pb.empty().html( `${percent}%` );
-
+	$( '#divisions-by-event .event-progress .go-top' ).off( 'click' ).click(() => { $( '.page-checkin' ).animate({ scrollTop: 0 }, 350); })
 };
 
 </script>

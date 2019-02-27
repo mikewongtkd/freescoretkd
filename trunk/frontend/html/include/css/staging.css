@@ -1,6 +1,7 @@
 #athletes-registered .go-down, #athletes-confirmed .go-down {
   cursor: s-resize; }
 #athletes-registered .go-top, #athletes-confirmed .go-top {
+  margin-top: 3px;
   cursor: n-resize; }
   #athletes-registered .go-top:hover, #athletes-confirmed .go-top:hover {
     text-decoration: none; }
@@ -20,13 +21,24 @@
     top: 0;
     left: 0;
     font-size: 18pt;
-    width: calc( 100% - $progress-bar-width ); }
+    width: calc( 100% - ($progress-bar-width + $go-top-width)); }
   #divisions-by-status .event-progress .progress, #divisions-by-event .event-progress .progress {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 24px;
     width: 200px;
     background-color: #ccc; }
+  #divisions-by-status .event-progress .go-top, #divisions-by-event .event-progress .go-top {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    text-align: center; }
+    #divisions-by-status .event-progress .go-top span, #divisions-by-event .event-progress .go-top span {
+      margin-top: 3px;
+      cursor: n-resize; }
+      #divisions-by-status .event-progress .go-top span:hover, #divisions-by-event .event-progress .go-top span:hover {
+        text-decoration: none; }
 #divisions-by-status .thumbnail, #divisions-by-event .thumbnail {
   padding: 0; }
   #divisions-by-status .thumbnail .thumbnail-header, #divisions-by-event .thumbnail .thumbnail-header {
@@ -58,5 +70,8 @@
     padding-bottom: 20px;
     font-size: 9pt;
     min-height: 80px; }
+
+.event-staging-dashboard .list-group .list-group-item span {
+  margin-right: 12px; }
 
 /*# sourceMappingURL=staging.css.map */

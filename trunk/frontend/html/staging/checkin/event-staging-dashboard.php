@@ -1,11 +1,11 @@
-<div class="overall-progress panel panel-primary">
+<div class="event-staging-dashboard panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title">Staging Progress</h3>
 	</div>
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-xs-4">
-				<ul class="list-group">
+				<ul class="list-group list-group-sortable-handles">
 				</ul>
 			</div>
 			<div class="col-xs-8">

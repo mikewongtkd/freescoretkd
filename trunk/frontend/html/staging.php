@@ -21,6 +21,7 @@
 		<script src="include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
+		<script src="include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="include/alertify/alertify.min.js"></script>
 		<script src="include/js/freescore.js"></script>
 
