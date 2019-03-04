@@ -7,8 +7,8 @@
 			<ul class="nav nav-pills">
 				<li class="active"><a data-toggle="tab" href="#athletes-registered">Registered Athletes</a></li>
 				<li><a data-toggle="tab" href="#athletes-confirmed">Confirmed Athletes</a></li>
-				<li><a data-toggle="tab" href="#divisions-by-status">Division Staging Progress</a></li>
-				<li><a data-toggle="tab" href="#divisions-by-event">Event Staging Progress</a></li>
+				<li><a data-toggle="tab" href="#divisions-in-staging">Staging Progress</a></li>
+				<li><a data-toggle="tab" href="#divisions-at-rings">Competition Progress</a></li>
 			</ul>
 		</div>
 		<div class="tab-content">
@@ -34,13 +34,13 @@
 					</div>
 				</form>
 			</div>
-			<div id="divisions-by-status" class="tab-pane fade">
+			<div id="divisions-in-staging" class="tab-pane fade">
 				<div class="btn-group btn-group-justified" role=group>
 				</div>
 				<div class="thumbnails">
 				</div>
 			</div>
-			<div id="divisions-by-event" class="tab-pane fade">
+			<div id="divisions-at-rings" class="tab-pane fade">
 				<div class="btn-group btn-group-justified" role=group>
 				</div>
 				<div class="thumbnails">
@@ -146,9 +146,10 @@ refresh.checkin = ( registration ) => {
 								var div = registration.events[ ev ][ divid ];
 								if( div.athletes.reduce( none_checked_in )) {
 									div.status = undefined;
-									alertify.error( `Division ${divid.toUpperCase()} is no longer to compete` );
+									alertify.error( `Division ${divid.toUpperCase()} is now waiting` );
 								} else if( div.athletes.reduce( some_checked_in )) {
 									div.status = 'staging';
+									div.staged = undefined;
 								}
 							});
 							refresh.checkin( registration ); 
@@ -171,6 +172,7 @@ refresh.checkin = ( registration ) => {
 						var div = registration.events[ ev ][ divid ];
 						if( div.athletes.reduce( all_checked_in )) {
 							div.status = 'staged';
+							if( ! defined( div.staged )) { div.staged = new Date(); }
 							alertify.success( `Division ${divid.toUpperCase()} is ready to compete`, 30 );
 						} else if( div.athletes.reduce( some_checked_in )) {
 							div.status = 'staging';
@@ -214,34 +216,37 @@ refresh.checkin = ( registration ) => {
 	// ============================================================
 	// DIVISION CARDS
 	// ============================================================
-	$( '#divisions-by-status .thumbnails' ).empty();
-	$( '#divisions-by-event  .thumbnails' ).empty();
+	$( '#divisions-in-staging .thumbnails' ).empty();
 
 	var cols      = 4;
 	var width     = Math.ceil( 12/cols );
 	var divisions = [];
 	var overall   = { staging: 0, staged: 0, all: 0 };
+
+	// ===== DASHBOARD 
 	overall.dashboard   = `<?php include( 'checkin/event-staging-dashboard.php' ) ?>`;
-	$( '#divisions-by-event .thumbnails' ).append( overall.dashboard );
-	$( '.event-staging-dashboard .list-group' ).append( registration.event.order.map( ev => `<a class="list-group-item" draggable="true" data-event="${ev}"><span class="fa fa-arrows-v sortable-handles"></span>${ev}</a>` ));
-	$( '.event-staging-dashboard .list-group a.list-group-item' ).off( 'click' ).click(( ev ) => { 
-		var target = $( ev.target ).hasClass( 'list-group-item' ) ? $( ev.target ) : $( ev.target ).parents( '.list-group-item' );
+	$( '#divisions-in-staging .thumbnails' ).append( overall.dashboard );
+	$( '#event-order' ).append( registration.event.order.map( ev => `<li class="list-group-item" draggable="true" data-event="${ev}"><span class="fa fa-arrows-v sortable-handles"></span>${ev}</li>` ));
+	$( '.event-staging-dashboard .btn-group' ).append( registration.event.order.map( ev => `<a class="btn btn-xs btn-primary" data-event="${ev}">${ev}</a>` ));
+	$( '.event-staging-dashboard .btn-group a' ).off( 'click' ).click(( ev ) => { 
+		var target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parents( '.btn' );
 		var label  = target.attr( 'data-event' );
 		var el     = $( `.event-progress[data-event="${label}"` );
 		$( '.page-checkin' ).animate({ scrollTop: el.offset().top - 12 }, 350); 
 	});
-	$( '.event-staging-dashboard .list-group' ).sortable({ placeholderClass: 'list-group-item', handle: 'span.sortable-handles' }).off( 'sortupdate' ).bind( 'sortupdate', ( ev, ui ) => {
+	var sorting = $( '.event-staging-dashboard .list-group' ).detach();
+	$( '#event-order' ).sortable().off( 'sortupdate' ).bind( 'sortupdate', ( ev, ui ) => {
 		var target = $( ev.target );
-		registration.event.order = target.children( 'a' ).map(( i, item ) => { return $( item ).attr( 'data-event' ) }).toArray();
+		registration.event.order = target.children( 'li' ).map(( i, item ) => { return $( item ).attr( 'data-event' ) }).toArray();
 		refresh.checkin( registration );
 	});
 
 	registration.event.order.forEach(( ev ) => {
 		var progress = `<?php include( 'checkin/event-label.php' ) ?>`;
-		$( '#divisions-by-event .thumbnails' ).append( progress );
+		$( '#divisions-in-staging .thumbnails' ).append( progress );
 
 		var row = html.div.clone().addClass( 'row' );
-		$( '#divisions-by-event .thumbnails' ).append( row );
+		$( '#divisions-in-staging .thumbnails' ).append( row );
 
 		var count = { staging: 0, staged: 0, all: 0 };
 		var i = 0;
@@ -272,7 +277,7 @@ refresh.checkin = ( registration ) => {
 
 			if(! ( i % cols)) {
 				row = html.div.clone().addClass( 'row' );
-				$( '#divisions-by-event .thumbnails' ).append( row );
+				$( '#divisions-in-staging .thumbnails' ).append( row );
 			}
 			row.append( cell );
 			i++;
@@ -295,7 +300,7 @@ refresh.checkin = ( registration ) => {
 	else if( percent <= 100 ) { pb.addClass( 'progress-bar-success' ); }
 	pb.attr({ style : `width: ${percent}%`});
 	pb.empty().html( `${percent}%` );
-	$( '#divisions-by-event .event-progress .go-top' ).off( 'click' ).click(() => { $( '.page-checkin' ).animate({ scrollTop: 0 }, 350); })
+	$( '#divisions-in-staging .event-progress .go-top' ).off( 'click' ).click(() => { $( '.page-checkin' ).animate({ scrollTop: 0 }, 350); })
 };
 
 </script>
