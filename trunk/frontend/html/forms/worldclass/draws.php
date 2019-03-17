@@ -33,6 +33,17 @@
 			@media print {
 				.btn { display: none; }
 				.page-header { display: none; }
+				body,.pt-perspective,.pt-page,.container { 
+					height: auto !important; 
+					overflow-y: auto !important; 
+				}
+				.pt-perspective {
+					position: static !important;
+					perspective: none !important;
+				}
+				.panel {
+					page-break-inside: avoid;
+				}
 			}
 			.page-footer { text-align: center; }
 			.btn-default.active {
@@ -209,6 +220,7 @@
 						<!-- TODO: Add download PDF or high-res PNG option -->
 						<button type="button" class="btn btn-danger pull-left cancel" style="width: 180px;">Cancel</button> 
 						<button type="button" id="accept" class="btn btn-success pull-right" style="width: 180px;">Accept</button> 
+						<button type="button" id="print" class="btn btn-warning pull-right" style="width: 180px; margin-right: 40px;"><span class="fa fa-print"></span> Print</button> 
 					</div>
 				</div>
 			</div>
@@ -382,7 +394,7 @@ var show = {
 
 				for( var round of rounds ) {
 					var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
-					header.push( html.th.clone().text( text[ round ] ));
+					header.push( html.th.clone().attr({ colspan : count[ round ]}).html( text[ round ] ));
 				}
 
 				for( var age of ages ) {
@@ -395,19 +407,20 @@ var show = {
 								forms[ i ] = draw[ gender ][ age ][ round ][ i ];
 							}
 						}
-						var td    = html.td.clone();
 						for( var i = 0; i < count[ round ]; i++ ) {
 							var form    = forms[ i ];
 							var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
 							var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( ev, age, 'k' )); 
 							var div     = JSON.stringify( { 'event': ev, gender: gender, age: age, round: round, form: i });
 							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices, 'data-division': div }).val( form );
+							var select  = html.div.clone().addClass( `selected selected-${i+1}` ).html( form ).hide();
+							var td    = html.td.clone();
 
 							if( ! defined( focus )) { focus = id; }
 
-							td.append( input );
+							td.append( input, select );
+							row.push( td );
 						}
-						row.push( td );
 					}
 					rows.push( row );
 				}
@@ -531,6 +544,12 @@ $( '#accept' ).off( 'click' ).click(() => {
 	request.json = JSON.stringify( request.data );
 	console.log( request.json ); 
 	ws.send( request.json );
+});
+
+$( '#print' ).off( 'click' ).click(() => {
+	$( '.individual,.pair,.team' ).find( 'input' ).hide();
+	$( '.individual,.pair,.team' ).find( '.selected' ).show();
+	window.print();
 });
 
 // ===== SERVER COMMUNICATION
