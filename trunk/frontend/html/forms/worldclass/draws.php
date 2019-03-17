@@ -550,6 +550,8 @@ $( '#print' ).off( 'click' ).click(() => {
 	$( '.individual,.pair,.team' ).find( 'input' ).hide();
 	$( '.individual,.pair,.team' ).find( '.selected' ).show();
 	window.print();
+	$( '.individual,.pair,.team' ).find( 'input' ).show();
+	$( '.individual,.pair,.team' ).find( '.selected' ).hide();
 });
 
 // ===== SERVER COMMUNICATION
