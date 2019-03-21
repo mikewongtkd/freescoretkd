@@ -404,7 +404,7 @@ sub normalize {
 		my $half     = int( ($n-1)/2 );
 
 		if    ( $n >= 20 ) { $round = 'prelim'; $self->assign( $_, 'prelim' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		elsif ( $n >=  8 ) { $round = 'semfin'; $self->assign( $_, 'semfin' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		elsif ( $n >   8 ) { $round = 'semfin'; $self->assign( $_, 'semfin' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 		else { 
 			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
 			if( $self->{ method } eq 'combination' ) {

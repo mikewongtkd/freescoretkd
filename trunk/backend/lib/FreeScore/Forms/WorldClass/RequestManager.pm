@@ -792,7 +792,7 @@ sub handle_registration_import {
 				my $athletes                   = $divisions->{ $subevent }{ $key };
 				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
 				my $forms                      = assign_draws( $draws, $draw ) if $draws;
-				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes <= 20 ) { $round = 'semfin'; }
+				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes < 20 ) { $round = 'semfin'; }
 				my $division                   = $progress->create_division( $divid ); 
 				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
 				$division->{ current }         = 0;

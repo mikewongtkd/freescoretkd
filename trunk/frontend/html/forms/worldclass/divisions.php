@@ -267,7 +267,7 @@
 						var matches = this.message.match( /(\d+) athletes/ );
 						var n       = parseInt( matches[ 1 ] );
 						var max     = 2;
-						if( n > 60 ) { max = 4; } else if( n > 40 ) { max = 3; } else if( n > 20 ) { max = 2; }
+						if( n > 60 ) { max = 4; } else if( n > 40 ) { max = 3; } else if( n >= 20 ) { max = 2; }
 						buttons = $( this.elements.buttons.primary ).find( 'button' );
 						buttons.each(( i, button ) => {
 							var matches = $( button ).html().match( /(\d) flights/i );
@@ -367,7 +367,7 @@
 								});
 
 								// Split button
-								if( round == 'prelim' && athletes.length > 20 ) { action.split.enable(); } else { action.split.disable(); }
+								if( round == 'prelim' && athletes.length >= 20 ) { action.split.enable(); } else { action.split.disable(); }
 								action.button.split.off( 'click' ).click(() => {
 									sound.next.play();
 									var divname  = division.summary();

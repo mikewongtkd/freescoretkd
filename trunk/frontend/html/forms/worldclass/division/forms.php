@@ -78,7 +78,7 @@ EOD;
 
 		// ===== IF THE DRAWS ARE DEFINED, USE THE DRAWS
 		if( defined( draws )) {
-			draws.select( description, selected.forms );
+			draws.select( description, division, selected.forms );
 
 		// ===== IF ANY FORM IS ALLOWED, SHOW ALL FORMS
 		} else if( $( '#allow-any-form' ).bootstrapSwitch( 'state' )) {
@@ -95,9 +95,9 @@ EOD;
 
 		// ===== CREATE FORM SELECTION DESCRIPTION FROM SELECTIONS
 		selected.description =
-			(selected.forms.prelim.length > 0 ? '<span class="meta">Preliminary Round</span><span class="forms">' + selected.forms.prelim.join( ', ' ) + '</span>' : '') +
-			(selected.forms.semfin.length > 0 ? '<span class="meta">Semi-Final Round</span><span class="forms">'  + selected.forms.semfin.join( ', ' ) + '</span>' : '') +
-			(selected.forms.finals.length > 0 ? '<span class="meta">Final Round</span><span class="forms">'       + selected.forms.finals.join( ', ' ) + '</span>' : '');
+			('prelim' in selected.forms ? '<span class="meta">Preliminary Round</span><span class="forms">' + selected.forms.prelim.join( ', ' ) + '</span>' : '') +
+			('semfin' in selected.forms ? '<span class="meta">Semi-Final Round</span><span class="forms">'  + selected.forms.semfin.join( ', ' ) + '</span>' : '') +
+			('finals' in selected.forms ? '<span class="meta">Final Round</span><span class="forms">'       + selected.forms.finals.join( ', ' ) + '</span>' : '');
 
 		validate.input();
 
@@ -111,6 +111,8 @@ EOD;
 	// ============================================================
 	init.forms = ( division ) => {
 		var forms = division.forms();
+		var n     = division.athletes().length;
+
 		$( 'a[href="#cutoff"]' ).click();
 		for( round in forms ) {
 			selected.forms[ round ] = [];
@@ -120,6 +122,10 @@ EOD;
 				$( "#" + round + (i+1) ).selectpicker( 'val',  form );
 			}
 		}
+
+		if( n <  20 ) { delete selected.forms.prelim; }
+		if( n <=  8 ) { delete selected.forms.semfin; }
+
 		selected.update();
 	};
 
@@ -143,14 +149,14 @@ EOD;
 	});
 
 	validate.selection = function() {
-		var rounds = [ 'prelim', 'semfin', 'finals' ];
-		if( division.round == 'prelim' ) { rounds = rounds.slice( 0 ); } else 
-		if( division.round == 'semfin' ) { rounds = rounds.slice( 1 ); } else 
-		if( division.round == 'finals' ) { rounds = rounds.slice( 2 ); }
+		var rounds  = [];
+		var roundOK = ( round ) => { return ((round in selected.forms) && (selected.forms[ round ].length > 0)); };
+		var n       = division.athletes.length;
+		if( n >= 20 ) { rounds.unshift( 'prelim' ); }
+		if( n >   8 ) { rounds.unshift( 'semfin' ); }
+		rounds.push( 'finals' );
 
-		return rounds.map( ( round ) => {
-			return selected.forms[ round ].length > 0; // Each round has at least one form
-		}).reduce( ( acc, cur ) => { return acc && cur; }); // All rounds have at least one form
+		return rounds.map( roundOK ).reduce( ( acc, cur ) => { return acc && cur; }); // All rounds have at least one form
 	};
 
 	// ===== FORM SELECTOR MODIFICATION BY DESCRIPTION
