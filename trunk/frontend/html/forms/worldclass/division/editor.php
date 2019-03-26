@@ -234,7 +234,7 @@
 								if( defined( d )) { d = d[ age ]; }
 								if( ! defined( d )) { return; }
 
-								for( var round in d ) { forms[ round ] = d[ round ]; }
+								for( var round in d ) { if( ! defined( forms[ round ])) { forms[ round ] = d[ round ]; }}
 								if( n <  20 ) { delete forms.prelim; }
 								if( n <= 8  ) { delete forms.semfin; }
 							};

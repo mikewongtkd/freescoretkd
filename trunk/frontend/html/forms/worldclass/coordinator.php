@@ -670,19 +670,21 @@
 				},
 				score: function( score, athlete, isCurrent ) {
 					var spread = { acc : [], pre : [], sum: [] };
+					var n      = score.judge.length;
 					score.judge.forEach(( judge, i ) => {
 						var name = '#j' + i;
-						var acc = $( name + '-acc' );
-						var pre = $( name + '-pre' );
-						var sum = $( name + '-sum' );
+						var acc  = $( name + '-acc' );
+						var pre  = $( name + '-pre' );
+						var sum  = $( name + '-sum' );
+						var drop = { hilo : (n > 3), acc : (judge.minacc || judge.maxacc), pre : (judge.minpre || judge.maxpre)};
 
 						acc.removeClass( 'ignore' );
 						pre.removeClass( 'ignore' );
 
 						if( defined( judge.accuracy     )) { acc.html( judge.accuracy.toFixed( 1 ));     } else { acc.empty(); }
 						if( defined( judge.presentation )) { pre.html( judge.presentation.toFixed( 1 )); } else { pre.empty(); }
-						if( judge.minacc || judge.maxacc ) { acc.addClass( 'ignore' ); } else if( defined( judge.accuracy     )) { spread.acc.push( parseFloat( judge.accuracy ));     }
-						if( judge.minpre || judge.maxpre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
+						if( drop.hilo && drop.acc ) { acc.addClass( 'ignore' ); } else if( defined( judge.accuracy     )) { spread.acc.push( parseFloat( judge.accuracy ));     }
+						if( drop.hilo && drop.pre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
 
 						var total = judge.accuracy + judge.presentation;
 						if( defined( judge.accuracy ) && defined( judge.presentation )) { sum.html( total.toFixed( 1 )); spread.sum.push( total ); } else { sum.empty(); }
