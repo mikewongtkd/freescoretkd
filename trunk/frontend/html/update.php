@@ -98,7 +98,9 @@ $( '#cancel' ).off( 'click' ).click(() => {
 });
 
 // ===== SOFTWARE UPDATES
-$( '#updates' ).off( 'click' ).click(() => {
+$( '#updates' ).off( 'click' ).click(( ev ) => {
+	var target = $( ev.target );
+	if( target.hasClass( 'disabled' )) { return; }
 	var request;
 	alertify.message( 'Installing update' );
 	sound.confirmed.play();
