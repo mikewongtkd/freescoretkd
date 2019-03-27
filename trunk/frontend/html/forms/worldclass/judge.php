@@ -1,5 +1,5 @@
 <?php 
-	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] ) || ! isset( $_COOKIE[ 'judge' ] )) { header( 'Location: ../../forms/worldclass/register.php?referer=../forms/worldclass/judge.php' ); exit(); }
+	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] ) || ! isset( $_COOKIE[ 'judge' ] )) { header( 'Location: ../../forms/worldclass/register.php?role=judge' ); exit(); }
 	include( "../../include/php/config.php" ); 
 ?>
 <html>

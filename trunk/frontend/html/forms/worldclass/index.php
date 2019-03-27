@@ -9,10 +9,10 @@
 		$cookie_set = true;
 	} else {
 		$warning = "Ring number invalid.";
-		# header( 'Location: ../../forms/worldclass/register.php?referer=../forms/worldclass/index.php' ); exit(); 
+		# header( 'Location: ../../forms/worldclass/register.php?role=ring+coordinator' ); exit(); 
 	}
 	if( ! ($cookie_set || isset( $_COOKIE[ 'ring' ]))) { echo "Ring number not set."; }
-	# if( ! isset( $_COOKIE[ 'ring' ])) { header( 'Location: ../../forms/worldclass/register.php?referer=../forms/worldclass/index.php' ); exit(); }
+	# if( ! isset( $_COOKIE[ 'ring' ])) { header( 'Location: ../../forms/worldclass/register.php?role=ring+coordinator' ); exit(); }
 	setcookie( 'judge', '', $clear_cookie, '/' );
 	setcookie( 'role', 'display', 0, '/' );
 	if( $warning ) { echo $warning; }

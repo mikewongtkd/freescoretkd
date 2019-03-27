@@ -75,6 +75,8 @@ body { background-color: black; color: gold; }
 				judge: parseInt( [ url.param( 'judge' ), Cookies.get( 'judge' )].find( first )),
 			};
 
+			$( '.register h1' ).html( `Register ${reg.role.split( ' ' ).map(( word ) => { return word.capitalize(); }).join( ' ' )} Device` );
+
 			[ 'ring', 'role', 'id', 'judge' ].forEach(( item ) => { Cookies.remove( item ); });
 
 			ws.onerror = network.error = function() {
@@ -125,7 +127,7 @@ body { background-color: black; color: gold; }
 					// ===== RING VIEW UPDATE
 					$( '#rings' ).empty();
 					tournament.rings.forEach(( ring ) => {
-						var button = html.button.clone().addClass( 'btn btn-warning' ).attr({ 'data-ring' : ring }).html( `<span class="fa fa-square"></span>&nbsp;Ring ${ring}` );
+						var button = html.button.clone().addClass( 'btn btn-warning' ).attr({ 'data-ring' : ring }).html( `Ring ${ring}` );
 						if( ring == reg.ring ) { button.addClass( 'active' ); }
 						$( '#rings' ).append( button );
 					});
@@ -162,7 +164,7 @@ body { background-color: black; color: gold; }
 							$( '#roles' ).append( button );
 						}
 					} else {
-						var button = html.button.clone().addClass( 'btn btn-primary active' ).attr({ 'data-role' : 'computer operator' }).html( 'Computer Operator' );
+						var button = html.button.clone().addClass( 'btn btn-primary active disabled' ).attr({ 'data-role' : 'computer operator' }).html( 'Ring Computer' );
 						$( '#roles' ).append( button );
 					}
 
@@ -171,7 +173,7 @@ body { background-color: black; color: gold; }
 						$( '#ok' ).removeClass( 'disabled' );
 						var target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parents( '.btn' );
 						var i      = parseInt( target.attr( 'data-judge' ));
-						if( target.hasClass( 'active' )) {
+						if( target.hasClass( 'active' ) && ! target.hasClass( 'disabled' )) {
 							var name = (i ? `Judge ${i}` : 'Referee');
 							alertify.confirm( 
 								`${name} is already registered`, 
