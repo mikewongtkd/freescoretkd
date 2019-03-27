@@ -45,8 +45,13 @@ sub load_ring {
 	my %assigned = map { /^div\.([\w\.]+)\.txt$/ ? ( $1 => 1 ) : (); } readdir DIR;
 	closedir DIR;
 	my @divisions = sort keys %assigned;
+	my $first     = $divisions[ 0 ];
 
-	$self->{ current } ||= @divisions > 0 ? $divisions[ 0 ] : undef;
+	if( $self->{ current }) {
+		$self->{ current } = $first unless -e "$self->{ path }/div.$self->{ current }.txt";
+	} else {
+		$self->{ current } = @divisions > 0 ? $first : undef;
+	}
 
 	return [ @divisions ];
 }

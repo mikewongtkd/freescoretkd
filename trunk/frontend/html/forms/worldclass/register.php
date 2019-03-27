@@ -1,8 +1,6 @@
 <?php 
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
-	setcookie( 'judge', '', $clear_cookie, '/' );
-	setcookie( 'role', 'history', 0, '/' );
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 	if( ! isset( $i )) { $i = 1; }
 	$k = json_decode( $tournament )->rings->count;
@@ -17,7 +15,6 @@
 	<head>
 		<title>Register Device</title>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/worldclass/history.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
@@ -42,7 +39,7 @@ body { background-color: black; color: gold; }
 
 .btn-group { margin: 12px; }
 
-#cancel,#ok {
+#ok {
 	display: inline-block;
 	width: 80px;
 	margin: 12px;
@@ -53,16 +50,9 @@ body { background-color: black; color: gold; }
 		<div class="container">
 			<div class="register">
 				<h1>Register Device</h1>
-				<div>
-					<div class="btn-group" role="group" id="rings"></div>
-				</div>
-				<div>
-					<div class="btn-group" role="group" id="roles"></div>
-				</div>
-				<div>
-					<button class="btn btn-danger" id="cancel">Cancel</button>
-					<button class="btn btn-success" id="ok">OK</button>
-				</div>
+				<div class="btn-group" role="group" id="rings"></div>
+				<div class="btn-group" role="group" id="roles"></div>
+				<button class="btn btn-success pull-right" id="ok">OK</button>
 			</div>
 		</div>
 		<script>
@@ -97,7 +87,7 @@ body { background-color: black; color: gold; }
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 
-				request      = { data : { type : 'division', action : 'history' }};
+				request      = { data : { type : 'division', action : 'read' }};
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 			};
@@ -109,29 +99,16 @@ body { background-color: black; color: gold; }
 				if( update.type == 'division' ) {
 					if( update.action == 'judges' ) {
 						judges = update.judges;			
+						refresh.roles( judges );
 					} else
 
 					if( update.action == 'update' ) {
 						var division = update.division;
 						if( ! defined( division )) { return; }
 						division  = new Division( division );
-						console.log( reg );
-
-						refresh.registration( reg, division );
+						refresh.rings( division );
 					}
-				}
-			};
-
-			// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES
-			ws.onclose = network.close = function() {
-				if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
-					if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
-					network.reconnect++;
-					ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/' + ring.num ); 
-					
-					ws.onerror   = network.error;
-					ws.onmessage = network.message;
-					ws.onclose   = network.close;
+					refresh.actions();
 				}
 			};
 
@@ -142,22 +119,41 @@ body { background-color: black; color: gold; }
 				prev  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]}),
 			};
 
-			var sendRequest = ( request ) => {
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
-			};
-
 			var refresh = { 
-				registration : ( reg, division ) => {
+
+				rings : ( division ) => {
+					// ===== RING VIEW UPDATE
+					$( '#rings' ).empty();
 					tournament.rings.forEach(( ring ) => {
 						var button = html.button.clone().addClass( 'btn btn-warning' ).attr({ 'data-ring' : ring }).html( `<span class="fa fa-square"></span>&nbsp;Ring ${ring}` );
 						if( ring == reg.ring ) { button.addClass( 'active' ); }
 						$( '#rings' ).append( button );
 					});
 
+					// ===== RING SELECTION BEHAVIOR
+					$( '#rings button' ).off( 'click' ).click(( ev ) => {
+						var target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parents( '.btn' );
+						$( '#rings button' ).removeClass( 'active' );
+						target.addClass( 'active' );
+						ring.num = reg.ring = parseInt( target.attr( 'data-ring' ));
+						sound.next.play();
+
+						ws.close();
+						ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/' + ring.num ); 
+						ws.onopen    = network.connect;
+						ws.onerror   = network.error;
+						ws.onmessage = network.message;
+						ws.onclose   = network.close;
+					});
+				},
+
+				roles : ( judges ) => {
+					console.log( judges );
+					// ===== ROLE VIEW UPDATE
+					$( '#roles' ).empty();
 					if( reg.role == 'judge' ) {
 						if( isNaN( reg.judge )) { $( '#ok' ).addClass( 'disabled' ); }
-						for( var i = 0; i < division.judges(); i++ ) {
+						for( var i = 0; i < judges.length; i++ ) {
 							var name   = '<span class="fa fa-user"></span>&nbsp;' + (i ? `Judge ${i}` : 'Referee');
 							var button = html.button.clone().addClass( 'btn btn-info' ).attr({ 'data-judge' : i }).html( name );
 							var registered = defined( judges[ i ].id );
@@ -170,14 +166,7 @@ body { background-color: black; color: gold; }
 						$( '#roles' ).append( button );
 					}
 
-					$( '#rings button' ).off( 'click' ).click(( ev ) => {
-						var target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parents( '.btn' );
-						$( '#rings button' ).removeClass( 'active' );
-						target.addClass( 'active' );
-						reg.ring = parseInt( target.attr( 'data-ring' ));
-						sound.next.play();
-					});
-
+					// ===== ROLE SELECTION BEHAVIOR
 					$( '#roles button' ).off( 'click' ).click(( ev ) => {
 						$( '#ok' ).removeClass( 'disabled' );
 						var target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parents( '.btn' );
@@ -191,7 +180,8 @@ body { background-color: black; color: gold; }
 									$( '#roles button' ).removeClass( 'active' );
 									target.addClass( 'active' );
 									if( reg.role == 'judge' ) { reg.judge = i; }
-									sound.next.play();
+
+									$( '#ok' ).click();
 								},
 								() => {}
 							);
@@ -203,6 +193,9 @@ body { background-color: black; color: gold; }
 						}
 					});
 
+				},
+				actions : () => {
+					// ===== ACTION BUTTON BEHAVIOR
 					$( '#ok' ).off( 'click' ).click(( ev ) => { 
 						if( $( ev.target ).hasClass( 'disabled' )) { alertify.message( 'Choose a judge seat' ); return; }
 						Cookies.set( 'ring',  reg.ring,  { path : '/' });
@@ -224,8 +217,6 @@ body { background-color: black; color: gold; }
 							setTimeout( function() { location = `coordinator.php?ring=${reg.ring}`; }, 500 ); 
 						}
 					});
-
-					$( '#cancel' ).off( 'click' ).click(( ev ) => { window.location = '../../index.php'; });
 				}
 			};
 		</script>
