@@ -2,7 +2,7 @@ package FreeScore::Forms::FreeStyle::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
-use FreeScore::Repository;
+use FreeScore::RCS;
 use FreeScore::Forms::FreeStyle;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -501,13 +501,19 @@ sub handle_division_score {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = $request->{ judge } ? "Judge $request->{ judge }" : "Referee";
+	my $message  = "$jname score for $athlete->{ name }.\n";
 
-	print STDERR "Send score.\n" if $DEBUG;
+	print STDERR "  $message" if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->record_score( $request->{ judge }, $request->{ score } );
 		$division->write();
-		my $athlete  = $division->{ athletes }[ $division->{ current } ];
+		$version->commit( $division, $message );
 		my $complete = $athlete->{ complete }{ $division->{ round }};
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
