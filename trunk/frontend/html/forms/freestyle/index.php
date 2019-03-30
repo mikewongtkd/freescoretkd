@@ -127,12 +127,17 @@
 					var complete = athlete.score.complete( round );
 					var scores   = athlete.scores( round );
 					var adjusted = athlete.adjusted( round );
+					var drop     = { min: defined( adjusted.min ), max: defined( adjusted.max )};
+
+					// Drop the high and low score if there are more than 3
+					// judges, and the high and low scores are identified
+					drop.hilo    = judges.num > 3 && drop.min && drop.max;
 
 					// ===== REFRESH EACH JUDGE
 					if( complete ) { 
 						scores.forEach( refresh.judge.score );
 						[ 'technical', 'presentation' ].forEach(( category, i ) => {
-							if( ! defined( adjusted[ 'min' ] ) || ! defined( adjusted[ 'max' ] )) { return; }
+							if( ! drop.hilo ) { return; }
 							[ 'min', 'max' ].forEach(( minmax, i ) => {
 								var j   = adjusted[ minmax ][ category ];
 								var div = $( '#' + judges.name[ j ] + ' .' + category );
@@ -141,7 +146,7 @@
 						});
 
 					} else if( defined( scores )) { 
-						$.each( scores, refresh.judge.submitted ); 
+						scores.forEach( refresh.judge.submitted );
 					}
 				},
 				judge: {
@@ -155,7 +160,7 @@
 						div.empty().append( technical, presentation );
 					},
 					// ===== SHOW THE JUDGE HAS SUBMITTED A SCORE
-					submitted: function( i, score ) {
+					submitted: ( score, i ) => {
 						var div = $( '#' + judges.name[ i ] );
 						if( ! defined( score )) { div.empty(); return; }
 						var checkmark = html.div.clone().addClass( 'submitted' ).html( '&#10004;' );
