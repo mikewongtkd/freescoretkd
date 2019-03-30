@@ -1,3 +1,43 @@
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal; }
+@font-face {
+  font-family: 'Lato';
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic; }
+@font-face {
+  font-family: 'Biolinum';
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Barlow';
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'FjallaOne';
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal; }
 #display {
   position: absolute;
   top: calc( 50% - 350px );
@@ -14,6 +54,7 @@
     width: 320px; }
     #display .judges .judge {
       position: absolute;
+      font-family: Optima, Biolinum, Lato;
       font-size: 56pt;
       line-height: 72pt;
       height: 100px;
@@ -92,7 +133,7 @@
     left: 320px;
     height: 600px;
     width: 680px; }
-    #display .athlete #flag {
+    #display .athlete .flag {
       position: absolute;
       top: 0;
       left: 0;
@@ -100,9 +141,9 @@
       width: 100px;
       padding-top: 20px;
       padding-left: 10px; }
-      #display .athlete #flag img {
+      #display .athlete .flag img {
         width: 80px; }
-    #display .athlete #name {
+    #display .athlete .name {
       color: yellow;
       position: absolute;
       top: 0;
@@ -113,73 +154,30 @@
       line-height: 64pt;
       text-align: left;
       padding-top: 20px; }
-    #display .athlete #deductions {
+    #display .athlete .deductions {
       position: absolute;
       top: 120px;
       left: 0; }
-      #display .athlete #deductions .mandatory-stances, #display .athlete #deductions .timing {
-        position: absolute;
-        top: 340px;
-        font-size: 9pt;
-        width: 140px;
-        height: 200px;
-        text-align: center;
-        color: #ba1f1f; }
-        #display .athlete #deductions .mandatory-stances img, #display .athlete #deductions .timing img {
-          height: 200px;
-          opacity: 1.0;
-          filter: sepia(100%) brightness(10%) saturate(100000%) hue-rotate(280deg); }
-      #display .athlete #deductions .done {
-        color: #999; }
-        #display .athlete #deductions .done img {
-          opacity: 0.2;
-          filter: sepia(0%) saturate(100%) hue-rotate(-280deg); }
-      #display .athlete #deductions .hakdari-seogi {
-        left: 60px; }
-      #display .athlete #deductions .beom-seogi {
-        left: 200px; }
-      #display .athlete #deductions .dwigubi {
-        left: 340px; }
-      #display .athlete #deductions .timing {
-        left: 480px;
-        font-size: 72pt;
-        color: #ba1f1f; }
-      #display .athlete #deductions .ok {
-        color: #444; }
-      #display .athlete #deductions .major, #display .athlete #deductions .minor, #display .athlete #deductions .unadjusted {
-        position: absolute;
-        top: 0;
-        width: 180px;
-        color: magenta;
-        line-height: 72pt;
-        font-size: 56pt;
-        text-align: center; }
-        #display .athlete #deductions .major .votes, #display .athlete #deductions .minor .votes, #display .athlete #deductions .unadjusted .votes {
-          position: absolute;
-          top: 60px;
-          left: 140px;
-          height: 32px;
-          width: 32px;
-          border-radius: 16px;
-          background-color: #609;
-          font-size: 24pt;
-          line-height: 24pt;
-          color: white; }
-      #display .athlete #deductions .unadjusted {
-        left: 80px;
-        color: #3ff; }
-      #display .athlete #deductions .major {
-        left: 320px; }
-      #display .athlete #deductions .minor {
-        left: 480px; }
-    #display .athlete #score {
+    #display .athlete .score {
       position: absolute;
       top: 200px;
       width: 680px;
       color: lime;
-      font-size: 216pt;
+      font-size: 256pt;
+      font-family: FjallaOne, Barlow;
+      font-weight: bold;
       line-height: 216pt;
       text-align: center; }
+  #display .division {
+    position: absolute;
+    top: 580px;
+    left: 320px;
+    width: 680px;
+    color: orange;
+    font-size: 32pt;
+    font-family: Optima, Biolinum, Lato;
+    line-height: 32pt;
+    text-align: center; }
   #display #leaderboard, #display #order-list {
     padding: 20px;
     overflow-y: auto; }

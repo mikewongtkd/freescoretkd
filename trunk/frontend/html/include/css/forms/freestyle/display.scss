@@ -1,3 +1,4 @@
+@import '../../fonts';
 
 #display {
 	position: absolute;
@@ -17,6 +18,7 @@
 
 		.judge {
 			position: absolute;
+			font-family: $text-font-stack;
 			font-size: 56pt;
 			line-height: 72pt;
 			height: 100px;
@@ -80,7 +82,7 @@
 		left: 320px;
 		height: 600px;
 		width:  680px;
-		#flag {
+		.flag {
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -92,7 +94,7 @@
 				width: 80px;
 			}
 		}
-		#name {
+		.name {
 			color: yellow;
 			position: absolute;
 			top: 0;
@@ -105,71 +107,35 @@
 			padding-top: 20px;
 		}
 
-		#deductions {
+		.deductions {
 			position: absolute;
 			top: 120px;
 			left: 0;
-
-			.mandatory-stances, .timing {
-				position: absolute;
-				top: 340px;
-				font-size: 9pt;
-				width: 140px;
-				height: 200px;
-				text-align: center;
-				img { height: 200px; opacity: 1.0; filter: sepia( 100% ) brightness( 10% ) saturate( 100000% ) hue-rotate(  280deg ); };
-				color: #ba1f1f;
-			}
-			.done {
-				color: #999;
-				img { opacity: 0.2; filter: sepia( 0% ) saturate( 100% ) hue-rotate( -280deg ); };
-			}
-			.hakdari-seogi { left: 60px;  }
-			.beom-seogi    { left: 200px; }
-			.dwigubi       { left: 340px; }
-			.timing        { 
-				left: 480px; 
-				font-size: 72pt; 
-				color: #ba1f1f;
-			}
-			.ok { color: #444; }
-
-			.major, .minor, .unadjusted {
-				position: absolute;
-				top: 0;
-				width: 180px;
-				color: magenta;
-				line-height: 72pt;
-				font-size: 56pt;
-				text-align: center;
-
-				.votes {
-					position: absolute;
-					top: 60px;
-					left: 140px;
-					height: 32px;
-					width: 32px;
-					border-radius: 16px;
-					background-color: #609;
-					font-size: 24pt;
-					line-height: 24pt;
-					color: white;
-				}
-			}
-			.unadjusted { left:  80px; color: #3ff; }
-			.major      { left: 320px; }
-			.minor      { left: 480px; }
 		}
 
-		#score {
+		.score {
 			position: absolute;
 			top: 200px;
 			width: 680px;
 			color: lime;
-			font-size: 216pt;
+			font-size: 256pt;
+			font-family: $condensed-font-stack;
+			font-weight: bold;
 			line-height: 216pt;
 			text-align: center;
 		}
+	}
+
+	.division {
+		position: absolute;
+		top: 580px;
+		left: 320px;
+		width: 680px;
+		color: orange;
+		font-size: 32pt;
+		font-family: $text-font-stack;
+		line-height: 32pt;
+		text-align: center;
 	}
 
 	#leaderboard, #order-list {

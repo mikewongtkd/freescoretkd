@@ -42,13 +42,12 @@
 					<div class="judge" id="j6"></div>
 				</div>
 				<div class="athlete">
-					<div id="flag"></div><div id="name"></div>
-					<div id="deductions">
+					<div class="flag"></div><div class="name"></div>
+					<div class="deductions">
 					</div>
-					<div id="score"></div>
+					<div class="score"></div>
 				</div>
-				<div id="division">
-				</div>
+				<div class="division"></div>
 			</div>
 			<div id="leaderboard">
 				<table id="leaderboard-table">
@@ -92,9 +91,7 @@
 				else                                 { refresh.leaderboard( division ); }
 			}
 
-			var sum = function( obj ) {
-				return parseFloat( Object.keys( obj ).reduce(( acc, cur ) => { acc += parseFloat( obj[ cur ] ); return acc; }, 0.0)).toFixed( 1 );
-			};
+			var sum = ( obj ) => { return parseFloat( Object.keys( obj ).reduce(( acc, cur ) => { acc += parseFloat( obj[ cur ] ); return acc; }, 0.0)).toFixed( 1 ); };
 
 			var refresh = { 
 				scoreboard: function( division ) {
@@ -108,15 +105,15 @@
 					judges.num   = division.judges();
 					refresh.judges( division );
 
+					$( '#scoreboard .division' ).html( division.description() + ' Freestyle');
+
 					var complete = athlete.score.complete( round );
-					if( complete ) {
-						refresh.total( athlete, round );
-					}
+					if( complete ) { refresh.total( athlete, round ); }
 				},
 				athlete: function( athlete ) {
-					$( '.athlete #name' ).html( athlete.display.name() );
-					if( defined( athlete.info( 'flag' ))) { $( '.athlete #flag' ).html( html.img.clone().attr({ src: '../../images/flags/' + athlete.info( 'flag' ) })); }
-					$( '#score' ).empty();
+					$( '.athlete .name' ).html( athlete.display.name() );
+					if( defined( athlete.info( 'flag' ))) { $( '.athlete .flag' ).html( html.img.clone().attr({ src: '../../images/flags/' + athlete.info( 'flag' ) })); }
+					$( '.score' ).empty();
 					$( '.judge' ).empty();
 				},
 				judges: function( division ) {
@@ -133,10 +130,10 @@
 
 					// ===== REFRESH EACH JUDGE
 					if( complete ) { 
-						$.each( scores, refresh.judge.score ); 
-						$.each( [ 'technical', 'presentation' ], ( i, category ) => {
+						scores.forEach( refresh.judge.score );
+						[ 'technical', 'presentation' ].forEach(( category, i ) => {
 							if( ! defined( adjusted[ 'min' ] ) || ! defined( adjusted[ 'max' ] )) { return; }
-							$.each( [ 'min', 'max' ], ( i, minmax ) => {
+							[ 'min', 'max' ].forEach(( minmax, i ) => {
 								var j   = adjusted[ minmax ][ category ];
 								var div = $( '#' + judges.name[ j ] + ' .' + category );
 								div.addClass( 'ignore' );
@@ -149,7 +146,7 @@
 				},
 				judge: {
 					// ===== SHOW THE JUDGE'S SCORE
-					score: function( i, score ) {
+					score: ( score, i ) => {
 						if( ! defined( score )) { score = { technical: [], presentation: [], deductions: [] }; }
 						var div          = $( '#' + judges.name[ i ] );
 						var deductions   = score.deductions.minor + score.deductions.major;
@@ -214,7 +211,7 @@
 					});
 				},
 				total: function( athlete, round ) {
-					var div        = $( '#score' );
+					var div        = $( '.score' );
 					var total      = athlete.score.total( round );
 					div.html( total.toFixed( 2 ));
 				}
