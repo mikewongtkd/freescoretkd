@@ -477,7 +477,7 @@ sub handle_division_round_prev {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Next round.\n" if $DEBUG;
+	print STDERR "Previous round.\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );

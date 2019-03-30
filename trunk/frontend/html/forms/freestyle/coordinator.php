@@ -322,6 +322,9 @@
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
 					$( "#admin-print" )         .off( 'click' ).click( action.administration.print );
+
+					if( division.athletes().length <= 8 ) { $( '.navigate-round' ).hide(); } 
+					else                                  { $( '.navigate-round' ).show(); }
 				},
 				ring: function( ring ) {
 					$( '#ring' ).empty();
