@@ -1,11 +1,11 @@
-#athletes-registered .go-down, #athletes-confirmed .go-down {
+#athletes-registered .go-down, #athletes-present .go-down, #athletes-absent .go-down {
   cursor: s-resize; }
-#athletes-registered .go-top, #athletes-confirmed .go-top {
+#athletes-registered .go-top, #athletes-present .go-top, #athletes-absent .go-top {
   margin-top: 3px;
   cursor: n-resize; }
-  #athletes-registered .go-top:hover, #athletes-confirmed .go-top:hover {
+  #athletes-registered .go-top:hover, #athletes-present .go-top:hover, #athletes-absent .go-top:hover {
     text-decoration: none; }
-#athletes-registered .div-list-for-athlete .btn, #athletes-confirmed .div-list-for-athlete .btn {
+#athletes-registered .div-list-for-athlete .btn, #athletes-present .div-list-for-athlete .btn, #athletes-absent .div-list-for-athlete .btn {
   min-width: 60px;
   margin-left: 4px;
   margin-right: 4px; }
