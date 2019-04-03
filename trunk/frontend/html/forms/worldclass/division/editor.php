@@ -234,9 +234,17 @@
 								if( defined( d )) { d = d[ age ]; }
 								if( ! defined( d )) { return; }
 
-								for( var round in d ) { if( ! defined( forms[ round ])) { forms[ round ] = d[ round ]; }}
+								for( var round in d ) { if( ! defined( forms[ round ]) || forms[ round ].length == 0 ) { forms[ round ] = d[ round ]; }}
 								if( n <  20 ) { delete forms.prelim; }
 								if( n <= 8  ) { delete forms.semfin; }
+
+								// Update Form Selection on Form Selector
+								for( round in forms ) {
+									for( var i = 0; i < forms[ round ].length; i++ ) {
+										var form = forms[ round ][ i ];
+										$( `#${round}${i+1}` ).selectpicker( 'val', form );
+									}
+								}
 							};
 							$( '#form-selection' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
 							$( '#user-message' ).html( 'Draws are available; complete the division <b>Description</b> to get the forms' );

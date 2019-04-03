@@ -72,7 +72,7 @@ EOD;
 	// ============================================================
 	// FORM SELECTION BEHAVIOR
 	// ============================================================
-	var selected = { method: '', forms : { prelim : [], semfin : [], finals : [] }, description: '', update : function() { 
+	var selected = { method: 'cutoff', forms : { prelim : [], semfin : [], finals : [] }, description: '', update : function() { 
 		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
 
@@ -125,8 +125,6 @@ EOD;
 
 		if( n <  20 ) { delete selected.forms.prelim; }
 		if( n <=  8 ) { delete selected.forms.semfin; }
-
-		selected.update();
 	};
 
 	// ============================================================
