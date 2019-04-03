@@ -64,7 +64,6 @@
 				</div>
 				<textarea id="athletes" class="panel-body"></textarea>
 				<div class="panel-footer">
-					<span id="user-message">Not enough forms selected. Please select forms.</span>
 					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
 					<button type="button" id="save-button" class="btn btn-success pull-right disabled"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
 					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
@@ -132,12 +131,12 @@
 				} else if( ! validate.athletes.count() ) {
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
-					$( '#user-message' ).html( "Not enough athletes. Please add more athletes." );
+					alertify.error( "Not enough athletes. Please add more athletes." );
 
 				} else if( ! validate.athletes.unique() ) {
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
-					$( '#user-message' ).html( "Duplicate athletes. Please resolve athletes with the same name." );
+					alertify.error( "Duplicate athletes. Please resolve athletes with the same name." );
 				}
 
 				if ( validate.selection() ) {
@@ -145,10 +144,9 @@
 				} else {
 					ok = false;
 					$( '#form-selection' ).parent().addClass( "panel-danger" ).removeClass( "panel-primary" );
-					$( '#user-message' ).html( "Not enough forms selected. Please select forms." );
+					alertify.error( "Not enough forms selected. Please select forms." );
 				}
 				if( ok ) {
-					$( '#user-message' ).html( "" );
 					save.enable();
 				}
 				return ok;
@@ -247,7 +245,7 @@
 								}
 							};
 							$( '#form-selection' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
-							$( '#user-message' ).html( 'Draws are available; complete the division <b>Description</b> to get the forms' );
+							alertify.message( 'Draws are available; complete the division <b>Description</b> to get the forms' );
 						}
 					}
 				} else if( update.type == 'division' ) {
