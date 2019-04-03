@@ -717,7 +717,8 @@ sub handle_division_write {
 	try {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );
 		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
-		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } );
+		if( $ring eq 'staging' ) { $division->{ file } = sprintf( "%s/%s/%s/%s/div.%s.txt",       $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } ); } 
+		else                     { $division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } ); }
 
 		my $message   = clone( $division );
 		my $unblessed = unbless( $message ); 

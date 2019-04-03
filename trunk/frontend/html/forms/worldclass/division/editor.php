@@ -88,7 +88,7 @@
 
 			// ===== BEHAVIOR
 			athletes.editor.on( "change", function( cm, key, ev ) {
-				division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map((name) => { return { name : name };});
+				division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map( x => { return { name : x.trim() }});
 				var n = division.athletes.length;
 
 				var autodetect = $( 'label.active input[value=auto]' ).length > 0;
