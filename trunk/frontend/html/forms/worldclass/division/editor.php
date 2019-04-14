@@ -94,6 +94,7 @@
 				if( autodetect ) { settings.round.select.autodetect(); }
 				selected.update();
 
+				validate.athletes.enable = true;
 				validate.input();
 			});
 
@@ -103,7 +104,7 @@
 				athletes.doc.setValue( text );
 			};
 
-			validate.athletes = {};
+			validate.athletes = { enable : false };
 
 			validate.athletes.count = function() {
 				if( division.athletes.length == 0 ) { return false; }
@@ -129,6 +130,7 @@
 					$( '#athletes' ).parent().removeClass( "panel-danger" ).addClass( "panel-primary" );
 
 				} else if( ! validate.athletes.count() ) {
+					if( ! validate.athletes.enable ) { return; }
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
 					alertify.error( "Not enough athletes. Please add more athletes." );
@@ -163,7 +165,11 @@
 				var button = $( '#save-button' );
 				button.removeClass( 'disabled' );
 				button.off( 'click' ).click( function() { 
+
+					// ===== COPY OVER ADDITIONAL VARIABLES
 					division.ring = ring;
+					if( $( '#flight' ).val()) { division.flight = JSON.parse( $( '#flight' ).val()); }
+
 					var request  = { data : { type : 'division', action : 'write', division : division }};
 					request.json = JSON.stringify( request.data );
 					sound.next.play();
@@ -225,6 +231,7 @@
 								var rank     = description.rank   ? description.rank   : 'k'; // Default to blac(k) belt
 								var ready    = category && gender && age;
 								var n        = division.athletes.length;
+								var flight   = defined( division.flight ) || $( '#flight' ).val().length > 0;
 								if( ! ready ) { return; }
 
 								var d = draws[ category ];
@@ -233,8 +240,8 @@
 								if( ! defined( d )) { return; }
 
 								for( var round in d ) { if( ! defined( forms[ round ]) || forms[ round ].length == 0 ) { forms[ round ] = d[ round ]; }}
-								if( n <  20 ) { delete forms.prelim; }
-								if( n <= 8  ) { delete forms.semfin; }
+								if( n <  20 && ! flight ) { delete forms.prelim; }
+								if( n <= 8              ) { delete forms.semfin; }
 
 								// Update Form Selection on Form Selector
 								for( round in forms ) {

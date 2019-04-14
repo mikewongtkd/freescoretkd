@@ -110,8 +110,9 @@ EOD;
 	// FORM SELECTION INITIALIZATION
 	// ============================================================
 	init.forms = ( division ) => {
-		var forms = division.forms();
-		var n     = division.athletes().length;
+		var forms  = division.forms();
+		var n      = division.athletes().length;
+		var flight = division.is.flight();
 
 		$( 'a[href="#cutoff"]' ).click();
 		for( round in forms ) {
@@ -123,8 +124,8 @@ EOD;
 			}
 		}
 
-		if( n <  20 ) { delete selected.forms.prelim; }
-		if( n <=  8 ) { delete selected.forms.semfin; }
+		if( n <  20 && ! flight ) { delete selected.forms.prelim; }
+		if( n <=  8 && ! flight ) { delete selected.forms.semfin; }
 	};
 
 	// ============================================================
@@ -150,8 +151,9 @@ EOD;
 		var rounds  = [];
 		var roundOK = ( round ) => { return ((round in selected.forms) && (selected.forms[ round ].length > 0)); };
 		var n       = division.athletes.length;
-		if( n >= 20 ) { rounds.unshift( 'prelim' ); }
-		if( n >   8 ) { rounds.unshift( 'semfin' ); }
+		var flight  = defined( division.flight );
+		if( n >= 20 || flight ) { rounds.unshift( 'prelim' ); }
+		if( n >   8           ) { rounds.unshift( 'semfin' ); }
 		rounds.push( 'finals' );
 
 		return rounds.map( roundOK ).reduce( ( acc, cur ) => { return acc && cur; }); // All rounds have at least one form

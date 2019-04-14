@@ -45,6 +45,7 @@
 				<input type="checkbox" id="allow-any-form">
 			</div>
 		</div>
+		<input type="hidden" id="flight"></input>
 	</div>
 </div>
 
@@ -59,8 +60,10 @@
 
 	settings = { round : { select : {
 		autodetect : function() {
-			var n = division.athletes.length;
+			var n      = division.athletes.length;
+			var flight = defined( division.flight ) || $( '#flight' ).val().length > 0;
 
+			if( flight ) { settings.round.select.prelim(); } else
 			if( n <= 8 ) { settings.round.select.finals(); } else 
 			if( n < 20 ) { settings.round.select.semfin(); } else 
 			             { settings.round.select.prelim(); }
@@ -133,10 +136,14 @@
 		description.update();
 		settings.update();
 
+		// Set flight information
+		$( '#flight' ).val( JSON.stringify( division.flight()));
+
 		// Set the starting round
+		var flight   = division.is.flight();
 		var athletes = division.athletes();
 		var n        = athletes.length;
-		var shouldbe = { prelim: n > 20, semfin: n > 8 && n <= 20, finals: n <= 8 };
+		var shouldbe = { prelim: (flight || (n >= 20)), semfin: n > 8 && n < 20 && ! flight, finals: n <= 8 };
 		var round    = { is: division.round.is };
 		$( '#start-round label' ).removeClass( 'active' );
 		$( '#start-round input' ).removeAttr( 'checked' );

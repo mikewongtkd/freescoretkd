@@ -1,6 +1,5 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
-use FreeScore::RCS; # MW Do I need this?
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
@@ -400,11 +399,12 @@ sub normalize {
 
 	# ===== NO ROUND DEFINED; FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
 	} else {
-		my $n        = int( @{ $self->{ athletes }} );
-		my $half     = int( ($n-1)/2 );
+		my $n      = int( @{ $self->{ athletes }} );
+		my $half   = int( ($n-1)/2 );
+		my $flight = $self->is_flight();
 
-		if    ( $n >= 20 ) { $round = 'prelim'; $self->assign( $_, 'prelim' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		elsif ( $n >   8 ) { $round = 'semfin'; $self->assign( $_, 'semfin' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		if    ( $flight || $n >= 20 ) { $round = 'prelim'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		elsif ( $n >   8            ) { $round = 'semfin'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 		else { 
 			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
 			if( $self->{ method } eq 'combination' ) {
@@ -413,7 +413,7 @@ sub normalize {
 				else             { $round = 'final3'; $self->distribute_evenly( 'final3' ); }
 
 			# ===== CUTOFF METHOD USES SAME METHODOLOGY AS BEFORE
-			} else { $round = 'finals'; $self->assign( $_, 'finals' ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+			} else { $round = 'finals'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 		}
 	}
 
@@ -686,9 +686,11 @@ sub read {
 
 	# ===== AUTODETECT THE FIRST ROUND
 	if( exists $order->{ 'autodetect_required' } ) {
-		my $n = int( keys %$athletes );
+		my $n      = int( keys %$athletes );
+		my $flight = $self->is_flight();
+
 		if    ( $n ==  0            ) { die "Division Configuration Error: No athletes declared $!"; }
-		elsif ( $n >= 20            ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
+		elsif ( $n >= 20 || $flight ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
 		elsif ( $n <  20 && $n >  8 ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
 		elsif ( $n <=  8            ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
 
@@ -887,6 +889,10 @@ sub write {
 
 	$self->update_status();
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
+
+	# Flights always start in prelim
+	print STDERR "DIVISION IS FLIGHT\n" if $self->is_flight(); # MW
+	$self->{ round } = 'prelim' if $self->is_flight();
 
 	my $judges = $self->{ judges };
 

@@ -367,7 +367,8 @@
 								});
 
 								// Split button
-								if( round == 'prelim' && athletes.length >= 20 ) { action.split.enable(); } else { action.split.disable(); }
+								// Enable if the division is in the preliminary round, there are more than 20 athletes, and the division is not already a flight
+								if( round == 'prelim' && athletes.length >= 20 && ! division.is.flight() ) { action.split.enable(); } else { action.split.disable(); }
 								action.button.split.off( 'click' ).click(() => {
 									sound.next.play();
 									var divname  = division.summary();
