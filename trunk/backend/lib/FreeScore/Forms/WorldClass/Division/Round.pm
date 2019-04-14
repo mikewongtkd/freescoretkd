@@ -208,7 +208,7 @@ sub calculate_means {
 			presentation => sprintf( "%.2f", $stats->{ sumpre })
 		);
 		my $adjusted = { @mean };
-		my $original = { @mean };
+		my $allscore = { @mean };
 
 		# ===== CALCULATE ADJUSTED MEANS
 		if( $judges >= 5 ) {
@@ -231,16 +231,16 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
-		# ===== CALCULATE ORIGINAL (UNADJUSTED) MEANS
-		$original = { map { ( $_ => sprintf( "%.2f", ($original->{ $_ }/$judges))) } keys %$original };
+		# ===== CALCULATE ALL-SCORE MEANS
+		$allscore = { map { ( $_ => sprintf( "%.2f", ($allscore->{ $_ }/$judges))) } keys %$allscore };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
-		$original->{ total } = $original->{ accuracy } + $original->{ presentation } - $penalties;
+		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } - $penalties;
 
 		$form->{ adjusted } = $adjusted;
-		$form->{ original } = $original;
+		$form->{ allscore } = $allscore;
 
-		push @$means, { adjusted => $adjusted, complete => $original };
+		push @$means, { adjusted => $adjusted, allscore => $allscore };
 	}
 	# ===== CALCULATE TIEBREAKER SCORES (NOT YET IMPLEMENTED)
 	foreach my $form (@{$self->{ tiebreakers }}) {
@@ -253,12 +253,12 @@ sub calculate_means {
 		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
 		$self->{ adjusted }{ accuracy }     += $mean->{ adjusted }{ accuracy };
 		$self->{ adjusted }{ presentation } += $mean->{ adjusted }{ presentation };
-		$self->{ total }                    += $mean->{ original }{ total };
+		$self->{ allscore }{ total }        += $mean->{ allscore }{ total };
 	};
 
-	$self->{ adjusted }{ total }        = sprintf( "%.2f", $self->{ adjusted }{ total } );
-	$self->{ adjusted }{ presentation } = sprintf( "%.2f", $self->{ adjusted }{ presentation } );
-	$self->{ total }                    = sprintf( "%.2f", $self->{ total } );
+	$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", $self->{ adjusted }{ total } );
+	$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", $self->{ adjusted }{ presentation } );
+	$self->{ allscore }{ total }        = 0.0 + sprintf( "%.2f", $self->{ allscore }{ total } );
 
 	return $self;
 }
@@ -409,7 +409,7 @@ sub _compare {
 	return
 		$b->{ adjusted }{ total }        <=> $a->{ adjusted }{ total }        ||
 		$b->{ adjusted }{ presentation } <=> $a->{ adjusted }{ presentation } ||
-		$b->{ complete }{ total }        <=> $a->{ complete }{ total };
+		$b->{ allscore }{ total }        <=> $a->{ allscore }{ total };
 }
 
 # ============================================================

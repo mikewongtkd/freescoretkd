@@ -183,8 +183,8 @@ sub place_athletes {
 			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $x->{ notes } = 'P'; }
 			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $y->{ notes } = 'P'; }
 			else {
-				if    ( $x->{ total } > $y->{ total } ) { $x->{ notes } = 'HL'; }
-				elsif ( $x->{ total } < $y->{ total } ) { $y->{ notes } = 'HL'; }
+				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
+				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
 				else {
 					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
 					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
@@ -891,7 +891,6 @@ sub write {
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
 
 	# Flights always start in prelim
-	print STDERR "DIVISION IS FLIGHT\n" if $self->is_flight(); # MW
 	$self->{ round } = 'prelim' if $self->is_flight();
 
 	my $judges = $self->{ judges };
