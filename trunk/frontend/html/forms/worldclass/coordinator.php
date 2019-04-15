@@ -201,6 +201,13 @@
 									<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
 								</div>
 							</div>
+							<div class="navigate-round">
+								<h4>Round</h4>
+								<div class="btn-group btn-group-justified">
+									<a class="btn btn-primary" id="navigate-prev-round">Previous</a>
+									<a class="btn btn-primary" id="navigate-next-round">Next</a>
+								</div>
+							</div>
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -432,6 +439,15 @@
 							changeCurrentForm( j, form )();
 						});
 					});
+					if( division.round.is.complete()) {
+						$( '#navigate-prev-round, #navigate-next-round' ).removeClass( 'disabled' );
+						var prev = division.prev.round();
+						var next = division.next.round();
+						if( defined( prev ) && prev in division.data().placement ) { $( '#navigate-prev-round' ).removeClass( 'disabled' ); } else { $( '#navigate-prev-round' ).addClass( 'disabled' ); }
+						if( defined( next )                                      ) { $( '#navigate-next-round' ).removeClass( 'disabled' ); } else { $( '#navigate-next-round' ).addClass( 'disabled' ); }
+					} else {
+						$( '#navigate-prev-round, #navigate-next-round' ).addClass( 'disabled' );
+					}
 
 					var iconize = function( penalties ) {
 						if( ! defined( penalties )) { return; }
@@ -518,11 +534,13 @@
 					if( currentDivision ) { 
 						$( '#judge-scores' ).show();
 						$( '.navigate-division' ).hide();
+						$( '.navigate-round' ).show();
 						$( '.penalties, .decision, .administration' ).show();
 
 					} else { 
 						$( '#judge-scores' ).hide();
 						$( '.navigate-division' ).show();
+						$( '.navigate-round' ).hide();
 						$( '.penalties, .decision, .administration' ).hide();
 					}
 					$( '.navigate-athlete' ).hide();
@@ -608,6 +626,10 @@
 					var divid   = division.name();
 					var action = {
 						navigate : {
+							round : {
+								next : () => { sound.next.play(); var round = division.next.round(); if( defined( round )) { action.navigate.to({ destination: 'round', round: round }); }},
+								prev : () => { sound.prev.play(); var round = division.prev.round(); if( defined( round )) { action.navigate.to({ destination: 'round', round: round }); }},
+							},
 							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); if( ring == 'staging' ) { alertify.success( "Transferred division from staging to ring. Starting to score division." ); setTimeout( function() { location.reload(); }, 3000 );}},
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
@@ -622,6 +644,8 @@
 					};
 
 					$( "#navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
+					$( "#navigate-next-round" ) .off( 'click' ).click( action.navigate.round.next );
+					$( "#navigate-prev-round" ) .off( 'click' ).click( action.navigate.round.prev );
 					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
 					$( "#admin-view" )          .off( 'click' ).click( action.administration.view );
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );

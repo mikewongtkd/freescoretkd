@@ -77,6 +77,11 @@ function Division( division ) {
 			var i     = division.current;
 			var j     = order.findIndex( function( athleteId ) { return athleteId == i; });
 			return order[ j + 1 ];
+		},
+		round: function() {
+			var round = division.round;
+			var next  = { 'prelim' : 'semfin', 'semfin' : 'finals', 'finals' : undefined };
+			return next[ round ];
 		}
 	};
 
@@ -106,6 +111,14 @@ function Division( division ) {
 		round = defined( round ) ? round : division.round;
 		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	}
+
+	var _prev = this.prev = {
+		round: function() {
+			var round = division.round;
+			var next  = { 'prelim' : undefined, 'semfin' : 'prelim', 'finals' : 'semfin' };
+			return next[ round ];
+		}
+	};
 
 	// ============================================================
 	var _is = this.is = {

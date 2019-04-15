@@ -547,8 +547,12 @@ sub handle_division_navigate {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	my $object = $request->{ target }{ destination };
-	my $i      = exists $request->{ target }{ divid } ? $request->{ target }{ divid } : int( $request->{ target }{ index } );
+	my $target = $request->{ target };
+	my $object = $target->{ destination };
+	my $i      = undef;
+	if   ( exists $target->{ divid }) { $i = $target->{ divid }; }
+	elsif( exists $target->{ round }) { $i = $target->{ round }; } 
+	else                              { $i = int( $target->{ index }); }
 
 	print STDERR "Navigating to $object $i.\n" if $DEBUG;
 
