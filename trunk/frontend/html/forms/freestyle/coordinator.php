@@ -63,6 +63,7 @@
 							</div>
 						</div>
 						<div class="action-menu col-lg-3">
+							<?php include( 'coordinator/judge-scores.php' ); ?>
 							<div class="navigate-division">
 								<h4>Division</h4>
 								<div class="list-group">
@@ -157,6 +158,7 @@
 						if( ! defined( division )) { return; }
 						division = new Division( division );
 						refresh.athletes( division, curDiv );
+						refresh.judges( division, curDiv );
 						if( page.num == 1 ) { page.transition() };
 					}
 				} else if( update.type == 'division' && update.action == 'update' ) {
@@ -165,6 +167,7 @@
 
 					division   = new Division( division );
 					refresh.athletes( division, true );
+					refresh.judges( division, curDiv );
 					if( page.num == 1 ) { page.transition() };
 				}
 			};
@@ -204,6 +207,8 @@
 						var name    = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
 						var j       = division.current.athleteId();
 						var order   = division.current.order();
+						var round   = division.current.roundId();
+						var n       = division.judges();
 
 						// ===== CURRENT ATHLETE
 						if( j == order[ i ] && currentDivision ) { 
@@ -215,6 +220,32 @@
 								$( ".navigate-athlete" ).hide(); 
 								$( ".penalties,.decision" ).show(); 
 							});
+							var scores   = athlete.scores( round );
+							var adjusted = athlete.adjusted( round );
+							var min      = adjusted.min;
+							var max      = adjusted.max;
+							var rows     = [ 'tec', 'pre', 'sum' ];
+							console.log( scores, adjusted );
+							for( var k = 0; k < n; k++ ) {
+								var score  = scores[ k ];
+								var points = {
+									tec : Object.values( score.technical ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
+									pre : Object.values( score.presentation ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
+								};
+								points.sum = (parseFloat( points.tec ) + parseFloat( points.pre )).toFixed( 2 );
+								rows.forEach(( key ) => { $( `#j${k}-${key}` ).text( points[ key ] ).removeClass( 'ignore' ); });
+								if( k == max.presentation || k == min.presentation ) { $( `#j${k}-pre` ).addClass( 'ignore' ); }
+								if( k == max.technical    || k == min.technical    ) { $( `#j${k}-tec` ).addClass( 'ignore' ); }
+							}
+							var points = {
+								tec: adjusted.technical.toFixed( 2 ),
+								pre: adjusted.presentation.toFixed( 2 ),
+								sum: adjusted.total.toFixed( 2 ),
+							};
+							rows.forEach(( key ) => { $( `#score-${key}` ).text( points[ key ] ); });
+							// Report range here. // MW
+							// Add behavior to clear judge score. // MW
+
 							timer.stop(); $( '#timer-display' ).html( '0:00.0' );
 							refresh.actions( division );
 
@@ -242,10 +273,23 @@
 
 					// ===== ACTION MENU BEHAVIOR
 					if( currentDivision ) { 
-						$( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show();
+						$( '#judge-scores' ).show();
+						$( ".navigate-division" ).hide(); 
+						$( ".penalties,.decision" ).show();
 					} else { 
-						$( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+						$( '#judge-scores' ).hide();
+						$( ".navigate-division" ).show(); 
+						$( ".penalties,.decision" ).hide(); 
+					}
 					$( ".navigate-athlete" ).hide();
+				},
+				judges : function( division ) {
+					var n  = division.judges();
+					var td = [ 'col', 'tec', 'pre', 'sum', 'clr' ];
+					for( var i = 0; i < 7; i++ ) {
+						if( i < n ) { td.forEach(( id ) => { $( `#j${i}-${id}` ).show(); }); }
+						else        { td.forEach(( id ) => { $( `#j${i}-${id}` ).hide(); }); }
+					}
 				},
 				actions : function( division ) {
 					var athlete = division.current.athlete();
@@ -345,6 +389,7 @@
 
 							$.cookie( 'divid', divid, { expires: 1, path: '/' });
 							refresh.athletes( new Division( division ), division.name == ring.current );
+							refresh.judges( division, curDiv );
 							sound.next.play();
 							page.transition();
 						});

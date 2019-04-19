@@ -69,6 +69,27 @@ html, body {
 .pt-page-ontop {
   z-index: 999; }
 
+#judge-scores table {
+  width: 100%; }
+  #judge-scores table td, #judge-scores table th {
+    font-size: 9pt;
+    text-align: center; }
+    #judge-scores table td .btn-xs, #judge-scores table th .btn-xs {
+      padding: 0 8px 2px 8px; }
+  #judge-scores table #score-col, #judge-scores table #range-col {
+    font-size: 6pt;
+    font-weight: normal;
+    vertical-align: bottom; }
+  #judge-scores table .tec {
+    color: #d9534f; }
+  #judge-scores table .pre {
+    color: #337ab7; }
+  #judge-scores table .sum {
+    color: #333; }
+  #judge-scores table .ignore {
+    text-decoration: line-through;
+    opacity: 0.2; }
+
 #ring-header, #division-header {
   position: relative;
   height: 48px;
