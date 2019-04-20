@@ -46,7 +46,7 @@ template.day.detach();
 show.day = ( id, name ) => {
 	var day = template.day.clone();
 	day.attr({ id : id });
-	day.find( '.panel-title' ).html( name );
+	day.find( '.panel-title' ).html( `${name} Divisions` );
 	day.find( '.panel-heading .btn' ).html( `Move to ${name}` ).attr({ 'data-target' : `${id} ul` });
 	var list   = day.find( '.list-group.day' ).attr({ id: `${id}-schedule` });
 	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${name}`, id: `${id}-search` });

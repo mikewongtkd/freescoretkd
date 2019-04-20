@@ -27,12 +27,12 @@ label.disabled {
 	}
 	.panel-body {
 		background-color: #eee;
-		padding: 0;
+		padding: 4px;
 	}
 	form {
 		.form-group { 
 			margin: 0; 
-			padding: 4px; 
+			padding: 4px 0 8px 0; 
 			span.form-control-feedback {
 				color: #999;
 				margin: 4px;

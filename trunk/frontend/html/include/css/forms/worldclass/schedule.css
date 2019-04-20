@@ -30,12 +30,12 @@ label.disabled {
   margin: -3px 0 0 0; }
 .competition-day.panel .panel-body {
   background-color: #eee;
-  padding: 0; }
+  padding: 4px; }
 .competition-day.panel form {
   margin: 0; }
   .competition-day.panel form .form-group {
     margin: 0;
-    padding: 4px; }
+    padding: 4px 0 8px 0; }
     .competition-day.panel form .form-group span.form-control-feedback {
       color: #999;
       margin: 4px; }
