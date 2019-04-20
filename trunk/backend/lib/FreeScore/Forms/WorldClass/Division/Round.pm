@@ -1,6 +1,6 @@
 package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
-use List::Util qw( all any sum );
+use List::Util qw( all any none sum );
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Dumper;
@@ -84,8 +84,10 @@ sub clear_score {
 	my $form  = shift;
 	my $judge = shift;
 
+	my $judges = $self->{ forms }[ $form ]{ judge };
 	$self->{ forms }[ $form ]{ judge }[ $judge ] = new FreeScore::Forms::WorldClass::Division::Round::Score();
-	$self->{ forms }[ $form ]->{ complete } = 0;
+	$self->{ forms }[ $form ]{ complete } = 0;
+	$self->{ forms }[ $form ]{ started }  = any { $_->started() } @$judges; # MW Sometimes this resolves incorrectly as true
 }
 
 # ============================================================
@@ -99,7 +101,11 @@ sub record_score {
 	my $judge = shift;
 	my $score = shift;
 
-	$self->{ forms }[ $form ]{ judge }[ $judge ] = new FreeScore::Forms::WorldClass::Division::Round::Score( $score );
+	$score = new FreeScore::Forms::WorldClass::Division::Round::Score( $score );
+
+	my $judges = $self->{ forms }[ $form ]{ judge };
+	$self->{ forms }[ $form ]{ judge }[ $judge ] = $score;
+	$self->{ forms }[ $form ]{ started }         = any { $_->started() } @$judges;
 }
 
 # ============================================================
@@ -128,7 +134,9 @@ sub record_decision {
 	my $form = $self->{ forms }[ $i ];
 	if( $decision eq 'clear' ) {
 		delete $form->{ decision }{ $_ } foreach (keys %{ $form->{ decision }});
-		$form->{ complete }              = 0;
+		$form->{ complete } = 0;
+		$form->{ started }  = 0;
+		$self->{ complete } = 0 if( none { $self->form_complete( $_ )} @{$self->{ forms }} );
 	} else {
 		$form->{ decision }{ $decision } = 1;
 		$form->{ complete }              = 1;
@@ -153,6 +161,7 @@ sub calculate_means {
 	my $judges = shift;
 	my $means  = [];
 
+	$self->started();
 	$self->complete();
 	foreach my $form (@{$self->{ forms }}) {
 		next unless $form->{ complete };
@@ -307,7 +316,6 @@ sub any_punitive_decision {
 			return 1;
 		}
 	}
-
 	return 0;
 }
 
@@ -356,6 +364,21 @@ sub reinstantiate {
 		}
 	}
 	return $self;
+}
+
+# ============================================================
+sub started {
+# ============================================================
+# An athlete's round is started when any their compulsory forms are started or complete
+# ------------------------------------------------------------
+	my $self = shift;
+	return $self->{ complete } if $self->{ complete };
+
+	return 1 if $self->any_punitive_decision();
+
+	# ===== A ROUND IS STARTED WHEN ANY COMPULSORY FORMS ARE STARTED
+	$self->{ started } = any { $_->{ started }; } @{ $self->{ forms }};
+	return $self->{ started };
 }
 
 # ============================================================

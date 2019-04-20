@@ -144,16 +144,16 @@ $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
 		}
 	}
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
+	sound.next.play();
 
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
-
-	page.transition( 2 );
 });
 
 $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
-	window.location = '../../../index.php';
+	sound.prev.play();
+	setTimeout( () => { window.location = '../../../index.php'; }, 1000 );
 });
 
 // ===== ON MESSAGE BEHAVIOR
@@ -167,6 +167,10 @@ handler.read[ 'settings' ] = ( update ) => {
 		}
 	}
 	show.days();
+};
+
+handler.write[ 'schedule' ] = ( update ) => {
+	alertify.confirm( 'Daily Schedule Saved', 'Daily schedule for divisions saved', () => { sound.send.play(); setTimeout( () => { window.location = 'build.php'; }, 1000 ); }, () => {});
 };
 </script>
 

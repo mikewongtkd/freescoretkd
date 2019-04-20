@@ -315,7 +315,7 @@ sub handle_division_clear_judge_score {
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
-	my $message  = "Clearing $jname's score for $athlete->{ name }\n";
+	my $message  = "Clearing $jname score for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 

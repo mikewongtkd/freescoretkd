@@ -482,6 +482,10 @@ ws.worldclass.onmessage = ( response ) => {
 	}
 };
 
+ws.worldclass.onerror = () => {
+	alertify.error( 'Error contacting World Class Poomsae service' );
+};
+
 ws.sparring.onopen = () => {
 	var request;
 	request = { data : { type : 'registration', action : 'read' }};
@@ -512,6 +516,11 @@ ws.sparring.onmessage = ( response ) => {
 		}
 	}
 };
+
+ws.sparring.onerror = () => {
+	alertify.error( 'Error contacting Sparring service' );
+};
+
 		</script>
 	</body>
 </html>

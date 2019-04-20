@@ -120,6 +120,15 @@ sub clear_score {
 	my $judges  = $self->{ judges };
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	if( $self->is_flight()) {
+		my $started = 0;
+		foreach $athlete (@{ $self->{ athletes }}) {
+			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+			print STDERR "$athlete->{ name } started.\n" if( $athlete->{ scores }{ $round }->started());
+			$started ||= $athlete->{ scores }{ $round }->started();
+		}
+		$self->{ flight }{ state } = 'ready' if( ! $started );
+	}
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->clear_score( $form, $judge );
 }
@@ -447,6 +456,7 @@ sub record_score {
 	my $judges  = $self->{ judges };
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$self->{ flight }{ state } = 'in-progress' if( $self->is_flight() && $self->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
 }
@@ -488,6 +498,15 @@ sub record_decision {
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	$athlete->{ scores }{ $round }->record_decision( $form, $decision );
+	if( $self->is_flight()) {
+		my $started = 0;
+		foreach $athlete (@{ $self->{ athletes }}) {
+			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+			$started ||= $athlete->{ scores }{ $round }->started();
+		}
+		if( $started ) { $self->{ flight }{ state } = 'in-progress'; } 
+		else           { $self->{ flight }{ state } = 'ready';       }
+	}
 }
 
 # ============================================================
@@ -752,7 +771,7 @@ sub split {
 		$flight->{ name } = $flight->{ name } . $id;
 		$flight->{ athletes } = [ splice( @athletes, 0, $k ) ];
 		$flight->{ order }{ prelim } = [ 0 .. $#{ $flight->{ athletes }} ];
-		$flight->{ flight }{ state } = 'in-progress';
+		$flight->{ flight }{ state } = 'ready';
 		$flight->{ flight }{ group } = $group;
 		$flight->write();
 		push @flights, $flight;

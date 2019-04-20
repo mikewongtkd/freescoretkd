@@ -2,7 +2,7 @@
 	var settings = { day: [], current: { day: 0 }, divisions : {}, rounds: [] };
 	var scale    = { top: 60, fourMinutes: 8, padding: 4 };
 </script>
-<div class="pt-page pt-page-2">
+<div class="pt-page pt-page-1">
 	<div class="container">
 		<div class="page-header"> Sport Poomsae Schedule Builder <div id="days" class="pull-right"></div></div>
 		<div>
