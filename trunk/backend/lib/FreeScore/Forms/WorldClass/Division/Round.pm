@@ -8,7 +8,7 @@ use Carp;
 
 # $SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 
-# Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
+# Round data structure (also see FreeScore::Forms::WorldClass::Division)
 # - adjusted
 #   - accuracy
 #   - presentation
@@ -29,9 +29,11 @@ use Carp;
 #       - presentation
 #       - total
 #     - penalties
+#     - started
 #   - judge
 #     - [ judge index ]
 #       - Score Object
+# - started
 # - tiebreakers
 #   (same substructure as forms)
 # - total
@@ -87,7 +89,7 @@ sub clear_score {
 	my $judges = $self->{ forms }[ $form ]{ judge };
 	$self->{ forms }[ $form ]{ judge }[ $judge ] = new FreeScore::Forms::WorldClass::Division::Round::Score();
 	$self->{ forms }[ $form ]{ complete } = 0;
-	$self->{ forms }[ $form ]{ started }  = any { $_->started() } @$judges; # MW Sometimes this resolves incorrectly as true
+	$self->{ forms }[ $form ]{ started }  = any { $_->started() } @$judges;
 }
 
 # ============================================================
@@ -377,7 +379,10 @@ sub started {
 	return 1 if $self->any_punitive_decision();
 
 	# ===== A ROUND IS STARTED WHEN ANY COMPULSORY FORMS ARE STARTED
-	$self->{ started } = any { $_->{ started }; } @{ $self->{ forms }};
+	foreach my $form (@{ $self->{ forms }}) {
+		$form->{ started } = any { $_->started() } @{$form->{ judge }};
+	}
+	$self->{ started } = any { $form->{ started }} @{ $self->{ forms }};
 	return $self->{ started };
 }
 

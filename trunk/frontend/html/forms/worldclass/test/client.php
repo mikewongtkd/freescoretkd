@@ -35,7 +35,7 @@
 			</div>
 
 			<div id="athlete"></div>
-			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a></div>
+			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="send-one-score" class="btn btn-success disabled" style="margin-left: 40px;">Send One Score</a></div>
 
 		</div>
 		<script>
@@ -76,7 +76,7 @@
 
 					if( update.action == 'update' && update.type == 'division' ) {
 						var athlete = division.current.athlete()
-						$( '#send-scores' ).removeClass( 'disabled' );
+						$( '#send-scores, #send-one-score' ).removeClass( 'disabled' );
 						$( '#athlete' ).html( athlete.display.name() );
 					}
 				};
@@ -122,6 +122,26 @@
 					setTimeout( send( i, scores ), (((i + rand( 5 )) * 500) + rand( 250 )));
 				}
 			});
+
+			$( '#send-one-score' ).off( 'click' ).click(() => {
+				var request = undefined;
+				var j       = division.judges();
+				var scores  = create_scores( j );
+				var athlete = division.current.athlete();
+				var i       = rand( j );
+
+				sound.ok.play();
+				var send = ( i, score ) => { return () => {
+					$.cookie( 'judge', i );
+					alertify.notify( 'Score for ' + athlete.display.name() + ' sent for ' + ( i == 0 ? 'Referee' : 'Judge ' + i ));
+					request      = { data : { type : 'division', action : 'score', score: score, judge: i, cookie : { judge: i }}};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+					console.log( request.data );
+				}};
+				send( i, scores[ i ] )();
+			});
+
 		</script>
 	</body>
 </html>

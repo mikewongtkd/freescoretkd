@@ -124,7 +124,6 @@ sub clear_score {
 		my $started = 0;
 		foreach $athlete (@{ $self->{ athletes }}) {
 			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-			print STDERR "$athlete->{ name } started.\n" if( $athlete->{ scores }{ $round }->started());
 			$started ||= $athlete->{ scores }{ $round }->started();
 		}
 		$self->{ flight }{ state } = 'ready' if( ! $started );
