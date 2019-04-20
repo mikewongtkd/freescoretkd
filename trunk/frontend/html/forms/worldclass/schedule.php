@@ -7,6 +7,7 @@
 		<title>Sport Poomsae Scheduling</title>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/schedule.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -16,6 +17,7 @@
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
@@ -24,93 +26,6 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
-			@font-face {
-			  font-family: Nimbus;
-			  src: url("include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
-			@font-face {
-			  font-family: Biolinum;
-			  font-weight: bold;
-			  src: url("include/fonts/LinBiolinum_Rah.ttf"); }
-			@media print {
-				.btn { display: none; }
-				.page-header { display: none; }
-			}
-			.page-footer { text-align: center; }
-			.btn-default.active {
-				background-color: #77b300;
-				border-color: #558000;
-			}
-			.pill {
-				padding: 4px;
-				border-radius: 4px;
-			}
-			.bootstrap-select { width: 120px !important; }
-			label.disabled {
-				pointer-events: none;
-			}
-
-			.btn-group .btn.active {
-				color: white;
-			}
-
-			#schedule .row {
-				width: 100%;
-				margin-left: 0;
-			}
-
-			#schedule .ring {
-				height: 1260px;
-				border: 0px;
-			}
-
-			ul.list-group-sortable-connected, ol.list-group-sortable-connected {
-				min-height: 40px;
-			}
-
-			.time .hour {
-				position: absolute;
-				right: 12px;
-			}
-
-			.droptarget {
-				border: 2px dashed #333;
-			}
-
-			.schedule {
-				height: 1200px;
-				width: calc( 100% - 8px );
-				margin-left: 8px;
-			}
-
-			.schedule .round {
-				position: absolute;
-				left: 0;
-				width: calc( 100% - 12px );
-				margin-left: 10px;
-				text-align: center;
-				border-radius: 4px;
-				border: 1px solid #ccc;
-				cursor: move;
-			}
-
-			a.active {
-				background-color: #cce5ff !important;
-				border-color: #b8daff !important;
-				color: #004085 !important;
-			}
-
-			.coed   { background-color: #ffddc0; }
-			.male   { background-color: #b0e9e9; }
-			.female { background-color: #ffc0c0; }
-
-			.coed.error      { background-color: #6b482b; }
-			.male.error      { background-color: #1a4040; }
-			.female.error    { background-color: #6b2b2b; }
-
-			.coed.selected   { background-color: #af550b; }
-			.male.selected   { background-color: #af0b0b; }
-			.female.selected { background-color: #076969; }
-
 		</style>
 	</head>
 	<body>

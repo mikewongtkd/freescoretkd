@@ -12,11 +12,6 @@
 			</div>
 			<div class="row">
 				<div class="col-xs-4" id="divisions">
-					<div class="panel panel-primary">
-						<h4 class="panel-heading" style="margin: 0;">Unscheduled Divisions<a class="btn btn-xs btn-info pull-right disabled">Unschedule</a></h4>
-						<ul class="list-group list-group-sortable-connected" id="unscheduled-divisions">
-						</ul>
-					</div>
 				</div>
 				<div class="col-xs-8" id="days">
 				</div>
@@ -28,14 +23,59 @@
 		</div>
 	</div>
 </div>
+<div class="panel panel-primary competition-day">
+	<div class="panel-heading">
+		<h4 class="panel-title">Day</h4>
+		<a class="btn btn-xs btn-info pull-right disabled">Move to Day</a>
+	</div>
+	<div class="panel-body">
+		<form role="form">
+			<div class="form-group">
+				<input class="form-control day-search" type="search" placeholder="Search Day" />
+			</div>
+			<ul class="list-group list-group-sortable-connected day">
+			</ul>
+		</form>
+	</div>
+</div>
 <script>
+var template = {};
+template.day = $( '.competition-day' );
+template.day.detach();
+
+show.day = ( id, name ) => {
+	var day = template.day.clone();
+	day.attr({ id : id });
+	day.find( '.panel-title' ).html( name );
+	day.find( '.panel-heading .btn' ).html( `Move to ${name}` ).attr({ 'data-target' : `${id} ul` });
+	var list   = day.find( '.list-group.day' ).attr({ id: `${id}-schedule` });
+	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${name}`, id: `${id}-search` });
+	list.btsListFilter( search, { resetOnBlur: false, itemFilter: ( item, text ) => { 
+		var contents = $( item ).text(); 
+		var re = new RegExp( text, 'i' ); 
+		if( contents.match( re )) { 
+			if( text ) { $( item ).addClass( 'active' ); }  else { $( item ).removeClass( 'active' ); }
+			var others = $( '.list-group' ).not( list );
+			if( $( 'a.list-group-item.active' ).length > 0 ) {
+				others.parents( '.panel' ).find( '.panel-heading' ).children( 'a').removeClass( 'disabled' );
+			} else {
+				others.parents( '.panel' ).find( '.panel-heading' ).children( 'a').addClass( 'disabled' );
+			}
+			return true; 
+		}
+	}});
+	return day;
+};
 
 show.days = () => {
+	$( '#divisions' ).empty();
 	$( '#days' ).empty();
+
+	var unscheduled = show.day( 'unscheduled', 'Unscheduled' );
+	$( '#divisions' ).append( unscheduled );
 	for( var i = 0; i < schedule.days; i++ ) {
-		var day = html.div.clone().addClass( 'panel panel-primary' ).attr({ id: `day-${ i + 1 }` });
-		day.append( html.h4.clone().addClass( 'panel-heading' ).html( `Day ${ i + 1 }<a class="btn btn-xs btn-info pull-right disabled">Move to Day ${ i + 1 }</a>` ).css({ 'margin' : 0 }));
-		day.append( html.ul.clone().addClass( 'list-group list-group-sortable-connected day' ).attr({ id: `day-${ i + 1 }-schedule` }));
+		var j   = i + 1;
+		var day = show.day( `day-${j}`, `Day ${j}` );
 		$( '#days' ).append( day );
 	}
 
@@ -50,8 +90,8 @@ show.days = () => {
 	} else {
 		var list = undefined;
 		$( 'ul' ).empty();
-		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); }             // There's only one day, schedule all divisions for that day
-		else                     { list = $( '#unscheduled-divisions' );} // Multiple days; need to make decisions
+		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); }      // There's only one day, schedule all divisions for that day
+		else                     { list = $( '#unscheduled ul' );} // Multiple days; need to make decisions
 		schedule.divisions.forEach(( division, i ) => {
 			list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
 		});
@@ -59,6 +99,7 @@ show.days = () => {
 
 	$( '.list-group-sortable-connected' ).sortable({ placeholderClass: 'list-group-item', connectWith: '.connected' });
 
+	// ===== LIST GROUP ITEM SELECTION BEHAVIOR
 	$( 'a.list-group-item' ).off( 'click' ).click(( ev ) => {
 		var target = $( ev.target );
 		target.toggleClass( 'active' );
@@ -66,21 +107,23 @@ show.days = () => {
 		var others = $( '.list-group' ).not( list );
 		others.children().removeClass( 'active' );
 		if( $( 'a.list-group-item.active' ).length > 0 ) {
-			others.siblings( '.panel-heading' ).children( 'a' ).removeClass( 'disabled' );
+			others.parents( '.panel' ).find( '.panel-heading' ).children( 'a' ).removeClass( 'disabled' );
 		} else {
-			others.siblings( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
+			others.parents( '.panel' ).find( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
 		}
 		list.siblings( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
 	});
 
+	// ===== MOVE TO BUTTON BEHAVIOR
 	$( '.panel-heading a' ).off( 'click' ).click(( ev ) => {
 		var target = $( ev.target );
-		var list   = target.parent().parent().children( 'ul.list-group' );
+		var list   = $( '#' + target.attr( 'data-target' ));
 		var items  = $( 'a.list-group-item.active' );
 		items.detach();
 		list.append( items );
 		items.removeClass( 'active' );
 		$( '.panel-heading a' ).addClass( 'disabled' );
+		$( '.day-search' ).siblings( '.btn' ).click();
 	});
 }
 

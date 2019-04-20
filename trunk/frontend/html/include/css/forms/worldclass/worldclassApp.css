@@ -49,7 +49,7 @@ body {
   margin: 0 auto 0 auto;
   width: 1000px; }
   .worldclass .scoreboard {
-    font-family: Barlow, FjallaOne;
+    font-family: FjallaOne, Barlow;
     display: none;
     width: 1000px;
     height: 720px;
@@ -301,7 +301,7 @@ body {
   .worldclass .leaderboard {
     width: 1000px;
     height: 720px;
-    font-family: Barlow, FjallaOne;
+    font-family: FjallaOne, Barlow;
     color: white;
     overflow: hidden; }
     .worldclass .leaderboard .division {

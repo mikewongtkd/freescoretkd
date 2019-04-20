@@ -111,8 +111,9 @@
 			// ===== BEHAVIOR
 			$( function() {
 				var validate = {};
-				athletes.editor.on( "change", function( cm, key, ev ) {
-					division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map((name) => { return { name : name };});
+				var get_name_and_meta = ( line ) => { var data = line.split( /\t/ ); var name = data.shift(); var athlete = { name: name.trim(), info: {}}; data.forEach(( keyeqval ) => { var keyval = keyeqval.split( /=/, 2 ); var key = keyval.shift().trim(); var val = keyval.shift().trim(); athlete.info[ key ] = val; }); return athlete; };
+				athletes.editor.on( 'change', function( cm, key, ev ) {
+					division.athletes = ((athletes.doc.getValue().trim()).split( "\n" )).map((name) => { return { name : name.trim() };});
 
 					var autodetect = $( 'label.active input[value=auto]' ).length > 0;
 					if( autodetect ) { settings.round.select.autodetect(); }
