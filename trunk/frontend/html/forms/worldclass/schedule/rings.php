@@ -98,7 +98,7 @@ var dnd = { item: undefined, source: undefined, handle : {
 	}
 }};
 show.daySchedule = () => {
-	$( '.pt-page-2 #schedule' ).empty();
+	$( '.pt-page-1 #schedule' ).empty();
 	var n = tournament.rings.length;
 	var w = n >= 6 ? 6 : n;
 	var h = Math.ceil( n/6 );
@@ -127,7 +127,7 @@ show.daySchedule = () => {
 			ring.append( html.div.clone().addClass( 'schedule' ));
 			row.append( ring );
 		}
-		$( '.pt-page-2 #schedule' ).append( row );
+		$( '.pt-page-1 #schedule' ).append( row );
 	}
 	$( '.schedule' )
 		.on( 'dragstart', dnd.handle.drag.start )
@@ -153,7 +153,7 @@ show.daySchedule = () => {
 		var topOffset = scale.top + scale.padding;
 		settings.rounds[ settings.current.day ].forEach(( round ) => {
 			var item = init.round( round, topOffset );
-			$( '.pt-page-2 #ring-1 .schedule' ).append( item );
+			$( '.pt-page-1 #ring-1 .schedule' ).append( item );
 			topOffset += parseInt( item.attr( 'data-height' )) + scale.padding;
 		});
 	}
@@ -250,8 +250,8 @@ var init = {
 
 		// If the pairs and teams registered as individuals, divide
 		if( schedule.teams.match( /individual/i )) {
-			if     ( desc.match( /pair/i ))       { n = Math.ceil( n/2 ); }
-			else if( desc.match( /team/i ))       { n = Math.ceil( n/3 ); }
+			if     ( desc.match( /pair/i )) { n = Math.ceil( n/2 ); }
+			else if( desc.match( /team/i )) { n = Math.ceil( n/3 ); }
 		}
 
 		var mutex = (name in mutexes) ? mutexes[ name ] : [];
@@ -268,13 +268,13 @@ var init = {
 
 			rounds.push( semfin );
 		}
-		if( n > 20 ) {
+		if( n >= 20 ) {
 			var last    = rounds.length - 1;
 			var semfin  = rounds[ last ];
 			var f       = 1; // flights
 			var flights = [];
 
-			if     ( n < 24 ) { f = 1; }
+			if     ( n < 20 ) { f = 1; }
 			else if( n < 40 ) { f = 2; }
 			else if( n < 60 ) { f = 3; }
 			else if( n > 60 ) { f = 4; }
@@ -305,7 +305,7 @@ var init = {
 		init.mutexes( update.divisions );
 
 		var width = Math.ceil( 12/update.schedule.days );
-		$( '.pt-page-2 #days' ).empty();
+		$( '.pt-page-1 #days' ).empty();
 		for( var i = 0; i < update.schedule.days; i++ ) {
 			var day = html.button.clone().addClass( 'btn btn-xs btn-primary day-select' ).attr({ 'data-day': i }).css({ margin: '4px' }).html( `Day ${i + 1}` );
 			day.off( 'click' ).click(( ev ) => {
@@ -316,7 +316,7 @@ var init = {
 				target.addClass( 'btn-success' ).removeClass( 'btn-primary' );
 			});
 			if( i == settings.current.day ) { day.removeClass( 'btn-primary' ).addClass( 'btn-success' ); }
-			$( '.pt-page-2 #days' ).append( day );
+			$( '.pt-page-1 #days' ).append( day );
 		}
 
 		// ===== INITIALIZE LOOKUP TABLE
@@ -338,7 +338,8 @@ var init = {
 	}
 };
 
-handler.write[ 'builder' ] = ( update ) => {
+handler.read[ 'schedule' ] = ( update ) => {
+	schedule = update.schedule;
 	init.divisions( update );
 	init.timeline( update );
 	show.daySchedule();
