@@ -78,6 +78,7 @@ ws.onopen = function() {
 
 ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
+	console.log( update );
 	if( update.action in handler ) {
 		var pages = Object.keys( handler[ update.action ]);
 		pages.forEach(( page ) => {

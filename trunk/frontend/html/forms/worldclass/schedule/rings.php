@@ -1,6 +1,6 @@
 <script>
 	var settings = { day: [], current: { day: 0 }, divisions : {}, rounds: [] };
-	var scale    = { top: 60, fourMinutes: 8, padding: 4 };
+	var scale    = { blocks : { per: { hour: 15, table: 3 }}, minutes: 4, height: 8 };
 </script>
 <div class="pt-page pt-page-1">
 	<div class="container">
@@ -13,9 +13,6 @@
 </div>
 
 <script>
-var insert = function( list, position, item ) {
-};
-
 var dnd = { item: undefined, source: undefined, handle : {
 	drag : {
 		start : function( ev ) {
@@ -40,41 +37,8 @@ var dnd = { item: undefined, source: undefined, handle : {
 		if( ev.stopPropogation ) { ev.stopPropogation(); }
 		var target    = $( ev.target ); if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
 		var item      = dnd.item;
-		var offset    = target.offset();
-		var position  = { x: ev.originalEvent.pageX - offset.left, y: ev.originalEvent.pageY - offset.top};
-		var topOffset = undefined;
 
 		item.detach();
-
-		// ===== TIDY SOURCE
-		topOffset = scale.top + scale.padding;
-		$.each( dnd.source.children( '.round' ), ( i, round ) => {
-			$( round ).css({ top: topOffset });
-			var height = parseInt( $( round ).attr( 'data-height' ));
-			topOffset += height + scale.padding;
-		});
-
-		// ===== TIDY TARGET
-		topOffset = scale.top + scale.padding;
-		var list = target.children( '.round' ).toArray();
-		// Find location of target drop
-		for( var i = 0; i <= list.length; i++ ) {
-			var round = $( list[ i ] );
-			var height = parseInt( $( round ).attr( 'data-height' ));
-			var limit  = topOffset - height; 
-			if( position.y < limit ) { list.splice( i, 0, item ); break; } else
-			if( i == list.length )   { list.push( item );         break; }
-			topOffset += height + scale.padding;
-		}
-
-		// Order target list
-		topOffset = scale.top + scale.padding;
-		list.forEach(( round, i ) => {
-			target.append($( round ));
-			$( round ).css({ top: topOffset });
-			var height = parseInt( $( round ).attr( 'data-height' ));
-			topOffset += height + scale.padding;
-		});
 
 		// ===== UPDATE THE SCHEDULE
 		var day = schedule.day[ settings.current.day ];
@@ -88,46 +52,118 @@ var dnd = { item: undefined, source: undefined, handle : {
 			});
 		});
 
-		var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
-		request.json = JSON.stringify( request.data );
-		ws.send( request.json );
+		// var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
+		// request.json = JSON.stringify( request.data );
+		// ws.send( request.json );
 
 		dnd.item   = undefined;
 		dnd.source = undefined;
 		return false;
 	}
 }};
+
+var blockid = ( ringid, time ) => {
+	var hour     = time.hour < 10 ? '0' + time.hour : time.hour;
+	var minutes  = time.minutes < 10 ? '0' + time.minutes : time.minutes;
+	var id       = `${ringid}-${hour}${minutes}`;
+	return id;
+}
+
+show.block = ( ringid, round, time ) => {
+	var block    = init.block( round );
+	var duration = block.attr( 'rowspan' );
+
+	var id       = blockid( ringid, time );
+	var target   = $( `#${id}` );
+
+	target.replaceWith( block );
+	block.attr({ id : id });
+
+	for( var i = 0; i < duration; i++ ) {
+		time.minutes += scale.minutes;
+		if( time.minutes >= 60 ) { time.hour++; time.minutes -= 60; }
+
+		var id       = blockid( ringid, time );
+		var target   = $( `#${id}` );
+
+		target.remove();
+	}
+
+	// Padding
+	time.minutes += scale.minutes;
+	if( time.minutes >= 60 ) { time.hour++; time.minutes -= 60; }
+}
+
+show.blocks = ( day ) => {
+	var time = { hour: day.start, minutes: 0 };
+	if( defined( day.plan )) { // MW GET SERVICE TO ALWAYS GENERATE A PLAN, AND THEN REMOVE THIS RESTRICTION
+		Object.keys( day.plan ).forEach(( ringid ) => {
+			day.plan[ ringid ].forEach(( round ) => { show.block( ringid, round, time ) });
+		});
+	} else {
+		var ringid = 'ring-1';
+		settings.rounds[ settings.current.day ].forEach(( round ) => { show.block( ringid, round, time ); });
+	}
+
+};
+
 show.daySchedule = () => {
 	$( '.pt-page-1 #schedule' ).empty();
-	var n = tournament.rings.length;
-	var w = n >= 6 ? 6 : n;
-	var h = Math.ceil( n/6 );
-	var width = Math.floor( 10 / w );
+	var width = scale.blocks.per.table;
+	var n     = tournament.rings.length;
+	var w     = n >= width ? width : n;
+	var h     = Math.ceil( n/width );
 	for( var y = 0; y < h; y++ ) {
-		// ===== ROW AND TIMELINE
-		var row      = html.div.clone().addClass( 'row' );
-		var timeline = html.div.clone().addClass( 'time col-xs-2' );
-		var day      = schedule.day[ settings.current.day ];
-		for( var hr = 0; hr < day.duration; hr++ ) {
-			var ampm = 'AM';
-			var hour = hr + day.start; if( hour >= 12 ) { if( hour > 12 ) { hour -= 12; } ampm = 'PM'; };
-			var tick = html.div.clone().addClass( 'hour' ).html( `${ hour }:00 ${ ampm }` ).css({ top: (hr * 15 * scale.fourMinutes) + scale.top + 'px' });
-			timeline.append( tick );
-		}
-		timeline.off( 'click' ).click(( ev ) => {
-		});
-		row.append( timeline );
+		// ===== TABLE
+		var table = html.table.clone().addClass( 'schedule' );
+		var day   = schedule.day[ settings.current.day ];
 
-		// ===== RINGS
+		// ===== HEADERS
+		var header   = html.tr.clone();
+		var timeline = html.td.clone().addClass( 'timeline schedule-heading' ).html( html.h4.clone().html( 'Time' ));
+
+		header.append( timeline );
+
 		for( var x = 0; x < w; x++ ) {
-			var i = (y * 6) + (x + 1);
-			if( i > n ) { continue; }
-			var ring = html.div.clone().addClass( `ring panel panel-primary col-xs-${width}` ).attr({ id : `ring-${i}` }).css({ padding: 0 });
-			ring.append( html.h4.clone().addClass( 'panel-heading' ).html( `Ring ${i}` )).css({ 'margin' : 0 });
-			ring.append( html.div.clone().addClass( 'schedule' ));
-			row.append( ring );
+			var j    = (y * width) + (x + 1);
+			var ring = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( `Ring ${j}` ));
+			header.append( ring );
 		}
-		$( '.pt-page-1 #schedule' ).append( row );
+		table.append( header );
+
+		// ===== SCHEDULE (FOR SEVERAL RINGS)
+		for( var i = 0; i < (day.duration * scale.blocks.per.hour); i++ ) {
+			var tr  = html.tr.clone();
+			var hr  = Math.floor( i / scale.blocks.per.hour );
+			var min = (i % scale.blocks.per.hour) * scale.minutes;
+
+			// ===== TIMELINE
+			var timeline = html.td.clone().addClass( 'timeline' );
+			if( i % scale.blocks.per.hour == 0 ) { 
+				var ampm     = hr + day.start >= 12 ? 'PM' : 'AM'; // Hopefully there is never a time where the schedule goes past midnight intentionally
+				var hour     = hr + day.start > 12 ? hr + day.start - 12 : hr + day.start;
+				timeline.attr({ rowspan: 3 });
+				timeline.html( `${hour}:00 ${ampm}` );
+				tr.append( timeline );
+			}
+			if( i % scale.blocks.per.hour >= 3 ) {
+				tr.append( timeline );
+			}
+
+			// ===== RINGS
+			for( var x = 0; x < w; x++ ) {
+				var j = (y * 3) + (x + 1);
+				if( j > n ) { continue; }
+				var hour    = (hr + day.start) < 10 ? '0' + (hr + day.start) : (hr + day.start);
+				var minutes = min < 10 ? '0' + min : min;
+				var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${hour}${minutes}` });
+				tr.append( ring );
+			}
+
+			table.append( tr );
+		}
+
+		$( '.pt-page-1 #schedule' ).append( table );
 	}
 	$( '.schedule' )
 		.on( 'dragstart', dnd.handle.drag.start )
@@ -135,28 +171,10 @@ show.daySchedule = () => {
 		.on( 'dragover',  dnd.handle.drag.over )
 		.on( 'dragleave', dnd.handle.drag.leave )
 		.on( 'drop',      dnd.handle.drop )
-		.on( 'dragend',   dnd.handle.drag.end )
+		.on( 'dragend',   dnd.handle.drag.end );
 
 	var day = schedule.day[ settings.current.day ];
-	if( defined( day.plan )) {
-		topOffset = {};
-		Object.keys( day.plan ).forEach(( ringid ) => {
-			topOffset[ ringid ] = scale.top + scale.padding;
-			day.plan[ ringid ].forEach(( round ) => {
-				var item = init.round( round, topOffset[ ringid ] );
-				var ring = $( `#${ringid} .schedule` );
-				ring.append( item );
-				topOffset[ ringid ] += parseInt( item.attr( 'data-height' )) + scale.padding;
-			});
-		});
-	} else {
-		var topOffset = scale.top + scale.padding;
-		settings.rounds[ settings.current.day ].forEach(( round ) => {
-			var item = init.round( round, topOffset );
-			$( '.pt-page-1 #ring-1 .schedule' ).append( item );
-			topOffset += parseInt( item.attr( 'data-height' )) + scale.padding;
-		});
-	}
+	show.blocks( day );
 };
 
 var rule = {
@@ -221,10 +239,10 @@ var init = {
 			}
 		});
 	},
-	round: ( round, topOffset ) => {
-		var rmap   = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
-		var height = (round.round.match( /finals/i ) ? (2 * scale.fourMinutes * round.athletes) : (scale.fourMinutes * round.athletes)) + 'px';
-		var gender = 'coed';
+	block: ( round ) => {
+		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
+		var rowspan = (round.round.match( /finals/i ) ? (2 * round.athletes) : (round.athletes));
+		var gender  = 'coed';
 		if( round.description.match( /pair/i ))   { gender = 'coed'; } else 
 		if( round.description.match( /female/i )) { gender = 'female'; } else 
 		if( round.description.match( /male/i ))   { gender = 'male'; }
@@ -234,13 +252,17 @@ var init = {
 		[ 'athletes', 'description', 'division', 'mutexes', 'round' ].forEach(( key ) => { data[ key ] = round[ key ]; });
 		data = JSON.stringify( data );
 
+		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
+
 		var div = html.div.clone()
-			.addClass( 'round ' + gender )
-			.attr({ 'draggable' : 'true', 'data-round' : data, 'data-divid': round.division, 'data-height' : height })
-			.css({ height: height, top: topOffset, 'line-height': height })
+			.addClass( `round ${gender}` )
+			.attr({ 'draggable' : 'true', 'data-round' : data, 'data-divid': round.division })
+			.css({ 'line-height' : `${rowspan * scale.height}px` })
 			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
 
-		return div;
+		td.append( div );
+
+		return td;
 	},
 	rounds: ( division ) => {
 		var rounds = [];
@@ -304,7 +326,6 @@ var init = {
 
 		init.mutexes( update.divisions );
 
-		var width = Math.ceil( 12/update.schedule.days );
 		$( '.pt-page-1 #days' ).empty();
 		for( var i = 0; i < update.schedule.days; i++ ) {
 			var day = html.button.clone().addClass( 'btn btn-xs btn-primary day-select' ).attr({ 'data-day': i }).css({ margin: '4px' }).html( `Day ${i + 1}` );
