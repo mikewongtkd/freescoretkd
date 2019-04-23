@@ -10,14 +10,17 @@
 		<link href="../../../include/css/forms/worldclass/schedule.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
+		<link href="../../../include/bootstrap/add-ons/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
 		<link href="../../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../../include/jquery/js/jquery-dateformat.min.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
+		<script src="../../../include/bootstrap/add-ons/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
@@ -30,9 +33,9 @@
 	</head>
 	<body>
 		<script>
-			var handler  = { read: [], write: [] };
+			var handler  = { read: {}, write: {} };
 			var show     = {};
-			var schedule = { days: 1, day: [] };
+			var schedule = { days: 1, day: [], start: undefined };
 		</script>
 		<div id="pt-main" class="pt-perspective">
 			<?php include( "settings.php" ); ?>
@@ -79,12 +82,11 @@ ws.onopen = function() {
 ws.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( update );
-	if( update.action in handler ) {
-		var pages = Object.keys( handler[ update.action ]);
-		pages.forEach(( page ) => {
-			handler[ update.action ][ page ]( update );
-		});
-	}
+
+	if( ! (update.action in handler)) { alertify.error( `No handler for <b>${update.action.capitalize()}</b>` ); return; }
+	if( ! (update.type in handler[ update.action ])) { alertify.error( `No handler for <b>${update.action.capitalize()} ${update.type.capitalize()}</b>` ); return; }
+
+	handler[ update.action ][ update.type ]( update );
 };
 
 		</script>

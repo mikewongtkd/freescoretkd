@@ -6,8 +6,20 @@
 				<h4 class="panel-heading" style="margin-top: 0">Settings</h4>
 				<div class="panel-body">
 					<p>Drag-and-drop individual divisions to the desired day, or to <i>Unscheduled Divisions</i>. You can also click to select one or more divisions and then click on a <i>Move</i> button to move those divisions to the desired day.</p>
-					<label for="num-days">Number of days of competition:</label>&nbsp;<input type="number" id="num-days" name="num-days" value=1 min=1 max=20 style="width: 40px;">&nbsp;
-					<label for="teams-grouped">Registration for Pairs and Teams</label>&nbsp;<input type="checkbox" data-toggle="toggle" id="teams-grouped" name="teams-grouped" data-on="In Groups" data-onstyle="success" data-off="As Individuals" data-offstyle="primary">
+					<div class="row">
+						<div class="col-xs-4">
+							<label for="start-date">Starting date of competition:</label>
+							<div class="input-group date"><input type="text" id="start-date" name="start-date" class="form-control datepicker" /><span class="input-group-addon"><span class="glyphicon glyphicon-th calendar-icon"></span></span></div>
+						</div>
+						<div class="col-xs-4">
+							<label for="num-days">Number of days of competition:</label><br>
+							<input type="number" id="num-days" name="num-days" value=1 min=1 max=20 style="width: 40px;" />
+						</div>
+						<div class="col-xs-4">
+							<label for="teams-grouped">Registration for Pairs and Teams</label><br>
+							<input type="checkbox" data-toggle="toggle" id="teams-grouped" name="teams-grouped" data-on="In Groups" data-onstyle="success" data-off="As Individuals" data-offstyle="primary" />
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="row">
@@ -43,13 +55,41 @@ var template = {};
 template.day = $( '.competition-day' );
 template.day.detach();
 
+// ===== INITIALIZE DATE PICKER AND ENABLE ICON TO BRING UP CALENDAR WIDGET
+$( '.datepicker' ).datepicker();
+$( '.date' ).find( '.input-group-addon' ).off( 'click' ).click(( ev ) => {
+	var target = $( ev.target );
+	if( ! target.hasClass( 'input-group-addon' )) { target = target.parents( '.input-group-addon' ); }
+	target.parent( '.date' ).find( '.datepicker' ).focus();
+});
+$( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
+	console.log( ev );
+	var target = $( ev.target );
+	schedule.start = $.format.date( target.datepicker( 'getDate' ), 'MM/dd/yyyy' );
+
+	var start = new Date( schedule.start );
+	$( '.competition-day' ).each(( i, list ) => {
+		var id = $( list ).attr( 'id' );
+		if( id == 'unscheduled' ) { return; }
+		var j     = parseInt( id.replace( /day-/, '' ));
+
+		var dow   = $.format.date( start.setDate( start.getDate() + (j - 1 )), 'ddd' );
+		var name  = defined( schedule.start ) ? `Day ${i} [${dow}] Divisions` : `Day ${j}`;
+		$( list ).find( '.panel-title' ).html( name );
+	});
+});
+
 show.day = ( id, name ) => {
-	var day = template.day.clone();
+	var day    = template.day.clone();
+	var target = name; 
+	target     = target.replace( /\s*Divisions$/, '' );
+	target     = target.replace( /\s*\[\w+\]\s*/, '' );
 	day.attr({ id : id });
-	day.find( '.panel-title' ).html( `${name} Divisions` );
-	day.find( '.panel-heading .btn' ).html( `Move to ${name}` ).attr({ 'data-target' : `${id} ul` });
+	day.find( '.panel-title' ).html( name );
+	day.find( '.panel-heading .btn' ).html( `Move to ${target}` ).attr({ 'data-target' : `${id} ul` });
 	var list   = day.find( '.list-group.day' ).attr({ id: `${id}-schedule` });
-	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${name}`, id: `${id}-search` });
+	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${target} Divisions`, id: `${id}-search` });
+	day.find( 'form' ).keypress(( ev ) => { if( ev.which == '13' ) { ev.preventDefault(); }}); // Disable Enter key
 	list.btsListFilter( search, { resetOnBlur: false, itemFilter: ( item, text ) => { 
 		var contents = $( item ).text(); 
 		var re = new RegExp( text, 'i' ); 
@@ -71,11 +111,15 @@ show.days = () => {
 	$( '#divisions' ).empty();
 	$( '#days' ).empty();
 
-	var unscheduled = show.day( 'unscheduled', 'Unscheduled' );
+	var unscheduled = show.day( 'unscheduled', 'Unscheduled Divisions' );
 	$( '#divisions' ).append( unscheduled );
 	for( var i = 0; i < schedule.days; i++ ) {
 		var j   = i + 1;
-		var day = show.day( `day-${j}`, `Day ${j}` );
+		var id    = `day-${j}`;
+		var start = new Date( schedule.start );
+		var dow   = $.format.date( start.setDate( start.getDate() + i ), 'ddd' );
+		var name  = defined( schedule.start ) ? `Day ${j} [${dow}] Divisions` : `Day ${j} Divisions`;
+		var day   = show.day( id, name );
 		$( '#days' ).append( day );
 	}
 
@@ -146,9 +190,12 @@ $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 	sound.next.play();
 
+	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed' ); return; }
+	delete schedule.divisions;
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
+	console.log( request.json );
 });
 
 $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
@@ -157,19 +204,20 @@ $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
 });
 
 // ===== ON MESSAGE BEHAVIOR
-handler.read[ 'settings' ] = ( update ) => {
+handler.read.schedule = ( update ) => {
 	if( defined( update )) { 
 		schedule.divisions = update.divisions; 
 		if( defined( update.schedule )) { 
-			[ 'days', 'day', 'teams' ].forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
+			[ 'days', 'day', 'start', 'teams' ].forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
 			$( '#num-days' ).val( schedule.days );
+			$( '#start-date' ).datepicker( 'setDate', new Date( schedule.start ));
 			if( schedule.teams == 'groups' ) { $( '#teams-grouped' ).prop({ 'checked': 'checked' }); }
 		}
 	}
 	show.days();
 };
 
-handler.write[ 'schedule' ] = ( update ) => {
+handler.write.schedule = ( update ) => {
 	alertify.confirm( 'Daily Schedule Saved', 'Daily schedule for divisions saved', () => { sound.send.play(); setTimeout( () => { window.location = 'build.php'; }, 1000 ); }, () => {});
 };
 </script>
