@@ -190,7 +190,7 @@ $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 	sound.next.play();
 
-	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed' ); return; }
+	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
 	delete schedule.divisions;
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
@@ -218,7 +218,8 @@ handler.read.schedule = ( update ) => {
 };
 
 handler.write.schedule = ( update ) => {
-	alertify.confirm( 'Daily Schedule Saved', 'Daily schedule for divisions saved', () => { sound.send.play(); setTimeout( () => { window.location = 'build.php'; }, 1000 ); }, () => {});
+	alertify.confirm( 'Daily Schedule Saved', 'Daily schedule for divisions saved', () => { sound.send.play(); setTimeout( () => { window.location = 'build.php'; }, 1000 ); }, () => {}).setting({ reverseButtons : true });
+	$( '.ajs-header' ).css({ color: '#fff', 'background-color': '#337ab7', 'border-color': '337ab7', 'font-weight': 'bold' });
 };
 </script>
 

@@ -43,6 +43,11 @@
 		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
 
+alertify.defaults.transition   = 'slide';
+alertify.defaults.theme.ok     = "btn btn-success";
+alertify.defaults.theme.cancel = "btn btn-danger";
+alertify.defaults.theme.input  = "form-control";
+
 var sound = {
 	send      : new Howl({ urls: [ "../../../sounds/upload.mp3",   "../../../sounds/upload.ogg"   ]}),
 	confirmed : new Howl({ urls: [ "../../../sounds/received.mp3", "../../../sounds/received.ogg" ]}),
