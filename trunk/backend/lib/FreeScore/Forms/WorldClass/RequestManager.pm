@@ -1243,7 +1243,6 @@ sub handle_schedule_write {
 	if( exists $schedule->{ day } && ref( $schedule->{ day }) eq 'ARRAY') { $schedule->{ day } = [ grep { int( @{$_->{ divisions }}) > 0; } @{$schedule->{ day }}]; }
 
 	# ===== DO NOT CACHE DIVISION INFORMATION; RETRIEVE IT FRESH FROM THE DB EVERY TIME
-	delete $schedule->{ divisions };
 	$divisions = unbless( $all->{ divisions } );
 
 	try {

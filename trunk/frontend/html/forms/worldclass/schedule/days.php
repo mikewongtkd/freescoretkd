@@ -33,9 +33,10 @@
 	</head>
 	<body>
 		<script>
-			var handler  = { read: {}, write: {} };
-			var show     = {};
-			var schedule = { days: 1, day: [], start: undefined };
+			var handler   = { read: {}, write: {} };
+			var show      = {};
+			var schedule  = { days: 1, day: [], start: undefined };
+			var divisions = undefined;
 		</script>
 		<div id="pt-main" class="pt-perspective">
 			<?php include( "settings.php" ); ?>

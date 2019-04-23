@@ -63,7 +63,6 @@ $( '.date' ).find( '.input-group-addon' ).off( 'click' ).click(( ev ) => {
 	target.parent( '.date' ).find( '.datepicker' ).focus();
 });
 $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
-	console.log( ev );
 	var target = $( ev.target );
 	schedule.start = $.format.date( target.datepicker( 'getDate' ), 'MM/dd/yyyy' );
 
@@ -123,14 +122,27 @@ show.days = () => {
 		$( '#days' ).append( day );
 	}
 
+	// ===== SHOW THE SCHEDULE, IF ONE EXISTS
 	if( schedule.day.length > 0 ) {
+		unscheduled.divisions = divisions.slice(); // Copy the current divisions
 		schedule.day.forEach(( day, i ) => {
 			var list = $( `#day-${i + 1} ul` );
 			day.divisions.forEach(( divid, j ) => {
-				var division = schedule.divisions.find(( el ) => { return el.name == divid; });
-				list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+				var d = unscheduled.divisions.findIndex(( el ) => { return el.name == divid; });
+				if( d >= 0 ) {
+					// The division is scheduled, remove it from the unscheduled list
+					var division = (unscheduled.divisions.splice( d, 1 ))[0]; 
+					list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+				} else {
+					alertify.error( `Division ${divid.toUpperCase()} not found; will not schedule ${divid.toUpperCase()}` );
+				}
 			});
 		});
+		unscheduled.divisions.forEach(( division ) => {
+			unscheduled.find( 'ul' ).append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+		});
+
+	// ===== BUILD A BASIC SCHEDULE TO START WITH
 	} else {
 		var list = undefined;
 		$( 'ul' ).empty();
@@ -180,18 +192,17 @@ $( '#num-days' ).change(( ev ) => {
 $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
 	var lists = $( '.list-group-sortable-connected.day' );
 	for( var i = 0; i < lists.length; i++ ) {
-		var divisions = $( lists[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
+		var scheduled = $( lists[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
 		if( defined( schedule.day[ i ] )) {
-			schedule.day[ i ].divisions = divisions;
+			schedule.day[ i ].divisions = scheduled;
 		} else {
-			schedule.day[ i ] = { divisions: divisions };
+			schedule.day[ i ] = { divisions: scheduled };
 		}
 	}
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 	sound.next.play();
 
 	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
-	delete schedule.divisions;
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
@@ -206,7 +217,14 @@ $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
 // ===== ON MESSAGE BEHAVIOR
 handler.read.schedule = ( update ) => {
 	if( defined( update )) { 
-		schedule.divisions = update.divisions; 
+		divisions = update.divisions;
+		schedule.divisions = divisions.map(( division ) => {
+			var simplified = {};
+			[ 'name', 'description' ].forEach(( field ) => { simplified[ field ] = division[ field ]; });
+			simplified.athletes = division.athletes.length;
+			return simplified;
+		});
+
 		if( defined( update.schedule )) { 
 			[ 'days', 'day', 'start', 'teams' ].forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
 			$( '#num-days' ).val( schedule.days );
