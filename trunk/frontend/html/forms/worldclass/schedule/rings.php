@@ -63,9 +63,8 @@ var dnd = { item: undefined, source: undefined, handle : {
 }};
 
 var blockid = ( ringid, time ) => {
-	var hour     = time.hour < 10 ? '0' + time.hour : time.hour;
-	var minutes  = time.minutes < 10 ? '0' + time.minutes : time.minutes;
-	var id       = `${ringid}-${hour}${minutes}`;
+	var hhmm     = $.format.date( time, 'HHmm' );
+	var id       = `${ringid}-${hhmm}`;
 	return id;
 }
 
@@ -80,8 +79,7 @@ show.block = ( ringid, round, time ) => {
 	block.attr({ id : id });
 
 	for( var i = 0; i < duration; i++ ) {
-		time.minutes += scale.minutes;
-		if( time.minutes >= 60 ) { time.hour++; time.minutes -= 60; }
+		time.setMinutes( time.getMinutes() + scale.minutes );
 
 		var id       = blockid( ringid, time );
 		var target   = $( `#${id}` );
@@ -90,12 +88,14 @@ show.block = ( ringid, round, time ) => {
 	}
 
 	// Padding
-	time.minutes += scale.minutes;
-	if( time.minutes >= 60 ) { time.hour++; time.minutes -= 60; }
+	time.setMinutes( time.getMinutes() + scale.minutes );
 }
 
 show.blocks = ( day ) => {
-	var time = { hour: day.start, minutes: 0 };
+	var time = new Date();
+	var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
+	time.setHours( hhmm.shift());
+	time.setMinutes( hhmm.shift());
 	if( defined( day.plan )) { // MW GET SERVICE TO ALWAYS GENERATE A PLAN, AND THEN REMOVE THIS RESTRICTION
 		Object.keys( day.plan ).forEach(( ringid ) => {
 			day.plan[ ringid ].forEach(( round ) => { show.block( ringid, round, time ) });
@@ -134,8 +134,8 @@ show.daySchedule = () => {
 		// ===== SCHEDULE (FOR SEVERAL RINGS)
 		var time = new Date();
 		var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
-		time.setHours( hhmm[ 0 ] );
-		time.setMinutes( hhmm[ 1 ] );
+		time.setHours( hhmm.shift() );
+		time.setMinutes( hhmm.shift() );
 
 		for( var i = 0; i < (day.duration * scale.blocks.per.hour); i++ ) {
 			var tr  = html.tr.clone();
@@ -143,7 +143,6 @@ show.daySchedule = () => {
 			// ===== TIMELINE
 			var timeline = html.td.clone().addClass( 'timeline' );
 			if( i == 0 || parseInt( time.getMinutes()) < 4 ) { 
-				var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
 				var tick = $.format.date( time, 'h:mm a' );
 				timeline.attr({ rowspan: 3 });
 				timeline.html( tick );
