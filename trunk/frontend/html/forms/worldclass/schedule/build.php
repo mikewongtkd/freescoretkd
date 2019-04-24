@@ -16,6 +16,7 @@
 		<link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../../include/jquery/js/jquery-dateformat.min.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>

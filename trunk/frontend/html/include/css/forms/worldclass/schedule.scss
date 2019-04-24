@@ -16,6 +16,10 @@ label.disabled {
 	pointer-events: none;
 }
 
+.bootstrap-timepicker-widget table td input {
+	width: 32px !important;
+}
+
 .btn-group .btn.active {
 	color: white;
 }
@@ -24,6 +28,20 @@ label.disabled {
 	.panel-heading {
 		h4 { display: inline-block; }
 		a  { margin: -3px 0 0 0; }
+		.timepicker-widget { 	
+			margin: -3px 20px 0 0; 
+			.timepicker {
+				width: 128px;
+				.input-group-addon {
+					height: 16px;
+					padding: 1px 4px 1px 4px;
+				}
+				input {
+					height: 22px;
+					text-align: right;
+				}
+			}
+		}
 	}
 	.panel-body {
 		background-color: #eee;

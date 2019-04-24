@@ -21,6 +21,9 @@
 label.disabled {
   pointer-events: none; }
 
+.bootstrap-timepicker-widget table td input {
+  width: 32px !important; }
+
 .btn-group .btn.active {
   color: white; }
 
@@ -28,6 +31,16 @@ label.disabled {
   display: inline-block; }
 .competition-day.panel .panel-heading a {
   margin: -3px 0 0 0; }
+.competition-day.panel .panel-heading .timepicker-widget {
+  margin: -3px 20px 0 0; }
+  .competition-day.panel .panel-heading .timepicker-widget .timepicker {
+    width: 128px; }
+    .competition-day.panel .panel-heading .timepicker-widget .timepicker .input-group-addon {
+      height: 16px;
+      padding: 1px 4px 1px 4px; }
+    .competition-day.panel .panel-heading .timepicker-widget .timepicker input {
+      height: 22px;
+      text-align: right; }
 .competition-day.panel .panel-body {
   background-color: #eee;
   padding: 4px; }

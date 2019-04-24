@@ -132,18 +132,21 @@ show.daySchedule = () => {
 		table.append( header );
 
 		// ===== SCHEDULE (FOR SEVERAL RINGS)
+		var time = new Date();
+		var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
+		time.setHours( hhmm[ 0 ] );
+		time.setMinutes( hhmm[ 1 ] );
+
 		for( var i = 0; i < (day.duration * scale.blocks.per.hour); i++ ) {
 			var tr  = html.tr.clone();
-			var hr  = Math.floor( i / scale.blocks.per.hour );
-			var min = (i % scale.blocks.per.hour) * scale.minutes;
 
 			// ===== TIMELINE
 			var timeline = html.td.clone().addClass( 'timeline' );
-			if( i % scale.blocks.per.hour == 0 ) { 
-				var ampm     = hr + day.start >= 12 ? 'PM' : 'AM'; // Hopefully there is never a time where the schedule goes past midnight intentionally
-				var hour     = hr + day.start > 12 ? hr + day.start - 12 : hr + day.start;
+			if( i == 0 || parseInt( time.getMinutes()) < 4 ) { 
+				var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
+				var tick = $.format.date( time, 'h:mm a' );
 				timeline.attr({ rowspan: 3 });
-				timeline.html( `${hour}:00 ${ampm}` );
+				timeline.html( tick );
 				tr.append( timeline );
 			}
 			if( i % scale.blocks.per.hour >= 3 ) {
@@ -154,12 +157,12 @@ show.daySchedule = () => {
 			for( var x = 0; x < w; x++ ) {
 				var j = (y * 3) + (x + 1);
 				if( j > n ) { continue; }
-				var hour    = (hr + day.start) < 10 ? '0' + (hr + day.start) : (hr + day.start);
-				var minutes = min < 10 ? '0' + min : min;
-				var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${hour}${minutes}` });
+				var id      = $.format.date( time, 'HHmm' );
+				var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${id}` });
 				tr.append( ring );
 			}
 
+			time.setMinutes( time.getMinutes() + scale.minutes );
 			table.append( tr );
 		}
 

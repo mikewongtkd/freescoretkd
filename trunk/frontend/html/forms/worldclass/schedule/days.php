@@ -11,6 +11,7 @@
 		<link href="../../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/add-ons/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+		<link href="../../../include/bootstrap/add-ons/bootstrap-timepicker.min.css" rel="stylesheet" />
 		<link href="../../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
@@ -21,6 +22,7 @@
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+		<script src="../../../include/bootstrap/add-ons/bootstrap-timepicker.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>

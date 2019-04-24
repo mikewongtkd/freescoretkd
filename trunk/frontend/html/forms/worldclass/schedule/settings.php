@@ -9,7 +9,7 @@
 					<div class="row">
 						<div class="col-xs-4">
 							<label for="start-date">Starting date of competition:</label>
-							<div class="input-group date"><input type="text" id="start-date" name="start-date" class="form-control datepicker" /><span class="input-group-addon"><span class="glyphicon glyphicon-th calendar-icon"></span></span></div>
+							<div class="input-group date" style="width: 200px;"><input type="text" id="start-date" name="start-date" class="form-control datepicker" /><span class="input-group-addon"><span class="glyphicon glyphicon-th calendar-icon"></span></span></div>
 						</div>
 						<div class="col-xs-4">
 							<label for="num-days">Number of days of competition:</label><br>
@@ -39,6 +39,13 @@
 	<div class="panel-heading">
 		<h4 class="panel-title">Day</h4>
 		<a class="btn btn-xs btn-info pull-right disabled">Move to Day</a>
+		<div class="pull-right timepicker-widget">
+			<div class="input-group input-group-sm bootstrap-timepicker timepicker">
+				<span class="input-group-addon">Start</span></span>
+				<input type="text" class="form-control input-small" value="9:00 AM">
+				<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+			</div>
+		</div>
 	</div>
 	<div class="panel-body">
 		<form role="form">
@@ -78,13 +85,26 @@ $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
 	});
 });
 
-show.day = ( id, name ) => {
+show.day = ( id, name, start ) => {
 	var day    = template.day.clone();
 	var target = name; 
 	target     = target.replace( /\s*Divisions$/, '' );
 	target     = target.replace( /\s*\[\w+\]\s*/, '' );
+
+	if( id == 'unscheduled' ) { day.find( '.timepicker-widget' ).remove(); }
+	start = defined( start ) ? start : '9:00 AM';
+	var timepicker = day.find( '.timepicker' );
+	timepicker.timepicker({ defaultTime: start });
+	timepicker.find( 'input' ).val( start );
+	timepicker.timepicker().off( 'changeTime.timepicker' ).on( 'changeTime.timepicker', ( ev ) => {
+		var target = $( '.timepicker input' );
+		target.val( ev.time.value );
+	});
+
+
 	day.attr({ id : id });
 	day.find( '.panel-title' ).html( name );
+	day.find( '.timepicker input' ).attr({ id: `${id}-start` });
 	day.find( '.panel-heading .btn' ).html( `Move to ${target}` ).attr({ 'data-target' : `${id} ul` });
 	var list   = day.find( '.list-group.day' ).attr({ id: `${id}-schedule` });
 	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${target} Divisions`, id: `${id}-search` });
@@ -120,7 +140,7 @@ show.days = () => {
 		var start = new Date( schedule.start );
 		var dow   = $.format.date( start.setDate( start.getDate() + i ), 'ddd' );
 		var name  = defined( schedule.start ) ? `Day ${j} [${dow}] Divisions` : `Day ${j} Divisions`;
-		var day   = show.day( id, name );
+		var day   = show.day( id, name, schedule.day[ i ].start );
 		$( '#days' ).append( day );
 	}
 
@@ -193,13 +213,15 @@ $( '#num-days' ).change(( ev ) => {
 });
 
 $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
-	var lists = $( '.list-group-sortable-connected.day' );
-	for( var i = 0; i < lists.length; i++ ) {
-		var scheduled = $( lists[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
+	var days = $( '.list-group-sortable-connected.day' );
+	for( var i = 0; i < days.length; i++ ) {
+		var scheduled = $( days[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
+		var time      = $( '.timepicker input' );
 		if( defined( schedule.day[ i ] )) {
+			schedule.day[ i ].start     = $( time[ i ]).val();
 			schedule.day[ i ].divisions = scheduled;
 		} else {
-			schedule.day[ i ] = { divisions: scheduled };
+			schedule.day[ i ] = { start: '9:00 AM', divisions: scheduled };
 		}
 	}
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
