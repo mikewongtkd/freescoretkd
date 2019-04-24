@@ -106,6 +106,8 @@ show.day = ( id, name ) => {
 	return day;
 };
 
+var by = { divid: ( a, b ) => { return a.name < b.name ? -1 : (a.name == b.name ? 0 : 1); }};
+
 show.days = () => {
 	$( '#divisions' ).empty();
 	$( '#days' ).empty();
@@ -127,7 +129,8 @@ show.days = () => {
 		unscheduled.divisions = divisions.slice(); // Copy the current divisions
 		schedule.day.forEach(( day, i ) => {
 			var list = $( `#day-${i + 1} ul` );
-			day.divisions.forEach(( divid, j ) => {
+			// day.divisions are a list of divids
+			day.divisions.sort().forEach(( divid, j ) => {
 				var d = unscheduled.divisions.findIndex(( el ) => { return el.name == divid; });
 				if( d >= 0 ) {
 					// The division is scheduled, remove it from the unscheduled list
@@ -138,7 +141,7 @@ show.days = () => {
 				}
 			});
 		});
-		unscheduled.divisions.forEach(( division ) => {
+		unscheduled.divisions.sort( by.divid ).forEach(( division ) => {
 			unscheduled.find( 'ul' ).append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
 		});
 
@@ -148,7 +151,7 @@ show.days = () => {
 		$( 'ul' ).empty();
 		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); }      // There's only one day, schedule all divisions for that day
 		else                     { list = $( '#unscheduled ul' );} // Multiple days; need to make decisions
-		schedule.divisions.forEach(( division, i ) => {
+		schedule.divisions.sort( by.divid ).forEach(( division, i ) => {
 			list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
 		});
 	}

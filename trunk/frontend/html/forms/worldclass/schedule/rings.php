@@ -207,8 +207,6 @@ var rule = {
 	}
 };
 
-var mutexes = {};
-
 var init = {
 	timeline: ( update ) => {
 		if( defined( update.schedule )) {
@@ -217,27 +215,6 @@ var init = {
 				if( ! defined( day.duration )) { schedule.day[ i ].duration = 10; } // Default work for 10 hours
 			});
 		}
-	},
-	mutexes: ( divisions ) => {
-		var lookup = {};
-		divisions.forEach(( division, i ) => { 
-			var desc = division.description;
-			lookup[ desc ] = division;
-		});
-		
-		divisions.forEach(( division, i ) => { 
-			var name = division.name;
-			var desc = division.description;
-
-			if( desc in rule.mutex ) {
-				var list = rule.mutex[ desc ];
-				list = list.filter(( el ) => { return (el in lookup); }).map( x => lookup[ x ].name);
-				
-				if( list.length > 0 ) {
-					mutexes[ name ] = list;
-				}
-			}
-		});
 	},
 	block: ( round ) => {
 		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
@@ -249,7 +226,7 @@ var init = {
 
 		// Make a copy without circular references (prev, next)
 		var data = {};
-		[ 'athletes', 'description', 'division', 'mutexes', 'round' ].forEach(( key ) => { data[ key ] = round[ key ]; });
+		[ 'athletes', 'description', 'division', 'round' ].forEach(( key ) => { data[ key ] = round[ key ]; });
 		data = JSON.stringify( data );
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
@@ -276,14 +253,13 @@ var init = {
 			else if( desc.match( /team/i )) { n = Math.ceil( n/3 ); }
 		}
 
-		var mutex = (name in mutexes) ? mutexes[ name ] : [];
 		var k     = n > 8 ? 8 : n;
-		rounds.push({ division : name, athletes: k, description: desc, round: 'finals', mutexes: mutex });
+		rounds.push({ division : name, athletes: k, description: desc, round: 'finals' });
 		if( n > 8 ) {
 			var k      = Math.ceil( n/2 );
 			var last   = rounds.length - 1;
 			var finals = rounds[ last ];
-			var semfin = { division: name, athletes: k, description: desc, round: 'semfin', mutexes: mutex };
+			var semfin = { division: name, athletes: k, description: desc, round: 'semfin' };
 
 			finals.prev = [ semfin ];
 			semfin.next = finals;
@@ -306,7 +282,7 @@ var init = {
 			for( var i = f; i > 0; i-- ) {
 				var letter = String.fromCharCode( 64 + i ); // A, B, C, D, etc.
 				var k      = Math.ceil( m/i ); // Assign k athletes to this flight
-				var flight = { division: name, athletes: k, description: desc, round: 'prelim', mutexes: mutex, flight: letter, flights: [] };
+				var flight = { division: name, athletes: k, description: desc, round: 'prelim', flight: letter, flights: [] };
 
 				flights.push( flight );
 				semfin.prev.push( flight );
@@ -323,8 +299,6 @@ var init = {
 	},
 	divisions: ( update ) => {
 		if( ! defined( update.divisions )) { return; }
-
-		init.mutexes( update.divisions );
 
 		$( '.pt-page-1 #days' ).empty();
 		for( var i = 0; i < update.schedule.days; i++ ) {
