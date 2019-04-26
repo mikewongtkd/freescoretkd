@@ -27,18 +27,45 @@ label.disabled {
 .competition-day.panel {
 	.panel-heading {
 		h4 { display: inline-block; }
-		a  { margin: -3px 0 0 0; }
-		.timepicker-widget { 	
-			margin: -3px 20px 0 0; 
-			.timepicker {
-				width: 128px;
-				.input-group-addon {
-					height: 16px;
-					padding: 1px 4px 1px 4px;
+		.day-settings {
+			position: relative;
+			top: -28px;
+			left: 15px;
+			width: calc( 100% - 30px );
+
+			a  { 
+				position: absolute;
+				top: 8px;
+				right: -20px;
+			}
+			.ring-num-widget, .timepicker-widget { 	
+				position: absolute;
+				top: 8px;
+				.input-group {
+					.input-group-addon {
+						height: 16px;
+						padding: 1px 4px 1px 4px;
+					}
+					input {
+						height: 22px;
+						text-align: right;
+					}
 				}
-				input {
-					height: 22px;
-					text-align: right;
+			}
+			.timepicker-widget {
+				right: 92px;
+				.input-group {
+					width: 128px;
+				}
+			}
+			.ring-num-widget {
+				right: 244px;
+				.input-group {
+					width: 80px;
+					input {
+						width: 40px;
+						color: black;
+					}
 				}
 			}
 		}

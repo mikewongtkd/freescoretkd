@@ -38,13 +38,21 @@
 <div class="panel panel-primary competition-day">
 	<div class="panel-heading">
 		<h4 class="panel-title">Day</h4>
-		<a class="btn btn-xs btn-info pull-right disabled">Move to Day</a>
-		<div class="pull-right timepicker-widget">
-			<div class="input-group input-group-sm bootstrap-timepicker timepicker">
-				<span class="input-group-addon">Start</span></span>
-				<input type="text" class="form-control input-small" value="9:00 AM">
-				<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+		<div class="day-settings">
+			<div class="ring-num-widget">
+				<div class="input-group input-group-sm">
+					<span class="input-group-addon">Rings</span>
+					<input type="number" value=<?= count( $rings ) ?>, min=1, max=<?= count( $rings )?> />
+				</div>
 			</div>
+			<div class="timepicker-widget">
+				<div class="input-group input-group-sm bootstrap-timepicker timepicker">
+					<span class="input-group-addon">Start</span>
+					<input type="text" class="form-control input-small" value="9:00 AM">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+				</div>
+			</div>
+			<a class="btn btn-xs btn-info disabled">Move to Day</a>
 		</div>
 	</div>
 	<div class="panel-body">
@@ -91,6 +99,10 @@ show.day = ( id, name, start ) => {
 	target     = target.replace( /\s*Divisions$/, '' );
 	target     = target.replace( /\s*\[\w+\]\s*/, '' );
 
+	if( id == 'unscheduled' ) { day.find( '.ring-num-widget' ).remove(); }
+	var ringnum  = day.find( '.ring-num-widget input' );
+	ringnum.attr({ value: tournament.rings.length, min: 1, max: tournament.rings.length, id: `${id}-ring-num`, name: `${id}-ring-num` });
+
 	if( id == 'unscheduled' ) { day.find( '.timepicker-widget' ).remove(); }
 	start = defined( start ) ? start : '9:00 AM';
 	var timepicker = day.find( '.timepicker' );
@@ -100,7 +112,6 @@ show.day = ( id, name, start ) => {
 		var target = $( '.timepicker input' );
 		target.val( ev.time.value );
 	});
-
 
 	day.attr({ id : id });
 	day.find( '.panel-title' ).html( name );
