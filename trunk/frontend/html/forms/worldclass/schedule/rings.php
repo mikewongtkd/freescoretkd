@@ -143,10 +143,14 @@ show.daySchedule = () => {
 			// ===== RINGS
 			for( var x = 0; x < w; x++ ) {
 				var j = (y * width) + (x + 1);
-				if( j > n ) { continue; }
-				var id      = $.format.date( time, 'HHmm' );
-				var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${id}` });
-				tr.append( ring );
+				if( j <= n ) {
+					var id      = $.format.date( time, 'HHmm' );
+					var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${id}` });
+					tr.append( ring );
+				} else {
+					var placeholder = html.td.clone().addClass( 'ring' ).html( '&nbsp;' );
+					tr.append( placeholder );
+				}
 			}
 
 			time.setMinutes( time.getMinutes() + scale.minutes );

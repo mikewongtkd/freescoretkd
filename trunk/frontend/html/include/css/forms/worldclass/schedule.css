@@ -66,6 +66,8 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
 .schedule {
   width: 100%; }
   .schedule td {
+    border: 1px solid #ccc;
+    padding: -1px;
     height: 8px; }
     .schedule td.timeline {
       min-width: 120px;
