@@ -1,6 +1,6 @@
 <script>
 	var settings = { day: [], current: { day: 0 }, divisions : {}, rounds: [] };
-	var scale    = { blocks : { per: { hour: 15, table: 3 }}, minutes: 4, height: 8 };
+	var scale    = { blocks : { per: { hour: 15, table: 3 /* see show.daySchedule() */ }}, minutes: 4, height: 8 };
 </script>
 <div class="pt-page pt-page-1">
 	<div class="container">
@@ -13,10 +13,19 @@
 </div>
 
 <script>
-var dnd = { item: undefined, source: undefined, handle : {
+var setTime = function( timestamp ) {
+	var time = new Date();
+	var hhmm = timestamp.split( /:/ ).map( x => parseInt( x ));
+	hhmm[0] += timestamp.match( /PM/ ) && hhmm[0] != 12 ? 12 : 0;
+	time.setHours( hhmm.shift());
+	time.setMinutes( hhmm.shift());
+	return time;
+};
+
+var dnd = { block: undefined, source: undefined, handle : {
 	drag : {
 		start : function( ev ) {
-			dnd.item   = $( ev.target );
+			dnd.block  = $( ev.target );
 			dnd.source = $( this );
 		},
 		enter : function( ev ) {
@@ -36,44 +45,28 @@ var dnd = { item: undefined, source: undefined, handle : {
 	drop : function( ev ) {
 		if( ev.stopPropogation ) { ev.stopPropogation(); }
 		var target    = $( ev.target ); if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
-		var item      = dnd.item;
+		var block     = dnd.block;
 
-		item.detach();
-
-		// ===== UPDATE THE SCHEDULE
-		var day = schedule.day[ settings.current.day ];
-		$( '.ring' ).each(( i, ring ) => {
-			ringid = $( ring ).attr( 'id' );
-			if( ! defined( day.plan )) { day.plan = {}; }
-			var plan = day.plan[ ringid ] = [];
-			$( `#${ringid} .schedule` ).children( '.round' ).each(( j, round ) => {
-				var item = JSON.parse( $( round ).attr( 'data-round' ));
-				plan.push( item );
-			});
-		});
+		// block.detach();
 
 		// var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 		// request.json = JSON.stringify( request.data );
 		// ws.send( request.json );
 
-		dnd.item   = undefined;
+		dnd.block  = undefined;
 		dnd.source = undefined;
 		return false;
 	}
 }};
 
-var blockid = ( ringid, time ) => {
-	var hhmm     = $.format.date( time, 'HHmm' );
-	var id       = `${ringid}-${hhmm}`;
-	return id;
-}
-
-show.block = ( ringid, round, time ) => {
-	var block    = init.block( round );
-	var duration = block.attr( 'rowspan' );
-
-	var id       = blockid( ringid, time );
-	var target   = $( `#${id}` );
+show.block = ( ringid, blockid ) => {
+	var blockdata = schedule.blocks[ blockid ];
+	var block     = init.block( blockid );
+	var time      = setTime( blockdata.start );
+	var duration  = block.attr( 'rowspan' ) - 1;
+	var start     = $.format.date( setTime( blockdata.start ), 'HHmm' );
+	var id        = `${ringid}-${start}`;
+	var target    = $( `#${id}` );
 
 	target.replaceWith( block );
 	block.attr({ id : id });
@@ -81,36 +74,30 @@ show.block = ( ringid, round, time ) => {
 	for( var i = 0; i < duration; i++ ) {
 		time.setMinutes( time.getMinutes() + scale.minutes );
 
-		var id       = blockid( ringid, time );
+		var start    = $.format.date( time, 'HHmm' );
+		var id       = `${ringid}-${start}`;
 		var target   = $( `#${id}` );
 
 		target.remove();
 	}
-
-	// Padding
-	time.setMinutes( time.getMinutes() + scale.minutes );
 }
 
 show.blocks = ( day ) => {
-	var time = new Date();
-	var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
-	time.setHours( hhmm.shift());
-	time.setMinutes( hhmm.shift());
-	if( defined( day.plan )) { // MW GET SERVICE TO ALWAYS GENERATE A PLAN, AND THEN REMOVE THIS RESTRICTION
-		Object.keys( day.plan ).forEach(( ringid ) => {
-			day.plan[ ringid ].forEach(( round ) => { show.block( ringid, round, time ) });
+	day.rings.forEach(( ring ) => { 
+		ring.plan.forEach(( blockid ) => {
+			show.block( ring.name, blockid ) 
 		});
-	} else {
-		var ringid = 'ring-1';
-		settings.rounds[ settings.current.day ].forEach(( round ) => { show.block( ringid, round, time ); });
-	}
-
+	});
 };
 
 show.daySchedule = () => {
 	$( '.pt-page-1 #schedule' ).empty();
+	var n = tournament.rings.length;
+
+	if( Number.isInteger(n/3)) { scale.blocks.per.table = 3; } else
+	if( Number.isInteger(n/2)) { scale.blocks.per.table = 2; }
+
 	var width = scale.blocks.per.table;
-	var n     = tournament.rings.length;
 	var w     = n >= width ? width : n;
 	var h     = Math.ceil( n/width );
 	for( var y = 0; y < h; y++ ) {
@@ -126,17 +113,18 @@ show.daySchedule = () => {
 
 		for( var x = 0; x < w; x++ ) {
 			var j    = (y * width) + (x + 1);
-			var ring = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( `Ring ${j}` ));
-			header.append( ring );
+			if( j <= n ) {
+				var ring = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( `Ring ${j}` ));
+				header.append( ring );
+			} else {
+				var placeholder = html.td.clone().addClass( 'ring schedule-heading' ).html( '&nbsp;' );
+				header.append( placeholder );
+			}
 		}
 		table.append( header );
 
 		// ===== SCHEDULE (FOR SEVERAL RINGS)
-		var time = new Date();
-		var hhmm = day.start.split( /:/ ).map( x => parseInt( x ));
-		time.setHours( hhmm.shift() );
-		time.setMinutes( hhmm.shift() );
-
+		var time = setTime( day.start );
 		for( var i = 0; i < (day.duration * scale.blocks.per.hour); i++ ) {
 			var tr  = html.tr.clone();
 
@@ -154,7 +142,7 @@ show.daySchedule = () => {
 
 			// ===== RINGS
 			for( var x = 0; x < w; x++ ) {
-				var j = (y * 3) + (x + 1);
+				var j = (y * width) + (x + 1);
 				if( j > n ) { continue; }
 				var id      = $.format.date( time, 'HHmm' );
 				var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${id}` });
@@ -179,125 +167,39 @@ show.daySchedule = () => {
 	show.blocks( day );
 };
 
-var rule = {
-	mutex : {
-		'Individual Youths':           [ 'Pair Youths', 'Male Team Youths' ],
-		'Team Youths':                 [ 'Pair Youths', 'Male Individual Youths' ],
-		'Pair Youths':                 [ 'Male Individual Youths', 'Female Individual Youths', 'Male Team Youths', 'Female Team Youths' ],
-		'Individual Cadets':           [ 'Pair Cadets', 'Male Team Cadets' ],
-		'Team Cadets':                 [ 'Pair Cadets', 'Male Individual Cadets' ],
-		'Pair Cadets':                 [ 'Male Individual Cadets', 'Female Individual Cadets', 'Male Team Cadets', 'Female Team Cadets' ],
-		'Individual Juniors':          [ 'Pair Juniors', 'Male Team Juniors' ],
-		'Team Juniors':                [ 'Pair Juniors', 'Male Individual Juniors' ],
-		'Pair Juniors':                [ 'Male Individual Juniors', 'Female Individual Juniors', 'Male Team Juniors', 'Female Team Juniors' ],
-		'Individual Under 30':         [ 'Pair Under 30', 'Male Team Under 30' ],
-		'Team Under 30':               [ 'Pair Under 30', 'Male Individual Under 30' ],
-		'Pair Under 30':               [ 'Male Individual Under 30', 'Female Individual Under 30', 'Male Team Under 30', 'Female Team Under 30' ],
-		'Male Individual Under 40':    [ 'Pair Over 30', 'Male Team Over 30' ],
-		'Female Individual Under 40':  [ 'Pair Over 30', 'Female Team Over 30' ],
-		'Male Team Over 30':           [ 'Pair Over 30', 'Male Individual Under 40', 'Male Individual Under 50', 'Male Individual Under 60', 'Male Individual Under 65', 'Male Individual Over 65' ],
-		'Female Team Over 30':         [ 'Pair Over 30', 'Female Individual Under 40', 'Female Individual Under 50', 'Female Individual Under 60', 'Female Individual Under 65', 'Female Individual Over 65' ],
-		'Pair Over 30':                [ 'Male Individual Under 40', 'Female Individual Under 40', 'Male Individual Under 50', 'Female Individual Under 50', 'Male Individual Under 60', 'Female Individual Under 60', 'Male Individual Under 65', 'Female Individual Under 65', 'Male Individual Over 65', 'Female Individual Over 65', 'Male Team Over 30', 'Female Team Over 30' ],
-		'Male Individual Under 50':    [ 'Pair Over 30', 'Male Team Over 30' ],
-		'Female Individual Under 50':  [ 'Pair Over 30', 'Female Team Over 30' ],
-		'Male Individual Under 60':    [ 'Pair Over 30', 'Male Team Over 30' ],
-		'Female Individual Under 60':  [ 'Pair Over 30', 'Female Team Over 30' ],
-		'Male Individual Under 65':    [ 'Pair Over 30', 'Male Team Over 30' ],
-		'Female Individual Under 65':  [ 'Pair Over 30', 'Female Team Over 30' ],
-		'Male Individual Over 65':     [ 'Pair Over 30', 'Male Team Over 30' ],
-		'Female Individual Over 65':   [ 'Pair Over 30', 'Female Team Over 30' ],
-	}
-};
-
 var init = {
 	timeline: ( update ) => {
 		if( defined( update.schedule )) {
 			update.schedule.day.forEach(( day, i ) => {
-				if( ! defined( day.start ))    { schedule.day[ i ].start    = 9;  } // Default start at 9 AM
-				if( ! defined( day.duration )) { schedule.day[ i ].duration = 10; } // Default work for 10 hours
+				if( ! defined( day.start ))    { schedule.day[ i ].start    = '9:00 AM'; } // Default start at 9 AM
+				if( ! defined( day.duration )) { schedule.day[ i ].duration = 10;        } // Default work for 10 hours
 			});
 		}
 	},
-	block: ( round ) => {
+	block: ( blockid ) => {
+		var block   = schedule.blocks[ blockid ];
 		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
-		var rowspan = (round.round.match( /finals/i ) ? (2 * round.athletes) : (round.athletes));
+		var rowspan = Math.floor( block.duration / scale.minutes );
 		var gender  = 'coed';
-		if( round.description.match( /pair/i ))   { gender = 'coed'; } else 
-		if( round.description.match( /female/i )) { gender = 'female'; } else 
-		if( round.description.match( /male/i ))   { gender = 'male'; }
+		var start   = $.format.date( setTime( block.start ), 'HHmm' );
+		var stop    = $.format.date( setTime( block.stop ),  'HHmm' );
+		var flight  = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
 
-		// Make a copy without circular references (prev, next)
-		var data = {};
-		[ 'athletes', 'description', 'division', 'round' ].forEach(( key ) => { data[ key ] = round[ key ]; });
-		data = JSON.stringify( data );
+		if( block.description.match( /pair/i ))   { gender = 'coed'; } else 
+		if( block.description.match( /female/i )) { gender = 'female'; } else 
+		if( block.description.match( /male/i ))   { gender = 'male'; }
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
 		var div = html.div.clone()
 			.addClass( `round ${gender}` )
-			.attr({ 'draggable' : 'true', 'data-round' : data, 'data-divid': round.division })
+			.attr({ 'draggable' : 'true', 'data-blockid' : block.id, 'data-start': start, 'data-stop': stop})
 			.css({ 'line-height' : `${rowspan * scale.height}px` })
-			.html( `${round.description} ${rmap[ round.round ]} (${round.athletes})` );
+			.html( `${block.division.toUpperCase()} ${block.description} ${rmap[ block.round ]} ${flight} (${block.athletes})` );
 
 		td.append( div );
 
 		return td;
-	},
-	rounds: ( division ) => {
-		var rounds = [];
-		var name   = division.name;
-		var desc   = division.description;
-		var n      = division.athletes.length;
-
-		// If the pairs and teams registered as individuals, divide
-		if( schedule.teams.match( /individual/i )) {
-			if     ( desc.match( /pair/i )) { n = Math.ceil( n/2 ); }
-			else if( desc.match( /team/i )) { n = Math.ceil( n/3 ); }
-		}
-
-		var k     = n > 8 ? 8 : n;
-		rounds.push({ division : name, athletes: k, description: desc, round: 'finals' });
-		if( n > 8 ) {
-			var k      = Math.ceil( n/2 );
-			var last   = rounds.length - 1;
-			var finals = rounds[ last ];
-			var semfin = { division: name, athletes: k, description: desc, round: 'semfin' };
-
-			finals.prev = [ semfin ];
-			semfin.next = finals;
-
-			rounds.push( semfin );
-		}
-		if( n >= 20 ) {
-			var last    = rounds.length - 1;
-			var semfin  = rounds[ last ];
-			var f       = 1; // flights
-			var flights = [];
-
-			if     ( n < 20 ) { f = 1; }
-			else if( n < 40 ) { f = 2; }
-			else if( n < 60 ) { f = 3; }
-			else if( n > 60 ) { f = 4; }
-
-			var m = n;
-			semfin.prev = [];
-			for( var i = f; i > 0; i-- ) {
-				var letter = String.fromCharCode( 64 + i ); // A, B, C, D, etc.
-				var k      = Math.ceil( m/i ); // Assign k athletes to this flight
-				var flight = { division: name, athletes: k, description: desc, round: 'prelim', flight: letter, flights: [] };
-
-				flights.push( flight );
-				semfin.prev.push( flight );
-				flight.next = semfin;
-
-				rounds.push( flight );
-				m -= k;
-			}
-
-			flights.forEach(( flight, i ) => { flight.flights = flight.flights.concat( flights ); });
-		}
-
-		return rounds;
 	},
 	divisions: ( update ) => {
 		if( ! defined( update.divisions )) { return; }
@@ -323,15 +225,6 @@ var init = {
 		});
 
 		// ===== BUILD DAY SCHEDULE
-		settings.rounds = [];
-		update.schedule.day.forEach(( day, i ) => {
-			day.divisions.forEach(( divid, j ) => { 
-				if( ! defined( settings.rounds[ i ]) ) { settings.rounds[ i ] = []; }
-				var division         = settings.divisions[ divid ];
-				var rounds           = init.rounds( division );
-				settings.rounds[ i ] = settings.rounds[ i ].concat( rounds );
-			});
-		});
 	}
 };
 
