@@ -118,13 +118,19 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
 			padding-right: 8px;
 		}
 
-		.round {
+		.block {
 			font-family: Lato;
 			font-size: 10pt;
 			width: 100%;
 			height: 100%;
 			border-radius: 4px;
-			text-align: center;
+
+			.block-label {
+				position: relative;
+				top: 50%;
+				transform: translate( 0, -50% );
+				text-align: center;
+			}
 		}
 	}
 }
@@ -139,9 +145,9 @@ a.active {
 .male   { background-color: #b0e9e9; }
 .female { background-color: #ffc0c0; }
 
-.coed.error      { background-color: #6b482b; }
-.male.error      { background-color: #1a4040; }
-.female.error    { background-color: #6b2b2b; }
+.coed.error      { background-color: #6b482b; color: white; }
+.male.error      { background-color: #1a4040; color: white; }
+.female.error    { background-color: #6b2b2b; color: white; }
 
 .coed.selected   { background-color: #af550b; }
 .male.selected   { background-color: #af0b0b; }

@@ -195,11 +195,14 @@ var init = {
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
+		var label = html.div.clone()
+			.addClass( 'block-label' )
+			.html( `${block.division.toUpperCase()} ${block.description}<br>${rmap[ block.round ]} ${flight} (${block.athletes})` );
+
 		var div = html.div.clone()
-			.addClass( `round ${gender}` )
+			.addClass( `block ${gender}` )
 			.attr({ 'draggable' : 'true', 'data-blockid' : block.id, 'data-start': start, 'data-stop': stop})
-			.css({ 'line-height' : `${rowspan * scale.height}px` })
-			.html( `${block.division.toUpperCase()} ${block.description} ${rmap[ block.round ]} ${flight} (${block.athletes})` );
+			.append( label );
 
 		td.append( div );
 

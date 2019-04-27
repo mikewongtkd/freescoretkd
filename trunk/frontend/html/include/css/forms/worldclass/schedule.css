@@ -95,13 +95,17 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
       min-width: 180px;
       padding-left: 8px;
       padding-right: 8px; }
-    .schedule td .round {
+    .schedule td .block {
       font-family: Lato;
       font-size: 10pt;
       width: 100%;
       height: 100%;
-      border-radius: 4px;
-      text-align: center; }
+      border-radius: 4px; }
+      .schedule td .block .block-label {
+        position: relative;
+        top: 50%;
+        transform: translate(0, -50%);
+        text-align: center; }
 
 a.active {
   background-color: #cce5ff !important;
@@ -118,13 +122,16 @@ a.active {
   background-color: #ffc0c0; }
 
 .coed.error {
-  background-color: #6b482b; }
+  background-color: #6b482b;
+  color: white; }
 
 .male.error {
-  background-color: #1a4040; }
+  background-color: #1a4040;
+  color: white; }
 
 .female.error {
-  background-color: #6b2b2b; }
+  background-color: #6b2b2b;
+  color: white; }
 
 .coed.selected {
   background-color: #af550b; }
