@@ -14,12 +14,24 @@
 
 <script>
 var setTime = function( timestamp ) {
+	if( ! timestamp.match( /:/ )) {
+		timestamp = timestamp.split( '' );
+		timestamp.splice( 2, 0, ':' );
+		timestamp = timestamp.join( '' );
+	}
 	var time = new Date();
 	var hhmm = timestamp.split( /:/ ).map( x => parseInt( x ));
 	hhmm[0] += timestamp.match( /PM/ ) && hhmm[0] != 12 ? 12 : 0;
 	time.setHours( hhmm.shift());
 	time.setMinutes( hhmm.shift());
 	return time;
+};
+
+var plan = {
+	remove : ( blockid ) => {
+	},
+	insert : ( ringid, blockid, offset ) => {
+	}
 };
 
 var dnd = { block: undefined, source: undefined, handle : {
@@ -44,10 +56,40 @@ var dnd = { block: undefined, source: undefined, handle : {
 	},
 	drop : function( ev ) {
 		if( ev.stopPropogation ) { ev.stopPropogation(); }
-		var target    = $( ev.target ); if( ! target.hasClass( 'schedule' )) { target = target.parents( '.schedule' ); }
+		var target    = $( ev.target ); 
 		var block     = dnd.block;
+		var blockid   = block.attr( 'data-blockid' );
+		var blockdata = schedule.blocks[ blockid ];
 
-		// block.detach();
+		var is = { block : target.hasClass( 'block' ), label: target.hasClass( 'block-label' ), ring : target.hasClass( 'ring' )};
+		if( is.label ) { 
+			target   = target.parent( '.block' );
+			is.block = true;
+			is.ring  = false;
+		}
+		if( is.block || is.ring ) {
+			// block.detach();
+
+			var ringid = undefined;
+			if( is.block ) {
+				target = target.parent( '.ring' );
+			}
+			plan.remove( blockid );
+			// EDIT THE PLAN, REBUILD THE SCHEDULE
+			var targetid   = target.attr( 'id' );
+			var ringidtime = targetid.split( /-(\d+)$/, 2 );
+			ringid         = ringidtime.shift();
+			var start      = setTime( ringidtime.shift());
+			var stop       = new Date( +start );
+			stop.setHours( stop.getHours() + Math.floor( blockdata.duration / 60 ));
+			stop.setMinutes( stop.getMinutes() + (blockdata.duration % 60 ));
+			console.log( 'BEFORE', blockdata.ring, blockdata.start, blockdata.stop );
+
+			blockdata.ring  = ringid;
+			blockdata.start = $.format.date( start, 'h:mm a' );
+			blockdata.stop  = $.format.date( stop, 'h:mm a' );
+			console.log( 'AFTER', blockdata.ring, blockdata.start, blockdata.stop );
+		}
 
 		// var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 		// request.json = JSON.stringify( request.data );
@@ -55,6 +97,9 @@ var dnd = { block: undefined, source: undefined, handle : {
 
 		dnd.block  = undefined;
 		dnd.source = undefined;
+
+		// show.daySchedule();
+
 		return false;
 	}
 }};
@@ -82,7 +127,7 @@ show.block = ( ringid, blockid ) => {
 	}
 }
 
-show.blocks = ( day ) => {
+show.plan = ( day ) => {
 	day.rings.forEach(( ring ) => { 
 		ring.plan.forEach(( blockid ) => {
 			show.block( ring.name, blockid ) 
@@ -168,7 +213,7 @@ show.daySchedule = () => {
 		.on( 'dragend',   dnd.handle.drag.end );
 
 	var day = schedule.day[ settings.current.day ];
-	show.blocks( day );
+	show.plan( day );
 };
 
 var init = {
