@@ -28,7 +28,7 @@ var setTime = function( timestamp ) {
 };
 
 var plan = {
-	reorder : ( ring, day ) => {
+	reschedule : ( ring, day ) => {
 		var start     = setTime( defined( ring.start ) ? ring.start : day.start );
 		ring.plan.forEach(( blockid ) => {
 			var block   = schedule.blocks[ blockid ];
@@ -54,7 +54,7 @@ var plan = {
 		delete blockdata.ring;
 
 		ring.plan.splice( i, 1 );
-		plan.reorder( ring, day );
+		plan.reschedule( ring, day );
 	},
 	insert : ( ringid, blockid, targetid ) => {
 		var blockdata = schedule.blocks[ blockid ];
@@ -69,7 +69,7 @@ var plan = {
 		} else {
 			ring.plan.push( blockid );
 		}
-		plan.reorder( ring, day );
+		plan.reschedule( ring, day );
 	}
 };
 
@@ -138,8 +138,6 @@ var dnd = { block: undefined, source: undefined, handle : {
 
 		dnd.block  = undefined;
 		dnd.source = undefined;
-
-		show.daySchedule();
 
 		return false;
 	}

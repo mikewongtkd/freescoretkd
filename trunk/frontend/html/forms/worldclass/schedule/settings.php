@@ -3,7 +3,7 @@
 		<div class="page-header"> Sport Poomsae Scheduler</div>
 		<div>
 			<div class="panel panel-primary">
-				<h4 class="panel-heading" style="margin-top: 0">Settings</h4>
+				<h4 class="panel-heading">Settings</h4>
 				<div class="panel-body">
 					<p>Drag-and-drop individual divisions to the desired day, or to <i>Unscheduled Divisions</i>. You can also click to select one or more divisions and then click on a <i>Move</i> button to move those divisions to the desired day.</p>
 					<div class="row">
@@ -20,6 +20,13 @@
 							<input type="checkbox" data-toggle="toggle" id="teams-grouped" name="teams-grouped" data-on="In Groups" data-onstyle="success" data-off="As Individuals" data-offstyle="primary" />
 						</div>
 					</div>
+				</div>
+			</div>
+			<div class="panel panel-primary">
+				<h4 class="panel-heading">Ring Settings</h4>
+				<div class="panel-body">
+					<table id="ring-settings">
+					</table>
 				</div>
 			</div>
 			<div class="row">
@@ -39,19 +46,6 @@
 	<div class="panel-heading">
 		<h4 class="panel-title">Day</h4>
 		<div class="day-settings">
-			<div class="ring-num-widget">
-				<div class="input-group input-group-sm">
-					<span class="input-group-addon">Rings</span>
-					<input type="number" value=<?= count( $rings ) ?>, min=1, max=<?= count( $rings )?> />
-				</div>
-			</div>
-			<div class="timepicker-widget">
-				<div class="input-group input-group-sm bootstrap-timepicker timepicker">
-					<span class="input-group-addon">Start</span>
-					<input type="text" class="form-control input-small" value="9:00 AM">
-					<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
-				</div>
-			</div>
 			<a class="btn btn-xs btn-info disabled">Move to Day</a>
 		</div>
 	</div>
@@ -65,10 +59,19 @@
 		</form>
 	</div>
 </div>
+<div class="timepicker-widget">
+	<div class="input-group input-group-sm bootstrap-timepicker timepicker">
+		<span class="input-group-addon">Start</span>
+		<input type="text" class="form-control" value="9:00 AM">
+		<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
+	</div>
+</div>
 <script>
 var template = {};
 template.day = $( '.competition-day' );
 template.day.detach();
+template.timepicker = $( '.timepicker-widget' );
+template.timepicker.detach();
 
 // ===== INITIALIZE DATE PICKER AND ENABLE ICON TO BRING UP CALENDAR WIDGET
 $( '.datepicker' ).datepicker();
@@ -93,25 +96,53 @@ $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
 	});
 });
 
+var init = {
+	timepicker : ( start ) => {
+		start = defined( start ) ? start : '9:00 AM';
+		var timepicker = template.timepicker.clone();
+		timepicker.timepicker({ defaultTime: start });
+		timepicker.find( 'input' ).val( start );
+		timepicker.timepicker().off( 'changeTime.timepicker' ).on( 'changeTime.timepicker', ( ev ) => {
+			var target = $( '.timepicker input' );
+			target.val( ev.time.value );
+		});
+		return timepicker;
+	}
+};
+
+show.rings = () => {
+	var table  = $( '#ring-settings' );
+	var header = html.tr.clone();
+	var rings  = html.th.clone().html( '&nbsp;' );
+
+	header.append( rings );
+	tournament.rings.forEach(( ring ) => {
+		var th = html.th.clone().html( `Ring ${ring}` );
+		header.append( th );
+	});
+	table.append( header );
+
+	schedule.day.forEach(( day, i ) => {
+		var j = i + 1;
+		var day = html.th.clone().html( `Day ${j}` );
+		var tr  = html.tr.clone();
+		tr.append( day );
+		tournament.rings.forEach(( ring ) => {
+			var td = html.td.clone();
+			var tp = init.timepicker();
+			td.append( tp );
+			tr.append( td );
+		});
+		table.append( tr );
+	});
+
+};
+
 show.day = ( id, name, start ) => {
 	var day    = template.day.clone();
 	var target = name; 
 	target     = target.replace( /\s*Divisions$/, '' );
 	target     = target.replace( /\s*\[\w+\]\s*/, '' );
-
-	if( id == 'unscheduled' ) { day.find( '.ring-num-widget' ).remove(); }
-	var ringnum  = day.find( '.ring-num-widget input' );
-	ringnum.attr({ value: tournament.rings.length, min: 1, max: tournament.rings.length, id: `${id}-ring-num`, name: `${id}-ring-num` });
-
-	if( id == 'unscheduled' ) { day.find( '.timepicker-widget' ).remove(); }
-	start = defined( start ) ? start : '9:00 AM';
-	var timepicker = day.find( '.timepicker' );
-	timepicker.timepicker({ defaultTime: start });
-	timepicker.find( 'input' ).val( start );
-	timepicker.timepicker().off( 'changeTime.timepicker' ).on( 'changeTime.timepicker', ( ev ) => {
-		var target = $( '.timepicker input' );
-		target.val( ev.time.value );
-	});
 
 	day.attr({ id : id });
 	day.find( '.panel-title' ).html( name );
@@ -269,6 +300,7 @@ handler.read.schedule = ( update ) => {
 		}
 	}
 	show.days();
+	show.rings();
 };
 
 handler.write.schedule = ( update ) => {

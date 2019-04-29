@@ -27,6 +27,16 @@ label.disabled {
 .btn-group .btn.active {
   color: white; }
 
+#ring-settings {
+  width: 100%; }
+  #ring-settings .timepicker-widget {
+    margin: 4px 0 4px 0; }
+    #ring-settings .timepicker-widget .timepicker {
+      width: 180px; }
+
+h4.panel-heading {
+  margin-top: 0; }
+
 .competition-day.panel .panel-heading h4 {
   display: inline-block; }
 .competition-day.panel .panel-heading .day-settings {
@@ -38,26 +48,6 @@ label.disabled {
     position: absolute;
     top: 8px;
     right: -20px; }
-  .competition-day.panel .panel-heading .day-settings .ring-num-widget, .competition-day.panel .panel-heading .day-settings .timepicker-widget {
-    position: absolute;
-    top: 8px; }
-    .competition-day.panel .panel-heading .day-settings .ring-num-widget .input-group .input-group-addon, .competition-day.panel .panel-heading .day-settings .timepicker-widget .input-group .input-group-addon {
-      height: 16px;
-      padding: 1px 4px 1px 4px; }
-    .competition-day.panel .panel-heading .day-settings .ring-num-widget .input-group input, .competition-day.panel .panel-heading .day-settings .timepicker-widget .input-group input {
-      height: 22px;
-      text-align: right; }
-  .competition-day.panel .panel-heading .day-settings .timepicker-widget {
-    right: 92px; }
-    .competition-day.panel .panel-heading .day-settings .timepicker-widget .input-group {
-      width: 128px; }
-  .competition-day.panel .panel-heading .day-settings .ring-num-widget {
-    right: 244px; }
-    .competition-day.panel .panel-heading .day-settings .ring-num-widget .input-group {
-      width: 80px; }
-      .competition-day.panel .panel-heading .day-settings .ring-num-widget .input-group input {
-        width: 40px;
-        color: black; }
 .competition-day.panel .panel-body {
   background-color: #eee;
   padding: 4px; }
