@@ -29,8 +29,25 @@ var setTime = function( timestamp ) {
 
 var plan = {
 	remove : ( blockid ) => {
+		var blockdata = schedule.blocks[ blockid ];
+		var day       = schedule.day[ settings.current.day ];
+		var ringid    = blockdata.ring;
+		var ring      = day.rings.find(( ring ) => { return ring.name == ringid; });
+		var i         = ring.plan.findIndex(( id ) => { return id == blockid; });
+
+		ring.plan.splice( i, 1 );
 	},
-	insert : ( ringid, blockid, offset ) => {
+	insert : ( ringid, blockid, targetid ) => {
+		var blockdata = schedule.blocks[ blockid ];
+		var day       = schedule.day[ settings.current.day ];
+		var ring      = day.rings.find(( ring ) => { return ring.name == ringid; });
+
+		if( targetid ) {
+			var i = ring.plan.findIndex(( id ) => { return id == targetid; });
+			ring.plan.splice( i, 0, blockid );
+		} else {
+			ring.plan.push( blockid );
+		}
 	}
 };
 
@@ -69,26 +86,16 @@ var dnd = { block: undefined, source: undefined, handle : {
 		}
 		if( is.block || is.ring ) {
 			// block.detach();
-
-			var ringid = undefined;
-			if( is.block ) {
-				target = target.parent( '.ring' );
-			}
 			plan.remove( blockid );
-			// EDIT THE PLAN, REBUILD THE SCHEDULE
-			var targetid   = target.attr( 'id' );
-			var ringidtime = targetid.split( /-(\d+)$/, 2 );
-			ringid         = ringidtime.shift();
-			var start      = setTime( ringidtime.shift());
-			var stop       = new Date( +start );
-			stop.setHours( stop.getHours() + Math.floor( blockdata.duration / 60 ));
-			stop.setMinutes( stop.getMinutes() + (blockdata.duration % 60 ));
-			console.log( 'BEFORE', blockdata.ring, blockdata.start, blockdata.stop );
 
-			blockdata.ring  = ringid;
-			blockdata.start = $.format.date( start, 'h:mm a' );
-			blockdata.stop  = $.format.date( stop, 'h:mm a' );
-			console.log( 'AFTER', blockdata.ring, blockdata.start, blockdata.stop );
+			if( is.block ) {
+				var targetid   = target.attr( 'data-blockid' );
+				var targetdata = schedule.blocks[ targetid ];
+				plan.insert( targetdata.ring, blockid, targetid );
+
+			} else if( is.ring ) {
+				var ringid     = target.prop( 'classList' ).grep(( x ) => { return x.match( /^ring-\d+$/ ); });
+			}
 		}
 
 		// var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
@@ -114,7 +121,7 @@ show.block = ( ringid, blockid ) => {
 	var target    = $( `#${id}` );
 
 	target.replaceWith( block );
-	block.attr({ id : id });
+	block.addClass( ringid ).attr({ id : id });
 
 	for( var i = 0; i < duration; i++ ) {
 		time.setMinutes( time.getMinutes() + scale.minutes );
@@ -190,7 +197,7 @@ show.daySchedule = () => {
 				var j = (y * width) + (x + 1);
 				if( j <= n ) {
 					var id      = $.format.date( time, 'HHmm' );
-					var ring = html.td.clone().addClass( 'ring' ).attr({ id : `ring-${j}-${id}` });
+					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}` });
 					tr.append( ring );
 				} else {
 					var placeholder = html.td.clone().addClass( 'ring' ).html( '&nbsp;' );
