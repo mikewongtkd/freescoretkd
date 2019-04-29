@@ -28,6 +28,22 @@ var setTime = function( timestamp ) {
 };
 
 var plan = {
+	reorder : ( ring, day ) => {
+		var start     = setTime( defined( ring.start ) ? ring.start : day.start );
+		ring.plan.forEach(( blockid ) => {
+			var block   = schedule.blocks[ blockid ];
+			var hr      = Math.floor( block.duration/60 );
+			var min     = block.duration % 60;
+			var stop    = new Date( start );
+			stop.setHours( stop.getHours() + hr );
+			stop.setMinutes( stop.getMinutes() + min );
+			block.start = $.format.date( start, 'h:mm a' );
+			block.stop  = $.format.date( stop,  'h:mm a' );
+
+			start = stop;
+			start.setMinutes( start.getMinutes() + scale.minutes );
+		});
+	},
 	remove : ( blockid ) => {
 		var blockdata = schedule.blocks[ blockid ];
 		var day       = schedule.day[ settings.current.day ];
@@ -35,12 +51,17 @@ var plan = {
 		var ring      = day.rings.find(( ring ) => { return ring.name == ringid; });
 		var i         = ring.plan.findIndex(( id ) => { return id == blockid; });
 
+		delete blockdata.ring;
+
 		ring.plan.splice( i, 1 );
+		plan.reorder( ring, day );
 	},
 	insert : ( ringid, blockid, targetid ) => {
 		var blockdata = schedule.blocks[ blockid ];
 		var day       = schedule.day[ settings.current.day ];
 		var ring      = day.rings.find(( ring ) => { return ring.name == ringid; });
+
+		blockdata.ring = ringid;
 
 		if( targetid ) {
 			var i = ring.plan.findIndex(( id ) => { return id == targetid; });
@@ -48,6 +69,7 @@ var plan = {
 		} else {
 			ring.plan.push( blockid );
 		}
+		plan.reorder( ring, day );
 	}
 };
 
@@ -85,7 +107,6 @@ var dnd = { block: undefined, source: undefined, handle : {
 			is.ring  = false;
 		}
 		if( is.block || is.ring ) {
-			// block.detach();
 			plan.remove( blockid );
 
 			if( is.block ) {
@@ -94,7 +115,20 @@ var dnd = { block: undefined, source: undefined, handle : {
 				plan.insert( targetdata.ring, blockid, targetid );
 
 			} else if( is.ring ) {
-				var ringid     = target.prop( 'classList' ).grep(( x ) => { return x.match( /^ring-\d+$/ ); });
+				var targetid = target.attr( 'id' );
+				var ringid   = target.prop( 'class' ).split( /\s+/ ).find( x => x.match( /^ring-\d+/ ));
+				var rows     = $( `td.${ringid}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
+				var i        = rows.findIndex( row => { return row == targetid });
+				var next     = rows[ i + 1 ];
+
+				target       = $( `#${next}` ).find( '.block' );
+				if( target.length ) {
+					var targetid = target.attr( 'data-blockid' );
+					plan.insert( ringid, blockid, targetid );
+
+				} else {
+					plan.insert( ringid, blockid );
+				}
 			}
 		}
 
@@ -105,7 +139,7 @@ var dnd = { block: undefined, source: undefined, handle : {
 		dnd.block  = undefined;
 		dnd.source = undefined;
 
-		// show.daySchedule();
+		show.daySchedule();
 
 		return false;
 	}
