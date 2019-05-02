@@ -24,13 +24,13 @@ label.disabled {
 	color: white;
 }
 
-#ring-settings {
+.ring-settings {
 	width: 100%;
 	.timepicker-widget {
 		margin: 4px 0 4px 0;
 
 		.timepicker {
-			width: 180px;
+			width: 120px;
 		}
 	}
 }

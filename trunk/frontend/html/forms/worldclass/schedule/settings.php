@@ -1,6 +1,6 @@
 <div class="pt-page pt-page-1">
 	<div class="container">
-		<div class="page-header"> Sport Poomsae Scheduler</div>
+		<div class="page-header">Schedule Divisions For Each Day</div>
 		<div>
 			<div class="panel panel-primary">
 				<h4 class="panel-heading">Settings</h4>
@@ -20,13 +20,6 @@
 							<input type="checkbox" data-toggle="toggle" id="teams-grouped" name="teams-grouped" data-on="In Groups" data-onstyle="success" data-off="As Individuals" data-offstyle="primary" />
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="panel panel-primary">
-				<h4 class="panel-heading">Ring Settings</h4>
-				<div class="panel-body">
-					<table id="ring-settings">
-					</table>
 				</div>
 			</div>
 			<div class="row">
@@ -59,19 +52,10 @@
 		</form>
 	</div>
 </div>
-<div class="timepicker-widget">
-	<div class="input-group input-group-sm bootstrap-timepicker timepicker">
-		<span class="input-group-addon">Start</span>
-		<input type="text" class="form-control" value="9:00 AM">
-		<span class="input-group-addon"><span class="glyphicon glyphicon-time"></span></span>
-	</div>
-</div>
 <script>
 var template = {};
 template.day = $( '.competition-day' );
 template.day.detach();
-template.timepicker = $( '.timepicker-widget' );
-template.timepicker.detach();
 
 // ===== INITIALIZE DATE PICKER AND ENABLE ICON TO BRING UP CALENDAR WIDGET
 $( '.datepicker' ).datepicker();
@@ -88,6 +72,7 @@ $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
 	$( '.competition-day' ).each(( i, list ) => {
 		var id = $( list ).attr( 'id' );
 		if( id == 'unscheduled' ) { return; }
+		console.log( list, id );
 		var j     = parseInt( id.replace( /day-/, '' ));
 
 		var dow   = $.format.date( start.setDate( start.getDate() + (j - 1 )), 'ddd' );
@@ -95,48 +80,6 @@ $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
 		$( list ).find( '.panel-title' ).html( name );
 	});
 });
-
-var init = {
-	timepicker : ( start ) => {
-		start = defined( start ) ? start : '9:00 AM';
-		var timepicker = template.timepicker.clone();
-		timepicker.timepicker({ defaultTime: start });
-		timepicker.find( 'input' ).val( start );
-		timepicker.timepicker().off( 'changeTime.timepicker' ).on( 'changeTime.timepicker', ( ev ) => {
-			var target = $( '.timepicker input' );
-			target.val( ev.time.value );
-		});
-		return timepicker;
-	}
-};
-
-show.rings = () => {
-	var table  = $( '#ring-settings' );
-	var header = html.tr.clone();
-	var rings  = html.th.clone().html( '&nbsp;' );
-
-	header.append( rings );
-	tournament.rings.forEach(( ring ) => {
-		var th = html.th.clone().html( `Ring ${ring}` );
-		header.append( th );
-	});
-	table.append( header );
-
-	schedule.day.forEach(( day, i ) => {
-		var j = i + 1;
-		var day = html.th.clone().html( `Day ${j}` );
-		var tr  = html.tr.clone();
-		tr.append( day );
-		tournament.rings.forEach(( ring ) => {
-			var td = html.td.clone();
-			var tp = init.timepicker();
-			td.append( tp );
-			tr.append( td );
-		});
-		table.append( tr );
-	});
-
-};
 
 show.day = ( id, name, start ) => {
 	var day    = template.day.clone();
@@ -146,7 +89,6 @@ show.day = ( id, name, start ) => {
 
 	day.attr({ id : id });
 	day.find( '.panel-title' ).html( name );
-	day.find( '.timepicker input' ).attr({ id: `${id}-start` });
 	day.find( '.panel-heading .btn' ).html( `Move to ${target}` ).attr({ 'data-target' : `${id} ul` });
 	var list   = day.find( '.list-group.day' ).attr({ id: `${id}-schedule` });
 	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${target} Divisions`, id: `${id}-search` });
@@ -255,25 +197,8 @@ $( '#num-days' ).change(( ev ) => {
 });
 
 $( '#accept-settings' ).off( 'click' ).click(( ev ) => {
-	var days = $( '.list-group-sortable-connected.day' );
-	for( var i = 0; i < days.length; i++ ) {
-		var scheduled = $( days[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
-		var time      = $( '.timepicker input' );
-		if( defined( schedule.day[ i ] )) {
-			schedule.day[ i ].start     = $( time[ i ]).val();
-			schedule.day[ i ].divisions = scheduled;
-		} else {
-			schedule.day[ i ] = { start: '9:00 AM', divisions: scheduled };
-		}
-	}
-	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 	sound.next.play();
-
-	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
-	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
-	request.json = JSON.stringify( request.data );
-	ws.send( request.json );
-	console.log( request.json );
+	page.transition();
 });
 
 $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
@@ -300,7 +225,6 @@ handler.read.schedule = ( update ) => {
 		}
 	}
 	show.days();
-	show.rings();
 };
 
 handler.write.schedule = ( update ) => {

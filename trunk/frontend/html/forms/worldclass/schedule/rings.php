@@ -48,7 +48,7 @@ var plan = {
 		var blockdata = schedule.blocks[ blockid ];
 		var day       = schedule.day[ settings.current.day ];
 		var ringid    = blockdata.ring;
-		var ring      = day.rings.find(( ring ) => { return ring.name == ringid; });
+		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
 		var i         = ring.plan.findIndex(( id ) => { return id == blockid; });
 
 		delete blockdata.ring;
@@ -59,7 +59,7 @@ var plan = {
 	insert : ( ringid, blockid, targetid ) => {
 		var blockdata = schedule.blocks[ blockid ];
 		var day       = schedule.day[ settings.current.day ];
-		var ring      = day.rings.find(( ring ) => { return ring.name == ringid; });
+		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
 
 		blockdata.ring = ringid;
 
@@ -169,7 +169,7 @@ show.block = ( ringid, blockid ) => {
 show.plan = ( day ) => {
 	day.rings.forEach(( ring ) => { 
 		ring.plan.forEach(( blockid ) => {
-			show.block( ring.name, blockid ) 
+			show.block( ring.id, blockid ) 
 		});
 	});
 };

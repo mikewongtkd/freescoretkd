@@ -42,6 +42,7 @@
 		</script>
 		<div id="pt-main" class="pt-perspective">
 			<?php include( "settings.php" ); ?>
+			<?php include( "times.php" ); ?>
 		</div>
 		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>

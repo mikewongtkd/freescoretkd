@@ -27,12 +27,12 @@ label.disabled {
 .btn-group .btn.active {
   color: white; }
 
-#ring-settings {
+.ring-settings {
   width: 100%; }
-  #ring-settings .timepicker-widget {
+  .ring-settings .timepicker-widget {
     margin: 4px 0 4px 0; }
-    #ring-settings .timepicker-widget .timepicker {
-      width: 180px; }
+    .ring-settings .timepicker-widget .timepicker {
+      width: 120px; }
 
 h4.panel-heading {
   margin-top: 0; }
