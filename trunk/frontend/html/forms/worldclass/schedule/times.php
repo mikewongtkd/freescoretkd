@@ -47,7 +47,8 @@ template.timepicker.detach();
 
 // ===== INITIALIZE DATE PICKER AND ENABLE ICON TO BRING UP CALENDAR WIDGET
 var init = {
-	times : ( day_i, rings ) => {
+	times : ( day_i ) => {
+		var rings = tournament.rings;
 		var times = template.times.clone();
 		var j     = day_i + 1;
 
@@ -64,12 +65,15 @@ var init = {
 			header.append( html.th.clone().html( 'Stop' ));
 			table.append( header );
 
-			rings.forEach(( ring ) => {
+			rings.forEach(( k ) => {
+				var name      = `Ring ${k}`;
+				var id        = `ring-${k}`;
 				var tr        = html.tr.clone();
-				var th        = html.th.clone().html( ring.name );
-				var available = html.td.clone().append( html.button.clone().addClass( 'btn btn-success btn-sm ring-availability single-ring' ).attr({ 'data-day': j, 'data-ringid': ring.id, 'data-ringname': ring.name }).html( 'Available' ));
-				var start     = html.td.clone().append( init.timepicker( `start day-${j}-${ring.id}-start`, { day: j, ring: ring.id }, '9:00 AM' ));
-				var stop      = html.td.clone().append( init.timepicker( `stop  day-${j}-${ring.id}-stop`,  { day: j, ring: ring.id }, '6:00 PM' ));
+				var th        = html.th.clone().html( name );
+				var active    = schedule.day[ day_i ].rings.find(( ring ) => { return ring.id == id; }) ? 'btn-success' : 'btn-primary';
+				var available = html.td.clone().append( html.button.clone().addClass( `btn ${active} btn-sm ring-availability single-ring` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( 'Available' ));
+				var start     = html.td.clone().append( init.timepicker( `start day-${j}-${id}-start`, { day: j, ring: id }, '9:00 AM' ));
+				var stop      = html.td.clone().append( init.timepicker( `stop  day-${j}-${id}-stop`,  { day: j, ring: id }, '6:00 PM' ));
 				tr.append( th, available, start, stop );
 				table.append( tr );
 			});
@@ -84,8 +88,11 @@ var init = {
 			var start = html.th.clone().html( 'Rings' );
 			tr.append( start );
 			var available = html.div.clone().addClass( 'rings-available btn-group' );
-			rings.forEach(( ring ) => {
-				var button = html.button.clone().addClass( 'btn btn-success btn-sm ring-availability' ).attr( 'id', `day-${j}-${ring.id}-available` ).attr({ 'data-day': j, 'data-ringid': ring.id, 'data-ringname': ring.name }).html( ring.name.replace( /Ring\s+/, '' ) );
+			rings.forEach(( k ) => {
+				var name   = `Ring ${k}`;
+				var id     = `ring-${k}`;
+				var active = schedule.day[ day_i ].rings.find(( ring ) => { return ring.id == id; }) ? 'btn-success' : 'btn-primary';
+				var button = html.button.clone().addClass( `btn ${active} btn-sm ring-availability` ).attr( 'id', `day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( name.replace( /Ring\s+/, '' ) );
 				available.append( button );
 			});
 			tr.append( available );
@@ -122,7 +129,7 @@ show.rings = () => {
 	$( '#times' ).empty();
 	schedule.day.forEach(( day, i ) => {
 		if( ! defined( day.rings )) { day.rings = tournament.rings.map(( i ) => { return { id: `ring-${i}`, name: `Ring ${i}`, plan:[], start: '9:00 AM' }; }); }
-		var day_panel = init.times( i, day.rings );
+		var day_panel = init.times( i );
 		$( '#times' ).append( day_panel );
 	});
 
