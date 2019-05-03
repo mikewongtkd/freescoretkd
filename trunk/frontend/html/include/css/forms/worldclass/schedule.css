@@ -97,6 +97,9 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
         transform: translate(0, -50%);
         text-align: center; }
 
+.ring-availability.single-ring {
+  width: 100px; }
+
 a.active {
   background-color: #cce5ff !important;
   border-color: #b8daff !important;
