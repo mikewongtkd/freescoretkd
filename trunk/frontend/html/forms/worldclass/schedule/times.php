@@ -59,7 +59,8 @@ var init = {
 		var blank  = html.th.clone().html( '&nbsp;' );
 		header.append( blank );
 
-		if( $( '#rings-start' ).prop( 'checked' )) {
+		var rings_start_same_time = $( '#rings-start' ).prop( 'checked' );
+		if( rings_start_same_time ) {
 			header.append( html.th.clone().html( 'Availability' ));
 			header.append( html.th.clone().html( 'Start' ));
 			header.append( html.th.clone().html( 'Stop' ));
@@ -71,7 +72,7 @@ var init = {
 				var tr        = html.tr.clone();
 				var th        = html.th.clone().html( name );
 				var active    = schedule.day[ day_i ].rings.find(( ring ) => { return ring.id == id; }) ? 'btn-success' : 'btn-primary';
-				var available = html.td.clone().append( html.button.clone().addClass( `btn ${active} btn-sm ring-availability single-ring` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( 'Available' ));
+				var available = html.td.clone().append( html.button.clone().addClass( `btn ${active} btn-sm ring-availability single-ring day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( 'Available' ));
 				var start     = html.td.clone().append( init.timepicker( `start day-${j}-${id}-start`, { day: j, ring: id }, '9:00 AM' ));
 				var stop      = html.td.clone().append( init.timepicker( `stop  day-${j}-${id}-stop`,  { day: j, ring: id }, '6:00 PM' ));
 				tr.append( th, available, start, stop );
@@ -92,7 +93,7 @@ var init = {
 				var name   = `Ring ${k}`;
 				var id     = `ring-${k}`;
 				var active = schedule.day[ day_i ].rings.find(( ring ) => { return ring.id == id; }) ? 'btn-success' : 'btn-primary';
-				var button = html.button.clone().addClass( `btn ${active} btn-sm ring-availability` ).attr( 'id', `day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( name.replace( /Ring\s+/, '' ) );
+				var button = html.button.clone().addClass( `btn ${active} btn-sm ring-availability day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( name.replace( /Ring\s+/, '' ) );
 				available.append( button );
 			});
 			tr.append( available );
@@ -120,7 +121,6 @@ var init = {
 
 // ===== TOGGLE BEHAVIOR
 $( '#rings-start' ).off( 'change' ).on( 'change', ( ev ) => {
-	console.log( $( '#rings-start' ).prop( 'checked' ));
 	show.rings();
 });
 
@@ -151,24 +151,39 @@ show.rings = () => {
 	});
 };
 
-// ===== PAGE BEHAVIOR
+// ===== SAVE BEHAVIOR
 $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	var days = $( '.list-group-sortable-connected.day' ).toArray().filter( day => { return ! $( day ).attr( 'id' ).match( /unscheduled/i ); });
 	days.forEach(( day, i ) => {
 		var j         = i + 1;
 		var scheduled = $( days[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
 		var time      = $( '.timepicker input' );
-		if( defined( schedule.day[ i ] )) {
-			schedule.day[ i ].start     = $( time[ i ]).val();
-			schedule.day[ i ].divisions = scheduled;
+		var day       = schedule.day[ i ];
+		if( defined( day )) {
+			var start_at_same_time = $( '#rings-start' ).prop( 'checked' );
+			if( start_at_same_time ) {
+				var start = `.day-${j}-start`;
+				var stop  = `.day-${j}-stop`;
+				day.start = $( start ).val();
+				day.stop  = $( stop ).val();
+			} else {
+				day.rings.forEach(( ring ) => {
+					var start  = `.day-${j}-${ring.id}-start`;
+					var stop   = `.day-${j}-${ring.id}-start`;
+					ring.start = $( start ).val();
+					ring.stop  = $( stop ).val();
+				});
+			}
+			day.divisions = scheduled;
 		} else {
 			schedule.day[ i ] = { start: '9:00 AM', divisions: scheduled };
 		}
 		var rings = schedule.day[ i ].rings;
+		var rings_start_same_time = $( '#rings-start' ).prop( 'checked' );
 		tournament.rings.forEach(( k ) => {
-			var id     = `#day-${j}-ring-${k}-available`;
-			var active = $( id ).hasClass( 'btn-success' );
-			var l      = rings.findIndex(( ring ) => { return ring.id == `ring-${k}`; });
+			var button = $( `.day-${j}-ring-${k}-available` );
+			var active  = button.hasClass( 'btn-success' );
+			var l       = rings.findIndex(( ring ) => { return ring.id == `ring-${k}`; });
 			if( active && l < 0 ) {
 				rings.push({ id: `ring-${k}`, name: `Ring ${k}`, plan: []});
 
