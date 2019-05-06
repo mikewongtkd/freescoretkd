@@ -128,7 +128,8 @@ $( '#rings-start' ).off( 'change' ).on( 'change', ( ev ) => {
 show.rings = () => {
 	$( '#times' ).empty();
 	schedule.day.forEach(( day, i ) => {
-		if( ! defined( day.rings )) { day.rings = tournament.rings.map(( i ) => { return { id: `ring-${i}`, name: `Ring ${i}`, plan:[], start: '9:00 AM' }; }); }
+		var new_day = ( i ) => { return { id: `ring-${i}`, name: `Ring ${i}`, plan:[], start: '9:00 AM', stop: undefined }; };
+		if( ! defined( day.rings )) { day.rings = tournament.rings.map( i => new_day( i )); }
 		var day_panel = init.times( i );
 		$( '#times' ).append( day_panel );
 	});
@@ -160,7 +161,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 		var time      = $( '.timepicker input' );
 		var day       = schedule.day[ i ];
 		if( defined( day )) {
-			var start_at_same_time = $( '#rings-start' ).prop( 'checked' );
+			var start_at_same_time = ! $( '#rings-start' ).prop( 'checked' );
 			if( start_at_same_time ) {
 				var start = `.day-${j}-start`;
 				var stop  = `.day-${j}-stop`;
@@ -169,7 +170,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 			} else {
 				day.rings.forEach(( ring ) => {
 					var start  = `.day-${j}-${ring.id}-start`;
-					var stop   = `.day-${j}-${ring.id}-start`;
+					var stop   = `.day-${j}-${ring.id}-stop`;
 					ring.start = $( start ).val();
 					ring.stop  = $( stop ).val();
 				});
@@ -195,8 +196,6 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 	sound.next.play();
 
-	console.log( schedule );
-	return;
 	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
