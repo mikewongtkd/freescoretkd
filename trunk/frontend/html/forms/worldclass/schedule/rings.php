@@ -46,7 +46,7 @@ var plan = {
 	},
 	remove : ( blockid ) => {
 		var blockdata = schedule.blocks[ blockid ];
-		var day       = schedule.day[ settings.current.day ];
+		var day       = schedule.days[ settings.current.day ];
 		var ringid    = blockdata.ring;
 		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
 		var i         = ring.plan.findIndex(( id ) => { return id == blockid; });
@@ -58,7 +58,7 @@ var plan = {
 	},
 	insert : ( ringid, blockid, targetid ) => {
 		var blockdata = schedule.blocks[ blockid ];
-		var day       = schedule.day[ settings.current.day ];
+		var day       = schedule.days[ settings.current.day ];
 		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
 
 		blockdata.ring = ringid;
@@ -187,7 +187,7 @@ show.daySchedule = () => {
 	for( var y = 0; y < h; y++ ) {
 		// ===== TABLE
 		var table = html.table.clone().addClass( 'schedule' );
-		var day   = schedule.day[ settings.current.day ];
+		var day   = schedule.days[ settings.current.day ];
 
 		// ===== HEADERS
 		var header   = html.tr.clone();
@@ -251,16 +251,16 @@ show.daySchedule = () => {
 		.on( 'drop',      dnd.handle.drop )
 		.on( 'dragend',   dnd.handle.drag.end );
 
-	var day = schedule.day[ settings.current.day ];
+	var day = schedule.days[ settings.current.day ];
 	show.plan( day );
 };
 
 var init = {
 	timeline: ( update ) => {
 		if( defined( update.schedule )) {
-			update.schedule.day.forEach(( day, i ) => {
-				if( ! defined( day.start ))    { schedule.day[ i ].start    = '9:00 AM'; } // Default start at 9 AM
-				if( ! defined( day.duration )) { schedule.day[ i ].duration = 10;        } // Default work for 10 hours
+			update.schedule.days.forEach(( day, i ) => {
+				if( ! defined( day.start ))    { schedule.days[ i ].start    = '9:00 AM'; } // Default start at 9 AM
+				if( ! defined( day.duration )) { schedule.days[ i ].duration = 10;        } // Default work for 10 hours
 			});
 		}
 	},
@@ -296,7 +296,8 @@ var init = {
 		if( ! defined( update.divisions )) { return; }
 
 		$( '.pt-page-1 #days' ).empty();
-		for( var i = 0; i < update.schedule.days; i++ ) {
+		var days = $( '#num-days' ).val();
+		for( var i = 0; i < days; i++ ) {
 			var day = html.button.clone().addClass( 'btn btn-xs btn-primary day-select' ).attr({ 'data-day': i }).css({ margin: '4px' }).html( `Day ${i + 1}` );
 			day.off( 'click' ).click(( ev ) => {
 				var target = $( ev.target );

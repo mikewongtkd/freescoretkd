@@ -72,7 +72,6 @@ $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
 	$( '.competition-day' ).each(( i, list ) => {
 		var id = $( list ).attr( 'id' );
 		if( id == 'unscheduled' ) { return; }
-		console.log( list, id );
 		var j     = parseInt( id.replace( /day-/, '' ));
 
 		var dow   = $.format.date( start.setDate( start.getDate() + (j - 1 )), 'ddd' );
@@ -115,23 +114,24 @@ var by = { divid: ( a, b ) => { return a.name < b.name ? -1 : (a.name == b.name 
 show.days = () => {
 	$( '#divisions' ).empty();
 	$( '#days' ).empty();
+	var days = $( '#num-days' ).val();
 
 	var unscheduled = show.day( 'unscheduled', 'Unscheduled Divisions' );
 	$( '#divisions' ).append( unscheduled );
-	for( var i = 0; i < schedule.days; i++ ) {
+	for( var i = 0; i < days; i++ ) {
 		var j   = i + 1;
 		var id    = `day-${j}`;
 		var start = new Date( schedule.start );
 		var dow   = $.format.date( start.setDate( start.getDate() + i ), 'ddd' );
 		var name  = defined( schedule.start ) ? `Day ${j} [${dow}] Divisions` : `Day ${j} Divisions`;
-		var day   = show.day( id, name, schedule.day[ i ].start );
+		var day   = show.day( id, name, schedule.days[ i ].start );
 		$( '#days' ).append( day );
 	}
 
 	// ===== SHOW THE SCHEDULE, IF ONE EXISTS
-	if( schedule.day.length > 0 ) {
+	if( schedule.days.length > 0 ) {
 		unscheduled.divisions = divisions.slice(); // Copy the current divisions
-		schedule.day.forEach(( day, i ) => {
+		schedule.days.forEach(( day, i ) => {
 			var list = $( `#day-${i + 1} ul` );
 			// day.divisions are a list of divids
 			day.divisions.sort().forEach(( divid, j ) => {
@@ -153,8 +153,8 @@ show.days = () => {
 	} else {
 		var list = undefined;
 		$( 'ul' ).empty();
-		if( schedule.days == 1 ) { list = $( '#day-1 ul' ); }      // There's only one day, schedule all divisions for that day
-		else                     { list = $( '#unscheduled ul' );} // Multiple days; need to make decisions
+		if( days == 1 ) { list = $( '#day-1 ul' ); }      // There's only one day, schedule all divisions for that day
+		else            { list = $( '#unscheduled ul' );} // Multiple days; need to make decisions
 		schedule.divisions.sort( by.divid ).forEach(( division, i ) => {
 			list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
 		});
@@ -192,7 +192,6 @@ show.days = () => {
 
 // ===== PAGE BEHAVIOR
 $( '#num-days' ).change(( ev ) => {
-	schedule.days = $( '#num-days' ).val();
 	show.days();
 });
 
@@ -218,18 +217,36 @@ handler.read.schedule = ( update ) => {
 		});
 
 		if( defined( update.schedule )) { 
-			[ 'days', 'day', 'start', 'teams' ].forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
-			$( '#num-days' ).val( schedule.days );
+			Object.keys( update.schedule ).filter( key => key != 'divisions' ).forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
+			var days = schedule.days.length;
+			$( '#num-days' ).val( days );
 			$( '#start-date' ).datepicker( 'setDate', new Date( schedule.start ));
 			if( schedule.teams == 'groups' ) { $( '#teams-grouped' ).prop({ 'checked': 'checked' }); }
+			if( schedule.asynchronous ) { $( '#asynchronous' ).bootstrapToggle( 'on' ); };
+			schedule.days.forEach(( day, i ) => {
+				var j     = i + 1;
+				var start = `.day-${j}-start`;
+				var stop  = `.day-${j}-stop`;
+				$( start ).val( day.start );
+				$( stop ).val( day.stop );
+
+				if( schedule.asynchronous ) {
+					var inactive = day.rings.map( x => x.id );
+					day.rings.forEach(( ring, k ) => {
+						if( ! defined( ring.start )) { return; }
+						var l = k + 1;
+						var start = `.day-${j}-ring-${l}-start`;
+						var stop  = `.day-${j}-ring-${l}-stop`;
+						$( start ).val( ring.start );
+						$( stop ).val( ring.stop );
+					});
+				}
+			});
 		}
 	}
 	show.days();
+	show.rings();
 };
 
-handler.write.schedule = ( update ) => {
-	alertify.confirm( 'Daily Schedule Saved', 'Daily schedule for divisions saved', () => { sound.send.play(); setTimeout( () => { window.location = 'build.php'; }, 1000 ); }, () => {}).setting({ reverseButtons : true });
-	$( '.ajs-header' ).css({ color: '#fff', 'background-color': '#337ab7', 'border-color': '337ab7', 'font-weight': 'bold' });
-};
 </script>
 

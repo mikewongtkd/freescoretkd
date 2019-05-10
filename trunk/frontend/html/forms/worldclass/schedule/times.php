@@ -7,8 +7,8 @@
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-xs-4">
-							<label for="rings-start">Rings shall start at</label><br>
-							<input type="checkbox" data-toggle="toggle" id="rings-start" name="rings-start" data-on="Different Times" data-onstyle="success" data-off="the Same Time" data-offstyle="primary" />
+							<label for="asynchronous">Rings shall start at</label><br>
+							<input type="checkbox" data-toggle="toggle" id="asynchronous" name="asynchronous" data-on="Different Times" data-onstyle="success" data-off="the Same Time" data-offstyle="primary" />
 						</div>
 						<div class="col-xs-4">
 						</div>
@@ -59,8 +59,8 @@ var init = {
 		var blank  = html.th.clone().html( '&nbsp;' );
 		header.append( blank );
 
-		var rings_start_same_time = $( '#rings-start' ).prop( 'checked' );
-		if( rings_start_same_time ) {
+		var asynchronous = $( '#asynchronous' ).prop( 'checked' );
+		if( asynchronous ) {
 			header.append( html.th.clone().html( 'Availability' ));
 			header.append( html.th.clone().html( 'Start' ));
 			header.append( html.th.clone().html( 'Stop' ));
@@ -69,12 +69,15 @@ var init = {
 			rings.forEach(( k ) => {
 				var name      = `Ring ${k}`;
 				var id        = `ring-${k}`;
+				var match     = (schedule.days[ day_i ].rings.filter( ring => ring.id == id ));
+				var data      = defined( match[ 0 ] ) ? match[ 0 ] : {}; 
 				var tr        = html.tr.clone();
 				var th        = html.th.clone().html( name );
-				var active    = schedule.day[ day_i ].rings.find(( ring ) => { return ring.id == id; }) ? 'btn-success' : 'btn-primary';
-				var available = html.td.clone().append( html.button.clone().addClass( `btn ${active} btn-sm ring-availability single-ring day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( 'Available' ));
-				var start     = html.td.clone().append( init.timepicker( `start day-${j}-${id}-start`, { day: j, ring: id }, '9:00 AM' ));
-				var stop      = html.td.clone().append( init.timepicker( `stop  day-${j}-${id}-stop`,  { day: j, ring: id }, '6:00 PM' ));
+				var active    = schedule.days[ day_i ].rings.find(( ring ) => { return ring.id == id; });
+				var color     = active ? 'btn-success' : 'btn-primary';
+				var available = html.td.clone().append( html.button.clone().addClass( `btn ${color} btn-sm ring-availability single-ring day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( active ? 'Available' : 'Unavailable' ));
+				var start     = html.td.clone().append( init.timepicker( `start day-${j}-${id}-start`, { day: j, ring: id }, data.start ? data.start : '9:00 AM' ));
+				var stop      = html.td.clone().append( init.timepicker( `stop  day-${j}-${id}-stop`,  { day: j, ring: id }, data.stop  ? data.stop  : '6:00 PM' ));
 				tr.append( th, available, start, stop );
 				table.append( tr );
 			});
@@ -92,8 +95,9 @@ var init = {
 			rings.forEach(( k ) => {
 				var name   = `Ring ${k}`;
 				var id     = `ring-${k}`;
-				var active = schedule.day[ day_i ].rings.find(( ring ) => { return ring.id == id; }) ? 'btn-success' : 'btn-primary';
-				var button = html.button.clone().addClass( `btn ${active} btn-sm ring-availability day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( name.replace( /Ring\s+/, '' ) );
+				var active = schedule.days[ day_i ].rings.find(( ring ) => { return ring.id == id; });
+				var color  = active ? 'btn-success' : 'btn-primary';
+				var button = html.button.clone().addClass( `btn ${color} btn-sm ring-availability day-${j}-${id}-available` ).attr({ 'data-day': j, 'data-ringid': id, 'data-ringname': name }).html( name.replace( /Ring\s+/, '' ) );
 				available.append( button );
 			});
 			tr.append( available );
@@ -120,14 +124,14 @@ var init = {
 };
 
 // ===== TOGGLE BEHAVIOR
-$( '#rings-start' ).off( 'change' ).on( 'change', ( ev ) => {
+$( '#asynchronous' ).off( 'change' ).on( 'change', ( ev ) => {
 	show.rings();
 });
 
 // ===== SHOW RINGS
 show.rings = () => {
 	$( '#times' ).empty();
-	schedule.day.forEach(( day, i ) => {
+	schedule.days.forEach(( day, i ) => {
 		var new_day = ( i ) => { return { id: `ring-${i}`, name: `Ring ${i}`, plan:[], start: '9:00 AM', stop: undefined }; };
 		if( ! defined( day.rings )) { day.rings = tournament.rings.map( i => new_day( i )); }
 		var day_panel = init.times( i );
@@ -146,8 +150,8 @@ show.rings = () => {
 		else         { target.removeClass( 'btn-primary' ).addClass( 'btn-success' ); alertify.message( `${name} is available for day ${day}` ); }
 
 		if( target.hasClass( 'single-ring' )) {
-			if( active ) { target.html( 'Unavailable' ); } 
-			else         { target.html( 'Available' ); }
+			if( active ) { target.html( 'Unavailable' ); $( `.day-${day}-${ringid}-start` ).hide(); }
+			else         { target.html( 'Available' );   $( `.day-${day}-${ringid}-start` ).show(); }
 		}
 	});
 };
@@ -155,14 +159,14 @@ show.rings = () => {
 // ===== SAVE BEHAVIOR
 $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	var days = $( '.list-group-sortable-connected.day' ).toArray().filter( day => { return ! $( day ).attr( 'id' ).match( /unscheduled/i ); });
+	var asynchronous = schedule.asynchronous = $( '#asynchronous' ).prop( 'checked' );
 	days.forEach(( day, i ) => {
 		var j         = i + 1;
 		var scheduled = $( days[ i ] ).children().map(( i, item ) => { var divid = $( item ).attr( 'data-divid' ); return divid; }).toArray();
 		var time      = $( '.timepicker input' );
-		var day       = schedule.day[ i ];
+		var day       = schedule.days[ i ];
 		if( defined( day )) {
-			var start_at_same_time = ! $( '#rings-start' ).prop( 'checked' );
-			if( start_at_same_time ) {
+			if( asynchronous ) {
 				var start = `.day-${j}-start`;
 				var stop  = `.day-${j}-stop`;
 				day.start = $( start ).val();
@@ -177,10 +181,9 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 			}
 			day.divisions = scheduled;
 		} else {
-			schedule.day[ i ] = { start: '9:00 AM', divisions: scheduled };
+			schedule.days[ i ] = { start: '9:00 AM', divisions: scheduled };
 		}
-		var rings = schedule.day[ i ].rings;
-		var rings_start_same_time = $( '#rings-start' ).prop( 'checked' );
+		var rings = schedule.days[ i ].rings;
 		tournament.rings.forEach(( k ) => {
 			var button = $( `.day-${j}-ring-${k}-available` );
 			var active  = button.hasClass( 'btn-success' );
@@ -207,28 +210,6 @@ $( '#cancel-times' ).off( 'click' ).click(( ev ) => {
 	sound.prev.play();
 	page.transition();
 });
-
-// ===== ON MESSAGE BEHAVIOR
-handler.read.schedule = ( update ) => {
-	if( defined( update )) { 
-		divisions = update.divisions;
-		schedule.divisions = divisions.map(( division ) => {
-			var simplified = {};
-			[ 'name', 'description' ].forEach(( field ) => { simplified[ field ] = division[ field ]; });
-			simplified.athletes = division.athletes.length;
-			return simplified;
-		});
-
-		if( defined( update.schedule )) { 
-			[ 'days', 'day', 'start', 'teams' ].forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
-			$( '#num-days' ).val( schedule.days );
-			$( '#start-date' ).datepicker( 'setDate', new Date( schedule.start ));
-			if( schedule.teams == 'groups' ) { $( '#teams-grouped' ).prop({ 'checked': 'checked' }); }
-		}
-	}
-	show.days();
-	show.rings();
-};
 
 handler.write.schedule = ( update ) => {
 	alertify.confirm( 'Daily Schedule Saved', 'Daily schedule for divisions saved', () => { sound.send.play(); setTimeout( () => { window.location = 'build.php'; }, 1000 ); }, () => {}).setting({ reverseButtons : true });
