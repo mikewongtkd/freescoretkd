@@ -62,14 +62,9 @@ sub precondition_is_satisfied {
 	return 0 unless $other->{ day } && $other->{ start } && $other->{ stop }; # Precondition isn't even planned yet
 	return 0 if( $self->{ day } < $other->{ day }); # Impossible if the precondition is scheduled for the following day
 
-	# print STDERR "PRECON TIMES: $self->{ start } $self->{ stop } $other->{ start } $other->{ stop }\n";
-
 	my $a   = new Date::Manip::Date( $self->{ start }); die "Bad timestamp '$self->{ start }'" unless $a;
 	my $b   = new Date::Manip::Date( $other->{ stop }); die "Bad timestamp '$other->{ stop }'" unless $b;
 	my $cmp = $a->cmp( $b );
-
-	# ===== PRECONDITION DEBUGGING
-	# printf STDERR "%-40s%-10s%-10s needs %-40s%-10s%-10s => %s\n", @{$self}{qw( id start stop )}, @{$other}{qw( id start stop )}, ($cmp >= 0) ? 'OK' : 'UNFULFILLED';
 
 	return $cmp >= 0;
 }
@@ -82,21 +77,14 @@ sub is_concurrent {
 
 	return 0 unless $other->{ start } && $other->{ stop }; # Other has not yet been planned
 	return 0 unless ( $self->{ day } == $other->{ day });  # Different day, no problems here
-
-	# print STDERR "CONCUR TIMES: $self->{ start } $self->{ stop } $other->{ start } $other->{ stop }\n";
 	
 	my $a_start = new Date::Manip::Date( $self->{ start });  die "Bad timestamp '$self->{ start }'"  unless $a_start;
 	my $a_stop  = new Date::Manip::Date( $self->{ stop });   die "Bad timestamp '$self->{ stop }'"   unless $a_stop;
 	my $b_start = new Date::Manip::Date( $other->{ start }); die "Bad timestamp '$other->{ start }'" unless $b_start;
 	my $b_stop  = new Date::Manip::Date( $other->{ stop });  die "Bad timestamp '$other->{ stop }'"  unless $b_stop;
 
-	# my $a_while_b = ($self->{ start }  >= $other->{ start } && $self->{ start }  < $other->{ stop });
-	# my $b_while_a = ($other->{ start } >= $self->{ start }  && $other->{ start } < $self->{ stop });
 	my $a_while_b = $a_start->cmp( $b_start ) >= 0 && $a_start->cmp( $b_stop ) < 0;
 	my $b_while_a = $b_start->cmp( $a_start ) >= 0 && $b_start->cmp( $a_stop ) < 0;
-
-	# ===== CONCURRENCY DEBUGGING
-	# printf STDERR "%-40s%-10s%-10s vs. %-40s%-10s%-10s => %s\n", @{$self}{qw( id start stop )}, @{$other}{qw( id start stop )}, ($a_while_b || $b_while_a) ? 'OVERLAP' : 'INDEPENDENT';
 
 	return $a_while_b || $b_while_a;
 }
