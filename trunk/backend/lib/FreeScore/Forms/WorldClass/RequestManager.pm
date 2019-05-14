@@ -4,6 +4,7 @@ use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Schedule;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -76,6 +77,7 @@ sub init {
 		remove             => \&handle_registration_remove,
 	};
 	$self->{ schedule }    = {
+		build              => \&handle_schedule_build,
 		read               => \&handle_schedule_read,
 		write              => \&handle_schedule_write,
 		remove             => \&handle_schedule_remove,
@@ -1173,6 +1175,43 @@ sub handle_ring_draws_write {
 		$client->send( { json => { error => "$_" }});
 	}
 }
+
+# ============================================================
+sub handle_schedule_build {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $json     = $self->{ _json };
+	my $client   = $self->{ _client };
+
+	print STDERR "Building schedule\n" if $DEBUG;
+	
+	my $copy       = clone( $request );
+	my $path       = "$progress->{ path }/..";
+	my $file       = "$path/schedule.json";
+	my $schedule   = undef;
+	my $tournament = $request->{ tournament };
+	my $all        = new FreeScore::Forms::WorldClass( $tournament );
+
+	$divisions = unbless( $all->{ divisions } );
+	try {
+		if( -e $file ) {
+			my $schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
+			my $build    = $schedule->build();
+
+			$schedule->write();
+		}
+		if( $build->{ ok }) {
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule, divisions => $divisions }});
+		} else {
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule, errors => $build->{ errors }}});
+		}
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
 
 # ============================================================
 sub handle_schedule_read {

@@ -1,8 +1,8 @@
-package Schedule::Block;
+package FreeScore::Forms::WorldClass::Schedule::Block;
 
 use List::Util qw( uniq );
 use Date::Manip;
-use Schedule;
+use FreeScore::Forms::WorldClass::Schedule;
 
 sub by_priority($$);
 
@@ -44,7 +44,7 @@ sub init {
 	$self->{ round }       = $round;
 	$self->{ flight }      = $flight || '';
 
-	$self->{ duration } = ($round eq 'finals') ? (2 * $Schedule::TIME_PER_FORM * $athletes) : ($Schedule::TIME_PER_FORM * $athletes);
+	$self->{ duration } = ($round eq 'finals') ? (2 * $FreeScore::Forms::WorldClass::Schedule::TIME_PER_FORM * $athletes) : ($FreeScore::Forms::WorldClass::Schedule::TIME_PER_FORM * $athletes);
 
 	my $key = $self->match(); $key =~ s/\s+/-/g;
 	push @id, $division->{ name }, $key, $round, (defined( $flight ) ? $flight : ());
