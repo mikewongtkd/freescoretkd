@@ -265,6 +265,7 @@ var init = {
 		}
 	},
 	block: ( blockid ) => {
+		console.log( blockid );
 		var block   = schedule.blocks[ blockid ];
 		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
 		var rowspan = Math.floor( block.duration / scale.minutes );

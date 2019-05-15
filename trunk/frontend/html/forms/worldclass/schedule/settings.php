@@ -88,7 +88,7 @@ show.day = ( id, name, start ) => {
 
 	day.attr({ id : id });
 	day.find( '.panel-title' ).html( name );
-	day.find( '.panel-heading .btn' ).html( `Move to ${target}` ).attr({ 'data-target' : `${id} ul` });
+	day.find( '.day-settings .btn' ).html( `Move to ${target}` ).attr({ 'data-target' : `${id} ul` });
 	var list   = day.find( '.list-group.day' ).attr({ id: `${id}-schedule` });
 	var search = day.find( 'input.day-search' ).attr({ placeholder : `Search ${target} Divisions`, id: `${id}-search` });
 	day.find( 'form' ).keypress(( ev ) => { if( ev.which == '13' ) { ev.preventDefault(); }}); // Disable Enter key
@@ -99,9 +99,9 @@ show.day = ( id, name, start ) => {
 			if( text ) { $( item ).addClass( 'active' ); }  else { $( item ).removeClass( 'active' ); }
 			var others = $( '.list-group' ).not( list );
 			if( $( 'a.list-group-item.active' ).length > 0 ) {
-				others.parents( '.panel' ).find( '.panel-heading' ).children( 'a').removeClass( 'disabled' );
+				others.parents( '.panel' ).find( '.day-settings' ).children( 'a').removeClass( 'disabled' );
 			} else {
-				others.parents( '.panel' ).find( '.panel-heading' ).children( 'a').addClass( 'disabled' );
+				others.parents( '.panel' ).find( '.day-settings' ).children( 'a').addClass( 'disabled' );
 			}
 			return true; 
 		}
@@ -115,11 +115,16 @@ show.days = () => {
 	$( '#divisions' ).empty();
 	$( '#days' ).empty();
 	var days = $( '#num-days' ).val();
+	var last = days - 1;
+	schedule.days = schedule.days.splice( 0, days );
+	console.log( 'BEFORE', schedule );
+	while( schedule.days.length < days ) { schedule.days.push({ divisions: [], start: '9:00 AM' }); }
+	console.log( 'AFTER', schedule );
 
 	var unscheduled = show.day( 'unscheduled', 'Unscheduled Divisions' );
 	$( '#divisions' ).append( unscheduled );
 	for( var i = 0; i < days; i++ ) {
-		var j   = i + 1;
+		var j     = i + 1;
 		var id    = `day-${j}`;
 		var start = new Date( schedule.start );
 		var dow   = $.format.date( start.setDate( start.getDate() + i ), 'ddd' );
@@ -170,22 +175,22 @@ show.days = () => {
 		var others = $( '.list-group' ).not( list );
 		others.children().removeClass( 'active' );
 		if( $( 'a.list-group-item.active' ).length > 0 ) {
-			others.parents( '.panel' ).find( '.panel-heading' ).children( 'a' ).removeClass( 'disabled' );
+			others.parents( '.panel' ).find( '.day-settings' ).children( 'a' ).removeClass( 'disabled' );
 		} else {
-			others.parents( '.panel' ).find( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
+			others.parents( '.panel' ).find( '.day-settings' ).children( 'a' ).addClass( 'disabled' );
 		}
-		list.siblings( '.panel-heading' ).children( 'a' ).addClass( 'disabled' );
+		list.siblings( '.day-settings' ).children( 'a' ).addClass( 'disabled' );
 	});
 
 	// ===== MOVE TO BUTTON BEHAVIOR
-	$( '.panel-heading a' ).off( 'click' ).click(( ev ) => {
+	$( '.day-settings a' ).off( 'click' ).click(( ev ) => {
 		var target = $( ev.target );
 		var list   = $( '#' + target.attr( 'data-target' ));
 		var items  = $( 'a.list-group-item.active' );
 		items.detach();
 		list.append( items );
 		items.removeClass( 'active' );
-		$( '.panel-heading a' ).addClass( 'disabled' );
+		$( '.day-settings a' ).addClass( 'disabled' );
 		$( '.day-search' ).siblings( '.btn' ).click();
 	});
 }
@@ -193,6 +198,7 @@ show.days = () => {
 // ===== PAGE BEHAVIOR
 $( '#num-days' ).change(( ev ) => {
 	show.days();
+	show.rings();
 });
 
 $( '#accept-settings' ).off( 'click' ).click(( ev ) => {

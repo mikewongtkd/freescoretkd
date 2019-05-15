@@ -37,7 +37,7 @@
 		<script>
 			var handler   = { read: {}, write: {} };
 			var show      = {};
-			var schedule  = { days: 1, day: [], start: undefined };
+			var schedule  = { days: [{divisions: [], start: '9:00 AM' }]};
 			var divisions = undefined;
 		</script>
 		<div id="pt-main" class="pt-perspective">
