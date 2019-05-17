@@ -176,7 +176,8 @@ show.plan = ( day ) => {
 
 show.daySchedule = () => {
 	$( '.pt-page-1 #schedule' ).empty();
-	var n = tournament.rings.length;
+	var day   = schedule.days[ settings.current.day ];
+	var n     = day.rings.length;
 
 	if( Number.isInteger(n/3)) { scale.blocks.per.table = 3; } else
 	if( Number.isInteger(n/2)) { scale.blocks.per.table = 2; }
@@ -186,20 +187,28 @@ show.daySchedule = () => {
 	var h     = Math.ceil( n/width );
 	for( var y = 0; y < h; y++ ) {
 		// ===== TABLE
-		var table = html.table.clone().addClass( 'schedule' );
-		var day   = schedule.days[ settings.current.day ];
-
-		// ===== HEADERS
+		var table    = html.table.clone().addClass( 'schedule' );
 		var header   = html.tr.clone();
 		var timeline = html.td.clone().addClass( 'timeline schedule-heading' ).html( html.h4.clone().html( 'Time' ));
 
 		header.append( timeline );
 
+		var earliest = undefined;
 		for( var x = 0; x < w; x++ ) {
-			var j    = (y * width) + (x + 1);
-			if( j <= n ) {
-				var ring = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( `Ring ${j}` ));
-				header.append( ring );
+			var i = (y * width) + x;
+			if( i < n ) {
+				var ring    = day.rings[ i ];
+				var ringcol = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( ring.name ));
+				header.append( ringcol );
+				if( defined( ring.start )) {
+					if( defined( earliest )) {
+						var e = setTime( earliest );
+						var r = setTime( ring.start );
+						earliest = e > r ? ring.start : earliest;
+					} else {
+						earliest = ring.start;
+					}
+				}
 			} else {
 				var placeholder = html.td.clone().addClass( 'ring schedule-heading' ).html( '&nbsp;' );
 				header.append( placeholder );
@@ -208,7 +217,7 @@ show.daySchedule = () => {
 		table.append( header );
 
 		// ===== SCHEDULE (FOR SEVERAL RINGS)
-		var time = setTime( day.start );
+		var time = defined( earliest ) ? setTime( earliest ) : setTime( day.start );
 		for( var i = 0; i < (day.duration * scale.blocks.per.hour); i++ ) {
 			var tr  = html.tr.clone();
 
@@ -256,13 +265,12 @@ show.daySchedule = () => {
 };
 
 var init = {
-	timeline: ( update ) => {
-		if( defined( update.schedule )) {
-			update.schedule.days.forEach(( day, i ) => {
-				if( ! defined( day.start ))    { schedule.days[ i ].start    = '9:00 AM'; } // Default start at 9 AM
-				if( ! defined( day.duration )) { schedule.days[ i ].duration = 10;        } // Default work for 10 hours
-			});
-		}
+	timeline: ( schedule ) => {
+		if( ! defined( schedule )) { return; }
+		schedule.days.forEach(( day, i ) => {
+			if( ! defined( day.start ))    { schedule.days[ i ].start    = '9:00 AM'; } // Default start at 9 AM
+			if( ! defined( day.duration )) { schedule.days[ i ].duration = 10;        } // Default work for 10 hours
+		});
 	},
 	block: ( blockid ) => {
 		var block   = schedule.blocks[ blockid ];
@@ -292,11 +300,13 @@ var init = {
 
 		return td;
 	},
-	divisions: ( update ) => {
-		if( ! defined( update.divisions )) { return; }
+	days: ( schedule ) => {
+		if( ! defined( schedule )) { return; }
 
 		$( '.pt-page-1 #days' ).empty();
-		var days = $( '#num-days' ).val();
+
+		// ===== SHOW BUTTONS FOR DAY SELECTION
+		var days = schedule.days.length;
 		for( var i = 0; i < days; i++ ) {
 			var day = html.button.clone().addClass( 'btn btn-xs btn-primary day-select' ).attr({ 'data-day': i }).css({ margin: '4px' }).html( `Day ${i + 1}` );
 			day.off( 'click' ).click(( ev ) => {
@@ -309,22 +319,14 @@ var init = {
 			if( i == settings.current.day ) { day.removeClass( 'btn-primary' ).addClass( 'btn-success' ); }
 			$( '.pt-page-1 #days' ).append( day );
 		}
-
-		// ===== INITIALIZE LOOKUP TABLE
-		update.divisions.forEach(( division, i ) => { 
-			var name                   = division.name;
-			settings.divisions[ name ] = division; 
-		});
-
-		// ===== BUILD DAY SCHEDULE
 	}
 };
 
 handler.build[ 'schedule' ] = ( update ) => {
 	builder.close();
 	schedule = update.schedule;
-	init.divisions( update );
-	init.timeline( update );
+	init.days( schedule );
+	init.timeline( schedule );
 	show.daySchedule();
 
 };

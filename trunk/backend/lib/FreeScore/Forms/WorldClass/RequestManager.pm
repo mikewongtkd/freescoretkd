@@ -1204,10 +1204,10 @@ sub handle_schedule_build {
 		}
 
 		$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-		$check    = $schedule->check();
-		$build    = $schedule->build() unless $check->{ ok };
-
-		$schedule->write();
+#		$check    = $schedule->check();
+#		$build    = $schedule->build() unless $check->{ ok };
+#
+#		$schedule->write();
 
 		my $schedule_copy = clone( $schedule );
 		$schedule_copy = unbless( $schedule_copy );

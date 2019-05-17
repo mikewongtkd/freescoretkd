@@ -112,6 +112,7 @@ sub build {
 # ============================================================
 	my $self    = shift;
 	my $build = { ok => 1, errors => [], warnings => [] };
+	$self->clear();
 
 	foreach my $i (0 .. $#{$self->{ days }}) {
 		my $day       = $self->{ days }[ $i ];
