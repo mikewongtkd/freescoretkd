@@ -5,9 +5,10 @@ use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
-use List::Util qw( sum );
+use List::Util qw( first sum );
 use POSIX qw( ceil floor );
 use FreeScore::Forms::WorldClass::Schedule::Block;
+use Scalar::Util qw( blessed );
 use Data::Dumper;
 
 our $TIME_PER_FORM = 4;
@@ -17,11 +18,13 @@ sub new {
 # ============================================================
 	my ($class)  = map { ref || $_ } shift;
 	my $file     = shift;
+	my $debug    = shift;
 	my $contents = read_file( $file );
 	my $json     = new JSON::XS();
 	my $self     = bless $json->decode( $contents ), $class;
 
-	$self->{ file } = $file;
+	$self->{ file }  = $file;
+	$self->{ debug } = $debug;
 	$self->init();
 
 	return $self;
@@ -33,6 +36,14 @@ sub init {
 	my $self      = shift;
 	my $divisions = $self->{ divisions };
 	my @blocks    = ();
+
+	if( exists $self->{ blocks }) {
+		foreach my $blockid (keys %{ $self->{ blocks }}) {
+			my $block = $self->{ blocks }{ $blockid };
+			$self->{ blocks }{ $blockid } = bless $block, 'FreeScore::Forms::WorldClass::Schedule::Block' unless( blessed $block )
+		}
+		return;
+	}
 
 	# ===== BUILD ALL BLOCKS AND ASSIGN PRECONDITIONS
 	foreach my $division (@$divisions) {
@@ -100,10 +111,11 @@ sub init {
 sub build {
 # ============================================================
 	my $self    = shift;
-	my $build = { ok => 1, errors => [] };
+	my $build = { ok => 1, errors => [], warnings => [] };
 
-	foreach my $i (0 .. $#{$self->{ day }}) {
-		my $day       = $self->{ day }[ $i ];
+	foreach my $i (0 .. $#{$self->{ days }}) {
+		my $day       = $self->{ days }[ $i ];
+		my $d         = ((new Date::Manip::Date( $self->{ start }))->calc( new Date::Manip::Delta( "$i days" )))->printf( '%b %d, %Y' );
 		my $rings     = $day->{ rings };
 		my $num_rings = int( @$rings );
 		my $divisions = join( '|', @{ $day->{ divisions }});
@@ -116,8 +128,9 @@ sub build {
 			my $best  = { ring => undef, finish => undef };
 			foreach my $ring (@$rings) {
 				if( $self->place( $block, $i, $ring )) {
-					my $a = defined $best->{ finish } ? new Date::Manip::Date( $best->{ finish }) : undef;
-					my $b = new Date::Manip::Date( $block->{ stop });
+					# print STDERR "Attempting to place $block->{ id } to $ring->{ name } on day " . ($i + 1) . " ($d), stop time: '$d $block->{ stop }'\n" if $self->{ debug };
+					my $a = defined $best->{ finish } ? new Date::Manip::Date( "$d $best->{ finish }" ) : undef;
+					my $b = new Date::Manip::Date( "$d $block->{ stop }" );
 					if(( ! defined $a) || $a->cmp( $b ) > 0 ) {
 						$best->{ ring }   = $ring;
 						$best->{ finish } = $block->{ stop };
@@ -131,11 +144,12 @@ sub build {
 				# ===== THERE IS A BEST RING TO PLACE THE BLOCK
 				if( $self->place( $block, $i, $best->{ ring })) {
 					$block->{ try_hard } = 0;
+					push @{ $build->{ warnings }}, { block => $block->{ id }, cause => 'overtime' } if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $best->{ ring }));
 
 				# ===== THE BEST RING CANDIDATE IS INVALID (SHOULD NEVER HAPPEN)
 				} else {
 					$build->{ ok } = 0;
-					push @{$build->{ errors }}, "Placing $block->{ id } to $best->{ ring }{ name } failed";
+					push @{$build->{ errors }}, { block => $block->{ id }, ring =>  $best->{ ring }{ id }, cause => 'failed' };
 				}
 
 			} else {
@@ -158,7 +172,7 @@ sub build {
 				# ===== CANNOT FIT THE BLOCK AT ALL
 				} else {
 					$build->{ ok } = 0;
-					push @{$build->{ errors }}, "Cannot place '$block->{ id }' at all!";
+					push @{$build->{ errors }}, { block => $block->{ id }, cause => 'failed' };
 				}
 			}
 		}
@@ -170,15 +184,17 @@ sub build {
 sub check {
 # ============================================================
 	my $self   = shift;
-	my $days   = $self->{ day };
+	my $days   = $self->{ days };
 	my $lookup = $self->{ blocks };
 	my $check  = { ok => 1, errors => []};
 
 	foreach my $day (@$days) {
-		my $rings = $day->{ rings };
+		my $rings = exists $day->{ rings } ? $day->{ rings } : undef;
+		do { $check->{ ok } = 0; return $check; } unless defined $rings;
 
 		foreach my $ring (@$rings) {
-			my $plan = $ring->{ plan };
+			my $plan = exists $ring->{ plan } ? $ring->{ plan } : undef;
+			do { $check->{ ok } = 0; return $check; } unless defined $plan;
 
 			foreach my $blockid (@$plan) {
 				my $block = $lookup->{ $blockid };
@@ -204,6 +220,18 @@ sub check {
 }
 
 # ============================================================
+sub clear {
+# ============================================================
+	my $self = shift;
+	foreach my $i (0 .. $#{$self->{ days }}) {
+		my $day       = $self->{ days }[ $i ];
+		my $rings     = $day->{ rings };
+
+		foreach my $ring (@$rings) { $ring->{ plan } = []; }
+	}
+}
+
+# ============================================================
 sub place {
 # ============================================================
 	my $self  = shift;
@@ -211,9 +239,11 @@ sub place {
 	my $day_i = shift;
 	my $ring  = shift;
 
-	my $day   = $self->{ day }[ $day_i ];
+	my $day   = $self->{ days }[ $day_i ];
 	my $prev  = $ring->{ plan }[ -1 ];
 	my $start = undef;
+
+	# ===== ADD TO RING WITH BLOCKS
 	if( defined( $prev )) {
 		my $padding = new Date::Manip::Delta( "$TIME_PER_FORM minutes" );
 
@@ -221,8 +251,13 @@ sub place {
 		$start = new Date::Manip::Date( $other->{ stop });
 		$start = $start->calc( $padding );
 
-	} else {
+	# ===== START ADDING TO A NEW RING
+	} elsif( defined( $day->{ start }) || defined( $ring->{ start })) {
 		$start = new Date::Manip::Date( defined( $ring->{ start }) ? $ring->{ start } : $day->{ start });
+
+	# ===== THE RING IS NOT AVAILABLE
+	} else {
+		return 0;
 	}
 	my $stop  = $start->calc( new Date::Manip::Delta( "$block->{ duration } minutes" ));
 	$block->{ day }   = ($day_i + 1);
@@ -241,14 +276,7 @@ sub placement_ok {
 	my $block  = shift;
 	my $lookup = $self->{ blocks };
 	my $day_i  = $block->{ day } - 1;
-	my $day    = $self->{ day }[ $day_i ];
-
-	# ===== CHECK FOR GOING OVERTIME FOR THE DAY
-	return 0 if( $block->overtime_for_day( $day ));
-
-	# ===== CHECK FOR GOING OVERTIME FOR THE RING
-	my $ring = find { $_->{ name } eq $block->{ ring }} @{ $day->{ rings }};
-	return 0 if( $block->overtime_for_ring( $ring ));
+	my $day    = $self->{ days }[ $day_i ];
 
 	# ===== CHECK TO SEE IF THERE ARE ANY NONCONCURRENT BLOCKS RUNNING CONCURRENTLY
 	my $nonconcurrents = $block->{ require }{ nonconcurrent };

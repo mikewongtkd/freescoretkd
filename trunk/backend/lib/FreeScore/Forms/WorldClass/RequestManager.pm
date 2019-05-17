@@ -1185,7 +1185,7 @@ sub handle_schedule_build {
 	my $json     = $self->{ _json };
 	my $client   = $self->{ _client };
 
-	print STDERR "Building schedule\n" if $DEBUG;
+	print STDERR "Building schedule... " if $DEBUG;
 	
 	my $copy       = clone( $request );
 	my $path       = "$progress->{ path }/..";
@@ -1193,19 +1193,32 @@ sub handle_schedule_build {
 	my $schedule   = undef;
 	my $tournament = $request->{ tournament };
 	my $all        = new FreeScore::Forms::WorldClass( $tournament );
+	my $build      = { ok => 0 };
+	my $check      = { ok => 0 };
 
 	$divisions = unbless( $all->{ divisions } );
 	try {
-		if( -e $file ) {
-			my $schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-			my $build    = $schedule->build();
-
-			$schedule->write();
+		unless( -e $file ) {
+			$client->send( { json => { error => "Schedule file '$file' does not exist" }});
+			return;
 		}
-		if( $build->{ ok }) {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule, divisions => $divisions }});
+
+		$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
+		$check    = $schedule->check();
+		$build    = $schedule->build() unless $check->{ ok };
+
+		$schedule->write();
+
+		my $schedule_copy = clone( $schedule );
+		$schedule_copy = unbless( $schedule_copy );
+
+		if( $check->{ ok } || $build->{ ok }) {
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule_copy, divisions => $divisions, warnings => $build->{ warnings }}});
+			print STDERR "already done\n" if $DEBUG && $check->{ ok };
+			print STDERR "OK\n" if $DEBUG && $build->{ ok };
 		} else {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule, errors => $build->{ errors }}});
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule_copy, errors => $build->{ errors }, warnings => $build->{ warnings }}});
+			print STDERR "failed\n" if $DEBUG;
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});

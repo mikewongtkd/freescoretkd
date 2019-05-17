@@ -131,7 +131,6 @@ $( '#asynchronous' ).off( 'change' ).on( 'change', ( ev ) => {
 // ===== SHOW RINGS
 show.rings = () => {
 	$( '#times' ).empty();
-	console.log( 'SCHEDULE', schedule );
 	schedule.days.forEach(( day, i ) => {
 		console.log( day, i );
 		var new_day = ( i ) => { return { id: `ring-${i}`, name: `Ring ${i}`, plan:[], start: '9:00 AM', stop: undefined }; };

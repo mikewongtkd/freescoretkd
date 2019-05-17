@@ -117,9 +117,7 @@ show.days = () => {
 	var days = $( '#num-days' ).val();
 	var last = days - 1;
 	schedule.days = schedule.days.splice( 0, days );
-	console.log( 'BEFORE', schedule );
 	while( schedule.days.length < days ) { schedule.days.push({ divisions: [], start: '9:00 AM' }); }
-	console.log( 'AFTER', schedule );
 
 	var unscheduled = show.day( 'unscheduled', 'Unscheduled Divisions' );
 	$( '#divisions' ).append( unscheduled );

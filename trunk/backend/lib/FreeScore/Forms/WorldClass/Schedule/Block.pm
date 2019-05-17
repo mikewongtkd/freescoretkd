@@ -170,11 +170,11 @@ sub overtime_for_day {
 	my $self = shift;
 	my $day  = shift;
 
-	return 0 unless exists $day->{ stop };
+	return 0 unless exists $day->{ stop } && exists $self->{ stop };
 
 	my $day_stop   = new Date::Manip::Date( $day->{ stop });
 	my $block_stop = new Date::Manip::Date( $self->{ stop });
-	my $overtime = $day_stop->cmp( $block_stop ) > 0;
+	my $overtime   = $block_stop->cmp( $day_stop ) > 0;
 
 	return 1 if( $overtime );
 }
@@ -189,8 +189,8 @@ sub overtime_for_ring {
 	return 0 unless exists $ring->{ stop };
 
 	my $ring_stop  = new Date::Manip::Date( $ring->{ stop });
-	my $block_stop = new Date::Manip::Date( $block->{ stop });
-	my $overtime = $ring_stop->cmp( $block_stop ) > 0;
+	my $block_stop = new Date::Manip::Date( $self->{ stop });
+	my $overtime   = $block_stop->cmp( $ring_stop ) > 0;
 
 	return 1 if( $overtime );
 }

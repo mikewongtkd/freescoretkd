@@ -31,7 +31,7 @@
 	</head>
 	<body>
 		<script>
-			var handler  = { read: [], write: [] };
+			var handler  = { read: {}, write: {}, build: {} };
 			var show     = {};
 			var schedule = { days: 1, day: [] };
 		</script>
@@ -62,9 +62,30 @@ var page = {
 var html       = FreeScore.html;
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
+var builder    = undefined;
 
 // ===== BUSINESS LOGIC
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
+
+// ===== DIALOG
+alertify.buildingDialog || alertify.dialog( 'buildingDialog', function() {
+	return {
+		main: function( content ) {
+			this.setHeader( content );
+			this.setContent( '<div style="text-align: center;"><span class="fa fa-spinner fa-spin" style="font-size: 48pt; color: #ccc;"></span></div>' );
+		},
+		setup: function() {
+			return {
+				options: {
+					closable: false,
+					maximizable: false,
+					movable: false,
+					resizable: false
+				}
+			}
+		}
+	}
+});
 
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
@@ -72,7 +93,8 @@ var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '
 ws.onopen = function() {
 	var request;
 
-	request = { data : { type : 'schedule', action : 'read' }};
+	builder = alertify.buildingDialog( 'Building Schedule' );
+	request = { data : { type : 'schedule', action : 'build' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 };
