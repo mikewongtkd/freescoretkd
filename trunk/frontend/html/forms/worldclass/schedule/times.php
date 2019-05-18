@@ -132,7 +132,6 @@ $( '#asynchronous' ).off( 'change' ).on( 'change', ( ev ) => {
 show.rings = () => {
 	$( '#times' ).empty();
 	schedule.days.forEach(( day, i ) => {
-		console.log( day, i );
 		var new_day = ( i ) => { return { id: `ring-${i}`, name: `Ring ${i}`, plan:[], start: '9:00 AM', stop: undefined }; };
 		if( ! defined( day.rings )) { day.rings = tournament.rings.map( i => new_day( i )); }
 		var day_panel = init.times( i );
@@ -201,7 +200,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	sound.next.play();
 
 	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
-	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
+	var request = { data : { type : 'schedule', schedule: schedule, action : 'write', clear : true }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 	console.log( request.json );

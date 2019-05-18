@@ -215,7 +215,7 @@ handler.read.schedule = ( update ) => {
 		divisions = update.divisions;
 		schedule.divisions = divisions.map(( division ) => {
 			var simplified = {};
-			[ 'name', 'description' ].forEach(( field ) => { simplified[ field ] = division[ field ]; });
+			[ 'name', 'description', 'flight' ].forEach(( field ) => { if( ! defined( division[ field ] )) { return; } simplified[ field ] = division[ field ]; });
 			simplified.athletes = division.athletes.length;
 			return simplified;
 		});

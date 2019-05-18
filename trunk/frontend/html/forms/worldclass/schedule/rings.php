@@ -346,8 +346,8 @@ handler.check[ 'schedule' ] = ( update ) => {
 		show.daySchedule();
 
 	} else {
-		wait.build = alertify.buildingDialog( 'Building Schedule' );
-		request = { data : { type : 'schedule', action : 'check' }};
+		wait.build = alertify.waitDialog( 'Building Schedule' );
+		request = { data : { type : 'schedule', action : 'build' }};
 		request.json = JSON.stringify( request.data );
 		ws.send( request.json );
 	}

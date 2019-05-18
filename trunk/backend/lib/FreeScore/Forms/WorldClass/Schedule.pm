@@ -5,7 +5,7 @@ use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
-use List::Util qw( first sum );
+use List::Util qw( first sum all );
 use List::MoreUtils qw( first_index );
 use POSIX qw( ceil floor );
 use FreeScore::Forms::WorldClass::Schedule::Block;
@@ -199,11 +199,12 @@ sub check {
 		}
 		my $rings = $day->{ rings };
 
+		if( all { ! exists( $_->{ plan }) || (int( @{ $_->{ plan }}) == 0 )} @$rings ) {
+			push @{$check->{ errors }}, { cause => { ring => $ring->{ id }, reason => 'no plan' }}; 
+			$check->{ ok } = 0; 
+		}
+
 		foreach my $ring (@$rings) {
-			unless( exists $ring->{ plan }) { 
-				push @{$check->{ errors }}, { cause => { ring => $ring->{ id }, reason => 'no plan' }}; 
-				$check->{ ok } = 0; 
-			}
 			my $plan = $ring->{ plan };
 
 			foreach my $blockid (@$plan) {
@@ -336,10 +337,12 @@ sub remove {
 # ============================================================
 sub write {
 # ============================================================
-	my $self = shift;
-	my $json = new JSON::XS();
+	my $self  = shift;
+	my $file  = shift;
+	my $json  = new JSON::XS();
 
 	my $clone = unbless( $self->clone());
+	$self->{ file } = $file if defined $file;
 
 	open FILE, ">$self->{ file }" or die $!;
 	print FILE $json->canonical->pretty->encode( $clone );

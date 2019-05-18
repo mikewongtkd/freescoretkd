@@ -162,6 +162,8 @@ sub age {
 	foreach $key (keys %$regex) {
 		return $regex->{ $key }{ age } if( $self->{ description } =~ $regex->{ $key }{ pattern });
 	}
+
+	return "under30"; # Default is Senior
 }
 
 # ============================================================
