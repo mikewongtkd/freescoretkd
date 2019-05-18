@@ -1293,7 +1293,6 @@ sub handle_schedule_read {
 	try {
 		if( -e $file ) {
 			$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-			$schedule = $json->decode( $contents );
 		}
 		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule, divisions => $divisions }});
 	} catch {
