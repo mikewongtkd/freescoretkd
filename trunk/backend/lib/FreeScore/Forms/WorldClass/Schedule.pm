@@ -6,6 +6,7 @@ use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
 use List::Util qw( first sum );
+use List::MoreUtils qw( first_index );
 use POSIX qw( ceil floor );
 use FreeScore::Forms::WorldClass::Schedule::Block;
 use Scalar::Util qw( blessed );
@@ -217,6 +218,8 @@ sub check {
 		}
 	}
 
+	delete $_->{ try_hard } foreach values %{ $self->{ blocks }};
+
 	return $check;
 }
 
@@ -304,7 +307,8 @@ sub remove {
 	my $ring  = shift;
 
 	delete $block->{ $_ } foreach (qw( start stop day ring ));
-	pop @{$ring->{ plan }};
+	my $i = first_index { $_ eq $block->{ id } } @{ $ring->{ plan }};
+	splice( @{ $ring->{ plan }}, $i, 1 ) unless $i < 0;
 }
 
 # ============================================================

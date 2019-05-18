@@ -13,23 +13,41 @@
 </div>
 
 <script>
-var setTime = function( timestamp ) {
-	if( ! timestamp.match( /:/ )) {
-		timestamp = timestamp.split( '' );
-		timestamp.splice( 2, 0, ':' );
-		timestamp = timestamp.join( '' );
-	}
-	var time = new Date();
-	var hhmm = timestamp.split( /:/ ).map( x => parseInt( x ));
-	hhmm[0] += timestamp.match( /PM/ ) && hhmm[0] != 12 ? 12 : 0;
-	time.setHours( hhmm.shift());
-	time.setMinutes( hhmm.shift());
-	return time;
+var time = {
+	set: ( timestamp ) => {
+		if( ! timestamp.match( /:/ )) {
+			timestamp = timestamp.split( '' );
+			timestamp.splice( 2, 0, ':' );
+			timestamp = timestamp.join( '' );
+		}
+		var t    = new Date();
+		var hhmm = timestamp.split( /:/ ).map( x => parseInt( x ));
+		hhmm[0] += timestamp.match( /PM/ ) && hhmm[0] != 12 ? 12 : 0;
+		t.setHours( hhmm.shift());
+		t.setMinutes( hhmm.shift());
+		return t;
+	},
+	earliest: ( a, b ) => {
+		if( ! defined( a )) { return b; }
+		var i = time.set( a );
+		var j = time.set( b );
+		return i > j ? b : a;
+	},
+	latest: ( a, b ) => {
+		if( ! defined( a )) { return b; }
+		var i = time.set( a );
+		var j = time.set( b );
+		return i > j ? a : b;
+	},
+	current:  undefined,
+	start:    undefined,
+	stop:     undefined,
+	duration: undefined
 };
 
 var plan = {
 	reschedule : ( ring, day ) => {
-		var start     = setTime( defined( ring.start ) ? ring.start : day.start );
+		var start     = time.set( defined( ring.start ) ? ring.start : day.start );
 		ring.plan.forEach(( blockid ) => {
 			var block   = schedule.blocks[ blockid ];
 			var hr      = Math.floor( block.duration/60 );
@@ -146,9 +164,9 @@ var dnd = { block: undefined, source: undefined, handle : {
 show.block = ( ringid, blockid ) => {
 	var blockdata = schedule.blocks[ blockid ];
 	var block     = init.block( blockid );
-	var time      = setTime( blockdata.start );
+	var t         = time.set( blockdata.start );
 	var duration  = block.attr( 'rowspan' ) - 1;
-	var start     = $.format.date( setTime( blockdata.start ), 'HHmm' );
+	var start     = $.format.date( t, 'HHmm' );
 	var id        = `${ringid}-${start}`;
 	var target    = $( `#${id}` );
 
@@ -156,10 +174,10 @@ show.block = ( ringid, blockid ) => {
 	block.addClass( ringid ).attr({ id : id });
 
 	for( var i = 0; i < duration; i++ ) {
-		time.setMinutes( time.getMinutes() + scale.minutes );
+		t.setMinutes( t.getMinutes() + scale.minutes );
 
-		var start    = $.format.date( time, 'HHmm' );
-		var id       = `${ringid}-${start}`;
+		var rowspan  = $.format.date( t, 'HHmm' );
+		var id       = `${ringid}-${rowspan}`;
 		var target   = $( `#${id}` );
 
 		target.remove();
@@ -190,25 +208,18 @@ show.daySchedule = () => {
 		var table    = html.table.clone().addClass( 'schedule' );
 		var header   = html.tr.clone();
 		var timeline = html.td.clone().addClass( 'timeline schedule-heading' ).html( html.h4.clone().html( 'Time' ));
+		[ 'current', 'start', 'stop', 'duration' ].forEach(( key ) => { time[ key ] = undefined; });
 
 		header.append( timeline );
 
-		var earliest = undefined;
 		for( var x = 0; x < w; x++ ) {
 			var i = (y * width) + x;
 			if( i < n ) {
 				var ring    = day.rings[ i ];
 				var ringcol = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( ring.name ));
 				header.append( ringcol );
-				if( defined( ring.start )) {
-					if( defined( earliest )) {
-						var e = setTime( earliest );
-						var r = setTime( ring.start );
-						earliest = e > r ? ring.start : earliest;
-					} else {
-						earliest = ring.start;
-					}
-				}
+				time.start = defined( ring.start ) ? time.earliest( time.start, ring.start ) : day.start;
+				time.stop  = defined( ring.stop  ) ? time.latest(   time.stop,  ring.stop  ) : day.stop;
 			} else {
 				var placeholder = html.td.clone().addClass( 'ring schedule-heading' ).html( '&nbsp;' );
 				header.append( placeholder );
@@ -217,14 +228,15 @@ show.daySchedule = () => {
 		table.append( header );
 
 		// ===== SCHEDULE (FOR SEVERAL RINGS)
-		var time = defined( earliest ) ? setTime( earliest ) : setTime( day.start );
-		for( var i = 0; i < (day.duration * scale.blocks.per.hour); i++ ) {
+		time.current  = time.set( time.start );
+		time.duration = defined( time.stop ) ? (time.set( time.stop ).getHours() - time.set( time.start ).getHours()) : 10;
+		for( var i = 0; i < (time.duration * scale.blocks.per.hour); i++ ) {
 			var tr  = html.tr.clone();
 
 			// ===== TIMELINE
 			var timeline = html.td.clone().addClass( 'timeline' );
-			if( i == 0 || parseInt( time.getMinutes()) < 4 ) { 
-				var tick = $.format.date( time, 'h:mm a' );
+			if( i == 0 || parseInt( time.current.getMinutes()) < 4 ) { 
+				var tick = $.format.date( time.current, 'h:mm a' );
 				timeline.attr({ rowspan: 3 });
 				timeline.html( tick );
 				tr.append( timeline );
@@ -237,7 +249,7 @@ show.daySchedule = () => {
 			for( var x = 0; x < w; x++ ) {
 				var j = (y * width) + (x + 1);
 				if( j <= n ) {
-					var id      = $.format.date( time, 'HHmm' );
+					var id      = $.format.date( time.current, 'HHmm' );
 					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}` });
 					tr.append( ring );
 				} else {
@@ -246,7 +258,7 @@ show.daySchedule = () => {
 				}
 			}
 
-			time.setMinutes( time.getMinutes() + scale.minutes );
+			time.current.setMinutes( time.current.getMinutes() + scale.minutes );
 			table.append( tr );
 		}
 
@@ -277,8 +289,8 @@ var init = {
 		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
 		var rowspan = Math.floor( block.duration / scale.minutes );
 		var gender  = 'coed';
-		var start   = $.format.date( setTime( block.start ), 'HHmm' );
-		var stop    = $.format.date( setTime( block.stop ),  'HHmm' );
+		var start   = $.format.date( time.set( block.start ), 'HHmm' );
+		var stop    = $.format.date( time.set( block.stop ),  'HHmm' );
 		var flight  = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
 
 		if( block.description.match( /pair/i ))   { gender = 'coed'; } else 
