@@ -334,12 +334,41 @@ var init = {
 	}
 };
 
+handler.check[ 'schedule' ] = ( update ) => {
+	var request;
+	wait.check.close();
+
+	if( update.results == 'ok' ) {
+		alertify.success( 'Schedule has no errors' );
+		schedule = update.schedule;
+		init.days( schedule );
+		init.timeline( schedule );
+		show.daySchedule();
+
+	} else {
+		wait.build = alertify.buildingDialog( 'Building Schedule' );
+		request = { data : { type : 'schedule', action : 'check' }};
+		request.json = JSON.stringify( request.data );
+		ws.send( request.json );
+	}
+};
+
 handler.build[ 'schedule' ] = ( update ) => {
-	builder.close();
+	wait.build.close();
+
+	if( update.results == 'ok' ) {
+		alertify.success( 'Schedule has no errors' );
+
+	} else {
+		update.errors.forEach(( error ) => {
+			alertify.error( `Cannot place block ${error.id} ${error.cause.reason}` );
+		});
+	}
 	schedule = update.schedule;
 	init.days( schedule );
 	init.timeline( schedule );
 	show.daySchedule();
 
 };
+
 </script>

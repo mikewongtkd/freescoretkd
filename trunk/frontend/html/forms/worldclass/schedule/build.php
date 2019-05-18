@@ -31,7 +31,7 @@
 	</head>
 	<body>
 		<script>
-			var handler  = { read: {}, write: {}, build: {} };
+			var handler  = { read: {}, write: {}, build: {}, check: {} };
 			var show     = {};
 			var schedule = { days: 1, day: [] };
 		</script>
@@ -62,13 +62,13 @@ var page = {
 var html       = FreeScore.html;
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
-var builder    = undefined;
+var wait       = { build: undefined, check: undefined };
 
 // ===== BUSINESS LOGIC
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 // ===== DIALOG
-alertify.buildingDialog || alertify.dialog( 'buildingDialog', function() {
+alertify.waitDialog || alertify.dialog( 'waitDialog', function() {
 	return {
 		main: function( content ) {
 			this.setHeader( content );
@@ -93,8 +93,8 @@ var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '
 ws.onopen = function() {
 	var request;
 
-	builder = alertify.buildingDialog( 'Building Schedule' );
-	request = { data : { type : 'schedule', action : 'build' }};
+	wait.check = alertify.waitDialog( 'Checking Schedule for Correctness' );
+	request = { data : { type : 'schedule', action : 'check' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 };

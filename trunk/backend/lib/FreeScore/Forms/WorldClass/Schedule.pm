@@ -130,7 +130,7 @@ sub build {
 			my $best  = { ring => undef, finish => undef };
 			foreach my $ring (@$rings) {
 				if( $self->place( $block, $i, $ring )) {
-					# print STDERR "Attempting to place $block->{ id } to $ring->{ name } on day " . ($i + 1) . " ($d), stop time: '$d $block->{ stop }'\n" if $self->{ debug };
+					print STDERR "Attempting to place $block->{ id } to $ring->{ name } on day " . ($i + 1) . " ($d), stop time: '$d $block->{ stop }'\n" if $self->{ debug };
 					my $a = defined $best->{ finish } ? new Date::Manip::Date( "$d $best->{ finish }" ) : undef;
 					my $b = new Date::Manip::Date( "$d $block->{ stop }" );
 					if(( ! defined $a) || $a->cmp( $b ) > 0 ) {
@@ -146,12 +146,12 @@ sub build {
 				# ===== THERE IS A BEST RING TO PLACE THE BLOCK
 				if( $self->place( $block, $i, $best->{ ring })) {
 					$block->{ try_hard } = 0;
-					push @{ $build->{ warnings }}, { block => $block->{ id }, cause => 'overtime' } if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $best->{ ring }));
+					push @{ $build->{ warnings }}, { block => $block->{ id }, cause => { reason => 'overtime' }} if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $best->{ ring }));
 
 				# ===== THE BEST RING CANDIDATE IS INVALID (SHOULD NEVER HAPPEN)
 				} else {
 					$build->{ ok } = 0;
-					push @{$build->{ errors }}, { block => $block->{ id }, ring =>  $best->{ ring }{ id }, cause => 'failed' };
+					push @{$build->{ errors }}, { block => $block->{ id }, ring =>  $best->{ ring }{ id }, cause => { reason => 'failed' }};
 				}
 
 			} else {
@@ -174,7 +174,7 @@ sub build {
 				# ===== CANNOT FIT THE BLOCK AT ALL
 				} else {
 					$build->{ ok } = 0;
-					push @{$build->{ errors }}, { block => $block->{ id }, cause => 'failed' };
+					push @{$build->{ errors }}, { block => $block->{ id }, cause => { reason => 'failed' }};
 				}
 			}
 		}
@@ -188,15 +188,23 @@ sub check {
 	my $self   = shift;
 	my $days   = $self->{ days };
 	my $lookup = $self->{ blocks };
-	my $check  = { ok => 1, errors => []};
+	my $check  = { ok => 1, errors => [], warnings => []};
 
-	foreach my $day (@$days) {
-		my $rings = exists $day->{ rings } ? $day->{ rings } : undef;
-		do { $check->{ ok } = 0; return $check; } unless defined $rings;
+	foreach my $i (0 .. $#$days) {
+		my $day = $self->{ days }[ $i ];
+
+		unless( exists $day->{ rings }) { 
+			push @{$check->{ errors }}, { cause => { day => $i, reason => 'no rings' }}; 
+			$check->{ ok } = 0; 
+		}
+		my $rings = $day->{ rings };
 
 		foreach my $ring (@$rings) {
-			my $plan = exists $ring->{ plan } ? $ring->{ plan } : undef;
-			do { $check->{ ok } = 0; return $check; } unless defined $plan;
+			unless( exists $ring->{ plan }) { 
+				push @{$check->{ errors }}, { cause => { ring => $ring->{ id }, reason => 'no plan' }}; 
+				$check->{ ok } = 0; 
+			}
+			my $plan = $ring->{ plan };
 
 			foreach my $blockid (@$plan) {
 				my $block = $lookup->{ $blockid };
@@ -204,16 +212,22 @@ sub check {
 				my $nonconcurrents = $block->{ require }{ nonconcurrent };
 				foreach my $otherid (@$nonconcurrents) {
 					my $other = $lookup->{ $otherid };
-					push @{$check->{ errors }}, { id => $blockid, cause => { by => $otherid, reason => 'concurrent' }} if( $block->is_concurrent( $other ));
+					next unless $block->is_concurrent( $other );
+
+					push @{$check->{ errors }}, { block => $blockid, cause => { by => $otherid, reason => 'concurrent' }};
 					$check->{ ok } = 0;
 				}
 
 				my $preconditions = $block->{ require }{ precondition };
 				foreach my $otherid (@$preconditions) {
 					my $other = $lookup->{ $otherid };
-					push @{$check->{ errors }}, { id => $blockid, cause => { by => $otherid, reason => 'precondition' }} unless( $block->precondition_is_satisfied( $other ));
+					next if $block->precondition_is_satisfied( $other );
+
+					push @{$check->{ errors }}, { block => $blockid, cause => { by => $otherid, reason => 'precondition' }};
 					$check->{ ok } = 0;
 				}
+
+				push @{ $check->{ warnings }}, { block => $block->{ id }, cause => 'overtime' } if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $ring ));
 			}
 		}
 	}
@@ -233,6 +247,14 @@ sub clear {
 
 		foreach my $ring (@$rings) { $ring->{ plan } = []; }
 	}
+}
+
+# ============================================================
+sub data {
+# ============================================================
+	my $self  = shift;
+	my $clone = $self->clone();
+	return unbless( $clone );
 }
 
 # ============================================================
