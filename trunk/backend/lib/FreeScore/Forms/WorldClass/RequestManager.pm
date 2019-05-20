@@ -1258,7 +1258,7 @@ sub handle_schedule_check {
 		$check    = $schedule->check();
 
 		if( $check->{ ok }) {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule_data, divisions => $divisions, warnings => $check->{ warnings }}});
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule->data(), divisions => $divisions, warnings => $check->{ warnings }}});
 			print STDERR "OK\n" if $DEBUG && $check->{ ok };
 		} else {
 			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule->data(), errors => $check->{ errors }, warnings => $check->{ warnings }}});
