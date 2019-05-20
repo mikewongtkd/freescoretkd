@@ -63,18 +63,14 @@ sub init {
 
 				my $flight = $division->{ flight };
 
-				foreach my $divid (@$flight) {
-					my ($flight) = $divid =~ /([A-Za-z])$/;
-					my $block    = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $flight );
+				foreach my $flight (@$flight) {
+					my $block    = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $flight->{ athletes }, 'prelim', $flight->{ id } );
 					push @$prelim, $block;
 				}
 
 				$n = sum map { ceil( $_->{ athletes }/2) } @$prelim;
 				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
 				$semfin->preconditions( @$prelim );
-
-				# Clear prelim values and insert the flight that we are currently processing; other flights will show up later as separate divisions
-				$prelim = [ new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $flight->{ id })];
 
 			} else {
 				my $f = 2;

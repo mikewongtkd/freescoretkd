@@ -144,7 +144,7 @@ show.days = () => {
 					var division = (unscheduled.divisions.splice( d, 1 ))[0]; 
 					list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes}</span>` ));
 				} else {
-					alertify.error( `Division ${divid.toUpperCase()} not found; will not schedule ${divid.toUpperCase()}` );
+					alertify.error( `Previously scheduled division ${divid.toUpperCase()} not found; will remove ${divid.toUpperCase()} from the schedule` );
 				}
 			});
 		});
