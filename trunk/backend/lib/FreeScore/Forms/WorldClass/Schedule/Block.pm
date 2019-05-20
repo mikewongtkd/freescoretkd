@@ -37,14 +37,15 @@ sub init {
 	my $round    = shift;
 	my $flight   = shift;
 	my @id       = ();
+	my $forms    = exists $division->{ forms } && defined $division->{ forms } && exists $division->{ forms }{ $round } ? $division->{ forms }{ $round } : undef;
+	my $t        = $FreeScore::Forms::WorldClass::Schedule::TIME_PER_FORM * $athletes;
 
 	$self->{ athletes }    = $athletes;
 	$self->{ division }    = $division->{ name };
 	$self->{ description } = $division->{ description };
 	$self->{ round }       = $round;
 	$self->{ flight }      = $flight || '';
-
-	$self->{ duration } = ($round eq 'finals') ? (2 * $FreeScore::Forms::WorldClass::Schedule::TIME_PER_FORM * $athletes) : ($FreeScore::Forms::WorldClass::Schedule::TIME_PER_FORM * $athletes);
+	$self->{ duration }    = $forms ? $forms * $t : ( $round eq 'finals' ? 2 * $t : $t );
 
 	my $key = $self->match(); $key =~ s/\s+/-/g;
 	push @id, $division->{ name }, $key, $round, (defined( $flight ) ? $flight : ());

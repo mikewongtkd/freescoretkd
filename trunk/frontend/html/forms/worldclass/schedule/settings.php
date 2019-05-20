@@ -133,7 +133,7 @@ show.days = () => {
 
 	// ===== SHOW THE SCHEDULE, IF ONE EXISTS
 	if( schedule.days.length > 0 ) {
-		unscheduled.divisions = divisions.slice(); // Copy the current divisions
+		unscheduled.divisions = schedule.divisions.slice(); // Copy the current divisions
 		schedule.days.forEach(( day, i ) => {
 			var list = $( `#day-${i + 1} ul` );
 			// day.divisions are a list of divids
@@ -142,14 +142,14 @@ show.days = () => {
 				if( d >= 0 ) {
 					// The division is scheduled, remove it from the unscheduled list
 					var division = (unscheduled.divisions.splice( d, 1 ))[0]; 
-					list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+					list.append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes}</span>` ));
 				} else {
 					alertify.error( `Division ${divid.toUpperCase()} not found; will not schedule ${divid.toUpperCase()}` );
 				}
 			});
 		});
 		unscheduled.divisions.sort( by.divid ).forEach(( division ) => {
-			unscheduled.find( 'ul' ).append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes.length}</span>` ));
+			unscheduled.find( 'ul' ).append( html.a.clone().addClass( 'list-group-item' ).attr({ draggable: 'true', 'data-divid': division.name }).html( `${division.name.toUpperCase()}&nbsp;${division.description}<span class="badge">${division.athletes}</span>` ));
 		});
 
 	// ===== BUILD A BASIC SCHEDULE TO START WITH
@@ -209,16 +209,48 @@ $( '#cancel-settings' ).off( 'click' ).click(( ev ) => {
 	setTimeout( () => { window.location = '../../../index.php'; }, 1000 );
 });
 
+// ============================================================
+var simplify = ( divisions ) => {
+// ============================================================
+	var simplified = [];
+	var group      = {};
+
+	// Collect flights into division groups
+	divisions.forEach(( division ) => {
+		var div = {};
+		[ 'name', 'description', 'flight', 'forms', 'round' ].forEach(( field ) => { if( ! defined( division[ field ] )) { return; } div[ field ] = division[ field ]; });
+		Object.keys( div.forms ).forEach(( round ) => { div.forms[ round ] = div.forms[ round ].length; });
+		if( defined( div.flight )) { div.name = div.name.replace( /[A-Za-z]$/, '' ); }
+		div.athletes = division.athletes.length;
+		if( defined( group[ div.name ])) { group[ div.name ].push( div ); } else { group[ div.name ] = [ div ]; }
+	});
+
+	// Consolidate division groups into divisions
+	Object.keys( group ).forEach(( divid ) => {
+		var divisions = group[ divid ];
+		var division  = divisions[ 0 ];
+		if( divisions.length == 1 ) { simplified.push( division ); return; }
+		if( ! defined( division.flight )) { alertify.error( `Non-flight duplicate of ${divid}` ); return; }
+		var flights   = [];
+		var sum       = 0;
+		divisions.forEach(( d ) => {
+			var flight = d.flight;
+			flights.push({ id: flight.id, athletes: d.athletes });
+			sum += d.athletes;
+		});
+		division.flight   = flights;
+		division.athletes = sum;
+
+		simplified.push( division );
+	});
+
+	return simplified;
+}
+
 // ===== ON MESSAGE BEHAVIOR
 handler.read.schedule = ( update ) => {
 	if( defined( update )) { 
-		divisions = update.divisions;
-		schedule.divisions = divisions.map(( division ) => {
-			var simplified = {};
-			[ 'name', 'description', 'flight' ].forEach(( field ) => { if( ! defined( division[ field ] )) { return; } simplified[ field ] = division[ field ]; });
-			simplified.athletes = division.athletes.length;
-			return simplified;
-		});
+		schedule.divisions = simplify( update.divisions );
 
 		if( defined( update.schedule )) { 
 			Object.keys( update.schedule ).filter( key => key != 'divisions' ).forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });

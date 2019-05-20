@@ -49,6 +49,7 @@ sub init {
 	# ===== BUILD ALL BLOCKS AND ASSIGN PRECONDITIONS
 	foreach my $division (@$divisions) {
 		my $prelim = [];
+		my $semfin = undef;
 		my $n = $division->{ athletes };
 		if( $self->{ teams } =~ /individual/i ) {
 			if( $division->{ description } =~ /pair/i ) { $n = ceil( $n/2 ); }
@@ -56,31 +57,52 @@ sub init {
 		}
 
 		# ===== START WITH FLIGHTED PRELIMINARY ROUND
-		if( $n > 20 ) {
-			my $f = 2;
-			if   ( $n <  40 ) { $f = 2; } # 21-40 as per USAT; WT splits 20-39 into 2 flights
-			elsif( $n <= 60 ) { $f = 3; } # 41-60 as per USAT; WT splits 40+ into 3 flights and has no provisions for 4 flights
-			elsif( $n >  60 ) { $f = 4; } # 61+   as per USAT
+		if( $division->{ round } eq 'prelim' && ( $n > 20 || exists( $division->{ flight }))) {
+			if( exists( $division->{ flight })) {
+				$division->{ name } =~ s/[A-Za-z]$//;
 
-			my $m = $n;
-			for( my $i = 0; $i < $f; $i++ ) {
-				my $j      = $f - $i;
-				my $letter = chr( ord( 'a' ) + $i ); # a, b, c, d, etc.
-				my $k      = ceil( $m/$j );          # Assign k athletes to this flight
+				my $flight = $division->{ flight };
 
-				my $block  = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $letter );
-				push @$prelim, $block;
-				$m -= $k;
+				foreach my $divid (@$flight) {
+					my ($flight) = $divid =~ /([A-Za-z])$/;
+					my $block    = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $flight );
+					push @$prelim, $block;
+				}
+
+				$n = sum map { ceil( $_->{ athletes }/2) } @$prelim;
+				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
+				$semfin->preconditions( @$prelim );
+
+				# Clear prelim values and insert the flight that we are currently processing; other flights will show up later as separate divisions
+				$prelim = [ new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $flight->{ id })];
+
+			} else {
+				my $f = 2;
+				if   ( $n <  40 ) { $f = 2; } # 21-40 as per USAT; WT splits 20-39 into 2 flights
+				elsif( $n <= 60 ) { $f = 3; } # 41-60 as per USAT; WT splits 40+ into 3 flights and has no provisions for 4 flights
+				elsif( $n >  60 ) { $f = 4; } # 61+   as per USAT
+
+				my $m = $n;
+				for( my $i = 0; $i < $f; $i++ ) {
+					my $j      = $f - $i;
+					my $flight = chr( ord( 'a' ) + $i ); # a, b, c, d, etc.
+					my $k      = ceil( $m/$j );          # Assign k athletes to this flight
+
+					my $block  = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $flight );
+					push @$prelim, $block;
+					$m -= $k;
+				}
+				$n = sum map { ceil( $_->{ athletes }/2) } @$prelim;
+				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
+				$semfin->preconditions( @$prelim );
 			}
-
-			$n = sum map { ceil( $_->{ athletes }/2) } @$prelim;
-			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
-			$semfin->preconditions( @$prelim );
 
 			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
 			$finals->preconditions( $semfin );
 
-			push @blocks, @$prelim, $semfin, $finals;
+			push @blocks, @$prelim; 
+			push @blocks, $semfin unless first { $_->{ id } eq $semfin->{ id } } @blocks; 
+			push @blocks, $finals unless first { $_->{ id } eq $finals->{ id } } @blocks;
 
 		# ===== START WITH SEMI-FINALS
 		} elsif( $n > 8 ) {

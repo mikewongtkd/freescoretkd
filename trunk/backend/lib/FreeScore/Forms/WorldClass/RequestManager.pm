@@ -1257,13 +1257,11 @@ sub handle_schedule_check {
 		$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
 		$check    = $schedule->check();
 
-		my $schedule_data = $schedule->data();
-
 		if( $check->{ ok }) {
 			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule_data, divisions => $divisions, warnings => $check->{ warnings }}});
 			print STDERR "OK\n" if $DEBUG && $check->{ ok };
 		} else {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule_data, errors => $check->{ errors }, warnings => $check->{ warnings }}});
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule->data(), errors => $check->{ errors }, warnings => $check->{ warnings }}});
 			print STDERR "failed\n" if $DEBUG;
 		}
 	} catch {
@@ -1293,8 +1291,10 @@ sub handle_schedule_read {
 	try {
 		if( -e $file ) {
 			$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule->data(), divisions => $divisions }});
+		} else {
+			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, divisions => $divisions }});
 		}
-		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule, divisions => $divisions }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
