@@ -112,7 +112,7 @@ sub init {
 
 		# ===== START WITH FINALS
 		} else {
-			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'finals' );
 
 			push @blocks, $finals;
 		}
