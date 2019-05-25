@@ -19,6 +19,36 @@ var getDay = ( schedule ) => {
 	return 1;
 }
 
+var sort = {
+	by: {
+		time: ( schedule ) => { return ( a, b ) => {
+			let at = new Date( `${schedule.start} ${a.start}` );
+			let bt = new Date( `${schedule.start} ${b.start}` );
+			let t  = at > bt ? 1 : at < bt ? -1 : 0;
+			let n  = a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+			return t || n;
+		}}
+	}
+};
+
+var filter = {
+	by: {
+		day: ( day ) => { return ( block ) => { return block.day == day; };},
+		recent: () => { 
+			return ( block ) => {
+				let now    = new Date();
+				let early  = (new Date()).setHours( now.getHours() -1 );
+				let late   = (new Date()).setHours( now.getHours() +2 );
+				let start  = new Date( `${$('#date').text()} ${block.start}` );
+				let before = start > early;
+				let after  = start < late;
+
+				return before && after;
+			}
+		}
+	}
+};
+
 // ===== ON MESSAGE BEHAVIOR
 handler.read.schedule = ( update ) => {
 	if( ! defined( update )) { return; }
@@ -26,13 +56,10 @@ handler.read.schedule = ( update ) => {
 
 	schedule   = update.schedule;
 	var i      = getDay();
-	var blocks = Object.values( schedule.blocks ).filter(( block ) => { return block.day == i; });
+	var by     = { day: filter.by.day( i ), time: sort.by.time( schedule ), recent: filter.by.recent() };
+	var blocks = Object.values( schedule.blocks ).filter( by.day ).filter( by.recent );
 
-	blocks = blocks.sort(( a, b ) => { 
-		let at = new Date( `${schedule.start} ${a.start}` );
-		let bt = new Date( `${schedule.start} ${b.start}` );
-		return at > bt ? 1 : at < bt ? -1 : 0;
-	});
+	blocks = blocks.sort( by.time );
 
 	$( '#block-list tbody' ).empty();
 	let rmap = { prelim : 'Prelim.', semfin : 'Semi-Finals', finals : 'Finals' };

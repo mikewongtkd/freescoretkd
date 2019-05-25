@@ -1,3 +1,6 @@
+body {
+  background-image: linear-gradient(black 65%, #333); }
+
 #pt-main {
   position: absolute;
   top: 0;
@@ -5,12 +8,17 @@
   width: 100%;
   height: 100%; }
 
-#clock {
+#date, #clock {
   position: absolute;
   top: 0;
-  right: 16px;
   font-size: 24pt;
-  color: lime; }
+  color: yellow; }
+
+#date {
+  left: 16px; }
+
+#clock {
+  right: 16px; }
   #clock .ampm {
     font-variant: small-caps; }
 
@@ -22,10 +30,10 @@
   #block-list .description {
     color: gold; }
   #block-list .round {
-    color: #999; }
+    color: #c93; }
 
 footer {
-  background-color: #333;
+  background-color: black;
   position: absolute;
   margin-left: auto;
   margin-right: auto;

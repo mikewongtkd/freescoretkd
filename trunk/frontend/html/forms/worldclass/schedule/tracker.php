@@ -46,10 +46,18 @@
 			<?php include( "tracker/list.php" ); ?>
 		</div>
 		<footer>
+<div id="date"></div>
 <div id="clock"></div>
 		</footer>
 		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
+
+// ===== DATE
+$(() => {
+	let date = { ui : $( '#date' )};
+	let d    = new Date();
+	date.ui.html( $.format.date( d, 'ddd MMM d, yyyy' ));
+});
 
 // ===== CLOCK
 var clock = { ui: $( '#clock' )};
