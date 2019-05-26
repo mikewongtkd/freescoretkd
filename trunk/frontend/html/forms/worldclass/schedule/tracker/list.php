@@ -1,7 +1,7 @@
 <div class="pt-page pt-page-1">
 	<div class="container">
 		<div class="page-header">
-			<div>Divisions</div>
+			<div><img class="header-logo" src="../../../images/icons/freestyle/basic-movements.png"> World Class Sport Poomsae Divisions</div>
 		</div>
 			<table id="block-list">
 				<thead>

@@ -68,9 +68,9 @@ $( '.datepicker' ).off( 'changeDate' ).on( 'changeDate', ( ev ) => {
 	var target = $( ev.target );
 	schedule.start = $.format.date( target.datepicker( 'getDate' ), 'MM/dd/yyyy' );
 
-	var start = new Date( schedule.start );
 	$( '.competition-day' ).each(( i, list ) => {
-		var id = $( list ).attr( 'id' );
+		var start = new Date( schedule.start );
+		var id    = $( list ).attr( 'id' );
 		if( id == 'unscheduled' ) { return; }
 		var j     = parseInt( id.replace( /day-/, '' ));
 

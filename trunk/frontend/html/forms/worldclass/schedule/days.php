@@ -41,8 +41,8 @@
 			var divisions = undefined;
 		</script>
 		<div id="pt-main" class="pt-perspective">
-			<?php include( "settings.php" ); ?>
-			<?php include( "times.php" ); ?>
+			<?php include( "days/settings.php" ); ?>
+			<?php include( "days/times.php" ); ?>
 		</div>
 		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>

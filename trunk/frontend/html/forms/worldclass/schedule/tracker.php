@@ -56,7 +56,7 @@
 $(() => {
 	let date = { ui : $( '#date' )};
 	let d    = new Date();
-	date.ui.html( $.format.date( d, 'ddd MMM d, yyyy' ));
+	date.ui.html( $.format.date( d, 'ddd, MMM d, yyyy' ));
 });
 
 // ===== CLOCK

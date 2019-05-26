@@ -301,7 +301,7 @@ var init = {
 
 		var label = html.div.clone()
 			.addClass( 'block-label' )
-			.html( `${block.division.toUpperCase()} ${block.description}<br>${rmap[ block.round ]} ${flight} (${block.athletes})` );
+			.html( `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br>':' '}${rmap[ block.round ]} ${flight} (${block.athletes})` );
 
 		var div = html.div.clone()
 			.addClass( `block ${gender}` )
