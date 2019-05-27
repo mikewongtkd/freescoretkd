@@ -5,6 +5,11 @@ body {
   height: 48px;
   margin: -18px -4px 0 -12px;
   transform: scaleX(-1); }
+.page-header .screen-name {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: white; }
 
 #pt-main {
   position: absolute;
@@ -35,17 +40,26 @@ body {
     width: 100%; }
     .block-information #block-list tr:nth-child(even) {
       background-color: #333; }
-    .block-information #block-list td {
-      padding: 0 8px 0 8px;
+    .block-information #block-list td, .block-information #block-list th {
+      padding: 0 8px 0 8px; }
+    .block-information #block-list th {
       font-size: 18pt; }
+    .block-information #block-list td {
+      font-size: 32pt; }
     .block-information #block-list .description {
       color: gold; }
-    .block-information #block-list .round {
+    .block-information #block-list .round, .block-information #block-list .flight {
       color: #c93; }
+    .block-information #block-list .ampm {
+      font-variant: small-caps; }
 
 .holding-information {
   width: 100%;
-  height: calc( 50% - $footer-height ); }
+  height: calc( 50% - $footer-height );
+  padding: 20px; }
+  .holding-information .athletes {
+    column-count: 2;
+    column-gap: 12px; }
 
 footer {
   background-color: black;

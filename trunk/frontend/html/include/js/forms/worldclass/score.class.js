@@ -4,7 +4,7 @@ function Score( score ) {
 	this.score = score;
 
 	this.is = {
-		complete : function() { return score.complete; }
+		complete : function() { if( ! defined( score )) { return false; } return score.complete; }
 	};
 
 	this.forms = {
@@ -48,10 +48,14 @@ function Score( score ) {
 		return summary.join( "&nbsp;" );
 	};
 
+	// ===== SCORE NOT GIVEN YET
+	// Do nothing
+	if( ! defined( score )) {
+
 	// ===== SINGLE JUDGE DATA
 	// Each judge device receives only the data from that judge, to insure
 	// independence and promote fairness
-	if( score.forms[ 0 ].judge.length == 1 ) {
+	} else if( score.forms[ 0 ].judge.length == 1 ) {
 		_form = this.form = function( i ) {
 			var form       = score.forms[ i ];
 			var judgeScore = form.judge[ 0 ];

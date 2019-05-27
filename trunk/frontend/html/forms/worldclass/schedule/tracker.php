@@ -45,10 +45,11 @@
 			var template  = {};
 			var schedule  = { days: [{divisions: [], start: '9:00 AM' }]};
 			var divisions = {};
-			var settings  = { zoom: 1.0 };
+			var settings  = { day: 2, zoom: 1.0 };
 		</script>
 		<div id="pt-main" class="pt-perspective">
 			<?php include( "tracker/list.php" ); ?>
+			<?php include( "tracker/athletes.php" ); ?>
 		</div>
 		<footer>
 <div id="date"></div>
@@ -86,6 +87,9 @@ clock.tick = setInterval(() => {
 	
 }, 1000 );
 
+// ===== TRANSITION BETWEEN ALL SCREENS
+setInterval(() => { page.transition(); }, 20000 );
+
 // ===== ZOOM
 $( 'body' ).keydown(( ev ) => {
 	var zoom = ( scale ) => { $( 'body' ).css({ 'transform' : `scale( ${settings.zoom} )`, 'transform-origin' : '0 0' }); alertify.message( `Zoom: ${Math.round( scale * 100 )}%` ); };
@@ -110,13 +114,8 @@ var sound = {
 
 var page = {
 	num : 1,
-	transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
-	animation:  ( pn ) => {
-		switch( pn ) {
-			case 1: return 1;
-			case 2: return 2;
-		}
-	}
+	transition: ( ev ) => { page.num = ((page.num) % 2) + 1; PageTransitions.nextPage({ animation: page.animation( page.num )}); },
+	animation:  ( pn ) => { return 1; }
 };
 
 var html       = FreeScore.html;

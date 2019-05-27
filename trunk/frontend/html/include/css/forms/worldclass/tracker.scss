@@ -10,6 +10,12 @@ body {
 		margin: -18px -4px 0 -12px;
 		transform: scaleX( -1 );
 	}
+	.screen-name {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		color: white;
+	}
 }
 
 #pt-main {
@@ -34,9 +40,7 @@ body {
 #clock {
 	right: 16px;
 
-	.ampm {
-		font-variant: small-caps;
-	}
+	.ampm { font-variant: small-caps; }
 }
 
 .block-information {
@@ -47,19 +51,27 @@ body {
 		color: white;
 		width: 100%;
 		tr:nth-child( even ) { background-color: #333; }
-		td {
+		td, th {
 			padding: 0 8px 0 8px;
-			font-size: 18pt;
 		}
+		th { font-size: 18pt; }
+		td { font-size: 32pt; }
 
-		.description { color: gold; }
-		.round       { color: #c93; }
+		.description    { color: gold; }
+		.round, .flight { color: #c93; }
+		.ampm { font-variant: small-caps; }
 	}
 }
 
 .holding-information {
 	width: 100%;
 	height: calc( 50% - $footer-height );
+	padding: 20px;
+
+	.athletes {
+		column-count: 2;
+		column-gap: 12px;
+	}
 }
 
 footer {
