@@ -29,6 +29,9 @@
 		<script src="../../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
+		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/division.class.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -39,7 +42,9 @@
 		<script>
 			var handler   = { read: {}, write: {} };
 			var show      = {};
+			var template  = {};
 			var schedule  = { days: [{divisions: [], start: '9:00 AM' }]};
+			var divisions = {};
 			var settings  = { zoom: 1.0 };
 		</script>
 		<div id="pt-main" class="pt-perspective">

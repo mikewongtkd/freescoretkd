@@ -147,9 +147,9 @@ function Division( division ) {
 
 		count : function() { return Object.keys( division.forms ).length; },
 		is : {
-			complete : function() {
+			complete : function( round ) {
 				var athletes = _current.athletes();
-				var round    = division.round;
+				var round    = defined( round ) ? round : division.round;
 				var complete = true;
 				for( var i = 0; i < athletes.length; i++ ) {
 					var athlete = athletes[ i ];
