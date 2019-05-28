@@ -5,6 +5,10 @@
 <div class="pt-page pt-page-1">
 	<div class="container">
 		<div class="page-header"> Sport Poomsae Schedule Builder <div id="days" class="pull-right"></div></div>
+		<div class="action-bar">
+			<button class="btn btn-primary" id="add-break"><span class="fa fa-coffee"></span> Add Break</button>
+			<button class="btn btn-success" id="save-check"><span class="fa fa-floppy-o"></span> Save &amp; Check for Errors</button>
+		</div>
 		<div>
 			<div id="schedule">
 			</div>
@@ -13,8 +17,10 @@
 </div>
 
 <script>
+
+var find   = { ring : ( day, id ) => { return day.rings.find(( ring ) => { return ring.id == id; }); }};
 var format = { id: ( time ) => { return $.format.date( time, 'HHmm' );}, time: ( time ) => { return $.format.date( time, 'h:mm a' ); }};
-var time = {
+var time   = {
 	set: ( timestamp ) => {
 		if( ! timestamp.match( /:/ )) {
 			timestamp = timestamp.split( '' );
@@ -66,15 +72,22 @@ var plan = {
 			start.setMinutes( start.getMinutes() + scale.minutes );
 		});
 	},
+	remove : ( blockid ) => {
+		var block     = { id: blockid, data: schedule.blocks[ blockid ] };
+		var day       = schedule.days[ settings.current.day ];
+		var ring      = { id: block.data.ring, data: find.ring( day, block.data.ring )};
+		var i         = ring.data.plan.findIndex(( id ) => { return id == block.id; });
+		if( i < 0 ) { alertify.error( `${block.id} not found in plan ${ring.data.plan.join( ', ' )}` ); }
+		else { ring.data.plan.splice( i, 1 ); plan.reschedule( ring.id, day ); }
+	},
 	move : ( blockid, targetid, below ) => {
 		var block     = { id: blockid, data: schedule.blocks[ blockid ] };
 		var day       = schedule.days[ settings.current.day ];
 		var target    = { id: targetid };
-		var find      = { ring : ( id ) => { return day.rings.find(( ring ) => { return ring.id == id; }); }};
 
 		// Remove from previous position
 		(() => {
-			var ring = { id: block.data.ring, data: find.ring( block.data.ring )};
+			var ring = { id: block.data.ring, data: find.ring( day, block.data.ring )};
 			var i    = ring.data.plan.findIndex(( id ) => { return id == block.id; });
 			if( i < 0 ) { alertify.error( `${block.id} not found in plan ${ring.data.plan.join( ', ' )}` ); }
 			else { ring.data.plan.splice( i, 1 ); plan.reschedule( ring.id, day ); }
@@ -82,7 +95,7 @@ var plan = {
 
 		// Insert into new position
 		if( target.id.match( /^ring/ )) {
-			var ring = { id: target.id, data: find.ring( target.id )};
+			var ring = { id: target.id, data: find.ring( day, target.id )};
 			ring.data.plan.push( blockid );
 			block.data.ring = target.id;
 			plan.reschedule( ring.id, day );
@@ -90,7 +103,7 @@ var plan = {
 		} else {
 			target.data = schedule.blocks[ target.id ];
 
-			var ring = { id: target.data.ring, data: find.ring( target.data.ring )};
+			var ring = { id: target.data.ring, data: find.ring( day, target.data.ring )};
 			var i    = ring.data.plan.findIndex(( id ) => { return id == target.id; });
 			if( i < 0 ) { alertify.error( `${target.id} not found in plan ${ring.data.plan.join( ', ' )}` ); return }
 
@@ -139,7 +152,6 @@ var dnd = { block: undefined, source: undefined, handle : {
 		}
 
 		if( is.block ) {
-			console.log( 'DROP EVENT', ev );
 			target.id   = target.ui.attr( 'data-blockid' );
 			target.data = schedule.blocks[ target.id ];
 			if( block.id == target.id ) { return; }
@@ -164,11 +176,6 @@ var dnd = { block: undefined, source: undefined, handle : {
 				plan.move( block.id, ring.id );
 			}
 		}
-		console.log( 'DRAG & DROP FROM', block, 'TO', target );
-
-		var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
-		request.json = JSON.stringify( request.data );
-		// ws.send( request.json );
 
 		dnd.block  = undefined;
 		dnd.source = undefined;
@@ -315,23 +322,48 @@ var init = {
 		var start   = format.id( time.set( block.start ));
 		var stop    = format.id( time.set( block.stop ));
 		var flight  = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
+		var is      = { 'break' : block.description.match( /break/i )};
 
+		if( is.break )                            { gender = 'break';   } else 
 		if( block.description.match( /pair/i ))   { gender = 'coed';   } else 
 		if( block.description.match( /female/i )) { gender = 'female'; } else 
 		if( block.description.match( /male/i ))   { gender = 'male';   }
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
-		var label = html.div.clone()
+		var actions = is.break ? `<div class="break-actions"><button class="btn btn-xs break-edit break-more" data-breakid="${blockid}"><span class="fa fa-plus"></span></button><button class="btn btn-xs break-edit break-less" data-breakid="${blockid}"><span class="fa fa-minus"></span></button></div>` : '';
+		var text    = is.break ? `${block.description}<br style="mso-data-placement:same-cell">${block.duration} minutes` : `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br style="mso-data-placement:same-cell;">':' '}${rmap[ block.round ]} ${flight} (${block.athletes})`;
+		var label   = html.div.clone()
 			.addClass( 'block-label' )
-			.html( `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br style="mso-data-placement:same-cell;">':' '}${rmap[ block.round ]} ${flight} (${block.athletes})` );
+			.html( text );
 
 		var div = html.div.clone()
 			.addClass( `block ${gender}` )
 			.attr({ 'draggable' : 'true', 'data-blockid' : block.id, 'data-start': start, 'data-stop': stop})
-			.append( label );
+			.append( label, actions );
 
 		td.append( div );
+
+		// Behavior
+		$( '.break-edit' ).off( 'click' ).click(( ev ) => {
+			var target = $( ev.target ); target = target.hasClass( 'btn' ) ? target : target.parent( '.btn' );
+			var id     = target.attr( 'data-breakid' );
+			var grow   = target.hasClass( 'break-more' );
+			var block  = schedule.blocks[ id ];
+			var day    = schedule.days[ settings.current.day ];
+			var rname  = block.ring.capitalize().replace( /\-/, ' ' );
+
+			block.duration += grow ? 20 : -20;
+			if( block.duration == 0 ) {
+				plan.remove( id );
+				delete schedule.blocks[ id ];
+				alertify.message( `Removing break for ${rname}` );
+			} else {
+				alertify.message( `${grow ? 'Increasing' : 'Decreasing'} break for ${rname} to ${block.duration} minutes` );
+				plan.reschedule( block.ring, day );
+			}
+			show.daySchedule();
+		});
 
 		return td;
 	},
@@ -357,6 +389,24 @@ var init = {
 	}
 };
 
+// ===== BEHAVIOR
+$( '#add-break' ).off( 'click' ).click(( ev ) => {
+	var id = 'break-' + (sha1.hex( btoa(new Date().getTime()))).substr( 0, 8 );
+	schedule.blocks[ id ] = { id: id, description: 'Break', duration: 40 };
+	var day  = schedule.days[ settings.current.day ];
+	var ring = day.rings[ 0 ]; // Always choose the first ring
+	ring.plan.push( id );
+	plan.reschedule( ring.id, day );
+	show.daySchedule();
+});
+
+$( '#save-check' ).off( 'click' ).click(( ev ) => {
+	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
+});
+
+// ===== HANDLERS
 handler.check.schedule = ( update ) => {
 	var request;
 	wait.check.close();
@@ -421,7 +471,7 @@ handler.build.schedule = ( update ) => {
 };
 
 handler.write.schedule = ( update ) => {
-	wait.check = alertify.waitDialog( 'Checking Schedule for Correctness' );
+	wait.check = alertify.waitDialog( 'Saving and Checking Schedule for Correctness' );
 	request = { data : { type : 'schedule', action : 'check' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );

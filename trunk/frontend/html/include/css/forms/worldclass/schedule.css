@@ -83,6 +83,7 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
       padding-left: 8px;
       padding-right: 8px; }
     .schedule td .block {
+      position: relative;
       font-family: Lato;
       font-size: 10pt;
       width: 100%;
@@ -93,6 +94,11 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
         top: 50%;
         transform: translate(0, -50%);
         text-align: center; }
+      .schedule td .block .break-actions {
+        color: #ccc;
+        position: absolute;
+        top: 0;
+        right: 0; }
 
 .ring-availability.single-ring {
   width: 100px; }
@@ -101,6 +107,15 @@ a.active {
   background-color: #cce5ff !important;
   border-color: #b8daff !important;
   color: #004085 !important; }
+
+.action-bar {
+  padding: 4px 15px 4px 15px;
+  text-align: right; }
+
+.break {
+  background-color: white;
+  border: 1px solid black;
+  padding: -1px; }
 
 .coed {
   background-color: #ffddc0; }

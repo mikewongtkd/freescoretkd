@@ -24,6 +24,7 @@
 		<script src="../../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
+		<script src="../../../include/opt/js-sha1/sha1.min.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">

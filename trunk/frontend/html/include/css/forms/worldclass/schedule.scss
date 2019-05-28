@@ -103,6 +103,7 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
 		}
 
 		.block {
+			position: relative;
 			font-family: Lato;
 			font-size: 10pt;
 			width: 100%;
@@ -114,6 +115,13 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
 				top: 50%;
 				transform: translate( 0, -50% );
 				text-align: center;
+			}
+
+			.break-actions {
+				color: #ccc;
+				position: absolute;
+				top: 0;
+				right: 0;
 			}
 		}
 	}
@@ -131,6 +139,12 @@ a.active {
 	color: #004085 !important;
 }
 
+.action-bar {
+	padding: 4px 15px 4px 15px;
+	text-align: right;
+}
+
+.break  { background-color: white; border: 1px solid black; padding: -1px }
 .coed   { background-color: #ffddc0; }
 .male   { background-color: #b0e9e9; }
 .female { background-color: #ffc0c0; }
