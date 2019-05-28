@@ -47,13 +47,15 @@ var time = {
 };
 
 var plan = {
-	reschedule : ( ring, day ) => {
+	reschedule : ( ringid, day ) => {
+		var ring  = schedule.days[ settings.current.day ].rings.find(( ring ) => { return ring.id == ringid; });
 		var start = time.set( defined( ring.start ) ? ring.start : day.start );
 		ring.plan.forEach(( blockid ) => {
 			var block   = schedule.blocks[ blockid ];
 			var hr      = Math.floor( block.duration/60 );
 			var min     = block.duration % 60;
 			var stop    = new Date( start );
+
 			stop.setHours( stop.getHours() + hr );
 			stop.setMinutes( stop.getMinutes() + min );
 			block.start = format.time( start );
@@ -64,34 +66,39 @@ var plan = {
 			start.setMinutes( start.getMinutes() + scale.minutes );
 		});
 	},
-	remove : ( blockid ) => {
-		var blockdata = schedule.blocks[ blockid ];
-		var day       = schedule.days[ settings.current.day ];
-		var ringid    = blockdata.ring;
-		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
-		var i         = ring.plan.findIndex(( id ) => { return id == blockid; });
-		if( i < 0 ) { return; }
-
-		delete blockdata.ring;
-
-		ring.plan.splice( i, 1 );
-		plan.reschedule( ring, day );
-	},
-	insert : ( ringid, blockid, targetid ) => {
+	move : ( blockid, targetid, below ) => {
 		var block     = { id: blockid, data: schedule.blocks[ blockid ] };
 		var day       = schedule.days[ settings.current.day ];
-		var ring      = { id: ringid, data: day.rings.find(( ring ) => { return ring.id == ringid; }) };
 		var target    = { id: targetid };
+		var find      = { ring : ( id ) => { return day.rings.find(( ring ) => { return ring.id == id; }); }};
 
-		block.data.ring = ringid;
+		// Remove from previous position
+		(() => {
+			var ring = { id: block.data.ring, data: find.ring( block.data.ring )};
+			var i    = ring.data.plan.findIndex(( id ) => { return id == block.id; });
+			if( i < 0 ) { alertify.error( `${block.id} not found in plan ${ring.data.plan.join( ', ' )}` ); }
+			else { ring.data.plan.splice( i, 1 ); plan.reschedule( ring.id, day ); }
+		})();
 
-		if( target.id ) {
-			var i = ring.data.plan.findIndex(( id ) => { return id == target.id; });
-			ring.data.plan.splice( i, 0, blockid );
-		} else {
+		// Insert into new position
+		if( target.id.match( /^ring/ )) {
+			var ring = { id: target.id, data: find.ring( target.id )};
 			ring.data.plan.push( blockid );
+			block.data.ring = target.id;
+			plan.reschedule( ring.id, day );
+
+		} else {
+			target.data = schedule.blocks[ target.id ];
+
+			var ring = { id: target.data.ring, data: find.ring( target.data.ring )};
+			var i    = ring.data.plan.findIndex(( id ) => { return id == target.id; });
+			if( i < 0 ) { alertify.error( `${target.id} not found in plan ${ring.data.plan.join( ', ' )}` ); return }
+
+			if( below ) { i += 1 }
+			block.data.ring = target.data.ring;
+			ring.data.plan.splice( i, 0, blockid );
+			plan.reschedule( ring.id, day );
 		}
-		plan.reschedule( ring.data, day );
 	}
 };
 
@@ -122,45 +129,46 @@ var dnd = { block: undefined, source: undefined, handle : {
 		block.id      = block.ui.attr( 'data-blockid' );
 		block.data    = schedule.blocks[ block.id ];
 
-		var is = { block : target.ui.hasClass( 'block' ), label: target.ui.hasClass( 'block-label' ), ring : target.ui.hasClass( 'ring' )};
-		if( is.label ) { 
+		var is = { block : target.ui.hasClass( 'block' ), ring : target.ui.hasClass( 'ring' )};
+
+		if( ! is.block && ! is.ring ) { 
 			target.ui = target.ui.parent( '.block' );
-			is.label  = false;
-			is.block  = true;
+			if( ! defined( target.ui )) { return; } // Target is not a block or ring or child of a block or ring; ignore
+			is.block  = defined( target.ui );
 			is.ring   = false;
 		}
 
-		if( is.block || is.ring ) {
-			if( is.block ) {
-				target.id   = target.ui.attr( 'data-blockid' );
-				target.data = schedule.blocks[ target.id ];
-				if( block.id == target.id ) { return; }
-				plan.insert( target.data.ring, block.id, target.id );
-				plan.remove( block.id );
+		if( is.block ) {
+			console.log( 'DROP EVENT', ev );
+			target.id   = target.ui.attr( 'data-blockid' );
+			target.data = schedule.blocks[ target.id ];
+			if( block.id == target.id ) { return; }
+			var below = (ev.originalEvent.clientY - target.ui.position().top) > (target.ui.height()/2);
+			plan.move( block.id, target.id, below );
 
-			} else if( is.ring ) {
-				target.id = target.ui.attr( 'id' );
-				var ring  = { id: target.ui.prop( 'class' ).split( /\s+/ ).find( x => x.match( /^ring-\d+/ )) };
-				var rows  = $( `td.${ring.id}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
-				var i     = rows.findIndex( row => { return row == target.id });
-				var next  = rows[ i + 1 ];
+		} else if( is.ring ) {
+			target.id = target.ui.attr( 'id' );
+			var ring  = { id: target.ui.attr( 'data-ringid' )};
+			var rows  = $( `td.${ring.id}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
+			var i     = rows.findIndex( row => { return row == target.id });
+			var next  = rows[ i + 1 ];
 
-				target.ui    = $( `#${next}` ).find( '.block' );
+			// See if there's a block in the next cell (below)
+			target.ui    = $( `#${next}` ).find( '.block' );
 
-				plan.remove( block.id );
-				if( target.ui.length ) {
-					target.id = target.ui.attr( 'data-blockid' );
-					plan.insert( ring.id, block.id, target.id );
+			if( target.ui.length ) {
+				target.id = target.ui.attr( 'data-blockid' );
+				plan.move( block.id, target.id );
 
-				} else {
-					plan.insert( ring.id, block.id );
-				}
+			} else {
+				plan.move( block.id, ring.id );
 			}
 		}
+		console.log( 'DRAG & DROP FROM', block, 'TO', target );
 
 		var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 		request.json = JSON.stringify( request.data );
-		ws.send( request.json );
+		// ws.send( request.json );
 
 		dnd.block  = undefined;
 		dnd.source = undefined;
@@ -188,9 +196,9 @@ show.block = ( ringid, blockid ) => {
 
 		var rowspan  = format.id( t );
 		var id       = `${ringid}-${rowspan}`;
-		var target   = $( `#${id}` );
+		var cell     = $( `#${id}` );
 
-		target.remove();
+		cell.remove();
 	}
 }
 
@@ -261,7 +269,7 @@ show.daySchedule = () => {
 				var j = (y * width) + (x + 1);
 				if( j <= n ) {
 					var id      = format.id( time.current );
-					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}` });
+					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}`, 'data-ringid' : `ring-${j}` });
 					tr.append( ring );
 				} else {
 					var placeholder = html.td.clone().addClass( `ring` ).html( '&nbsp;' );
