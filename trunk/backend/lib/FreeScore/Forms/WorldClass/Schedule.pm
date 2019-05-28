@@ -148,7 +148,7 @@ sub build {
 			my $best  = { ring => undef, finish => undef };
 			foreach my $ring (@$rings) {
 				if( $self->place( $block, $i, $ring )) {
-					print STDERR "Attempting to place $block->{ id } to $ring->{ name } on day " . ($i + 1) . " ($d), stop time: '$d $block->{ stop }'\n" if $self->{ debug };
+					print STDERR "  Attempting to place $block->{ id } to $ring->{ name } on day " . ($i + 1) . " ($d), stop time: '$d $block->{ stop }'\n" if $self->{ debug };
 					my $a = defined $best->{ finish } ? new Date::Manip::Date( "$d $best->{ finish }" ) : undef;
 					my $b = new Date::Manip::Date( "$d $block->{ stop }" );
 					if(( ! defined $a) || $a->cmp( $b ) > 0 ) {
@@ -163,7 +163,7 @@ sub build {
 
 				# ===== THERE IS A BEST RING TO PLACE THE BLOCK
 				if( $self->place( $block, $i, $best->{ ring })) {
-					$block->{ try_hard } = 0;
+					$block->{ attempts } = 0;
 					push @{ $build->{ warnings }}, { block => $block->{ id }, cause => { reason => 'overtime' }} if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $best->{ ring }));
 
 				# ===== THE BEST RING CANDIDATE IS INVALID (SHOULD NEVER HAPPEN)
@@ -176,18 +176,18 @@ sub build {
 				$self->remove( $block, $ring );
 
 				# ===== CANNOT FIT THE BLOCK; REINSERT IT AFTER THE NEXT BLOCK AND CONTINUE
-				if( $block->{ try_hard } < 3 ) {
+				if( $block->{ attempts } < 3 ) {
 					if( @blocks ) {
 						splice @blocks, 1, 0, $block;
 					} else {
 						push @blocks, $block;
 					}
-					$block->{ try_hard }++;
+					$block->{ attempts }++;
 
 				# ===== CANNOT FIT THE BLOCK; REINSERT IT AT THE END AND CONTINUE
-				} elsif( $block->{ try_hard } < 4 ) {
+				} elsif( $block->{ attempts } < 4 ) {
 					push @blocks, $block;
-					$block->{ try_hard }++;
+					$block->{ attempts }++;
 
 				# ===== CANNOT FIT THE BLOCK AT ALL
 				} else {
@@ -211,6 +211,7 @@ sub check {
 	foreach my $i (0 .. $#$days) {
 		my $day = $self->{ days }[ $i ];
 
+		# ===== CATASTROPHIC ERRORS WHICH WARRANT A SCHEDULE REBUILD
 		unless( exists $day->{ rings }) { 
 			push @{$check->{ errors }}, { cause => { day => $i, reason => 'no rings' }}; 
 			$check->{ ok } = 0; 
@@ -222,6 +223,7 @@ sub check {
 			$check->{ ok } = 0; 
 		}
 
+		# ===== ERRORS WHICH SHOULD BE MANUALLY CORRECTED (OR WARNINGS WHICH CAN BE IGNORED)
 		foreach my $ring (@$rings) {
 			my $plan = $ring->{ plan };
 
@@ -233,7 +235,7 @@ sub check {
 					my $other = $lookup->{ $otherid };
 					next unless $block->is_concurrent( $other );
 
-					push @{$check->{ errors }}, { block => $blockid, cause => { by => $otherid, reason => 'concurrent' }};
+					push @{$check->{ errors }}, { block => $blockid, cause => { by => $otherid, reason => 'concurrency' }};
 					$check->{ ok } = 0;
 				}
 
@@ -246,12 +248,12 @@ sub check {
 					$check->{ ok } = 0;
 				}
 
-				push @{ $check->{ warnings }}, { block => $block->{ id }, cause => 'overtime' } if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $ring ));
+				push @{ $check->{ warnings }}, { block => $block->{ id }, cause => { reason => 'overtime' }} if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $ring ));
 			}
 		}
 	}
 
-	delete $_->{ try_hard } foreach values %{ $self->{ blocks }};
+	delete $_->{ attempts } foreach values %{ $self->{ blocks }};
 
 	return $check;
 }

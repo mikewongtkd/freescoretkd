@@ -1,6 +1,6 @@
 <script>
 	var settings = { day: [], current: { day: 0 }, divisions : {}, rounds: [] };
-	var scale    = { blocks : { per: { hour: 15, table: 3 /* see show.daySchedule() */ }}, minutes: 4, height: 8 };
+	var scale    = { blocks : { per: { hour: 15, table: 4 /* see show.daySchedule() */ }, width: undefined }, minutes: 4, height: 8 };
 </script>
 <div class="pt-page pt-page-1">
 	<div class="container">
@@ -13,6 +13,7 @@
 </div>
 
 <script>
+var format = { id: ( time ) => { return $.format.date( time, 'HHmm' );}, time: ( time ) => { return $.format.date( time, 'h:mm a' ); }};
 var time = {
 	set: ( timestamp ) => {
 		if( ! timestamp.match( /:/ )) {
@@ -47,7 +48,7 @@ var time = {
 
 var plan = {
 	reschedule : ( ring, day ) => {
-		var start     = time.set( defined( ring.start ) ? ring.start : day.start );
+		var start = time.set( defined( ring.start ) ? ring.start : day.start );
 		ring.plan.forEach(( blockid ) => {
 			var block   = schedule.blocks[ blockid ];
 			var hr      = Math.floor( block.duration/60 );
@@ -55,8 +56,8 @@ var plan = {
 			var stop    = new Date( start );
 			stop.setHours( stop.getHours() + hr );
 			stop.setMinutes( stop.getMinutes() + min );
-			block.start = $.format.date( start, 'h:mm a' );
-			block.stop  = $.format.date( stop,  'h:mm a' );
+			block.start = format.time( start );
+			block.stop  = format.time( stop );
 
 			start = stop;
 			start.setMinutes( start.getMinutes() + scale.minutes );
@@ -75,19 +76,20 @@ var plan = {
 		plan.reschedule( ring, day );
 	},
 	insert : ( ringid, blockid, targetid ) => {
-		var blockdata = schedule.blocks[ blockid ];
+		var block     = { id: blockid, data: schedule.blocks[ blockid ] };
 		var day       = schedule.days[ settings.current.day ];
-		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
+		var ring      = { id: ringid, data: day.rings.find(( ring ) => { return ring.id == ringid; }) };
+		var target    = { id: targetid };
 
-		blockdata.ring = ringid;
+		block.data.ring = ring.id;
 
-		if( targetid ) {
-			var i = ring.plan.findIndex(( id ) => { return id == targetid; });
-			ring.plan.splice( i, 0, blockid );
+		if( target.id ) {
+			var i = ring.data.plan.findIndex(( id ) => { return id == target.id; });
+			ring.data.plan.splice( i, 0, blockid );
 		} else {
-			ring.plan.push( blockid );
+			ring.data.plan.push( blockid );
 		}
-		plan.reschedule( ring, day );
+		plan.reschedule( ring.data, day );
 	}
 };
 
@@ -113,49 +115,53 @@ var dnd = { block: undefined, source: undefined, handle : {
 	},
 	drop : function( ev ) {
 		if( ev.stopPropogation ) { ev.stopPropogation(); }
-		var target    = $( ev.target ); 
-		var block     = dnd.block;
-		var blockid   = block.attr( 'data-blockid' );
-		var blockdata = schedule.blocks[ blockid ];
+		var target    = { ui: $( ev.target )}; 
+		var block     = { ui: dnd.block };
+		block.id      = block.ui.attr( 'data-blockid' );
+		block.data    = schedule.blocks[ block.id ];
 
-		var is = { block : target.hasClass( 'block' ), label: target.hasClass( 'block-label' ), ring : target.hasClass( 'ring' )};
+		var is = { block : target.ui.hasClass( 'block' ), label: target.ui.hasClass( 'block-label' ), ring : target.ui.hasClass( 'ring' )};
 		if( is.label ) { 
-			target   = target.parent( '.block' );
-			is.block = true;
-			is.ring  = false;
+			target.ui = target.ui.parent( '.block' );
+			is.label  = false;
+			is.block  = true;
+			is.ring   = false;
 		}
+		console.log( target, is.block, is.ring );
 		if( is.block || is.ring ) {
-			plan.remove( blockid );
+			plan.remove( block.id );
 
 			if( is.block ) {
-				var targetid   = target.attr( 'data-blockid' );
-				var targetdata = schedule.blocks[ targetid ];
-				plan.insert( targetdata.ring, blockid, targetid );
+				target.id   = target.ui.attr( 'data-blockid' );
+				target.data = schedule.blocks[ target.id ];
+				plan.insert( target.data.ring, block.id, target.id );
 
 			} else if( is.ring ) {
-				var targetid = target.attr( 'id' );
-				var ringid   = target.prop( 'class' ).split( /\s+/ ).find( x => x.match( /^ring-\d+/ ));
-				var rows     = $( `td.${ringid}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
-				var i        = rows.findIndex( row => { return row == targetid });
-				var next     = rows[ i + 1 ];
+				target.id = target.ui.attr( 'id' );
+				var ring  = { id: target.ui.prop( 'class' ).split( /\s+/ ).find( x => x.match( /^ring-\d+/ )) };
+				var rows  = $( `td.${ring.id}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
+				var i     = rows.findIndex( row => { return row == target.id });
+				var next  = rows[ i + 1 ];
 
-				target       = $( `#${next}` ).find( '.block' );
-				if( target.length ) {
-					var targetid = target.attr( 'data-blockid' );
-					plan.insert( ringid, blockid, targetid );
+				target.ui    = $( `#${next}` ).find( '.block' );
+				if( target.ui.length ) {
+					target.id = target.ui.attr( 'data-blockid' );
+					plan.insert( ring.id, block.id, target.id );
 
 				} else {
-					plan.insert( ringid, blockid );
+					plan.insert( ring.id, block.id );
 				}
 			}
 		}
 
-		// var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
-		// request.json = JSON.stringify( request.data );
-		// ws.send( request.json );
+		var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
+		request.json = JSON.stringify( request.data );
+		ws.send( request.json );
 
 		dnd.block  = undefined;
 		dnd.source = undefined;
+
+		show.daySchedule();
 
 		return false;
 	}
@@ -166,7 +172,7 @@ show.block = ( ringid, blockid ) => {
 	var block     = init.block( blockid );
 	var t         = time.set( blockdata.start );
 	var duration  = block.attr( 'rowspan' ) - 1;
-	var start     = $.format.date( t, 'HHmm' );
+	var start     = format.id( t );
 	var id        = `${ringid}-${start}`;
 	var target    = $( `#${id}` );
 
@@ -176,7 +182,7 @@ show.block = ( ringid, blockid ) => {
 	for( var i = 0; i < duration; i++ ) {
 		t.setMinutes( t.getMinutes() + scale.minutes );
 
-		var rowspan  = $.format.date( t, 'HHmm' );
+		var rowspan  = format.id( t );
 		var id       = `${ringid}-${rowspan}`;
 		var target   = $( `#${id}` );
 
@@ -197,6 +203,7 @@ show.daySchedule = () => {
 	var day   = schedule.days[ settings.current.day ];
 	var n     = day.rings.length;
 
+	if( Number.isInteger(n/4)) { scale.blocks.per.table = 4; } else
 	if( Number.isInteger(n/3)) { scale.blocks.per.table = 3; } else
 	if( Number.isInteger(n/2)) { scale.blocks.per.table = 2; }
 
@@ -236,7 +243,7 @@ show.daySchedule = () => {
 			// ===== TIMELINE
 			var timeline = html.td.clone().addClass( 'timeline' );
 			if( i == 0 || parseInt( time.current.getMinutes()) < 4 ) { 
-				var tick = $.format.date( time.current, 'h:mm a' );
+				var tick = format.time( time.current );
 				timeline.attr({ rowspan: 3 });
 				timeline.html( tick );
 				tr.append( timeline );
@@ -249,11 +256,11 @@ show.daySchedule = () => {
 			for( var x = 0; x < w; x++ ) {
 				var j = (y * width) + (x + 1);
 				if( j <= n ) {
-					var id      = $.format.date( time.current, 'HHmm' );
+					var id      = format.id( time.current );
 					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}` });
 					tr.append( ring );
 				} else {
-					var placeholder = html.td.clone().addClass( 'ring' ).html( '&nbsp;' );
+					var placeholder = html.td.clone().addClass( `ring` ).html( '&nbsp;' );
 					tr.append( placeholder );
 				}
 			}
@@ -263,6 +270,10 @@ show.daySchedule = () => {
 		}
 
 		$( '.pt-page-1 #schedule' ).append( table );
+		var width = table.width();
+		var rings = table.find( '.ring.schedule-heading' );
+		rings.css({ width: Math.floor((width - 120)/rings.length) });
+
 	}
 	$( '.schedule' )
 		.on( 'dragstart', dnd.handle.drag.start )
@@ -289,19 +300,19 @@ var init = {
 		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
 		var rowspan = Math.floor( block.duration / scale.minutes );
 		var gender  = 'coed';
-		var start   = $.format.date( time.set( block.start ), 'HHmm' );
-		var stop    = $.format.date( time.set( block.stop ),  'HHmm' );
+		var start   = format.id( time.set( block.start ));
+		var stop    = format.id( time.set( block.stop ));
 		var flight  = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
 
-		if( block.description.match( /pair/i ))   { gender = 'coed'; } else 
+		if( block.description.match( /pair/i ))   { gender = 'coed';   } else 
 		if( block.description.match( /female/i )) { gender = 'female'; } else 
-		if( block.description.match( /male/i ))   { gender = 'male'; }
+		if( block.description.match( /male/i ))   { gender = 'male';   }
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
 		var label = html.div.clone()
 			.addClass( 'block-label' )
-			.html( `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br>':' '}${rmap[ block.round ]} ${flight} (${block.athletes})` );
+			.html( `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br style="mso-data-placement:same-cell;">':' '}${rmap[ block.round ]} ${flight} (${block.athletes})` );
 
 		var div = html.div.clone()
 			.addClass( `block ${gender}` )
@@ -334,26 +345,52 @@ var init = {
 	}
 };
 
-handler.check[ 'schedule' ] = ( update ) => {
+handler.check.schedule = ( update ) => {
 	var request;
 	wait.check.close();
 
+	schedule = update.schedule;
+
 	if( update.results == 'ok' ) {
 		alertify.success( 'Schedule has no errors' );
-		schedule = update.schedule;
 		init.days( schedule );
 		init.timeline( schedule );
 		show.daySchedule();
 
-	} else {
-		wait.build = alertify.waitDialog( 'Building Schedule' );
-		request = { data : { type : 'schedule', action : 'build' }};
-		request.json = JSON.stringify( request.data );
-		ws.send( request.json );
+		update.warnings.forEach(( warning ) => {
+			var block = schedule.blocks[ warning.block ];
+			alertify.message( `${block.division.toUpperCase()} is ${warning.cause.reason}` );
+		});
+
+	} else if( update.errors.length > 0 ) {
+		var error  = update.errors[ 0 ];
+
+		// Build a plan if there is no plan or no rings
+		if( error.cause.reason == 'no plan' || error.cause.reason == 'no rings') {
+			wait.build = alertify.waitDialog( 'Building Schedule' );
+			request = { data : { type : 'schedule', action : 'build' }};
+			request.json = JSON.stringify( request.data );
+			ws.send( request.json );
+
+		// Decorate the blocks with errors
+		} else {
+			init.days( schedule );
+			init.timeline( schedule );
+			show.daySchedule();
+
+			update.errors.forEach(( error ) => {
+				var a = schedule.blocks[ error.block ];
+				var b = schedule.blocks[ error.cause.by ];
+				alertify.error( `Block ${a.division.toUpperCase()} has a ${error.cause.reason} conflict with ${b.division.toUpperCase()}` );
+
+				var block = $( `.block[data-blockid="${error.block}"]` );
+				block.addClass( 'error' );
+			});
+		}
 	}
 };
 
-handler.build[ 'schedule' ] = ( update ) => {
+handler.build.schedule = ( update ) => {
 	wait.build.close();
 
 	if( update.results == 'ok' ) {
@@ -370,5 +407,13 @@ handler.build[ 'schedule' ] = ( update ) => {
 	show.daySchedule();
 
 };
+
+handler.write.schedule = ( update ) => {
+	wait.check = alertify.waitDialog( 'Checking Schedule for Correctness' );
+	request = { data : { type : 'schedule', action : 'check' }};
+	request.json = JSON.stringify( request.data );
+	ws.send( request.json );
+
+}
 
 </script>

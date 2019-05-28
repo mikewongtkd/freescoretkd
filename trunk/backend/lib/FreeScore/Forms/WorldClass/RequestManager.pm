@@ -1262,7 +1262,7 @@ sub handle_schedule_check {
 			print STDERR "OK\n" if $DEBUG && $check->{ ok };
 		} else {
 			my $error  = @{ $check->{ errors }} ? $check->{ errors }[ 0 ] : undef;
-			my $reason = $error ? (ref( $error->{ cause }) ? $error->{ cause }{ reason } : $error->{ cause }) : $check->{ results };
+			my $reason = $error ? $error->{ cause }{ reason } : $check->{ results };
 			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule->data(), errors => $check->{ errors }, warnings => $check->{ warnings }}});
 			print STDERR "$reason\n" if $DEBUG;
 		}

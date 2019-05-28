@@ -73,16 +73,15 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
 .schedule {
   width: 100%; }
   .schedule td {
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     padding: -1px;
     height: 8px; }
     .schedule td.timeline {
-      min-width: 120px;
+      width: 120px;
       padding-right: 8px;
       text-align: right;
       vertical-align: top; }
     .schedule td.ring {
-      min-width: 180px;
       padding-left: 8px;
       padding-right: 8px; }
     .schedule td .block {
@@ -114,16 +113,8 @@ a.active {
 .female {
   background-color: #ffc0c0; }
 
-.coed.error {
-  background-color: #6b482b;
-  color: white; }
-
-.male.error {
-  background-color: #1a4040;
-  color: white; }
-
-.female.error {
-  background-color: #6b2b2b;
+.error {
+  background-color: #dc3545;
   color: white; }
 
 .coed.selected {
