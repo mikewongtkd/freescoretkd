@@ -58,6 +58,7 @@ var plan = {
 			stop.setMinutes( stop.getMinutes() + min );
 			block.start = format.time( start );
 			block.stop  = format.time( stop );
+			block.ring  = ring.id;
 
 			start = stop;
 			start.setMinutes( start.getMinutes() + scale.minutes );
@@ -69,6 +70,7 @@ var plan = {
 		var ringid    = blockdata.ring;
 		var ring      = day.rings.find(( ring ) => { return ring.id == ringid; });
 		var i         = ring.plan.findIndex(( id ) => { return id == blockid; });
+		if( i < 0 ) { return; }
 
 		delete blockdata.ring;
 
@@ -81,7 +83,7 @@ var plan = {
 		var ring      = { id: ringid, data: day.rings.find(( ring ) => { return ring.id == ringid; }) };
 		var target    = { id: targetid };
 
-		block.data.ring = ring.id;
+		block.data.ring = ringid;
 
 		if( target.id ) {
 			var i = ring.data.plan.findIndex(( id ) => { return id == target.id; });
@@ -127,14 +129,14 @@ var dnd = { block: undefined, source: undefined, handle : {
 			is.block  = true;
 			is.ring   = false;
 		}
-		console.log( target, is.block, is.ring );
-		if( is.block || is.ring ) {
-			plan.remove( block.id );
 
+		if( is.block || is.ring ) {
 			if( is.block ) {
 				target.id   = target.ui.attr( 'data-blockid' );
 				target.data = schedule.blocks[ target.id ];
+				if( block.id == target.id ) { return; }
 				plan.insert( target.data.ring, block.id, target.id );
+				plan.remove( block.id );
 
 			} else if( is.ring ) {
 				target.id = target.ui.attr( 'id' );
@@ -144,6 +146,8 @@ var dnd = { block: undefined, source: undefined, handle : {
 				var next  = rows[ i + 1 ];
 
 				target.ui    = $( `#${next}` ).find( '.block' );
+
+				plan.remove( block.id );
 				if( target.ui.length ) {
 					target.id = target.ui.attr( 'data-blockid' );
 					plan.insert( ring.id, block.id, target.id );
