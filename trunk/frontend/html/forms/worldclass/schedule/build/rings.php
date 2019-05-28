@@ -5,9 +5,14 @@
 <div class="pt-page pt-page-1">
 	<div class="container">
 		<div class="page-header"> Sport Poomsae Schedule Builder <div id="days" class="pull-right"></div></div>
-		<div class="action-bar">
-			<button class="btn btn-primary" id="add-break"><span class="fa fa-coffee"></span> Add Break</button>
-			<button class="btn btn-success" id="save-check"><span class="fa fa-floppy-o"></span> Save &amp; Check for Errors</button>
+		<div class="action-bar row">
+			<div class="instructions col-xs-8">
+				Drag-and-drop <b>blocks</b> to rearrange the schedule. Breaks have <code>+</code> and <code>-</code> buttons to increase and decrease breaks. Decreasing a break to 0 minutes removes the break.
+			</div>
+			<div class="actions col-xs-4">
+				<button class="btn btn-primary" id="add-break"><span class="fa fa-coffee"></span> Add Break</button>
+				<button class="btn btn-success" id="save-check"><span class="fa fa-floppy-o"></span> Save &amp; Check for Errors</button>
+			</div>
 		</div>
 		<div>
 			<div id="schedule">
@@ -445,8 +450,8 @@ handler.check.schedule = ( update ) => {
 				var b = schedule.blocks[ error.cause.by ];
 				alertify.error( `Block ${a.division.toUpperCase()} has a ${error.cause.reason} conflict with ${b.division.toUpperCase()}` );
 
-				var block = $( `.block[data-blockid="${error.block}"]` );
-				block.addClass( 'error' );
+				var blocks = $( `.block[data-blockid="${error.block}"], .block[data-blockid="${error.cause.by}"]` );
+				blocks.addClass( 'error' );
 			});
 		}
 	}

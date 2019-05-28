@@ -3,7 +3,13 @@
     display: none; }
 
   .page-header {
-    display: none; } }
+    display: none; }
+
+  .action-bar {
+    display: none; }
+
+  body {
+    -webkit-print-color-adjust: exact; } }
 .page-footer {
   text-align: center; }
 
@@ -109,8 +115,9 @@ a.active {
   color: #004085 !important; }
 
 .action-bar {
-  padding: 4px 15px 4px 15px;
-  text-align: right; }
+  padding: 4px 15px 4px 15px; }
+  .action-bar .actions {
+    text-align: right; }
 
 .break {
   background-color: white;
@@ -118,16 +125,16 @@ a.active {
   padding: -1px; }
 
 .coed {
-  background-color: #ffddc0; }
+  background-color: #ffddc0 !important; }
 
 .male {
-  background-color: #b0e9e9; }
+  background-color: #b0e9e9 !important; }
 
 .female {
-  background-color: #ffc0c0; }
+  background-color: #ffc0c0 !important; }
 
 .error {
-  background-color: #dc3545;
+  background-color: #dc3545 !important;
   color: white; }
 
 .coed.selected {

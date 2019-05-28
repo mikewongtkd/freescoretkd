@@ -1,6 +1,8 @@
 @media print {
 	.btn { display: none; }
 	.page-header { display: none; }
+	.action-bar { display: none; }
+	body { -webkit-print-color-adjust: exact; }
 }
 .page-footer { text-align: center; }
 .btn-default.active {
@@ -141,15 +143,17 @@ a.active {
 
 .action-bar {
 	padding: 4px 15px 4px 15px;
-	text-align: right;
+	.actions {
+		text-align: right;
+	}
 }
 
 .break  { background-color: white; border: 1px solid black; padding: -1px }
-.coed   { background-color: #ffddc0; }
-.male   { background-color: #b0e9e9; }
-.female { background-color: #ffc0c0; }
+.coed   { background-color: #ffddc0 !important; }
+.male   { background-color: #b0e9e9 !important; }
+.female { background-color: #ffc0c0 !important; }
 
-.error  { background-color: #dc3545; color: white; }
+.error  { background-color: #dc3545 !important; color: white; }
 
 .coed.selected   { background-color: #af550b; }
 .male.selected   { background-color: #af0b0b; }
