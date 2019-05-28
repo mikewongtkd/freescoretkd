@@ -2,6 +2,7 @@
 	.btn { display: none; }
 	.page-header { display: none; }
 	.action-bar { display: none; }
+	#schedule-title { display: block !important; }
 	body { -webkit-print-color-adjust: exact; }
 }
 .page-footer { text-align: center; }
@@ -139,6 +140,10 @@ a.active {
 	background-color: #cce5ff !important;
 	border-color: #b8daff !important;
 	color: #004085 !important;
+}
+
+#schedule-title {
+	display: none;
 }
 
 .action-bar {

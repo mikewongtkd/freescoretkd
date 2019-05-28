@@ -8,6 +8,9 @@
   .action-bar {
     display: none; }
 
+  #schedule-title {
+    display: block !important; }
+
   body {
     -webkit-print-color-adjust: exact; } }
 .page-footer {
@@ -113,6 +116,9 @@ a.active {
   background-color: #cce5ff !important;
   border-color: #b8daff !important;
   color: #004085 !important; }
+
+#schedule-title {
+  display: none; }
 
 .action-bar {
   padding: 4px 15px 4px 15px; }

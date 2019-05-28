@@ -15,6 +15,7 @@
 			</div>
 		</div>
 		<div>
+			<h2 id="schedule-title">Sport Poomsae Schedule</h2>
 			<div id="schedule">
 			</div>
 		</div>
@@ -418,6 +419,14 @@ handler.check.schedule = ( update ) => {
 
 	schedule = update.schedule;
 
+	// Set print title
+	if( defined( schedule.start )) {
+		var d = new Date( schedule.start );
+		d.setDate( d.getDate() + settings.current.day);
+		$( '#schedule-title' ).html( `Sport Poomsae Schedule for ${$.format.date( d, 'ddd, MMM d yyyy' )}` );
+	}
+
+	// Show the schedule if there are no errors
 	if( update.results == 'ok' ) {
 		alertify.success( 'Schedule has no errors' );
 		init.days( schedule );
@@ -439,7 +448,7 @@ handler.check.schedule = ( update ) => {
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 
-		// Decorate the blocks with errors
+		// Otherwise show the schedule and decorate the blocks with errors
 		} else {
 			init.days( schedule );
 			init.timeline( schedule );
