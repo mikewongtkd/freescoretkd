@@ -180,6 +180,8 @@ show.daySchedule = () => {
 
 	var day = schedule.days[ settings.current.day ];
 	show.plan( day );
+	var results = plan.validate();
+	show.errors( results );
 };
 
 show.errors = ( results ) => {
@@ -348,7 +350,6 @@ handler.check.schedule = ( update ) => {
 			init.timeline( schedule );
 
 			show.daySchedule();
-			show.errors( update );
 		}
 	}
 };

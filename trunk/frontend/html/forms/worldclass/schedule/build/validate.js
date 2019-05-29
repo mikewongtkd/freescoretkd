@@ -20,7 +20,6 @@ var validate = {
 		};
 		var a_while_b = a.start >= b.start && a.start < b.stop;
 		var b_while_a = b.start >= a.start && b.start < a.stop;
-		console.log( 'Concurrency check:', a.start, a.stop, b.start, b.stop, a_while_b, b_while_a, (a_while_b || b_while_a ));
 
 		if( a_while_b || b_while_a ) {
 			results.ok = false;

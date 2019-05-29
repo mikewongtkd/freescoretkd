@@ -42,6 +42,8 @@ var dnd = { block: undefined, handle : {
 			var tmp = a.data.plan;
 			a.data.plan = b.data.plan;
 			b.data.plan = tmp;
+			a.data.plan.forEach(( blockid ) => { schedule.blocks[ blockid ].ring = a.id; });
+			b.data.plan.forEach(( blockid ) => { schedule.blocks[ blockid ].ring = b.id; });
 
 		} else if( block.is.block && target.is.block ) {
 			target.id   = target.ui.attr( 'data-blockid' );
@@ -49,7 +51,6 @@ var dnd = { block: undefined, handle : {
 			if( block.id == target.id ) { return; }
 			var below = (ev.originalEvent.clientY - target.ui.position().top) > (target.ui.height()/2);
 			plan.move( block.id, target.id, below );
-			console.log( 'REQUIREMENTS:', block.data.require );
 
 		} else if( block.is.block && target.is.ring ) {
 			target.id = target.ui.attr( 'id' );
@@ -76,9 +77,6 @@ var dnd = { block: undefined, handle : {
 		dnd.block  = undefined;
 
 		show.daySchedule();
-
-		var results = plan.validate();
-		show.errors( results );
 
 		return false;
 	}

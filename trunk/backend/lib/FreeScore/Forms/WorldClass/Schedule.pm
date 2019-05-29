@@ -292,7 +292,7 @@ sub place {
 	my $prev  = $ring->{ plan }[ -1 ];
 	my $start = undef;
 
-	# ===== ADD TO RING WITH BLOCKS
+	# ===== IF THERE ARE PREVIOUSLY PLACED BLOCKS, ADD IT AFTER THE LAST BLOCK
 	if( defined( $prev )) {
 		my $padding = new Date::Manip::Delta( "$TIME_PER_FORM minutes" );
 
@@ -300,7 +300,7 @@ sub place {
 		$start = new Date::Manip::Date( $other->{ stop });
 		$start = $start->calc( $padding );
 
-	# ===== START ADDING TO A NEW RING
+	# ===== OTHERWISE START SCHEDULING AT THE START OF THE RING OR START OF THE DAY
 	} elsif( defined( $day->{ start }) || defined( $ring->{ start })) {
 		$start = new Date::Manip::Date( defined( $ring->{ start }) ? $ring->{ start } : $day->{ start });
 
