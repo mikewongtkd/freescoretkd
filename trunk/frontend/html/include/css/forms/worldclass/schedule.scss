@@ -4,6 +4,16 @@
 	.action-bar { display: none; }
 	#schedule-title { display: block !important; }
 	body { -webkit-print-color-adjust: exact; }
+
+	.schedule {
+		td {
+			font-size: 9pt;
+			&.timeline { width: 90px !important; }
+			&.col-4-width { width: 145px !important; }
+			&.col-3-width { width: 190px !important; }
+			&.col-2-width { width: 290px !important; }
+		}
+	}
 }
 .page-footer { text-align: center; }
 .btn-default.active {

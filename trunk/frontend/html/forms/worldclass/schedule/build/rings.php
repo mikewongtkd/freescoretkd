@@ -259,12 +259,12 @@ show.daySchedule = () => {
 			var i = (y * width) + x;
 			if( i < n ) {
 				var ring    = day.rings[ i ];
-				var ringcol = html.td.clone().addClass( 'ring schedule-heading' ).append( html.div.clone().addClass( 'ring-plan' ).attr({ draggable: true, 'data-ringid' : ring.id }).append( html.h4.clone().html( ring.name )));
+				var ringcol = html.td.clone().addClass( `ring schedule-heading col-${scale.blocks.per.table}-width` ).append( html.div.clone().addClass( 'ring-plan' ).attr({ draggable: true, 'data-ringid' : ring.id }).append( html.h4.clone().html( ring.name )));
 				header.append( ringcol );
 				time.start = defined( ring.start ) ? time.earliest( time.start, ring.start ) : day.start;
 				time.stop  = defined( ring.stop  ) ? time.latest(   time.stop,  ring.stop  ) : day.stop;
 			} else {
-				var placeholder = html.td.clone().addClass( 'ring schedule-heading' ).html( '&nbsp;' );
+				var placeholder = html.td.clone().addClass( `ring schedule-heading col-${scale.blocks.per.table}-width` ).html( '&nbsp;' );
 				header.append( placeholder );
 			}
 		}

@@ -12,7 +12,18 @@
     display: block !important; }
 
   body {
-    -webkit-print-color-adjust: exact; } }
+    -webkit-print-color-adjust: exact; }
+
+  .schedule td {
+    font-size: 9pt; }
+    .schedule td.timeline {
+      width: 90px !important; }
+    .schedule td.col-4-width {
+      width: 145px !important; }
+    .schedule td.col-3-width {
+      width: 190px !important; }
+    .schedule td.col-2-width {
+      width: 290px !important; } }
 .page-footer {
   text-align: center; }
 
