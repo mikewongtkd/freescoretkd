@@ -294,7 +294,7 @@ $( '#add-break' ).off( 'click' ).click(( ev ) => {
 	var id = 'break-' + (sha1.hex( btoa(new Date().getTime()))).substr( 0, 8 );
 	schedule.blocks[ id ] = { id: id, description: 'Break', duration: 40 };
 	var day  = schedule.days[ settings.current.day ];
-	var ring = day.rings[ 0 ]; // Always choose the first ring
+	var ring = day.rings[ 0 ];
 	ring.plan.push( id );
 	plan.reschedule( ring.id, day );
 	show.daySchedule();
