@@ -385,6 +385,16 @@ var init = {
 			day.off( 'click' ).click(( ev ) => {
 				var target = $( ev.target );
 				settings.current.day = parseInt( target.attr( 'data-day' ));
+
+				// Set print title
+				if( defined( schedule.start )) {
+					var d = new Date( schedule.start );
+					d.setDate( d.getDate() + settings.current.day);
+					$( '#schedule-title' ).html( `Sport Poomsae Schedule for ${$.format.date( d, 'ddd, MMM d yyyy' )}` );
+				} else {
+					$( '#schedule-title' ).html( `Sport Poomsae Schedule for Day ${settings.current.day + 1}` );
+				}
+
 				show.daySchedule();
 				$( '.day-select' ).addClass( 'btn-primary' ).removeClass( 'btn-success' );
 				target.addClass( 'btn-success' ).removeClass( 'btn-primary' );
@@ -424,6 +434,8 @@ handler.check.schedule = ( update ) => {
 		var d = new Date( schedule.start );
 		d.setDate( d.getDate() + settings.current.day);
 		$( '#schedule-title' ).html( `Sport Poomsae Schedule for ${$.format.date( d, 'ddd, MMM d yyyy' )}` );
+	} else {
+		$( '#schedule-title' ).html( `Sport Poomsae Schedule for Day ${settings.current.day + 1}` );
 	}
 
 	// Show the schedule if there are no errors
