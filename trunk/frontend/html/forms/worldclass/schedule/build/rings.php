@@ -184,9 +184,10 @@ show.daySchedule = () => {
 
 show.errors = ( results ) => {
 	results.errors.forEach(( error ) => {
-		var a = schedule.blocks[ error.block ];
-		var b = schedule.blocks[ error.cause.by ];
-		alertify.error( `Block ${a.division.toUpperCase()} has a ${error.cause.reason} conflict with ${b.division.toUpperCase()}` );
+		var a     = schedule.blocks[ error.block ];
+		var b     = schedule.blocks[ error.cause.by ];
+		var rname = { prelim : 'Prelim.', semfin : 'Semi-Finals', finals : 'Finals' };
+		alertify.error( `Block ${a.division.toUpperCase()}${a.flight.toUpperCase()} ${rname[a.round]} has a ${error.cause.reason} conflict with ${b.division.toUpperCase()}${b.flight.toUpperCase()} ${rname[b.round]}` );
 
 		var blocks = $( `.block[data-blockid="${error.block}"], .block[data-blockid="${error.cause.by}"]` );
 		blocks.addClass( 'error' );
