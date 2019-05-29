@@ -76,9 +76,6 @@ h4.panel-heading {
 ul.list-group-sortable-connected, ol.list-group-sortable-connected {
   min-height: 40px; }
 
-.droptarget {
-  border: 2px dashed #333; }
-
 .schedule {
   width: 100%; }
   .schedule td {
@@ -133,6 +130,9 @@ a.active {
   .action-bar .actions {
     text-align: right; }
 
+.selected {
+  border: 1px dashed black; }
+
 .break {
   background-color: white;
   border: 1px solid black;
@@ -150,14 +150,5 @@ a.active {
 .error {
   background-color: #dc3545 !important;
   color: white; }
-
-.coed.selected {
-  background-color: #af550b; }
-
-.male.selected {
-  background-color: #af0b0b; }
-
-.female.selected {
-  background-color: #076969; }
 
 /*# sourceMappingURL=schedule.css.map */

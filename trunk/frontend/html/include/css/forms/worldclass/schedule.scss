@@ -81,10 +81,6 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
 	min-height: 40px;
 }
 
-.droptarget {
-	border: 2px dashed #333;
-}
-
 .schedule {
 	width: 100%;
 
@@ -164,15 +160,13 @@ a.active {
 	}
 }
 
+.selected { border: 1px dashed black; }
+
 .break  { background-color: white; border: 1px solid black; padding: -1px }
 .coed   { background-color: #ffddc0 !important; }
 .male   { background-color: #b0e9e9 !important; }
 .female { background-color: #ffc0c0 !important; }
 
 .error  { background-color: #dc3545 !important; color: white; }
-
-.coed.selected   { background-color: #af550b; }
-.male.selected   { background-color: #af0b0b; }
-.female.selected { background-color: #076969; }
 
 

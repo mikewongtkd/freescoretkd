@@ -121,24 +121,20 @@ var plan = {
 	}
 };
 
-var dnd = { block: undefined, source: undefined, handle : {
+var dnd = { block: undefined, handle : {
 	drag : {
 		start : function( ev ) {
 			dnd.block  = $( ev.target );
-			dnd.source = $( this );
 		},
 		enter : function( ev ) {
-			this.classList.add( 'dropTarget' );
 		},
 		leave : function( ev ) {
-			this.classList.remove( 'dropTarget' );
 		},
 		over : function( ev ) { 
 			if( ev.preventDefault ) { ev.preventDefault(); } 
 			return false;
 		},
 		end : function( ev ) {
-			$( '.schedule' ).removeClass( 'dropTarget' );
 		},
 	},
 	drop : function( ev ) {
@@ -150,8 +146,6 @@ var dnd = { block: undefined, source: undefined, handle : {
 
 		block.is  = {  block : block.ui.hasClass( 'block' ), plan: block.ui.hasClass( 'ring-plan' ) || block.ui.parent( '.ring-plan' ).length > 0, ring : block.ui.hasClass( 'ring' )};
 		target.is = { block : target.ui.hasClass( 'block' ), plan: target.ui.hasClass( 'ring-plan' ) || target.ui.parent( '.ring-plan' ).length > 0, ring : target.ui.hasClass( 'ring' )};
-
-		console.log( 'DRAG', block.is, target.is );
 
 		if( ! target.is.plan && ! target.is.block && ! target.is.ring ) { 
 			target.ui = target.ui.parent( '.block' );
@@ -198,12 +192,10 @@ var dnd = { block: undefined, source: undefined, handle : {
 			}
 		} else {
 			dnd.block  = undefined;
-			dnd.source = undefined;
 			return;
 		}
 
 		dnd.block  = undefined;
-		dnd.source = undefined;
 
 		show.daySchedule();
 
