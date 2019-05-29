@@ -229,6 +229,7 @@ sub check {
 
 			foreach my $blockid (@$plan) {
 				my $block = $lookup->{ $blockid };
+				next unless exists $block->{ require };
 
 				my $nonconcurrents = $block->{ require }{ nonconcurrent };
 				foreach my $otherid (@$nonconcurrents) {
@@ -268,6 +269,7 @@ sub clear {
 
 		foreach my $ring (@$rings) { $ring->{ plan } = []; }
 	}
+	delete $self->{ blocks }{ $_ } foreach grep { /^break/i } keys %{$self->{ blocks }};
 }
 
 # ============================================================

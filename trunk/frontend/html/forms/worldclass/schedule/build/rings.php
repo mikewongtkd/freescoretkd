@@ -11,7 +11,7 @@
 			</div>
 			<div class="actions col-xs-4">
 				<button class="btn btn-primary" id="add-break"><span class="fa fa-coffee"></span> Add Break</button>
-				<button class="btn btn-success" id="save-check"><span class="fa fa-floppy-o"></span> Save &amp; Check for Errors</button>
+				<button class="btn btn-success" id="save-check"><span class="fa fa-floppy-o"></span> Save </button>
 			</div>
 		</div>
 		<div>
@@ -58,150 +58,9 @@ var time   = {
 	duration: undefined
 };
 
-var plan = {
-	reschedule : ( ringid, day ) => {
-		var ring  = schedule.days[ settings.current.day ].rings.find(( ring ) => { return ring.id == ringid; });
-		var start = time.set( defined( ring.start ) ? ring.start : day.start );
-		ring.plan.forEach(( blockid ) => {
-			var block   = schedule.blocks[ blockid ];
-			var hr      = Math.floor( block.duration/60 );
-			var min     = block.duration % 60;
-			var stop    = new Date( start );
-
-			stop.setHours( stop.getHours() + hr );
-			stop.setMinutes( stop.getMinutes() + min );
-			block.start = format.time( start );
-			block.stop  = format.time( stop );
-			block.ring  = ring.id;
-
-			start = stop;
-			start.setMinutes( start.getMinutes() + scale.minutes );
-		});
-	},
-	remove : ( blockid ) => {
-		var block     = { id: blockid, data: schedule.blocks[ blockid ] };
-		var day       = schedule.days[ settings.current.day ];
-		var ring      = { id: block.data.ring, data: find.ring( day, block.data.ring )};
-		var i         = ring.data.plan.findIndex(( id ) => { return id == block.id; });
-		if( i < 0 ) { alertify.error( `${block.id} not found in plan ${ring.data.plan.join( ', ' )}` ); }
-		else { ring.data.plan.splice( i, 1 ); plan.reschedule( ring.id, day ); }
-	},
-	move : ( blockid, targetid, below ) => {
-		var block     = { id: blockid, data: schedule.blocks[ blockid ] };
-		var day       = schedule.days[ settings.current.day ];
-		var target    = { id: targetid };
-
-		// Remove from previous position
-		(() => {
-			var ring = { id: block.data.ring, data: find.ring( day, block.data.ring )};
-			var i    = ring.data.plan.findIndex(( id ) => { return id == block.id; });
-			if( i < 0 ) { alertify.error( `${block.id} not found in plan ${ring.data.plan.join( ', ' )}` ); }
-			else { ring.data.plan.splice( i, 1 ); plan.reschedule( ring.id, day ); }
-		})();
-
-		// Insert into new position
-		if( target.id.match( /^ring/ )) {
-			var ring = { id: target.id, data: find.ring( day, target.id )};
-			ring.data.plan.push( blockid );
-			block.data.ring = target.id;
-			plan.reschedule( ring.id, day );
-
-		} else {
-			target.data = schedule.blocks[ target.id ];
-
-			var ring = { id: target.data.ring, data: find.ring( day, target.data.ring )};
-			var i    = ring.data.plan.findIndex(( id ) => { return id == target.id; });
-			if( i < 0 ) { alertify.error( `${target.id} not found in plan ${ring.data.plan.join( ', ' )}` ); return }
-
-			if( below ) { i += 1 }
-			block.data.ring = target.data.ring;
-			ring.data.plan.splice( i, 0, blockid );
-			plan.reschedule( ring.id, day );
-		}
-	}
-};
-
-var dnd = { block: undefined, handle : {
-	drag : {
-		start : function( ev ) {
-			dnd.block  = $( ev.target );
-		},
-		enter : function( ev ) {
-		},
-		leave : function( ev ) {
-		},
-		over : function( ev ) { 
-			if( ev.preventDefault ) { ev.preventDefault(); } 
-			return false;
-		},
-		end : function( ev ) {
-		},
-	},
-	drop : function( ev ) {
-		if( ev.stopPropogation ) { ev.stopPropogation(); }
-		var target    = { ui: $( ev.target )}; 
-		var block     = { ui: dnd.block };
-		block.id      = block.ui.attr( 'data-blockid' );
-		block.data    = schedule.blocks[ block.id ];
-
-		block.is  = {  block : block.ui.hasClass( 'block' ), plan: block.ui.hasClass( 'ring-plan' ) || block.ui.parent( '.ring-plan' ).length > 0, ring : block.ui.hasClass( 'ring' )};
-		target.is = { block : target.ui.hasClass( 'block' ), plan: target.ui.hasClass( 'ring-plan' ) || target.ui.parent( '.ring-plan' ).length > 0, ring : target.ui.hasClass( 'ring' )};
-
-		if( ! target.is.plan && ! target.is.block && ! target.is.ring ) { 
-			target.ui = target.ui.parent( '.block' );
-			if( ! defined( target.ui )) { return; } // Target is not a block or ring or child of a block or ring; ignore
-			target.is.block  = defined( target.ui );
-			target.is.ring   = false;
-		}
-
-		if( block.is.plan && target.is.plan ) {
-			block.ui = block.ui.hasClass( 'ring-plan' ) ? block.ui : block.ui.parent( '.ring-plan' );
-			if( block.ui.length == 0 ) { return; } // Dragged object is not a ring plan
-			if( ! target.ui.hasClass( 'ring-plan' )) { target.ui = target.ui.parent( '.ring-plan' ); }
-			var day = schedule.days[ settings.current.day ];
-			var a   = { id: block.ui.attr( 'data-ringid' )};  a.data = find.ring( day, a.id );
-			var b   = { id: target.ui.attr( 'data-ringid' )}; b.data = find.ring( day, b.id );
-			console.log( a, b );
-			var tmp = a.data.plan;
-			a.data.plan = b.data.plan;
-			b.data.plan = tmp;
-
-		} else if( block.is.block && target.is.block ) {
-			target.id   = target.ui.attr( 'data-blockid' );
-			target.data = schedule.blocks[ target.id ];
-			if( block.id == target.id ) { return; }
-			var below = (ev.originalEvent.clientY - target.ui.position().top) > (target.ui.height()/2);
-			plan.move( block.id, target.id, below );
-
-		} else if( block.is.block && target.is.ring ) {
-			target.id = target.ui.attr( 'id' );
-			var ring  = { id: target.ui.attr( 'data-ringid' )};
-			var rows  = $( `td.${ring.id}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
-			var i     = rows.findIndex( row => { return row == target.id });
-			var next  = rows[ i + 1 ];
-
-			// See if there's a block in the next cell (below)
-			target.ui    = $( `#${next}` ).find( '.block' );
-
-			if( target.ui.length ) {
-				target.id = target.ui.attr( 'data-blockid' );
-				plan.move( block.id, target.id );
-
-			} else {
-				plan.move( block.id, ring.id );
-			}
-		} else {
-			dnd.block  = undefined;
-			return;
-		}
-
-		dnd.block  = undefined;
-
-		show.daySchedule();
-
-		return false;
-	}
-}};
+<?php include( 'plan.js' ); ?>
+<?php include( 'validate.js' ); ?>
+<?php include( 'drag-and-drop.js' ); ?>
 
 show.block = ( ringid, blockid ) => {
 	var blockdata = schedule.blocks[ blockid ];
@@ -322,6 +181,17 @@ show.daySchedule = () => {
 	var day = schedule.days[ settings.current.day ];
 	show.plan( day );
 };
+
+show.errors = ( results ) => {
+	results.errors.forEach(( error ) => {
+		var a = schedule.blocks[ error.block ];
+		var b = schedule.blocks[ error.cause.by ];
+		alertify.error( `Block ${a.division.toUpperCase()} has a ${error.cause.reason} conflict with ${b.division.toUpperCase()}` );
+
+		var blocks = $( `.block[data-blockid="${error.block}"], .block[data-blockid="${error.cause.by}"]` );
+		blocks.addClass( 'error' );
+	});
+}
 
 var init = {
 	timeline: ( schedule ) => {
@@ -475,16 +345,9 @@ handler.check.schedule = ( update ) => {
 		} else {
 			init.days( schedule );
 			init.timeline( schedule );
+
 			show.daySchedule();
-
-			update.errors.forEach(( error ) => {
-				var a = schedule.blocks[ error.block ];
-				var b = schedule.blocks[ error.cause.by ];
-				alertify.error( `Block ${a.division.toUpperCase()} has a ${error.cause.reason} conflict with ${b.division.toUpperCase()}` );
-
-				var blocks = $( `.block[data-blockid="${error.block}"], .block[data-blockid="${error.cause.by}"]` );
-				blocks.addClass( 'error' );
-			});
+			show.errors( update );
 		}
 	}
 };
