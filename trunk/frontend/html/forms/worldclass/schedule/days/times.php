@@ -183,6 +183,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 				var stop  = `.day-${j}-stop`;
 				day.start = $( start ).val();
 				day.stop  = $( stop ).val();
+				day.rings.forEach(( ring ) => { delete ring.start; delete ring.stop; });
 			}
 			day.divisions = scheduled;
 		} else {

@@ -91,6 +91,14 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
     .schedule td.ring {
       padding-left: 8px;
       padding-right: 8px; }
+    .schedule td.schedule-heading .ring-plan {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius: 4px;
+      width: 100%; }
+      .schedule td.schedule-heading .ring-plan h4 {
+        margin: 0;
+        padding: 0; }
     .schedule td .block {
       position: relative;
       font-family: Lato;

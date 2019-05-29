@@ -148,23 +148,38 @@ var dnd = { block: undefined, source: undefined, handle : {
 		block.id      = block.ui.attr( 'data-blockid' );
 		block.data    = schedule.blocks[ block.id ];
 
-		var is = { block : target.ui.hasClass( 'block' ), ring : target.ui.hasClass( 'ring' )};
+		block.is  = {  block : block.ui.hasClass( 'block' ), plan: block.ui.hasClass( 'ring-plan' ) || block.ui.parent( '.ring-plan' ).length > 0, ring : block.ui.hasClass( 'ring' )};
+		target.is = { block : target.ui.hasClass( 'block' ), plan: target.ui.hasClass( 'ring-plan' ) || target.ui.parent( '.ring-plan' ).length > 0, ring : target.ui.hasClass( 'ring' )};
 
-		if( ! is.block && ! is.ring ) { 
+		console.log( 'DRAG', block.is, target.is );
+
+		if( ! target.is.plan && ! target.is.block && ! target.is.ring ) { 
 			target.ui = target.ui.parent( '.block' );
 			if( ! defined( target.ui )) { return; } // Target is not a block or ring or child of a block or ring; ignore
-			is.block  = defined( target.ui );
-			is.ring   = false;
+			target.is.block  = defined( target.ui );
+			target.is.ring   = false;
 		}
 
-		if( is.block ) {
+		if( block.is.plan && target.is.plan ) {
+			block.ui = block.ui.hasClass( 'ring-plan' ) ? block.ui : block.ui.parent( '.ring-plan' );
+			if( block.ui.length == 0 ) { return; } // Dragged object is not a ring plan
+			if( ! target.ui.hasClass( 'ring-plan' )) { target.ui = target.ui.parent( '.ring-plan' ); }
+			var day = schedule.days[ settings.current.day ];
+			var a   = { id: block.ui.attr( 'data-ringid' )};  a.data = find.ring( day, a.id );
+			var b   = { id: target.ui.attr( 'data-ringid' )}; b.data = find.ring( day, b.id );
+			console.log( a, b );
+			var tmp = a.data.plan;
+			a.data.plan = b.data.plan;
+			b.data.plan = tmp;
+
+		} else if( block.is.block && target.is.block ) {
 			target.id   = target.ui.attr( 'data-blockid' );
 			target.data = schedule.blocks[ target.id ];
 			if( block.id == target.id ) { return; }
 			var below = (ev.originalEvent.clientY - target.ui.position().top) > (target.ui.height()/2);
 			plan.move( block.id, target.id, below );
 
-		} else if( is.ring ) {
+		} else if( block.is.block && target.is.ring ) {
 			target.id = target.ui.attr( 'id' );
 			var ring  = { id: target.ui.attr( 'data-ringid' )};
 			var rows  = $( `td.${ring.id}` ).map(( i, item ) => { return $( item ).attr( 'id' ); } ).toArray();
@@ -181,6 +196,10 @@ var dnd = { block: undefined, source: undefined, handle : {
 			} else {
 				plan.move( block.id, ring.id );
 			}
+		} else {
+			dnd.block  = undefined;
+			dnd.source = undefined;
+			return;
 		}
 
 		dnd.block  = undefined;
@@ -248,7 +267,7 @@ show.daySchedule = () => {
 			var i = (y * width) + x;
 			if( i < n ) {
 				var ring    = day.rings[ i ];
-				var ringcol = html.td.clone().addClass( 'ring schedule-heading' ).html( html.h4.clone().html( ring.name ));
+				var ringcol = html.td.clone().addClass( 'ring schedule-heading' ).append( html.div.clone().addClass( 'ring-plan' ).attr({ draggable: true, 'data-ringid' : ring.id }).append( html.h4.clone().html( ring.name )));
 				header.append( ringcol );
 				time.start = defined( ring.start ) ? time.earliest( time.start, ring.start ) : day.start;
 				time.stop  = defined( ring.stop  ) ? time.latest(   time.stop,  ring.stop  ) : day.stop;
