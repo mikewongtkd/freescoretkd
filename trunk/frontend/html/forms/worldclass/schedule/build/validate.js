@@ -33,7 +33,7 @@ var validate = {
 		var a     = new Date( `${today} ${block.start}` );
 		var b     = new Date( `${today} ${other.stop}` );
 
-		if( b >= a ) {
+		if( b > a ) {
 			results.ok = false;
 			results.errors.push({ block : block.id, cause : { by : other.id, reason : 'precondition' }});
 		}

@@ -129,7 +129,8 @@ sub init {
 # ============================================================
 sub build {
 # ============================================================
-	my $self    = shift;
+	my $self         = shift;
+	$self->{ debug } = shift;
 	my $build = { ok => 1, errors => [], warnings => [] };
 	$self->clear();
 

@@ -67,7 +67,7 @@ sub precondition_is_satisfied {
 	my $b   = new Date::Manip::Date( $other->{ stop }); die "Bad timestamp '$other->{ stop }'" unless $b;
 	my $cmp = $a->cmp( $b );
 
-	return $cmp >= 0;
+	return $cmp > 0;
 }
 
 # ============================================================
