@@ -10,8 +10,9 @@
 				Drag-and-drop <b>blocks</b> to rearrange the schedule. Breaks have <code>+</code> and <code>-</code> buttons to increase and decrease breaks. Decreasing a break to 0 minutes removes the break.
 			</div>
 			<div class="actions col-xs-4">
-				<button class="btn btn-primary" id="add-break"><span class="fa fa-coffee"></span> Add Break</button>
-				<button class="btn btn-success" id="save-check"><span class="fa fa-floppy-o"></span> Save </button>
+				<button class="btn btn-default btn-primary" id="rebuild"><span class="fa fa-refresh"></span> Rebuild Schedule</button>
+				<button class="btn btn-default btn-primary" id="add-break"><span class="fa fa-coffee"></span> Add Break</button>
+				<button class="btn btn-default btn-primary" id="save-check"><span class="fa fa-file"></span> Save </button>
 			</div>
 		</div>
 		<div>
@@ -196,6 +197,24 @@ show.errors = ( results ) => {
 	});
 }
 
+show.warnings = ( results ) => {
+	if( ! defined( results.warnings )) { return; }
+	results.warnings.forEach(( warning ) => {
+		var block = schedule.blocks[ warning.block ];
+		alertify.message( `${block.division.toUpperCase()} is ${warning.cause.reason}` );
+	});
+};
+
+show.title = () => {
+	if( defined( schedule.start )) {
+		var d = new Date( schedule.start );
+		d.setDate( d.getDate() + settings.current.day);
+		$( '#schedule-title' ).html( `Sport Poomsae Schedule for ${$.format.date( d, 'ddd, MMM d yyyy' )}` );
+	} else {
+		$( '#schedule-title' ).html( `Sport Poomsae Schedule for Day ${settings.current.day + 1}` );
+	}
+};
+
 var init = {
 	timeline: ( schedule ) => {
 		if( ! defined( schedule )) { return; }
@@ -212,7 +231,7 @@ var init = {
 		var start   = format.id( time.set( block.start ));
 		var stop    = format.id( time.set( block.stop ));
 		var flight  = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
-		var is      = { 'break' : block.description.match( /break/i )};
+		var is      = { 'break' : block.id.match( /^break/i )};
 
 		if( is.break )                            { gender = 'break';   } else 
 		if( block.description.match( /pair/i ))   { gender = 'coed';   } else 
@@ -221,7 +240,7 @@ var init = {
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
-		var actions = is.break ? `<div class="break-actions"><button class="btn btn-xs break-edit break-more" data-breakid="${blockid}"><span class="fa fa-plus"></span></button><button class="btn btn-xs break-edit break-less" data-breakid="${blockid}"><span class="fa fa-minus"></span></button></div>` : '';
+		var actions = is.break ? `<div class="break-actions" data-breakid="${blockid}"><button class="btn btn-xs break-rename"><span class="fa fa-pencil"></span></button><button class="btn btn-xs break-edit break-more"><span class="fa fa-plus"></span></button><button class="btn btn-xs break-edit break-less"><span class="fa fa-minus"></span></button></div>` : '';
 		var text    = is.break ? `${block.description}<br style="mso-data-placement:same-cell">${block.duration} minutes` : `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br style="mso-data-placement:same-cell;">':' '}${rmap[ block.round ]} ${flight} (${block.athletes})`;
 		var label   = html.div.clone()
 			.addClass( 'block-label' )
@@ -235,8 +254,25 @@ var init = {
 		td.append( div );
 
 		// Behavior
+		$( '.break-rename' ).off( 'click' ).click(( ev ) => {
+			var target = $( ev.target ).parents( '.break-actions' );
+			var id     = target.attr( 'data-breakid' );
+			var block  = schedule.blocks[ id ];
+			var ring   = block.ring.capitalize().replace( /\-/, ' ' );
+			alertify.prompt( 
+				`Rename <b>${block.description}</b> for ${ring}`, 
+				'Enter the new description below', 
+				block.description,
+				( evt, value ) => { 
+					block.description = value;
+					target.siblings( '.block-label' ).html( `${block.description}<br style="mso-data-placement:same-cell">${block.duration} minutes` );
+				},
+				() => {}
+			)
+		});
+
 		$( '.break-edit' ).off( 'click' ).click(( ev ) => {
-			var target = $( ev.target ); target = target.hasClass( 'btn' ) ? target : target.parent( '.btn' );
+			var target = $( ev.target ).parents( '.break-actions' );
 			var id     = target.attr( 'data-breakid' );
 			var grow   = target.hasClass( 'break-more' );
 			var block  = schedule.blocks[ id ];
@@ -290,6 +326,15 @@ var init = {
 };
 
 // ===== BEHAVIOR
+$( '#rebuild' ).off( 'click' ).click(( ev ) => {
+	alertify.confirm( 'Rebuild the schedule?', 'Current settings will be lost.', () => {
+		wait.build = alertify.waitDialog( 'Building Schedule' );
+		var request = { data : { type : 'schedule', schedule: schedule, action : 'build' }};
+		request.json = JSON.stringify( request.data );
+		ws.send( request.json );
+	}, () => {});
+});
+
 $( '#add-break' ).off( 'click' ).click(( ev ) => {
 	var id = 'break-' + (sha1.hex( btoa(new Date().getTime()))).substr( 0, 8 );
 	schedule.blocks[ id ] = { id: id, description: 'Break', duration: 40 };
@@ -307,20 +352,21 @@ $( '#save-check' ).off( 'click' ).click(( ev ) => {
 });
 
 // ===== HANDLERS
+handler.read.schedule =  ( update ) => {
+	schedule = update.schedule;
+	show.title();
+	init.days( schedule );
+	init.timeline( schedule );
+	show.daySchedule();
+	show.warnings( update );
+};
+
 handler.check.schedule = ( update ) => {
-	var request;
 	wait.check.close();
 
 	schedule = update.schedule;
 
-	// Set print title
-	if( defined( schedule.start )) {
-		var d = new Date( schedule.start );
-		d.setDate( d.getDate() + settings.current.day);
-		$( '#schedule-title' ).html( `Sport Poomsae Schedule for ${$.format.date( d, 'ddd, MMM d yyyy' )}` );
-	} else {
-		$( '#schedule-title' ).html( `Sport Poomsae Schedule for Day ${settings.current.day + 1}` );
-	}
+	show.title();
 
 	// Show the schedule if there are no errors
 	if( update.results == 'ok' ) {
@@ -328,11 +374,7 @@ handler.check.schedule = ( update ) => {
 		init.days( schedule );
 		init.timeline( schedule );
 		show.daySchedule();
-
-		update.warnings.forEach(( warning ) => {
-			var block = schedule.blocks[ warning.block ];
-			alertify.message( `${block.division.toUpperCase()} is ${warning.cause.reason}` );
-		});
+		show.warnings( update );
 
 	} else if( update.errors.length > 0 ) {
 		var error  = update.errors[ 0 ];
@@ -340,7 +382,7 @@ handler.check.schedule = ( update ) => {
 		// Build a plan if there is no plan or no rings
 		if( error.cause.reason == 'no plan' || error.cause.reason == 'no rings') {
 			wait.build = alertify.waitDialog( 'Building Schedule' );
-			request = { data : { type : 'schedule', action : 'build' }};
+			var request = { data : { type : 'schedule', action : 'build' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 
@@ -373,7 +415,7 @@ handler.build.schedule = ( update ) => {
 };
 
 handler.write.schedule = ( update ) => {
-	wait.check = alertify.waitDialog( 'Saving and Checking Schedule for Correctness' );
+	wait.check = alertify.waitDialog( 'Saving' );
 	request = { data : { type : 'schedule', action : 'check' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );

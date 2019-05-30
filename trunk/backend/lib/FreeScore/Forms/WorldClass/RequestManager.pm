@@ -1191,11 +1191,8 @@ sub handle_schedule_build {
 	my $copy       = clone( $request );
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
-	my $schedule   = undef;
 	my $tournament = $request->{ tournament };
 	my $all        = new FreeScore::Forms::WorldClass( $tournament );
-	my $build      = { ok => 0 };
-	my $check      = { ok => 0 };
 
 	$divisions = unbless( $all->{ divisions } );
 	try {
@@ -1204,19 +1201,14 @@ sub handle_schedule_build {
 			return;
 		}
 
-		$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-		$check    = $schedule->check();
-
-		unless( $check->{ ok }) {
-			$build = $schedule->build();
-			$schedule->write();
-		}
+		my $schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
+		my $build = $schedule->build();
+		$schedule->write();
 
 		my $schedule_data = $schedule->data();
 
-		if( $check->{ ok } || $build->{ ok }) {
+		if( $build->{ ok }) {
 			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule_data, divisions => $divisions, warnings => $build->{ warnings }}});
-			print STDERR "already done\n" if $DEBUG && $check->{ ok };
 			print STDERR "OK\n" if $DEBUG && $build->{ ok };
 		} else {
 			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule_data, errors => $build->{ errors }, warnings => $build->{ warnings }}});

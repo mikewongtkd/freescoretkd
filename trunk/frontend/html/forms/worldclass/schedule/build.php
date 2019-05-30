@@ -94,7 +94,8 @@ var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '
 ws.onopen = function() {
 	var request;
 
-	wait.check = alertify.waitDialog( 'Checking Schedule for Correctness' );
+	wait.check = alertify.waitDialog( 'Loading' );
+
 	request = { data : { type : 'schedule', action : 'check' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );

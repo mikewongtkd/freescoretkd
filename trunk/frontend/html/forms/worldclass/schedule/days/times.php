@@ -206,7 +206,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	sound.next.play();
 
 	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
-	var request = { data : { type : 'schedule', schedule: schedule, action : 'write', clear : true }};
+	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 	console.log( request.json );
