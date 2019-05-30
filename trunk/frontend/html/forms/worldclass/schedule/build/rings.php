@@ -272,9 +272,9 @@ var init = {
 		});
 
 		$( '.break-edit' ).off( 'click' ).click(( ev ) => {
-			var target = $( ev.target ).parents( '.break-actions' );
-			var id     = target.attr( 'data-breakid' );
+			var target = $( ev.target ); target = target.hasClass( 'btn' ) ? target : target.parent( '.btn' );
 			var grow   = target.hasClass( 'break-more' );
+			var id     = target.parent( '.break-actions' ).attr( 'data-breakid' );
 			var block  = schedule.blocks[ id ];
 			var day    = schedule.days[ settings.current.day ];
 			var rname  = block.ring.capitalize().replace( /\-/, ' ' );
