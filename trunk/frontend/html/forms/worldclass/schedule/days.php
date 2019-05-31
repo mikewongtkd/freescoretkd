@@ -39,6 +39,7 @@
 			var show      = {};
 			var schedule  = { days: [{divisions: [], start: '9:00 AM' }]};
 			var divisions = undefined;
+			var settings  = { checksum: undefined };
 		</script>
 		<div id="pt-main" class="pt-perspective">
 			<?php include( "days/settings.php" ); ?>

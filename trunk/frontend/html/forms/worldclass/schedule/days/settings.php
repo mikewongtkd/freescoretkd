@@ -29,7 +29,7 @@
 				</div>
 			</div>
 			<div>
-				<button class="btn btn-success pull-right" id="accept-settings"> Accept </button>
+				<button class="btn btn-success pull-right" id="accept-settings"> Next </button>
 				<button class="btn btn-danger pull-right" id="cancel-settings" style="margin-right: 40px;"> Cancel </button>
 			</div>
 		</div>

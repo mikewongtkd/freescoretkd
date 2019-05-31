@@ -206,7 +206,15 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	sound.next.play();
 
 	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
-	var request = { data : { type : 'schedule', schedule: schedule, action : 'write' }};
+
+	var clear    = false;
+	var checksum = btoa( JSON.stringify( schedule.rings )).substr( 0, 8 );
+	if( ! defined( settings.checksum ) || settings.checksum != checksum ) {
+		clear = true;
+		settings.checksum = checksum;
+	}
+	
+	var request = { data : { type : 'schedule', schedule: schedule, action : 'write', clear: clear }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
 	console.log( request.json );
