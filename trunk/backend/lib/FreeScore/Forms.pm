@@ -38,6 +38,8 @@ sub load_ring {
 		open FILE, $self->{ file };
 		while( <FILE> ) { chomp; $self->{ $1 } = $2 if( /^#\s*([^=]+)=(.*)$/ ); }
 		close FILE;
+
+		if( ! -w $self->{ file }) { `chmod a+w $self->{ file }`; }
 	}
 
 	# ===== FIND DIVISIONS AND LIST THEM BY ID

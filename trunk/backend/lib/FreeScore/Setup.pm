@@ -55,7 +55,9 @@ sub update_rings {
 
 				} elsif( exists $wanted->{ $ring } ) { 
 					mkdir $ring_path; 
+					`chmod a+w $ring_path`;
 					`touch $ring_path/progress.txt`; 
+					`chmod a+w $ring_path/progress.txt`;
 
 				} elsif( exists $have->{ $ring }   ) { 
 					`rm -f $ring_path/progress.txt $ring_path/div.*.txt $ring_path/.*.swp $ring_path/.DS_Store`; 
