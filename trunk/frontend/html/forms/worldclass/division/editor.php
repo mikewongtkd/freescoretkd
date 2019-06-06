@@ -49,6 +49,7 @@
 			var description = {};
 			var athletes    = {};
 			var validate    = {};
+			var warnings    = {};
 		</script>
 
 		<div class="container">
@@ -133,12 +134,16 @@
 					if( ! validate.athletes.enable ) { return; }
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
-					alertify.error( "Not enough athletes. Please add more athletes." );
+					if( ! defined( warnings.not_enough_athletes )) {
+						warnings.not_enough_athletes = alertify.error( "Not enough athletes. Please add more athletes.", 10, () => { warnings.not_enough_athletes = undefined; });
+					}
 
 				} else if( ! validate.athletes.unique() ) {
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
-					alertify.error( "Duplicate athletes. Please resolve athletes with the same name." );
+					if( ! defined( warnings.duplicate_athletes )) {
+						warnings.duplicate_athletes = alertify.error( "Duplicate athletes. Please resolve athletes with the same name.", 10, () => { warnings.duplicate_athletes = undefined; });
+					}
 				}
 
 				if ( validate.selection() ) {
@@ -146,7 +151,9 @@
 				} else {
 					ok = false;
 					$( '#form-selection' ).parent().addClass( "panel-danger" ).removeClass( "panel-primary" );
-					alertify.error( "Not enough forms selected. Please select forms." );
+					if( ! defined( warnings.not_enough_forms )) {
+						warnings.not_enough_forms = alertify.error( "Not enough forms selected. Please select forms.", 10, () => { warnings.not_enough_forms = undefined; });
+					}
 				}
 				if( ok ) {
 					save.enable();
@@ -239,15 +246,19 @@
 								if( defined( d )) { d = d[ age ]; }
 								if( ! defined( d )) { return; }
 
-								for( var round in d ) { if( ! defined( forms[ round ]) || forms[ round ].length == 0 ) { forms[ round ] = d[ round ]; }}
+								Object.keys( d ).forEach(( round ) => { if( ! selected.manual[ round ] ) { forms[ round ] = d[ round ].slice(); }});
 								if( n <  20 && ! flight ) { delete forms.prelim; }
 								if( n <= 8              ) { delete forms.semfin; }
 
 								// Update Form Selection on Form Selector
 								for( round in forms ) {
 									for( var i = 0; i < forms[ round ].length; i++ ) {
-										var form = forms[ round ][ i ];
-										$( `#${round}${i+1}` ).selectpicker( 'val', form );
+										var form    = forms[ round ][ i ];
+										var target  = $( `#${round}${i+1}` );
+										var current = target.selectpicker( 'val' );
+										if( form != current ) {
+											target.selectpicker( 'val', form );
+										}
 									}
 								}
 							};

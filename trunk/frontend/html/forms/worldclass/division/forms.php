@@ -1,7 +1,7 @@
 <?php
 function formsList( $round, $id ) {
 	$list = <<<EOD
-<select class="selectpicker $round" id="$round$id">
+<select class="selectpicker $round" id="$round$id" data-round="$round" data-form="$id">
 	<option>None</option>
 	<option>Open</option>
 	<option>Taegeuk 1</option>
@@ -72,32 +72,38 @@ EOD;
 	// ============================================================
 	// FORM SELECTION BEHAVIOR
 	// ============================================================
-	var selected = { method: 'cutoff', forms : { prelim : [], semfin : [], finals : [] }, description: '', update : function() { 
+	var selected = { method: 'cutoff', forms : { prelim : [], semfin : [], finals : [] }, description: '', manual: { prelim: false, semfin: false, finals: false }, update : function() { 
 		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
 
 		// ===== IF THE DRAWS ARE DEFINED, USE THE DRAWS
 		if( defined( draws )) {
 			draws.select( description, division, selected.forms );
+		} 
 
 		// ===== IF ANY FORM IS ALLOWED, SHOW ALL FORMS
-		} else if( $( '#allow-any-form' ).bootstrapSwitch( 'state' )) {
+		if( $( '#allow-any-form' ).bootstrapSwitch( 'state' )) {
 			$.each( forms,   function( i, form ) { $( 'option:contains("' + form + '")' ).show(); });
 
 		// ===== OTHERWISE, APPLY RULES
 		} else {
 			var allowed = FreeScore.rulesUSAT.recognizedPoomsae( description.category, description.years, description.rank );
-			$.each( forms,   function( i, form ) { $( 'option:contains("' + form + '")' ).hide(); });
-			$.each( allowed, function( i, form ) { $( 'option:contains("' + form + '")' ).show(); });
-			$.each( all,     function( i, form ) { $( 'option:contains("' + form + '")' ).hide(); });
+			forms   .forEach(( form ) => { $( `option:contains("${form}")` ).hide(); });
+			allowed .forEach(( form ) => { $( `option:contains("${form}")` ).show(); });
+			all     .forEach(( form ) => { $( `option:contains("${form}")` ).hide(); });
 		}
 		$('.selectpicker').selectpicker( 'refresh' );
 
 		// ===== CREATE FORM SELECTION DESCRIPTION FROM SELECTIONS
-		selected.description =
-			('prelim' in selected.forms ? '<span class="meta">Preliminary Round</span><span class="forms">' + selected.forms.prelim.join( ', ' ) + '</span>' : '') +
-			('semfin' in selected.forms ? '<span class="meta">Semi-Final Round</span><span class="forms">'  + selected.forms.semfin.join( ', ' ) + '</span>' : '') +
-			('finals' in selected.forms ? '<span class="meta">Final Round</span><span class="forms">'       + selected.forms.finals.join( ', ' ) + '</span>' : '');
+		selected.description = '';
+
+		if( division.round == 'prelim' ) {
+			selected.description += '<span class="meta">Preliminary Round</span><span class="forms">' + selected.forms.prelim.join( ', ' ) + '</span>';
+		} 
+		if( division.round == 'semfin' ) {
+			selected.description += '<span class="meta">Semi-Final Round</span><span class="forms">'  + selected.forms.semfin.join( ', ' ) + '</span>';
+		}
+		selected.description += '<span class="meta">Final Round</span><span class="forms">'       + selected.forms.finals.join( ', ' ) + '</span>';
 
 		validate.input();
 
@@ -117,13 +123,11 @@ EOD;
 		$( 'a[href="#cutoff"]' ).click();
 		for( round in forms ) {
 			selected.forms[ round ] = [];
-			for( var i = 0; i < forms[ round ].length; i++ ) {
-				var form = forms[ round ][ i ];
+			forms[ round ].forEach(( form, i ) => {
 				selected.forms[ round ].push( form );
-				$( "#" + round + (i+1) ).selectpicker( 'val',  form );
-			}
+				$( `#${round}${i+1}` ).selectpicker( 'val',  form );
+			});
 		}
-
 		if( n <  20 && ! flight ) { delete selected.forms.prelim; }
 		if( n <=  8 && ! flight ) { delete selected.forms.semfin; }
 	};
@@ -137,13 +141,13 @@ EOD;
 		selected.update();
 	});
 
-	var getForms = function( obj ) { var form = $( obj ).html(); if( form == 'None' ) { return; } else { return form; } };
-	$( '.selectpicker' ).on( 'changed.bs.select', function( ev, i, current, previous ) {
-		var form  = $( ev.target[ i ] ).val();
-		var round = $( ev.target[ i ] ).parent( '.selectpicker' );
-		if      ( round.hasClass( 'prelim' )) { selected.forms.prelim = $.map( $( '.prelim .filter-option' ), getForms ); }
-		else if ( round.hasClass( 'semfin' )) { selected.forms.semfin = $.map( $( '.semfin .filter-option' ), getForms ); }
-		else if ( round.hasClass( 'finals' )) { selected.forms.finals = $.map( $( '.finals .filter-option' ), getForms ); }
+	var getForms = function( i, obj ) { var form = $( obj ).text(); if( form == 'None' ) { return; } else { return form; } };
+	$( '.selectpicker' ).on( 'changed.bs.select', function( ev, i, manual, previous ) {
+		var target = $( this );
+		var form   = target.val();
+		var round  = target.attr( 'data-round' );
+		selected.forms[ round ] = $( `.${round} .filter-option` ).map( getForms ).toArray();
+		selected.manual[ round ] = manual;
 		selected.update();
 	});
 

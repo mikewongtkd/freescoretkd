@@ -112,6 +112,7 @@
 		settings.update();
 
 		// ===== UPDATE FORM SELECTION LISTS
+		Object.keys( selected.manual ).forEach(( round ) => { selected.manual[ round ] = false; });
 		selected.update();
 	}};
 	// ============================================================
