@@ -295,7 +295,13 @@ var draw = () => {
 						autovivify( ev, gender, age, round );
 
 						for( var i = 0; i < count[ round ]; i++ ) {
-							var j = Math.floor( Math.random() * pool.length );
+							var n = pool.length;
+							if( round == 'prelim' ) { n = n > 6 ? n - 2 : n; }
+							if( round == 'semfin' ) { n = n > 6 ? n - 2 : n; }
+							// var j = Math.floor( Math.random() * pool.length );
+							var j = Math.floor( Math.random() * n );
+							var cutoff = Math.ceil( pool.length / 4 );
+							if( round == 'finals' && j < cutoff ) { j = j + cutoff < pool.length ? j + cutoff : pool.length - 1; }
 							draws[ ev ][ gender ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
 						}
 					});
@@ -549,9 +555,9 @@ $( '#accept' ).off( 'click' ).click(() => {
 $( '#print' ).off( 'click' ).click(() => {
 	$( '.individual,.pair,.team' ).find( 'input' ).hide();
 	$( '.individual,.pair,.team' ).find( '.selected' ).show();
-	window.print();
-	$( '.individual,.pair,.team' ).find( 'input' ).show();
-	$( '.individual,.pair,.team' ).find( '.selected' ).hide();
+	// window.print();
+	// $( '.individual,.pair,.team' ).find( 'input' ).show();
+	// $( '.individual,.pair,.team' ).find( '.selected' ).hide();
 });
 
 // ===== SERVER COMMUNICATION
