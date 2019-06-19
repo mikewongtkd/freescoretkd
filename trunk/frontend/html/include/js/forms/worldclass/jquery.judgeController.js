@@ -296,11 +296,11 @@ $.widget( "freescore.judgeController", {
 				alertify.notify( ring + ' ' + judge + ' ready to score<br>' + athlete.display.name() + '<br>' + division.current.form.name() );
 
 				// ===== UPDATE TICKER
-				var info       = { 
-				                     division : html.span.clone() .addClass( "details" ) .html( division.description() ),
-				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
-				                     round    : html.span.clone() .addClass( "details" ) .html( `${division.round.name()} &mdash; ${division.current.form.description()}` )
-				                 };
+				var info = { 
+					division : html.span.clone() .addClass( "details" ) .html( division.description() ),
+					athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
+					round    : html.span.clone() .addClass( "details" ) .html( `${division.round.name()} - ${division.current.form.description()}` )
+				};
 				var tickerList = [ info.athlete, info.division, info.round ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( tickerList );

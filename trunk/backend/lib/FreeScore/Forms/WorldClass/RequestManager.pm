@@ -517,7 +517,6 @@ sub handle_division_judge_ping {
 	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
 	print STDERR "$name device ($jid) ping.\n" if $DEBUG > 1;
 
-	# $client->send( { json => { type => 'division', action => 'server pong', judge => $request->{ judge }}});
 	$self->broadcast_division_judge_status({ type => 'division', action => 'server pong', judge => $request->{ judge }, id => $id }, $progress, $clients );
 }
 
