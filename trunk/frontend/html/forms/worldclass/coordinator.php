@@ -270,7 +270,7 @@
 
 			ws.onmessage = network.message = function( response ) {
 				var update = JSON.parse( response.data );
-				console.log( update );
+				if( update.action != 'server pong' ) { console.log( update ); }
 
 				if( update.type == 'ring' && update.action == 'update' ) {
 					if( ! defined( update.ring )) { return; }
