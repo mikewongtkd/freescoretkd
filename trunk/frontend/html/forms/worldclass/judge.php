@@ -30,6 +30,7 @@
 		<script src="../../include/jquery/js/jquery.timer.js"></script>
 		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="../../include/opt/ws-heartbeat/websocket-heartbeat.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>

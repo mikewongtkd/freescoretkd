@@ -163,18 +163,19 @@ $.widget( "freescore.judgeController", {
 		var e           = this.options.elements;
 		var o           = this.options;
 		var html        = e.html;
-		var ws          = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+		var ws          = e.ws = new window.WebsocketHeartbeatJs({ url : 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring, pingMsg: `{"type":"division","action":"judge ping","judge":${o.num}}` }); 
 		var network     = { reconnect: 0 };
 
 		alertify.set( 'notifier', 'position', 'top-right' );
 
 		ws.onerror = network.error = function( error ) {
-			e.athlete.empty();
-			e.athlete.append( [ 'Network Error', 'Trying to Reconnect', 'Cannot Connect to Server' ].map( function( i ) { return html.li.clone().append( html.span.clone().addClass( "details" ).html( i )); }));
-			setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
+			if( network.reconnect > 5 ) { alertify.error( 'Connection failed' ); }
 		};
 
 		ws.onopen = network.connect = function() {
+			network.reconnect = 0;
+			alertify.success( 'Connected to server' );
+
 			var request  = { data : { type : 'division', action : 'read' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
@@ -182,6 +183,7 @@ $.widget( "freescore.judgeController", {
 
 		ws.onmessage = network.message = function( response ) {
 			var update   = JSON.parse( response.data ); if( ! defined( update.division ) || update.type != 'division' || update.action != 'update' ) { return; }
+			console.log( update );
 			var digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			var division = new Division( update.division );
 
@@ -295,12 +297,11 @@ $.widget( "freescore.judgeController", {
 
 				// ===== UPDATE TICKER
 				var info       = { 
-				                     division : html.span.clone() .addClass( "details" ) .html( division.summary() ),
+				                     division : html.span.clone() .addClass( "details" ) .html( division.description() ),
 				                     athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
-				                     round    : html.span.clone() .addClass( "details" ) .html( division.round.name() ),
-				                     form     : html.span.clone() .addClass( "details" ) .html( division.current.form.description() ),
+				                     round    : html.span.clone() .addClass( "details" ) .html( `${division.round.name()} &mdash; ${division.current.form.description()}` )
 				                 };
-				var tickerList = [ info.athlete, info.division, info.round, info.form ].map( function( item ) { return e.html.li.clone() .html( item ); });
+				var tickerList = [ info.athlete, info.division, info.round ].map( function( item ) { return e.html.li.clone() .html( item ); });
 				e.athlete .empty();
 				e.athlete .append( tickerList );
 
@@ -327,17 +328,15 @@ $.widget( "freescore.judgeController", {
 			o.current.form     = division.current.formId();
 		};
 
-		// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES
-		ws.onclose = network.close = function() {
-			if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
-				if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
-				network.reconnect++;
-				ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
-				// No connection handler; do not interrupt the judge, who may be currently scoring an athlete
-				ws.onerror   = network.error;
-				ws.onmessage = network.message;
-				ws.onclose   = network.close;
-			}
+		// ===== WEBSOCKET RECONNECT
+		ws.onreconnect = network.reconnect = () => {
+			if( network.reconnect == 0 ) { alertify.message( 'Connection to server lost' ); alertify.message( 'Reconnecting' ); }
+			network.reconnect++;
+			if( network.reconnect > 5 ) { alertify.message( 'Reconnecting' ); }
+		};
+
+		// ===== CLOSE WEBSOCKET
+		ws.onclose = network.close = () => {
 		};
 	}
 });

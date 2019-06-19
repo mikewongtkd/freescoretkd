@@ -297,6 +297,7 @@
 					refresh.judge( update );
 
 				} else if( update.type == 'division' && update.action == 'update' ) {
+
 					var division = update.division;
 					if( ! defined( division )) { return; }
 
@@ -308,6 +309,8 @@
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
 
+				} else if( update.type == 'division' && update.action == 'server pong' ) {
+					refresh.judge( update );
 				}
 			};
 
@@ -364,9 +367,19 @@
 			};
 
 			var judgeStatus = function( i, judge, state ) {
+				var message = undefined;
+				if( state.match( /not/i )) {
+					if( state.match( /registered/i )) {
+						message = alertify.error;
+					} else if( state.match( /needed/i )) {
+						message = alertify.message;
+					}
+				} else {
+					message = alertify.success;
+				}
 				return function() {
 					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
-					alertify.error( name + ' is ' + state );
+					message( name + ' is ' + state );
 				}
 			}
 
@@ -586,10 +599,13 @@
 					var i      = update.judge;
 					var name   = "judge" + i;
 					var button = $( ".judges button." + name );
-					if( button.hasClass( 'btn-success' )) {
+					if( update.action == 'server pong' ) {
+						var judge = { id: update.id };
+						button.removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge, 'Ready' ));
+					} else if( button.hasClass( 'btn-success' )) {
 						button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ).click( judgeStatus( i, {}, 'not registered' ));
 					} else if( button.hasClass( 'btn-primary' )) {
-							button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' );
+						button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' );
 					}
 				},
 				judges : function( update ) {

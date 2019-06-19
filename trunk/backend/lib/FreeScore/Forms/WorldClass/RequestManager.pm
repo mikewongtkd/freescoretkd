@@ -49,6 +49,7 @@ sub init {
 		form_prev          => \&handle_division_form_prev,
 		history            => \&handle_division_history,
 		judge_departure    => \&handle_division_judge_departure,
+		judge_ping         => \&handle_division_judge_ping,
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
@@ -116,6 +117,34 @@ sub broadcast_division_response {
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
+}
+
+# ============================================================
+sub broadcast_division_judge_status {
+# ============================================================
+# Broadcasts to ring
+# ------------------------------------------------------------
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+	my $client_id = sprintf "%s", sha1_hex( $client );
+
+	foreach my $id (sort keys %$clients) {
+		my $user      = $clients->{ $id };
+		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
+		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
+		my $unblessed = unbless( $message ); 
+		my $encoded   = $json->canonical->encode( $unblessed );
+		my $digest    = sha1_hex( $encoded );
+
+		$user->{ device }->send( { json => { %$request }});
+		$self->{ _last_state } = $digest if $client_id eq $id;
+	}
 }
 
 # ============================================================
@@ -470,6 +499,26 @@ sub handle_division_judge_departure {
 	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
 
 	print STDERR "Goodbye $name\n" if $DEBUG;
+}
+
+# ============================================================
+sub handle_division_judge_ping {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	my $id  = sprintf( "%s", sha1_hex( $client ));
+	my $jid  = substr( $id, 0, 4); # short judge id
+	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
+	print STDERR "$name device ($jid) ping.\n" if $DEBUG > 1;
+
+	# $client->send( { json => { type => 'division', action => 'server pong', judge => $request->{ judge }}});
+	$self->broadcast_division_judge_status({ type => 'division', action => 'server pong', judge => $request->{ judge }, id => $id }, $progress, $clients );
 }
 
 # ============================================================
