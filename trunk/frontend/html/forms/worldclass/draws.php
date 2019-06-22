@@ -81,149 +81,9 @@
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
-			<div class="pt-page pt-page-1">
-				<div class="container">
-					<div class="page-header"> Sport Poomsae Draws </div>
-
-					<form>
-						<div class="panel panel-primary" id="format">
-							<div class="panel-heading">
-								<h1 class="panel-title">Competition Format</h1>
-							</div>
-							<div class="panel-body">
-								<div class="form-group row">
-									<div class="col-xs-6">
-										<div class="row">
-											<label for="rings" class="col-xs-4 col-form-label">Format</label>
-											<div class="col-xs-8">
-												<div class="btn-group format" data-toggle="buttons" id="competition-format">
-													<label class="btn btn-default active"><input type="radio" name="competition-format" class="text-light" value="cutoff" checked>Cutoff</label>
-													<label class="btn btn-default"><input type="radio" name="competition-format" class="text-light" value="combination">Combination</label>
-													<label class="btn btn-default"><input type="radio" name="competition-format" class="text-light" value="team-trials">Team Trials</label>
-												</div>
-											</div>
-										</div>
-										<div class="row">
-											<label for="gender-draw" class="col-xs-4 col-form-label">Male and Female divisions have:</label>
-											<div class="col-xs-8"><input type="checkbox" class="gender" data-toggle="toggle" id="gender-draw" data-on="Different Forms" data-onstyle="primary" data-off="Same Forms" data-offstyle="primary"></div>
-										</div>
-										<div class="row">
-											<label for="replacement" class="col-xs-4 col-form-label">Before drawing the forms for the final round:</label>
-											<div class="col-xs-8"><input type="checkbox" checked class="replacement" data-toggle="toggle" id="replacement" data-on="Replace" data-onstyle="success" data-off="Do not replace" data-offstyle="danger"></div>
-										</div>
-									</div>
-									<div class="col-xs-6">
-										<div class="row">
-											<label for="prelim-count" class="col-xs-4 col-form-label">Preliminary Round</label>
-											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="prelim-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
-										</div>
-										<div class="row">
-											<label for="semfin-count" class="col-xs-4 col-form-label">Semi-Final Round</label>
-											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="semfin-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small"></div>
-										</div>
-										<div class="row">
-											<label for="finals-count" class="col-xs-4 col-form-label">Final Round</label>
-											<div class="col-xs-8"><input type="checkbox" class="count" data-toggle="toggle" id="finals-count" data-on="2 Forms" data-onstyle="success" data-off="1 Form" data-offstyle="primary" data-size="small" checked></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="clearfix">
-							<button type="button" class="btn btn-danger pull-left cancel" style="margin-right: 40px; width: 180px;">Cancel</button> 
-							<button type="button" id="delete" class="btn btn-primary pull-left disabled" style="margin-right: 40px; width: 180px;">Delete Draws</button> 
-							<button type="button draw" id="instant-draw" class="btn btn-primary pull-right" style="width: 180px;">Instant Draw</button> 
-							<button type="button" id="edit" class="btn btn-primary pull-right" style="margin-right: 40px; width: 180px;">Select Manually</button> 
-						</div>
-					</form>
-				</div>
-			</div>
-			<div class="pt-page pt-page-2">
-				<div class="container">
-					<div class="page-header">
-						<a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Redraw</a>
-						<span id="page-2-title">Draw Results</span>
-						<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="fa fa-keyboard-o"></span> Keyboard Shortcuts</a>
-					</div>
-
-					<div class="panel panel-primary individual" id="individual-coed">
-						<div class="panel-heading">
-							<div class="panel-title"> Individual </div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary individual" id="individual-female">
-						<div class="panel-heading">
-							<div class="panel-title"> Individual Female </div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary individual" id="individual-male">
-						<div class="panel-heading">
-							<div class="panel-title"> Individual Male </div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary pair" id="pair-coed">
-						<div class="panel-heading">
-							<div class="panel-title"> Pairs </div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary team" id="team-coed">
-						<div class="panel-heading">
-							<div class="panel-title"> Team </div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary team" id="team-female">
-						<div class="panel-heading">
-							<div class="panel-title"> Team Female</div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="panel panel-primary team" id="team-male">
-						<div class="panel-heading">
-							<div class="panel-title"> Team Male</div>
-						</div>
-						<div class="panel-body">
-							<table>
-							</table>
-						</div>
-					</div>
-
-					<div class="clearfix" style="height: 200px;">
-						<!-- TODO: Add download PDF or high-res PNG option -->
-						<button type="button" class="btn btn-danger pull-left cancel" style="width: 180px;">Cancel</button> 
-						<button type="button" id="accept" class="btn btn-success pull-right" style="width: 180px;">Accept</button> 
-						<button type="button" id="print" class="btn btn-warning pull-right" style="width: 180px; margin-right: 40px;"><span class="fa fa-print"></span> Print</button> 
-					</div>
-				</div>
-			</div>
+			<?php include( 'draws/settings.php' ); ?>
+			<?php include( 'draws/editing.php' ); ?>
+			<?php include( 'draws/display.php' ); ?>
 		</div>
 		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
@@ -237,12 +97,9 @@ var sound = {
 
 var page = {
 	num : 1,
-	transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
-	animation:  ( pn ) => {
-		switch( pn ) {
-			case 1: return 1;
-			case 2: return 2;
-		}
+	transition: ( to ) => { PageTransitions.nextPage({ showPage: (to - 1), animation: page.animation( to )}); page.num = to; },
+	animation:  ( to ) => {
+		return to >= page.num ? 1 : 2;
 	}
 };
 
@@ -256,9 +113,7 @@ $( '.list-group a' ).click( function( ev ) {
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var draws      = undefined;
-var method     = 'cutoff';
-var genderdraw = false;
-var count      = { prelim : 1, semfin : 1, finals : 2 };
+var settings   = { age: {groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, gender: false, method: 'cutoff' };
 
 // ===== BUSINESS LOGIC
 var draw = () => {
@@ -273,7 +128,7 @@ var draw = () => {
 	};
 
 	// ------------------------------------------------------------
-	if( method == 'cutoff' ) {
+	if( settings.method == 'cutoff' ) {
 	// ------------------------------------------------------------
 		var events  = FreeScore.rulesUSAT.poomsaeEvents();
 		events.forEach(( ev ) => {
@@ -294,15 +149,9 @@ var draw = () => {
 						if( round == 'finals' && replacement ) { pool = choices.slice( 0 ); } // Refresh the pool for the Finals
 						autovivify( ev, gender, age, round );
 
-						for( var i = 0; i < count[ round ]; i++ ) {
-							var n = pool.length;
-							if( round == 'prelim' ) { n = n > 6 ? n - 2 : n; }
-							if( round == 'semfin' ) { n = n > 6 ? n - 2 : n; }
-							// var j = Math.floor( Math.random() * pool.length );
-							var j = Math.floor( Math.random() * n );
-							var cutoff = Math.ceil( pool.length / 4 );
-							if( round == 'finals' && j < cutoff ) { j = j + cutoff < pool.length ? j + cutoff : pool.length - 1; }
-							draws[ ev ][ gender ][ age ][ round ].push( pool.splice( j, 1 )[ 0 ]);
+						for( var i = 0; i < settings.count[ round ]; i++ ) {
+							var j = Math.floor( Math.random() * pool.length );
+							draws[ ev ][ gender ][ age ][ round ].push( pool.splice( j, 1 ).shift() );
 						}
 					});
 				});
@@ -332,7 +181,7 @@ var draw = () => {
 						autovivify( ev, gender, age, round );
 
 						var r = round.match( /prelim|semfin/ ) ? round : 'finals'; // final1, final2, and final3 are all finals
-						var n = count[ r ];
+						var n = settings.count[ r ];
 
 						for( var i = 0; i < n; i++ ) {
 							var j = Math.floor( Math.random() * pool.length );
@@ -348,22 +197,20 @@ var draw = () => {
 
 var blank = () => {
 	var rules  = FreeScore.rulesUSAT;
-	var rounds;
-	if( method == 'cutoff' ) { rounds = [ 'prelim', 'semfin', 'finals' ]; } 
-	else                     { rounds = [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ]; }
+	var rounds = settings.method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
 	draws = {};
 	for( ev of rules.poomsaeEvents()) {
 		draws[ ev ] = {};
 		var genders;
-		if( ev.match( /pair/i ) || ! genderdraw ) { genders = [ 'c' ]; }
-		else if( genderdraw ) { genders = [ 'f', 'm' ] }
+		if( ev.match( /pair/i ) || ! settings.gender ) { genders = [ 'c' ]; }
+		else if( settings.gender ) { genders = [ 'f', 'm' ] }
 		for( gender of genders) { 
 			draws[ ev ][ gender ] = {}; 
 			for( age of rules.ageGroups( ev )) {
 				draws[ ev ][ gender ][ age ] = {};
 				for( round of rounds ) {
 					draws[ ev ][ gender ][ age ][ round ] = [];
-					for( var i = 0; i < count[ round ]; i++ ) {
+					for( var i = 0; i < settings.count[ round ]; i++ ) {
 						draws[ ev ][ gender ][ age ][ round ].push( '' );
 					}
 				}
@@ -377,7 +224,7 @@ var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numer
 var show = {
 	table : () => {
 		var html   = FreeScore.html;
-		var rounds = method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+		var rounds = settings.method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
 		var table  = undefined;
 		var tables = { c: '-coed', f: '-female', m: '-male' };
 		var focus  = undefined;
@@ -388,7 +235,7 @@ var show = {
 			var e    = ev.toLowerCase();
 			$( '.' + e ).hide();
 
-			var genders = genderdraw ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
+			var genders = settings.gender ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
 			for( var gender of genders ) {
 				var ages       = rules.ageGroups( ev );
 				var header     = [];
@@ -400,31 +247,33 @@ var show = {
 
 				for( var round of rounds ) {
 					var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
-					header.push( html.th.clone().attr({ colspan : count[ round ]}).html( text[ round ] ));
+					header.push( html.th.clone().attr({ colspan : settings.count[ round ]}).html( text[ round ] ));
 				}
 
 				for( var age of ages ) {
-					var row = [ html.th.clone().text( age ) ];
+					if( age in settings.age.groups && ! settings.age.groups[ age ] ) { continue; }
+					var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
+					var label = age in text ? text[ age ] : age;
+					var row   = [ html.th.clone().text( label ) ];
 					for( var round of rounds ) {
-						var forms = [].fill( '', 0, count[ round ] );
+						var forms = [].fill( '', 0, settings.count[ round ] );
 						if( defined( draw ) && gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
-							var n = Math.min( draw[ gender ][ age ][ round ].length, count[ round ]);
+							var n = Math.min( draw[ gender ][ age ][ round ].length, settings.count[ round ]);
 							for( var i = 0; i < n; i++ ) {
 								forms[ i ] = draw[ gender ][ age ][ round ][ i ];
 							}
 						}
-						for( var i = 0; i < count[ round ]; i++ ) {
+						for( var i = 0; i < settings.count[ round ]; i++ ) {
 							var form    = forms[ i ];
 							var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
 							var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( ev, age, 'k' )); 
 							var div     = JSON.stringify( { 'event': ev, gender: gender, age: age, round: round, form: i });
 							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices, 'data-division': div }).val( form );
-							var select  = html.div.clone().addClass( `selected selected-${i+1}` ).html( form ).hide();
 							var td    = html.td.clone();
 
 							if( ! defined( focus )) { focus = id; }
 
-							td.append( input, select );
+							td.append( input );
 							row.push( td );
 						}
 					}
@@ -468,21 +317,25 @@ var show = {
 		});
 
 		setTimeout(() => { $( '#' + focus ).click(); }, 750 );
+	},
+	display : () => {
+		var html   = FreeScore.html;
+		var rounds = settings.method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
 	}
 };
 
 // ===== FORM ELEMENT BEHAVIOR
-$( '.format label' ).off( 'click' ).click(( ev ) => { 
-	var clicked = $( ev.target ).find( 'input[type="radio"]' );
-	method      = clicked.val();
+$( 'input[type="radio"].format' ).change(( ev ) => { 
+	var clicked     = $( ev.target );
+	settings.method = clicked.val();
 	sound.next.play();
 });
 
 // Draws for each gender
 $( '#gender-draw' ).change(( ev ) => {
-	var clicked = $( ev.target );
-	var value   = clicked.prop( 'checked' );
-	genderdraw  = value;
+	var clicked     = $( ev.target );
+	var value       = clicked.prop( 'checked' );
+	settings.gender = value;
 	sound.next.play();
 });
 
@@ -493,19 +346,32 @@ $( '#replacement' ).change(( ev ) => {
 // Draws per round
 $( 'input[type="checkbox"].count' ).change(( ev ) => {
 	var clicked = $( ev.target );
-	var name    = clicked.attr( 'id' ).replace( /\-count$/i, '' );
+	var name    = clicked.attr( 'data-round' );
 	var value   = clicked.prop( 'checked' ) ? clicked.attr( 'data-on' ) : clicked.attr( 'data-off' );
-	count[ name ] = parseInt( value );
+	settings.count[ name ] = parseInt( value );
 	sound.next.play();
 });
 
+// Age groups
+$( 'input[type="checkbox"].age-group' ).each(( i, group ) => {
+	var value = $( group ).val();
+	settings.age.groups[ value ] = $( group ).prop( 'checked' );
+});
+
+$( 'input[type="checkbox"].age-group' ).change(( ev ) => {
+	var clicked = $( ev.target );
+	var value   = clicked.val();
+	settings.age.groups[ value ] = clicked.prop( 'checked' );
+	if( settings.age.groups[ value ]) { sound.next.play(); } else { sound.prev.play(); }
+});
+
 // ===== BUTTON BEHAVIOR
-$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition(); });
+$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition( 2 ); });
 
 $( '#back-to-draws' ).off( 'click' ).click(( ev ) => { 
 	// ===== SWITCH THE PAGE
 	sound.prev.play();
-	page.transition(); 
+	page.transition( 1 ); 
 });
 
 $( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
@@ -516,12 +382,22 @@ $( '#keyboard-shortcuts' ).off( 'click' ).click(() => {
 	}).show();
 });
 
-$( '.cancel' ).off( 'click' ).click(() => { 
+$( '.pt-page-1 .cancel' ).off( 'click' ).click(() => { 
 	sound.prev.play();
 	setTimeout( function() { window.location = '../../index.php' }, 500 ); 
 });
 
-$( '#delete' ).off( 'click' ).click(() => {
+$( '.pt-page-2 .cancel' ).off( 'click' ).click(() => { 
+	sound.prev.play();
+	page.transition( 1 );
+});
+
+$( '.pt-page-3 .cancel' ).off( 'click' ).click(() => { 
+	sound.prev.play();
+	page.transition( 2 );
+});
+
+$( '.pt-page-1 .delete' ).off( 'click' ).click(() => {
 	if( $( '#delete' ).hasClass( 'disabled' )) { return; }
 	alertify.confirm( 
 		'Delete Poomsae Draws?', 
@@ -537,27 +413,20 @@ $( '#delete' ).off( 'click' ).click(() => {
 	).set( 'labels', { ok: 'Delete', cancel: 'Cancel' });
 });
 
-$( '#edit' ).off( 'click' ).click(() => {
+$( '.page-1 .edit' ).off( 'click' ).click(() => {
 	if( $( '#edit' ).text() == 'Select Manually' ) { blank(); }
 
 	sound.next.play();
 	show.table();
-	page.transition();
+	page.transition( 2 );
 });
 
-$( '#accept' ).off( 'click' ).click(() => { 
+$( '.pt-page-2 .accept' ).off( 'click' ).click(() => { 
 	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
-	console.log( request.json ); 
 	ws.send( request.json );
-});
 
-$( '#print' ).off( 'click' ).click(() => {
-	$( '.individual,.pair,.team' ).find( 'input' ).hide();
-	$( '.individual,.pair,.team' ).find( '.selected' ).show();
-	// window.print();
-	// $( '.individual,.pair,.team' ).find( 'input' ).show();
-	// $( '.individual,.pair,.team' ).find( '.selected' ).hide();
+	page.transition( 3 );
 });
 
 // ===== SERVER COMMUNICATION
@@ -592,7 +461,7 @@ ws.onmessage = function( response ) {
 			$( '#delete' ).removeClass( 'disabled' );
 			$( '#edit' ).text( 'Edit' );
 			show.table();
-			page.transition();
+			page.transition( 2 );
 
 		} else if( update.request.action == 'draws write' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
