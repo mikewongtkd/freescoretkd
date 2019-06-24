@@ -3,7 +3,7 @@
 					<div class="page-header">
 						<span id="page-3-title">Sport Poomsae Designated Poomsae</span>
 					</div>
-					<table id="#display">
+					<table id="display">
 					</table>
 					<div class="clearfix" style="height: 200px;">
 						<button type="button" class="btn btn-warning pull-left cancel" style="width: 180px;"><span class="glyphicon glyphicon-menu-left"></span> Edit</button> 

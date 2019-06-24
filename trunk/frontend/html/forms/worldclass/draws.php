@@ -7,6 +7,7 @@
 		<title>Sport Poomsae Draws</title>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="../../include/css/forms/worldclass/draws.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -62,13 +63,6 @@
 			.btn-group .btn.active {
 				color: white;
 			}
-
-			.row { margin-bottom: 8px; }
-			table { width: 100%; background: transparent; }
-			table tr th { padding-bottom: 4px; }
-			table th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
-			table tr:nth-child( odd )>th { border-bottom: 1px solid #ccc; }
-			table tr:nth-child( odd )>td { border-bottom: 1px solid #ccc; }
 
 			input[type=text].form-draw {
 				border: none;
@@ -280,10 +274,6 @@ var show = {
 					rows.push( row );
 				}
 
-				if       ( gender == 'f' ) {
-				} else if( gender == 'm' ) {
-				}
-
 				table.append( html.tr.clone().append( html.th.clone().html( '&nbsp;' ), header ));
 				for( var row of rows ) {
 					table.append( html.tr.clone().append( row ));
@@ -319,8 +309,108 @@ var show = {
 		setTimeout(() => { $( '#' + focus ).click(); }, 750 );
 	},
 	display : () => {
-		var html   = FreeScore.html;
-		var rounds = settings.method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+		var html    = FreeScore.html;
+		var rules   = FreeScore.rulesUSAT;
+		var rounds  = settings.method == 'cutoff' ? [ 'prelim', 'semfin', 'finals' ] : [ 'prelim', 'semfin', 'final1', 'final2', 'final3' ];
+		var genders = settings.gender ? [ 'f', 'm' ] : [ 'c' ];
+		var rowspan = {};
+		var label   = {};
+		var table   = $( '#display' );
+		var row     = undefined;
+		console.log( 'GENDERS', genders );
+
+		table.empty();
+
+		// Calculate table width
+		var formcols = Object.values( settings.count ).reduce(( acc, cur ) => { return acc + cur; }, 0);
+		var width    = 2 + (genders.length * formcols);
+
+		row = html.tr.clone().addClass( 'subsection' )
+		row.append( html.td.clone().attr({ colspan: width }).html( 'Black Belt Designated Poomsae' ));
+		table.append( row );
+
+		console.log( row );
+
+		// Add gender heading (if needed)
+		if( settings.gender ) {
+			row = html.tr.clone().addClass( 'genders' );
+			row.append( html.td.clone().attr({ colspan : 2 }).html( '&nbsp;' ));
+			row.append( html.td.clone().addClass( 'f' ).attr({ colspan : formcols }).html( 'Female' ));
+			row.append( html.td.clone().addClass( 'm' ).attr({ colspan : formcols }).html( 'Male' ));
+			table.append( row );
+		}
+
+		// Add rounds
+		row = html.tr.clone().addClass( 'rounds' );
+		row.append( html.td.clone().html( '&nbsp;' ), html.td.clone().html( 'Division' ));
+		for( var gender of genders ) {
+			for( var round of rounds ) {
+				var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
+				row.append( html.td.clone().addClass( `round ${gender}` ).attr({ colspan : settings.count[ round ]}).html( text[ round ] ));
+			}
+		}
+		table.append( row );
+	
+		// Calculate event label rowspans
+		for( var ev of rules.poomsaeEvents()) {
+			var ages = rules.ageGroups( ev );
+
+			for( var age of ages ) {
+				if( age in settings.age.groups && ! settings.age.groups[ age ] ) { continue; }
+				if( ev in rowspan ) { rowspan[ ev ]++; } else { rowspan[ ev ] = 1; }
+			}
+		}
+
+		// Start populating the table
+		for( var ev of [ 'Individual', 'Team', 'Pair' ]) {
+			var draw    = draws[ ev ];
+			var e       = ev.toLowerCase();
+			var ages    = rules.ageGroups( ev );
+			var genders = settings.gender ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
+			var ages    = rules.ageGroups( ev );
+			var row     = html.tr.clone();
+
+			label.event = { 
+				'Individual': { limit: 7, short: { name: 'IND.', offset: '32px' }, long: { name: 'INDIVIDUAL', offset: '90px' }},
+				'Pair':       { limit: 2, short: { name: 'PR',   offset: ''     }, long: { name: 'PAIR',       offset: '20px' }},
+				'Team':       { limit: 2, short: { name: 'TM',   offset: '6px'  }, long: { name: 'TEAM',       offset: '30px' }},
+			};
+
+			var evt = rowspan[ ev ] <= label.event[ ev ].limit ? label.event[ ev ].short : label.event[ ev ].long;
+
+			row.append( html.td.clone().addClass( e ).attr({ rowspan: rowspan[ ev ] }).append( html.div.clone().addClass( 'rotate' ).attr({ 'data-offset' : evt.offset }).html( evt.name )));
+
+			for( var age of ages ) {
+				if( age in settings.age.groups && ! settings.age.groups[ age ] ) { continue; }
+				var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
+				var label = { age: age in text ? text[ age ] : age };
+				var td    = html.td.clone().html( label.age );
+
+				row.append( td );
+
+				for( var gender of genders ) {
+					for( var round of rounds ) {
+						var forms = [].fill( '', 0, settings.count[ round ] );
+						if( defined( draw ) && gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
+							var n = Math.min( draw[ gender ][ age ][ round ].length, settings.count[ round ]);
+							for( var i = 0; i < n; i++ ) { forms[ i ] = draw[ gender ][ age ][ round ][ i ]; }
+							for( var i = 0; i < settings.count[ round ]; i++ ) {
+								td = html.td.clone().html( forms[ i ]);
+								row.append( td );
+							}
+						}
+					}
+				}
+				table.append( row );
+				row = html.tr.clone();
+
+			}
+		}
+		$( '.rotate' ).each(( i, item ) => {
+			var height = $( item ).height();
+			var offset = $( item ).attr( 'data-offset' );
+			$( item ).css({ height: '28px', width: height, 'margin-top' : offset, transform: 'rotate(-90.0deg)' });
+		});
 	}
 };
 
@@ -425,7 +515,7 @@ $( '.pt-page-2 .accept' ).off( 'click' ).click(() => {
 	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
 	ws.send( request.json );
-
+	show.display();
 	page.transition( 3 );
 });
 
@@ -466,7 +556,6 @@ ws.onmessage = function( response ) {
 		} else if( update.request.action == 'draws write' ) {
 			alertify.success( 'Sport Poomsae Draws Saved.' );
 			sound.send.play();
-			setTimeout(() => { window.location = '../../index.php' }, 3000 );
 
 		} else if( update.request.action == 'draws delete' ) {
 			alertify.success( 'Sport Poomsae Draws Deleted.' );
