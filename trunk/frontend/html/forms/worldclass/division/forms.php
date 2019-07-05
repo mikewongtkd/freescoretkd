@@ -97,13 +97,14 @@ EOD;
 		// ===== CREATE FORM SELECTION DESCRIPTION FROM SELECTIONS
 		selected.description = '';
 
-		if( division.round == 'prelim' ) {
-			selected.description += '<span class="meta">Preliminary Round</span><span class="forms">' + selected.forms.prelim.join( ', ' ) + '</span>';
-		} 
-		if( division.round == 'semfin' ) {
-			selected.description += '<span class="meta">Semi-Final Round</span><span class="forms">'  + selected.forms.semfin.join( ', ' ) + '</span>';
-		}
-		selected.description += '<span class="meta">Final Round</span><span class="forms">'       + selected.forms.finals.join( ', ' ) + '</span>';
+		FreeScore.round.order.forEach(( round ) => {
+			if( ! round in selected.forms ) { return; }
+			if( ! defined( selected.forms[ round ])) { return; }
+			if( selected.forms[ round ].length == 0 ) { return; }
+			if( division.flight && round != 'prelim' ) { return; }
+			var rname = FreeScore.round.name[ round ];
+			selected.description += `<span class="meta">${rname} Round</span><span class="forms">${selected.forms[ round ].join( ', ' )}</span>`;
+		});
 
 		validate.input();
 
@@ -128,8 +129,14 @@ EOD;
 				$( `#${round}${i+1}` ).selectpicker( 'val',  form );
 			});
 		}
-		if( n <  20 && ! flight ) { delete selected.forms.prelim; }
-		if( n <=  8 && ! flight ) { delete selected.forms.semfin; }
+		if( flight ) {
+			delete selected.forms.semfin;
+			delete selected.forms.finals;
+
+		} else {
+			if( n <  20 ) { delete selected.forms.prelim; }
+			if( n <=  8 ) { delete selected.forms.semfin; }
+		}
 	};
 
 	// ============================================================

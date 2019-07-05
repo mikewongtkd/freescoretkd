@@ -43,13 +43,14 @@
 				prev      : new Howl({ urls: [ "../../../sounds/prev.mp3",     "../../../sounds/prev.ogg"   ]}),
 			};
 
-			var division    = { athletes : [], judges : 5, summary : function() { return this.name.toUpperCase() + ' ' + this.description; }};
+			var division    = { athletes : [], flight: false, judges : 5, summary : function() { var summary = this.name.toUpperCase() + ' ' + this.description; if( this.flight ) { summary += ` [Flight ${JSON.parse(this.flight).id.toUpperCase()}]`; } return summary; }};
 			var init        = {};
 			var settings    = {};
 			var description = {};
 			var athletes    = {};
 			var validate    = {};
 			var warnings    = {};
+			var set         = ( key, value ) => { division[ key ] = value; }; // Workaround closure to edit top-level division
 		</script>
 
 		<div class="container">
@@ -269,6 +270,9 @@
 				} else if( update.type == 'division' ) {
 					if( update.action == 'update' ) {
 						var division = new Division( update.division );
+
+						if( division.is.flight()) { set( 'flight', JSON.stringify( division.flight())); }
+
 						init.settings( division );
 						init.description( division );
 						init.forms( division );
