@@ -1,0 +1,58 @@
+.pt-page-2 .row {
+  margin-bottom: 8px; }
+.pt-page-2 table {
+  width: 100%;
+  background: transparent; }
+  .pt-page-2 table tr th {
+    padding-bottom: 4px; }
+  .pt-page-2 table th, .pt-page-2 table td {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 10pt; }
+  .pt-page-2 table tr:nth-child(odd) > th {
+    border-bottom: 1px solid #ccc; }
+  .pt-page-2 table tr:nth-child(odd) > td {
+    border-bottom: 1px solid #ccc; }
+
+#display {
+  width: 100%;
+  margin-top: 40px;
+  margin-bottom: 40px; }
+  #display td {
+    padding-left: 2px;
+    padding-right: 2px; }
+  #display .subsection td {
+    padding: 2px;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    text-align: center; }
+  #display .genders td, #display .round td {
+    padding: 2px;
+    font-weight: bold;
+    text-align: center; }
+    #display .genders td.m, #display .round td.m {
+      background-color: #a4c2f4; }
+    #display .genders td.f, #display .round td.f {
+      background-color: #f9cb9c; }
+  #display .individual, #display .team, #display .pair {
+    padding: 8px;
+    width: 44px;
+    font-weight: bold;
+    font-size: 18pt; }
+  #display .individual {
+    background-color: #6fa8dc; }
+  #display .team {
+    background-color: #c27ba0; }
+  #display .pair {
+    background-color: #93c47d; }
+  #display .yellow {
+    background-color: #ffff00; }
+  #display .green {
+    background-color: #00ff00; }
+  #display .blue {
+    background-color: #6fa8dc; }
+  #display .red {
+    background-color: #cc0000; }
+
+/*# sourceMappingURL=draws.css.map */

@@ -1,0 +1,63 @@
+
+.pt-page-2 {
+	.row { margin-bottom: 8px; }
+	table { 
+		width: 100%; 
+		background: transparent; 
+		tr th { padding-bottom: 4px; }
+		th, td { padding-left: 2px; padding-right: 2px; font-size: 10pt; }
+		tr:nth-child( odd )>th { border-bottom: 1px solid #ccc; }
+		tr:nth-child( odd )>td { border-bottom: 1px solid #ccc; }
+	}
+}
+
+#display {
+	width: 100%;
+	margin-top: 40px;
+	margin-bottom: 40px;
+	td {
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+
+	.subsection td {
+		padding: 2px;
+		background-color: black;
+		color: white;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	.genders, .round {
+		td {
+			padding: 2px;
+			font-weight: bold;
+			text-align: center;
+
+			&.m { background-color: #a4c2f4; }
+			&.f { background-color: #f9cb9c; }
+		}
+	}
+
+	.individual, .team, .pair {
+		padding: 8px;
+		width: 44px;
+		font-weight: bold;
+		font-size: 18pt;
+	}
+
+	.individual {
+		background-color: #6fa8dc;
+	}
+	.team {
+		background-color: #c27ba0;
+	}
+	.pair {
+		background-color: #93c47d;
+	}
+
+	.yellow { background-color: #ffff00; }
+	.green  { background-color: #00ff00; }
+	.blue   { background-color: #6fa8dc; }
+	.red    { background-color: #cc0000; }
+}
