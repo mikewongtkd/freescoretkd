@@ -21,6 +21,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/opt/jstat/jstat.min.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -112,9 +113,31 @@ var settings   = { age: {groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }
 // ===== BUSINESS LOGIC
 var draw = () => {
 	draws = {};
-	var replacement = $( '#replacement' ).prop( 'checked' );
+	var replacement  = $( '#replacement' ).prop( 'checked' );
+	var uniform      = $( '#uniform' ).prop( 'checked' );
+	var distribution = {
+		uniform : ( choices, round, form ) => { return Math.floor( Math.random() * choices.length ); },
+		beta :    ( choices, round, form ) => {
+			var x    = Math.random();
+			var skew = 4;
+			var distribution = {
+				prelim : [ x => jStat.beta.inv( x, 1, skew ),     x => jStat.beta.inv( x, 2, skew + 1 ) ],
+				semfin : [ x => jStat.beta.inv( x, 2, skew ),     x => jStat.beta.inv( x, skew, 2 )],
+				finals : [ x => jStat.beta.inv( x, skew + 1, 2 ), x => jStat.beta.inv( x, skew - 1, 1 )]
+			};
 
-	var autovivify = ( ev, gender, age, round ) => {
+			distribution.final1 = distribution.prelim;
+			distribution.final2 = distribution.semfin;
+			distribution.final3 = distribution.finals;
+
+			form = form > 0 ? 1 : 0; // Cap the function in case of more than 1 form selection
+			var choice = Math.floor( distribution[ round ][ form ]( x ) * choices.length );
+			return choice;
+		}
+	}
+	var random = uniform ? distribution.uniform : distribution.beta;
+
+	var autovivify  = ( ev, gender, age, round ) => {
 		if( ! defined( draws[ ev ] ))                           { draws[ ev ]                           = {}; }
 		if( ! defined( draws[ ev ][ gender ] ))                 { draws[ ev ][ gender ]                 = {}; }
 		if( ! defined( draws[ ev ][ gender ][ age ] ))          { draws[ ev ][ gender ][ age ]          = {}; }
@@ -144,7 +167,7 @@ var draw = () => {
 						autovivify( ev, gender, age, round );
 
 						for( var i = 0; i < settings.count[ round ]; i++ ) {
-							var j = Math.floor( Math.random() * pool.length );
+							var j = random( pool, round, i );
 							draws[ ev ][ gender ][ age ][ round ].push( pool.splice( j, 1 ).shift() );
 						}
 					});

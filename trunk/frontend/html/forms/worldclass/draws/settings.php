@@ -35,6 +35,10 @@
 										<label for="replacement" class="col-xs-4 col-form-label">Before drawing the forms for the final round:</label>
 										<div class="col-xs-8"><input type="checkbox" checked class="replacement" data-toggle="toggle" id="replacement" data-on="Replace" data-onstyle="success" data-off="Do not replace" data-offstyle="danger"></div>
 									</div>
+									<div class="row">
+										<label for="replacement" class="col-xs-4 col-form-label">Probability Distribution:</label>
+										<div class="col-xs-8"><input type="checkbox" checked class="uniform" data-toggle="toggle" id="uniform" data-on="Uniform" data-onstyle="primary" data-off="Beta</sub>" data-offstyle="primary"></div>
+									</div>
 								</div>
 								<div class="col-xs-6">
 									<div class="row">

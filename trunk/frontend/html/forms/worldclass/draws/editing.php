@@ -78,7 +78,7 @@
 
 					<div class="clearfix" style="height: 200px;">
 						<!-- TODO: Add download PDF or high-res PNG option -->
-						<button type="button" class="btn btn-danger pull-left cancel" style="width: 180px;">Cancel</button> 
+						<button type="button" class="btn btn-warning pull-left cancel" style="width: 180px;"><span class="glyphicon glyphicon-menu-left"></span> Settings</button> 
 						<button type="button" class="btn btn-success pull-right accept" style="width: 180px;">Accept</button> 
 					</div>
 				</div>
