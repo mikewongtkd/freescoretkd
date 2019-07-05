@@ -237,6 +237,7 @@ sub read_draws {
 
 	# Prune leafless branches
 	foreach my $event (keys %$draws) {
+		next if( $event eq 'settings' );
 		my $genders = $draws->{ $event };
 		foreach my $gender (keys %$genders) {
 			my $ages = $genders->{ $gender };
@@ -313,6 +314,7 @@ sub write_draws {
 	# Filter out blanks
 	my $count = { event => 0, gender => 0, age => 0 };
 	foreach my $ev (keys %$draws) {
+		next if( $ev eq 'settings' );
 		$count->{ event } = 0;
 		foreach my $gender (keys %{$draws->{ $ev }}) {
 			$count->{ gender } = 0;

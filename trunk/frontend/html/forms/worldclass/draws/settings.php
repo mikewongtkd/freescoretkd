@@ -37,7 +37,7 @@
 									</div>
 									<div class="row">
 										<label for="replacement" class="col-xs-4 col-form-label">Probability Distribution:</label>
-										<div class="col-xs-8"><input type="checkbox" checked class="uniform" data-toggle="toggle" id="uniform" data-on="Uniform" data-onstyle="primary" data-off="Beta</sub>" data-offstyle="primary"></div>
+										<div class="col-xs-8"><input type="checkbox" class="uniform" data-toggle="toggle" id="uniform" data-on="Uniform" data-onstyle="primary" data-off="Beta</sub>" data-offstyle="primary"></div>
 									</div>
 								</div>
 								<div class="col-xs-6">
@@ -56,7 +56,17 @@
 								</div>
 							</div>
 							<div class="form-group row">
-								<label for="finals-count" class="col-xs-2 col-form-label">Age Groups</label>
+								<label for="events" class="col-xs-2 col-form-label">Events</label>
+								<div class="col-xs-10">
+									<div class="btn-group format" data-toggle="buttons" id="events">
+										<label class="btn btn-default active"><input type="checkbox" name="events[]" class="events text-light" value="Individual" checked>Individual</label>
+										<label class="btn btn-default active"><input type="checkbox" name="events[]" class="events text-light" value="Team"       checked>Team</label>
+										<label class="btn btn-default active"><input type="checkbox" name="events[]" class="events text-light" value="Pair"       checked>Pair</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="age-groups" class="col-xs-2 col-form-label">Age Groups</label>
 								<div class="col-xs-10">
 									<div class="btn-group format" data-toggle="buttons" id="age-groups">
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="6-7"     checked>6-7</label>
@@ -65,13 +75,13 @@
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="10-11"   checked>10-11</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="12-14"   checked>12-14</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="15-17"   checked>15-17</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="under30" checked>&leq;30</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="over30"  checked>&gt; 30<sup>*</sup></label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="under40" checked>&leq; 40</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="under50" checked>&leq; 50</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="under60" checked>&leq; 60</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="under65" checked>&leq; 65</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="over65"  checked>&gt; 65</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="18-30"   checked>&leq;30</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="31+"     checked>&gt; 30<sup>*</sup></label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="31-40"   checked>&leq; 40</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="41-50"   checked>&leq; 50</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="51-60"   checked>&leq; 60</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="61-65"   checked>&leq; 65</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="66+"     checked>&gt; 65</label>
 									</div>
 									<p><b>*</b> Age divisions for Pairs and Teams</p>
 								</div>
@@ -80,9 +90,9 @@
 					</div>
 					<div class="clearfix">
 						<button type="button" class="btn btn-danger pull-left cancel" style="margin-right: 40px; width: 180px;">Cancel</button> 
-						<button type="button delete" class="btn btn-primary pull-left disabled" style="margin-right: 40px; width: 180px;">Delete Draws</button> 
+						<button type="button" class="btn btn-primary pull-left delete disabled" style="margin-right: 40px; width: 180px;">Delete Draws</button> 
 						<button type="button" id="instant-draw" class="btn btn-primary pull-right" style="width: 180px;">Instant Draw</button> 
-						<button type="button edit" class="btn btn-primary pull-right" style="margin-right: 40px; width: 180px;">Select Manually</button> 
+						<button type="button" class="btn btn-primary pull-right edit" style="margin-right: 40px; width: 180px;">Select Manually</button> 
 					</div>
 				</div>
 			</div>

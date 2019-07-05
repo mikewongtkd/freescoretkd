@@ -1,7 +1,7 @@
 			<div class="pt-page pt-page-2">
 				<div class="container">
 					<div class="page-header">
-						<a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Redraw</a>
+						<a id="back-to-draws" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Settings &amp; Redraw</a>
 						<span id="page-2-title">Edit Draw Results</span>
 						<a class="btn btn-xs btn-info pull-right" id="keyboard-shortcuts"><span class="fa fa-keyboard-o"></span> Keyboard Shortcuts</a>
 					</div>
@@ -77,8 +77,6 @@
 					</div>
 
 					<div class="clearfix" style="height: 200px;">
-						<!-- TODO: Add download PDF or high-res PNG option -->
-						<button type="button" class="btn btn-warning pull-left cancel" style="width: 180px;"><span class="glyphicon glyphicon-menu-left"></span> Settings</button> 
 						<button type="button" class="btn btn-success pull-right accept" style="width: 180px;">Accept</button> 
 					</div>
 				</div>

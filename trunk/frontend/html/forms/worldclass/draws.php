@@ -62,6 +62,7 @@
 			}
 
 			#back-to-draws { margin-top: -4px; }
+			#back-to-edit  { margin-top: -4px; }
 			#keyboard-shortcuts { margin-top: 4px; }
 		</style>
 	</head>
@@ -99,9 +100,41 @@ $( '.list-group a' ).click( function( ev ) {
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var draws      = undefined;
-var settings   = { age: {groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, gender: false, method: 'cutoff' };
+var settings   = { age: { groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, events: {}, gender: false, method: 'cutoff' };
 
 // ===== BUSINESS LOGIC
+var load = ( settings ) => {
+	// Method
+	$( `#competition-format input[type="radio"][value="${settings.method}"]` ).click();
+
+	// Gender
+	if( settings.gender ) { $( '#gender-draw' ).bootstrapToggle( 'on' ); } else { $( '#gender-draw' ).bootstrapToggle( 'off' ); }
+
+	// Count
+	Object.keys( settings.count ).forEach(( round ) => {
+		var toggle = ( state ) => { $( `#${round}-count` ).bootstrapToggle( state ); }
+		if( settings.count[ round ] == 1 ) { toggle( 'off' ); } else { toggle( 'on' ); }
+	});
+
+	// Events
+	Object.keys( settings.events ).forEach(( ev ) => {
+		var checked = settings.events[ ev ];
+		var button  = $( `input.events[value="${ev}"]` );
+		var label   = button.parents( 'label' );
+		button.prop( 'checked', checked );
+		if( checked ) { label.addClass( 'active' ); } else { label.removeClass( 'active' ); }
+	});
+
+	// Age Groups
+	Object.keys( settings.age.groups ).forEach(( age ) => {
+		var checked = settings.age.groups[ age ];
+		var button  = $( `input.age-group[value="${age}"]` );
+		var label   = button.parents( 'label' );
+		button.prop( 'checked', checked );
+		if( checked ) { label.addClass( 'active' ); } else { label.removeClass( 'active' ); }
+	});
+};
+
 var draw = () => {
 	draws = {};
 	var replacement  = $( '#replacement' ).prop( 'checked' );
@@ -140,6 +173,8 @@ var draw = () => {
 	// ------------------------------------------------------------
 		var events  = FreeScore.rulesUSAT.poomsaeEvents();
 		events.forEach(( ev ) => {
+			if( ! ev in settings.events || ! settings.events[ ev ] ) { return; }
+
 			var genders = [];
 			var rank    = 'k'; // Black belt
 			var ages    = FreeScore.rulesUSAT.ageGroups( ev );
@@ -149,6 +184,8 @@ var draw = () => {
 
 			genders.forEach(( gender ) => {
 				ages.forEach(( age ) => {
+					if( ! age in settings.age.groups || ! settings.age.groups[ age ] ) { return; }
+
 					var choices = FreeScore.rulesUSAT.recognizedPoomsae( ev, age, rank );
 					var rounds  = [ 'prelim', 'semfin', 'finals' ];
 					var pool    = choices.slice( 0 ); // clone the choices
@@ -239,9 +276,10 @@ var show = {
 		var rules  = FreeScore.rulesUSAT;
 
 		for( var ev of rules.poomsaeEvents()) {
+			var e = ev.toLowerCase();
+			if( ! ev in settings.events || ! settings.events[ ev ] ) { $( `.${e}` ).hide(); continue; }
 			var draw = draws[ ev ];
-			var e    = ev.toLowerCase();
-			$( '.' + e ).hide();
+			$( `.${e}` ).hide();
 
 			var genders = settings.gender ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
 			for( var gender of genders ) {
@@ -259,7 +297,7 @@ var show = {
 				}
 
 				for( var age of ages ) {
-					if( age in settings.age.groups && ! settings.age.groups[ age ] ) { continue; }
+					if( ! age in settings.age.groups || ! settings.age.groups[ age ] ) { continue; }
 					var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
 					var label = age in text ? text[ age ] : age;
 					var row   = [ html.th.clone().text( label ) ];
@@ -331,7 +369,6 @@ var show = {
 		var label   = {};
 		var table   = $( '#display' );
 		var row     = undefined;
-		console.log( 'GENDERS', genders );
 
 		table.empty();
 
@@ -342,8 +379,6 @@ var show = {
 		row = html.tr.clone().addClass( 'subsection' )
 		row.append( html.td.clone().attr({ colspan: width }).html( 'Black Belt Designated Poomsae' ));
 		table.append( row );
-
-		console.log( row );
 
 		// Add gender heading (if needed)
 		if( settings.gender ) {
@@ -377,6 +412,8 @@ var show = {
 
 		// Start populating the table
 		for( var ev of [ 'Individual', 'Team', 'Pair' ]) {
+			if( ! ev in settings.events || ! settings.events[ ev ] ) { continue; }
+				
 			var draw    = draws[ ev ];
 			var e       = ev.toLowerCase();
 			var ages    = rules.ageGroups( ev );
@@ -395,7 +432,7 @@ var show = {
 			row.append( html.td.clone().addClass( e ).attr({ rowspan: rowspan[ ev ] }).append( html.div.clone().addClass( 'rotate' ).attr({ 'data-offset' : evt.offset }).html( evt.name )));
 
 			for( var age of ages ) {
-				if( age in settings.age.groups && ! settings.age.groups[ age ] ) { continue; }
+				if( ! age in settings.age.groups || ! settings.age.groups[ age ] ) { continue; }
 				var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
 				var label = { age: age in text ? text[ age ] : age };
 				var td    = html.td.clone().html( label.age );
@@ -447,6 +484,10 @@ $( '#replacement' ).change(( ev ) => {
 	sound.next.play();
 });
 
+$( '#uniform' ).change(( ev ) => {
+	sound.next.play();
+});
+
 // Draws per round
 $( 'input[type="checkbox"].count' ).change(( ev ) => {
 	var clicked = $( ev.target );
@@ -454,6 +495,19 @@ $( 'input[type="checkbox"].count' ).change(( ev ) => {
 	var value   = clicked.prop( 'checked' ) ? clicked.attr( 'data-on' ) : clicked.attr( 'data-off' );
 	settings.count[ name ] = parseInt( value );
 	sound.next.play();
+});
+
+// Events
+$( 'input[type="checkbox"].events' ).each(( i, ev ) => {
+	var value = $( ev ).val();
+	settings.events[ value ] = $( ev ).prop( 'checked' );
+});
+
+$( 'input[type="checkbox"].events' ).change(( ev ) => {
+	var clicked = $( ev.target );
+	var value   = clicked.val();
+	settings.events[ value ] = clicked.prop( 'checked' );
+	if( settings.events[ value ]) { sound.next.play(); } else { sound.prev.play(); }
 });
 
 // Age groups
@@ -502,7 +556,7 @@ $( '.pt-page-3 .cancel' ).off( 'click' ).click(() => {
 });
 
 $( '.pt-page-1 .delete' ).off( 'click' ).click(() => {
-	if( $( '#delete' ).hasClass( 'disabled' )) { return; }
+	if( $( '.pt-page-1 .delete' ).hasClass( 'disabled' )) { return; }
 	alertify.confirm( 
 		'Delete Poomsae Draws?', 
 		'Click <code>Delete</code> to delete the poomsae draws. Deleting cannot be undone!', 
@@ -518,7 +572,7 @@ $( '.pt-page-1 .delete' ).off( 'click' ).click(() => {
 });
 
 $( '.page-1 .edit' ).off( 'click' ).click(() => {
-	if( $( '#edit' ).text() == 'Select Manually' ) { blank(); }
+	if( $( '.pt-page-1 .edit' ).text() == 'Select Manually' ) { blank(); }
 
 	sound.next.play();
 	show.table();
@@ -526,12 +580,16 @@ $( '.page-1 .edit' ).off( 'click' ).click(() => {
 });
 
 $( '.pt-page-2 .accept' ).off( 'click' ).click(() => { 
+	draws.settings = settings;
 	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
+	delete draws.settings;
 	ws.send( request.json );
 	show.display();
 	page.transition( 3 );
 });
+
+$( '.pt-page-3 .print' ).off( 'click' ).click(() => { alertify.dismissAll(); window.print(); });
 
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
@@ -549,21 +607,27 @@ ws.onmessage = function( response ) {
 	console.log( update );
 	if( update.type == 'ring' ) {
 		if( ! defined( update.request )) { 
-			$( '#delete' ).addClass( 'disabled' );
-			$( '#edit' ).text( 'Select Manually' );
+			$( '.pt-page-1 .delete' ).addClass( 'disabled' );
+			$( '.pt-page-1 .edit' ).text( 'Select Manually' );
 			return; 
 		};
 
 		if( update.request.action == 'read' ) {
-			draws = update.ring.draws;
+			draws    = update.ring.draws;
 			if( ! defined( draws )) { return; }
+
+			if( defined( draws.settings )) {
+				settings = draws.settings;
+				delete draws.settings;
+				load( settings );
+			}
 
 			if( Object.keys( draws ).some(( ev ) => { return Object.keys( draws[ ev ] ).some(( g ) => { return g.match( /^[fm]/i ); })})) {
 				$( '#gender-draw' ).bootstrapToggle( 'on' );
 			}
 
-			$( '#delete' ).removeClass( 'disabled' );
-			$( '#edit' ).text( 'Edit' );
+			$( '.pt-page-1 .delete' ).removeClass( 'disabled' );
+			$( '.pt-page-1 .edit' ).text( 'Edit' );
 			show.table();
 			page.transition( 2 );
 
