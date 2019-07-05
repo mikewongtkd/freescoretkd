@@ -1,3 +1,8 @@
+@media print {
+	.btn { display: none; }
+	.page-header { display: none; }
+	body { -webkit-print-color-adjust: exact !important; }
+}
 
 .pt-page-1 {
 	.row {
@@ -21,45 +26,61 @@
 	width: 100%;
 	margin-top: 40px;
 	margin-bottom: 40px;
-	td {
-		padding-left: 2px;
-		padding-right: 2px;
-	}
 
 	.subsection td {
 		padding: 2px;
-		background-color: black;
-		color: white;
+		background-color: black !important;
+		color: white !important;
 		font-weight: bold;
 		text-align: center;
 	}
 
-	.genders, .round {
+	.genders {
 		td {
 			padding: 2px;
 			font-weight: bold;
 			text-align: center;
 
-			&.m { background-color: #a4c2f4; }
-			&.f { background-color: #f9cb9c; }
+			&.m { background-color: #a4c2f4 !important; }
+			&.f { background-color: #f9cb9c !important; }
 		}
 	}
 
-	.individual, .team, .pair {
-		padding: 8px;
-		width: 44px;
-		font-weight: bold;
-		font-size: 18pt;
+	.rounds {
+		td {
+			border-bottom: 3px solid black;
+			font-weight: bold;
+			padding: 2px 0 2px 8px;
+
+			&.m { background-color: #a4c2f4 !important; border-top: 1px solid #7ba3e6 !important; }
+			&.f { background-color: #f9cb9c !important; border-top: 1px solid #d19a62 !important; }
+		}
+	}
+	
+	td {
+		&.individual, &.team, &.pair {
+			width: 44px;
+			font-weight: bold;
+			font-size: 18pt;
+		}
+		&.individual { background-color: #6fa8dc !important; }
+		&.team       { background-color: #c27ba0 !important; }
+		&.pair       { background-color: #93c47d !important; }
 	}
 
-	.individual {
-		background-color: #6fa8dc;
-	}
-	.team {
-		background-color: #c27ba0;
-	}
-	.pair {
-		background-color: #93c47d;
+	tr {
+		&.individual, &.team, &.pair {
+			td { padding: 2px 0 0 8px; }
+		}
+
+		&.individual:nth-child( 4n+0 ), &.individual:nth-child( 4n+1 ) { background-color: #cee5Fa !important; }
+		&.individual:nth-child( 4n+2 ), &.individual:nth-child( 4n+3 ) { background-color: #9ac6ed !important; }
+
+		&.team:nth-child( 4n+0 ), &.team:nth-child( 4n+1 ) { background-color: #edd3e1 !important; }
+		&.team:nth-child( 4n+2 ), &.team:nth-child( 4n+3 ) { background-color: #dba9c3 !important; }
+
+		&.pair:nth-child( 4n+0 ), &.pair:nth-child( 4n+1 ) { background-color: #ddefd5 !important; }
+		&.pair:nth-child( 4n+2 ), &.pair:nth-child( 4n+3 ) { background-color: #bce0ad !important; }
 	}
 
 	.yellow { background-color: #ffff00; }

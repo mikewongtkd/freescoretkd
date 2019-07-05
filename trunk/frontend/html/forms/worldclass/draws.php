@@ -25,16 +25,7 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
-			@font-face {
-			  font-family: Nimbus;
-			  src: url("include/fonts/nimbus-sans-l_bold-condensed.ttf"); }
-			@font-face {
-			  font-family: Biolinum;
-			  font-weight: bold;
-			  src: url("include/fonts/LinBiolinum_Rah.ttf"); }
 			@media print {
-				.btn { display: none; }
-				.page-header { display: none; }
 				body,.pt-perspective,.pt-page,.container { 
 					height: auto !important; 
 					overflow-y: auto !important; 
@@ -391,7 +382,7 @@ var show = {
 			var ages    = rules.ageGroups( ev );
 			var genders = settings.gender ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
 			var ages    = rules.ageGroups( ev );
-			var row     = html.tr.clone();
+			var row     = html.tr.clone().addClass( e );
 
 			label.event = { 
 				'Individual': { limit: 7, short: { name: 'IND.', offset: '32px' }, long: { name: 'INDIVIDUAL', offset: '90px' }},
@@ -425,7 +416,7 @@ var show = {
 					}
 				}
 				table.append( row );
-				row = html.tr.clone();
+				row = html.tr.clone().addClass( e );
 
 			}
 		}

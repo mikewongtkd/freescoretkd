@@ -1,3 +1,12 @@
+@media print {
+  .btn {
+    display: none; }
+
+  .page-header {
+    display: none; }
+
+  body {
+    -webkit-print-color-adjust: exact !important; } }
 .pt-page-1 .row {
   margin-top: 8px; }
 
@@ -21,34 +30,54 @@
   width: 100%;
   margin-top: 40px;
   margin-bottom: 40px; }
-  #display td {
-    padding-left: 2px;
-    padding-right: 2px; }
   #display .subsection td {
     padding: 2px;
-    background-color: black;
-    color: white;
+    background-color: black !important;
+    color: white !important;
     font-weight: bold;
     text-align: center; }
-  #display .genders td, #display .round td {
+  #display .genders td {
     padding: 2px;
     font-weight: bold;
     text-align: center; }
-    #display .genders td.m, #display .round td.m {
-      background-color: #a4c2f4; }
-    #display .genders td.f, #display .round td.f {
-      background-color: #f9cb9c; }
-  #display .individual, #display .team, #display .pair {
-    padding: 8px;
+    #display .genders td.m {
+      background-color: #a4c2f4 !important; }
+    #display .genders td.f {
+      background-color: #f9cb9c !important; }
+  #display .rounds td {
+    border-bottom: 3px solid black;
+    font-weight: bold;
+    padding: 2px 0 2px 8px; }
+    #display .rounds td.m {
+      background-color: #a4c2f4 !important;
+      border-top: 1px solid #7ba3e6 !important; }
+    #display .rounds td.f {
+      background-color: #f9cb9c !important;
+      border-top: 1px solid #d19a62 !important; }
+  #display td.individual, #display td.team, #display td.pair {
     width: 44px;
     font-weight: bold;
     font-size: 18pt; }
-  #display .individual {
-    background-color: #6fa8dc; }
-  #display .team {
-    background-color: #c27ba0; }
-  #display .pair {
-    background-color: #93c47d; }
+  #display td.individual {
+    background-color: #6fa8dc !important; }
+  #display td.team {
+    background-color: #c27ba0 !important; }
+  #display td.pair {
+    background-color: #93c47d !important; }
+  #display tr.individual td, #display tr.team td, #display tr.pair td {
+    padding: 2px 0 0 8px; }
+  #display tr.individual:nth-child(4n+0), #display tr.individual:nth-child(4n+1) {
+    background-color: #cee5Fa !important; }
+  #display tr.individual:nth-child(4n+2), #display tr.individual:nth-child(4n+3) {
+    background-color: #9ac6ed !important; }
+  #display tr.team:nth-child(4n+0), #display tr.team:nth-child(4n+1) {
+    background-color: #edd3e1 !important; }
+  #display tr.team:nth-child(4n+2), #display tr.team:nth-child(4n+3) {
+    background-color: #dba9c3 !important; }
+  #display tr.pair:nth-child(4n+0), #display tr.pair:nth-child(4n+1) {
+    background-color: #ddefd5 !important; }
+  #display tr.pair:nth-child(4n+2), #display tr.pair:nth-child(4n+3) {
+    background-color: #bce0ad !important; }
   #display .yellow {
     background-color: #ffff00; }
   #display .green {
