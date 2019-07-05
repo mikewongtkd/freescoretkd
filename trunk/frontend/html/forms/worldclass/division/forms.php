@@ -98,7 +98,7 @@ EOD;
 		selected.description = '';
 
 		FreeScore.round.order.forEach(( round ) => {
-			if( division.athletes.length <  20 && round == 'prelim' ) { return; }
+			if( division.athletes.length <  20 && round == 'prelim' && ! division.flight ) { return; }
 			if( division.athletes.length <= 8  && ! round.match( /^fin/ )) { return; }
 			if( ! round in selected.forms ) { return; }
 			if( ! defined( selected.forms[ round ])) { return; }
