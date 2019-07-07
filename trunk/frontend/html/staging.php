@@ -43,7 +43,7 @@ var refresh = {};
 <script>
 alertify.set( 'notifier', 'position', 'top-right' );
 
-var announcer = { messages: []};
+var announcer = { messages: [], voice: { cantonese: 'Google 粤語（香港）', english: 'Google US English', hindi: 'Google हिन्दी', japanese: 'Google 日本語', korean: 'Google 한국의', spanish: 'Google español de Estados Unidos' }};
 announcer.message = ( text ) => {
 	announcer.messages.push( text );
 	$( '#announcer' ).removeClass( 'disabled' ).html( `Announcer has ${announcer.messages.length} messages` );
@@ -53,7 +53,7 @@ announcer.speak = () => {
 	let text = announcer.messages.shift();
 	if( typeof text === 'object' ) { text = `${text.first_name} ${text.last_name}`; alertify.notify( `<b>Announcer</b><br>${text}` ); text = text.toLowerCase(); } else { alertify.notify( `<b>Announcer</b><br>${text}` ); }
 	let message = new SpeechSynthesisUtterance( text );
-	message.voice = speechSynthesis.getVoices().filter( voice => voice.name == 'Google US English' ).shift();
+	message.voice = speechSynthesis.getVoices().filter( voice => voice.name == announcer.voice.english ).shift();
 	window.speechSynthesis.speak( message )
 	message.onend = ( e ) => { 
 		let n = announcer.messages.length;
