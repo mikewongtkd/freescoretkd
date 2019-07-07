@@ -13,6 +13,7 @@ use Scalar::Util qw( blessed );
 use Data::Dumper;
 
 our $TIME_PER_FORM = 4;
+our $TIME_PER_FREESTYLE_FORM = 8;
 
 # ============================================================
 sub new {
@@ -56,8 +57,32 @@ sub init {
 			if( $division->{ description } =~ /team/i ) { $n = ceil( $n/3 ); }
 		}
 
+		# ===== FREESTYLE EVENT
+		if( exists $division->{ freestyle } && $division->{ freestyle }) {
+			if( $division->{ round } eq 'prelim' ) {
+				my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'prelim' );
+				my $k      = ceil( $n/2 );
+				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'semfin' );
+				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+
+				$semfin->preconditions( $prelim );
+				$finals->preconditions( $semfin );
+				push @blocks, $prelim, $semfin, $finals;
+
+			} elsif( $division->{ round } eq 'semfin' ) {
+				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
+				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+
+				$finals->preconditions( $semfin );
+				push @blocks, $semfin, $finals;
+
+			} elsif( $division->{ round } eq 'finals' ) {
+				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'finals' );
+				push @blocks, $finals;
+			}
+
 		# ===== START WITH FLIGHTED PRELIMINARY ROUND
-		if( $division->{ round } eq 'prelim' && ( $n > 20 || exists( $division->{ flight }))) {
+		} elsif( $division->{ round } eq 'prelim' && ( $n > 20 || exists( $division->{ flight }))) {
 			if( exists( $division->{ flight })) {
 				$division->{ name } =~ s/[A-Za-z]$//;
 
@@ -117,7 +142,6 @@ sub init {
 			push @blocks, $finals;
 		}
 	}
-
 	# ===== FIND ALL NONCONCURRENCES
 	foreach my $block (@blocks) {
 		$block->nonconcurrences( $divisions );
