@@ -205,7 +205,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	schedule.teams = $( '#teams-grouped' ).prop( 'checked' ) ? 'groups' : 'individuals';
 	sound.next.play();
 
-	if( ws.readyState != ws.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
+	if( wc.readyState != wc.OPEN ) { alertify.error( 'Socket closed; malformed JSON is likely the cause' ); return; }
 
 	var clear    = false;
 	var checksum = btoa( JSON.stringify( schedule.rings )).substr( 0, 8 );
@@ -216,7 +216,7 @@ $( '#accept-times' ).off( 'click' ).click(( ev ) => {
 	
 	var request = { data : { type : 'schedule', schedule: schedule, action : 'write', clear: clear }};
 	request.json = JSON.stringify( request.data );
-	ws.send( request.json );
+	wc.send( request.json );
 	console.log( request.json );
 });
 

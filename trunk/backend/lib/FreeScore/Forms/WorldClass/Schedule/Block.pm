@@ -97,16 +97,18 @@ sub match {
 	my $targets = shift;
 
 	my $regex = {
-		# ===== GENDERS
-		coed       => { rank => 0, pattern => qr/coed/i },
-		male       => { rank => 0, pattern => qr/\bmale/i },
-		female     => { rank => 0, pattern => qr/\bfemale/i },
+		# ===== EVENT
+		freestyle  => { rank => 0, pattern => qr/freestyle/i },
 
-		# ===== EVENTS
-		individual => { rank => 1, pattern => qr/individual/i },
-		pair       => { rank => 1, pattern => qr/pair/i },
-		team       => { rank => 1, pattern => qr/team/i },
-		freestyle  => { rank => 2, pattern => qr/freestyle/i },
+		# ===== GENDERS
+		coed       => { rank => 1, pattern => qr/coed|mixed/i },
+		male       => { rank => 1, pattern => qr/\bmale/i },
+		female     => { rank => 1, pattern => qr/\bfemale/i },
+
+		# ===== SUBEVENTS
+		individual => { rank => 2, pattern => qr/individual/i },
+		pair       => { rank => 2, pattern => qr/pair/i },
+		team       => { rank => 2, pattern => qr/team/i },
 
 		# ===== AGES
 		youth      => { rank => 3, pattern => qr/10-11|youth/i },
@@ -151,8 +153,10 @@ sub age {
 	my $regex = {
 		youth      => { age => 10, pattern => qr/10-11|youth/i },
 		cadet      => { age => 12, pattern => qr/12-14|cadet/i },
-		junior     => { age => 15, pattern => qr/15-17|12-17|junior/i },
+		junior     => { age => 15, pattern => qr/15-17|junior/i },
+		under17    => { age => 15, pattern => qr/12-17|under\s*17/i },
 		under30    => { age => 18, pattern => qr/18-30|under\s*30|-30|30-|senior(?!\s*(?:[2-9]\d*|0*1\d+))|senior\s*1/i },
+		over17     => { age => 18, pattern => qr/18-99|over\s*17|17\+|18\+/i },
 		over30     => { age => 31, pattern => qr/31-99|over\s*30|30\+/i },
 		under40    => { age => 31, pattern => qr/31-40|under\s*40|-40|40-|senior 2/i },
 		under50    => { age => 41, pattern => qr/41-50|under\s*50|-50|50-/i },
@@ -217,39 +221,47 @@ sub nonconcurrences {
 	my $lookup    = $self->match( $divisions );
 
 	my $nonconcurrencies = {
-		"male individual youth"        => [ "pair youth", "male team youth" ],
-		"female individual youth"      => [ "pair youth", "female team youth" ],
-		"male team youth"              => [ "pair youth", "male individual youth" ],
-		"female team youth"            => [ "pair youth", "female individual youth" ],
-		"pair youth"                   => [ "male individual youth", "female individual youth", "male team youth", "female team youth" ],
-		"male individual cadet"        => [ "pair cadet", "male team cadet" ],
-		"female individual cadet"      => [ "pair cadet", "female team cadet" ],
-		"male team cadet"              => [ "pair cadet", "male individual cadet" ],
-		"female team cadet"            => [ "pair cadet", "female individual cadet" ],
-		"pair cadet"                   => [ "male individual cadet", "female individual cadet", "male team cadet", "female team cadet" ],
-		"male individual junior"       => [ "pair junior", "male team junior" ],
-		"female individual junior"     => [ "pair junior", "female team junior" ],
-		"male team junior"             => [ "pair junior", "male individual junior" ],
-		"female team junior"           => [ "pair junior", "female individual junior" ],
-		"pair junior"                  => [ "male individual junior", "female individual junior", "male team junior", "female team junior" ],
-		"male individual under30"      => [ "pair under30", "male team under30" ],
-		"female individual under30"    => [ "pair under30", "female team under30" ],
-		"male team under30"            => [ "pair under30", "male individual under30" ],
-		"female team under30"          => [ "pair under30", "female individual under30" ],
-		"pair under30"                 => [ "male individual under30", "female individual under30", "male team under30", "female team under30" ],
-		"male individual under40"      => [ "pair over30", "male team over30" ],
-		"female individual under40"    => [ "pair over30", "female team over30" ],
-		"male team over30"             => [ "pair over30", "male individual under40", "male individual under50", "male individual under60", "male individual under70", "male individual over65" ],
-		"female team over30"           => [ "pair over30", "female individual under40", "female individual under50", "female individual under60", "female individual under70", "female individual over65" ],
-		"pair over30"                  => [ "male individual under40", "female individual under40", "male individual under50", "female individual under50", "male individual under60", "female individual under60", "male individual under70", "female individual under70", "male individual over65", "female individual over65", "male team over30", "female team over30" ],
-		"male individual under50"      => [ "pair over30", "male team over30" ],
-		"female individual under50"    => [ "pair over30", "female team over30" ],
-		"male individual under60"      => [ "pair over30", "male team over30" ],
-		"female individual under60"    => [ "pair over30", "female team over30" ],
-		"male individual under70"      => [ "pair over30", "male team over30" ],
-		"female individual under70"    => [ "pair over30", "female team over30" ],
-		"male individual over65"       => [ "pair over30", "male team over30" ],
-		"female individual over65"     => [ "pair over30", "female team over30" ]
+		"male individual youth"               => [ "pair youth", "male team youth" ],
+		"female individual youth"             => [ "pair youth", "female team youth" ],
+		"male team youth"                     => [ "pair youth", "male individual youth" ],
+		"female team youth"                   => [ "pair youth", "female individual youth" ],
+		"pair youth"                          => [ "male individual youth", "female individual youth", "male team youth", "female team youth" ],
+		"freestyle male individual junior"    => [ "male individual cadet", "pair cadet", "male team cadet", "male individual junior", "pair junior", "male team junior", "freestyle pair junior", "freestyle team junior" ],
+		"freestyle female individual junior"  => [ "female individual cadet", "pair cadet", "female team cadet", "female individual junior", "pair junior", "female team junior", "freestyle pair junior", "freestyle team junior" ],
+		"freestyle pair junior"               => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle team junior" ],
+		"freestyle team junior"               => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior" ],
+		"male individual cadet"               => [ "pair cadet", "male team cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"female individual cadet"             => [ "pair cadet", "female team cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"male team cadet"                     => [ "pair cadet", "male individual cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"female team cadet"                   => [ "pair cadet", "female individual cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"pair cadet"                          => [ "male individual cadet", "female individual cadet", "male team cadet", "female team cadet", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"male individual junior"              => [ "pair junior", "male team junior", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"female individual junior"            => [ "pair junior", "female team junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"male team junior"                    => [ "pair junior", "male individual junior", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"female team junior"                  => [ "pair junior", "female individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"pair junior"                         => [ "male individual junior", "female individual junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
+		"freestyle male individual under30"   => [ "male individual cadet", "pair cadet", "male team cadet", "male individual junior", "pair junior", "male team junior", "freestyle pair junior", "freestyle team junior" ],
+		"freestyle female individual under30" => [ "female individual cadet", "pair cadet", "female team cadet", "female individual junior", "pair junior", "female team junior", "freestyle pair junior", "freestyle team junior" ],
+		"freestyle pair under30"              => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle team junior" ],
+		"freestyle team under30"              => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior" ],
+		"male individual under30"             => [ "pair under30", "male team under30" ],
+		"female individual under30"           => [ "pair under30", "female team under30" ],
+		"male team under30"                   => [ "pair under30", "male individual under30" ],
+		"female team under30"                 => [ "pair under30", "female individual under30" ],
+		"pair under30"                        => [ "male individual under30", "female individual under30", "male team under30", "female team under30" ],
+		"male individual under40"             => [ "pair over30", "male team over30" ],
+		"female individual under40"           => [ "pair over30", "female team over30" ],
+		"male team over30"                    => [ "pair over30", "male individual under40", "male individual under50", "male individual under60", "male individual under70", "male individual over65" ],
+		"female team over30"                  => [ "pair over30", "female individual under40", "female individual under50", "female individual under60", "female individual under70", "female individual over65" ],
+		"pair over30"                         => [ "male individual under40", "female individual under40", "male individual under50", "female individual under50", "male individual under60", "female individual under60", "male individual under70", "female individual under70", "male individual over65", "female individual over65", "male team over30", "female team over30" ],
+		"male individual under50"             => [ "pair over30", "male team over30" ],
+		"female individual under50"           => [ "pair over30", "female team over30" ],
+		"male individual under60"             => [ "pair over30", "male team over30" ],
+		"female individual under60"           => [ "pair over30", "female team over30" ],
+		"male individual under70"             => [ "pair over30", "male team over30" ],
+		"female individual under70"           => [ "pair over30", "female team over30" ],
+		"male individual over65"              => [ "pair over30", "male team over30" ],
+		"female individual over65"            => [ "pair over30", "female team over30" ]
 	};
 
 	my $nonconcurrents = $nonconcurrencies->{ $key };

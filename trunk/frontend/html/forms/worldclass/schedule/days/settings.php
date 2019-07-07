@@ -218,8 +218,8 @@ var simplify = ( divisions ) => {
 	// Collect flights into division groups
 	divisions.forEach(( division ) => {
 		var div = {};
-		[ 'name', 'description', 'flight', 'forms', 'round' ].forEach(( field ) => { if( ! defined( division[ field ] )) { return; } div[ field ] = division[ field ]; });
-		Object.keys( div.forms ).forEach(( round ) => { div.forms[ round ] = div.forms[ round ].length; });
+		[ 'name', 'description', 'flight', 'forms', 'freestyle', 'round' ].forEach(( field ) => { if( ! defined( division[ field ] )) { return; } div[ field ] = division[ field ]; });
+		if( defined( div.forms )) { Object.keys( div.forms ).forEach(( round ) => { div.forms[ round ] = div.forms[ round ].length; }); }
 		if( defined( div.flight )) { div.name = div.name.replace( /[A-Za-z]$/, '' ); }
 		div.athletes = division.athletes.length;
 		if( defined( group[ div.name ])) { group[ div.name ].push( div ); } else { group[ div.name ] = [ div ]; }
@@ -248,9 +248,11 @@ var simplify = ( divisions ) => {
 }
 
 // ===== ON MESSAGE BEHAVIOR
+
+// WORLDCLASS
 handler.read.schedule = ( update ) => {
 	if( defined( update )) { 
-		schedule.divisions = simplify( update.divisions );
+		schedule.divisions = schedule.divisions.concat( simplify( update.divisions ));
 
 		if( defined( update.schedule )) { 
 			Object.keys( update.schedule ).filter( key => key != 'divisions' ).forEach(( key ) => { schedule[ key ] = update.schedule[ key ]; });
@@ -282,6 +284,14 @@ handler.read.schedule = ( update ) => {
 	}
 	show.days();
 	show.rings();
+};
+
+// FREESTYLE
+handler.freestyle.update.ring = ( update ) => {
+	if( defined( update )) {
+		update.ring.divisions.forEach( d => d.freestyle = true );
+		schedule.divisions = schedule.divisions.concat( simplify( update.ring.divisions ));
+	}
 };
 
 </script>

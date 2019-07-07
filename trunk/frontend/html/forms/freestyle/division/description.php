@@ -42,7 +42,7 @@
 	// DESCRIPTION BEHAVIOR
 	// ============================================================
 	description = { category: '', gender: '', age: '', years: '', text: '', divid: 0, idx : 0, update : function() { 
-		description.text   = { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + { '': '', '12-17' : 'Juniors', '18+' : 'Seniors' }[ description.age ].capitalize();
+		description.text   = 'Freestyle' + ' ' + { m:'Male', f:'Female', '':'' }[ description.gender ] + ' ' + description.category.capitalize() + ' ' + { '': '', '12-17' : 'Under 17', '18+' : 'Over 17' }[ description.age ].capitalize();
 		description.text   = description.text.trim();
 		description.text   = description.text.replace( /\s+/g, ' ' );
 		description.divid  = { individual : 0, pair : 7, team : 10 }[ description.category ];
@@ -74,11 +74,11 @@
 		$( "#description-title" ).empty().append( title, text );
 		$( 'title' ).html( division.summary() );
 		$( 'h1' ).html( division.summary() );
-		var desc = defined( division.description ) ? division.description : '';
+		var desc   = defined( division.description ) ? division.description : '';
 		var gender = desc.match( /\b(Fem|M)ale/i ); gender = gender ? gender[ 0 ].substr( 0, 1 ).toLowerCase() : '';
 		var ev     = desc.match( /Individual|Pair|Team/i ); ev = ev ? ev[ 0 ].toLowerCase() : '';
-		var age    = desc.match( /juniors|seniors/i ); age = age ? age[ 0 ].toLowerCase() : '';
-		var map    = { 'junior' : '12-17', 'juniors' : '12-17', 'senior' : '18+', 'seniors' : '18+' }; age = map[ age ] ? map[ age ] : age;
+		var age    = desc.match( /under\s*17|juniors?|seniors?|over\*17/i ); age = age ? age[ 0 ].toLowerCase() : '';
+		var map    = { 'under17' : '12-17', 'under 17': '12-17', 'junior' : '12-17', 'juniors' : '12-17', 'over17': '18+', 'over 17': '18+', 'senior' : '18+', 'seniors' : '18+' }; age = map[ age ] ? map[ age ] : age;
 		if((gender == 'm' && desc.match( /female/i )) || (gender == 'f' && desc.match( /\bmale/i ))) { gender = ''; }
 		if( ev && age ) {
 			$( 'a[href="#' + ev + '"]' ).click();

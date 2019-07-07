@@ -48,8 +48,8 @@
 			var settings  = { day: 2, zoom: 1.0 };
 		</script>
 		<div id="pt-main" class="pt-perspective">
-			<?php include( "tracker/list.php" ); ?>
-			<?php include( "tracker/athletes.php" ); ?>
+			<?php include( "display/list.php" ); ?>
+			<?php include( "display/athletes.php" ); ?>
 		</div>
 		<footer>
 <div id="date"></div>

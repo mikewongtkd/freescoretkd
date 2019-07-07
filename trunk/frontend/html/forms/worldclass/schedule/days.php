@@ -35,9 +35,9 @@
 	</head>
 	<body>
 		<script>
-			var handler   = { read: {}, write: {} };
+			var handler   = { read: {}, write: {}, freestyle: { read: {}, update: {}}};
 			var show      = {};
-			var schedule  = { days: [{divisions: [], start: '9:00 AM' }]};
+			var schedule  = { divisions: [], days: [{divisions: [], start: '9:00 AM' }]};
 			var divisions = undefined;
 			var settings  = { checksum: undefined };
 		</script>
@@ -79,25 +79,44 @@ var tournament = <?= $tournament ?>;
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
+var wc = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
+var fs = new WebSocket( 'ws://' + host + ':3082/freestyle/' + tournament.db + '/staging' );
 
-ws.onopen = function() {
+wc.onopen = function() {
 	var request;
 
 	request = { data : { type : 'schedule', action : 'read' }};
 	request.json = JSON.stringify( request.data );
-	ws.send( request.json );
+	wc.send( request.json );
 };
 
-ws.onmessage = function( response ) {
+wc.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
-	console.log( update );
+	console.log( 'WORLDCLASS', update );
 
 	if( ! (update.action in handler)) { alertify.error( `No handler for <b>${update.action.capitalize()}</b>` ); return; }
 	if( ! (update.type in handler[ update.action ])) { alertify.error( `No handler for <b>${update.action.capitalize()} ${update.type.capitalize()}</b>` ); return; }
 
 	handler[ update.action ][ update.type ]( update );
 };
+
+fs.onopen = function() {
+	var request;
+
+	request = { data : { type : 'ring', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	fs.send( request.json );
+};
+
+fs.onmessage = function( response ) {
+	var update = JSON.parse( response.data );
+	console.log( 'FREESTYLE', update );
+
+	if( ! (update.action in handler.freestyle)) { alertify.error( `No FreeStyle handler for <b>${update.action.capitalize()}</b>` ); return; }
+	if( ! (update.type in handler.freestyle[ update.action ])) { alertify.error( `No FreeStyle handler for <b>${update.action.capitalize()} ${update.type.capitalize()}</b>` ); return; }
+
+	handler.freestyle[ update.action ][ update.type ]( update );
+}
 
 		</script>
 	</body>

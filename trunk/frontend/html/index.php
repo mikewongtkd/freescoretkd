@@ -71,7 +71,7 @@
 
 				<div class="register" id="registration">
 					<a class="btn btn-primary config" id="registration"  href="registration.php"> Import USAT Registration </a>
-					<a class="btn btn-primary config" id="schedule"  href="forms/worldclass/schedule/days.php"> Sport Poomsae Schedule </a>
+					<a class="btn btn-primary config" id="schedule"  href="forms/schedule/days.php"> Sport Poomsae Schedule </a>
 					<a class="btn btn-primary config" id="update"  href="update.php"> Check for Software Updates </a>
 				</div>
 			</div>
