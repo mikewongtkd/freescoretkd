@@ -109,12 +109,12 @@ ul.list-group-sortable-connected, ol.list-group-sortable-connected {
         padding: 0; }
     .schedule td .block {
       position: relative;
-      font-family: Lato;
-      font-size: 10pt;
       width: 100%;
       height: 100%;
       border-radius: 4px; }
       .schedule td .block .block-label {
+        font-family: Lato;
+        font-size: 9pt;
         position: relative;
         top: 50%;
         transform: translate(0, -50%);
@@ -144,22 +144,40 @@ a.active {
 .selected {
   border: 1px dashed black; }
 
-.break {
+.none {
   background-color: white;
   border: 1px solid black;
   padding: -1px; }
 
-.coed {
-  background-color: #ffddc0 !important; }
+.coed.youth, .coed.cadet, .freestyle.pair.youth, .freestyle.pair.cadet, .freestyle.team.youth, .freestyle.team.cadet {
+  background-color: #B0E9E9 !important;
+  color: black !important; }
+.coed.junior, .coed.under30, .coed.over30, .freestyle.pair.junior, .freestyle.pair.under30, .freestyle.pair.over30, .freestyle.team.junior, .freestyle.team.under30, .freestyle.team.over30 {
+  background-color: #7FCECE !important;
+  color: black !important; }
 
-.male {
-  background-color: #b0e9e9 !important; }
+.male.youth, .male.cadet, .male.junior, .male.under17 {
+  background-color: #DEE5F6 !important;
+  color: black !important; }
+.male.under30, .male.under40, .male.over17 {
+  background-color: #C6D0EA !important;
+  color: black !important; }
+.male.under50, .male.under60, .male.under65, .male.over65 {
+  background-color: #ABB9DA !important;
+  color: black !important; }
 
-.female {
-  background-color: #ffc0c0 !important; }
+.female.youth, .female.cadet, .female.junior, .female.under17 {
+  background-color: #FFDDC1 !important;
+  color: black !important; }
+.female.under30, .female.under40, .female.over17 {
+  background-color: #FFCA9D !important;
+  color: black !important; }
+.female.under50, .female.under60, .female.under65, .female.over65 {
+  background-color: #FFB77B !important;
+  color: black !important; }
 
 .error {
   background-color: #dc3545 !important;
-  color: white; }
+  color: white !important; }
 
 /*# sourceMappingURL=schedule.css.map */

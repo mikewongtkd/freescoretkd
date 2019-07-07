@@ -1,6 +1,6 @@
 <script>
 	var settings = { day: [], current: { day: 0 }, divisions : {}, rounds: [] };
-	var scale    = { blocks : { per: { hour: 15, table: 4 /* see show.daySchedule() */ }, width: undefined }, minutes: 4, height: 8 };
+	var scale    = { blocks : { per: { hour: 15, table: 3 /* see show.daySchedule() */ }, width: undefined }, minutes: 4, height: 8 };
 </script>
 <div class="pt-page pt-page-1">
 	<div class="container">
@@ -100,7 +100,7 @@ show.daySchedule = () => {
 	var n     = day.rings.length;
 
 	if( Number.isInteger(n/4)) { scale.blocks.per.table = 4; } else
-	if( Number.isInteger(n/3)) { scale.blocks.per.table = 3; } else
+	if( Number.isInteger(n/3)) { scale.blocks.per.table = 3; } else // Default is 3
 	if( Number.isInteger(n/2)) { scale.blocks.per.table = 2; }
 
 	var width = scale.blocks.per.table;
@@ -224,19 +224,28 @@ var init = {
 		});
 	},
 	block: ( blockid ) => {
-		var block   = schedule.blocks[ blockid ];
-		var rmap    = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
-		var rowspan = Math.floor( block.duration / scale.minutes );
-		var gender  = 'coed';
-		var start   = format.id( time.set( block.start ));
-		var stop    = format.id( time.set( block.stop ));
-		var flight  = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
-		var is      = { 'break' : block.id.match( /^break/i )};
+		var block     = schedule.blocks[ blockid ];
+		var rmap      = { finals: 'Finals', semfin: 'Semi-Finals', prelim: 'Prelim.' };
+		var rowspan   = Math.floor( block.duration / scale.minutes );
+		var gender    = 'coed';
+		var start     = format.id( time.set( block.start ));
+		var stop      = format.id( time.set( block.stop ));
+		var flight    = block.flight ? `Flight ${block.flight.toUpperCase()}` : '';
+		var is        = { 'break' : block.id.match( /^break/i )};
+		var freestyle = block.id.match( /freestyle/i ) ? 'freestyle' : '';
+		var subevent  = 'individual';
+		var age       = 'over30';
 
-		if( is.break )                            { gender = 'break';   } else 
-		if( block.description.match( /pair/i ))   { gender = 'coed';   } else 
-		if( block.description.match( /female/i )) { gender = 'female'; } else 
-		if( block.description.match( /male/i ))   { gender = 'male';   }
+		if( is.break )                   { gender = 'none';   } else 
+		if( block.id.match( /female/i )) { gender = 'female'; } else 
+		if( block.id.match( /male/i ))   { gender = 'male';   }
+
+		if( is.break )                       { subevent = 'break';      } else 
+		if( block.id.match( /individual/i )) { subevent = 'individual'; } else 
+		if( block.id.match( /pair/i ))       { subevent = 'pair';       } else 
+		if( block.id.match( /team/i ))       { subevent = 'team';       }
+
+		if( is.break ) { age = ''; } else { age = block.id.split( /\|/ )[ 1 ].split( /\-/ ).pop(); }
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
@@ -247,7 +256,7 @@ var init = {
 			.html( text );
 
 		var div = html.div.clone()
-			.addClass( `block ${gender}` )
+			.addClass( `block ${freestyle} ${gender} ${subevent} ${age}` )
 			.attr({ 'draggable' : 'true', 'data-blockid' : block.id, 'data-start': start, 'data-stop': stop})
 			.append( label, actions );
 
