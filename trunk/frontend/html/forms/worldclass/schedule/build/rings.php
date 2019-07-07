@@ -249,16 +249,17 @@ var init = {
 
 		var td = html.td.clone().addClass( 'ring' ).attr({ rowspan: rowspan });
 
-		var actions = is.break ? `<div class="break-actions" data-breakid="${blockid}"><button class="btn btn-xs break-rename"><span class="fa fa-pencil"></span></button><button class="btn btn-xs break-edit break-more"><span class="fa fa-plus"></span></button><button class="btn btn-xs break-edit break-less"><span class="fa fa-minus"></span></button></div>` : '';
-		var text    = is.break ? `${block.description}<br style="mso-data-placement:same-cell">${block.duration} minutes` : `${block.division.toUpperCase()} ${block.description}${rowspan>2?'<br style="mso-data-placement:same-cell;">':' '}${rmap[ block.round ]} ${flight} (${block.athletes})`;
-		var label   = html.div.clone()
+		var actions  = is.break ? `<div class="break-actions" data-breakid="${blockid}"><button class="btn btn-xs break-rename"><span class="fa fa-pencil"></span></button><button class="btn btn-xs break-edit break-more"><span class="fa fa-plus"></span></button><button class="btn btn-xs break-edit break-less"><span class="fa fa-minus"></span></button></div>` : '';
+		var text     = is.break ? `${block.description}<br style="mso-data-placement:same-cell">${block.duration} minutes` : `${block.description}${rowspan>2?'<br style="mso-data-placement:same-cell;">':' '}${rmap[ block.round ]} ${flight} (${block.athletes})`;
+		var division = html.div.clone().addClass( 'block-division' ).html( is.break ? '' : block.division.toUpperCase());
+		var label    = html.div.clone()
 			.addClass( 'block-label' )
 			.html( text );
 
 		var div = html.div.clone()
 			.addClass( `block ${freestyle} ${gender} ${subevent} ${age}` )
 			.attr({ 'draggable' : 'true', 'data-blockid' : block.id, 'data-start': start, 'data-stop': stop})
-			.append( label, actions );
+			.append( label, division, actions );
 
 		td.append( div );
 
