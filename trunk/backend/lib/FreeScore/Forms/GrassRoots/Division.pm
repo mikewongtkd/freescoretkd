@@ -509,6 +509,7 @@ sub _build_brackets {
 	my $byes_b       = $group_size - $number_b;           # Number of byes for Group B
 	my $a            = [];                                # Group A
 	my $b            = [];                                # Group B
+	my $round_ids    = [ qw( finals semfin qtrfin ro16 ro32 ro64 ro128 ro256 )];
 
 	@$a = splice @$athletes, 0, $number_a;
 	@$b = @$athletes;
@@ -519,9 +520,11 @@ sub _build_brackets {
 		my $red  = @$b ? $b->[ 0 ] : undef;
 		my $bracket = $bye ?
 		{
+			round => $round_ids->[ $depth - 1 ],
 			blue => { athlete => $blue, votes => [ (1) x $judges ] },
 			red  => { athlete => undef, votes => [ (0) x $judges ] },
 		} : {
+			round => $round_ids->[ $depth - 1 ],
 			blue => { athlete => $blue, votes => [ (0) x $judges ] },
 			red  => { athlete => $red,  votes => [ (0) x $judges ] },
 		};
