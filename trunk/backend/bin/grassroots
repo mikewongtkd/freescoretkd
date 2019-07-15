@@ -163,7 +163,6 @@ get '/:tournament/:ring/:judge/:score' => sub {
 		$progress->write();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
-		autopilot( $self, $progress, $division ) if $complete;
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
