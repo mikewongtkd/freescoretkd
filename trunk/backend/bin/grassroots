@@ -163,7 +163,7 @@ get '/:tournament/:ring/:judge/:score' => sub {
 		$progress->write();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
-		autopilot( $self, $progress, $division ) if $complete && ! $division->is_single_elimination();
+		autopilot( $self, $progress, $division ) if $complete;
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
@@ -190,7 +190,7 @@ get '/:tournament/:ring/:judge/vote/:vote' => sub {
 		$progress->write();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { bracket => $division->current_bracket(), judge => ($judge + 1), vote => $vote } );
-		autopilot( $self, $progress, $division ) if $complete;
+		autopilot( $self, $progress, $division ) if $complete && ! $division->is_single_elimination();
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
