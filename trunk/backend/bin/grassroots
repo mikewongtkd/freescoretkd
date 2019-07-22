@@ -1,6 +1,8 @@
 #! /usr/bin/perl
 
 use lib qw( /usr/local/freescore/lib );
+use Clone qw( clone );
+use Data::Structure::Util qw( unbless );
 use Mojolicious::Lite;
 use JSON::XS;
 use FreeScore::Forms::GrassRoots::Division;
@@ -36,13 +38,32 @@ get '/:tournament/:ring/judges' => sub {
 };
 
 # ------------------------------------------------------------
+# ALL DIVISIONS
+# ------------------------------------------------------------
+get '/:tournament/:ring/division/list' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $divisions  = unbless( clone( $progress->{ divisions }));
+	try {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'divisions' => $divisions } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
 # NEXT DIVISION
 # ------------------------------------------------------------
 get '/:tournament/:ring/division/next' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $progress = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	try {
 		$progress->next();
 		$progress->write();
@@ -62,7 +83,7 @@ get '/:tournament/:ring/division/previous' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $progress = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	try {
 		$progress->previous();
 		$progress->write();
@@ -359,6 +380,9 @@ sub autopilot {
 	$delay->steps( @steps )->catch( sub {} )->wait();
 }
 
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
 app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid' });
 app->log( new Mojo::Log( path => '/var/log/freescore/grassroots.log', level => 'error' ));
