@@ -26,7 +26,6 @@ $.widget( "freescore.brackets", {
 		var color    = defined( o.color ) ? o.color : { blue: '#286090', red: '#c9302c', white: 'white', current: '#f0ad4e', selected: '#5bc0de', line: '#ccc' };
 		var font     = "<style>@font-face { font-family: 'FjallaOne'; src: url( '/include/fonts/FjallaOne-Regular.ttf' ), url( '/freescore/include/fonts/FjallaOne-Regular.ttf' ); font-weight: normal; font-style: normal; }</style>";
 
-
 		draw.viewbox( 0, 0, width, height );
 		$( 'svg' ).prepend( font );
 
@@ -34,8 +33,8 @@ $.widget( "freescore.brackets", {
 		var current  = draw.rect( scale.match.width, scale.match.height ).attr({ id: 'bracket-current'   }).fill( 'none' ).stroke({ width: 20, color: color.current  }).radius( 6 );
 
 		for( var j = 0; j < brackets.length; j++ ) {
-			var round = brackets[ j ];
-			var x     = (j * scale.width) + 10;
+			var round   = brackets[ j ];
+			var x       = (j * scale.width) + 10;
 
 			for( var i = 0; i < round.length; i++ ) {
 				var block    = scale.height/(4/Math.pow( 2, j ));
@@ -62,8 +61,8 @@ $.widget( "freescore.brackets", {
 				if( blue.won ) { line.start.y = y + 20; line.head.y = line.start.y; } else
 				if( red.won  ) { line.start.y = y + 60; line.head.y = line.start.y; } else
 							   { line.start.y = y + 40; line.head.y = line.start.y; }
-
 				// ===== RENDER THE MATCH
+				match.addClass( `${bracket.round}-${i}` );
 				match.path('M 0 0 L 0 -30 Q 0 -40 10 -40 L 170 -40 Q 180 -40 180 -30 L 180 0 Z' ).fill( color.blue ).attr({ id: id + '-blue' }).move( 0,  0 );
 				match.path('M 0 0 L 0  30 Q 0  40 10  40 L 170  40 Q 180  40 180  30 L 180 0 Z' ).fill( color.red  ).attr({ id: id + '-red'  }).move( 0, 40 );
 				match.text( blue.athlete.display.name( j ) ).font({ 'font-family': 'FjallaOne', 'font-size': 24 }).fill( color.white ).move(  8,  7 );

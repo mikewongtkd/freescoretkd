@@ -1,28 +1,28 @@
 <?php
-	include "./include/php/version.php";
-	include "./include/php/config.php";
+	include "../../include/php/version.php";
+	include "../../include/php/config.php";
 ?>
 <html>
 	<head>
 		<title>Staging</title>
-		<link href="include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
-		<link href="include/css/freescore-light.css" rel="stylesheet" />
-		<link href="include/css/staging.css" rel="stylesheet" />
-		<link href="include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
-		<link href="include/alertify/css/alertify.min.css" rel="stylesheet" />
-		<link href="include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
-		<link href="include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
-		<script src="include/later/js/later.min.js"></script>
-		<script src="include/jquery/js/jquery.js"></script>
-		<script src="include/jquery/js/jquery.howler.min.js"></script>
-		<script src="include/jquery/js/jquery-dateformat.min.js"></script>
-		<script src="include/bootstrap/js/bootstrap.min.js"></script>
-		<script src="include/bootstrap/add-ons/bootstrap-select.min.js"></script>
-		<script src="include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
-		<script src="include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
-		<script src="include/alertify/alertify.min.js"></script>
-		<script src="include/js/freescore.js"></script>
+		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
+		<link href="../../include/css/freescore-light.css" rel="stylesheet" />
+		<link href="../../include/css/staging.css" rel="stylesheet" />
+		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
+		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
+		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
+		<script src="../../include/later/js/later.min.js"></script>
+		<script src="../../include/jquery/js/jquery.js"></script>
+		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
+		<script src="../../include/jquery/js/jquery-dateformat.min.js"></script>
+		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
+		<script src="../../include/alertify/alertify.min.js"></script>
+		<script src="../../include/js/freescore.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -39,7 +39,7 @@ var refresh = {};
 		<div id="pt-main" class="pt-perspective">
 <?php include( 'staging/checkin.php' ); ?>
 		</div>
-<script src="include/page-transitions/js/pagetransitions.js"></script>
+<script src="../../include/page-transitions/js/pagetransitions.js"></script>
 <script>
 alertify.set( 'notifier', 'position', 'top-right' );
 

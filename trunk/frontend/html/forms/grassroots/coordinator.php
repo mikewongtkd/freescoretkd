@@ -249,14 +249,15 @@
 					if( currentDivision ) {
 						// ===== PROVIDE BEHAVIOR WHEN CLICKING ON BRACKETS
 						$( '#brackets' ).on( 'matchClicked', function( ev ) {
+							var rnames   = { ro64: "Round of 64", ro32: "Round of 32", ro16: "Round of 16", qtrfin: "Quarter-Finals", semfin: "Semi-Finals", finals: "Finals" };
 							var brackets = division.brackets();
 							var i        = ev.i;
 							var j        = ev.j;
 							var k        = ev.k;
-							var bracket  = brackets[ j ][ i ];
+							var match    = brackets[ j ][ i ];
 							var athletes = division.athletes();
-							var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: () => { return '[Bye]' }} };
-							var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: () => { return '[Bye]' }} };
+							var blue     = { athlete : defined( match.blue.athlete ) ? athletes[ match.blue.athlete ] : { name: () => { return '[Bye]' }} };
+							var red      = { athlete : defined( match.red.athlete )  ? athletes[ match.red.athlete ]  : { name: () => { return '[Bye]' }} };
 
 							$( '.match' ).removeClass( 'selected' );
 							if( k == division.current.athleteId() && currentDivision ) {
@@ -264,9 +265,10 @@
 								$( ".navigate-athlete" ).hide(); 
 
 							} else if( currentDivision ) {
+								var num = match.round == 'finals' ? '' : i + 1;
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( "#navigate-athlete-label" ).html( "Start scoring for " + blue.athlete.name() + ' vs ' + red.athlete.name() ); 
+								$( "#navigate-athlete-label" ).html( `Start scoring ${rnames[ match.round ]} ${num}` ); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
 								$( ".navigate-athlete" ).show(); 
 							}
