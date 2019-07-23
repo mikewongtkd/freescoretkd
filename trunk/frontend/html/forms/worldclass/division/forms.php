@@ -124,6 +124,7 @@ EOD;
 		var flight = division.is.flight();
 
 		$( 'a[href="#cutoff"]' ).click();
+		// MW NEEDS TO REFLECT STARTING ROUND
 		for( round in forms ) {
 			selected.forms[ round ] = [];
 			forms[ round ].forEach(( form, i ) => {
@@ -132,12 +133,14 @@ EOD;
 			});
 		}
 		if( flight ) {
-			delete selected.forms.semfin;
-			delete selected.forms.finals;
+			[ 'semfin', 'finals' ].forEach( round => { 
+				delete selected.forms[ round ]; 
+			});
 
 		} else {
 			if( n <  20 ) { delete selected.forms.prelim; }
 			if( n <=  8 ) { delete selected.forms.semfin; }
+			
 		}
 	};
 
@@ -164,12 +167,14 @@ EOD;
 		var rounds  = [];
 		var roundOK = ( round ) => { return ((round in selected.forms) && (selected.forms[ round ].length > 0)); };
 		var n       = division.athletes.length;
-		var flight  = defined( division.flight );
-		if( n >= 20 || flight ) { rounds.unshift( 'prelim' ); }
-		if( n >   8           ) { rounds.unshift( 'semfin' ); }
-		rounds.push( 'finals' );
+		var flight  = defined( division.flight ) && division.flight;
+		if( n >= 20 || flight   ) { rounds.push( 'prelim' ); settings.round.select.prelim(); }
+		if( n >   8 && ! flight ) { rounds.push( 'semfin' ); settings.round.select.semfin(); }
+		if( ! flight            ) { rounds.push( 'finals' ); settings.round.select.finals(); }
 
-		return rounds.map( roundOK ).reduce( ( acc, cur ) => { return acc && cur; }); // All rounds have at least one form
+		console.log( flight, rounds );
+
+		return rounds.map( roundOK ).reduce(( acc, cur ) => { return acc && cur; }, true ); // All rounds have at least one form
 	};
 
 	// ===== FORM SELECTOR MODIFICATION BY DESCRIPTION

@@ -61,26 +61,35 @@
 	settings = { round : { select : {
 		autodetect : function() {
 			var n      = division.athletes.length;
-			var flight = defined( division.flight ) || $( '#flight' ).val().length > 0;
+			var flight = (defined( division.flight ) && division.flight) || $( '#flight' ).val().length > 0;
 
-			if( flight ) { settings.round.select.prelim(); } else
+			if( flight ) { settings.round.select.flight(); } else
 			if( n <= 8 ) { settings.round.select.finals(); } else 
 			if( n < 20 ) { settings.round.select.semfin(); } else 
 			             { settings.round.select.prelim(); }
 		},
+		flight : function() {
+			$( '.prelim-header, .prelim-form, .prelim-list' ).show();
+			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
+			$( '.finals-header, .finals-form, .finals-list' ).hide();
+			division.round = 'prelim';
+		},
 		prelim : function() {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).show();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).show();
+			$( '.finals-header, .finals-form, .finals-list' ).show();
 			division.round = 'prelim';
 		},
 		semfin : function() {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).show();
+			$( '.finals-header, .finals-form, .finals-list' ).show();
 			division.round = 'semfin';
 		},
 		finals : function() {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
+			$( '.finals-header, .finals-form, .finals-list' ).show();
 			division.round = 'finals';
 		},
 	}},
