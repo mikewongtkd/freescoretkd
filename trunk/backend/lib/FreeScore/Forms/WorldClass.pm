@@ -108,7 +108,7 @@ sub delete_draws {
 	} else {
 		$file = "$self->{ path }/draws.json";
 	}
-	$self->{ ring }{ draws } = undef;
+	$self->{ draws } = undef;
 	unlink $file;
 }
 
