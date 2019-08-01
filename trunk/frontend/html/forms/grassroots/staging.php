@@ -23,6 +23,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="staging/js/registration.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -35,7 +36,6 @@ body {
 <script>
 var refresh = {};
 </script>
-		<button class="btn btn-primary" id="announcer">Enable Announcer</button>
 		<div id="pt-main" class="pt-perspective">
 <?php include( 'staging/checkin.php' ); ?>
 		</div>
@@ -95,10 +95,10 @@ announcer.call = ( division, call ) => {
 };
 
 var sound = {
-	send      : new Howl({ urls: [ "./sounds/upload.mp3",   "./sounds/upload.ogg"   ]}),
-	confirmed : new Howl({ urls: [ "./sounds/received.mp3", "./sounds/received.ogg" ]}),
-	next      : new Howl({ urls: [ "./sounds/next.mp3",     "./sounds/next.ogg"     ]}),
-	previous  : new Howl({ urls: [ "./sounds/prev.mp3",     "./sounds/prev.ogg"     ]}),
+	send      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"   ]}),
+	confirmed : new Howl({ urls: [ "../../sounds/received.mp3", "../../sounds/received.ogg" ]}),
+	next      : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"     ]}),
+	previous  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"     ]}),
 };
 
 var host       = '<?= $host ?>';
