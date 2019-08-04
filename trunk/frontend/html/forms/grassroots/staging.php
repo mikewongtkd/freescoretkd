@@ -22,6 +22,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
+		<script src="../../include/opt/moment/moment.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="staging/js/registration.js"></script>
 

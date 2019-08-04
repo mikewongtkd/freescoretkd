@@ -11,11 +11,12 @@ class Athlete {
 }
 
 class Division {
-	constructor( id, data, reg ) {
+	constructor( id, data, reg, ev ) {
 		if( defined( data )) { Object.keys( data ).forEach( key => { this[ key ] = data[ key ]; }); }
 
 		this.id  = id;
 		this.reg = reg;
+		this.ev  = ev;
 	}
 
 	get athletes() {
@@ -23,10 +24,10 @@ class Division {
 	}
 
 	duration() {
-		if( this.method == 'cutoff' ) {
+		if( this.ev.method == 'cutoff' ) {
 			return this.athletes.length * 4;
 
-		} else if( this.method == 'single elimination' ) {
+		} else if( this.ev.method == 'single elimination' ) {
 			return (this.athletes.length - 1) * 4;
 		}
 	}
@@ -52,7 +53,7 @@ class Event {
 	}
 
 	get divisions() {
-		return this.divisions.map( divid => new Division( divid, reg.divisions[ divid ], reg ));
+		return this.divisions.map( divid => new Division( divid, reg.divisions[ divid ], reg, this ));
 	}
 
 	get id()    { return this.id; }
