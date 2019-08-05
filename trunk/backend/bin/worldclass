@@ -9,6 +9,7 @@ use FreeScore::Forms::WorldClass::RequestManager;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
+use PHP::Session;
 use Data::Dumper;
 use Clone qw( clone );
 use EV;

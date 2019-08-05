@@ -23,7 +23,7 @@ var refresh = {
 		registration = new Registration( update.registration );
 
 		let divisions = registration.divisions();
-		let call      = { first: moment().substract( 30, 'minutes' ), second: moment().substract( 15, 'minutes' ), third: moment().substract( 15, 'minutes' )};
+		let call      = { first: moment().substract( 30, 'minutes' ), second: moment().substract( 15, 'minutes' ), third: moment().substract( 5, 'minutes' )};
 
 		
 	}

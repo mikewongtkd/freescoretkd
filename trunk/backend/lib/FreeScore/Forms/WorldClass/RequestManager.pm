@@ -84,7 +84,6 @@ sub init {
 		write              => \&handle_schedule_write,
 		remove             => \&handle_schedule_remove,
 	};
-
 }
 
 # ============================================================

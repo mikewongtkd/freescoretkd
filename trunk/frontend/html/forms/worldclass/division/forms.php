@@ -172,8 +172,6 @@ EOD;
 		if( n >   8 && ! flight ) { rounds.push( 'semfin' ); settings.round.select.semfin(); }
 		if( ! flight            ) { rounds.push( 'finals' ); settings.round.select.finals(); }
 
-		console.log( flight, rounds );
-
 		return rounds.map( roundOK ).reduce(( acc, cur ) => { return acc && cur; }, true ); // All rounds have at least one form
 	};
 
