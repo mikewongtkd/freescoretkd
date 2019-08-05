@@ -47,7 +47,7 @@ alertify.set( 'notifier', 'position', 'top-right' );
 var announcer = { messages: [], voice: { cantonese: 'Google 粤語（香港）', english: 'Google US English', hindi: 'Google हिन्दी', japanese: 'Google 日本語', korean: 'Google 한국의', spanish: 'Google español de Estados Unidos' }};
 announcer.message = ( text ) => {
 	announcer.messages.push( text );
-	$( '#announcer' ).removeClass( 'disabled' ).html( `Announcer has ${announcer.messages.length} messages` );
+	$( '#announcer' ).removeClass( 'disabled' ).html( `<span class="fa fa-comment"></span> Announcer has ${announcer.messages.length} messages` );
 };
 announcer.speak = () => {
 	if( announcer.messages.length == 0 ) { return; }
@@ -59,9 +59,9 @@ announcer.speak = () => {
 	message.onend = ( e ) => { 
 		let n = announcer.messages.length;
 		if( n == 0 ) {
-			$( '#announcer' ).addClass( 'disabled' ).html( 'Announcer Muted' );
+			$( '#announcer' ).addClass( 'disabled' ).html( '<span class="fa fa-comment-slash"></span> Announcer Muted' );
 		} else {
-			$( '#announcer' ).html( `Announcer has ${n} messages` );
+			$( '#announcer' ).html( `<span class="fa fa-comment"></span> Announcer has ${n} messages` );
 		}
 		setTimeout(() => { announcer.speak(); }, 800 ); }; // Wait 1 second and say the next item in the queue
 };

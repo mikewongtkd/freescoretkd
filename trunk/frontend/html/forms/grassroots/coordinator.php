@@ -20,7 +20,7 @@
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../include/css/brackets-bootstrap.css" rel="stylesheet" type="text/css" />
-		<link href="../../include/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
+		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 		<script src="../../include/opt/svg/svg.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>

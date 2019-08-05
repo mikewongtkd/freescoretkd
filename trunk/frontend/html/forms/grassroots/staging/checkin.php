@@ -1,6 +1,6 @@
 <div class="pt-page pt-page-1 page-checkin">
 	<div class="page-header">
-		<div class="page-header-content">Athlete Check-in</div>
+		<div class="page-header-content">Athlete Check-in <a class="btn btn-xs btn-success pull-right" id="announcer"> Announcer Disabled</a> </div>
 	</div>
 	<div class="container">
 		<div id="divisions-view">
