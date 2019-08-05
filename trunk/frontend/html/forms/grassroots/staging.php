@@ -25,6 +25,7 @@
 		<script src="../../include/opt/moment/moment.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="staging/js/registration.js"></script>
+		<script src="staging/js/announcer.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -44,56 +45,7 @@ var refresh = {};
 <script>
 alertify.set( 'notifier', 'position', 'top-right' );
 
-var announcer = { messages: [], voice: { cantonese: 'Google 粤語（香港）', english: 'Google US English', hindi: 'Google हिन्दी', japanese: 'Google 日本語', korean: 'Google 한국의', spanish: 'Google español de Estados Unidos' }};
-announcer.message = ( text ) => {
-	announcer.messages.push( text );
-	$( '#announcer' ).removeClass( 'disabled' ).html( `<span class="fa fa-comment"></span> Announcer has ${announcer.messages.length} messages` );
-};
-announcer.speak = () => {
-	if( announcer.messages.length == 0 ) { return; }
-	let text = announcer.messages.shift();
-	if( typeof text === 'object' ) { alertify.notify( `<b>Announcer</b><br>${text.name}` ); text = text.name.toLowerCase(); } else { alertify.notify( `<b>Announcer</b><br>${text}` ); }
-	let message = new SpeechSynthesisUtterance( text );
-	message.voice = speechSynthesis.getVoices().filter( voice => voice.name == announcer.voice.english ).shift();
-	window.speechSynthesis.speak( message )
-	message.onend = ( e ) => { 
-		let n = announcer.messages.length;
-		if( n == 0 ) {
-			$( '#announcer' ).addClass( 'disabled' ).html( '<span class="fa fa-comment-slash"></span> Announcer Muted' );
-		} else {
-			$( '#announcer' ).html( `<span class="fa fa-comment"></span> Announcer has ${n} messages` );
-		}
-		setTimeout(() => { announcer.speak(); }, 800 ); }; // Wait 1 second and say the next item in the queue
-};
-announcer.call = ( division, call ) => {
-	if( division.athletes.every( x => x.checkin )) { return; } // Skip the call if every athlete is checked in
-	let map   = { '1': { ordinal: 'First', time: 30 }, '2': { ordinal: 'Second', time: 15 }, '3': { ordinal: 'Third', time: 5 }}; call = map[ call ];
-	let div   = `${division.event} ${division.description} Division ${division.id}`;
-	let intro = [ 
-		`${call.ordinal} call for ${div}`, 
-		`Attention athletes, ${call.ordinal} call for ${div}`, 
-		`This is your ${call.ordinal} call for ${div}`,
-	];
-	let repeat = [
-		`Attention athletes, ${call.ordinal} call for ${div}`, 
-		`This is your ${call.ordinal} call for ${div}`,
-		`Repeating ${call.ordinal} call for ${div}`,
-		`Again, ${call.ordinal} call for ${div}`,
-	]
-	let outro = [
-		`Please report to the staging area. You have ${call.time} minutes.`,
-		`You have ${call.time} minutes to report to the staging area.`,
-	];
-	let pick = ( choices ) => { let i = Math.floor( Math.random() * choices.length ); return choices[ i ]; }
-
-	announcer.message( pick( intro ));
-	division.athletes.forEach(( athlete ) => { if( athlete.checkin ) { return; } announcer.message( registration.athletes[ athlete.id ]); });
-	announcer.message( pick( repeat ));
-	division.athletes.forEach(( athlete ) => { if( athlete.checkin ) { return; } announcer.message( registration.athletes[ athlete.id ]); });
-	announcer.message( pick( repeat ));
-	division.athletes.forEach(( athlete ) => { if( athlete.checkin ) { return; } announcer.message( registration.athletes[ athlete.id ]); });
-	announcer.message( pick( outro ));
-};
+var announcer = new Announcer();
 
 var sound = {
 	send      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"   ]}),
@@ -118,11 +70,9 @@ var page = {
 };
 
 $(() => {
-	announcer.message( 'Hello' );
-});
-
-$( '#announcer' ).off( 'click' ).click(( ev ) => {
-	announcer.speak();
+	announcer.message( 'Initializing Announcement System' );
+	announcer.message( 'Now using Female American English voice' );
+	announcer.message( 'Starting Automated Athlete Calling System' );
 });
 
 // ===== SERVER COMMUNICATION

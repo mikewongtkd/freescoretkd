@@ -15,17 +15,32 @@ var clock  = undefined;
 
 $(() => {
 	if( clock ) { clearInterval( clock ); }
-	clock = setInterval(() => { refresh.checkin( update ); }, 30000 ); // Refresh every 30 seconds
+	// clock = setInterval(() => { refresh.checkin( update ); }, 30000 ); // Refresh every 30 seconds
+	setTimeout(() => { refresh.checkin( update ); }, 1000 ); // MW For development only
 });
 
 var refresh = {
 	checkin: ( update ) => {
-		registration = new Registration( update.registration );
+		let registration = new Registration( update.registration );
+		let today        = moment().format( 'M-D-YYYY' );
 
-		let divisions = registration.divisions();
-		let call      = { first: moment().substract( 30, 'minutes' ), second: moment().substract( 15, 'minutes' ), third: moment().substract( 5, 'minutes' )};
+		let events        = registration.events;
+		let announcements = [ 
+			{ call: 1, start: moment( `${today} 8:30 AM` ).add( 30, 'minutes' ), stop: moment( `${today} 8:30 AM` ).add( 35, 'minutes' )}, 
+			{ call: 2, start: moment( `${today} 8:30 AM` ).add( 15, 'minutes' ), stop: moment( `${today} 8:30 AM` ).add( 20, 'minutes' )}, 
+			{ call: 3, start: moment( `${today} 8:30 AM` ).add( 5, 'minutes' ),  stop: moment( `${today} 8:30 AM` ).add( 10, 'minutes' )}
+		];
 
-		
+		for( let announcement of announcements ) {
+			events.forEach( ev => {
+				let divisions = ev.divisions;
+				divisions.forEach( div => {
+					if( div.start.isSameOrAfter( announcement.start ) && div.start.isBefore( announcement.stop )) {
+						announcer.call( div, announcement.call );
+					}
+				});
+			});
+		}
 	}
 }
 

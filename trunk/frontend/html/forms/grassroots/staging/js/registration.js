@@ -1,67 +1,78 @@
 class Athlete {
 	constructor( id, data, reg ) {
-		if( defined( data )) { Object.keys( data ).forEach( key => { this[ key ] = data[ key ]; }); }
-		this.reg = reg;
-		this.id  = id;
+		if( defined( data )) { Object.keys( data ).forEach( key => { this[ `_${key}` ] = data[ key ]; }); }
+		this._reg = reg;
+		this._id  = id;
 	}
 
+	get name() { return this._name; }
+
 	checkin( divid ) {
-		reg.checkin[ divid ][ this.id ] = true;
+		this._reg._checkin[ divid ][ this._id ] = true;
+	}
+
+	hasCheckedIn( div ) {
+		let divid = div.id;
+		return this._reg._checkin[ divid ][ this._id ];
 	}
 }
 
 class Division {
 	constructor( id, data, reg, ev ) {
-		if( defined( data )) { Object.keys( data ).forEach( key => { this[ key ] = data[ key ]; }); }
+		if( defined( data )) { Object.keys( data ).forEach( key => { this[ `_${key}` ] = data[ key ]; }); }
 
-		this.id  = id;
-		this.reg = reg;
-		this.ev  = ev;
+		this._id  = id;
+		this._reg = reg;
+		this._ev  = ev;
 	}
 
 	get athletes() {
-		return Object.keys( this.reg.checkin[ this.id ]).map( id => new Athlete( id, this.reg.athletes[ id ], reg ));
+		return Object.keys( this._reg._checkin[ this._id ]).map( id => new Athlete( id, this._reg._athletes[ id ], this._reg ));
+	}
+
+	get id()          { return this._id; }
+	get description() { return this._description; }
+	get event()       { return this._ev._name; }
+
+	get start() {
+		let today = moment().format( 'M-D-YYYY' ); // MW starts should be complete datetime values
+		return moment( `${today} ${this._start}` );
 	}
 
 	duration() {
 		if( this.ev.method == 'cutoff' ) {
-			return this.athletes.length * 4;
+			return this._athletes.length * 4;
 
 		} else if( this.ev.method == 'single elimination' ) {
-			return (this.athletes.length - 1) * 4;
+			return (this._athletes.length - 1) * 4;
 		}
 	}
 
 	isReady() {
-		return Object.values( reg.checkin[ this.id ]).every( checkin => checkin );
+		return Object.values( this._reg.checkin[ this._id ]).every( checkin => checkin );
 	}
 }
 
 class Event {
 	constructor( id, data, reg ) {
-		if( defined( data )) { Object.keys( data ).forEach( key => { this[ key ] = data[ key ]; }); }
+		if( defined( data )) { Object.keys( data ).forEach( key => { this[ `_${key}` ] = data[ key ]; }); }
+		let today = moment().format( 'M-D-YYYY' ); // MW starts should be complete datetime values
 
-		let time  = this.start.match( /(?<hour>\d+):(?<minute>\d+)\s*(?<ampm>pm)/i );
-		let start = new Date();
-		start.setHours( parseInt( time.groups.hour + (time.groups.ampm ? 12 : 0)));
-		start.setMinutes( parseInt( time.groups.minute ));
-		start.setSeconds( 0 );
-
-		this.id    = id;
-		this.start = start;
-		this.reg   = reg;
+		this._id    = id;
+		this._start = moment( `${today} ${this._start}` );
+		this._reg   = reg;
 	}
 
 	get divisions() {
-		return this.divisions.map( divid => new Division( divid, reg.divisions[ divid ], reg, this ));
+		return this._divisions.map( divid => new Division( divid, this._reg._divisions[ divid ], this._reg, this ));
 	}
 
-	get id()    { return this.id; }
-	get name()  { return this.name; }
-	get start() { return this.start; }
+	get id()    { return this._id; }
+	get name()  { return this._name; }
+	get start() { return this._start; }
 
 	sort( other ) {
-		return this.start - other.start;
+		return this._start.subtract( other._start );
 	}
 }
 
@@ -80,10 +91,10 @@ class Event {
 
 class Registration {
 	constructor( data ) {
-		if( defined( data )) { Object.keys( data ).forEach( key => { this[ key ] = data[ key ]; }); }
+		if( defined( data )) { Object.keys( data ).forEach( key => { this[ `_${key}` ] = data[ key ]; }); }
 	}
 
-	events() {
-		return Object.keys( this.events ).map( id => new Event( id, this.events[ id ], this )).sort(( a, b ) => a.sort( b ));
+	get events() {
+		return Object.keys( this._events ).map( id => new Event( id, this._events[ id ], this )).sort(( a, b ) => a.sort( b ));
 	}
 }
