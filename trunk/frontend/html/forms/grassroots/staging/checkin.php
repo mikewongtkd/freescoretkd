@@ -21,14 +21,14 @@ $(() => {
 
 var refresh = {
 	checkin: ( update ) => {
-		let registration = new Registration( update.registration );
-		let today        = moment().format( 'M-D-YYYY' );
-
+		let registration  = new Registration( update.registration );
+		let today         = moment().format( 'MMM D, YYYY' );
 		let events        = registration.events;
+		let now           = moment( `${today} 10:30 AM` );
 		let announcements = [ 
-			{ call: 1, start: moment( `${today} 8:30 AM` ).add( 30, 'minutes' ), stop: moment( `${today} 8:30 AM` ).add( 35, 'minutes' )}, 
-			{ call: 2, start: moment( `${today} 8:30 AM` ).add( 15, 'minutes' ), stop: moment( `${today} 8:30 AM` ).add( 20, 'minutes' )}, 
-			{ call: 3, start: moment( `${today} 8:30 AM` ).add( 5, 'minutes' ),  stop: moment( `${today} 8:30 AM` ).add( 10, 'minutes' )}
+			{ call: 1, start: now.clone().add( 30, 'minutes' ), stop: now.clone().add( 35, 'minutes' )}, 
+			{ call: 2, start: now.clone().add( 15, 'minutes' ), stop: now.clone().add( 20, 'minutes' )}, 
+			{ call: 3, start: now.clone().add( 5, 'minutes' ),  stop: now.clone().add( 10, 'minutes' )}
 		];
 
 		for( let announcement of announcements ) {

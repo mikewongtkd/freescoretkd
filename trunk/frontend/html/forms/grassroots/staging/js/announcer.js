@@ -5,6 +5,8 @@ class Announcer {
 		this.timer    = undefined; 
 		this.status   = 'disabled';
 
+		if( $( '#announcer' ).length == 0 ) { throw( 'Error, no announcer button found' ); }
+
 		$( '#announcer' ).off( 'click' ).click(( ev ) => {
 			if( this.status == 'disabled' ) {
 				this.status = 'enabled';
@@ -17,7 +19,7 @@ class Announcer {
 	}
 
 	message( text ) {
-		this.messages.push( text );
+		this.messages.push({ time: moment(), text : text });
 		$( '#announcer' ).removeClass( 'disabled' ).html( `<span class="fa fa-comment"></span> ${announcer.messages.length} messages` );
 	}
 
@@ -27,57 +29,82 @@ class Announcer {
 		$( '#announcer' ).addClass( 'disabled' ).html( `<span class="fa fa-comment-slash"></span> Muted` );
 	}
 
+	pause( time ) {
+		this.messages.push({ time: moment(), pause: time, text: '' });
+	}
+
+	pronunciationHelp( message ) {
+		message.text = message.text.toLowerCase();
+		message.text = message.text.replace( /group a/i, 'group ae' );   // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
+		message.text = message.text.replace( /division \w+a$/i, '$&e' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
+		return message;
+	}
+
 	speak() {
 		if( this.status == 'disabled' ) { return; }
 		if( this.messages.length == 0 ) { return; }
-		let now  = moment().format( 'h:mm A' );
-		let text = this.messages.shift();
-		alertify.notify( `<b>Announcer</b> ${now}<br>${text}` );
 
-		// Text pronunciation hacks
-		text = text.replace( /group a/i, 'group ae' );   // Force voice to say hard 'A' (pronounces 'ae')
-		text = text.replace( /division \w+a$/i, '$&e' ); // Force voice to say hard 'A' (pronounces 'ae')
+		let now     = moment();
+		let message = this.messages.shift();
 
-		let message = new SpeechSynthesisUtterance( text.toLowerCase() );
-		message.voice = speechSynthesis.getVoices().filter( voice => voice.name == this.voice.english ).shift();
-		window.speechSynthesis.speak( message )
-		message.onend = ( e ) => { 
-			let n = this.messages.length;
-			if( n == 0 ) {
-				$( '#announcer' ).html( '<span class="fa fa-comment"></span> Waiting for messages' );
-			} else {
-				$( '#announcer' ).html( `<span class="fa fa-comment"></span> ${n} messages` );
-			}
-			this.timer = setTimeout(() => { this.speak(); }, 500 ); }; // Wait 1 second and say the next item in the queue
+		// Discard messages older than 5 minutes
+		if( message.time.isAfter( now.add( 5, 'minutes' ))) { this.speak(); return; }
+
+		if( message.text ) { alertify.notify( `<b>Announcer</b> ${now.format( 'h:mm A' )}<br>${message.text}` ); }
+
+		message = this.pronunciationHelp( message );
+
+		let saying = new SpeechSynthesisUtterance( message.text );
+		saying.voice = speechSynthesis.getVoices().filter( voice => voice.name == this.voice.english ).shift();
+		window.speechSynthesis.speak( saying )
+		saying.onend = ( e ) => { 
+			let n     = this.messages.length;
+			let state = n == 0 ? 'Waiting for messages' : `${n} messages`;
+			$( '#announcer' ).html( `<span class="fa fa-comment"></span> ${state}` );
+			let pause  = message.pause || 500; // Wait 0.5 second (or requested pause) and say the next item in the queue
+			this.timer = setTimeout(() => { this.speak(); }, pause );  
+		};
 	}
 
 	call( division, call ) {
-		console.log( `Announcing ${division._id.toUpperCase()} ${division._description}`, division.athletes.map( a => a.name ));
-		let map   = { '1': { ordinal: 'First', time: 30 }, '2': { ordinal: 'Second', time: 15 }, '3': { ordinal: 'Third', time: 5 }}; call = map[ call ];
+		let map   = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }}; call = map[ call ];
+		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, division.athletes.map( a => a.name ).join( ', ' ));
 		let div   = `${division.event} ${division.description} Division ${division.id.toUpperCase()}`;
 		let intro = [ 
 			`${call.ordinal} call for ${div}`, 
-			`Attention athletes, ${call.ordinal} call for ${div}`, 
-			`This is your ${call.ordinal} call for ${div}`,
+			`Attention athletes, ${call.ordinal.toLowerCase()} call for ${div}`, 
+			`This is your ${call.ordinal.toLowerCase()} call for ${div}`,
 		];
 		let repeat = [
-			`Attention athletes, ${call.ordinal} call for ${div}`, 
-			`This is your ${call.ordinal} call for ${div}`,
-			`Repeating ${call.ordinal} call for ${div}`,
-			`Again, ${call.ordinal} call for ${div}`,
+			`Attention athletes, ${call.ordinal.toLowerCase()} call for ${div}`, 
+			`This is your ${call.ordinal.toLowerCase()} call for ${div}`,
+			`Repeating ${call.ordinal.toLowerCase()} call for ${div}`,
+			`Again, ${call.ordinal.toLowerCase()} call for ${div}`,
 		]
 		let outro = [
 			`Please report to the staging area. You have ${call.time} minutes.`,
 			`You have ${call.time} minutes to report to the staging area.`,
 		];
+		let warning = [
+			`If you are not in the staging area in  ${call.time} minutes, you may be disqualified.`,
+			`You have ${call.time} minutes to report to the staging area, or you may be disqualified.`,
+		]
 		let pick = ( choices ) => { let i = Math.floor( Math.random() * choices.length ); return choices[ i ]; }
 
+		let athletes = division.athletes.reduce(( athletes, athlete ) => { if( ! athlete.hasCheckedIn( division )) { athletes.push( athlete.name ); } return athletes; }, []).join( ', ' );
 		this.message( pick( intro ));
-		division.athletes.forEach(( athlete ) => { if( athlete.hasCheckedIn( division )) { return; } this.message( athlete.name ); });
-		this.message( pick( repeat ));
-		division.athletes.forEach(( athlete ) => { if( athlete.hasCheckedIn( division )) { return; } this.message( athlete.name ); });
-		this.message( pick( repeat ));
-		division.athletes.forEach(( athlete ) => { if( athlete.hasCheckedIn( division )) { return; } this.message( athlete.name ); });
-		this.message( pick( outro ));
+		this.message( athletes );
+		if( call.number == 1 ) {
+			this.message( pick( repeat ));
+			this.message( athletes );
+		}
+		if( call.number <= 2 ) {
+			this.message( pick( repeat ));
+			this.message( athletes );
+			this.message( pick( outro ));
+		} else {
+			this.message( pick( warning ));
+		}
+		this.pause( 5000 );
 	}
 }
