@@ -13,6 +13,7 @@
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="staging/css/staging.css" rel="stylesheet" />
 		<script src="../../include/later/js/later.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>

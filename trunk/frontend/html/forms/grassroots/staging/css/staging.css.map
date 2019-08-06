@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AACA,UAAW;EACV,UAAU,EAAE,GAAG",
+"sources": ["staging.scss"],
+"names": [],
+"file": "staging.css"
+}

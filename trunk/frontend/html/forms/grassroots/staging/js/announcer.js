@@ -76,10 +76,12 @@ class Announcer {
 			`This is your ${call.ordinal.toLowerCase()} call for ${div}`,
 		];
 		let repeat = [
-			`Attention athletes, ${call.ordinal.toLowerCase()} call for ${div}`, 
-			`This is your ${call.ordinal.toLowerCase()} call for ${div}`,
-			`Repeating ${call.ordinal.toLowerCase()} call for ${div}`,
-			`Again, ${call.ordinal.toLowerCase()} call for ${div}`,
+			`Attention athletes, ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`, 
+			`This is your ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
+			`Repeating ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
+			`Attention athletes, repeating ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
+			`Again, ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
+			`Division ${division.id.toUpperCase()} this is your ${call.ordinal.toLowerCase()} call`,
 		]
 		let outro = [
 			`Please report to the staging area. You have ${call.time} minutes.`,
@@ -97,12 +99,15 @@ class Announcer {
 		if( call.number == 1 ) {
 			this.message( pick( repeat ));
 			this.message( athletes );
-		}
-		if( call.number <= 2 ) {
 			this.message( pick( repeat ));
 			this.message( athletes );
+		}
+		if( call.number <= 2 ) {
 			this.message( pick( outro ));
+
 		} else {
+			this.message( pick( repeat ));
+			this.message( athletes );
 			this.message( pick( warning ));
 		}
 		this.pause( 5000 );
