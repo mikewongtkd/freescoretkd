@@ -14,7 +14,7 @@ var clock        = undefined;
 $(() => {
 	if( clock ) { clearInterval( clock ); }
 	// clock = setInterval(() => { refresh.checkin( update ); }, 30000 ); // Refresh every 30 seconds
-	setTimeout(() => { refresh.checkin( update ); }, 1000 ); // MW For development only
+	setTimeout(() => { refresh.checkin( update ); }, 100 ); // MW For development only
 });
 
 var divView = $(`<?php include( 'div-view.php' )?>`);

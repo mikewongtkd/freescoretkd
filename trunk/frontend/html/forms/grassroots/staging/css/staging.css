@@ -6,10 +6,22 @@
   #divisions-view td {
     width: 25%; }
     #divisions-view td .division-view {
+      position: relative;
       padding: 8px;
       width: calc( 100% - 8px );
-      margin-left: 4px;
-      margin-right: 4px;
-      margin-bottom: 8px; }
+      margin: 4px 0 4px 8px;
+      border-radius: 4px; }
+      #divisions-view td .division-view .division-summary {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-size: 14pt;
+        width: 100%;
+        height: 32px; }
+      #divisions-view td .division-view .division-start {
+        position: absolute;
+        top: 24px;
+        right: 4px;
+        font-size: 10pt; }
 
 /*# sourceMappingURL=staging.css.map */
