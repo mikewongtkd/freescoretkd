@@ -6,8 +6,10 @@
   #divisions-view td {
     width: 25%; }
     #divisions-view td .division-view {
-      width: calc( 100% - 16px );
-      margin-left: 8px;
-      margin-right: 8px; }
+      padding: 8px;
+      width: calc( 100% - 8px );
+      margin-left: 4px;
+      margin-right: 4px;
+      margin-bottom: 8px; }
 
 /*# sourceMappingURL=staging.css.map */
