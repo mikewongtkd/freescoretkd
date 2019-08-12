@@ -8,7 +8,6 @@
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
 		<link href="../../include/css/freescore-light.css" rel="stylesheet" />
-		<link href="../../include/css/staging.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />

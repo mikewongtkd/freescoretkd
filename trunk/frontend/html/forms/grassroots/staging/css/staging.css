@@ -1,4 +1,13 @@
 #announcer {
   margin-top: 4px; }
 
+#divisions-view {
+  width: 100%; }
+  #divisions-view td {
+    width: 25%; }
+    #divisions-view td .division-view {
+      width: calc( 100% - 16px );
+      margin-left: 8px;
+      margin-right: 8px; }
+
 /*# sourceMappingURL=staging.css.map */
