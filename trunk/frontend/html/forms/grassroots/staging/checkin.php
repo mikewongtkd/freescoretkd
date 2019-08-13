@@ -57,8 +57,9 @@ var refresh = {
 				let div     = staging.div;
 				let bgcolor = [ 'danger', 'warning', 'success' ][ staging.priority ];
 				let view    = divView.clone();
+				let delta   = moment.duration( div.start.diff( now )); console.log( delta );
 				view.find( '.division-summary' ) .html( `<b>${div.id.toUpperCase()}</b> ${div.description}` );
-				view.find( '.division-start' )   .html( `Starting ${div.start.format( 'h:mm A' )} (${now.format( 'h:mm A' )})` );
+				view.find( '.division-start' )   .html( `${div.start.format( 'h:mm A' )}<br><span class="remaining">${delta.humanize()}</span>` );
 				view.find( '.division-view' ).addClass( `bg-${bgcolor}` );
 				row.append( view );
 
