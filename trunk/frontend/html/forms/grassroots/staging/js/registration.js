@@ -5,7 +5,9 @@ class Athlete {
 		this._id  = id;
 	}
 
+	get id() { return this._id; }
 	get name() { return this._name; }
+	get lastName() { let match = this._name.match( /(?<lastname>[A-Z\s]+)$/ ); let lastName = match.groups.lastname; if( lastName ) { return lastName; } else { return ''; }}
 
 	checkin( divid ) {
 		this._reg._checkin[ divid ][ this._id ] = true;

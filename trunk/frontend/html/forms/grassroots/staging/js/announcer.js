@@ -67,10 +67,12 @@ class Announcer {
 	}
 
 	call( division, call ) {
-		let map   = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }}; call = map[ call ];
-		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, division.athletes.map( a => a.name ).join( ', ' ));
-		let div   = `${division.event} ${division.description} Division ${division.id.toUpperCase()}`;
-		let intro = [ 
+		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }}; call = map[ call ];
+		let athletes = division.athletes.filter( a => ! a.hasCheckedIn( division )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ))
+		let names    = athletes.map( a => a.name ).join( ', ' );
+		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, names );
+		let div      = `${division.event} ${division.description} Division ${division.id.toUpperCase()}`;
+		let intro    = [ 
 			`${call.ordinal} call for ${div}`, 
 			`Attention athletes, ${call.ordinal.toLowerCase()} call for ${div}`, 
 			`This is your ${call.ordinal.toLowerCase()} call for ${div}`,
@@ -93,21 +95,20 @@ class Announcer {
 		]
 		let pick = ( choices ) => { let i = Math.floor( Math.random() * choices.length ); return choices[ i ]; }
 
-		let athletes = division.athletes.reduce(( athletes, athlete ) => { if( ! athlete.hasCheckedIn( division )) { athletes.push( athlete.name ); } return athletes; }, []).join( ', ' );
 		this.message( pick( intro ));
-		this.message( athletes );
+		this.message( names );
 		if( call.number == 1 ) {
 			this.message( pick( repeat ));
-			this.message( athletes );
+			this.message( names );
 			this.message( pick( repeat ));
-			this.message( athletes );
+			this.message( names );
 		}
 		if( call.number <= 2 ) {
 			this.message( pick( outro ));
 
 		} else {
 			this.message( pick( repeat ));
-			this.message( athletes );
+			this.message( names );
 			this.message( pick( warning ));
 		}
 		this.pause( 5000 );

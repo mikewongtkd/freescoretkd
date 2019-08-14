@@ -1,46 +1,76 @@
 #announcer {
   margin-top: 4px; }
 
+#clock {
+  color: lime;
+  margin-left: 20px; }
+
 #divisions-view {
   width: 100%; }
   #divisions-view td {
-    width: 25%; }
+    width: 25%;
+    vertical-align: top; }
     #divisions-view td .division-view {
-      position: relative;
-      padding: 8px;
       width: calc( 100% - 8px );
-      min-height: 64px;
       margin: 4px 0 4px 8px;
       border-radius: 4px; }
-      #divisions-view td .division-view .division-summary {
-        position: absolute;
-        top: 0;
-        left: 0;
-        padding: 4px;
+      #divisions-view td .division-view .key-info {
+        position: relative;
         font-family: FjallaOne, Barlow;
         font-size: 14pt;
         width: 100%;
         height: 32px;
+        padding: 4px;
         color: white;
         border-radius: 4px 4px 0 0; }
-      #divisions-view td .division-view.bg-success .division-summary {
+        #divisions-view td .division-view .key-info .division-summary {
+          height: 32px;
+          width: calc( 100% - 60px );
+          white-space: nowrap;
+          overflow-x: hidden;
+          overflow-y: hidden; }
+          #divisions-view td .division-view .key-info .division-summary .divid {
+            opacity: 0.65; }
+          #divisions-view td .division-view .key-info .division-summary .description {
+            font-size: 12pt; }
+        #divisions-view td .division-view .key-info .division-start {
+          position: absolute;
+          top: 0;
+          right: 4px;
+          width: 60px;
+          color: white;
+          font-family: FjallaOne, Barlow;
+          font-size: 10pt;
+          text-align: right; }
+          #divisions-view td .division-view .key-info .division-start .remaining {
+            font-size: 8pt; }
+      #divisions-view td .division-view.bg-success .key-info {
         background-color: #5cb85c;
         border: 1px solid #4cae4c; }
-      #divisions-view td .division-view.bg-warning .division-summary {
+      #divisions-view td .division-view.bg-warning .key-info {
         background-color: #f0ad4e;
         border: 1px solid #eea236; }
-      #divisions-view td .division-view.bg-danger .division-summary {
+      #divisions-view td .division-view.bg-danger .key-info {
         background-color: #d9534f;
         border: 1px solid #d43f3a; }
-      #divisions-view td .division-view .division-start {
-        position: absolute;
-        top: 0;
-        right: 4px;
-        color: white;
-        font-family: FjallaOne, Barlow;
+      #divisions-view td .division-view .athletes {
         font-size: 10pt;
-        text-align: right; }
-        #divisions-view td .division-view .division-start .remaining {
-          font-size: 8pt; }
+        padding: 4px; }
+        #divisions-view td .division-view .athletes .athlete-list {
+          width: 100%;
+          border-radius: 4px;
+          background-color: rgba(255, 255, 255, 0.3);
+          padding: 4px; }
+
+#athletes-view {
+  width: 100%; }
+  #athletes-view td {
+    width: 25%;
+    padding: 0 8px 0 8px; }
+    #athletes-view td ul {
+      width: 100%; }
+    #athletes-view td li button {
+      width: 48px;
+      margin-left: 8px; }
 
 /*# sourceMappingURL=staging.css.map */

@@ -1,8 +1,12 @@
 <div class="pt-page pt-page-1 page-checkin">
 	<div class="page-header">
-		<div class="page-header-content">Athlete Check-in <a class="btn btn-xs btn-success pull-right" id="announcer"> Announcer Disabled</a> </div>
+		<div class="page-header-content">Athlete Check-in <div class="pull-right" id="clock"></div> <a class="btn btn-xs btn-success pull-right" id="announcer"> Announcer Disabled</a> </div>
 	</div>
+	<h2>Divisions Being Staged</h2>
 	<table id="divisions-view">
+	</table>
+	<h2>Athletes Being Staged</h2>
+	<table id="athletes-view">
 	</table>
 </div>
 <script>
@@ -24,7 +28,7 @@ var refresh = {
 		let registration  = new Registration( update.registration );
 		let today         = moment().format( 'MMM D, YYYY' );
 		let events        = registration.events;
-		let now           = moment( `${today} 10:30 AM` );
+		let now           = moment( `${today} 11:12 AM` );
 		let stagings      = [];
 		let announcements = [ 
 			{ num: 1, start: now.clone().add( 30, 'minutes' ), stop: now.clone().add( 35, 'minutes' )}, 
@@ -32,19 +36,39 @@ var refresh = {
 			{ num: 3, start: now.clone().add( 5, 'minutes' ),  stop: now.clone().add( 10, 'minutes' )}
 		];
 
+		$( '#clock' ).html( now.format( 'h:mm A' ));
+
+		// ===== ANNOUNCER
 		for( let announcement of announcements ) {
 			events.forEach( ev => {
 				let divisions = ev.divisions;
 				divisions.forEach( div => {
-					if( div.start.isSameOrAfter( announcement.start ) && div.start.isBefore( announcement.stop )) {
-						announcer.call( div, announcement.num );
-						stagings.push({ div: div, priority: 3 - announcement.num });
-					}
+					if( ! div.start.isSameOrAfter( announcement.start )) { return; }
+					if( ! div.start.isBefore( announcement.stop ))       { return; }
+					announcer.call( div, announcement.num ); 
+					// Mark the division as called; check this to avoid repeated callings
 				});
 			});
 		}
 
-		stagings = stagings.sort(( a, b ) => a.priority - b.priority );
+		// ===== STAGING
+		events.forEach( ev => {
+			let divisions = ev.divisions;
+			divisions.forEach( div => {
+				let delta = div.start.diff( now, 'minutes' );
+				console.log( div, delta );
+				if( delta < 0  )  { return; } // Ignore divisions that should have already been sent out
+				if( delta > 30 )  { return; } // Ignore divisions that are too far into the future
+
+				if( delta <= 5  ) { stagings.push({ div: div, deadline: delta, priority: 0 }); return; }
+				if( delta <= 15 ) { stagings.push({ div: div, deadline: delta, priority: 1 }); return; }
+				if( delta <= 30 ) { stagings.push({ div: div, deadline: delta, priority: 2 }); return; }
+			});
+		});
+
+
+		// ===== DIVISION VIEW
+		stagings = stagings.sort(( a, b ) => a.deadline - b.deadline );
 		$( '#divisions-view' ).empty();
 		let width  = 4;
 		let height = Math.ceil( stagings.length / width );
@@ -53,19 +77,59 @@ var refresh = {
 			for( let x = 0; x < width; x++ ) {
 				let i = y * 4 + x;
 				if( i >= stagings.length ) { continue; }
-				let staging = stagings[ i ];
-				let div     = staging.div;
-				let bgcolor = [ 'danger', 'warning', 'success' ][ staging.priority ];
-				let view    = divView.clone();
-				let delta   = moment.duration( div.start.diff( now )); console.log( delta );
-				view.find( '.division-summary' ) .html( `<b>${div.id.toUpperCase()}</b> ${div.description}` );
-				view.find( '.division-start' )   .html( `${div.start.format( 'h:mm A' )}<br><span class="remaining">${delta.humanize()}</span>` );
-				view.find( '.division-view' ).addClass( `bg-${bgcolor}` );
+				let staging  = stagings[ i ];
+				let div      = staging.div;
+				let bgcolor  = [ 'danger', 'warning', 'success' ][ staging.priority ];
+				let view     = divView.clone();
+				let delta    = moment.duration( div.start.diff( now ));
+				let athletes = div.athletes;
+				let ready    = athletes.filter( a => a.hasCheckedIn( div )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ));
+				let pending  = athletes.filter( a => ! a.hasCheckedIn( div )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ));
+				view.find( '.division-view' )     .addClass( `bg-${bgcolor}` );
+				view.find( '.division-summary' )  .html( `<span class="divid">${div.id.toUpperCase()}</span>&nbsp;&nbsp;<span class="description">${div.description}</span>` );
+				view.find( '.division-start' )    .html( `${div.start.format( 'h:mm A' )}<br><span class="remaining">${delta.humanize()}</span>` );
+				view.find( '.athletes .ready' )   .html( ready.length   > 0 ? '<b>Checked-in:</b><br><div class="athlete-list">'  + ready.map( a => a.name ).join( ', ' ) + "</div>" : '' );
+				view.find( '.athletes .pending' ) .html( pending.length > 0 ? '<b>Waiting for:</b><br><div class="athlete-list">' + pending.map( a => a.name ).join( ', ' ) + "</div>" : '' );
 				row.append( view );
 
 			}
 			$( '#divisions-view' ).append( row );
 		}
+		
+		// ===== ATHLETE VIEW
+		// Collate the athletes and group their divisions for each athlete
+		let athletes = {};
+		stagings.forEach( staging => {
+			staging.div.athletes.forEach( athlete => {
+				let id = athlete.id;
+				if( athletes[ id ]) { athletes[ id ].divisions.push({ priority: staging.priority, id: staging.div.id }); } 
+				else                { athletes[ id ] = { athlete: athlete, name: athlete.name, divisions: [ { priority: staging.priority, id: staging.div.id } ]}; }
+			});
+		});
+		$( '#athletes-view' ).empty();
+		athletes = Object.values( athletes ).sort(( a, b ) => a.athlete.lastName.localeCompare( b.athlete.lastName || a.name.localeCompare( b.name )));
+		height = Math.ceil( athletes.length / width );
+
+		let row = html.tr.clone();
+		for( let x = 0; x < width; x++ ) {
+			let col  = html.td.clone();
+			let ul   = html.ul.clone().addClass( 'list-group' );
+			let list = athletes.splice( 0, height - 1 );
+			list.forEach( athlete => {
+				let li = html.li.clone().addClass( 'list-group-item' );
+				let bg = html.div.clone().addClass( 'pull-right' );
+				athlete.divisions.forEach( division => {
+					let bgcolor = [ 'danger', 'warning', 'success' ][ division.priority ];
+					let button  = html.button.clone().addClass( `btn-xs btn-${bgcolor}` ).html( division.id.toUpperCase());
+					bg.append( button );
+				});
+				li.append( athlete.name, bg );
+				ul.append( li );
+			});
+			col.append( ul );
+			row.append( col );
+		}
+		$( '#athletes-view' ).append( row );
 	}
 }
 

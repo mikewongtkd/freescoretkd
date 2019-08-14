@@ -4,7 +4,9 @@
 			<div class="division-summary"></div>
 			<div class="division-start"></div>
 		</div>
-		<ul class="list-group">
-		</ul>
+		<div class="athletes">
+			<div class="ready"></div>
+			<div class="pending"></div>
+		</div>
 	</div>
 </td>
