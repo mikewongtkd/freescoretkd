@@ -56,7 +56,6 @@ var refresh = {
 			let divisions = ev.divisions;
 			divisions.forEach( div => {
 				let delta = div.start.diff( now, 'minutes' );
-				console.log( div, delta );
 				if( delta < 0  )  { return; } // Ignore divisions that should have already been sent out
 				if( delta > 30 )  { return; } // Ignore divisions that are too far into the future
 
@@ -103,28 +102,38 @@ var refresh = {
 			staging.div.athletes.forEach( athlete => {
 				let id = athlete.id;
 				if( athletes[ id ]) { athletes[ id ].divisions.push({ priority: staging.priority, id: staging.div.id }); } 
-				else                { athletes[ id ] = { athlete: athlete, name: athlete.name, divisions: [ { priority: staging.priority, id: staging.div.id } ]}; }
+				else                { athletes[ id ] = { athlete: athlete, divisions: [ { priority: staging.priority, id: staging.div.id } ]}; }
 			});
 		});
 		$( '#athletes-view' ).empty();
-		athletes = Object.values( athletes ).sort(( a, b ) => a.athlete.lastName.localeCompare( b.athlete.lastName || a.name.localeCompare( b.name )));
-		height = Math.ceil( athletes.length / width );
+		let checkins = Object.values( athletes ).sort(( a, b ) => a.athlete.lastName.localeCompare( b.athlete.lastName || a.name.localeCompare( b.name )));
+
+		height = Math.ceil( checkins.length / width );
 
 		let row = html.tr.clone();
 		for( let x = 0; x < width; x++ ) {
 			let col  = html.td.clone();
 			let ul   = html.ul.clone().addClass( 'list-group' );
-			let list = athletes.splice( 0, height - 1 );
-			list.forEach( athlete => {
-				let li = html.li.clone().addClass( 'list-group-item' );
-				let bg = html.div.clone().addClass( 'pull-right' );
-				athlete.divisions.forEach( division => {
+			let list = checkins.splice( 0, height - 1 );
+
+			list.forEach( checkin => {
+				let li      = html.li.clone().addClass( 'list-group-item' );
+				let bg      = html.div.clone().addClass( 'pull-right' );
+				let athlete = checkin.athlete;
+
+				checkin.divisions.forEach( division => {
 					let bgcolor = [ 'danger', 'warning', 'success' ][ division.priority ];
 					let button  = html.button.clone().addClass( `btn-xs btn-${bgcolor}` ).html( division.id.toUpperCase());
-					bg.append( button );
+					button.off( 'click' ).click(() => {
+						athlete.checkin( division );
+						refresh.checkin( update ); // MW This gets called when updated; remove this line when websockets work
+					});
+					if( ! athlete.hasCheckedIn( division )) { bg.append( button ); }
 				});
-				li.append( athlete.name, bg );
-				ul.append( li );
+				if( (bg.children()).length > 0 ) { 
+					li.append( athlete.name, bg );
+					ul.append( li );
+				}
 			});
 			col.append( ul );
 			row.append( col );

@@ -66,7 +66,8 @@
   width: 100%; }
   #athletes-view td {
     width: 25%;
-    padding: 0 8px 0 8px; }
+    padding: 0 8px 0 8px;
+    vertical-align: top; }
     #athletes-view td ul {
       width: 100%; }
     #athletes-view td li button {
