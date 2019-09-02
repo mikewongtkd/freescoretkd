@@ -55,12 +55,40 @@
         border: 1px solid #d43f3a; }
       #divisions-view td .division-view .athletes {
         font-size: 10pt;
-        padding: 4px; }
+        padding: 4px;
+        position: relative;
+        min-height: 80px; }
         #divisions-view td .division-view .athletes .athlete-list {
-          width: 100%;
+          width: calc( 100% - 80px );
           border-radius: 4px;
           background-color: rgba(255, 255, 255, 0.3);
           padding: 4px; }
+        #divisions-view td .division-view .athletes .count {
+          position: absolute;
+          top: 36px;
+          right: 32px;
+          font-size: 18pt; }
+        #divisions-view td .division-view .athletes .checkin-status {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 64px;
+          height: 64px;
+          border-radius: 8px; }
+          #divisions-view td .division-view .athletes .checkin-status .fa, #divisions-view td .division-view .athletes .checkin-status .fas {
+            padding: 8px;
+            font-size: 48px;
+            line-height: 48px;
+            color: white; }
+      #divisions-view td .division-view.bg-success .athletes .checkin-status {
+        background-color: #5cb85c;
+        border: 1px solid #4cae4c; }
+      #divisions-view td .division-view.bg-warning .athletes .checkin-status {
+        background-color: #f0ad4e;
+        border: 1px solid #eea236; }
+      #divisions-view td .division-view.bg-danger .athletes .checkin-status {
+        background-color: #d9534f;
+        border: 1px solid #d43f3a; }
 
 #athletes-view {
   width: 100%; }

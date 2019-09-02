@@ -28,7 +28,7 @@ var refresh = {
 		let registration  = new Registration( update.registration );
 		let today         = moment().format( 'MMM D, YYYY' );
 		let events        = registration.events;
-		let now           = moment( `${today} 11:12 AM` );
+		let now           = moment( `${today} 11:13 AM` );
 		let stagings      = [];
 		let announcements = [ 
 			{ num: 1, start: now.clone().add( 30, 'minutes' ), stop: now.clone().add( 35, 'minutes' )}, 
@@ -89,6 +89,11 @@ var refresh = {
 				view.find( '.division-start' )    .html( `${div.start.format( 'h:mm A' )}<br><span class="remaining">${delta.humanize()}</span>` );
 				view.find( '.athletes .ready' )   .html( ready.length   > 0 ? '<b>Checked-in:</b><br><div class="athlete-list">'  + ready.map( a => a.name ).join( ', ' ) + "</div>" : '' );
 				view.find( '.athletes .pending' ) .html( pending.length > 0 ? '<b>Waiting for:</b><br><div class="athlete-list">' + pending.map( a => a.name ).join( ', ' ) + "</div>" : '' );
+				view.find( '.athletes .count' )   .html( pending.length );
+				if( pending.length == 0 ) {
+					view.find( '.athletes .count' ).hide();
+					view.find( '.athletes .checkin-status' ).html( '<span class="fas fa-walking" style="margin-left: 6px"></span>' );
+				}
 				row.append( view );
 
 			}
@@ -107,14 +112,15 @@ var refresh = {
 		});
 		$( '#athletes-view' ).empty();
 		let checkins = Object.values( athletes ).sort(( a, b ) => a.athlete.lastName.localeCompare( b.athlete.lastName || a.name.localeCompare( b.name )));
+		let pending  = checkins.filter( checkin => ! checkin.divisions.every( division => checkin.athlete.hasCheckedIn( division )));
 
-		height = Math.ceil( checkins.length / width );
+		height = Math.ceil( pending.length / width );
 
 		let row = html.tr.clone();
 		for( let x = 0; x < width; x++ ) {
 			let col  = html.td.clone();
 			let ul   = html.ul.clone().addClass( 'list-group' );
-			let list = checkins.splice( 0, height - 1 );
+			let list = pending.splice( 0, height );
 
 			list.forEach( checkin => {
 				let li      = html.li.clone().addClass( 'list-group-item' );
