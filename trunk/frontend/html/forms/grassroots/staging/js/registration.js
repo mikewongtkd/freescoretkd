@@ -36,10 +36,23 @@ class Division {
 	get id()          { return this._id; }
 	get description() { return this._description; }
 	get event()       { return this._ev._name; }
+	get ring()        { return this._ring; }
+	get staged()      { return this._staged; }
 
 	get start() {
 		let today = moment().format( 'M-D-YYYY' ); // MW starts should be complete datetime values
 		return moment( `${today} ${this._start}` );
+	}
+
+	call( num ) {
+		let calls = this._reg._divisions[ this.id ].calls
+		if( ! defined( calls )) { calls = this._calls = this._reg._divisions[ this.id ].calls = {}; }
+		calls[ num ] = moment().format( 'M-D-YYYY h:mm A' );
+	}
+
+	called( num ) {
+		if( defined( this._calls )) { return this._calls[ num ]; }
+		else                        { return false; }
 	}
 
 	duration() {
@@ -49,6 +62,11 @@ class Division {
 		} else if( this.ev.method == 'single elimination' ) {
 			return (this._athletes.length - 1) * 4;
 		}
+	}
+
+	sendToRing( num ) {
+		this._ring   = this._reg._divisions[ this.id ].ring   = num;
+		this._staged = this._reg._divisions[ this.id ].staged = moment().format( 'M-D-YYYY h:mm A' );
 	}
 
 	isReady() {

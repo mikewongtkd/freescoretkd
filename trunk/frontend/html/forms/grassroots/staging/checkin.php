@@ -28,7 +28,7 @@ var refresh = {
 		let registration  = new Registration( update.registration );
 		let today         = moment().format( 'MMM D, YYYY' );
 		let events        = registration.events;
-		let now           = moment( `${today} 11:13 AM` );
+		let now           = moment( `${today} 8:58 AM` );
 		let stagings      = [];
 		let announcements = [ 
 			{ num: 1, start: now.clone().add( 30, 'minutes' ), stop: now.clone().add( 35, 'minutes' )}, 
@@ -56,7 +56,7 @@ var refresh = {
 			let divisions = ev.divisions;
 			divisions.forEach( div => {
 				let delta = div.start.diff( now, 'minutes' );
-				if( delta < 0  )  { return; } // Ignore divisions that should have already been sent out
+				if( div.staged )  { return; } // Ignore divisions that are already staged (sent to rings)
 				if( delta > 30 )  { return; } // Ignore divisions that are too far into the future
 
 				if( delta <= 5  ) { stagings.push({ div: div, deadline: delta, priority: 0 }); return; }
@@ -64,7 +64,6 @@ var refresh = {
 				if( delta <= 30 ) { stagings.push({ div: div, deadline: delta, priority: 2 }); return; }
 			});
 		});
-
 
 		// ===== DIVISION VIEW
 		stagings = stagings.sort(( a, b ) => a.deadline - b.deadline );

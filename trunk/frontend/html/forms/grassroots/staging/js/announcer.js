@@ -66,8 +66,12 @@ class Announcer {
 		};
 	}
 
-	call( division, call ) {
-		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }}; call = map[ call ];
+	call( division, num ) {
+		if( division.called( num )) { return; }
+		division.call( num );
+
+		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }};
+		let call     = map[ num ];
 		let athletes = division.athletes.filter( a => ! a.hasCheckedIn( division )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ))
 		let names    = athletes.map( a => a.name ).join( ', ' );
 		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, names );
