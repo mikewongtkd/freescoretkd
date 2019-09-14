@@ -55,13 +55,13 @@ var refresh = {
 		events.forEach( ev => {
 			let divisions = ev.divisions;
 			divisions.forEach( div => {
-				let delta = div.start.diff( now, 'minutes' );
-				if( div.staged )  { return; } // Ignore divisions that are already staged (sent to rings)
-				if( delta > 30 )  { return; } // Ignore divisions that are too far into the future
+				let deadline = div.start.diff( now, 'minutes' );
+				if( div.staged )    { return; } // Ignore divisions that are already staged (sent to rings)
+				if( deadline > 30 ) { return; } // Ignore divisions that are too far into the future
 
-				if( delta <= 5  ) { stagings.push({ div: div, deadline: delta, priority: 0 }); return; }
-				if( delta <= 15 ) { stagings.push({ div: div, deadline: delta, priority: 1 }); return; }
-				if( delta <= 30 ) { stagings.push({ div: div, deadline: delta, priority: 2 }); return; }
+				if( deadline <= 5  ) { stagings.push({ div: div, deadline: deadline, priority: 0 }); return; }
+				if( deadline <= 15 ) { stagings.push({ div: div, deadline: deadline, priority: 1 }); return; }
+				if( deadline <= 30 ) { stagings.push({ div: div, deadline: deadline, priority: 2 }); return; }
 			});
 		});
 

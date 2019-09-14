@@ -3,8 +3,8 @@ use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
-use FreeScore::Forms::WorldClass;
-use FreeScore::Forms::WorldClass::Schedule;
+use FreeScore::Forms::GrassRoots;
+use FreeScore::Forms::GrassRoots::Schedule;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -138,9 +138,54 @@ sub handle_schedule_checkin {
 # ============================================================
 sub handle_schedule_read {
 # ============================================================
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+
+	print STDERR "Request schedule data.\n" if $DEBUG;
+
+	my $path = "$progress->{ path }/..";
+	my $file = "$path/schedule.json";
+	try {
+		unless( -e $file ) {
+			$client->send({ json => { error => "Schedule file '$file' does not exist" }});
+			return;
+		}
+		my $schedule = new FreeScore::Forms::GrassRoots::Schedule( $file );
+		$client->send({ json => { schedule => $schedule->data() }));
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
 }
 
 # ============================================================
 sub handle_schedule_write {
 # ============================================================
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+
+	print STDERR "Request schedule data.\n" if $DEBUG;
+
+	my $path = "$progress->{ path }/..";
+	my $file = "$path/schedule.json";
+	try {
+		unless( -e $file ) {
+			$client->send({ json => { error => "Schedule file '$file' does not exist" }});
+			return;
+		}
+		my $schedule = new FreeScore::Forms::GrassRoots::Schedule( $file );
+		$schedule->write( $request->{ schedule });
+		$self->broadcast_ring_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
 }
