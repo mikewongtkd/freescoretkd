@@ -14,6 +14,9 @@ use List::MoreUtils qw( first_index );
 
 srand();
 
+our $json   = new JSON::XS();
+our $client = {};
+
 # ============================================================
 websocket '/grassroots/:tournament/:ring' => sub {
 # ============================================================
@@ -25,6 +28,11 @@ websocket '/grassroots/:tournament/:ring' => sub {
 	my $staging    = undef;
 	my $id         = sprintf "%s", sha1_hex( $self->tx() );
 	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
+
+	$self->inactivity_timeout( 3600 ); # 1 hour
+
+	# ===== REGISTER THE CLIENT GROUP
+	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
 
 	# ----------------------------------------
 	# Handle messages
@@ -46,10 +54,8 @@ websocket '/grassroots/:tournament/:ring' => sub {
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 		# ===== HANDLE REQUEST
-		$judge->{ $group } = [] unless exists $judge->{ $group };
 		my $clients = $client->{ $group };
-		my $judges  = $judge->{ $group };
-		try   { $manager->handle( $request, $progress, $clients, $judges ); }
+		try   { $manager->handle( $request, $progress, $clients ); }
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 		print STDERR "\n" if $DEBUG;
 	});
