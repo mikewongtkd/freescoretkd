@@ -54,7 +54,8 @@ var sound = {
 	previous  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"     ]}),
 };
 
-var host       = '<?= $host ?>';
+// var host       = '<?= $host ?>';
+var host       = 'localhost';
 var tournament = <?= $tournament ?>;
 var html       = FreeScore.html;
 
@@ -78,15 +79,14 @@ $(() => {
 // ===== SERVER COMMUNICATION
 var server = {
 //	worldclass: new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
+	grassroots: new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
 //	grassroots: new EventSource( 'http://' + host + '/cgi-bin/freescore/forms/grassroots/update?tournament=' + tournament.db ),
 //	sparring:   new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
 };
 
-/*
 server.grassroots.addEventListener( 'message', ( update ) => {
 	console.log( 'Grassroots', update );
 }, false );
- */
 
 /* Sparring server doesn't handle reads yet
 server.sparring.onopen = () => {

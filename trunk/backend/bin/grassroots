@@ -14,6 +14,7 @@ use List::MoreUtils qw( first_index );
 
 srand();
 
+our $DEBUG  = 1;
 our $json   = new JSON::XS();
 our $client = {};
 
@@ -59,7 +60,7 @@ websocket '/grassroots/:tournament/:ring' => sub {
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 		print STDERR "\n" if $DEBUG;
 	});
-}
+};
 
 # ============================================================
 # JUDGE INTERFACE
