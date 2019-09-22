@@ -155,7 +155,7 @@ sub handle_schedule_read {
 			return;
 		}
 		my $schedule = new FreeScore::Forms::GrassRoots::Schedule( $file );
-		$client->send({ json => { schedule => $schedule->data() }));
+		$client->send({ json => { schedule => $schedule->data() }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
