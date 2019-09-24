@@ -111,6 +111,22 @@ sub broadcast_ring_response {
 }
 
 # ============================================================
+sub handle {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
+	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
+
+	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
+	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
+	print STDERR "Unknown request $type, $action\n";
+}
+
+# ============================================================
 sub handle_division_read {
 # ============================================================
 }
@@ -155,7 +171,7 @@ sub handle_schedule_read {
 			return;
 		}
 		my $schedule = new FreeScore::Forms::GrassRoots::Schedule( $file );
-		$client->send({ json => { schedule => $schedule->data() }});
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, schedule => $schedule->data() }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
