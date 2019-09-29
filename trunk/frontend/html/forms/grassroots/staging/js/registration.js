@@ -14,6 +14,11 @@ class Athlete {
 		this._reg._checkin[ divid ][ this._id ] = true;
 	}
 
+	checkout( div ) {
+		let divid = div.id;
+		this._reg._checkin[ divid ][ this._id ] = false;
+	}
+
 	hasCheckedIn( div ) {
 		let divid = div.id;
 		return this._reg._checkin[ divid ][ this._id ];
