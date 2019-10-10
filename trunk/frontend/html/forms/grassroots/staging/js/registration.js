@@ -49,10 +49,10 @@ class Division {
 		return moment( `${today} ${this._start}` );
 	}
 
-	call( num ) {
+	call( num, athletes ) {
 		let calls = this._reg._divisions[ this.id ].calls
 		if( ! defined( calls )) { calls = this._calls = this._reg._divisions[ this.id ].calls = {}; }
-		calls[ num ] = moment().format( 'M-D-YYYY h:mm A' );
+		calls[ num ] = { time: moment().format( 'M-D-YYYY h:mm A' ), athletes: athletes };
 	}
 
 	called( num ) {

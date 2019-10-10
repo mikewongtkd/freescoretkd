@@ -45,15 +45,15 @@ sub init {
 # ============================================================
 sub write {
 # ============================================================
-	my $self  = shift;
-	my $file  = shift;
-	my $json  = new JSON::XS();
+	my $self     = shift;
+	my $schedule = shift;
+	my $file     = $self->{ file };
+	my $json     = new JSON::XS();
 
-	my $clone = unbless( $self->clone());
-	$self->{ file } = $file if defined $file;
+	$schedule = $schedule ? $json->decode( $schedule ) : unbless( $self->clone());
 
 	open FILE, ">$self->{ file }" or die $!;
-	print FILE $json->canonical->pretty->encode( $clone );
+	print FILE $json->canonical->pretty->encode( $schedule );
 	close FILE;
 }
 

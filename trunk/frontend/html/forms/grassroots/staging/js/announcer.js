@@ -18,7 +18,11 @@ class Announcer {
 		});
 	}
 
-	message( text ) {
+	message( text, division, num ) {
+		if( division ) {
+			let athletes = division.athletes.filter( a => ! a.hasCheckedIn( division )).sort(( a, b ) => a.lastName.localeCompare( b.lastName )).map( a => a.id );
+			division.call( num, athletes );
+		}
 		this.messages.push({ time: moment(), text : text });
 		$( '#announcer' ).removeClass( 'disabled' ).html( `<span class="fa fa-comment"></span> ${announcer.messages.length} messages` );
 	}
@@ -35,8 +39,8 @@ class Announcer {
 
 	pronunciationHelp( message ) {
 		message.text = message.text.toLowerCase();
-		message.text = message.text.replace( /group a/i, 'group ae' );   // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
-		message.text = message.text.replace( /division \w+a$/i, '$&e' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
+		message.text = message.text.replace( /\bgroup a\b/i, 'group ae' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
+		message.text = message.text.replace( /\bdivision \w+a$/i, '$&e' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
 		return message;
 	}
 
@@ -68,13 +72,11 @@ class Announcer {
 
 	call( division, num ) {
 		if( division.called( num )) { return; }
-		division.call( num );
 
 		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }};
 		let call     = map[ num ];
 		let athletes = division.athletes.filter( a => ! a.hasCheckedIn( division )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ))
 		let names    = athletes.map( a => a.name ).join( ', ' );
-		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, names );
 		let div      = `${division.event} ${division.description} Division ${division.id.toUpperCase()}`;
 		let intro    = [ 
 			`${call.ordinal} call for ${div}`, 
@@ -99,7 +101,9 @@ class Announcer {
 		]
 		let pick = ( choices ) => { let i = Math.floor( Math.random() * choices.length ); return choices[ i ]; }
 
-		this.message( pick( intro ));
+		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, names );
+
+		this.message( pick( intro ), division, call.number);
 		this.message( names );
 		if( call.number == 1 ) {
 			this.message( pick( repeat ));
