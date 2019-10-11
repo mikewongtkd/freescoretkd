@@ -16,7 +16,6 @@ var clock        = undefined;
 $(() => {
 	if( clock ) { clearInterval( clock ); }
 	// clock = setInterval(() => { refresh.checkin( update ); }, 30000 ); // Refresh every 30 seconds
-	// setTimeout(() => { handle.schedule.read( update ); }, 100 ); // MW For development only
 });
 
 var divView = $(`<?php include( 'div-view.php' )?>`);
@@ -67,17 +66,39 @@ handle.schedule.read = ( update ) => {
 	$( '#divisions-view' ).empty();
 	let width  = 4;
 	let height = Math.ceil( stagings.length / width );
-	let remove = ( athlete, division ) => {
+	let remove = ( athlete, division, from ) => {
 		let button = html.button.clone().addClass( 'btn btn-xs btn-default' ).css({ 'line-height' : '10pt' });
 		button.append( athlete.name, '&nbsp;<span class="fas fa-times" style="margin-left: 4px;"></span>' );
-		button.off( 'click' ).click(( ev ) => {
-			athlete.checkout( division );
+		if( from == 'ready' ) {
+			button.off( 'click' ).click(( ev ) => {
+				athlete.checkout( division );
 
-			let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
-			request = { data : { type : 'schedule', action : 'write', schedule: schedule }};
-			request.json = JSON.stringify( request.data );
-			server.grassroots.send( request.json );
-		});
+				let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
+				request = { data : { type : 'schedule', action : 'write', schedule: schedule }};
+				request.json = JSON.stringify( request.data );
+				server.grassroots.send( request.json );
+			});
+
+		} else if( from == 'pending' ) {
+			button.off( 'click' ).click(( ev ) => {
+				athlete.missing( division );
+
+				let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
+				request = { data : { type : 'schedule', action : 'write', schedule: schedule }};
+				request.json = JSON.stringify( request.data );
+				server.grassroots.send( request.json );
+			});
+
+		} else if( from == 'missing' ) {
+			button.off( 'click' ).click(( ev ) => {
+				athlete.checkout( division );
+
+				let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
+				request = { data : { type : 'schedule', action : 'write', schedule: schedule }};
+				request.json = JSON.stringify( request.data );
+				server.grassroots.send( request.json );
+			});
+		}
 		return button;
 	};
 	for( let y = 0; y < height; y++ ) {
@@ -92,12 +113,14 @@ handle.schedule.read = ( update ) => {
 			let delta    = moment.duration( div.start.diff( now ));
 			let athletes = div.athletes;
 			let ready    = athletes.filter( a => a.hasCheckedIn( div )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ));
-			let pending  = athletes.filter( a => ! a.hasCheckedIn( div )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ));
+			let pending  = athletes.filter( a => ! a.hasCheckedIn( div ) && a.isHere( div )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ));
+			let missing  = athletes.filter( a => ! a.isHere( div )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ));
 			view.find( '.division-view' )     .addClass( `bg-${bgcolor}` );
 			view.find( '.division-summary' )  .html( `<span class="divid">${div.id.toUpperCase()}</span>&nbsp;&nbsp;<span class="description">${div.description}</span>` );
 			view.find( '.division-start' )    .html( `${div.start.format( 'h:mm A' )}<br><span class="remaining">${delta.humanize()}</span>` );
-			if( ready.length   > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( ready.map( a => remove( a, div ))); view.find( '.athletes .ready' )   .append( '<b>Checked-in:</b><br>', list ); }
-			if( pending.length > 0 ) { view.find( '.athletes .pending' ) .append( '<b>Waiting for:</b><br><div class="athlete-list">' + pending.map( a => a.name ).join( ', ' ) + "</div>" ); }
+			if( ready.length   > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( ready   .map( a => remove( a, div, 'ready'   ))); view.find( '.athletes .ready' )   .append( '<b>Checked-in:</b><br>', list ); }
+			if( pending.length > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( pending .map( a => remove( a, div, 'pending' ))); view.find( '.athletes .pending' ) .append( '<b>Waiting for:</b><br>', list ); }
+			if( missing.length > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( missing .map( a => remove( a, div, 'missing' ))); view.find( '.athletes .missing' ) .append( '<b>No Show:</b><br>', list ); }
 			view.find( '.athletes .count' )   .html( pending.length );
 			if( pending.length == 0 ) {
 				view.find( '.athletes .count' ).hide();

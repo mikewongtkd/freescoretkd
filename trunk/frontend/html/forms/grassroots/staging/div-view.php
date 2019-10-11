@@ -9,6 +9,7 @@
 			<div class="count"></div>
 			<div class="ready"></div>
 			<div class="pending"></div>
+			<div class="missing"></div>
 		</div>
 	</div>
 </td>

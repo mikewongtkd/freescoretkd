@@ -12,16 +12,29 @@ class Athlete {
 	checkin( div ) {
 		let divid = div.id;
 		this._reg._checkin[ divid ][ this._id ] = true;
+		this._reg._here[ divid ][ this._id ]    = true;
 	}
 
 	checkout( div ) {
 		let divid = div.id;
 		this._reg._checkin[ divid ][ this._id ] = false;
+		this._reg._here[ divid ][ this._id ]    = true;
+	}
+
+	missing( div ) {
+		let divid = div.id;
+		this._reg._checkin[ divid ][ this._id ] = false;
+		this._reg._here[ divid ][ this._id ]    = false;
 	}
 
 	hasCheckedIn( div ) {
 		let divid = div.id;
 		return this._reg._checkin[ divid ][ this._id ];
+	}
+
+	isHere( div ) {
+		let divid = div.id;
+		return this._reg._here[ divid ][ this._id ];
 	}
 }
 
