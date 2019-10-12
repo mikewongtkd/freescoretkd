@@ -30,7 +30,7 @@ handle.schedule.read = ( update ) => {
 	let announcements = [ 
 		{ num: 1, start: now.clone().add( 30, 'minutes' ), stop: now.clone().add( 35, 'minutes' )}, 
 		{ num: 2, start: now.clone().add( 15, 'minutes' ), stop: now.clone().add( 20, 'minutes' )}, 
-		{ num: 3, start: now.clone().add( 5, 'minutes' ),  stop: now.clone().add( 10, 'minutes' )}
+		{ num: 3, start: now.clone().add( 5,  'minutes' ),  stop: now.clone().add( 10, 'minutes' )}
 	];
 
 	$( '#clock' ).html( now.format( 'h:mm A' ));
@@ -124,7 +124,14 @@ handle.schedule.read = ( update ) => {
 			view.find( '.athletes .count' )   .html( pending.length );
 			if( pending.length == 0 ) {
 				view.find( '.athletes .count' ).hide();
-				view.find( '.athletes .checkin-status' ).html( '<span class="fas fa-walking" style="margin-left: 6px;"></span>' );
+				view.find( '.athletes .checkin-status' )
+					.html( '<span class="fas fa-walking"></span>' )
+					.removeClass( 'disabled' )
+					.off( 'click' )
+					.click(( ev ) => {
+				});
+			} else {
+				view.find( '.athletes .checkin-status' ).addClass( 'disabled' );
 			}
 			row.append( view );
 

@@ -33,6 +33,13 @@
             opacity: 0.65; }
           #divisions-view td .division-view .key-info .division-summary .description {
             font-size: 12pt; }
+        #divisions-view td .division-view .key-info .division-actions {
+          position: absolute;
+          top: 4px;
+          right: 64px;
+          width: 40px; }
+          #divisions-view td .division-view .key-info .division-actions a.btn-xs {
+            padding: 4px 2px 4px 2px; }
         #divisions-view td .division-view .key-info .division-start {
           position: absolute;
           top: 0;
@@ -76,7 +83,6 @@
           height: 64px;
           border-radius: 8px; }
           #divisions-view td .division-view .athletes .checkin-status .fa, #divisions-view td .division-view .athletes .checkin-status .fas {
-            padding: 8px;
             font-size: 48px;
             line-height: 48px;
             color: white; }

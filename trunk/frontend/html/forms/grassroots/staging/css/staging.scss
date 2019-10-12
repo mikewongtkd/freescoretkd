@@ -44,6 +44,17 @@ $condensed-font-stack: FjallaOne, Barlow;
 						font-size: 12pt;
 					}
 				}
+				.division-actions {
+					position: absolute;
+					top: 4px;
+					right: 64px;
+					width: 40px;
+
+					a.btn-xs {
+						padding: 4px 2px 4px 2px;
+					}
+				}
+
 				.division-start {
 					position: absolute;
 					top: 0;
@@ -92,7 +103,6 @@ $condensed-font-stack: FjallaOne, Barlow;
 					border-radius: 8px;
 
 					.fa,.fas {
-						padding: 8px;
 						font-size: 48px;
 						line-height: 48px;
 						color: white;
