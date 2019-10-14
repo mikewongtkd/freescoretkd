@@ -3,8 +3,8 @@
 		<div class="key-info">
 			<div class="division-summary"></div>
 			<div class="division-actions btn-group">
-				<a class="btn btn-xs btn-default"><span class="fas fa-user-plus"></span></a>
-				<a class="btn btn-xs btn-default"><span class="fas fa-edit"></span></a>
+				<a class="btn btn-xs btn-default add-athlete"><span class="fas fa-user-plus"></span></a>
+				<a class="btn btn-xs btn-default edit-division"><span class="fas fa-edit"></span></a>
 			</div>
 			<div class="division-start"></div>
 		</div>

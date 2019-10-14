@@ -2,10 +2,10 @@
 	<div class="page-header">
 		<div class="page-header-content">Athlete Check-in <div class="pull-right" id="clock"></div> <a class="btn btn-xs btn-success pull-right" id="announcer"> Announcer Disabled</a> </div>
 	</div>
-	<h2>Divisions Being Staged</h2>
+	<h2>Divisions Being Called to Holding</h2>
 	<table id="divisions-view">
 	</table>
-	<h2>Athletes Being Staged</h2>
+	<h2>Athletes Being Called to Holding</h2>
 	<table id="athletes-view">
 	</table>
 </div>
@@ -61,7 +61,7 @@ handle.schedule.read = ( update ) => {
 		});
 	});
 
-	// ===== DIVISIONS BEING STAGED
+	// ===== DIVISIONS BEING CALLED TO HOLDING
 	stagings = stagings.sort(( a, b ) => a.deadline - b.deadline );
 	$( '#divisions-view' ).empty();
 	let width  = 4;
@@ -122,15 +122,42 @@ handle.schedule.read = ( update ) => {
 			if( pending.length > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( pending .map( a => remove( a, div, 'pending' ))); view.find( '.athletes .pending' ) .append( '<b>Waiting for:</b><br>', list ); }
 			if( missing.length > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( missing .map( a => remove( a, div, 'missing' ))); view.find( '.athletes .missing' ) .append( '<b>No Show:</b><br>', list ); }
 			view.find( '.athletes .count' )   .html( pending.length );
+			view.find( '.division-actions .add-athlete' )
+				.off( 'click' )
+				.click(( ev ) => {
+					alertify.prompt( `Add Athlete to ${div.summary}`, 'Type athlete\'s name below', 'Name', ( ev, val ) => {
+						div.add( val );
+
+						let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
+						request = { data : { type : 'schedule', action : 'write', schedule: schedule }};
+						request.json = JSON.stringify( request.data );
+						server.grassroots.send( request.json );
+					}, () => {} );
+				});
+
+			// ===== ALL ATHLETES ACCOUNTED FOR: READY TO SEND TO RINGS
 			if( pending.length == 0 ) {
-				view.find( '.athletes .count' ).hide();
+				view.find( '.athletes .count' ).html( `Ring ${div.ring}` ).css({ 'font-size' : '12pt', 'top' : '48px', 'right' : '12px', 'padding' : '0 6px 0 6px', 'border-radius' : '4px', 'background-color': 'rgba( 255, 255, 255, 0.75 )' });
 				view.find( '.athletes .checkin-status' )
 					.html( '<span class="fas fa-walking"></span>' )
 					.removeClass( 'disabled' )
 					.off( 'click' )
 					.click(( ev ) => {
-				});
+						div.sendToRing();
+						
+						let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
+						request = { data : { type : 'schedule', action : 'stage', schedule: schedule, division: div.id, ring: div.ring }};
+						request.json = JSON.stringify( request.data );
+						server.grassroots.send( request.json );
+					});
+				view.find( '.division-actions .edit-division' )
+					.removeClass( 'disabled' )
+					.off( 'click' )
+					.click(( ev ) => {
+					});
+
 			} else {
+				view.find( '.division-actions .edit-division' ).addClass( 'disabled' );
 				view.find( '.athletes .checkin-status' ).addClass( 'disabled' );
 			}
 			row.append( view );
@@ -139,7 +166,7 @@ handle.schedule.read = ( update ) => {
 		$( '#divisions-view' ).append( row );
 	}
 	
-	// ===== ATHLETES BEING STAGED
+	// ===== ATHLETES BEING CALLED TO HOLDING
 	// Collate the athletes and group their divisions for each athlete
 	let athletes = {};
 	stagings.forEach( staging => {

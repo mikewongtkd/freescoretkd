@@ -45,6 +45,7 @@ sub init {
 		call               => \&handle_schedule_call,
 		checkin            => \&handle_schedule_checkin,
 		read               => \&handle_schedule_read,
+		stage              => \&handle_schedule_stage,
 		write              => \&handle_schedule_write,
 	};
 }
@@ -179,6 +180,49 @@ sub handle_schedule_read {
 }
 
 # ============================================================
+sub handle_schedule_stage {
+# ============================================================
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+	my $divid     = uc( $request->{ division });
+	my $ring      = uc( $request->{ ring });
+
+	print STDERR "Sending division $divid from check-in to $ring.\n" if $DEBUG;
+
+	my $path = "$progress->{ path }/..";
+	my $file = "$path/schedule.json";
+	try {
+		unless( -e $file ) {
+			$client->send({ json => { error => "Schedule file '$file' does not exist" }});
+			return;
+		}
+		my $schedule = new FreeScore::Forms::GrassRoots::Schedule( $file );
+		$schedule->write( $request->{ schedule });
+
+		my $data     = $json->decode( $request->{ schedule });
+		my $division = $data->{ divisions }{ $divid };
+		my $evid     = $division->{ event };
+		my $event    = $data->{ events }{ $evid };
+		my $div      = new FreeScore::Forms::GrassRoots( $progress->{ path }, $divid, $ring );
+		my @athletes = map { $data->{ athletes }{ $_ } } grep { $data->{ checkin }{ $divid }{ $_ } } keys %{$data->{ checkin }{ $divid }};
+		
+		$div->{ mode } = 'single-elimination' if $event->{ method } eq 'single elimination';
+		@{ $div->{ athletes }} = @$athletes;
+
+		$div->write();
+
+		$self->broadcast_ring_response( $request, $progress, $clients );
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_schedule_write {
 # ============================================================
  	my $self      = shift;
@@ -188,7 +232,7 @@ sub handle_schedule_write {
 	my $judges    = shift;
 	my $client    = $self->{ _client };
 
-	print STDERR "Request schedule data.\n" if $DEBUG;
+	print STDERR "Writing schedule data.\n" if $DEBUG;
 
 	my $path = "$progress->{ path }/..";
 	my $file = "$path/schedule.json";

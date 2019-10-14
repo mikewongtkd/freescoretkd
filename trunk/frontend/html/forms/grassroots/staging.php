@@ -23,6 +23,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/opt/moment/moment.min.js"></script>
+		<script src="../../include/opt/js-sha1/sha1.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="staging/js/registration.js"></script>
 		<script src="staging/js/announcer.js"></script>
@@ -43,6 +44,10 @@ body {
 <script src="../../include/page-transitions/js/pagetransitions.js"></script>
 <script>
 alertify.set( 'notifier', 'position', 'top-right' );
+alertify.defaults.transition = "slide";
+alertify.defaults.theme.ok = "btn btn-success";
+alertify.defaults.theme.cancel = "btn btn-danger";
+alertify.defaults.theme.input = "form-control";
 
 var announcer = new Announcer();
 
