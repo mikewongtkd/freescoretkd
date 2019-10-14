@@ -70,22 +70,37 @@
           border-radius: 4px;
           background-color: rgba(255, 255, 255, 0.3);
           padding: 4px; }
-        #divisions-view td .division-view .athletes .count {
-          position: absolute;
-          top: 36px;
-          right: 32px;
-          font-size: 18pt; }
         #divisions-view td .division-view .athletes .checkin-status {
           position: absolute;
           top: 8px;
           right: 8px;
           width: 64px;
           height: 64px;
-          border-radius: 8px; }
+          border-radius: 8px;
+          color: black; }
           #divisions-view td .division-view .athletes .checkin-status .fa, #divisions-view td .division-view .athletes .checkin-status .fas {
             font-size: 48px;
             line-height: 48px;
             color: white; }
+          #divisions-view td .division-view .athletes .checkin-status .ring {
+            width: 64px;
+            height: 13px;
+            position: absolute;
+            top: 50px;
+            left: -1px;
+            padding-top: 1px;
+            line-height: 10pt;
+            text-align: center;
+            font-size: 10pt;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 0 0 8px 8px; }
+          #divisions-view td .division-view .athletes .checkin-status .count {
+            width: 64px;
+            position: absolute;
+            top: 24px;
+            left: 0;
+            text-align: center;
+            font-size: 18pt; }
       #divisions-view td .division-view.bg-success .athletes .checkin-status {
         background-color: #5cb85c;
         border: 1px solid #4cae4c; }

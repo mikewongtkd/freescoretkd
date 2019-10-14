@@ -88,12 +88,6 @@ $condensed-font-stack: FjallaOne, Barlow;
 					background-color: rgba( 255, 255, 255, 0.3 );
 					padding: 4px;
 				}
-				.count {
-					position: absolute;
-					top: 36px;
-					right: 32px;
-					font-size: 18pt;
-				}
 				.checkin-status {
 					position: absolute;
 					top: 8px;
@@ -101,11 +95,35 @@ $condensed-font-stack: FjallaOne, Barlow;
 					width: 64px;
 					height: 64px;
 					border-radius: 8px;
+					color: black;
 
 					.fa,.fas {
 						font-size: 48px;
 						line-height: 48px;
 						color: white;
+					}
+
+					.ring {
+						width: 64px;
+						height: 13px;
+						position: absolute;
+						top: 50px;
+						left: -1px;
+						padding-top: 1px;
+						line-height: 10pt;
+						text-align: center;
+						font-size: 10pt;
+						background-color: rgba( 255, 255, 255, 0.5 );
+						border-radius: 0 0 8px 8px;
+					}
+
+					.count {
+						width: 64px;
+						position: absolute;
+						top: 24px;
+						left: 0;
+						text-align: center;
+						font-size: 18pt;
 					}
 				}
 			}

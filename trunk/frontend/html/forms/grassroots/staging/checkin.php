@@ -121,7 +121,8 @@ handle.schedule.read = ( update ) => {
 			if( ready.length   > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( ready   .map( a => remove( a, div, 'ready'   ))); view.find( '.athletes .ready' )   .append( '<b>Checked-in:</b><br>', list ); }
 			if( pending.length > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( pending .map( a => remove( a, div, 'pending' ))); view.find( '.athletes .pending' ) .append( '<b>Waiting for:</b><br>', list ); }
 			if( missing.length > 0 ) { let list = html.div.clone().addClass( 'athlete-list' ).append( missing .map( a => remove( a, div, 'missing' ))); view.find( '.athletes .missing' ) .append( '<b>No Show:</b><br>', list ); }
-			view.find( '.athletes .count' )   .html( pending.length );
+			view.find( '.athletes .count' ) .html( pending.length );
+			view.find( '.athletes .ring' )  .hide();
 			view.find( '.division-actions .add-athlete' )
 				.off( 'click' )
 				.click(( ev ) => {
@@ -137,9 +138,8 @@ handle.schedule.read = ( update ) => {
 
 			// ===== ALL ATHLETES ACCOUNTED FOR: READY TO SEND TO RINGS
 			if( pending.length == 0 ) {
-				view.find( '.athletes .count' ).html( `Ring ${div.ring}` ).css({ 'font-size' : '12pt', 'top' : '48px', 'right' : '12px', 'padding' : '0 6px 0 6px', 'border-radius' : '4px', 'background-color': 'rgba( 255, 255, 255, 0.75 )' });
 				view.find( '.athletes .checkin-status' )
-					.html( '<span class="fas fa-walking"></span>' )
+					.html( `<span class="fas fa-walking"></span><span class="ring">Ring ${div.ring}</span>` )
 					.removeClass( 'disabled' )
 					.off( 'click' )
 					.click(( ev ) => {
