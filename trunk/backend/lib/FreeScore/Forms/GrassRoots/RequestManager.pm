@@ -211,13 +211,11 @@ sub handle_schedule_stage {
 		my $event    = $data->{ events }{ $evid };
 		my $div      = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring );
 		my @athletes = map { $data->{ athletes }{ $_ } } grep { $data->{ checkin }{ $divid }{ $_ } } keys %{$data->{ checkin }{ $divid }};
-		print STDERR map { "$_->{ name }\n" } @athletes; # MW
-		print STDERR $json->canonical->pretty->encode( $event ); # MW
 		
 		$div->{ current } = 0;
 		$div->{ judges  } = 5;
 		$div->{ mode }    = 'single-elimination' if $event->{ method } eq 'single elimination';
-		@{ $div->{ athletes }} = @athletes;
+		@{ $div->{ athletes }} = shuffle @athletes;
 
 		$div->write();
 
