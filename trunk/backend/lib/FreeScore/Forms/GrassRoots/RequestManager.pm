@@ -5,6 +5,7 @@ use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::GrassRoots;
 use FreeScore::Forms::GrassRoots::Schedule;
+use FreeScore::Forms::GrassRoots::Division;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -189,13 +190,12 @@ sub handle_schedule_stage {
 	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
-	my $divid     = uc( $request->{ division });
-	my $ring      = uc( $request->{ ring });
+	my $divid     = $request->{ division };
+	my $ring      = $request->{ to };
 
 	print STDERR "Sending division $divid from check-in to $ring.\n" if $DEBUG;
 
-	my $path = "$progress->{ path }/..";
-	my $file = "$path/schedule.json";
+	my $file = "$progress->{ path }/../schedule.json";
 	try {
 		unless( -e $file ) {
 			$client->send({ json => { error => "Schedule file '$file' does not exist" }});
@@ -204,15 +204,20 @@ sub handle_schedule_stage {
 		my $schedule = new FreeScore::Forms::GrassRoots::Schedule( $file );
 		$schedule->write( $request->{ schedule });
 
+		my $path     = sprintf( "%s/%s", "$progress->{ path }/..", $ring eq 'staging' ? $ring : sprintf( "ring%02d", $ring ));
 		my $data     = $json->decode( $request->{ schedule });
 		my $division = $data->{ divisions }{ $divid };
 		my $evid     = $division->{ event };
 		my $event    = $data->{ events }{ $evid };
-		my $div      = new FreeScore::Forms::GrassRoots( $progress->{ path }, $divid, $ring );
+		my $div      = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring );
 		my @athletes = map { $data->{ athletes }{ $_ } } grep { $data->{ checkin }{ $divid }{ $_ } } keys %{$data->{ checkin }{ $divid }};
+		print STDERR map { "$_->{ name }\n" } @athletes; # MW
+		print STDERR $json->canonical->pretty->encode( $event ); # MW
 		
-		$div->{ mode } = 'single-elimination' if $event->{ method } eq 'single elimination';
-		@{ $div->{ athletes }} = @$athletes;
+		$div->{ current } = 0;
+		$div->{ judges  } = 5;
+		$div->{ mode }    = 'single-elimination' if $event->{ method } eq 'single elimination';
+		@{ $div->{ athletes }} = @athletes;
 
 		$div->write();
 

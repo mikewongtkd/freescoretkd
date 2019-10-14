@@ -146,7 +146,8 @@ handle.schedule.read = ( update ) => {
 						div.sendToRing();
 						
 						let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
-						request = { data : { type : 'schedule', action : 'stage', schedule: schedule, division: div.id, ring: div.ring }};
+						request = { data : { type : 'schedule', action : 'stage', schedule: schedule, division: div.id, to: div.ring }}; // 'ring' keyword is fixed to staging
+						console.log( request.data );
 						request.json = JSON.stringify( request.data );
 						server.grassroots.send( request.json );
 					});
