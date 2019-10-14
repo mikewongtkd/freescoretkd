@@ -151,11 +151,6 @@ handle.schedule.read = ( update ) => {
 						request.json = JSON.stringify( request.data );
 						server.grassroots.send( request.json );
 					});
-				view.find( '.division-actions .edit-division' )
-					.removeClass( 'disabled' )
-					.off( 'click' )
-					.click(( ev ) => {
-					});
 
 			} else {
 				view.find( '.division-actions .edit-division' ).addClass( 'disabled' );
