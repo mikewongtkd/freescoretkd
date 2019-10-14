@@ -159,4 +159,8 @@ class Registration {
 	get events() {
 		return Object.keys( this._events ).map( id => new Event( id, this._events[ id ], this )).sort(( a, b ) => a.sort( b ));
 	}
+
+	event( evid ) {
+		return this._events[ evid ];
+	}
 }

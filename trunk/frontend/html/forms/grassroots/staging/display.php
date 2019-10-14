@@ -65,15 +65,22 @@ var page = {
 // ===== SERVER COMMUNICATION
 var server = {
 //	worldclass: new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
-//	grassroots: new EventSource( 'http://' + host + '/cgi-bin/freescore/forms/grassroots/update?tournament=' + tournament.db ),
+//	worldclass: new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
 //	sparring:   new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
 };
 
-/*
-server.grassroots.addEventListener( 'message', ( update ) => {
+server.grassroots.onopen = () => {
+	var request;
+
+	request = { data : { type : 'schedule', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	server.worldclass.send( request.json );
+};
+
+server.grassroots.onmessage = ( response ) => {
+	var update = JSON.parse( response.data );
 	console.log( 'Grassroots', update );
-}, false );
- */
+};
 
 /* Sparring server doesn't handle reads yet
 server.sparring.onopen = () => {

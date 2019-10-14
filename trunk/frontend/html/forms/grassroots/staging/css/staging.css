@@ -1,20 +1,20 @@
-#announcer {
+#checkin-actions {
   margin-top: 4px; }
 
-#clock {
+.clock {
   color: lime;
   margin-left: 20px; }
 
-#divisions-view {
+.divisions-view {
   width: 100%; }
-  #divisions-view td {
+  .divisions-view td {
     width: 25%;
     vertical-align: top; }
-    #divisions-view td .division-view {
+    .divisions-view td .division-view {
       width: calc( 100% - 8px );
       margin: 4px 0 4px 8px;
       border-radius: 4px; }
-      #divisions-view td .division-view .key-info {
+      .divisions-view td .division-view .key-info {
         position: relative;
         font-family: FjallaOne, Barlow;
         font-size: 14pt;
@@ -23,24 +23,24 @@
         padding: 4px;
         color: white;
         border-radius: 4px 4px 0 0; }
-        #divisions-view td .division-view .key-info .division-summary {
+        .divisions-view td .division-view .key-info .division-summary {
           height: 32px;
           width: calc( 100% - 60px );
           white-space: nowrap;
           overflow-x: hidden;
           overflow-y: hidden; }
-          #divisions-view td .division-view .key-info .division-summary .divid {
+          .divisions-view td .division-view .key-info .division-summary .divid {
             opacity: 0.65; }
-          #divisions-view td .division-view .key-info .division-summary .description {
+          .divisions-view td .division-view .key-info .division-summary .description {
             font-size: 12pt; }
-        #divisions-view td .division-view .key-info .division-actions {
+        .divisions-view td .division-view .key-info .division-actions {
           position: absolute;
           top: 4px;
           right: 64px;
           width: 40px; }
-          #divisions-view td .division-view .key-info .division-actions a.btn-xs {
+          .divisions-view td .division-view .key-info .division-actions a.btn-xs {
             padding: 4px 2px 4px 2px; }
-        #divisions-view td .division-view .key-info .division-start {
+        .divisions-view td .division-view .key-info .division-start {
           position: absolute;
           top: 0;
           right: 4px;
@@ -49,28 +49,32 @@
           font-family: FjallaOne, Barlow;
           font-size: 10pt;
           text-align: right; }
-          #divisions-view td .division-view .key-info .division-start .remaining {
+          .divisions-view td .division-view .key-info .division-start .remaining {
             font-size: 8pt; }
-      #divisions-view td .division-view.bg-success .key-info {
+      .divisions-view td .division-view.bg-success .key-info {
         background-color: #5cb85c;
         border: 1px solid #4cae4c; }
-      #divisions-view td .division-view.bg-warning .key-info {
+      .divisions-view td .division-view.bg-warning .key-info {
         background-color: #f0ad4e;
         border: 1px solid #eea236; }
-      #divisions-view td .division-view.bg-danger .key-info {
+      .divisions-view td .division-view.bg-danger .key-info {
         background-color: #d9534f;
         border: 1px solid #d43f3a; }
-      #divisions-view td .division-view .athletes {
+      .divisions-view td .division-view .athletes {
         font-size: 10pt;
         padding: 4px;
         position: relative;
         min-height: 80px; }
-        #divisions-view td .division-view .athletes .athlete-list {
+        .divisions-view td .division-view .athletes .event {
+          font-size: 12pt;
+          font-family: FjallaOne, Barlow;
+          padding: 0 0 8px 0; }
+        .divisions-view td .division-view .athletes .athlete-list {
           width: calc( 100% - 80px );
           border-radius: 4px;
           background-color: rgba(255, 255, 255, 0.3);
           padding: 4px; }
-        #divisions-view td .division-view .athletes .checkin-status {
+        .divisions-view td .division-view .athletes .checkin-status {
           position: absolute;
           top: 8px;
           right: 8px;
@@ -78,11 +82,11 @@
           height: 64px;
           border-radius: 8px;
           color: black; }
-          #divisions-view td .division-view .athletes .checkin-status .fa, #divisions-view td .division-view .athletes .checkin-status .fas {
+          .divisions-view td .division-view .athletes .checkin-status .fa, .divisions-view td .division-view .athletes .checkin-status .fas {
             font-size: 48px;
             line-height: 48px;
             color: white; }
-          #divisions-view td .division-view .athletes .checkin-status .ring {
+          .divisions-view td .division-view .athletes .checkin-status .ring {
             width: 64px;
             height: 13px;
             position: absolute;
@@ -94,32 +98,32 @@
             font-size: 10pt;
             background-color: rgba(255, 255, 255, 0.5);
             border-radius: 0 0 8px 8px; }
-          #divisions-view td .division-view .athletes .checkin-status .count {
+          .divisions-view td .division-view .athletes .checkin-status .count {
             width: 64px;
             position: absolute;
             top: 24px;
             left: 0;
             text-align: center;
             font-size: 18pt; }
-      #divisions-view td .division-view.bg-success .athletes .checkin-status {
+      .divisions-view td .division-view.bg-success .athletes .checkin-status {
         background-color: #5cb85c;
         border: 1px solid #4cae4c; }
-      #divisions-view td .division-view.bg-warning .athletes .checkin-status {
+      .divisions-view td .division-view.bg-warning .athletes .checkin-status {
         background-color: #f0ad4e;
         border: 1px solid #eea236; }
-      #divisions-view td .division-view.bg-danger .athletes .checkin-status {
+      .divisions-view td .division-view.bg-danger .athletes .checkin-status {
         background-color: #d9534f;
         border: 1px solid #d43f3a; }
 
-#athletes-view {
+.athletes-view {
   width: 100%; }
-  #athletes-view td {
+  .athletes-view td {
     width: 25%;
     padding: 0 8px 0 8px;
     vertical-align: top; }
-    #athletes-view td ul {
+    .athletes-view td ul {
       width: 100%; }
-    #athletes-view td li button {
+    .athletes-view td li button {
       width: 48px;
       margin-left: 8px; }
 

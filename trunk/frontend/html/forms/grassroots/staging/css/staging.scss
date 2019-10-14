@@ -1,13 +1,13 @@
 $condensed-font-stack: FjallaOne, Barlow;
-#announcer {
+#checkin-actions {
 	margin-top: 4px;
 }
-#clock {
+.clock {
 	color: lime;
 	margin-left: 20px;
 }
 
-#divisions-view {
+.divisions-view {
 	width: 100%;
 
 	td {
@@ -82,6 +82,12 @@ $condensed-font-stack: FjallaOne, Barlow;
 				position: relative;
 				min-height: 80px;
 
+				.event {
+					font-size: 12pt;
+					font-family: $condensed-font-stack;
+					padding: 0 0 8px 0;
+				}
+
 				.athlete-list {
 					width: calc( 100% - 80px );
 					border-radius: 4px;
@@ -136,7 +142,7 @@ $condensed-font-stack: FjallaOne, Barlow;
 	}
 }
 
-#athletes-view {
+.athletes-view {
 	width: 100%;
 
 	td {

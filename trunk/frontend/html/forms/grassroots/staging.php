@@ -39,7 +39,8 @@ body {
 <script>
 </script>
 		<div id="pt-main" class="pt-perspective">
-<?php include( 'staging/checkin.php' ); ?>
+<?php include( 'staging/holding.php' ); ?>
+<?php include( 'staging/staged.php' ); ?>
 		</div>
 <script src="../../include/page-transitions/js/pagetransitions.js"></script>
 <script>
