@@ -18,12 +18,14 @@ class Announcer {
 		});
 	}
 
+	connect( socket ) { this.socket = socket; }
+
 	message( text, division, num ) {
-		if( division ) {
-			let athletes = division.athletes.filter( a => ! a.hasCheckedIn( division )).sort(( a, b ) => a.lastName.localeCompare( b.lastName )).map( a => a.id );
-			division.call( num, athletes );
+		if( defined( division ) && defined( num )) {
+			this.messages.push({ time: moment(), text : text, divid: division.id, call: num });
+		} else {
+			this.messages.push({ time: moment(), text : text });
 		}
-		this.messages.push({ time: moment(), text : text });
 		$( '#announcer' ).removeClass( 'disabled' ).html( `<span class="fa fa-comment"></span> ${announcer.messages.length} messages` );
 	}
 
@@ -71,7 +73,8 @@ class Announcer {
 	}
 
 	call( division, num ) {
-		if( division.called( num )) { return; }
+		let called = this.messages.find( msg => { return ( msg.divid == division.id && msg.call == num); });
+		if( called ) { return; }
 
 		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }};
 		let call     = map[ num ];
@@ -103,7 +106,7 @@ class Announcer {
 
 		console.log( `Announcing ${call.ordinal} call for ${division._id.toUpperCase()} ${division._description}`, names );
 
-		this.message( pick( intro ), division, call.number);
+		this.message( pick( intro ), division, call.number); // Marks the division as called
 		this.message( names );
 		if( call.number == 1 ) {
 			this.message( pick( repeat ));

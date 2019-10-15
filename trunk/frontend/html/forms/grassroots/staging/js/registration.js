@@ -82,17 +82,6 @@ class Division {
 		this._reg._here[ this._id ][ id ]    = true;
 	}
 
-	call( num, athletes ) {
-		let calls = this._reg._divisions[ this.id ].calls
-		if( ! defined( calls )) { calls = this._calls = this._reg._divisions[ this.id ].calls = {}; }
-		calls[ num ] = { time: moment().format( 'M-D-YYYY h:mm A' ), athletes: athletes };
-	}
-
-	called( num ) {
-		if( defined( this._calls )) { return this._calls[ num ]; }
-		else                        { return false; }
-	}
-
 	duration() {
 		if( this.ev.method == 'cutoff' ) {
 			return this._athletes.length * 4;
@@ -111,7 +100,7 @@ class Division {
 	}
 
 	isReady() {
-		return Object.values( this._reg.checkin[ this._id ]).every( checkin => checkin );
+		return Object.values( this._reg._checkin[ this._id ]).every( checkin => checkin );
 	}
 }
 

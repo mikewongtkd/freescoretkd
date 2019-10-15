@@ -36,9 +36,9 @@ handle.schedule.read = ( update ) => {
 	let holding       = [];
 	let staged        = [];
 	let announcements = [ 
-		{ num: 1, start: now.clone().add( 30, 'minutes' ), stop: now.clone().add( 35, 'minutes' )}, 
-		{ num: 2, start: now.clone().add( 15, 'minutes' ), stop: now.clone().add( 20, 'minutes' )}, 
-		{ num: 3, start: now.clone().add( 5,  'minutes' ), stop: now.clone().add( 10, 'minutes' )}
+		{ num: 1, start: now.clone().add( 25, 'minutes' ), stop: now.clone().add( 30, 'minutes' )}, 
+		{ num: 2, start: now.clone().add( 10, 'minutes' ), stop: now.clone().add( 15, 'minutes' )}, 
+		{ num: 3, start: now.clone().add( 2,  'minutes' ), stop: now.clone().add( 5,  'minutes' )}
 	];
 
 	$( '.clock' ).html( now.format( 'h:mm A' ));
@@ -50,6 +50,8 @@ handle.schedule.read = ( update ) => {
 			divisions.forEach( div => {
 				if( ! div.start.isSameOrAfter( announcement.start )) { return; }
 				if( ! div.start.isBefore( announcement.stop ))       { return; }
+				if( div.isReady())                                   { return; }
+
 				announcer.call( div, announcement.num ); 
 			});
 		});
