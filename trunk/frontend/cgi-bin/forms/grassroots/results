@@ -28,6 +28,9 @@ try {
 			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+		if( defined $divid ) {
+			@divisions = grep { $_->{ name } eq $divid } @divisions;
+		}
 	}
 } catch {
 	die $_;

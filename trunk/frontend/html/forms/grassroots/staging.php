@@ -59,8 +59,7 @@ var sound = {
 	previous  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"     ]}),
 };
 
-// var host       = '<?= $host ?>';
-var host       = 'localhost';
+var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var html       = FreeScore.html;
 
