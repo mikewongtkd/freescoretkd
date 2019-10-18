@@ -210,12 +210,12 @@ sub handle_schedule_stage {
 		my $evid     = $division->{ event };
 		my $event    = $data->{ events }{ $evid };
 		my $div      = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring );
-		my @athletes = map { $data->{ athletes }{ $_ } } grep { $data->{ checkin }{ $divid }{ $_ } } keys %{$data->{ checkin }{ $divid }};
+		my @athletes = sort { $a->{ name } cmp $b->{ name } } map { $data->{ athletes }{ $_ } } grep { $data->{ checkin }{ $divid }{ $_ } } keys %{$data->{ checkin }{ $divid }};
 		
 		$div->{ current } = 0;
 		$div->{ judges  } = 5;
 		$div->{ mode }    = 'single-elimination' if $event->{ method } eq 'single elimination';
-		@{ $div->{ athletes }} = shuffle @athletes;
+		@{ $div->{ athletes }} = @athletes;
 
 		$div->write();
 
