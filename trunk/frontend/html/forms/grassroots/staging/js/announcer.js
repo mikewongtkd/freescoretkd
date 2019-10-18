@@ -1,6 +1,7 @@
 class Announcer {
 	constructor() {
 		this.messages = []; 
+		this.called   = [];
 		this.voice    = { cantonese: 'Google 粤語（香港）', english: 'Google US English', hindi: 'Google हिन्दी', japanese: 'Google 日本語', korean: 'Google 한국의', spanish: 'Google español de Estados Unidos', selected: undefined };
 		this.timer    = undefined; 
 		this.status   = 'disabled';
@@ -69,14 +70,17 @@ class Announcer {
 			$( '#announcer' ).html( `<span class="fa fa-comment"></span> ${state}` );
 			let pause  = message.pause || 500; // Wait 0.5 second (or requested pause) and say the next item in the queue
 			this.timer = setTimeout(() => { this.speak(); }, pause );  
+			this.called.push( message );
 		};
 	}
 
 	call( division, num ) {
-		let called = this.messages.find( msg => { return ( msg.divid == division.id && msg.call == num); });
-		if( called ) { return; }
+		let pending = this.messages.find( msg => { return ( msg.divid == division.id && msg.call == num); });
+		if( pending ) { return; }
+		let called  = this.called.find( msg => { return ( msg.divid == division.id && msg.call == num ); });
+		if( called )  { return; }
 
-		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 15 }, '3': { number: 3, ordinal: 'Third', time: 5 }};
+		let map      = { '1': { number: 1, ordinal: 'First', time: 30 }, '2': { number: 2, ordinal: 'Second', time: 10 }, '3': { number: 3, ordinal: 'Third', time: 2 }};
 		let call     = map[ num ];
 		let athletes = division.athletes.filter( a => ! a.hasCheckedIn( division )).sort(( a, b ) => a.lastName.localeCompare( b.lastName ))
 		let names    = athletes.map( a => a.name ).join( ', ' );
