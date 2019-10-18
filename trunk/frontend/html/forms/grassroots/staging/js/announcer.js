@@ -27,13 +27,13 @@ class Announcer {
 		} else {
 			this.messages.push({ time: moment(), text : text });
 		}
-		$( '#announcer' ).removeClass( 'disabled' ).html( `<span class="fa fa-comment"></span> ${announcer.messages.length} messages` );
+		$( '#announcer' ).html( `<span class="fa fa-comment"></span> ${announcer.messages.length} messages` );
 	}
 
 	mute() {
 		let now  = moment().format( 'h:mm A' );
 		alertify.notify( `Announcer ${now}<br><i>muted</i>` );
-		$( '#announcer' ).addClass( 'disabled' ).html( `<span class="fa fa-comment-slash"></span> Muted` );
+		$( '#announcer' ).html( `<span class="fa fa-comment-slash"></span> Muted` );
 	}
 
 	pause( time ) {
