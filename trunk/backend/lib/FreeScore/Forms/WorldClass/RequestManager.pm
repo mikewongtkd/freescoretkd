@@ -1493,7 +1493,7 @@ sub autopilot {
 				form    => ! $last->{ form }
 			};
 
-			if    ( $go_next->{ round }   ) { $division->next_round(); }
+			if    ( $go_next->{ round }   ) { $division->next_round(); $division->first_form(); }
 			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
 			elsif ( $go_next->{ form }    ) { $division->next_form(); }
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
