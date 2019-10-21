@@ -114,7 +114,8 @@
 				if( ! defined( update )) { return; }
 				console.log( update );
 
-				refresh.ring( update );
+				var ring = JSON.parse( update.ring );
+				refresh.ring( ring );
 				var divid = $.cookie( 'grassroots-divid' );
 				if( defined( divid )) {
 					var division = update.divisions.find(( d ) => { return d.name == divid; });
@@ -132,8 +133,19 @@
 				}
 			};
 
-			var source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + tournament.db );
-			source.addEventListener( 'message', handle_update, false );
+			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
+			var handle = {
+				open: () => {
+					var request;
+
+					request = { data : { type : 'ring', action : 'read' }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+				},
+				message: handle_update
+			};
+			ws.onopen    = handle.open;
+			ws.onmessage = handle.message;
 
 			var sound = {
 				ok      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"  ]}),

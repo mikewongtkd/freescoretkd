@@ -42,6 +42,9 @@ sub init {
 		score              => \&handle_division_score,
 		write              => \&handle_division_write,
 	};
+	$self->{ ring }        = {
+		read               => \&handle_ring_read,
+	};
 	$self->{ schedule }    = {
 		call               => \&handle_schedule_call,
 		checkin            => \&handle_schedule_checkin,
@@ -136,11 +139,66 @@ sub handle_division_read {
 # ============================================================
 sub handle_division_score {
 # ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $ring      = $request->{ ring };
+	my $judge     = $request->{ judge };
+	my $score     = $request->{ score };
+	my $vote      = $request->{ vote };
+	my $division  = $progress->current();
+	my $complete  = 0;
+
+	if( $DEBUG ) {
+		my $name = $judge ? "Judge $judge" : "Referee";
+		if( $score ) { print STDERR "$name scores $score.\n" } 
+		else         { print STDERR "$name votes $vote.\n" }
+	}
+
+	try {
+		if( $score ) { $complete = $division->record_score( $judge, $score ); }
+		else         { $complete = $division->record_vote( $judge, $vote ) && ! $division->is_single_elimination(); }
+		$division->write();
+		$progress->write();
+		autopilot( $self, $request, $progress, $division ) if $complete;
+			
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, ring => $ring, judge => $judge, $score ? (score => $score) : (vote => $vote) }});
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
 }
 
 # ============================================================
 sub handle_division_write {
 # ============================================================
+}
+
+# ============================================================
+sub handle_ring_read {
+# ============================================================
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $json      = $self->{ _json };
+
+	print STDERR "Request ring data.\n" if $DEBUG;
+
+	my $clone = unbless( clone( $progress )); delete $clone->{ athletes };
+	my $data  = $json->canonical->encode( $clone );
+
+	try {
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, ring => $data }});
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -252,3 +310,58 @@ sub handle_schedule_write {
 		$client->send({ json => { error => "$_" }});
 	}
 }
+
+# ============================================================
+sub autopilot {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $division = shift;
+	my $delay    = new Mojo::IOLoop::Delay();
+	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
+
+	my $show  = {
+		score => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
+			if ( $division->is_display() ) { $division->score(); }
+			$division->write();
+
+			$self->broadcast_ring_response( $request, $progress, $clients );
+		},
+		leaderboard => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
+			if ( $division->is_score() ) { $division->display(); }
+			$division->write();
+
+			$self->broadcast_ring_response( $request, $progress, $clients );
+		},
+		next => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
+			if ( $division->is_display() ) { $division->score(); }
+			$division->write();
+
+			$self->broadcast_ring_response( $request, $progress, $clients );
+		}
+	};
+	my $go = {
+		next => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
+			$division->next();
+			$division->write();
+
+			$self->broadcast_ring_response( $request, $progress, $clients );
+		}
+	};
+
+	my @steps = ( $show->{ score }, $show->{ leaderboard } );
+	push @steps, $go->{ next }, $show->{ next } unless( $division->{ complete } );
+
+	$delay->steps( @steps )->catch( sub {} )->wait();
+}
+
+
