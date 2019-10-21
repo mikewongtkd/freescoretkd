@@ -109,43 +109,56 @@
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			
-			function handle_update( response ) {
-				var update = JSON.parse( response.data );
-				if( ! defined( update )) { return; }
-				console.log( update );
+			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
 
-				var ring = JSON.parse( update.ring );
-				refresh.ring( ring );
-				var divid = $.cookie( 'grassroots-divid' );
-				if( defined( divid )) {
-					var division = update.divisions.find(( d ) => { return d.name == divid; });
-					var current  = update.divisions.find(( d ) => { return d.name == update.current; });
-					var curDiv   = division.name == current.name;
+			var handle = {
+				ring: {
+					read : ( update ) => {
+						console.log( update );
 
-					if( ! defined( division )) { return; }
-					division = new Division( division );
-					if( division.is.single.elimination()) {
-						refresh.brackets( division, curDiv );
-					} else {
-						refresh.athletes( division, curDiv );
+						var ring = update.ring;
+						refresh.ring( ring );
+						var divid = $.cookie( 'grassroots-divid' );
+						if( defined( divid )) {
+							var division = ring.divisions.find( d => d.name == divid );
+							var current  = ring.divisions.find( d => d.name == ring.current );
+							console.log( divid, division, ring.divisions );
+							var isCurDiv = division.name == current.name;
+
+							if( ! defined( division )) { return; }
+							division = new Division( division );
+							if( division.is.single.elimination()) { refresh.brackets( division, isCurDiv ); } 
+							else                                  { refresh.athletes( division, isCurDiv ); }
+
+							if( page.num == 1 ) { page.transition() };
+						}
+					},
+					update: ( update ) => {
+						console.log( update );
 					}
-					if( page.num == 1 ) { page.transition() };
 				}
 			};
 
-			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
-			var handle = {
+			var network = {
 				open: () => {
-					var request;
-
-					request = { data : { type : 'ring', action : 'read' }};
+					var request = { data : { type : 'ring', action : 'read' }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
 				},
-				message: handle_update
+				message: ( response ) => { 
+					let update = JSON.parse( response.data );
+
+					let type = update.type;
+					if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
+
+					let action = update.action;
+					if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
+
+					handle[ type ][ action ]( update );
+				}
 			};
-			ws.onopen    = handle.open;
-			ws.onmessage = handle.message;
+			ws.onopen    = network.open;
+			ws.onmessage = network.message;
 
 			var sound = {
 				ok      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"  ]}),
@@ -176,7 +189,7 @@
 
 			var refresh = { 
 				// ------------------------------------------------------------
-				athletes: function( division, currentDivision ) {
+				athletes: function( division, isCurrentDivision ) {
 				// ------------------------------------------------------------
 					$( '#athletes' ).show();
 					$( '#brackets' ).hide();
@@ -198,7 +211,7 @@
 						var j         = division.current.athleteId();
 
 						// ===== CURRENT ATHLETE
-						if( i == j && currentDivision ) { 
+						if( i == j && isCurrentDivision ) { 
 							button.addClass( "active" ); 
 							button.off( 'click' ).click(( ev ) => { 
 								sound.prev.play(); 
@@ -209,7 +222,7 @@
 							});
 
 						// ===== ATHLETE IN CURRENT DIVISION
-						} else if( currentDivision ) {
+						} else if( isCurrentDivision ) {
 							if( i == j + 1 ) { button.addClass( "on-deck" ); } // Athlete on deck
 							button.off( 'click' ).click(( ev ) => { 
 								var clicked = $( ev.target );
@@ -233,14 +246,14 @@
 					});
 
 					// ===== ACTION MENU BEHAVIOR
-					if( currentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); } 
+					if( isCurrentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); } 
 					else                  { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 
 					$( ".navigate-athlete" ).hide();
 					$( ".scoring" ).hide();
 				},
 				// ------------------------------------------------------------
-				brackets : function( division, currentDivision ) {
+				brackets : function( division, isCurrentDivision ) {
 				// ------------------------------------------------------------
 					$( '#athletes' ).hide();
 					$( '#brackets' ).show();
@@ -258,7 +271,7 @@
 					$( '#brackets' ).empty();
 					$( '#brackets' ).brackets( division );
 
-					if( currentDivision ) {
+					if( isCurrentDivision ) {
 						// ===== PROVIDE BEHAVIOR WHEN CLICKING ON BRACKETS
 						$( '#brackets' ).on( 'matchClicked', function( ev ) {
 							var rnames   = { ro64: "Round of 64", ro32: "Round of 32", ro16: "Round of 16", qtrfin: "Quarter-Finals", semfin: "Semi-Finals", finals: "Finals" };
@@ -272,11 +285,11 @@
 							var red      = { athlete : defined( match.red.athlete )  ? athletes[ match.red.athlete ]  : { name: () => { return '[Bye]' }} };
 
 							$( '.match' ).removeClass( 'selected' );
-							if( k == division.current.athleteId() && currentDivision ) {
+							if( k == division.current.athleteId() && isCurrentDivision ) {
 								sound.prev.play();
 								$( ".navigate-athlete" ).hide(); 
 
-							} else if( currentDivision ) {
+							} else if( isCurrentDivision ) {
 								var num = match.round == 'finals' ? '' : i + 1;
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
@@ -291,8 +304,8 @@
 					}
 
 					// ===== ACTION MENU BEHAVIOR
-					if( currentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); }
-					else                  { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+					if( isCurrentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); }
+					else                    { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 
 					$( ".navigate-athlete" ).hide();
 
@@ -329,7 +342,7 @@
 						var judge  = parseInt( target.attr( 'data-judge' ));
 						var prev   = judge - 1 < 0 ? k - 1 : judge - 1;
 						var name   = judge == 0 ? 'Referee' : `Judge ${judge}`;
-						console.log( ev );
+
 						if       ( code == 66 || code == 98 ) { /* B|b */
 							sound.prev.play();
 							target.removeClass( 'btn-default btn-danger' ).addClass( 'btn-primary' );
@@ -358,9 +371,9 @@
 					var divid   = division.name();
 					var action = {
 						navigate : {
-							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
-							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); },
-							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
+							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  id : i     } ); },
+							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', id : divid } ); },
+							to        : ( target ) => { var request = { data : { type : 'division', action : 'navigate', target: target }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); }
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},

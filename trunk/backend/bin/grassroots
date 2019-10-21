@@ -49,10 +49,6 @@ websocket '/grassroots/:tournament/:ring' => sub {
 		# ===== READ PROGRESS
 		try   { 
 			$progress = new FreeScore::Forms::GrassRoots( $tournament, $ring ); 
-			if( $request->{ type } eq 'ring' && $ring ne 'staging' ) {
-				$staging = new FreeScore::Forms::GrassRoots( $tournament, 'staging' );
-				push @{$progress->{ divisions }}, @{$staging->{ divisions }};
-			}
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 		# ===== HANDLE REQUEST
@@ -294,28 +290,6 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
 		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# COORDINATOR INTERFACE
-# ------------------------------------------------------------
-post '/:tournament/:ring/coordinator' => sub {
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $divid      = $self->param( 'divid' );
-	my $json       = new JSON::XS();
-	my $data       = $json->decode( $self->req->body());
-	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
-	my $division   = $progress->current();
-
-	return unless exists $data->{ action };
-	local $_ = $data->{ action };
-	if      ( /navigate/ ) {
-		my $target = $data->{ target }{ destination };
-		if    ( $target eq 'athlete'  ) { $division->navigate( $data->{ target }{ index } ); $division->write(); }
-		elsif ( $target eq 'division' ) { $progress->navigate( $data->{ target }{ divid } ); $progress->write(); }
 	}
 };
 

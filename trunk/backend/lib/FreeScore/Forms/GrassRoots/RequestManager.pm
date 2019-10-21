@@ -38,6 +38,7 @@ sub init {
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
+		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
 		write              => \&handle_division_write,
@@ -97,7 +98,6 @@ sub broadcast_ring_response {
 	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
-	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $client_id = sprintf "%s", sha1_hex( $client );
 
 	print STDERR "  Broadcasting ring information to:\n" if $DEBUG;
@@ -129,6 +129,33 @@ sub handle {
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
 	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
 	print STDERR "Unknown request $type, $action\n";
+}
+
+# ============================================================
+sub handle_division_navigate {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $target    = $request->{ target };
+	my $dest      = $target->{ destination };
+	my $id        = $target->{ id };
+	my $division  = $progress->current();
+	my $client    = $self->{ _client };
+
+	print STDERR "Navigating to $dest $id\n" if $DEBUG;
+
+	try {
+		if( $target eq 'athlete' ) { $division->navigate( $id ); $division->write(); }
+		else                       { $progress->navigate( $id ); $progress->write(); }
+			
+		$self->broadcast_ring_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -190,11 +217,10 @@ sub handle_ring_read {
 
 	print STDERR "Request ring data.\n" if $DEBUG;
 
-	my $clone = unbless( clone( $progress )); delete $clone->{ athletes };
-	my $data  = $json->canonical->encode( $clone );
+	my $clone = unbless( clone( $progress ));
 
 	try {
-		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, ring => $data }});
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, ring => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
