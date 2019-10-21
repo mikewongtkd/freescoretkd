@@ -2,7 +2,7 @@ package FreeScore::Forms::GrassRoots::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use JSON::XS;
-use base qw( FreeScore::Forms::Division );
+use base qw( FreeScore::Forms::Division Clone );
 use POSIX qw( ceil );
 use List::Util qw( sum );
 use Data::Dumper;

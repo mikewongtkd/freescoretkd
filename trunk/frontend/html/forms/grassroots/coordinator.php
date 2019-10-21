@@ -112,6 +112,32 @@
 			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
 
 			var handle = {
+				division: {
+					score: ( update ) => {
+						console.log( update );
+						let division = new Division( update.division );
+						let judge    = update.judge == 0 ? 'R' : `J${update.judge}`;
+						let n        = update.judges;
+						let score    = update.score;
+						let vote     = update.vote;
+						let next     = (update.judge + 1) % n;
+						let prev     = (update.judge - 1) > 0 ? update.judge - 1 : n - 1;
+						next = next == 0 ? 'R' : `J${next}`;
+						next = $( `#judge-scores .${next}` );
+						console.log( 'NEXT', next );
+
+						if( score ) { return; } // For now, ignore scoring; can use this to display on coordinator console
+
+						// 
+						let button = $( `#judge-scores .${judge}` );
+						button.removeClass( 'btn-default' ).removeClass( 'btn-danger'  ).removeClass( 'btn-primary' )
+						if( vote == 'clear' ) { button.addClass( 'btn-default' ); button.addClass( 'active' ); } else
+						if( vote == 'red' )   { button.addClass( 'btn-danger'  ); next.addClass( 'active' ); } else
+						if( vote == 'blue' )  { button.addClass( 'btn-primary' ); next.addClass( 'active' ); }
+
+						refresh.brackets( division, true );
+					}
+				},
 				ring: {
 					read : ( update ) => {
 						console.log( update );
@@ -122,7 +148,6 @@
 						if( defined( divid )) {
 							var division = ring.divisions.find( d => d.name == divid );
 							var current  = ring.divisions.find( d => d.name == ring.current );
-							console.log( divid, division, ring.divisions );
 							var isCurDiv = division.name == current.name;
 
 							if( ! defined( division )) { return; }
@@ -133,9 +158,7 @@
 							if( page.num == 1 ) { page.transition() };
 						}
 					},
-					update: ( update ) => {
-						console.log( update );
-					}
+					update: ( update ) => { handle.ring.read( update ); }
 				}
 			};
 
@@ -174,17 +197,10 @@
 				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
 			};
 
-			var sendRequest = ( request ) => {
-				var url = 'http://' + host + ':3080/' + tournament.db + '/' + ring.num + '/coordinator'
-				var data = JSON.stringify( request.data );
-				console.log( url, data );
-				$.post( url, data );
-			};
-
 			var sendVote = ( judge, vote ) => {
-				var url = 'http://' + host + ':3080/' + tournament.db + '/' + ring.num + '/' + judge + '/vote/' + vote;
-				console.log( url );
-				$.get( url );
+				var request = { data : { type : 'division', action : 'score', judge: judge, vote: vote }}; 
+				request.json = JSON.stringify( request.data ); 
+				ws.send( request.json );
 			};
 
 			var refresh = { 
@@ -247,7 +263,7 @@
 
 					// ===== ACTION MENU BEHAVIOR
 					if( isCurrentDivision ) { $( ".navigate-division" ).hide(); $( ".penalties,.decision" ).show(); } 
-					else                  { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
+					else                    { $( ".navigate-division" ).show(); $( ".penalties,.decision" ).hide(); }
 
 					$( ".navigate-athlete" ).hide();
 					$( ".scoring" ).hide();
@@ -272,6 +288,8 @@
 					$( '#brackets' ).brackets( division );
 
 					if( isCurrentDivision ) {
+						$( ".scoring" ).show();
+
 						// ===== PROVIDE BEHAVIOR WHEN CLICKING ON BRACKETS
 						$( '#brackets' ).on( 'matchClicked', function( ev ) {
 							var rnames   = { ro64: "Round of 64", ro32: "Round of 32", ro16: "Round of 16", qtrfin: "Quarter-Finals", semfin: "Semi-Finals", finals: "Finals" };
@@ -301,6 +319,7 @@
 						});
 					} else {
 						$( '#brackets' ).off( 'matchClicked' );
+						$( ".scoring" ).hide();
 					}
 
 					// ===== ACTION MENU BEHAVIOR
@@ -320,10 +339,10 @@
 						var match   = division.current.bracket();
 						var vote    = undefined;
 						var judge   = i == 0 ? 'R' : `J${i}`;
-						var button  = html.a.clone().attr({ 'data-judge' : i }).addClass( 'btn btn-default' ).html( judge );
+						var button  = html.a.clone().attr({ 'data-judge' : i }).addClass( `btn btn-default ${judge}` ).html( judge );
 
-						if( match.blue.votes[ i ]) { vote = 'blue'; button.removeClass( 'btn-default' ).addClass( 'btn-primary' )}
-						if( match.red.votes[ i ])  { vote = 'red';  button.removeClass( 'btn-default' ).addClass( 'btn-danger' )}
+						if( match.blue.votes[ i ]) { vote = 'blue'; button.removeClass( 'btn-default' ).addClass( 'btn-primary' ); }
+						if( match.red.votes[ i ])  { vote = 'red';  button.removeClass( 'btn-default' ).addClass( 'btn-danger' ); }
 
 						var others = $( '#judge-scores .active' );
 						if( ! vote && others.length == 0 ) { button.toggleClass( 'active' ); } // Select the first judge that has not voted
@@ -339,27 +358,32 @@
 					$( 'body' ).off( 'keydown' ).keydown(( ev ) => {
 						var code   = ev.keyCode;
 						var target = $( '#judge-scores .active' );
-						var judge  = parseInt( target.attr( 'data-judge' ));
+						var judge  = parseInt( target.attr( 'data-judge' )); if( isNaN( judge )) { let r = $( '#judge-scores .R' ); if( ! r.hasClass( 'btn-primary' ) && ! r.hasClass( 'btn-danger' )) { judge = 0 } else { judge = k - 1; }}
 						var prev   = judge - 1 < 0 ? k - 1 : judge - 1;
 						var name   = judge == 0 ? 'Referee' : `Judge ${judge}`;
+						var abbr   = x => x == 0 ? 'R' : `J${x}`;
+
+						var button = {
+							prev: $( `#judge-scores .${abbr( prev )}` ),
+							curr: $( `#judge-scores .${abbr( judge )}` )
+						};
 
 						if       ( code == 66 || code == 98 ) { /* B|b */
 							sound.prev.play();
-							target.removeClass( 'btn-default btn-danger' ).addClass( 'btn-primary' );
 							sendVote( judge, 'blue' );
-							alertify.message( `Sending ${name} vote for Blue. Please wait.`, 1 );
+							alertify.message( `Sending ${name} vote for Blue`, 1 );
+
 						} else if( code == 82 || code == 114 ) { /* R|r */
 							sound.next.play();
-							target.removeClass( 'btn-default btn-primary' ).addClass( 'btn-danger' );
 							sendVote( judge, 'red' );
-							alertify.message( `Sending ${name} vote for Red. Please wait.`, 1 );
+							alertify.message( `Sending ${name} vote for Red`, 1 );
+
 						} else if( code == 8 || code == 46 ) { /* Backspace|Delete */
 							sound.warning.play();
-							target.removeClass( 'btn-danger btn-primary' ).addClass( 'btn-default' );
-							sendVote( prev, 'clear' );
-							alertify.message( `Clearing ${name} vote. Please wait.`, 1 );
+							if( button.curr.hasClass( 'btn-primary' ) || button.curr.hasClass( 'btn-danger' )) { sendVote( judge, 'clear' ); } else
+							if( button.prev.hasClass( 'btn-primary' ) || button.prev.hasClass( 'btn-danger' )) { sendVote( prev, 'clear' ); }
+							alertify.message( `Clearing ${name} vote`, 1 );
 						}
-						$( 'body' ).off( 'keydown' );
 						target.removeClass( 'active' );
 					});
 				},

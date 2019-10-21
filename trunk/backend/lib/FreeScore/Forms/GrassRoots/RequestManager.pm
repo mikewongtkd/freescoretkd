@@ -74,7 +74,7 @@ sub broadcast_division_response {
 
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
-		my $message   = clone( $division );
+		my $message   = $division->clone();
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
@@ -172,11 +172,11 @@ sub handle_division_score {
 	my $clients   = shift;
 	my $judges    = shift;
 	my $client    = $self->{ _client };
-	my $ring      = $request->{ ring };
 	my $judge     = $request->{ judge };
 	my $score     = $request->{ score };
 	my $vote      = $request->{ vote };
 	my $division  = $progress->current();
+	my $judges    = $division->{ judges };
 	my $complete  = 0;
 
 	if( $DEBUG ) {
@@ -191,8 +191,10 @@ sub handle_division_score {
 		$division->write();
 		$progress->write();
 		autopilot( $self, $request, $progress, $division ) if $complete;
+
+		my $clone = unbless( $division->clone());
 			
-		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, ring => $ring, judge => $judge, $score ? (score => $score) : (vote => $vote) }});
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, judge => $judge, judges => $judges, $score ? (score => $score) : (vote => $vote), division => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
