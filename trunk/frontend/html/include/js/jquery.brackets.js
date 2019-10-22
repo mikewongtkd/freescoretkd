@@ -46,8 +46,8 @@ $.widget( "freescore.brackets", {
 				red.lost     = ! defined( bracket.red.athlete )  || (red.votes  < blue.votes && complete);
 				red.won      = defined( bracket.red.athlete )    && (red.votes  > blue.votes && complete);
 
-				blue.label   = html.div.clone().addClass( 'athlete chung' ).html( blue.athlete.display.name );
-				red.label    = html.div.clone().addClass( 'athlete hong' ).html( red.athlete.display.name );
+				blue.label   = html.div.clone().addClass( 'athlete chung' ).html( blue.athlete.display.name() );
+				red.label    = html.div.clone().addClass( 'athlete hong' ).html( red.athlete.display.name() );
 
 				if( blue.lost ) { blue.label.addClass( 'lost' ); }
 				if( red.lost )  { red.label.addClass( 'lost' ); }

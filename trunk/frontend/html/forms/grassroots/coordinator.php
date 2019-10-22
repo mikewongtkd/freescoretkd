@@ -351,6 +351,7 @@
 							refresh.navadmin( division );
 						});
 					} else {
+						$( 'body' ).off( 'keydown' );
 						$( '#brackets' ).off( 'matchClicked' );
 						$( ".scoring" ).hide();
 					}
