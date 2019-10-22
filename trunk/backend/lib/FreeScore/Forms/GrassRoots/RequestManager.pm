@@ -148,8 +148,8 @@ sub handle_division_navigate {
 	print STDERR "Navigating to $dest $id\n" if $DEBUG;
 
 	try {
-		if( $target eq 'athlete' ) { $division->navigate( $id ); $division->write(); }
-		else                       { $progress->navigate( $id ); $progress->write(); }
+		if    ( $dest eq 'athlete' )  { $division->navigate( $id ); $division->write(); }
+		elsif ( $dest eq 'division' ) { $progress->navigate( $id ); $progress->write(); }
 			
 		$self->broadcast_ring_response( $request, $progress, $clients );
 
