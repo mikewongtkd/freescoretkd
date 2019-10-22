@@ -201,7 +201,38 @@
 				request.json = JSON.stringify( request.data ); 
 				ws.send( request.json );
 			};
+			var handleKeyDown = ( division ) => { return ( ev ) => {
+				var k      = division.judges();
+				var code   = ev.keyCode;
+				var target = $( '#judge-scores .active' );
+				var judge  = parseInt( target.attr( 'data-judge' )); if( isNaN( judge )) { let r = $( '#judge-scores .R' ); if( ! r.hasClass( 'btn-primary' ) && ! r.hasClass( 'btn-danger' )) { judge = 0 } else { judge = k - 1; }}
+				var prev   = judge - 1 < 0 ? k - 1 : judge - 1;
+				var name   = judge == 0 ? 'Referee' : `Judge ${judge}`;
+				var abbr   = x => x == 0 ? 'R' : `J${x}`;
 
+				var button = {
+					prev: $( `#judge-scores .${abbr( prev )}` ),
+					curr: $( `#judge-scores .${abbr( judge )}` )
+				};
+
+				if       ( code == 66 || code == 98 ) { /* B|b */
+					sound.prev.play();
+					sendVote( judge, 'blue' );
+					alertify.message( `Sending ${name} vote for Blue`, 1 );
+
+				} else if( code == 82 || code == 114 ) { /* R|r */
+					sound.next.play();
+					sendVote( judge, 'red' );
+					alertify.message( `Sending ${name} vote for Red`, 1 );
+
+				} else if( code == 8 || code == 46 ) { /* Backspace|Delete */
+					sound.warning.play();
+					if( button.curr.hasClass( 'btn-primary' ) || button.curr.hasClass( 'btn-danger' )) { sendVote( judge, 'clear' ); } else
+					if( button.prev.hasClass( 'btn-primary' ) || button.prev.hasClass( 'btn-danger' )) { sendVote( prev, 'clear' ); }
+					alertify.message( `Clearing ${name} vote`, 1 );
+				}
+				target.removeClass( 'active' );
+			}};
 			var refresh = { 
 				// ------------------------------------------------------------
 				athletes: function( division, isCurrentDivision ) {
@@ -303,15 +334,17 @@
 							$( '.match' ).removeClass( 'selected' );
 							if( k == division.current.athleteId() && isCurrentDivision ) {
 								$( ".scoring" ).show();
+								$( 'body' ).off( 'keydown' ).keydown( handleKeyDown( division ) );
 								sound.prev.play();
 								$( ".navigate-athlete" ).hide(); 
 
 							} else if( isCurrentDivision ) {
 								var num = match.round == 'finals' ? '' : i + 1;
 								$( ".scoring" ).hide();
+								$( 'body' ).off( 'keydown' );
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( "#navigate-athlete-label" ).html( `Start ${rnames[ match.round ]} Match ${num}` ); 
+								$( "#navigate-athlete-label" ).html( `Score ${rnames[ match.round ]} Match ${num}` ); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
 								$( ".navigate-athlete" ).show(); 
 							}
@@ -355,37 +388,7 @@
 					}
 
 					// ===== KEYBOARD SCORING BEHAVIOR
-					$( 'body' ).off( 'keydown' ).keydown(( ev ) => {
-						var code   = ev.keyCode;
-						var target = $( '#judge-scores .active' );
-						var judge  = parseInt( target.attr( 'data-judge' )); if( isNaN( judge )) { let r = $( '#judge-scores .R' ); if( ! r.hasClass( 'btn-primary' ) && ! r.hasClass( 'btn-danger' )) { judge = 0 } else { judge = k - 1; }}
-						var prev   = judge - 1 < 0 ? k - 1 : judge - 1;
-						var name   = judge == 0 ? 'Referee' : `Judge ${judge}`;
-						var abbr   = x => x == 0 ? 'R' : `J${x}`;
-
-						var button = {
-							prev: $( `#judge-scores .${abbr( prev )}` ),
-							curr: $( `#judge-scores .${abbr( judge )}` )
-						};
-
-						if       ( code == 66 || code == 98 ) { /* B|b */
-							sound.prev.play();
-							sendVote( judge, 'blue' );
-							alertify.message( `Sending ${name} vote for Blue`, 1 );
-
-						} else if( code == 82 || code == 114 ) { /* R|r */
-							sound.next.play();
-							sendVote( judge, 'red' );
-							alertify.message( `Sending ${name} vote for Red`, 1 );
-
-						} else if( code == 8 || code == 46 ) { /* Backspace|Delete */
-							sound.warning.play();
-							if( button.curr.hasClass( 'btn-primary' ) || button.curr.hasClass( 'btn-danger' )) { sendVote( judge, 'clear' ); } else
-							if( button.prev.hasClass( 'btn-primary' ) || button.prev.hasClass( 'btn-danger' )) { sendVote( prev, 'clear' ); }
-							alertify.message( `Clearing ${name} vote`, 1 );
-						}
-						target.removeClass( 'active' );
-					});
+					$( 'body' ).off( 'keydown' ).keydown( handleKeyDown( division ));
 				},
 				// ------------------------------------------------------------
 				navadmin : function( division ) {
