@@ -2,7 +2,7 @@ module.exports = Athlete;
 function Athlete( athlete ) {
 	this.athlete = athlete;
 
-	this.name  = function() { if( defined( athlete )) { return athlete.name; } else { return 'Bye'; }}
+	this.name  = function() { if( defined( athlete )) { return athlete.name; } else { return '[Bye]'; }}
 	this.score = function() { if( defined( athlete )) { return new Score( athlete.scores ); } else { return new Score( [] ); }};
 	this.info  = function( key ) {
 		if( ! defined( athlete ) || ! defined( athlete.info )) { return undefined; }
@@ -12,8 +12,8 @@ function Athlete( athlete ) {
 
 	this.display = {
 		name : function() {
-			if( ! defined( athlete )) { return 'Bye'; }
-			var max_length = 16;
+			if( ! defined( athlete )) { return '[Bye]'; }
+			var max_length = 12;
 			if( athlete.name.length <= max_length ) { return athlete.name; }
 			var names   = athlete.name.split( /\s+/ );
 			if( names.length == 1 ) { return athlete.name.substr( 0, max_length ); }

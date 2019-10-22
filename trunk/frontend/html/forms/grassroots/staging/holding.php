@@ -31,8 +31,8 @@ handle.schedule.read = ( update ) => {
 	let registration  = new Registration( update.schedule );
 	let today         = moment().format( 'MMM D, YYYY' );
 	let events        = registration.events;
-	// let now           = moment( `${today} 8:58 AM` );
-	let now           = moment().add( 10, 'hours' );
+	// let now           = moment().subtract( 11, 'hours' );
+	let now           = moment();
 	let holding       = [];
 	let staged        = [];
 	let announcements = [ 

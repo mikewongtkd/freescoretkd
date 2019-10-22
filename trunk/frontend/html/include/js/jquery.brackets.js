@@ -32,8 +32,8 @@ $.widget( "freescore.brackets", {
 				var block    = 400/(4/Math.pow( 2, j ));
 				var y        = (i + 0.5) * block - 50;
 				var bracket  = round[ i ];
-				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : { name: 'Bye' }};
-				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : { name: 'Bye' }};
+				var blue     = { athlete : defined( bracket.blue.athlete ) ? athletes[ bracket.blue.athlete ] : new Athlete()};
+				var red      = { athlete : defined( bracket.red.athlete )  ? athletes[ bracket.red.athlete ]  : new Athlete()};
 				var match    = html.div.clone().addClass( 'match' ).css({ top: y + 'px', left: x + 'px' });
 
 				blue.votes   = bracket.blue.votes.reduce( sum );
@@ -46,8 +46,8 @@ $.widget( "freescore.brackets", {
 				red.lost     = ! defined( bracket.red.athlete )  || (red.votes  < blue.votes && complete);
 				red.won      = defined( bracket.red.athlete )    && (red.votes  > blue.votes && complete);
 
-				blue.label   = html.div.clone().addClass( 'athlete chung' ).html( blue.athlete.name );
-				red.label    = html.div.clone().addClass( 'athlete hong' ).html( red.athlete.name );
+				blue.label   = html.div.clone().addClass( 'athlete chung' ).html( blue.athlete.display.name );
+				red.label    = html.div.clone().addClass( 'athlete hong' ).html( red.athlete.display.name );
 
 				if( blue.lost ) { blue.label.addClass( 'lost' ); }
 				if( red.lost )  { red.label.addClass( 'lost' ); }

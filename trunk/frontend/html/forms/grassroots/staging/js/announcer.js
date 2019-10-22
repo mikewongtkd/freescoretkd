@@ -43,13 +43,17 @@ class Announcer {
 	pronunciationHelp( message ) {
 		message.text = message.text.toLowerCase();
 		message.text = message.text.replace( /\bgroup a\b/i, 'group ae' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
-		message.text = message.text.replace( /\bdivision \w+a$/i, '$&e' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
+		message.text = message.text.replace( /\bdivision \w+a\b/i, '$&e' ); // Force voice to say hard 'A' (pronounces 'ae' as a hard A)
 		return message;
 	}
 
 	speak() {
 		if( this.status == 'disabled' ) { return; }
-		if( this.messages.length == 0 ) { return; }
+		if( this.messages.length == 0 ) { 
+			let wait   = 5000;
+			this.timer = setTimeout(() => { this.speak(); }, wait );
+			return;
+		}
 
 		let now     = moment();
 		let message = this.messages.shift();
@@ -88,15 +92,15 @@ class Announcer {
 		let intro    = [ 
 			`${call.ordinal} call for ${div}`, 
 			`Attention athletes, ${call.ordinal.toLowerCase()} call for ${div}`, 
-			`This is your ${call.ordinal.toLowerCase()} call for ${div}`,
+			`This is the ${call.ordinal.toLowerCase()} call for ${div}`,
 		];
 		let repeat = [
 			`Attention athletes, ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`, 
-			`This is your ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
+			`This is the ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
 			`Repeating ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
 			`Attention athletes, repeating ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
 			`Again, ${call.ordinal.toLowerCase()} call for Division ${division.id.toUpperCase()}`,
-			`Division ${division.id.toUpperCase()} this is your ${call.ordinal.toLowerCase()} call`,
+			`Division ${division.id.toUpperCase()} this is the ${call.ordinal.toLowerCase()} call`,
 		]
 		let outro = [
 			`Please report to the staging area. You have ${call.time} minutes.`,

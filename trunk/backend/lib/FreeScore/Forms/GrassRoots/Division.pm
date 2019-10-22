@@ -387,9 +387,10 @@ sub record_tiebreaker {
 # ============================================================
 sub update_brackets {
 # ============================================================
-	my $self   = shift;
-	my $judges = $self->{ judges };
-	my $rounds = $#{ $self->{ brackets }};
+	my $self      = shift;
+	my $judges    = $self->{ judges };
+	my $rounds    = $#{ $self->{ brackets }};
+	my $round_ids = [ qw( finals semfin qtrfin ro16 ro32 ro64 ro128 ro256 )];
 
 	foreach my $athlete ( @{ $self->{ athletes }}) { $athlete->{ score } = 0; }
 
@@ -434,7 +435,7 @@ sub update_brackets {
 			}
 			my $blue    = { athlete => shift @$advances, votes => [(0) x $judges] };
 			my $red     = { athlete => shift @$advances, votes => [(0) x $judges] };
-			my $bracket = { blue => $blue, red => $red };
+			my $bracket = { blue => $blue, red => $red, round => $round_ids->[ $rounds - $r ]};
 
 			if( $update ) {
 				my $k = int( $i / 2 );
@@ -515,16 +516,17 @@ sub _build_brackets {
 	@$b = @$athletes;
 
 	if( $group_size <= 1 ) {
-		my $blue = $a->[ 0 ];
-		my $bye  = @$b ? undef : 1;
-		my $red  = @$b ? $b->[ 0 ] : undef;
+		my $blue  = $a->[ 0 ];
+		my $bye   = @$b ? undef : 1;
+		my $red   = @$b ? $b->[ 0 ] : undef;
+		my $round = $round_ids->[ $depth ];
 		my $bracket = $bye ?
 		{
-			round => $round_ids->[ $depth - 1 ],
+			round => $round,
 			blue => { athlete => $blue, votes => [ (1) x $judges ] },
 			red  => { athlete => undef, votes => [ (0) x $judges ] },
 		} : {
-			round => $round_ids->[ $depth - 1 ],
+			round => $round,
 			blue => { athlete => $blue, votes => [ (0) x $judges ] },
 			red  => { athlete => $red,  votes => [ (0) x $judges ] },
 		};

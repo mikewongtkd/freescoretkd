@@ -6,7 +6,7 @@ function Division( division ) {
 	// ===== DIVISION HEADER
 	this.name        = function() { return division.name;        }
 	this.description = function() { return division.description; }
-	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description; }
+	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + (defined( division.description ) ? division.description : ''); }
 	this.judges      = function() { return parseInt( division.judges ); }
 	this.forms       = function() { return division.forms;       }
 	this.ring        = function() { return division.ring;        }

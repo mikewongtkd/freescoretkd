@@ -124,7 +124,6 @@
 						let prev     = (update.judge - 1) > 0 ? update.judge - 1 : n - 1;
 						next = next == 0 ? 'R' : `J${next}`;
 						next = $( `#judge-scores .${next}` );
-						console.log( 'NEXT', next );
 
 						if( score ) { return; } // For now, ignore scoring; can use this to display on coordinator console
 
@@ -288,30 +287,31 @@
 					$( '#brackets' ).brackets( division );
 
 					if( isCurrentDivision ) {
-						$( ".scoring" ).show();
-
 						// ===== PROVIDE BEHAVIOR WHEN CLICKING ON BRACKETS
-						$( '#brackets' ).on( 'matchClicked', function( ev ) {
-							var rnames   = { ro64: "Round of 64", ro32: "Round of 32", ro16: "Round of 16", qtrfin: "Quarter-Finals", semfin: "Semi-Finals", finals: "Finals" };
+						$( '#brackets' ).off( 'matchClicked' ).on( 'matchClicked', ( ev ) => {
 							var brackets = division.brackets();
+							var rnames   = { ro64: "Round of 64", ro32: "Round of 32", ro16: "Round of 16", qtrfin: "Quarter-Finals", semfin: "Semi-Finals", finals: "Finals" };
 							var i        = ev.i;
 							var j        = ev.j;
 							var k        = ev.k;
 							var match    = brackets[ j ][ i ];
 							var athletes = division.athletes();
-							var blue     = { athlete : defined( match.blue.athlete ) ? athletes[ match.blue.athlete ] : { name: () => { return '[Bye]' }} };
-							var red      = { athlete : defined( match.red.athlete )  ? athletes[ match.red.athlete ]  : { name: () => { return '[Bye]' }} };
+							var bye      = () => { return new Athlete(); };
+							var blue     = { athlete : defined( match.blue.athlete ) ? athletes[ match.blue.athlete ] : bye() };
+							var red      = { athlete : defined( match.red.athlete )  ? athletes[ match.red.athlete ]  : bye() };
 
 							$( '.match' ).removeClass( 'selected' );
 							if( k == division.current.athleteId() && isCurrentDivision ) {
+								$( ".scoring" ).show();
 								sound.prev.play();
 								$( ".navigate-athlete" ).hide(); 
 
 							} else if( isCurrentDivision ) {
 								var num = match.round == 'finals' ? '' : i + 1;
+								$( ".scoring" ).hide();
 								sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( "#navigate-athlete-label" ).html( `Start scoring ${rnames[ match.round ]} ${num}` ); 
+								$( "#navigate-athlete-label" ).html( `Start ${rnames[ match.round ]} Match ${num}` ); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' : k });
 								$( ".navigate-athlete" ).show(); 
 							}
