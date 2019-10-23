@@ -194,7 +194,8 @@ sub handle_division_score {
 
 		my $clone = unbless( $division->clone());
 			
-		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, judge => $judge, judges => $judges, $score ? (score => $score) : (vote => $vote), division => $clone }});
+		# $client->send({ json => { type => $request->{ type }, action => $request->{ action }, judge => $judge, judges => $judges, $score ? (score => $score) : (vote => $vote), division => $clone }});
+		$self->broadcast_ring_response( $request, $progress, $clients );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});

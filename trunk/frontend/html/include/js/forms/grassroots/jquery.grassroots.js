@@ -19,8 +19,7 @@ $.widget( "freescore.grassroots", {
 		var e = this.options.elements;
 		var o = this.options;
 
-		function refresh( update ) {
-			var progress = JSON.parse( update.data );
+		function refresh( progress ) {
 			var division = progress.divisions.find((d) => { return d.name == progress.current; } );
 			var athlete  = division.athletes[ division.current ];
 
@@ -35,6 +34,7 @@ $.widget( "freescore.grassroots", {
 				var tie      = defined( division.tied ) ? division.tied.shift() : o.tiecache;
 				var athletes = tie.tied.map( function( i ) { return division.athletes[ i ]; });
 				var title    = ordinal( tie.place ) + ' Place Tiebreaker';
+
 				// ===== SHOW TIEBREAKER BY VOTE
 				if( tie.tied.length == 2 ) {
 					e.scoreboard.hide();
@@ -89,8 +89,16 @@ $.widget( "freescore.grassroots", {
 			}
 		};
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + o.tournament.db );
-		e.source.addEventListener( 'message', refresh, false );
-
+		o.ws = new WebSocket( `ws://${o.server}:3080/grassroots/${o.tournament.db}/${o.ring.num}` );
+		o.ws.onopen = () => {
+			var request = { data : { type : 'ring', action : 'read' }};
+			request.json = JSON.stringify( request.data );
+			o.ws.send( request.json );
+		};
+		o.ws.onmessage = ( response ) => {
+			update = JSON.parse( response.data );
+			console.log( update.ring );
+			refresh( update.ring );
+		}
 	}
 });

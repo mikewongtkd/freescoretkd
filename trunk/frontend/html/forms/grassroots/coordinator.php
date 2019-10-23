@@ -112,31 +112,6 @@
 			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
 
 			var handle = {
-				division: {
-					score: ( update ) => {
-						console.log( update );
-						let division = new Division( update.division );
-						let judge    = update.judge == 0 ? 'R' : `J${update.judge}`;
-						let n        = update.judges;
-						let score    = update.score;
-						let vote     = update.vote;
-						let next     = (update.judge + 1) % n;
-						let prev     = (update.judge - 1) > 0 ? update.judge - 1 : n - 1;
-						next = next == 0 ? 'R' : `J${next}`;
-						next = $( `#judge-scores .${next}` );
-
-						if( score ) { return; } // For now, ignore scoring; can use this to display on coordinator console
-
-						// 
-						let button = $( `#judge-scores .${judge}` );
-						button.removeClass( 'btn-default' ).removeClass( 'btn-danger'  ).removeClass( 'btn-primary' )
-						if( vote == 'clear' ) { button.addClass( 'btn-default' ); button.addClass( 'active' ); } else
-						if( vote == 'red' )   { button.addClass( 'btn-danger'  ); next.addClass( 'active' ); } else
-						if( vote == 'blue' )  { button.addClass( 'btn-primary' ); next.addClass( 'active' ); }
-
-						refresh.brackets( division, true );
-					}
-				},
 				ring: {
 					read : ( update ) => {
 						console.log( update );
@@ -404,7 +379,7 @@
 							to        : ( target ) => { var request = { data : { type : 'division', action : 'navigate', target: target }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); }
 						},
 						administration : {
-							display    : () => { sound.next.play(); page.display = window.open( 'index.php', '_blank' )},
+							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-grassroots/' + ring + '/div.' + divid + '.txt', '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/grassroots/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
 						}
