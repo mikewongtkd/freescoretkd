@@ -31,7 +31,32 @@
 	<body>
 		<div id="grassroots"></div>
 		<script type="text/javascript">
-			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : { num : <?= $ring ?> }});
+			var host       = '<?= $host ?>';
+			var tournament = <?= $tournament ?>;
+			var ring       = { num : <?= $ring ?> };
+			var ws = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
+
+			var handle = {
+				open : () => {
+					var request = { data : { type : 'ring', action : 'read' }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+				},
+				message: ( response ) => {
+					update = JSON.parse( response.data );
+					console.log( update.ring );
+					refresh( update.ring );
+				},
+			};
+
+			ws.onopen    = handle.open;
+			ws.onmessage = handle.message;
+			ws.onclose   = handle.close;
+
+			function refresh( progress ) {
+				$( '#grassroots' ).empty();
+				$( '#grassroots' ).grassroots({ progress: progress, ring : ring });
+			}
 			var zoom = { scale: 1.0 };
 
 			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };

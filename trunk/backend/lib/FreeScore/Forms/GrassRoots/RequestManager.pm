@@ -99,8 +99,9 @@ sub broadcast_ring_response {
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $client_id = sprintf "%s", sha1_hex( $client );
+	my $ring      = $request->{ ring };
 
-	print STDERR "  Broadcasting ring information to:\n" if $DEBUG;
+	print STDERR "  Broadcasting ring $ring information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
 		my $message   = clone( $progress );
@@ -217,8 +218,9 @@ sub handle_ring_read {
 	my $judges    = shift;
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
+	my $ring      = $request->{ ring };
 
-	print STDERR "Request ring data.\n" if $DEBUG;
+	print STDERR "Request ring $ring data.\n" if $DEBUG;
 
 	my $clone = unbless( clone( $progress ));
 

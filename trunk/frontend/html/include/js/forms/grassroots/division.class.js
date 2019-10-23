@@ -12,6 +12,7 @@ function Division( division ) {
 	this.ring        = function() { return division.ring;        }
 	this.ringName    = function() { return division.ring < 10 ? 'ring0' + division.ring : 'ring' + division.ring; }
 	this.brackets    = function() { return division.brackets;    }
+	this.error       = function() { return defined( division.error ) ? division.error : undefined; }
 
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };
@@ -85,15 +86,16 @@ function Division( division ) {
 
 	var _state = this.state = {
 		is : {
-			score   : function() { return division.state == 'score'; },
-			display : function() { return division.state == 'display'; },
+			score     : function() { return division.state == 'score'; },
+			display   : function() { return division.state == 'display'; },
+			tiebreaker: function() { return division.state == 'tiebreaker'; },
 		}
 	};
 
 	var _tied = this.tied = {
 		athletes: function() {
 			var athletes = division.tied[ 0 ];
-			return athletes.tied.map( function( i ) { return division.athletes[ i ]; });
+			return athletes.tied.map( function( i ) { return new Athlete( division.athletes[ i ]); });
 		}
 	};
 };
