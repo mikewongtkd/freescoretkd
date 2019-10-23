@@ -8,65 +8,65 @@ $.widget( "freescore.grassroots", {
 		var leaderboard = e.leaderboard = html.div.clone() .addClass( "back" );
 		var scoreboard  = e.scoreboard  = html.div.clone() .addClass( "front" );
 		var tiebreaker  = e.tiebreaker  = html.div.clone() .addClass( "front" );
+		var usermessage = e.usermessage = html.div.clone() .addClass( "usermessage" );
 		var card        = e.card        = html.div.clone() .addClass( "card" );
 
 		card .append( leaderboard, scoreboard, tiebreaker );
 		widget .addClass( "grassroots flippable" );
-		widget .append( card );
+		widget .append( card, usermessage );
 	},
 	_init: function( ) {
 		var e = this.options.elements;
 		var o = this.options;
-		refresh( o.progress );
 
-		function refresh( progress ) {
-			var division = new Division( progress.divisions.find((d) => { return d.name == progress.current; }));
-			var athletes = division.athletes();
-			var athlete  = division.current.athlete();
+		function refresh( update ) {
+			var progress = JSON.parse( update.data );
+			var division = progress.divisions.find((d) => { return d.name == progress.current; } );
+			var athlete  = division.athletes[ division.current ];
 
-			console.log( division.state.is );
-			if( division.error() ) {
+			o.tiecache   = defined( division.tied ) ? division.tied[ 0 ] : o.tiecache;
+			if( defined( division.error )) {
 				e.card.fadeOut();
-				e.alertify( division.error() );
+				e.usermessage.html( division.error );
+				e.usermessage.fadeIn( 500 );
 
-			} else if( division.state.is.tiebreaker() ) {
+			} else if( division.state == 'tiebreaker' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
-				var a     = division.is.tied() ? division.tied.athletes() : o.tiecache.tied.map( i => athletes[ i ] );
-				var title = ordinal( tie.place ) + ' Place Tiebreaker';
-
+				var tie      = defined( division.tied ) ? division.tied.shift() : o.tiecache;
+				var athletes = tie.tied.map( function( i ) { return division.athletes[ i ]; });
+				var title    = ordinal( tie.place ) + ' Place Tiebreaker';
 				// ===== SHOW TIEBREAKER BY VOTE
 				if( tie.tied.length == 2 ) {
 					e.scoreboard.hide();
 					e.tiebreaker.show();
-					e.tiebreaker.voteDisplay({ title: title, athletes : a, judges : division.judges() });
+					e.tiebreaker.voteDisplay({ title: title, athletes : athletes, judges : division.judges });
 
 				// ===== SHOW TIEBREAKER BY SCORE
 				} else {
 					e.scoreboard.show();
 					e.tiebreaker.hide();
-					e.scoreboard.scoreboard( { title: title, current: { athlete : athlete }, judges : division.judges() } );
+					e.scoreboard.scoreboard( { title: title, current: { athlete : athlete }, judges : division.judges } );
 				}
 				
-			} else if( division.is.single.elimination() && division.state.is.score() ) {
+			} else if( defined( division.mode ) && division.mode == 'single-elimination' && division.state == 'score' ) {
 				if( e.card.hasClass( 'flipped' )) { e.card.removeClass( 'flipped' ); }
 
-				var brackets = division.brackets();
-				var a        = [];
-				var i        = division.current.athleteId();
+				var athletes = [];
+				var i        = division.current;
 				var j        = 0;
-				while( i >= brackets[ j ].length ) { i -= brackets[ j ].length; j++; }
-				var bracket  = brackets[ j ][ i ];
+				while( i >= division.brackets[ j ].length ) { i -= division.brackets[ j ].length; j++; }
+				var bracket  = division.brackets[ j ][ i ];
 
-				var blue = athletes[ bracket.blue.athlete ];
-				var red  = defined( bracket.red.athlete ) ? athletes[ bracket.red.athlete ] : { name : '<span style="opacity: 0.5;">Bye</span>' };
-				a.push({ name : blue.display.name(), votes : bracket.blue.votes });
-				a.push({ name : red.display.name(),  votes : bracket.red.votes });
+				var blue = new Athlete( division.athletes[ bracket.blue.athlete ]);
+				var red  = defined( bracket.red.athlete ) ? new Athlete( division.athletes[ bracket.red.athlete ]) : { display : { name : () => { return '<span style="opacity: 0.5;">Bye</span>' }}};
+				athletes.push({ name : blue.display.name(), votes : bracket.blue.votes });
+				athletes.push({ name : red.display.name(),  votes : bracket.red.votes });
 
 				e.scoreboard.hide();
 				e.tiebreaker.show();
-				e.tiebreaker.voteDisplay({ title: title, athletes : a, judges : division.judges() });
+				e.tiebreaker.voteDisplay({ title: title, athletes : athletes, judges : division.judges });
 
-			} else if( division.state.is.display() ) {
+			} else if( division.state == 'display' ) {
 				
 				if( ! e.card.hasClass( 'flipped' )) { e.card.addClass( 'flipped' ); }
 
@@ -88,6 +88,9 @@ $.widget( "freescore.grassroots", {
 				e.scoreboard.scoreboard( { current: { athlete : athlete }, judges : division.judges } );
 			}
 		};
+
+		e.source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + o.tournament.db + '&ring=' + o.ring.num );
+		e.source.addEventListener( 'message', refresh, false );
 
 	}
 });
