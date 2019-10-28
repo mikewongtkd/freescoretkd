@@ -395,7 +395,7 @@ sub is_flight {
 #** @is_flight ()
 #   @brief Returns true if the division is a flight;
 #*
-	my $self   = shift;
+	my $self = shift;
 	return exists $self->{ flight } && defined $self->{ flight };
 }
 
@@ -943,6 +943,8 @@ sub write {
 		next unless grep { /^\d+$/ } @$placements;
 		push @places, "$round:" . join( ",", grep { /^\d+$/ } @$placements );
 	}
+	my $flight = '';
+	if( $self->is_flight()) { $flight = "# flight=id:$self->{ flight }{ id };group:" . join( ",", @{ $self->{ flight }{ group }}) . ";state:$self->{ flight }{ state }"; }
 
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
@@ -955,7 +957,7 @@ sub write {
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
-	print FILE "# flight=id:$self->{ flight }{ id };group:" . join( ",", @{ $self->{ flight }{ group }}) . ";state:$self->{ flight }{ state }\n" if $self->is_flight();
+	print FILE "# flight=$flight\n" if $self->is_flight();
 	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
 		my $order = $self->{ order }{ $round };
 		next unless defined $order && int( @$order );

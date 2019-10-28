@@ -49,7 +49,7 @@
 			var description = {};
 			var athletes    = {};
 			var validate    = {};
-			var warnings    = {};
+			var warnings    = { not_enough_athletes: false, duplicate_athletes: false, not_enough_forms: false, clear: () => { Object.keys( warnings ).filter( i => i != 'clear' ).forEach( i => warnings[ i ] = false );}};
 			var set         = ( key, value ) => { division[ key ] = value; }; // Workaround closure to edit top-level division
 		</script>
 
@@ -67,7 +67,7 @@
 				<textarea id="athletes" class="panel-body"></textarea>
 				<div class="panel-footer">
 					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
-					<button type="button" id="save-button" class="btn btn-success pull-right disabled"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
+					<button type="button" id="save-button" class="btn btn-success pull-right"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
 					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
 					<div class="clearfix"></div>
 				</div>
@@ -135,15 +135,17 @@
 					if( ! validate.athletes.enable ) { return; }
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
-					if( ! defined( warnings.not_enough_athletes )) {
-						warnings.not_enough_athletes = alertify.error( "Not enough athletes. Please add more athletes.", 10, () => { warnings.not_enough_athletes = undefined; });
+					if( ! warnings.not_enough_athletes ) {
+						alertify.error( "Not enough athletes. Please add more athletes.", 10 );
+						warnings.not_enough_athletes = true;
 					}
 
 				} else if( ! validate.athletes.unique() ) {
 					ok = false;
 					$( '#athletes' ).parent().removeClass( "panel-primary" ).addClass( "panel-danger" );
-					if( ! defined( warnings.duplicate_athletes )) {
-						warnings.duplicate_athletes = alertify.error( "Duplicate athletes. Please resolve athletes with the same name.", 10, () => { warnings.duplicate_athletes = undefined; });
+					if( ! warnings.duplicate_athletes ) {
+						alertify.error( "Duplicate athletes. Please resolve athletes with the same name.", 10 );
+						warnings.duplicate_athletes = true;
 					}
 				}
 
@@ -152,11 +154,13 @@
 				} else {
 					ok = false;
 					$( '#form-selection' ).parent().addClass( "panel-danger" ).removeClass( "panel-primary" );
-					if( ! defined( warnings.not_enough_forms )) {
-						warnings.not_enough_forms = alertify.error( "Not enough forms selected. Please select forms.", 10, () => { warnings.not_enough_forms = undefined; });
+					if( ! warnings.not_enough_forms ) {
+						alertify.error( "Not enough forms selected. Please select forms.", 10 );
+						warnings.not_enough_forms = true;
 					}
 				}
 				if( ok ) {
+					warnings.clear();
 					save.enable();
 				}
 				return ok;
@@ -171,7 +175,6 @@
 			var draws      = undefined;
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
-				button.removeClass( 'disabled' );
 				button.off( 'click' ).click( function() { 
 
 					// ===== COPY OVER ADDITIONAL VARIABLES
@@ -185,8 +188,21 @@
 				});
 			}, disable : function() {
 				var button = $( '#save-button' );
-				button.addClass( 'disabled' );
-				button.off( 'click' );
+				button.off( 'click' ).click( function() {  // MW
+					var english = { not_enough_athletes: 'Not enough athletes. Please add more athletes.', duplicate_athletes: 'Duplicate athletes. Each athlete name must be unique.', not_enough_forms: 'Not enough forms. Please assign more forms to this division.' };
+					var faults  = '<ul>' + Object.keys( warnings ).filter( i => i != 'clear' && warnings[ i ] ).map( i => `<li>${english[ i ]}</li>` ).join( '' ) + '</ul>';
+
+					alertify.confirm( 'This Division Does Not Conform to Rules', '<p>This division does not follow USAT or WT rules.</p>' + faults + '<p>Click <b>OK</b> to save, or <b>Cancel</b> to go back to editing without saving</p>', () => {
+						// ===== COPY OVER ADDITIONAL VARIABLES
+						division.ring = ring;
+						if( $( '#flight' ).val()) { division.flight = JSON.parse( $( '#flight' ).val()); }
+
+						var request  = { data : { type : 'division', action : 'write', division : division }};
+						request.json = JSON.stringify( request.data );
+						sound.next.play();
+						ws.send( request.json );
+					}, () => {});
+				});
 			}};
 
 			$( '#cancel-button' ).off( 'click' ).click(() => { sound.prev.play(); setTimeout( () => { window.close(); }, 500 ); });
