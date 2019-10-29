@@ -60,6 +60,9 @@
       .divisions-view td .division-view.bg-danger .key-info {
         background-color: #d9534f;
         border: 1px solid #d43f3a; }
+      .divisions-view td .division-view.bg-info .key-info {
+        background-color: #337ab7;
+        border: 1px solid #2e6da4; }
       .divisions-view td .division-view .athletes {
         font-size: 10pt;
         padding: 4px;
@@ -114,6 +117,9 @@
       .divisions-view td .division-view.bg-danger .athletes .checkin-status {
         background-color: #d9534f;
         border: 1px solid #d43f3a; }
+      .divisions-view td .division-view.bg-info .athletes .checkin-status {
+        background-color: #7eb1dc;
+        border: 1px solid #1265ab; }
 
 .athletes-view {
   width: 100%; }

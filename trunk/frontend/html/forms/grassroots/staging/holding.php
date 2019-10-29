@@ -31,7 +31,7 @@ handle.schedule.read = ( update ) => {
 	let registration  = new Registration( update.schedule );
 	let today         = moment().format( 'MMM D, YYYY' );
 	let events        = registration.events;
-	// let now           = moment().subtract( 11, 'hours' );
+	// let now           = moment().subtract( 6, 'hours' );
 	let now           = moment();
 	let holding       = [];
 	let staged        = [];
@@ -64,11 +64,12 @@ handle.schedule.read = ( update ) => {
 			let deadline = div.start.diff( now, 'minutes' );
 			if( deadline < 0   ) { return; }                     // Ignore divisions that too old
 			if( div.staged )     { staged.push( div ); return; } // Ignore divisions that are already staged (sent to rings)
-			if( deadline > 30 )  { return; }                     // Ignore divisions that are too far into the future
+			if( deadline > 60 )  { return; }                     // Ignore divisions that are too far into the future
 
 			if( deadline <= 5  ) { holding.push({ div: div, deadline: deadline, priority: 0 }); return; }
 			if( deadline <= 15 ) { holding.push({ div: div, deadline: deadline, priority: 1 }); return; }
 			if( deadline <= 30 ) { holding.push({ div: div, deadline: deadline, priority: 2 }); return; }
+			if( deadline <= 60 ) { holding.push({ div: div, deadline: deadline, priority: 3 }); return; }
 		});
 	});
 
@@ -121,7 +122,7 @@ handle.schedule.read = ( update ) => {
 			let staging  = holding[ i ];
 			let div      = staging.div;
 			let ev       = div.event;
-			let bgcolor  = [ 'danger', 'warning', 'success' ][ staging.priority ];
+			let bgcolor  = [ 'danger', 'warning', 'success', 'info' ][ staging.priority ];
 			let view     = divView.clone();
 			let delta    = moment.duration( div.start.diff( now ));
 			let athletes = div.athletes;
@@ -206,7 +207,7 @@ handle.schedule.read = ( update ) => {
 			let athlete = checkin.athlete;
 
 			checkin.divisions.forEach( division => {
-				let bgcolor = [ 'danger', 'warning', 'success' ][ division.priority ];
+				let bgcolor = [ 'danger', 'warning', 'success', 'info' ][ division.priority ];
 				let button  = html.button.clone().addClass( `btn-xs btn-${bgcolor}` ).html( division.id.toUpperCase());
 				button.off( 'click' ).click(() => {
 					athlete.checkin( division );
