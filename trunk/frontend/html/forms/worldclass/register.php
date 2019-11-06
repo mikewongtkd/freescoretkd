@@ -102,14 +102,8 @@ body { background-color: black; color: gold; }
 					if( update.action == 'judges' ) {
 						judges = update.judges;			
 						refresh.roles( judges );
-					} else
-
-					if( update.action == 'update' ) {
-						var division = update.division;
-						if( ! defined( division )) { return; }
-						division  = new Division( division );
-						refresh.rings( division );
 					}
+					refresh.rings();
 					refresh.actions();
 				}
 			};
@@ -123,7 +117,7 @@ body { background-color: black; color: gold; }
 
 			var refresh = { 
 
-				rings : ( division ) => {
+				rings : () => {
 					// ===== RING VIEW UPDATE
 					$( '#rings' ).empty();
 					tournament.rings.forEach(( ring ) => {
@@ -155,21 +149,30 @@ body { background-color: black; color: gold; }
 					$( '#roles' ).empty();
 					if( reg.role == 'judge' ) {
 						if( isNaN( reg.judge )) { $( '#ok' ).addClass( 'disabled' ); }
-						for( var i = 0; i < judges.length; i++ ) {
-							var name   = '<span class="fa fa-user"></span>&nbsp;' + (i ? `Judge ${i}` : 'Referee');
-							var button = html.button.clone().addClass( 'btn btn-info' ).attr({ 'data-judge' : i }).html( name );
-							var registered = defined( judges[ i ].id );
-							if( reg.judge == i || registered ) { button.addClass( 'active' ); }
-							if( registered ) { button.removeClass( 'btn-info' ).addClass( 'btn-primary' ); }
+
+						if( judges.length == 0 ) {
+							var button = html.button.clone().addClass( 'btn btn-default' ).html( 'No division available' );
+							button.off( 'click' );
 							$( '#roles' ).append( button );
+							$( '#ok' ).addClass( 'disabled' );
+
+						} else {
+							for( var i = 0; i < judges.length; i++ ) {
+								var name   = '<span class="fa fa-user"></span>&nbsp;' + (i ? `Judge ${i}` : 'Referee');
+								var button = html.button.clone().addClass( 'btn btn-info role' ).attr({ 'data-judge' : i }).html( name );
+								var registered = defined( judges[ i ].id );
+								if( reg.judge == i || registered ) { button.addClass( 'active' ); }
+								if( registered ) { button.removeClass( 'btn-info' ).addClass( 'btn-primary' ); }
+								$( '#roles' ).append( button );
+							}
 						}
 					} else {
-						var button = html.button.clone().addClass( 'btn btn-primary active disabled' ).attr({ 'data-role' : 'computer operator' }).html( 'Ring Computer' );
+						var button = html.button.clone().addClass( 'btn btn-primary role active disabled' ).attr({ 'data-role' : 'computer operator' }).html( 'Ring Computer' );
 						$( '#roles' ).append( button );
 					}
 
 					// ===== ROLE SELECTION BEHAVIOR
-					$( '#roles button' ).off( 'click' ).click(( ev ) => {
+					$( '#roles button.role' ).off( 'click' ).click(( ev ) => {
 						$( '#ok' ).removeClass( 'disabled' );
 						var target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parents( '.btn' );
 						var i      = parseInt( target.attr( 'data-judge' ));
@@ -188,7 +191,7 @@ body { background-color: black; color: gold; }
 								() => {}
 							);
 						} else {
-							$( '#roles button' ).removeClass( 'active' );
+							$( '#roles button.role' ).removeClass( 'active' );
 							target.addClass( 'active' );
 							if( reg.role == 'judge' ) { reg.judge = i; }
 							sound.next.play();
