@@ -151,7 +151,7 @@ body { background-color: black; color: gold; }
 						if( isNaN( reg.judge )) { $( '#ok' ).addClass( 'disabled' ); }
 
 						if( judges.length == 0 ) {
-							var button = html.button.clone().addClass( 'btn btn-default' ).html( 'No division available' );
+							var button = html.button.clone().addClass( 'btn btn-default' ).html( 'No division available or division not selected' );
 							button.off( 'click' );
 							$( '#roles' ).append( button );
 							$( '#ok' ).addClass( 'disabled' );
