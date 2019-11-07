@@ -5,7 +5,6 @@
 			<div class="panel panel-primary">
 				<h4 class="panel-heading">Settings</h4>
 				<div class="panel-body">
-					<p>Drag-and-drop individual divisions to the desired day, or to <i>Unscheduled Divisions</i>. You can also click to select one or more divisions and then click on a <i>Move</i> button to move those divisions to the desired day.</p>
 					<div class="row">
 						<div class="col-xs-4">
 							<label for="start-date">Starting date of competition:</label>
