@@ -413,6 +413,24 @@ var show = {
 		// Start populating the table
 		for( var ev of [ 'Individual', 'Team', 'Pair' ]) {
 			if( ! ev in settings.events || ! settings.events[ ev ] ) { continue; }
+
+			// Add gender & rounds for Pairs
+			if( ev == 'Pair' && settings.gender ) {
+				// Add mixed gender
+				var row = html.tr.clone().addClass( 'genders' );
+				row.append( html.td.clone().attr({ colspan: 2 }).html( '&nbsp;' ));
+				row.append( html.td.clone().addClass( 'c' ).attr({ colspan : formcols }).html( 'Mixed' ));
+				table.append( row );
+
+				// Add rounds
+				row = html.tr.clone().addClass( 'rounds' );
+				row.append( html.td.clone().html( '&nbsp;' ), html.td.clone().html( 'Division' ));
+				for( var round of rounds ) {
+					var text = { prelim: 'Preliminary', semfin: 'Semi-Finals', finals: 'Finals', final1 : '1st Finals', final2 : '2nd Finals', final3 : '3rd Finals' };
+					row.append( html.td.clone().addClass( `round c` ).attr({ colspan : settings.count[ round ]}).html( text[ round ] ));
+				}
+				table.append( row );
+			}
 				
 			var draw    = draws[ ev ];
 			var e       = ev.toLowerCase();
@@ -422,13 +440,12 @@ var show = {
 			var row     = html.tr.clone().addClass( e );
 
 			label.event = { 
-				'Individual': { limit: 7, short: { name: 'IND.', offset: '32px' }, long: { name: 'INDIVIDUAL', offset: '90px' }},
+				'Individual': { limit: 7, short: { name: 'IND',  offset: '32px' }, long: { name: 'INDIVIDUAL', offset: '90px' }},
 				'Pair':       { limit: 2, short: { name: 'PR',   offset: ''     }, long: { name: 'PAIR',       offset: '20px' }},
 				'Team':       { limit: 2, short: { name: 'TM',   offset: '6px'  }, long: { name: 'TEAM',       offset: '30px' }},
 			};
 
 			var evt = rowspan[ ev ] <= label.event[ ev ].limit ? label.event[ ev ].short : label.event[ ev ].long;
-
 			row.append( html.td.clone().addClass( e ).attr({ rowspan: rowspan[ ev ] }).append( html.div.clone().addClass( 'rotate' ).attr({ 'data-offset' : evt.offset }).html( evt.name )));
 
 			for( var age of ages ) {
@@ -590,6 +607,7 @@ $( '.pt-page-2 .accept' ).off( 'click' ).click(() => {
 });
 
 $( '.pt-page-3 .print' ).off( 'click' ).click(() => { alertify.dismissAll(); window.print(); });
+$( '.pt-page-3 .accept' ).off( 'click' ).click(() => { window.location = '../../index.php'; });
 
 // ===== SERVER COMMUNICATION
 var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
