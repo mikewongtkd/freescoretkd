@@ -7,6 +7,9 @@
 		<title>Staging</title>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/add-ons/bootstrap-select.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/add-ons/bootstrap-toggle.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/add-ons/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+		<link href="../../include/bootstrap/add-ons/bootstrap-timepicker.min.css" rel="stylesheet" />
 		<link href="../../include/css/freescore-light.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
@@ -20,6 +23,10 @@
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-select.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-timepicker.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
+		<script src="../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/opt/moment/moment.min.js"></script>
@@ -36,6 +43,20 @@ body {
 	</head>
 	<body>
 <script>
+var sound = {
+	send      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"   ]}),
+	confirmed : new Howl({ urls: [ "../../sounds/received.mp3", "../../sounds/received.ogg" ]}),
+	next      : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"     ]}),
+	previous  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"     ]}),
+};
+
+var host       = '<?= $host ?>';
+var tournament = <?= $tournament ?>;
+var html       = FreeScore.html;
+var handle     = { ring: {}};
+var schedule   = {};
+var template   = {};
+
 </script>
 		<div id="pt-main" class="pt-perspective">
 <?php include( 'schedule/settings.php' ); ?>
@@ -47,17 +68,6 @@ alertify.defaults.transition = "slide";
 alertify.defaults.theme.ok = "btn btn-success";
 alertify.defaults.theme.cancel = "btn btn-danger";
 alertify.defaults.theme.input = "form-control";
-
-var sound = {
-	send      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"   ]}),
-	confirmed : new Howl({ urls: [ "../../sounds/received.mp3", "../../sounds/received.ogg" ]}),
-	next      : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"     ]}),
-	previous  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"     ]}),
-};
-
-var host       = '<?= $host ?>';
-var tournament = <?= $tournament ?>;
-var html       = FreeScore.html;
 
 var page = {
 	num : 1,
@@ -92,8 +102,8 @@ server.grassroots.onmessage = ( response ) => {
 	var type   = update.type;
 	var action = update.action;
 
-	if( ! type in handle          ) { alertify.error( `No handler for ${type}` );           return; }
-	if( ! action in handle[ type ]) { alertify.error( `No handler for ${action} ${type}` ); return; }
+	if( ! (type in handle          )) { alertify.error( `No handler for ${type}` );           return; }
+	if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} ${type}` ); return; }
 
 	handle[ type ][ action ]( update );
 };
