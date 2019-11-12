@@ -22,6 +22,8 @@
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/opt/jstat/jstat.min.js"></script>
+		<script src="../../include/opt/js-sha1/sha1.min.js"></script>
+		<script src="../../include/opt/moment/moment.min.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -100,9 +102,10 @@ $( '.list-group a' ).click( function( ev ) {
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var draws      = undefined;
-var settings   = { age: { groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, events: {}, gender: false, method: 'cutoff' };
+var settings   = { age: { groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, events: {}, gender: false, method: 'cutoff', timestamp: moment().format( 'lll' ), checksum: undefined };
 
 // ===== BUSINESS LOGIC
+var checksum = ( draws ) => { return sha1.hex( JSON.stringify( draws )).substr( 0, 8 ); }
 var load = ( settings ) => {
 	// Method
 	$( `#competition-format input[type="radio"][value="${settings.method}"]` ).click();
@@ -136,6 +139,7 @@ var load = ( settings ) => {
 };
 
 var draw = () => {
+	// Make draws
 	draws = {};
 	var replacement  = $( '#replacement' ).prop( 'checked' );
 	var uniform      = $( '#uniform' ).prop( 'checked' );
@@ -368,8 +372,10 @@ var show = {
 		var rowspan = {};
 		var label   = {};
 		var table   = $( '#display' );
+		var time    = $( '#timestamp' );
 		var row     = undefined;
 
+		time.html( `Last updated on ${settings.timestamp}` );
 		table.empty();
 
 		// Calculate table width
@@ -597,6 +603,10 @@ $( '.page-1 .edit' ).off( 'click' ).click(() => {
 });
 
 $( '.pt-page-2 .accept' ).off( 'click' ).click(() => { 
+	if( checksum( draws ) != settings.checksum ) {
+		settings.checksum  = checksum( draws );
+		settings.timestamp = moment().format( 'lll' ); // Mark timestamp for when updated draws are accepted
+	}
 	draws.settings = settings;
 	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
@@ -639,6 +649,8 @@ ws.onmessage = function( response ) {
 				delete draws.settings;
 				load( settings );
 			}
+
+			settings.checksum = checksum( draws );
 
 			if( Object.keys( draws ).some(( ev ) => { return Object.keys( draws[ ev ] ).some(( g ) => { return g.match( /^[fm]/i ); })})) {
 				$( '#gender-draw' ).bootstrapToggle( 'on' );
