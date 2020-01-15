@@ -39,7 +39,7 @@ sub init {
 	my $divisions = $self->{ divisions };
 	my @blocks    = ();
 
-	if( exists $self->{ blocks }) {
+	if( exists $self->{ blocks } && int( keys %{$self->{ blocks }}) > 0 ) {
 		foreach my $blockid (keys %{ $self->{ blocks }}) {
 			my $block = $self->{ blocks }{ $blockid };
 			$self->{ blocks }{ $blockid } = bless $block, 'FreeScore::Forms::WorldClass::Schedule::Block' unless( blessed $block )
@@ -244,7 +244,7 @@ sub check {
 		my $rings = $day->{ rings };
 
 		if( all { ! exists( $_->{ plan }) || (int( @{ $_->{ plan }}) == 0 )} @$rings ) {
-			push @{$check->{ errors }}, { cause => { ring => $ring->{ id }, reason => 'no plan' }}; 
+			push @{$check->{ errors }}, { cause => { reason => 'no plan' }}; 
 			$check->{ ok } = 0; 
 		}
 
