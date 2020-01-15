@@ -798,27 +798,6 @@ sub handle_division_write {
 }
 
 # ============================================================
-sub handle_registration_clear {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Clearing USAT Registration information\n" if $DEBUG;
-	
-	my $path = "$progress->{ path }/../..";
-	try {
-		my $copy = clone( $request );
-		unlink( "$path/registration.female.txt" );
-		unlink( "$path/registration.male.txt" );
-		$client->send({ json => { request => $copy, result => 'success' }});
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
 sub handle_registration_import {
 # ============================================================
 	my $self     = shift;
@@ -834,6 +813,16 @@ sub handle_registration_import {
 
 	my $draws = $progress->{ draws };
 
+	# ===== MAKE ARCHIVE & CLEAR PREVIOUS VALUES
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+	my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", $year + 1900, $mon, $mday, $hour, $min );
+
+	`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass sparring-olympic`;
+	`cd $path && rm -rf forms-worldclass/staging/div*.txt`;
+	`cd $path && rm -rf forms-worldclass/ring*/div*.txt`;
+	`cd $path && rm -rf forms-worldclass/schedule.json`;
+
+	# ===== IMPORT
 	try {
 		my $settings     = $request->{ settings };
 		my $female       = read_file( "$path/registration.female.txt" );
@@ -888,6 +877,7 @@ sub handle_registration_upload {
 	open FILE, ">$path/registration.$gender.txt" or die $!;
 	print FILE encode( 'UTF-8', $request->{ data });
 	close FILE;
+
 	try {
 		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
 
