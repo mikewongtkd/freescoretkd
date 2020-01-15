@@ -287,6 +287,7 @@ var show = {
 
 			var genders = settings.gender ? (ev.match( /pair/i ) ? [ 'c' ] : [ 'f', 'm' ]) : [ 'c' ];
 			for( var gender of genders ) {
+				var gname      = { 'c': 'coed', 'f': 'female', 'm': 'male' }[ gender ];
 				var ages       = rules.ageGroups( ev );
 				var header     = [];
 				var rows       = [];
@@ -315,9 +316,9 @@ var show = {
 						}
 						for( var i = 0; i < settings.count[ round ]; i++ ) {
 							var form    = forms[ i ];
-							var id      = 'form' + String( parseInt( i ) + 1 ) + '_' + String( parseInt( age )) + '_' + round;
 							var choices = JSON.stringify( FreeScore.rulesUSAT.recognizedPoomsae( ev, age, 'k' )); 
 							var div     = JSON.stringify( { 'event': ev, gender: gender, age: age, round: round, form: i });
+							var id      = `form-${sha1.hex( div ).substr( 0, 8 )}`;
 							var input   = html.text.clone().addClass( 'form-draw' ).attr({ id: id, 'data-list': choices, 'data-division': div }).val( form );
 							var td    = html.td.clone();
 
