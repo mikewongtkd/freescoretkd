@@ -91,6 +91,7 @@ $( '#import .accept' ).off( 'click' ).click(( ev ) => {
 	request = { data : { type : 'registration', action : 'import', settings: settings }};
 	request.json = JSON.stringify( request.data );
 	ws.worldclass.send( request.json );
+	ws.freestyle.send( request.json );
 	ws.sparring.send( request.json );
 });
 

@@ -55,11 +55,20 @@ sub description {
 
 	$d = $json->decode( $d );
 
-	my $event = '';
-	if   ( $s =~ /sparring/i ) { $event = $s;           }
-	elsif( $s =~ /pair/i     ) { $event = 'Pair';       }
-	elsif( $s =~ /team/i     ) { $event = 'Team';       }
-	else                       { $event = 'Individual'; }
+	my $event    = '';
+	my $subevent = '';
+	if   ( $s =~ /sparring/i )      { $subevent = $s;           }
+	elsif( $s =~ /freestyle/i ) {
+		$event = 'Freestyle ';
+		if(    $s =~ /pair/i     )  { $subevent = 'Pair';       }
+		elsif( $s =~ /team/i     )  { $subevent = 'Mixed Team';       }
+		else                        { $subevent = 'Individual'; }
+	}
+	elsif( $s =~ /poomsae/i ) {
+		if(    $s =~ /pair/i     )  { $subevent = 'Pair';       }
+		elsif( $s =~ /team/i     )  { $subevent = 'Team';       }
+		else                        { $subevent = 'Individual'; }
+	}
 
 	my $gender = lc substr( $d->{ gender }, 0, 1 );
 	if   ( $gender eq 'm' ) { $gender = 'Male '; }
@@ -75,7 +84,9 @@ sub description {
 		if   ( $age eq '10-11' ) { $group = 'Youths'; }
 		elsif( $age eq '12-14' ) { $group = 'Cadets'; }
 		elsif( $age eq '15-17' ) { $group = 'Juniors'; }
-		elsif( $age eq '18-30' ) { $group = 'Seniors'; }
+		elsif( $age eq '12-17' ) { $group = 'Under 17' if $event eq 'Freestyle'; }
+		elsif( $age eq '18-30' ) { $group = 'Under 30'; }
+		elsif( $age eq '18-99' ) { $group = 'Over 17' if $event eq 'Freestyle'; }
 		elsif( $age eq '31-40' ) { $group = 'Under 40'; }
 		elsif( $age eq '41-50' ) { $group = 'Under 50'; }
 		elsif( $age eq '51-60' ) { $group = 'Under 60'; }
@@ -83,7 +94,7 @@ sub description {
 		elsif( $age eq '66+'   ) { $group = 'Over 65'; }
 		elsif( $age eq '31+'   ) { $group = 'Over 30'; }
 
-		return ("$gender$event $group", { age => $age, event => $event, gender => lc substr( $d->{ gender }, 0, 1 ) || 'c' });
+		return ( "$event$gender$subevent $group", { age => $age, event => "$event$subevent", gender => lc substr( $d->{ gender }, 0, 1 ) || 'c' });
 	}
 }
 
@@ -96,7 +107,30 @@ sub divid {
 
 	$d = $json->decode( $d );
 
-	if( $s =~ /poomsae/i ) {
+	local $_ = $s;
+	if( /freestyle/i ) {
+		my $id = {
+			gender => { c => 0, m => 1, f => 2 },
+			event  => { individual => 3, pair => 13, team => 23 },
+			belt   => { yellow => 'y', green => 'g', blue => 'b', red => 'r', black => 'k' },
+			rank   => { y => 400, g => 300, b => 200, r => 100, k => 0 }
+		};
+		my $gender  = lc substr( $d->{ gender }, 0, 1 ) || 'c';
+		my ($event) = $s =~ /(pair|team)/i; $event ||= 'individual';
+		my $age     = int( $d->{ age });
+
+		$id->{ division } = 0;
+		my $index = { '12' => 0, '18' => 1 };
+		$id->{ division } = $index->{ "$age" } * 3;
+
+		$divid = 0;
+		$divid -= int( $id->{ gender }{ $gender });
+		$divid += int( $id->{ event }{ $event });
+		$divid += int( $id->{ division });
+
+		return sprintf( "fs%03d", $divid );
+
+	} elsif( /poomsae/i ) {
 		my $id = {
 			gender => { c => 0, m => 1, f => 2 },
 			event  => { individual => 3, pair => 43, team => 73 },
@@ -129,7 +163,7 @@ sub divid {
 
 		return sprintf( "p%03d", $divid );
 
-	} elsif( $s =~ /sparring/i ) {
+	} elsif( /sparring/i ) {
 		# MW Figure out how to number sparring divisions
 		my $id = {
 			gender => { c => 0, m => 1, f => 2 },

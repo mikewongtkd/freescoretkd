@@ -94,8 +94,8 @@ wc.onmessage = function( response ) {
 	var update = JSON.parse( response.data );
 	console.log( 'WORLDCLASS', update );
 
-	if( ! (update.action in handler)) { alertify.error( `No handler for <b>${update.action.capitalize()}</b>` ); return; }
-	if( ! (update.type in handler[ update.action ])) { alertify.error( `No handler for <b>${update.action.capitalize()} ${update.type.capitalize()}</b>` ); return; }
+	if( ! (update.action in handler)) { alertify.error( `No handler for <b>${update.action}</b>` ); return; }
+	if( ! (update.type in handler[ update.action ])) { alertify.error( `No handler for <b>${update.action} ${update.type}</b>` ); return; }
 
 	handler[ update.action ][ update.type ]( update );
 };

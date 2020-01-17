@@ -135,7 +135,7 @@ function test_service( service, port ) {
 		},
 		error:       function( response ) { 
 			sound.error.play(); 
-			alertify.error( service.capitalize() + " system failed to start." ); 
+			alertify.error( service.capitalize() + " service failed to start." ); 
 			disable_service( service );
 		},
 	});

@@ -73,9 +73,9 @@ sub init {
 	};
 	$self->{ registration } = {
 		import             => \&handle_registration_import,
-		upload             => \&handle_registration_upload,
 		read               => \&handle_registration_read,
 		remove             => \&handle_registration_remove,
+		upload             => \&handle_registration_upload,
 	};
 	$self->{ schedule }    = {
 		build              => \&handle_schedule_build,
@@ -807,7 +807,8 @@ sub handle_registration_import {
 
 	print STDERR "Importing USAT Registration information\n" if $DEBUG;
 	
-	my $path = "$progress->{ path }/../..";
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
 	my $json = new JSON::XS();
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
@@ -817,9 +818,10 @@ sub handle_registration_import {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 	my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", $year + 1900, $mon, $mday, $hour, $min );
 
-	`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass sparring-olympic`;
-	`cd $path && rm -rf forms-worldclass/staging/div*.txt`;
-	`cd $path && rm -rf forms-worldclass/ring*/div*.txt`;
+	`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass forms-freestyle sparring-olympic`;
+	`cd $path && rm -rf forms-grassroots/*/div*.txt`;
+	`cd $path && rm -rf forms-freestyle/*/div*.txt`;
+	`cd $path && rm -rf forms-worldclass/*/div*.txt`;
 	`cd $path && rm -rf forms-worldclass/schedule.json`;
 
 	# ===== IMPORT
@@ -871,7 +873,8 @@ sub handle_registration_upload {
 	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
 	return unless defined $gender;
 
-	my $path = "$progress->{ path }/../..";
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
 	my $json = new JSON::XS();
 
 	open FILE, ">$path/registration.$gender.txt" or die $!;
@@ -910,7 +913,8 @@ sub handle_registration_read {
 
 	print STDERR "Reading USAT Registration information\n" if $DEBUG;
 	
-	my $path = "$progress->{ path }/../..";
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
 
 	try {
 		my $female    = "$path/registration.female.txt";
@@ -948,6 +952,7 @@ sub handle_registration_remove {
 	print STDERR "Removing USAT Registration information\n" if $DEBUG;
 	
 	my $path = "$progress->{ path }/../..";
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
 	try {

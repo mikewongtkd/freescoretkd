@@ -96,6 +96,7 @@
 
 					<ul class="nav nav-tabs">
 						<li class="active"><a data-toggle="tab" href="#poomsae-divisions">Poomsae Divisions</a></li>
+						<li><a data-toggle="tab" href="#freestyle-divisions">Freestyle Divisions</a></li>
 						<li><a data-toggle="tab" href="#sparring-divisions">Sparring Divisions</a></li>
 					</ul>
 
@@ -124,6 +125,37 @@
 							<div class="panel panel-primary poomsae" id="worldclass-teams">
 								<div class="panel-heading">
 									<div class="panel-title">Sport Poomsae World Class Teams</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade in" id="freestyle-divisions">
+							<div class="panel panel-primary freestyle" id="freestyle-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Freestyle Individuals</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary freestyle" id="freestyle-pairs">
+								<div class="panel-heading">
+									<div class="panel-title">Freestyle Pairs</div>
+								</div>
+								<div class="panel-body">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary freestyle" id="freestyle-teams">
+								<div class="panel-heading">
+									<div class="panel-title">Freestyle Mixed Teams</div>
 								</div>
 								<div class="panel-body">
 									<table>
@@ -201,12 +233,13 @@ var page = {
 
 var ws = {
 	worldclass : new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
+	freestyle  : new WebSocket( 'ws://' + host + ':3082/freestyle/' + tournament.db + '/staging' ),
 	sparring   : new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
 	// grassroots : new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
 };
 
 var registration = { male: '', female: '' };
-var imported     = { poomsae: false, sparring: false };
+var imported     = { poomsae: false, freestyle: false, sparring: false };
 var dropzone     = { 
 	disable: ( target ) => {
 		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
@@ -220,6 +253,16 @@ $( '#back-to-upload' ).off( 'click' ).click( ( ev ) => {
 	sound.prev.play();
 	page.transition( 1 );
 });
+
+function remove_registration() {
+	if( ! Object.values( imported ).every( i => i )) { return; }
+
+	var request;
+	request = { data : { type : 'registration', action : 'remove' }};
+	request.json = JSON.stringify( request.data );
+	ws.worldclass.send( request.json );
+}
+
 
 $( '.file-drop-zone' )
 	.on( 'dragover', ( ev ) => {
@@ -303,9 +346,7 @@ function display_sport_poomsae_divisions( divisions ) {
 		'world class team poomsae'  : 'worldclass-teams',
 	};
 
-	var events = [ 'world class poomsae', 'world class pairs poomsae', 'world class team poomsae' ];
-
-	for( var subevent of events) {
+	for( var subevent of Object.keys( map )) {
 		if( !( subevent in divisions )) { continue; }
 		var id    = '#' + map[ subevent ] + ' .panel-body table';
 		var table = $( id );
@@ -323,6 +364,62 @@ function display_sport_poomsae_divisions( divisions ) {
 
 			var row = {
 				name : html.td.clone().html( sport_poomsae_division_description( subevent, division )),
+				count: html.td.clone().html( divisions[ subevent ][ division ].length )
+			};
+			tr.append( row.name, row.count );
+			table.append( tr );
+			sum += count;
+		}
+
+		tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
+		table.append( tr );
+	}
+}
+
+function freestyle_division_description( s, d ) {
+	d = JSON.parse( d );
+	d = d.gender + ' ' + d.age;
+	var format = '';
+	if( s.match( /pair/i ))      { format = 'Pair' }
+	else if( s.match( /team/i )) { format = 'Team' }
+	else                         { format = 'Individual' }
+	d = d.replace( /12-17/, 'Under 17' );
+	d = d.replace( /18-99/, 'Over 17' );
+	d = d.replace( /black all/, '' );
+	d = d.replace( /coed/, format );
+	d = d.replace( /female/, 'Female ' + format );
+	d = d.replace( /\bmale/, 'Male ' + format );
+
+	return d;
+};
+
+function display_freestyle_divisions( divisions ) {
+	console.log( divisions );
+	var map = {
+		'world class freestyle poomsae'       : 'freestyle-individuals',
+		'world class freestyle pairs poomsae' : 'freestyle-pairs',
+		'world class freestyle team poomsae'  : 'freestyle-teams',
+	};
+
+	for( var subevent of Object.keys( map )) {
+		if( !( subevent in divisions )) { continue; }
+		var id    = '#' + map[ subevent ] + ' .panel-body table';
+		var table = $( id );
+		table.empty();
+		var tr = html.tr.clone();
+		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Athletes' ));
+		table.append( tr );
+		var sum = 0;
+		for( var division in divisions[ subevent ] ) {
+			var tr    = html.tr.clone();
+			var count = divisions[ subevent ][ division ].length;
+
+			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
+			if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
+
+			var row = {
+				name : html.td.clone().html( freestyle_division_description( subevent, division )),
 				count: html.td.clone().html( divisions[ subevent ][ division ].length )
 			};
 			tr.append( row.name, row.count );
@@ -383,7 +480,6 @@ function display_sparring_divisions( divisions ) {
 			subevents[ name ][ subevent ][ d.gender ][ json ] = divisions[ subevent ][ json ];
 		}
 	}
-	console.log( subevents );
 
 	for( var name in subevents ) {
 		var id         = '#' + name + ' .panel-body table';
@@ -461,12 +557,8 @@ ws.worldclass.onmessage = ( response ) => {
 	} else if( update.request.action == 'import' ) {
 		if( update.result == 'success' ) {
 			imported.poomsae = true;
-			if( imported.poomsae && imported.sparring ) {
-				var request;
-				request = { data : { type : 'registration', action : 'remove' }};
-				request.json = JSON.stringify( request.data );
-				ws.worldclass.send( request.json );
-			}
+			remove_registration();
+
 		} else {
 			alertify.error( 'Import failed for World Class Poomsae' );
 			sound.warning.play();
@@ -484,6 +576,37 @@ ws.worldclass.onmessage = ( response ) => {
 
 ws.worldclass.onerror = () => {
 	alertify.error( 'Error contacting World Class Poomsae service' );
+};
+
+ws.freestyle.onopen = () => {
+	var request;
+	request = { data : { type : 'registration', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	ws.freestyle.send( request.json );
+}
+
+ws.freestyle.onmessage = ( response ) => { 
+	var update = JSON.parse( response.data );
+	if( ! defined( update )) { return; }
+	console.log( update );
+
+	if( update.request.action == 'upload' ) {
+		display_freestyle_divisions( update.divisions );
+
+	} else if( update.request.action == 'import' ) {
+		if( update.result == 'success' ) {
+			imported.freestyle = true;
+			remove_registration();
+
+		} else {
+			alertify.error( 'Import failed for Freestyle poomsae' );
+			sound.warning.play();
+		}
+	}
+};
+
+ws.freestyle.onerror = () => {
+	alertify.error( 'Error contacting Freestyle service' );
 };
 
 ws.sparring.onopen = () => {
@@ -504,12 +627,8 @@ ws.sparring.onmessage = ( response ) => {
 	} else if( update.request.action == 'import' ) {
 		if( update.result == 'success' ) {
 			imported.sparring = true;
-			if( imported.poomsae && imported.sparring ) {
-				var request;
-				request = { data : { type : 'registration', action : 'clear' }};
-				request.json = JSON.stringify( request.data );
-				ws.worldclass.send( request.json );
-			}
+			remove_registration();
+
 		} else {
 			alertify.error( 'Import failed for Olympic Sparring' );
 			sound.warning.play();
