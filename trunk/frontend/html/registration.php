@@ -28,6 +28,9 @@
 				border: 3px dashed #17a2b8;
 				border-radius: 8px;
 			}
+			.subevent table { width: 100%; }
+			.subevent table th.count { width: 10%; min-width: 120px; text-align: right; }
+			.subevent table td.count { width: 10%; min-width: 120px; text-align: right; }
 		</style>
 	</head>
 	<body>
@@ -106,7 +109,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Sport Poomsae World Class Individuals</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -116,7 +119,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Sport Poomsae World Class Pairs</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -126,7 +129,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Sport Poomsae World Class Teams</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -137,7 +140,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Freestyle Individuals</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -147,7 +150,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Freestyle Pairs</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -157,7 +160,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Freestyle Mixed Teams</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -168,7 +171,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">World Class Olympic Sparring</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -178,7 +181,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Black Belt Olympic Sparring</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -188,7 +191,7 @@
 								<div class="panel-heading">
 									<div class="panel-title">Color Belt Olympic Sparring</div>
 								</div>
-								<div class="panel-body">
+								<div class="panel-body subevent">
 									<table>
 									</table>
 								</div>
@@ -324,7 +327,7 @@ function sport_poomsae_division_description( s, d ) {
 	d = d.replace( /10-11/, 'Youths' );
 	d = d.replace( /12-14/, 'Cadets' );
 	d = d.replace( /15-17/, 'Juniors' );
-	d = d.replace( /18-30/, 'Seniors' );
+	d = d.replace( /18-30/, 'Under 30' );
 	d = d.replace( /31-40/, 'Under 40' );
 	d = d.replace( /41-50/, 'Under 50' );
 	d = d.replace( /51-60/, 'Under 60' );
@@ -339,6 +342,9 @@ function sport_poomsae_division_description( s, d ) {
 	return d;
 };
 
+var th = { count : ( text ) => { return html.th.clone().addClass( 'count' ).html( text ); }, div : ( text ) => { return html.th.clone().addClass( 'division' ).html( text ); }};
+var td = { count : ( text ) => { return html.td.clone().addClass( 'count' ).html( text ); }, div : ( text ) => { return html.td.clone().addClass( 'division' ).html( text ); }};
+
 function display_sport_poomsae_divisions( divisions ) {
 	var map = {
 		'world class poomsae'       : 'worldclass-individuals',
@@ -352,28 +358,104 @@ function display_sport_poomsae_divisions( divisions ) {
 		var table = $( id );
 		table.empty();
 		var tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Athletes' ));
+		tr.append( th.div( 'Division' ).attr({ 'valign': 'bottom' }));
+		if( subevent.match( /pair/i)) {
+			tr.append( th.count( 'Athletes' ), th.count( 'Pairs' ));
+
+		} else if( subevent.match( /team/i )) {
+			tr.append( th.count( 'Female<br>Athletes' ), th.count( 'Female<br>Teams' ), th.count( 'Male<br>Athletes' ), th.count( 'Male<br>Teams' ));
+
+		} else {
+			tr.append( th.count( 'Female<br>Athletes' ), th.count( 'Male<br>Athletes' ),);
+		}
 		table.append( tr );
-		var sum = 0;
+		var sum    = {};
+		var groups = {};
+		var i      = 0;
 		for( var division in divisions[ subevent ] ) {
-			var tr    = html.tr.clone();
 			var count = divisions[ subevent ][ division ].length;
+			var name  = sport_poomsae_division_description( subevent, division );
+			var gid   = name.replace( /(?:fe)?male\s*/i, '' );
+			var group = undefined;
+			if( name.match( /female/i )) {
+				if( gid in groups ) {
+					group = groups[ gid ];
+					group.females = count;
+				} else {
+					group = groups[ gid ] = { name: gid, females: count, i: i };
+					i++;
+				}
+				sum.females = 'females' in sum ? sum.females + group.females : group.females;
+				if( name.match( /team/i )) { group.female_teams = Math.ceil( count/3 ); sum.female_teams = 'female_teams' in sum ? sum.female_teams + group.female_teams : group.female_teams; }
 
-			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
-			if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
+			} else if( name.match( /\bmale/i )) {
+				if( gid in groups ) {
+					group = groups[ gid ];
+					group.males = count;
+				} else {
+					group = groups[ gid ] = { name: gid, males: count, i: i };
+					i++;
+				}
+				sum.males = 'males' in sum ? sum.males + group.males : group.males;
+				if( name.match( /team/i )) { group.male_teams = Math.ceil( count/3 ); sum.male_teams = 'male_teams' in sum ? sum.male_teams + group.male_teams : group.male_teams; }
 
-			var row = {
-				name : html.td.clone().html( sport_poomsae_division_description( subevent, division )),
-				count: html.td.clone().html( divisions[ subevent ][ division ].length )
-			};
-			tr.append( row.name, row.count );
-			table.append( tr );
-			sum += count;
+			} else {
+				if( name.match( /pair/i )) {
+					groups[ gid ] = { name: gid, athletes: count, pairs: Math.ceil( count/2 ) };
+					sum.athletes = 'athletes' in sum ? sum.athletes + groups[ gid ].athletes : groups[ gid ].athletes;
+					sum.pairs    = 'pairs' in sum ? sum.pairs + groups[ gid ].pairs : groups[ gid ].pairs;
+				}
+			}
 		}
 
-		tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
-		table.append( tr );
+		// ===== ADD EACH GROUP TO THE TABLE
+		Object.values( groups ).sort(( a, b ) => { return a.i < b.i ? -1 : a.i > b.i ? 1 : 0; }).forEach(( group ) => {
+			var tr    = html.tr.clone();
+
+			tr.append( td.div( group.name ));
+			if( group.name.match( /pair/i )) {
+				tr.append( td.count( group.athletes ), td.count( group.pairs ));
+			} else if( group.name.match( /team/i )) {
+				tr.append( td.count( group.females ), td.count( group.female_teams ), td.count( group.males ), td.count( group.male_teams ));
+			} else {
+				tr.append( td.count( group.females ), td.count( group.males ));
+			}
+			table.append( tr );
+		});
+
+		if       ( subevent.match( /pair/i )) {
+			tr = html.tr.clone();
+			tr.append( th.div( 'Total' ));
+			tr.append( th.count( sum.athletes ), th.count( sum.pairs ),);
+			tr.children( 'th' ).css({ 'padding-top': '8px' });
+			table.append( tr );
+
+		} else if( subevent.match( /team/i )) {
+			tr = html.tr.clone();
+			tr.append( th.div( 'Subtotal' ));
+			tr.append( th.count( sum.females ), th.count( sum.female_teams ), th.count( sum.males ), th.count( sum.male_teams ),);
+			tr.children( 'th' ).css({ 'padding-top': '8px' });
+			table.append( tr );
+
+			tr = html.tr.clone();
+			tr.append( th.div( 'Total' ));
+			tr.append( th.count( `Athletes: ${sum.males + sum.females}` ).attr({ colspan : 3 }), th.count( `Teams: ${sum.male_teams + sum.female_teams}` ));
+			tr.children( 'th' ).css({ 'padding-top': '8px' });
+			table.append( tr );
+
+		} else {
+			tr = html.tr.clone();
+			tr.append( th.div( 'Subtotal' ));
+			tr.append( html.th.clone().addClass( 'count' ).html( sum.females ), html.th.clone().addClass( 'count' ).html( sum.males ),);
+			tr.children( 'th' ).css({ 'padding-top': '8px' });
+			table.append( tr );
+
+			tr = html.tr.clone();
+			tr.append( th.div( 'Total' ));
+			tr.append( th.count( sum.males + sum.females ).attr({ colspan : 2 }));
+			tr.children( 'th' ).css({ 'padding-top': '8px' });
+			table.append( tr );
+		}
 	}
 }
 
@@ -381,7 +463,7 @@ function freestyle_division_description( s, d ) {
 	d = JSON.parse( d );
 	d = d.gender + ' ' + d.age;
 	var format = '';
-	if( s.match( /pair/i ))      { format = 'Pair' }
+	if     ( s.match( /pair/i )) { format = 'Pair' }
 	else if( s.match( /team/i )) { format = 'Team' }
 	else                         { format = 'Individual' }
 	d = d.replace( /12-17/, 'Under 17' );
@@ -395,7 +477,6 @@ function freestyle_division_description( s, d ) {
 };
 
 function display_freestyle_divisions( divisions ) {
-	console.log( divisions );
 	var map = {
 		'world class freestyle poomsae'       : 'freestyle-individuals',
 		'world class freestyle pairs poomsae' : 'freestyle-pairs',
@@ -408,7 +489,9 @@ function display_freestyle_divisions( divisions ) {
 		var table = $( id );
 		table.empty();
 		var tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Division' ), html.th.clone().html( 'Athletes' ));
+		tr.append( th.div( 'Division' ), th.count( 'Athletes' ));
+		if     ( subevent.match( /pair/i )) { tr.append( th.count( 'Pairs' )); }
+		else if( subevent.match( /team/i )) { tr.append( th.count( 'Teams' )); }
 		table.append( tr );
 		var sum = 0;
 		for( var division in divisions[ subevent ] ) {
@@ -416,19 +499,22 @@ function display_freestyle_divisions( divisions ) {
 			var count = divisions[ subevent ][ division ].length;
 
 			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
-			if( subevent.match( /team/i )) { count = Math.ceil( count/3 ); }
+			if( subevent.match( /team/i )) { count = Math.ceil( count/5 ); }
 
 			var row = {
-				name : html.td.clone().html( freestyle_division_description( subevent, division )),
-				count: html.td.clone().html( divisions[ subevent ][ division ].length )
+				name : td.div( freestyle_division_description( subevent, division )),
+				count: td.count( divisions[ subevent ][ division ].length ),
+				group: td.count( count )
 			};
 			tr.append( row.name, row.count );
+			if( subevent.match( /(?:pair|team)/i )) { tr.append( row.group ); }
 			table.append( tr );
 			sum += count;
 		}
 
 		tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( sum ));
+		tr.append( th.div( 'Total' ), th.count( sum ).attr({ 'colspan': subevent.match( /(?:pair|team)/i ) ? 2 : 1 }) );
+		tr.children( 'th' ).css({ 'padding-top': '8px' });
 		table.append( tr );
 	}
 }

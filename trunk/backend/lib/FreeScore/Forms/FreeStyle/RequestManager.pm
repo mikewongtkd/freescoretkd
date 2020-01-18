@@ -54,8 +54,9 @@ sub init {
 		write              => \&handle_division_write,
 	};
 	$self->{ registration } = {
-		read               => \&handle_registration_read,
 		import             => \&handle_registration_import,
+		read               => \&handle_registration_read,
+		upload             => \&handle_registration_upload,
 	};
 	$self->{ ring }        = {
 		division_delete    => \&handle_ring_division_delete,
@@ -684,6 +685,43 @@ sub handle_registration_read {
 		elsif( -e $female ) { $female = \1; $male = \0; }
 		else                { $female = \0; $male = \0; }
 		$client->send({ json => { request => $copy, male => $male, female => $female, @divisions }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_registration_upload {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Uploading USAT Registration $request->{ gender } information\n" if $DEBUG;
+	
+	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
+	return unless defined $gender;
+
+	my $json = new JSON::XS();
+
+	try {
+		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
+
+	} catch {
+		print STDERR "Error: $_\n";
+		$client->send( { json => { error => "$_" }});
+	}
+	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
+
+	try {
+		my $female       = read_file( "$path/registration.female.txt" );
+		my $male         = read_file( "$path/registration.male.txt" );
+		my $registration = new FreeScore::Registration::USAT( $female, $male );
+		my $divisions    = $registration->freestyle();
+		my $copy         = clone( $request ); delete $copy->{ data };
+
+		$client->send({ json => { request => $copy, divisions => $divisions }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
