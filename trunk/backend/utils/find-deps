@@ -1,0 +1,60 @@
+#! /usr/bin/perl
+
+use File::Find;
+use List::Util qw( uniq );
+use lib qw( /usr/local/freescore/lib );
+
+our @list = ();
+
+find( \&list_modules, 'lib', 'bin', 'utils' );
+
+@list = uniq sort @list;
+my @need = ();
+
+foreach (@list)  { 
+	$@ = undef;
+	eval "require $_;";
+	push @need, $_ if $@;
+} @list;
+
+if( @need ) {
+	my $last = $need[ -1 ];
+	print "sudo cpanm \\\n";
+	print "\t$_" . ( $_ eq $last ? '' : "\\" ) . "\n" foreach @need;
+} else {
+	print STDERR "All dependencies fulfilled; no additional modules need installation.\n";
+}
+
+# ============================================================
+sub list_modules {
+# ============================================================
+	return unless -f;
+	return unless is_perl_script( $_ ) || is_perl_module( $_ );
+
+	push @list, find_modules( $_ );
+}
+
+# ============================================================
+sub find_modules( $_ ) {
+# ============================================================
+	my @uses = map { /use\s+(?:base qw.\s*)?(\w+(?:::\w+)*)/; $1; } split /\n/, `grep '^use' $_`;
+	@uses = grep { !/(?:lib|warnings|strict)/ } @uses;
+
+	return @uses;
+}
+
+# ============================================================
+sub is_perl_script( $_ ) {
+# ============================================================
+	my $first_line = `head -n 1 $_`; chomp $first_line;
+	my $is_perl_script = $first_line =~ /perl/ || /\.pl$/i;
+
+	return $is_perl_script;
+}
+
+# ============================================================
+sub is_perl_module( $_ ) {
+# ============================================================
+	my $is_perl_module = /\.pm$/i;
+	return $is_perl_module;
+}

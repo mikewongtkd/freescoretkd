@@ -1,0 +1,61 @@
+#! /usr/bin/perl
+use File::Find;
+use Digest::SHA1 qw( sha1_hex );
+use Math::Round qw( round );
+use lib qw( lib );
+use FreeScore::Forms::WorldClass::Division;
+use FreeScore::Forms::FreeStyle::Division;
+use Data::Dumper;
+
+our $percentage = shift;
+usage() if( ! defined $percentage || $percentage < 1 );
+
+our $ratio = ($percentage/100) + 1;
+find({ wanted => \&wanted, no_chdir => 1 }, 'data/test/forms-worldclass', 'data/test/forms-freestyle' );
+
+# ============================================================
+sub wanted {
+# ============================================================
+	next unless /div\.(\w+)\.txt$/;
+	my $divid = $1;
+	my $path  = $File::Find::dir;
+	my $div   = undef;
+
+	if   ( $path =~ /worldclass/i ) { $div = new FreeScore::Forms::WorldClass::Division( $path, $divid ); }
+	elsif( $path =~ /freestyle/i  ) { $div = new FreeScore::Forms::FreeStyle::Division( $path, $divid ); }
+
+	my $athletes = $div->{ athletes };
+	my $n        = int( @$athletes );
+	my $m        = round( $n * $ratio );
+	my $k        = $m - $n;
+	foreach my $i ( 0 .. $k ) {
+		my $name = sprintf( "Sim %s", uc( substr( sha1_hex( $i . ' ' . localtime ), 0, 8 )));
+		push @$athletes, { name => $name };
+	}
+	printf( "Found %s with %d athletes, growing to %d\n", $File::Find::name, $n, $m ) if $k > 0;
+	print map { "  $_->{ name }\n" } @$athletes;
+
+	my $round = undef;
+	if   ( $m >= 20 ) { $round = $div->{ round } = 'prelim'; }
+	elsif( $m >  8  ) { $round = $div->{ round } = 'semfin'; }
+	else              { $round = $div->{ round } = 'finals'; }
+
+	$div->{ order }{ $round } = [( 0 .. $#$athletes )];
+
+	$div->write();
+
+}
+
+# ============================================================
+sub usage {
+# ============================================================
+	print <<EOF;
+grow-registration PERCENTAGE
+
+This utility takes a previously imported (or manually entered) registration and
+extends the registration by a given percentage (1 or higher). Typical values
+should be 5, 10, and 15. Small events might double in size.
+
+EOF
+	exit();
+};

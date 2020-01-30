@@ -49,6 +49,19 @@ use Data::Dumper;
 # ------------------------------------------------------------
 
 # ============================================================
+sub assign {
+# ============================================================
+	my $self       = shift;
+	my $i          = shift;
+	my $round      = shift;
+	my $athlete    = $self->{ athletes }[ $i ];
+
+	# Do nothing if athlete is already assigned to the round
+	return if( any { $_ == $i } @{ $self->{ order }{ $round }});
+	push @{ $self->{ order }{ $round }}, $i;
+}
+
+# ============================================================
 sub autopilot {
 # ============================================================
 	my $self  = shift;
