@@ -2,6 +2,7 @@
 use File::Find;
 use Digest::SHA1 qw( sha1_hex );
 use Math::Round qw( round );
+use List::Util qw( any );
 use lib qw( lib );
 use FreeScore::Forms::WorldClass::Division;
 use FreeScore::Forms::FreeStyle::Division;
@@ -28,6 +29,12 @@ sub wanted {
 	my $n        = int( @$athletes );
 	my $m        = round( $n * $ratio );
 	my $k        = $m - $n;
+
+	if( any { $_->{ name } =~ /^Sim [A-F0-9]{8}$/} @$athletes ) {
+		printf STDERR "Found simulated athletes in division %s. Skipping.\n", $File::Find::name;
+		return;
+	}
+
 	foreach my $i ( 0 .. $k ) {
 		my $name = sprintf( "Sim %s", uc( substr( sha1_hex( $i . ' ' . localtime ), 0, 8 )));
 		push @$athletes, { name => $name };
