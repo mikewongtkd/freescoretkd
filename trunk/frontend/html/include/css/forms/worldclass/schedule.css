@@ -253,8 +253,8 @@ a.active {
 }
 
 .error {
-  background-color: #dc3545 !important;
-  color: white !important;
+  border: 4px solid red !important;
+  padding: -4px;
 }
 
 /*# sourceMappingURL=schedule.css.map */
