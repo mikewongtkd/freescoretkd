@@ -1,192 +1,251 @@
 @media print {
   .btn {
-    display: none; }
+    display: none;
+  }
 
   .page-header {
-    display: none; }
+    display: none;
+  }
 
   .action-bar {
-    display: none; }
+    display: none;
+  }
 
   #schedule-title {
-    display: block !important; }
+    display: block !important;
+  }
 
   body {
-    -webkit-print-color-adjust: exact; }
+    -webkit-print-color-adjust: exact;
+  }
 
   .schedule td {
-    font-size: 9pt; }
-    .schedule td.timeline {
-      width: 90px !important; }
-    .schedule td.col-4-width {
-      width: 145px !important; }
-    .schedule td.col-3-width {
-      width: 190px !important; }
-    .schedule td.col-2-width {
-      width: 290px !important; }
+    font-size: 9pt;
+  }
+  .schedule td.timeline {
+    width: 90px !important;
+  }
+  .schedule td.col-4-width {
+    width: 145px !important;
+  }
+  .schedule td.col-3-width {
+    width: 190px !important;
+  }
+  .schedule td.col-2-width {
+    width: 290px !important;
+  }
 
   .block-division {
-    display: none; } }
+    display: none;
+  }
+}
 .page-footer {
-  text-align: center; }
+  text-align: center;
+}
 
 .btn-default.active {
   background-color: #77b300;
-  border-color: #558000; }
+  border-color: #558000;
+}
 
 .pill {
   padding: 4px;
-  border-radius: 4px; }
+  border-radius: 4px;
+}
 
 .bootstrap-select {
-  width: 120px !important; }
+  width: 120px !important;
+}
 
 label.disabled {
-  pointer-events: none; }
+  pointer-events: none;
+}
 
 .bootstrap-timepicker-widget table td input {
-  width: 32px !important; }
+  width: 32px !important;
+}
 
 .btn-group .btn.active {
-  color: white; }
+  color: white;
+}
 
 .ring-settings {
-  width: 100%; }
-  .ring-settings .timepicker-widget {
-    margin: 4px 0 4px 0; }
-    .ring-settings .timepicker-widget .timepicker {
-      width: 120px; }
+  width: 100%;
+}
+.ring-settings .timepicker-widget {
+  margin: 4px 0 4px 0;
+}
+.ring-settings .timepicker-widget .timepicker {
+  width: 120px;
+}
 
 h4.panel-heading {
-  margin-top: 0; }
+  margin-top: 0;
+}
 
 .competition-day.panel .panel-heading h4 {
-  display: inline-block; }
+  display: inline-block;
+}
 .competition-day.panel .panel-heading .day-settings {
   position: relative;
   top: -28px;
   left: 15px;
-  width: calc( 100% - 30px ); }
-  .competition-day.panel .panel-heading .day-settings a {
-    position: absolute;
-    top: 8px;
-    right: -20px; }
+  width: calc( 100% - 30px );
+}
+.competition-day.panel .panel-heading .day-settings a {
+  position: absolute;
+  top: 8px;
+  right: -20px;
+}
 .competition-day.panel .panel-body {
   background-color: #eee;
-  padding: 4px; }
+  padding: 4px;
+}
 .competition-day.panel form {
-  margin: 0; }
-  .competition-day.panel form .form-group {
-    margin: 0;
-    padding: 4px 0 8px 0; }
-    .competition-day.panel form .form-group span.form-control-feedback {
-      color: #999;
-      margin: 4px; }
-  .competition-day.panel form input.form-control {
-    border-radius: 0; }
-  .competition-day.panel form ul {
-    margin: 0; }
+  margin: 0;
+}
+.competition-day.panel form .form-group {
+  margin: 0;
+  padding: 4px 0 8px 0;
+}
+.competition-day.panel form .form-group span.form-control-feedback {
+  color: #999;
+  margin: 4px;
+}
+.competition-day.panel form input.form-control {
+  border-radius: 0;
+}
+.competition-day.panel form ul {
+  margin: 0;
+}
 
 ul.list-group-sortable-connected, ol.list-group-sortable-connected {
-  min-height: 40px; }
+  min-height: 40px;
+}
 
 .schedule {
-  width: 100%; }
-  .schedule td {
-    height: 8px; }
-    .schedule td.timeline {
-      width: 80px;
-      padding-right: 8px;
-      text-align: right;
-      vertical-align: top; }
-    .schedule td.ring {
-      padding-left: 8px;
-      padding-right: 8px; }
-    .schedule td.schedule-heading .ring-plan {
-      padding-top: 10px;
-      padding-bottom: 10px;
-      border-radius: 4px;
-      width: 100%; }
-      .schedule td.schedule-heading .ring-plan h4 {
-        margin: 0;
-        padding: 0; }
-    .schedule td .block {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      border-radius: 4px;
-      font-family: Lato; }
-      .schedule td .block .block-label {
-        font-size: 9pt;
-        position: relative;
-        top: 50%;
-        transform: translate(0, -50%);
-        text-align: center; }
-      .schedule td .block .block-division {
-        font-size: 9pt;
-        position: absolute;
-        top: 0px;
-        left: 8px;
-        opacity: 0.50; }
-      .schedule td .block .break-actions {
-        color: #ccc;
-        position: absolute;
-        top: 0;
-        right: 0; }
+  width: 100%;
+}
+.schedule td {
+  height: 8px;
+}
+.schedule td.timeline {
+  width: 80px;
+  padding-right: 8px;
+  text-align: right;
+  vertical-align: top;
+}
+.schedule td.ring {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.schedule td.schedule-heading .ring-plan {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 4px;
+  width: 100%;
+}
+.schedule td.schedule-heading .ring-plan h4 {
+  margin: 0;
+  padding: 0;
+}
+.schedule td .block {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  font-family: Lato;
+}
+.schedule td .block .block-label {
+  font-size: 9pt;
+  position: relative;
+  top: 50%;
+  transform: translate(0, -50%);
+  text-align: center;
+}
+.schedule td .block .block-division {
+  font-size: 9pt;
+  position: absolute;
+  top: 0px;
+  left: 8px;
+  opacity: 0.5;
+}
+.schedule td .block .break-actions {
+  color: #ccc;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 .ring-availability.single-ring {
-  width: 100px; }
+  width: 100px;
+}
 
 a.active {
   background-color: #cce5ff !important;
   border-color: #b8daff !important;
-  color: #004085 !important; }
+  color: #004085 !important;
+}
 
 #schedule-title {
-  display: none; }
+  display: none;
+}
 
 .action-bar {
-  padding: 4px 15px 4px 15px; }
-  .action-bar .actions {
-    text-align: right; }
+  padding: 4px 15px 4px 15px;
+}
+.action-bar .actions {
+  text-align: right;
+}
 
 .selected {
-  border: 1px dashed black; }
+  border: 1px dashed black;
+}
 
 .none {
   background-color: white;
   border: 1px solid black;
-  padding: -1px; }
+  padding: -1px;
+}
 
 .coed.youth, .coed.cadet, .freestyle.pair.youth, .freestyle.pair.cadet, .freestyle.team.youth, .freestyle.team.cadet {
   background-color: #B0E9E9 !important;
-  color: black !important; }
+  color: black !important;
+}
 .coed.junior, .coed.under30, .coed.over30, .freestyle.pair.junior, .freestyle.pair.under30, .freestyle.pair.over30, .freestyle.team.junior, .freestyle.team.under30, .freestyle.team.over30 {
   background-color: #7FCECE !important;
-  color: black !important; }
+  color: black !important;
+}
 
 .male.youth, .male.cadet, .male.junior, .male.under17 {
   background-color: #DEE5F6 !important;
-  color: black !important; }
+  color: black !important;
+}
 .male.under30, .male.under40, .male.over17 {
   background-color: #C6D0EA !important;
-  color: black !important; }
+  color: black !important;
+}
 .male.under50, .male.under60, .male.under65, .male.over65 {
   background-color: #ABB9DA !important;
-  color: black !important; }
+  color: black !important;
+}
 
 .female.youth, .female.cadet, .female.junior, .female.under17 {
   background-color: #FFDDC1 !important;
-  color: black !important; }
+  color: black !important;
+}
 .female.under30, .female.under40, .female.over17 {
   background-color: #FFCA9D !important;
-  color: black !important; }
+  color: black !important;
+}
 .female.under50, .female.under60, .female.under65, .female.over65 {
   background-color: #FFB77B !important;
-  color: black !important; }
+  color: black !important;
+}
 
 .error {
   background-color: #dc3545 !important;
-  color: white !important; }
+  color: white !important;
+}
 
 /*# sourceMappingURL=schedule.css.map */

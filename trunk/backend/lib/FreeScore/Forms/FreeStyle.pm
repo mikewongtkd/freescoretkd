@@ -62,7 +62,7 @@ sub init {
 sub create_division {
 # ============================================================
 	my $self     = shift;
-	my $divid    = shift;
+	my $divid    = shift; 
 	my $division = new FreeScore::Forms::FreeStyle::Division( $self->{ path }, $divid );
 
 	return $division;

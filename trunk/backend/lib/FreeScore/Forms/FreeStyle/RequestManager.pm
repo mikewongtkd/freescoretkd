@@ -624,7 +624,7 @@ sub handle_registration_import {
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
 		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->freestyle_poomsae( $settings );
+		my $divisions    = $registration->freestyle( $settings );
 		my $copy         = clone( $request ); delete $copy->{ data };
 
 		foreach my $subevent (keys %$divisions) {
@@ -632,7 +632,6 @@ sub handle_registration_import {
 				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
 				my $athletes                   = $divisions->{ $subevent }{ $key };
 				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
-				my $forms                      = assign_draws( $draws, $draw ) if $draws;
 				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes < 20 ) { $round = 'semfin'; }
 				my $division                   = $progress->create_division( $divid ); 
 				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];

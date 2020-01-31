@@ -84,9 +84,9 @@ sub description {
 		if   ( $age eq '10-11' ) { $group = 'Youths'; }
 		elsif( $age eq '12-14' ) { $group = 'Cadets'; }
 		elsif( $age eq '15-17' ) { $group = 'Juniors'; }
-		elsif( $age eq '12-17' ) { $group = 'Under 17' if $event eq 'Freestyle'; }
+		elsif( $age eq '12-17' ) { $group = 'Under 17' if $event =~ /freestyle/i; }
 		elsif( $age eq '18-30' ) { $group = 'Under 30'; }
-		elsif( $age eq '18-99' ) { $group = 'Over 17' if $event eq 'Freestyle'; }
+		elsif( $age eq '18+'   ) { $group = 'Over 17' if $event =~ /Freestyle/i; }
 		elsif( $age eq '31-40' ) { $group = 'Under 40'; }
 		elsif( $age eq '41-50' ) { $group = 'Under 50'; }
 		elsif( $age eq '51-60' ) { $group = 'Under 60'; }

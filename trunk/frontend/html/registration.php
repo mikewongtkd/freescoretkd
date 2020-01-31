@@ -86,7 +86,7 @@
 
 					<div class="drop-zones">
 						<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Division File Here</div>
-						<div class="file-drop-zone" id="male" action="#"><span class="fa fa-male">&nbsp;</span><br>Male<br>Division File Here</div>
+						<div class="file-drop-zone" id="male"   action="#"><span class="fa fa-male"  >&nbsp;</span><br>Male<br>Division File Here</div>
 					</div>
 				</div>
 			</div>
@@ -258,6 +258,8 @@ $( '#back-to-upload' ).off( 'click' ).click( ( ev ) => {
 });
 
 function remove_registration() {
+	// Do nothing unless all (e.g. recognized, freestyle, and sparring)
+	// registrations have been imported
 	if( ! Object.values( imported ).every( i => i )) { return; }
 
 	var request;
@@ -308,6 +310,7 @@ $( '.file-drop-zone' )
 					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
 					ws.worldclass.send( request.json );
+					ws.freestyle.send( request.json );
 					ws.sparring.send( request.json );
 				};
 			})( file );
@@ -613,10 +616,9 @@ function display_sparring_divisions( divisions ) {
 
 $( '#import' ).off( 'click' ).click(( ev ) => {
 	var request;
-	request = { data : { type : 'registration', action : 'import' }};
+	request = { data : { type : 'registration', action : 'archive' }};
 	request.json = JSON.stringify( request.data );
 	ws.worldclass.send( request.json );
-	ws.sparring.send( request.json );
 });
 
 ws.worldclass.onopen = () => {
@@ -629,12 +631,19 @@ ws.worldclass.onopen = () => {
 ws.worldclass.onmessage = ( response ) => {
 	var update = JSON.parse( response.data );
 	if( ! defined( update )) { return; }
-	console.log( update );
+	console.log( 'worldclass', update );
 
 	if( update.request.action == 'read' ) {
 		if( update.male   ) { dropzone.disable( 'male'   ); } else { dropzone.enable( 'male'   ); }
 		if( update.female ) { dropzone.disable( 'female' ); } else { dropzone.enable( 'female' ); }
 	
+	} else if( update.request.action == 'archive' ) {
+		request = { data : { type : 'registration', action : 'import' }};
+		request.json = JSON.stringify( request.data );
+		ws.worldclass.send( request.json );
+		ws.freestyle.send( request.json );
+		ws.sparring.send( request.json );
+
 	} else if( update.request.action == 'upload' ) {
 		sound.next.play();
 		page.transition( 2 );
@@ -654,7 +663,7 @@ ws.worldclass.onmessage = ( response ) => {
 			sound.send.play();
 			setTimeout(() => { window.location = 'index.php'; }, 750 );
 		} else {
-			alertify.error( 'Import failed for World Class Poomsae' );
+			alertify.error( 'Imported registration not properly cleared from cache.' );
 			sound.warning.play();
 		}
 	}
@@ -674,7 +683,7 @@ ws.freestyle.onopen = () => {
 ws.freestyle.onmessage = ( response ) => { 
 	var update = JSON.parse( response.data );
 	if( ! defined( update )) { return; }
-	console.log( update );
+	console.log( 'freestyle', update );
 
 	if( update.request.action == 'upload' ) {
 		display_freestyle_divisions( update.divisions );
@@ -705,7 +714,7 @@ ws.sparring.onopen = () => {
 ws.sparring.onmessage = ( response ) => { 
 	var update = JSON.parse( response.data );
 	if( ! defined( update )) { return; }
-	console.log( update );
+	console.log( 'sparring', update );
 
 	if( update.request.action == 'upload' ) {
 		display_sparring_divisions( update.divisions );

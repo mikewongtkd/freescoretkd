@@ -131,6 +131,7 @@ show.daySchedule = () => {
 		table.append( header );
 
 		// ===== SCHEDULE (FOR SEVERAL RINGS)
+		if( ! time.start ) { time.start = day.start; }
 		time.current  = time.set( time.start );
 		time.duration = defined( time.stop ) ? (time.set( time.stop ).getHours() - time.set( time.start ).getHours()) : 10;
 		for( var i = 0; i < (time.duration * scale.blocks.per.hour); i++ ) {
@@ -151,8 +152,9 @@ show.daySchedule = () => {
 			// ===== RINGS
 			for( var x = 0; x < w; x++ ) {
 				var j = (y * width) + (x + 1);
+				console.log( 'RING', y, width, x, j, n );
 				if( j <= n ) {
-					var id      = format.id( time.current );
+					var id   = format.id( time.current );
 					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}`, 'data-ringid' : `ring-${j}` });
 					tr.append( ring );
 				} else {
@@ -166,9 +168,8 @@ show.daySchedule = () => {
 		}
 
 		$( '.pt-page-1 #schedule' ).append( table );
-		var width = table.width();
 		var rings = table.find( '.ring.schedule-heading' );
-		rings.css({ width: Math.floor((width - 120)/rings.length) });
+		rings.css({ width: Math.floor((table.width() - 120)/rings.length) });
 
 	}
 	$( '.schedule' )

@@ -72,6 +72,7 @@ sub init {
 		transfer           => \&handle_ring_transfer,
 	};
 	$self->{ registration } = {
+		archive            => \&handle_registration_archive,
 		import             => \&handle_registration_import,
 		read               => \&handle_registration_read,
 		remove             => \&handle_registration_remove,
@@ -798,6 +799,33 @@ sub handle_division_write {
 }
 
 # ============================================================
+sub handle_registration_archive {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Archiving previous registration\n" if $DEBUG;
+	
+	try {
+		# ===== MAKE ARCHIVE & CLEAR PREVIOUS VALUES
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+		my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", ($year + 1900), ($mon + 1), $mday, $hour, $min );
+
+		`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass forms-freestyle sparring-olympic`;
+		`cd $path && rm -rf forms-grassroots/*/div*.txt`;
+		`cd $path && rm -rf forms-freestyle/*/div*.txt`;
+		`cd $path && rm -rf forms-worldclass/*/div*.txt`;
+		`cd $path && rm -rf forms-worldclass/schedule.json`;
+
+		$client->send({ json => { request => $request, archive => $archive }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_registration_import {
 # ============================================================
 	my $self     = shift;
@@ -813,16 +841,6 @@ sub handle_registration_import {
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
 	my $draws = $progress->{ draws };
-
-	# ===== MAKE ARCHIVE & CLEAR PREVIOUS VALUES
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
-	my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", $year + 1900, $mon, $mday, $hour, $min );
-
-	`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass forms-freestyle sparring-olympic`;
-	`cd $path && rm -rf forms-grassroots/*/div*.txt`;
-	`cd $path && rm -rf forms-freestyle/*/div*.txt`;
-	`cd $path && rm -rf forms-worldclass/*/div*.txt`;
-	`cd $path && rm -rf forms-worldclass/schedule.json`;
 
 	# ===== IMPORT
 	try {
@@ -856,7 +874,7 @@ sub handle_registration_import {
 		}
 		$client->send({ json => { request => $copy, result => 'success' }});
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send( { json => { error => "$_", result => 'failure' }});
 	}
 }
 
