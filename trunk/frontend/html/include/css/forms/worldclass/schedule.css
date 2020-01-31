@@ -208,12 +208,21 @@ a.active {
   padding: -1px;
 }
 
-.coed.youth, .coed.cadet, .freestyle.pair.youth, .freestyle.pair.cadet, .freestyle.team.youth, .freestyle.team.cadet {
+.coed.youth, .coed.cadet {
   background-color: #B0E9E9 !important;
   color: black !important;
 }
-.coed.junior, .coed.under30, .coed.over30, .freestyle.pair.junior, .freestyle.pair.under30, .freestyle.pair.over30, .freestyle.team.junior, .freestyle.team.under30, .freestyle.team.over30 {
+.coed.junior, .coed.under30, .coed.over30 {
   background-color: #7FCECE !important;
+  color: black !important;
+}
+
+.freestyle.pair.under17, .freestyle.team.under17 {
+  background-color: #FFEAC1 !important;
+  color: black !important;
+}
+.freestyle.pair.over17, .freestyle.team.over17 {
+  background-color: #FFD37B !important;
   color: black !important;
 }
 
@@ -221,7 +230,7 @@ a.active {
   background-color: #DEE5F6 !important;
   color: black !important;
 }
-.male.under30, .male.under40, .male.over17 {
+.male.under30, .male.under40, .male.over17, .male.over30 {
   background-color: #C6D0EA !important;
   color: black !important;
 }
@@ -234,7 +243,7 @@ a.active {
   background-color: #FFDDC1 !important;
   color: black !important;
 }
-.female.under30, .female.under40, .female.over17 {
+.female.under30, .female.under40, .female.over17, .female.over30 {
   background-color: #FFCA9D !important;
   color: black !important;
 }

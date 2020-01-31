@@ -152,13 +152,12 @@ show.daySchedule = () => {
 			// ===== RINGS
 			for( var x = 0; x < w; x++ ) {
 				var j = (y * width) + (x + 1);
-				console.log( 'RING', y, width, x, j, n );
 				if( j <= n ) {
 					var id   = format.id( time.current );
 					var ring = html.td.clone().addClass( `ring ring-${j}` ).attr({ id : `ring-${j}-${id}`, 'data-ringid' : `ring-${j}` });
 					tr.append( ring );
 				} else {
-					var placeholder = html.td.clone().addClass( `ring` ).html( '&nbsp;' );
+					var placeholder = html.td.clone().addClass( `ring` );
 					tr.append( placeholder );
 				}
 			}

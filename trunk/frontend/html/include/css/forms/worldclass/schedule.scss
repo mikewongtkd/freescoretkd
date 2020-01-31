@@ -186,20 +186,25 @@ a.active {
 // .male   { background-color: #b0e9e9 !important; }
 // .female { background-color: #ffc0c0 !important; }
 
-.coed, .freestyle.pair, .freestyle.team {
+.coed {
 	&.youth, &.cadet                          { background-color: #B0E9E9 !important; color: black !important; }
 	&.junior, &.under30, &.over30             { background-color: #7FCECE !important; color: black !important; }
 }
 
+.freestyle.pair, .freestyle.team {
+	&.under17                                 { background-color: #FFEAC1 !important; color: black !important; }
+	&.over17                                  { background-color: #FFD37B !important; color: black !important; }
+}
+
 .male {
 	&.youth, &.cadet, &.junior, &.under17     { background-color: #DEE5F6 !important; color: black !important; }
-	&.under30, &.under40, &.over17            { background-color: #C6D0EA !important; color: black !important; }
+	&.under30, &.under40, &.over17, &.over30  { background-color: #C6D0EA !important; color: black !important; }
 	&.under50, &.under60, &.under65, &.over65 { background-color: #ABB9DA !important; color: black !important; }
 }
 
 .female {
 	&.youth, &.cadet, &.junior, &.under17     { background-color: #FFDDC1 !important; color: black !important; }
-	&.under30, &.under40, &.over17            { background-color: #FFCA9D !important; color: black !important; }
+	&.under30, &.under40, &.over17, &.over30  { background-color: #FFCA9D !important; color: black !important; }
 	&.under50, &.under60, &.under65, &.over65 { background-color: #FFB77B !important; color: black !important; }
 }
 

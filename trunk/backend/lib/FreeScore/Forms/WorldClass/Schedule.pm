@@ -125,6 +125,19 @@ sub init {
 			push @blocks, $semfin unless first { $_->{ id } eq $semfin->{ id } } @blocks; 
 			push @blocks, $finals unless first { $_->{ id } eq $finals->{ id } } @blocks;
 
+		# ===== START WITH UNFLIGHTABLE PRELIMINARY ROUND
+		} elsif( $division->{ round } eq 'prelim' && $n == 20 ) {
+			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 20, 'prelim' );
+
+			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 10, 'semfin' );
+			$semfin->preconditions( @$prelim );
+
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+			$finals->preconditions( $semfin );
+
+			push @blocks, $semfin unless first { $_->{ id } eq $semfin->{ id } } @blocks; 
+			push @blocks, $finals unless first { $_->{ id } eq $finals->{ id } } @blocks;
+
 		# ===== START WITH SEMI-FINALS
 		} elsif( $n > 8 ) {
 			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
