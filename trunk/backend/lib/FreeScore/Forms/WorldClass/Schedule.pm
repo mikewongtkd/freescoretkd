@@ -53,13 +53,18 @@ sub init {
 		my $semfin = undef;
 		my $n = $division->{ athletes };
 		if( $self->{ teams } =~ /individual/i ) {
-			if( $division->{ description } =~ /pair/i ) { $n = ceil( $n/2 ); }
-			if( $division->{ description } =~ /team/i ) { $n = ceil( $n/3 ); }
+			if( $division->{ description } =~ /freestyle/i ) {
+				if( $division->{ description } =~ /pair/i ) { $n = ceil( $n/2 ); }
+				if( $division->{ description } =~ /team/i ) { $n = ceil( $n/5 ); }
+			} else {
+				if( $division->{ description } =~ /pair/i ) { $n = ceil( $n/2 ); }
+				if( $division->{ description } =~ /team/i ) { $n = ceil( $n/3 ); }
+			}
 		}
 
 		# ===== FREESTYLE EVENT
 		if( exists $division->{ freestyle } && $division->{ freestyle }) {
-			if( $division->{ round } eq 'prelim' ) {
+			if( $n >= 20 ) {
 				my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'prelim' );
 				my $k      = ceil( $n/2 );
 				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'semfin' );
@@ -69,14 +74,14 @@ sub init {
 				$finals->preconditions( $semfin );
 				push @blocks, $prelim, $semfin, $finals;
 
-			} elsif( $division->{ round } eq 'semfin' ) {
+			} elsif( $n > 9 ) {
 				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
 				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
 
 				$finals->preconditions( $semfin );
 				push @blocks, $semfin, $finals;
 
-			} elsif( $division->{ round } eq 'finals' ) {
+			} else {
 				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'finals' );
 				push @blocks, $finals;
 			}
@@ -127,16 +132,14 @@ sub init {
 
 		# ===== START WITH UNFLIGHTABLE PRELIMINARY ROUND
 		} elsif( $division->{ round } eq 'prelim' && $n == 20 ) {
-			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 20, 'prelim' );
-
+			my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 20, 'prelim' );
 			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 10, 'semfin' );
-			$semfin->preconditions( @$prelim );
-
 			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+
+			$semfin->preconditions( $prelim );
 			$finals->preconditions( $semfin );
 
-			push @blocks, $semfin unless first { $_->{ id } eq $semfin->{ id } } @blocks; 
-			push @blocks, $finals unless first { $_->{ id } eq $finals->{ id } } @blocks;
+			push @blocks, $prelim, $semfin, $finals;
 
 		# ===== START WITH SEMI-FINALS
 		} elsif( $n > 8 ) {

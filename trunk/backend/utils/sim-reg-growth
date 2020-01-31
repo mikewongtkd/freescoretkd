@@ -35,12 +35,12 @@ sub wanted {
 		return;
 	}
 
-	foreach my $i ( 0 .. $k ) {
+	foreach my $i ( 0 .. ($k - 1)) {
 		my $name = sprintf( "Sim %s", uc( substr( sha1_hex( $i . ' ' . localtime ), 0, 8 )));
 		push @$athletes, { name => $name };
 	}
 	printf( "Found %s with %d athletes, growing to %d\n", $File::Find::name, $n, $m ) if $k > 0;
-	print map { "  $_->{ name }\n" } @$athletes;
+	print "  $_->{ name }\n" foreach @$athletes;
 
 	my $round = undef;
 	if   ( $m >= 20 ) { $round = $div->{ round } = 'prelim'; }
