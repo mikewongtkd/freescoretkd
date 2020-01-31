@@ -99,12 +99,12 @@ show.daySchedule = () => {
 	var day   = schedule.days[ settings.current.day ];
 	var n     = day.rings.length;
 
+	if( Number.isInteger(n/5)) { scale.blocks.per.table = 5; } else
 	if( Number.isInteger(n/4)) { scale.blocks.per.table = 4; } else
 	if( Number.isInteger(n/3)) { scale.blocks.per.table = 3; } else // Default is 3
 	if( Number.isInteger(n/2)) { scale.blocks.per.table = 2; }
 
 	var width = scale.blocks.per.table;
-	var w     = n >= width ? width : n;
 	var h     = Math.ceil( n/width );
 	for( var y = 0; y < h; y++ ) {
 		// ===== TABLE
@@ -115,7 +115,7 @@ show.daySchedule = () => {
 
 		header.append( timeline );
 
-		for( var x = 0; x < w; x++ ) {
+		for( var x = 0; x < width; x++ ) {
 			var i = (y * width) + x;
 			if( i < n ) {
 				var ring    = day.rings[ i ];
@@ -150,7 +150,7 @@ show.daySchedule = () => {
 			}
 
 			// ===== RINGS
-			for( var x = 0; x < w; x++ ) {
+			for( var x = 0; x < width; x++ ) {
 				var j = (y * width) + (x + 1);
 				if( j <= n ) {
 					var id   = format.id( time.current );
