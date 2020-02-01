@@ -103,7 +103,7 @@ sub match {
 		freestyle  => { rank => 0, pattern => qr/freestyle/i },
 
 		# ===== GENDERS
-		coed       => { rank => 1, pattern => qr/coed|mixed/i },
+		mixed      => { rank => 1, pattern => qr/mixed/i },
 		male       => { rank => 1, pattern => qr/\bmale/i },
 		female     => { rank => 1, pattern => qr/\bfemale/i },
 
@@ -218,6 +218,8 @@ sub preconditions {
 # ============================================================
 sub nonconcurrences {
 # ============================================================
+# This is the master list of block concurrency conflicts
+# ------------------------------------------------------------
 	my $self      = shift;
 	my $divisions = shift;
 
@@ -230,24 +232,24 @@ sub nonconcurrences {
 		"male team youth"                     => [ "pair youth", "male individual youth" ],
 		"female team youth"                   => [ "pair youth", "female individual youth" ],
 		"pair youth"                          => [ "male individual youth", "female individual youth", "male team youth", "female team youth" ],
-		"freestyle male individual under17"   => [ "male individual cadet", "pair cadet", "male team cadet", "male individual junior", "pair junior", "male team junior", "freestyle pair under17", "freestyle team under17" ],
-		"freestyle female individual under17" => [ "female individual cadet", "pair cadet", "female team cadet", "female individual junior", "pair junior", "female team junior", "freestyle pair under17", "freestyle team under17" ],
-		"freestyle pair under17"              => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual under17", "freestyle female individual under17", "freestyle team under17" ],
-		"freestyle team under17"              => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual under17", "freestyle female individual under17", "freestyle pair under17" ],
-		"male individual cadet"               => [ "pair cadet", "male team cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"female individual cadet"             => [ "pair cadet", "female team cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"male team cadet"                     => [ "pair cadet", "male individual cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"female team cadet"                   => [ "pair cadet", "female individual cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"pair cadet"                          => [ "male individual cadet", "female individual cadet", "male team cadet", "female team cadet", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"male individual junior"              => [ "pair junior", "male team junior", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"female individual junior"            => [ "pair junior", "female team junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"male team junior"                    => [ "pair junior", "male individual junior", "freestyle male individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"female team junior"                  => [ "pair junior", "female individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"pair junior"                         => [ "male individual junior", "female individual junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle team junior" ],
-		"freestyle male individual over17"    => [ "male individual under30", "pair under30", "male team under30", "male individual under40", "pair over30", "male team over30", "freestyle pair over17", "freestyle team over17" ],
-		"freestyle female individual over17"  => [ "female individual under30", "pair under30", "female team under30", "female individual under40", "pair over30", "female team over30", "freestyle pair over17", "freestyle team over17" ],
-		"freestyle pair over17"               => [ "male individual under30", "female individual under30", "pair under30", "male team under30", "female team under30", "male individual under40", "female individual under40", "pair over30", "male team over30", "female team over30", "freestyle male individual over17", "freestyle female individual over17", "freestyle team over17" ],
-		"freestyle team over17"               => [ "male individual under30", "female individual under30", "pair under30", "male team under30", "female team under30", "male individual under40", "female individual under40", "pair over30", "male team over30", "female team over30", "freestyle male individual over17", "freestyle female individual over17", "freestyle pair over17" ],
+		"freestyle male individual under17"   => [ "male individual cadet", "pair cadet", "male team cadet", "male individual junior", "pair junior", "male team junior", "freestyle pair under17", "freestyle mixed team under17" ],
+		"freestyle female individual under17" => [ "female individual cadet", "pair cadet", "female team cadet", "female individual junior", "pair junior", "female team junior", "freestyle pair under17", "freestyle mixed team under17" ],
+		"freestyle pair under17"              => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual under17", "freestyle female individual under17", "freestyle mixed team under17" ],
+		"freestyle mixed team under17"        => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual under17", "freestyle female individual under17", "freestyle pair under17" ],
+		"male individual cadet"               => [ "pair cadet", "male team cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female individual cadet"             => [ "pair cadet", "female team cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"male team cadet"                     => [ "pair cadet", "male individual cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female team cadet"                   => [ "pair cadet", "female individual cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"pair cadet"                          => [ "male individual cadet", "female individual cadet", "male team cadet", "female team cadet", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"male individual junior"              => [ "pair junior", "male team junior", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female individual junior"            => [ "pair junior", "female team junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"male team junior"                    => [ "pair junior", "male individual junior", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female team junior"                  => [ "pair junior", "female individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"pair junior"                         => [ "male individual junior", "female individual junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"freestyle male individual over17"    => [ "male individual under30", "pair under30", "male team under30", "male individual under40", "pair over30", "male team over30", "freestyle pair over17", "freestyle mixed team over17" ],
+		"freestyle female individual over17"  => [ "female individual under30", "pair under30", "female team under30", "female individual under40", "pair over30", "female team over30", "freestyle pair over17", "freestyle mixed team over17" ],
+		"freestyle pair over17"               => [ "male individual under30", "female individual under30", "pair under30", "male team under30", "female team under30", "male individual under40", "female individual under40", "pair over30", "male team over30", "female team over30", "freestyle male individual over17", "freestyle female individual over17", "freestyle mixed team over17" ],
+		"freestyle mixed team over17"         => [ "male individual under30", "female individual under30", "pair under30", "male team under30", "female team under30", "male individual under40", "female individual under40", "pair over30", "male team over30", "female team over30", "freestyle male individual over17", "freestyle female individual over17", "freestyle pair over17" ],
 		"male individual under30"             => [ "pair under30", "male team under30" ],
 		"female individual under30"           => [ "pair under30", "female team under30" ],
 		"male team under30"                   => [ "pair under30", "male individual under30" ],
