@@ -46,6 +46,11 @@ sub init {
 	$self->{ ring }        = {
 		read               => \&handle_ring_read,
 	};
+	$self->{ registration } = {
+		import             => \&handle_registration_import,
+		read               => \&handle_registration_read,
+		upload             => \&handle_registration_upload,
+	};
 	$self->{ schedule }    = {
 		call               => \&handle_schedule_call,
 		checkin            => \&handle_schedule_checkin,
@@ -206,6 +211,129 @@ sub handle_division_score {
 # ============================================================
 sub handle_division_write {
 # ============================================================
+}
+
+# ============================================================
+sub handle_registration_import {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	
+	print STDERR "Importing USAT Registration information.\n" if $DEBUG;
+
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
+	my $json = new JSON::XS();
+	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
+
+
+	# ===== IMPORT
+	try {
+		my $settings     = $request->{ settings };
+		my $female       = read_file( "$path/registration.female.txt" );
+		my $male         = read_file( "$path/registration.male.txt" );
+		my $registration = new FreeScore::Registration::USAT( $female, $male );
+		my $divisions    = $registration->grassroots_poomsae( $settings );
+		my $copy         = clone( $request ); delete $copy->{ data };
+
+		foreach my $subevent (keys %$divisions) {
+			foreach my $key (keys %{$divisions->{ $subevent }}) {
+				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
+				my $athletes                   = $divisions->{ $subevent }{ $key };
+				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
+				my $division                   = $progress->create_division( $divid ); 
+				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
+				$division->{ current }         = 0;
+				$division->{ description }     = $description;
+				$division->{ judges }          = 3;
+
+				print STDERR "  $divid: $description\n" if $DEBUG;
+				$division->write();
+			}
+		}
+		$client->send({ json => { request => $copy, result => 'success' }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_registration_read {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Reading USAT Registration information\n" if $DEBUG;
+	
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
+
+	try {
+		my $female    = "$path/registration.female.txt";
+		my $male      = "$path/registration.male.txt";
+		my $copy      = clone( $request );
+		my $divisions = undef;
+		if( -e $male && -e $female ) {
+			$female = read_file( $female );
+			$male   = read_file( $male );
+			my $registration  = new FreeScore::Registration::USAT( $female, $male );
+			$divisions        = $registration->grassroots_poomsae();
+			$copy->{ action } = 'upload';
+
+			$female = \1;
+			$male   = \1;
+		} 
+		elsif( -e $male   ) { $female = \0; $male = \1; }
+		elsif( -e $female ) { $female = \1; $male = \0; }
+		else                { $female = \0; $male = \0; }
+		$client->send({ json => { request => $copy, male => $male, female => $female, divisions => $divisions }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_registration_upload {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Uploading USAT Registration $request->{ gender } information\n" if $DEBUG;
+	
+	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
+	return unless defined $gender;
+
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
+
+	try {
+		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
+
+	} catch {
+		print STDERR "Error: $_\n";
+		$client->send( { json => { error => "$_" }});
+	}
+	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
+
+	try {
+		my $female       = read_file( "$path/registration.female.txt" );
+		my $male         = read_file( "$path/registration.male.txt" );
+		my $registration = new FreeScore::Registration::USAT( $female, $male );
+		my $divisions    = $registration->grassroots_poomsae();
+		my $copy         = clone( $request ); delete $copy->{ data };
+
+		$client->send({ json => { request => $copy, divisions => $divisions }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================

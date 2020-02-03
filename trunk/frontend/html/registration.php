@@ -170,7 +170,7 @@
 
 							<div class="panel panel-primary freestyle" id="red-belt-individuals">
 								<div class="panel-heading">
-									<div class="panel-title">Black Belt Individuals</div>
+									<div class="panel-title">Red Belt Individuals</div>
 								</div>
 								<div class="panel-body subevent">
 									<table>
@@ -180,7 +180,7 @@
 
 							<div class="panel panel-primary freestyle" id="black-belt-individuals">
 								<div class="panel-heading">
-									<div class="panel-title">Red Belt Individuals</div>
+									<div class="panel-title">Black Belt Individuals</div>
 								</div>
 								<div class="panel-body subevent">
 									<table>
@@ -239,6 +239,7 @@
 								<div class="panel-body subevent">
 									<table>
 									</table>
+									<p class="pull-right" style="margin-top: 12px;"><span style="color: #337ab7;"><b>Exhibition Matches</b> are marked in blue.</span></p>
 								</div>
 							</div>
 
@@ -249,6 +250,7 @@
 								<div class="panel-body subevent">
 									<table>
 									</table>
+									<p class="pull-right" style="margin-top: 12px;"><span style="color: #337ab7;"><b>Exhibition Matches</b> are marked in blue.</span></p>
 								</div>
 							</div>
 						</div>
@@ -290,14 +292,22 @@ var page = {
 };
 
 var ws = {
-	worldclass : new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' ),
-	freestyle  : new WebSocket( 'ws://' + host + ':3082/freestyle/' + tournament.db + '/staging' ),
-	sparring   : new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
-	// grassroots : new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
+	all : {
+		send : ( request ) => {
+			ws.worldclass.send( request );
+			ws.grassroots.send( request );
+			ws.freestyle.send( request );
+			ws.sparring.send( request );
+		}
+	},
+	worldclass : new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging` ),
+	grassroots : new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/staging` ),
+	freestyle  : new WebSocket( `ws://${host}:3082/freestyle/${tournament.db}/staging` ),
+	sparring   : new WebSocket( `ws://${host}:3086/sparring/${tournament.db}/staging` ),
 };
 
 var registration = { male: '', female: '' };
-var imported     = { poomsae: false, freestyle: false, sparring: false };
+var imported     = { worldclass: false, grassroots: false, freestyle: false, sparring: false };
 var dropzone     = { 
 	disable: ( target ) => {
 		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
@@ -364,9 +374,7 @@ $( '.file-drop-zone' )
 					var request;
 					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
-					ws.worldclass.send( request.json );
-					ws.freestyle.send( request.json );
-					ws.sparring.send( request.json );
+					ws.all.send( request.json );
 				};
 			})( file );
 
@@ -428,9 +436,7 @@ ws.worldclass.onmessage = ( response ) => {
 	} else if( update.request.action == 'archive' ) {
 		request = { data : { type : 'registration', action : 'import' }};
 		request.json = JSON.stringify( request.data );
-		ws.worldclass.send( request.json );
-		ws.freestyle.send( request.json );
-		ws.sparring.send( request.json );
+		ws.all.send( request.json );
 
 	} else if( update.request.action == 'upload' ) {
 		sound.next.play();
@@ -439,7 +445,7 @@ ws.worldclass.onmessage = ( response ) => {
 
 	} else if( update.request.action == 'import' ) {
 		if( update.result == 'success' ) {
-			imported.poomsae = true;
+			imported.worldclass = true;
 			remove_registration();
 
 		} else {
@@ -459,6 +465,37 @@ ws.worldclass.onmessage = ( response ) => {
 
 ws.worldclass.onerror = () => {
 	alertify.error( 'Error contacting World Class Poomsae service' );
+};
+
+ws.grassroots.onopen = () => {
+	var request;
+	request = { data : { type : 'registration', action : 'read' }};
+	request.json = JSON.stringify( request.data );
+	ws.grassroots.send( request.json );
+};
+
+ws.grassroots.onmessage = ( response ) => {
+	var update = JSON.parse( response.data );
+	if( ! defined( update )) { return; }
+	console.log( 'grassroots', update );
+
+	if( update.request.action == 'upload' ) {
+		display_grassroots_divisions( update.divisions );
+
+	} else if( update.request.action == 'import' ) {
+		if( update.result == 'success' ) {
+			imported.grassroots = true;
+			remove_registration();
+
+		} else {
+			alertify.error( 'Import failed for Grassroots Poomsae' );
+			sound.warning.play();
+		}
+	}
+};
+
+ws.grassroots.onerror = () => {
+	alertify.error( 'Error contacting Grassroots Poomsae service' );
 };
 
 ws.freestyle.onopen = () => {

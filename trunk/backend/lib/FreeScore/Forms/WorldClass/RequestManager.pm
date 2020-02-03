@@ -848,7 +848,7 @@ sub handle_registration_import {
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
 		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->world_class_poomsae( $settings );
+		my $divisions    = $registration->worldclass_poomsae( $settings );
 		my $copy         = clone( $request ); delete $copy->{ data };
 
 		foreach my $subevent (keys %$divisions) {
@@ -912,7 +912,7 @@ sub handle_registration_upload {
 		my $female       = read_file( "$path/registration.female.txt" );
 		my $male         = read_file( "$path/registration.male.txt" );
 		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->world_class_poomsae();
+		my $divisions    = $registration->worldclass_poomsae();
 		my $copy         = clone( $request ); delete $copy->{ data };
 
 		$client->send({ json => { request => $copy, divisions => $divisions }});
@@ -943,7 +943,7 @@ sub handle_registration_read {
 			$female = read_file( $female );
 			$male   = read_file( $male );
 			my $registration = new FreeScore::Registration::USAT( $female, $male );
-			my $poomsae      = $registration->world_class_poomsae();
+			my $poomsae      = $registration->worldclass_poomsae();
 			@divisions       = ( divisions => $poomsae );
 			$copy->{ action } = 'upload';
 

@@ -112,8 +112,6 @@ sub divid {
 		my $id = {
 			gender => { c => 0, m => 1, f => 2 },
 			event  => { individual => 3, pair => 13, team => 23 },
-			belt   => { yellow => 'y', green => 'g', blue => 'b', red => 'r', black => 'k' },
-			rank   => { y => 400, g => 300, b => 200, r => 100, k => 0 }
 		};
 		my $gender  = lc substr( $d->{ gender }, 0, 1 ) || 'c';
 		my ($event) = $s =~ /(pair|team)/i; $event ||= 'individual';
@@ -154,6 +152,13 @@ sub divid {
 				'15' => 4, '18' => 5, '31' => 6 
 			};
 			$id->{ division } = $index->{ "$age" } * 3;
+		}
+
+		foreach my $belt (keys %{ $id->{ belt }}) {
+			next unless ( $event =~ /\b$belt\b/i );
+			my $rank = $id->{ belt }{ $belt };
+			$divid += $id->{ rank }{ $rank };
+			last;
 		}
 
 		$divid = 0;
@@ -213,6 +218,29 @@ sub freestyle {
 	my $freestyle = { map { $_ => $self->{ $_ } } sort grep { /freestyle/i } keys %$self };
 
 	return $freestyle;
+}
+
+# ============================================================
+sub grassroots_poomsae {
+# ============================================================
+	my $self     = shift;
+	my $settings = shift;
+	my $json     = new JSON::XS();
+
+	$poomsae = { map { 
+		my $key = $_; 
+		$key => { map { 
+			$_ => $self->{ $key }{ $_ } 
+			} grep { 
+				my $d    = $json->decode( $_ );
+				my $age  = int( $d->{ age });
+				my $belt = $d->{ belt };
+
+				$belt !~ /black/i || $age < 10;
+			} keys %{$self->{ $_ }} 
+		}} sort grep { !/(?:sparring|breaking|pair|team|freestyle|para)/i } keys %$self };
+
+	return $poomsae;
 }
 
 # ============================================================
@@ -308,7 +336,7 @@ sub sparring {
 }
 
 # ============================================================
-sub world_class_poomsae {
+sub worldclass_poomsae {
 # ============================================================
 	my $self     = shift;
 	my $settings = shift;
@@ -319,7 +347,7 @@ sub world_class_poomsae {
 	if( $count > 0 ) { return $poomsae; }
 	return $poomsae if $count;
 
-	my $min_age = $settings->{ 'youth-sport-poosmae' } ? 10 : 12;
+	my $min_age = $settings->{ 'min_age' } || 10;
 
 	$poomsae = { map { 
 		my $orig = $_; 

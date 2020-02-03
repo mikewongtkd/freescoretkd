@@ -52,12 +52,13 @@ function display_sparring_divisions( divisions ) {
 			if( i <  j ) { return -1; }
 		})) {
 			for( var gender in subevents[ name ][ subevent ] ) {
-				var athletes  = Object.values( subevents[ name ][ subevent ][ gender ]).map(( i ) => { return i.length; }).reduce(( acc, cur ) => { return acc + cur; });
-				var tr        = html.tr.clone();
-				var d         = Object.keys( subevents[ name ][ subevent ][ gender ])[ 0 ];
-				var evnt      = sparring_division_description( subevent, gender, d );
-				var matches   = 0;
-				var divisions = Object.keys( subevents[ name ][ subevent ][ gender ]);
+				var athletes    = Object.values( subevents[ name ][ subevent ][ gender ]).map(( i ) => { return i.length; }).reduce(( acc, cur ) => { return acc + cur; });
+				var tr          = html.tr.clone();
+				var d           = Object.keys( subevents[ name ][ subevent ][ gender ])[ 0 ];
+				var evnt        = sparring_division_description( subevent, gender, d );
+				var matches     = 0;
+				var divisions   = Object.keys( subevents[ name ][ subevent ][ gender ]);
+				var exhibitions = Math.ceil( athletes / 2 );
 				divisions.forEach(( division ) => {
 					var athletes = subevents[ name ][ subevent ][ gender ][ division ];
 					var n = athletes.length;
@@ -66,13 +67,13 @@ function display_sparring_divisions( divisions ) {
 				var row  = {
 					name       : html.td.clone().html( evnt ),
 					categories : html.td.clone().addClass( 'count' ).html( divisions.length ),
-					matches    : html.td.clone().addClass( 'count' ).html( matches ),
+					matches    : html.td.clone().addClass( 'count' ).html( matches ? matches : `<span style="color:#337ab7;">${exhibitions}</span>` ),
 					count      : html.td.clone().addClass( 'count' ).html( athletes )
 				};
 				tr.append( row.name, row.categories, row.matches, row.count );
 				table.append( tr );
 				count.divisions += divisions.length;
-				count.matches   += matches;
+				count.matches   += (matches ? matches : exhibitions);
 				count.athletes  += athletes;
 			}
 		}

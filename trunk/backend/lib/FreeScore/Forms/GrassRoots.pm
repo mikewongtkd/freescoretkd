@@ -47,4 +47,16 @@ sub init {
 	}
 }
 
+# ============================================================
+sub create_division {
+# ============================================================
+	my $self     = shift;
+	my $divid    = shift;
+	my $division = new FreeScore::Forms::Grassroots::Division( $self->{ path }, $divid );
+
+	$division->{ file } = "$self->{ path }/div.$divid.txt";
+
+	return $division;
+}
+
 1;
