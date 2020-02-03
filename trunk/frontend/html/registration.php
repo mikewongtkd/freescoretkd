@@ -98,7 +98,8 @@
 					</div>
 
 					<ul class="nav nav-tabs">
-						<li class="active"><a data-toggle="tab" href="#poomsae-divisions">Poomsae Divisions</a></li>
+						<li class="active"><a data-toggle="tab" href="#poomsae-divisions">World Class Poomsae Divisions</a></li>
+						<li><a data-toggle="tab" href="#grassroots-poomsae-divisions">Grassroots Poomsae Divisions</a></li>
 						<li><a data-toggle="tab" href="#freestyle-divisions">Freestyle Divisions</a></li>
 						<li><a data-toggle="tab" href="#sparring-divisions">Sparring Divisions</a></li>
 					</ul>
@@ -135,6 +136,59 @@
 								</div>
 							</div>
 						</div>
+
+						<div class="tab-pane fade in" id="grassroots-poomsae-divisions">
+							<div class="panel panel-primary freestyle" id="yellow-belt-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Yellow Belt Individuals</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary freestyle" id="green-belt-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Green Belt Individuals</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary freestyle" id="blue-belt-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Blue Belt Individuals</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary freestyle" id="red-belt-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Black Belt Individuals</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+								</div>
+							</div>
+
+							<div class="panel panel-primary freestyle" id="black-belt-individuals">
+								<div class="panel-heading">
+									<div class="panel-title">Red Belt Individuals</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+								</div>
+							</div>
+						</div>
+
 						<div class="tab-pane fade in" id="freestyle-divisions">
 							<div class="panel panel-primary freestyle" id="freestyle-individuals">
 								<div class="panel-heading">
@@ -166,6 +220,7 @@
 								</div>
 							</div>
 						</div>
+
 						<div class="tab-pane fade in" id="sparring-divisions">
 							<div class="panel panel-primary sparring" id="worldclass-sparring">
 								<div class="panel-heading">
@@ -320,207 +375,16 @@ $( '.file-drop-zone' )
 
 	});
 
-function sport_poomsae_division_description( s, d ) {
-	d = JSON.parse( d );
-	d = d.gender + ' ' + d.age;
-	var format = '';
-	if( s.match( /pair/i ))      { format = 'Pair' }
-	else if( s.match( /team/i )) { format = 'Team' }
-	else                         { format = 'Individual' }
-	d = d.replace( /10-11/, 'Youths' );
-	d = d.replace( /12-14/, 'Cadets' );
-	d = d.replace( /15-17/, 'Juniors' );
-	d = d.replace( /18-30/, 'Under 30' );
-	d = d.replace( /31-40/, 'Under 40' );
-	d = d.replace( /41-50/, 'Under 50' );
-	d = d.replace( /51-60/, 'Under 60' );
-	d = d.replace( /61-65/, 'Under 65' );
-	d = d.replace( /66-99/, 'Over 65' );
-	d = d.replace( /31-99/, 'Over 30' );
-	d = d.replace( /black all/, '' );
-	d = d.replace( /coed/, format );
-	d = d.replace( /female/, 'Female ' + format );
-	d = d.replace( /\bmale/, 'Male ' + format );
-
-	return d;
-};
-
 var th = { count : ( text ) => { return html.th.clone().addClass( 'count' ).html( text ); }, div : ( text ) => { return html.th.clone().addClass( 'division' ).html( text ); }};
 var td = { count : ( text ) => { return html.td.clone().addClass( 'count' ).html( text ); }, div : ( text ) => { return html.td.clone().addClass( 'division' ).html( text ); }};
 
-function display_sport_poomsae_divisions( divisions ) {
-	var map = {
-		'world class poomsae'       : 'worldclass-individuals',
-		'world class pairs poomsae' : 'worldclass-pairs',
-		'world class team poomsae'  : 'worldclass-teams',
-	};
+<?php 
+	include( "registration/worldclass.js" );
+	include( "registration/grassroots.js" );
+	include( "registration/freestyle.js" );
+	include( "registration/sparring.js" );
+?>
 
-	for( var subevent of Object.keys( map )) {
-		if( !( subevent in divisions )) { continue; }
-		var id    = '#' + map[ subevent ] + ' .panel-body table';
-		var table = $( id );
-		table.empty();
-		var tr = html.tr.clone();
-		tr.append( th.div( 'Division' ).attr({ 'valign': 'bottom' }));
-		if( subevent.match( /pair/i)) {
-			tr.append( th.count( 'Athletes' ), th.count( 'Pairs' ));
-
-		} else if( subevent.match( /team/i )) {
-			tr.append( th.count( 'Female<br>Athletes' ), th.count( 'Female<br>Teams' ), th.count( 'Male<br>Athletes' ), th.count( 'Male<br>Teams' ));
-
-		} else {
-			tr.append( th.count( 'Female<br>Athletes' ), th.count( 'Male<br>Athletes' ),);
-		}
-		table.append( tr );
-		var sum    = {};
-		var groups = {};
-		var i      = 0;
-		for( var division in divisions[ subevent ] ) {
-			var count = divisions[ subevent ][ division ].length;
-			var name  = sport_poomsae_division_description( subevent, division );
-			var gid   = name.replace( /(?:fe)?male\s*/i, '' );
-			var group = undefined;
-			if( name.match( /female/i )) {
-				if( gid in groups ) {
-					group = groups[ gid ];
-					group.females = count;
-				} else {
-					group = groups[ gid ] = { name: gid, females: count, i: i };
-					i++;
-				}
-				sum.females = 'females' in sum ? sum.females + group.females : group.females;
-				if( name.match( /team/i )) { group.female_teams = Math.ceil( count/3 ); sum.female_teams = 'female_teams' in sum ? sum.female_teams + group.female_teams : group.female_teams; }
-
-			} else if( name.match( /\bmale/i )) {
-				if( gid in groups ) {
-					group = groups[ gid ];
-					group.males = count;
-				} else {
-					group = groups[ gid ] = { name: gid, males: count, i: i };
-					i++;
-				}
-				sum.males = 'males' in sum ? sum.males + group.males : group.males;
-				if( name.match( /team/i )) { group.male_teams = Math.ceil( count/3 ); sum.male_teams = 'male_teams' in sum ? sum.male_teams + group.male_teams : group.male_teams; }
-
-			} else {
-				if( name.match( /pair/i )) {
-					groups[ gid ] = { name: gid, athletes: count, pairs: Math.ceil( count/2 ) };
-					sum.athletes = 'athletes' in sum ? sum.athletes + groups[ gid ].athletes : groups[ gid ].athletes;
-					sum.pairs    = 'pairs' in sum ? sum.pairs + groups[ gid ].pairs : groups[ gid ].pairs;
-				}
-			}
-		}
-
-		// ===== ADD EACH GROUP TO THE TABLE
-		Object.values( groups ).sort(( a, b ) => { return a.i < b.i ? -1 : a.i > b.i ? 1 : 0; }).forEach(( group ) => {
-			var tr    = html.tr.clone();
-
-			tr.append( td.div( group.name ));
-			if( group.name.match( /pair/i )) {
-				tr.append( td.count( group.athletes ), td.count( group.pairs ));
-			} else if( group.name.match( /team/i )) {
-				tr.append( td.count( group.females ), td.count( group.female_teams ), td.count( group.males ), td.count( group.male_teams ));
-			} else {
-				tr.append( td.count( group.females ), td.count( group.males ));
-			}
-			table.append( tr );
-		});
-
-		if       ( subevent.match( /pair/i )) {
-			tr = html.tr.clone();
-			tr.append( th.div( 'Total' ));
-			tr.append( th.count( sum.athletes ), th.count( sum.pairs ),);
-			tr.children( 'th' ).css({ 'padding-top': '8px' });
-			table.append( tr );
-
-		} else if( subevent.match( /team/i )) {
-			tr = html.tr.clone();
-			tr.append( th.div( 'Subtotal' ));
-			tr.append( th.count( sum.females ), th.count( sum.female_teams ), th.count( sum.males ), th.count( sum.male_teams ),);
-			tr.children( 'th' ).css({ 'padding-top': '8px' });
-			table.append( tr );
-
-			tr = html.tr.clone();
-			tr.append( th.div( 'Total' ));
-			tr.append( th.count( `Athletes: ${sum.males + sum.females}` ).attr({ colspan : 3 }), th.count( `Teams: ${sum.male_teams + sum.female_teams}` ));
-			tr.children( 'th' ).css({ 'padding-top': '8px' });
-			table.append( tr );
-
-		} else {
-			tr = html.tr.clone();
-			tr.append( th.div( 'Subtotal' ));
-			tr.append( html.th.clone().addClass( 'count' ).html( sum.females ), html.th.clone().addClass( 'count' ).html( sum.males ),);
-			tr.children( 'th' ).css({ 'padding-top': '8px' });
-			table.append( tr );
-
-			tr = html.tr.clone();
-			tr.append( th.div( 'Total' ));
-			tr.append( th.count( sum.males + sum.females ).attr({ colspan : 2 }));
-			tr.children( 'th' ).css({ 'padding-top': '8px' });
-			table.append( tr );
-		}
-	}
-}
-
-function freestyle_division_description( s, d ) {
-	d = JSON.parse( d );
-	d = d.gender + ' ' + d.age;
-	var format = '';
-	if     ( s.match( /pair/i )) { format = 'Pair' }
-	else if( s.match( /team/i )) { format = 'Team' }
-	else                         { format = 'Individual' }
-	d = d.replace( /12-17/, 'Under 17' );
-	d = d.replace( /18-99/, 'Over 17' );
-	d = d.replace( /black all/, '' );
-	d = d.replace( /coed/, format );
-	d = d.replace( /female/, 'Female ' + format );
-	d = d.replace( /\bmale/, 'Male ' + format );
-
-	return d;
-};
-
-function display_freestyle_divisions( divisions ) {
-	var map = {
-		'world class freestyle poomsae'       : 'freestyle-individuals',
-		'world class freestyle pairs poomsae' : 'freestyle-pairs',
-		'world class freestyle team poomsae'  : 'freestyle-teams',
-	};
-
-	for( var subevent of Object.keys( map )) {
-		if( !( subevent in divisions )) { continue; }
-		var id    = '#' + map[ subevent ] + ' .panel-body table';
-		var table = $( id );
-		table.empty();
-		var tr = html.tr.clone();
-		tr.append( th.div( 'Division' ), th.count( 'Athletes' ));
-		if     ( subevent.match( /pair/i )) { tr.append( th.count( 'Pairs' )); }
-		else if( subevent.match( /team/i )) { tr.append( th.count( 'Teams' )); }
-		table.append( tr );
-		var sum = 0;
-		for( var division in divisions[ subevent ] ) {
-			var tr    = html.tr.clone();
-			var count = divisions[ subevent ][ division ].length;
-
-			if( subevent.match( /pair/i )) { count = Math.ceil( count/2 ); }
-			if( subevent.match( /team/i )) { count = Math.ceil( count/5 ); }
-
-			var row = {
-				name : td.div( freestyle_division_description( subevent, division )),
-				count: td.count( divisions[ subevent ][ division ].length ),
-				group: td.count( count )
-			};
-			tr.append( row.name, row.count );
-			if( subevent.match( /(?:pair|team)/i )) { tr.append( row.group ); }
-			table.append( tr );
-			sum += count;
-		}
-
-		tr = html.tr.clone();
-		tr.append( th.div( 'Total' ), th.count( sum ).attr({ 'colspan': subevent.match( /(?:pair|team)/i ) ? 2 : 1 }) );
-		tr.children( 'th' ).css({ 'padding-top': '8px' });
-		table.append( tr );
-	}
-}
 
 function sparring_division_description( s, g, d ) {
 	d = JSON.parse( d );
@@ -537,82 +401,6 @@ function sparring_division_description( s, g, d ) {
 	return s;
 }
 
-function display_sparring_divisions( divisions ) {
-	var sum = 0;
-	var tr = html.tr.clone();
-	tr.append( html.th.clone().html( 'Events' ), html.th.clone().html( 'Divisions' ), html.th.clone().html( 'Athletes' ));
-	var table = $( '.sparring .panel-body table' );
-	table.empty();
-	table.append( tr );
-
-	var subevents = { 'worldclass-sparring' : {}, 'blackbelt-sparring' : {}, 'colorbelt-sparring' : {}};
-	for( var subevent in divisions ) {
-		for( var json in divisions[ subevent ] ) {
-			var d = JSON.parse( json );
-			if( subevent.match( /world class/i )) { 
-				var name = 'worldclass-sparring';
-				if( ! defined( subevents[ name ][ subevent ])) { subevents[ name ][ subevent ] = {}; }
-				if( ! defined( subevents[ name ][ subevent ][ d.gender ])) { subevents[ name ][ subevent ][ d.gender ] = {}; }
-				subevents[ name ][ subevent ][ d.gender ][ json ] = divisions[ subevent ][ json ];
-				continue;
-			}
-			if( d.belt.match( /black/i )) {
-				var name = 'blackbelt-sparring';
-				if( ! defined( subevents[ name ][ subevent ])) { subevents[ name ][ subevent ] = {}; }
-				if( ! defined( subevents[ name ][ subevent ][ d.gender ])) { subevents[ name ][ subevent ][ d.gender ] = {}; }
-				subevents[ name ][ subevent ][ d.gender ][ json ] = divisions[ subevent ][ json ];
-				continue;
-			}
-			var name = 'colorbelt-sparring';
-			if( ! defined( subevents[ name ][ subevent ])) { subevents[ name ][ subevent ] = {}; }
-			if( ! defined( subevents[ name ][ subevent ][ d.gender ])) { subevents[ name ][ subevent ][ d.gender ] = {}; }
-			subevents[ name ][ subevent ][ d.gender ][ json ] = divisions[ subevent ][ json ];
-		}
-	}
-
-	for( var name in subevents ) {
-		var id         = '#' + name + ' .panel-body table';
-		var table      = $( id );
-		var divcount   = 0;
-		var count      = 0;
-		for( var subevent of Object.keys( subevents[ name ]).sort(( a, b ) => {
-			// Sort by age, regardless of gender
-			var i = subevents[ name ][ a ];
-			var j = subevents[ name ][ b ];
-			if( 'male' in i ) { i = i[ 'male' ]; } else if( 'female' in i ) { i = i[ 'female' ]; } else { return -1; }
-			if( 'male' in j ) { j = j[ 'male' ]; } else if( 'female' in j ) { j = j[ 'female' ]; } else { return  1; }
-			i = Object.keys( i )[ 0 ];
-			j = Object.keys( j )[ 0 ];
-			i = JSON.parse( i );
-			j = JSON.parse( j );
-			i = parseInt( i.age );
-			j = parseInt( j.age );
-			if( i == j ) { return  0; }
-			if( i  > j ) { return  1; }
-			if( i <  j ) { return -1; }
-		})) {
-			for( var gender in subevents[ name ][ subevent ] ) {
-				var count = Object.values( subevents[ name ][ subevent ][ gender ]).map(( i ) => { return i.length; }).reduce(( acc, cur ) => { return acc + cur; });
-				var tr   = html.tr.clone();
-				var d    = Object.keys( subevents[ name ][ subevent ][ gender ])[ 0 ];
-				var evnt = sparring_division_description( subevent, gender, d );
-				var divs = Object.keys( subevents[ name ][ subevent ][ gender ]).length;
-				var row  = {
-					name       : html.td.clone().html( evnt ),
-					categories : html.td.clone().html( divs ),
-					count      : html.td.clone().html( count )
-				};
-				tr.append( row.name, row.categories, row.count );
-				table.append( tr );
-				divcount += divs;
-				sum += count;
-			}
-		}
-		tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Total' ), html.th.clone().html( divcount ), html.th.clone().html( sum ));
-		table.append( tr );
-	}
-}
 
 $( '#import' ).off( 'click' ).click(( ev ) => {
 	var request;
@@ -647,7 +435,7 @@ ws.worldclass.onmessage = ( response ) => {
 	} else if( update.request.action == 'upload' ) {
 		sound.next.play();
 		page.transition( 2 );
-		display_sport_poomsae_divisions( update.divisions );
+		display_worldclass_divisions( update.divisions );
 
 	} else if( update.request.action == 'import' ) {
 		if( update.result == 'success' ) {

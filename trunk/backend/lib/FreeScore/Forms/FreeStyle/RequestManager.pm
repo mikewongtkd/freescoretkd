@@ -702,6 +702,8 @@ sub handle_registration_upload {
 	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
 	return unless defined $gender;
 
+	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
+	my $path = join '/', @path;
 	my $json = new JSON::XS();
 
 	try {
