@@ -22,16 +22,6 @@
 		<script src="include/js/freescore.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<style type="text/css">
-			.file-drop-zone {
-				height: 200px;
-				border: 3px dashed #17a2b8;
-				border-radius: 8px;
-			}
-			.subevent table { width: 100%; }
-			.subevent table th.count { width: 10%; min-width: 120px; text-align: right; }
-			.subevent table td.count { width: 10%; min-width: 120px; text-align: right; }
-		</style>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -239,20 +229,65 @@
 								<div class="panel-body subevent">
 									<table>
 									</table>
-									<p class="pull-right" style="margin-top: 12px;"><span style="color: #337ab7;"><b>Exhibition Matches</b> are marked in blue.</span></p>
+									<p class="pull-right" style="margin-top: 12px;"><span class="exhibition"><b>* Exhibition Matches</b></span></p>
 								</div>
 							</div>
 
-							<div class="panel panel-primary sparring" id="colorbelt-sparring">
+							<div class="panel panel-primary sparring" id="red-belt-sparring">
 								<div class="panel-heading">
-									<div class="panel-title">Color Belt Olympic Sparring</div>
+									<div class="panel-title">Red Belt Olympic Sparring</div>
 								</div>
 								<div class="panel-body subevent">
 									<table>
 									</table>
-									<p class="pull-right" style="margin-top: 12px;"><span style="color: #337ab7;"><b>Exhibition Matches</b> are marked in blue.</span></p>
+									<p class="pull-right" style="margin-top: 12px;"><span class="exhibition"><b>* Exhibition Matches</b></span></p>
 								</div>
 							</div>
+
+							<div class="panel panel-primary sparring" id="blue-belt-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">Blue Belt Olympic Sparring</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+									<p class="pull-right" style="margin-top: 12px;"><span class="exhibition"><b>* Exhibition Matches</b></span></p>
+								</div>
+							</div>
+
+							<div class="panel panel-primary sparring" id="green-belt-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">Green Belt Olympic Sparring</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+									<p class="pull-right" style="margin-top: 12px;"><span class="exhibition"><b>* Exhibition Matches</b></span></p>
+								</div>
+							</div>
+
+							<div class="panel panel-primary sparring" id="yellow-belt-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">Yellow Belt Olympic Sparring</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+									<p class="pull-right" style="margin-top: 12px;"><span class="exhibition"><b>* Exhibition Matches</b></span></p>
+								</div>
+							</div>
+
+							<div class="panel panel-primary sparring" id="white-belt-sparring">
+								<div class="panel-heading">
+									<div class="panel-title">White Belt Olympic Sparring</div>
+								</div>
+								<div class="panel-body subevent">
+									<table>
+									</table>
+									<p class="pull-right" style="margin-top: 12px;"><span class="exhibition"><b>* Exhibition Matches</b></span></p>
+								</div>
+							</div>
+
 						</div>
 					</div>
 					<div class="clearfix">

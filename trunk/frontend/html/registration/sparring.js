@@ -1,12 +1,12 @@
 function display_sparring_divisions( divisions ) {
 	var sum = 0;
 	var tr = html.tr.clone();
-	tr.append( html.th.clone().html( 'Events' ), html.th.clone().addClass( 'count' ).html( 'Divisions' ), html.th.clone().addClass( 'count' ).html( 'Matches' ), html.th.clone().addClass( 'count' ).html( 'Athletes' ));
+	tr.append( html.th.clone().html( 'Events' ), html.th.clone().addClass( 'weight-class-distribution' ).html( 'Weight Class Distribution' ), html.th.clone().addClass( 'count' ).html( 'Wt Classes' ), html.th.clone().addClass( 'count' ).html( 'Matches' ), html.th.clone().addClass( 'count' ).html( 'Athletes' ));
 	var table = $( '.sparring .panel-body table' );
 	table.empty();
 	table.append( tr );
 
-	var subevents = { 'worldclass-sparring' : {}, 'blackbelt-sparring' : {}, 'colorbelt-sparring' : {}};
+	var subevents = { 'worldclass-sparring' : {}, 'blackbelt-sparring' : {}, 'red-belt-sparring' : {}, 'blue-belt-sparring' : {}, 'green-belt-sparring' : {}, 'yellow-belt-sparring' : {}, 'white-belt-sparring' : {}};
 	for( var subevent in divisions ) {
 		for( var json in divisions[ subevent ] ) {
 			var d = JSON.parse( json );
@@ -24,7 +24,7 @@ function display_sparring_divisions( divisions ) {
 				subevents[ name ][ subevent ][ d.gender ][ json ] = divisions[ subevent ][ json ];
 				continue;
 			}
-			var name = 'colorbelt-sparring';
+			var name = `${d.belt}-belt-sparring`;
 			if( ! defined( subevents[ name ][ subevent ])) { subevents[ name ][ subevent ] = {}; }
 			if( ! defined( subevents[ name ][ subevent ][ d.gender ])) { subevents[ name ][ subevent ][ d.gender ] = {}; }
 			subevents[ name ][ subevent ][ d.gender ][ json ] = divisions[ subevent ][ json ];
@@ -65,12 +65,13 @@ function display_sparring_divisions( divisions ) {
 					matches += (n - 1);
 				});
 				var row  = {
-					name       : html.td.clone().html( evnt ),
-					categories : html.td.clone().addClass( 'count' ).html( divisions.length ),
-					matches    : html.td.clone().addClass( 'count' ).html( matches ? matches : `<span style="color:#337ab7;">${exhibitions}</span>` ),
-					count      : html.td.clone().addClass( 'count' ).html( athletes )
+					name      : html.td.clone().html( evnt ),
+					divisions : html.td.clone().append( display_weight_classes( name, subevents[ name ][ subevent ][ gender ])),
+					divcount  : html.td.clone().addClass( 'count' ).html( divisions.length ),
+					matches   : html.td.clone().addClass( 'count' ).html( matches ? matches : `<span class="exhibition">${exhibitions}</span>` ),
+					count     : html.td.clone().addClass( 'count' ).html( athletes )
 				};
-				tr.append( row.name, row.categories, row.matches, row.count );
+				tr.append( row.name, row.divisions, row.divcount, row.matches, row.count );
 				table.append( tr );
 				count.divisions += divisions.length;
 				count.matches   += (matches ? matches : exhibitions);
@@ -78,8 +79,23 @@ function display_sparring_divisions( divisions ) {
 			}
 		}
 		tr = html.tr.clone();
-		tr.append( html.th.clone().html( 'Total' ), html.th.clone().addClass( 'count' ).html( count.divisions ), html.th.clone().addClass( 'count' ).html( count.matches ), html.th.clone().addClass( 'count' ).html( count.athletes ));
+		tr.append( html.th.clone().attr({ colspan: 2 }).html( 'Total' ), html.th.clone().addClass( 'count' ).html( count.divisions ), html.th.clone().addClass( 'count' ).html( count.matches ), html.th.clone().addClass( 'count' ).html( count.athletes ));
 		table.append( tr );
 	}
 }
 
+function by_weight( a, b ) {
+	a = parseFloat( JSON.parse( a ).weight );
+	b = parseFloat( JSON.parse( b ).weight );
+	return a - b;
+}
+
+function display_weight_classes( subevent, divisions ) {
+	var display = [];
+	Object.keys( divisions ).sort( by_weight ).forEach( d => {
+		var division = divisions[ d ];
+		var weight   = html.div.clone().addClass( 'weight-class' ).html( division.length );
+		display.push( weight );
+	});
+	return display;
+}

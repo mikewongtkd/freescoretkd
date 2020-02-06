@@ -10,6 +10,23 @@
 	src: url("include/fonts/LinBiolinum_Rah.ttf"); 
 }
 
+@media print {
+	* { overflow: visible !important; }
+	.page-header, .nav, .btn { display: none; }
+	.tab-content {
+		.tab-pane {
+			display: block !important;
+			opacity: 1 !important;
+			visibility: visible !important;
+			page-break-after: always;
+
+			.panel {
+				page-break-inside: avoid;
+			}
+		}
+	}
+}
+
 html, body { 
 	height: 100%; 
 	overflow-x: hidden; 
@@ -40,7 +57,6 @@ html, body {
 .pt-page-current,
 .no-js .pt-page {
 	visibility: visible;
-	z-index: 1;
 }
 
 .pt-page-ontop {
@@ -107,6 +123,33 @@ label.disabled {
 
 }
 
-.panel-body table {
+.subevent table {
 	width: 100%;
+	th,td {
+		.weight-class {
+			display: inline-block;
+			width: 24px;
+			text-align: right;
+		}
+
+		.count {
+			width: 10%; 
+			min-width: 120px; 
+			text-align: right;
+		}
+	}
+}
+
+.exhibition {
+	color: #337ab7;
+}
+
+td .exhibition {
+
+	position: relative;
+	left: 7px;
+
+	&:after {
+		content: "*";
+	}
 }
