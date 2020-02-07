@@ -127,12 +127,24 @@ label.disabled {
 	width: 100%;
 	th,td {
 		.weight-class {
+			font-size: 10pt;
+			line-height: 20pt;
 			display: inline-block;
-			width: 24px;
+			width:  16px;
+			height: 19px;
 			text-align: right;
+			vertical-align: bottom;
+			border-bottom: 1px solid #ddd;
+			margin-left: 4px;
+			margin-right: 4px;
 		}
 
-		.count {
+		&.weight-class-distribution {
+			text-align: center;
+			width: 260px;
+		}
+
+		&.count {
 			width: 10%; 
 			min-width: 120px; 
 			text-align: right;

@@ -127,11 +127,22 @@ label.disabled {
   width: 100%;
 }
 .subevent table th .weight-class, .subevent table td .weight-class {
+  font-size: 10pt;
+  line-height: 20pt;
   display: inline-block;
-  width: 24px;
+  width: 16px;
+  height: 19px;
   text-align: right;
+  vertical-align: bottom;
+  border-bottom: 1px solid #ddd;
+  margin-left: 4px;
+  margin-right: 4px;
 }
-.subevent table th .count, .subevent table td .count {
+.subevent table th.weight-class-distribution, .subevent table td.weight-class-distribution {
+  text-align: center;
+  width: 260px;
+}
+.subevent table th.count, .subevent table td.count {
   width: 10%;
   min-width: 120px;
   text-align: right;

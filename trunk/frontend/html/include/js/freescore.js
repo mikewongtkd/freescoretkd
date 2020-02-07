@@ -47,8 +47,8 @@ var FreeScore = {
 		order : [ 'prelim', 'semfin', 'finals', 'final1', 'final2', 'final3' ],
 		name  : { 'prelim' : 'Preliminary', 'semfin' : 'Semi-Finals', 'finals' : 'Finals', 'final1' : '1st Finals', 'final2' : '2nd Finals', 'final3' : '3rd Finals' },
 	},
-	rulesUSAT2017 : { 
-		// 2017 Rules, updated 4/27/2017
+	rulesUSAT2020 : { 
+		// 2020 Rules, updated 2/06/2020
 		// ------------------------------------------------------------
 		genders : function() { return [ "Female", "Male", "Coed" ]; },
 		// ------------------------------------------------------------
@@ -112,6 +112,180 @@ var FreeScore = {
 			}
 			return forms;
 		},
+		sparring : {
+			weight_classes: ( age, gender, weight ) => {
+				var inf = Infinity;
+				var divisions = {
+					'{"name":"dragons","min":6,"max":7}' : {
+						'female' : [
+							{ 'range' : '19.0kg-',     'name' : 'fin' },
+							{ 'range' : '19.1-23.0kg', 'name' : 'light' },
+							{ 'range' : '23.1-27.0kg', 'name' : 'middle' },
+							{ 'range' : '27.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '19.0kg-',     'name' : 'fin' },
+							{ 'range' : '19.1-23.0kg', 'name' : 'light' },
+							{ 'range' : '23.1-27.0kg', 'name' : 'middle' },
+							{ 'range' : '27.1kg+',     'name' : 'heavy' },
+						]
+					},
+					'{"name":"tigers","min":8,"max":9}' : {
+						'female' : [
+							{ 'range' : '21.0kg-',     'name' : 'fin' },
+							{ 'range' : '21.1-25.0kg', 'name' : 'light' },
+							{ 'range' : '25.1-30.0kg', 'name' : 'middle' },
+							{ 'range' : '30.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '21.0kg-',     'name' : 'fin' },
+							{ 'range' : '21.1-25.0kg', 'name' : 'light' },
+							{ 'range' : '25.1-30.0kg', 'name' : 'middle' },
+							{ 'range' : '30.1kg+',     'name' : 'heavy' },
+						]
+					},
+					'{"name":"youth","min":10,"max":11}' : {
+						'female' : [
+							{ 'range' : '30.0kg-',     'name' : 'fin' },
+							{ 'range' : '30.1-35.0kg', 'name' : 'light' },
+							{ 'range' : '35.1-40.0kg', 'name' : 'middle' },
+							{ 'range' : '40.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '30.0kg-',     'name' : 'fin' },
+							{ 'range' : '30.1-35.0kg', 'name' : 'light' },
+							{ 'range' : '35.1-40.0kg', 'name' : 'middle' },
+							{ 'range' : '40.1kg+',     'name' : 'heavy' },
+						],
+					},
+					'{"name":"cadet","min":12,"max":14}' : {
+						'female' : [
+							{ 'range' : '29.0kg-',     'name' : 'fin' },
+							{ 'range' : '29.1-33.0kg', 'name' : 'fly' },
+							{ 'range' : '33.1-37.0kg', 'name' : 'bantam' },
+							{ 'range' : '37.1-41.0kg', 'name' : 'feather' },
+							{ 'range' : '41.1-44.0kg', 'name' : 'light' },
+							{ 'range' : '44.1-47.0kg', 'name' : 'welter' },
+							{ 'range' : '47.1-51.0kg', 'name' : 'light middle' },
+							{ 'range' : '51.1-55.0kg', 'name' : 'middle' },
+							{ 'range' : '55.1-59.0kg', 'name' : 'light heavy' },
+							{ 'range' : '59.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '33.0kg-',     'name' : 'fin' },
+							{ 'range' : '33.1-37.0kg', 'name' : 'fly' },
+							{ 'range' : '37.1-41.0kg', 'name' : 'bantam' },
+							{ 'range' : '41.1-45.0kg', 'name' : 'feather' },
+							{ 'range' : '45.1-49.0kg', 'name' : 'light' },
+							{ 'range' : '49.1-53.0kg', 'name' : 'welter' },
+							{ 'range' : '53.1-57.0kg', 'name' : 'light middle' },
+							{ 'range' : '57.1-61.0kg', 'name' : 'middle' },
+							{ 'range' : '61.1-65.0kg', 'name' : 'light heavy' },
+							{ 'range' : '65.1kg+',     'name' : 'heavy' },
+						]
+					},
+					'{"name":"junior","min":15,"max":17}' : {
+						'female' : [
+							{ 'range' : '42.0kg-',     'name' : 'fin' },
+							{ 'range' : '42.1-44.0kg', 'name' : 'fly' },
+							{ 'range' : '44.1-46.0kg', 'name' : 'bantam' },
+							{ 'range' : '46.1-49.0kg', 'name' : 'feather' },
+							{ 'range' : '49.1-52.0kg', 'name' : 'light' },
+							{ 'range' : '52.1-55.0kg', 'name' : 'welter' },
+							{ 'range' : '55.1-59.0kg', 'name' : 'light middle' },
+							{ 'range' : '59.1-63.0kg', 'name' : 'middle' },
+							{ 'range' : '63.1-68.0kg', 'name' : 'light heavy' },
+							{ 'range' : '68.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '45.0kg-',     'name' : 'fin' },
+							{ 'range' : '45.1-48.0kg', 'name' : 'fly' },
+							{ 'range' : '48.1-51.0kg', 'name' : 'bantam' },
+							{ 'range' : '51.1-55.0kg', 'name' : 'feather' },
+							{ 'range' : '55.1-59.0kg', 'name' : 'light' },
+							{ 'range' : '59.1-63.0kg', 'name' : 'welter' },
+							{ 'range' : '63.1-68.0kg', 'name' : 'light middle' },
+							{ 'range' : '68.1-73.0kg', 'name' : 'middle' },
+							{ 'range' : '73.1-78.0kg', 'name' : 'light heavy' },
+							{ 'range' : '78.1kg+',     'name' : 'heavy' },
+						]
+					},
+					'{"name":"senior","min":17,"max":32}' : {
+						'female' : [
+							{ 'range' : '46.0kg-',     'name' : 'fin' },
+							{ 'range' : '46.1-49.0kg', 'name' : 'fly' },
+							{ 'range' : '49.1-53.0kg', 'name' : 'bantam' },
+							{ 'range' : '53.1-57.0kg', 'name' : 'feather' },
+							{ 'range' : '57.1-62.0kg', 'name' : 'light' },
+							{ 'range' : '62.1-67.0kg', 'name' : 'welter' },
+							{ 'range' : '67.1-73.0kg', 'name' : 'middle' },
+							{ 'range' : '73.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '54.0kg-',     'name' : 'fin' },
+							{ 'range' : '54.1-58.0kg', 'name' : 'fly' },
+							{ 'range' : '58.1-63.0kg', 'name' : 'bantam' },
+							{ 'range' : '63.1-68.0kg', 'name' : 'feather' },
+							{ 'range' : '68.1-74.0kg', 'name' : 'light' },
+							{ 'range' : '74.1-80.0kg', 'name' : 'welter' },
+							{ 'range' : '80.1-87.0kg', 'name' : 'middle' },
+							{ 'range' : '87.1kg+',     'name' : 'heavy' },
+						]
+					},
+					'{"name":"ultra","min":33,"max":40}' : {
+						'female' : [
+							{ 'range' : '49.0kg-',     'name' : 'fin' },
+							{ 'range' : '49.1-57.0kg', 'name' : 'light' },
+							{ 'range' : '57.1-67.0kg', 'name' : 'middle' },
+							{ 'range' : '67.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '58.0kg-',     'name' : 'fin' },
+							{ 'range' : '58.1-68.0kg', 'name' : 'light' },
+							{ 'range' : '68.1-80.0kg', 'name' : 'middle' },
+							{ 'range' : '80.1kg+',     'name' : 'heavy' },
+						],
+					},
+					'{"name":"ultra","min":41,"max":50}' : {
+						'female' : [
+							{ 'range' : '49.0kg-',     'name' : 'fin' },
+							{ 'range' : '49.1-57.0kg', 'name' : 'light' },
+							{ 'range' : '57.1-67.0kg', 'name' : 'middle' },
+							{ 'range' : '67.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '58.0kg-',     'name' : 'fin' },
+							{ 'range' : '58.1-68.0kg', 'name' : 'light' },
+							{ 'range' : '68.1-80.0kg', 'name' : 'middle' },
+							{ 'range' : '80.1kg+',     'name' : 'heavy' },
+						],
+					},
+					'{"name":"ultra","min":51,"max":99}' : {
+						'female' : [
+							{ 'range' : '49.0kg-',     'name' : 'fin' },
+							{ 'range' : '49.1-57.0kg', 'name' : 'light' },
+							{ 'range' : '57.1-67.0kg', 'name' : 'middle' },
+							{ 'range' : '67.1kg+',     'name' : 'heavy' },
+						],
+						'male' : [
+							{ 'range' : '58.0kg-',     'name' : 'fin' },
+							{ 'range' : '58.1-68.0kg', 'name' : 'light' },
+							{ 'range' : '68.1-80.0kg', 'name' : 'middle' },
+							{ 'range' : '80.1kg+',     'name' : 'heavy' },
+						],
+					}
+
+				};
+				var division = undefined;
+				var ageclass = Object.keys( divisions ).find( d => { let div = JSON.parse( d ); return age == `${div.min}-${div.max}` });
+
+				if( defined( ageclass ))  { division = divisions[ ageclass ]; } else { console.log( `Unknown age ${age} for weight classes` ); return undefined; }
+				if( gender in division  ) { division = division[ gender ];    } else { console.log( `Unknown gender ${gender} for weight classes` ); return undefined; }
+
+				if( ! defined( weight ))   { return division; }
+				return division.find( d => { return d.min > weight && d.max <= weight; });
+			}
+		}
 	},
 	rulesWT2018 : { 
 		// 2018 Rules, updated 4/16/2018
@@ -175,7 +349,7 @@ var FreeScore = {
 	websocket : {}
 };
 
-FreeScore.rulesUSAT = FreeScore.rulesUSAT2017;
+FreeScore.rulesUSAT = FreeScore.rulesUSAT2020;
 
 String.prototype.capitalize = function() {
 	return this.charAt( 0 ).toUpperCase() + this.slice( 1 );

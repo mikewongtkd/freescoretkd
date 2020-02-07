@@ -222,7 +222,7 @@
 								</div>
 							</div>
 
-							<div class="panel panel-primary sparring" id="blackbelt-sparring">
+							<div class="panel panel-primary sparring" id="black-belt-sparring">
 								<div class="panel-heading">
 									<div class="panel-title">Black Belt Olympic Sparring</div>
 								</div>
@@ -427,23 +427,6 @@ var td = { count : ( text ) => { return html.td.clone().addClass( 'count' ).html
 	include( "registration/freestyle.js" );
 	include( "registration/sparring.js" );
 ?>
-
-
-function sparring_division_description( s, g, d ) {
-	d = JSON.parse( d );
-	age = d.age; age = age.replace( /\-99/, '+' );
-	s = s.split( /\s/ ).map(( i ) => { return i.capitalize(); }).join( ' ' );
-	if( s.match( /(?:cadet|junior|senior)/i )) {
-		s = s.replace( /(cadet|junior|senior)/i, g.capitalize() + ' $&' );
-		s = s.replace( /\s*sparring/i, '' );
-		s = s + ' (' + age + ')';
-		return s;
-	}
-	s = s.replace( /\s*sparring/i, ' ' + g.capitalize() );
-	s = s + ' (' + age + ')';
-	return s;
-}
-
 
 $( '#import' ).off( 'click' ).click(( ev ) => {
 	var request;
