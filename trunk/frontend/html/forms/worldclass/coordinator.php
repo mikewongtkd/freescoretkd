@@ -214,7 +214,7 @@
 									<a class="list-group-item" id="penalty-give"><span class="glyphicon glyphicon-hand-right"></span><span class="text">Give a Penalty</span></a>
 									<a class="list-group-item penalty-button" id="penalty-bounds"><span class="glyphicon glyphicon-log-out"></span>Out-of-bounds</a>
 									<a class="list-group-item penalty-button" id="penalty-restart"><span class="glyphicon glyphicon-retweet"></span>Restart Form</a>
-									<a class="list-group-item penalty-button" id="penalty-time"><span class="glyphicon glyphicon-time"></span>Over/Under Time</a>
+									<a class="list-group-item penalty-button" id="penalty-time"><span class="glyphicon glyphicon-time"></span>Over Time</a>
 									<a class="list-group-item penalty-button" id="penalty-misconduct"><span class="glyphicon glyphicon-comment"></span>Misconduct</a>
 									<a class="list-group-item" id="penalty-clear"><span class="glyphicon glyphicon-remove"  ></span>Clear Penalties</a>
 								</div>
@@ -572,7 +572,7 @@
 							show       : () => { sound.next.play(); action.penalty.toggle(); },
 							bounds     : () => { sound.next.play(); athlete.penalize.bounds( round, form );     action.penalty.send(); alertify.error( athlete.name() + ' has been given an<br><strong>out-of-bounds&nbsp;penalty</strong>' ); action.penalty.toggle(); },
 							restart    : () => { sound.next.play(); athlete.penalize.restart( round, form );    action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>restart&nbsp;penalty</strong>' ); action.penalty.toggle(); },
-							time       : () => { sound.next.play(); athlete.penalize.timelimit( round, form );  action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>under/over time penalty</strong>' ); action.penalty.toggle(); },
+							time       : () => { sound.next.play(); athlete.penalize.timelimit( round, form );  action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>over time penalty</strong>' ); action.penalty.toggle(); },
 							misconduct : () => { sound.next.play(); athlete.penalize.misconduct( round, form ); action.penalty.send(); alertify.error( athlete.name() + ' has been given a <strong>misconduct&nbsp;penalty</strong>' ); action.penalty.toggle(); },
 							clear      : () => { sound.prev.play(); athlete.penalize.clear( round, form );      action.penalty.send(); alertify.success( athlete.name() + ' has been <strong>cleared of all penalties</strong>' ); if( $( '#penalty-give>.text' ).text().match( /hide/i )) { action.penalty.toggle();}},
 							send       : () => { sendRequest( { data : { type : 'division', action : 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current }} ); },
