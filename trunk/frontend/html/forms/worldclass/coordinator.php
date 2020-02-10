@@ -255,6 +255,7 @@
 			var html       = FreeScore.html;
 			var ws         = new WebSocket( 'ws://<?= $host ?>:3088/worldclass/' + tournament.db + '/' + ring.num );
 			var network    = { reconnect: 0 }
+			var polling    = {};
 
 			ws.onerror = network.error = function() {
 				setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
@@ -611,8 +612,10 @@
 				judges : function( update ) {
 					for( var i = 0; i < 7; i++ ) {
 						var name = "judge" + i;
+
 						if( i < update.judges.length ) {
 							var judge = update.judges[ i ];
+							
 							// Judge registered and communicating
 							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge, 'Ready' ) ); }
 							// Judge not registered or not communicating

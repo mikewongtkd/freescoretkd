@@ -512,7 +512,7 @@ sub handle_division_judge_ping {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	my $id  = sprintf( "%s", sha1_hex( $client ));
+	my $id   = sprintf( "%s", sha1_hex( $client ));
 	my $jid  = substr( $id, 0, 4); # short judge id
 	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
 	print STDERR "$name device ($jid) ping.\n" if $DEBUG > 1;

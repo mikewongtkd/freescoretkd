@@ -31,11 +31,16 @@ $.widget( "freescore.judgeController", {
 		var views        = e.views        = html.div.clone() .addClass( "view control-group" );
 		var controllers  = e.controllers  = html.div.clone() .addClass( "controller control-group" );
 
-		var flipToBack   = e.flipToBack   = html.div.clone() .addClass( "flip" ) .html( "Division" );
-		var athlete      = e.athlete      = html.ul .clone() .addClass( "athlete" ) .totemticker({ row_height : '32px', interval : 3000 });
+		var flipToBack   = e.flipToBack   = html.div.clone() .addClass( "flip" ) .html( "Division List" );
+		var info         = e.info         = html.div.clone() .addClass( "division-info" ) .html( '<div class="label">Current Division</div>' );
+		var description  = e.description  = html.div.clone() .addClass( "description" );
+		var round        = e.round        = html.div.clone() .addClass( "round" );
+		var form         = e.form         = html.div.clone() .addClass( "form" );
+		var athlete      = e.athlete      = html.div.clone() .addClass( "athlete" );
 		var score        = e.score        = html.div.clone() .addClass( "score" );
 		var accuracy     = e.accuracy     = html.div.clone() .addClass( "accuracy" );
 		var presentation = e.presentation = html.div.clone() .addClass( "presentation" );
+		var total        = e.total        = html.div.clone() .addClass( "total" );
 		var matPosition  = e.matPosition  = html.div.clone() .matposition();
 
 		var major        = e.major        = html.div.clone() .deductions({ value : 0.3, controller : this });
@@ -65,6 +70,7 @@ $.widget( "freescore.judgeController", {
 
 			e.accuracy     .html( o.accuracy     .toFixed( 1 ) + "<br /><span>Accuracy</span>" );
 			e.presentation .html( o.presentation .toFixed( 1 ) + "<br /><span>Presentation</span>" );
+			e.total        .html( `${(parseFloat( o.accuracy ) + parseFloat( o.presentation )).toFixed( 1 )}<div class="total-label">Total</div>` );
 
 			// ===== UPDATE SEND BUTTON
 			var score = {
@@ -93,8 +99,9 @@ $.widget( "freescore.judgeController", {
 			});
 		} );
 
-		score.append( accuracy, presentation, athlete );
-		views.append( flipToBack, score, matPosition );
+		info.append( description, round, form );
+		score.append( accuracy, presentation, athlete, total );
+		views.append( flipToBack, info, score, matPosition );
 		controls.append( label, power, rhythm, ki, send );
 
 		controllers.append( major, controls, minor );
@@ -108,7 +115,7 @@ $.widget( "freescore.judgeController", {
 
 		var back         = e.back         = html.div.clone() .addClass( "back" );
 		var notes        = e.notes        = html.div.clone() .judgeNotes({ num : o.num });
-		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Score" );
+		var flipToFront  = e.fliptoFront  = html.div.clone() .addClass( "flip" ) .html( "Return to Scoring" );
 		var nav          = e.nav = {
 			athlete : {
 				label : html.div.clone() .addClass( "navigate navigate-label athlete-label" ) .html( "Athlete" ),
@@ -148,6 +155,7 @@ $.widget( "freescore.judgeController", {
 
 		// ============================================================
 		// BEHAVIOR
+		// ============================================================
 		flipToBack.click( function() {
 			flipToBack.fadeTo( 50, 0.75, function() { flipToBack.fadeTo( 100, 1.0 ); } );
 			card.toggleClass( 'flipped' );
@@ -295,15 +303,13 @@ $.widget( "freescore.judgeController", {
 				var ring    = 'Ring ' + o.ring;
 				alertify.notify( ring + ' ' + judge + ' ready to score<br>' + athlete.display.name() + '<br>' + division.current.form.name() );
 
-				// ===== UPDATE TICKER
-				var info = { 
-					division : html.span.clone() .addClass( "details" ) .html( division.description() ),
-					athlete  : html.span.clone() .addClass( "athlete" ) .html( athlete.name() ),
-					round    : html.span.clone() .addClass( "details" ) .html( `${division.round.name()} - ${division.current.form.description()}` )
-				};
-				var tickerList = [ info.athlete, info.division, info.round ].map( function( item ) { return e.html.li.clone() .html( item ); });
-				e.athlete .empty();
-				e.athlete .append( tickerList );
+				// ===== UPDATE DIVISION INFO
+				e.description .empty().html( division.description());
+				e.round       .empty().html( division.round.name() );
+				e.form        .empty().html( division.form.list().map(( form, i ) => { return i == division.current.formId() ? `<span class="current">${form}</span>` : `<span>${form}</span>` }).join( ', ' ));
+
+				// ===== UPDATE ATHLETE NAME
+				e.athlete .empty().append( html.span.clone() .addClass( "athlete" ) .html( athlete.name()));
 
 				// ===== RESET SCORE
 				o.major  = 0.0; e.major  .deductions( { count : 0 });
@@ -317,7 +323,7 @@ $.widget( "freescore.judgeController", {
 
 			// ===== UPDATE WIDGETS
 			e.notes        .judgeNotes({ forms : division.form.list(), form : division.current.form.name(), athletes : division.athletes(), judges : division.judges(), current : division.current.athleteId(), round : division.current.roundId(), order : division.current.order() });
-			e.matPosition  .matposition({ judges : division.judges(), judge : o.num, remaining : division.pending().length });
+			e.matPosition  .matposition({ judges : division.judges(), judge : o.num, ring : o.ring });
 
 			// ===== RECORD CURRENT STATUS
 			o.current.digest   = digest;

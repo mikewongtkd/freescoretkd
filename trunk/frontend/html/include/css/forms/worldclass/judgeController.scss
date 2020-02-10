@@ -48,11 +48,51 @@ body {
 	.front {
 		position: absolute;
 
+		.division-info {
+			position: absolute;
+			height: 124px;
+			width: 188px;
+			border: 4px solid #333;
+			border-radius: 12px;
+			background: black;
+			top: 20px;
+			left: 10px;
+			padding: 0 8px 0 8px;
+			text-align: center;
+			overflow-y: auto;
+
+			.label {
+				position: relative;
+				left: -12px;
+				display: block;
+				padding: 4px;
+				width: 188px;
+				background: #333;
+				border-radius: 12px 12px 0 0;
+				font-size: 10pt;
+				color: white;
+			}
+
+			.description {
+				font-size: 12pt;
+				color: lime;
+			}
+			.round {
+				margin-top: 4px;
+				font-size: 12pt;
+				color: skyblue;
+			}
+			.form {
+				color: #999;
+				font-size: 12pt;
+				.current { color: yellow; }
+			}
+		}
+
 		.flip {
 			position: absolute;
-			font-size: 18pt;
-			line-height: 128pt;
-			height: 188px;
+			font-size: 14pt;
+			height: 32px;
 			width: 188px;
 			color: white;
 			border: 4px solid #93d;
@@ -61,7 +101,7 @@ body {
 			background: -webkit-linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
 			background: linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
 			text-align: center;
-			top: 20px;
+			top: 160px;
 			left: 10px;
 		}
 
@@ -79,11 +119,8 @@ body {
 			left: 208px;
 
 			& > .athlete {
-				list-style-type: none;
-				padding: 0;
-				margin: 0;
 				position: absolute;
-				width: 240px;
+				top: 8px;
 				height: 32px;
 				border-radius: 24pt;
 				background: black;
@@ -91,7 +128,10 @@ body {
 				background: linear-gradient(to top, #45484d 0%,#000000 100%);
 				line-height: 24pt;
 				text-align: center;
-				top: 8px;
+				list-style-type: none;
+				padding: 0;
+				margin: 0;
+				width: 240px;
 				left: 72px;
 				.details {
 					color: #ccc;
@@ -103,12 +143,13 @@ body {
 				}
 			}
 
+
 			& > .accuracy, & > .presentation {
 				position: absolute;
 				width: 194px;
 				height: 208px;
 				font-size: 72pt;
-				line-height: 88pt;
+				line-height: 72pt;
 				padding-top: 48px;
 				text-align: center;
 				top: 0;
@@ -131,6 +172,25 @@ body {
 				background: linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
 				span { font-size: 18pt; line-height: 18pt; }
 				left: 194px;
+			}
+
+			& > .total {
+				color: white;
+				font-size: 24pt; 
+				line-height: 24pt;
+				background: #333;
+				position: absolute;
+				top: 168px;
+				left: 164px;
+				width: 60px;
+				border-radius: 12pt;
+				text-align: center;
+
+				.total-label {
+					font-size: 12pt; 
+					line-height: 12pt;
+					color: #ccc;
+				}
 			}
 		}
 		
@@ -157,7 +217,7 @@ body {
 				background: red;
 				background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
 				background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
-				margin: 48px 46px 12px 46px;
+				margin: 28px 46px 12px 46px;
 				text-align: center;
 
 				.ui-button-text { padding-top: 3px; }
@@ -187,7 +247,6 @@ body {
 
 		.navigate {
 			position: absolute;
-			font-size: 18pt;
 			line-height: 38pt;
 			height: 40px;
 			width:  188px;
@@ -266,12 +325,17 @@ body {
 
 		.display-mode {
 			height: 56px;
+			font-size: 14pt;
 			border: 4px solid gold;
 			background: #fceabb;
 			background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
 			color: black;
 			top: 324px;
+
+			& > .ui-button-text {
+				margin-top: 4px;
+			}
 		}
 	}
 }

@@ -6,38 +6,35 @@ $.widget( "freescore.matposition", {
 		var e      = this.options.elements = {};
 		var html   = e.html = FreeScore.html;
 
-		var ring          = e.ring   = html.div.clone() .addClass( "ring" );
-		var instructions  = e.instructions  = html.div.clone() .addClass( "instructions" ) .html( "Touch to Mark<br>Athlete Start Position" );
-		var judges        = e.judges = html.div.clone() .addClass( "judges" );
-		var layer         = e.layer  = html.div.clone() .addClass( "layer" );
-		var center        = e.center = html.div.clone() .addClass( "center" );
-		var start         = e.start  = html.div.clone() .addClass( "start-position" ) .html( '&#x2715;' ) .hide();
+		var ring          = e.ring         = html.div.clone() .addClass( "ring" );
+		var number        = e.number       = html.div.clone() .addClass( "number" );
+		var instructions  = e.instructions = html.div.clone() .addClass( "instructions" ) .html( "Touch to Mark<br>Athlete Start Position" );
+		var judges        = e.judges       = html.div.clone() .addClass( "judges" );
+		var layer         = e.layer        = html.div.clone() .addClass( "layer" );
+		var reference     = e.reference    = html.div.clone() .addClass( "reference" );
+		var start         = e.start        = html.div.clone() .addClass( "start-position" ) .html( '&#x2715;' ) .hide();
 
 		// ===== 8x8 MATS
 		for( var i = 0; i < 8; i++ ) {
 			for( var j = 0; j < 8; j++ ) {
 				var x = (i * 22) + 1;
 				var y = (j * 22) + 1;
-				if((i == 3 || i == 4) && (j == 3 || j == 4)) { continue; }
 				var mat = html.div.clone() .addClass( "blue mat" );
 				mat.css({ left: x, top : y });
 				ring.append( mat );
 			}
 		}
 
-		// ===== 2x2 CENTER
+		// ===== 1x2 REFERENCE
 		for( var i = 0; i < 2; i++ ) {
-			for( var j = 0; j < 2; j++ ) {
-				var x = (i * 22) + 1;
-				var y = (j * 22) + 1;
-				var mat = html.div.clone() .addClass( "red mat" );
-				mat.css({ left: x, top : y });
-				center.append( mat );
-			}
+			var x = (i * 22) + 1;
+			var mat = html.div.clone() .addClass( "red mat" );
+			mat.css({ left: x, top : 0 });
+			reference.append( mat );
 		}
 
 		widget.append( ring );
-		ring.append( center, instructions, start, layer, judges );
+		ring.append( reference, instructions, number, start, layer, judges );
 		widget.addClass( "matposition" );
 
 		o.dx   = 5;
@@ -64,6 +61,8 @@ $.widget( "freescore.matposition", {
 		var o      = this.options;
 		var e      = this.options.elements;
 		var html   = e.html;
+
+		e.number.html( o.ring );
 
 		// ===== JUDGE POSITIONS
 		if( defined( o.judges )) {

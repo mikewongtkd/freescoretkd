@@ -146,6 +146,7 @@ function Division( division ) {
 	// ============================================================
 
 		count : function() { return Object.keys( division.forms ).length; },
+		id : () => { return division.round; },
 		is : {
 			complete : function( round ) {
 				var athletes = _current.athletes();

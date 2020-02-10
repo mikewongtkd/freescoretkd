@@ -52,7 +52,7 @@ sub create_division {
 # ============================================================
 	my $self     = shift;
 	my $divid    = shift;
-	my $division = new FreeScore::Forms::Grassroots::Division( $self->{ path }, $divid );
+	my $division = new FreeScore::Forms::GrassRoots::Division( $self->{ path }, $divid );
 
 	$division->{ file } = "$self->{ path }/div.$divid.txt";
 

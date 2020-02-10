@@ -1,88 +1,105 @@
 body {
   background: black;
   background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
-  background: linear-gradient(to bottom, #45484d 0%, #000000 100%); }
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+}
 
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Biolinum';
+  font-family: "Biolinum";
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Barlow';
+  font-family: "Barlow";
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'FjallaOne';
+  font-family: "FjallaOne";
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Biolinum';
+  font-family: "Biolinum";
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Barlow';
+  font-family: "Barlow";
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'FjallaOne';
+  font-family: "FjallaOne";
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 .deductions {
   float: left;
   font-family: Optima, Biolinum, Lato;
@@ -95,63 +112,74 @@ body {
   /* W3C */
   border-radius: 16pt;
   border: 4px solid #999;
-  margin: 0 6px 0 6px; }
-  .deductions .deduction-button-small, .deductions .deduction-button-large {
-    font-size: 18pt;
-    width: 168px;
-    border-radius: 12px;
-    margin: 12px auto 12px auto;
-    text-align: center; }
-  .deductions .deduction-button-small {
-    height: 48px;
-    line-height: 32pt; }
-  .deductions .deduction-button-large {
-    height: 168px;
-    line-height: 124pt; }
-  .deductions .disabled {
-    border: 4px solid #666;
-    background: #e2e2e2;
-    background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    color: black; }
-  .deductions .remove-minor {
-    border: 4px solid green;
-    background: #9dd53a;
-    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-    color: black; }
-  .deductions .add-minor {
-    border: 4px solid blue;
-    font-size: 36pt;
-    background: #6db3f2;
-    background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
-    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
-  .deductions .remove-major {
-    border: 4px solid orange;
-    background: #ffb76b;
-    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    color: black; }
-  .deductions .add-major {
-    border: 4px solid gold;
-    font-size: 36pt;
-    background: #fceabb;
-    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    color: black; }
-  .deductions .deduction-label {
-    height: 32px;
-    margin: 12px auto 12px auto;
-    text-align: center;
-    font-size: 14pt;
-    color: #ccc; }
-  .deductions .view {
-    height: 40px;
-    margin: 12px auto 12px auto;
-    text-align: center;
-    font-size: 32pt;
-    line-height: 32pt;
-    color: white; }
+  margin: 0 6px 0 6px;
+}
+.deductions .deduction-button-small, .deductions .deduction-button-large {
+  font-size: 18pt;
+  width: 168px;
+  border-radius: 12px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+}
+.deductions .deduction-button-small {
+  height: 48px;
+  line-height: 32pt;
+}
+.deductions .deduction-button-large {
+  height: 168px;
+  line-height: 124pt;
+}
+.deductions .disabled {
+  border: 4px solid #666;
+  background: #e2e2e2;
+  background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+  background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+  color: black;
+}
+.deductions .remove-minor {
+  border: 4px solid green;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  color: black;
+}
+.deductions .add-minor {
+  border: 4px solid blue;
+  font-size: 36pt;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+}
+.deductions .remove-major {
+  border: 4px solid orange;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  color: black;
+}
+.deductions .add-major {
+  border: 4px solid gold;
+  font-size: 36pt;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  color: black;
+}
+.deductions .deduction-label {
+  height: 32px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+  font-size: 14pt;
+  color: #ccc;
+}
+.deductions .view {
+  height: 40px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+  font-size: 32pt;
+  line-height: 32pt;
+  color: white;
+}
 
 .matposition {
   position: absolute;
@@ -160,240 +188,284 @@ body {
   height: 180px;
   margin: 16px 10px 42px 10px;
   top: 0;
-  left: 600px; }
-  .matposition .ring {
-    position: absolute;
-    width: 178px;
-    height: 178px;
-    border-radius: 4px;
-    background: #7abcff;
-    background: -webkit-linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
-    background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%); }
-    .matposition .ring .blue {
-      border: 1px solid #4096ee; }
-    .matposition .ring .red {
-      border: 1px solid #e24848; }
-    .matposition .ring .mat {
-      position: absolute;
-      width: 22px;
-      height: 22px; }
-    .matposition .ring .judge {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      padding: 2px 0 0 0;
-      text-align: center; }
-    .matposition .ring .j3R {
-      top: -11px;
-      left: 34px; }
-    .matposition .ring .j31 {
-      top: -11px;
-      left: 79px; }
-    .matposition .ring .j32 {
-      top: -11px;
-      left: 124px; }
-    .matposition .ring .j5R {
-      top: -11px;
-      left: 34px; }
-    .matposition .ring .j51 {
-      top: -11px;
-      left: 79px; }
-    .matposition .ring .j52 {
-      top: -11px;
-      left: 124px; }
-    .matposition .ring .j53 {
-      top: 168px;
-      left: 109px; }
-    .matposition .ring .j54 {
-      top: 168px;
-      left: 49px; }
-    .matposition .ring .j7R {
-      top: -11px;
-      left: 12px; }
-    .matposition .ring .j71 {
-      top: -11px;
-      left: 56px; }
-    .matposition .ring .j72 {
-      top: -11px;
-      left: 101px; }
-    .matposition .ring .j73 {
-      top: -11px;
-      left: 145px; }
-    .matposition .ring .j74 {
-      top: 168px;
-      left: 124px; }
-    .matposition .ring .j75 {
-      top: 168px;
-      left: 79px; }
-    .matposition .ring .j76 {
-      top: 168px;
-      left: 34px; }
-    .matposition .ring .notme {
-      border-radius: 4px;
-      background: #fceabb;
-      background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%); }
-    .matposition .ring .me {
-      border-radius: 11px;
-      background: #ffb76b;
-      background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-      background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%); }
-    .matposition .ring .center {
-      position: absolute;
-      top: 66px;
-      left: 66px;
-      height: 45px;
-      width: 45px;
-      background: #f29696;
-      background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
-      background: linear-gradient(to bottom, #f29696 0%, #e24848 100%); }
-  .matposition .instructions {
-    position: absolute;
-    font-size: 12pt;
-    color: #ccf;
-    top: 120px;
-    left: 0;
-    width: 178px;
-    text-align: center;
-    white-space: normal; }
-  .matposition .start-position {
-    position: absolute;
-    color: yellow;
-    font-size: 18pt;
-    top: 0px;
-    left: 0px; }
-  .matposition .timer {
-    color: white;
-    font-family: HelveticaNeue-CondensedBold, Barlow;
-    font-size: 24pt;
-    text-align: center;
-    position: absolute;
-    background: #4c4c4c;
-    background: -webkit-linear-gradient(to bottom, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
-    background: linear-gradient(to bottom, #4c4c4c 0%, #595959 12%, #666666 25%, #474747 39%, #2c2c2c 50%, #000000 51%, #111111 60%, #2b2b2b 76%, #1c1c1c 91%, #131313 100%);
-    top: 14px;
-    left: 30px;
-    width: 114px;
-    height: 40px;
-    border: 4px solid black;
-    border-radius: 12px;
-    opacity: 0.75; }
-  .matposition .layer {
-    border: 3px solid #36c;
-    border-radius: 4px;
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    top: 0px;
-    left: 0px; }
+  left: 600px;
+}
+.matposition .ring {
+  position: absolute;
+  width: 178px;
+  height: 178px;
+  border-radius: 4px;
+  background: #7abcff;
+  background: -webkit-linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
+  background: linear-gradient(to bottom, #7abcff 0%, #60abf8 44%, #4096ee 100%);
+}
+.matposition .ring .blue {
+  border: 1px solid #4096ee;
+}
+.matposition .ring .red {
+  border: 1px solid #e24848;
+}
+.matposition .ring .mat {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+}
+.matposition .ring .judge {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  padding: 2px 0 0 0;
+  text-align: center;
+}
+.matposition .ring .j3R {
+  top: -11px;
+  left: 34px;
+}
+.matposition .ring .j31 {
+  top: -11px;
+  left: 79px;
+}
+.matposition .ring .j32 {
+  top: -11px;
+  left: 124px;
+}
+.matposition .ring .j5R {
+  top: -11px;
+  left: 34px;
+}
+.matposition .ring .j51 {
+  top: -11px;
+  left: 79px;
+}
+.matposition .ring .j52 {
+  top: -11px;
+  left: 124px;
+}
+.matposition .ring .j53 {
+  top: 168px;
+  left: 109px;
+}
+.matposition .ring .j54 {
+  top: 168px;
+  left: 49px;
+}
+.matposition .ring .j7R {
+  top: -11px;
+  left: 12px;
+}
+.matposition .ring .j71 {
+  top: -11px;
+  left: 56px;
+}
+.matposition .ring .j72 {
+  top: -11px;
+  left: 101px;
+}
+.matposition .ring .j73 {
+  top: -11px;
+  left: 145px;
+}
+.matposition .ring .j74 {
+  top: 168px;
+  left: 124px;
+}
+.matposition .ring .j75 {
+  top: 168px;
+  left: 79px;
+}
+.matposition .ring .j76 {
+  top: 168px;
+  left: 34px;
+}
+.matposition .ring .notme {
+  border-radius: 4px;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+}
+.matposition .ring .me {
+  border-radius: 11px;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+}
+.matposition .ring .reference {
+  position: absolute;
+  top: 110px;
+  left: 66px;
+  height: 23px;
+  width: 45px;
+  background: #f29696;
+  background: -webkit-linear-gradient(to bottom, #f29696 0%, #e24848 100%);
+  background: linear-gradient(to bottom, #f29696 0%, #e24848 100%);
+}
+.matposition .number {
+  position: absolute;
+  font-size: 48pt;
+  color: white;
+  top: 40px;
+  left: 0;
+  width: 178px;
+  text-align: center;
+}
+.matposition .instructions {
+  position: absolute;
+  font-size: 12pt;
+  color: white;
+  top: 14px;
+  left: 0;
+  width: 178px;
+  text-align: center;
+  white-space: normal;
+}
+.matposition .start-position {
+  position: absolute;
+  color: yellow;
+  font-size: 18pt;
+  top: 0px;
+  left: 0px;
+}
+.matposition .layer {
+  border: 3px solid #36c;
+  border-radius: 4px;
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  top: 0px;
+  left: 0px;
+}
 
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Biolinum';
+  font-family: "Biolinum";
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Barlow';
+  font-family: "Barlow";
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'FjallaOne';
+  font-family: "FjallaOne";
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 .presentationBar {
   position: relative;
   font-family: Optima, Biolinum, Lato;
   width: 396px;
   height: 64px;
-  margin: 0 0 0 20px; }
-  .presentationBar .pb-label {
-    top: 0;
-    left: 24px;
-    position: absolute;
-    font-size: 12pt;
-    width: 400px;
-    color: #ccc;
-    line-height: 24pt;
-    margin-left: 20px; }
-  .presentationBar .slider {
-    position: absolute;
-    top: 32px;
-    left: 30px;
-    width: 254px; }
-  .presentationBar .value {
-    position: absolute;
-    top: 32px;
-    left: 320px;
-    font-size: 24pt;
-    color: white;
-    float: left;
-    width: 64px;
-    text-align: center;
-    line-height: 14pt;
-    vertical-align: top; }
-  .presentationBar .nudge {
-    position: absolute;
-    height: 40px;
-    width: 40px;
-    margin: 0;
-    padding: 0;
-    top: 18px;
-    border-radius: 6px; }
-  .presentationBar .plus {
-    left: -8px; }
-  .presentationBar .minus {
-    left: 280px; }
+  margin: 0 0 0 20px;
+}
+.presentationBar .pb-label {
+  top: 0;
+  left: 24px;
+  position: absolute;
+  font-size: 12pt;
+  width: 400px;
+  color: #ccc;
+  line-height: 24pt;
+  margin-left: 20px;
+}
+.presentationBar .slider {
+  position: absolute;
+  top: 32px;
+  left: 30px;
+  width: 254px;
+}
+.presentationBar .value {
+  position: absolute;
+  top: 32px;
+  left: 320px;
+  font-size: 24pt;
+  color: white;
+  float: left;
+  width: 64px;
+  text-align: center;
+  line-height: 14pt;
+  vertical-align: top;
+}
+.presentationBar .nudge {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+  margin: 0;
+  padding: 0;
+  top: 18px;
+  border-radius: 6px;
+}
+.presentationBar .plus {
+  left: -8px;
+}
+.presentationBar .minus {
+  left: 280px;
+}
 
 .presentationButtons {
   position: relative;
   font-family: Optima, Biolinum;
-  margin: 22px 0 0 10px; }
-  .presentationButtons .pb-panel {
-    width: 100%;
-    height: 48px;
-    text-align: center; }
-    .presentationButtons .pb-panel .pb-label {
-      text-align: left;
-      font-size: 12pt; }
-    .presentationButtons .pb-panel .btn-group {
-      position: relative; }
-      .presentationButtons .pb-panel .btn-group .btn-xs {
-        font-size: 10pt; }
-    .presentationButtons .pb-panel .low {
-      left: 45px; }
-    .presentationButtons .pb-panel .high {
-      left: 45px; }
-  .presentationButtons label {
-    padding: 4px 15px 2px 15px; }
-    .presentationButtons label.context {
-      padding: 4px 2px 2px 2px; }
+  margin: 22px 0 0 10px;
+}
+.presentationButtons .pb-panel {
+  width: 100%;
+  height: 48px;
+  text-align: center;
+}
+.presentationButtons .pb-panel .pb-label {
+  text-align: left;
+  font-size: 12pt;
+}
+.presentationButtons .pb-panel .btn-group {
+  position: relative;
+}
+.presentationButtons .pb-panel .btn-group .btn-xs {
+  font-size: 10pt;
+}
+.presentationButtons .pb-panel .low {
+  left: 45px;
+}
+.presentationButtons .pb-panel .high {
+  left: 45px;
+}
+.presentationButtons label {
+  padding: 4px 15px 2px 15px;
+}
+.presentationButtons label.context {
+  padding: 4px 2px 2px 2px;
+}
 
 .judgeNotes {
   border: 4px solid #999;
@@ -406,294 +478,417 @@ body {
   width: 580px;
   height: 588px;
   overflow: hidden;
-  margin: 6px 6px 18px 6px; }
-  .judgeNotes .view {
-    width: 580px;
-    height: 588px;
-    overflow-y: auto; }
-    .judgeNotes .view table {
-      border: 0;
-      border-spacing: 0;
-      border-collapse: collapse;
-      color: #999;
-      font-size: 18pt;
-      width: 100%; }
-      .judgeNotes .view table th {
-        color: #999;
-        font-size: 12pt;
-        text-align: left;
-        padding: 0 8px 8px 8px; }
-      .judgeNotes .view table td {
-        padding: 4px 8px 4px 8px;
-        font-size: 18pt; }
-      .judgeNotes .view table .order {
-        width: 28px;
-        color: #666; }
-      .judgeNotes .view table .name {
-        width: 278px; }
-      .judgeNotes .view table .form0 {
-        width: 200px;
-        text-align: center; }
-        .judgeNotes .view table .form0 .accuracy {
-          color: #f99; }
-        .judgeNotes .view table .form0 .presentation {
-          color: #99f; }
-      .judgeNotes .view table .form1 {
-        width: 86px;
-        text-align: center; }
-        .judgeNotes .view table .form1 .accuracy {
-          color: #f99; }
-        .judgeNotes .view table .form1 .presentation {
-          color: #99f; }
-      .judgeNotes .view table .form2 {
-        width: 86px;
-        text-align: center; }
-        .judgeNotes .view table .form2 .accuracy {
-          color: #f99; }
-        .judgeNotes .view table .form2 .presentation {
-          color: #99f; }
-      .judgeNotes .view table .average {
-        width: 86px;
-        text-align: center; }
-      .judgeNotes .view table .current {
-        background: #606c88;
-        background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
-        background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
-        color: white; }
-        .judgeNotes .view table .current .accuracy {
-          color: #fcc; }
-        .judgeNotes .view table .current .presentation {
-          color: #ccf; }
-      .judgeNotes .view table .current-form {
-        background: #cedce7;
-        background: -webkit-linear-gradient(top, #cedce7 0%, #596a72 100%);
-        /* Chrome10+,Safari5.1+ */
-        background: linear-gradient(to bottom, #cedce7 0%, #596a72 100%);
-        /* W3C */
-        color: white; }
-        .judgeNotes .view table .current-form .accuracy {
-          color: #fcc; }
-        .judgeNotes .view table .current-form .presentation {
-          color: #ccf; }
+  margin: 6px 6px 18px 6px;
+}
+.judgeNotes .view {
+  width: 580px;
+  height: 588px;
+  overflow-y: auto;
+}
+.judgeNotes .view table {
+  border: 0;
+  border-spacing: 0;
+  border-collapse: collapse;
+  color: #999;
+  font-size: 18pt;
+  width: 100%;
+}
+.judgeNotes .view table th {
+  color: #999;
+  font-size: 12pt;
+  text-align: left;
+  padding: 0 8px 8px 8px;
+}
+.judgeNotes .view table td {
+  padding: 4px 8px 4px 8px;
+  font-size: 18pt;
+}
+.judgeNotes .view table .order {
+  width: 28px;
+  color: #666;
+}
+.judgeNotes .view table .name {
+  width: 278px;
+}
+.judgeNotes .view table .form0 {
+  width: 200px;
+  text-align: center;
+}
+.judgeNotes .view table .form0 .accuracy {
+  color: #f99;
+}
+.judgeNotes .view table .form0 .presentation {
+  color: #99f;
+}
+.judgeNotes .view table .form1 {
+  width: 86px;
+  text-align: center;
+}
+.judgeNotes .view table .form1 .accuracy {
+  color: #f99;
+}
+.judgeNotes .view table .form1 .presentation {
+  color: #99f;
+}
+.judgeNotes .view table .form2 {
+  width: 86px;
+  text-align: center;
+}
+.judgeNotes .view table .form2 .accuracy {
+  color: #f99;
+}
+.judgeNotes .view table .form2 .presentation {
+  color: #99f;
+}
+.judgeNotes .view table .average {
+  width: 86px;
+  text-align: center;
+}
+.judgeNotes .view table .current {
+  background: #606c88;
+  background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
+  background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
+  color: white;
+}
+.judgeNotes .view table .current .accuracy {
+  color: #fcc;
+}
+.judgeNotes .view table .current .presentation {
+  color: #ccf;
+}
+.judgeNotes .view table .current-form {
+  background: #cedce7;
+  background: -webkit-linear-gradient(top, #cedce7 0%, #596a72 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: linear-gradient(to bottom, #cedce7 0%, #596a72 100%);
+  /* W3C */
+  color: white;
+}
+.judgeNotes .view table .current-form .accuracy {
+  color: #fcc;
+}
+.judgeNotes .view table .current-form .presentation {
+  color: #ccf;
+}
 
 .flippable .card, .flippable .front, .flippable .back {
   width: 808px;
-  height: 608px; }
+  height: 608px;
+}
 .flippable .front, .flippable .back {
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
   border-radius: 24pt;
-  border: 4px solid white; }
+  border: 4px solid white;
+}
 
 .judgeController {
   font-family: Optima, Biolinum, Lato;
   width: 808px;
   height: 820px;
   margin: 0 auto 0 auto;
-  -webkit-user-select: none; }
-  .judgeController .nav-button {
-    font-size: 14pt;
-    float: left;
-    height: 60px;
-    border-radius: 12pt;
-    text-align: center;
-    line-height: 60px;
-    margin: 0 10px 0 10px;
-    position: relative; }
-  .judgeController .front {
-    position: absolute; }
-    .judgeController .front .flip {
-      position: absolute;
-      font-size: 18pt;
-      line-height: 128pt;
-      height: 188px;
-      width: 188px;
-      color: white;
-      border: 4px solid #93d;
-      border-radius: 12px;
-      background: #9560c9;
-      background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-      background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-      text-align: center;
-      top: 20px;
-      left: 10px; }
-    .judgeController .front > .view, .judgeController .front > .controller {
-      width: 800px;
-      top: 8px; }
-    .judgeController .front > .view {
-      height: 232px; }
-    .judgeController .front > .controller {
-      height: 360px; }
-    .judgeController .front .control-group {
-      position: relative; }
-    .judgeController .front .score {
-      position: absolute;
-      width: 388px;
-      height: 216px;
-      border-radius: 24pt;
-      top: 0;
-      left: 208px; }
-      .judgeController .front .score > .athlete {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        position: absolute;
-        width: 240px;
-        height: 32px;
-        border-radius: 24pt;
-        background: black;
-        background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
-        background: linear-gradient(to top, #45484d 0%, #000000 100%);
-        line-height: 24pt;
-        text-align: center;
-        top: 8px;
-        left: 72px; }
-        .judgeController .front .score > .athlete .details {
-          color: #ccc;
-          font-size: 14pt; }
-        .judgeController .front .score > .athlete .athlete {
-          color: #ddd;
-          font-size: 18pt; }
-      .judgeController .front .score > .accuracy, .judgeController .front .score > .presentation {
-        position: absolute;
-        width: 194px;
-        height: 208px;
-        font-size: 72pt;
-        line-height: 88pt;
-        padding-top: 48px;
-        text-align: center;
-        top: 0; }
-      .judgeController .front .score > .accuracy {
-        border-radius: 18pt 0 0 18pt;
-        background: black;
-        background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
-        background: linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
-        color: white;
-        left: 0; }
-        .judgeController .front .score > .accuracy span {
-          font-size: 18pt;
-          line-height: 18pt; }
-      .judgeController .front .score > .presentation {
-        border-radius: 0 18pt 18pt 0;
-        background: white;
-        background: -webkit-linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
-        background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
-        left: 194px; }
-        .judgeController .front .score > .presentation span {
-          font-size: 18pt;
-          line-height: 18pt; }
-    .judgeController .front .controls {
-      float: left;
-      width: 400px;
-      height: 280px;
-      margin: auto; }
-      .judgeController .front .controls > .control-label {
-        font-size: 24pt;
-        color: #ccc;
-        margin: 0 0 12px 72px; }
-      .judgeController .front .controls .send {
-        font-size: 18pt;
-        line-height: 28pt;
-        height: 48px;
-        width: 308px;
-        color: white;
-        border: 4px solid red;
-        border-radius: 12px;
-        background: red;
-        background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-        background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-        margin: 48px 46px 12px 46px;
-        text-align: center; }
-        .judgeController .front .controls .send .ui-button-text {
-          padding-top: 3px; }
-  .judgeController .back {
-    position: absolute; }
-    .judgeController .back .flip {
-      position: absolute;
-      font-size: 18pt;
-      line-height: 128pt;
-      height: 188px;
-      width: 188px;
-      color: white;
-      border: 4px solid #93d;
-      border-radius: 12px;
-      background: #9560c9;
-      background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-      background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
-      text-align: center;
-      top: 400px;
-      left: 600px; }
-    .judgeController .back .navigate {
-      position: absolute;
-      font-size: 18pt;
-      line-height: 38pt;
-      height: 40px;
-      width: 188px;
-      text-align: center;
-      color: white;
-      left: 590px; }
-    .judgeController .back .next {
-      border-radius: 0 12px 12px 0;
-      left: 684px;
-      width: 94px; }
-    .judgeController .back .prev {
-      border-radius: 12px 0 0 12px;
-      left: 590px;
-      width: 94px; }
-    .judgeController .back .next .ui-button-text, .judgeController .back .prev .ui-button-text {
-      padding-top: 1px; }
-    .judgeController .back .navigate-label {
-      position: absolute;
-      left: 604px;
-      width: 166px;
-      text-align: center; }
-    .judgeController .back .athlete {
-      top: 36px;
-      border: 4px solid blue;
-      border-color: blue;
-      background: #6db3f2;
-      background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
-      background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); }
-    .judgeController .back .athlete-label {
-      top: 0; }
-    .judgeController .back .form {
-      font-size: 18pt;
-      line-height: 18pt;
-      top: 112px;
-      border: 4px solid green;
-      background: #9dd53a;
-      background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-      background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%); }
-      .judgeController .back .form sup {
-        font-size: 10pt; }
-      .judgeController .back .form .ui-button-text {
-        padding-top: 3px; }
-    .judgeController .back .form-label {
-      top: 76px; }
-    .judgeController .back .round {
-      top: 188px;
-      border: 4px solid orange;
-      background: #ffb76b;
-      background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-      background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%); }
-    .judgeController .back .round-label {
-      top: 152px; }
-    .judgeController .back .division {
-      top: 264px;
-      border: 4px solid red;
-      background: red;
-      background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-      background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%); }
-    .judgeController .back .division-label {
-      top: 228px; }
-    .judgeController .back .display-mode {
-      height: 56px;
-      border: 4px solid gold;
-      background: #fceabb;
-      background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-      background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-      color: black;
-      top: 324px; }
+  -webkit-user-select: none;
+}
+.judgeController .nav-button {
+  font-size: 14pt;
+  float: left;
+  height: 60px;
+  border-radius: 12pt;
+  text-align: center;
+  line-height: 60px;
+  margin: 0 10px 0 10px;
+  position: relative;
+}
+.judgeController .front {
+  position: absolute;
+}
+.judgeController .front .division-info {
+  position: absolute;
+  height: 124px;
+  width: 188px;
+  border: 4px solid #333;
+  border-radius: 12px;
+  background: black;
+  top: 20px;
+  left: 10px;
+  padding: 0 8px 0 8px;
+  text-align: center;
+  overflow-y: auto;
+}
+.judgeController .front .division-info .label {
+  position: relative;
+  left: -12px;
+  display: block;
+  padding: 4px;
+  width: 188px;
+  background: #333;
+  border-radius: 12px 12px 0 0;
+  font-size: 10pt;
+  color: white;
+}
+.judgeController .front .division-info .description {
+  font-size: 12pt;
+  color: lime;
+}
+.judgeController .front .division-info .round {
+  margin-top: 4px;
+  font-size: 12pt;
+  color: skyblue;
+}
+.judgeController .front .division-info .form {
+  color: #999;
+  font-size: 12pt;
+}
+.judgeController .front .division-info .form .current {
+  color: yellow;
+}
+.judgeController .front .flip {
+  position: absolute;
+  font-size: 14pt;
+  height: 32px;
+  width: 188px;
+  color: white;
+  border: 4px solid #93d;
+  border-radius: 12px;
+  background: #9560c9;
+  background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  text-align: center;
+  top: 160px;
+  left: 10px;
+}
+.judgeController .front > .view, .judgeController .front > .controller {
+  width: 800px;
+  top: 8px;
+}
+.judgeController .front > .view {
+  height: 232px;
+}
+.judgeController .front > .controller {
+  height: 360px;
+}
+.judgeController .front .control-group {
+  position: relative;
+}
+.judgeController .front .score {
+  position: absolute;
+  width: 388px;
+  height: 216px;
+  border-radius: 24pt;
+  top: 0;
+  left: 208px;
+}
+.judgeController .front .score > .athlete {
+  position: absolute;
+  top: 8px;
+  height: 32px;
+  border-radius: 24pt;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  line-height: 24pt;
+  text-align: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 240px;
+  left: 72px;
+}
+.judgeController .front .score > .athlete .details {
+  color: #ccc;
+  font-size: 14pt;
+}
+.judgeController .front .score > .athlete .athlete {
+  color: #ddd;
+  font-size: 18pt;
+}
+.judgeController .front .score > .accuracy, .judgeController .front .score > .presentation {
+  position: absolute;
+  width: 194px;
+  height: 208px;
+  font-size: 72pt;
+  line-height: 72pt;
+  padding-top: 48px;
+  text-align: center;
+  top: 0;
+}
+.judgeController .front .score > .accuracy {
+  border-radius: 18pt 0 0 18pt;
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+  background: linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+  color: white;
+  left: 0;
+}
+.judgeController .front .score > .accuracy span {
+  font-size: 18pt;
+  line-height: 18pt;
+}
+.judgeController .front .score > .presentation {
+  border-radius: 0 18pt 18pt 0;
+  background: white;
+  background: -webkit-linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
+  background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
+  left: 194px;
+}
+.judgeController .front .score > .presentation span {
+  font-size: 18pt;
+  line-height: 18pt;
+}
+.judgeController .front .score > .total {
+  color: white;
+  font-size: 24pt;
+  line-height: 24pt;
+  background: #333;
+  position: absolute;
+  top: 168px;
+  left: 164px;
+  width: 60px;
+  border-radius: 12pt;
+  text-align: center;
+}
+.judgeController .front .score > .total .total-label {
+  font-size: 12pt;
+  line-height: 12pt;
+  color: #ccc;
+}
+.judgeController .front .controls {
+  float: left;
+  width: 400px;
+  height: 280px;
+  margin: auto;
+}
+.judgeController .front .controls > .control-label {
+  font-size: 24pt;
+  color: #ccc;
+  margin: 0 0 12px 72px;
+}
+.judgeController .front .controls .send {
+  font-size: 18pt;
+  line-height: 28pt;
+  height: 48px;
+  width: 308px;
+  color: white;
+  border: 4px solid red;
+  border-radius: 12px;
+  background: red;
+  background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  margin: 28px 46px 12px 46px;
+  text-align: center;
+}
+.judgeController .front .controls .send .ui-button-text {
+  padding-top: 3px;
+}
+.judgeController .back {
+  position: absolute;
+}
+.judgeController .back .flip {
+  position: absolute;
+  font-size: 18pt;
+  line-height: 128pt;
+  height: 188px;
+  width: 188px;
+  color: white;
+  border: 4px solid #93d;
+  border-radius: 12px;
+  background: #9560c9;
+  background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  text-align: center;
+  top: 400px;
+  left: 600px;
+}
+.judgeController .back .navigate {
+  position: absolute;
+  line-height: 38pt;
+  height: 40px;
+  width: 188px;
+  text-align: center;
+  color: white;
+  left: 590px;
+}
+.judgeController .back .next {
+  border-radius: 0 12px 12px 0;
+  left: 684px;
+  width: 94px;
+}
+.judgeController .back .prev {
+  border-radius: 12px 0 0 12px;
+  left: 590px;
+  width: 94px;
+}
+.judgeController .back .next .ui-button-text, .judgeController .back .prev .ui-button-text {
+  padding-top: 1px;
+}
+.judgeController .back .navigate-label {
+  position: absolute;
+  left: 604px;
+  width: 166px;
+  text-align: center;
+}
+.judgeController .back .athlete {
+  top: 36px;
+  border: 4px solid blue;
+  border-color: blue;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+}
+.judgeController .back .athlete-label {
+  top: 0;
+}
+.judgeController .back .form {
+  font-size: 18pt;
+  line-height: 18pt;
+  top: 112px;
+  border: 4px solid green;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+}
+.judgeController .back .form sup {
+  font-size: 10pt;
+}
+.judgeController .back .form .ui-button-text {
+  padding-top: 3px;
+}
+.judgeController .back .form-label {
+  top: 76px;
+}
+.judgeController .back .round {
+  top: 188px;
+  border: 4px solid orange;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+}
+.judgeController .back .round-label {
+  top: 152px;
+}
+.judgeController .back .division {
+  top: 264px;
+  border: 4px solid red;
+  background: red;
+  background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+}
+.judgeController .back .division-label {
+  top: 228px;
+}
+.judgeController .back .display-mode {
+  height: 56px;
+  font-size: 14pt;
+  border: 4px solid gold;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  color: black;
+  top: 324px;
+}
+.judgeController .back .display-mode > .ui-button-text {
+  margin-top: 4px;
+}
 
 /*# sourceMappingURL=judgeController.css.map */
