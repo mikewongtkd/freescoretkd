@@ -396,7 +396,7 @@ sub is_flight {
 #   @brief Returns true if the division is a flight;
 #*
 	my $self = shift;
-	return exists $self->{ flight } && defined $self->{ flight };
+	return exists $self->{ flight } && defined $self->{ flight } && $self->{ flight };
 }
 
 # ============================================================
@@ -944,7 +944,7 @@ sub write {
 		push @places, "$round:" . join( ",", grep { /^\d+$/ } @$placements );
 	}
 	my $flight = '';
-	if( $self->is_flight()) { $flight = "# flight=id:$self->{ flight }{ id };group:" . join( ",", @{ $self->{ flight }{ group }}) . ";state:$self->{ flight }{ state }"; }
+	if( $self->is_flight()) { $flight = "id:$self->{ flight }{ id };group:" . join( ",", @{ $self->{ flight }{ group }}) . ";state:$self->{ flight }{ state }"; }
 
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";

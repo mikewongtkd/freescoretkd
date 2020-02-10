@@ -312,7 +312,7 @@
 					// ===== DISPLAY THE DIVISIONS
 					ring.divisions.sort(( a, b ) => { return a.name < b.name ? -1 : a.name > b.name; });
 					ring.divisions.forEach(( d ) => {
-						var division = new Division( d );
+						var division = new Division( d ); 
 						var button   = html.a.clone().addClass( "list-group-item" );
 						var summary  = html.span.clone().html( division.summary() ).addClass( 'division-summary' );
 						var count    = html.span.clone().html( division.athletes().length ).addClass( "badge" );
