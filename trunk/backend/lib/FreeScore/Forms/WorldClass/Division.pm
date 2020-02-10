@@ -44,6 +44,11 @@ use strict;
 # - power
 # - rhythm
 # - ki
+#
+# Flight data structure
+# - id
+# - state (ready, in-progress, complete, merged)
+# - group[]: list of all flights for this division
 #**
 
 # ============================================================
