@@ -78,10 +78,11 @@
 	}
 
 	.number {
+		.ring-label  { font-size: 10pt; }
+		.ring-number { font-size: 18pt; margin-top: -4px; }
 		position: absolute;
-		font-size: 48pt;
 		color: white;
-		top: 40px;
+		top: 64px;
 		left: 0;
 		width: 178px;
 		text-align: center;

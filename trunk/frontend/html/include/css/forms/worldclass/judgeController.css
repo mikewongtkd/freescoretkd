@@ -301,12 +301,18 @@ body {
 }
 .matposition .number {
   position: absolute;
-  font-size: 48pt;
   color: white;
-  top: 40px;
+  top: 64px;
   left: 0;
   width: 178px;
   text-align: center;
+}
+.matposition .number .ring-label {
+  font-size: 10pt;
+}
+.matposition .number .ring-number {
+  font-size: 18pt;
+  margin-top: -4px;
 }
 .matposition .instructions {
   position: absolute;
@@ -741,10 +747,12 @@ body {
   font-size: 24pt;
   line-height: 24pt;
   background: #333;
+  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
+  background: linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
   position: absolute;
   top: 168px;
-  left: 164px;
-  width: 60px;
+  left: 154px;
+  width: 80px;
   border-radius: 12pt;
   text-align: center;
 }

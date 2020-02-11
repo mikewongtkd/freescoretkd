@@ -62,7 +62,9 @@ $.widget( "freescore.matposition", {
 		var e      = this.options.elements;
 		var html   = e.html;
 
-		e.number.html( o.ring );
+		if( defined( o.ring )) {
+			e.number.html( `<div class="ring-label">Ring</div><div class="ring-number">${o.ring}</div>` );
+		}
 
 		// ===== JUDGE POSITIONS
 		if( defined( o.judges )) {
