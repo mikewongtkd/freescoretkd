@@ -614,6 +614,8 @@ body {
   height: 124px;
   width: 188px;
   border: 4px solid #333;
+  border: 4px solid -webkit-linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
+  border: 4px solid linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
   border-radius: 12px;
   background: black;
   top: 20px;
@@ -629,6 +631,8 @@ body {
   padding: 4px;
   width: 188px;
   background: #333;
+  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
+  background: linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
   border-radius: 12px 12px 0 0;
   font-size: 10pt;
   color: white;
