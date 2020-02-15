@@ -36,6 +36,9 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	$self->inactivity_timeout( 3600 ); # 1 hour
 
 	# ===== REGISTER THE CLIENT
+	# Judges shall have 1 connection per device; other roles can have multiple
+	# connections, which shall communicate independently.
+	if( $self->cookie( 'role' ) ne 'judge' ) { $id = sha1_hex( $self->tx()); }
 	$self->cookie( 'id' => $id );
 	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
 	if( $DEBUG ) {
