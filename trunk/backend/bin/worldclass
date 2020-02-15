@@ -9,6 +9,7 @@ use FreeScore::Forms::WorldClass::RequestManager;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
+use MIME::Base64 qw( encode_base64 decode_base64 );
 use PHP::Session;
 use Data::Dumper;
 use Clone qw( clone );
@@ -26,15 +27,16 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
-	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $self->tx() );
+	my $id         = $self->cookie( 'freescore-session' );
+	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $id, $self->tx() );
 	my $progress   = undef;
 	my $staging    = undef;
-	my $id         = sprintf "%s", sha1_hex( $self->tx() );
 	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
 
 	# ===== REGISTER THE CLIENT
+	$self->cookie( 'id' => $id );
 	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
 	if( $DEBUG ) {
 		print STDERR "WORLDCLASS $tournament ring $ring\n";
@@ -59,15 +61,14 @@ websocket '/worldclass/:tournament/:ring' => sub {
 				elsif( $name eq 'role'   ) { $client->{ $group }{ $id }{ role } = lc $value; }
 			}
 		}
-
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
 
 		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
 		if( $DEBUG ) {
 			my $log = clone( $request ); 
-			$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
-			$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
+			$log->{ cookie }{ id } = substr( $id, 0, 5 ) . '...';
+			$log->{ id } = substr( $id, 0, 5 ) . '...';
 			print STDERR $json->canonical->encode( $log ), "\n";
 		}
 

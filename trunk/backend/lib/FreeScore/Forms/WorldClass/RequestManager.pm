@@ -33,6 +33,7 @@ sub init {
 	my $self               = shift;
 	$self->{ _tournament } = shift;
 	$self->{ _ring }       = shift;
+	$self->{ _id }         = shift;
 	$self->{ _client }     = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
@@ -97,10 +98,10 @@ sub broadcast_division_response {
 	my $progress  = shift;
 	my $clients   = shift;
 	my $judges    = shift;
+	my $client_id = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-	my $client_id = sprintf "%s", sha1_hex( $client );
 
 	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
 
@@ -129,10 +130,10 @@ sub broadcast_division_judge_status {
 	my $progress  = shift;
 	my $clients   = shift;
 	my $judges    = shift;
+	my $client_id = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-	my $client_id = sprintf "%s", sha1_hex( $client );
 
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
@@ -157,10 +158,10 @@ sub broadcast_ring_response {
 	my $progress  = shift;
 	my $clients   = shift;
 	my $judges    = shift;
+	my $client_id = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-	my $client_id = sprintf "%s", sha1_hex( $client );
 
 	print STDERR "  Broadcasting ring information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
@@ -510,9 +511,9 @@ sub handle_division_judge_ping {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $client   = $self->{ _client };
+	my $id       = $self->{ _id };
 	my $division = $progress->current();
 
-	my $id   = sprintf( "%s", sha1_hex( $client ));
 	my $jid  = substr( $id, 0, 4); # short judge id
 	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
 	print STDERR "$name device ($jid) ping.\n" if $DEBUG > 1;
@@ -1120,6 +1121,7 @@ sub send_division_response {
 	my $progress  = shift;
 	my $clients   = shift;
 	my $judges    = shift;
+	my $id        = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
@@ -1127,7 +1129,6 @@ sub send_division_response {
 	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
-	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
 	my $unblessed = unbless( $message ); 
@@ -1150,13 +1151,13 @@ sub send_ring_response {
 	my $progress  = shift;
 	my $clients   = shift;
 	my $judges    = shift;
+	my $id        = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $unblessed = undef;
 	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int( $request->{ cookie }{ judge }) : undef;
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
-	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $message   = clone( $progress );
 	my $unblessed = unbless( $message ); 
