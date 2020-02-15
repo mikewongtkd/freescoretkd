@@ -572,16 +572,22 @@ sub handle_division_judge_registration {
 	my $id       = $request->{ id };
 	my $num      = $request->{ num };
 	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
+	my $sid      = substr( $id, 0, 4 );
 
-	print STDERR "Requesting $judge registration (" . substr( $id, 0, 4 ) . ").\n" if $DEBUG;
+	print STDERR "Requesting $judge registration ($id).\n" if $DEBUG;
 
+	# De-register the judge from other positions
+	foreach my $i ( 0 .. $#$judges ) {
+		my $judge = $judges->[ $i ];
+		$judges->[ $i ] = {} if( $judge->{ id } eq $id );
+	}
 	$judges->[ $num ]{ id } = $id;
 
 	print STDERR "  Broadcasting judge registration information to:\n" if $DEBUG;
 	foreach my $id (sort keys %$clients) {
 		my $user = $clients->{ $id };
 
-		printf STDERR "    user: %s (%s)\n", $user->{ role }, substr( $id, 0, 4 ) if $DEBUG;
+		printf STDERR "    user: %s (%s)\n", $user->{ role }, $id if $DEBUG;
 		$user->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
 	}
 	print STDERR "\n" if $DEBUG;
