@@ -27,7 +27,7 @@ $.widget( "freescore.worldclass", {
 	_init: function( ) {
 		var e       = this.options.elements;
 		var o       = this.options;
-		var ws      = e.ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring );
+		var ws      = e.ws = new WebSocket( `ws://${o.server}:3088/worldclass/${o.tournament.db}/${o.ring}/display` );
 		var network = { reconnect: 0 };
 
 		e.leaderboard.leaderboard();
@@ -108,7 +108,7 @@ $.widget( "freescore.worldclass", {
 			if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
 				if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 				network.reconnect++;
-				ws = new WebSocket( 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring ); 
+				ws = new WebSocket( `ws://${o.server}:3088/worldclass/${o.tournament.db}/${o.ring}/display` ); 
 				
 				ws.onerror   = network.error;
 				ws.onmessage = network.message;

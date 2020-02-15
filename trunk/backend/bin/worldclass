@@ -23,10 +23,11 @@ our $DEBUG  = 0;
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/worldclass/:tournament/:ring' => sub {
+websocket '/worldclass/:tournament/:ring/:role' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
+	my $role       = $self->param( 'role'       ); $role =~ s/\+/ /g;
 	my $id         = $self->cookie( 'freescore-session' );
 	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $id, $self->tx() );
 	my $progress   = undef;
@@ -38,9 +39,9 @@ websocket '/worldclass/:tournament/:ring' => sub {
 	# ===== REGISTER THE CLIENT
 	# Judges shall have 1 connection per device; other roles can have multiple
 	# connections, which shall communicate independently.
-	if( $self->cookie( 'role' ) ne 'judge' ) { $id = sha1_hex( $self->tx()); }
+	if( $role ne 'judge' ) { $id = sha1_hex( $self->tx()); }
 	$self->cookie( 'id' => $id );
-	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
+	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() }; 
 	if( $DEBUG ) {
 		print STDERR "WORLDCLASS $tournament ring $ring\n";
 		print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
@@ -55,7 +56,7 @@ websocket '/worldclass/:tournament/:ring' => sub {
 		my $request = $json->decode( shift );
 
 		# ===== GET RELEVANT COOKIES
-		foreach my $name (qw( role judge id )) {
+		foreach my $name (qw( judge id )) {
 			my $value = $self->cookie( $name );
 			if( defined $value ) {
 				$value =~ s/\+/ /g;

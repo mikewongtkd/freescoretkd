@@ -171,7 +171,7 @@ $.widget( "freescore.judgeController", {
 		var e           = this.options.elements;
 		var o           = this.options;
 		var html        = e.html;
-		var ws          = e.ws = new window.WebsocketHeartbeatJs({ url : 'ws://' + o.server + ':3088/worldclass/' + o.tournament.db + '/' + o.ring, pingMsg: `{"type":"division","action":"judge ping","judge":${o.num}}` }); 
+		var ws          = e.ws = new window.WebsocketHeartbeatJs({ url : `ws://${o.server}:3088/worldclass/${o.tournament.db}/${o.ring}/judge`, pingMsg: `{"type":"division","action":"judge ping","judge":${o.num}}` }); 
 		var network     = { reconnect: 0 };
 
 		alertify.set( 'notifier', 'position', 'top-right' );

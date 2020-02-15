@@ -79,8 +79,8 @@ var tournament = <?= $tournament ?>;
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 // ===== SERVER COMMUNICATION
-var wc = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
-var fs = new WebSocket( 'ws://' + host + ':3082/freestyle/' + tournament.db + '/staging' );
+var wc = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` );
+var fs = new WebSocket( `ws://${host}:3082/freestyle/${tournament.db}/staging` );
 
 wc.onopen = function() {
 	var request;

@@ -621,7 +621,7 @@ $( '.pt-page-3 .print' ).off( 'click' ).click(() => { alertify.dismissAll(); win
 $( '.pt-page-3 .accept' ).off( 'click' ).click(() => { window.location = '../../index.php'; });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/staging' );
+var ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` );
 
 ws.onopen = function() {
 	var request;

@@ -335,7 +335,7 @@ var ws = {
 			ws.sparring.send( request );
 		}
 	},
-	worldclass : new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging` ),
+	worldclass : new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` ),
 	grassroots : new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/staging` ),
 	freestyle  : new WebSocket( `ws://${host}:3082/freestyle/${tournament.db}/staging` ),
 	sparring   : new WebSocket( `ws://${host}:3086/sparring/${tournament.db}/staging` ),

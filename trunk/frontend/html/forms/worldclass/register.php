@@ -64,7 +64,7 @@ body { background-color: black; color: gold; }
 			var ring       = { num: <?= $i ?> };
 			var judges     = {};
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( 'ws://<?= $host ?>:3088/worldclass/' + tournament.db + '/' + ring.num );
+			var ws         = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/register` );
 			var network    = { reconnect: 0 }
 			var url        = $.url();
 			var first      = ( el ) => { return defined( el ); };
@@ -135,7 +135,7 @@ body { background-color: black; color: gold; }
 						sound.next.play();
 
 						ws.close();
-						ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/' + ring.num ); 
+						ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/register` );
 						ws.onopen    = network.connect;
 						ws.onerror   = network.error;
 						ws.onmessage = network.message;

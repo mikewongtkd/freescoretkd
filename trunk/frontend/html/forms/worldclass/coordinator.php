@@ -2,7 +2,6 @@
 	$an_hour_ago = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
 	setcookie( 'judge', '', $an_hour_ago, '/' );
-	setcookie( 'role', 'computer operator', 0, '/' );
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 	$k = json_decode( $tournament )->rings->count;
 	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
@@ -254,7 +253,7 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( 'ws://<?= $host ?>:3088/worldclass/' + tournament.db + '/' + ring.num );
+			var ws         = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/computer+operator` );
 			var network    = { reconnect: 0 }
 			var polling    = {};
 
@@ -321,7 +320,7 @@
 				if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
 					if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 					network.reconnect++;
-					ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/' + ring.num ); 
+					ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/computer+operator` ); 
 					
 					ws.onerror   = network.error;
 					ws.onmessage = network.message;
