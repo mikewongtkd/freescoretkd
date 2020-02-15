@@ -1,6 +1,7 @@
 <?php 
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
-	include( "../../include/php/config.php" ); 
+	include( '../../session.php' );
+	include( '../../include/php/config.php' ); 
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 	if( ! isset( $i )) { $i = 1; }
 	$k = json_decode( $tournament )->rings->count;
@@ -25,7 +26,6 @@
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
-		<script src="../../include/opt/js-sha3/sha3.js"></script>
 		<script src="../../include/opt/js-cookie/js.cookie.js"></script>
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/date.format.js"></script>
@@ -204,11 +204,10 @@ body { background-color: black; color: gold; }
 					$( '#ok' ).off( 'click' ).click(( ev ) => { 
 						if( $( ev.target ).hasClass( 'disabled' )) { alertify.message( 'Choose a judge seat' ); return; }
 						Cookies.set( 'ring',  reg.ring,  { path : '/' });
-						Cookies.set( 'role',  reg.role,  { path : '/' });
 						sound.ok.play(); 
 
 						if( reg.role == 'judge' ) {
-							if( ! defined( reg.id )) { reg.id = sha3_224( String( Math.round( Math.random() * Math.pow( 10, 16 )))); }
+							if( ! defined( reg.id )) { reg.id = "<?= session_id() ?>"; }
 							Cookies.set( 'id',    reg.id,    { path : '/' });
 							Cookies.set( 'judge', reg.judge, { path : '/' });
 
