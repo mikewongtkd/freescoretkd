@@ -11,6 +11,7 @@
 	} else {
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
+	include( '../../session.php' );
 ?>
 <html>
 	<head>

@@ -1,5 +1,5 @@
 <?php 
-	include( 'session.php' );
+	include( '../../session.php' );
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
 	$ring = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];

@@ -1,6 +1,6 @@
 <?php 
-	include( "../../include/php/config.php" ); 
-	include( "../../session.php" ); 
+	include( '../../include/php/config.php' ); 
+	include( '../../session.php' ); 
 	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] ) || ! isset( $_COOKIE[ 'judge' ] )) { header( 'Location: ../../forms/worldclass/register.php?role=judge' ); exit(); }
 ?>
 <html>
