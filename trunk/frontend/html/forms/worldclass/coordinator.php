@@ -297,6 +297,12 @@
 				} else if( update.type == 'division' && update.action == 'judge goodbye' ) {
 					refresh.judge( update );
 
+					setTimeout(() => {
+						var request  = { data : { type : 'division', action : 'judge query' }};
+						request.json = JSON.stringify( request.data );
+						ws.send( request.json );
+					}, 500 );
+
 				} else if( update.type == 'division' && update.action == 'update' ) {
 
 					var division = update.division;

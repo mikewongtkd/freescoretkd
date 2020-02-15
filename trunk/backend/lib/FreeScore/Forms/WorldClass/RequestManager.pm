@@ -1132,7 +1132,7 @@ sub send_division_response {
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $unblessed = undef;
-	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
+	my $is_judge  = exists $request->{ cookie }{ judge } && defined $request->{ cookie }{ judge } && $request->{ cookie }{ judge } ne '' && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 
@@ -1142,6 +1142,7 @@ sub send_division_response {
 	my $digest    = sha1_hex( $encoded );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
+
 	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : $role) . "\n" if $DEBUG;
 	printf STDERR "    user: %s (%s) message: %s\n", $role, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 
