@@ -39,7 +39,8 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 	# ===== REGISTER THE CLIENT
 	# Judges shall have 1 connection per device; other roles can have multiple
 	# connections, which shall communicate independently.
-	if( $role ne 'judge' ) { $id = sha1_hex( $self->tx()); }
+	if( $role !~ /^(?:judge|referee)/ ) { $id   = sha1_hex( $self->tx()); }
+	if( $role eq 'computer operator'  ) { $role = 'comp op'; }
 	$self->cookie( 'id' => $id );
 	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() }; 
 	if( $DEBUG ) {
@@ -56,15 +57,15 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 		my $request = $json->decode( shift );
 
 		# ===== GET RELEVANT COOKIES
-		foreach my $name (qw( judge id )) {
-			my $value = $self->cookie( $name );
-			if( defined $value ) {
-				$value =~ s/\+/ /g;
-				$request->{ cookie }{ $name } = $value;
-				if   ( $name eq 'judge'  ) { $client->{ $group }{ $id }{ role } = $value == 0 ? 'referee': 'judge' . $value; }
-				elsif( $name eq 'role'   ) { $client->{ $group }{ $id }{ role } = lc $value; }
+		my $value = $self->cookie( 'judge' );
+		if( defined $value ) {
+			$value =~ s/\+/ /g;
+			if( $role =~ /^(?:judge|referee)/ ) {
+				$request->{ cookie }{ judge } = $value;
+				$client->{ $group }{ $id }{ role } = $value == 0 ? 'referee': 'judge' . $value;
 			}
 		}
+
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
 
