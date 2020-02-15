@@ -10,7 +10,6 @@ use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
 use MIME::Base64 qw( encode_base64 decode_base64 );
-use PHP::Session;
 use Data::Dumper;
 use Clone qw( clone );
 use EV;
@@ -106,7 +105,7 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 	# ----------------------------------------
 	$self->on( finish => sub { 
 		my $c = $client->{ $group }{ $id };
-		if( exists $c->{ judge } ) {
+		if( exists $c->{ judge } && defined( $c->{ judge }) && $c->{ judge } ne '') {
 			my $j = $c->{ judge };
 			foreach my $id (keys %{ $client->{ $group }}) {
 				$c = $client->{ $group }{ $id };
