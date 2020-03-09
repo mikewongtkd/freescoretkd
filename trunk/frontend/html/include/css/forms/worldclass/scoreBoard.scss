@@ -125,8 +125,8 @@
 
 			ul {
 				list-style-type: none;
-				line-height: 24pt;
-				height: 34px;
+				line-height: 30pt;
+				height: 40px;
 
 				b { color: orange; }
 			}
@@ -163,12 +163,12 @@
 			}
 			.total {
 				position: absolute;
-				top: 16px;
+				top: 64px;
 				left: 0;
 				width: 700px;
 				height: 290px;
 				color: lime;
-				font-size: 300pt;
+				font-size: 280pt;
 			}
 		}
 
@@ -183,7 +183,7 @@
 				position: absolute;
 				top: 0;
 				left: 0;
-				width: 192px;
+				width: 152px;
 				height: 72px;
 				background: black;
 				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
@@ -195,20 +195,22 @@
 					color: #996;
 					font-size: 14pt;
 					position: absolute;
-					top: -6px;
+					top: 64px;
 					left: 0;
-					width: 200px;
+					width: 144px;
 					height: 20px;
+					text-align: center;
 				}
 				.score {
 					color: yellow;
 					font-size: 48pt;
 					line-height: 48pt;
 					position: absolute;
-					top: 6px;
+					top: 4px;
 					left: 0;
-					width: 200px;
+					width: 144px;
 					height: 60px;
+					text-align: center;
 				}
 			}
 		}

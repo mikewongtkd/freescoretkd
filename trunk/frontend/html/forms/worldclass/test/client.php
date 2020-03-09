@@ -41,6 +41,7 @@
 		<script>
 			var sound      = {};
 			var division   = undefined;
+			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
 			var ring       = { num: 1 };
 			var ws         = undefined;
