@@ -107,6 +107,8 @@ label.disabled {
 
 .drop-zones {
   clear: both;
+  font-size: 18pt;
+  text-align: center;
 }
 .drop-zones .file-uploaded, .drop-zones .file-drop-zone {
   text-align: center;
@@ -121,6 +123,11 @@ label.disabled {
 .drop-zones .file-drop-zone {
   border: 3px dashed #17a2b8;
   border-radius: 8px;
+}
+
+#usat {
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 
 .subevent table {

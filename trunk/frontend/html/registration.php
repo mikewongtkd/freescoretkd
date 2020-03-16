@@ -72,11 +72,14 @@
 <?php
 	endif
 ?>
-					<h1>Drag &amp; Drop USAT Weight Divisions Below</h1>
+					<h1>Drag &amp; Drop USAT Registration Files Below</h1>
 
 					<div class="drop-zones">
-						<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Division File Here</div>
-						<div class="file-drop-zone" id="male"   action="#"><span class="fa fa-male"  >&nbsp;</span><br>Male<br>Division File Here</div>
+						<p>You can download the CSV files from the Hang-A-Star website and import them below.</p>
+						<div class="file-drop-zone" id="female" data-target="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Registration File Here</div>
+						<div class="file-drop-zone" id="male"   data-target="male"   action="#"><span class="fa fa-male"  >&nbsp;</span><br>Male<br>Registration File Here</div>
+						<p>Or if the USAT Event Coordinator has sent you the<br><code>event_participants.csv</code> file, import that below.</p>
+						<div class="file-drop-zone" id="usat"   data-target="usat"   action="#"><span class="fa fa-female"></span>&nbsp;<span class="fa fa-male"  >&nbsp;</span><br><code>event_participants.csv</code> File Here</div>
 					</div>
 				</div>
 			</div>
@@ -341,11 +344,15 @@ var ws = {
 	sparring   : new WebSocket( `ws://${host}:3086/sparring/${tournament.db}/staging` ),
 };
 
-var registration = { male: '', female: '' };
+var registration = { male: '', female: '', usat: '' };
 var imported     = { worldclass: false, grassroots: false, freestyle: false, sparring: false };
 var dropzone     = { 
 	disable: ( target ) => {
-		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+		if( target == 'usat' ) {
+			$( '#' + target ).html( '<span class="fa fa-female"></span>&nbsp;<span class="fa fa-male"></span><br><code>event_participants.csv</code><br>Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+		} else {
+			$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division Uploaded' ).css({ 'border-color': '#ccc', 'color': '#999' });
+		}
 	},
 	enable: ( target ) => {
 		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
@@ -381,7 +388,7 @@ $( '.file-drop-zone' )
 	.on( 'drop', ( ev ) => {
 		ev.preventDefault();
 		ev.stopPropagation();
-		var target = $( ev.target ).attr( 'id' );
+		var target = $( ev.target ).attr( 'data-target' );
 		if( registration[ target ] ) { sound.next.play(); return; }
 
 		var upload = ev.originalEvent;
@@ -395,7 +402,7 @@ $( '.file-drop-zone' )
 		for( file of upload.files ) {
 			reader.onload = (( f ) => {
 				return ( e ) => { 
-					if( e.target.result == registration.female || e.target.result == registration.male ) {
+					if( e.target.result == registration.female || e.target.result == registration.male || e.target.result == registration.usat ) {
 						alertify.error( 'Same file uploaded twice; possible user error?' );
 						return;
 					}
@@ -403,13 +410,14 @@ $( '.file-drop-zone' )
 
 					registration[ target ] = e.target.result;
 					sound.send.play();
-					alertify.success( target.capitalize() + ' divisions uploaded' );
+					alertify.success( target == 'usat' ? 'USAT Registration uploaded' : `${target.capitalize()} registration uploaded` );
 
 					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Uploading Registrations...' );
 					var request;
 					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
 					ws.all.send( request.json );
+
 				};
 			})( file );
 
@@ -450,6 +458,7 @@ ws.worldclass.onmessage = ( response ) => {
 	if( update.request.action == 'read' ) {
 		if( update.male   ) { dropzone.disable( 'male'   ); } else { dropzone.enable( 'male'   ); }
 		if( update.female ) { dropzone.disable( 'female' ); } else { dropzone.enable( 'female' ); }
+		if( update.usat   ) { dropzone.disable( 'usat'   ); } else { dropzone.enable( 'usat'   ); }
 	
 	} else if( update.request.action == 'archive' ) {
 		request = { data : { type : 'registration', action : 'import' }};

@@ -44,11 +44,11 @@
 ?>
 <div class="container" id="upload">
 	<div class="page-header"> Import USAT Registration </div>
-	<h1>Drag &amp; Drop USAT Weight Divisions Below</h1>
+	<h1>Drag &amp; Drop USAT Registration Files Below</h1>
 
 	<div class="drop-zones">
-		<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Division File Here</div>
-		<div class="file-drop-zone" id="male"   action="#"><span class="fa fa-male"  >&nbsp;</span><br>Male<br>Division File Here</div>
+		<div class="file-drop-zone" id="female" action="#"><span class="fa fa-female">&nbsp;</span><br>Female<br>Registration File Here</div>
+		<div class="file-drop-zone" id="male"   action="#"><span class="fa fa-male"  >&nbsp;</span><br>Male<br>Registration File Here</div>
 	</div>
 	<div class="clearfix">
 		<button type="button" class="accept btn btn-success pull-right disabled">Accept</button> 
