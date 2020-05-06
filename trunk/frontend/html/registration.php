@@ -355,7 +355,11 @@ var dropzone     = {
 		}
 	},
 	enable: ( target ) => {
-		$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
+		if( target == 'usat' ) {
+			$( '#' + target ).html( '<span class="fa fa-female"></span>&nbsp;<span class="fa fa-male"></span><br><code>event_participants.csv</code><br>File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
+		} else {
+			$( '#' + target ).html( '<span class="fa fa-' + target + '">&nbsp;</span><br>' + target.capitalize() + '<br>Division File Here' ).css({ 'border-color': '#17a2b8', 'color': 'black' });
+		}
 	}
 };
 
@@ -414,10 +418,9 @@ $( '.file-drop-zone' )
 
 					$( '#upload' ).css({ 'padding-top' : '64px' }).html( 'Uploading Registrations...' );
 					var request;
-					request = { data : { type : 'registration', action : 'upload', gender: target, data: registration[ target ] }};
+					request = { data : { type : 'registration', action : 'upload', target: target, data: registration[ target ] }};
 					request.json = JSON.stringify( request.data );
 					ws.all.send( request.json );
-
 				};
 			})( file );
 

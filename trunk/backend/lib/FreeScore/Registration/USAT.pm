@@ -3,6 +3,7 @@ package FreeScore::Registration::USAT;
 use JSON::XS;
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use Digest::SHA1 qw( sha1_hex );
 use List::Util qw( reduce );
 use base qw( Clone );
 
@@ -21,9 +22,15 @@ sub init {
 	my $self         = shift;
 	$self->{ _uniq } = {};
 	
-	my $data   = { female => shift, male => shift };
-	my $female = $self->parse( 'female', $data->{ female } );
-	my $male   = $self->parse( 'male',   $data->{ male } );
+	if( int( @_ ) == 1 ) {
+		my $data   = shift;
+		my $female = $self->parse_usat( $data );
+
+	} elsif( int( @_ ) == 2 ) {
+		my $data   = { female => shift, male => shift };
+		my $female = $self->parse_gender( 'female', $data->{ female } );
+		my $male   = $self->parse_gender( 'male',   $data->{ male } );
+	}
 
 	delete $self->{ _uniq };
 }
@@ -244,7 +251,7 @@ sub grassroots_poomsae {
 }
 
 # ============================================================
-sub parse {
+sub parse_gender {
 # ============================================================
 	my $self   = shift;
 	my $gender = shift;
@@ -260,10 +267,10 @@ sub parse {
 	while( @data ) {
 		local $_ = shift @data;
 		chomp;
-		my @fields = map { lc } split /,/, $_;
+		my @values = map { lc } split /,/, $_;
 		my $entry = {};
 		foreach my $key (@$header) { 
-			$entry->{ $key } = shift @fields; 
+			$entry->{ $key } = shift @values; 
 			delete $entry->{ $key } unless $entry->{ $key };
 		}
 		$entry->{ division } = $self->parse_event( $entry->{ division });
@@ -276,11 +283,10 @@ sub parse {
 		delete $entry->{ country };
 		delete $entry->{ subevent };
 		delete $entry->{ division };
-		my $key = $json->canonical->encode( $entry );
+		my $key = substr( sha1_hex( $json->canonical->encode( $entry )), 0, 8 );
 		push @{$self->{ $subevent }{ $division }}, $entry unless exists $uniq->{ $subevent }{ $division }{ $key };
 		$uniq->{ $subevent }{ $division }{ $key } = 1;
 	}
-	close FILE;
 }
 
 # ============================================================
@@ -317,6 +323,44 @@ sub parse_event {
 	}
 
 	return $_;
+}
+
+# ============================================================
+sub parse_usat {
+# ============================================================
+	my $self   = shift;
+	my $data   = shift;
+	my @data   = split /\n/, $data;
+	my $first_line = shift @data; chomp $first_line;
+	my $header     = [ map { lc } split /,/, $first_line ];
+	my $subevent   = undef;
+	my $division   = undef;
+	my $uniq       = $self->{ _uniq };
+	my $json       = new JSON::XS();
+
+	while( @data ) {
+		local $_ = shift @data;
+		chomp;
+		my @values = map { lc } split /,/, $_;
+		my $entry = {};
+		foreach my $key (@$header) { 
+			$entry->{ $key } = shift @values; 
+			delete $entry->{ $key } unless $entry->{ $key };
+		}
+		$entry->{ usat }     = $entry->{ 'member #' };
+		$entry->{ division } = $self->parse_event( $entry->{ division });
+		$entry->{ division } ||= $division; $division = $entry->{ division };
+		$entry->{ subevent } ||= $subevent; $subevent = $entry->{ subevent };
+		$entry->{ gender } = lc $entry->{ gender };
+		delete $entry->{ 'member #' };
+		delete $entry->{ status } if $entry->{ status } eq 'CONFIRMED';
+		delete $entry->{ country };
+		delete $entry->{ subevent };
+		delete $entry->{ division };
+		my $key = substr( sha1_hex( $json->canonical->encode( $entry )), 0, 8 );
+		push @{$self->{ $subevent }{ $division }}, $entry unless exists $uniq->{ $subevent }{ $division }{ $key };
+		$uniq->{ $subevent }{ $division }{ $key } = 1;
+	}
 }
 
 # ============================================================

@@ -844,7 +844,6 @@ sub handle_registration_import {
 	
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	my $path = join '/', @path;
-	my $json = new JSON::XS();
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
 
 	my $draws = $progress->{ draws };
@@ -893,32 +892,45 @@ sub handle_registration_upload {
 	my $progress = shift;
 	my $client   = $self->{ _client };
 
-	print STDERR "Uploading USAT Registration $request->{ gender } information\n" if $DEBUG;
+	print STDERR "Uploading USAT Registration $request->{ target } information\n" if $DEBUG;
 	
-	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
-	return unless defined $gender;
+	my $target = $request->{ target } =~ /^(?:male|female|usat)$/ ? $request->{ target } : undef;
+	return unless defined $target;
 
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	my $path = join '/', @path;
-	my $json = new JSON::XS();
 
-	open FILE, ">$path/registration.$gender.txt" or die $!;
+	open FILE, ">$path/registration.$target.txt" or die $!;
 	print FILE encode( 'UTF-8', $request->{ data });
 	close FILE;
 
 	try {
-		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
+		$client->send({ json => { type => 'registration', action => 'read', result => "$target division file received" }});
 
 	} catch {
 		print STDERR "Error: $_\n";
 		$client->send( { json => { error => "$_" }});
 	}
-	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
+	my $file = {
+		female => "$path/registration.female.txt",
+		male   => "$path/registration.male.txt",
+		usat   => "$path/registration.usat.txt"
+	};
+	return unless(( -e $file->{ female } && -e $file->{ male } ) || -e $file->{ usat });
 
 	try {
-		my $female       = read_file( "$path/registration.female.txt" );
-		my $male         = read_file( "$path/registration.male.txt" );
-		my $registration = new FreeScore::Registration::USAT( $female, $male );
+		my $registration = undef;
+		if( -e $file->{ usat }) {
+			my $usat      = read_file( $file->{ usat });
+			$registration = new FreeScore::Registration::USAT( $usat );
+
+		} elsif( -e $file->{ female } && -e $file->{ male }) {
+			my $female    = read_file( $file->{ female });
+			my $male      = read_file( $file->{ male });
+			$registration = new FreeScore::Registration::USAT( $female, $male );
+		}
+		return unless $registration;
+
 		my $divisions    = $registration->worldclass_poomsae();
 		my $copy         = clone( $request ); delete $copy->{ data };
 
@@ -944,9 +956,22 @@ sub handle_registration_read {
 	try {
 		my $female    = "$path/registration.female.txt";
 		my $male      = "$path/registration.male.txt";
+		my $usat      = "$path/registration.usat.txt";
 		my $copy      = clone( $request );
 		my @divisions = ();
-		if( -e $male && -e $female ) {
+		if( -e $usat ) {
+			$usat   = read_file( $usat );
+			my $registration = new FreeScore::Registration::USAT( $usat );
+			my $poomsae      = $registration->worldclass_poomsae();
+			@divisions       = ( divisions => $poomsae );
+			$copy->{ action } = 'upload';
+
+			$female = \0;
+			$male   = \0;
+			$usat   = \1;
+
+		} 
+		elsif( -e $male && -e $female ) {
 			$female = read_file( $female );
 			$male   = read_file( $male );
 			my $registration = new FreeScore::Registration::USAT( $female, $male );
@@ -956,11 +981,12 @@ sub handle_registration_read {
 
 			$female = \1;
 			$male   = \1;
+			$usat   = \0;
 		} 
-		elsif( -e $male   ) { $female = \0; $male = \1; }
-		elsif( -e $female ) { $female = \1; $male = \0; }
-		else                { $female = \0; $male = \0; }
-		$client->send({ json => { request => $copy, male => $male, female => $female, @divisions }});
+		elsif( -e $male   ) { $female = \0; $male = \1; $usat = \0; }
+		elsif( -e $female ) { $female = \1; $male = \0; $usat = \0; }
+		else                { $female = \0; $male = \0; $usat = \0; }
+		$client->send({ json => { request => $copy, male => $male, female => $female, usat => $usat, @divisions }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
