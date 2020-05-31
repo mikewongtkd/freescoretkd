@@ -2,6 +2,7 @@ package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
 use List::Util qw( all any none sum );
 use FreeScore;
+use FreeScore::Forms::WorldClass::Division::Round::Pool;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Dumper;
 use Carp;
@@ -33,6 +34,7 @@ use Carp;
 #   - judge
 #     - [ judge index ]
 #       - Score Object
+# - pool
 # - started
 # - tiebreakers
 #   (same substructure as forms)
@@ -125,6 +127,29 @@ sub record_penalties {
 }
 
 # ============================================================
+sub record_pool_score {
+# ============================================================
+# Records a score from a judge pool. 
+#------------------------------------------------------------
+ 	my $self  = shift;
+	my $size  = shift;
+	my $form  = shift;
+	my $score = shift;
+
+	my $k    = int( @{ $score->{ forms }[ $form ]{ judge }});
+	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
+	$pool->size( $size );
+	$pool->want( $k );
+
+	my $complete = $pool->record_score( $form, $score );
+
+	return { status => 'in-progress' } unless $complete;
+	my $result = $pool->resolve( $form, $self );
+
+	return $result;
+}
+
+# ============================================================
 sub record_decision {
 # ============================================================
 # Records decision notes. Will overwrite. 
@@ -143,6 +168,19 @@ sub record_decision {
 		$form->{ decision }{ $decision } = 1;
 		$form->{ complete }              = 1;
 	}
+}
+
+# ============================================================
+sub pool_timeout {
+# ============================================================
+# Find the consensus of the pool if the judges timeout
+# ------------------------------------------------------------
+	my $self  = shift;
+	my $size  = shift;
+	my $form  = shift;
+
+	my $result = $pool->resolve( $form, $self );
+	return $result;
 }
 
 # ============================================================

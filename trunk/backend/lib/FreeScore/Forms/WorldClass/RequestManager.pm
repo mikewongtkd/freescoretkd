@@ -54,6 +54,8 @@ sub init {
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
+		pool_score         => \&handle_division_pool_score,
+		pool_timeout       => \&handle_division_pool_timeout,
 		read               => \&handle_division_read,
 		restore            => \&handle_division_restore,
 		round_next         => \&handle_division_round_next,
@@ -629,6 +631,85 @@ sub handle_division_navigate {
 			$division->write();
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_score {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = $request->{ judge }{ name };
+	my $message  = "  $jname in pool score for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		my $score = clone( $request->{ score } );
+		$version->checkout( $division );
+		$division->record_pool_score( $request->{ size }, $division->{ form }, $score );
+		$division->write();
+		$version->commit( $division, $message );
+
+		my $round    = $division->{ round };
+		my $athlete  = $division->{ athletes }[ $division->{ current } ];
+		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_timeout {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$version->checkout( $division );
+		$division->pool_timeout( $request->{ size }, $division->{ form });
+		$division->write();
+		$version->commit( $division, $message );
+
+		my $round    = $division->{ round };
+		my $athlete  = $division->{ athletes }[ $division->{ current } ];
+		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
+
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

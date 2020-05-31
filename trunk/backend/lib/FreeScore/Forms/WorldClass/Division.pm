@@ -21,6 +21,10 @@ use strict;
 #       - Round Object
 #
 # Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
+# - adjusted
+#   - accuracy
+#   - presentation
+#   - total
 # - complete
 # - decision
 #   - withdraw
@@ -35,6 +39,8 @@ use strict;
 #   - judge
 #     - [ judge index ]
 #       - Score Object
+# - pool
+# - started
 # - tiebreakers
 #   (same substructure as forms)
 #
@@ -454,6 +460,27 @@ sub normalize {
 	}
 
 	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
+}
+
+# ============================================================
+sub record_pool_score {
+# ============================================================
+#** @method ( pool_size, score_object )
+#   @brief Records the given score within a judge's pool for online tournaments
+#*
+	my $self    = shift;
+	my $size    = shift;
+	my $score   = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	$athlete->{ scores }{ $round }->record_pool_score( $size, $form, $score );
 }
 
 # ============================================================
