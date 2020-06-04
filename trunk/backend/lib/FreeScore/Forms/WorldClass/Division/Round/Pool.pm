@@ -60,14 +60,12 @@ sub resolve {
 	if( @ok >= $k ) {
 		@ok = shuffle @ok;          # Randomize
 		@ok = splice( @ok, 0, $k ); # Take $k scores
-		print STDERR "  Randomly selecting $#ok scores\n"; # MW
 		foreach my $i ( 0 .. $#ok ) {
 			my $s   = $ok[ $i ];
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { major => - $acc->{ major }, minor => - $acc->{ minor }, power => $pre->{ power }, rhythm => $pre->{ rhythm }, energy => $pre->{ energy }, complete => 1 };
-			print STDERR "  Recording Judge $i score for $form " . (new JSON::XS()->canonical->encode( $score )) . "\n"; # MW
+			my $score = { major => - $acc->{ major }, minor => - $acc->{ minor }, power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success' };

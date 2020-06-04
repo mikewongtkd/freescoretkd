@@ -1655,7 +1655,9 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $cycle    = $division->{ autodisplay } || 2;
+	my $json     = $self->{ _json };
+	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2 };
+	my $cycle    = $timers->{ cycle };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
@@ -1669,11 +1671,16 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { score => 9, leaderboard => 12, brief => 1 };
+	my $pause = $timers->{ pause } if exists $timers->{ pause } && defined $timers->{ pause };
 	my $round = $division->{ round };
 	my $order = $division->{ order }{ $round };
 	my $forms = $division->{ forms }{ $round };
 	my $j     = first_index { $_ == $division->{ current } } @$order;
+
+	# Default pauses
+	$pause->{ score }       ||= 9;
+	$pause->{ leaderboard } ||= 12;
+	$pause->{ brief }       ||= 1;
 
 	my $last = {
 		athlete => ($division->{ current } == $order->[ -1 ]),
