@@ -136,10 +136,11 @@ sub record_pool_score {
 	my $form  = shift;
 	my $score = shift;
 
-	my $k    = int( @{ $score->{ forms }[ $form ]{ judge }});
+	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
 	$pool->size( $size );
 	$pool->want( $k );
+	print STDERR "  Assigning pool of size $size, wanting $k judges\n"; # MW
 
 	my $complete = $pool->record_score( $form, $score );
 
@@ -441,13 +442,13 @@ sub string {
 		if( exists $form->{ decision } ) {
 			foreach my $key (sort keys %{ $form->{ decision }}) {
 				my $value = $form->{ decision }{ $key };
-				push @string, "\t" . join( "\t", $round, $form_id, 's', "$key=$value" ) . "\n";
+				push @string, join( "\t", ('', $round, $form_id, 's', "$key=$value" )) . "\n";
 			}
 		}
 
 		# ===== RECORD PENALTIES AND TIME
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} && any { $_ } values %{ $form->{ penalty }}) {
-			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )} ) . "\n";
+			push @string, join( "\t", ('', $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )})) . "\n";
 		}
 
 		# ===== RECORD SCORES
@@ -456,8 +457,11 @@ sub string {
 			my $score    = $form->{ judge }[ $j ];
 			my $judge_id = ($j == 0 ? 'r' : "j$j");
 
-			push @string, "\t" . join( "\t", $round, $form_id, $judge_id, $score->string() ) . "\n";
+			push @string, join( "\t", ('', $round, $form_id, $judge_id, $score->string())) . "\n";
 		}
+
+		# ===== RECORD POOL SCORES FOR ONLINE TOURNAMENTS
+		push @string, $self->{ pool }->string( $round, $forms ) if( exists $self->{ pool } && defined $self->{ pool });
 	}
 	return join "", @string;
 }

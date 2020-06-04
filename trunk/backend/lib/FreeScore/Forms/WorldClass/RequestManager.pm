@@ -54,6 +54,10 @@ sub init {
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
+		opt_play_video     => \&handle_division_opt_play_video,
+		opt_show_scores    => \&handle_division_opt_show_scores,
+		pool_judge_ready   => \&handle_division_pool_judge_ready,
+		pool_judge_working => \&handle_division_pool_judge_working,
 		pool_score         => \&handle_division_pool_score,
 		pool_timeout       => \&handle_division_pool_timeout,
 		read               => \&handle_division_read,
@@ -637,6 +641,101 @@ sub handle_division_navigate {
 }
 
 # ============================================================
+sub handle_division_opt_play_video {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $message  = "  Requesting OPT to play video for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_opt_show_scores {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $message  = "  Requesting OPT to show scores for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_judge_ready {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_judge_working {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $message  = "  $jname has finished watching video for athlete $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_division_pool_score {
 # ============================================================
 	my $self     = shift;
@@ -649,15 +748,15 @@ sub handle_division_pool_score {
 	my $version  = new FreeScore::RCS();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = $request->{ judge }{ name };
-	my $message  = "  $jname in pool score for $athlete->{ name }\n";
+	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $message  = "  $jname has scored for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
 	try {
 		my $score = clone( $request->{ score } );
 		$version->checkout( $division );
-		$division->record_pool_score( $request->{ size }, $division->{ form }, $score );
+		$request->{ response } = $division->record_pool_score( $request->{ size }, $score );
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -690,6 +789,7 @@ sub handle_division_pool_timeout {
 	my $version  = new FreeScore::RCS();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
+	my $message  = "  Need message here."; # MW
 
 	print STDERR $message if $DEBUG;
 

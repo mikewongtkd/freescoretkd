@@ -3,6 +3,7 @@ use FreeScore;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
+use FreeScore::Forms::WorldClass::Division::Round::Pool;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
 use Math::Round qw( round );
@@ -472,6 +473,7 @@ sub record_pool_score {
 	my $size    = shift;
 	my $score   = shift;
 
+	$self->{ poolsize } = $size;
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
@@ -714,8 +716,8 @@ sub read {
 				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 				my $forms  = int( @{ $self->{ forms }{ $round }});
 				my $judges = $self->{ judges };
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+				my $r      = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_score( $form, $judge, $score );
 
 			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
 			} elsif ( $judge =~ /^p/ ) {
@@ -724,16 +726,24 @@ sub read {
 				my $penalties = { map { $_ => shift @score_criteria } @criteria };
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
+				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_penalties( $form, $penalties );
 
 			# Status notes describe athlete withdraw or disqualification
 			} elsif ( $judge =~ /^s/ ) {
-				my $decision  = [ (map { my ($key, $value) = split /=/, $_, 2; ($key); } @score_criteria) ];
-				my $forms     = int( @{ $self->{ forms }{ $round }});
-				my $judges    = $self->{ judges };
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_decision( $form, $_ ) foreach @$decision;
+				my $decision = [ (map { my ($key, $value) = split /=/, $_, 2; ($key); } @score_criteria) ];
+				my $forms    = int( @{ $self->{ forms }{ $round }});
+				my $judges   = $self->{ judges };
+				my $r        = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_decision( $form, $_ ) foreach @$decision;
+
+			# Online poomsae tournaments judge pool scores (using redundancy to combat judge network intermittency)
+			} elsif ( $judge =~ /^o/ ) {
+				my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;
+				my ($data) = @score_criteria;
+				my $score  = $json->decode( $data );
+				my $pool   = $athlete->{ scores }{ $round }{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $athlete->{ scores }{ $round }{ pool });
+				$pool->record_score( $form, $score );
 			}
 
 		} else {
@@ -983,6 +993,7 @@ sub write {
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
+	print FILE "# poolsize=$self->{ poolsize }\n" if exists( $self->{ poolsize }) && defined( $self->{ poolsize });
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
 	print FILE "# method=" . lc( $self->{ method } ) . "\n" if exists( $self->{ method } ) && defined( $self->{ method } );
