@@ -95,6 +95,25 @@ sub clear_score {
 }
 
 # ============================================================
+sub pool_timeout {
+# ============================================================
+# 
+#------------------------------------------------------------
+ 	my $self  = shift;
+	my $size  = shift;
+	my $form  = shift;
+
+	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
+	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
+	$pool->size( $size );
+	$pool->want( $k );
+
+	my $result = $pool->resolve( $form, $self );
+
+	return $result;
+}
+
+# ============================================================
 sub record_score {
 # ============================================================
 # Records a given score. Will overwrite if the same judge has
@@ -140,7 +159,6 @@ sub record_pool_score {
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
 	$pool->size( $size );
 	$pool->want( $k );
-	print STDERR "  Assigning pool of size $size, wanting $k judges\n"; # MW
 
 	my $complete = $pool->record_score( $form, $score );
 
@@ -172,13 +190,18 @@ sub record_decision {
 }
 
 # ============================================================
-sub pool_timeout {
+sub pool_close_window {
 # ============================================================
 # Find the consensus of the pool if the judges timeout
 # ------------------------------------------------------------
 	my $self  = shift;
 	my $size  = shift;
 	my $form  = shift;
+
+	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
+	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
+	$pool->size( $size );
+	$pool->want( $k );
 
 	my $result = $pool->resolve( $form, $self );
 	return $result;

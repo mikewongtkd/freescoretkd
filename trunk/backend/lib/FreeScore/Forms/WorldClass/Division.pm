@@ -464,6 +464,25 @@ sub normalize {
 }
 
 # ============================================================
+sub pool_close_window {
+# ============================================================
+#** @method ( size, form )
+#   @brief Forces resolution of current athlete (in case judges lose network connectivity)
+#*
+	my $self    = shift;
+	my $size    = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	return $athlete->{ scores }{ $round }->pool_close_window( $size, $form );
+}
+
+# ============================================================
 sub record_pool_score {
 # ============================================================
 #** @method ( pool_size, score_object )

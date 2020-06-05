@@ -58,8 +58,8 @@ sub init {
 		opt_show_scores    => \&handle_division_opt_show_scores,
 		pool_judge_ready   => \&handle_division_pool_judge_ready,
 		pool_judge_working => \&handle_division_pool_judge_working,
+		pool_open_window   => \&handle_division_pool_window,
 		pool_score         => \&handle_division_pool_score,
-		pool_timeout       => \&handle_division_pool_timeout,
 		read               => \&handle_division_read,
 		restore            => \&handle_division_restore,
 		round_next         => \&handle_division_round_next,
@@ -736,6 +736,92 @@ sub handle_division_pool_judge_working {
 }
 
 # ============================================================
+sub handle_division_pool_open_window {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $timeout  = $request->{ timeout };
+	my $message  = "  Opening pool scoring window for $timeout seconds for $athlete->{ name }";
+	my $size     = $request->{ size };
+
+	print STDERR $message if $DEBUG;
+
+	my $current  = { 
+		division => $division->{ name },
+		athlete  => $division->{ current }, 
+		form     => $division->{ form },
+		round    => $division->{ round }
+	};
+
+	# ===== POOL TIMEOUT BEHAVIOR
+	my $delay = new Mojo::IOLoop::Delay();
+	$delay->steps(
+		sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $timeout => $delay->begin );
+		},
+		sub {
+			my $delay = shift;
+			my $round    = $division->{ round };
+			my $athlete  = $division->{ athletes }[ $division->{ current } ];
+			my $form     = $division->{ form };
+			my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+			my $same     = { 
+				division => ($division->{ name }    eq $current->{ division }),
+				athlete  => ($division->{ current } == $current->{ athlete }), 
+				form     => ($division->{ form }    == $current->{ form }),
+				round    => ($division->{ round }   eq $current->{ round }),
+			};
+			my $no_progress = $same->{ division } && $same->{ round } && $same->{ athlete } && $same->{ form };
+
+			# ===== IF THERE HAS BEEN SOME PROGRESS, THEN SCORING WINDOW UNNECESSARY
+			unless( $no_progress && ! $complete ) {
+				print STDERR "  All judges have responded prior to window closing\n"; # MW
+				exit();
+			}
+
+			# ===== IF NO PROGRESS AND INCOMPLETE, THEN JUDGES HAVE PROBABLY DROPPED
+			my $results = $division->pool_close_window( $size );
+
+			if( $results->{ status } eq 'success' ) {
+				print STDERR "  Enough judges responded prior to scoring window timeout closure\n"; # MW
+				exit();
+			}
+			die "Non-fail response '$results->{ status }' when failure expected (solution = '$results->{ solution }')" unless ( $results->{ status } eq 'fail' );
+
+			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
+			# A majority can still be achieved if a few judges have dropped.
+			if( $results->{ solution } eq 'disqualify' ) {
+				print STDERR "  Majority of judges have voted to disqualify\n"; # MW
+				$version->checkout( $division );
+				$athlete->{ scores }{ $round }->record_decision( $form, 'disqualify' );
+				$division->write();
+				$version->commit( $division, $message );
+				$self->broadcast_division_response( $request, $progress, $clients );
+
+			# ===== INSUFFICIENT JUDGES HAVE SCORED
+			# Command the judge UIs to rescore if they haven't already
+			# submitted scores.  Judges that have submitted scores are
+			# can relax and re-watch the video; their UI should just show
+			# their submitted score and not allow changes.
+			} elsif( $results->{ solution } eq 'rescore' ) {
+				print STDERR "  Insufficient judges have scored; rescore the video\n"; # MW
+				$request->{ response } = { scoring => { status => 'fail', solution => 'rescore' }};
+				$self->broadcast_division_response( $request, $progress, $clients );
+			}
+		}
+	);
+}
+
+# ============================================================
 sub handle_division_pool_score {
 # ============================================================
 	my $self     = shift;
@@ -755,47 +841,9 @@ sub handle_division_pool_score {
 
 	try {
 		my $score = clone( $request->{ score } );
+		my $size  = $request->{ size };
 		$version->checkout( $division );
-		$request->{ response } = $division->record_pool_score( $request->{ size }, $score );
-		$division->write();
-		$version->commit( $division, $message );
-
-		my $round    = $division->{ round };
-		my $athlete  = $division->{ athletes }[ $division->{ current } ];
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
-
-		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
-		die $autopilot->{ error } if exists $autopilot->{ error };
-
-		$self->broadcast_division_response( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_pool_timeout {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
-	my $message  = "  Need message here."; # MW
-
-	print STDERR $message if $DEBUG;
-
-	try {
-		$version->checkout( $division );
-		$division->pool_timeout( $request->{ size }, $division->{ form });
+		$request->{ response } = $division->record_pool_score( $size, $score );
 		$division->write();
 		$version->commit( $division, $message );
 
