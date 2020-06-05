@@ -95,6 +95,24 @@ sub clear_score {
 }
 
 # ============================================================
+sub pool_ready {
+# ============================================================
+	my $self    = shift;
+	my $size    = shift;
+	my $form    = shift;
+	my $judge   = shift;
+
+	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
+	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
+	$pool->size( $size );
+	$pool->want( $k );
+
+	my $result = $pool->ready( $form, $self, $judge );
+
+	return $result
+}
+
+# ============================================================
 sub pool_timeout {
 # ============================================================
 # 

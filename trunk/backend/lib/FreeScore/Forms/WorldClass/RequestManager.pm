@@ -675,7 +675,6 @@ sub handle_division_opt_show_scores {
 	my $division = $progress->current();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
 	my $message  = "  Requesting OPT to show scores for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
@@ -699,13 +698,47 @@ sub handle_division_pool_judge_ready {
 	my $division = $progress->current();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
 	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
-	try {
+	my $size     = $request->{ size };
+	my $judge    = $request->{ judge };
+	my $timeout  = $request->{ timeout };
+	my $response = $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
+
+	print STDERR "  Pool Ready response: $response\n" if $response; # MW
+
+	return if( ! $response );
+	if( $response eq 'last' ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop' };
 		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
+	}
+	if( $response eq 'first' ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start' };
+		$self->broadcast_division_response( $request, $progress, $clients );
+	}
+
+	# ===== POOL READY TIMEOUT BEHAVIOR
+	my $delay    = new Mojo::IOLoop::Delay();
+	$delay->steps(
+		# Start timer
+		sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $timeout => $delay->begin );
+		},
+		# On time elapsed
+		sub {
+			my $response = $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
+			exit() if $response eq 'last';
+			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'timeout' };
+			$self->broadcast_division_response( $request, $progress, $clients );
+		}
+	);
+
+	try {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -723,7 +756,7 @@ sub handle_division_pool_judge_working {
 	my $division = $progress->current();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
 	my $message  = "  $jname has finished watching video for athlete $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
@@ -761,13 +794,15 @@ sub handle_division_pool_open_window {
 		round    => $division->{ round }
 	};
 
-	# ===== POOL TIMEOUT BEHAVIOR
+	# ===== POOL ACCURACY SCORING TIMEOUT BEHAVIOR
 	my $delay = new Mojo::IOLoop::Delay();
 	$delay->steps(
+		# Start timer
 		sub {
 			my $delay = shift;
 			Mojo::IOLoop->timer( $timeout => $delay->begin );
 		},
+		# On timer elapsed
 		sub {
 			my $delay = shift;
 			my $round    = $division->{ round };
@@ -789,17 +824,18 @@ sub handle_division_pool_open_window {
 			}
 
 			# ===== IF NO PROGRESS AND INCOMPLETE, THEN JUDGES HAVE PROBABLY DROPPED
-			my $results = $division->pool_close_window( $size );
+			my $response = $division->pool_close_window( $size );
+			$request->{ response } = $response;
 
-			if( $results->{ status } eq 'success' ) {
+			if( $response->{ status } eq 'success' ) {
 				print STDERR "  Enough judges responded prior to scoring window timeout closure\n"; # MW
 				exit();
 			}
-			die "Non-fail response '$results->{ status }' when failure expected (solution = '$results->{ solution }')" unless ( $results->{ status } eq 'fail' );
+			die "Non-fail response '$response->{ status }' when failure expected (solution = '$response->{ solution }')" unless ( $response->{ status } eq 'fail' );
 
 			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
 			# A majority can still be achieved if a few judges have dropped.
-			if( $results->{ solution } eq 'disqualify' ) {
+			if( $response->{ solution } eq 'disqualify' ) {
 				print STDERR "  Majority of judges have voted to disqualify\n"; # MW
 				$version->checkout( $division );
 				$athlete->{ scores }{ $round }->record_decision( $form, 'disqualify' );
@@ -812,9 +848,8 @@ sub handle_division_pool_open_window {
 			# submitted scores.  Judges that have submitted scores are
 			# can relax and re-watch the video; their UI should just show
 			# their submitted score and not allow changes.
-			} elsif( $results->{ solution } eq 'rescore' ) {
+			} elsif( $response->{ solution } eq 'rescore' ) {
 				print STDERR "  Insufficient judges have scored; rescore the video\n"; # MW
-				$request->{ response } = { scoring => { status => 'fail', solution => 'rescore' }};
 				$self->broadcast_division_response( $request, $progress, $clients );
 			}
 		}
@@ -843,7 +878,10 @@ sub handle_division_pool_score {
 		my $score = clone( $request->{ score } );
 		my $size  = $request->{ size };
 		$version->checkout( $division );
-		$request->{ response } = $division->record_pool_score( $size, $score );
+
+		my $response = $division->record_pool_score( $size, $score );
+		$request->{ response } = $response;
+
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -851,6 +889,25 @@ sub handle_division_pool_score {
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+
+		if( $response->{ status } eq 'in-progress' ) { return; }
+		elsif( $response->{ status } eq 'fail' ) {
+			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
+			if( $response->{ solution } eq 'disqualify' ) {
+				print STDERR "  Majority of judges have voted to disqualify\n"; # MW
+				$version->checkout( $division );
+				$athlete->{ scores }{ $round }->record_decision( $form, 'disqualify' );
+				$division->write();
+				$version->commit( $division, $message );
+				$self->broadcast_division_response( $request, $progress, $clients );
+
+			# ===== INSUFFICIENT JUDGES HAVE SCORED
+			} elsif( $response->{ solution } eq 'rescore' ) {
+				print STDERR "  Insufficient judges have scored; rescore the video\n"; # MW
+				$self->broadcast_division_response( $request, $progress, $clients );
+				return;
+			}
+		}
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;

@@ -20,6 +20,27 @@ sub new {
 }
 
 # ============================================================
+sub ready {
+# ============================================================
+	my $self  = shift;
+	my $form  = shift;
+	my $judge = shift;
+
+	my $key   = "$judge->{ name }|$judge->{ noc }";
+	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
+	my $ready = $self->{ forms }[ $form ]{ ready };
+	$ready->{ $id } = 1 unless exists $ready->{ $id };
+
+	my $n     = $self->{ size };
+	my $first = int( keys %$ready ) == 1;
+	my $last  = int( keys %$ready ) == $n;
+
+	if    ( $first ) { return 'first'; }
+	elsif ( $last )  { return 'last'; }
+	else             { return }
+}
+
+# ============================================================
 sub record_score {
 # ============================================================
 	my $self  = shift;
@@ -48,7 +69,7 @@ sub resolve {
 	# Partition the scores based on judge video/network feedback
 	my @ok     = grep { $_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good' } @scores; 
 	my @bad    = grep { $_->{ video }{ feedback } eq 'bad' } @scores;
-	my @err    = grep { $_->{ video }{ feedback } eq 'dsq' } @scores;
+	my @dsq    = grep { $_->{ video }{ feedback } eq 'dsq' } @scores;
 	my $half   = int( $self->{ size }/2 );
 	my $safety = $self->{ size } - $self->{ want };
 
@@ -75,7 +96,7 @@ sub resolve {
 		return { status => 'fail', solution => 'rescore' };
 
 	# ===== CASE 3: MAJORITY OF POOL JUDGES DEEM VIDEO FAULTY DUE TO ATHLETE ERROR
-	} elsif( @err > $half ) {
+	} elsif( @dsq > $half ) {
 		return { status => 'fail', solution => 'disqualify' };
 	}
 }
