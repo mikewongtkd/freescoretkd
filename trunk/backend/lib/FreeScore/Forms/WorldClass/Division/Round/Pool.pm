@@ -4,6 +4,7 @@ use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round;
 use Digest::SHA1 qw( sha1_hex );
 use JSON::XS;
+use List::Util qw( all );
 use base qw( Clone );
 use Data::Structure::Util qw( unbless );
 use Data::Dumper;
@@ -22,18 +23,24 @@ sub new {
 # ============================================================
 sub ready {
 # ============================================================
-	my $self  = shift;
-	my $form  = shift;
-	my $judge = shift;
+	my $self   = shift;
+	my $form   = shift;
+	my $judge  = shift;
 
-	my $key   = "$judge->{ name }|$judge->{ noc }";
-	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
-	my $ready = $self->{ forms }[ $form ]{ ready };
-	$ready->{ $id } = 1 unless exists $ready->{ $id };
+	my $key    = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
+	my $id     = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
+	my $judges = $self->{ forms }[ $form ]{ scores };
+
+	$judges->{ $id }{ status } = 'ready';
+
+	print STDERR Dumper $judges;
 
 	my $n     = $self->{ size };
-	my $first = int( keys %$ready ) == 1;
-	my $last  = int( keys %$ready ) == $n;
+	my $p     = int( grep { $_ eq 'ready' } map { $judges->{ $_ }{ status } } keys %$judges);
+	my $first = $p == 1;
+	my $last  = $p == $n;
+
+	print STDERR "N: $n, P: $p, FIRST: $first, LAST: $last\n";
 
 	if    ( $first ) { return 'first'; }
 	elsif ( $last )  { return 'last'; }
@@ -48,7 +55,7 @@ sub record_score {
 	my $score = shift;
 
 	my $judge = $score->{ judge };
-	my $key   = "$judge->{ name }|$judge->{ noc }";
+	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 

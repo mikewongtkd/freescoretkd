@@ -107,9 +107,7 @@ sub pool_ready {
 	$pool->size( $size );
 	$pool->want( $k );
 
-	my $result = $pool->ready( $form, $self, $judge );
-
-	return $result
+	return $pool->ready( $form, $judge );
 }
 
 # ============================================================

@@ -144,7 +144,6 @@ sub clear_score {
 	$athlete->{ scores }{ $round }->clear_score( $form, $judge );
 }
 
-
 # ============================================================
 sub distribute_evenly {
 # ============================================================
@@ -466,7 +465,7 @@ sub normalize {
 # ============================================================
 sub pool_close_window {
 # ============================================================
-#** @method ( size, form )
+#** @method ( size )
 #   @brief Forces resolution of current athlete (in case judges lose network connectivity)
 #*
 	my $self    = shift;
@@ -480,6 +479,26 @@ sub pool_close_window {
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 	return $athlete->{ scores }{ $round }->pool_close_window( $size, $form );
+}
+
+# ============================================================
+sub pool_ready {
+# ============================================================
+#** @method ( size )
+#   @brief Forces resolution of current athlete (in case judges lose network connectivity)
+#*
+	my $self    = shift;
+	my $size    = shift;
+	my $judge   = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	return $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
 }
 
 # ============================================================

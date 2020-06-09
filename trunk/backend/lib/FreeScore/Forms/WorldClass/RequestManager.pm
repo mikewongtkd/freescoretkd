@@ -703,10 +703,12 @@ sub handle_division_pool_judge_ready {
 
 	print STDERR $message if $DEBUG;
 
-	my $size     = $request->{ size };
-	my $judge    = $request->{ judge };
-	my $timeout  = $request->{ timeout };
-	my $response = $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
+	my $size     = $request->{ size };    # Required parameter
+	my $judge    = $request->{ judge };   # Required parameter
+	my $timeout  = $request->{ timeout }; # Required parameter
+	my $response = $division->pool_ready( $size, $judge );
+
+	$division->write();
 
 	print STDERR "  Pool Ready response: $response\n" if $response; # MW
 
@@ -731,6 +733,7 @@ sub handle_division_pool_judge_ready {
 		},
 		# On time elapsed
 		sub {
+			print STDERR "POOL READY TIMER ELAPSED.\n"; # MW
 			my $response = $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
 			exit() if $response eq 'last';
 			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'timeout' };
