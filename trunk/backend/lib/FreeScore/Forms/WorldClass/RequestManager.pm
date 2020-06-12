@@ -675,12 +675,49 @@ sub handle_division_opt_show_scores {
 	my $division = $progress->current();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
+	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
 	my $message  = "  Requesting OPT to show scores for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
-	try {
+	my $judge    = $request->{ judge };         # Required parameter
+	my $timeout  = $timer->{ pause }{ optscore } || $request->{ timeout } || 30;
+	my $response = $division->opt_show_scores( $judge );
+
+	$division->write();
+
+	print STDERR "  OPT Show score response: $response\n" if $response; # MW
+
+	return if( ! $response );
+	if( $response eq 'last' ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop' };
 		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
+	}
+	if( $response eq 'first' ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start' };
+		$self->broadcast_division_response( $request, $progress, $clients );
+	}
+
+	# ===== OPT SHOW SCORES TIMEOUT BEHAVIOR
+	my $delay    = new Mojo::IOLoop::Delay();
+	$delay->steps(
+		# Start timer
+		sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $timeout => $delay->begin );
+		},
+		# On time elapsed
+		sub {
+			print STDERR "POOL READY TIMER ELAPSED.\n"; # MW
+			my $response = $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
+			exit() if $response eq 'last';
+			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'timeout' };
+			$self->broadcast_division_response( $request, $progress, $clients );
+		}
+	);
+
+	try {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -698,14 +735,15 @@ sub handle_division_pool_judge_ready {
 	my $division = $progress->current();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
+	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
 	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
 	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
-	my $size     = $request->{ size };    # Required parameter
-	my $judge    = $request->{ judge };   # Required parameter
-	my $timeout  = $request->{ timeout }; # Required parameter
+	my $size     = $request->{ size };          # Required parameter
+	my $judge    = $request->{ judge };         # Required parameter
+	my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
 	my $response = $division->pool_ready( $size, $judge );
 
 	$division->write();
@@ -879,10 +917,9 @@ sub handle_division_pool_score {
 
 	try {
 		my $score = clone( $request->{ score } );
-		my $size  = $request->{ size };
 		$version->checkout( $division );
 
-		my $response = $division->record_pool_score( $size, $score );
+		my $response = $division->record_pool_score( $score );
 		$request->{ response } = $response;
 
 		$division->write();
@@ -893,8 +930,12 @@ sub handle_division_pool_score {
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
-		if( $response->{ status } eq 'in-progress' ) { return; }
-		elsif( $response->{ status } eq 'fail' ) {
+		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
+		if( $response->{ status } eq 'in-progress' ) { 
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return; 
+
+		} elsif( $response->{ status } eq 'fail' ) {
 			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
 			if( $response->{ solution } eq 'disqualify' ) {
 				print STDERR "  Majority of judges have voted to disqualify\n"; # MW

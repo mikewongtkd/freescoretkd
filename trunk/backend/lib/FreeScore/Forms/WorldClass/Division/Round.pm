@@ -107,7 +107,8 @@ sub pool_ready {
 	$pool->size( $size );
 	$pool->want( $k );
 
-	return $pool->ready( $form, $judge );
+	my $result = $pool->ready( $form, $judge );
+	return $result;
 }
 
 # ============================================================
@@ -121,8 +122,6 @@ sub pool_timeout {
 
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-	$pool->size( $size );
-	$pool->want( $k );
 
 	my $result = $pool->resolve( $form, $self );
 
@@ -167,14 +166,11 @@ sub record_pool_score {
 # Records a score from a judge pool. 
 #------------------------------------------------------------
  	my $self  = shift;
-	my $size  = shift;
 	my $form  = shift;
 	my $score = shift;
 
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-	$pool->size( $size );
-	$pool->want( $k );
 
 	my $complete = $pool->record_score( $form, $score );
 
@@ -216,8 +212,6 @@ sub pool_close_window {
 
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-	$pool->size( $size );
-	$pool->want( $k );
 
 	my $result = $pool->resolve( $form, $self );
 	return $result;

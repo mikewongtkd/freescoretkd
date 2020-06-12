@@ -24,27 +24,32 @@ sub new {
 sub ready {
 # ============================================================
 	my $self   = shift;
-	my $form   = shift;
+	my $formid = shift;
 	my $judge  = shift;
 
 	my $key    = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id     = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
-	my $judges = $self->{ forms }[ $form ]{ scores };
 
-	$judges->{ $id }{ status } = 'ready';
+	$self->{ forms }[ $formid ]                  = {} unless defined $self->{ forms }[ $formid ];
+	$self->{ forms }[ $formid ]{ scores }        = {} unless defined $self->{ forms }[ $formid ]{ scores };
+	$self->{ forms }[ $formid ]{ scores }{ $id } = {} unless defined $self->{ forms }[ $formid ]{ scores }{ $id };
+	my $judges                                   = $self->{ forms }[ $formid ]{ scores };
+	my $j                                        = $self->{ forms }[ $formid ]{ scores }{ $id };
+	
+	$j->{ status } = 'ready';
+	$j->{ judge }  = $judge;
 
-	print STDERR Dumper $judges;
+	my $k      = $self->{ want };
+	my $n      = $self->{ size };
+	my $p      = int( grep { $_ eq 'ready' } map { $judges->{ $_ }{ status } } keys %$judges);
+	my $first  = $p == 1;
+	my $enough = $p >= $k;
+	my $last   = $p == $n;
 
-	my $n     = $self->{ size };
-	my $p     = int( grep { $_ eq 'ready' } map { $judges->{ $_ }{ status } } keys %$judges);
-	my $first = $p == 1;
-	my $last  = $p == $n;
-
-	print STDERR "N: $n, P: $p, FIRST: $first, LAST: $last\n";
-
-	if    ( $first ) { return 'first'; }
-	elsif ( $last )  { return 'last'; }
-	else             { return }
+	if    ( $first  ) { return 'first';   }
+	elsif ( $last   ) { return 'last';    }
+	elsif ( $enough ) { return 'enough';  }
+	else              { return 'waiting'; }
 }
 
 # ============================================================

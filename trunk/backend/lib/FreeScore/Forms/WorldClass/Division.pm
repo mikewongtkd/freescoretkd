@@ -463,13 +463,33 @@ sub normalize {
 }
 
 # ============================================================
+sub opt_show_scores {
+# ============================================================
+#** @method ( judge )
+#   @brief 
+#*
+	my $self    = shift;
+	my $judge   = shift;
+
+	$self->{ poolsize } = $size;
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	return $athlete->{ scores }{ $round }->pool_ready( $size, $form, $judge );
+}
+
+# ============================================================
 sub pool_close_window {
 # ============================================================
 #** @method ( size )
 #   @brief Forces resolution of current athlete (in case judges lose network connectivity)
 #*
 	my $self    = shift;
-	my $size    = shift;
+	my $size    = $self->{ poolsize };
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
@@ -484,13 +504,14 @@ sub pool_close_window {
 # ============================================================
 sub pool_ready {
 # ============================================================
-#** @method ( size )
-#   @brief Forces resolution of current athlete (in case judges lose network connectivity)
+#** @method ( size, judge )
+#   @brief Indicates that the judge is ready to start scoring accuracy
 #*
 	my $self    = shift;
 	my $size    = shift;
 	my $judge   = shift;
 
+	$self->{ poolsize } = $size;
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
@@ -511,7 +532,6 @@ sub record_pool_score {
 	my $size    = shift;
 	my $score   = shift;
 
-	$self->{ poolsize } = $size;
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
@@ -520,7 +540,7 @@ sub record_pool_score {
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-	$athlete->{ scores }{ $round }->record_pool_score( $size, $form, $score );
+	$athlete->{ scores }{ $round }->record_pool_score( $form, $score );
 }
 
 # ============================================================
