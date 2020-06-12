@@ -12,6 +12,23 @@ use Data::Dumper;
 our $JSON = new JSON::XS();
 
 # ============================================================
+# The structure for the Pool is similar to Round
+#
+# - forms 
+#   - [ form index]
+#     - scores
+#       - <judge id>
+#         - accuracy
+#           - major
+#           - minor
+#         - presentation
+#           - power
+#           - rhythm
+#           - energy # MW: not ki! Need to go back and fix this later
+#         - status ( ready | scoring | waiting )
+# ============================================================
+
+# ============================================================
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
@@ -64,9 +81,19 @@ sub record_score {
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
-	my $n = $self->{ size };
+	my @scores = values %{ $self->{ forms }[ $form ]{ scores }};
+	my $k      = $self->{ want };                           # Number of judges in court
+	my $n      = $self->{ size };                           # Number of judges in pool
+	my $p      = int( grep { _have_scored( $_ )} @scores ); # Number of judges that have scored
 
-	return( int( values %{ $self->{ forms }[ $form ]{ scores }}) == $n );
+	my $first  = $p == 1;
+	my $enough = $p >= $k;
+	my $last   = $p == $n;
+
+	if    ( $first  ) { return 'one';        }
+	elsif ( $last   ) { return 'full';       }
+	elsif ( $enough ) { return 'sufficient'; }
+	else              { return 'low';        }
 }
 
 # ============================================================
@@ -111,6 +138,38 @@ sub resolve {
 	} elsif( @dsq > $half ) {
 		return { status => 'fail', solution => 'disqualify' };
 	}
+}
+
+# ============================================================
+sub scoring {
+# ============================================================
+	my $self   = shift;
+	my $formid = shift;
+	my $judge  = shift;
+
+	my $key    = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
+	my $id     = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
+
+	$self->{ forms }[ $formid ]                  = {} unless defined $self->{ forms }[ $formid ];
+	$self->{ forms }[ $formid ]{ scores }        = {} unless defined $self->{ forms }[ $formid ]{ scores };
+	$self->{ forms }[ $formid ]{ scores }{ $id } = {} unless defined $self->{ forms }[ $formid ]{ scores }{ $id };
+	my $judges                                   = $self->{ forms }[ $formid ]{ scores };
+	my $j                                        = $self->{ forms }[ $formid ]{ scores }{ $id };
+	
+	$j->{ status } = 'scoring';
+	$j->{ judge }  = $judge;
+
+	my $k      = $self->{ want };
+	my $n      = $self->{ size };
+	my $p      = int( grep { $_ eq 'scoring' } map { $judges->{ $_ }{ status } } keys %$judges);
+	my $first  = $p == 1;
+	my $enough = $p >= $k;
+	my $last   = $p == $n;
+
+	if    ( $first  ) { return 'first';   }
+	elsif ( $last   ) { return 'last';    }
+	elsif ( $enough ) { return 'enough';  }
+	else              { return 'waiting'; }
 }
 
 # ============================================================
@@ -164,5 +223,13 @@ sub want {
 	return $k;
 }
 
+# ============================================================
+sub _have_scored {
+# ============================================================
+	my $score = shift;
+	my $acc = $score->{ accuracy };
+	my $pre = $score->{ presentation };
+	return $acc->{ minor } >= 0 && $acc->{ major } >= 0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+}
 
 1;

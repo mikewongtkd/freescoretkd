@@ -95,8 +95,10 @@ sub clear_score {
 }
 
 # ============================================================
-sub pool_ready {
+sub pool_judge_ready {
 # ============================================================
+# A judge has indicated they are ready to score
+# ------------------------------------------------------------
 	my $self    = shift;
 	my $size    = shift;
 	my $form    = shift;
@@ -112,19 +114,19 @@ sub pool_ready {
 }
 
 # ============================================================
-sub pool_timeout {
+sub pool_judge_scoring {
 # ============================================================
-# 
-#------------------------------------------------------------
- 	my $self  = shift;
-	my $size  = shift;
-	my $form  = shift;
+# A judge has indicated they are scoring and will be
+# submitting a score soon
+# ------------------------------------------------------------
+	my $self    = shift;
+	my $form    = shift;
+	my $judge   = shift;
 
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
 
-	my $result = $pool->resolve( $form, $self );
-
+	my $result = $pool->scoring( $form, $judge );
 	return $result;
 }
 
@@ -172,10 +174,11 @@ sub record_pool_score {
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
 
-	my $complete = $pool->record_score( $form, $score );
+	my $capacity = $pool->record_score( $form, $score );
 
-	return { status => 'in-progress' } unless $complete;
+	return { status => 'in-progress', capacity => $capacity } unless $capacity eq 'full';
 	my $result = $pool->resolve( $form, $self );
+	$result->{ capacity } = $capacity;
 
 	return $result;
 }
@@ -199,22 +202,6 @@ sub record_decision {
 		$form->{ decision }{ $decision } = 1;
 		$form->{ complete }              = 1;
 	}
-}
-
-# ============================================================
-sub pool_close_window {
-# ============================================================
-# Find the consensus of the pool if the judges timeout
-# ------------------------------------------------------------
-	my $self  = shift;
-	my $size  = shift;
-	my $form  = shift;
-
-	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
-	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-
-	my $result = $pool->resolve( $form, $self );
-	return $result;
 }
 
 # ============================================================

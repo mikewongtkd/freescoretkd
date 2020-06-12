@@ -208,6 +208,9 @@ a.active {
 }
 
 .action-menu {
+	a {
+		user-select: none;
+	}
 	.list-group-item {
 		span { margin-right: 12px; }
 	}
@@ -246,6 +249,19 @@ a.active {
 				background-color: #995c00;
 				border-color: #804d00;
 				color: #cc7a00;
+			}
+		}
+	}
+	.broadcast {
+		.list-group-item {
+			background-color: #5cb85c;
+			border-color: #4cae4c; 
+			color: white;
+
+			&.disabled {
+				background-color: #5cb85c;
+				border-color: #4cae4c;
+				color: white;
 			}
 		}
 	}
