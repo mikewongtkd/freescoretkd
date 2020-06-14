@@ -820,6 +820,26 @@ sub read {
 }
 
 # ============================================================
+sub resolve_pool {
+# ============================================================
+#** @method ( score_object )
+#   @brief Records the given score within a judge's pool for online tournaments
+#*
+	my $self    = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+	my $size    = $self->{ poolsize };
+
+	$self->{ state } = 'score'; # Return to the scoring state when handling scores
+	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	return $athlete->{ scores }{ $round }->resolve_pool( $size, $form );
+}
+
+# ============================================================
 sub split {
 # ============================================================
 #** @method ( n )

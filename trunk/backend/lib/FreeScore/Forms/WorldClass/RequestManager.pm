@@ -988,10 +988,14 @@ sub handle_division_video_playing {
 			sub {
 				$request->{ response } = { timer => 'video', timeout => $video->{ duration }, status => 'timeout' };
 				$self->broadcast_division_response( $request, $progress, $clients );
-				Mojo::IOLoop->timer( $timer->{ pause }{ scoring } => $delay->begin );
+				Mojo::IOLoop->timer( $timeout => $delay->begin );
 			},
 			# When judge scoring window has closed
 			sub {
+				my $result = $division->resolve_pool();
+				$request->{ response } = $result;
+				$self->broadcast_division_response( $request, $progress, $clients );
+				exit();
 			}
 		);
 	} catch {

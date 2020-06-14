@@ -106,43 +106,40 @@ sub resolve {
 	my $n      = $self->{ size };
 	my @scores = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
 
-	print STDERR "RESOLVING POOL SCORING (POOL: $n, COURT: $k)\n"; # MW
-	my $json = new JSON::XS(); # MW
-	print ("  " . $json->canonical->encode( $_ ) . "\n") foreach @scores; # MW
-
 	# Partition the scores based on judge video/network feedback
 	my @ok     = grep { $_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good' } @scores; 
 	my @bad    = grep { $_->{ video }{ feedback } eq 'bad' } @scores;
 	my @dsq    = grep { $_->{ video }{ feedback } eq 'dsq' } @scores;
-	my $half   = int( $self->{ size }/2 );
 	my $safety = $self->{ size } - $self->{ want };
 
 	# Judges in pool that do not submit a score are likely disconnected (dropped)
 	my $drops  = $self->{ size } - int( @scores );
-	push @bad, { video => { feedback => 'disconnect' }} foreach ( 1 .. $drops );
+	my $votes  = { want => $k, have => { ok => int( @ok ), bad => int( @bad ), dsq => int( @dsq ), drop => $drops }};
 
 	# ===== CASE 1: SUFFICIENT SCORES
-	if( @ok >= $k ) {
-		@ok = shuffle @ok;          # Randomize
-		@ok = splice( @ok, 0, $k ); # Take $k scores
-		foreach my $i ( 0 .. $#ok ) {
-			my $s   = $ok[ $i ];
+	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain
+	# can discuss and make a decision. A DSQ decision must then be manually
+	# given by the ring computer operator.
+	if( int( @ok ) + int( @dsq ) >= $k ) {
+		my @valid = shuffle (@ok, @dsq);  # Randomize
+		@valid = splice( @valid, 0, $k ); # Take $k scores
+		foreach my $i ( 0 .. $#valid ) {
+			my $s   = $valid[ $i ];
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
 			my $score = { major => - $acc->{ major }, minor => - $acc->{ minor }, power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
-			print STDERR "  " . $json->canonical->encode( $score ) . "\n"; # MW
 			$round->record_score( $form, $i, $score );
 		}
-		return { status => 'success' };
+		return { status => 'success', %$votes };
 
 	# ===== CASE 2: ENOUGH JUDGES DISCONNECT OR DEEM VIDEO OR NETWORK BAD TO EXHAUST SAFETY MARGIN
-	} elsif( @bad > $safety ) {
-		return { status => 'fail', solution => 'rescore' };
+	} elsif( int( @bad ) + $drops > $safety ) {
+		my @valid  = map { $_->{ judge }{ id } } (@ok, @dsq);
+		my @repeat = map { $_->{ judge }{ id } } (@bad);
 
-	# ===== CASE 3: MAJORITY OF POOL JUDGES DEEM VIDEO FAULTY DUE TO ATHLETE ERROR
-	} elsif( @dsq > $half ) {
-		return { status => 'fail', solution => 'disqualify' };
+		return { status => 'fail', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], %$votes };
+
 	}
 }
 

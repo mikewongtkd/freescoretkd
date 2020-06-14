@@ -170,7 +170,6 @@ sub record_pool_score {
 	return { status => 'error' } if $capacity eq 'error';
 	return { status => 'in-progress', capacity => $capacity } unless $capacity eq 'full';
 	my $result = $pool->resolve( $form, $self );
-	$result->{ capacity } = $capacity;
 
 	return $result;
 }
@@ -194,6 +193,23 @@ sub record_decision {
 		$form->{ decision }{ $decision } = 1;
 		$form->{ complete }              = 1;
 	}
+}
+
+# ============================================================
+sub resolve_pool {
+# ============================================================
+# Forces resolution of the current pool
+# ------------------------------------------------------------
+	my $self  = shift;
+	my $size  = shift;
+	my $form  = shift;
+
+	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
+	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
+	$pool->size( $size );
+	$pool->want( $k );
+
+	return $pool->resolve( $form, $self );
 }
 
 # ============================================================
