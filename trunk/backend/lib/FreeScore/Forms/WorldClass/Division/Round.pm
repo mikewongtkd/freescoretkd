@@ -4,6 +4,7 @@ use List::Util qw( all any none sum );
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Pool;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
+use Data::Structure::Util qw( unbless );
 use Data::Dumper;
 use Carp;
 
@@ -109,24 +110,9 @@ sub pool_judge_ready {
 	$pool->size( $size );
 	$pool->want( $k );
 
+	print STDERR "  POOL JUDGE READY (SIZE: $size, WANT: $k)\n"; # MW
+
 	my $result = $pool->ready( $form, $judge );
-	return $result;
-}
-
-# ============================================================
-sub pool_judge_scoring {
-# ============================================================
-# A judge has indicated they are scoring and will be
-# submitting a score soon
-# ------------------------------------------------------------
-	my $self    = shift;
-	my $form    = shift;
-	my $judge   = shift;
-
-	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
-	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-
-	my $result = $pool->scoring( $form, $judge );
 	return $result;
 }
 
@@ -168,14 +154,20 @@ sub record_pool_score {
 # Records a score from a judge pool. 
 #------------------------------------------------------------
  	my $self  = shift;
+	my $size  = shift;
 	my $form  = shift;
 	my $score = shift;
 
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
+	$pool->size( $size );
+	$pool->want( $k );
 
 	my $capacity = $pool->record_score( $form, $score );
 
+	print STDERR "  Pool score capacity: $capacity\n"; # MW
+
+	return { status => 'error' } if $capacity eq 'error';
 	return { status => 'in-progress', capacity => $capacity } unless $capacity eq 'full';
 	my $result = $pool->resolve( $form, $self );
 	$result->{ capacity } = $capacity;

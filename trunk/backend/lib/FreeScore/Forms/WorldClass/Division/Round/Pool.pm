@@ -32,7 +32,7 @@ our $JSON = new JSON::XS();
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
-	my $data    = shift || { forms => [], size => undef, want => 0 };
+	my $data    = shift || { forms => [], size => undef, want => undef };
 	my $self    = bless $data, $class;
 	return $self;
 }
@@ -76,7 +76,7 @@ sub record_score {
 	my $form  = shift;
 	my $score = shift;
 
-	my $judge = $score->{ judge };
+	my $judge = $score->{ judge }; return 'error' unless $judge;
 	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
@@ -103,7 +103,12 @@ sub resolve {
 	my $form   = shift;
 	my $round  = shift;
 	my $k      = $self->{ want };
-	my @scores = values %{$self->{ forms }[ $form ]{ scores }};
+	my $n      = $self->{ size };
+	my @scores = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
+
+	print STDERR "RESOLVING POOL SCORING (POOL: $n, COURT: $k)\n"; # MW
+	my $json = new JSON::XS(); # MW
+	print ("  " . $json->canonical->encode( $_ ) . "\n") foreach @scores; # MW
 
 	# Partition the scores based on judge video/network feedback
 	my @ok     = grep { $_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good' } @scores; 
@@ -114,7 +119,7 @@ sub resolve {
 
 	# Judges in pool that do not submit a score are likely disconnected (dropped)
 	my $drops  = $self->{ size } - int( @scores );
-	push @bad, { video => 'drop' } foreach ( 1 .. $drops );
+	push @bad, { video => { feedback => 'disconnect' }} foreach ( 1 .. $drops );
 
 	# ===== CASE 1: SUFFICIENT SCORES
 	if( @ok >= $k ) {
@@ -126,6 +131,7 @@ sub resolve {
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
 			my $score = { major => - $acc->{ major }, minor => - $acc->{ minor }, power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+			print STDERR "  " . $json->canonical->encode( $score ) . "\n"; # MW
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success' };
@@ -138,38 +144,6 @@ sub resolve {
 	} elsif( @dsq > $half ) {
 		return { status => 'fail', solution => 'disqualify' };
 	}
-}
-
-# ============================================================
-sub scoring {
-# ============================================================
-	my $self   = shift;
-	my $formid = shift;
-	my $judge  = shift;
-
-	my $key    = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
-	my $id     = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
-
-	$self->{ forms }[ $formid ]                  = {} unless defined $self->{ forms }[ $formid ];
-	$self->{ forms }[ $formid ]{ scores }        = {} unless defined $self->{ forms }[ $formid ]{ scores };
-	$self->{ forms }[ $formid ]{ scores }{ $id } = {} unless defined $self->{ forms }[ $formid ]{ scores }{ $id };
-	my $judges                                   = $self->{ forms }[ $formid ]{ scores };
-	my $j                                        = $self->{ forms }[ $formid ]{ scores }{ $id };
-	
-	$j->{ status } = 'scoring';
-	$j->{ judge }  = $judge;
-
-	my $k      = $self->{ want };
-	my $n      = $self->{ size };
-	my $p      = int( grep { $_ eq 'scoring' } map { $judges->{ $_ }{ status } } keys %$judges);
-	my $first  = $p == 1;
-	my $enough = $p >= $k;
-	my $last   = $p == $n;
-
-	if    ( $first  ) { return 'first';   }
-	elsif ( $last   ) { return 'last';    }
-	elsif ( $enough ) { return 'enough';  }
-	else              { return 'waiting'; }
 }
 
 # ============================================================
@@ -226,10 +200,12 @@ sub want {
 # ============================================================
 sub _have_scored {
 # ============================================================
-	my $score = shift;
-	my $acc = $score->{ accuracy };
-	my $pre = $score->{ presentation };
-	return $acc->{ minor } >= 0 && $acc->{ major } >= 0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+	my $score  = shift;
+	my $acc    = $score->{ accuracy };
+	my $pre    = $score->{ presentation };
+	my $scored = $acc->{ minor } <= 0 && $acc->{ major } <= 0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+
+	return $scored;
 }
 
 1;

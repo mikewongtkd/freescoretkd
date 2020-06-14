@@ -484,32 +484,12 @@ sub pool_judge_ready {
 }
 
 # ============================================================
-sub pool_judge_scoring {
-# ============================================================
-#** @method ( judge )
-#   @brief 
-#*
-	my $self    = shift;
-	my $judge   = shift;
-
-	my $athlete = $self->{ athletes }[ $self->{ current } ];
-	my $round   = $self->{ round };
-	my $form    = $self->{ form };
-	my $forms   = int( @{ $self->{ forms }{ $round }});
-	my $judges  = $self->{ judges };
-
-	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-	return $athlete->{ scores }{ $round }->pool_judge_scoring( $form, $judge );
-}
-
-# ============================================================
 sub record_pool_score {
 # ============================================================
-#** @method ( pool_size, score_object )
+#** @method ( score_object )
 #   @brief Records the given score within a judge's pool for online tournaments
 #*
 	my $self    = shift;
-	my $size    = shift;
 	my $score   = shift;
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
@@ -517,10 +497,11 @@ sub record_pool_score {
 	my $form    = $self->{ form };
 	my $forms   = int( @{ $self->{ forms }{ $round }});
 	my $judges  = $self->{ judges };
+	my $size    = $self->{ poolsize };
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-	$athlete->{ scores }{ $round }->record_pool_score( $form, $score );
+	return $athlete->{ scores }{ $round }->record_pool_score( $size, $form, $score );
 }
 
 # ============================================================
@@ -781,6 +762,8 @@ sub read {
 				my ($data) = @score_criteria;
 				my $score  = $json->decode( $data );
 				my $pool   = $athlete->{ scores }{ $round }{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $athlete->{ scores }{ $round }{ pool });
+				$pool->size( $self->{ poolsize });
+				$pool->want( $self->{ judges });
 				$pool->record_score( $form, $score );
 			}
 
