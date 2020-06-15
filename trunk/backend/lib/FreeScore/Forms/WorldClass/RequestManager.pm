@@ -949,27 +949,24 @@ sub handle_division_video_playing {
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $roundid  = $division->{ round };
-	my $vidpath  = undef;
+	my $formid   = $division->{ form };
 	my $videos   = undef;
 	my $video    = undef;
 
-	try {
-		die "Missing path to videos $!" unless exists $division->{ videos };
+	die "Missing path to videos $!" unless exists $division->{ videos };
 
-		die "Missing video information for $athlete->{ name } $!" unless exists $athlete->{ info }{ video };
-		$videos = $self->{ _json }->decode( $athlete->{ info }{ video });
+	die "Missing video information for $athlete->{ name } $!" unless exists $athlete->{ info }{ video };
+	$videos = $self->{ _json }->decode( $athlete->{ info }{ video });
 
-		die "Missing video information for $athlete->{ name } for $round round $!" unless exists $videos->{ $round };
-		$video = $videos->{ $round };
-		$video->{ path }     = $division->{ videos };
-		$video->{ pathfile } = "$division->{ videos }/$video->{ file }";
+	die "Missing video information for $athlete->{ name } for $roundid round $!" unless exists $videos->{ $roundid };
+	die "Missing video information for $athlete->{ name } for $roundid round, form " . (int($formid) + 1) . "$!" unless exists $videos->{ $roundid }[ $formid ];
+	$video = $videos->{ $roundid }[ $formid ];
+	$video->{ path }     = $division->{ videos };
+	$video->{ pathfile } = "$division->{ videos }/$video->{ file }";
 
-		die "Missing video file for $athlete->{ name } for $round round $!" unless exists $video->{ file };
-		die "Missing video '$video->{ file }' duration for $athlete->{ name } for $round round $!" unless exists $video->{ duration };
+	die "Missing video file for $athlete->{ name } for $roundid round $!" unless exists $video->{ file };
+	die "Missing video '$video->{ file }' duration for $athlete->{ name } for $roundid round $!" unless exists $video->{ duration };
 
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
 	my $message  = "  $athlete->{ name } video '$video->{ file }' playing for $roundid\n";
 	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
 
@@ -982,7 +979,7 @@ sub handle_division_video_playing {
 			# Start video timer
 			sub {
 				my $delay = shift;
-				Mojo::IOLoop->timer( $video->{ duration } => $delay->begin );
+				Mojo::IOLoop->timer( ($video->{ duration } + 0.8) => $delay->begin );
 			},
 			# When video has finished playing
 			sub {
