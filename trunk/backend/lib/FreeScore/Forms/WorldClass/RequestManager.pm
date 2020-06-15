@@ -970,7 +970,7 @@ sub handle_division_video_playing {
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
-	my $message  = "  $athlete->{ name } video '$video->{ file }' $playing for $roundid\n";
+	my $message  = "  $athlete->{ name } video '$video->{ file }' playing for $roundid\n";
 	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
 
 	print STDERR $message if $DEBUG;

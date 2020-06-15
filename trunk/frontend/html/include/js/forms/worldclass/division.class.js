@@ -12,6 +12,8 @@ function Division( division ) {
 	this.forms       = function() { return division.forms;       }
 	this.ring        = function() { return division.ring;        }
 	this.history     = function() { return division.history;     }
+	this.videos      = function() { return 'videos' in division ? division.videos : null; }
+
 
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };

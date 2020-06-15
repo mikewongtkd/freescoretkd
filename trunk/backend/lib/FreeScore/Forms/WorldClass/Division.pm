@@ -1035,6 +1035,7 @@ sub write {
 	print FILE "# form=$self->{ form }\n";
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# poolsize=$self->{ poolsize }\n" if exists( $self->{ poolsize }) && defined( $self->{ poolsize });
+	print FILE "# videos=$self->{ videos }\n" if exists( $self->{ videos }) && defined( $self->{ videos });
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
 	print FILE "# timers=$self->{ timers }\n" if exists( $self->{ timers }) && defined( $self->{ timers } );
