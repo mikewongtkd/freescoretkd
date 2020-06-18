@@ -30,66 +30,67 @@ sub new {
 # ============================================================
 sub init {
 # ============================================================
-	my $self               = shift;
-	$self->{ _tournament } = shift;
-	$self->{ _ring }       = shift;
-	$self->{ _id }         = shift;
-	$self->{ _client }     = shift;
-	$self->{ _json }       = new JSON::XS();
-	$self->{ _watching }   = {};
-	$self->{ division }    = {
-		athlete_delete     => \&handle_division_athlete_delete,
-		athlete_next       => \&handle_division_athlete_next,
-		athlete_prev       => \&handle_division_athlete_prev,
-		award_penalty      => \&handle_division_award_penalty,
-		award_punitive     => \&handle_division_award_punitive,
-		clear_judge_score  => \&handle_division_clear_judge_score,
-		display            => \&handle_division_display,
-		edit_athletes      => \&handle_division_edit_athletes,
-		form_next          => \&handle_division_form_next,
-		form_prev          => \&handle_division_form_prev,
-		history            => \&handle_division_history,
-		judge_departure    => \&handle_division_judge_departure,
-		judge_ping         => \&handle_division_judge_ping,
-		judge_query        => \&handle_division_judge_query,
-		judge_registration => \&handle_division_judge_registration,
-		navigate           => \&handle_division_navigate,
-		opt_play_video     => \&handle_division_opt_play_video,
-		pool_judge_ready   => \&handle_division_pool_judge_ready,
-		pool_judge_scoring => \&handle_division_pool_judge_scoring,
-		pool_score         => \&handle_division_pool_score,
-		read               => \&handle_division_read,
-		restore            => \&handle_division_restore,
-		round_next         => \&handle_division_round_next,
-		round_prev         => \&handle_division_round_prev,
-		score              => \&handle_division_score,
-		video_playing      => \&handle_division_video_playing,
-		write              => \&handle_division_write,
+	my $self                    = shift;
+	$self->{ _tournament }      = shift;
+	$self->{ _ring }            = shift;
+	$self->{ _id }              = shift;
+	$self->{ _client }          = shift;
+	$self->{ _json }            = new JSON::XS();
+	$self->{ _watching }        = {};
+	$self->{ division }         = {
+		athlete_delete          => \&handle_division_athlete_delete,
+		athlete_next            => \&handle_division_athlete_next,
+		athlete_prev            => \&handle_division_athlete_prev,
+		award_penalty           => \&handle_division_award_penalty,
+		award_punitive          => \&handle_division_award_punitive,
+		clear_judge_score       => \&handle_division_clear_judge_score,
+		display                 => \&handle_division_display,
+		edit_athletes           => \&handle_division_edit_athletes,
+		form_next               => \&handle_division_form_next,
+		form_prev               => \&handle_division_form_prev,
+		history                 => \&handle_division_history,
+		judge_departure         => \&handle_division_judge_departure,
+		judge_ping              => \&handle_division_judge_ping,
+		judge_query             => \&handle_division_judge_query,
+		judge_registration      => \&handle_division_judge_registration,
+		navigate                => \&handle_division_navigate,
+		opt_play_video          => \&handle_division_opt_play_video,
+		pool_judge_registration => \&handle_division_pool_judge_registration,
+		pool_judge_ready        => \&handle_division_pool_judge_ready,
+		pool_judge_scoring      => \&handle_division_pool_judge_scoring,
+		pool_score              => \&handle_division_pool_score,
+		read                    => \&handle_division_read,
+		restore                 => \&handle_division_restore,
+		round_next              => \&handle_division_round_next,
+		round_prev              => \&handle_division_round_prev,
+		score                   => \&handle_division_score,
+		video_playing           => \&handle_division_video_playing,
+		write                   => \&handle_division_write,
 	};
-	$self->{ ring }        = {
-		division_delete    => \&handle_ring_division_delete,
-		division_merge     => \&handle_ring_division_merge,
-		division_next      => \&handle_ring_division_next,
-		division_prev      => \&handle_ring_division_prev,
-		division_split     => \&handle_ring_division_split,
-		draws_delete       => \&handle_ring_draws_delete,
-		draws_write        => \&handle_ring_draws_write,
-		read               => \&handle_ring_read,
-		transfer           => \&handle_ring_transfer,
+	$self->{ ring }             = {
+		division_delete         => \&handle_ring_division_delete,
+		division_merge          => \&handle_ring_division_merge,
+		division_next           => \&handle_ring_division_next,
+		division_prev           => \&handle_ring_division_prev,
+		division_split          => \&handle_ring_division_split,
+		draws_delete            => \&handle_ring_draws_delete,
+		draws_write             => \&handle_ring_draws_write,
+		read                    => \&handle_ring_read,
+		transfer                => \&handle_ring_transfer,
 	};
-	$self->{ registration } = {
-		archive            => \&handle_registration_archive,
-		import             => \&handle_registration_import,
-		read               => \&handle_registration_read,
-		remove             => \&handle_registration_remove,
-		upload             => \&handle_registration_upload,
+	$self->{ registration }     = {
+		archive                 => \&handle_registration_archive,
+		import                  => \&handle_registration_import,
+		read                    => \&handle_registration_read,
+		remove                  => \&handle_registration_remove,
+		upload                  => \&handle_registration_upload,
 	};
-	$self->{ schedule }    = {
-		build              => \&handle_schedule_build,
-		check              => \&handle_schedule_check,
-		read               => \&handle_schedule_read,
-		write              => \&handle_schedule_write,
-		remove             => \&handle_schedule_remove,
+	$self->{ schedule }         = {
+		build                   => \&handle_schedule_build,
+		check                   => \&handle_schedule_check,
+		read                    => \&handle_schedule_read,
+		write                   => \&handle_schedule_write,
+		remove                  => \&handle_schedule_remove,
 	};
 }
 
@@ -663,6 +664,41 @@ sub handle_division_opt_play_video {
 }
 
 # ============================================================
+sub handle_division_pool_judge_registration {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $id       = $request->{ id };
+	my $num      = $request->{ num };
+	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
+	my $sid      = substr( $id, 0, 4 );
+
+	print STDERR "Requesting pool $judge registration ($id).\n" if $DEBUG;
+
+	# De-register the judge from other positions
+	foreach my $i ( 0 .. $#$judges ) {
+		my $judge = $judges->[ $i ];
+		$judges->[ $i ] = {} if( $judge->{ id } eq $id );
+	}
+	$judges->[ $num ]{ id } = $id;
+
+	print STDERR "  Broadcasting pool judge registration information to:\n" if $DEBUG;
+	foreach my $id (sort keys %$clients) {
+		my $user = $clients->{ $id };
+
+		printf STDERR "    user: %s (%s)\n", $user->{ role }, $id if $DEBUG;
+		$user->{ device }->send( { json => { type => $request->{ type }, action => 'pool judges', judges => $judges }});
+	}
+	print STDERR "\n" if $DEBUG;
+
+}
+
+# ============================================================
 sub handle_division_pool_judge_ready {
 # ============================================================
 	my $self     = shift;
@@ -688,22 +724,24 @@ sub handle_division_pool_judge_ready {
 
 	$division->write();
 
-	print STDERR "  Pool Ready response: $response\n" if $response; # MW
+	print STDERR "  Pool Ready response: " . $json->canonical->encode( $response ) if $response; # MW
 
-	if( $response eq 'first' ) {
-		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start' };
+	if( $response->{ have } == $response->{ all } - 1 ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start', judges => $response->{ judges } };
 		$self->broadcast_division_response( $request, $progress, $clients );
 
-	} elsif( $response eq 'waiting' ) {
-		$request->{ response } = { status => 'info', details => 'Waiting for more judges' };
+	} elsif( $response->{ have } == $response->{ all } ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges } };
 		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
 
-	} elsif( $response eq 'enough' ) {
-		$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score' };
+	} elsif( $response->{ have } < $response->{ want }) {
+		$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges } };
 		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
 
-	} elsif( $response eq 'last' ) {
-		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop' };
+	} elsif( $response->{ have } >= $response->{ want }) {
+		$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges } };
 		$self->broadcast_division_response( $request, $progress, $clients );
 		return;
 
@@ -715,6 +753,7 @@ sub handle_division_pool_judge_ready {
 	}
 
 	# ===== POOL JUDGES READY TIMEOUT BEHAVIOR
+	# Start timeout when n-1 judges are ready
 	my $delay    = new Mojo::IOLoop::Delay();
 	$delay->steps(
 		# Start timer

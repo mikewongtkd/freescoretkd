@@ -56,17 +56,12 @@ sub ready {
 	$j->{ status } = 'ready';
 	$j->{ judge }  = $judge;
 
+	my $ready  = [ grep { $judges->{ $_ }{ status } eq 'ready' } keys %$judges ];
 	my $k      = $self->{ want };
 	my $n      = $self->{ size };
-	my $p      = int( grep { $_ eq 'ready' } map { $judges->{ $_ }{ status } } keys %$judges);
-	my $first  = $p == 1;
-	my $enough = $p >= $k;
-	my $last   = $p == $n;
+	my $p      = int( @$ready );
 
-	if    ( $first  ) { return 'first';   }
-	elsif ( $last   ) { return 'last';    }
-	elsif ( $enough ) { return 'enough';  }
-	else              { return 'waiting'; }
+	return { have => $p, want => $k, all => $n, judges => $ready };
 }
 
 # ============================================================
