@@ -76,47 +76,30 @@ sub record_score {
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
-	my @scores = values %{ $self->{ forms }[ $form ]{ scores }};
-	my $k      = $self->{ want };                           # Number of judges in court
-	my $n      = $self->{ size };                           # Number of judges in pool
-	my $p      = int( grep { _have_scored( $_ )} @scores ); # Number of judges that have scored
+	my ($votes, $scores, $safety) = $self->votes( $form );
 
-	my $first  = $p == 1;
-	my $enough = $p >= $k;
-	my $last   = $p == $n;
-
-	if    ( $first  ) { return 'one';        }
-	elsif ( $last   ) { return 'full';       }
-	elsif ( $enough ) { return 'sufficient'; }
-	else              { return 'low';        }
+	return $votes;
 }
 
 # ============================================================
 sub resolve {
 # ============================================================
-	my $self   = shift;
-	my $form   = shift;
-	my $round  = shift;
-	my $k      = $self->{ want };
-	my $n      = $self->{ size };
-	my @scores = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
+	my $self    = shift;
+	my $form    = shift;
+	my $round   = shift;
+	my $timeout = shift;
+	my $k       = $self->{ want };
+	my $n       = $self->{ size };
 
-	# Partition the scores based on judge video/network feedback
-	my @ok     = grep { $_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good' } @scores; 
-	my @bad    = grep { $_->{ video }{ feedback } eq 'bad' } @scores;
-	my @dsq    = grep { $_->{ video }{ feedback } eq 'dsq' } @scores;
-	my $safety = $self->{ size } - $self->{ want };
-
-	# Judges in pool that do not submit a score are likely disconnected (dropped)
-	my $drops  = $self->{ size } - int( @scores );
-	my $votes  = { want => $k, have => { ok => int( @ok ), bad => int( @bad ), dsq => int( @dsq ), drop => $drops }};
+	my ($votes, $scores, $safety) = $self->votes( $form );
+	print STDERR Dumper $votes; # MW
 
 	# ===== CASE 1: SUFFICIENT SCORES
 	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain
 	# can discuss and make a decision. A DSQ decision must then be manually
 	# given by the ring computer operator.
-	if( int( @ok ) + int( @dsq ) >= $k ) {
-		my @valid = shuffle (@ok, @dsq);  # Randomize
+	if( $votes->{ have }{ valid } >= $k ) {
+		my @valid = shuffle (@{$scores->{ valid }});  # Randomize
 		@valid = splice( @valid, 0, $k ); # Take $k scores
 		foreach my $i ( 0 .. $#valid ) {
 			my $s   = $valid[ $i ];
@@ -126,14 +109,14 @@ sub resolve {
 			my $score = { major => - $acc->{ major }, minor => - $acc->{ minor }, power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
-		return { status => 'success', %$votes };
+		return { status => 'success', votes => $votes };
 
 	# ===== CASE 2: ENOUGH JUDGES DISCONNECT OR DEEM VIDEO OR NETWORK BAD TO EXHAUST SAFETY MARGIN
-	} elsif( int( @bad ) + $drops > $safety ) {
-		my @valid  = map { $_->{ judge }{ id } } (@ok, @dsq);
-		my @repeat = map { $_->{ judge }{ id } } (@bad);
+	} elsif( int( @bad ) + $drops > $safety->{ margin } ) {
+		my @valid  = map { $_->{ judge }{ id } } (@{$scores->{ ok }}, @{$scores->{ dsq }});
+		my @repeat = map { $_->{ judge }{ id } } (@{$scores->{ bad }});
 
-		return { status => 'fail', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], %$votes };
+		return { status => 'fail', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
 
 	}
 }
@@ -187,6 +170,33 @@ sub want {
 	return $self->{ want } if( $self->{ want });
 	$self->{ want } = $k;
 	return $k;
+}
+
+# ============================================================
+sub votes {
+# ============================================================
+# Tally up the current voting status
+# ------------------------------------------------------------
+	my $self      = shift;
+	my $form      = shift;
+	my @scores    = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
+
+	# Partition the scores based on judge video/network feedback
+	my $ok        = [ grep { _have_scored( $_ ) && ($_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good') } @scores ]; 
+	my $bad       = [ grep { _have_scored( $_ ) && $_->{ video }{ feedback } eq 'bad' } @scores ];
+	my $dsq       = [ grep { _have_scored( $_ ) && $_->{ video }{ feedback } eq 'dsq' } @scores ];
+	my $drops     = [ grep {   $timeout && ! _have_scored( $_ ) } @scores ];
+	my $pending   = [ grep { ! $timeout && ! _have_scored( $_ ) } @scores ];
+	my $margin    = [ $self->{ size } - $self->{ want } ];
+
+	# Judges in pool that do not submit a score are likely disconnected (dropped)
+	my $responses = int( @$ok ) + int( @$bad ) + int( @$dsq );
+	my $valid     = int( @$ok ) + int( @$dsq );
+	my $votes     = { want => $self->{ want }, have => { responses => $responses, valid => $valid, ok => int( @$ok ), bad => int( @$bad ), dsq => int( @$dsq ), drop => int( @$drops ), pending => int( @$pending )}};
+	my $scores    = { ok => $ok, bad => $bad, dsq => $dsq, valid => [ @$ok, @$dsq ]};
+	my $safety    = { margin => $margin };
+
+	return ($votes, $scores, $safety);
 }
 
 # ============================================================

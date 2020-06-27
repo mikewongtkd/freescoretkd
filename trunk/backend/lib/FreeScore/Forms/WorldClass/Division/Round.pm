@@ -163,13 +163,12 @@ sub record_pool_score {
 	$pool->size( $size );
 	$pool->want( $k );
 
-	my $capacity = $pool->record_score( $form, $score );
+	my $votes = $pool->record_score( $form, $score );
 
-	print STDERR "  Pool score capacity: $capacity\n"; # MW
+	printf STDERR "  Pool scores: want %d, have %d (ok: %d, bad: %d, dsq: %d), pending: %d, dropped: %d\n", $votes->{ want }, $votes->{ have }{ responses }, $votes->{ have }{ ok }, $votes->{ have }{ bad }, $votes->{ have }{ dsq }, $votes->{ have }{ pending }, $votes->{ have }{ drop }; # MW
 
-	return { status => 'error' } if $capacity eq 'error';
-	return { status => 'in-progress', capacity => $capacity } unless $capacity eq 'full';
-	my $result = $pool->resolve( $form, $self );
+	return { status => 'in-progress', votes => $votes } unless $votes->{ have }{ valid } == $size;
+	my $result = $pool->resolve( $form, $self, 0 );
 
 	return $result;
 }
@@ -198,7 +197,7 @@ sub record_decision {
 # ============================================================
 sub resolve_pool {
 # ============================================================
-# Forces resolution of the current pool
+# Timeout-forced resolution of the current pool
 # ------------------------------------------------------------
 	my $self  = shift;
 	my $size  = shift;
@@ -209,7 +208,7 @@ sub resolve_pool {
 	$pool->size( $size );
 	$pool->want( $k );
 
-	return $pool->resolve( $form, $self );
+	return $pool->resolve( $form, $self, 1 );
 }
 
 # ============================================================

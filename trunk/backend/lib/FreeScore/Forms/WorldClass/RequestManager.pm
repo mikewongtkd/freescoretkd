@@ -54,10 +54,8 @@ sub init {
 		judge_query             => \&handle_division_judge_query,
 		judge_registration      => \&handle_division_judge_registration,
 		navigate                => \&handle_division_navigate,
-		opt_play_video          => \&handle_division_opt_play_video,
 		pool_judge_registration => \&handle_division_pool_judge_registration,
 		pool_judge_ready        => \&handle_division_pool_judge_ready,
-		pool_judge_scoring      => \&handle_division_pool_judge_scoring,
 		pool_score              => \&handle_division_pool_score,
 		read                    => \&handle_division_read,
 		restore                 => \&handle_division_restore,
@@ -641,29 +639,6 @@ sub handle_division_navigate {
 }
 
 # ============================================================
-sub handle_division_opt_play_video {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
-	my $message  = "  Requesting OPT to play video for $athlete->{ name }\n";
-
-	print STDERR $message if $DEBUG;
-
-	try {
-		$self->broadcast_division_response( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
 sub handle_division_pool_judge_registration {
 # ============================================================
 	my $self     = shift;
@@ -724,8 +699,6 @@ sub handle_division_pool_judge_ready {
 
 	$division->write();
 
-	print STDERR "  Pool Ready response: " . $json->canonical->encode( $response ) if $response; # MW
-
 	if( $response->{ have } == $response->{ all } - 1 ) {
 		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start', judges => $response->{ judges } };
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -756,17 +729,17 @@ sub handle_division_pool_judge_ready {
 	# Start timeout when n-1 judges are ready
 	my $delay    = new Mojo::IOLoop::Delay();
 	$delay->steps(
-		# Start timer
+		# Start Judge Ready Timer
 		sub {
 			my $delay = shift;
 			Mojo::IOLoop->timer( $timeout => $delay->begin );
 		},
-		# On time elapsed
+		# Judge Ready Timer elapsed
 		sub {
 
 			# If all judges are ready, simply stop the timer
 			my $response = $athlete->{ scores }{ $round }->pool_judge_ready( $size, $form, $judge );
-			exit() if( $response eq 'last' );
+			return if( $response eq 'last' );
 
 			# Otherwise proceed with playing the video (response := [ waiting | enough ]
 			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'timeout' };
@@ -819,18 +792,14 @@ sub handle_division_pool_score {
 			return; 
 
 		} elsif( $response->{ status } eq 'fail' ) {
-			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
+			# ===== AT LEAST 1 JUDGE HAS FOUND GROUNDS TO DISQUALIFY
 			if( $response->{ solution } eq 'disqualify' ) {
-				print STDERR "  Majority of judges have voted to disqualify\n"; # MW
-				$version->checkout( $division );
-				$athlete->{ scores }{ $round }->record_decision( $form, 'disqualify' );
-				$division->write();
-				$version->commit( $division, $message );
+				print STDERR "  At least 1 judge has voted to disqualify\n"; # MW
 				$self->broadcast_division_response( $request, $progress, $clients );
 
 			# ===== INSUFFICIENT JUDGES HAVE SCORED
-			} elsif( $response->{ solution } eq 'rescore' ) {
-				print STDERR "  Insufficient judges have scored; rescore the video\n"; # MW
+			} elsif( $response->{ solution } eq 'replay' ) {
+				print STDERR "  Insufficient judges have scored; replay the video\n"; # MW
 				$self->broadcast_division_response( $request, $progress, $clients );
 				return;
 			}
@@ -1006,7 +975,7 @@ sub handle_division_video_playing {
 	die "Missing video file for $athlete->{ name } for $roundid round $!" unless exists $video->{ file };
 	die "Missing video '$video->{ file }' duration for $athlete->{ name } for $roundid round $!" unless exists $video->{ duration };
 
-	my $message  = "  $athlete->{ name } video '$video->{ file }' playing for $roundid\n";
+	my $message  = "  Showing Video for $athlete->{ name }, $roundid\n";
 	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
 
 	print STDERR $message if $DEBUG;
@@ -1015,23 +984,36 @@ sub handle_division_video_playing {
 		# ===== VIDEO TIMEOUT BEHAVIOR
 		my $delay = new Mojo::IOLoop::Delay();
 		$delay->steps(
-			# Start video timer
+			# Start Video Timer
 			sub {
 				my $delay = shift;
 				Mojo::IOLoop->timer( ($video->{ duration } + 0.8) => $delay->begin );
 			},
-			# When video has finished playing
+			# When Video Timer has elapsed (video has finished playing), show scores and start Judge Scoring Timer
 			sub {
+				print STDERR "\nVideo has finished.\n";
 				$request->{ response } = { timer => 'video', timeout => $video->{ duration }, status => 'timeout' };
 				$self->broadcast_division_response( $request, $progress, $clients );
 				Mojo::IOLoop->timer( $timeout => $delay->begin );
 			},
-			# When judge scoring window has closed
+			# When Judge Scoring Timer has elapsed (scoring window has closed)
 			sub {
+				print STDERR "\nJudge scoring window has closed.\n";
 				my $result = $division->resolve_pool();
 				$request->{ response } = $result;
 				$self->broadcast_division_response( $request, $progress, $clients );
-				exit();
+
+				my $round    = $division->{ round };
+				my $athlete  = $division->{ athletes }[ $division->{ current } ];
+				my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
+				my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+
+				# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+				print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+				my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+				die $autopilot->{ error } if exists $autopilot->{ error };
+
+				$self->broadcast_division_response( $request, $progress, $clients );
 			}
 		);
 	} catch {
