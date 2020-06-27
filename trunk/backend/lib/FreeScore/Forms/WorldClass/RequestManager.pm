@@ -976,7 +976,8 @@ sub handle_division_video_playing {
 	die "Missing video '$video->{ file }' duration for $athlete->{ name } for $roundid round $!" unless exists $video->{ duration };
 
 	my $message  = "  Showing Video for $athlete->{ name }, $roundid\n";
-	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
+	# my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
+	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 5; # MW
 
 	print STDERR $message if $DEBUG;
 
@@ -1002,6 +1003,10 @@ sub handle_division_video_playing {
 				my $result = $division->resolve_pool();
 				$request->{ response } = $result;
 				$self->broadcast_division_response( $request, $progress, $clients );
+
+				# ===== A JUDGE HAS FOUND GROUNDS FOR ATHLETE DISQUALIFICATION
+				# Do not engage autopilot and allow the DSQ to be resolved
+				return if( $result->{ votes }{ have }{ dsq } >= 1 );
 
 				my $round    = $division->{ round };
 				my $athlete  = $division->{ athletes }[ $division->{ current } ];

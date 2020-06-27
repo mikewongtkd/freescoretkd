@@ -67,6 +67,8 @@ sub ready {
 # ============================================================
 sub record_score {
 # ============================================================
+# Record pool score
+# ------------------------------------------------------------
 	my $self  = shift;
 	my $form  = shift;
 	my $score = shift;
@@ -76,7 +78,7 @@ sub record_score {
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
-	my ($votes, $scores, $safety) = $self->votes( $form );
+	my ($votes, $scores, $safety) = $self->votes( $form, 0 );
 
 	return $votes;
 }
@@ -84,6 +86,8 @@ sub record_score {
 # ============================================================
 sub resolve {
 # ============================================================
+# Resolve pool scoring
+# ------------------------------------------------------------
 	my $self    = shift;
 	my $form    = shift;
 	my $round   = shift;
@@ -91,8 +95,9 @@ sub resolve {
 	my $k       = $self->{ want };
 	my $n       = $self->{ size };
 
-	my ($votes, $scores, $safety) = $self->votes( $form );
-	print STDERR Dumper $votes; # MW
+	my ($votes, $scores, $safety) = $self->votes( $form, $timeout );
+	my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;
+	print STDERR $json->canonical->encode( $votes ) . "\n"; # MW
 
 	# ===== CASE 1: SUFFICIENT SCORES
 	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain
@@ -112,7 +117,7 @@ sub resolve {
 		return { status => 'success', votes => $votes };
 
 	# ===== CASE 2: ENOUGH JUDGES DISCONNECT OR DEEM VIDEO OR NETWORK BAD TO EXHAUST SAFETY MARGIN
-	} elsif( int( @bad ) + $drops > $safety->{ margin } ) {
+	} elsif( $votes->{ bad } + $votes->{ dropped } > $safety->{ margin } ) {
 		my @valid  = map { $_->{ judge }{ id } } (@{$scores->{ ok }}, @{$scores->{ dsq }});
 		my @repeat = map { $_->{ judge }{ id } } (@{$scores->{ bad }});
 
@@ -177,22 +182,23 @@ sub votes {
 # ============================================================
 # Tally up the current voting status
 # ------------------------------------------------------------
-	my $self      = shift;
-	my $form      = shift;
-	my @scores    = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
+	my $self    = shift;
+	my $form    = shift;
+	my $timeout = shift;
+	my @scores  = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
 
 	# Partition the scores based on judge video/network feedback
 	my $ok        = [ grep { _have_scored( $_ ) && ($_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good') } @scores ]; 
 	my $bad       = [ grep { _have_scored( $_ ) && $_->{ video }{ feedback } eq 'bad' } @scores ];
 	my $dsq       = [ grep { _have_scored( $_ ) && $_->{ video }{ feedback } eq 'dsq' } @scores ];
-	my $drops     = [ grep {   $timeout && ! _have_scored( $_ ) } @scores ];
-	my $pending   = [ grep { ! $timeout && ! _have_scored( $_ ) } @scores ];
+	my $responses = int( @$ok ) + int( @$bad ) + int( @$dsq );
+	my $valid     = int( @$ok ) + int( @$dsq );
+	my $dropped   = $timeout ? $self->{ size } - $responses : 0;
+	my $pending   = $timeout ? 0 : $self->{ size } - $responses;
 	my $margin    = [ $self->{ size } - $self->{ want } ];
 
 	# Judges in pool that do not submit a score are likely disconnected (dropped)
-	my $responses = int( @$ok ) + int( @$bad ) + int( @$dsq );
-	my $valid     = int( @$ok ) + int( @$dsq );
-	my $votes     = { want => $self->{ want }, have => { responses => $responses, valid => $valid, ok => int( @$ok ), bad => int( @$bad ), dsq => int( @$dsq ), drop => int( @$drops ), pending => int( @$pending )}};
+	my $votes     = { want => $self->{ want }, max => $self->{ size }, have => { responses => $responses, valid => $valid, ok => int( @$ok ), bad => int( @$bad ), dsq => int( @$dsq ), dropped => $dropped, pending => $pending}};
 	my $scores    = { ok => $ok, bad => $bad, dsq => $dsq, valid => [ @$ok, @$dsq ]};
 	my $safety    = { margin => $margin };
 
