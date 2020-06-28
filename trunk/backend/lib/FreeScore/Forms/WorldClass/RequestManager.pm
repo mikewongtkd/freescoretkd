@@ -738,6 +738,7 @@ sub handle_division_pool_judge_ready {
 		sub {
 
 			# If all judges are ready, simply stop the timer
+			my $round    = $division->{ round };
 			my $response = $athlete->{ scores }{ $round }->pool_judge_ready( $size, $form, $judge );
 			return if( $response eq 'last' );
 
@@ -976,8 +977,7 @@ sub handle_division_video_playing {
 	die "Missing video '$video->{ file }' duration for $athlete->{ name } for $roundid round $!" unless exists $video->{ duration };
 
 	my $message  = "  Showing Video for $athlete->{ name }, $roundid\n";
-	# my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
-	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 5; # MW
+	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
 
 	print STDERR $message if $DEBUG;
 
