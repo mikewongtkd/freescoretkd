@@ -1,6 +1,8 @@
-Downloaded 10/15/2015
+Downloaded 06/28/2020
 
-Source:
-http://www.customicondesign.com/free-icons/flag-icon-set/all-in-one-country-flag-icon-set/
+https://flagpedia.net/download
 
-Summary: $50 commercial license, free for non-commercial
+https://flagpedia.net/us-states/download
+
+Public Domain from Wikipedia
+
