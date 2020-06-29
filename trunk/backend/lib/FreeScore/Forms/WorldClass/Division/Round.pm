@@ -201,6 +201,8 @@ sub resolve_pool {
 	my $size  = shift;
 	my $form  = shift;
 
+	print STDERR "[Round] Resolving Pool\n";
+
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
 	$pool->size( $size );

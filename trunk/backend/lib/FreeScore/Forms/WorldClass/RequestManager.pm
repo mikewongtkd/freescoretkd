@@ -121,7 +121,7 @@ sub broadcast_division_response {
 		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
-	print STDERR "\n" if $DEBUG > 1;
+	print STDERR "\n" if $DEBUG;
 }
 
 # ============================================================
@@ -736,14 +736,11 @@ sub handle_division_pool_judge_ready {
 		},
 		# Judge Ready Timer elapsed
 		sub {
-
 			# If all judges are ready, simply stop the timer
-			my $round    = $division->{ round };
-			my $response = $athlete->{ scores }{ $round }->pool_judge_ready( $size, $form, $judge );
-			return if( $response eq 'last' );
+			return if( $response->{ have } == $response->{ all });
 
 			# Otherwise proceed with playing the video (response := [ waiting | enough ]
-			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'timeout' };
+			$request->{ response } = { timer => 'ready', timeout => $timeout, timeout => $timeout, status => 'timeout' };
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	);
@@ -1038,8 +1035,6 @@ sub handle_division_video_playing {
 				print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 				my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 				die $autopilot->{ error } if exists $autopilot->{ error };
-
-				$self->broadcast_division_response( $request, $progress, $clients );
 			}
 		);
 	} catch {
