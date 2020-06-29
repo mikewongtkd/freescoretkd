@@ -110,8 +110,6 @@ sub pool_judge_ready {
 	$pool->size( $size );
 	$pool->want( $k );
 
-	print STDERR "  POOL JUDGE READY (SIZE: $size, WANT: $k)\n"; # MW
-
 	my $result = $pool->ready( $form, $judge );
 	return $result;
 }
@@ -208,7 +206,9 @@ sub resolve_pool {
 	$pool->size( $size );
 	$pool->want( $k );
 
-	return $pool->resolve( $form, $self, 1 );
+	my $result = $pool->resolve( $form, $self, 1 );
+	return undef if( $result->{ have }{ responses } == 0 ); # Bad data or literally EVERYONE has dropped
+	return $result;
 }
 
 # ============================================================

@@ -7,6 +7,7 @@ use JSON::XS;
 use List::Util qw( all );
 use base qw( Clone );
 use Data::Structure::Util qw( unbless );
+use Math::Round qw( nearest );
 use Data::Dumper;
 
 our $JSON = new JSON::XS();
@@ -86,24 +87,35 @@ sub record_score {
 # ============================================================
 sub resolve {
 # ============================================================
-# Resolve pool scoring
+# Resolve pool scoring. This is triggered when either (1) all
+# judges have responded; or (2) the pool scoring timer has
+# elapsed.
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $form    = shift;
-	my $round   = shift;
+	my $round   = shift; # This is the Round object, not the roundID
 	my $timeout = shift;
 	my $k       = $self->{ want };
 	my $n       = $self->{ size };
 
 	my ($votes, $scores, $safety) = $self->votes( $form, $timeout );
 	my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;
-	print STDERR $json->canonical->encode( $votes ) . "\n"; # MW
+	print STDERR "Votes: " . $json->canonical->encode( $votes ) . "\n"; # MW
 
-	# ===== CASE 1: SUFFICIENT SCORES
+	# ===== CASE 1: AT LEAST ONE DSQ VOTE HAS BEEN RAISED
 	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain
 	# can discuss and make a decision. A DSQ decision must then be manually
 	# given by the ring computer operator.
-	if( $votes->{ have }{ valid } >= $k ) {
+	if( $votes->{ have }{ dsq } >= 1 ) {
+		return { status => 'fail', solution => 'user-intervention', votes => $votes };
+
+	# ===== CASE 2: SUFFICIENT SCORES
+	} elsif( $votes->{ have }{ ok } >= $k ) {
+
+		# ===== IF THE POOL HAS BEEN PREVIOUSLY RESOLVED, KEEP PREVIOUS RESULTS AND RETURN VOTES
+		if( $round->form_complete( $form )) { return { status => 'success', votes => $votes }; }
+
+		# ===== IF THE POOL HAS NOT BEEN PREVIOUSLY RESOLVED, RESOLVE NOW
 		my @valid = shuffle (@{$scores->{ valid }});  # Randomize
 		@valid = splice( @valid, 0, $k ); # Take $k scores
 		foreach my $i ( 0 .. $#valid ) {
@@ -111,18 +123,25 @@ sub resolve {
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { major => - $acc->{ major }, minor => - $acc->{ minor }, power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+			my $score = { major => nearest( 0.3, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };
 
-	# ===== CASE 2: ENOUGH JUDGES DISCONNECT OR DEEM VIDEO OR NETWORK BAD TO EXHAUST SAFETY MARGIN
+	# ===== CASE 3: ENOUGH JUDGES DISCONNECT OR DEEM VIDEO OR NETWORK BAD TO EXHAUST SAFETY MARGIN
 	} elsif( $votes->{ bad } + $votes->{ dropped } > $safety->{ margin } ) {
 		my @valid  = map { $_->{ judge }{ id } } (@{$scores->{ ok }}, @{$scores->{ dsq }});
 		my @repeat = map { $_->{ judge }{ id } } (@{$scores->{ bad }});
 
 		return { status => 'fail', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
 
+	# ===== CASE 4: SHOULD NEVER HAPPEN
+	} else {
+		print STDERR "Invalid count of dropped judges.\n"; # MW
+		my @valid  = map { $_->{ judge }{ id } } (@{$scores->{ ok }}, @{$scores->{ dsq }});
+		my @repeat = map { $_->{ judge }{ id } } (@{$scores->{ bad }});
+
+		return { status => 'fail', details => 'Invalid count of dropped judges', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
 	}
 }
 

@@ -107,7 +107,7 @@ sub broadcast_division_response {
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 
-	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
+	print STDERR "  Broadcasting division information to:\n" if $DEBUG > 1;
 
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
@@ -117,11 +117,11 @@ sub broadcast_division_response {
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
-		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG > 1;
 		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
-	print STDERR "\n" if $DEBUG;
+	print STDERR "\n" if $DEBUG > 1;
 }
 
 # ============================================================
@@ -551,7 +551,7 @@ sub handle_division_judge_query {
 		splice( @$judges, $n );
 	}
 
-	if( $DEBUG ) {
+	if( $DEBUG > 1 ) {
 		print STDERR "Requesting judge information for $n judges.\n";
 		foreach my $i ( 0 .. ($n - 1)) {
 			my $name = $i == 0 ? 'Referee' : 'Judge ' . $i;
@@ -688,7 +688,7 @@ sub handle_division_pool_judge_ready {
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
 	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
-	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
+	my $message  = "$jname is ready to score athlete $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
@@ -768,7 +768,7 @@ sub handle_division_pool_score {
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
-	my $message  = "  $jname has scored for $athlete->{ name }\n";
+	my $message  = "$jname has scored for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
@@ -784,7 +784,6 @@ sub handle_division_pool_score {
 
 		my $round    = $division->{ round };
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
@@ -797,6 +796,7 @@ sub handle_division_pool_score {
 			if( $response->{ solution } eq 'disqualify' ) {
 				print STDERR "  At least 1 judge has voted to disqualify\n"; # MW
 				$self->broadcast_division_response( $request, $progress, $clients );
+				return;
 
 			# ===== INSUFFICIENT JUDGES HAVE SCORED
 			} elsif( $response->{ solution } eq 'replay' ) {
@@ -931,7 +931,6 @@ sub handle_division_score {
 
 		my $round    = $division->{ round };
 		my $athlete  = $division->{ athletes }[ $division->{ current } ];
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
@@ -958,6 +957,7 @@ sub handle_division_video_playing {
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $roundid  = $division->{ round };
+	my $round    = $athlete->{ scores }{ $roundid };
 	my $formid   = $division->{ form };
 	my $videos   = undef;
 	my $video    = undef;
@@ -976,7 +976,7 @@ sub handle_division_video_playing {
 	die "Missing video file for $athlete->{ name } for $roundid round $!" unless exists $video->{ file };
 	die "Missing video '$video->{ file }' duration for $athlete->{ name } for $roundid round $!" unless exists $video->{ duration };
 
-	my $message  = "  Showing Video for $athlete->{ name }, $roundid\n";
+	my $message  = "Showing Video for $athlete->{ name }, $roundid\n";
 	my $timeout  = $timer->{ pause }{ scoring } || $request->{ timeout } || 30;
 
 	print STDERR $message if $DEBUG;
@@ -985,22 +985,46 @@ sub handle_division_video_playing {
 		# ===== VIDEO TIMEOUT BEHAVIOR
 		my $delay = new Mojo::IOLoop::Delay();
 		$delay->steps(
+			# ------------------------------------------------------------
 			# Start Video Timer
+			# ------------------------------------------------------------
 			sub {
 				my $delay = shift;
 				Mojo::IOLoop->timer( ($video->{ duration } + 0.8) => $delay->begin );
 			},
+			# ------------------------------------------------------------
 			# When Video Timer has elapsed (video has finished playing), show scores and start Judge Scoring Timer
+			# ------------------------------------------------------------
 			sub {
 				print STDERR "\nVideo has finished.\n";
 				$request->{ response } = { timer => 'video', timeout => $video->{ duration }, status => 'timeout' };
 				$self->broadcast_division_response( $request, $progress, $clients );
 				Mojo::IOLoop->timer( $timeout => $delay->begin );
 			},
+			# ------------------------------------------------------------
 			# When Judge Scoring Timer has elapsed (scoring window has closed)
+			# ------------------------------------------------------------
 			sub {
-				print STDERR "\nJudge scoring window has closed.\n";
-				my $result = $division->resolve_pool();
+				# ===== GET LATEST INFORMATION
+				$division->read();
+				my $i        = $division->{ current };
+				my $athlete  = $division->{ athletes }[ $i ];
+				my $roundid  = $division->{ round };
+				my $round    = $athlete->{ scores }{ $roundid };
+				my $formid   = $division->{ form };
+				
+				# ===== DO NOTHING IF THE FORM HAS BEEN SCORED
+				# Hopefully these subroutines are run within the context when defined
+				my $complete = $round->form_complete( $formid );
+
+				print STDERR "$athlete->{ name } score is complete\n" if $complete; # MW
+				return if $complete;
+
+				# ===== RESOLVE THE POOL
+				printf STDERR "\nJudge scoring window for %s (%ds) has closed.\n", $athlete->{ name }, $timeout;
+				my $result = $round->resolve_pool();
+				return unless $result; # Bad data OR everyone has dropped. In the latter case, forget about the timer and wait until sufficient people respond
+
 				$request->{ response } = $result;
 				$self->broadcast_division_response( $request, $progress, $clients );
 
@@ -1008,10 +1032,7 @@ sub handle_division_video_playing {
 				# Do not engage autopilot and allow the DSQ to be resolved
 				return if( $result->{ votes }{ have }{ dsq } >= 1 );
 
-				my $round    = $division->{ round };
-				my $athlete  = $division->{ athletes }[ $division->{ current } ];
-				my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-				my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+				$complete = $round->form_complete( $formid );
 
 				# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 				print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
