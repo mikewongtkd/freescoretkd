@@ -145,6 +145,7 @@ html, body {
 #athletes .list-group-item {
   padding-top: 10px;
   padding-bottom: 6px;
+  cursor: pointer;
 }
 
 #division-round {
@@ -281,6 +282,7 @@ a.active .athlete-score .total {
 
 .action-menu a {
   user-select: none;
+  cursor: pointer;
 }
 .action-menu .list-group-item span {
   margin-right: 12px;

@@ -103,6 +103,7 @@ html, body {
 	.list-group-item {
 		padding-top: 10px;
 		padding-bottom: 6px;
+		cursor: pointer;
 	}
 }
 
@@ -210,6 +211,7 @@ a.active {
 .action-menu {
 	a {
 		user-select: none;
+		cursor: pointer;
 	}
 	.list-group-item {
 		span { margin-right: 12px; }

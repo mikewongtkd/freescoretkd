@@ -174,7 +174,8 @@ sub record_pool_score {
 # ============================================================
 sub record_decision {
 # ============================================================
-# Records decision notes. Will overwrite. 
+# Records decision notes. Will overwrite. Also converts pool
+# punitive DSQ votes to 'OK'
 #------------------------------------------------------------
  	my $self     = shift;
 	my $i        = shift;
@@ -186,6 +187,14 @@ sub record_decision {
 		$form->{ complete } = 0;
 		$form->{ started }  = 0;
 		$self->{ complete } = 0 if( none { $self->form_complete( $_ )} @{$self->{ forms }} );
+
+		return unless( exists $self->{ pool });
+		foreach my $score (values %{$self->{ pool }{ forms }[ $i ]{ scores }}) {
+			next unless( exists $score->{ video } && exists $score->{ video }{ feedback });
+			next unless $score->{ video }{ feedback } eq 'dsq';
+			$score->{ video }{ feedback } = 'ok';
+		}
+
 	} else {
 		$form->{ decision }{ $decision } = 1;
 		$form->{ complete }              = 1;
