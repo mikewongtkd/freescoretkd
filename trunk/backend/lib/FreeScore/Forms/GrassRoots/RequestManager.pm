@@ -41,7 +41,6 @@ sub init {
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
-		write              => \&handle_division_write,
 	};
 	$self->{ ring }        = {
 		read               => \&handle_ring_read,
@@ -157,7 +156,7 @@ sub handle_division_navigate {
 		if    ( $dest eq 'athlete' )  { $division->navigate( $id ); $division->write(); }
 		elsif ( $dest eq 'division' ) { $progress->navigate( $id ); $progress->write(); }
 			
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -167,6 +166,25 @@ sub handle_division_navigate {
 # ============================================================
 sub handle_division_read {
 # ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $judge     = $request->{ judge };
+	my $score     = $request->{ score };
+	my $vote      = $request->{ vote };
+	my $division  = $progress->current();
+
+	print STDERR "Requesting divison " . uc( $division->{ name }) . " information\n" if $DEBUG;
+
+	try {
+		$self->broadcast_division_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
 }
 
 # ============================================================
@@ -199,18 +217,13 @@ sub handle_division_score {
 		autopilot( $self, $request, $progress, $division ) if $complete;
 
 		my $clone = unbless( $division->clone());
+		$request->{ response } = { status => 'ok' };
 			
-		# $client->send({ json => { type => $request->{ type }, action => $request->{ action }, judge => $judge, judges => $judges, $score ? (score => $score) : (vote => $vote), division => $clone }});
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
 	}
-}
-
-# ============================================================
-sub handle_division_write {
-# ============================================================
 }
 
 # ============================================================

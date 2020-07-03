@@ -17,6 +17,8 @@ sub read {
 	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
 	$self->{ round }  = 'fin';
 
+	my $json = new JSON::XS();
+
 	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
 		chomp;
@@ -25,9 +27,10 @@ sub read {
 		# ===== READ DIVISION STATE INFORMATION
 		if( /^#/ ) {
 			s/^#\s+//;
-			my ($key, $value) = split /=/;
+			my ($key, $value) = split /=/, $_, 2;
 			if    ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; } 
-			elsif ( $key eq 'brackets'   ) { my $json = new JSON::XS(); $self->{ $key } = $json->decode( $value ); }
+			elsif ( $key eq 'brackets'   ) { $self->{ $key } = $json->decode( $value ); }
+			elsif ( $key eq 'videos'     ) { $self->{ $key } = $json->decode( $value ); }
 			elsif ( $key eq 'tied'       ) {} # Do nothing; better to calculate this fresh
 			elsif ( $key eq 'places'     ) {
 				my $places = [];
@@ -43,14 +46,16 @@ sub read {
 
 		# ===== READ DIVISION ATHLETE INFORMATION
 		my @columns   = split /\t/;
-		my $athlete   = shift @columns;
+		my $name      = shift @columns;
 		my $rank      = shift @columns;
 		my $n         = $self->{ judges } - 1;
 		my @scores    = ();
 		my @tb_scores = ();
 		foreach ( 0 .. $n ) { push @scores,    shift @columns; }
 		foreach ( 0 .. $n ) { push @tb_scores, shift @columns; }
-		push @{ $self->{ athletes }}, { name => $athlete, rank => $rank, 'index' => $index, scores => [ @scores ], tiebreakers => [ @tb_scores ] };
+		my $athlete = { name => $name, rank => $rank, 'index' => $index, scores => [ @scores ], tiebreakers => [ @tb_scores ] };
+		$athlete->{ video } = shift @{ $self->{ videos }} if( defined( $self->{ videos }));
+		push @{ $self->{ athletes }}, $athlete;
 		$index++;
 	}
 	close FILE;
@@ -466,9 +471,11 @@ sub write {
 
 	my $json     = new JSON::XS();
 	my $brackets = exists $self->{ brackets } ? $json->canonical->encode( $self->{ brackets } ) : undef;
+	my $videos   = [ map { $_->{ video } } @{ $self->{ athletes }} ];
 	my $tied     = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
 	my $places   = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
 	$self->{ state } = 'tiebreaker' if( exists $self->{ tied } && $self->{ state } eq 'score');
+	$videos = @$videos ? $json->canonical->encode( $videos ) : undef;
 
 	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write '$self->{ file }' $!";
 	print FILE "# state=$self->{ state }\n";
@@ -482,6 +489,7 @@ sub write {
 	print FILE "# placements=" . join( ",", @{$self->{ placements }}) . "\n" if( exists $self->{ placements } && @{ $self->{ placements }});
 	print FILE "# pending=" . join( ",", @{$self->{ pending }}) . "\n" if( exists $self->{ pending } && @{ $self->{ pending }});
 	print FILE "# brackets=$brackets\n" if defined $brackets;
+	print FILE "# videos=$videos\n" if defined $videos;
 	foreach my $athlete (@{ $self->{ athletes }}) {
 		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
 	}
