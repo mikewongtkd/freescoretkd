@@ -38,6 +38,7 @@ sub init {
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
+		display            => \&handle_division_display,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
@@ -137,6 +138,33 @@ sub handle {
 }
 
 # ============================================================
+sub handle_division_display {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $judge     = $request->{ judge };
+	my $score     = $request->{ score };
+	my $vote      = $request->{ vote };
+	my $division  = $progress->current();
+
+	print STDERR "Changing display for divison " . uc( $division->{ name }) . "\n" if $DEBUG;
+
+	try {
+		$division->change_display();
+		$division->write();
+		$self->broadcast_division_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+
+# ============================================================
 sub handle_division_navigate {
 # ============================================================
 	my $self      = shift;
@@ -205,16 +233,18 @@ sub handle_division_score {
 
 	if( $DEBUG ) {
 		my $name = $judge ? "Judge $judge" : "Referee";
-		if( $score ) { print STDERR "$name scores $score.\n" } 
-		else         { print STDERR "$name votes $vote.\n" }
+		if    ( $score ) { print STDERR "$name scores $score.\n" } 
+		elsif ( $vote  ) { print STDERR "$name votes $vote.\n" }
 	}
 
 	try {
-		if( $score ) { $complete = $division->record_score( $judge, $score ); }
-		else         { $complete = $division->record_vote( $judge, $vote ) && ! $division->is_single_elimination(); }
+		if    ( $score ) { $complete = $division->record_score( $judge, $score ); }
+		elsif ( $vote  ) { $complete = $division->record_vote( $judge, $vote ) && ! $division->is_single_elimination(); }
 		$division->write();
 		$progress->write();
-		autopilot( $self, $request, $progress, $division ) if $complete;
+
+		print STDERR "Checking to see if we need to engage autopilot... " . ($complete ? 'Yes; engaging autopilot.' : 'Not yet' ) . "\n";
+		autopilot( $self, $request, $progress, $clients, $division ) if $complete;
 
 		my $clone = unbless( $division->clone());
 		$request->{ response } = { status => 'ok' };
@@ -489,6 +519,7 @@ sub autopilot {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
+	my $clients  = shift;
 	my $division = shift;
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
@@ -500,7 +531,7 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 
-			$self->broadcast_ring_response( $request, $progress, $clients );
+			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		leaderboard => sub {
 			my $delay = shift;
@@ -508,7 +539,7 @@ sub autopilot {
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
 
-			$self->broadcast_ring_response( $request, $progress, $clients );
+			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		next => sub {
 			my $delay = shift;
@@ -516,7 +547,7 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 
-			$self->broadcast_ring_response( $request, $progress, $clients );
+			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	};
 	my $go = {
@@ -526,7 +557,7 @@ sub autopilot {
 			$division->next();
 			$division->write();
 
-			$self->broadcast_ring_response( $request, $progress, $clients );
+			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	};
 
