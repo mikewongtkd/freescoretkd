@@ -56,6 +56,7 @@ sub init {
 		navigate                => \&handle_division_navigate,
 		pool_judge_registration => \&handle_division_pool_judge_registration,
 		pool_judge_ready        => \&handle_division_pool_judge_ready,
+		pool_resolve            => \&handle_division_pool_resolve,
 		pool_score              => \&handle_division_pool_score,
 		read                    => \&handle_division_read,
 		restore                 => \&handle_division_restore,
@@ -700,21 +701,21 @@ sub handle_division_pool_judge_ready {
 	$division->write();
 
 	if( $response->{ have } == $response->{ all } - 1 ) {
-		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start', judges => $response->{ judges } };
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} elsif( $response->{ have } == $response->{ all } ) {
-		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges } };
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
 		$self->broadcast_division_response( $request, $progress, $clients );
 		return;
 
 	} elsif( $response->{ have } < $response->{ want }) {
-		$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges } };
+		$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
 		$self->broadcast_division_response( $request, $progress, $clients );
 		return;
 
 	} elsif( $response->{ have } >= $response->{ want }) {
-		$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges } };
+		$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
 		$self->broadcast_division_response( $request, $progress, $clients );
 		return;
 
@@ -748,6 +749,45 @@ sub handle_division_pool_judge_ready {
 	);
 
 	try {
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_resolve {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+
+	my $message  = "Manually invoking pool resolution\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		my $score = clone( $request->{ score } );
+		$version->checkout( $division );
+
+		my $response = $division->resolve_pool();
+		$request->{ response } = $response;
+
+		$division->write();
+		$version->commit( $division, $message );
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
+
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -965,13 +1005,16 @@ sub handle_division_video_playing {
 	my $videos   = undef;
 	my $video    = undef;
 
+	die "Missing path to videos $!" unless exists $division->{ videos };
+
 	die "Missing video information for $athlete->{ name } $!" unless exists $athlete->{ info }{ video };
 	$videos = $self->{ _json }->decode( $athlete->{ info }{ video });
 
 	die "Missing video information for $athlete->{ name } for $roundid round $!" unless exists $videos->{ $roundid };
 	die "Missing video information for $athlete->{ name } for $roundid round, form " . (int($formid) + 1) . "$!" unless exists $videos->{ $roundid }[ $formid ];
 	$video = $videos->{ $roundid }[ $formid ];
-	$video->{ path } = $division->{ videos };
+	$video->{ path }     = $division->{ videos };
+	$video->{ pathfile } = "$division->{ videos }/$video->{ file }";
 
 	die "Missing video file for $athlete->{ name } for $roundid round $!" unless exists $video->{ file };
 	die "Missing video '$video->{ file }' duration for $athlete->{ name } for $roundid round $!" unless exists $video->{ duration };
