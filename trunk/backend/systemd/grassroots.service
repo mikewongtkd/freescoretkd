@@ -1,0 +1,11 @@
+[Unit]
+Description=FreeScore GrassRoots Poomsae Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/grassroots
+ExecStop=/usr/bin/pkill grassroots
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

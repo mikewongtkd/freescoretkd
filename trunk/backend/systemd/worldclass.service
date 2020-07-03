@@ -1,0 +1,11 @@
+[Unit]
+Description=FreeScore WorldClass Poomsae Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/worldclass
+ExecStop=/usr/bin/pkill worldclass
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

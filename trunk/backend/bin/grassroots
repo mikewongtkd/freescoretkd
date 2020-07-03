@@ -407,6 +407,6 @@ sub autopilot {
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid' });
+app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid', workers => 1 });
 app->log( new Mojo::Log( path => '/var/log/freescore/grassroots.log', level => 'error' ));
 app->start();
