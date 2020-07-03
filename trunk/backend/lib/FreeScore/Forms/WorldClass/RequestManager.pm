@@ -693,62 +693,36 @@ sub handle_division_pool_judge_ready {
 
 	print STDERR $message if $DEBUG;
 
-	my $size     = $request->{ size };          # Required parameter
-	my $judge    = $request->{ judge };         # Required parameter
-	my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
-	my $response = $division->pool_judge_ready( $size, $judge );
-
-	$division->write();
-
-	if( $response->{ have } == $response->{ all } - 1 ) {
-		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-		$self->broadcast_division_response( $request, $progress, $clients );
-
-	} elsif( $response->{ have } == $response->{ all } ) {
-		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-		$self->broadcast_division_response( $request, $progress, $clients );
-		return;
-
-	} elsif( $response->{ have } < $response->{ want }) {
-		$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-		$self->broadcast_division_response( $request, $progress, $clients );
-		return;
-
-	} elsif( $response->{ have } >= $response->{ want }) {
-		$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-		$self->broadcast_division_response( $request, $progress, $clients );
-		return;
-
-	} else {
-		$request->{ response } = { error => "Unknown response '$response' to pool judge ready request" };
-		$self->broadcast_division_response( $request, $progress, $clients );
-		return;
-
-	}
-
-	# ===== POOL JUDGES READY TIMEOUT BEHAVIOR
-	# Start timeout when n-1 judges are ready
-	my $delay    = new Mojo::IOLoop::Delay();
-	$delay->steps(
-		# Start timer
-		sub {
-			my $delay = shift;
-			Mojo::IOLoop->timer( $timeout => $delay->begin );
-		},
-		# On time elapsed
-		sub {
-
-			# If all judges are ready, simply stop the timer
-			my $response = $athlete->{ scores }{ $round }->pool_judge_ready( $size, $form, $judge );
-			exit() if( $response eq 'last' );
-
-			# Otherwise proceed with playing the video (response := [ waiting | enough ]
-			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'timeout' };
-			$self->broadcast_division_response( $request, $progress, $clients );
-		}
-	);
-
 	try {
+		my $size     = $request->{ size };          # Required parameter
+		my $judge    = $request->{ judge };         # Required parameter
+		my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
+		my $response = $division->pool_judge_ready( $size, $judge );
+
+		$division->write();
+
+		if( $response->{ have } == $response->{ all } ) {
+			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return;
+
+		} elsif( $response->{ have } < $response->{ want }) {
+			$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return;
+
+		} elsif( $response->{ have } >= $response->{ want }) {
+			$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return;
+
+		} else {
+			$request->{ response } = { error => "Unknown response '$response' to pool judge ready request" };
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return;
+
+		}
+
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
