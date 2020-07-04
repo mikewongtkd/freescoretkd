@@ -77,6 +77,8 @@ sub record_score {
 	my $judge = $score->{ judge }; return 'error' unless $judge;
 	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
+
+	$score->{ status } = "ready";
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
 	my ($votes, $scores, $safety) = $self->votes( $form, 0 );

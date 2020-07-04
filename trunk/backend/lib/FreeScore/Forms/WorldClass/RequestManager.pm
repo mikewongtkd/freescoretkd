@@ -979,8 +979,6 @@ sub handle_division_video_playing {
 	my $videos   = undef;
 	my $video    = undef;
 
-	die "Missing path to videos $!" unless exists $division->{ videos };
-
 	die "Missing video information for $athlete->{ name } $!" unless exists $athlete->{ info }{ video };
 	$videos = $self->{ _json }->decode( $athlete->{ info }{ video });
 
