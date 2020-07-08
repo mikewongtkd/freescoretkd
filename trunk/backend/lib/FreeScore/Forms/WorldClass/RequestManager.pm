@@ -693,36 +693,40 @@ sub handle_division_pool_judge_ready {
 
 	print STDERR $message if $DEBUG;
 
+	my $size     = $request->{ size };          # Required parameter
+	my $judge    = $request->{ judge };         # Required parameter
+	my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
+	my $response = $division->pool_judge_ready( $size, $judge );
+
+	$division->write();
+
+	if( $response->{ have } == $response->{ all } - 1 ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'start', judges => $response->{ judges } };
+		$self->broadcast_division_response( $request, $progress, $clients );
+
+	} elsif( $response->{ have } == $response->{ all } ) {
+		$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges } };
+		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
+
+	} elsif( $response->{ have } < $response->{ want }) {
+		$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges } };
+		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
+
+	} elsif( $response->{ have } >= $response->{ want }) {
+		$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges } };
+		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
+
+	} else {
+		$request->{ response } = { error => "Unknown response '$response' to pool judge ready request" };
+		$self->broadcast_division_response( $request, $progress, $clients );
+		return;
+
+	}
+
 	try {
-		my $size     = $request->{ size };          # Required parameter
-		my $judge    = $request->{ judge };         # Required parameter
-		my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
-		my $response = $division->pool_judge_ready( $size, $judge );
-
-		$division->write();
-
-		if( $response->{ have } == $response->{ all } ) {
-			$request->{ response } = { timer => 'ready', timeout => $timeout, status => 'stop', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-			$self->broadcast_division_response( $request, $progress, $clients );
-			return;
-
-		} elsif( $response->{ have } < $response->{ want }) {
-			$request->{ response } = { status => 'info', details => 'Waiting for more judges', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-			$self->broadcast_division_response( $request, $progress, $clients );
-			return;
-
-		} elsif( $response->{ have } >= $response->{ want }) {
-			$request->{ response } = { status => 'info', details => 'Sufficient judges ready to score', judges => $response->{ judges }, want => $division->{ judges }, max => $size };
-			$self->broadcast_division_response( $request, $progress, $clients );
-			return;
-
-		} else {
-			$request->{ response } = { error => "Unknown response '$response' to pool judge ready request" };
-			$self->broadcast_division_response( $request, $progress, $clients );
-			return;
-
-		}
-
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -731,40 +735,40 @@ sub handle_division_pool_judge_ready {
 # ============================================================
 sub handle_division_pool_resolve {
 # ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+        my $self     = shift;
+        my $request  = shift;
+        my $progress = shift;
+        my $clients  = shift;
+        my $judges   = shift;
+        my $client   = $self->{ _client };
+        my $division = $progress->current();
+        my $version  = new FreeScore::RCS();
+        my $i        = $division->{ current };
+        my $athlete  = $division->{ athletes }[ $i ];
 
-	my $message  = "Manually invoking pool resolution\n";
+        my $message  = "Manually invoking pool resolution\n";
 
-	print STDERR $message if $DEBUG;
+        print STDERR $message if $DEBUG;
 
-	try {
-		my $score = clone( $request->{ score } );
-		$version->checkout( $division );
+        try {
+                my $score = clone( $request->{ score } );
+                $version->checkout( $division );
 
-		my $response = $division->resolve_pool();
-		$request->{ response } = $response;
+                my $response = $division->resolve_pool();
+                $request->{ response } = $response;
 
-		$division->write();
-		$version->commit( $division, $message );
+                $division->write();
+                $version->commit( $division, $message );
 
-		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
-		die $autopilot->{ error } if exists $autopilot->{ error };
+                # ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+                print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if
+                my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+                die $autopilot->{ error } if exists $autopilot->{ error };
 
-		$self->broadcast_division_response( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
+                $self->broadcast_division_response( $request, $progress, $clients );
+        } catch {
+                $client->send( { json => { error => "$_" }});
+        }
 }
 
 # ============================================================
@@ -978,6 +982,8 @@ sub handle_division_video_playing {
 	my $formid   = $division->{ form };
 	my $videos   = undef;
 	my $video    = undef;
+
+	die "Missing path to videos $!" unless exists $division->{ videos };
 
 	die "Missing video information for $athlete->{ name } $!" unless exists $athlete->{ info }{ video };
 	$videos = $self->{ _json }->decode( $athlete->{ info }{ video });

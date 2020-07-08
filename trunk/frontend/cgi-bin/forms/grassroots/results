@@ -46,7 +46,7 @@ print <<EOF;
 		<title>Tournament Grass Roots Forms Results</title>
 		<style type="text/css">
 			body {
-				font-family: HelveticaNeue-CondensedBold;
+				font-family: Optima;
 			}
 			.division {
 				clear: both;
@@ -77,7 +77,7 @@ print <<EOF;
 				text-align: left;
 			}
 			.results th.number  { width: 20px; }
-			.results th.athlete { width: 200px; }
+			.results th.athlete { width: 240px; }
 
 			.results td { 
 				padding: 2px 4px 2px 4px;
@@ -164,16 +164,19 @@ sub ordinal {
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
-	my $config = {
-		redhat => '/var/www/html/freescore/include/php/config.php',
-		ubuntu => '/var/www/freescore/include/php/config.php'
-	};
-	if    ( -e $config->{ redhat } ) { $php = $config->{ redhat }; }
-	elsif ( -e $config->{ ubuntu } ) { $php = $config->{ ubuntu }; }
-	else                             { die "Can't find configuration file 'config.php' $!"; }
+	my $config = [
+		'/var/www/html/freescore/include/php/config.php',
+		'/var/www/html/include/php/config.php',
+		'/var/www/freescore/include/php/config.php',
+		'/var/www/include/php/config.php',
+	];
+	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
 	my $json = new JSON::XS();
-	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
 	my $config = $json->decode( $data );
+
 	return $config;
+
 }

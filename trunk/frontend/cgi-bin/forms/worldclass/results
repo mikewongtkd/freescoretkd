@@ -3,6 +3,7 @@ use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
+use File::Slurp qw( read_file );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
@@ -184,16 +185,18 @@ sub ordinal {
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
-	my $config = {
-		redhat   => '/var/www/html/freescore/include/php/config.php',
-		ubuntu   => '/var/www/freescore/include/php/config.php',
-		raspbian => '/var/www/html/include/php/config.php',
-	};
-	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
+	my $config = [
+		'/var/www/html/freescore/include/php/config.php',
+		'/var/www/html/include/php/config.php',
+		'/var/www/freescore/include/php/config.php',
+		'/var/www/include/php/config.php',
+	];
+	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
 	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
 	my $json = new JSON::XS();
-	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
 	my $config = $json->decode( $data );
+
 	return $config;
 }

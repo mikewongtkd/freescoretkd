@@ -6,13 +6,13 @@
 	}
 
 	function read_config() {
-		$file = __DIR__ . '/config.json';
-		if( ! file_exists( $file )) {
-			die( "Configuration file '$file' does not exist" );
+		$locations = [ '/var/www/html/freescore/include/php/config.json', '/var/www/html/include/php/config.josn', '/var/www/include/php/config.json', '/var/www/freescore/include/php/config.json' ];
+		foreach( $locations as $i => $file ) {
+			if( ! file_exists( $file )) { continue; }
+			$string = file_get_contents( $file );
+			$config = json_decode( $string, true );
+			return $config;
 		}
-		$string = file_get_contents( $file );
-		$config = json_decode( $string, true );
-		return $config;
 	}
 
 	function init_event( $event ) {
@@ -22,7 +22,6 @@
 	}
 
 	function read_rings( $tournament ) {
-		// Initialize rings
 		$grassroots = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-grassroots';
 		$worldclass = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-worldclass';
 		$freestyle  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-freestyle';
