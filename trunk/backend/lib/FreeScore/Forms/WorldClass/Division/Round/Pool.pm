@@ -57,13 +57,16 @@ sub ready {
 	$j->{ status } = 'ready';
 	$j->{ judge }  = $judge;
 
+	my $json = new JSON::XS();
+	print STDERR $json->canonical->encode( $judges );
+
 	my $ready  = [ grep { $judges->{ $_ }{ status } eq 'ready'  } keys %$judges ];
 	my $scored = [ grep { $judges->{ $_ }{ status } eq 'scored' } keys %$judges ];
 	my $k      = $self->{ want };
 	my $n      = $self->{ size };
 	my $p      = int( @$ready );
 
-	return { have => $p, want => $k, all => $n, ready => $ready, scored => $scored };
+	return { have => $p, want => $k, all => $n, ready => $ready, scored => $scored, responded => [ @$ready, @$scored ] };
 }
 
 # ============================================================
@@ -79,7 +82,7 @@ sub record_score {
 	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 
-	$score->{ status } = "scored";
+	if( _have_scored( $score )) { $score->{ status } = "scored"; }
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
 	my ($votes, $scores, $safety) = $self->votes( $form, 0 );
