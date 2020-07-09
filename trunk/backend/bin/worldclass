@@ -22,12 +22,12 @@ our $DEBUG  = 0;
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/worldclass/:tournament/:ring/:role' => sub {
+websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring'       );
-	my $role       = $self->param( 'role'       ); $role =~ s/\+/ /g;
-	my $id         = $self->cookie( 'freescore-session' );
+	my $ring       = $self->param( 'ring' );
+	my $role       = $self->param( 'role' ); $role =~ s/\+/ /g;
+	my $id         = $self->param( 'id' ) || sha1_hex( $self->tx()); 
 	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $id, $self->tx() );
 	my $progress   = undef;
 	my $staging    = undef;

@@ -499,7 +499,7 @@ sub string {
 		}
 
 		# ===== RECORD POOL SCORES FOR ONLINE TOURNAMENTS
-		push @string, $self->{ pool }->string( $round, $forms ) if( exists $self->{ pool } && defined $self->{ pool });
+		push @string, $self->{ pool }->string( $round, $i ) if( exists $self->{ pool } && defined $self->{ pool });
 	}
 	return join "", @string;
 }

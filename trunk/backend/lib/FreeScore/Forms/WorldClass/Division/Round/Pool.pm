@@ -57,7 +57,7 @@ sub ready {
 	$j->{ status } = 'ready';
 	$j->{ judge }  = $judge;
 
-	my $ready  = [ grep { $judges->{ $_ }{ status } eq 'ready' } keys %$judges ];
+	my $ready  = [ grep { my $status = $judges->{ $_ }{ status }; $status eq 'ready' || $status eq 'scored' } keys %$judges ];
 	my $k      = $self->{ want };
 	my $n      = $self->{ size };
 	my $p      = int( @$ready );
@@ -78,7 +78,7 @@ sub record_score {
 	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 
-	$score->{ status } = "ready";
+	$score->{ status } = "scored";
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
 	my ($votes, $scores, $safety) = $self->votes( $form, 0 );
@@ -165,22 +165,20 @@ sub string {
 # ============================================================
 	my $self   = shift;
 	my $round  = shift;
-	my $forms  = shift;
+	my $form   = shift;
 	my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;
 	my $copy   = unbless( $self->clone());
 	my @string = ();
 
-	for( my $i = 0; $i < $forms; $i++ ) {
-		my $form_id = 'f' . ($i + 1);
+	my $form_id = 'f' . ($form + 1);
 
-		my $scores = [ sort keys %{ $copy->{ forms }[ $i ]{ scores }} ];
-		for( my $j = 0; $j < int( @$scores ); $j++ ) {
-			my $judge_id = 'o' . ($j + 1);
-			my $judge    = $scores->[ $j ];
-			my $score    = $copy->{ forms }[ $i ]{ scores }{ $judge };
-			my $line     = join( "\t", ( '', $round, $form_id, $judge_id, $json->canonical->encode( $score ))) . "\n";
-			push @string, $line;
-		}
+	my $scores = [ sort keys %{ $copy->{ forms }[ $form ]{ scores }} ];
+	for( my $j = 0; $j < int( @$scores ); $j++ ) {
+		my $judge_id = 'o' . ($j + 1);
+		my $judge    = $scores->[ $j ];
+		my $score    = $copy->{ forms }[ $form ]{ scores }{ $judge };
+		my $line     = join( "\t", ( '', $round, $form_id, $judge_id, $json->canonical->encode( $score ))) . "\n";
+		push @string, $line;
 	}
 	return @string;
 }
