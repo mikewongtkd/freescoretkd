@@ -57,12 +57,13 @@ sub ready {
 	$j->{ status } = 'ready';
 	$j->{ judge }  = $judge;
 
-	my $ready  = [ grep { my $status = $judges->{ $_ }{ status }; $status eq 'ready' || $status eq 'scored' } keys %$judges ];
+	my $ready  = [ grep { $judges->{ $_ }{ status } eq 'ready'  } keys %$judges ];
+	my $scored = [ grep { $judges->{ $_ }{ status } eq 'scored' } keys %$judges ];
 	my $k      = $self->{ want };
 	my $n      = $self->{ size };
 	my $p      = int( @$ready );
 
-	return { have => $p, want => $k, all => $n, judges => $ready };
+	return { have => $p, want => $k, all => $n, ready => $ready, scored => $scored };
 }
 
 # ============================================================
