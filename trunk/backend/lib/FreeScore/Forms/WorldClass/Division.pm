@@ -145,6 +145,15 @@ sub clear_score {
 }
 
 # ============================================================
+sub current_athlete {
+# ============================================================
+	my $self    = shift;
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+	return $athlete;
+}
+
+# ============================================================
 sub distribute_evenly {
 # ============================================================
 #** @method ( group_name_array, athlete_array )

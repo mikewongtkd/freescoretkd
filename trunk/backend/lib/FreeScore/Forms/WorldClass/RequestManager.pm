@@ -212,8 +212,7 @@ sub handle_division_award_penalty {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $penalty  = join( ", ", grep { $request->{ penalties }{ $_ } > 0 } sort keys %{ $request->{ penalties }} );
 	my $message  = $penalty ? "Award $penalty penalty to $athlete->{ name }\n" : "Clear penalties for $athlete->{ name }\n";
 
@@ -242,8 +241,7 @@ sub handle_division_award_punitive {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $request->{ athlete_id };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $decision = $request->{ decision };
 	my $message  = "Award punitive decision $decision penalty to $athlete->{ name }\n";
 
@@ -273,8 +271,7 @@ sub handle_division_athlete_delete {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $message  = "Deleting $athlete->{ name } from division\n";
 
 	print STDERR $message if $DEBUG;
@@ -350,8 +347,7 @@ sub handle_division_clear_judge_score {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
 	my $message  = "Clearing $jname score for $athlete->{ name }\n";
 
@@ -630,6 +626,12 @@ sub handle_division_navigate {
 		}
 		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
 			$division->navigate( $object, $i ); 
+
+			my $roundid  = $division->{ round };
+			my $athlete  = $division->current_athlete();
+			my $round    = $athlete->{ scores }{ $roundid };
+			$division->first_form() if $object =~ /athlete/i && ! $round->form_complete( 0 );
+
 			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_division_response( $request, $progress, $clients );
@@ -685,8 +687,7 @@ sub handle_division_pool_judge_ready {
 	my $client   = $self->{ _client };
 	my $json     = $self->{ _json };
 	my $division = $progress->current();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
 	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
 	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
@@ -722,8 +723,7 @@ sub handle_division_pool_resolve {
         my $client   = $self->{ _client };
         my $division = $progress->current();
         my $version  = new FreeScore::RCS();
-        my $i        = $division->{ current };
-        my $athlete  = $division->{ athletes }[ $i ];
+        my $athlete  = $division->current_athlete();
 
         my $message  = "Manually invoking pool resolution\n";
 
@@ -761,8 +761,7 @@ sub handle_division_pool_score {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
 	my $message  = "  $jname has scored for $athlete->{ name }\n";
 
@@ -779,7 +778,6 @@ sub handle_division_pool_score {
 		$version->commit( $division, $message );
 
 		my $round    = $division->{ round };
-		my $athlete  = $division->{ athletes }[ $division->{ current } ];
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
@@ -915,8 +913,7 @@ sub handle_division_score {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
 	my $message  = "  $jname score for $athlete->{ name }\n";
 
@@ -955,8 +952,7 @@ sub handle_division_video_playing {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
+	my $athlete  = $division->current_athlete();
 	my $roundid  = $division->{ round };
 	my $formid   = $division->{ form };
 	my $videos   = undef;
