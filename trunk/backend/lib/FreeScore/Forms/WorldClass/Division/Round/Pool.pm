@@ -113,7 +113,7 @@ sub resolve {
 	# can discuss and make a decision. A DSQ decision must then be manually
 	# given by the ring computer operator.
 	if( $votes->{ have }{ dsq } >= 1 ) {
-		return { status => 'fail', solution => 'user-intervention', votes => $votes };
+		return { status => 'fail', solution => 'discuss-disqualify', votes => $votes };
 
 	# ===== CASE 2: SUFFICIENT SCORES
 	} elsif( $votes->{ have }{ ok } >= $k ) {
