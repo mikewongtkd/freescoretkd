@@ -57,9 +57,6 @@ sub ready {
 	$j->{ status } = 'ready';
 	$j->{ judge }  = $judge;
 
-	my $json = new JSON::XS();
-	print STDERR $json->canonical->encode( $judges );
-
 	my $ready  = [ grep { $judges->{ $_ }{ status } eq 'ready'  } keys %$judges ];
 	my $scored = [ grep { $judges->{ $_ }{ status } eq 'scored' } keys %$judges ];
 	my $k      = $self->{ want };
@@ -105,8 +102,6 @@ sub resolve {
 	my $n       = $self->{ size };
 
 	my ($votes, $scores, $safety) = $self->votes( $form, $timeout );
-	my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;
-	print STDERR "Votes: " . $json->canonical->encode( $votes ) . "\n"; # MW
 
 	# ===== CASE 1: AT LEAST ONE DSQ VOTE HAS BEEN RAISED
 	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain

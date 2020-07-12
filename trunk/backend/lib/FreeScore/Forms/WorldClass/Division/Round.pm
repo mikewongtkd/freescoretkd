@@ -163,8 +163,6 @@ sub record_pool_score {
 
 	my $votes = $pool->record_score( $form, $score );
 
-	printf STDERR "  Pool scores: want %d, have %d (ok: %d, bad: %d, dsq: %d), pending: %d, dropped: %d\n", $votes->{ want }, $votes->{ have }{ responses }, $votes->{ have }{ ok }, $votes->{ have }{ bad }, $votes->{ have }{ dsq }, $votes->{ have }{ pending }, $votes->{ have }{ drop }; # MW
-
 	return { status => 'in-progress', votes => $votes } unless $votes->{ have }{ valid } == $size;
 	my $result = $pool->resolve( $form, $self, 0 );
 
@@ -209,8 +207,6 @@ sub resolve_pool {
 	my $self  = shift;
 	my $size  = shift;
 	my $form  = shift;
-
-	print STDERR "[Round] Resolving Pool\n";
 
 	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
 	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
