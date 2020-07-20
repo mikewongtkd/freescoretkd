@@ -236,9 +236,11 @@ var init = {
 		var subevent  = 'individual';
 		var age       = 'over30';
 
-		if( is.break )                   { gender = 'none';   } else 
-		if( block.id.match( /female/i )) { gender = 'female'; } else 
-		if( block.id.match( /male/i ))   { gender = 'male';   }
+		if( is.break )                           { gender = 'none';   } else 
+		if( block.id.match( /female/i ))         { gender = 'female'; } else 
+		if( block.description.match( /women/i )) { gender = 'female'; } else
+		if( block.id.match( /male/i ))           { gender = 'male';   } else
+		if( block.description.match( /men/i ))   { gender = 'male';   } 
 
 		if( is.break )                       { subevent = 'break';      } else 
 		if( block.id.match( /individual/i )) { subevent = 'individual'; } else 

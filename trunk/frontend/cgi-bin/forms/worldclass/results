@@ -79,6 +79,7 @@ print <<EOF;
 			.results td       { padding: 2px 4px 2px 4px; }
 			.results .number  { width: 32px; }
 			.results .usat    { width: 80px; }
+			.results .noc     { width: 80px; }
 			.results .athlete { width: 408px; }
 			.results .form,.score,.place { width: 100px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
@@ -116,7 +117,7 @@ foreach my $division (@divisions) {
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">#</th>
-				<th class="usat">USAT ID</th>
+				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
 EOF
 		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
@@ -132,7 +133,7 @@ EOF
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"usat\">$athlete->{ info }{ usat }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
 			foreach my $j ( 0 .. 1 ) {
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 				my $mean  = $score->{ adjusted };

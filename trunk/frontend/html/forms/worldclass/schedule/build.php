@@ -89,7 +89,7 @@ alertify.waitDialog || alertify.dialog( 'waitDialog', function() {
 });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` );
+var ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator/${sha1.hex( Date.now())}` );
 
 ws.onopen = function() {
 	var request;

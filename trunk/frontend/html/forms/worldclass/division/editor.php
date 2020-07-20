@@ -24,6 +24,7 @@
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/opt/codemirror/lib/codemirror.js"></script>
 		<script src="../../../include/opt/codemirror/mode/freescore/freescore.js"></script>
+		<script src="../../../include/opt/js-sha1/sha1.min.js "></script>
 		<script src="../../../include/js/freescore.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -171,7 +172,7 @@
 			var tournament = <?= $tournament ?>;
 			var ring       = file.shift();
 			var divId      = file.shift();
-			var ws         = new WebSocket( `ws://<?= $host ?>:3088/worldclass/${tournament.db}/${ring}/computer+operator` );
+			var ws         = new WebSocket( `ws://<?= $host ?>:3088/worldclass/${tournament.db}/${ring}/computer+operator/${sha1.hex( Date.now())}` );
 			var draws      = undefined;
 			var save       = { enable : function() {
 				var button = $( '#save-button' );

@@ -12,7 +12,7 @@ use FreeScore::Forms::WorldClass::Schedule::Block;
 use Scalar::Util qw( blessed );
 use Data::Dumper;
 
-our $TIME_PER_FORM = 4;
+our $TIME_PER_FORM = 2.5;
 our $TIME_PER_FREESTYLE_FORM = 8;
 
 # ============================================================
@@ -335,11 +335,9 @@ sub place {
 
 	# ===== IF THERE ARE PREVIOUSLY PLACED BLOCKS, ADD IT AFTER THE LAST BLOCK
 	if( defined( $prev )) {
-		my $padding = new Date::Manip::Delta( "$TIME_PER_FORM minutes" );
 
 		my $other = $self->{ blocks }{ $prev };
 		$start = new Date::Manip::Date( $other->{ stop });
-		$start = $start->calc( $padding );
 
 	# ===== OTHERWISE START SCHEDULING AT THE START OF THE RING OR START OF THE DAY
 	} elsif( defined( $day->{ start }) || defined( $ring->{ start })) {

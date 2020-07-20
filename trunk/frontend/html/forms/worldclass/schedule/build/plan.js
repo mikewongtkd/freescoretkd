@@ -15,7 +15,6 @@ var plan = {
 			block.ring  = ring.id;
 
 			start = stop;
-			start.setMinutes( start.getMinutes() + scale.minutes );
 		});
 	},
 	remove : ( blockid ) => {

@@ -3,6 +3,7 @@ package FreeScore::Forms::WorldClass::Schedule::Block;
 use List::MoreUtils qw( uniq );
 use Date::Manip;
 use FreeScore::Forms::WorldClass::Schedule;
+use POSIX qw( ceil );
 
 sub by_priority($$);
 
@@ -48,6 +49,7 @@ sub init {
 	$self->{ round }       = $round;
 	$self->{ flight }      = $flight || '';
 	$self->{ duration }    = $forms ? $forms * $t : ( $round eq 'finals' ? 2 * $t : $t );
+	$self->{ duration }    = 4 * ceil( $self->{ duration } / 4 ); # Round to nearest 4 minutes for rendering purposes
 
 	my $key = $self->match(); $key =~ s/\s+/-/g;
 	push @id, $division->{ name }, $key, $round, (defined( $flight ) ? $flight : ());
@@ -104,8 +106,8 @@ sub match {
 
 		# ===== GENDERS
 		mixed      => { rank => 1, pattern => qr/mixed/i },
-		male       => { rank => 1, pattern => qr/\bmale/i },
-		female     => { rank => 1, pattern => qr/\bfemale/i },
+		male       => { rank => 1, pattern => qr/\b(?:male|men)/i },
+		female     => { rank => 1, pattern => qr/\b(?:female|women)/i },
 
 		# ===== SUBEVENTS
 		individual => { rank => 2, pattern => qr/individual/i },

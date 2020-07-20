@@ -27,6 +27,7 @@
 		<script src="../../../include/bootstrap/add-ons/bootstrap-toggle.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-sortable.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
+		<script src="../../../include/opt/js-sha1/sha1.min.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -79,7 +80,7 @@ var tournament = <?= $tournament ?>;
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 // ===== SERVER COMMUNICATION
-var wc = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` );
+var wc = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator/${sha1.hex( Date.now() )}` );
 var fs = new WebSocket( `ws://${host}:3082/freestyle/${tournament.db}/staging` );
 
 wc.onopen = function() {
