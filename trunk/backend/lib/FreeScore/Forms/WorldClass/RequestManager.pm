@@ -1694,6 +1694,10 @@ sub autopilot {
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
 
+	# ===== PREVENT ECHOING LAST REQUEST
+	# if( $request->{ action } eq 'pool score' ) { delete $request->{ score }; }
+	$request = { action => 'engage autopilot' };
+
 	# ===== ENGAGE AUTOPILOT
 	try {
 		print STDERR "Engaging autopilot.\n" if $DEBUG;
