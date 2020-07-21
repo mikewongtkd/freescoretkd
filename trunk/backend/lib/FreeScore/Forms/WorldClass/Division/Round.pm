@@ -380,6 +380,17 @@ sub form_has_punitive_decision {
 }
 
 # ============================================================
+sub any_disqualification {
+# ============================================================
+	my $self = shift;
+
+	foreach my $form (@{ $self->{ forms }}) {
+		return 1 if( exists $form->{ decision }{ disqualify } && $form->{ decision }{ disqualify } );
+	}
+	return 0;
+}
+
+# ============================================================
 sub any_punitive_decision {
 # ============================================================
 	my $self = shift;

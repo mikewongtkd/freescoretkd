@@ -237,6 +237,7 @@ sub place_athletes {
 	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
 	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };                    } @$placement; # Athlete is assigned to round
 	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete();                } @$placement; # Athlete's score is complete
+	@$placement = grep { ! $self->{ athletes }[ $_ ]{ scores }{ $round }->any_disqualification();  } @$placement; # Athlete did not get disqualified
 	@$placement = splice( @$placement, 0, $n );
 
 	$self->{ placement }{ $round } = $placement;
