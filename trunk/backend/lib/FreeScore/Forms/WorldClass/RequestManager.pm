@@ -247,14 +247,35 @@ sub handle_division_award_punitive {
 
 	print STDERR $message if $DEBUG;
 
+	my $pause = { score => 9 };
+
 	try {
-		$version->checkout( $division);
+		$version->checkout( $division );
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
-		$division->next_available_athlete() unless $request->{ decision } eq 'clear';
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		if( $request->{ decision } eq 'clear' ) {
+			$self->broadcast_division_response( $request, $progress, $clients );
+
+		} else {
+			$self->broadcast_division_response( $request, $progress, $clients );
+			my $delay = new Mojo::IOLoop::Delay();
+			$delay->steps(
+				sub { # Display the athlete's score for 9 seconds
+					my $delay = shift;
+					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+				},
+				sub { 
+					my $delay = shift;
+					$version->checkout( $division );
+					$division->next_available_athlete();
+					$division->write();
+					$version->commit( $division, $message );
+					$self->broadcast_division_response( $request, $progress, $clients );
+				}
+			);
+		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1695,8 +1716,7 @@ sub autopilot {
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
 
 	# ===== PREVENT ECHOING LAST REQUEST
-	# if( $request->{ action } eq 'pool score' ) { delete $request->{ score }; }
-	$request = { action => 'engage autopilot' };
+	$request = { action => 'engage autopilot', type => 'division' };
 
 	# ===== ENGAGE AUTOPILOT
 	try {
