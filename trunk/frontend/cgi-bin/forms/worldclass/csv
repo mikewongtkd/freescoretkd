@@ -17,6 +17,8 @@ my $divid      = $cgi->param( 'divid' );
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
+print $cgi->header();
+
 my @divisions  = ();
 my $results    = undef;
 try {
@@ -39,63 +41,10 @@ try {
 	die $_;
 	
 };
+print "<pre>\n";
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
-print $cgi->header();
-
-print <<EOF;
-<html>
-	<head>
-		<title>World Class Forms Results</title>
-		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 720px;
-				height: 20px;
-			}
-			.division .description {
-				float: left;
-			}
-			.division .round {
-				float: right;
-			}
-			.results {
-				page-break-inside: avoid;
-			}
-			.results table {
-				width: 720px;
-			}
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
-				text-align: left;
-			}
-			.results td       { padding: 2px 4px 2px 4px; }
-			.results .number  { width: 32px; }
-			.results .usat    { width: 80px; }
-			.results .noc     { width: 80px; }
-			.results .athlete { width: 408px; }
-			.results .form,.score,.place { width: 100px; text-align: center; }
-			.results .preacc { font-size: 8pt; }
-			.results .notes  { font-size: 9pt; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-
-		</style>
-	</head>
-	<body>
-		<h1>$tournament->{ name }</h1>
-		<h2>World Class Forms Results</h2>
-EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
@@ -112,30 +61,18 @@ foreach my $division (@divisions) {
 			$placed->{ $i } = ordinal( $j + 1 );
 		}
 
-		print <<EOF;
-		<div class="results">
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
-		<table border=0 cellpadding=0 cellspacing=0>
-			<tr>
-				<th class="number">#</th>
-				<th class="noc">NOC</th>
-				<th class="athlete">Name</th>
-EOF
-		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
-		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
-		print <<EOF;
-				<th class="score">Mean</th>
-				<th>Place</th>
-			</tr>
-EOF
 		my $n = $#{$division->{ order }{ $round }};
+		printf( "%s\t%s\t%s\n", $name, $division->{ description }, $round );
 		foreach my $i (0 .. $n) {
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
 			my $n       = 0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			my $video   = $json->decode( $athlete->{ info }{ video });
+			my $uuid    = $video->{ finals }[ 0 ]{ file }; $uuid =~ s/^videos\///; $uuid =~ s/\/finals-0.mp4$//;
+
+			printf( "%d\t%s\t%-40s", ($i + 1),$uuid, $athlete->{ name });
 			foreach my $j ( 0 .. 1 ) {
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 				my $mean  = $score->{ adjusted };
@@ -144,34 +81,30 @@ EOF
 						if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
 							my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 							foreach my $decision (keys %$codes) {
-								printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $mean->{ accuracy }, $mean->{ presentation } ) if( $score->{ decision }{ $decision });
+								printf( "\t%.2f\t%.2f\t%s ", $mean->{ accuracy }, $mean->{ presentation }, $codes->{ $decision } ) if( $score->{ decision }{ $decision });
 							}
 						} else {
-							printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
+							printf( "\t%.2f\t%.2f\t%.2f", $mean->{ accuracy }, $mean->{ presentation }, $mean->{ total }); 
 						}
 						$n++;
-					} else { print( "<td>&ndash;</td>" ); }
+					} else { print( "\t-   \t-   \t-   " ); }
 				} else {
-					print( "<td>&nbsp;</td>" );
+					print( "\t-   \t-   \t-   " );
 				}
 				$sum += $mean->{ total };
 			}
 			$n ||= 1;
-			printf( "<td>%.3f<span class=\"notes\">$notes</span></td>", ($sum/$n), $notes );
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-			else { print "<td>&ndash;</td>"; }
-			print "</tr>\n";
+			printf( "\t%.3f\t$notes", ($sum/$n), $notes );
+			if( exists $placed->{ $j } ) { print "\t$placed->{ $j }"; }
+			else { print "\t-"; }
+			print "\n";
 		}
-		print <<EOF;
-		</table>
-		</div>
-EOF
+		print "\n";
 	}
 }
 
 print <<EOF;
-	</body>
-</html>
+</pre>
 EOF
 
 # ============================================================
