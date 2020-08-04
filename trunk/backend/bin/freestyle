@@ -22,12 +22,12 @@ our $DEBUG  = 0;
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/freestyle/:tournament/:ring' => sub {
+websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
+	my $id         = $self->param( 'id'         );
 	my $manager    = new FreeScore::Forms::FreeStyle::RequestManager( $tournament, $ring, $self->tx() );
-	my $id         = sprintf "%s", sha1_hex( $self->tx() );
 	my $progress   = undef;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
