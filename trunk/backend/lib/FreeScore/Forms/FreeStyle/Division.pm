@@ -136,9 +136,9 @@ sub read {
 # ============================================================
 sub calculate_placements {
 # ============================================================
-	my $self       = shift;
-	my $athletes   = $self->{ athletes };
-	my $round      = $self->{ round };
+	my $self     = shift;
+	my $athletes = $self->{ athletes };
+	my $round    = $self->{ round } or return;
 
 	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
@@ -173,7 +173,7 @@ sub calculate_round {
 	}
 
 	# ===== CALCULATE ORDER
-	my $round      = $self->{ round };
+	my $round      = $self->{ round } or return;
 	my $order      = $self->{ order } || {};
 	my $placements = $self->{ placements };
 	if( ! exists $order->{ $round } || ! defined $order->{ $round } || @{$order->{ $round }} == 0 ) {
@@ -217,7 +217,7 @@ sub calculate_scores {
 	my $self  = shift;
 	my $k     = $self->{ judges };
 	my $n     = $k <= 3 ? $k : $k - 2;
-	my $round = $self->{ round };
+	my $round = $self->{ round } or return;
 
 	foreach my $athlete (@{$self->{ athletes }}) {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
@@ -273,7 +273,7 @@ sub get_only {
 	my $self  = shift;
 	my $judge = shift;
 	my $clone = $self->clone();
-	my $round = $clone->{ round };
+	my $round = $clone->{ round } or return;
 
 	foreach my $athlete (@{ $clone->{ athletes }}) {
 		foreach my $score ( qw( scores original adjusted )) {
@@ -388,9 +388,39 @@ sub record_pool_score {
 	my $size    = $self->{ poolsize };
 	my $athlete = $self->current_athlete();
 	my $pool    = $athlete->{ pool }{ $round };
+	my $safety    = { margin => ($n - $k)};
+	my $dsq       = [ grep { $_->{ video }{ feedback } eq 'dsq' } values %$pool ];
+	my $bad       = [ grep { $_->{ video }{ feedback } eq 'bad' } values %$pool ];
+	my $ok        = [ grep { $_->{ video }{ feedback } eq 'ok'  } values %$pool ];
+	my $valid     = [ @$ok, @$dsq ];
+	my $responses = int( @$dsq ) + int( @$bad ) + int( @$ok );
+	my $pending   = $timeout ? 0 : $n - $responses;
+	my $dropped   = $timeout ? $n - $responses : 0;
+
+	my $votes = {
+		have => {
+			dsq       => int( @$dsq ),
+			ok        => int( @$ok ),
+			bad       => int( @$bad ),
+			valid     => int( @$valid ),
+			responses => $responses,
+			pending   => $pending,
+			dropped   => $dropped
+		},
+		want => $k,
+		max  => $n
+	};
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$athlete->{ pool }{ $round }{ $judge->{ id }} = $score;
+	my $have    = int( keys %{ $athlete->{ pool }{ $round }});
+
+	if( $have == $size ) {
+		my $result = $self->resolve_pool();
+		return $result;
+	} else {
+		return { status => 'in-progress', votes => $votes }
+	}
 }
 
 # ============================================================
@@ -401,7 +431,7 @@ sub resolve_pool {
 #   responded; or (2) manual intervention by the computer operator
 #*
 	my $self      = shift;
-	my $timeout   = shift;
+	my $timeout   = shift || 0;
 	my $round     = $self->{ round };
 	my $n         = $self->{ poolsize };
 	my $k         = $self->{ judges };

@@ -50,6 +50,7 @@ sub checkout {
 	}
 
 	my $command = "$self->{ co } -f -l $file 2>/dev/null";
+	chmod 0666, $file;
 	my $result  = `$command`;
 	print STDERR $result unless $result =~ /done/;
 }
