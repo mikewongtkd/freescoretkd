@@ -46,6 +46,9 @@ sub init {
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
+		pool_judge_ready   => \&handle_division_pool_judge_ready,
+		pool_resolve       => \&handle_division_pool_resolve,
+		pool_score         => \&handle_division_pool_score,
 		round_next         => \&handle_division_round_next,
 		round_prev         => \&handle_division_round_prev,
 		read               => \&handle_division_read,
@@ -430,6 +433,145 @@ sub handle_division_navigate {
 			$division->write();
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_judge_ready {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $json     = $self->{ _json };
+	my $division = $progress->current();
+	my $athlete  = $division->current_athlete();
+	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
+	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
+	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		my $size     = $request->{ size };          # Required parameter
+		my $judge    = $request->{ judge };         # Required parameter
+		my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
+		my $response = $division->pool_judge_ready( $size, $judge );
+
+		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
+
+		$division->write();
+
+		$request->{ response } = $response;
+		$self->broadcast_division_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_resolve {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $athlete  = $division->current_athlete();
+
+	my $message  = "Manually invoking pool resolution\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		my $score = clone( $request->{ score } );
+		$version->checkout( $division );
+
+		my $response = $division->resolve_pool();
+		$request->{ response } = $response;
+
+		$division->write();
+		$version->commit( $division, $message );
+
+		my $round    = $division->{ round };
+		my $complete = $athlete->{ complete }{ $round };
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_pool_score {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $athlete  = $division->current_athlete();
+	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
+	my $message  = "  $jname has scored for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		my $score = clone( $request->{ score } );
+		$version->checkout( $division );
+
+		my $response = $division->record_pool_score( $score );
+		$request->{ response } = $response;
+
+		$division->write();
+		$version->commit( $division, $message );
+
+		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
+		if( $response->{ status } eq 'in-progress' ) { 
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return; 
+
+		} elsif( $response->{ status } eq 'fail' ) {
+			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
+			if( $response->{ solution } eq 'discuss-disqualify' ) {
+				print STDERR "  At least one judge has voted to disqualify\n";
+
+			# ===== INSUFFICIENT JUDGES HAVE SCORED
+			} elsif( $response->{ solution } eq 'replay' ) {
+				print STDERR "  Insufficient judges have scored; rescore the video\n";
+			}
+			$self->broadcast_division_response( $request, $progress, $clients );
+			return;
+
+		} elsif( $response->{ status } eq 'error' ) {
+			return;
+		}
+
+		my $round    = $division->{ round };
+		my $complete = $athlete->{ complete }{ $round };
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
+
+		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

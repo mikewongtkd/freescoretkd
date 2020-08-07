@@ -21,8 +21,14 @@ use Data::Dumper;
 #    +- original
 #    +- decision
 #    +- complete
+#    +- penalty
+#       +- round{}
+#          +- time
+#          +- bounds
+#          +- restart
+#          +- misconduct
 #    +- scores
-#       +- round[]
+#       +- round{}
 #          +- technical
 #             +- side kick
 #             +- front kicks
@@ -35,7 +41,7 @@ use Data::Dumper;
 #             +- energy
 #             +- choreography
 #          +- deductions
-#             +- stances[]
+#             +- stances{}
 #             +- major
 #             +- minor
 # +- current
@@ -54,7 +60,6 @@ sub assign {
 	my $self       = shift;
 	my $i          = shift;
 	my $round      = shift;
-	my $athlete    = $self->{ athletes }[ $i ];
 
 	# Do nothing if athlete is already assigned to the round
 	return if( any { $_ == $i } @{ $self->{ order }{ $round }});
@@ -73,6 +78,16 @@ sub autopilot {
 
 	return $self->{ autopilot } if exists $self->{ autopilot };
 	return undef;
+}
+
+# ============================================================
+sub current_athlete {
+# ============================================================
+	my $self    = shift;
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	return $athlete;
 }
 
 # ============================================================
@@ -279,7 +294,7 @@ sub navigate {
 	if( /^athlete$/ ) {
 		return unless $i >= 0 && $i < @{$self->{ athletes }};
 		$self->{ current } = int( $i );
-		return $self->{ athletes }[ $i ];
+		return $self->current_athlete();
 	}
 
 	return;
@@ -289,10 +304,9 @@ sub navigate {
 sub next_athlete {
 # ============================================================
 #** @method ()
-#   @brief Navigates the division to the next athlete
+#   @brief Navigates the division to the next athlete; will wrap-around from the last to the first
 #*
 	my $self     = shift;
-	my $athletes = $self->{ athletes };
 	my $i        = $self->{ current };
 	my $round    = $self->{ round };
 	my $order    = $self->{ order }{ $round };
@@ -300,7 +314,7 @@ sub next_athlete {
 
 	$self->{ state }   = 'score';
 	$self->{ current } = $j < $#$order ? $order->[ $j + 1 ] : $order->[ 0 ];
-	return $athletes->[ $self->{ current }];
+	return $self->current_athlete();
 }
 
 # ============================================================
@@ -309,18 +323,16 @@ sub next_available_athlete {
 #** @method ()
 #   @brief Navigates the division to the next athlete that needs a score and has not been withdrawn or disqualified
 #*
-	my $self      = shift;
-	my $round     = $self->{ round };
-	my $order     = $self->{ order }{ $round };
-	my $available = undef;
-	my $i         = 0;
+	my $self  = shift;
+	my $round = $self->{ round };
+	my $order = $self->{ order }{ $round };
 
-	do {
+	for( my $i = 0; $i < $#$order; $i++ ) {
 		my $athlete = $self->next_athlete();
-		$available = ! $athlete->{ complete }{ $round };
-		$i++;
-	} while((! $available ) && $i < $#$order);
-	return $athletes->[ $self->{ current }];
+		my $available = ! $athlete->{ complete }{ $round };
+		last if $available;
+	}
+	return $self->current_athlete();
 }
 
 # ============================================================
@@ -334,6 +346,153 @@ sub next_round {
 
 	$self->{ state } = 'score';
 	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
+}
+
+# ============================================================
+sub pool_judge_ready {
+# ============================================================
+#** @method ( size, judge )
+#   @brief Indicates that the judge is ready to start scoring accuracy
+#*
+	my $self    = shift;
+	my $size    = shift;
+	my $judge   = shift;
+
+	my $n       = $self->{ poolsize } = $size;
+	my $round   = $self->{ round };
+	my $k       = $self->{ judges };
+	my $athlete = $self->current_athlete();
+	my $pool    = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
+
+	$pool->{ $judge->{ id }} = { judge => $judge, status => 'ready' };
+
+	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
+	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
+	my $p      = int( @$ready );
+
+	return { have => $p, want => $k, all => $n, ready => $ready, scored => $scored, responded => [ @$ready, @$scored ] };
+}
+
+# ============================================================
+sub record_pool_score {
+# ============================================================
+#** @method ( score_object )
+#   @brief Records the given score within a judge's pool for online tournaments
+#*
+	my $self    = shift;
+	my $score   = shift;
+
+	my $judge   = $score->{ judge };
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $size    = $self->{ poolsize };
+	my $athlete = $self->current_athlete();
+	my $pool    = $athlete->{ pool }{ $round };
+
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$athlete->{ pool }{ $round }{ $judge->{ id }} = $score;
+}
+
+# ============================================================
+sub resolve_pool {
+# ============================================================
+#** @method ()
+#   @brief Resolves the pool scoring in the cases: (1) all judges have
+#   responded; or (2) manual intervention by the computer operator
+#*
+	my $self      = shift;
+	my $timeout   = shift;
+	my $round     = $self->{ round };
+	my $n         = $self->{ poolsize };
+	my $k         = $self->{ judges };
+	my $athlete   = $self->current_athlete();
+	my $pool      = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
+	my $safety    = { margin => ($n - $k)};
+	my $dsq       = [ grep { $_->{ video }{ feedback } eq 'dsq' } values %$pool ];
+	my $bad       = [ grep { $_->{ video }{ feedback } eq 'bad' } values %$pool ];
+	my $ok        = [ grep { $_->{ video }{ feedback } eq 'ok'  } values %$pool ];
+	my $valid     = [ @$ok, @$dsq ];
+	my $responses = int( @$dsq ) + int( @$bad ) + int( @$ok );
+	my $pending   = $timeout ? 0 : $n - $responses;
+	my $dropped   = $timeout ? $n - $responses : 0;
+
+	my $votes = {
+		have => {
+			dsq       => int( @$dsq ),
+			ok        => int( @$ok ),
+			bad       => int( @$bad ),
+			valid     => int( @$valid ),
+			responses => $responses,
+			pending   => $pending,
+			dropped   => $dropped
+		},
+		want => $k,
+		max  => $n
+	};
+
+	# ===== CASE 1: AT LEAST ONE DSQ VOTE HAS BEEN RAISED
+	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain
+	# can discuss and make a decision. A DSQ decision must then be manually
+	# given by the ring computer operator.
+	if( $votes->{ have }{ dsq } >= 1 ) {
+		return { status => 'fail', solution => 'discuss-disqualify', votes => $votes };
+
+	# ===== CASE 2: SUFFICIENT SCORES
+	} elsif( $votes->{ have }{ ok } >= $k ) {
+
+		# ===== IF THE POOL HAS BEEN PREVIOUSLY RESOLVED, KEEP PREVIOUS RESULTS AND RETURN VOTES
+		if( $athlete->{ complete }{ $round }) { return { status => 'success', votes => $votes }; }
+
+		# ===== IF THE POOL HAS NOT BEEN PREVIOUSLY RESOLVED, RESOLVE NOW
+		my @valid = shuffle (@$valid);    # Randomize
+		@valid = splice( @valid, 0, $k ); # Take $k scores
+		foreach my $i ( 0 .. $#valid ) {
+			my $pool_score = $valid[ $i ];
+			$pool_score->{ as } = $i;
+			my $score = { 
+				technical => {
+					mft1  => $pool_score->{ technical }{ jump }{ side },
+					mft2  => $pool_score->{ technical }{ jump }{ front },
+					mft3  => $pool_score->{ technical }{ jump }{ turn },
+					mft4  => $pool_score->{ technical }{ consecutive },
+					mft5  => $pool_score->{ technical }{ acrobatic },
+					basic => $pool_score->{ technical }{ basic }
+				},
+				presentation => {
+					creativity   => $pool_score->{ presentation }{ creativity },
+					harmony      => $pool_score->{ presentation }{ harmony },
+					energy       => $pool_score->{ presentation }{ energy },
+					choreography => $pool_score->{ presentation }{ music },
+				},
+				deductions => {
+					stances => {
+						hakdari   => $pool_score->{ deductions }{ stances }{ hakdari },
+						beomseogi => $pool_score->{ deductions }{ stances }{ beomseogi },
+						dwigubi   => $pool_score->{ deductions }{ stances }{ dwigubi }
+					},
+					minor => $pool_score->{ deductions }{ minor },
+					major => $pool_score->{ deductions }{ major }
+				}
+			};
+			$self->record_score( $form, $i, $score );
+		}
+		return { status => 'success', votes => $votes };
+
+	# ===== CASE 3: ENOUGH JUDGES DISCONNECT OR DEEM VIDEO OR NETWORK BAD TO EXHAUST SAFETY MARGIN
+	} elsif( $votes->{ bad } + $votes->{ dropped } > $safety->{ margin } ) {
+		my @valid  = map { $_->{ judge }{ id } } (@$valid);
+		my @repeat = map { $_->{ judge }{ id } } (@$bad);
+
+		return { status => 'fail', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
+
+	# ===== CASE 4: SHOULD NEVER HAPPEN
+	} else {
+		print STDERR "Invalid count of dropped judges.\n"; # MW
+		my @valid  = map { $_->{ judge }{ id } } (@$valid);
+		my @repeat = map { $_->{ judge }{ id } } (@$bad);
+
+		return { status => 'fail', details => 'Invalid count of dropped judges', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
+	}
 }
 
 # ============================================================
@@ -407,13 +566,10 @@ sub record_score {
 	my $self  = shift;
 	my $judge = shift;
 	my $score = shift;
-	my $i     = $self->{ current };
 	my $round = $self->{ round };
 
-	my $json = new JSON::XS();
-
 	$self->{ state } = 'score';
-	my $athlete = $self->{ athletes }[ $i ];
+	my $athlete = $self->current_athlete();
 	$athlete->{ scores }{ $round }[ $judge ] = $score;
 }
 

@@ -46,7 +46,7 @@ sub ready {
 	my $judge  = shift;
 
 	my $key    = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
-	my $id     = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
+	my $id     = $judge->{ id } || substr( sha1_hex( $key ), 0, 3 );
 
 	$self->{ forms }[ $formid ]                  = {} unless defined $self->{ forms }[ $formid ];
 	$self->{ forms }[ $formid ]{ scores }        = {} unless defined $self->{ forms }[ $formid ]{ scores };

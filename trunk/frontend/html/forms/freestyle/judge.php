@@ -1,7 +1,9 @@
 <?php 
 	include( "../../include/php/config.php" ); 
+	include( "../../session.php" ); 
 	$judge = $_GET[ 'judge' ] ? $_GET[ 'judge' ] : ($_COOKIE[ 'judge' ] ? $_COOKIE[ 'judge' ] : 0);
 	$ring  = $_GET[ 'ring' ]  ? $_GET[ 'ring' ]  : ($_COOKIE[ 'ring' ]  ? $_COOKIE[ 'ring' ]  : 1);
+	$id    = session_id();
 ?>
 <html>
 	<head>
@@ -487,7 +489,7 @@
 			// ============================================================
 			// COMMUNICATION WITH SERVICE
 			// ============================================================
-			var ws       = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+			var ws       = new WebSocket( `ws://<?= $host ?>:3082/freestyle/${tournament.db}/${ring.num}/judge/<?= $id ?>` );
 			var previous = { athlete: { name: undefined }};
 
 			ws.onopen = function() {

@@ -7,6 +7,7 @@
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
 		<script src="../../include/opt/js-cookie/js.cookie.js"></script>
+		<script src="../../include/opt/js-sha1/sha1.min.js"></script>
 		<script src="../../include/opt/js-sha3/sha3.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>

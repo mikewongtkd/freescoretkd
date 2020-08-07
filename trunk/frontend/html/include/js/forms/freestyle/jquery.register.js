@@ -114,7 +114,7 @@ $.widget( "freescore.register", {
 				ring.dom.animate( { left: ring.select.x, top: ring.select.y } );
 				Cookies.set( 'ring', selected );
 				register.rings.view .delay( 750 ) .fadeOut( 500 ) .queue( register.roles.show );
-				e.ws = new WebSocket( 'ws://' + o.server + ':3082/freestyle/' + o.tournament.db + '/' + selected ); 
+				e.ws = new WebSocket( `ws://${o.server}:3082/freestyle/${o.tournament.db}/${selected}/judge/${sha1.hex(Date.now())}` ); 
 				e.ws.onopen  = register.network.init;
 				e.ws.onerror = register.network.error;
 			});
