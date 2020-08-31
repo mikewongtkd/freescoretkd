@@ -32,8 +32,9 @@ use Data::Dumper;
 #          +- technical
 #             +- side kick
 #             +- front kicks
-#             +- turn kick
-#             +- flip kick
+#             +- spin kick
+#             +- consecutive
+#             +- acrobatic
 #             +- basic movements
 #          +- presentation
 #             +- creativity
@@ -382,6 +383,8 @@ sub record_pool_score {
 	my $self    = shift;
 	my $score   = shift;
 
+	return unless $score->{ judge }{ id };
+
 	my $judge   = $score->{ judge };
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
@@ -479,11 +482,12 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
+			print STDERR Dumper $pool_score;
 			my $score = { 
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
 					mft2  => $pool_score->{ technical }{ jump }{ front },
-					mft3  => $pool_score->{ technical }{ jump }{ turn },
+					mft3  => $pool_score->{ technical }{ jump }{ spin },
 					mft4  => $pool_score->{ technical }{ consecutive },
 					mft5  => $pool_score->{ technical }{ acrobatic },
 					basic => $pool_score->{ technical }{ basic }
@@ -504,7 +508,7 @@ sub resolve_pool {
 					major => $pool_score->{ deductions }{ major }
 				}
 			};
-			$self->record_score( $form, $i, $score );
+			$self->record_score( $i, $score );
 		}
 		return { status => 'success', votes => $votes };
 
@@ -520,6 +524,7 @@ sub resolve_pool {
 		print STDERR "Invalid count of dropped judges.\n"; # MW
 		my @valid  = map { $_->{ judge }{ id } } (@$valid);
 		my @repeat = map { $_->{ judge }{ id } } (@$bad);
+		print STDERR Dumper \@valid;
 
 		return { status => 'fail', details => 'Invalid count of dropped judges', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
 	}
