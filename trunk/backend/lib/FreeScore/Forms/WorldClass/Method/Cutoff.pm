@@ -23,16 +23,18 @@ sub advance_athletes {
 	my $n = int( @{ $div->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
-	if     (($round eq 'prelim' || $round eq 'semfin') && $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged' ) {
+	my $flight_is_complete = $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged';
+
+	if( $flight_is_complete ) {
 		$div->{ flight }{ state } = 'complete';
 
 	} elsif( $round eq 'semfin' && $div->round_complete( 'prelim' )) {
 
-		# Skip if athletes have already been assigned to the semi-finals
+		# Skip if athletes have already been advanced to the semi-finals
 		my $semfin = $div->{ order }{ semfin };
 		return if( defined $semfin && int( @$semfin ) > 0 );
 
-		# Semi-final round goes in random order
+		# Advance athletes. Semi-final round goes in random order
 		my $half       = int( ($n-1)/2 );
 		my @candidates = @{ $div->{ placement }{ prelim }};
 		my @eligible   = $div->eligible_athletes( 'prelim', @candidates );
@@ -40,17 +42,90 @@ sub advance_athletes {
 		$div->assign( $_, 'semfin' ) foreach @order;
 
 	} elsif( $round eq 'finals' && $div->round_complete( 'semfin' )) { 
-		# Skip if athletes have already been assigned to the finals
+
+		# Skip if athletes have already been advanced to the finals
 		my $finals = $div->{ order }{ finals };
 		return if( defined $finals && int( @$finals ) > 0 );
 
-		# Finals go in reverse placement order of semi-finals
+		# Advance athletes. Finals go in reverse placement order of semi-finals
 		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $div->{ placement }{ semfin }};
 		my @eligible   = $div->eligible_athletes( 'semfin', @candidates );
 		my @order      = reverse (@eligible[ 0 .. $k ]);
 		$div->assign( $_, 'finals' ) foreach @order;
 	}
+}
+
+# ============================================================
+sub detect_ties {
+# ============================================================
+#** @method ()
+#   @brief Identifies ties in the current round.
+#*
+	my $self      = shift;
+	my $div       = $self->{ div };
+	my $ties      = [];
+	my $round     = $div->{ round };
+	my $placement = $div->{ placement }{ $round };
+
+	# ===== DETECT TIES BY LOOKING AT PAIRS OF SCORES
+	my $i = 0;
+	my $k = int(@{$div->{ athletes }});
+	while( $i < $k ) {
+		my $a = $placement->[ $i ];
+		my $x = $div->{ athletes }[ $i ]{ scores }{ $round };
+
+		my $j = $i + 1;
+		while( $j < $k ) {
+			my $b = $placement->[ $j ];
+			my $y = $div->{ athletes }[ $j ]{ scores }{ $round };
+			if( exists $y->{ decision }{ withdraw } || exists $y->{ decision }{ disqualify } ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
+
+			my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
+
+			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
+			if( $comparison == 0 ) {
+				push @{ $ties->[ $i ]}, $j; 
+				$j++;
+
+			# ===== OTHERWISE LOOK AT NEXT PLACE
+			} else { last; }
+		}
+		$i = $j;
+	}
+
+	# ===== FILTER UNIMPORTANT TIES
+	$i = 0;
+	my $places   = $div->{ places };
+	my $medals   = $places->{ $round }[ $i ];
+	my $athletes = 0;
+	while( $i < $k && $medals ) {
+		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
+		elsif ( $athletes == 0     ) { $athletes  = 1; }
+
+		my $gave = $medals >= $athletes ? $athletes : $medals;
+
+		# ===== IF THERE ARE ENOUGH MEDALS, EACH ATHLETE GETS ONE MEDAL
+		# No need for a tie breaker
+		if( $medals >= $athletes ) {
+			$medals -= $athletes;
+			$athletes = 0;
+			$ties->[ $i ] = undef;
+
+		# ===== OTHERWISE GIVE AWAY ALL MEDALS; SOME ATHLETES WILL STILL NEED MEDALS
+		} else {
+			$athletes -= $medals;
+			$medals = 0;
+		}
+
+		$i += $gave;
+		$medals += $places->{ $round }[ $i ];
+	}
+
+	# ===== IGNORE ALL OTHER TIES
+	splice( @$ties, $i);
+
+	return $ties;
 }
 
 # ============================================================
@@ -115,6 +190,17 @@ sub rank_athletes {
 	@$pending   = grep { my $scores = $div->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$div->{ pending }{ $round } = $pending;
+
+	my $ties = $self->detect_ties();
+
+	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
+	foreach my $tie (@$ties) {
+		next unless ref $tie;
+		foreach my $i (@$tie) {
+			my $athlete = $div->{ athletes }[ $i ];
+			$div->assign_tiebreaker( $athlete );
+		}
+	}
 }
 
 1;

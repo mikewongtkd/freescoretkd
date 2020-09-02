@@ -242,17 +242,6 @@ sub from_json {
 }
 
 # ============================================================
-sub rank_athletes {
-# ============================================================
-#** @method ()
-#   @brief Calculates placements for the current round. Auto-updates score averages.
-#*
-	my $self   = shift;
-	my $method = $self->{ _method };
-	$method->rank_athletes();
-}
-
-# ============================================================
 sub detect_ties {
 # ============================================================
 #** @method ()
@@ -904,7 +893,7 @@ sub update_status {
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
-	$self->rank_athletes(); 
+	$method->rank_athletes(); 
 	my $ties = $self->detect_ties();
 
 	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
@@ -915,6 +904,8 @@ sub update_status {
 			$self->assign_tiebreaker( $athlete );
 		}
 	}
+
+	$method->advance_athletes();
 }
 
 # ============================================================
