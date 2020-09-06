@@ -6,7 +6,7 @@
 	}
 
 	function read_config() {
-		$locations = [ '/var/www/html/freescore/include/php/config.json', '/var/www/html/include/php/config.josn', '/var/www/include/php/config.json', '/var/www/freescore/include/php/config.json' ];
+		$locations = [ '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.json', '/var/www/html/freescore/include/php/config.json', '/var/www/html/include/php/config.json', '/var/www/include/php/config.json', '/var/www/freescore/include/php/config.json' ];
 		foreach( $locations as $i => $file ) {
 			if( ! file_exists( $file )) { continue; }
 			$string = file_get_contents( $file );
