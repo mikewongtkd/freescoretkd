@@ -206,21 +206,7 @@ sub place_athletes {
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
-		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
-		if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
-			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $x->{ notes } = 'P'; }
-			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $y->{ notes } = 'P'; }
-			else {
-				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
-				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
-				else {
-					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
-				}
-			}
-		}
+		resolve_ties( $x, $y );
 
 		# ===== COMPARE BY TIE-BREAKERS IF TIED
 		if( _is_tie( $comparison )) {
@@ -1263,6 +1249,29 @@ sub calculate_means {
 			$scores->calculate_means( $self->{ judges } );
 		}
 	}
+}
+
+# ============================================================
+sub resolve_ties {
+# ============================================================
+# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
+	my $x = shift;
+	my $y = shift;
+
+	return unless( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 );
+
+	$x->{ notes } ||= '';
+	$y->{ notes } ||= '';
+
+	my $xap = $x->{ adjusted }{ presentation };
+	my $yap = $y->{ adjusted }{ presentation };
+
+	if( $xap != $yap ) { $x->{ notes } .= "Pres. $xap"; $y->{ notes } .= "Pres. $yap"; return; }
+
+	my $xat = $x->{ allscore }{ total };
+	my $yat = $y->{ allscore }{ total };
+
+	if( $xat != $yat ) { $x->{ notes } .= "Total $xat"; $y->{ notes } .= "Total $yat"; return; }
 }
 
 # ============================================================

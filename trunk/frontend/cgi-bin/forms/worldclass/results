@@ -4,6 +4,8 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
@@ -82,8 +84,9 @@ print <<EOF;
 			.results .usat    { width: 80px; }
 			.results .noc     { width: 80px; }
 			.results .athlete { width: 408px; }
-			.results .form,.score,.place { width: 100px; text-align: center; }
+			.results .form, .results .score, .results .place { width: 100px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
+			.results .tiebreaker { width: 50px; text-align: center; }
 			.results .notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
@@ -100,6 +103,8 @@ foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	@rounds = reverse @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	my $copy = unbless( clone( $division ));
+	print "<script>var division = " .  $json->canonical->encode( $copy ) . ";</script>\n";
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
@@ -111,13 +116,12 @@ foreach my $division (@divisions) {
 			my $i = $places->[ $j ];
 			$placed->{ $i } = ordinal( $j + 1 );
 		}
-
 		print <<EOF;
 		<div class="results">
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
-				<th class="number">#</th>
+				<th class="number">Rank</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
 EOF
@@ -125,17 +129,19 @@ EOF
 		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 		print <<EOF;
 				<th class="score">Avg.</th>
-				<th>Place</th>
+				<th class="tiebreaker">TB</th>
 			</tr>
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ order }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $sum     = 0.0;
-			my $n       = 0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			my $j        = $division->{ placement }{ $round }[ $i ];
+			my $athlete  = $division->{ athletes }[ $j ];
+			my $sum      = 0.0;
+			my $n        = 0;
+			my $punitive = undef;
+			my @scores   = ();
+			my $tb       = $athlete->{ scores }{ $round }{ notes };
+
 			foreach my $j ( 0 .. 1 ) {
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 				my $mean  = $score->{ adjusted };
@@ -144,28 +150,28 @@ EOF
 						if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
 							my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 							foreach my $decision (keys %$codes) {
-								printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $mean->{ accuracy }, $mean->{ presentation } ) if( $score->{ decision }{ $decision });
+								next unless $score->{ decision }{ $decision };
+								$punitive = $codes->{ $decision };
+								push @scores, "<td class=\"score\">&ndash;</td>";
 							}
 						} else {
-							printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
+							push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
 						}
 						$n++;
-					} else { print( "<td>&ndash;</td>" ); }
+					} else { push @scores, "<td>&ndash;</td>"; }
 				} else {
-					print( "<td>&nbsp;</td>" );
+					push @scores, "<td>&nbsp;</td>";
 				}
 				$sum += $mean->{ total };
 			}
+			print "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print foreach @scores;
 			$n ||= 1;
-			printf( "<td>%.3f<span class=\"notes\">$notes</span></td>", ($sum/$n), $notes );
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-			else { print "<td>&ndash;</td>"; }
+			printf( "<td class=\"score\">%s</td><td class=\"notes\">%s</td>", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );
 			print "</tr>\n";
 		}
-		print <<EOF;
-		</table>
-		</div>
-EOF
+		print "\t</table>\n";
+		print "\t</div>\n";
 	}
 }
 
