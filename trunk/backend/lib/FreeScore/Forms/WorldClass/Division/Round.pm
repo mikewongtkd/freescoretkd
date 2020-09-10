@@ -307,18 +307,18 @@ sub calculate_means {
 			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
 			
-			$adjusted->{ accuracy }     = sprintf( "%.3f", $adjusted->{ accuracy } );
-			$adjusted->{ presentation } = sprintf( "%.3f", $adjusted->{ presentation } );
+			$adjusted->{ accuracy }     = $adjusted->{ accuracy };
+			$adjusted->{ presentation } = $adjusted->{ presentation };
 
 		} else {
-			$adjusted = { map { ( $_ => sprintf( "%.3f", ($adjusted->{ $_ }/$judges))) } keys %$adjusted };
+			$adjusted = { map { $_ => $adjusted->{ $_ }/$judges } keys %$adjusted };
 		}
 
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
 		# ===== CALCULATE ALL-SCORE MEANS
-		$allscore = { map { ( $_ => sprintf( "%.3f", ($allscore->{ $_ }/$judges))) } keys %$allscore };
+		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
 		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } - $penalties;
@@ -342,9 +342,9 @@ sub calculate_means {
 		$self->{ allscore }{ total }        += $mean->{ allscore }{ total };
 	};
 
-	$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.3f", $self->{ adjusted }{ total } );
-	$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.3f", $self->{ adjusted }{ presentation } );
-	$self->{ allscore }{ total }        = 0.0 + sprintf( "%.3f", $self->{ allscore }{ total } );
+	$self->{ adjusted }{ total }        = 0.0 + $self->{ adjusted }{ total };
+	$self->{ adjusted }{ presentation } = 0.0 + $self->{ adjusted }{ presentation };
+	$self->{ allscore }{ total }        = 0.0 + $self->{ allscore }{ total };
 
 	return $self;
 }

@@ -5,6 +5,7 @@ use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
+use List::MoreUtils qw( first_index );
 use Clone qw( clone );
 use Data::Dumper;
 
@@ -132,7 +133,8 @@ EOF
 				<th class="tiebreaker">TB</th>
 			</tr>
 EOF
-		my $n = $#{$division->{ order }{ $round }};
+		my $order = $division->{ order }{ $round };
+		my $n     = $#$order;
 		foreach my $i (0 .. $n) {
 			my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
 			my $athlete  = $division->{ athletes }[ $j ];
@@ -144,7 +146,7 @@ EOF
 
 			if( $tb ) {
 				$tb = $json->decode( $tb );
-				$tb = join "<br\n", map { $_->{ reason } } @$tb;
+				$tb = join "<br\n", map { $tb->{ $_ }{ reason } } sort { first_index { $_ == $a } @$order  <=> first_index { $_ == $b } @$order } keys %$tb;
 			}
 
 			foreach my $j ( 0 .. 1 ) {
@@ -160,7 +162,7 @@ EOF
 								push @scores, "<td class=\"score\">&ndash;</td>";
 							}
 						} else {
-							push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
+							push @scores, sprintf( "<td class=\"score\">%.3f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
 						}
 						$n++;
 					} else { push @scores, "<td>&ndash;</td>"; }

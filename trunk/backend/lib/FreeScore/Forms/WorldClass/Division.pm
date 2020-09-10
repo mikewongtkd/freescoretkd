@@ -1260,22 +1260,25 @@ sub resolve_ties {
 	my $x = shift;
 	my $y = shift;
 
-	return unless( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 );
+	my $xt = sprintf( "%.3f", $x->{ adjusted }{ total });
+	my $yt = sprintf( "%.3f", $y->{ adjusted }{ total });
+
+	return unless( $xt == $yt && $xt != 0 );
 
 	my $json = new JSON::XS();
-	my $xn   = $x->{ notes } ? $json->decode( $x->{ notes }) : [];
-	my $yn   = $y->{ notes } ? $json->decode( $y->{ notes }) : [];
+	my $xn   = $x->{ notes } ? $json->decode( $x->{ notes }) : {};
+	my $yn   = $y->{ notes } ? $json->decode( $y->{ notes }) : {};
 
-	my $xap  = $x->{ adjusted }{ presentation };
-	my $yap  = $y->{ adjusted }{ presentation };
+	my $xap  = sprintf( "%.3f", $x->{ adjusted }{ presentation });
+	my $yap  = sprintf( "%.3f", $y->{ adjusted }{ presentation });
 
 	if( $xap != $yap ) { 
 		if( $xap > $yap ) {
-			push @$xn, { wrt => $b, results => 'win',  reason => sprintf( "Pres. %.3f", $xap )};
-			push @$yn, { wrt => $a, results => 'loss', reason => sprintf( "Pres. %.3f", $yap )};
+			$xn->{ $b } = { results => 'win',  reason => "Pres. $xap" };
+			$yn->{ $a } = { results => 'loss', reason => "Pres. $yap" };
 		} else {
-			push @$xn, { wrt => $b, results => 'loss', reason => sprintf( "Pres. %.3f", $xap )};
-			push @$yn, { wrt => $a, results => 'win',  reason => sprintf( "Pres. %.3f", $yap )};
+			$xn->{ $b } = { results => 'loss', reason => "Pres. $xap" };
+			$yn->{ $a } = { results => 'win',  reason => "Pres. $yap" };
 		}
 
 		$x->{ notes } = $json->canonical->encode( $xn );
@@ -1283,16 +1286,16 @@ sub resolve_ties {
 		return;
 	}
 
-	my $xat = $x->{ allscore }{ total };
-	my $yat = $y->{ allscore }{ total };
+	my $xat = sprintf( "%.3f", $x->{ allscore }{ total });
+	my $yat = sprintf( "%.3f", $y->{ allscore }{ total });
 
 	if( $xat != $yat ) { 
 		if( $xat > $yat ) {
-			push @$xn, { wrt => $b, results => 'win',  reason => sprintf( "Total %.3f", $xat )};
-			push @$yn, { wrt => $a, results => 'loss', reason => sprintf( "Total %.3f", $yat )};
+			$xn->{ $b } = { results => 'win',  reason => "Total $xat" };
+			$yn->{ $a } = { results => 'loss', reason => "Total $yat" };
 		} else {
-			push @$xn, { wrt => $b, results => 'loss', reason => sprintf( "Total %.3f", $xat )};
-			push @$yn, { wrt => $a, results => 'win',  reason => sprintf( "Total %.3f", $yat )};
+			$xn->{ $b } = { results => 'loss', reason => "Total $xat" };
+			$yn->{ $a } = { results => 'win',  reason => "Total $yat" };
 		}
 		$x->{ notes } = $json->canonical->encode( $xn );
 		$y->{ notes } = $json->canonical->encode( $yn );
