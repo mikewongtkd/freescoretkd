@@ -206,7 +206,7 @@ sub place_athletes {
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
-		resolve_ties( $x, $y );
+		resolve_ties( $a, $b, $x, $y );
 
 		# ===== COMPARE BY TIE-BREAKERS IF TIED
 		if( _is_tie( $comparison )) {
@@ -353,7 +353,7 @@ sub eligible_athletes {
 
 	foreach my $candidate (@candidates) {
 		my $r = $self->{ athletes }[ $candidate ]{ scores }{ $round };
-		next if( exists $r->{ decision } && (exists $r->{ decision }{ disqualify } || exists $r->{ decision }{ withdraw }));
+		next if( $r->any_punitive_decision());
 		push @eligible, $candidate;
 	}
 
@@ -957,9 +957,9 @@ sub update_status {
 		return if( defined $finals && int( @$finals ) > 0 );
 
 		# Finals go in reverse placement order of semi-finals
-		my $k          = $n > 8 ? 7 : ($n - 1);
 		my @candidates = @{ $self->{ placement }{ semfin }};
 		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
+		my $k          = $#eligible > 7 ? 7 : $#eligible;
 		my @order      = reverse (@eligible[ 0 .. $k ]);
 		$self->assign( $_, 'finals' ) foreach @order;
 	}
@@ -1255,23 +1255,49 @@ sub calculate_means {
 sub resolve_ties {
 # ============================================================
 # P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
+	my $a = shift;
+	my $b = shift;
 	my $x = shift;
 	my $y = shift;
 
 	return unless( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 );
 
-	$x->{ notes } ||= '';
-	$y->{ notes } ||= '';
+	my $json = new JSON::XS();
+	my $xn   = $x->{ notes } ? $json->decode( $x->{ notes }) : [];
+	my $yn   = $y->{ notes } ? $json->decode( $y->{ notes }) : [];
 
-	my $xap = $x->{ adjusted }{ presentation };
-	my $yap = $y->{ adjusted }{ presentation };
+	my $xap  = $x->{ adjusted }{ presentation };
+	my $yap  = $y->{ adjusted }{ presentation };
 
-	if( $xap != $yap ) { $x->{ notes } .= "Pres. $xap"; $y->{ notes } .= "Pres. $yap"; return; }
+	if( $xap != $yap ) { 
+		if( $xap > $yap ) {
+			push @$xn, { wrt => $b, results => 'win',  reason => sprintf( "Pres. %.3f", $xap )};
+			push @$yn, { wrt => $a, results => 'loss', reason => sprintf( "Pres. %.3f", $yap )};
+		} else {
+			push @$xn, { wrt => $b, results => 'loss', reason => sprintf( "Pres. %.3f", $xap )};
+			push @$yn, { wrt => $a, results => 'win',  reason => sprintf( "Pres. %.3f", $yap )};
+		}
+
+		$x->{ notes } = $json->canonical->encode( $xn );
+		$y->{ notes } = $json->canonical->encode( $yn );
+		return;
+	}
 
 	my $xat = $x->{ allscore }{ total };
 	my $yat = $y->{ allscore }{ total };
 
-	if( $xat != $yat ) { $x->{ notes } .= "Total $xat"; $y->{ notes } .= "Total $yat"; return; }
+	if( $xat != $yat ) { 
+		if( $xat > $yat ) {
+			push @$xn, { wrt => $b, results => 'win',  reason => sprintf( "Total %.3f", $xat )};
+			push @$yn, { wrt => $a, results => 'loss', reason => sprintf( "Total %.3f", $yat )};
+		} else {
+			push @$xn, { wrt => $b, results => 'loss', reason => sprintf( "Total %.3f", $xat )};
+			push @$yn, { wrt => $a, results => 'win',  reason => sprintf( "Total %.3f", $yat )};
+		}
+		$x->{ notes } = $json->canonical->encode( $xn );
+		$y->{ notes } = $json->canonical->encode( $yn );
+		return;
+	}
 }
 
 # ============================================================

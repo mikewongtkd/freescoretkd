@@ -259,22 +259,18 @@ sub handle_division_award_punitive {
 			$self->broadcast_division_response( $request, $progress, $clients );
 
 		} else {
+			my $delay = shift;
+
+			my $round    = $division->{ round };
+			my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
+			my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+
+			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+			print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+			my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+			die $autopilot->{ error } if exists $autopilot->{ error };
+
 			$self->broadcast_division_response( $request, $progress, $clients );
-			my $delay = new Mojo::IOLoop::Delay();
-			$delay->steps(
-				sub { # Display the athlete's score for 9 seconds
-					my $delay = shift;
-					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
-				},
-				sub { 
-					my $delay = shift;
-					$version->checkout( $division );
-					$division->next_available_athlete();
-					$division->write();
-					$version->commit( $division, $message );
-					$self->broadcast_division_response( $request, $progress, $clients );
-				}
-			);
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -1727,20 +1723,24 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = $timers->{ pause } if exists $timers->{ pause } && defined $timers->{ pause };
-	my $round = $division->{ round };
-	my $order = $division->{ order }{ $round };
-	my $forms = $division->{ forms }{ $round };
-	my $j     = first_index { $_ == $division->{ current } } @$order;
-
+	my $pause    = $timers->{ pause } if exists $timers->{ pause } && defined $timers->{ pause };
+	my $round    = $division->{ round };
+	my $order    = $division->{ order }{ $round };
+	my $forms    = $division->{ forms }{ $round };
+	my $pending  = $division->{ pending }{ $round };
+	my $athlete  = $division->current_athlete();
+	my $score    = $athlete->{ scores }{ $round };
+	my $punitive = $score ? $score->any_punitive_decision() : 0;
+	my $j        = first_index { $_ == $division->{ current } } @$order;
+ 
 	# Default pauses
 	$pause->{ score }       ||= 9;
 	$pause->{ leaderboard } ||= 12;
 	$pause->{ brief }       ||= 1;
 
 	my $last = {
-		athlete => ($division->{ current } == $order->[ -1 ]),
-		form    => ($division->{ form }    == int( @$forms ) - 1),
+		athlete => (int( @$pending ) == 0),
+		form    => ($division->{ form }    == int( @$forms ) - 1) || $punitive,
 		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
 		cycle   => (!(($j + 1) % $cycle)),
 	};

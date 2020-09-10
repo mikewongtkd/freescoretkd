@@ -181,9 +181,11 @@ sub record_decision {
 
 	my $form = $self->{ forms }[ $i ];
 	if( $decision eq 'clear' ) {
-		delete $form->{ decision }{ $_ } foreach (keys %{ $form->{ decision }});
-		$form->{ complete } = 0;
-		$form->{ started }  = 0;
+		foreach my $form (@{ $self->{ forms }}) { 
+			delete $form->{ decision }{ $_ } foreach (keys %{ $form->{ decision }});
+			$form->{ complete } = 0;
+			$form->{ started }  = 0;
+		}
 		$self->{ complete } = 0 if( none { $self->form_complete( $_ )} @{$self->{ forms }} );
 
 		return unless( exists $self->{ pool });

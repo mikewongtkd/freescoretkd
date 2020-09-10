@@ -134,13 +134,18 @@ EOF
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j        = $division->{ placement }{ $round }[ $i ];
+			my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
 			my $athlete  = $division->{ athletes }[ $j ];
 			my $sum      = 0.0;
 			my $n        = 0;
 			my $punitive = undef;
 			my @scores   = ();
 			my $tb       = $athlete->{ scores }{ $round }{ notes };
+
+			if( $tb ) {
+				$tb = $json->decode( $tb );
+				$tb = join "<br\n", map { $_->{ reason } } @$tb;
+			}
 
 			foreach my $j ( 0 .. 1 ) {
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
