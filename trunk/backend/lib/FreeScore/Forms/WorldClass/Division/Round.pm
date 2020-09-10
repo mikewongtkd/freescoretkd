@@ -526,7 +526,7 @@ sub _compare {
 	my $at  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
 	my $aap = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ presentation });
 	my $aat = 0.0 + sprintf( "%.3f", $a->{ allscore }{ total });
-	my $bt  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
+	my $bt  = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ total });
 	my $bap = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ presentation });
 	my $bat = 0.0 + sprintf( "%.3f", $b->{ allscore }{ total });
 
