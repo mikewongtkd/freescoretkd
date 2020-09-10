@@ -135,6 +135,9 @@ EOF
 EOF
 		my $order = $division->{ order }{ $round };
 		my $n     = $#$order;
+
+		$division->place_athletes( $round );
+
 		foreach my $i (0 .. $n) {
 			my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
 			my $athlete  = $division->{ athletes }[ $j ];

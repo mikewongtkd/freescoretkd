@@ -523,10 +523,17 @@ sub _compare {
 	if( ! defined $a ) { return  1; }
 	if( ! defined $b ) { return -1; }
 
+	my $at  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
+	my $aap = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ presentation });
+	my $aat = 0.0 + sprintf( "%.3f", $a->{ allscore }{ total });
+	my $bt  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
+	my $bap = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ presentation });
+	my $bat = 0.0 + sprintf( "%.3f", $b->{ allscore }{ total });
+
 	return
-		$b->{ adjusted }{ total }        <=> $a->{ adjusted }{ total }        ||
-		$b->{ adjusted }{ presentation } <=> $a->{ adjusted }{ presentation } ||
-		$b->{ allscore }{ total }        <=> $a->{ allscore }{ total };
+		$bt  <=>  $at ||
+		$bap <=> $aap ||
+		$bat <=> $aat;
 }
 
 # ============================================================

@@ -188,11 +188,11 @@ sub from_json {
 # ============================================================
 sub place_athletes {
 # ============================================================
-#** @method ()
-#   @brief Calculates placements for the current round. Auto-updates score averages.
+#** @method ( [ round ] )
+#   @brief Calculates placements for the given (default = current) round. Auto-updates score averages.
 #*
 	my $self      = shift;
-	my $round     = $self->{ round };
+	my $round     = shift || $self->{ round };
 	my $placement = [];
 
 	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
