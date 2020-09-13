@@ -99,7 +99,7 @@ EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
-	my $flight = $name =~ /([A-Za-z])$/ ? sprintf( " (Flight %d)", ord( lc( $1 )) - ord( 'a' ) + 1 ) : '';
+	my $flight = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
 	@rounds = reverse @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };

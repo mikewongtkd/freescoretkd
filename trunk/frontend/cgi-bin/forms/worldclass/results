@@ -129,7 +129,7 @@ EOF
 		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 		print <<EOF;
-				<th class="score">Avg.</th>
+				<th class="score">AVG</th>
 				<th class="tiebreaker">TB</th>
 			</tr>
 EOF
