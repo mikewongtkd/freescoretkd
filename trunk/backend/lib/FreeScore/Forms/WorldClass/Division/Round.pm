@@ -247,9 +247,9 @@ sub calculate_means {
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
 		my $punitive_decision = $self->form_has_punitive_decision( $form );
 		if( $punitive_decision ) {
-			$self->{ adjusted }{ total }        = sprintf( "%.3f", 0.0 );
-			$self->{ adjusted }{ presentation } = sprintf( "%.3f", 0.0 );
-			$self->{ total }                    = sprintf( "%.3f", 0.0 );
+			$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", 0.0 );
+			$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", 0.0 );
+			$self->{ total }                    = 0.0 + sprintf( "%.2f", 0.0 );
 			last;
 		}
 
@@ -290,13 +290,14 @@ sub calculate_means {
 		$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
 		my @mean = (
-			accuracy     => sprintf( "%.3f", $stats->{ sumacc }),
-			presentation => sprintf( "%.3f", $stats->{ sumpre })
+			accuracy     => 0.0 + sprintf( "%.2f", $stats->{ sumacc }),
+			presentation => 0.0 + sprintf( "%.2f", $stats->{ sumpre })
 		);
 		my $adjusted = { @mean };
 		my $allscore = { @mean };
 
 		# ===== CALCULATE ADJUSTED MEANS
+		# For 5 or more judges, drop the highs & lows and take the mean
 		if( $judges >= 5 ) {
 			$adjusted->{ accuracy }     -= ($stats->{ minacc } + $stats->{ maxacc });
 			$adjusted->{ presentation } -= ($stats->{ minpre } + $stats->{ maxpre });
@@ -307,12 +308,14 @@ sub calculate_means {
 			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
 			
-			$adjusted->{ accuracy }     = $adjusted->{ accuracy };
-			$adjusted->{ presentation } = $adjusted->{ presentation };
-
+		# For fewer than 5 judges, take the mean (no outlier filtering)
 		} else {
 			$adjusted = { map { $_ => $adjusted->{ $_ }/$judges } keys %$adjusted };
 		}
+
+		# ===== ROUND TO TWO DECIMAL PRECISION
+		$adjusted->{ accuracy }     = 0.0 + sprintf( "%.2f", $adjusted->{ accuracy });
+		$adjusted->{ presentation } = 0.0 + sprintf( "%.2f", $adjusted->{ presentation });
 
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
@@ -333,7 +336,8 @@ sub calculate_means {
 	}
 
 	# ===== CACHE CALCULATIONS
-	$self->{ adjusted } = { total => 0, presentation => 0 };
+	$self->{ adjusted } = { total => 0, accuracy => 0, presentation => 0 };
+	$self->{ allscore } = { total => 0 };
 
 	foreach my $mean (@$means) {
 		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
@@ -523,17 +527,37 @@ sub _compare {
 	if( ! defined $a ) { return  1; }
 	if( ! defined $b ) { return -1; }
 
-	my $at  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
-	my $aap = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ presentation });
-	my $aat = 0.0 + sprintf( "%.3f", $a->{ allscore }{ total });
-	my $bt  = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ total });
-	my $bap = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ presentation });
-	my $bat = 0.0 + sprintf( "%.3f", $b->{ allscore }{ total });
+	my $at   = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
+	my $aap  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ presentation });
+	my $aat  = 0.0 + sprintf( "%.3f", $a->{ allscore }{ total });
+	my $apun = _rank_punitive( $a );
+	my $bt   = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ total });
+	my $bap  = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ presentation });
+	my $bat  = 0.0 + sprintf( "%.3f", $b->{ allscore }{ total });
+	my $bpun = _rank_punitive( $b );
 
 	return
-		$bt  <=>  $at ||
-		$bap <=> $aap ||
-		$bat <=> $aat;
+		$bt   <=> $at   ||
+		$bap  <=> $aap  ||
+		$bat  <=> $aat  ||
+		$apun <=> $bpun;
+}
+
+# ============================================================
+sub _rank_punitive {
+# ============================================================
+	my $score    = shift;
+	my $decision = undef;
+
+	foreach my $form (@{ $score->{ forms }}) {
+		next unless( exists $form->{ decision });
+		$decision = $form->{ decision };
+		last;
+	}
+
+	return 0 unless defined $decision;
+	return 1 if exists $decision->{ withdraw }   && defined $decision->{ withdraw };
+	return 2 if exists $decision->{ disqualify } && defined $decision->{ disqualify };
 }
 
 # ============================================================

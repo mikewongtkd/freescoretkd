@@ -1266,40 +1266,42 @@ sub resolve_ties {
 	return unless( $xt == $yt && $xt != 0 );
 
 	my $json = new JSON::XS();
+  my $n    = int( @{$x->{ forms }});
 	my $xn   = $x->{ notes } ? $json->decode( $x->{ notes }) : {};
 	my $yn   = $y->{ notes } ? $json->decode( $y->{ notes }) : {};
 
-	my $xap  = sprintf( "%.3f", $x->{ adjusted }{ presentation });
-	my $yap  = sprintf( "%.3f", $y->{ adjusted }{ presentation });
+	my $xap  = sprintf( "%.3f", $x->{ adjusted }{ presentation } / $n);
+	my $yap  = sprintf( "%.3f", $y->{ adjusted }{ presentation } / $n);
 
-	if( $xap != $yap ) { 
-		if( $xap > $yap ) {
-			$xn->{ $b } = { results => 'win',  reason => "Pres. $xap" };
-			$yn->{ $a } = { results => 'loss', reason => "Pres. $yap" };
-		} else {
-			$xn->{ $b } = { results => 'loss', reason => "Pres. $xap" };
-			$yn->{ $a } = { results => 'win',  reason => "Pres. $yap" };
-		}
+	if( $xap > $yap ) {
+		$xn->{ $xap } = { results => 'win',  reason => "Pres. $xap" };
+		$yn->{ $yap } = { results => 'loss', reason => "Pres. $yap" };
 
-		$x->{ notes } = $json->canonical->encode( $xn );
-		$y->{ notes } = $json->canonical->encode( $yn );
-		return;
+	} elsif( $xap < $yap ) {
+		$xn->{ $xap } = { results => 'loss', reason => "Pres. $xap" };
+		$yn->{ $yap } = { results => 'win',  reason => "Pres. $yap" };
+
+	} else {
+		$xn->{ $xap } = { results => 'tie', reason => "Pres. $xap" };
+		$yn->{ $yap } = { results => 'tie', reason => "Pres. $yap" };
 	}
 
-	my $xat = sprintf( "%.3f", $x->{ allscore }{ total });
-	my $yat = sprintf( "%.3f", $y->{ allscore }{ total });
+	$x->{ notes } = $json->canonical->encode( $xn );
+	$y->{ notes } = $json->canonical->encode( $yn );
 
-	if( $xat != $yat ) { 
+	my $xat = sprintf( "%.3f", $x->{ allscore }{ total } / $n);
+	my $yat = sprintf( "%.3f", $y->{ allscore }{ total } / $n);
+
+	if( $xap == $yap ) { 
 		if( $xat > $yat ) {
-			$xn->{ $b } = { results => 'win',  reason => "Total $xat" };
-			$yn->{ $a } = { results => 'loss', reason => "Total $yat" };
+			$xn->{ $xat } = { results => 'win',  reason => "Total $xat" };
+			$yn->{ $yat } = { results => 'loss', reason => "Total $yat" };
 		} else {
-			$xn->{ $b } = { results => 'loss', reason => "Total $xat" };
-			$yn->{ $a } = { results => 'win',  reason => "Total $yat" };
+			$xn->{ $xat } = { results => 'loss', reason => "Total $xat" };
+			$yn->{ $yat } = { results => 'win',  reason => "Total $yat" };
 		}
 		$x->{ notes } = $json->canonical->encode( $xn );
 		$y->{ notes } = $json->canonical->encode( $yn );
-		return;
 	}
 }
 
