@@ -58,7 +58,7 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 720px;
+				width: 920px;
 				height: 20px;
 			}
 			.division .description {
@@ -71,7 +71,7 @@ print <<EOF;
 				page-break-inside: avoid;
 			}
 			.results table {
-				width: 720px;
+				width: 920px;
 			}
 			.results th {
 				margin-top: 8px;
@@ -81,24 +81,22 @@ print <<EOF;
 				text-align: left;
 			}
 			.results td       { padding: 2px 4px 2px 4px; }
-			.results .number  { width: 32px; }
-			.results .usat    { width: 80px; }
-			.results .noc     { width: 60px; }
-			.results .athlete { width: 408px; }
-			.results .form, .results .score, .results .place { width: 100px; text-align: center; }
+			.results .number  { width: 37px; }
+			.results .noc     { width: 63px; }
+			.results .athlete { width: 275px; }
+			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
-			.results .tiebreaker { width: 100px; text-align: center; }
-			.results .notes  { font-size: 9pt; width: 100px; }
+			.results .tiebreaker { width: 40px; text-align: center; }
+			.results .notes  { font-size: 9pt; width: 40px; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
 
 		</style>
 	</head>
 	<body>
-		<h1>$tournament->{ name }</h1>
-		<h2>World Class Forms Results</h2>
 EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
@@ -117,27 +115,12 @@ foreach my $division (@divisions) {
 			my $i = $places->[ $j ];
 			$placed->{ $i } = ordinal( $j + 1 );
 		}
-		print <<EOF;
-		<div class="results">
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
-		<table border=0 cellpadding=0 cellspacing=0>
-			<tr>
-				<th class="number">Rank</th>
-				<th class="noc">NOC</th>
-				<th class="athlete">Name</th>
-EOF
-		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
-		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
-		print <<EOF;
-				<th class="score">AVG</th>
-				<th class="tiebreaker">TB</th>
-			</tr>
-EOF
 		my $order = $division->{ order }{ $round };
 		my $n     = $#$order;
 
 		$division->place_athletes( $round );
 
+		my @results = ();
 		foreach my $i (0 .. $n) {
 			my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
 			my $athlete  = $division->{ athletes }[ $j ];
@@ -148,8 +131,12 @@ EOF
 			my $tb       = $athlete->{ scores }{ $round }{ notes };
 
 			if( $tb ) {
-				$tb = $json->decode( $tb );
-				$tb = join "\n", map { $tb->{ $_ }{ reason } } sort keys %$tb;
+				$tb  = $json->decode( $tb );
+				$tb  = [ map { $tb->{ $_ }{ reason } } sort keys %$tb ];
+				push @$tb, '&nbsp' if @$tb == 1;
+				$tb  = join "", map { "<td class=\"notes\">$_</td>" } @$tb;
+			} else {
+				$tb  = "<td class=\"notes\">&nbsp;</td><td class=\"notes\">&nbsp;</td>";
 			}
 
 			foreach my $j ( 0 .. 1 ) {
@@ -174,13 +161,29 @@ EOF
 				}
 				$sum += $mean->{ total };
 			}
-			print "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
-			print foreach @scores;
+			push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			push @results, @scores;
 			$n ||= 1;
-			printf( "<td class=\"score\">%s</td><td class=\"notes\">%s</td>", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );
-			print "</tr>\n";
+			push @results, sprintf( "<td class=\"score\">%s</td>%s", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );
+			push @results,  "</tr>\n";
 		}
+		print <<EOF;
+		<div class="results">
+		<img src="/images/branding/header-2.png">
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
+		<table border=0 cellpadding=0 cellspacing=0>
+			<tr>
+				<th class="number">Rank</th>
+				<th class="noc">NOC</th>
+				<th class="athlete">Name</th>
+EOF
+		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
+		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
+		print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB<sub>1</sub></th><th class=\"tiebreaker\">TB<sub>2</sub></th>"; 
+		print "</tr>";
+		print @results;
 		print "\t</table>\n";
+		print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( $n >= 20 || int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print "\t</div>\n";
 	}
 }

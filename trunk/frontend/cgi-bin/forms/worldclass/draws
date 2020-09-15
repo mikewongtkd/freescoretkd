@@ -55,7 +55,7 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 720px;
+				width: 920px;
 				height: 20px;
 			}
 			.division .description {
@@ -68,7 +68,7 @@ print <<EOF;
 				page-break-inside: avoid;
 			}
 			.results table {
-				width: 720px;
+				width: 920px;
 			}
 			.results th {
 				margin-top: 8px;
@@ -89,12 +89,11 @@ print <<EOF;
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
 
 		</style>
 	</head>
 	<body>
-		<h1>$tournament->{ name }</h1>
-		<h2>World Class Forms Division Draws</h2>
 EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
@@ -115,6 +114,7 @@ foreach my $division (@divisions) {
 
 		print <<EOF;
 		<div class="results">
+		<img src="/images/branding/header-2.png">
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
@@ -132,6 +132,7 @@ EOF
 			my $n       = 0;
 			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td></tr>\n";
 		}
+		print '<img class="footer-img"src="/images/branding/footer-2.png">' unless( $n >= 30 || int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print <<EOF;
 		</table>
 		</div>
