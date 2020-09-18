@@ -113,13 +113,11 @@ sub broadcast_division_response {
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
 		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
+		my $message   = $is_judge ? $division->message_for( $user->{ judge }) : $division->message();
+		my $digest    = _digest( $message );
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
+		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $message, request => $request }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
@@ -143,10 +141,8 @@ sub broadcast_division_judge_status {
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
 		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
+		my $message   = $is_judge ? $division->message_for( $user->{ judge }) : $division->message();
+		my $digest    = _digest( $message );
 
 		$user->{ device }->send( { json => { %$request }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
@@ -172,11 +168,9 @@ sub broadcast_ring_response {
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
 		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $progress );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
-		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
+		my $message   = $is_judge ? $division->message_for( $user->{ judge }): $progress->message();
+		my $digest    = _digest( $encoded );
+		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $message, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $message, request => $request };
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 		$user->{ device }->send( { json => $response });
@@ -214,15 +208,15 @@ sub handle_division_award_penalty {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $penalty  = join( ", ", grep { $request->{ penalties }{ $_ } > 0 } sort keys %{ $request->{ penalties }} );
-	my $message  = $penalty ? "Award $penalty penalty to $athlete->{ name }\n" : "Clear penalties for $athlete->{ name }\n";
+	my $comment  = $penalty ? "Award $penalty penalty to $athlete->{ name }\n" : "Clear penalties for $athlete->{ name }\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		$version->checkout( $division );
 		$division->record_penalties( $request->{ penalties });
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -243,9 +237,9 @@ sub handle_division_award_punitive {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $decision = $request->{ decision };
-	my $message  = "Award punitive decision $decision penalty to $athlete->{ name }\n";
+	my $comment  = "Award punitive decision $decision penalty to $athlete->{ name }\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	my $pause = { score => 9 };
 
@@ -253,7 +247,7 @@ sub handle_division_award_punitive {
 		$version->checkout( $division );
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		if( $request->{ decision } eq 'clear' ) {
 			$self->broadcast_division_response( $request, $progress, $clients );
@@ -271,7 +265,7 @@ sub handle_division_award_punitive {
 					$version->checkout( $division );
 					$division->next_available_athlete();
 					$division->write();
-					$version->commit( $division, $message );
+					$version->commit( $division, $comment );
 					$self->broadcast_division_response( $request, $progress, $clients );
 				}
 			);
@@ -293,15 +287,15 @@ sub handle_division_athlete_delete {
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
-	my $message  = "Deleting $athlete->{ name } from division\n";
+	my $comment  = "Deleting $athlete->{ name } from division\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		$version->checkout( $division );
 		$division->remove_athlete( $request->{ athlete_id } );
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -370,15 +364,15 @@ sub handle_division_clear_judge_score {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
-	my $message  = "Clearing $jname score for $athlete->{ name }\n";
+	my $comment  = "Clearing $jname score for $athlete->{ name }\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		$version->checkout( $division );
 		$division->clear_score( $request->{ judge } );
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -743,9 +737,9 @@ sub handle_division_pool_judge_ready {
 	my $athlete  = $division->current_athlete();
 	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
 	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
-	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
+	my $comment  = "  $jname is ready to score athlete $athlete->{ name }\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		my $size     = $request->{ size };          # Required parameter
@@ -778,9 +772,9 @@ sub handle_division_pool_resolve {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 
-	my $message  = "Manually invoking pool resolution\n";
+	my $comment  = "Manually invoking pool resolution\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		my $score = clone( $request->{ score } );
@@ -790,7 +784,7 @@ sub handle_division_pool_resolve {
 		$request->{ response } = $response;
 
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		my $round    = $division->{ round };
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
@@ -820,9 +814,9 @@ sub handle_division_pool_score {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
-	my $message  = "  $jname has scored for $athlete->{ name }\n";
+	my $comment  = "  $jname has scored for $athlete->{ name }\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		my $score = clone( $request->{ score } );
@@ -832,7 +826,7 @@ sub handle_division_pool_score {
 		$request->{ response } = $response;
 
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
 		if( $response->{ status } eq 'in-progress' ) { 
@@ -968,16 +962,16 @@ sub handle_division_score {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
-	my $message  = "  $jname score for $athlete->{ name }\n";
+	my $comment  = "  $jname score for $athlete->{ name }\n";
 
-	print STDERR $message if $DEBUG;
+	print STDERR $comment if $DEBUG;
 
 	try {
 		my $score = clone( $request->{ score } );
 		$version->checkout( $division );
 		$division->record_score( $request->{ cookie }{ judge }, $score );
 		$division->write();
-		$version->commit( $division, $message );
+		$version->commit( $division, $comment );
 
 		my $round    = $division->{ round };
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
@@ -1017,11 +1011,10 @@ sub handle_division_write {
 		if( $ring eq 'staging' ) { $division->{ file } = sprintf( "%s/%s/%s/%s/div.%s.txt",       $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } ); } 
 		else                     { $division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $ring, $division->{ name } ); }
 
-		my $message   = clone( $division );
-		my $unblessed = unbless( $message ); 
+		my $message  = $division->message();
 
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
-			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
+			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $message }});
 
 		} else {
 			$division->normalize();
@@ -1029,7 +1022,7 @@ sub handle_division_write {
 			$division->write();
 
 			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
-			$client->send( { json => {  type => 'division', action => 'write ok', division => $unblessed }});
+			$client->send( { json => {  type => 'division', action => 'write ok', division => $message }});
 
 			# ===== BROADCAST THE UPDATE
 			$self->broadcast_ring_response( $request, $progress, $clients );
@@ -1391,22 +1384,19 @@ sub send_division_response {
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-	my $unblessed = undef;
 	my $is_judge  = exists $request->{ cookie }{ judge } && defined $request->{ cookie }{ judge } && $request->{ cookie }{ judge } ne '' && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 
-	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
-	my $unblessed = unbless( $message ); 
-	my $encoded   = $json->canonical->encode( $unblessed );
-	my $digest    = sha1_hex( $encoded );
+	my $message   = $is_judge ? $division->message_for( $judge ) : $division->message();
+	my $digest    = _digest( $message );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 
 	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : $role) . "\n" if $DEBUG;
 	printf STDERR "    user: %s (%s) message: %s\n", $role, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $message, request => $request }});
 	$self->{ _last_state } = $digest;
 }
 
@@ -1421,21 +1411,18 @@ sub send_ring_response {
 	my $id        = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
-	my $unblessed = undef;
 	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
 	my $judge     = $is_judge ? int( $request->{ cookie }{ judge }) : undef;
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 
-	my $message   = clone( $progress );
-	my $unblessed = unbless( $message ); 
-	my $encoded   = $json->canonical->encode( $unblessed );
-	my $digest    = sha1_hex( $encoded );
+	my $message   = $progress->message();
+	my $digest    = _digest( $message );
 
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : $role) . "\n" if $DEBUG;
 	printf STDERR "    user: %s (%s) message: %s\n", substr( $id, 0, 4 ), $role, substr( $digest, 0, 4 ) if $DEBUG;
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
+	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $message, request => $request }});
 	$self->{ _last_state } = $digest;
 }
 
@@ -1797,6 +1784,14 @@ sub autopilot {
 		my $error = shift;
 
 	})->wait();
+}
+
+# ============================================================
+sub _digest {
+# ============================================================
+	my $message = shift;
+	my $json    = new JSON::XS();
+	return sha1_hex( $json->canonical->encode( $message ));
 }
 
 1;

@@ -9,6 +9,7 @@ use FreeScore::Forms::WorldClass::Division::Round::Score;
 use FreeScore::Forms::WorldClass::Division::Round::Pool;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
+use Data::Structure::Util qw( unbless );
 use Math::Round qw( round );
 use JSON::XS;
 use Try::Tiny;
@@ -242,77 +243,6 @@ sub from_json {
 }
 
 # ============================================================
-sub detect_ties {
-# ============================================================
-#** @method ()
-#   @brief Identifies ties in the current round.
-#*
-	my $self      = shift;
-	my $ties      = [];
-	my $round     = $self->{ round };
-	my $placement = $self->{ placement }{ $round };
-
-	# ===== DETECT TIES BY LOOKING AT PAIRS OF SCORES
-	my $i = 0;
-	my $k = int(@{$self->{ athletes }});
-	while( $i < $k ) {
-		my $a = $placement->[ $i ];
-		my $x = $self->{ athletes }[ $i ]{ scores }{ $round };
-
-		my $j = $i + 1;
-		while( $j < $k ) {
-			my $b = $placement->[ $j ];
-			my $y = $self->{ athletes }[ $j ]{ scores }{ $round };
-			if( exists $y->{ decision }{ withdraw } || exists $y->{ decision }{ disqualify } ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
-
-			my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
-
-			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
-			if( $comparison == 0 ) {
-				push @{ $ties->[ $i ]}, $j; 
-				$j++;
-
-			# ===== OTHERWISE LOOK AT NEXT PLACE
-			} else { last; }
-		}
-		$i = $j;
-	}
-
-	# ===== FILTER UNIMPORTANT TIES
-	$i = 0;
-	my $places   = $self->{ places };
-	my $medals   = $places->{ $round }[ $i ];
-	my $athletes = 0;
-	while( $i < $k && $medals ) {
-		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
-		elsif ( $athletes == 0     ) { $athletes  = 1; }
-
-		my $gave = $medals >= $athletes ? $athletes : $medals;
-
-		# ===== IF THERE ARE ENOUGH MEDALS, EACH ATHLETE GETS ONE MEDAL
-		# No need for a tie breaker
-		if( $medals >= $athletes ) {
-			$medals -= $athletes;
-			$athletes = 0;
-			$ties->[ $i ] = undef;
-
-		# ===== OTHERWISE GIVE AWAY ALL MEDALS; SOME ATHLETES WILL STILL NEED MEDALS
-		} else {
-			$athletes -= $medals;
-			$medals = 0;
-		}
-
-		$i += $gave;
-		$medals += $places->{ $round }[ $i ];
-	}
-
-	# ===== IGNORE ALL OTHER TIES
-	splice( @$ties, $i);
-
-	return $ties;
-}
-
-# ============================================================
 sub edit_athletes {
 # ============================================================
 	my $self  = shift;
@@ -379,17 +309,44 @@ sub first_form {
 	$self->{ form }  = 0;
 }
 
+# ============================================================
+sub is_flight {
+# ============================================================
+#** @method ()
+#   @brief Returns true if the division is a flight;
+#*
+	my $self = shift;
+	return exists $self->{ flight } && defined $self->{ flight } && $self->{ flight };
+}
 
 # ============================================================
-sub get_only {
+sub message {
+# ============================================================
+#** @method ()
+#   @brief Returns a clone of the division object, unblessed, with circular references removed
+#*
+	my $self  = shift;
+	my $clone = unbless $self->clone();
+
+	# Delete private variables (which can contain circular references );
+	foreach my $key (keys %$clone) { delete $clone->{ $key } if $key =~ /^_/; }
+
+	return $clone;
+}
+
+# ============================================================
+sub message_for {
 # ============================================================
 #** @method ( judge_index )
 #   @brief Erases all scores except the given judge; used prior to sending updates to a judge
 #*
 	my $self  = shift;
 	my $judge = shift;
-	my $clone = $self->clone();
+	my $clone = unbless $self->clone();
 	my $round = $clone->{ round };
+
+	# Delete private variables (which can contain circular references );
+	foreach my $key (keys %$clone) { delete $clone->{ $key } if $key =~ /^_/; }
 
 	foreach my $athlete (@{ $clone->{ athletes }}) {
 		$athlete->{ scores } = { $round => $athlete->{ scores }{ $round } }; # Prune all but the current round
@@ -402,13 +359,13 @@ sub get_only {
 }
 
 # ============================================================
-sub is_flight {
+sub method {
 # ============================================================
-#** @is_flight ()
-#   @brief Returns true if the division is a flight;
+#** @method ()
+#   @brief Returns the method of competition object
 #*
 	my $self = shift;
-	return exists $self->{ flight } && defined $self->{ flight } && $self->{ flight };
+	return $self->{ _method };
 }
 
 # ============================================================
@@ -794,7 +751,7 @@ sub read {
 	}
 
 	# ===== READ THE ATHLETE ASSIGNMENT FOR THE ROUND SUB-HEADER IN THE FILE
-	my $method        = $self->{ _method };
+	my $method        = $self->{ _method } ||= new FreeScore::Forms::WorldClass::Method::Cutoff( $self );
 	my $initial_order = {};
 	foreach my $round ($method->rounds()) {
 		next unless exists $order->{ $round };
@@ -885,7 +842,7 @@ sub update_status {
 #   @brief Determine athlete placements and tie detection
 #*
 	my $self   = shift;
-	my $method = $self->{ method };
+	my $method = $self->{ _method };
 	my $round  = $self->{ round };
 
 	# ===== CALCULATE SCORE MEANS FOR ALL ROUNDS
@@ -894,16 +851,6 @@ sub update_status {
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
 	$method->rank_athletes(); 
-	my $ties = $self->detect_ties();
-
-	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
-	foreach my $tie (@$ties) {
-		next unless ref $tie;
-		foreach my $i (@$tie) {
-			my $athlete = $self->{ athletes }[ $i ];
-			$self->assign_tiebreaker( $athlete );
-		}
-	}
 
 	$method->advance_athletes();
 }

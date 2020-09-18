@@ -1,6 +1,7 @@
 package FreeScore::Forms::WorldClass::Method::Cutoff;
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round;
+use List::Util qw( shuffle reduce );
 use base qw( FreeScore::Forms::WorldClass::Method );
 
 # ============================================================
@@ -23,9 +24,7 @@ sub advance_athletes {
 	my $n = int( @{ $div->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
-	my $flight_is_complete = $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged';
-
-	if( $flight_is_complete ) {
+	if( $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged' ) {
 		$div->{ flight }{ state } = 'complete';
 
 	} elsif( $round eq 'semfin' && $div->round_complete( 'prelim' )) {

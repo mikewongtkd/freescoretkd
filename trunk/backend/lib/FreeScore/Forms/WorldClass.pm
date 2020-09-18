@@ -6,6 +6,7 @@ use Clone qw( clone );
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max shuffle );
 use List::MoreUtils qw( first_index );
+use Data::Structure::Util qw( unbless );
 use Math::Utils qw( ceil );
 use File::Slurp qw( read_file );
 use JSON::XS;
@@ -171,6 +172,20 @@ sub merge_division {
 	$merged->{ athletes } = [ shuffle @advance ]; # Merge athletes in random order
 	delete $merged->{ flight }; # The merged division is no longer a flight;
 	$merged->write();
+}
+
+# ============================================================
+sub message {
+# ============================================================
+	my $self  = shift;
+	my $clone = unbless( clone( $self ));
+
+	# Delete private variables which may contain circular references
+	foreach my $div (@{ $clone->{ divisions }}) {
+		foreach my $key (keys %$div) { delete $div->{ $key } if $key =~ /^_/; }
+	}
+
+	return $clone;
 }
 
 # ============================================================

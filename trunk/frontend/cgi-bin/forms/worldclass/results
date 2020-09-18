@@ -96,10 +96,12 @@ print <<EOF;
 		<h1>$tournament->{ name }</h1>
 		<h2>World Class Forms Results</h2>
 EOF
+
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
-	@rounds = reverse @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	my $method = $division->method();
+	@rounds = reverse $method->rounds() unless @rounds;
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };

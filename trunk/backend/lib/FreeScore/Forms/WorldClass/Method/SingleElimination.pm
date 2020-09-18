@@ -1,4 +1,4 @@
-package FreeScore::Forms::WorldClass::Method::Cutoff;
+package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round;
 use base qw( FreeScore::Forms::WorldClass::Method );
@@ -13,7 +13,9 @@ sub init {
 	$self->{ rounds } = [ qw( ro64 ro32 ro16 ro8 ro4 ro2 ) ];
 }
 
+# ============================================================
 sub advance_athletes {
+# ============================================================
 	my $self = shift;
 	my $div  = $self->{ div };
 
@@ -21,23 +23,7 @@ sub advance_athletes {
 	my $n = int( @{ $div->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
-	if     (($round eq 'prelim' || $round eq 'semfin') && $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged' ) {
-		$div->{ flight }{ state } = 'complete';
-
-	} elsif( $round eq 'semfin' && $div->round_complete( 'prelim' )) {
-
-		# Skip if athletes have already been assigned to the semi-finals
-		my $semfin = $div->{ order }{ semfin };
-		return if( defined $semfin && int( @$semfin ) > 0 );
-
-		# Semi-final round goes in random order
-		my $half       = int( ($n-1)/2 );
-		my @candidates = @{ $div->{ placement }{ prelim }};
-		my @eligible   = $div->eligible_athletes( 'prelim', @candidates );
-		my @order      = shuffle (@eligible[ 0 .. $half ]);
-		$div->assign( $_, 'semfin' ) foreach @order;
-
-	} elsif( $method eq 'combination' && $round eq 'final1' && $div->round_complete( 'semfin' )) {
+	if( $round eq 'final1' && $div->round_complete( 'semfin' )) {
 		# Skip if athletes have already been assigned to the finals
 		my $finals = $div->{ order }{ final1 };
 		return if( defined $finals && int( @$finals ) > 0 );
@@ -49,7 +35,7 @@ sub advance_athletes {
 		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
 		$div->distribute_evenly( 'final1', \@order );
 
-	} elsif( $method eq 'combination' && $round eq 'final2' && $div->round_complete( 'final1' )) {
+	} elsif( $round eq 'final2' && $div->round_complete( 'final1' )) {
 		# Skip if athletes have already been assigned to the finals
 		my $finals = $div->{ order }{ final2 };
 		return if( defined $finals && int( @$finals ) > 0 );
@@ -65,26 +51,14 @@ sub advance_athletes {
 			$div->assign( $winner, $final2 );
 		}
 
-	} elsif( $method eq 'combination' && $round eq 'final3' && $div->round_complete( 'final2' )) {
+	} elsif( $round eq 'final3' && $div->round_complete( 'final2' )) {
 		# Skip if athletes have already been assigned to the finals
 		my $finals = $div->{ order }{ ro2 };
 		return if( defined $finals && int( @$finals ) > 0 );
 
 		# TODO: Use bracket variable to determine winner of finals2 to move them to finals3
 
-	} elsif( $round eq 'finals' && $div->round_complete( 'semfin' )) { 
-		# Skip if athletes have already been assigned to the finals
-		my $finals = $div->{ order }{ finals };
-		return if( defined $finals && int( @$finals ) > 0 );
-
-		# Finals go in reverse placement order of semi-finals
-		my $k          = $n > 8 ? 7 : ($n - 1);
-		my @candidates = @{ $div->{ placement }{ semfin }};
-		my @eligible   = $div->eligible_athletes( 'semfin', @candidates );
-		my @order      = reverse (@eligible[ 0 .. $k ]);
-		$div->assign( $_, 'finals' ) foreach @order;
 	}
-
 }
 
 # ============================================================

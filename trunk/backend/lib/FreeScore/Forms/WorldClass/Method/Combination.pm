@@ -1,4 +1,4 @@
-package FreeScore::Forms::WorldClass::Method::Cutoff;
+package FreeScore::Forms::WorldClass::Method::Combination;
 use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round;
 use base qw( FreeScore::Forms::WorldClass::Method );
