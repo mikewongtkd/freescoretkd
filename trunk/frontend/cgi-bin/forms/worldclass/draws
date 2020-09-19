@@ -14,6 +14,7 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
+my $head_ref   = $cgi->param( 'head_ref');
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
@@ -125,13 +126,14 @@ foreach my $division (@divisions) {
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ order }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
+			my $j        = $division->{ order }{ $round }[ $i ];
+			my $athlete  = $division->{ athletes }[ $j ];
 			$athlete -> { name } =~ s/\(CORRECTED\)//;
-			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $sum     = 0.0;
-			my $n       = 0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td></tr>\n";
+			my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $sum      = 0.0;
+			my $n        = 0;
+			my $decision = ( defined $head_ref ) ? ($json->decode( $athlete->{ info }{ video })->{ $round }[ 0 ]{ decision } // "&emsp;-&emsp;" ) : "";
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }<span style=\"float:right; margin-right:50px\">$decision</span></td></tr>\n";
 		}
 		print '<img class="footer-img"src="/images/branding/footer-2.png">' unless( $n >= 30 || int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print <<EOF;
