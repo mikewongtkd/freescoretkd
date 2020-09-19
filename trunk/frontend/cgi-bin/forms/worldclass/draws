@@ -127,6 +127,7 @@ EOF
 		foreach my $i (0 .. $n) {
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
+			$athlete -> { name } =~ s/\(CORRECTED\)//;
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
 			my $n       = 0;

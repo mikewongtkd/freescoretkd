@@ -124,6 +124,7 @@ foreach my $division (@divisions) {
 		foreach my $i (0 .. $n) {
 			my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
 			my $athlete  = $division->{ athletes }[ $j ];
+			$athlete -> { name } =~ s/\(CORRECTED\)//;
 			my $sum      = 0.0;
 			my $n        = 0;
 			my $punitive = undef;
@@ -179,11 +180,11 @@ foreach my $division (@divisions) {
 EOF
 		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
-		print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB<sub>1</sub></th><th class=\"tiebreaker\">TB<sub>2</sub></th>"; 
+		print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>"; 
 		print "</tr>";
 		print @results;
 		print "\t</table>\n";
-		print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( $n >= 20 || int( @divisions ) > 1 || int( @rounds ) > 1 );
+		print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print "\t</div>\n";
 	}
 }
