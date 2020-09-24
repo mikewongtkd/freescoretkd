@@ -365,8 +365,11 @@ sub pool_judge_ready {
 	my $k       = $self->{ judges };
 	my $athlete = $self->current_athlete();
 	my $pool    = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
+	my $jid     = $judge->{ id };
+	my $status  = exists $pool->{ $jid } ? $pool->{ $jid }{ status } : undef;
 
-	$pool->{ $judge->{ id }} = { judge => $judge, status => 'ready' };
+	$pool->{ $jid }{ status } = 'ready' unless $status eq 'scored';
+	$pool->{ $jid }{ judge }  = $judge;
 
 	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
 	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
@@ -387,6 +390,7 @@ sub record_pool_score {
 	return unless $score->{ judge }{ id };
 
 	my $judge   = $score->{ judge };
+	my $jid     = $judge->{ id };
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
 	my $size    = $self->{ poolsize };
@@ -416,7 +420,7 @@ sub record_pool_score {
 	};
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	$athlete->{ pool }{ $round }{ $judge->{ id }} = $score;
+	$athlete->{ pool }{ $round }{ $jid } = $score;
 	my $have    = int( keys %{ $athlete->{ pool }{ $round }});
 
 	if( $have == $size ) {
@@ -472,7 +476,7 @@ sub resolve_pool {
 		return { status => 'fail', solution => 'discuss-disqualify', votes => $votes };
 
 	# ===== CASE 2: SUFFICIENT SCORES
-	} elsif( $votes->{ have }{ ok } >= $k ) {
+	} elsif( $votes->{ have }{ ok } == $n ) {
 
 		# ===== IF THE POOL HAS BEEN PREVIOUSLY RESOLVED, KEEP PREVIOUS RESULTS AND RETURN VOTES
 		if( $athlete->{ complete }{ $round }) { return { status => 'success', votes => $votes }; }
@@ -483,7 +487,6 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
-			print STDERR Dumper $pool_score;
 			my $score = { 
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
@@ -525,7 +528,6 @@ sub resolve_pool {
 		print STDERR "Invalid count of dropped judges.\n"; # MW
 		my @valid  = map { $_->{ judge }{ id } } (@$valid);
 		my @repeat = map { $_->{ judge }{ id } } (@$bad);
-		print STDERR Dumper \@valid;
 
 		return { status => 'fail', details => 'Invalid count of dropped judges', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
 	}
