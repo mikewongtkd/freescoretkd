@@ -150,6 +150,7 @@ sub calculate_placements {
 		$j->{ adjusted }{ $round }{ total  }    <=> $i->{ adjusted }{ $round }{ total  }    ||
 		$j->{ adjusted }{ $round }{ technical } <=> $i->{ adjusted }{ $round }{ technical } ||
 		$j->{ original }{ $round }{ total  }    <=> $i->{ original }{ $round }{ total  }
+
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };

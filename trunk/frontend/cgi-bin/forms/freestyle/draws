@@ -117,32 +117,16 @@ foreach my $division (@divisions) {
 				<th class="number">#</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
-EOF
-		print "<th class=\"form\">Score</th>";
-		print <<EOF;
-				<th class=\"form\">TB</th>
 			</tr>
 EOF
-		my $n = $#{$division->{ placements }{ $round }};
+		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
+			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
 			# MW Check for DSQ and WDR
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
-			my $score = $athlete->{ adjusted }{ $round };
-			if( exists $score->{ decision } ) {
-				my $codes = { disqualify => 'DQ', withdraw => 'WD' };
-				foreach my $decision (keys %$codes) {
-					printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } ) if( $score->{ decision }{ $decision } );
-				}
-			} else {
-				printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
-			}
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-			else { print "<td>&ndash;</td>"; }
-			print "</tr>\n";
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td></tr>";
 		}
 		print "</table>";
     print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( int( @divisions ) > 1 || int( @rounds ) > 1 );

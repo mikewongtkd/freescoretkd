@@ -124,6 +124,7 @@ sub read_tournament_config {
 # ============================================================
 	my $php = '';
 	my $config = [
+		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
 		'/var/www/html/freescore/include/php/config.php',
 		'/var/www/html/include/php/config.php',
 		'/var/www/freescore/include/php/config.php',
