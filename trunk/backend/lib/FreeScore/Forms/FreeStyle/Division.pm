@@ -392,8 +392,8 @@ sub record_pool_score {
 	my $judge   = $score->{ judge };
 	my $jid     = $judge->{ id };
 	my $round   = $self->{ round };
-	my $form    = $self->{ form };
-	my $size    = $self->{ poolsize };
+	my $n       = $self->{ poolsize };
+	my $k       = $self->{ judges };
 	my $athlete = $self->current_athlete();
 	my $pool    = $athlete->{ pool }{ $round };
 	my $safety    = { margin => ($n - $k)};
@@ -421,9 +421,9 @@ sub record_pool_score {
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$athlete->{ pool }{ $round }{ $jid } = $score;
-	my $have    = int( keys %{ $athlete->{ pool }{ $round }});
+	my $have = int( grep { $_->{ status } eq 'scored' } values %{ $athlete->{ pool }{ $round }});
 
-	if( $have == $size ) {
+	if( $have == $n ) {
 		my $result = $self->resolve_pool();
 		return $result;
 	} else {
@@ -476,7 +476,7 @@ sub resolve_pool {
 		return { status => 'fail', solution => 'discuss-disqualify', votes => $votes };
 
 	# ===== CASE 2: SUFFICIENT SCORES
-	} elsif( $votes->{ have }{ ok } == $n ) {
+	} elsif( $votes->{ have }{ ok } >= $k ) {
 
 		# ===== IF THE POOL HAS BEEN PREVIOUSLY RESOLVED, KEEP PREVIOUS RESULTS AND RETURN VOTES
 		if( $athlete->{ complete }{ $round }) { return { status => 'success', votes => $votes }; }
