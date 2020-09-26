@@ -241,7 +241,16 @@ sub calculate_scores {
 				$subtotal += $score->{ $category }{ $_ } foreach (sort keys %{ $score->{ $category }});
 				$original->{ $category } += $subtotal;
 			}
-			$original->{ technical } -= ($score->{ deductions }{ major } + $score->{ deductions }{ minor });
+
+			# First deduct from presentation
+			$original->{ presentation } -= ($score->{ deductions }{ major } + $score->{ deductions }{ minor });
+
+			# Then deduct from technical
+			if( $original->{ presentation } < 0 ) { 
+				$original->{ technical } += $original->{ presentation };
+				$original->{ presentation } = 0;
+			}
+			$original->{ technical } = 0 if( $original->{ technical } <= 0 );
 		}
 		$original->{ total } = ($original->{ technical } + $original->{ presentation });
 
@@ -253,8 +262,12 @@ sub calculate_scores {
 
 		# ===== ADJUST SCORES FOR LARGER COURTS
 		} else { 
-			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
-			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation });
+			my $results = _drop_hilo( $scores, $n );
+			$adjusted->{ technical }    = $results->{ technical };
+			$adjusted->{ presentation } = $results->{ presentation };
+			$adjusted->{ min }          = $results->{ min };
+			$adjusted->{ max }          = $results->{ max };
+			$adjusted->{ total }        = ($adjusted->{ technical } + $adjusted->{ presentation });
 		}
 	}
 }
@@ -596,7 +609,6 @@ sub record_decision {
 	} else {
 		$athlete->{ decision }{ $round } = $decision;
 		$athlete->{ complete }{ $round } = 1;
-		print STDERR Dumper $athlete;
 	}
 }
 
@@ -677,28 +689,46 @@ sub write {
 # ============================================================
 sub _drop_hilo {
 # ============================================================
-	my $scores   = shift;
-	my $category = shift;
-	my $n        = shift;
+	my $scores    = shift;
+	my $n         = shift;
 
 	my @subtotals = map { 
-		my $subcats  = $_->{ $category }; 
-		my $subtotal = reduce { $a += $subcats->{ $b }; } 0.0, keys %$subcats;
-		if( $category eq 'technical' ) {
-			my $major    = $_->{ deductions }{ major };
-			my $minor    = $_->{ deductions }{ minor };
-			$subtotal   -= ($major + $minor);
-		}
-		$subtotal;
-	} @$scores;
-	my ($min, $max) = minmax @subtotals;
-	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
-	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
-	my $sum = reduce { $a += $b } 0, @subtotals;
-	$sum -= $min + $max;
-	$sum /= $n;
+		my $tech     = $_->{ technical };
+		my $pres     = $_->{ presentation };
+		my $tech_sum = reduce { $a + $b } (0.0, (map { $tech->{ $_ } } keys %$tech));
+		my $pres_sum = reduce { $a + $b } (0.0, (map { $pres->{ $_ } } keys %$pres));
+		my $major    = $_->{ deductions }{ major };
+		my $minor    = $_->{ deductions }{ minor };
 
-	return ($sum, $i, $j);
+		# Deduct from presentation first
+		$pres_sum   -= ($major + $minor);
+
+		# Deduct from 
+		if( $pres_sum <= 0 ) {
+			$tech_sum += ($pres_sum);
+			$pres_sum  = 0;
+		}
+
+		$tech_sum = 0 if $tech_sum <= 0;
+		
+		{ presentation => $pres_sum, technical => $tech_sum };
+	} @$scores;
+
+	my $adjusted = {};
+	foreach my $category ( qw( technical presentation )) {
+		my @cat_subs = map { $_->{ $category }} @subtotals;
+		my ($min, $max) = minmax @cat_subs;
+		my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @cat_subs;
+		my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @cat_subs;
+		my $sum = reduce { $a + $b } 0, @cat_subs;
+		$sum -= $min + $max;
+		$sum /= $n;
+		$adjusted->{ $category }        = $sum;
+		$adjusted->{ min }{ $category } = $i;
+		$adjusted->{ max }{ $category } = $j;
+	}
+
+	return $adjusted;
 }
 
 # ============================================================
