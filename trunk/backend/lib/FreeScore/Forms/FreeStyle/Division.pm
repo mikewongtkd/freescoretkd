@@ -147,6 +147,11 @@ sub calculate_placements {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
+		my $dec_value  = { 'disqualify' => -2, 'withdraw' => -1 };
+		my $i_decision = exists( $i->{ decision }) && exists( $i->{ decision }{ $round }) ? $dec_value->{ $i->{ decision }{ $round }} : 0;
+		my $j_decision = exists( $j->{ decision }) && exists( $j->{ decision }{ $round }) ? $dec_value->{ $j->{ decision }{ $round }} : 0;
+
+		$j_decision                             <=> $i_decision                             ||
 		$j->{ adjusted }{ $round }{ total  }    <=> $i->{ adjusted }{ $round }{ total  }    ||
 		$j->{ adjusted }{ $round }{ technical } <=> $i->{ adjusted }{ $round }{ technical } ||
 		$j->{ original }{ $round }{ total  }    <=> $i->{ original }{ $round }{ total  }
@@ -223,9 +228,9 @@ sub calculate_scores {
 
 	foreach my $athlete (@{$self->{ athletes }}) {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
-		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $penalties = reduce { $a + $b } map { $athlete->{ penalty }{ $round }{ $_ } } (qw( time bounds restart ));
+		my $original  = $athlete->{ original }{ $round } = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
+		my $adjusted  = $athlete->{ adjusted }{ $round } = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
+		my $penalties = reduce { $a + $b } (map { $athlete->{ penalty }{ $round }{ $_ } } (qw( time bounds restart )));
 		my $punitive  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } && ($athlete->{ decision }{ $round } eq 'disqualify' || $athlete->{ decision }{ $round } eq 'withdraw');
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
