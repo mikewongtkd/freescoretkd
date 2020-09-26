@@ -189,14 +189,28 @@ sub handle_division_award_punitive {
 	my $progress = shift;
 	my $clients  = shift;
 	my $judges   = shift;
+	my $version  = new FreeScore::RCS();
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	print STDERR "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n" if $DEBUG;
+	my $message  = "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n";
+
+	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
 		$division->write();
+		$version->commit( $division, $message );
+
+		my $athlete  = $division->current_athlete();
+		my $round    = $division->{ round };
+		my $complete = $athlete->{ complete }{ $round };
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {

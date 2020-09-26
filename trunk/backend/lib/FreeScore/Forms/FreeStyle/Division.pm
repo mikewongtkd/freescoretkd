@@ -186,7 +186,7 @@ sub calculate_round {
 
 			# Advance athletes from previous round
 			if( exists $order->{ 'prelim' } && ref( $order->{ 'prelim' }) eq 'ARRAY' && @{ $order->{ 'prelim' }} ) {
-				my @eligible       = _not_disqualified( $self->{ athletes }, $placements->{ 'prelim' } );
+				my @eligible       = _not_disqualified( $self->{ athletes }, 'prelim', $placements->{ 'prelim' } );
 				my $n              = ceil( int( @eligible )/2 ); # Advance the top half of division, rounded up
 				@eligible          = splice( @eligible, 0, $n );
 				$order->{ $round } = [ shuffle( @eligible ) ];
@@ -200,7 +200,7 @@ sub calculate_round {
 
 			# Advance athletes from previous round
 			if( exists $order->{ 'semfin' } && ref( $order->{ 'semfin' }) eq 'ARRAY' && @{ $order->{ 'semfin' }} ) {
-				my @eligible       = _not_disqualified( $self->{ athletes }, $placements->{ 'semfin' } );
+				my @eligible       = _not_disqualified( $self->{ athletes }, 'semfin', $placements->{ 'semfin' } );
 				@eligible          = splice( @eligible, 0, 8 );
 				$order->{ $round } = [ reverse @eligible ];
 
@@ -225,10 +225,15 @@ sub calculate_scores {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
+		my $penalties = reduce { $a + $b } map { $athlete->{ penalty }{ $round }{ $_ } } (qw( time bounds restart ));
+		my $punitive  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } && ($athlete->{ decision }{ $round } eq 'disqualify' || $athlete->{ decision }{ $round } eq 'withdraw');
 
-		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
+		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
+		if( (@$scores == $k && all { defined $_ } @$scores) || $punitive ) { 
+			$athlete->{ complete }{ $round } = 1; 
+		} else { 
+			delete $athlete->{ complete }{ $round }; next; 
+		}
 
 		foreach my $score (@$scores) {
 			foreach my $category (qw( presentation technical )) {
@@ -573,10 +578,26 @@ sub record_decision {
 	my $i        = shift;
 	my $athletes = $self->{ athletes };
 	my $round    = $self->{ round };
+	my $athlete  = $self->current_athlete();
 
-	return unless $i >= 0 && $i < @$athletes;
-	$athletes->[ $i ]{ decision }{ $round } = $decision;
-	$athletes->[ $i ]{ complete }{ $round } = 1;
+	return unless $athlete;
+	if( $decision eq 'clear' ) {
+		delete $athlete->{ decision }{ $round };
+		$athlete->{ complete }{ $round } = 0;
+		my $pool = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
+
+		foreach my $judge (values %$pool) {
+			next unless exists $judge->{ video };
+			next unless exists $judge->{ video }{ feedback };
+			next unless $judge->{ video }{ feedback } eq 'dsq' || $judge->{ video }{ feedback } eq 'wdr';
+			$judge->{ video }{ feedback } = 'ok';
+		}
+
+	} else {
+		$athlete->{ decision }{ $round } = $decision;
+		$athlete->{ complete }{ $round } = 1;
+		print STDERR Dumper $athlete;
+	}
 }
 
 # ============================================================
@@ -684,10 +705,11 @@ sub _drop_hilo {
 sub _not_disqualified {
 # ============================================================
 	my $athletes = shift;
+	my $round    = shift;
 	my $group    = shift;
 	return grep {
 		my $athlete = $athletes->[ $_ ];
-		! exists $athlete->{ decision } || ! $athlete->{ decision } =~ /^disqual/i
+		! exists $athlete->{ decision } || ! exists $athlete->{ decision }{ $round } || ! $athlete->{ decision }{ $round } =~ /^disqual/i
 	} @$group;
 }
 
