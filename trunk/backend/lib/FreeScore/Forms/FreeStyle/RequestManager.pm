@@ -1058,7 +1058,7 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $cycle    = $division->{ autodisplay } || 2;
+	my $cycle    = $division->{ autodisplay } || 1;
 	my $round    = $division->{ round };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
@@ -1073,7 +1073,7 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { leaderboard => 9, next => 12, brief => 1 };
+	my $pause = { leaderboard => 8, next => 10, brief => 1 };
 	my $j     = first_index { $division->{ current } == $_ } @{ $division->{ order }{ $round }};
 	my $n     = $#{ $division->{ order }{ $round }};
 

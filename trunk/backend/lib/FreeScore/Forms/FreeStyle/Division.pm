@@ -391,8 +391,10 @@ sub pool_judge_ready {
 	my $jid     = $judge->{ id };
 	my $status  = exists $pool->{ $jid } ? $pool->{ $jid }{ status } : undef;
 
-	$pool->{ $jid }{ status } = 'ready' unless $status eq 'scored';
-	$pool->{ $jid }{ judge }  = $judge;
+	if( $status ne 'scored' ) {
+		$pool->{ $jid }{ status } = 'ready';
+		$pool->{ $jid }{ judge }  = $judge;
+	}
 
 	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
 	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
