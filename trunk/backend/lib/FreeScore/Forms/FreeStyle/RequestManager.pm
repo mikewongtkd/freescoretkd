@@ -192,6 +192,7 @@ sub handle_division_award_punitive {
 	my $version  = new FreeScore::RCS();
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $decision = $request->{ decision };
 
 	my $message  = "Award punitive decision $request->{ decision } to $request->{ athlete_id }.\n";
 
@@ -199,20 +200,22 @@ sub handle_division_award_punitive {
 
 	try {
 		$version->checkout( $division );
-		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
+		$division->record_decision( $decision, $request->{ athlete_id });
 		$division->write();
 		$version->commit( $division, $message );
 
-		my $athlete  = $division->current_athlete();
-		my $round    = $division->{ round };
-		my $complete = $athlete->{ complete }{ $round };
+		if( $decision ne 'clear' ) {
+			my $athlete  = $division->current_athlete();
+			my $round    = $division->{ round };
+			my $complete = $athlete->{ complete }{ $round };
 
-		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
-		die $autopilot->{ error } if exists $autopilot->{ error };
-
+			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+			print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+			my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+			die $autopilot->{ error } if exists $autopilot->{ error };
+		}
 		$self->broadcast_division_response( $request, $progress, $clients );
+
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

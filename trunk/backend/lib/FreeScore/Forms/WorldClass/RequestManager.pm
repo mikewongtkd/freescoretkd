@@ -255,12 +255,7 @@ sub handle_division_award_punitive {
 		$division->write();
 		$version->commit( $division, $message );
 
-		if( $request->{ decision } eq 'clear' ) {
-			$self->broadcast_division_response( $request, $progress, $clients );
-
-		} else {
-			my $delay = shift;
-
+		if( $request->{ decision } ne 'clear' ) {
 			my $round    = $division->{ round };
 			my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 			my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
@@ -269,9 +264,9 @@ sub handle_division_award_punitive {
 			print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 			my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 			die $autopilot->{ error } if exists $autopilot->{ error };
-
-			$self->broadcast_division_response( $request, $progress, $clients );
 		}
+		$self->broadcast_division_response( $request, $progress, $clients );
+
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
