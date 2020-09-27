@@ -81,13 +81,13 @@ print <<EOF;
 				text-align: left;
 			}
 			.results td       { padding: 2px 4px 2px 4px; }
-			.results .number  { width: 37px; }
+			.results .number  { width: 37px; text-align: center; }
 			.results .noc     { width: 63px; }
 			.results .athlete { width: 275px; }
 			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
 			.results .tiebreaker { width: 40px; text-align: center; }
-			.results .notes  { font-size: 9pt; width: 40px; }
+			.results .notes  { font-size: 9pt; width: 40px; text-align: center; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
@@ -162,7 +162,7 @@ foreach my $division (@divisions) {
 				}
 				$sum += $mean->{ total };
 			}
-			push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '') . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
 			push @results, @scores;
 			$n ||= 1;
 			push @results, sprintf( "<td class=\"score\">%s</td>%s", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );

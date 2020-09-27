@@ -4,6 +4,11 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use Data::Dumper;
+use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
+use List::MoreUtils qw( first_index );
+use Clone qw( clone );
+use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::FreeStyle;
@@ -15,7 +20,6 @@ my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
 my @rounds     = ($cgi->param( 'round' ));
 my @divisions  = ();
-my $results    = undef;
 
 try {
 	if( defined $ring ) {
@@ -75,19 +79,19 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results .number    { width: 32px; }
-			.results .noc      { width: 40px; }
+			.results .number    { width: 37px; text-align: center; }
+			.results .noc       { width: 63px; }
 			.results .athlete   { width: 608px; }
 			.results .form      { width: 100px; text-align: center; }
-
+			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
 			.results td         { padding: 2px 4px 2px 4px; }
-			.results td.score   { text-align: center; }
+			.results td .score  { text-align: center; }
 			.results td .preacc { font-size: 8pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-      .results .footer-img { position: absolute; bottom: 0; width: 920px; }
+     			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
 
 		</style>
 	</head>
@@ -103,10 +107,14 @@ foreach my $division (@divisions) {
 		my $placed = {};
 		my $i      = 0;
 		my $places = $division->{ placements }{ $round };
-		foreach my $j ( 0 .. $#$places ) {
-			my $i = $places->[ $j ];
-			$placed->{ $i } = ordinal( $j + 1 );
-		}
+		#foreach my $j ( 0 .. $#$places ) {
+		#	my $i = $places->[ $j ];
+		#	$placed->{ $i } = ordinal( $j + 1 );
+		#}
+		#my $order = $division->{ order }{ $round };
+		#my $n	  = $#$order;
+
+		#$division->place_athletes( $round );
 
 		print <<EOF;
 		<div class="results">
@@ -114,39 +122,114 @@ foreach my $division (@divisions) {
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
-				<th class="number">#</th>
+				<th class="number">Rank</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
 EOF
 		print "<th class=\"form\">Score</th>";
 		print <<EOF;
-				<th class=\"form\">TB</th>
+				<th class=\"form\">TB1</th>
+				<th class=\"form\">TB2</th>
 			</tr>
 EOF
 		my $n = $#{$division->{ placements }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $sum     = 0.0;
+			my $j        = $division->{ placements }{ $round }[ $i ]; next unless defined( $j );
+			my $athlete  = $division->{ athletes }[ $j ];
+			$athlete -> { name } =~ s/\(CORRECTED\)//;
+			my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $sum      = 0.0;
+			#my $n	     = 0;
+			#my $punitive = undef;
+			#my @scores   = ();
+			#my $tb	     = $athlete->{ scores }{ $round }{ notes };
+			
+			#if( $tb ) {
+			#	$tb  = $json->decode( $tb );
+			#	$tb  = [ map { $tb->{ $_ }{ reason } } sort keys %$tb ];
+			#	push @$tb, '&nbsp' if @$tb ==1;
+			#	$tb  = join "", map { "<td class=\"notes\">$_</td>" } @$tb;
+			#} else {
+			#	$tb  = "<td class=\"notes\">&nbsp;</td><td class=\"notes\">&nbsp;</td";
+			#}
+
 			# MW Check for DSQ and WDR
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
 			if( exists $score->{ decision } ) {
-				my $codes = { disqualify => 'DQ', withdraw => 'WD' };
+				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 				foreach my $decision (keys %$codes) {
+					next unless $score->{ decision }{ $decision };
+					$punitive = $codes->{ $decision };
+					#push @scores, "<td class=\"score\">&ndash;</td>";
 					printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } ) if( $score->{ decision }{ $decision } );
 				}
 			} else {
+				#push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } );
 				printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
 			}
 			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-			else { print "<td>&ndash;</td>"; }
+			else { print "<td></td><td></td>"; }
 			print "</tr>\n";
 		}
 		print "</table>";
     print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print "</div>";
+			#if( $tb ) {
+                        #        $tb  = $json->decode( $tb );
+                        #        $tb  = [ map { $tb->{ $_ }{ reason } } sort keys %$tb ];
+                        #        push @$tb, '&nbsp' if @$tb == 1;
+                        #        $tb  = join "", map { "<td class=\"notes\">$_</td>" } @$tb;
+                        #} else {
+			#	$tb  = "<td class=\"notes\">&nbsp;</td><td class=\"notes\">&nbsp;</td>";
+                        #}
+
+                        #foreach my $j ( 0 .. 1 ) {
+                                #my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
+                                #my $mean  = $score->{ adjusted };
+                                #if( defined $mean ) {
+                                        #if( $score->{ complete }) {
+                                                #if( exists $score->{ decision } && defined $score->{ decision } && $
+                                                        #my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
+                                                        #foreach my $decision (keys %$codes) {
+                                                                #next unless $score->{ decision }{ $decision };
+                                                                #$punitive = $codes->{ $decision };
+                                                                #push @scores, "<td class=\"score\">&ndash;</td>";
+                                                        #}
+                                                #} else {
+                                                        #push @scores, sprintf( "<td class=\"score\">%.2f<br><span c$
+                                                #}
+						#$n++;
+                                        #} else { push @scores, "<td>&ndash;</td>"; }
+                                #} else {
+                                        #push @scores, "<td>&nbsp;</td>";
+                                #}
+                                #$sum += $mean->{ total };
+                        #}
+                        #push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</$
+                        #push @results, @scores;
+                        #$n ||= 1;
+                        #push @results, sprintf( "<td class=\"score\">%s</td>%s", ($punitive ? $punitive : sprintf( $
+                        #push @results,  "</tr>\n";
+                #}
+                #print <<EOF;
+                #<div class="results">
+                #<img src="/images/branding/header-2.png">
+                #<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ descripti$
+                #<table border=0 cellpadding=0 cellspacing=0>
+                        #<tr>
+                                #<th class="number">Rank</th>
+                                #<th class="noc">NOC</th>
+                                #<th class="athlete">Name</th>
+#EOF
+#if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp$
+                #else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$form$
+                #print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</t$
+                #print "</tr>";
+                #print @results;
+                #print "\t</table>\n";
+                #print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( int( @divisions $
+                #print "\t</div>\n";
 	}
 }
 
