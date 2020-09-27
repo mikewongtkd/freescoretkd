@@ -1,0 +1,126 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use CGI;
+use CGI::Carp qw( fatalsToBrowser );
+use JSON::XS;
+use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
+use List::MoreUtils qw( first_index );
+use Clone qw( clone );
+use Data::Dumper;
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::FreeStyle;
+
+my $cgi        = new CGI();
+my $results    = undef;
+my $tournament = read_tournament_config();
+my $ring       = $cgi->param( 'ring' );
+my $divid      = $cgi->param( 'divid' );
+my @rounds     = ($cgi->param( 'round' ));
+my $json       = new JSON::XS();
+
+my @divisions  = ();
+my $results    = undef;
+
+print $cgi->header();
+try {
+	if( defined $ring ) {
+		if( defined $divid ) { 
+			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} else {
+			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
+			next if $ring >= 5; # MW
+			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	}
+} catch {
+	die $_;
+	
+};
+
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+
+my $json = new JSON::XS();
+
+print "<pre><h1>Freestyle Athletes and Medals</h1>\n";
+my $nocpoints    = {};
+my $championship = [];
+
+foreach my $division (@divisions) {
+	my $name   = uc $division->{ name };
+	my $round  = 'finals';
+	my ($num)  = $division->{ name } =~ /f(\d{3})/;
+
+	next unless exists $division->{ order }{ $round };
+	$division->update();
+
+	my @results = ();
+	foreach my $i (0 .. 3) {
+		next if $i > $#{$division->{ placements }{ $round }};
+		my $place    = $i + 1;
+		my $j        = $division->{ placements }{ $round }[ $i ]; next unless defined( $j );
+		my $athlete  = $division->{ athletes }[ $j ];
+		my $noc      = $athlete->{ info }{ noc };
+		my $points   = { 1 => 5, 2 => 3, 3 => 1 };
+		my $punitive = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } && ($athlete->{ decision }{ $round } eq 'disqualify' || $athlete->{ decision }{ $round } eq 'withdraw');
+		$place = 3 if $place == 4;
+
+		next if $punitive;
+		$athlete  = unbless( clone( $athlete));
+
+		$nocpoints->{ $noc }{ $place }++;
+		$nocpoints->{ $noc }{ total } += $points->{ $place };
+		
+		printf "%-4s\t%d\t%3s\t%s\n", $name, $place, $noc, $athlete->{ name };
+	}
+}
+
+print "<h1>Freestyle Points by NOC</h1>\n";
+
+print "Divisions tallied across all belt ranks\n\n";
+
+print "NOC\tGold\tSilver\tBronze\tPoints\n";
+foreach my $noc (sort { $nocpoints->{ $b }{ total } <=> $nocpoints->{ $a }{ total } || $nocpoints->{ $b }{ 1 } <=> $nocpoints->{ $a }{ 1 } || $nocpoints->{ $b }{ 2 } <=> $nocpoints->{ a }{ 2 } || $nocpoints->{ $b }{ 3 } <=> $nocpoints->{ $a }{ 3 } || $a cmp $b } keys %$nocpoints) {
+	printf "%-3s\t%d\t%d\t%d\t%d\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
+}
+
+# ============================================================
+sub ordinal {
+# ============================================================
+	my $n = shift;
+	my $d = $n % 10;
+	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+	elsif( $d == 1 )           { return $n . 'st'; }
+	elsif( $d == 2 )           { return $n . 'nd'; }
+	elsif( $d == 3 )           { return $n . 'rd'; }
+	else                       { return $n . 'th'; }
+}
+
+# ============================================================
+sub read_tournament_config {
+# ============================================================
+	my $php = '';
+	my $config = [
+		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+		'/var/www/html/freescore/include/php/config.php',
+		'/var/www/html/include/php/config.php',
+		'/var/www/freescore/include/php/config.php',
+		'/var/www/include/php/config.php',
+	];
+	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+
+	my $json = new JSON::XS();
+	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+	my $config = $json->decode( $data );
+
+	return $config;
+}
