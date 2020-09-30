@@ -186,10 +186,10 @@ sub from_json {
 }
 
 # ============================================================
-sub place_athletes {
+sub rank_athletes {
 # ============================================================
 #** @method ( [ round ] )
-#   @brief Calculates placements for the given (default = current) round. Auto-updates score averages.
+#   @brief Calculates athlete rankings for the given (default = current) round. Auto-updates score averages.
 #*
 	my $self      = shift;
 	my $round     = shift || $self->{ round };
@@ -344,11 +344,12 @@ sub edit_athletes {
 sub eligible_athletes {
 # ============================================================
 #** @method ( round, athlete_indices )
-#   @brief Returns a filtered list of given athlete indices where the athlete has not been disqualified or withdrawn for the given round
+#   @brief Returns a list of athletes that are eligible to advance to the next round
+#   Returns a filtered list of given athlete indices where the athlete has not been disqualified or withdrawn for the given round
 #*
 	my $self       = shift;
 	my $round      = shift;
-	my @candidates = @_;
+	my @candidates = @{ $self->{ placement }{ $round }};
 	my @eligible   = ();
 
 	foreach my $candidate (@candidates) {
@@ -429,23 +430,18 @@ sub normalize {
 		my $half   = int( ($n-1)/2 );
 		my $flight = $self->is_flight();
 
-		if    ( $flight || $n >= 20 ) { $round = 'prelim'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		elsif ( $n >   8            ) { $round = 'semfin'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		else { 
-			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
-			if( $self->{ method } eq 'combination' ) {
-				if    ( $n > 4 ) { $round = 'final1'; $self->distribute_evenly( 'final1' ); } 
-				elsif ( $n > 2 ) { $round = 'final2'; $self->distribute_evenly( 'final2' ); } 
-				else             { $round = 'final3'; $self->distribute_evenly( 'final3' ); }
+		if( $self->{ method } eq 'aau-single-cutoff' ) { 
 
-			# ===== CUTOFF METHOD USES SAME METHODOLOGY AS BEFORE
-			} else { $round = 'finals'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+		} else {
+			if    ( $flight || $n >= 20 ) { $round = 'prelim'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+			elsif ( $n >   8            ) { $round = 'semfin'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+			else  { $round = 'finals'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 		}
 	}
 
 	# ===== NORMALIZE THE SCORING MATRIX
 	my $forms  = int( @{ $self->{ forms }{ $round }});
-	my @rounds = grep { my $order = $self->{ order }{ $_ }; defined $order && int( @$order ); } @FreeScore::Forms::WorldClass::Division::round_order;
+	my @rounds = grep { my $order = $self->{ order }{ $_ }; defined $order && int( @$order ); } $self->rounds();
 	foreach my $round (@rounds) {
 		foreach my $i (@{ $self->{ order }{ $round }}) {
 			my $athlete = $self->{ athletes }[ $i ];
@@ -578,7 +574,7 @@ sub remove_from_list {
 	my $list = shift;
 	my $i    = shift;
 
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		next unless exists $self->{ $list }{ $round };
 		@{$self->{ $list }{ $round }} = map { 
 			if    ( $_ == $i ) { ();     }
@@ -787,7 +783,7 @@ sub read {
 
 	# ===== READ THE ATHLETE ASSIGNMENT FOR THE ROUND SUB-HEADER IN THE FILE
 	my $initial_order = {};
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		next unless exists $order->{ $round };
 
 		# Establish order by athlete name, based on the earliest round
@@ -873,7 +869,7 @@ sub split {
 sub update_status {
 # ============================================================
 #** @method ()
-#   @brief Determine athlete placements and tie detection
+#   @brief Advances athletes to the next round after determining athlete rankings and tie resolution
 #*
 	my $self   = shift;
 	my $method = $self->{ method };
@@ -884,7 +880,7 @@ sub update_status {
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
-	$self->place_athletes(); 
+	$self->rank_athletes(); 
 	my $ties = $self->detect_ties();
 
 	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
@@ -896,72 +892,113 @@ sub update_status {
 		}
 	}
 
-	# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
-	my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
+	# ------------------------------------------------------------
+	# AAU SINGLE CUTOFF METHOD
+	# ------------------------------------------------------------
+	if( $method eq 'aau-single-cutoff' ) {
 
-	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
-	if     (($round eq 'prelim' || $round eq 'semfin') && $self->is_flight() && $self->round_complete( 'prelim' ) && $self->{ flight }{ state } ne 'merged' ) {
-		$self->{ flight }{ state } = 'complete';
+		# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
+		my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
-	} elsif( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
+		if( $round eq 'ro4b' && $self->round_complete( 'semfin' )) {
 
-		# Skip if athletes have already been assigned to the semi-finals
-		my $semfin = $self->{ order }{ semfin };
-		return if( defined $semfin && int( @$semfin ) > 0 );
+			# Skip if athletes have already been assigned to ro4
+			my $ro4a = $self->{ order }{ ro4a };
+			my $ro4b = $self->{ order }{ ro4b };
+			return if((defined $ro4b && int( @$ro4b ) > 0) && (defined $ro4a && int( @$ro4a ) > 0));
 
-		# Semi-final round goes in random order
-		my $half       = int( ($n-1)/2 );
-		my @candidates = @{ $self->{ placement }{ prelim }};
-		my @eligible   = $self->eligible_athletes( 'prelim', @candidates );
-		my @order      = shuffle (@eligible[ 0 .. $half ]);
-		$self->assign( $_, 'semfin' ) foreach @order;
+			# Round of 4 is randomly assigned
+			my @eligible = $self->eligible_athletes( 'semfin' );
+			my $k        = int( @eligible ) > 3 ? 3 : int( @eligible ) - 1;
+			my @order    = @eligible[ 0 .. $k ];
 
-	} elsif( $method eq 'combination' && $round eq 'final1' && $self->round_complete( 'semfin' )) {
-		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ final1 };
-		return if( defined $finals && int( @$finals ) > 0 );
+			if( $k <= 1 ) { $self->assign( $_, 'ro2' ) foreach @order; return; }
+			if( $k == 2 ) { $self->assign( $order[ 0 ], 'ro2' ); $self->assign( $_, 'ro4a' ) foreach @order[ qw( 1 2 ) ]; return; }
 
-		# Finals go in reverse placement order of semi-finals
-		my $k          = $n > 8 ? 7 : ($n - 1);
-		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
-		my @order      = int( @eligible ) > 4 ? (@eligible[ ( 0 .. 3 ) ], shuffle( @eligible[ 4 .. $k ] )) : @eligible[ ( 0 .. $#eligible ) ];
-		$self->distribute_evenly( 'final1', \@order );
+			my @match_b  = splice( @order, 0, 2 );
+			my @match_a  = splice( @order, 0, 2 );
 
-	} elsif( $method eq 'combination' && $round eq 'final2' && $self->round_complete( 'final1' )) {
-		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ final2 };
-		return if( defined $finals && int( @$finals ) > 0 );
+			$self->assign( $_, 'ro4b' ) foreach @match_b;
+			$self->assign( $_, 'ro4a' ) foreach @match_a;
 
-		my $goto = { final1 => 'final2' };
-		foreach my $match (qw( final1 )) { # MW Figure this out when sober
-			my @candidates = @{ $self->{ placement }{ $match }};
-			my @eligible   = $self->eligible_athletes( $match, @candidates );
-			next unless @eligible >= 1; # Skip the assignment if there isn't any eligible candidates
+		} elsif( $round eq 'ro4a' ) {
 
-			my $winner = shift @eligible; # Advance the first place athlete of the previous match
-			my $final2 = $goto->{ $match };
-			$self->assign( $winner, $final2 );
+			if( $self->round_complete( 'ro4b' )) {
+
+				# Skip if athletes have already been assigned to ro4
+				my $ro4a = $self->{ order }{ ro4a };
+				my $ro4b = $self->{ order }{ ro4b };
+				return if((defined $ro4b && int( @$ro4b ) > 0) && (defined $ro4a && int( @$ro4a ) > 0));
+
+			} elsif( $self->round_complete( 'prefin' )) {
+
+				# Skip if athletes have already been assigned to ro4
+				my $ro4a = $self->{ order }{ ro4a };
+				return if( defined $ro4a && int( @$ro4a ) > 0 );
+
+				# Round of 4 is assigned by seeding based on prefin
+				my @eligible = $self->eligible_athletes( 'prefin' );
+				my $first    = $eligible[ 0 ];
+				return if( int( @eligible ) == 0 );
+				if( int( @eligible ) == 1 ) { $self->assign( $first, 'ro2'  ); return; }
+				if( int( @eligible ) == 2 ) { $self->assign( $_, 'ro2'  ) foreach @eligible ; return; }
+
+				$self->assign( $first, 'ro2'  ); # Place winner in the finals match
+				$self->assign( $_,     'ro4a' ) foreach @eligible[qw( 1 2 )]; # Place others in the last match of the Round of 4
+			}
+		} elsif( $round eq 'ro2' && $self->round_complete( 'ro4a' ) && $self->round_complete( 'ro4b' )) {
+
+			# Skip if athletes have already been assigned to ro4
+			my $ro2 = $self->{ order }{ ro2 };
+			return if( defined $ro2 && int( @$ro2 ) > 0 );
+
+			my @ro4b = $self->eligible_athletes( 'r04b' );
+			my @ro4a = $self->eligible_athletes( 'r04a' );
+
+			my $ro4b = shift @ro4b;
+			my $ro4a = shift @ro4a;
+
+			$self->assign( $ro4b, 'ro2' ) if $ro4b;
+			$self->assign( $ro4a, 'ro2' ) if $ro4a;
+
+			# Who knows what will happen if everyone is disqualified or withdraws
 		}
 
-	} elsif( $method eq 'combination' && $round eq 'final3' && $self->round_complete( 'final2' )) {
-		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ ro2 };
-		return if( defined $finals && int( @$finals ) > 0 );
+	# ------------------------------------------------------------
+	# CUTOFF METHOD
+	# ------------------------------------------------------------
+	} else {
 
-		# TODO: Use bracket variable to determine winner of finals2 to move them to finals3
+		# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
+		my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
-	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
-		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ finals };
-		return if( defined $finals && int( @$finals ) > 0 );
+		# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
+		if     (($round eq 'prelim' || $round eq 'semfin') && $self->is_flight() && $self->round_complete( 'prelim' ) && $self->{ flight }{ state } ne 'merged' ) {
+			$self->{ flight }{ state } = 'complete';
 
-		# Finals go in reverse placement order of semi-finals
-		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
-		my $k          = $#eligible > 7 ? 7 : $#eligible;
-		my @order      = reverse (@eligible[ 0 .. $k ]);
-		$self->assign( $_, 'finals' ) foreach @order;
+		} elsif( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
+
+			# Skip if athletes have already been assigned to the semi-finals
+			my $semfin = $self->{ order }{ semfin };
+			return if( defined $semfin && int( @$semfin ) > 0 );
+
+			# Semi-final round goes in random order
+			my $half       = int( ($n-1)/2 );
+			my @eligible   = $self->eligible_athletes( 'prelim' );
+			my @order      = shuffle (@eligible[ 0 .. $half ]);
+			$self->assign( $_, 'semfin' ) foreach @order;
+
+		} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
+			# Skip if athletes have already been assigned to the finals
+			my $finals = $self->{ order }{ finals };
+			return if( defined $finals && int( @$finals ) > 0 );
+
+			# Finals go in reverse placement order of semi-finals
+			my @eligible   = $self->eligible_athletes( 'semfin' );
+			my $k          = $#eligible > 7 ? 7 : $#eligible;
+			my @order      = reverse (@eligible[ 0 .. $k ]);
+			$self->assign( $_, 'finals' ) foreach @order;
+		}
 	}
 }
 
@@ -1006,7 +1043,7 @@ sub write {
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
 	my @tiebreakers = ();
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		push @forms,       "$round:" . join( ",", @{$self->{ forms }{ $round }} )       if exists $self->{ forms }{ $round }       && @{ $self->{ forms }{ $round }};
 		push @tiebreakers, "$round:" . join( ",", @{$self->{ tiebreakers }{ $round }} ) if exists $self->{ tiebreakers }{ $round } && @{ $self->{ tiebreakers }{ $round }};
 	}
@@ -1014,7 +1051,7 @@ sub write {
 	# ===== PREPARE THE PLACEMENTS AND PENDING ATHLETES
 	$self->{ placement } = {} unless defined $self->{ placement };
 	my @places = ();
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		my $placements = $self->{ placement }{ $round };
 		next unless defined $placements && int( @$placements );
 		next unless grep { /^\d+$/ } @$placements;
@@ -1038,7 +1075,7 @@ sub write {
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		my $order = $self->{ order }{ $round };
 		next unless defined $order && int( @$order );
 		print FILE "# ------------------------------------------------------------\n";
@@ -1080,7 +1117,7 @@ sub navigate_to_start {
 #*
 	my $self = shift;
 
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		next unless exists $self->{ rounds }{ $round };
 		$self->{ round } = $round;
 		last;
@@ -1099,7 +1136,7 @@ sub next_round {
 #*
 	my $self    = shift;
 	my $round   = $self->{ round };
-	my @rounds  = @FreeScore::Forms::WorldClass::Division::round_order;
+	my @rounds  = $self->rounds();
 	my @i       = grep { exists $self->{ order }{ $rounds[ $_ ] } } (0 .. $#rounds);
 	my $first   = $i[ 0 ];
 	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
@@ -1107,10 +1144,15 @@ sub next_round {
 
 	return if( $self->is_flight() ); # Flights have only one round: prelim
 
-	if( $self->{ method } eq 'combination' ) {
-		if    ( $round eq 'semfin' ) { $i = $map->{ final1 }; } # semfin goes to final1
-		elsif ( $round eq 'ro2'    ) { $i = $first;           } # ro2 wraps around to first available round
-		else                         { $i++;                  }
+	if( $self->{ method } eq 'aau-single-cutoff' ) {
+		my $n    = int( @{$self->{ athletes }});
+		my $ro4a = first_index { $_ eq 'ro4a' } @rounds;
+		my $ro4b = first_index { $_ eq 'ro4b' } @rounds;
+
+		if    ( $round eq 'ro2' )              { $i = $first; }
+		elsif ( $round eq 'prefin' )           { $i = $ro4a; } # Proceed directly to the last match of the Ro4 from prefin (seeding) round
+		elsif ( $round eq 'semfin' && $n > 3 ) { $i = $ro4b; } # Divisions of more than 3 skip prefin (seeding) round
+		else                                   { $i++; }
 
 	} else {
 		if    ( $round eq 'finals' ) { $i = $first; }
@@ -1133,7 +1175,7 @@ sub previous_round {
 #*
 	my $self    = shift;
 	my $round   = $self->{ round };
-	my @rounds  = @FreeScore::Forms::WorldClass::Division::round_order;
+	my @rounds  = $self->rounds();
 	my @i       = grep { exists $self->{ order }{ $rounds[ $_ ] } } (0 .. $#rounds);
 	my $first   = $i[ 0 ];
 	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
@@ -1344,6 +1386,16 @@ sub athletes_in_round {
 }
 
 # ============================================================
+sub rounds {
+# ============================================================
+	my $self = shift;
+	local $_ = $self->{ method };
+
+	if( /^aau-single-cutoff$/ ) { return ( qw( semfin prefin ro4b ro4a ro2 )); }
+	else                        { return ( qw( prelim semfin finals )); }
+}
+
+# ============================================================
 sub _is_tie {
 # ============================================================
 #** @function ( score_delta )
@@ -1418,8 +1470,5 @@ sub _parse_placement {
 	} split /;/, $value;
 	return { @rounds };
 }
-
-our @round_order = ( qw( prelim semfin finals final1 final2 final3 ) );
-our $round_name  = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals', final1 => 'Finals 1', final2 => 'Finals 2', final3 => 'Finals 3' };
 
 1;

@@ -48,8 +48,6 @@ our @TIME      = qw( time );
 # ============================================================
 sub new {
 # ============================================================
-# A round is an has an array of one or more forms.
-# ------------------------------------------------------------
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift || {};
 	my $self    = bless $data, $class; 
