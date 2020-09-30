@@ -83,6 +83,25 @@ sub assign {
 }
 
 # ============================================================
+sub assign_with_bye {
+# ============================================================
+#** @method ( athlete_index, round )
+#   @brief Assigns the athlete to a match round
+#*
+	my $self       = shift;
+	my $i          = shift;
+	my $round      = shift;
+
+	$self->{ order }{ $round } = [ $i ];
+	$self->{ placement }{ $round } = [ $i ];
+	my $athlete = $self->{ athletes }[ $i ];
+	$athlete->{ scores }{ $round }{ complete } = 1; # No need to score if there's only one athlete
+	$self->{ pending }{ $round } = [];
+
+	$self->tally_matches();
+}
+
+# ============================================================
 sub assign_tiebreaker {
 # ============================================================
 #** @method ( athlete )
@@ -193,10 +212,21 @@ sub rank_athletes {
 #*
 	my $self      = shift;
 	my $round     = shift || $self->{ round };
+	my $method    = $self->{ method };
 	my $placement = [];
 
 	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
 	my @athlete_indices = @{$self->{ order }{ $round }};
+
+	# ===== CORNER CASE OF JUST 1 ATHLETE IN A BRACKETED ROUND
+	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4b|ro4a|ro2)$/ && int( @athlete_indices ) == 1 ) {
+		my $i = $athlete_indices[ 0 ];
+		$self->{ placement }{ $round } = [ $i ];
+		my $athlete = $self->{ athletes }[ $i ];
+		$athlete->{ scores }{ $round }{ complete } = 1; # No need to score if there's only one athlete
+		$self->{ pending }{ $round } = [];
+		return;
+	}
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
 	@$placement = sort { 
@@ -217,10 +247,6 @@ sub rank_athletes {
 	} @athlete_indices;
 
 	# ===== ASSIGN PLACEMENTS
-	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 );
-	my $n    = 0;
-	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
-	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
 	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
 	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete
 
@@ -409,11 +435,13 @@ sub is_flight {
 sub normalize {
 # ============================================================
 #** @method ()
-#   @brief Normalizes the division object.
+#   @brief Normalizes the division object. 
+#   Initializes the first round and maintain each athlete's scoring matrix.
 #*
 	my $self   = shift;
 	my $judges = $self->{ judges };
 	my $round  = $self->{ round };
+	my $method = $self->{ method };
 
 	$self->{ state } ||= 'score';
 	$self->{ form }  ||= 0;
@@ -426,16 +454,22 @@ sub normalize {
 
 	# ===== NO ROUND DEFINED; FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
 	} else {
-		my $n      = int( @{ $self->{ athletes }} );
-		my $half   = int( ($n-1)/2 );
-		my $flight = $self->is_flight();
+		my $n        = int( @{ $self->{ athletes }} );
+		my $half     = int( ($n-1)/2 );
+		my $flight   = $self->is_flight();
+		my @athletes = ( 0 .. $#{ $self->{ athletes }});
 
-		if( $self->{ method } eq 'aau-single-cutoff' ) { 
+		if( $method eq 'aau-single-cutoff' ) { 
+			if    ( $n == 2  ) { $round = 'ro2';    $self->assign( $_, $round ) foreach @athletes; }
+			elsif ( $n == 3  ) { $round = 'prefin'; $self->assign( $_, $round ) foreach @athletes; }
+			elsif ( $n == 4  ) { $round = 'ro4b';   $self->assign( $_, 'ro4b' ) foreach @athletes[ 0, 1 ]; $self->assign( $_, 'ro4a' ) foreach @athletes[ 2, 3 ]; }
+			elsif ( $n <= 29 ) { $round = 'semfin'; $self->assign( $_, $round ) foreach @athletes; }
+			else  { die "Division Configuration Error: AAU Single Cutoff does not allow divisions with more than 29 athletes"; }
 
 		} else {
-			if    ( $flight || $n >= 20 ) { $round = 'prelim'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-			elsif ( $n >   8            ) { $round = 'semfin'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-			else  { $round = 'finals'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
+			if    ( $flight || $n >= 20 ) { $round = 'prelim'; $self->assign( $_, $round ) foreach @athletes; }
+			elsif ( $n >   8            ) { $round = 'semfin'; $self->assign( $_, $round ) foreach @athletes; }
+			else  { $round = 'finals'; $self->assign( $_, $round ) foreach @athletes; }
 		}
 	}
 
@@ -866,6 +900,37 @@ sub split {
 }
 
 # ============================================================
+sub tally_matches {
+# ============================================================
+#** @method ()
+#   @brief Tallies matches for bracketed divisions
+#*
+	my $self   = shift;
+	my $method = $self->{ method };
+	my $tallies = {};
+	if( $method eq 'aau-single-cutoff' ) {
+		foreach my $round (qw( ro4b ro4a ro2 )) {
+			next unless $self->round_complete( $round );
+			my @order  = $self->{ placement }{ $round };
+			my $r      = undef;
+
+			my $winner = $order[ 0 ];
+			$r = $self->{ athletes }[ $winner ]{ scores }{ $round };
+			if( $r->any_punitive_decision()) { $tallies->{ $winner }{ decision } = 1; } 
+			else                             { $tallies->{ $winner }{ wins }++; }
+
+			my $loser  = $order[ 1 ];
+			next unless $loser; # Uncontested matches (match with a bye)
+			$r = $self->{ athletes }[ $loser ]{ scores }{ $round };
+			if( $r->any_punitive_decision()) { $tallies->{ $loser }{ decision } = 1; } 
+			else                             { $tallies->{ $loser }{ losses }++; }
+		}
+		my @placement = grep { ! $_->{ decision } } sort { $tallies->{ $b }{ wins } <=> $tallies->{ $a }{ wins } || $tallies->{ $a }{ losses } <=> $tallies->{ $b }{ losses } } keys %$tallies;
+		$self->{ placement }{ finals } = \@placement;
+	}
+}
+
+# ============================================================
 sub update_status {
 # ============================================================
 #** @method ()
@@ -892,12 +957,18 @@ sub update_status {
 		}
 	}
 
+	# ===== TALLY WINS AND LOSSES FOR BRACKETED DIVISIONS
+	if( $method eq 'aau-single-cutoff' ) { $self->tally_matches(); }
+
 	# ------------------------------------------------------------
+	# ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
+	# ------------------------------------------------------------
+
+	# ----------------------------------------
 	# AAU SINGLE CUTOFF METHOD
-	# ------------------------------------------------------------
+	# ----------------------------------------
 	if( $method eq 'aau-single-cutoff' ) {
 
-		# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
 		my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 		if( $round eq 'ro4b' && $self->round_complete( 'semfin' )) {
@@ -912,11 +983,11 @@ sub update_status {
 			my $k        = int( @eligible ) > 3 ? 3 : int( @eligible ) - 1;
 			my @order    = @eligible[ 0 .. $k ];
 
-			if( $k <= 1 ) { $self->assign( $_, 'ro2' ) foreach @order; return; }
-			if( $k == 2 ) { $self->assign( $order[ 0 ], 'ro2' ); $self->assign( $_, 'ro4a' ) foreach @order[ qw( 1 2 ) ]; return; }
+			if( $k <= 1 ) { $self->assign_with_bye( $_, 'ro2' ) foreach @order; return; }
+			if( $k == 2 ) { $self->assign_with_bye( $order[ 0 ], 'ro4b' ); $self->assign( $_, 'ro4a' ) foreach @order[ qw( 1 2 ) ]; return; }
 
-			my @match_b  = splice( @order, 0, 2 );
-			my @match_a  = splice( @order, 0, 2 );
+			my @match_b  = $order[ 0 ], $order[ 3 ]; # First place seed vs 4th place seed 
+			my @match_a  = $order[ 1 ], $order[ 2 ]; # 2nd place seed vs 3rd place seed
 
 			$self->assign( $_, 'ro4b' ) foreach @match_b;
 			$self->assign( $_, 'ro4a' ) foreach @match_a;
@@ -940,36 +1011,41 @@ sub update_status {
 				my @eligible = $self->eligible_athletes( 'prefin' );
 				my $first    = $eligible[ 0 ];
 				return if( int( @eligible ) == 0 );
-				if( int( @eligible ) == 1 ) { $self->assign( $first, 'ro2'  ); return; }
+				if( int( @eligible ) == 1 ) { $self->assign_with_bye( $first, 'ro2'  ); return; }
 				if( int( @eligible ) == 2 ) { $self->assign( $_, 'ro2'  ) foreach @eligible ; return; }
 
-				$self->assign( $first, 'ro2'  ); # Place winner in the finals match
+				$self->assign_with_bye( $first, 'ro4b'  ); 
 				$self->assign( $_,     'ro4a' ) foreach @eligible[qw( 1 2 )]; # Place others in the last match of the Round of 4
 			}
+
 		} elsif( $round eq 'ro2' && $self->round_complete( 'ro4a' ) && $self->round_complete( 'ro4b' )) {
 
 			# Skip if athletes have already been assigned to ro4
 			my $ro2 = $self->{ order }{ ro2 };
 			return if( defined $ro2 && int( @$ro2 ) > 0 );
 
-			my @ro4b = $self->eligible_athletes( 'r04b' );
-			my @ro4a = $self->eligible_athletes( 'r04a' );
+			my @ro4b = $self->eligible_athletes( 'ro4b' );
+			my @ro4a = $self->eligible_athletes( 'ro4a' );
 
 			my $ro4b = shift @ro4b;
 			my $ro4a = shift @ro4a;
 
-			$self->assign( $ro4b, 'ro2' ) if $ro4b;
-			$self->assign( $ro4a, 'ro2' ) if $ro4a;
-
 			# Who knows what will happen if everyone is disqualified or withdraws
+			if((! $ro4b) && (! $ro4a)) { return; }
+
+			if( ! $ro4b ) { $self->assign_with_bye( $ro4a, 'ro2' ); return; }
+			if( ! $ro4a ) { $self->assign_with_bye( $ro4b, 'ro2' ); return; }
+
+			$self->assign( $ro4b, 'ro2' );
+			$self->assign( $ro4a, 'ro2' );
+
 		}
 
-	# ------------------------------------------------------------
+	# ----------------------------------------
 	# CUTOFF METHOD
-	# ------------------------------------------------------------
+	# ----------------------------------------
 	} else {
 
-		# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
 		my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 		# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
@@ -1146,12 +1222,10 @@ sub next_round {
 
 	if( $self->{ method } eq 'aau-single-cutoff' ) {
 		my $n    = int( @{$self->{ athletes }});
-		my $ro4a = first_index { $_ eq 'ro4a' } @rounds;
-		my $ro4b = first_index { $_ eq 'ro4b' } @rounds;
 
 		if    ( $round eq 'ro2' )              { $i = $first; }
-		elsif ( $round eq 'prefin' )           { $i = $ro4a; } # Proceed directly to the last match of the Ro4 from prefin (seeding) round
-		elsif ( $round eq 'semfin' && $n > 3 ) { $i = $ro4b; } # Divisions of more than 3 skip prefin (seeding) round
+		elsif ( $round eq 'prefin' )           { $i = $map->{ ro4a }; } # Proceed directly to the last match of the Ro4 from prefin (seeding) round
+		elsif ( $round eq 'semfin' && $n > 3 ) { $i = $map->{ ro4b }; } # Divisions of more than 3 skip prefin (seeding) round
 		else                                   { $i++; }
 
 	} else {
@@ -1181,10 +1255,13 @@ sub previous_round {
 	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
 	my $i       = $map->{ $round };
 
-	if( $self->{ method } eq 'combination' ) {
-		if    ( $round eq $rounds[ $first ] ) { $i = $map->{ ro2 };    } # first round wraps around to ro2
-		elsif ( $round eq 'final1'          ) { $i = $map->{ semfin }; } # final1 goes to semfin
-		else                                  { $i--;                  }
+	if( $self->{ method } eq 'aau-single-cutoff' ) {
+		my $n    = int( @{$self->{ athletes }});
+
+		if    ( $round eq 'semfin' )           { $i = $map->{ ro2 }; }
+		elsif ( $round eq 'ro4b' )             { $i = $map->{ semfin }; } 
+		elsif ( $round eq 'ro4a' )             { $i = $map->{ ro4b } ? $map->{ ro4b } : ($map->{ prefin } ? $map->{ prefin } : $map->{ semfin }); } 
+		else                                   { $i++; }
 
 	} else {
 		if    ( $round eq $rounds[ $first ] ) { $i = $map->{ finals }; } # first round wraps around to finals
