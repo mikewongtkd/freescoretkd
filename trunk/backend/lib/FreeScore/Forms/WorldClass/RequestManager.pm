@@ -8,7 +8,7 @@ use FreeScore::Forms::WorldClass::Schedule;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
-use List::Util (qw( first shuffle ));
+use List::Util (qw( all first shuffle ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
@@ -855,12 +855,12 @@ sub handle_division_pool_score {
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
+		$self->broadcast_division_response( $request, $progress, $clients );
+
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
-
-		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1743,8 +1743,11 @@ sub autopilot {
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
+	print STDERR "METHOD: $method, ROUND: $round\n"; # MW
 	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4b|ro4a|ro2)$/) {
-		my @athletes = $division->{ order }{ $round };
+		my @athletes = @{$division->{ order }{ $round }};
+
+		print STDERR "Following single-cutoff method for autopilot\n"; # MW
 
 		if( int( @athletes ) == 1 ) {
 			print STDERR "Match has a bye. Advancing the division to next match.\n" if $DEBUG;
@@ -1757,44 +1760,104 @@ sub autopilot {
 			$self->broadcast_division_response( $request, $progress, $clients, $judges );
 			return;
 		}
+
+		print STDERR "Match has 2 athletes. Evaluating next steps.\n"; # MW
+
 		my $chung   = $athletes[ 0 ];
 		my $hong    = $athletes[ 1 ];
 		my $f       = $division->{ form };
 
+		print STDERR Dumper 'ATHLETES', @athletes; #M
+
 		my $last = {
 			athlete => $division->{ current } == $hong,
-			form    => $division->{ form } == int( @$forms ) - 1
+			form    => $division->{ form } == $#$forms
 		};
+
+		print STDERR Dumper 'LAST', $last; #M
+
 		my $complete = {
-			chunghong => all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ form }[ $f ]{ complete } } @athletes,
+			chunghong => (all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ form }[ $f ]{ complete } } @athletes),
 			form      => $athlete->{ scores }{ $round }{ forms }[ $f ]{ complete },
-			round     => all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ complete }} @athletes,
-			firstform => int( @$forms ) > 1 && all { $division->{ athletes }[ $_ ]{ scores }{ $round }->form_complete( 0 ) } @athletes 
+			round     => (all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ complete }} @athletes),
+			firstform => int( @$forms ) > 1 && (all { $division->{ athletes }[ $_ ]{ scores }{ $round }->form_complete( 0 ) } @athletes)
 		};
+
+		print STDERR Dumper 'COMPLETE', $complete; # MW
+
 		my $go_next = {
 			athlete => $complete->{ form } && (! ( $last->{ athlete } && $last->{ form })),
 			round   => $complete->{ round },
 			form    => $complete->{ firstform }
-
 		};
+
+		print STDERR Dumper 'GO_NEXT', $go_next; # MW
+
 		my $show = {
 			score       => $complete->{ chunghong },
 			leaderboard => $complete->{ round },
 		};
 
+		print STDERR Dumper 'SHOW', $show; # MW
+
 		$delay->steps(
+			# Display the score summary
 			sub { 
 				my $delay = shift;
-				if( $show->{ score }) { # Display the athlete's score for 9 seconds
+
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
+
+				if( $show->{ score }) { # Display the form score for 9 seconds
+					print STDERR "Showing score for both athletes.\n" if $DEBUG;
+					$division->match_form() unless $division->is_match_form(); 
+					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
 				} else { # Skip ahead quickly
+					print STDERR "Skipping score for both athletes display.\n" if $DEBUG;
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
 			sub { 
 				my $delay = shift;
 
-				die "Disengaging autopilot\n" unless $division->autopilot();
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
+
+				if( $show->{ score }) { # Display the judges score for 9 seconds
+					print STDERR "Showing judges score.\n" if $DEBUG;
+					$division->score() unless $division->score(); 
+					$division->write(); 
+					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+
+				# Otherwise skip ahead quickly
+				} else {
+					print STDERR "Skipping judge screen display.\n" if $DEBUG;
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { 
+				my $delay = shift;
+
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
+
+				if( $show->{ leaderboard }) { # Display the summary score for 9 seconds
+					print STDERR "Showing final overall score (average of all forms).\n" if $DEBUG;
+					$division->summary() unless $division->summary(); 
+					$division->write(); 
+					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+
+				# Otherwise skip ahead quickly
+				} else {
+					print STDERR "Skipping final score display.\n" if $DEBUG;
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { 
+				my $delay = shift;
+
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 				if( $show->{ leaderboard }) { 
@@ -1809,10 +1872,11 @@ sub autopilot {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
-			sub { # Advance to the next form/athlete/round
+			sub { # Advance to the next form/athlete
 				my $delay = shift;
 
-				die "Disengaging autopilot\n" unless $division->autopilot();
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
+
 				print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
 				# Advance to the correct athlete
@@ -1823,8 +1887,6 @@ sub autopilot {
 					# Advance to the correct form
 					if( $complete->{ firstform }) { $division->{ form } = int( @$forms ) - 1; }
 
-				} elsif( $go_next->{ round }) {
-					$division->next_round(); $division->first_form();
 				}
 				$division->autopilot( 'off' );
 				$division->write();
@@ -1834,6 +1896,8 @@ sub autopilot {
 		)->catch( sub {
 			my $delay = shift;
 			my $error = shift;
+
+			print STDERR "ERROR: $error\n";
 
 		})->wait();
 
@@ -1853,7 +1917,7 @@ sub autopilot {
 			sub { 
 				my $delay = shift;
 
-				die "Disengaging autopilot\n" unless $division->autopilot();
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
@@ -1871,7 +1935,8 @@ sub autopilot {
 			sub { # Advance to the next form/athlete/round
 				my $delay = shift;
 
-				die "Disengaging autopilot\n" unless $division->autopilot();
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
+
 				print STDERR "Advancing the division to next item.\n" if $DEBUG;
 				my $go_next = {
 					round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },

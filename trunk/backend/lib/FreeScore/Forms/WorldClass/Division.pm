@@ -433,6 +433,27 @@ sub is_flight {
 }
 
 # ============================================================
+sub is_match_form {
+# ============================================================
+	my $self = shift;
+	return $self->{ state } eq 'match-form';
+}
+
+# ============================================================
+sub is_summary {
+# ============================================================
+	my $self = shift;
+	return $self->{ state } eq 'summary';
+}
+
+# ============================================================
+sub match_form {
+# ============================================================
+	my $self = shift;
+	$self->{ state } = 'match-form';
+}
+
+# ============================================================
 sub normalize {
 # ============================================================
 #** @method ()
@@ -690,10 +711,11 @@ sub read {
 
 		# ===== READ DIVISION STATE INFORMATION
 		if( /^#/ ) {
+			my $rounds   = join( '|', $self->rounds());
 			if( /=/ ) {
 				s/^#\s+//;
 				my ($key, $value) = split /=/;
-				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );     }
+				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );   }
 				elsif ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
 				elsif ( $key eq 'tiebreakers' ) { $self->{ $key } = _parse_forms( $value );     }
 				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );    }
@@ -702,18 +724,20 @@ sub read {
 
 				$round = $self->{ round } if( defined $self->{ round } );
 
-			} elsif( /prelim|semfin|finals|final1|final2|final3/i ) {
-				s/^#\s+//;
+			} else {
+				my $rounds = join( '|', $self->rounds());
+			   	if( /^(?:$rounds)$/i ) {
+					s/^#\s+//;
 
-				# Store the last athlete
-				if( $athlete->{ name } ) {
-					push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
-					$athlete = {};
+					# Store the last athlete of the previous round
+					if( $athlete->{ name } ) {
+						push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
+						$athlete = {};
+					}
+
+					# Change the context to the given round
+					$round = $_;
 				}
-
-				# Assign round
-				$round = $_;
-
 			}
 		# ===== READ ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
@@ -807,11 +831,20 @@ sub read {
 	if( exists $order->{ 'autodetect_required' } ) {
 		my $n      = int( keys %$athletes );
 		my $flight = $self->is_flight();
+		my $method = $self->{ method };
 
-		if    ( $n ==  0            ) { die "Division Configuration Error: No athletes declared $!"; }
-		elsif ( $n >= 20 || $flight ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
-		elsif ( $n <  20 && $n >  8 ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
-		elsif ( $n <=  8            ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
+		if( $n ==  0 ) { die "Division Configuration Error: No athletes declared $!"; }
+		if( $method eq 'aau-single-cutoff' ) {
+			if    ( $n > 4  ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
+			elsif ( $n == 4 ) { $round = 'ro4b';   $order->{ 'ro4b' }   = $order->{ 'autodetect_required' }; }
+			elsif ( $n == 3 ) { $round = 'prefin'; $order->{ 'prefin' } = $order->{ 'autodetect_required' }; }
+			elsif ( $n <= 2 ) { $round = 'ro2';    $order->{ 'ro2' }    = $order->{ 'autodetect_required' }; }
+
+		} else {
+			if    ( $n >= 20 || $flight ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
+			elsif ( $n <  20 && $n >  8 ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
+			elsif ( $n <=  8            ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
+		}
 
 		delete $order->{ 'autodetect_required' };
 	}
@@ -898,6 +931,13 @@ sub split {
 	}
 
 	return @flights;
+}
+
+# ============================================================
+sub summary {
+# ============================================================
+	my $self = shift;
+	$self->{ state } = 'summary';
 }
 
 # ============================================================
