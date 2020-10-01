@@ -1725,6 +1725,7 @@ sub autopilot {
 
 	my $pause    = $timers->{ pause } if exists $timers->{ pause } && defined $timers->{ pause };
 	my $round    = $division->{ round };
+	my $method   = $division->{ method };
 	my $order    = $division->{ order }{ $round };
 	my $forms    = $division->{ forms }{ $round };
 	my $pending  = $division->{ pending }{ $round };
@@ -1738,65 +1739,158 @@ sub autopilot {
 	$pause->{ leaderboard } ||= 12;
 	$pause->{ brief }       ||= 1;
 
-	my $last = {
-		athlete => (int( @$pending ) == 0),
-		form    => ($division->{ form }    == int( @$forms ) - 1) || $punitive,
-		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
-		cycle   => (!(($j + 1) % $cycle)),
-	};
-
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
-	$delay->steps(
-		sub { # Display the athlete's score for 9 seconds
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
-		},
-		sub { 
-			my $delay = shift;
+	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4b|ro4a|ro2)$/) {
+		my @athletes = $division->{ order }{ $round };
 
-			die "Disengaging autopilot\n" unless $division->autopilot();
+		if( int( @athletes ) == 1 ) {
+			print STDERR "Match has a bye. Advancing the division to next match.\n" if $DEBUG;
 
-			# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-			if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
-				print STDERR "Showing leaderboard.\n" if $DEBUG;
-				$division->display() unless $division->is_display(); 
-				$division->write(); 
-				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
-				$self->broadcast_division_response( $request, $progress, $clients, $judges );
-
-			# Otherwise keep displaying the score for another second
-			} else {
-				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
-			}
-		},
-		sub { # Advance to the next form/athlete/round
-			my $delay = shift;
-
-			die "Disengaging autopilot\n" unless $division->autopilot();
-			print STDERR "Advancing the division to next item.\n" if $DEBUG;
-
-			my $go_next = {
-				round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
-				athlete =>   $last->{ form } && ! $last->{ athlete },
-				form    => ! $last->{ form }
-			};
-
-			if    ( $go_next->{ round }   ) { $division->next_round(); $division->first_form(); }
-			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
-			elsif ( $go_next->{ form }    ) { $division->next_form(); }
+			$division->next_round(); 
+			$division->first_form();
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 
 			$self->broadcast_division_response( $request, $progress, $clients, $judges );
-		},
-	)->catch( sub {
-		my $delay = shift;
-		my $error = shift;
+			return;
+		}
+		my $chung   = $athletes[ 0 ];
+		my $hong    = $athletes[ 1 ];
+		my $f       = $division->{ form };
 
-	})->wait();
+		my $last = {
+			athlete => $division->{ current } == $hong,
+			form    => $division->{ form } == int( @$forms ) - 1
+		};
+		my $complete = {
+			chunghong => all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ form }[ $f ]{ complete } } @athletes,
+			form      => $athlete->{ scores }{ $round }{ forms }[ $f ]{ complete },
+			round     => all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ complete }} @athletes,
+			firstform => int( @$forms ) > 1 && all { $division->{ athletes }[ $_ ]{ scores }{ $round }->form_complete( 0 ) } @athletes 
+		};
+		my $go_next = {
+			athlete => $complete->{ form } && (! ( $last->{ athlete } && $last->{ form })),
+			round   => $complete->{ round },
+			form    => $complete->{ firstform }
+
+		};
+		my $show = {
+			score       => $complete->{ chunghong },
+			leaderboard => $complete->{ round },
+		}
+
+		$delay->steps(
+			sub { 
+				my $delay = shift;
+				if( $show->{ score }) { # Display the athlete's score for 9 seconds
+					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+				} else { # Skip ahead quickly
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { 
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $division->autopilot();
+
+				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+				if( $show->{ leaderboard }) { 
+					print STDERR "Showing leaderboard.\n" if $DEBUG;
+					$division->display() unless $division->is_display(); 
+					$division->write(); 
+					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+
+				# Otherwise skip ahead quickly
+				} else {
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { # Advance to the next form/athlete/round
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $division->autopilot();
+				print STDERR "Advancing the division to next item.\n" if $DEBUG;
+
+				if( $go_next->{ athlete }) {
+					if( $last->{ athlete }) { $division->previous_athlete(); }
+					else                    { $division->next_athlete(); }
+					if( $complete->{ firstform }) $division->{ form } = int( @$forms ) - 1; }
+
+				} elsif( $go_next->{ round }) {
+					$division->next_round(); $division->first_form();
+				}
+				$division->autopilot( 'off' );
+				$division->write();
+
+				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+			},
+		)->catch( sub {
+			my $delay = shift;
+			my $error = shift;
+
+		})->wait();
+
+	} else {
+		my $last = {
+			athlete => (int( @$pending ) == 0),
+			form    => ($division->{ form }    == int( @$forms ) - 1) || $punitive,
+			round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
+			cycle   => (!(($j + 1) % $cycle)),
+		};
+
+		$delay->steps(
+			sub { # Display the athlete's score for 9 seconds
+				my $delay = shift;
+				Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+			},
+			sub { 
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $division->autopilot();
+
+				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
+					print STDERR "Showing leaderboard.\n" if $DEBUG;
+					$division->display() unless $division->is_display(); 
+					$division->write(); 
+					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+
+				# Otherwise keep displaying the score for another second
+				} else {
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { # Advance to the next form/athlete/round
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $division->autopilot();
+				print STDERR "Advancing the division to next item.\n" if $DEBUG;
+				my $go_next = {
+					round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
+					athlete =>   $last->{ form } && ! $last->{ athlete },
+					form    => ! $last->{ form }
+				};
+
+				if    ( $go_next->{ round }   ) { $division->next_round(); $division->first_form(); }
+				elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
+				elsif ( $go_next->{ form }    ) { $division->next_form(); }
+
+				$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
+				$division->write();
+
+				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+			},
+		)->catch( sub {
+			my $delay = shift;
+			my $error = shift;
+
+		})->wait();
+	}
 }
 
 1;

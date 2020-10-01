@@ -95,6 +95,7 @@ sub assign_with_bye {
 	$self->{ order }{ $round } = [ $i ];
 	$self->{ placement }{ $round } = [ $i ];
 	my $athlete = $self->{ athletes }[ $i ];
+	$athlete->{ scores }{ $round }{ forms }[ 0 ]{ decision }{ bye } = 1;
 	$athlete->{ scores }{ $round }{ complete } = 1; # No need to score if there's only one athlete
 	$self->{ pending }{ $round } = [];
 

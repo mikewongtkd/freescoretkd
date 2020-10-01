@@ -26,6 +26,7 @@ use Carp;
 #     - decision
 #       - withdraw
 #       - disqualify
+#       - bye
 #     - original
 #       - accuracy
 #       - presentation
@@ -180,9 +181,11 @@ sub record_decision {
 	my $form = $self->{ forms }[ $i ];
 	if( $decision eq 'clear' ) {
 		foreach my $form (@{ $self->{ forms }}) { 
-			delete $form->{ decision }{ $_ } foreach (keys %{ $form->{ decision }});
-			$form->{ complete } = 0;
-			$form->{ started }  = 0;
+			delete $form->{ decision }{ $_ } foreach (qw( disqualify withdraw ));
+			unless( exists( $form->{ decision }{ bye }) && defined( $form->{ decision }{ bye })) {
+				$form->{ complete } = 0;
+				$form->{ started }  = 0;
+			}
 		}
 		$self->{ complete } = 0 if( none { $self->form_complete( $_ )} @{$self->{ forms }} );
 
@@ -245,6 +248,15 @@ sub calculate_means {
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
 		my $punitive_decision = $self->form_has_punitive_decision( $form );
 		if( $punitive_decision ) {
+			$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", 0.0 );
+			$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", 0.0 );
+			$self->{ total }                    = 0.0 + sprintf( "%.2f", 0.0 );
+			last;
+		}
+
+		# ===== SKIP CALCULATIONS FOR ATHLETES WITH BYES
+		my $winning_decision = $self->form_has_winning_decision( $form );
+		if( $winning_decision ) {
 			$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", 0.0 );
 			$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", 0.0 );
 			$self->{ total }                    = 0.0 + sprintf( "%.2f", 0.0 );
@@ -370,6 +382,20 @@ sub form_complete {
 }
 
 # ============================================================
+sub form_has_winning_decision {
+# ============================================================
+	my $self = shift;
+	my $i    = shift; # Index or reference to the form
+	my $form = ref $i ? $i : $self->{ forms }[ $i ];
+
+	if( exists $form->{ decision } && $form->{ decision }{ bye }) {
+		$form->{ adjusted }{ total }        = 0.0;
+		$form->{ adjusted }{ presentation } = 0.0;
+		return 1;
+	}
+}
+
+# ============================================================
 sub form_has_punitive_decision {
 # ============================================================
 	my $self = shift;
@@ -402,6 +428,21 @@ sub any_punitive_decision {
 	foreach my $form (@{ $self->{ forms }}) { 
 		$self->form_complete( $form ); 
 		if( $self->form_has_punitive_decision( $form )) {
+			$self->{ complete } = 1;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+# ============================================================
+sub any_winning_decision {
+# ============================================================
+	my $self = shift;
+
+	foreach my $form (@{ $self->{ forms }}) { 
+		$self->form_complete( $form ); 
+		if( $self->form_has_winning_decision( $form )) {
 			$self->{ complete } = 1;
 			return 1;
 		}
