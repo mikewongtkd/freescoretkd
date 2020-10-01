@@ -1780,7 +1780,7 @@ sub autopilot {
 		my $show = {
 			score       => $complete->{ chunghong },
 			leaderboard => $complete->{ round },
-		}
+		};
 
 		$delay->steps(
 			sub { 
@@ -1815,10 +1815,13 @@ sub autopilot {
 				die "Disengaging autopilot\n" unless $division->autopilot();
 				print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
+				# Advance to the correct athlete
 				if( $go_next->{ athlete }) {
 					if( $last->{ athlete }) { $division->previous_athlete(); }
 					else                    { $division->next_athlete(); }
-					if( $complete->{ firstform }) $division->{ form } = int( @$forms ) - 1; }
+
+					# Advance to the correct form
+					if( $complete->{ firstform }) { $division->{ form } = int( @$forms ) - 1; }
 
 				} elsif( $go_next->{ round }) {
 					$division->next_round(); $division->first_form();
