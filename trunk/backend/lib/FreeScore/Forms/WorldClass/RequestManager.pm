@@ -565,7 +565,7 @@ sub handle_division_judge_query {
 		splice( @$judges, $n );
 	}
 
-	if( $DEBUG ) {
+	if( $DEBUG > 1 ) {
 		print STDERR "Requesting judge information for $n judges.\n";
 		foreach my $i ( 0 .. ($n - 1)) {
 			my $name = $i == 0 ? 'Referee' : 'Judge ' . $i;
@@ -1743,11 +1743,8 @@ sub autopilot {
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
-	print STDERR "METHOD: $method, ROUND: $round\n"; # MW
 	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4b|ro4a|ro2)$/) {
 		my @athletes = @{$division->{ order }{ $round }};
-
-		print STDERR "Following single-cutoff method for autopilot\n"; # MW
 
 		if( int( @athletes ) == 1 ) {
 			print STDERR "Match has a bye. Advancing the division to next match.\n" if $DEBUG;
@@ -1761,44 +1758,35 @@ sub autopilot {
 			return;
 		}
 
-		print STDERR "Match has 2 athletes. Evaluating next steps.\n"; # MW
+		my $chung     = $division->{ athletes }[ $athletes[ 0 ]];
+		my $hong      = $division->{ athletes }[ $athletes[ 1 ]];
+		my $f         = $division->{ form };
+		my $scores    = { chung => $chung->{ scores }{ $round },      hong  => $hong->{  scores }{ $round }, };
+		my $firstform = { chung => $scores->{ chung }{ forms }[ 0 ],  hong  => $scores->{ hong  }{ forms }[ 0 ], };
+		my $form      = { chung => $scores->{ chung }{ forms }[ $f ], hong  => $scores->{ hong  }{ forms }[ $f ], };
 
-		my $chung   = $athletes[ 0 ];
-		my $hong    = $athletes[ 1 ];
-		my $f       = $division->{ form };
-
-		print STDERR Dumper 'ATHLETES', @athletes; #M
-
-		my $last = {
-			athlete => $division->{ current } == $hong,
-			form    => $division->{ form } == $#$forms
+		my $last = { 
+			athlete => $division->{ current } == $hong, 
+			form    => $division->{ form } == $#$forms 
 		};
-
-		print STDERR Dumper 'LAST', $last; #M
 
 		my $complete = {
-			chunghong => (all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ form }[ $f ]{ complete } } @athletes),
-			form      => $athlete->{ scores }{ $round }{ forms }[ $f ]{ complete },
-			round     => (all { $division->{ athletes }[ $_ ]{ scores }{ $round }{ complete }} @athletes),
-			firstform => int( @$forms ) > 1 && (all { $division->{ athletes }[ $_ ]{ scores }{ $round }->form_complete( 0 ) } @athletes)
+			athlete   => $score->form_complete( $f ),
+			form      => $form->{ chung }{ complete }   && $form->{ hong }{ complete },
+			round     => $scores->{ chung }{ complete } && $scores->{ hong }{ complete },
+			firstform => int( @$forms ) > 1 && $firstform->{ chung }{ complete } && $firstform->{ hong }{ complete }
 		};
 
-		print STDERR Dumper 'COMPLETE', $complete; # MW
-
 		my $go_next = {
-			athlete => $complete->{ form } && (! ( $last->{ athlete } && $last->{ form })),
+			athlete => $complete->{ athlete } && (! ( $last->{ athlete } && $last->{ form })),
 			round   => $complete->{ round },
 			form    => $complete->{ firstform }
 		};
 
-		print STDERR Dumper 'GO_NEXT', $go_next; # MW
-
 		my $show = {
-			score       => $complete->{ chunghong },
+			score       => $complete->{ form },
 			leaderboard => $complete->{ round },
 		};
-
-		print STDERR Dumper 'SHOW', $show; # MW
 
 		$delay->steps(
 			# Display the score summary
@@ -1825,7 +1813,7 @@ sub autopilot {
 
 				if( $show->{ score }) { # Display the judges score for 9 seconds
 					print STDERR "Showing judges score.\n" if $DEBUG;
-					$division->score() unless $division->score(); 
+					$division->score() unless $division->is_score(); 
 					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
@@ -1843,7 +1831,7 @@ sub autopilot {
 
 				if( $show->{ leaderboard }) { # Display the summary score for 9 seconds
 					print STDERR "Showing final overall score (average of all forms).\n" if $DEBUG;
-					$division->summary() unless $division->summary(); 
+					$division->summary() unless $division->is_summary(); 
 					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
@@ -1885,7 +1873,7 @@ sub autopilot {
 					else                    { $division->next_athlete(); }
 
 					# Advance to the correct form
-					if( $complete->{ firstform }) { $division->{ form } = int( @$forms ) - 1; }
+					if( $complete->{ firstform }) { $division->{ form } = $#$forms; }
 
 				}
 				$division->autopilot( 'off' );

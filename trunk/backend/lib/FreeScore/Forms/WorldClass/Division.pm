@@ -98,8 +98,6 @@ sub assign_with_bye {
 	$athlete->{ scores }{ $round }{ forms }[ 0 ]{ decision }{ bye } = 1;
 	$athlete->{ scores }{ $round }{ complete } = 1; # No need to score if there's only one athlete
 	$self->{ pending }{ $round } = [];
-
-	$self->tally_matches();
 }
 
 # ============================================================
@@ -941,37 +939,6 @@ sub summary {
 }
 
 # ============================================================
-sub tally_matches {
-# ============================================================
-#** @method ()
-#   @brief Tallies matches for bracketed divisions
-#*
-	my $self   = shift;
-	my $method = $self->{ method };
-	my $tallies = {};
-	if( $method eq 'aau-single-cutoff' ) {
-		foreach my $round (qw( ro4b ro4a ro2 )) {
-			next unless $self->round_complete( $round );
-			my @order  = $self->{ placement }{ $round };
-			my $r      = undef;
-
-			my $winner = $order[ 0 ];
-			$r = $self->{ athletes }[ $winner ]{ scores }{ $round };
-			if( $r->any_punitive_decision()) { $tallies->{ $winner }{ decision } = 1; } 
-			else                             { $tallies->{ $winner }{ wins }++; }
-
-			my $loser  = $order[ 1 ];
-			next unless $loser; # Uncontested matches (match with a bye)
-			$r = $self->{ athletes }[ $loser ]{ scores }{ $round };
-			if( $r->any_punitive_decision()) { $tallies->{ $loser }{ decision } = 1; } 
-			else                             { $tallies->{ $loser }{ losses }++; }
-		}
-		my @placement = grep { ! $_->{ decision } } sort { $tallies->{ $b }{ wins } <=> $tallies->{ $a }{ wins } || $tallies->{ $a }{ losses } <=> $tallies->{ $b }{ losses } } keys %$tallies;
-		$self->{ placement }{ finals } = \@placement;
-	}
-}
-
-# ============================================================
 sub update_status {
 # ============================================================
 #** @method ()
@@ -998,9 +965,6 @@ sub update_status {
 		}
 	}
 
-	# ===== TALLY WINS AND LOSSES FOR BRACKETED DIVISIONS
-	if( $method eq 'aau-single-cutoff' ) { $self->tally_matches(); }
-
 	# ------------------------------------------------------------
 	# ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
 	# ------------------------------------------------------------
@@ -1010,6 +974,7 @@ sub update_status {
 	# ----------------------------------------
 	if( $method eq 'aau-single-cutoff' ) {
 
+=pod
 		my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 		if( $round eq 'ro4b' && $self->round_complete( 'semfin' )) {
@@ -1081,6 +1046,7 @@ sub update_status {
 			$self->assign( $ro4a, 'ro2' );
 
 		}
+=cut
 
 	# ----------------------------------------
 	# CUTOFF METHOD
