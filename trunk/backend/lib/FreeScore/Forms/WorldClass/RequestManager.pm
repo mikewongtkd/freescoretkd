@@ -397,8 +397,17 @@ sub handle_division_display {
 
 	try {
 		$division->autopilot( 'off' );
-		if( $division->is_display() ) { $division->score();   } 
-		else                          { $division->display(); }
+		# MW Will need to move this low-level stuff to Division class later
+		if( $division->{ method } eq 'aau-single-cutoff' ) {
+			my $modes = [ 'score', 'summary', 'match-result', 'display' ];
+			my $i     = first_index { $_ eq $division->{ state } } @$modes;
+			my $j     = ($i + 1);
+			if( $modes->[ $j ] eq 'display' && $division->{ round } ne 'ro2' ) { $j = 0; } # Can't see results except for Ro2
+			$division->{ state } = $modes->[ $j ];
+		} else {
+			if( $division->is_display() ) { $division->score();   } 
+			else                          { $division->display(); }
+		}
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -1795,22 +1804,6 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
-				if( $show->{ score }) { # Display the form score for 9 seconds
-					print STDERR "Showing score for both athletes.\n" if $DEBUG;
-					$division->match_form() unless $division->is_match_form(); 
-					$division->write(); 
-					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
-					$self->broadcast_division_response( $request, $progress, $clients, $judges );
-				} else { # Skip ahead quickly
-					print STDERR "Skipping score for both athletes display.\n" if $DEBUG;
-					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
-				}
-			},
-			sub { 
-				my $delay = shift;
-
-				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
-
 				if( $show->{ score }) { # Display the judges score for 9 seconds
 					print STDERR "Showing judges score.\n" if $DEBUG;
 					$division->score() unless $division->is_score(); 
@@ -1829,9 +1822,25 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
+				if( $show->{ score }) { # Display the form score for 9 seconds
+					print STDERR "Showing score for both athletes.\n" if $DEBUG;
+					$division->summary() unless $division->summary(); 
+					$division->write(); 
+					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				} else { # Skip ahead quickly
+					print STDERR "Skipping score for both athletes display.\n" if $DEBUG;
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { 
+				my $delay = shift;
+
+				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
+
 				if( $show->{ leaderboard }) { # Display the summary score for 9 seconds
 					print STDERR "Showing final overall score (average of all forms).\n" if $DEBUG;
-					$division->summary() unless $division->is_summary(); 
+					$division->match_results() unless $division->is_match_results(); 
 					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
@@ -1848,7 +1857,7 @@ sub autopilot {
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $show->{ leaderboard }) { 
+				if( $show->{ leaderboard } && $round eq 'ro2' ) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display(); 
 					$division->write(); 
