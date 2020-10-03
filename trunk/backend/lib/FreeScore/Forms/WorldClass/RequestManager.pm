@@ -1775,7 +1775,7 @@ sub autopilot {
 		my $form      = { chung => $scores->{ chung }{ forms }[ $f ], hong  => $scores->{ hong  }{ forms }[ $f ], };
 
 		my $last = { 
-			athlete => $division->{ current } == $hong, 
+			athlete => $division->{ current } == 1,
 			form    => $division->{ form } == $#$forms 
 		};
 
@@ -1787,14 +1787,15 @@ sub autopilot {
 		};
 
 		my $go_next = {
-			athlete => $complete->{ athlete } && (! ( $last->{ athlete } && $last->{ form })),
+			athlete => $complete->{ athlete } && (! ($last->{ athlete } && $last->{ form })),
 			round   => $complete->{ round },
 			form    => $complete->{ firstform }
 		};
 
 		my $show = {
 			score       => $complete->{ form },
-			leaderboard => $complete->{ round },
+			results     => $complete->{ round },
+			leaderboard => $complete->{ round } && $round eq 'ro2',
 		};
 
 		$delay->steps(
@@ -1822,7 +1823,7 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
-				if( $show->{ score }) { # Display the form score for 9 seconds
+				if( $show->{ score }) { # Display the summary score for 9 seconds
 					print STDERR "Showing score for both athletes.\n" if $DEBUG;
 					$division->summary() unless $division->summary(); 
 					$division->write(); 
@@ -1838,7 +1839,7 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
-				if( $show->{ leaderboard }) { # Display the summary score for 9 seconds
+				if( $show->{ results }) { # Display the match results for 9 seconds
 					print STDERR "Showing final overall score (average of all forms).\n" if $DEBUG;
 					$division->match_results() unless $division->is_match_results(); 
 					$division->write(); 
@@ -1857,7 +1858,7 @@ sub autopilot {
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $show->{ leaderboard } && $round eq 'ro2' ) { 
+				if( $show->{ leaderboard }) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display(); 
 					$division->write(); 
@@ -1874,10 +1875,10 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
-				print STDERR "Advancing the division to next item.\n" if $DEBUG;
-
 				# Advance to the correct athlete
 				if( $go_next->{ athlete }) {
+					print STDERR "Advancing the division to next athlete.\n" if $DEBUG;
+
 					if( $last->{ athlete }) { $division->previous_athlete(); }
 					else                    { $division->next_athlete(); }
 
