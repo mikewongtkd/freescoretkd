@@ -1158,6 +1158,7 @@ sub write {
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
+	print FILE "# thirds=$self->{ thirds }\n" if $self->{ thirds };
 	foreach my $round ($self->rounds()) {
 		my $order = $self->{ order }{ $round };
 		next unless defined $order && int( @$order );
