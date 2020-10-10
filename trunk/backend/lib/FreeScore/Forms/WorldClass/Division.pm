@@ -709,7 +709,6 @@ sub read {
 
 		# ===== READ DIVISION STATE INFORMATION
 		if( /^#/ ) {
-			my $rounds   = join( '|', $self->rounds());
 			if( /=/ ) {
 				s/^#\s+//;
 				my ($key, $value) = split /=/;
@@ -724,8 +723,7 @@ sub read {
 
 			} else {
 				my $rounds = join( '|', $self->rounds());
-			   	if( /^(?:$rounds)$/i ) {
-					s/^#\s+//;
+				if( /\b($rounds)\b/i ) {
 
 					# Store the last athlete of the previous round
 					if( $athlete->{ name } ) {
@@ -734,7 +732,7 @@ sub read {
 					}
 
 					# Change the context to the given round
-					$round = $_;
+					$round = $1;
 				}
 			}
 		# ===== READ ATHLETE INFORMATION
@@ -774,7 +772,7 @@ sub read {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
 				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
 				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
-				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
+				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round (missing round section header?)\n" if $round ne $score_round;
 				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
 
 				next unless( $major || $minor || $rhythm || $power || $ki );
