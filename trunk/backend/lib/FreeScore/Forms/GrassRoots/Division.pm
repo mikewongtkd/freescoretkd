@@ -54,7 +54,7 @@ sub read {
 		foreach ( 0 .. $n ) { push @scores,    shift @columns; }
 		foreach ( 0 .. $n ) { push @tb_scores, shift @columns; }
 		my $athlete = { name => $name, rank => $rank, 'index' => $index, scores => [ @scores ], tiebreakers => [ @tb_scores ] };
-		$athlete->{ video } = shift @{ $self->{ videos }} if( defined( $self->{ videos }));
+		$athlete->{ info }{ video } = shift @{ $self->{ videos }} if( defined( $self->{ videos }));
 		push @{ $self->{ athletes }}, $athlete;
 		$index++;
 	}
