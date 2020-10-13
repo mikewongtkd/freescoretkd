@@ -101,12 +101,12 @@ EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
-	@rounds = reverse @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	@rounds = reverse $division->rounds() unless @rounds;
 	my $copy = unbless( clone( $division ));
 	print "<script>var division = " .  $json->canonical->encode( $copy ) . ";</script>\n";
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
-		my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
+		my $rname  = $division->round_name( $round );
 		my $forms  = $division->{ forms }{ $round };
 		my $placed = {};
 		my $i      = 0;
