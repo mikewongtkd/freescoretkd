@@ -99,10 +99,10 @@ foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	my $flight = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
-	@rounds = reverse @FreeScore::Forms::WorldClass::Division::round_order unless @rounds;
+	@rounds = reverse $division->rounds() unless @rounds;
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
-		my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
+		my $rname  = $division->round_name( $round );
 		my $forms  = $division->{ forms }{ $round };
 		my $placed = {};
 		my $i      = 0;
@@ -114,12 +114,12 @@ foreach my $division (@divisions) {
 
 		print <<EOF;
 		<div class="results">
-		<img src="/images/branding/header-2.png">
+		<!-- img src="/images/branding/header-2.png" -->
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">#</th>
-				<th class="noc">NOC</th>
+				<th class="noc">State/Terr.</th>
 				<th class="athlete">Name</th>
 			</tr>
 EOF
@@ -128,11 +128,14 @@ EOF
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $noc     = $athlete->{ info }{ noc };
 			my $sum     = 0.0;
 			my $n       = 0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td></tr>\n";
+
+			$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td></tr>\n";
 		}
-		print '<img class="footer-img"src="/images/branding/footer-2.png">' unless( $n >= 30 || int( @divisions ) > 1 || int( @rounds ) > 1 );
+		# print '<img class="footer-img"src="/images/branding/footer-2.png">' unless( $n >= 30 || int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print <<EOF;
 		</table>
 		</div>

@@ -150,9 +150,17 @@ sub merge_division {
 
 	# Only the top half of each flight advance
 	foreach my $flight (@flights) {
-		my $n        = ceil( @{ $flight->{ athletes }}/2 ) - 1;
-		my $top_half = [ @{$flight->{ placement }{ prelim }}[ 0 .. $n ] ];
-		my @athletes = map { clone( $flight->{ athletes }[ $_ ]) } @$top_half;
+		my @athletes = ();
+		my $advance = undef;
+		if( $division->{ method } eq 'aau-single-cutoff' ) {
+			my $top4 = [ @{$flight->{ placement }{ prelim }}[ 0 .. 3 ] ];
+			@athletes = map { clone( $flight->{ athletes }[ $_ ]) } @$top4;
+
+		} else {
+			my $n        = ceil( @{ $flight->{ athletes }}/2 ) - 1;
+			my $top_half = [ @{$flight->{ placement }{ prelim }}[ 0 .. $n ] ];
+			@athletes = map { clone( $flight->{ athletes }[ $_ ]) } @$top_half;
+		}
 		push @advance, @athletes;
 		$flight->{ flight }{ state } = 'merged';
 		$flight->write();

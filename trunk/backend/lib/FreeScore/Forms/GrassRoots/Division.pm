@@ -45,15 +45,44 @@ sub read {
 		}
 
 		# ===== READ DIVISION ATHLETE INFORMATION
-		my @columns   = split /\t/;
-		my $name      = shift @columns;
-		my $rank      = shift @columns;
-		my $n         = $self->{ judges } - 1;
-		my @scores    = ();
-		my @tb_scores = ();
-		foreach ( 0 .. $n ) { push @scores,    shift @columns; }
-		foreach ( 0 .. $n ) { push @tb_scores, shift @columns; }
-		my $athlete = { name => $name, rank => $rank, 'index' => $index, scores => [ @scores ], tiebreakers => [ @tb_scores ] };
+		# First column is the name of the athlete.
+		#
+		# Second column may be the rank of the athlete.
+		#
+		# All other columns must be a score, tiebreaker, or key/value pair, where the value can be
+		# either plain text or a JSON object
+		my @columns     = split /\t/;
+		my $name        = shift @columns; # first column is name
+		my $rank        = undef;
+		my $n           = $self->{ judges } - 1;
+		my @scores      = ();
+		my @tb_scores   = ();
+		my $info        = {};
+		my $j           = 0;
+		my $have_scores = 0;
+
+		# All other columns may be a score, tiebreaker, or a key/value pair and values may be JSON or text
+		foreach my $i ( 0 .. $#columns ) {
+			my $value = $columns[ $i ];
+			if( $i == 0 && $value =~ /^\w+/ || $value eq '' ) { $rank = $value; next; }
+			if( $value =~ /=/ ) {
+				my ($key, $val) = split /=/, $value, 2;
+				if( $val =~ /^(?:\[|\{)/ ) { $val = $json->decode( $val ); }
+				$info->{ $key } = $val;
+				next;
+			}
+			if( $value =~ /^(?:\-|\d+|\d+\.\d+)$/ || ($value eq '' && $i > 0) ) {
+				if( $have_scores ) {
+					$tb_scores[ $j ] = _format_tiebreaker( $value );
+				} else {
+					$scores[ $j ] = _format_score( $value );
+					$j++;
+					if( $j >= $self->{ judges }) { $have_scores = 1; $j = 0; }
+				}
+			}
+		}
+
+		my $athlete = { name => $name, rank => $rank, info => $info, 'index' => $index, scores => [ @scores ], tiebreakers => [ @tb_scores ] };
 		$athlete->{ info }{ video } = shift @{ $self->{ videos }} if( defined( $self->{ videos }));
 		push @{ $self->{ athletes }}, $athlete;
 		$index++;
@@ -478,8 +507,9 @@ sub write {
 	$self->calculate_placements();
 
 	my $json     = new JSON::XS();
+	my $j        = int( $self->{ judges }) - 1;
 	my $brackets = exists $self->{ brackets } ? $json->canonical->encode( $self->{ brackets } ) : undef;
-	my $videos   = [ map { $_->{ video } } @{ $self->{ athletes }} ];
+	my $videos   = $self->{ athletes }[ 0 ]{ video } ? [ map { $_->{ video } } @{ $self->{ athletes }} ] : undef;
 	my $tied     = join ";", (map { $_->{ place } . ':' . join( ",", @{ $_->{ tied }} ); } @{ $self->{ tied }}) if exists $self->{ tied };
 	my $places   = join ",", (map { join( ":", $_->{ place }, $_->{ medals } ); } @{ $self->{ places }}) if exists $self->{ places };
 	$self->{ state } = 'tiebreaker' if( exists $self->{ tied } && $self->{ state } eq 'score');
@@ -499,7 +529,10 @@ sub write {
 	print FILE "# brackets=$brackets\n" if defined $brackets;
 	print FILE "# videos=$videos\n" if defined $videos;
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		print FILE join( "\t", @{ $athlete }{ qw( name rank ) }, @{ $athlete->{ scores }}, @{ $athlete->{ tiebreakers }} ), "\n";
+		my @scores      = map { _format_score( $athlete->{ scores }[ $_ ])}           ( 0 .. $j );
+		my @tiebreakers = map { _format_tiebreaker( $athlete->{ tiebreakers }[ $_ ])} ( 0 .. $j );
+		my @info        = map { my $key = $_; my $value = ( ref $athlete->{ info }{ $_ } ? $json->canonical->encode( $athlete->{ info }{ $_ }) : $athlete->{ info }{ $_ }); "$key=$value"; } sort keys %{ $athlete->{ info }};
+		print FILE join( "\t", @{$athlete}{qw( name rank )}, @scores, @tiebreakers, @info ), "\n";
 	}
 	close FILE;
 	chmod 0666, $self->{ file };
@@ -577,6 +610,23 @@ sub _compare {
 	if( $tb > 0 ) { $b->{ notes } = 'TB'; } elsif( $tb < 0 ) { $a->{ notes } = 'TB'; }
 
 	return $score || $hi || $lo || $tb;
+}
+
+# ============================================================
+sub _format_score {
+# ============================================================
+	my $score = shift;
+	if((! defined $score) || $score eq '' || $score eq '-' ) { return '-'; }
+	return 0.0 + sprintf( "%.1f", $score );
+}
+
+# ============================================================
+sub _format_tiebreaker {
+# ============================================================
+	my $tb = shift;
+	if((! defined $tb) || $tb eq '' || $tb eq '-' ) { return '-'; }
+	if( $tb == int( $tb )) { return int( $tb ); } 
+	else                   { return 0.0 + sprintf( "%.1f", $tb ); }
 }
 
 1;

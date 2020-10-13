@@ -215,6 +215,7 @@ sub rank_athletes {
 	my $placement = [];
 
 	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
+	die Dumper $round, $self->{ order }{ $round } if( ! $self->{ order }{ $round }); # MW
 	my @athlete_indices = @{$self->{ order }{ $round }};
 
 	# ===== CORNER CASE OF JUST 1 ATHLETE IN A BRACKETED ROUND
@@ -720,6 +721,11 @@ sub read {
 				else                            { $self->{ $key } = $value;                     }
 
 				$round = $self->{ round } if( defined $self->{ round } );
+				if( $key eq 'method' ) {
+					if( $self->{ method } eq 'aau-single-cutoff' ) {
+						$self->{ places } = _parse_places( 'prelim:4;semfin:4;finals:1,1,2' );
+					}
+				}
 
 			} else {
 				my $rounds = join( '|', $self->rounds());
@@ -971,8 +977,6 @@ sub update_status {
 	# AAU SINGLE CUTOFF METHOD
 	# ----------------------------------------
 	if( $method eq 'aau-single-cutoff' ) {
-
-=pod
 		my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
 		if( $round eq 'ro4b' && $self->round_complete( 'semfin' )) {
@@ -1044,7 +1048,6 @@ sub update_status {
 			$self->assign( $ro4a, 'ro2' );
 
 		}
-=cut
 
 	# ----------------------------------------
 	# CUTOFF METHOD
@@ -1469,12 +1472,26 @@ sub athletes_in_round {
 }
 
 # ============================================================
+sub round_name {
+# ============================================================
+	my $self  = shift;
+	my $round = shift || $self->{ round };
+	local $_  = $self->{ method };
+	my $map   = {};
+
+	if( /^aau-single-cutoff$/ ) { $map = { prelim => 'Preliminary', semfin => 'Semi-Finals', prefin => 'Seeding', ro4b => '1st Match of Round of 4, Finals', ro4a => '2nd Match of Round of 4, Finals', ro2 => 'Final match, Finals' }; }
+	else                        { $map = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals' }; }
+
+	return $map->{ $round };
+}
+
+# ============================================================
 sub rounds {
 # ============================================================
 	my $self = shift;
 	local $_ = $self->{ method };
 
-	if( /^aau-single-cutoff$/ ) { return ( qw( semfin prefin ro4b ro4a ro2 )); }
+	if( /^aau-single-cutoff$/ ) { return ( qw( prelim semfin prefin ro4b ro4a ro2 )); }
 	else                        { return ( qw( prelim semfin finals )); }
 }
 
