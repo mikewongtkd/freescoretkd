@@ -398,7 +398,7 @@ sub handle_division_display {
 	try {
 		$division->autopilot( 'off' );
 		# MW Will need to move this low-level stuff to Division class later
-		if( $division->{ method } eq 'aau-single-cutoff' ) {
+		if( $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /^ro\d+\w?$/ ) {
 			my $modes = [ 'score', 'summary', 'match-result', 'display' ];
 			my $i     = first_index { $_ eq $division->{ state } } @$modes;
 			my $j     = ($i + 1);
@@ -1752,7 +1752,7 @@ sub autopilot {
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
-	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4b|ro4a|ro2)$/) {
+	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4a|ro4b|ro2)$/) {
 		my @athletes = @{$division->{ order }{ $round }};
 
 		if( int( @athletes ) == 1 ) {

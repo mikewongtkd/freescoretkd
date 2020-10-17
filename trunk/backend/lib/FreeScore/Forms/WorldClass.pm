@@ -128,7 +128,6 @@ sub merge_division {
 # ============================================================
 	my $self     = shift;
 	my $divid    = shift;
-	my $flights  = shift;
 	my $i        = first_index { $_->{ name } eq $divid } @{ $self->{ divisions }};
 
 	return unless $i >= 0;

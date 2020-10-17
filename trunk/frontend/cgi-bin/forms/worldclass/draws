@@ -77,11 +77,12 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results td       { padding: 2px 4px 2px 4px; }
-			.results .number  { width: 32px; }
-			.results .usat    { width: 80px; }
-			.results .noc     { width: 40px; }
-			.results .athlete { width: 568px; }
+			.results td         { padding: 2px 4px 2px 4px; }
+			.results .number    { width: 32px; }
+			.results .usat      { width: 80px; }
+			.results .noc       { width: 40px; }
+			.results .athlete   { width: 768px; }
+			.results .decisions { width: 32px; }
 			.results .form,.score,.place { width: 100px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
 			.results .notes  { font-size: 9pt; }
@@ -121,19 +122,22 @@ foreach my $division (@divisions) {
 				<th class="number">#</th>
 				<th class="noc">State/Terr.</th>
 				<th class="athlete">Name</th>
+				<th class="decisions">Dec.</th>
 			</tr>
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ order }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $noc     = $athlete->{ info }{ noc };
-			my $sum     = 0.0;
-			my $n       = 0;
+			my $j        = $division->{ order }{ $round }[ $i ];
+			my $athlete  = $division->{ athletes }[ $j ];
+			my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $noc      = $athlete->{ info }{ noc };
+			my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : undef;
+			my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : '';
+			my $sum      = 0.0;
+			my $n        = 0;
 
 			$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td></tr>\n";
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
 		}
 		# print '<img class="footer-img"src="/images/branding/footer-2.png">' unless( $n >= 30 || int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print <<EOF;
