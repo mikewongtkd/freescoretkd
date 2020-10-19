@@ -150,6 +150,7 @@ while (@divisions) {
 EOF
 
 	} elsif( @$matches == 2 || @$matches == 3 ) {
+		my $divname = uc $division->{ matchdiv };
 		my $ro4a = {
 			chung => $matches->[ 0 ]{ athletes }[ 0 ],
 			hong  => $matches->[ 0 ]{ athletes }[ 1 ],
@@ -213,7 +214,28 @@ EOF
 		<text x="735"    y="49"    font-size="15">$ro4b->{ hong }{ name }</text>
 		<text x="708.75" y="49"    font-size="15"text-anchor="middle">$ro4b->{ hong }{ noc }</text>
 	</svg>
+
+	<div class="division"><div class="description"><b>Division $divname</b> &mdash; $division->{ description } </div><div class="round"><b>Finals Round</b></div></div>
+	<table border=0 cellpadding=0 cellspacing=0>
+		<tr>
+			<th class="number">Rank</th>
+			<th class="noc">NOC/St./Terr.</th>
+			<th class="athlete">Name</th>
 EOF
+			print "</tr>";
+			my $ro2        = $matches->[ -1 ];
+			my $thirds     = $json->decode( $ro2->{ thirds });
+			my @placements = ((map { $ro2->{ athletes }[ $_ ] } @{$ro2->{ placement }{ ro2 }}), @{$thirds});
+
+			foreach my $i (0 .. $#placements) {
+				my $athlete = $placements[ $i ];
+				my $num     = $i >= 2 ? 3 : $i + 1;
+				my $name    = $athlete->{ name };
+				my $noc     = noc( $athlete );
+
+				print "<tr><td class=\"number\">$num.</td><td class=\"noc\">$noc</td><td style=\"width: 640px\">$name</td></tr>\n";
+			}
+			print "\t</table>\n";
 	}
 
 	foreach my $division (@$matches) {
@@ -289,12 +311,11 @@ EOF
 				push @results,  "</tr>\n";
 			}
 			print <<EOF;
-			<div class="results">
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
 			<table border=0 cellpadding=0 cellspacing=0>
 				<tr>
 					<th class="number">Rank</th>
-					<th class="noc">State/Terr.</th>
+					<th class="noc">NOC/St./Terr.</th>
 					<th class="athlete">Name</th>
 EOF
 			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
@@ -303,9 +324,9 @@ EOF
 			print "</tr>";
 			print @results;
 			print "\t</table>\n";
-			print "\t</div>\n";
 		}
 	}
+	print "</div>\n";
 }
 
 print <<EOF;
