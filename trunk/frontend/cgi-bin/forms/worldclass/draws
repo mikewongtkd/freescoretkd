@@ -14,6 +14,7 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
+my $ringcapt   = $cgi->param( 'ringcaptain' );
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
@@ -130,11 +131,11 @@ while( @divisions ) {
 	print "\n\n<div class=\"results\">\n\n";
 
 	# ===== DRAW BRACKETS
-	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:r04[ab]|ro2)/;
+	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:ro4[ab]|ro2)/;
 	if( ! $bracket ) { 
 		# Do nothing; don't draw brackets if it's not a bracketed division or round
 
-	elsif( @$matches == 1 ) {
+	} elsif( @$matches == 1 ) {
 		my $chung = $matches->[ 0 ]{ athletes }[ 0 ];
 		my $hong  = $matches->[ 0 ]{ athletes }[ 1 ];
 		$chung = { name => $chung->{ name }, noc => noc( $chung )};
@@ -257,8 +258,9 @@ EOF
 				my $athlete  = $division->{ athletes }[ $j ];
 				my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
 				my $noc      = $athlete->{ info }{ noc };
-				my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : undef;
-				# my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : '';
+				my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : { $round => [{ decision => undef }]};
+				my $stream   = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream }) : { decision => undef };
+				my $decision = $ringcapt ? ($video->{ $round }[ 0 ]{ decision } || $stream->{ decision }) : '';
 				my $sum      = 0.0;
 				my $n        = 0;
 
