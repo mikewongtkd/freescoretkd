@@ -399,7 +399,7 @@ sub handle_division_display {
 		$division->autopilot( 'off' );
 		# MW Will need to move this low-level stuff to Division class later
 		if( $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /^ro\d+\w?$/ ) {
-			my $modes = [ 'score', 'summary', 'match-result', 'display' ];
+			my $modes = [ 'score', 'summary', 'match-results', 'display' ];
 			my $i     = first_index { $_ eq $division->{ state } } @$modes;
 			my $j     = ($i + 1);
 			if( $modes->[ $j ] eq 'display' && $division->{ round } ne 'ro2' ) { $j = 0; } # Can't see results except for Ro2

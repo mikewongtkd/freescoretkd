@@ -469,7 +469,7 @@ sub normalize {
 
 	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
 	if( defined $round ) {
-		die "Division Configuration Error: No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
+		die "Division Configuration Error: $self->{ file } No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
 		my $order = $self->{ order }{ $round };
 		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); } 
 

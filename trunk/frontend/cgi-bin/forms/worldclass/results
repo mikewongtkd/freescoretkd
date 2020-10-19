@@ -92,11 +92,13 @@ print <<EOF;
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
+			.results .footer-img { position: absolute; bottom: 0; width: 920px;}
 
 		</style>
 	</head>
 	<body>
+
+
 EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
@@ -118,7 +120,7 @@ foreach my $division (@divisions) {
 		my $order = $division->{ order }{ $round };
 		my $n     = $#$order;
 
-		$division->place_athletes( $round );
+		$division->rank_athletes( $round );
 
 		my @results = ();
 		foreach my $i (0 .. $n) {
@@ -161,7 +163,9 @@ foreach my $division (@divisions) {
 				}
 				$sum += $mean->{ total };
 			}
-			push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			my $noc = uc $athlete->{ info }{ noc };
+			$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+			push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			push @results, @scores;
 			$n ||= 1;
 			push @results, sprintf( "<td class=\"score\">%s</td>%s", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );
@@ -169,21 +173,22 @@ foreach my $division (@divisions) {
 		}
 		print <<EOF;
 		<div class="results">
-		<img src="/images/branding/header-2.png">
+		<img src="/images/branding/header-r.png">
+		<center>
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">Rank</th>
-				<th class="noc">NOC</th>
+				<th class="noc">State/Terr.</th>
 				<th class="athlete">Name</th>
 EOF
 		if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 		else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
-		print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB<sub>1</sub></th><th class=\"tiebreaker\">TB<sub>2</sub></th>"; 
+		print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>"; 
 		print "</tr>";
 		print @results;
-		print "\t</table>\n";
-		print "<img class=\"footer-img\" src=\"/images/branding/footer-2.png\">\n" unless( $n >= 20 || int( @divisions ) > 1 || int( @rounds ) > 1 );
+		print "\t</table></center>\n";
+		print "<img class=\"footer-img\" style=\"margin-left: 100px; margin-right:100px;\" src=\"/images/branding/footer-2.png\">\n" unless( $n >= 30 || int( @divisions ) > 1 ); # || int( @rounds ) > 1 );
 		print "\t</div>\n";
 	}
 }

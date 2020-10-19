@@ -66,6 +66,7 @@ print <<EOF;
 			}
 			.results {
 				page-break-inside: avoid;
+				page-break-after: always;
 			}
 			.results table {
 				width: 920px;
@@ -78,76 +79,204 @@ print <<EOF;
 				text-align: left;
 			}
 			.results td         { padding: 2px 4px 2px 4px; }
-			.results .number    { width: 32px; }
-			.results .usat      { width: 80px; }
-			.results .noc       { width: 40px; }
-			.results .athlete   { width: 768px; }
-			.results .decisions { width: 32px; }
-			.results .form,.score,.place { width: 100px; text-align: center; }
-			.results .preacc { font-size: 8pt; }
-			.results .notes  { font-size: 9pt; }
+			.results td.number    { width: 32px; }
+			.results td.usat      { width: 80px; }
+			.results td.noc       { width: 120px; }
+			.results td.athlete   { width: 768px; }
+			.results td.decisions { width: 32px; }
+			.results td.form,.score,.place { width: 100px; text-align: center; }
+			.results td.preacc { font-size: 8pt; }
+			.results td.notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
+
+			.results .bracket-2-person {
+				width: 100%;
+				height: 64px;
+				position: relative;
+				border: 1px solid black;
+			}
+
+			.header, .header-space { height: 225px; }
+			.footer, .footer-space { height: 112px; }
+			.header { position: fixed; top: 0; }
+			.footer { position: fixed; bottom: 0; }
 
 		</style>
 	</head>
 	<body>
+<table>
+<thead><tr><td><div class="header-space"> </div></td></tr></thead>
+<tbody><tr><td>
 EOF
-foreach my $division (@divisions) {
-	my $name   = uc $division->{ name };
-	my $judges = $division->{ judges } || 3;
-	my $flight = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
-	@rounds = reverse $division->rounds() unless @rounds;
-	foreach my $round (@rounds) {
-		next unless exists $division->{ order }{ $round };
-		my $rname  = $division->round_name( $round );
-		my $forms  = $division->{ forms }{ $round };
-		my $placed = {};
-		my $i      = 0;
-		my $places = $division->{ placement }{ $round };
-		foreach my $j ( 0 .. $#$places ) {
-			my $i = $places->[ $j ];
-			$placed->{ $i } = ordinal( $j + 1 );
-		}
+
+while( @divisions ) {
+	my $division = shift @divisions;
+	my $matches = [];
+
+	# ===== GROUP MATCHES
+	push @$matches, $division;
+	while( @divisions ) {
+		my $next = $divisions[ 0 ];
+		last if( ! exists $division->{ matchdiv });
+		last if( ! exists $next->{ matchdiv });
+		last if( $next->{ matchdiv } ne $division->{ matchdiv });
+		$next = shift @divisions;
+		push @$matches, $next;
+	}
+
+	print "\n\n<div class=\"results\">\n\n";
+
+	# ===== DRAW BRACKETS
+	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:r04[ab]|ro2)/;
+	if( ! $bracket ) { 
+		# Do nothing; don't draw brackets if it's not a bracketed division or round
+
+	elsif( @$matches == 1 ) {
+		my $chung = $matches->[ 0 ]{ athletes }[ 0 ];
+		my $hong  = $matches->[ 0 ]{ athletes }[ 1 ];
+		$chung = { name => $chung->{ name }, noc => noc( $chung )};
+		$hong  = { name => $hong->{ name } || '&nbsp;',  noc => noc( $hong ) || '&nbsp;' };
 
 		print <<EOF;
-		<div class="results">
-		<!-- img src="/images/branding/header-2.png" -->
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
-		<table border=0 cellpadding=0 cellspacing=0>
-			<tr>
-				<th class="number">#</th>
-				<th class="noc">State/Terr.</th>
-				<th class="athlete">Name</th>
-				<th class="decisions">Dec.</th>
-			</tr>
+	<svg width="920" height="44">
+		<rect x="140" y="5" width="10" height="34" style="fill:blue;stroke:black;" />
+		<rect x="150" y="5" width="240" height="34" style="fill:white;stroke:black;" />
+		<rect x="390" y="5" width="50" height="34" style="fill:white;stroke:black;" />
+		<text x="160" y="27">$chung->{ name }</text>
+		<text x="415" y="27" text-anchor="middle">$chung->{ noc }</text>
+		<rect x="730" y="5" width="10" height="34" style="fill:red;stroke:black;" />
+		<rect x="490" y="5" width="240" height="34" style="fill:white;stroke:black;" />
+		<rect x="440" y="5" width="50" height="34" style="fill:white;stroke:black;" />
+		<text x="500" y="27">$hong->{ name }</text>
+		<text x="465" y="27" text-anchor="middle">$hong->{ noc }</text>
+	</svg>
 EOF
-		my $n = $#{$division->{ order }{ $round }};
-		foreach my $i (0 .. $n) {
-			my $j        = $division->{ order }{ $round }[ $i ];
-			my $athlete  = $division->{ athletes }[ $j ];
-			my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $noc      = $athlete->{ info }{ noc };
-			my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : undef;
-			my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : '';
-			my $sum      = 0.0;
-			my $n        = 0;
 
-			$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
+	} elsif( @$matches == 2 || @$matches == 3 ) {
+		my $ro4a = {
+			chung => $matches->[ 0 ]{ athletes }[ 0 ],
+			hong  => $matches->[ 0 ]{ athletes }[ 1 ],
+		};
+		my $ro4b = {
+			chung => $matches->[ 1 ]{ athletes }[ 0 ],
+			hong  => $matches->[ 1 ]{ athletes }[ 1 ],
+		};
+		my $ro2 = @$matches == 3 ? {
+			chung => $matches->[ 2 ]{ athletes }[ 1 ],
+			hong  => $matches->[ 2 ]{ athletes }[ 0 ],
+		} : {
+			chung => { name => '', info => { noc => '' }},
+			hong  => { name => '', info => { noc => '' }},
+		};
+
+		foreach my $color (qw( chung hong )) {
+			$ro4a->{ $color } = { name => $ro4a->{ $color }{ name }, noc => noc( $ro4a->{ $color }) };
+			$ro4b->{ $color } = { name => $ro4b->{ $color }{ name }, noc => noc( $ro4b->{ $color }) };
+			$ro2->{ $color }  = { name => $ro2->{ $color }{ name }, noc => noc( $ro2->{ $color }) };
 		}
-		# print '<img class="footer-img"src="/images/branding/footer-2.png">' unless( $n >= 30 || int( @divisions ) > 1 || int( @rounds ) > 1 );
 		print <<EOF;
-		</table>
-		</div>
+	<svg width="920" height="56">
+		<rect x="005"   y="05" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+		<rect x="012.5" y="05" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="182.5" y="05" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="020" y="22.5" font-size="15">$ro4a->{ chung }{ name }</text>
+		<text x="201.25" y="22.5"  font-size="15"text-anchor="middle">$ro4a->{ chung }{ noc }</text>
+
+		<rect x="005"   y="30.5" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+		<rect x="012.5" y="30.5" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="182.5" y="30.5" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="020" y="49" font-size="15">$ro4a->{ hong }{ name }</text>
+		<text x="201.25" y="49"  font-size="15"text-anchor="middle">$ro4a->{ hong }{ noc }</text>
+
+		<line x1="220" y1="30.5" x2="240" y2="30.5" stroke="black" />
+
+		<rect x="240"    y="17.75" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+		<rect x="247.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="417.5"  y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="255"    y="36.25" font-size="15">$ro2->{ chung }{ name }</text>
+		<text x="436.25" y="36.25" font-size="15"text-anchor="middle">$ro2->{ chung }{ noc }</text>
+
+		<rect x="662.5"  y="17.75" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+		<rect x="492.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="455"    y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="500"    y="36.25" font-size="15">$ro2->{ hong }{ name }</text>
+		<text x="473.75" y="36.25" font-size="15"text-anchor="middle">$ro2->{ hong }{ noc }</text>
+
+		<line x1="670" y1="30.5" x2="690" y2="30.5" stroke="black" />
+
+		<rect x="897.5"  y="05"    width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+		<rect x="727.5"  y="05"    width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="690"    y="05"    width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="735"    y="22.5"  font-size="15">$ro4b->{ chung }{ name }</text>
+		<text x="708.75" y="22.5"  font-size="15"text-anchor="middle">$ro4b->{ chung }{ noc }</text>
+
+		<rect x="897.5"  y="30.5"  width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+		<rect x="727.5"  y="30.5"  width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="690"    y="30.5"  width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="735"    y="49"    font-size="15">$ro4b->{ hong }{ name }</text>
+		<text x="708.75" y="49"    font-size="15"text-anchor="middle">$ro4b->{ hong }{ noc }</text>
+	</svg>
 EOF
 	}
+
+	foreach my $division (@$matches) {
+		my $matchnum = $division->{ name }; $matchnum =~ s/^m//i;
+		my $name     = exists $division->{ matchdiv } ? sprintf( "%s (Match %s)", uc $division->{ matchdiv }, $matchnum) : uc $division->{ name };
+		my $judges   = $division->{ judges } || 3;
+		my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
+
+		@rounds = reverse $division->rounds() unless @rounds;
+		foreach my $round (@rounds) {
+			next unless exists $division->{ order }{ $round };
+			my $rname  = $division->round_name( $round );
+			my $forms  = $division->{ forms }{ $round };
+			my $placed = {};
+			my $i      = 0;
+			my $places = $division->{ placement }{ $round };
+			foreach my $j ( 0 .. $#$places ) {
+				my $i = $places->[ $j ];
+				$placed->{ $i } = ordinal( $j + 1 );
+			}
+
+			print <<EOF;
+			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+					<th class="number">#</th>
+					<th class="noc">NOC/St./Terr.</th>
+					<th class="athlete">Name</th>
+					<th class="decisions"></th>
+				</tr>
+EOF
+			my $n = $#{$division->{ order }{ $round }};
+			foreach my $i (0 .. $n) {
+				my $j        = $division->{ order }{ $round }[ $i ];
+				my $athlete  = $division->{ athletes }[ $j ];
+				my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
+				my $noc      = $athlete->{ info }{ noc };
+				my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : undef;
+				# my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : '';
+				my $sum      = 0.0;
+				my $n        = 0;
+
+				$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
+				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
+			}
+			print '</table>';
+		}
+	}
+	print "</div>\n";
 }
 
 print <<EOF;
+</td></tr></tbody>
+<tfoot><tr><td><div class="footer-space"> </div></td></tr></tfoot>
+</table>
+<div class="header"><img src="/images/branding/header.png" width="100%"></div>
+<div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
 	</body>
 </html>
 EOF
@@ -162,6 +291,15 @@ sub ordinal {
 	elsif( $d == 2 )           { return $n . 'nd'; }
 	elsif( $d == 3 )           { return $n . 'rd'; }
 	else                       { return $n . 'th'; }
+}
+
+# ============================================================
+sub noc {
+# ============================================================
+	my $athlete = shift;
+	my $noc     = $athlete->{ info }{ noc };
+	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+	return uc $noc;
 }
 
 # ============================================================
