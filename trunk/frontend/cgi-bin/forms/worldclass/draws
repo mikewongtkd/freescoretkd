@@ -93,13 +93,6 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-			.results .bracket-2-person {
-				width: 100%;
-				height: 64px;
-				position: relative;
-				border: 1px solid black;
-			}
-
 			.header, .header-space { height: 225px; }
 			.footer, .footer-space { height: 112px; }
 			.header { position: fixed; top: 0; }

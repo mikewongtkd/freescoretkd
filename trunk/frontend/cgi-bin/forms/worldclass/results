@@ -350,3 +350,14 @@ sub read_tournament_config {
 
 	return $config;
 }
+
+# ============================================================
+sub noc {
+# ============================================================
+	my $athlete = shift;
+	my $noc     = $athlete->{ info }{ noc };
+	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+	return uc $noc;
+}
+
+
