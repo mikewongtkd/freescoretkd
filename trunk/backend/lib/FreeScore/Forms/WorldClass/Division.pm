@@ -1479,7 +1479,7 @@ sub round_name {
 	local $_  = $self->{ method };
 	my $map   = {};
 
-	if( /^aau-single-cutoff$/ ) { $map = { prelim => 'Preliminary', semfin => 'Semi-Finals', prefin => 'Seeding', ro4a => '1st Match of Round of 4, Finals', ro4b => '2nd Match of Round of 4, Finals', ro2 => 'Final match, Finals' }; }
+	if( /^aau-single-cutoff$/ ) { $map = { prelim => 'Preliminary', semfin => 'Semi-Finals', prefin => 'Seeding', ro4a => '1st Match of Round of 4, Finals', ro4b => '2nd Match of Round of 4, Finals', ro2 => 'Final Match, Finals' }; }
 	else                        { $map = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals' }; }
 
 	return $map->{ $round };

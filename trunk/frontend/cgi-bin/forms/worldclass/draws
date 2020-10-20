@@ -144,7 +144,7 @@ while( @divisions ) {
 		<rect x="730" y="5" width="10" height="34" style="fill:red;stroke:black;" />
 		<rect x="490" y="5" width="240" height="34" style="fill:white;stroke:black;" />
 		<rect x="440" y="5" width="50" height="34" style="fill:white;stroke:black;" />
-		<text x="500" y="27">$hong->{ name }</text>
+		<text x="720" y="27" text-anchor="end">$hong->{ name }</text>
 		<text x="465" y="27" text-anchor="middle">$hong->{ noc }</text>
 	</svg>
 EOF
@@ -183,35 +183,35 @@ EOF
 		<rect x="012.5" y="30.5" width="170"  height="25.5" style="fill:white;stroke:black;" />
 		<rect x="182.5" y="30.5" width="37.5" height="25.5" style="fill:white;stroke:black;" />
 		<text x="020" y="49" font-size="15">$ro4a->{ hong }{ name }</text>
-		<text x="201.25" y="49"  font-size="15"text-anchor="middle">$ro4a->{ hong }{ noc }</text>
+		<text x="201.25" y="49"  font-size="15" text-anchor="middle">$ro4a->{ hong }{ noc }</text>
 
 		<line x1="220" y1="30.5" x2="240" y2="30.5" stroke="black" />
 
-		<rect x="240"    y="17.75" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
-		<rect x="247.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
-		<rect x="417.5"  y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
-		<text x="255"    y="36.25" font-size="15">$ro2->{ chung }{ name }</text>
-		<text x="436.25" y="36.25" font-size="15"text-anchor="middle">$ro2->{ chung }{ noc }</text>
+    <rect x="240"    y="17.75" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+    <rect x="247.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
+    <rect x="417.5"  y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+    <text x="255"    y="36.25" font-size="15">$ro2->{ chung }{ name }</text>
+    <text x="436.25" y="36.25" font-size="15" text-anchor="middle">$ro2->{ chung }{ noc }</text>
 
-		<rect x="662.5"  y="17.75" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
-		<rect x="492.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
-		<rect x="455"    y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
-		<text x="500"    y="36.25" font-size="15">$ro2->{ hong }{ name }</text>
-		<text x="473.75" y="36.25" font-size="15"text-anchor="middle">$ro2->{ hong }{ noc }</text>
+    <rect x="662.5"  y="17.75" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+    <rect x="492.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
+    <rect x="455"    y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+    <text x="655"    y="36.25" font-size="15" text-anchor="end">$ro2->{ hong }{ name }</text>
+    <text x="473.75" y="36.25" font-size="15" text-anchor="middle">$ro2->{ hong }{ noc }</text>
 
-		<line x1="670" y1="30.5" x2="690" y2="30.5" stroke="black" />
+    <line x1="670" y1="30.5" x2="690" y2="30.5" stroke="black" />
 
-		<rect x="897.5"  y="05"    width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
-		<rect x="727.5"  y="05"    width="170"  height="25.5" style="fill:white;stroke:black;" />
-		<rect x="690"    y="05"    width="37.5" height="25.5" style="fill:white;stroke:black;" />
-		<text x="735"    y="22.5"  font-size="15">$ro4b->{ chung }{ name }</text>
-		<text x="708.75" y="22.5"  font-size="15"text-anchor="middle">$ro4b->{ chung }{ noc }</text>
+    <rect x="897.5"  y="05"    width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+    <rect x="727.5"  y="05"    width="170"  height="25.5" style="fill:white;stroke:black;" />
+    <rect x="690"    y="05"    width="37.5" height="25.5" style="fill:white;stroke:black;" />
+    <text x="890"    y="22.5"  font-size="15" text-anchor="end">$ro4b->{ chung }{ name }</text>
+    <text x="708.75" y="22.5"  font-size="15" text-anchor="middle">$ro4b->{ chung }{ noc }</text>
 
-		<rect x="897.5"  y="30.5"  width="7.5"  height="25.5" style="fill:red;stroke:black;" />
-		<rect x="727.5"  y="30.5"  width="170"  height="25.5" style="fill:white;stroke:black;" />
-		<rect x="690"    y="30.5"  width="37.5" height="25.5" style="fill:white;stroke:black;" />
-		<text x="735"    y="49"    font-size="15">$ro4b->{ hong }{ name }</text>
-		<text x="708.75" y="49"    font-size="15"text-anchor="middle">$ro4b->{ hong }{ noc }</text>
+    <rect x="897.5"  y="30.5"  width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+    <rect x="727.5"  y="30.5"  width="170"  height="25.5" style="fill:white;stroke:black;" />
+    <rect x="690"    y="30.5"  width="37.5" height="25.5" style="fill:white;stroke:black;" />
+    <text x="890"    y="49"    font-size="15" text-anchor="end">$ro4b->{ hong }{ name }</text>
+    <text x="708.75" y="49"    font-size="15" text-anchor="middle">$ro4b->{ hong }{ noc }</text>
 	</svg>
 EOF
 	}
