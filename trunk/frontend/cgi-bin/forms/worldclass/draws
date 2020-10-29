@@ -94,7 +94,7 @@ print <<EOF;
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
 			.header, .header-space { height: 225px; }
-			.footer, .footer-space { height: 112px; }
+			.footer, .footer-space { height: 50px; }
 			.header { position: fixed; top: 0; }
 			.footer { position: fixed; bottom: 0; }
 
