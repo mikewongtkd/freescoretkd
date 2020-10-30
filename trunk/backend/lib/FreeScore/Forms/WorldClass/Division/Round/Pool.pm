@@ -79,6 +79,8 @@ sub record_score {
 	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 
+	$score->{ video }{ feedback } = 'ok' if( $score->{ video }{ feedback } !~ /^(?:bad|ok|dsq)$/ );
+
 	if( _have_scored( $score )) { $score->{ status } = "scored"; }
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 

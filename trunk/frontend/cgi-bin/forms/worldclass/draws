@@ -70,6 +70,7 @@ print <<EOF;
 				page-break-after: always;
 			}
 			.results table {
+				page-break-inside: avoid;
 				width: 920px;
 			}
 			.results th {
@@ -79,7 +80,7 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results td         { padding: 2px 4px 2px 4px; }
+			.results td         { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
 			.results td.number    { width: 32px; }
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 120px; }
@@ -93,8 +94,8 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-			.header, .header-space { height: 225px; }
-			.footer, .footer-space { height: 112px; }
+			.header, .header-space { height: 180px; }
+			.footer, .footer-space { height: 300px; }
 			.header { position: fixed; top: 0; }
 			.footer { position: fixed; bottom: 0; }
 
