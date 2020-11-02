@@ -48,7 +48,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>World Class Forms Division Draws</title>
+		<title>World Class Forms TA Sheets</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -80,12 +80,12 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results td         { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+			.results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
 			.results td.number    { width: 32px; }
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 63px; }
-			.results td.athlete   { width: 768px; }
-			.results td.decisions { width: 32px; }
+			.results td.athlete   { width: 763px; }
+			.results td.decisions { width: 32px; text-align: center; color: #f00; }
 			.results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
@@ -243,7 +243,9 @@ EOF
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
-					<th class="decisions"></th>
+					<th class="form">$forms->[ 0 ]</th>
+					<th class="form">$forms->[ 1 ]</th>
+					<th class="decisions">Decisions</th>
 				</tr>
 EOF
 			my $n = $#{$division->{ order }{ $round }};
@@ -254,12 +256,12 @@ EOF
 				my $noc      = $athlete->{ info }{ noc };
 				my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : { $round => [{ decision => undef }]};
 				my $stream   = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream }) : { decision => undef };
-				# my $decision = $video ? ($video->{ $round }[ 0 ]{ decision } || $stream->{ decision }) : '';
+				my $decision = $video ? ($video->{ $round }[ 0 ]{ decision } || $stream->{ decision }) : '';
 				my $sum      = 0.0;
 				my $n        = 0;
 
 				$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
-				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
+				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td class=\"form\">&nbsp;</td><td class=\"form\">&nbsp;</td><td class=\"decisions\">$decision</td></tr>\n";
 			}
 			print '</table>';
 		}
