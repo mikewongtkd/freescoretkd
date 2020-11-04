@@ -79,6 +79,8 @@ sub record_score {
 	my $key   = "$judge->{ fname }|$judge->{ lname }|$judge->{ noc }";
 	my $id    = $judge->{ id } || substr( sha1_hex( $key ), 0, 8 );
 
+  $score->{ video }{ feedback } = 'ok' if( $score->{ video }{ feedback } !~ /^(?:bad|ok|dsq)$/ );
+
 	if( _have_scored( $score )) { $score->{ status } = "scored"; }
 	$self->{ forms }[ $form ]{ scores }{ $id } = $score;
 
@@ -117,6 +119,8 @@ sub resolve {
 		if( $round->form_complete( $form )) { return { status => 'success', votes => $votes }; }
 
 		# ===== IF THE POOL HAS NOT BEEN PREVIOUSLY RESOLVED, RESOLVE NOW
+		# Note: Major is also currently used for Para Poomsae "Stances" category.
+		# Will need to change this to in future.
 		my @valid = shuffle (@{$scores->{ valid }});  # Randomize
 		@valid = splice( @valid, 0, $k ); # Take $k scores
 		foreach my $i ( 0 .. $#valid ) {
@@ -124,7 +128,7 @@ sub resolve {
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { major => nearest( 0.3, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };
