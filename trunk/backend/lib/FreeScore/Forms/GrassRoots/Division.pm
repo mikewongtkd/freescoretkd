@@ -205,7 +205,7 @@ sub calculate_scores {
 			$stats->{ sum } += $score;
 			$stats->{ min }  = $score < $athlete->{ scores }[ $stats->{ min }] ? $j : $stats->{ min };
 			$stats->{ max }  = $score > $athlete->{ scores }[ $stats->{ max }] ? $j : $stats->{ max };
-			$done++ if( $score > 0 );
+			$done++ if(( 0.0 + $score ) > 0 );
 		}
 		$athlete->{ complete } = ($judges == $done);
 

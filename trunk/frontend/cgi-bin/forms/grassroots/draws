@@ -55,7 +55,6 @@ print <<EOF;
 			}
 
 			.results {
-				font-family: HelveticaNeue;
 				page-break-after: always;
 			}
 			.results table {
