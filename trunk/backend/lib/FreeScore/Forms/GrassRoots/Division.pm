@@ -71,7 +71,7 @@ sub read {
 				$info->{ $key } = $val;
 				next;
 			}
-			if( $value =~ /^(?:\-|\d+|\d+\.\d+)$/ || ($value eq '' && $i > 0) ) {
+			if( $value =~ /^(?:\-|\d+|\d+\.\d+|r)$/ || ($value eq '' && $i > 0) ) {
 				if( $have_scores ) {
 					$tb_scores[ $j ] = _format_tiebreaker( $value );
 				} else {
@@ -617,6 +617,7 @@ sub _format_score {
 # ============================================================
 	my $score = shift;
 	if((! defined $score) || $score eq '' || $score eq '-' ) { return '-'; }
+	if( $score eq 'r' ) { return 'r'; }
 	return 0.0 + sprintf( "%.1f", $score );
 }
 
