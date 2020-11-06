@@ -337,26 +337,19 @@ sub previous {
 }
 
 # ============================================================
-sub record_vote {
+sub record_readyup {
 # ============================================================
 	my $self   = shift;
 	my $judge  = shift;
-	my $vote   = shift;
+	my $score  = shift;
 	my $judges = $self->{ judges };
 
-	my $bracket = $self->current_bracket();
-	my $blue    = $bracket->{ blue }{ votes };
-	my $red     = $bracket->{ red }{ votes };
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
 
-	if   ( $vote eq 'blue'  ) { $blue->[ $judge ] = 1; $red->[ $judge ] = 0; }
-	elsif( $vote eq 'red'   ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 1; }
-	elsif( $vote eq 'clear' ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 0; }
+	return 0 if( $athlete->{ scores }[ $judge ] =~ /^\d+(?:\.\d+)$/ );
+	$athlete->{ scores }[ $judge ] = 'r';
 
-	# Score is complete when all judges have voted
-	foreach my $i ( 0 .. $judges - 1 ) {
-		my $voted = $blue->[ $i ] || $red->[ $i ];
-		return 0 unless $voted;
-	}
 	return 1;
 }
 
@@ -424,6 +417,30 @@ sub record_tiebreaker {
 		}
 		return 1;
 	}
+}
+
+# ============================================================
+sub record_vote {
+# ============================================================
+	my $self   = shift;
+	my $judge  = shift;
+	my $vote   = shift;
+	my $judges = $self->{ judges };
+
+	my $bracket = $self->current_bracket();
+	my $blue    = $bracket->{ blue }{ votes };
+	my $red     = $bracket->{ red }{ votes };
+
+	if   ( $vote eq 'blue'  ) { $blue->[ $judge ] = 1; $red->[ $judge ] = 0; }
+	elsif( $vote eq 'red'   ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 1; }
+	elsif( $vote eq 'clear' ) { $blue->[ $judge ] = 0; $red->[ $judge ] = 0; }
+
+	# Score is complete when all judges have voted
+	foreach my $i ( 0 .. $judges - 1 ) {
+		my $voted = $blue->[ $i ] || $red->[ $i ];
+		return 0 unless $voted;
+	}
+	return 1;
 }
 
 # ============================================================
