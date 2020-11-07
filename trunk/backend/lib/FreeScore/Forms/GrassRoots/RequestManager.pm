@@ -39,6 +39,7 @@ sub init {
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
 		display            => \&handle_division_display,
+		disqualify         => \&handle_division_disqualify,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		readyup            => \&handle_division_readyup,
@@ -164,6 +165,27 @@ sub handle_division_display {
 	}
 }
 
+# ============================================================
+sub handle_division_disqualify {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $division  = $progress->current();
+
+	print STDERR "Changing display for divison " . uc( $division->{ name }) . "\n" if $DEBUG;
+
+	try {
+		$division->disqualify();
+		$division->write();
+		$self->broadcast_division_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
 
 # ============================================================
 sub handle_division_navigate {

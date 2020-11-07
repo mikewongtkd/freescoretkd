@@ -207,7 +207,7 @@ sub calculate_scores {
 			$stats->{ max }  = $score > $athlete->{ scores }[ $stats->{ max }] ? $j : $stats->{ max };
 			$done++ if(( 0.0 + $score ) > 0 );
 		}
-		$athlete->{ complete } = ($judges == $done);
+		$athlete->{ complete } = ($judges == $done) || (exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } eq 'DSQ');
 
 		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
@@ -263,6 +263,20 @@ sub current_round {
 	}
 
 	return $self->{ brackets }[ $j ];
+}
+
+# ============================================================
+sub disqualify {
+# ============================================================
+	my $self   = shift;
+	my $judge  = shift;
+	my $score  = shift;
+	my $judges = $self->{ judges };
+
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	$athlete->{ info }{ decision } = 'DSQ';
 }
 
 # ============================================================

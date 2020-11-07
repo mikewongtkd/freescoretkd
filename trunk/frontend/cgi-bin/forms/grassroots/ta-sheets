@@ -55,8 +55,9 @@ print <<EOF;
 			}
 
 			.results {
-				page-break-after: always;
+				page-berak-inside: avoid;
 			}
+
 			.results table {
 				width: 720px;
 				page-break-inside: avoid;
@@ -106,6 +107,7 @@ foreach my $division (@divisions) {
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
+					<th class="decision">&nbsp;</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -113,7 +115,7 @@ EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
 		my $athlete = $division->{ athletes }[ $i ];
-		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td></tr>\n";
+		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td>$athlete->{ info }{ video }{ decision }</td></tr>\n";
 	}
 	print <<EOF;
 				</tbody>
