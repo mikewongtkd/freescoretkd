@@ -175,7 +175,8 @@ sub calculate_placements {
 		}
 	} else {
 		$self->{ placements } = $placements; 
-		$self->{ pending } = [ grep { ! $self->{ athletes }[ $_ ]{ complete } } ( 0 .. $#{ $self->{ athletes }}) ];
+		$self->{ pending }    = [ grep { ! $self->{ athletes }[ $_ ]{ complete } } ( 0 .. $#{ $self->{ athletes }}) ];
+		$self->{ complete }   = @{$self->{ pending }} == 0;
 	}
 }
 
