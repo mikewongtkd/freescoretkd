@@ -95,7 +95,7 @@ print <<EOF;
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
 			.header, .header-space { height: 180px; }
-			.footer, .footer-space { height: 300px; }
+			.footer, .footer-space { height: 320px; }
 			.header { position: fixed; top: 0; }
 			.footer { position: fixed; bottom: 0; }
 
@@ -222,15 +222,20 @@ EOF
 		my $name     = exists $division->{ matchdiv } ? sprintf( "%s (Match %s)", uc $division->{ matchdiv }, $matchnum) : uc $division->{ name };
 		my $judges   = $division->{ judges } || 3;
 		my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
+		my $first    = 0;
 
 		@rounds = reverse $division->rounds() unless @rounds;
-		foreach my $round (@rounds) {
+
+		foreach my $round (@rounds ) {
 			next unless exists $division->{ order }{ $round };
+			next if $first; # Skip to next division if first round already processed
 			my $rname  = $division->round_name( $round );
 			my $forms  = $division->{ forms }{ $round };
 			my $placed = {};
 			my $i      = 0;
 			my $places = $division->{ placement }{ $round };
+			$first = 1;
+
 			foreach my $j ( 0 .. $#$places ) {
 				my $i = $places->[ $j ];
 				$placed->{ $i } = ordinal( $j + 1 );

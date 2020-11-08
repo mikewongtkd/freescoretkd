@@ -224,13 +224,18 @@ EOF
 		my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
 
 		@rounds = reverse $division->rounds() unless @rounds;
+		my $first = 0;
 		foreach my $round (@rounds) {
 			next unless exists $division->{ order }{ $round };
+			next if $first; # Skip to next division if first round already processed
 			my $rname  = $division->round_name( $round );
 			my $forms  = $division->{ forms }{ $round };
 			my $placed = {};
 			my $i      = 0;
 			my $places = $division->{ placement }{ $round };
+
+			$first = 1;
+
 			foreach my $j ( 0 .. $#$places ) {
 				my $i = $places->[ $j ];
 				$placed->{ $i } = ordinal( $j + 1 );

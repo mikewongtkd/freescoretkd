@@ -95,8 +95,8 @@ print <<EOF;
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 			.results .footer-img { position: absolute; bottom: 0; width: 920px;}
 
-			.header, .header-space { height: 225px; }
-			.footer, .footer-space { height: 112px; }
+			.header, .header-space { height: 180px; }
+			.footer, .footer-space { height: 300px; }
 			.header { position: fixed; top: 0; }
 			.footer { position: fixed; bottom: 0; }
 
@@ -221,7 +221,7 @@ EOF
 	<table border=0 cellpadding=0 cellspacing=0>
 		<tr>
 			<th class="number">Rank</th>
-			<th class="noc">NOC/St./Terr.</th>
+			<th class="noc">NOC</th>
 			<th class="athlete">Name</th>
 EOF
 			print "</tr>";
@@ -317,7 +317,7 @@ EOF
 			<table border=0 cellpadding=0 cellspacing=0>
 				<tr>
 					<th class="number">Rank</th>
-					<th class="noc">NOC/St./Terr.</th>
+					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
 EOF
 			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
