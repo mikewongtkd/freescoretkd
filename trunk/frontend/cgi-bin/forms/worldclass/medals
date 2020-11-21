@@ -36,7 +36,7 @@ try {
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
-			next if $ring >= 5; # MW
+			next if $ring >= 5; # KG
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
@@ -60,7 +60,7 @@ foreach my $division (@divisions) {
 	my ($num)  = $division->{ name } =~ /[bpr]\d*(\d{3})/;
 
 	next unless exists $division->{ order }{ $round };
-	$division->place_athletes( $round );
+	$division->rank_athletes( $round );
 
 	my @results = ();
 	foreach my $i (0 .. 3) {
@@ -77,13 +77,14 @@ foreach my $division (@divisions) {
 
 		$nocpoints->{ $noc }{ $place }++;
 		$nocpoints->{ $noc }{ total } += $points->{ $place };
-		
-		printf "%-4s\t%d\t%3s\t%s\n", $name, $place, $noc, $athlete->{ name };
+
+		my $video = $json->decode( $athlete->{ info }{ video });
+		my $uuid  = $video->{ finals }[ 0 ]{ file };
+		$uuid =~ s/\/finals-0\.mp4$//;
+
+		printf "%s\t%-4s\t%d\t%3s\t%s\n", $uuid, $name, $place, $noc, $athlete->{ name };
 
 		if( $name =~ /^r/i && $num < 40 && $i == 0 ) {
-			my $video = $json->decode( $athlete->{ info }{ video });
-			my $uuid  = $video->{ finals }[ 0 ]{ file };
-			$uuid =~ s/\/finals-0\.mp4$//;
 			push @$championship, { divid => $name, name => $athlete->{ name }, uuid => $uuid, noc => $noc }
 		}
 	}

@@ -126,7 +126,7 @@ sub resolve {
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { major => nearest( 0.3, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };

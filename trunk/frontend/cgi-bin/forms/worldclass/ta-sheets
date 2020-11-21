@@ -1,5 +1,6 @@
 #! /usr/bin/perl
 use Try::Tiny;
+use List::Util qw( first );
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
@@ -28,7 +29,15 @@ try {
 
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
+#			my $schedule = {
+#				1 => [ qw( p10023 p31017 p31016 p31023 p31022 p31026 p31025 p34026 p34025 p50026 p50025 p70016 b011 b010 b014 b013 b016 b023 b058 b086 b093 )],
+#				2 => [ qw( b516 b026 b517 b523 b522 b017 b022 b025 b064 p20017 p20016 p20023 p20022 p20026 p20025 p34017 p34016 p34023 p34022 p60017 p60022 p60026 p60025 )]
+#			};
+#			if( exists $schedule->{ $ring }) {
+#				push @divisions, map { my $divid = $_; first { $_->{ name } eq $divid } @{ $results->{ divisions }} } @{ $schedule->{ $ring }};
+#			} else {
+				push @divisions, @{ $results->{ divisions }};
+#			}
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
@@ -41,7 +50,7 @@ try {
 	
 };
 
-@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+# @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
 print $cgi->header();
 

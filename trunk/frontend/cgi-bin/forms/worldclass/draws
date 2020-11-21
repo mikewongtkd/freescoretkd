@@ -2,6 +2,7 @@
 use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
+use List::Util qw( first );
 use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Dumper;
@@ -15,6 +16,7 @@ my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
 my $ringcapt   = $cgi->param( 'ringcaptain' );
+my $schedule   = $cgi->param( 'schedule' );
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
@@ -29,19 +31,19 @@ try {
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
+			@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+		@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 	}
 } catch {
 	die $_;
 	
 };
-
-@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
 print $cgi->header();
 
