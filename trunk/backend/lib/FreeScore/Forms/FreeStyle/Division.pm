@@ -364,8 +364,13 @@ sub pool_judge_ready {
 	my $k       = $self->{ judges };
 	my $athlete = $self->current_athlete();
 	my $pool    = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
+	my $jid     = $judge->{ id };
 
-	$pool->{ $judge->{ id }} = { judge => $judge, status => 'ready' };
+	if( exists( $pool->{ $jid })) {
+		$pool->{ $jid }{ status } = 'ready' unless $pool->{ $jid }{ status } eq 'scored';
+	} else {
+		$pool->{ $jid } = { judge => $judge, status => 'ready' };
+	}
 
 	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
 	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
@@ -417,8 +422,6 @@ sub record_pool_score {
 		want => $k,
 		max  => $n
 	};
-
-	print STDERR Dumper $votes;
 
 	if( $votes->{ have }{ ok } == $n ) {
 		my $result = $self->resolve_pool();
@@ -484,7 +487,7 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
-			print STDERR Dumper $pool_score;
+
 			my $score = { 
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
@@ -526,7 +529,6 @@ sub resolve_pool {
 		print STDERR "Invalid count of dropped judges.\n"; # MW
 		my @valid  = map { $_->{ judge }{ id } } (@$valid);
 		my @repeat = map { $_->{ judge }{ id } } (@$bad);
-		print STDERR Dumper \@valid;
 
 		return { status => 'fail', details => 'Invalid count of dropped judges', solution => 'replay', lockout => [ @valid ], rescore => [ @repeat ], votes => $votes };
 	}
