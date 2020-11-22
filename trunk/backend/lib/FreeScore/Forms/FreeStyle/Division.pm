@@ -382,14 +382,18 @@ sub record_pool_score {
 #*
 	my $self    = shift;
 	my $score   = shift;
+	my $athlete = $self->current_athlete();
+	my $judge   = $score->{ judge };
+	my $round   = $self->{ round };
 
 	return unless $score->{ judge }{ id };
 
-	my $judge   = $score->{ judge };
-	my $round   = $self->{ round };
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$athlete->{ pool }{ $round }{ $judge->{ id }} = $score;
+
+	my $n       = $self->{ poolsize };
+	my $k       = $self->{ judges };
 	my $form    = $self->{ form };
-	my $size    = $self->{ poolsize };
-	my $athlete = $self->current_athlete();
 	my $pool    = $athlete->{ pool }{ $round };
 	my $safety    = { margin => ($n - $k)};
 	my $dsq       = [ grep { $_->{ video }{ feedback } eq 'dsq' } values %$pool ];
@@ -414,11 +418,9 @@ sub record_pool_score {
 		max  => $n
 	};
 
-	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	$athlete->{ pool }{ $round }{ $judge->{ id }} = $score;
-	my $have    = int( keys %{ $athlete->{ pool }{ $round }});
+	print STDERR Dumper $votes;
 
-	if( $have == $size ) {
+	if( $votes->{ have }{ ok } == $n ) {
 		my $result = $self->resolve_pool();
 		return $result;
 	} else {

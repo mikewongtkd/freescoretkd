@@ -53,7 +53,7 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 720px;
+				width: 920px;
 				height: 20px;
 			}
 			.division .description {
@@ -66,7 +66,7 @@ print <<EOF;
 				page-break-inside: avoid;
 			}
 			.results table {
-				width: 720px;
+				width: 920px;
 			}
 			.results th {
 				margin-top: 8px;
@@ -77,22 +77,27 @@ print <<EOF;
 			}
 			.results .number    { width: 32px; }
 			.results .usat      { width: 80px; }
-			.results .athlete   { width: 408px; }
+			.results .athlete   { width: 768px; }
 			.results .form      { width: 100px; text-align: center; }
+			.results .noc				{ width: 63px; }			
 
 			.results td         { padding: 2px 4px 2px 4px; }
 			.results td.score   { text-align: center; }
-			.results td .preacc { font-size: 8pt; }
+			.results td.preacc  { font-size: 8pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+			
+			.header, .header-space { height: 180px; }
+			.footer, .footer-space { height: 320px; }
+			.header { position: fixed; top: 0; }
+			.footer { position: fixed; bottom: 0; }
 
 		</style>
 	</head>
 	<body>
-		<h1>$tournament->{ name }</h1>
-		<h2>Freestyle Forms Results</h2>
+		<thead><tr><td><div class="header-space"> </div></td></tr></thead>
 EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
@@ -114,33 +119,34 @@ foreach my $division (@divisions) {
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
-				<th class="number">#</th>
-				<th class="usat">USAT ID</th>
+				<th class="number">Rank</th>
+				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
 EOF
-		print "<th class=\"form\">Score</th>";
-		print <<EOF;
-				<th>Place</th>
+		print "<th class=\"form\">Freestyle</th>";
+		print <<EOF;	
 			</tr>
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
+			my $noc     = $athlete->{ info }{ noc };
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"usat\">$athlete->{ usat }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr>";
+			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
+      else { print "<td>&ndash;</td>"; }
+			print "<td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
 			if( exists $score->{ decision } ) {
-				my $codes = { disqualify => 'DQ', withdraw => 'WD' };
+				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 				foreach my $decision (keys %$codes) {
 					printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } ) if( $score->{ decision }{ $decision } );
 				}
 			} else {
 				printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
 			}
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-			else { print "<td>&ndash;</td>"; }
 			print "</tr>\n";
 		}
 		print <<EOF;
@@ -151,6 +157,11 @@ EOF
 }
 
 print <<EOF;
+</td></tr></tbody>
+<tfoot><tr><td><div class="footer-space"> </div></td></tr></tfoot>
+</table>
+<div class="header"><img src="/images/branding/header.png" width="100%"></div>
+<div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
 	</body>
 </html>
 EOF
