@@ -11,6 +11,7 @@ use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::FreeStyle;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -36,17 +37,18 @@ try {
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
-			next if $ring >= 5; # KG
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+		my $freestyle = new FreeScore::Forms::FreeStyle( $tournament->{ db }, 1 );
+		push @divisions, @{ $freestyle->{ divisions }};
 	}
 } catch {
 	die $_;
 	
 };
 
-@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+@divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @divisions;
 
 my $json = new JSON::XS();
 
@@ -57,28 +59,42 @@ my $championship = [];
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $round  = 'finals';
-	my ($num)  = $division->{ name } =~ /[bpr]\d*(\d{3})/;
+	my ($num)  = $division->{ name } =~ /[bfpr]\d*(\d{3})/;
 
 	next unless exists $division->{ order }{ $round };
-	$division->rank_athletes( $round );
+	if( $division->can( 'rank_athletes' )) {
+		$division->rank_athletes( $round );
+	} elsif( $division->can( 'calculate_placements' )) {
+		$division->calculate_placements( $round );
+	}
+
+	my $placements = undef;
+	if(    exists $division->{ placement  }) { $placements = $division->{ placement }{ $round }; }
+	elsif( exists $division->{ placements }) { $placements = $division->{ placements }{ $round }; }
 
 	my @results = ();
 	foreach my $i (0 .. 3) {
-		next if $i > $#{$division->{ placement }{ $round }};
+		next if $i > $#$placements;
 		my $place    = $i + 1;
-		my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
+		my $j        = $placements->[ $i ]; next unless defined( $j );
 		my $athlete  = $division->{ athletes }[ $j ];
 		my $noc      = $athlete->{ info }{ noc };
 		my $points   = { 1 => 5, 2 => 3, 3 => 1 };
 		$place = 3 if $place == 4;
 
-		next if $athlete->{ scores }{ $round }->any_punitive_decision();
+		if( ref( $division ) =~ /worldclass/i ) {
+			next if $athlete->{ scores }{ $round }->any_punitive_decision();
+
+		} elsif( ref( $division ) =~ /freestyle/i ) {
+			next if $athlete->{ decision }{ $round };
+		}
+
 		$athlete  = unbless( clone( $athlete));
 
 		$nocpoints->{ $noc }{ $place }++;
 		$nocpoints->{ $noc }{ total } += $points->{ $place };
 
-		my $video = $json->decode( $athlete->{ info }{ video });
+		my $video = ref( $athlete->{ info }{ video }) ? $athlete->{ info }{ video } : $json->decode( $athlete->{ info }{ video });
 		my $uuid  = $video->{ finals }[ 0 ]{ file };
 		$uuid =~ s/\/finals-0\.mp4$//;
 

@@ -8,6 +8,7 @@ use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::FreeStyle;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -36,6 +37,8 @@ try {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+		my $freestyle = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+		push @divisions, @{ $freestyle->{ divisions }};
 	}
 } catch {
 	die $_;
@@ -49,17 +52,18 @@ foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	@rounds = reverse $division->rounds() unless @rounds;
-	foreach my $round (@rounds) {
+	foreach my $round (qw( finals )) {
 		next unless exists $division->{ order }{ $round };
-		my $rname  = $division->round_name( $round );
-		my $forms  = $division->{ forms }{ $round };
-		my $placed = {};
-		my $i      = 0;
+		my $rname      = 'Final Round';
+		my $forms      = $division->{ forms }{ $round };
+		my $placements = $division->{ placement } ? $division->{ placement }{ $round } : $division->{ placements }{ $round };
+		my $placed     = {};
+		my $i          = 0;
 
-		my $n = $#{$division->{ placement }{ $round }};
+		my $n = $#{$placements};
 		printf( "%s\t%-40s\t%s\tacc1\tpre1\ttot1\tacc2\tpre2\ttot2\tavg\n", $name, $division->{ description }, $round );
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ placement }{ $round }[ $i ];
+			my $j       = $placements->[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
@@ -67,6 +71,7 @@ foreach my $division (@divisions) {
 			my $uuid    = get_uuid( $athlete );
 
 			printf( "%d\t%s\t%-40s", ($i + 1),$uuid, $athlete->{ name });
+=pod
 			foreach my $j ( 0 .. 1 ) {
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 				my $mean  = $score->{ adjusted };
@@ -89,6 +94,7 @@ foreach my $division (@divisions) {
 			}
 			$n ||= 1;
 			printf( "\t%.3f\t$notes", ($sum/$n), $notes );
+=cut
 			print "\n";
 		}
 		print "\n";
@@ -138,7 +144,7 @@ sub get_uuid {
 	my $athlete = shift;
 	my $uuid    = undef;
 	if( exists $athlete->{ info }{ video } && $athlete->{ info }{ video } && $athlete->{ info }{ video } ne 'null' ) {
-		my $video = $json->decode( $athlete->{ info }{ video });
+		my $video = ref( $athlete->{ info }{ video } ) ? $athlete->{ info }{ video } : $json->decode( $athlete->{ info }{ video });
 
 		$uuid = $video->{ finals }[ 0 ]{ file }; 
 		$uuid =~ s/^videos\///; 

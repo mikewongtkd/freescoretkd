@@ -222,12 +222,13 @@ sub calculate_scores {
 
 	foreach my $athlete (@{$self->{ athletes }}) {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
+		my $decision  = exists $athlete->{ decision } ? $athlete->{ decision }{ $round } : undef;
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
 
-		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
+		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR THERE IS A PUNITIVE DECISION
+		if((@$scores == $k && all { defined $_ } @$scores) || $decision ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
 
 		foreach my $score (@$scores) {
 			foreach my $category (qw( presentation technical )) {
@@ -248,7 +249,8 @@ sub calculate_scores {
 		# ===== ADJUST SCORES FOR LARGER COURTS
 		} else { 
 			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
-			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation });
+			$adjusted->{ $_ }    = 0.0 + sprintf( "%.2f", $adjusted->{ $_ }) foreach ( qw( presentation technical ));
+			$adjusted->{ total } = 0.0 + sprintf( "%.2f", ($adjusted->{ technical } + $adjusted->{ presentation }));
 		}
 	}
 }

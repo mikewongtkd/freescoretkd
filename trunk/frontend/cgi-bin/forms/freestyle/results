@@ -63,7 +63,9 @@ print <<EOF;
 				float: right;
 			}
 			.results {
+				margin-top: 180px;
 				page-break-inside: avoid;
+				page-break-after: always;
 			}
 			.results table {
 				width: 920px;
@@ -89,7 +91,6 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 			
-			.header, .header-space { height: 180px; }
 			.footer, .footer-space { height: 320px; }
 			.header { position: fixed; top: 0; }
 			.footer { position: fixed; bottom: 0; }
@@ -124,28 +125,50 @@ foreach my $division (@divisions) {
 				<th class="athlete">Name</th>
 EOF
 		print "<th class=\"form\">Freestyle</th>";
+		print "<th>TB1</th>";
+		print "<th>TB2</th>";
 		print <<EOF;	
 			</tr>
 EOF
-		my $n = $#{$division->{ order }{ $round }};
+		my $n = $#{$division->{ placements }{ $round }};
+
+		my @decorator = sort { 
+
+			my $i = $division->{ athletes }[ $a ];
+			my $j = $division->{ athletes }[ $b ];
+
+			if( $i->{ adjusted }{ $round }{ total } == $j->{ adjusted }{ $round }{ total }) {
+				$i->{ tb1 }{ $round } = sprintf( "%.2f", $i->{ adjusted }{ $round }{ technical });
+				$j->{ tb1 }{ $round } = sprintf( "%.2f", $j->{ adjusted }{ $round }{ technical });
+
+				if( $i->{ adjusted }{ $round }{ technical } == $j->{ adjusted }{ $round }{ technical }) {
+					$i->{ tb2 }{ $round } = sprintf( "%.2f", $i->{ original }{ $round }{ total } / ($division->{ judges } - 2));
+					$j->{ tb2 }{ $round } = sprintf( "%.2f", $j->{ original }{ $round }{ total } / ($division->{ judges } - 2));
+				}
+			}
+		} @{ $division->{ placements }{ $round }};
+
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ order }{ $round }[ $i ];
+			my $j       = $division->{ placements }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $noc     = $athlete->{ info }{ noc };
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
 			print "<tr>";
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-      else { print "<td>&ndash;</td>"; }
+			if( $athlete->{ decision }{ $round } ) {
+				print "<td>&ndash;</td>";
+			} else {
+				print "<td>" . ($i + 1) . ".</td>";
+			}
+
 			print "<td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
-			if( exists $score->{ decision } ) {
+			if( exists $athlete->{ decision }{ $round } ) {
+				my $decision = $athlete->{ decision }{ $round };
 				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
-				foreach my $decision (keys %$codes) {
-					printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } ) if( $score->{ decision }{ $decision } );
-				}
+				printf( "<td class=\"score\">%s</td><td></td><td></td>", $codes->{ $decision }, $score->{ technical }, $athlete->{ original }{ $round }{ total });
 			} else {
-				printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
+				printf( "<td class=\"score\">%.2f</td><td>%s</td><td>%s</td>", $score->{ total }, $athlete->{ tb1 }{ $round }, $athlete->{ tb2 }{ $round });
 			}
 			print "</tr>\n";
 		}
