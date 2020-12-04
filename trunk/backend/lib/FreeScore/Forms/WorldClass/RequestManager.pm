@@ -42,6 +42,7 @@ sub init {
 		athlete_next            => \&handle_division_athlete_next,
 		athlete_prev            => \&handle_division_athlete_prev,
 		award_penalty           => \&handle_division_award_penalty,
+		allow_punitive          => \&handle_division_allow_punitive,
 		award_punitive          => \&handle_division_award_punitive,
 		clear_judge_score       => \&handle_division_clear_judge_score,
 		display                 => \&handle_division_display,
@@ -225,6 +226,38 @@ sub handle_division_award_penalty {
 		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_allow_punitive {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $athlete  = $division->current_athlete();
+	my $decision = $request->{ decision };
+	my $message  = "Allowing punitive decision $decision penalty for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	my $pause = { score => 9 };
+
+	try {
+		$version->checkout( $division );
+		$division->allow_decision( $request->{ decision }, $request->{ athlete_id });
+		$division->write();
+		$version->commit( $division, $message );
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

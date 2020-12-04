@@ -4,7 +4,7 @@ use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round;
 use Digest::SHA1 qw( sha1_hex );
 use JSON::XS;
-use List::Util qw( all );
+use List::Util qw( all any );
 use base qw( Clone );
 use Data::Structure::Util qw( unbless );
 use Math::Round qw( nearest );
@@ -93,8 +93,8 @@ sub record_score {
 sub resolve {
 # ============================================================
 # Resolve pool scoring. This is triggered when either (1) all
-# judges have responded; or (2) the pool scoring timer has
-# elapsed.
+# judges have responded; or (2) manually invoked by the ring
+# computer operator
 # ------------------------------------------------------------
 	my $self    = shift;
 	my $form    = shift;
@@ -105,14 +105,14 @@ sub resolve {
 
 	my ($votes, $scores, $safety) = $self->votes( $form, $timeout );
 
-	# ===== CASE 1: AT LEAST ONE DSQ VOTE HAS BEEN RAISED
+	# ===== CASE 1: AT LEAST ONE DSQ VOTE HAS BEEN RAISED: DEFER RESOLUTION
 	# DSQ votes are also valid scores, but raise an alarm so the Ring Captain
 	# can discuss and make a decision. A DSQ decision must then be manually
 	# given by the ring computer operator.
 	if( $votes->{ have }{ dsq } >= 1 ) {
 		return { status => 'fail', solution => 'discuss-disqualify', votes => $votes };
 
-	# ===== CASE 2: SUFFICIENT SCORES
+	# ===== CASE 2: SUFFICIENT SCORES TO PROCEED WITH RESOLUTION
 	} elsif( $votes->{ have }{ ok } >= $k ) {
 
 		# ===== IF THE POOL HAS BEEN PREVIOUSLY RESOLVED, KEEP PREVIOUS RESULTS AND RETURN VOTES
