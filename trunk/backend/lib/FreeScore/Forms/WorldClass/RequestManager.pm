@@ -88,6 +88,7 @@ sub init {
 	$self->{ schedule }         = {
 		build                   => \&handle_schedule_build,
 		check                   => \&handle_schedule_check,
+		init                    => \&handle_schedule_init,
 		read                    => \&handle_schedule_read,
 		write                   => \&handle_schedule_write,
 		remove                  => \&handle_schedule_remove,
@@ -1630,6 +1631,34 @@ sub handle_schedule_check {
 }
 
 # ============================================================
+sub handle_schedule_init {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $json     = $self->{ _json };
+	my $client   = $self->{ _client };
+
+	print STDERR "Creating a new schedule\n" if $DEBUG;
+	
+	my $copy       = clone( $request );
+	my $path       = "$progress->{ path }/..";
+	my $file       = "$path/schedule.json";
+	my $schedule   = undef;
+	my $tournament = $request->{ tournament };
+	my $all        = new FreeScore::Forms::WorldClass( $tournament );
+
+	$divisions = unbless( $all->{ divisions } );
+	try {
+		$schedule = new FreeScore::Forms::WorldClass::Schedule( $request->{ divisions } );
+		$schedule->write( $file );
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule->data() }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_schedule_read {
 # ============================================================
 	my $self     = shift;
@@ -1694,17 +1723,14 @@ sub handle_schedule_write {
 	my $file       = "$path/schedule.json";
 	my $schedule   = $request->{ schedule };
 	my $tournament = $request->{ tournament };
-	my $all        = new FreeScore::Forms::WorldClass( $tournament );
 
-	# ===== DO NOT CACHE DIVISION INFORMATION; RETRIEVE IT FRESH FROM THE DB EVERY TIME
-	$divisions = unbless( $all->{ divisions } );
-	$schedule  = bless $schedule, 'FreeScore::Forms::WorldClass::Schedule';
+	$schedule      = bless $schedule, 'FreeScore::Forms::WorldClass::Schedule';
 
 	$schedule->clear() if( $request->{ clear });
 
 	try {
 		$schedule->write( $file );
-		$client->send( { json => {  type => 'schedule', schedule => $schedule->data(), divisions => $divisions, action => 'write', result => 'ok' }});
+		$client->send( { json => {  type => 'schedule', schedule => $schedule->data(), action => 'write', result => 'ok' }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

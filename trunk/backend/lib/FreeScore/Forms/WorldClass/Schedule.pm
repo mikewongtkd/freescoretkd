@@ -12,21 +12,31 @@ use FreeScore::Forms::WorldClass::Schedule::Block;
 use Scalar::Util qw( blessed );
 use Data::Dumper;
 
-our $TIME_PER_FORM = 2.5;
-our $TIME_PER_FREESTYLE_FORM = 8;
-
 # ============================================================
 sub new {
 # ============================================================
 	my ($class)  = map { ref || $_ } shift;
-	my $file     = shift;
-	my $debug    = shift;
-	my $contents = read_file( $file );
-	my $json     = new JSON::XS();
-	my $self     = bless $json->decode( $contents ), $class;
+	my $input    = shift;
+	my $config   = shift || {};
 
-	$self->{ file }  = $file;
-	$self->{ debug } = $debug;
+	if( ref( $input )) {
+		$self->{ divisions } = $input;
+		bless $self, $class;
+
+	} elsif( -e $input ) {
+		my $contents    = read_file( $input );
+		my $json        = new JSON::XS();
+		my $self        = bless $json->decode( $contents ), $class;
+		$self->{ file } = $input;
+	}
+
+	$self->{ debug }                = $config->{ debug }              || 0;
+	$self->{ rules }                = $config->{ rules }              || 'usat';
+	$self->{ time }{ recognized }   = $config->{ time }{ recognized } || 2.5;
+	$self->{ time }{ freestyle  }   = $config->{ time }{ freestyle }  || 5;
+	$self->{ recognized }           = $config->{ recognized }         || { prelim => [ 20, 40, 60 ], semfin => 'half', finals => 8 };
+	$self->{ freestyle  }           = $config->{ freestyle }          || { prelim => 20, semfin => 'half', finals => 12 };
+	$self->init_conflicts( $config );
 	$self->init();
 
 	return $self;
@@ -64,49 +74,51 @@ sub init {
 
 		# ===== FREESTYLE EVENT
 		if( exists $division->{ freestyle } && $division->{ freestyle }) {
-			if( $n >= 20 ) {
-				my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'prelim' );
+			my $f = $self->{ freestyle }{ finals }; # Max num. of athletes in the final round
+			if( $n >= $self->{ freestyle }{ prelim }) {
+				my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'prelim' );
 				my $k      = ceil( $n/2 );
-				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'semfin' );
-				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $k, 'semfin' );
+				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $f, 'finals' );
 
 				$semfin->preconditions( $prelim );
 				$finals->preconditions( $semfin );
 				push @blocks, $prelim, $semfin, $finals;
 
-			} elsif( $n > 9 ) {
-				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
-				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+			} elsif( $n > $f ) {
+				my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'semfin' );
+				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $f, 'finals' );
 
 				$finals->preconditions( $semfin );
 				push @blocks, $semfin, $finals;
 
 			} else {
-				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'finals' );
+				my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'finals' );
 				push @blocks, $finals;
 			}
 
 		# ===== START WITH FLIGHTED PRELIMINARY ROUND
-		} elsif( $division->{ round } eq 'prelim' && ( $n > 20 || exists( $division->{ flight }))) {
+		} elsif( $division->{ round } eq 'prelim' && ( $n > $self->{ recognized }{ prelim }[ 0 ] || exists( $division->{ flight }))) {
 			if( exists( $division->{ flight })) {
 				$division->{ name } =~ s/[A-Za-z]$//;
 
 				my $flight = $division->{ flight };
 
 				foreach my $flight (@$flight) {
-					my $block    = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $flight->{ athletes }, 'prelim', $flight->{ id } );
+					my $block    = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $flight->{ athletes }, 'prelim', $flight->{ id } );
 					push @$prelim, $block;
 				}
 
 				$n = sum map { ceil( $_->{ athletes }/2) } @$prelim;
-				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
+				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'semfin' );
 				$semfin->preconditions( @$prelim );
 
 			} else {
-				my $f = 2;
-				if   ( $n <  40 ) { $f = 2; } # 21-40 as per USAT; WT splits 20-39 into 2 flights
-				elsif( $n <= 60 ) { $f = 3; } # 41-60 as per USAT; WT splits 40+ into 3 flights and has no provisions for 4 flights
-				elsif( $n >  60 ) { $f = 4; } # 61+   as per USAT
+				my $max = $self->{ recognized }{ prelim };
+				my $f   = 2;
+				if   ( $n <  $max[ 0 ] ) { $f = 2; } # 21-40 per USAT; WT splits 20-39 into 2 flights
+				elsif( $n <= $max[ 1 ] ) { $f = 3; } # 41-60 per USAT; WT splits 40+ into 3 flights and has no provisions for 60+ sized divisions
+				elsif( $n >  $max[ 2 ] ) { $f = 4; } # 61+   per USAT
 
 				my $m = $n;
 				for( my $i = 0; $i < $f; $i++ ) {
@@ -114,27 +126,27 @@ sub init {
 					my $flight = chr( ord( 'a' ) + $i ); # a, b, c, d, etc.
 					my $k      = ceil( $m/$j );          # Assign k athletes to this flight
 
-					my $block  = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $k, 'prelim', $flight );
+					my $block  = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $k, 'prelim', $flight );
 					push @$prelim, $block;
 					$m -= $k;
 				}
 				$n = sum map { ceil( $_->{ athletes }/2) } @$prelim;
-				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
+				$semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'semfin' );
 				$semfin->preconditions( @$prelim );
 			}
 
-			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 8, 'finals' );
 			$finals->preconditions( $semfin );
 
 			push @blocks, @$prelim; 
 			push @blocks, $semfin unless first { $_->{ id } eq $semfin->{ id } } @blocks; 
 			push @blocks, $finals unless first { $_->{ id } eq $finals->{ id } } @blocks;
 
-		# ===== START WITH UNFLIGHTABLE PRELIMINARY ROUND
-		} elsif( $division->{ round } eq 'prelim' && $n == 20 ) {
-			my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 20, 'prelim' );
-			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 10, 'semfin' );
-			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+		# ===== START WITH UNFLIGHTABLE PRELIMINARY ROUND (USAT ONLY)
+		} elsif( $self->{ rules } eq 'usat' && $division->{ round } eq 'prelim' && $n == 20 ) {
+			my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 20, 'prelim' );
+			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 10, 'semfin' );
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 8, 'finals' );
 
 			$semfin->preconditions( $prelim );
 			$finals->preconditions( $semfin );
@@ -142,28 +154,80 @@ sub init {
 			push @blocks, $prelim, $semfin, $finals;
 
 		# ===== START WITH SEMI-FINALS
-		} elsif( $n > 8 ) {
-			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'semfin' );
+		} elsif( $n > $self->{ recognized }{ finals }) {
+			my $f = $self->{ recognized }{ finals };
+			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'semfin' );
 			$semfin->preconditions( @$prelim );
 
-			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, 8, 'finals' );
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $f, 'finals' );
 			$finals->preconditions( $semfin );
 
 			push @blocks, $semfin, $finals;
 
 		# ===== START WITH FINALS
 		} else {
-			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $division, $n, 'finals' );
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, $n, 'finals' );
 
 			push @blocks, $finals;
 		}
 	}
 	# ===== FIND ALL NONCONCURRENCES
 	foreach my $block (@blocks) {
-		$block->nonconcurrences( $divisions );
+		$block->nonconcurrences( $self, $divisions );
 	}
 
 	$self->{ blocks } = { map { $_->{ id } => $_ } @blocks }
+}
+
+# ============================================================
+sub init_conflicts {
+# ============================================================
+	my $self = shift;
+	my $config = shift;
+	$self->{ conflicts } = $config->{ conflicts } ||
+	{
+		"male individual youth"               => [ "pair youth", "male team youth" ],
+		"female individual youth"             => [ "pair youth", "female team youth" ],
+		"male team youth"                     => [ "pair youth", "male individual youth" ],
+		"female team youth"                   => [ "pair youth", "female individual youth" ],
+		"pair youth"                          => [ "male individual youth", "female individual youth", "male team youth", "female team youth" ],
+		"freestyle male individual under17"   => [ "male individual cadet", "pair cadet", "male team cadet", "male individual junior", "pair junior", "male team junior", "freestyle pair under17", "freestyle mixed team under17" ],
+		"freestyle female individual under17" => [ "female individual cadet", "pair cadet", "female team cadet", "female individual junior", "pair junior", "female team junior", "freestyle pair under17", "freestyle mixed team under17" ],
+		"freestyle pair under17"              => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual under17", "freestyle female individual under17", "freestyle mixed team under17" ],
+		"freestyle mixed team under17"        => [ "male individual cadet", "female individual cadet", "pair cadet", "male team cadet", "female team cadet", "male individual junior", "female individual junior", "pair junior", "male team junior", "female team junior", "freestyle male individual under17", "freestyle female individual under17", "freestyle pair under17" ],
+		"male individual cadet"               => [ "pair cadet", "male team cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female individual cadet"             => [ "pair cadet", "female team cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"male team cadet"                     => [ "pair cadet", "male individual cadet", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female team cadet"                   => [ "pair cadet", "female individual cadet", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"pair cadet"                          => [ "male individual cadet", "female individual cadet", "male team cadet", "female team cadet", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"male individual junior"              => [ "pair junior", "male team junior", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female individual junior"            => [ "pair junior", "female team junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"male team junior"                    => [ "pair junior", "male individual junior", "freestyle male individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"female team junior"                  => [ "pair junior", "female individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"pair junior"                         => [ "male individual junior", "female individual junior", "male team junior", "female team junior", "freestyle male individual junior", "freestyle female individual junior", "freestyle pair junior", "freestyle mixed team under17" ],
+		"freestyle male individual over17"    => [ "male individual under30", "pair under30", "male team under30", "male individual under40", "pair over30", "male team over30", "freestyle pair over17", "freestyle mixed team over17" ],
+		"freestyle female individual over17"  => [ "female individual under30", "pair under30", "female team under30", "female individual under40", "pair over30", "female team over30", "freestyle pair over17", "freestyle mixed team over17" ],
+		"freestyle pair over17"               => [ "male individual under30", "female individual under30", "pair under30", "male team under30", "female team under30", "male individual under40", "female individual under40", "pair over30", "male team over30", "female team over30", "freestyle male individual over17", "freestyle female individual over17", "freestyle mixed team over17" ],
+		"freestyle mixed team over17"         => [ "male individual under30", "female individual under30", "pair under30", "male team under30", "female team under30", "male individual under40", "female individual under40", "pair over30", "male team over30", "female team over30", "freestyle male individual over17", "freestyle female individual over17", "freestyle pair over17" ],
+		"male individual under30"             => [ "pair under30", "male team under30" ],
+		"female individual under30"           => [ "pair under30", "female team under30" ],
+		"male team under30"                   => [ "pair under30", "male individual under30" ],
+		"female team under30"                 => [ "pair under30", "female individual under30" ],
+		"pair under30"                        => [ "male individual under30", "female individual under30", "male team under30", "female team under30" ],
+		"male individual under40"             => [ "pair over30", "male team over30" ],
+		"female individual under40"           => [ "pair over30", "female team over30" ],
+		"male team over30"                    => [ "pair over30", "male individual under40", "male individual under50", "male individual under60", "male individual under70", "male individual over65" ],
+		"female team over30"                  => [ "pair over30", "female individual under40", "female individual under50", "female individual under60", "female individual under70", "female individual over65" ],
+		"pair over30"                         => [ "male individual under40", "female individual under40", "male individual under50", "female individual under50", "male individual under60", "female individual under60", "male individual under70", "female individual under70", "male individual over65", "female individual over65", "male team over30", "female team over30" ],
+		"male individual under50"             => [ "pair over30", "male team over30" ],
+		"female individual under50"           => [ "pair over30", "female team over30" ],
+		"male individual under60"             => [ "pair over30", "male team over30" ],
+		"female individual under60"           => [ "pair over30", "female team over30" ],
+		"male individual under70"             => [ "pair over30", "male team over30" ],
+		"female individual under70"           => [ "pair over30", "female team over30" ],
+		"male individual over65"              => [ "pair over30", "male team over30" ],
+		"female individual over65"            => [ "pair over30", "female team over30" ]
+	};
 }
 
 # ============================================================
@@ -175,8 +239,9 @@ sub build {
 	$self->clear();
 
 	foreach my $i (0 .. $#{$self->{ days }}) {
+		my $start     = $self->{ days }[ 0 ]{ start };
 		my $day       = $self->{ days }[ $i ];
-		my $d         = ((new Date::Manip::Date( $self->{ start }))->calc( new Date::Manip::Delta( "$i days" )))->printf( '%b %d, %Y' );
+		my $d         = ((new Date::Manip::Date( $day->{ start } )))->printf( '%b %d, %Y' );
 		my $rings     = $day->{ rings };
 		my $num_rings = int( @$rings );
 		my $divisions = join( '|', @{ $day->{ divisions }});
@@ -272,8 +337,8 @@ sub check {
 				my $block = $lookup->{ $blockid };
 				next unless exists $block->{ require };
 
-				my $nonconcurrents = $block->{ require }{ nonconcurrent };
-				foreach my $otherid (@$nonconcurrents) {
+				my $conflicts = $block->{ require }{ nonconcurrent };
+				foreach my $otherid (@$conflicts) {
 					my $other = $lookup->{ $otherid };
 					next unless $block->is_concurrent( $other );
 
@@ -367,8 +432,8 @@ sub placement_ok {
 	my $day    = $self->{ days }[ $day_i ];
 
 	# ===== CHECK TO SEE IF THERE ARE ANY NONCONCURRENT BLOCKS RUNNING CONCURRENTLY
-	my $nonconcurrents = $block->{ require }{ nonconcurrent };
-	foreach my $blockid (@$nonconcurrents) {
+	my $conflicts = $block->{ require }{ nonconcurrent };
+	foreach my $blockid (@$conflicts) {
 		my $other = $lookup->{ $blockid };
 		return 0 if( $block->is_concurrent( $other ));
 	}
