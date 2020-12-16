@@ -244,8 +244,7 @@ sub build {
 		my $d         = ((new Date::Manip::Date( $day->{ start } )))->printf( '%b %d, %Y' );
 		my $rings     = $day->{ rings };
 		my $num_rings = int( @$rings );
-		my $divisions = join( '|', @{ $day->{ divisions }});
-		my @blocks    = sort FreeScore::Forms::WorldClass::Schedule::Block::by_priority grep { $_->{ id } =~ /^$divisions\|/i } values %{ $self->{ blocks }};
+		my @blocks    = @{ $day->{ blocks }};
 
 		while( @blocks ) {
 			my $block = shift @blocks;

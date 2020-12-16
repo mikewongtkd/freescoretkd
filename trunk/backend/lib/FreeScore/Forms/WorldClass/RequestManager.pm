@@ -1645,12 +1645,9 @@ sub handle_schedule_init {
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
 	my $schedule   = undef;
-	my $tournament = $request->{ tournament };
-	my $all        = new FreeScore::Forms::WorldClass( $tournament );
 
-	$divisions = unbless( $all->{ divisions } );
 	try {
-		$schedule = new FreeScore::Forms::WorldClass::Schedule( $request->{ divisions } );
+		$schedule = new FreeScore::Forms::WorldClass::Schedule( $request->{ divisions }, $request->{ config });
 		$schedule->write( $file );
 		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule->data() }});
 	} catch {

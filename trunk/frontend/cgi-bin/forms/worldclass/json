@@ -1,0 +1,109 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use CGI;
+use CGI::Carp qw( fatalsToBrowser );
+use JSON::XS;
+use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
+use List::MoreUtils qw( first_index );
+use Clone qw( clone );
+use Data::Dumper;
+use PHP::Session;
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Division;
+
+my $cgi        = new CGI();
+my $tournament = read_tournament_config();
+my $ringnum    = lc $cgi->param( 'ring' );
+my $divid      = lc $cgi->param( 'divid' );
+my @rounds     = ($cgi->param( 'round' ));
+my $json       = new JSON::XS();
+
+my @divisions  = ();
+my $results    = undef;
+try {
+	if( defined $ringnum ) {
+		if( defined $divid ) { 
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} else {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ringnum ( @{$tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			if( defined $divid ) {
+				push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+			} else {
+				push @divisions, @{ $results->{ divisions }};
+			}
+		}
+	}
+} catch {
+	die $_;
+	
+};
+
+@divisions = sort { (exists $a->{ matchdiv } && exists $b->{ matchdiv }) ? $a->{ matchdiv } cmp $b->{ matchdiv } : 0 || $a->{ name } cmp $b->{ name } } @divisions;
+
+if( $cgi->request_method() eq 'GET' ) { 
+	print $cgi->header( 'application/json' );
+	my $ring = {};
+	if( defined $ringum ) {
+		$ring = { ring => $ringnum, divisions => [ map { unbless( clone( $_ )) } @divisions ]};
+	}
+	print $json->canonical->encode( $ring );
+
+} elsif( $cgi->request_method() eq 'POST' ) {
+	if( ! $ring || ! $divid ) { $cgi->cgi_error( '400 Bad request (malformed multipart POST)' ); print $cgi->header( -status => $cgi->cgi_error ); exit( 0 ); }
+
+	try {
+		my $sessid     = lc $cgi->param( 'authtoken' );
+		my $session    = new PHP::Session( $sessid, { save_path => '/usr/local/freescore/sessions' });
+
+	} catch {
+		$cgi->cgi_error( '403 Unauthorized' );
+		print $cgi->header( -status => $cgi->cgi_error );
+		exit( 0 );
+	}
+
+	my $data = $json->decode( $cgi->param( 'division' ));
+	my $division = FreeScore::Forms::WorldClass::Division::from_json( $data );
+	$division->write();
+
+	print $json->canonical->encode( $data );
+}
+
+# ============================================================
+sub read_tournament_config {
+# ============================================================
+	my $php = '';
+	my $config = [
+		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+		'/var/www/html/freescore/include/php/config.php',
+		'/var/www/html/include/php/config.php',
+		'/var/www/freescore/include/php/config.php',
+		'/var/www/include/php/config.php',
+	];
+	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+
+	my $json = new JSON::XS();
+	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+	my $config = $json->decode( $data );
+
+	return $config;
+}
+
+# ============================================================
+sub noc {
+# ============================================================
+	my $athlete = shift;
+	my $noc     = $athlete->{ info }{ noc };
+	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+	return uc $noc;
+}
