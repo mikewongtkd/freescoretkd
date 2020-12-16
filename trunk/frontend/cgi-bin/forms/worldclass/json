@@ -62,8 +62,16 @@ if( $cgi->request_method() eq 'GET' ) {
 	if( ! $ring || ! $divid ) { $cgi->cgi_error( '400 Bad request (malformed multipart POST)' ); print $cgi->header( -status => $cgi->cgi_error ); exit( 0 ); }
 
 	try {
-		my $sessid     = lc $cgi->param( 'authtoken' );
-		my $session    = new PHP::Session( $sessid, { save_path => '/usr/local/freescore/sessions' });
+		my $sessid  = lc $cgi->param( 'authtoken' );
+		my $session = new PHP::Session( $sessid, { save_path => '/usr/local/freescore/sessions' });
+		my $auth    = $session->get( 'is_auth' );
+		my $role    = $session->get( 'role' );
+
+		if( ! $auth || $role ne 'admin' ) {
+			$cgi->cgi_error( '403 Unauthorized' );
+			print $cgi->header( -status => $cgi->cgi_error );
+			exit( 0 );
+		}
 
 	} catch {
 		$cgi->cgi_error( '403 Unauthorized' );
