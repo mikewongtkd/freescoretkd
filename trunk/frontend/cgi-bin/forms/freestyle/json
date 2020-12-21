@@ -14,7 +14,7 @@ use Data::Dumper;
 use PHP::Session;
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::FreeStyle;
 use FreeScore::RCS;
 
 my $cgi        = new CGI();
@@ -28,16 +28,16 @@ my $results    = undef;
 try {
 	if( $ringnum ) {
 		if( $divid ) { 
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
 		} else {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
 		foreach my $ringnum ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
 			if( $divid ) {
 				push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 			} else {
@@ -127,7 +127,7 @@ sub fail {
 sub get_division {
 # ============================================================
 	fail( 400 ) if( ! $ringnum || ! $divid );
-	my $ring     = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+	my $ring     = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
 	my $division = first { $_->{ name } eq $divid } @{ $ring->{ divisions }};
 	fail( 404 ) if( ! $division );
 
@@ -139,12 +139,11 @@ sub get_key {
 # ============================================================
 	my $athid    = $cgi->param( 'athlete' );
 	my $rid      = $cgi->param( 'round' );
-	my $fid      = $cgi->param( 'form' );
 
 	my $athlete  = $division->{ athletes }[ $athid ];
 	my $score    = $athlete->{ scores }{ $rid };
 
-	return { athlete => $athid, round => $rid, form => $fid };
+	return { athlete => $athid, round => $rid };
 }
 
 # ============================================================
@@ -161,7 +160,7 @@ sub handle_approve_decision {
 	my $video    = undef;
 
 	try {
-		$video = $json->decode( $athlete->{ info }{ video });
+		$video = $json->decode( $athlete->{ info }{ videos });
 	} catch {
 		fail( 500 );
 	};
@@ -175,7 +174,7 @@ sub handle_approve_decision {
 	my $form  = $forms->[ $key->{ form }];
 	if( $decision eq 'clear' ) { delete $form->{ decision }; } else { $form->{ decision } = $decision; }
 
-	$athlete->{ info }{ video } = $json->canonical->encode( $video );
+	$athlete->{ info }{ videos } = $json->canonical->encode( $video );
 
 	my $message = sprintf( "Admin approving decision of %s for %s in %s round, %s form\n", $decision, $athlete->{ name }, $key->{ round }, $key->{ form } == 0 ? '1st' : '2nd' );
 
