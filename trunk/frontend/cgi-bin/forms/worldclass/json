@@ -174,7 +174,7 @@ sub handle_approve_decision {
 	fail( 500 ) if( ref( $forms ) !~ /array/i );
 	fail( 404 ) if( $key->{ form } < 0 | $key->{ form } > $#$forms );
 	my $form  = $forms->[ $key->{ form }];
-	$form->{ decision } = $decision;
+	if( $decision eq 'clear' ) { delete $form->{ decision }; } else { $form->{ decision } = $decision; }
 
 	$athlete->{ info }{ video } = $json->canonical->encode( $video );
 
@@ -184,6 +184,7 @@ sub handle_approve_decision {
 	$division->write();
 	$version->commit( $division, $message );
 
+	$athlete = unbless( clone( $athlete ));
 	print $cgi->header( 'application/json' );
 	print $json->canonical->encode( $athlete );
 	exit( 0 );

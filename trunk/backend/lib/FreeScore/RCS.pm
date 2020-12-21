@@ -1,6 +1,6 @@
 package FreeScore::RCS;
 
-use Data::Dumper;
+use List::Util qw( first );
 
 # Provides support for data file versioning and history;
 # where FreeScore::Repository provides support for software
@@ -19,9 +19,9 @@ sub new {
 sub init {
 # ============================================================
 	my $self = shift;
-	$self->{ ci }  = `which ci`;
-	$self->{ co }  = `which co`;
-	$self->{ log } = `which rlog`;
+	$self->{ ci }  = $self->locate( 'ci' );
+	$self->{ co }  = $self->locate( 'co' );
+	$self->{ log } = $self->locate( 'rlog' );
 	foreach (qw( ci co log )) { chomp $self->{ $_ }; }
 	$self->{ available } = $self->{ ci } && $self->{ co } && $self->{ log };
 }
@@ -112,6 +112,18 @@ sub history {
 	push @history, $current if( exists $current->{ number });
 
 	return @history;
+}
+
+# ============================================================
+sub locate {
+# ============================================================
+	my $self  = shift;
+	my $tool  = shift;
+	my @paths = map { "$_/$tool" } qw( /usr/bin /usr/local/bin );
+	my $path  = first { -e } @paths;
+	$path = `which $tool` unless $path;
+
+	return $path;
 }
 
 # ============================================================
