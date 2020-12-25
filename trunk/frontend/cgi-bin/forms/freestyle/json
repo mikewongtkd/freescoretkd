@@ -21,7 +21,6 @@ my $cgi        = new CGI();
 my $tournament = read_tournament_config();
 my $ringnum    = lc $cgi->param( 'ring' );
 my $divid      = lc $cgi->param( 'divid' );
-my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
 my $results    = undef;
@@ -76,8 +75,10 @@ if( $cgi->request_method() eq 'GET' ) {
 		$action =~ s/\W/_/g;
 		unless( exists $handle->{ $action }) { $cgi->cgi_error( '400 Bad request' ); print $cgi->header( -status => $cgi->cgi_error ); exit( 0 ); }
 		my $response = $handle->{ $action }( $division, $key, $data );
+		print STDERR "ACTION COMPLETE\n";
 		$cgi->header( 'application/json' );
 		print $json->canonical->encode( $response );
+		print STDERR "RESPONSE: " . $json->canonical->encode( $response ) . "\n";
 		exit( 0 );
 
 	} catch {
@@ -157,13 +158,7 @@ sub handle_approve_decision {
 	fail( 404 ) if( $key->{ athlete } < 0 || $key->{ athlete } > $#{$division->{ athletes }});
 
 	my $athlete  = $division->{ athletes }[ $key->{ athlete }];
-	my $video    = undef;
-
-	try {
-		$video = $json->decode( $athlete->{ info }{ videos });
-	} catch {
-		fail( 500 );
-	};
+	my $video    = $athlete->{ info }{ video };
 
 	fail( 500 ) unless $video;
 	fail( 404 ) unless exists $video->{ $key->{ round }};
@@ -174,7 +169,7 @@ sub handle_approve_decision {
 	my $form  = $forms->[ $key->{ form }];
 	if( $decision eq 'clear' ) { delete $form->{ decision }; } else { $form->{ decision } = $decision; }
 
-	$athlete->{ info }{ videos } = $json->canonical->encode( $video );
+	$athlete->{ info }{ video } = $video;
 
 	my $message = sprintf( "Admin approving decision of %s for %s in %s round, %s form\n", $decision, $athlete->{ name }, $key->{ round }, $key->{ form } == 0 ? '1st' : '2nd' );
 
@@ -201,26 +196,24 @@ sub handle_rescore {
 	my $athlete  = $division->{ athletes }[ $key->{ athlete }];
 
 	fail( 404 ) unless( exists $athlete->{ scores }{ $key->{ round }});
+	fail( 404 ) unless( exists $athlete->{ pool }{ $key->{ round }});
 
-	my $round = $athlete->{ scores }{ $key->{ round }};
-	my $pools = $round->{ pool }{ forms };
-	fail( 500 ) if( ref( $pools ) !~ /array/i );
-	fail( 404 ) if( $key->{ form } < 0 | $key->{ form } > $#$pools );
-	my $pool  = $pools->[ $key->{ form }]{ scores } = {};
+	my $score = $athlete->{ scores }{ $key->{ round }};
+	my $pool  = $athlete->{ pool }{ $key->{ round }};
 
 	foreach my $jid (keys %$rescore) { $pool->{ $jid } = $rescore->{ $jid }; }
 
-	my $forms = $division->{ forms }{ $key->{ round }};
-
-	foreach $score (values %$pool) {
-		next unless exists $score->{ as } && looks_like_number( $score->{ as });
-		my $acc    = $score->{ accuracy };
-		my $pre    = $score->{ presentation };
-		my $values = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
-		$round->record_score( $key->{ form }, $score->{ as }, $values );
+	foreach $ps (values %$pool) {
+		next unless exists $ps->{ as } && looks_like_number( $ps->{ as });
+		my $seat   = $ps->{ as };
+		my $tech   = $ps->{ technical };
+		my $pres   = {%{$ps->{ presentation }}}; $pres->{ choreograpy } = $pres->{ music }; delete $pres->{ music };
+		my $ded    = $ps->{ deductions };
+		my $values = { technical => { mft1 => $tech->{ jump }{ side }, mft2 => $tech->{ jump }{ front }, mft3 => $tech->{ jump }{ spin }, mft4 => $tech->{ consecutive }, mft5 => $tech->{ acrobatic }, basic => $tech->{ basic }}, presentation => { %$pres }, deductions => { %$ded }};
+		$score->[ $seat ] = $values;
 	}
 
-	my $message = sprintf( "Admin editing score for %s, %s round, %s form\n", $athlete->{ name }, $key->{ round }, $key->{ form } == 0 ? '1st' : '2nd' );
+	my $message = sprintf( "Admin editing score for %s, %s round\n", $athlete->{ name }, $key->{ round });
 
 	$version->checkout( $division );
 	$division->write();
