@@ -859,7 +859,7 @@ sub handle_division_pool_score {
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
-	my $message  = "  $jname has scored for $athlete->{ name }\n";
+	my $message  = "  $jname has scored for $athlete->{ name } ($division->{ round }-$division->{ form })\n";
 
 	print STDERR $message if $DEBUG;
 

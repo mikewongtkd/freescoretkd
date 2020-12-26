@@ -807,6 +807,14 @@ sub read {
 				my $r        = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$r->record_decision( $form, $_ ) foreach @$decision;
 
+			# Form completion time for monitoring tournament progress and schedule estimates
+			} elsif ( $judge =~ /^t$/ ) {
+				my ($time)    = @score_criteria;
+				my $forms     = int( @{ $self->{ forms }{ $round }});
+				my $judges    = $self->{ judges };
+				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_completion_time( $form, $time );
+
 			# Online poomsae tournaments judge pool scores (using redundancy to combat judge network intermittency)
 			} elsif ( $judge =~ /^o/ ) {
 				my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;

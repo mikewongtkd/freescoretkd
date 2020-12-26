@@ -5,6 +5,7 @@ use FreeScore;
 use FreeScore::Forms::WorldClass::Division::Round::Pool;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use Data::Structure::Util qw( unbless );
+use Date::Manip;
 use Data::Dumper;
 use Carp;
 
@@ -169,6 +170,18 @@ sub record_pool_score {
 }
 
 # ============================================================
+sub record_completion_time {
+# ============================================================
+# Records penalties. Will overwrite. 
+#------------------------------------------------------------
+ 	my $self = shift;
+	my $form = shift;
+	my $time = shift;
+
+	$self->{ forms }[ $form ]{ complete } = $time;
+}
+
+# ============================================================
 sub record_decision {
 # ============================================================
 # Records decision notes. Will overwrite. Also converts pool
@@ -198,7 +211,7 @@ sub record_decision {
 
 	} else {
 		$form->{ decision }{ $decision } = 1;
-		$form->{ complete }              = 1;
+		$form->{ complete }              = _now();
 	}
 }
 
@@ -372,12 +385,16 @@ sub form_complete {
 	my $i    = shift; # Index or reference to the form
 	my $form = ref $i ? $i : $self->{ forms }[ $i ];
 
-	return 1 if $form->{ complete };                     # Return previously resolved cached value
-	return 1 if $self->form_has_punitive_decision( $i ); # Form is complete if there is a punitive decision
+	# Form is complete if there is a punitive decision
+	$form->{ complete } = _now() if( ! $form->{ complete } && $self->form_has_punitive_decision( $i ));
+
+	# Return previously resolved cached value
+	return $form->{ complete } if $form->{ complete };   
 
 	# ===== FORM IS COMPLETE IF ALL JUDGES HAVE REGISTERED A VALID SCORE
 	return 0 unless exists $form->{ judge };
-	$form->{ complete } ||= all { $_->complete() } ( @{ $form->{ judge }} );
+	my $complete = all { $_->complete() } ( @{ $form->{ judge }} );
+	$form->{ complete } = _now() if( $complete && ! $form->{ complete });
 	return $form->{ complete };
 }
 
@@ -461,7 +478,7 @@ sub complete {
 	return 1 if $self->any_punitive_decision();
 
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
-	$self->{ complete } = all { $_->{ complete }; } @{ $self->{ forms }};
+	$self->{ complete } = all { $_->{ complete } } @{ $self->{ forms }};
 	return $self->{ complete };
 }
 
@@ -536,7 +553,7 @@ sub string {
 			}
 		}
 
-		# ===== RECORD PENALTIES AND TIME
+		# ===== RECORD PENALTIES AND TIME (OVER)
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} && any { $_ } values %{ $form->{ penalty }}) {
 			push @string, join( "\t", ('', $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )})) . "\n";
 		}
@@ -549,6 +566,9 @@ sub string {
 
 			push @string, join( "\t", ('', $round, $form_id, $judge_id, $score->string())) . "\n";
 		}
+
+		# ===== RECORD COMPLETION TIME
+		push @string, join( "\t", ('', $round, $form_id, 't', $form->{ complete })) . "\n" if $form->{ complete };
 
 		# ===== RECORD POOL SCORES FOR ONLINE TOURNAMENTS
 		push @string, $self->{ pool }->string( $round, $i ) if( exists $self->{ pool } && defined $self->{ pool });
@@ -580,6 +600,14 @@ sub _compare {
 		$bap  <=> $aap  ||
 		$bat  <=> $aat  ||
 		$apun <=> $bpun;
+}
+
+# ============================================================
+sub _now {
+# ============================================================
+	my $date = new Date::Manip::Date( 'now GMT' ); # The time right now, using the GMT timezone
+	# return $date->printf( "%Y-%m-%dT%H:%M:%SZ" ); # ISO8601 UTC format
+	return 1;
 }
 
 # ============================================================
