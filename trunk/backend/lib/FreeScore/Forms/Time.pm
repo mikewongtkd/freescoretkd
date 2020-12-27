@@ -89,7 +89,7 @@ sub per_form {
 # Returns the mean time (s) per form in this round of the division
 # ------------------------------------------------------------
 	my $self = shift;
-	return $stats->mean();
+	return $self->{ stats }->mean();
 }
 
 # ============================================================
@@ -99,6 +99,15 @@ sub taken {
 # ------------------------------------------------------------
 	my $self = shift;
 	return $self->{ stats }->sample_range();
+}
+
+# ============================================================
+sub standard_deviation_per_form {
+# ============================================================
+# Returns the standard deviation of time (s) per form in this round of the division
+# ------------------------------------------------------------
+	my $self = shift;
+	return $self->{ stats }->standard_deviation();
 }
 
 # ============================================================
