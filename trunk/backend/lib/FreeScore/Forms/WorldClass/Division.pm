@@ -1,6 +1,7 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
+use FreeScore::Forms::Time;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use FreeScore::Forms::WorldClass::Division::Round::Pool;
@@ -948,6 +949,31 @@ sub summary {
 # ============================================================
 	my $self = shift;
 	$self->{ state } = 'summary';
+}
+
+# ============================================================
+sub time {
+# ============================================================
+	my $self     = shift;
+	my $round    = shift || $self->{ round };
+	my @athletes = $self->athletes_in_round( $round );
+	my $complete = [];
+	my $pending  = 0;
+
+	foreach my $athlete (@athletes) {
+		next unless exists $athlete->{ scores } && exists $athlete->{ scores }{ $round } && exists $athlete->{ scores }{ $round }{ forms };
+
+		my $forms = $athlete->{ scores }{ $round }{ forms };
+		foreach my $form (@$forms) {
+			if( exists $form->{ complete } && $form->{ complete }) {
+				push @$complete, $form->{ complete };
+			} else {
+				$pending++;
+			}
+		}
+	}
+	my $time = new FreeScore::Forms::Time( complete => $complete, pending => $pending );
+	return $time;
 }
 
 # ============================================================
