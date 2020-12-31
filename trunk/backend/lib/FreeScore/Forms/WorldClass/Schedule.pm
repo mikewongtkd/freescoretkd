@@ -68,7 +68,7 @@ sub init {
 	foreach my $division (@$divisions) {
 		my $prelim = [];
 		my $semfin = undef;
-		my $n = $division->{ athletes };
+		my $n      = $division->{ athletes };
 		if( $self->{ teams } =~ /individual/i ) {
 			if( $division->{ description } =~ /freestyle/i ) {
 				if( $division->{ description } =~ /pair/i ) { $n = ceil( $n/2 ); }
@@ -153,7 +153,7 @@ sub init {
 		} elsif( $self->{ rules } eq 'usat' && $division->{ round } eq 'prelim' && $n == 20 ) {
 			my $prelim = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 20, 'prelim' );
 			my $semfin = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 10, 'semfin' );
-			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 8, 'finals' );
+			my $finals = new FreeScore::Forms::WorldClass::Schedule::Block( $self, $division, 8,  'finals' );
 
 			$semfin->preconditions( $prelim );
 			$finals->preconditions( $semfin );
@@ -191,7 +191,7 @@ sub init_conflicts {
 # ============================================================
 	my $self = shift;
 	my $config = shift;
-	$self->{ conflicts } = $config->{ conflicts } ||
+	$self->{ conflicts } ||= $config->{ conflicts } ||
 	{
 		"male individual youth"               => [ "pair youth", "male team youth" ],
 		"female individual youth"             => [ "pair youth", "female team youth" ],
@@ -248,29 +248,33 @@ sub build {
 	foreach my $i (0 .. $#{$self->{ days }}) {
 		my $day       = $self->{ days }[ $i ];
 		my $j         = $i + 1;
-		my $start     = new Date::Manip::Date(); $start->parse_format( $UTC, $day->{ start });
+		my $start     = _parse_utc( $UTC, $day->{ start });
 		my $d         = $start->printf( '%b %d, %Y' ); # Month day, year; eg. Apr 09, 2020
 		my $rings     = $day->{ rings };
 		my @blocks    = @{ $day->{ blocks }};
+		my $n         = int( @blocks );
 
-		if( @$rings == 0 ) { print STDERR "ERROR: No rings available for Day $j\n"; next; }
+		if( @$rings == 0 && @blocks ) { push @{ $build->{ errors }}, { cause => { reason => "No rings are available for day $j, yet $n blocks assigned" }}; next; }
 
 		while( @blocks ) {
 			my $blockid = shift @blocks;
 			my $block   = $self->{ blocks }{ $blockid };
-			print STDERR "BLOCK: $blockid $block->{ description }\n";
+			my $cause   = undef;
 
 			# ===== ATTEMPT TO PLACE THE BLOCK IN EACH RING AND TAKE THE BEST FINISH TIME
 			my $best  = { ring => undef, finish => undef };
 			foreach my $ring (@$rings) {
-				print STDERR "  Attempting to place $block->{ id } to $ring->{ name } on day $j ($d), stop time: '$d $block->{ stop }'\n"; # if $self->{ debug };
-				if( $self->place( $block, $i, $ring )) {
-					my $a = defined $best->{ finish } ? new Date::Manip::Date( "$d $best->{ finish }" ) : undef;
-					my $b = new Date::Manip::Date( "$d $block->{ stop }" );
+				print STDERR "  Attempting to place $block->{ id } to $ring->{ name } on day $j ($d), stop time: '$block->{ stop }'\n" if $self->{ debug };
+				my $attempt = $self->place( $block, $i, $ring );
+				if( $attempt->{ result } eq 'success' ) {
+					my $a = defined $best->{ finish } ? _parse_utc( $best->{ finish }) : undef;
+					my $b = _parse_utc( $block->{ stop } );
 					if(( ! defined $a) || $a->cmp( $b ) > 0 ) {
 						$best->{ ring }   = $ring;
 						$best->{ finish } = $block->{ stop };
 					}
+				} else {
+					$cause = { by => $attempt->{ by }, reason => $attempt->{ reason }};
 				}
 				$self->remove( $block, $ring );
 			}
@@ -278,18 +282,18 @@ sub build {
 			if( $best->{ ring }) {
 
 				# ===== THERE IS A BEST RING TO PLACE THE BLOCK
-				if( $self->place( $block, $i, $best->{ ring })) {
+				my $attempt = $self->place( $block, $i, $best->{ ring });
+				if( $attempt->{ result } eq 'success' ) {
 					$block->{ attempts } = 0;
 					push @{ $build->{ warnings }}, { block => $block->{ id }, cause => { reason => 'overtime' }} if( $block->overtime_for_day( $day ) || $block->overtime_for_ring( $best->{ ring }));
 
 				# ===== THE BEST RING CANDIDATE IS INVALID (SHOULD NEVER HAPPEN)
 				} else {
 					$build->{ ok } = 0;
-					push @{$build->{ errors }}, { block => $block->{ id }, ring =>  $best->{ ring }{ id }, cause => { reason => 'failed' }};
+					push @{$build->{ errors }}, { block => $block->{ id }, ring =>  $best->{ ring }{ id }, cause => { reason => $attempt->{ reason }}};
 				}
 
 			} else {
-				$self->remove( $block, $ring );
 
 				# ===== CANNOT FIT THE BLOCK; REINSERT IT AFTER THE NEXT BLOCK AND CONTINUE
 				if( $block->{ attempts } < 3 ) {
@@ -308,7 +312,7 @@ sub build {
 				# ===== CANNOT FIT THE BLOCK AT ALL
 				} else {
 					$build->{ ok } = 0;
-					push @{$build->{ errors }}, { block => $block->{ id }, cause => { reason => 'failed' }};
+					push @{$build->{ errors }}, { block => $block->{ id }, cause => $cause };
 				}
 			}
 		}
@@ -406,33 +410,31 @@ sub place {
 
 	my $day   = $self->{ days }[ $day_i ];
 	my $prev  = $ring->{ plan }[ -1 ];
-	my $start = undef;
-	my $date = new Date::Manip::Date(); 
-	$date->parse_format( $UTC, $day->{ start });
+	my $start = new Date::Manip::Date();  
 
 	# ===== IF THERE ARE PREVIOUSLY PLACED BLOCKS, ADD IT AFTER THE LAST BLOCK
 	if( defined( $prev )) {
 		my $other = $self->{ blocks }{ $prev };
-		$start = new Date::Manip::Date( $other->{ stop });
+		$start->parse_format( $UTC, $other->{ stop });
 
 	# ===== IF THE BLOCK IS THE FIRST BLOCK OF THE DAY
 	# ... and the rings all start at different times (using 12-hour clock notation)
 	} elsif( defined( $ring->{ start })) {
-		my $time = $date->printf( '%Y-%m-%d ' ) . $ring->{ start };
-		$start    = new Date::Manip::Date( $time );
+		$start->parse_format( $UTC, $ring->{ start });
 
 	# ... and the rings all start at the same time for that day (using UTC notation)
 	} elsif( defined( $day->{ start })) {
-		$start = $date;
+		$start->parse_format( $UTC, $day->{ start });
 
 	# ===== THE RING IS NOT AVAILABLE
 	} else {
-		return 0;
+		return { result => 'fail', reason => 'ring not available' };
 	}
-	my $stop  = $start->calc( new Date::Manip::Delta( "$block->{ duration } minutes" ));
+	my $duration = new Date::Manip::Delta( "$block->{ duration } minutes" );
+	my $stop     = $start->calc( $duration );
 	$block->{ day }   = ($day_i + 1);
-	$block->{ start } = $start->printf( '%i:%M %p' ); $block->{ start } =~ s/^\s+//;
-	$block->{ stop  } = $stop->printf( '%i:%M %p' );  $block->{ stop } =~ s/^\s+//;
+	$block->{ start } = _utc( $start );
+	$block->{ stop  } = _utc( $stop );
 	push @{$ring->{ plan }}, $block->{ id };
 	$block->{ ring } = $ring->{ id };
 
@@ -452,17 +454,17 @@ sub placement_ok {
 	my $conflicts = $block->{ require }{ nonconcurrent };
 	foreach my $blockid (@$conflicts) {
 		my $other = $lookup->{ $blockid };
-		return 0 if( $block->is_concurrent( $other ));
+		return { result => 'fail', by => $blockid, reason => "concurrency" } if( $block->is_concurrent( $other ));
 	}
 
 	# ===== CHECK TO SEE IF THERE ARE ANY MISSING PRECONDITIONS
 	my $preconditions = $block->{ require }{ precondition };
 	foreach my $blockid (@$preconditions) {
 		my $other = $lookup->{ $blockid };
-		return 0 unless $block->precondition_is_satisfied( $other );
+		return { result => 'fail', by => $blockid, reason => "precondition" } unless $block->precondition_is_satisfied( $other );
 	}
 
-	return 1;
+	return { result => 'success' };
 }
 
 # ============================================================
@@ -490,6 +492,26 @@ sub write {
 	open FILE, ">$self->{ file }" or die $!;
 	print FILE $json->canonical->pretty->encode( $clone );
 	close FILE;
+}
+
+# ============================================================
+sub _parse_utc {
+# ============================================================
+	my $string   = shift;
+	my $datetime = new Date::Manip::Date();
+	$datetime->parse_format( $UTC, $string );
+	return $datetime;
+}
+
+# ============================================================
+sub _utc {
+# ============================================================
+# Date::Manip gets the timezone format wrong; PST is rendered
+# as -0800, and it should properly be rendered as -08:00
+	my $datetime = shift;
+	my $string   = $datetime->printf( $UTC );
+	$string =~ s/(\d{2})$/:\1/;
+	return $string;
 }
 
 1;

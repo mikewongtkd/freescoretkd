@@ -66,13 +66,13 @@ sub precondition_is_satisfied {
 	my $other = shift;
 
 	# If the precondition hasn't been planned yet, then it is clearly not satisfied
-	return 0 unless $other->{ day } && $other->{ start } && $other->{ stop };
+	return 0 unless $other->{ day };
 
 	# If the precondition is scheduled for a later date, then it is clearly not satisfied
 	return 0 if( $self->{ day } < $other->{ day }); 
 
-	my $a   = new Date::Manip::Date( $self->{ start }); die "Bad timestamp '$self->{ start }'" unless $a;
-	my $b   = new Date::Manip::Date( $other->{ stop }); die "Bad timestamp '$other->{ stop }'" unless $b;
+	my $a   = _parse_utc( $self->{ start });
+	my $b   = _parse_utc( $other->{ start });
 	my $cmp = $a->cmp( $b );
 
 	return $cmp > 0;
@@ -87,10 +87,10 @@ sub is_concurrent {
 	return 0 unless $other->{ start } && $other->{ stop }; # Other has not yet been planned
 	return 0 unless ( $self->{ day } == $other->{ day });  # Different day, no problems here
 	
-	my $a_start = new Date::Manip::Date( $self->{ start });  die "Bad timestamp '$self->{ start }'"  unless $a_start;
-	my $a_stop  = new Date::Manip::Date( $self->{ stop });   die "Bad timestamp '$self->{ stop }'"   unless $a_stop;
-	my $b_start = new Date::Manip::Date( $other->{ start }); die "Bad timestamp '$other->{ start }'" unless $b_start;
-	my $b_stop  = new Date::Manip::Date( $other->{ stop });  die "Bad timestamp '$other->{ stop }'"  unless $b_stop;
+	my $a_start = _parse_utc( $self->{ start });
+	my $a_stop  = _parse_utc( $self->{ stop });
+	my $b_start = _parse_utc( $other->{ start });
+	my $b_stop  = _parse_utc( $other->{ stop });
 
 	my $a_while_b = $a_start->cmp( $b_start ) >= 0 && $a_start->cmp( $b_stop ) < 0;
 	my $b_while_a = $b_start->cmp( $a_start ) >= 0 && $b_start->cmp( $a_stop ) < 0;
@@ -119,13 +119,16 @@ sub match {
 		team       => { rank => 2, pattern => qr/team/i },
 
 		# ===== AGES
-		youth      => { rank => 3, pattern => qr/10-11|youth/i },
+		under5     => { rank => 3, pattern => qr/4-5|under\s*5/i },
+		under7     => { rank => 3, pattern => qr/6-7|under\s*7/i },
+		under9     => { rank => 3, pattern => qr/8-9|under\s*9/i },
+		under11    => { rank => 3, pattern => qr/10-11|youth|under\s*11/i },
 		cadet      => { rank => 3, pattern => qr/12-14|cadet/i },
 		junior     => { rank => 3, pattern => qr/15-17|12-17|junior/i },
-		under17    => { rank => 3, pattern => qr/12-17|under\s*17/i },
+		under17    => { rank => 3, pattern => qr/12-17|under\s*17|17\-|\-17/i },
 		over17     => { rank => 3, pattern => qr/18-99|over\s*17|17\+/i },
 		under30    => { rank => 3, pattern => qr/18-30|under\s*30|-30|30-|senior(?!\s*(?:[2-9]\d*|0*1\d+))|senior\s*1/i },
-		over30     => { rank => 3, pattern => qr/31-99|over\s*30|30\+/i },
+		over30     => { rank => 3, pattern => qr/31-99|over\s*30|30\+|31\+|\+30|\+31/i },
 		under40    => { rank => 3, pattern => qr/31-40|under\s*40|-40|40-|senior 2/i },
 		under50    => { rank => 3, pattern => qr/41-50|under\s*50|-50|50-/i },
 		under60    => { rank => 3, pattern => qr/51-60|under\s*60|-60|60-/i },
@@ -189,8 +192,8 @@ sub overtime_for_day {
 
 	return 0 unless exists $day->{ stop } && exists $self->{ stop };
 
-	my $day_stop   = new Date::Manip::Date( $day->{ stop });
-	my $block_stop = new Date::Manip::Date( $self->{ stop });
+	my $day_stop   = _parse_utc( $day->{ stop });
+	my $block_stop = _parse_utc( $self->{ stop });
 	my $overtime   = $block_stop->cmp( $day_stop ) > 0;
 
 	return 1 if( $overtime );
@@ -205,8 +208,8 @@ sub overtime_for_ring {
 	return 0 unless defined $ring;
 	return 0 unless exists $ring->{ stop };
 
-	my $ring_stop  = new Date::Manip::Date( $ring->{ stop });
-	my $block_stop = new Date::Manip::Date( $self->{ stop });
+	my $ring_stop  = _parse_utc( $ring->{ stop });
+	my $block_stop = _parse_utc( $self->{ stop });
 	my $overtime   = $block_stop->cmp( $ring_stop ) > 0;
 
 	return 1 if( $overtime );
@@ -237,6 +240,17 @@ sub nonconcurrences {
 		my $division = $lookup->{ $conflict };
 		push @{$self->{ require }{ nonconcurrent }}, @{$division->{ blocks }};
 	}
+}
+
+# ============================================================
+sub _parse_utc {
+# ============================================================
+	my $datetime = shift;
+	my $d        = new Date::Manip::Date();
+	my $UTC      = $FreeScore::Forms::WorldClass::Schedule::UTC;
+
+	$d->parse_format( $UTC, $datetime );
+	return $d;
 }
 
 1;
