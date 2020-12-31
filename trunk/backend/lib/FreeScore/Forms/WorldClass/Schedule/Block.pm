@@ -39,18 +39,18 @@ sub init {
 	my $round    = shift;
 	my $flight   = shift;
 	my @id       = ();
-	my $forms    = exists $division->{ forms } && defined $division->{ forms } && exists $division->{ forms }{ $round } ? $division->{ forms }{ $round } : 1;
-	my $t        = $schedule->{ time }{ recognized } * $athletes;
+	my $forms    = exists $division->{ forms } && defined $division->{ forms } && exists $division->{ forms }{ $round } ? int( @{$division->{ forms }{ $round }}) : 1;
+	my $t        = $schedule->{ settings }{ time }{ recognized } * $athletes;
 
-	if( exists $division->{ freestyle }) { $t = $schedule->{ time }{ freestyle } * $athletes; }
+	if( exists $division->{ freestyle }) { $forms = 1; $t = $schedule->{ settings }{ time }{ freestyle } * $athletes; }
 
 	$self->{ athletes }    = $athletes;
 	$self->{ division }    = $division->{ name };
 	$self->{ description } = $division->{ description };
 	$self->{ round }       = $round;
 	$self->{ flight }      = $flight || '';
-	$self->{ duration }    = $forms ? $forms * $t : ( $round eq 'finals' ? 2 * $t : $t );
-	$self->{ duration }    = 4 * ceil( $self->{ duration } / 4 ); # Round to nearest 4 minutes for rendering purposes
+	$self->{ duration }    = $forms * $t;
+	$self->{ duration }    = 5 * ceil( $self->{ duration } / 5 ); # Round to nearest 5 minutes for rendering purposes
 
 	my $key = $self->match(); $key =~ s/\s+/-/g;
 	push @id, $division->{ name }, $key, $round, (defined( $flight ) ? $flight : ());
@@ -65,8 +65,11 @@ sub precondition_is_satisfied {
 	my $self  = shift;
 	my $other = shift;
 
-	return 0 unless $other->{ day } && $other->{ start } && $other->{ stop }; # Precondition isn't even planned yet
-	return 0 if( $self->{ day } < $other->{ day }); # Impossible if the precondition is scheduled for the following day
+	# If the precondition hasn't been planned yet, then it is clearly not satisfied
+	return 0 unless $other->{ day } && $other->{ start } && $other->{ stop };
+
+	# If the precondition is scheduled for a later date, then it is clearly not satisfied
+	return 0 if( $self->{ day } < $other->{ day }); 
 
 	my $a   = new Date::Manip::Date( $self->{ start }); die "Bad timestamp '$self->{ start }'" unless $a;
 	my $b   = new Date::Manip::Date( $other->{ stop }); die "Bad timestamp '$other->{ stop }'" unless $b;

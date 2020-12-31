@@ -1714,7 +1714,7 @@ sub handle_schedule_write {
 	my $client   = $self->{ _client };
 	my $json     = $self->{ _json };
 
-	print STDERR "Writing schedule information\n" if $DEBUG;
+	print STDERR "Writing schedule information for $request->{ stage } stage.\n" if $DEBUG;
 	
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
@@ -1727,7 +1727,7 @@ sub handle_schedule_write {
 
 	try {
 		$schedule->write( $file );
-		$client->send( { json => {  type => 'schedule', schedule => $schedule->data(), action => 'write', result => 'ok' }});
+		$client->send( { json => {  type => 'schedule', schedule => $schedule->data(), action => 'write', result => 'ok', stage => $request->{ stage }}});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

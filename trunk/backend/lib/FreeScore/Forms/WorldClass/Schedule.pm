@@ -12,12 +12,15 @@ use FreeScore::Forms::WorldClass::Schedule::Block;
 use Scalar::Util qw( blessed );
 use Data::Dumper;
 
+our $UTC = '%Y-%m-%dT%H:%M:%S%z';
+
 # ============================================================
 sub new {
 # ============================================================
 	my ($class)  = map { ref || $_ } shift;
 	my $input    = shift;
 	my $config   = shift || {};
+	my $self     = {};
 
 	if( ref( $input )) {
 		$self->{ divisions } = $input;
@@ -26,16 +29,20 @@ sub new {
 	} elsif( -e $input ) {
 		my $contents    = read_file( $input );
 		my $json        = new JSON::XS();
-		my $self        = bless $json->decode( $contents ), $class;
+		$self           = bless $json->decode( $contents ), $class;
 		$self->{ file } = $input;
+
+	} else {
+		$self->{ file } = $input;
+		bless $self, $class;
 	}
 
-	$self->{ debug }                = $config->{ debug }              || 0;
-	$self->{ rules }                = $config->{ rules }              || 'usat';
-	$self->{ time }{ recognized }   = $config->{ time }{ recognized } || 2.5;
-	$self->{ time }{ freestyle  }   = $config->{ time }{ freestyle }  || 5;
-	$self->{ recognized }           = $config->{ recognized }         || { prelim => [ 20, 40, 60 ], semfin => 'half', finals => 8 };
-	$self->{ freestyle  }           = $config->{ freestyle }          || { prelim => 20, semfin => 'half', finals => 12 };
+	$self->{ settings }{ time }{ recognized } = $config->{ time }{ recognized } || 2.5;
+	$self->{ settings }{ time }{ freestyle  } = $config->{ time }{ freestyle }  || 5;
+
+	$self->{ rules }{ name }                  = $config->{ rules }              || 'usat';
+	$self->{ rules }{ recognized }            = $config->{ recognized }         || { prelim => [ 20, 40, 60 ], semfin => 'half', finals => 8 };
+	$self->{ rules }{ freestyle  }            = $config->{ freestyle }          || { prelim => 20, semfin => 'half', finals => 12 };
 	$self->init_conflicts( $config );
 	$self->init();
 
@@ -234,26 +241,30 @@ sub init_conflicts {
 sub build {
 # ============================================================
 	my $self         = shift;
-	$self->{ debug } = shift;
+	$self->{ debug } ||= shift;
 	my $build = { ok => 1, errors => [], warnings => [] };
 	$self->clear();
 
 	foreach my $i (0 .. $#{$self->{ days }}) {
-		my $start     = $self->{ days }[ 0 ]{ start };
 		my $day       = $self->{ days }[ $i ];
-		my $d         = ((new Date::Manip::Date( $day->{ start } )))->printf( '%b %d, %Y' );
+		my $j         = $i + 1;
+		my $start     = new Date::Manip::Date(); $start->parse_format( $UTC, $day->{ start });
+		my $d         = $start->printf( '%b %d, %Y' ); # Month day, year; eg. Apr 09, 2020
 		my $rings     = $day->{ rings };
-		my $num_rings = int( @$rings );
 		my @blocks    = @{ $day->{ blocks }};
 
+		if( @$rings == 0 ) { print STDERR "ERROR: No rings available for Day $j\n"; next; }
+
 		while( @blocks ) {
-			my $block = shift @blocks;
+			my $blockid = shift @blocks;
+			my $block   = $self->{ blocks }{ $blockid };
+			print STDERR "BLOCK: $blockid $block->{ description }\n";
 
 			# ===== ATTEMPT TO PLACE THE BLOCK IN EACH RING AND TAKE THE BEST FINISH TIME
 			my $best  = { ring => undef, finish => undef };
 			foreach my $ring (@$rings) {
+				print STDERR "  Attempting to place $block->{ id } to $ring->{ name } on day $j ($d), stop time: '$d $block->{ stop }'\n"; # if $self->{ debug };
 				if( $self->place( $block, $i, $ring )) {
-					print STDERR "  Attempting to place $block->{ id } to $ring->{ name } on day " . ($i + 1) . " ($d), stop time: '$d $block->{ stop }'\n" if $self->{ debug };
 					my $a = defined $best->{ finish } ? new Date::Manip::Date( "$d $best->{ finish }" ) : undef;
 					my $b = new Date::Manip::Date( "$d $block->{ stop }" );
 					if(( ! defined $a) || $a->cmp( $b ) > 0 ) {
@@ -283,15 +294,15 @@ sub build {
 				# ===== CANNOT FIT THE BLOCK; REINSERT IT AFTER THE NEXT BLOCK AND CONTINUE
 				if( $block->{ attempts } < 3 ) {
 					if( @blocks ) {
-						splice @blocks, 1, 0, $block;
+						splice @blocks, 1, 0, $block->{ id };
 					} else {
-						push @blocks, $block;
+						push @blocks, $block->{ id };
 					}
 					$block->{ attempts }++;
 
 				# ===== CANNOT FIT THE BLOCK; REINSERT IT AT THE END AND CONTINUE
 				} elsif( $block->{ attempts } < 4 ) {
-					push @blocks, $block;
+					push @blocks, $block->{ id };
 					$block->{ attempts }++;
 
 				# ===== CANNOT FIT THE BLOCK AT ALL
@@ -396,16 +407,23 @@ sub place {
 	my $day   = $self->{ days }[ $day_i ];
 	my $prev  = $ring->{ plan }[ -1 ];
 	my $start = undef;
+	my $date = new Date::Manip::Date(); 
+	$date->parse_format( $UTC, $day->{ start });
 
 	# ===== IF THERE ARE PREVIOUSLY PLACED BLOCKS, ADD IT AFTER THE LAST BLOCK
 	if( defined( $prev )) {
-
 		my $other = $self->{ blocks }{ $prev };
 		$start = new Date::Manip::Date( $other->{ stop });
 
-	# ===== OTHERWISE START SCHEDULING AT THE START OF THE RING OR START OF THE DAY
-	} elsif( defined( $day->{ start }) || defined( $ring->{ start })) {
-		$start = new Date::Manip::Date( defined( $ring->{ start }) ? $ring->{ start } : $day->{ start });
+	# ===== IF THE BLOCK IS THE FIRST BLOCK OF THE DAY
+	# ... and the rings all start at different times (using 12-hour clock notation)
+	} elsif( defined( $ring->{ start })) {
+		my $time = $date->printf( '%Y-%m-%d ' ) . $ring->{ start };
+		$start    = new Date::Manip::Date( $time );
+
+	# ... and the rings all start at the same time for that day (using UTC notation)
+	} elsif( defined( $day->{ start })) {
+		$start = $date;
 
 	# ===== THE RING IS NOT AVAILABLE
 	} else {
