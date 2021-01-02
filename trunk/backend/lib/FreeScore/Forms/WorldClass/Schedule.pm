@@ -454,14 +454,14 @@ sub placement_ok {
 	my $conflicts = $block->{ require }{ nonconcurrent };
 	foreach my $blockid (@$conflicts) {
 		my $other = $lookup->{ $blockid };
-		return { result => 'fail', by => $blockid, reason => "concurrency" } if( $block->is_concurrent( $other ));
+		return { result => 'fail', by => $blockid, reason => 'concurrency' } if( $block->is_concurrent( $other ));
 	}
 
 	# ===== CHECK TO SEE IF THERE ARE ANY MISSING PRECONDITIONS
 	my $preconditions = $block->{ require }{ precondition };
 	foreach my $blockid (@$preconditions) {
 		my $other = $lookup->{ $blockid };
-		return { result => 'fail', by => $blockid, reason => "precondition" } unless $block->precondition_is_satisfied( $other );
+		return { result => 'fail', by => $blockid, reason => 'precondition' } unless $block->precondition_is_satisfied( $other );
 	}
 
 	return { result => 'success' };
