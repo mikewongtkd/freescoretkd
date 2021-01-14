@@ -21,7 +21,6 @@ my $cgi        = new CGI();
 my $tournament = read_tournament_config();
 my $ringnum    = lc $cgi->param( 'ring' );
 my $divid      = lc $cgi->param( 'divid' );
-my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
 my $results    = undef;
