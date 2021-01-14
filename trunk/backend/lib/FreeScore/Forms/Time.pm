@@ -1,3 +1,4 @@
+package FreeScore::Forms::Time;
 use Time::Piece;
 use Statistics::Descriptive;
 
@@ -14,6 +15,7 @@ Internal usage:
 my $time = new FreeScore::Forms::Time( complete => [ <timestamps> ], pending => int );
 
 =cut
+
 # ============================================================
 sub new {
 # ============================================================
