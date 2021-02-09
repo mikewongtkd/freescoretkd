@@ -1,0 +1,41 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Cwd qw( abs_path );
+use JSON::XS;
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Division;
+use Data::Dumper;
+
+# ============================================================
+sub instantiate {
+# ============================================================
+	my $divid = lc shift;
+	my $file  = 'div.' . $divid . 'a.txt'; die "Division file '$file' not found" unless -e $file;
+	my $path  = abs_path( $file );
+	my @path  = split /\//, $path;
+	my $ring  = $path[ -2 ];
+	my $rnum  = $ring; $rnum =~ s/^ring//;
+
+	my $progress = new FreeScore::Forms::WorldClass( 'test', $rnum );
+	return $progress;
+}
+
+my $divid    = shift || die "Must specify a division ID";
+my $progress = instantiate( $divid );
+
+my $json    = new JSON::XS();
+my $a       = $progress->find( $divid . 'a' );
+my $flight  = $a->{ flight };
+
+foreach my $group (@{$flight->{ group }}) {
+	my $div = $progress->find( $group );
+	die "Group $group is not complete" unless $div->round_complete( 'prelim' );
+	$div->{ flight }{ state } = 'complete';
+	$div->write();
+}
+
+$progress->merge_division( $divid . 'a' );
+
+my $groups = join( ', ', @{$flight->{ group }});
+print "Groups ($groups) for $divid merged into file div.$divid.txt\n";

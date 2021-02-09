@@ -1,0 +1,83 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Cwd qw( abs_path );
+use JSON::XS;
+use FreeScore::Forms::WorldClass::Division;
+use Data::Dumper;
+
+# ============================================================
+sub instantiate {
+# ============================================================
+	my $divid = shift; die "Division file '$file' not found" unless -e $file;
+	my $file  = "div.$divid.txt";
+	my $path  = abs_path( $file );
+	my @path  = split /\//, $path;
+	my $ring  = $path[ -2 ];
+
+	$file = pop @path;
+	$path = join '/', @path;
+
+	my $div   = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
+	return $div;
+}
+
+my $num        = {};
+my $divid      = shift || die "Must specify a division file";
+$num->{ ro4a } = shift || die "Must specify a match num (e.g. 101) for first match";
+$num->{ ro4b } = shift || die "Must specify a match num (e.g. 102) for second match";
+
+$div = instantiate( $divid );
+
+die "Method misconfiguration"         unless $div->{ method } eq 'aau-single-cutoff';
+die "Semi-final round not complete"   unless $div->round_complete( 'semfin' );
+die "Round misconfiguration"          unless $div->{ round } eq 'semfin';
+
+my @winners = ();
+foreach my $top4 ( 0 .. 3 ) {
+	my $i       = $div->{ placement }{ semfin }[ $top4 ];
+	my $athlete = $div->{ athletes }[ $i ];
+	
+	next if $athlete->{ scores }{ semfin }->any_punitive_decision();
+
+	push @winners, $athlete;
+}
+
+my $order = { ro4a => [ $winners[0], $winners[3]], ro4b => [ $winners[2], $winners[1]]};
+my $json  = new JSON::XS();
+my $forms = join ';', map { sprintf( "%s:%s", $_, join( ',', @{$div->{ forms }{ $_ }})) } keys %{$div->{ forms }};
+my $divid = $file; $divid =~ s/^div\.//; $divid =~ s/\.txt$//;
+
+foreach my $round (qw( ro4a ro4b )) {
+	my $template =<<EOF;
+# state=score
+# current=0
+# form=0
+# round=$round
+# poolsize=$div->{ poolsize }
+# judges=$div->{ judges }
+# timers={"cycle":1,"pause":{"score":10,"leaderboard":8}}
+# method=aau-single-cutoff
+# description=$div->{ description }
+# forms=$forms;
+# matchdiv=$divid
+# ------------------------------------------------------------
+# $round
+# ------------------------------------------------------------
+EOF
+
+	my @athletes = @{$order->{ $round }};
+	foreach my $athlete (@athletes) {
+		my $vid_or_stream = exists $athlete->{ info }{ stream } ? 'stream' : 'video';
+		$template .= "$athlete->{ name }\tnoc=$athlete->{ info }{ noc }\t$vid_or_stream=$athlete->{ info }{ $vid_or_stream }\n";
+	}
+
+	my $output = sprintf( "div.m%03d.txt", $num->{ $round });
+	die "File '$output' already exists" if -e $output;
+
+	open my $fh, '>', $output or die $!;
+	print $fh $template;
+	close $fh;
+
+	print STDERR "Saved match $file $round to file '$output'\n";
+}

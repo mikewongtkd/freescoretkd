@@ -5,11 +5,13 @@ use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
-use List::Util qw( first );
+use List::Util qw( any first );
 use List::MoreUtils qw( first_index );
+use MIME::Base64;
 use Scalar::Util qw( looks_like_number );
 use Math::Round qw( nearest );
 use Clone qw( clone );
+use Time::Piece;
 use Data::Dumper;
 use PHP::Session;
 
@@ -21,7 +23,10 @@ my $cgi        = new CGI();
 my $tournament = read_tournament_config();
 my $ringnum    = lc $cgi->param( 'ring' );
 my $divid      = lc $cgi->param( 'divid' );
+my $time       = decode_Base64( $cgi->param( 'time' ));
 my $json       = new JSON::XS();
+
+$time = Time::Piece->strptime( $time, $FreeScore::Forms::Time::UTC );
 
 my $results    = undef;
 try {
@@ -29,6 +34,10 @@ try {
 		if( $divid ) { 
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} elsif( $time ) {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+			push @divisions, grep { division_pending( $_, $time ) } @{ $results->{ divisions }};
 
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
@@ -39,6 +48,11 @@ try {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
 			if( $divid ) {
 				push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+			} elsif( $time ) {
+				$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ringnum );
+				push @divisions, grep { division_pending( $_, $time ) } @{ $results->{ divisions }};
+
 			} else {
 				push @divisions, @{ $results->{ divisions }};
 			}
@@ -94,6 +108,24 @@ sub check_authorization {
 	my $role     = $session->get( 'role' );
 
 	fail( 403 ) if( ! $auth || $role ne 'admin' );
+}
+
+# ============================================================
+sub division_pending {
+# ============================================================
+# returns true if no forms of a division are complete (i.e. there is no latest
+# form) or the latest (last completed) form was performed after the
+# requested deadline
+# ------------------------------------------------------------
+	my $division = shift;
+	my $deadline = shift;
+
+	return any { 
+		my $round = $_; 
+		my $time   = $division->time( $round ); 
+		my $latest = $time->latest(); 
+		$latest ? $latest > $deadline : 1; 
+	} keys %{$division->{ order }};
 }
 
 # ============================================================

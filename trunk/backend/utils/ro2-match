@@ -1,0 +1,90 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Cwd qw( abs_path );
+use JSON::XS;
+use FreeScore::Forms::WorldClass::Division;
+use Data::Dumper;
+
+# ============================================================
+sub instantiate {
+# ============================================================
+	my $num  = shift;
+	my $file = sprintf( "div.%s.txt", $num );
+	my $path = abs_path( $file );
+	my @path = split /\//, $path;
+	my $ring = $path[ -2 ];
+
+	$file = pop @path;
+	$path = join '/', @path;
+
+	my $divid = $file; $divid =~ s/^div\.//; $divid =~ s/\.txt$//;
+	my $div = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
+	return $div;
+}
+
+if( @ARGV == 0 ) {
+	print "ro2-match\n\nUsage: ro2-match <match num 1> <match num 2>";
+	exit();
+}
+
+my ($a, $b) = map { instantiate( $_ ) } sort @ARGV;
+
+die "Method misconfiguration"  unless $a->{ method } eq $b->{ method } && $a->{ method } eq 'aau-single-cutoff';
+die "Division mismatch"        unless $a->{ description } eq $b->{ description };
+die "Matches not yet complete" unless $a->round_complete( 'ro4a' ) && $b->round_complete( 'ro4b' );
+die "Round misconfiguration"   unless $a->{ round } eq 'ro4a' && $b->{ round } eq 'ro4b';
+
+my @winners = ();
+push @winners, $a->{ athletes }[ $a->{ placement }{ $a->{ round }}[ 0 ]]; # Group A is first -> Chung
+push @winners, $b->{ athletes }[ $b->{ placement }{ $b->{ round }}[ 0 ]]; # Group B is last  -> Hong
+
+my @thirds = ();
+push @thirds,  $b->{ athletes }[ $b->{ placement }{ $b->{ round }}[ 1 ]];
+push @thirds,  $a->{ athletes }[ $a->{ placement }{ $a->{ round }}[ 1 ]];
+
+my $thirds = [ map { { name => $_->{ name }, info => $_->{ info }}; } @thirds ];
+my $json   = new JSON::XS();
+
+$thirds = $json->canonical->encode( $thirds );
+
+my $forms  = join ';', map { sprintf( "%s:%s", $_, join( ',', @{$a->{ forms }{ $_ }})) } keys %{$a->{ forms }};
+
+my $template =<<EOF;
+# state=score
+# current=0
+# form=0
+# round=ro2
+# poolsize=$a->{ poolsize }
+# judges=$a->{ judges }
+# timers={"cycle":1,"pause":{"score":10,"leaderboard":8}}
+# method=aau-single-cutoff
+# description=$a->{ description }
+# forms=$forms
+# thirds=$thirds
+# ------------------------------------------------------------
+# ro2
+# ------------------------------------------------------------
+EOF
+
+foreach my $winner (@winners) {
+	my $vid_or_stream = exists $winner->{ info }{ stream } ? 'stream' : 'video';
+	$template .= "$winner->{ name }\tnoc=$winner->{ info }{ noc }\t$vid_or_stream=$winner->{ info }{ $vid_or_stream }\n";
+}
+
+my ($num) = $a->{ file } =~ /\bdiv\.m(\d+)\.txt$/;
+foreach my $i ( 0 .. 100 ) {
+	my $match = $num + $i;
+	my $file = sprintf( "div.m%03d.txt", $match );
+	next if -e $file;
+
+	open my $fh, '>', $file or die $!;
+	print $fh $template;
+	close $fh;
+
+	print STDERR "Saved match $match to file '$file'\n";
+	exit();
+}
+
+print $template;
+die "No free match numbers found";

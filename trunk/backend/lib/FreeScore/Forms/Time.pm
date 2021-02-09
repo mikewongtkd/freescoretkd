@@ -75,6 +75,20 @@ sub forms_total {
 }
 
 # ============================================================
+sub latest {
+# ============================================================
+# Returns the timestamp for the last completed form
+# ------------------------------------------------------------
+	my $self   = shift;
+
+	return undef if( @{ $self->{ complete }} == 0 );
+
+	my $sorted = [ sort { $b - $a } map { Time::Piece->strptime( $_, $UTC_TIME_FORMAT ) } @{ $self->{ complete }}];
+	my $latest = $sorted->[ -1 ];
+	return $latest;
+}
+
+# ============================================================
 sub percent {
 # ============================================================
 # Returns the percentage of forms completed
