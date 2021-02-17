@@ -83,8 +83,8 @@ print <<EOF;
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 120px; }
 			.results td.athlete   { width: 768px; }
-			.results td.decisions { width: 32px; }
-			.results td.form,.score,.place { width: 100px; text-align: center; }
+			.results .decisions { width: 32px; color: red; }
+      .results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
@@ -234,15 +234,19 @@ EOF
 				$placed->{ $i } = ordinal( $j + 1 );
 			}
 
-			print <<EOF;
+		  print <<EOF;
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
 			<table border=0 cellpadding=0 cellspacing=0>
 				<tr>
 					<th class="number">#</th>
-					<th class="noc">NOC/St./Terr.</th>
+					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
-					<th class="decisions"></th>
-				</tr>
+EOF
+      if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
+      else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
+			print <<EOF;
+          <th class="decisions"></th>
+      	</tr>
 EOF
 			my $n = $#{$division->{ order }{ $round }};
 			foreach my $i (0 .. $n) {
@@ -257,7 +261,10 @@ EOF
 				my $n        = 0;
 
 				$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
-				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
+				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+        print "<td class=\"form\">&nbsp;</td>"; 
+        print "<td class=\"form\">&nbsp;</td>";
+        print "<td class=\"decisions\">$decision</td></tr>\n";
 			}
 			print '</table>';
 		}
