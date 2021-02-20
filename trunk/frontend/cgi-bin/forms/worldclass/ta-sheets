@@ -83,7 +83,7 @@ print <<EOF;
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 120px; }
 			.results td.athlete   { width: 768px; }
-			.results .decisions { width: 32px; color: red; }
+			.results td.decisions, .results th.decisions { width: 32px; color: red; }
       .results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
