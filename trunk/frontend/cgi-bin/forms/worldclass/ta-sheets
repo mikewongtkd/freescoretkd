@@ -83,7 +83,7 @@ print <<EOF;
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 120px; }
 			.results td.athlete   { width: 768px; }
-			.results td.decisions { width: 32px; }
+			.results td.decisions { width: 32px; color: red; }
 			.results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
@@ -239,7 +239,7 @@ EOF
 			<table border=0 cellpadding=0 cellspacing=0>
 				<tr>
 					<th class="number">#</th>
-					<th class="noc">NOC/St./Terr.</th>
+					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
 					<th class="decisions"></th>
 				</tr>
