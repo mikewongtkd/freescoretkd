@@ -60,7 +60,7 @@ foreach my $division (@divisions) {
 	my ($num)  = $division->{ name } =~ /[bpr]\d*(\d{3})/;
 
 	next unless exists $division->{ order }{ $round };
-	$division->place_athletes( $round );
+	$division->{ $round };
 
 	my @results = ();
 	foreach my $i (0 .. 3) {
