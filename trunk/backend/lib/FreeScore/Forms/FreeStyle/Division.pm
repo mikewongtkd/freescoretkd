@@ -673,6 +673,7 @@ sub _drop_hilo {
 	my $sum = reduce { $a += $b } 0, @subtotals;
 	$sum -= $min + $max;
 	$sum /= $n;
+	$sum = sprintf( "%.2f", $sum );
 
 	return ($sum, $i, $j);
 }
