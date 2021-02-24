@@ -23,7 +23,7 @@ my $cgi        = new CGI();
 my $tournament = read_tournament_config();
 my $ringnum    = lc $cgi->param( 'ring' );
 my $divid      = lc $cgi->param( 'divid' );
-my $time       = decode_Base64( $cgi->param( 'time' ));
+my $time       = decode_base64( $cgi->param( 'time' ));
 my $json       = new JSON::XS();
 
 $time = Time::Piece->strptime( $time, $FreeScore::Forms::Time::UTC );
