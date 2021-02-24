@@ -147,9 +147,24 @@ sub calculate_placements {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
-		$j->{ adjusted }{ $round }{ total  }    <=> $i->{ adjusted }{ $round }{ total  }    ||
-		$j->{ adjusted }{ $round }{ technical } <=> $i->{ adjusted }{ $round }{ technical } ||
-		$j->{ original }{ $round }{ total  }    <=> $i->{ original }{ $round }{ total  }
+		my $i_adj = $i->{ adjusted }{ $round };
+		my $i_ori = $i->{ original }{ $round };
+		my $j_adj = $j->{ adjusted }{ $round };
+		my $j_ori = $j->{ original }{ $round };
+
+		my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
+		my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
+		my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
+
+		my $j_adj_total      = 0.0 + sprintf( "%.2f", $j_adj->{ total });
+		my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
+		my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
+
+		my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
+		my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
+		my $original_total     = $j_ori_total     <=> $i_ori_technical;
+
+		$adjusted_total || $adjusted_technical || $original_total;
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -673,7 +688,7 @@ sub _drop_hilo {
 	my $sum = reduce { $a += $b } 0, @subtotals;
 	$sum -= $min + $max;
 	$sum /= $n;
-	$sum = sprintf( "%.2f", $sum );
+	$sum = 0.0 + sprintf( "%.2f", $sum );
 
 	return ($sum, $i, $j);
 }
