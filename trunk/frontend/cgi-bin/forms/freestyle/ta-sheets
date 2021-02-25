@@ -76,15 +76,14 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results .number     { width: 32px; }
-			.results .noc        { width: 48px; }
-			.results .athlete    { width: 408px; }
-			.results .form       { width: 100px; text-align: center; }
-			.results .tiebreaker { width: 48px; }
+			.results .number    { width: 32px; }
+			.results .noc       { width: 48px; }
+			.results .athlete   { width: 408px; }
+			.results .form      { width: 100px; text-align: center; }
+			.results .score     { width: 100px; text-align: center; }
 
-			.results td          { padding: 2px 4px 2px 4px; }
-			.results td.score    { text-align: center; }
-			.results td .tecpre  { font-size: 8pt; }
+			.results td         { padding: 2px 4px 2px 4px; }
+			.results td .preacc { font-size: 8pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
@@ -119,82 +118,26 @@ foreach my $division (@divisions) {
 				<th class="number">#</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
-				<th class="form">Score</th>
-				<th class="tiebreaker">TB1</th>
-				<th class="tiebreaker">TB2</th>
+				<th class="score">Decision</th>
 			</tr>
 EOF
-		my $n = $#{$division->{ placements }{ $round }};
-		my $ties = {};
-		foreach my $i ( 0 .. $n ) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			foreach my $k ( $i + 1 .. $n ) {
-				my $l       = $division->{ placements }{ $round }[ $k ];
-				my $next    = $division->{ athletes }[ $l ];
-				my $aa      = $athlete->{ adjusted }{ $round };
-				my $ab      = $next->{ adjusted }{ $round };
-				my $oa      = $athlete->{ original }{ $round };
-				my $ob      = $next->{ original }{ $round };
-				my $totala  = sprintf( "%.2f", $aa->{ total });
-				my $totalb  = sprintf( "%.2f", $ab->{ total });
-				my $techa   = sprintf( "%.2f", $aa->{ technical });
-				my $techb   = sprintf( "%.2f", $ab->{ technical });
-				my $origa   = sprintf( "%.1f", $oa->{ total });
-				my $origb   = sprintf( "%.1f", $ob->{ total });
-
-				if( $totala eq $totalb ) {
-					$ties->{ $totala }{ $j } = {} if ! exists $ties->{ $totala }{ $j };
-					$ties->{ $totala }{ $l } = {} if ! exists $ties->{ $totala }{ $l };
-
-					$ties->{ $totala }{ $j }{ tb1 } = $techa;
-					$ties->{ $totala }{ $l }{ tb1 } = $techb;
-
-					if( $techa eq $techb ) {
-						$ties->{ $totala }{ $j }{ tb2 } = $origa;
-						$ties->{ $totala }{ $l }{ tb2 } = $origb;
-
-						if( $origa eq $origb ) {
-							$ties->{ $totala }{ $j }{ place } = $i;
-							$ties->{ $totala }{ $l }{ place } = $i;
-						}
-					}
-				}
-			}
-		}
-
+		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
+			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $noc     = uc( $athlete->{ info }{ noc });
 			my $sum     = 0.0;
 			my $score   = $athlete->{ adjusted }{ $round };
 			my @score   = ();
-			my $decided = 0;
 			my $place   = sprintf( "%d.", $i + 1 );
-			if( exists $score->{ decision } ) {
-				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
-				foreach my $decision (sort keys %$codes) {
-					if( $score->{ decision }{ $decision } ) {
-						$decided = 1;
-						$place   = '&ndash;';
-						push @score, sprintf( "<td class=\"score\">%s<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } );
-						last;
-					}
+			if( exists $athlete->{ info } && exists $athlete->{ info }{ video } && exists $athlete->{ info }{ video }{ $round } && exists $athlete->{ info }{ video }{ $round }[ 0 ]{ decision }) {
+				if( $athlete->{ info }{ video }{ $round }[ 0 ]{ decision } ) {
+					$place = '&ndash;';
+					push @score, sprintf( "<td class=\"score\">%s</td>", $athlete->{ info }{ video }{ $round }[ 0 ]{ decision } );
 				}
 			} else {
-				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
-			}
-			my $key = sprintf( "%.2f", $score->{ total });
-			if( exists $ties->{ $key } && ! $decided ) {
-				$tb = $ties->{ $key }{ $j };
-				if( exists $tb->{ tb1 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb1 }</td>"; }
-				if( exists $tb->{ tb2 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb2 }</td>"; } else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
-				if( exists $tb->{ place }) { $place = $tb->{ place }; }
-			} else {
-				push @score, '<td class="tiebreaker">&nbsp;</td>';
-				push @score, '<td class="tiebreaker">&nbsp;</td>';
+				push @score, "<td class=\"score\"></td>"; 
 			}
 			print "<tr><td class=\"number\">$place</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			print @score;
