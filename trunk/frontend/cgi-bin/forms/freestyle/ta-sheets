@@ -80,7 +80,7 @@ print <<EOF;
 			.results .noc       { width: 48px; }
 			.results .athlete   { width: 408px; }
 			.results .form      { width: 100px; text-align: center; }
-			.results .score     { width: 100px; text-align: center; }
+			.results .score     { width: 100px; padding-right: 10px; text-align: right; }
 
 			.results td         { padding: 2px 4px 2px 4px; }
 			.results td .preacc { font-size: 8pt; }
