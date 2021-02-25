@@ -73,6 +73,7 @@ print <<EOF;
 			.results thead th.number  { width: 20px; }
 			.results thead th.noc     { width: 80px; }
 			.results thead th.athlete { width: 860px; }
+			.results .decision        { color: red; }
 
 			.results tbody td { 
 				padding: 2px 4px 2px 4px;
