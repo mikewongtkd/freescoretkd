@@ -2,6 +2,7 @@
 use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
+use List::Util qw( first );
 use JSON::XS;
 use Data::Dumper;
 
@@ -45,7 +46,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Freestyle Forms Results</title>
+		<title>Freestyle Forms Draws</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -53,7 +54,7 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 900px;
+				width: 920px;
 				height: 20px;
 			}
 			.division .description {
@@ -67,7 +68,7 @@ print <<EOF;
 				page-break-after: always;
 			}
 			.results table {
-				width: 900px;
+				width: 920px;
 			}
 			.results th {
 				margin-top: 8px;
@@ -77,30 +78,33 @@ print <<EOF;
 				text-align: left;
 			}
 			.results .number    { width: 32px; }
-			.results .noc       { width: 48px; }
-			.results .athlete   { width: 408px; }
-			.results .form      { width: 100px; text-align: center; }
-			.results .score     { width: 100px; padding-right: 10px; text-align: right; }
-
+			.results .usat      { width: 80px; }
+			.results .noc				{ width: 63px; }
+			.results .athlete   { width: 768px; }
+			.results .form      { width: 100px; text-align: center; }			
+			
+			.results td.decisions { width: 32px; text-align: center; color: red; }
 			.results td         { padding: 2px 4px 2px 4px; }
-			.results td .preacc { font-size: 8pt; }
+			.results td.score   { text-align: center; }
+			.results td.preacc  { font-size: 8pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-			.results .footer-img { position: absolute; bottom: 0; width: 920px;}
 
-			.header, .header-space { height: 200px; }
-			.footer, .footer-space {   height: 0px;   }
-			.header { position: fixed; top: 0; }
-			.footer { position: fixed;   bottom: 282; }
-		</style>
-	</head>
-	<body>
+      .header, .header-space { height: 180px; }
+      .footer, .footer-space { height: 320px; }
+      .header { position: fixed; top: 0; }
+      .footer { position: fixed; bottom: 0; }
+
+    </style>
+  </head>
+  <body>
 <table>
 <thead><tr><td><div class="header-space"> </div></td></tr></thead>
 <tbody><tr><td>
 EOF
+@divisions = map { my $divid = $_; first { $_->{ name } eq $divid } @divisions } qw( f011 f010 f020 f019 f023 f022 f058 f064 f070 );
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
@@ -108,7 +112,13 @@ foreach my $division (@divisions) {
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = { prelim => 'Preliminary Round', semfin => 'Semi-Finals Round', finals => 'Finals Round' }->{ $round };
+		my $placed = {};
 		my $i      = 0;
+		my $places = $division->{ placements }{ $round };
+		foreach my $j ( 0 .. $#$places ) {
+			my $i = $places->[ $j ];
+			$placed->{ $i } = ordinal( $j + 1 );
+		}
 
 		print <<EOF;
 		<div class="results">
@@ -118,29 +128,25 @@ foreach my $division (@divisions) {
 				<th class="number">#</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
-				<th class="score">Decision</th>
+				<th class="decisions">Decisions</th>
 			</tr>
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
+			my $noc     = $athlete->{ info }{ noc };
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $noc     = uc( $athlete->{ info }{ noc });
 			my $sum     = 0.0;
-			my $score   = $athlete->{ adjusted }{ $round };
-			my @score   = ();
-			my $place   = sprintf( "%d.", $i + 1 );
-			if( exists $athlete->{ info } && exists $athlete->{ info }{ video } && exists $athlete->{ info }{ video }{ $round } && exists $athlete->{ info }{ video }{ $round }[ 0 ]{ decision }) {
-				if( $athlete->{ info }{ video }{ $round }[ 0 ]{ decision } ) {
-					$place = '&ndash;';
-					push @score, sprintf( "<td class=\"score\">%s</td>", $athlete->{ info }{ video }{ $round }[ 0 ]{ decision } );
-				}
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+			my $score  = $athlete->{ adjusted }{ $round };
+			my $video  = $athlete->{ info }{ video };
+			my $finals = $video->{ finals }[ 0 ];
+			if( exists $finals->{ decision } ) {
+				print "<td class=\"decisions\">$finals->{ decision }</td>";
 			} else {
-				push @score, "<td class=\"score\"></td>"; 
+				print "<td class=\"decisions\"></td>";
 			}
-			print "<tr><td class=\"number\">$place</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
-			print @score;
 			print "</tr>\n";
 		}
 		print <<EOF;
@@ -156,7 +162,7 @@ print <<EOF;
 </table>
 <div class="header"><img src="/images/branding/header.png" width="100%"></div>
 <div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
-	</body>
+  </body>
 </html>
 EOF
 
@@ -177,10 +183,10 @@ sub read_tournament_config {
 # ============================================================
 	my $php = '';
 	my $config = {
+		optscore => '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
 		redhat   => '/var/www/html/freescore/include/php/config.php',
 		ubuntu   => '/var/www/freescore/include/php/config.php',
 		raspbian => '/var/www/html/include/php/config.php',
-		optscore => '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
 	};
 	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
 	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
