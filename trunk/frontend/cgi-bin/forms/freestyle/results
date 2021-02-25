@@ -175,6 +175,7 @@ sub read_tournament_config {
 		redhat   => '/var/www/html/freescore/include/php/config.php',
 		ubuntu   => '/var/www/freescore/include/php/config.php',
 		raspbian => '/var/www/html/include/php/config.php',
+		optscore => '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
 	};
 	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
 	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
