@@ -11,7 +11,6 @@ use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::WorldClass;
-use FreeScore::Forms::FreeStyle;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -37,89 +36,119 @@ try {
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
+			next if $ring >= 4; # MW
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
-		my $freestyle = new FreeScore::Forms::FreeStyle( $tournament->{ db }, 1 );
-		push @divisions, @{ $freestyle->{ divisions }};
 	}
 } catch {
 	die $_;
 
 };
 
-@divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @divisions;
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
-my $json = new JSON::XS();
+print <<EOF;
+<html>
+	<head>
+		<title>World Class Points by NOC</title>
+		<style type="text/css">
+			body {
+				font-family: Optima;
+			}
+			.division {
+				clear: both;
+				margin-top: 28px;
+				width: 920px;
+				height: 20px;
+			}
+			.division .description {
+				float: left;
+			}
+			.division .round {
+				float: right;
+			}
+			.results {
+				page-break-inside: avoid;
+			}
+			.results table {
+				width: 410px;
+				margin-left: auto;
+				margin-right:auto;
+			}
+			.results th {
+				margin-top: 8px;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
+				padding: 0 4px 0 4px;
+				text-align: left;
+			}
+			.results td       { padding: 2px 4px 2px 4px; }
+			.results .number  { width: 37px; text-align:center; }
+			.results .noc     { width: 63px; }
+			.results .athlete { width: 275px; }
+			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
+			.results .preacc { font-size: 8pt; }
+			.results .tiebreaker { width: 40px; text-align: center; }
+			.results .notes  { font-size: 9pt; width: 40px; }
+			.results tr:nth-child( even ) { background: #fff; }
+			.results tr:nth-child( odd  ) { background: #eee; }
+			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
+			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
+		</style>
+	</head>
+	<body>
+EOF
 
-print "<pre><h1>Athletes and Medals</h1>\n";
+
 my $nocpoints    = {};
-my $championship = [];
 
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $round  = 'finals';
-	my ($num)  = $division->{ name } =~ /[bfpr]\d*(\d{3})/;
+	my ($num)  = $division->{ name } =~ /r(\d+)/;
 
 	next unless exists $division->{ order }{ $round };
-	if( $division->can( 'rank_athletes' )) {
-		$division->rank_athletes( $round );
-	} elsif( $division->can( 'calculate_placements' )) {
-		$division->calculate_placements( $round );
-	}
-
-	my $placements = undef;
-	if(    exists $division->{ placement  }) { $placements = $division->{ placement }{ $round }; }
-	elsif( exists $division->{ placements }) { $placements = $division->{ placements }{ $round }; }
+	# next if $num > 100; #HACKY - SHOULD REALLY REMOVE THIS
+	$division->place_athletes( $round );
 
 	my @results = ();
 	foreach my $i (0 .. 3) {
-		next if $i > $#$placements;
+		next if $i > $#{$division->{ placement }{ $round }};
 		my $place    = $i + 1;
-		my $j        = $placements->[ $i ]; next unless defined( $j );
-		my $athlete  = $division->{ athletes }[ $j ];
+		my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
+		my $athlete  = unbless( clone( $division->{ athletes }[ $j ]));
 		my $noc      = $athlete->{ info }{ noc };
 		my $points   = { 1 => 5, 2 => 3, 3 => 1 };
 		$place = 3 if $place == 4;
 
-		if( ref( $division ) =~ /worldclass/i ) {
-			next if $athlete->{ scores }{ $round }->any_punitive_decision();
-
-		} elsif( ref( $division ) =~ /freestyle/i ) {
-			next if $athlete->{ decision }{ $round };
-		}
-
-		$athlete  = unbless( clone( $athlete));
-
 		$nocpoints->{ $noc }{ $place }++;
 		$nocpoints->{ $noc }{ total } += $points->{ $place };
-
-		my $video = ref( $athlete->{ info }{ video }) ? $athlete->{ info }{ video } : $json->decode( $athlete->{ info }{ video });
-		my $uuid  = $video->{ finals }[ 0 ]{ file };
-		$uuid =~ s/\/finals-0\.mp4$//;
-
-		printf "%s\t%-4s\t%d\t%3s\t%s\n", $uuid, $name, $place, $noc, $athlete->{ name };
-
-		if( $name =~ /^r/i && $num < 40 && $i == 0 ) {
-			push @$championship, { divid => $name, name => $athlete->{ name }, uuid => $uuid, noc => $noc }
-		}
 	}
 }
 
-print "<h1>Points by NOC</h1>\n";
-
-print "Divisions tallied across all belt ranks\n\n";
-
-print "NOC\tGold\tSilver\tBronze\tPoints\n";
+print <<EOF;
+<div class="results">
+<img src="/images/branding/header-2.png">
+<table border=0 cellpadding=0 cellspacing=0>
+    <tr>
+        <th class="noc">NOC</th>
+        <th class="score">Gold</th>
+        <th class="score">Silver</th>
+        <th class="score">Bronze</th>
+        <th class="score">Points</th>
+    </tr>
+EOF
 foreach my $noc (sort { $nocpoints->{ $b }{ total } <=> $nocpoints->{ $a }{ total } || $nocpoints->{ $b }{ 1 } <=> $nocpoints->{ $a }{ 1 } || $nocpoints->{ $b }{ 2 } <=> $nocpoints->{ a }{ 2 } || $nocpoints->{ $b }{ 3 } <=> $nocpoints->{ $a }{ 3 } || $a cmp $b } keys %$nocpoints) {
-	printf "%-3s\t%d\t%d\t%d\t%d\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
+	printf "<tr><td class=\"noc\">%-3s</td><td class=\"number\">%d</td><td class=\"number\">%d</td><td class=\"number\">%d</td><td class=\"number\">%d</td></tr>\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
 }
+print <<EOF;
+</table>
+<img class="footer-img" src="/images/branding/footer-2.png">
+</div>
 
-print "<h1>Championships</h1>\n";
-
-foreach my $champion (@$championship) {
-	printf "%-4s\t%s\t%s\t%s\n", $champion->{ divid }, $champion->{ uuid }, $champion->{ noc }, $champion->{ name };
-}
+EOF
 
 # ============================================================
 sub ordinal {

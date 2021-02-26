@@ -47,6 +47,9 @@ try {
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
@@ -95,10 +98,7 @@ print <<EOF;
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 			.results .footer-img { position: absolute; bottom: 0; width: 920px;}
 
-			.header, .header-space { height: 125px; }
-			.footer, .footer-space {   height: 0px;   }
-			.header { position: fixed; top: 0; }
-			.footer { position: fixed;   bottom: 282; }
+$branding_css
     </style>
 	</head>
 	<body>
@@ -153,14 +153,17 @@ EOF
 	} elsif( @$matches == 2 || @$matches == 3 ) {
 		my $divname = uc $division->{ matchdiv };
 		my $ro4a = {
+			match => uc $matches->[ 0 ]{ name },
 			chung => $matches->[ 0 ]{ athletes }[ 0 ],
 			hong  => $matches->[ 0 ]{ athletes }[ 1 ],
 		};
 		my $ro4b = {
+			match => uc $matches->[ 1 ]{ name },
 			chung => $matches->[ 1 ]{ athletes }[ 0 ],
 			hong  => $matches->[ 1 ]{ athletes }[ 1 ],
 		};
 		my $ro2 = @$matches == 3 ? {
+			match => uc $matches->[ 2 ]{ name },
 			chung => $matches->[ 2 ]{ athletes }[ 0 ],
 			hong  => $matches->[ 2 ]{ athletes }[ 1 ],
 		} : {
@@ -174,7 +177,7 @@ EOF
 			$ro2->{ $color }  = { name => $ro2->{ $color }{ name },  noc => noc( $ro2->{ $color }),  result => result( $ro2->{ $color },  $matches->[ 2 ], 'ro2'  )};
 		}
 		print <<EOF;
-	<svg width="920" height="56">
+	<svg width="920" height="72">
 		<rect x="005"   y="05" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
 		<rect x="012.5" y="05" width="170"  height="25.5" style="fill:white;stroke:black;" />
 		<rect x="182.5" y="05" width="37.5" height="25.5" style="fill:white;stroke:black;" />
@@ -186,6 +189,7 @@ EOF
 		<rect x="182.5" y="30.5" width="37.5" height="25.5" style="fill:white;stroke:black;" />
 		<text x="020" y="49" font-size="15" $ro4a->{ hong }{ result }>$ro4a->{ hong }{ name }</text>
 		<text x="201.25" y="49"  font-size="15" text-anchor="middle">$ro4a->{ hong }{ noc }</text>
+		<text x="100" y="68"  font-size="12" text-anchor="middle">$ro4a->{ match }</text>
 
 		<line x1="220" y1="30.5" x2="240" y2="30.5" stroke="black" />
 
@@ -194,6 +198,8 @@ EOF
 		<rect x="417.5"  y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
 		<text x="255"    y="36.25" font-size="15" $ro2->{ chung }{ result }>$ro2->{ chung }{ name }</text>
 		<text x="436.25" y="36.25" font-size="15" text-anchor="middle">$ro2->{ chung }{ noc }</text>
+
+		<text x="450" y="58"  font-size="12" text-anchor="middle">$ro2->{ match }</text>
 
 		<rect x="662.5"  y="17.75" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
 		<rect x="492.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
@@ -214,9 +220,10 @@ EOF
 		<rect x="690"    y="30.5"  width="37.5" height="25.5" style="fill:white;stroke:black;" />
 		<text x="890"    y="49"    font-size="15" text-anchor="end" $ro4b->{ hong }{ result }>$ro4b->{ hong }{ name }</text>
 		<text x="708.75" y="49"    font-size="15" text-anchor="middle">$ro4b->{ hong }{ noc }</text>
+		<text x="800" y="68"  font-size="12" text-anchor="middle">$ro4b->{ match }</text>
 	</svg>
 
-	<div class="division"><div class="description"><b>Division $divname</b> &mdash; $division->{ description } </div><div class="round"><b>Finals Round</b></div></div>
+	<div class="division"><div class="description"><b>Match $divname</b> &mdash; $division->{ description } </div><div class="round"><b>Finals Round</b></div></div>
 	<table border=0 cellpadding=0 cellspacing=0>
 		<tr>
 			<th class="number">Rank</th>

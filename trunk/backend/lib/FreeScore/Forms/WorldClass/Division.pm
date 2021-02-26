@@ -960,7 +960,8 @@ sub time {
 	my $complete = [];
 	my $pending  = 0;
 
-	foreach my $athlete (@athletes) {
+	foreach my $i (@athletes) {
+		my $athlete = $self->{ athletes }[ $i ];
 		next unless exists $athlete->{ scores } && exists $athlete->{ scores }{ $round } && exists $athlete->{ scores }{ $round }{ forms };
 
 		my $forms = $athlete->{ scores }{ $round }{ forms };
