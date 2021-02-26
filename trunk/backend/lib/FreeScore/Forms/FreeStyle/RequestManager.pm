@@ -548,7 +548,7 @@ sub handle_division_pool_score {
 			return; 
 
 		} elsif( $response->{ status } eq 'fail' ) {
-			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
+			# ===== POOL JUDGES REQUEST DISCUSSION TO DISQUALIFY ATHLETE
 			if( $response->{ solution } eq 'discuss-disqualify' ) {
 				print STDERR "  At least one judge has voted to disqualify\n";
 

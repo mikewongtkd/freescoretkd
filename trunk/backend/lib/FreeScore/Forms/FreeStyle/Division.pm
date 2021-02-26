@@ -379,8 +379,9 @@ sub pool_judge_ready {
 	my $k       = $self->{ judges };
 	my $athlete = $self->current_athlete();
 	my $pool    = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
+	my $jid     = $judge->{ id };
 
-	$pool->{ $judge->{ id }} = { judge => $judge, status => 'ready' };
+	$pool->{ $jid } = { judge => $judge, status => 'ready' } unless exists $pool->{ $jid };
 
 	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
 	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
@@ -400,12 +401,13 @@ sub record_pool_score {
 
 	return unless $score->{ judge }{ id };
 
-	my $judge   = $score->{ judge };
-	my $round   = $self->{ round };
-	my $form    = $self->{ form };
-	my $size    = $self->{ poolsize };
-	my $athlete = $self->current_athlete();
-	my $pool    = $athlete->{ pool }{ $round };
+	my $judge     = $score->{ judge };
+	my $round     = $self->{ round };
+	my $form      = $self->{ form };
+	my $k         = $self->{ judges };
+	my $n         = $self->{ poolsize };
+	my $athlete   = $self->current_athlete();
+	my $pool      = $athlete->{ pool }{ $round };
 	my $safety    = { margin => ($n - $k)};
 	my $dsq       = [ grep { $_->{ video }{ feedback } eq 'dsq' } values %$pool ];
 	my $bad       = [ grep { $_->{ video }{ feedback } eq 'bad' } values %$pool ];
@@ -430,10 +432,10 @@ sub record_pool_score {
 	};
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	$athlete->{ pool }{ $round }{ $judge->{ id }} = $score;
-	my $have    = int( keys %{ $athlete->{ pool }{ $round }});
+	$pool->{ $judge->{ id }} = $score;
+	my $have = int( grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool);
 
-	if( $have == $size ) {
+	if( $have == $n ) {
 		my $result = $self->resolve_pool();
 		return $result;
 	} else {
