@@ -1,5 +1,6 @@
 #! /usr/bin/perl
 use Try::Tiny;
+use List::Util qw( first );
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
@@ -14,7 +15,7 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
-my $ringcapt   = 1;
+my $ringcapt   = $cgi->param( 'ringcaptain' );
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
@@ -22,13 +23,20 @@ my @divisions  = ();
 my $results    = undef;
 try {
 	if( defined $ring ) {
-		if( defined $divid ) { 
+		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
+			my $schedule = {
+				1 => [ qw( c002 c001 )],
+			};
+			if( exists $schedule->{ $ring }) {
+				push @divisions, map { my $divid = $_; first { $_->{ name } eq $divid } @{ $results->{ divisions }} } @{ $schedule->{ $ring }};
+			} else {
+				push @divisions, @{ $results->{ divisions }};
+			}
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
@@ -38,7 +46,7 @@ try {
 	}
 } catch {
 	die $_;
-	
+
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -48,7 +56,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>World Class Forms Division Draws</title>
+		<title>World Class Forms TA Sheets</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -67,8 +75,10 @@ print <<EOF;
 			}
 			.results {
 				page-break-inside: avoid;
+				page-break-after: always;
 			}
 			.results table {
+				page-break-inside: avoid;
 				width: 920px;
 			}
 			.results th {
@@ -78,12 +88,12 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results td         { padding: 2px 4px 2px 4px; }
+			.results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
 			.results td.number    { width: 32px; }
 			.results td.usat      { width: 80px; }
-			.results td.noc       { width: 120px; }
+			.results td.noc       { width: 63px; }
 			.results td.athlete   { width: 768px; }
-			.results td.decisions, .results th.decisions { width: 32px; color: red; }
+			.results td.decisions { width: 32px; text-align: center; color: red; }
       .results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
@@ -92,11 +102,10 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-			.header, .header-space { height: 125px; }
-			.footer, .footer-space { height: 0px; }
+			.header, .header-space { height: 180px; }
+			.footer, .footer-space { height: 300px; }
 			.header { position: fixed; top: 0; }
-			.footer { position: fixed; bottom: 282; }
-
+			.footer { position: fixed; bottom: 0; }
 		</style>
 	</head>
 	<body>
@@ -124,7 +133,7 @@ while( @divisions ) {
 
 	# ===== DRAW BRACKETS
 	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:ro4[ab]|ro2)/;
-	if( ! $bracket ) { 
+	if( ! $bracket ) {
 		# Do nothing; don't draw brackets if it's not a bracketed division or round
 
 	} elsif( @$matches == 1 ) {
@@ -222,19 +231,25 @@ EOF
 		my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
 
 		@rounds = reverse $division->rounds() unless @rounds;
+
+		my $first = 0;
 		foreach my $round (@rounds) {
 			next unless exists $division->{ order }{ $round };
+			next if $first; # Skip to next division if first round already processed
 			my $rname  = $division->round_name( $round );
 			my $forms  = $division->{ forms }{ $round };
 			my $placed = {};
 			my $i      = 0;
 			my $places = $division->{ placement }{ $round };
+
+			$first = 1;
+
 			foreach my $j ( 0 .. $#$places ) {
 				my $i = $places->[ $j ];
 				$placed->{ $i } = ordinal( $j + 1 );
 			}
 
-		  print <<EOF;
+			print <<EOF;
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
 			<table border=0 cellpadding=0 cellspacing=0>
 				<tr>
@@ -261,8 +276,9 @@ EOF
 				my $n        = 0;
 
 				$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
+
 				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
-        print "<td class=\"form\">&nbsp;</td>"; 
+        print "<td class=\"form\">&nbsp;</td>";
         print "<td class=\"form\">&nbsp;</td>";
         print "<td class=\"decisions\">$decision</td></tr>\n";
 			}
