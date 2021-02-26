@@ -1,11 +1,11 @@
-package FreeScore::Forms::FreeStyle;
+package FreeScore::Sparring::Virtual;
 use List::MoreUtils qw( first_index );
 use FreeScore;
 use FreeScore::Forms;
-use FreeScore::Forms::FreeStyle::Division;
+use FreeScore::Sparring::Virtual::Division;
 use base qw( FreeScore::Forms Clone );
 
-our $SUBDIR = "forms-freestyle";
+our $SUBDIR = "virtual-sparring";
 
 # ============================================================
 sub init {
@@ -31,7 +31,7 @@ sub init {
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
-			push @{ $self->{ divisions }}, new FreeScore::Forms::FreeStyle::Division( $self->{ path }, $id, $ring );
+			push @{ $self->{ divisions }}, new FreeScore::Sparring::Virtual::Division( $self->{ path }, $id, $ring );
 		}
 
 	} else { 
@@ -41,7 +41,7 @@ sub init {
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
 		$self->{ divisions } = [];
 		foreach my $id (@$divisions) {
-			push @{ $self->{ divisions }}, new FreeScore::Forms::FreeStyle::Division( $self->{ path }, $id );
+			push @{ $self->{ divisions }}, new FreeScore::Sparring::Virtual::Division( $self->{ path }, $id );
 		}
 
 		# ===== LOAD EACH RING
@@ -49,7 +49,7 @@ sub init {
 			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );
 			foreach my $id (@$ring_divisions) {
-				push @{ $self->{ divisions }}, new FreeScore::Forms::FreeStyle::Division( $self->{ path }, $id, $ring );
+				push @{ $self->{ divisions }}, new FreeScore::Sparring::Virtual::Division( $self->{ path }, $id, $ring );
 			}
 		}
 
@@ -63,7 +63,7 @@ sub create_division {
 # ============================================================
 	my $self     = shift;
 	my $divid    = shift; 
-	my $division = new FreeScore::Forms::FreeStyle::Division( $self->{ path }, $divid );
+	my $division = new FreeScore::Sparring::Virtual::Division( $self->{ path }, $divid );
 
 	return $division;
 }

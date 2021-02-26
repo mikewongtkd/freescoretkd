@@ -1,4 +1,4 @@
-package FreeScore::Forms::FreeStyle::Division;
+package FreeScore::Sparring::Virtual::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use JSON::XS;
@@ -116,7 +116,7 @@ sub read {
 	my $json = new JSON::XS();
 
 	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
-	my $data      = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
+	my $data      = bless $json->decode( $contents ), 'FreeScore::Sparring::Virtual::Division';
 	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
 
 	$self->{ current } ||= 0;
@@ -273,7 +273,7 @@ sub from_json {
 # ============================================================
 #** @method ( json_division_data )
 #   @brief  Class method that returns an instance using the given JSON division data
-#   Call as my $division = FreeScore::Forms::FreeStyle->from_json( $json )
+#   Call as my $division = FreeScore::Sparring::Virtual->from_json( $json )
 #*
 	my $class = shift;
 	my $data  = shift;
