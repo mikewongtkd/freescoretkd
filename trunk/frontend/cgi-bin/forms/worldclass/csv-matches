@@ -8,6 +8,7 @@ use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::FreeStyle;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -23,7 +24,7 @@ my @divisions  = ();
 my $results    = undef;
 try {
 	if( defined $ring ) {
-		if( defined $divid ) { 
+		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
@@ -36,10 +37,12 @@ try {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+		my $freestyle = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+		push @divisions, @{ $freestyle->{ divisions }};
 	}
 } catch {
 	die $_;
-	
+
 };
 print "<pre>\n";
 
@@ -53,10 +56,11 @@ foreach my $division (@divisions) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = $division->round_name( $round );
 		my $forms  = $division->{ forms }{ $round };
+		my $placements = $division->{ placement } ? $division->{ placement }{ $round } : $division->{ placements }{ $round };
 		my $placed = {};
 		my $i      = 0;
 
-		my $n = $#{$division->{ placement }{ $round }};
+		my $n = $#{ placements };
 		printf( "%s\t%-40s\t%s\tacc1\tpre1\ttot1\tacc2\tpre2\ttot2\tavg\n", $name, $division->{ description }, $round );
 		foreach my $i (0 .. $n) {
 			my $j       = $division->{ placement }{ $round }[ $i ];
@@ -67,18 +71,19 @@ foreach my $division (@divisions) {
 			my $uuid    = get_uuid( $athlete );
 
 			printf( "%d\t%s\t%-40s", ($i + 1),$uuid, $athlete->{ name });
+=pod
 			foreach my $j ( 0 .. 1 ) {
 				my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 				my $mean  = $score->{ adjusted };
 				if( defined $mean ) {
-					if( $score->{ complete }) { 
+					if( $score->{ complete }) {
 						if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
 							my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 							foreach my $decision (keys %$codes) {
 								printf( "\t%.2f\t%.2f\t%s ", $mean->{ accuracy }, $mean->{ presentation }, $codes->{ $decision } ) if( $score->{ decision }{ $decision });
 							}
 						} else {
-							printf( "\t%.2f\t%.2f\t%.2f", $mean->{ accuracy }, $mean->{ presentation }, $mean->{ total }); 
+							printf( "\t%.2f\t%.2f\t%.2f", $mean->{ accuracy }, $mean->{ presentation }, $mean->{ total });
 						}
 						$n++;
 					} else { print( "\t-   \t-   \t-   " ); }
@@ -90,6 +95,7 @@ foreach my $division (@divisions) {
 			$n ||= 1;
 			printf( "\t%.3f\t$notes", ($sum/$n), $notes );
 			print "\n";
+=cut
 		}
 		print "\n";
 	}
@@ -138,10 +144,10 @@ sub get_uuid {
 	my $athlete = shift;
 	my $uuid    = undef;
 	if( exists $athlete->{ info }{ video } && $athlete->{ info }{ video } && $athlete->{ info }{ video } ne 'null' ) {
-		my $video = $json->decode( $athlete->{ info }{ video });
+		my $video = ref( $athlete->{ info }{ video } ) ? $athlete->{ info }{ video } : $json->decode( $athlete->{ info }{ video });
 
-		$uuid = $video->{ finals }[ 0 ]{ file }; 
-		$uuid =~ s/^videos\///; 
+		$uuid = $video->{ finals }[ 0 ]{ file };
+		$uuid =~ s/^videos\///;
 		$uuid =~ s/\/finals-0.mp4$//;
 
 		return $uuid;
