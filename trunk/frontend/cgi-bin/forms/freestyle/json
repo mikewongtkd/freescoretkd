@@ -5,7 +5,7 @@ use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
-use List::Util qw( first );
+use List::Util qw( first all );
 use List::MoreUtils qw( first_index );
 use Scalar::Util qw( looks_like_number );
 use Math::Round qw( nearest );
@@ -201,7 +201,10 @@ sub handle_rescore {
 	my $score = $athlete->{ scores }{ $key->{ round }};
 	my $pool  = $athlete->{ pool }{ $key->{ round }};
 
-	foreach my $jid (keys %$rescore) { $pool->{ $jid } = $rescore->{ $jid }; }
+	# Assign rescore
+	foreach my $jid (keys %$rescore) { 
+		$pool->{ $jid } = $rescore->{ $jid }; 
+	}
 
 	foreach $ps (values %$pool) {
 		next unless exists $ps->{ as } && looks_like_number( $ps->{ as });
