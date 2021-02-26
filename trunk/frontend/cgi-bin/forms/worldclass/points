@@ -111,7 +111,11 @@ foreach my $division (@divisions) {
 
 	next unless exists $division->{ order }{ $round };
 	# next if $num > 100; #HACKY - SHOULD REALLY REMOVE THIS
-	$division->place_athletes( $round );
+	if( $division->can( 'rank_athletes' )) {
+		$division->rank_athletes( $round );
+	} elsif( $division->can( 'calculate_placements' )) {
+		$division->calculate_placements( $round );
+	}
 
 	my @results = ();
 	foreach my $i (0 .. 3) {

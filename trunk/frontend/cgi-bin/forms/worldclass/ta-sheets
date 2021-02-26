@@ -260,7 +260,7 @@ EOF
       if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
       else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 			print <<EOF;
-          <th class="decisions"></th>
+          <th class="decisions">Decisions</th>
       	</tr>
 EOF
 			my $n = $#{$division->{ order }{ $round }};
@@ -271,7 +271,7 @@ EOF
 				my $noc      = $athlete->{ info }{ noc };
 				my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : { $round => [{ decision => undef }]};
 				my $stream   = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream }) : { decision => undef };
-				my $decision = $ringcapt ? ($video->{ $round }[ 0 ]{ decision } || $stream->{ decision }) : '';
+				my $decision = $video ? ($video->{ $round }[ 0 ]{ decision } || $stream->{ decision }) : '';
 				my $sum      = 0.0;
 				my $n        = 0;
 
