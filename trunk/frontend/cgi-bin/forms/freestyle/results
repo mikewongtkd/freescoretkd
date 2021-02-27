@@ -117,7 +117,7 @@ foreach my $division (@divisions) {
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
-				<th class="number">#</th>
+				<th class="number">Rank</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
 				<th class="form">Score</th>
@@ -178,10 +178,10 @@ EOF
 			if( exists $athlete->{ decision } ) {
 				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 				foreach my $decision (sort keys %$codes) {
-					if( $athlete->{ decision }{ $round }{ $decision } ) {
+					if( exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } eq $decision ) {
 						$decided = 1;
 						$place   = '&ndash;';
-						push @score, sprintf( "<td class=\"score\">%s<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } );
+						push @score, sprintf( "<td class=\"score\">%s</td>", $codes->{ $decision } );
 						last;
 					}
 				}
