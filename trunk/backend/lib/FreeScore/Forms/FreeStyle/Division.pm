@@ -141,7 +141,7 @@ sub calculate_placements {
 	my $athletes = $self->{ athletes };
 	my $round    = $self->{ round } or return;
 
-	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
+	my ($pending, $complete) = part { $athletes->[ $i ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
 	my $placements = [ sort { 
 		my $i = $athletes->[ $a ];
@@ -240,9 +240,12 @@ sub calculate_scores {
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
+		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 
-		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
+		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A DECISION HAS BEEN RENDERED
+		my $decided = $decision eq 'disqualify' || $decision eq 'withdraw';
+		my $scored  = @$scores == $k && all { defined $_ } @$scores ;
+		if( $scored || $decided ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
 
 		foreach my $score (@$scores) {
 			foreach my $category (qw( presentation technical )) {
