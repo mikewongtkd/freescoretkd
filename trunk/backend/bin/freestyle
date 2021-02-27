@@ -26,6 +26,7 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
+	my $role       = $self->param( 'role'       );
 	my $id         = $self->param( 'id'         );
 	my $manager    = new FreeScore::Forms::FreeStyle::RequestManager( $tournament, $ring, $self->tx() );
 	my $progress   = undef;
@@ -33,7 +34,7 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 	$self->inactivity_timeout( 3600 ); # 1 hour
 
 	# ===== REGISTER THE CLIENT
-	my $c = $client->{ $id } = { id => $id, device => $self->tx() }; 
+	my $c = $client->{ $id } = { id => $id, role => $role, device => $self->tx() }; 
 	if( $DEBUG ) {
 		print STDERR "SETUP $tournament\n";
 		print STDERR "  $_\n" foreach sort keys %$client;

@@ -89,13 +89,13 @@ sub broadcast_division_response {
 
 	foreach my $id (sort keys %$clients) {
 		my $broadcast = $clients->{ $id };
-		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
 		my $message   = $division->clone();
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
+		my $role      = $broadcast->{ role };
 
-		print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . "\n" if $DEBUG;
+		print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . " $role\n" if $DEBUG;
 		$broadcast->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, request => $request, division => $unblessed }});
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
@@ -126,8 +126,9 @@ sub broadcast_ring_response {
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
+		my $role      = $broadcast->{ role };
 
-		print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . "\n" if $DEBUG;
+		print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . " $role\n" if $DEBUG;
 		$broadcast->{ device }->send( { json => $response });
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
@@ -968,11 +969,13 @@ sub send_division_response {
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
+	$client = first { sha1_hex( $_->{ device }) eq $id } values %$clients;
+
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : "client") . "\n" if $DEBUG;
-	print STDERR "    user: " . substr( $id, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . "\n" if $DEBUG;
+	print STDERR "    user: " . substr( $client->{ id }, 0, 4 ) . " digest: " . substr( $digest, 0, 4 ) . " $client->{ role }\n" if $DEBUG;
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
+	$client->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
 }
 
@@ -996,11 +999,13 @@ sub send_ring_response {
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
+	$client = first { sha1_hex( $_->{ device }) eq $id } values %$clients;
+
 	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
 	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : "client") . "\n" if $DEBUG;
-	print STDERR "    user: " . substr( $id, 0, 4 ) . "\n" if $DEBUG;
+	print STDERR "    user: " . substr( $client->{ id }, 0, 4 ) . " $client->{ role }\n" if $DEBUG;
 
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
+	$client->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
 	$self->{ _last_state } = $digest;
 }
 
