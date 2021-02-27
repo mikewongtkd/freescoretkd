@@ -103,7 +103,6 @@ print <<EOF;
 <thead><tr><td><div class="header-space"> </div></td></tr></thead>
 <tbody><tr><td>
 EOF
-@divisions = map { my $divid = $_; first { $_->{ name } eq $divid } @divisions } qw( f011 f010 f020 f019 f023 f022 f058 f064 f070 );
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
@@ -139,10 +138,8 @@ EOF
 			my $sum     = 0.0;
 			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score  = $athlete->{ adjusted }{ $round };
-			my $video  = $athlete->{ info }{ video };
-			my $finals = $video->{ finals }[ 0 ];
-			if( exists $finals->{ decision } ) {
-				print "<td class=\"decisions\">$finals->{ decision }</td>";
+			if( exists $score->{ decision } ) {
+				print "<td class=\"decisions\">$score->{ decision }</td>";
 			} else {
 				print "<td class=\"decisions\"></td>";
 			}
