@@ -106,6 +106,7 @@ foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	@rounds = ( qw( finals semfin prelim )) unless @rounds;
+  $division->calculate_placements();
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = { prelim => 'Preliminary Round', semfin => 'Semi-Finals Round', finals => 'Finals Round' }->{ $round };
@@ -143,7 +144,7 @@ EOF
 				my $origa   = sprintf( "%.1f", $oa->{ total });
 				my $origb   = sprintf( "%.1f", $ob->{ total });
 
-				if( $totala eq $totalb ) {
+				if( $totala eq $totalb && $totala + 0 != 0 ) {
 					$ties->{ $totala }{ $j } = {} if ! exists $ties->{ $totala }{ $j };
 					$ties->{ $totala }{ $l } = {} if ! exists $ties->{ $totala }{ $l };
 
@@ -173,16 +174,20 @@ EOF
 			my @score   = ();
 			my $decided = 0;
 			my $place   = sprintf( "%d.", $i + 1 );
-			if( exists $score->{ decision } ) {
+
+			if( exists $athlete->{ decision } ) {
 				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 				foreach my $decision (sort keys %$codes) {
-					if( $score->{ decision }{ $decision } ) {
+					if( $athlete->{ decision }{ $round }{ $decision } ) {
 						$decided = 1;
 						$place   = '&ndash;';
 						push @score, sprintf( "<td class=\"score\">%s<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } );
 						last;
 					}
 				}
+			} elsif( $score->{ total } == 0 && $score->{ technical } == 0 && $score->{ presentation } == 0 ) {
+				push @score, sprintf( "<td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td>" );
+
 			} else {
 				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } );
 			}
@@ -192,10 +197,14 @@ EOF
 				if( exists $tb->{ tb1 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb1 }</td>"; }
 				if( exists $tb->{ tb2 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb2 }</td>"; } else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
 				if( exists $tb->{ place }) { $place = $tb->{ place }; }
+
 			} else {
 				push @score, '<td class="tiebreaker">&nbsp;</td>';
 				push @score, '<td class="tiebreaker">&nbsp;</td>';
 			}
+
+			if( $score->{ total } == 0 && $place ne '&ndash;' ) { $place = '&nbsp;'; }
+
 			print "<tr><td class=\"number\">$place</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			print @score;
 			print "</tr>\n";
