@@ -120,7 +120,7 @@ foreach my $division (@divisions) {
 				<th class="number">Rank</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
-				<th class="form">Score</th>
+				<th class="form">Freestyle</th>
 				<th class="tiebreaker">TB1</th>
 				<th class="tiebreaker">TB2</th>
 			</tr>

@@ -127,6 +127,7 @@ foreach my $division (@divisions) {
 				<th class="number">#</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
+				<th class="form">Freestyle</th>
 				<th class="decisions">Decisions</th>
 			</tr>
 EOF
@@ -146,7 +147,7 @@ EOF
 			}
 			my $sum     = 0.0;
 			my $n       = 0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td class=\"form\"></td>";
 			my $score  = $athlete->{ adjusted }{ $round };
 				print "<td class=\"decisions\">$decision</td>";
 			print "</tr>\n";
