@@ -199,6 +199,11 @@ sub handle_division_award_punitive {
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
 		$division->write();
 
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
+
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
