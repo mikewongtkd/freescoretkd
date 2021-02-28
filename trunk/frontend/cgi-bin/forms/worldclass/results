@@ -76,6 +76,7 @@ print <<EOF;
 			}
 			.results table {
 				width: 920px;
+				page-break-after: always;
 			}
 			.results th {
 				margin-top: 8px;
