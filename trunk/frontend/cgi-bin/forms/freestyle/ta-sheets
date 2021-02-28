@@ -96,7 +96,7 @@ print <<EOF;
     		.header, .header-space { height: 180px; }
     		.footer, .footer-space { height: 320px; }
     		.header { position: fixed; top: 0; }
-    		.footer { position: fixed; bottom: 268; }
+    		.footer { position: fixed; bottom: 0; }
     	</style>
   	</head>
   <body>
@@ -136,11 +136,12 @@ EOF
 			my $athlete = $division->{ athletes }[ $j ];
 			my $noc     = $athlete->{ info }{ noc };
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			# my $video   = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video } ) : { $round => [{ decision => undef }]};
-			# my $stream  = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream } ) : { decision => undef };
-      my $video = $json->encode( $athlete->{ info }{ video }{ $round } ) ;
+      my $video = $json->encode( $athlete->{ info }{ video }{ $round } );
+			my $stream = $json->encode( $athlete->{ info }{ stream } );
 			my $decision = "";
 			if ($video =~ /(WDR|DSQ)/) {
+				$decision = $&;
+			} elsif ($stream =~ /(WDR|DSQ)/) {
 				$decision = $&;
 			}
 			my $sum     = 0.0;
