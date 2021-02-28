@@ -95,10 +95,10 @@ foreach my $division (@divisions) {
 		$nocpoints->{ $noc }{ total } += $points->{ $place };
 
 		my $video = ref( $athlete->{ info }{ video }) ? $athlete->{ info }{ video } : $json->decode( $athlete->{ info }{ video });
-		my $uuid  = $video->{ finals }[ 0 ]{ file };
+		my $uuid  = ref( $video->{ finals } ) =~ /^array/i ? $video->{ finals }[ 0 ]{ file } : $video->{ finals }{ 0 }{ file };
 		$uuid =~ s/\/finals-0\.mp4$//;
 
-		printf "%s\t%-4s\t%d\t%3s\t%s\n", $uuid, $name, $place, $noc, $athlete->{ name };
+		printf "%s\t%-4s\t%d\t%3s\t%s\n", $name, $uuid, $place, $noc, $athlete->{ name };
 
 		if( $name =~ /^r/i && $num < 40 && $i == 0 ) {
 			push @$championship, { divid => $name, name => $athlete->{ name }, uuid => $uuid, noc => $noc }
