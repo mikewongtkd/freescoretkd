@@ -162,7 +162,7 @@ sub calculate_placements {
 
 		my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
 		my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
-		my $original_total     = $j_ori_total     <=> $i_ori_technical;
+		my $original_total     = $j_ori_total     <=> $i_ori_total;
 
 		$adjusted_total || $adjusted_technical || $original_total;
 	} @$complete ];

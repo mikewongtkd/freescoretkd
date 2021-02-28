@@ -15,6 +15,7 @@ my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
 my @rounds     = ($cgi->param( 'round' ));
+my $json       = new JSON::XS;
 
 my @divisions  = ();
 my $results    = undef;
@@ -135,11 +136,16 @@ EOF
 			my $athlete = $division->{ athletes }[ $j ];
 			my $noc     = $athlete->{ info }{ noc };
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $video   = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video } ) : { $round => [{ decision => undef }]};
-			my $stream  = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream } ) : { decision => undef };
-      my $decision = $video ? ( $video->{ $round }[ 0 ]{ decision } || $stream->{ decision } ) : '';
+			# my $video   = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video } ) : { $round => [{ decision => undef }]};
+			# my $stream  = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream } ) : { decision => undef };
+      my $decision = '';
       my $sum     = 0.0;
       my $n       = 0;
+			if( $video ) {
+      	$decision = $video->{ $round }[ 0 ]{ decision };
+			} elsif ( $stream ) {
+				$decision = $stream->{ decision };
+			}
 			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score  = $athlete->{ adjusted }{ $round };
 			if( exists $score->{ decision } ) {
