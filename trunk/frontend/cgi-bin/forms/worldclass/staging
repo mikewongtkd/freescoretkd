@@ -98,7 +98,6 @@ print <<EOF;
 			.placement td         { padding: 2px 4px 2px 4px; }
 			.placement td.place   { text-align: bottom; height: 36px; width: 40px; }
 			.placement td.name    { border-bottom: 1px solid black; height: 36px; width: 400px; }
-
 		</style>
 	</head>
 	<body>

@@ -95,7 +95,6 @@ print <<EOF;
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-			.results .footer-img { position: absolute; bottom: 0; width: 920px; }
 		</style>
 	</head>
 	<body>
