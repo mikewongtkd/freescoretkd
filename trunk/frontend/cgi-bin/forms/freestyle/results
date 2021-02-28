@@ -2,6 +2,8 @@
 use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
+use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
 use JSON::XS;
 use Data::Dumper;
 
@@ -14,6 +16,7 @@ my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
 my @rounds     = ($cgi->param( 'round' ));
+my $json       = new JSON::XS;
 
 my @divisions  = ();
 my $results    = undef;
@@ -89,7 +92,6 @@ print <<EOF;
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-			.results .footer-img { position: absolute; bottom: 0; width: 920px;}
 
 			.header, .header-space { height: 200px; }
 			.footer, .footer-space { height: 320px; }
@@ -106,7 +108,9 @@ foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	@rounds = ( qw( finals semfin prelim )) unless @rounds;
-  $division->calculate_placements();
+	my $copy = unbless( clone ( $division ) );
+	print "<script>var division = " . $json->encode( $copy ) . ";</script>\n";
+	$division->calculate_placements();
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
 		my $rname  = { prelim => 'Preliminary Round', semfin => 'Semi-Finals Round', finals => 'Finals Round' }->{ $round };
