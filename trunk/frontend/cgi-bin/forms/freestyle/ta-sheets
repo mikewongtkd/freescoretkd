@@ -44,59 +44,62 @@ try {
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
 		<title>Freestyle Forms TA Sheets</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description {
-				float: left;
-			}
-			.division .round {
-				float: right;
-			}
-			.results {
-				page-break-inside: avoid;
-				page-break-after: always;
-			}
-			.results table {
-				width: 920px;
-			}
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
-				text-align: left;
-			}
-			.results .number    { width: 32px; }
-			.results .usat      { width: 80px; }
-			.results .noc				{ width: 63px; }
-			.results .athlete   { width: 768px; }
-			.results .form      { width: 100px; text-align: center; }
+				body {
+					font-family: Optima;
+				}
+				.division {
+					clear: both;
+					margin-top: 28px;
+					width: 920px;
+					height: 20px;
+				}
+				.division .description {
+					float: left;
+				}
+				.division .round {
+					float: right;
+				}
+				.results {
+					page-break-inside: avoid;
+					page-break-after: always;
+				}
+				.results table {
+					width: 920px;
+				}
+				.results th {
+					margin-top: 8px;
+					border-top: 1px solid #999;
+					border-bottom: 1px solid #999;
+					padding: 0 4px 0 4px;
+					text-align: left;
+				}
+				.results .number    { width: 32px; }
+				.results .usat      { width: 80px; }
+				.results .noc				{ width: 63px; }
+				.results .athlete   { width: 768px; }
+				.results .form      { width: 100px; text-align: center; }
 
-			.results td.decisions { width: 32px; text-align: center; color: red; }
-			.results td         { padding: 2px 4px 2px 4px; }
-			.results td.score   { text-align: center; }
-			.results td.preacc  { font-size: 8pt; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+				.results td.decisions { width: 32px; text-align: center; color: red; }
+				.results td         { padding: 2px 4px 2px 4px; }
+				.results td.score   { text-align: center; }
+				.results td.preacc  { font-size: 8pt; }
+				.results tr:nth-child( even ) { background: #fff; }
+				.results tr:nth-child( odd  ) { background: #eee; }
+				.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
+				.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-    		.header, .header-space { height: 180px; }
-    		.footer, .footer-space { height: 320px; }
-    		.header { position: fixed; top: 0; }
-    		.footer { position: fixed; bottom: 0; }
+    		// .header, .header-space { height: 180px; }
+    		// .footer, .footer-space { height: 320px; }
+    		// .header { position: fixed; top: 0; }
+    		// .footer { position: fixed; bottom: 0; }
     	</style>
   	</head>
   <body>

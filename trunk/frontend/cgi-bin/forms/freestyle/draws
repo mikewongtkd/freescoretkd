@@ -42,6 +42,9 @@ try {
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
@@ -90,10 +93,10 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-      .header, .header-space { height: 180px; }
-      .footer, .footer-space { height: 320px; }
-      .header { position: fixed; top: 0; }
-      .footer { position: fixed; bottom: 0; }
+      // .header, .header-space { height: 180px; }
+      // .footer, .footer-space { height: 320px; }
+      // .header { position: fixed; top: 0; }
+      // .footer { position: fixed; bottom: 0; }
     </style>
   </head>
   <body>
