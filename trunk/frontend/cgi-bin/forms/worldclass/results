@@ -309,7 +309,7 @@ EOF
 							$n++;
 						} else { push @scores, "<td>&ndash;</td>"; }
 					} else {
-						push @scores, "<td class=\"score\">&ndash;</td>";
+						push @scores, "<td class=\"score\">&nbsp;</td>";
 					}
 					$sum += $mean->{ total };
 				}
