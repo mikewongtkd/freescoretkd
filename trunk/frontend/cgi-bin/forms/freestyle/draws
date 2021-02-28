@@ -94,7 +94,6 @@ print <<EOF;
       .footer, .footer-space { height: 320px; }
       .header { position: fixed; top: 0; }
       .footer { position: fixed; bottom: 0; }
-
     </style>
   </head>
   <body>

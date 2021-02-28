@@ -85,7 +85,7 @@ print <<EOF;
 				text-align: left;
 			}
 			.results td       { padding: 0px 4px 0px 4px; }
-			.results .number  { width: 37px; }
+			.results .number  { width: 37px; text-align: center; }
 			.results .noc     { width: 63px; }
 			.results .athlete { width: 275px; }
 			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
@@ -96,12 +96,11 @@ print <<EOF;
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-			.results .footer-img { position: absolute; bottom: 0; width: 920px;}
 
-			.header, .header-space { height: 180px; }
-      .footer, .footer-space { height: 320px; }
-      .header { position: fixed; top: 0; }
-      .footer { position: fixed; bottom: 0; }
+			// .header, .header-space { height: 180px; }
+      // .footer, .footer-space { height: 320px; }
+      // .header { position: fixed; top: 0; }
+      // .footer { position: fixed; bottom: 0; }
     </style>
 	</head>
 	<body>
@@ -309,7 +308,7 @@ EOF
 							$n++;
 						} else { push @scores, "<td>&ndash;</td>"; }
 					} else {
-						push @scores, "<td>&nbsp;</td>";
+						push @scores, "<td class=\"score\">&ndash;</td>";
 					}
 					$sum += $mean->{ total };
 				}
