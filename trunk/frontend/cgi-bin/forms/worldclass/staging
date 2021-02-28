@@ -158,12 +158,14 @@ EOF
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
-	my $config = {
-		redhat   => '/var/www/html/freescore/include/php/config.php',
-		ubuntu   => '/var/www/freescore/include/php/config.php',
-		raspbian => '/var/www/html/include/php/config.php',
-	};
-	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
+	my $config = [
+		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+		'/var/www/html/freescore/include/php/config.php',
+		'/var/www/html/include/php/config.php',
+		'/var/www/freescore/include/php/config.php',
+		'/var/www/include/php/config.php',
+	];
+	foreach $file (@$config) { next unless -e $file; $php = $file; last }
 	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
 	my $json = new JSON::XS();
