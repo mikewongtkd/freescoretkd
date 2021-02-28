@@ -3,6 +3,7 @@ use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use List::Util qw( first );
+use File::Slurp qw( read_file );
 use JSON::XS;
 use Data::Dumper;
 
@@ -100,6 +101,7 @@ print <<EOF;
     		// .footer, .footer-space { height: 320px; }
     		// .header { position: fixed; top: 0; }
     		// .footer { position: fixed; bottom: 0; }
+				$branding_css
     	</style>
   	</head>
   <body>

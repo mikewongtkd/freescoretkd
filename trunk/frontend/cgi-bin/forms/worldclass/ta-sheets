@@ -109,6 +109,7 @@ print <<EOF;
 			// .footer, .footer-space { height: 300px; }
 			// .header { position: fixed; top: 0; }
 			// .footer { position: fixed; bottom: 0; }
+			$branding_css
 		</style>
 	</head>
 	<body>
