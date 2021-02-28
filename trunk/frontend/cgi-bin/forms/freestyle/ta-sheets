@@ -96,7 +96,7 @@ print <<EOF;
     		.header, .header-space { height: 180px; }
     		.footer, .footer-space { height: 320px; }
     		.header { position: fixed; top: 0; }
-    		.footer { position: fixed; bottom: 0; }
+    		.footer { position: fixed; bottom: 268; }
     	</style>
   	</head>
   <body>
@@ -138,21 +138,16 @@ EOF
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			# my $video   = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video } ) : { $round => [{ decision => undef }]};
 			# my $stream  = $athlete->{ info }{ stream } ? $json->decode( $athlete->{ info }{ stream } ) : { decision => undef };
-      my $decision = '';
-      my $sum     = 0.0;
-      my $n       = 0;
-			if( $video ) {
-      	$decision = $video->{ $round }[ 0 ]{ decision };
-			} elsif ( $stream ) {
-				$decision = $stream->{ decision };
+      my $video = $json->encode( $athlete->{ info }{ video }{ $round } ) ;
+			my $decision = "";
+			if ($video =~ /(WDR|DSQ)/) {
+				$decision = $&;
 			}
+			my $sum     = 0.0;
+			my $n       = 0;
 			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score  = $athlete->{ adjusted }{ $round };
-			if( exists $score->{ decision } ) {
 				print "<td class=\"decisions\">$decision</td>";
-			} else {
-				print "<td class=\"decisions\"></td>";
-			}
 			print "</tr>\n";
 		}
 		print <<EOF;
