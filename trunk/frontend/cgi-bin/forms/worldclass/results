@@ -302,15 +302,19 @@ EOF
 								foreach my $decision (keys %$codes) {
 									next unless $score->{ decision }{ $decision };
 									$punitive = $codes->{ $decision };
-									push @scores, "<td class=\"score\">&ndash;</td>";
+									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 								}
 							} else {
 								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
 							}
 							$n++;
-						} else { push @scores, "<td>&ndash;</td>"; }
+						} else { push @scores, "<td>&nbsp;</td>"; }
 					} else {
-						push @scores, "<td class=\"score\">&nbsp;</td>";
+						if( @$forms == 1 ) {
+							push @scores, "<td class=\"score\">&nbsp;</td>";
+						} elsif( @$forms == 2 ) {
+							push @scores, "<td class=\"score\">&ndash;</td>";
+						}
 					}
 					$sum += $mean->{ total };
 				}
