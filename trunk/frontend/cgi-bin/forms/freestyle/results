@@ -190,7 +190,7 @@ EOF
 					if( exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } eq $decision ) {
 						$decided = 1;
 						$place   = '&ndash;';
-						push @score, sprintf( "<td class=\"score\">%s</td>", $codes->{ $decision } );
+						push @score, sprintf( "<td class=\"score\">%s<br><span class=\"tecpre\">&nbsp;</span></td>", $codes->{ $decision } );
 						last;
 					}
 				}
