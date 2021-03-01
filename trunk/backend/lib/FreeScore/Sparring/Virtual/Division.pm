@@ -18,7 +18,25 @@ use Data::Dumper;
 #    +- name
 #    +- info
 #    +- adjusted
+#       +- round{}
+#          +- presentation
+#             +- total
+#             +- mean
+#             +- high { index, value }
+#             +- low { index, value }
+#          +- total
 #    +- original
+#       +- round{}
+#          +- technical
+#             +- consensus { punches, bodykicks, etc. } see scores.round.judges.technical below
+#             +- points
+#             +- score
+#          +- deductions
+#          +- presentation
+#             +- total
+#             +- mean
+#          +- total
+#          +- rankvotes[] - Judge ranked votes
 #    +- decision
 #    +- complete
 #    +- penalty
@@ -29,22 +47,26 @@ use Data::Dumper;
 #          +- misconduct
 #    +- scores
 #       +- round{}
-#          +- technical
-#             +- side kick
-#             +- front kicks
-#             +- spin kick
-#             +- consecutive
-#             +- acrobatic
-#             +- basic movements
-#          +- presentation
-#             +- creativity
-#             +- harmony
-#             +- energy
-#             +- choreography
-#          +- deductions
-#             +- stances{}
-#             +- major
-#             +- minor
+#          +- judges[]
+#             +- technical - All technical scores must be a non-negative integer or '' (empty string)
+#                +- punches
+#                +- bodykicks
+#                +- headkicks
+#                +- bodyturnkicks
+#                +- headturnkicks
+#             +- presentation
+#                +- difficulty
+#                +- creativity
+#                +- spirit
+#             +- deductions
+#                +- gamjeom
+#             +- time
+#                +- round[]
+#                   +- start
+#                   +- stop
+#                +- rest[]
+#                   +- start
+#                   +- stop
 # +- current
 # +- file
 # +- judges
@@ -138,8 +160,9 @@ sub read {
 sub calculate_placements {
 # ============================================================
 	my $self     = shift;
+	my $round    = shift || $self->{ round } or return;
 	my $athletes = $self->{ athletes };
-	my $round    = $self->{ round } or return;
+	my $votes    = $self->calculate_ranking_vote( $round );
 
 	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
@@ -152,19 +175,20 @@ sub calculate_placements {
 		my $j_adj = $j->{ adjusted }{ $round };
 		my $j_ori = $j->{ original }{ $round };
 
-		my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
-		my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
-		my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
+		my $i_adj_total      = _real( $i_adj->{ total });
+		my $i_adj_pres       = _real( $i_adj->{ presentation }{ total });
+		my $i_ori_pres       = _real( $i_ori->{ presentation }{ total });
 
-		my $j_adj_total      = 0.0 + sprintf( "%.2f", $j_adj->{ total });
-		my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
-		my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
+		my $j_adj_total      = _real( $j_adj->{ total });
+		my $j_adj_pres       = _real( $j_adj->{ technical });
+		my $j_ori_pres       = _real( $j_ori->{ presentation }{ total });
 
 		my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
 		my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
 		my $original_total     = $j_ori_total     <=> $i_ori_technical;
+		my $vote_results       = _tabulate_votes( $votes, $a, $b );
 
-		$adjusted_total || $adjusted_technical || $original_total;
+		$adjusted_total || $adjusted_technical || $original_total || $vote_results;
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -172,6 +196,30 @@ sub calculate_placements {
 
 	$self->{ placements }{ $round } = $placements;
 	$self->{ pending }{ $round }    = $pending;
+}
+
+# ============================================================
+sub calculate_ranking_vote {
+# ============================================================
+	my $self  = shift;
+	my $round = shift || $self->{ round } or return;
+	my $ranks = [];
+
+	foreach my $i ( 0 .. $#{$self->{ order }{ $round }}) {
+		my $j       = $self->{ order }{ $round }[ $i ];
+		my $athlete = $self->{ athlete }[ $j ];
+		my $scores  = $athlete->{ scores }{ $round };
+		
+		# ===== PREPARE DATASTRUCTURE FOR JUDGE RANK VOTING
+		next unless exists $athlete->{ complete }{ $round } && $athlete->{ complete }{ $round };
+		foreach my $k ( 0 .. $#$scores ) {
+			my $score = $scores->[ $k ];
+			my $total = reduce { $a + $b } values %{ $score->{ presentation }};
+			push @{ $ranks->[ $k ]}, { athlete => $j, presentation => $total };
+		}
+	}
+
+	return $ranks;
 }
 
 # ============================================================
@@ -231,40 +279,34 @@ sub calculate_round {
 sub calculate_scores {
 # ============================================================
 	my $self  = shift;
-	my $k     = $self->{ judges };
-	my $n     = $k <= 3 ? $k : $k - 2;
-	my $round = $self->{ round } or return;
+	my $round = shift || $self->{ round } or return;
+	my $order = $self->{ order }{ $round };
 
-	foreach my $athlete (@{$self->{ athletes }}) {
+	my $ranks = [];
+	
+	foreach my $i (0 .. $#$order) {
+		my $j         = $order->[ $i ];
+		my $athlete   = $self->{ athletes }[ $j ];
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
-		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
+		my $original  = $athlete->{ original }{ $round } = {};
+		my $adjusted  = $athlete->{ adjusted }{ $round } = {};
+		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 
-		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES
-		if( @$scores == $k && all { defined $_ } @$scores ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
+		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
+		my $all_scores_received = @$scores == $self->{ judges } && all { defined $_ } @$scores;
+		my $decided             = $decision eq 'withdraw' || $decision eq 'disqualify';
+		if( $all_scores_received || $decided ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
 
-		foreach my $score (@$scores) {
-			foreach my $category (qw( presentation technical )) {
-				my $subtotal = 0.0;
-				$subtotal += $score->{ $category }{ $_ } foreach (sort keys %{ $score->{ $category }});
-				$original->{ $category } += $subtotal;
-			}
-			$original->{ technical } -= ($score->{ deductions }{ major } + $score->{ deductions }{ minor });
-		}
-		$original->{ total } = ($original->{ technical } + $original->{ presentation });
+		# ===== CALCULATE CONSENSUS AND MEANS
+		my $tech = $self->judge_technical_consensus( $scores );
+		my $pres = $self->judge_presentation_mean( $scores );
+		my $ded  = $self->judge_deduction_consensus( $scores );
 
-		# ===== LEAVE SCORES AS THEY ARE FOR SMALL COURTS (3 JUDGES)
-		if( $n == $k ) { 
-			foreach (qw( presentation technical total )) {
-				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n));
-			}
-
-		# ===== ADJUST SCORES FOR LARGER COURTS
-		} else { 
-			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
-			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation });
-		}
+		$original->{ technical }    = $tech;
+		$original->{ deductions }   = $ded;
+		$original->{ presentation } = $pres->{ original };
+		$adjusted->{ presentation } = $pres->{ adjusted };
+		$adjusted->{ total }        = $original->{ technical }{ score } + $adjusted->{ presentation }{ mean };
 	}
 }
 
@@ -281,22 +323,57 @@ sub from_json {
 }
 
 # ============================================================
-sub get_only {
+sub judge_deduction_consensus {
 # ============================================================
-#** @method ( judge_index )
-#   @brief Erases all scores except the given judge; used prior to sending updates to a judge
-#*
-	my $self  = shift;
-	my $judge = shift;
-	my $clone = $self->clone();
-	my $round = $clone->{ round } or return;
+	my $self   = shift;
+	my $scores = shift;
+	my $n      = $self->{ judges };
 
-	foreach my $athlete (@{ $clone->{ athletes }}) {
-		foreach my $score ( qw( scores original adjusted )) {
-			$athlete->{ $score } = { $round => $athlete->{ $score }{ $round } }; # Prune all but the current round
-		}
+	my @deductions = sort { $a <=> $b } map { int( $_ ) } grep { $_ ne '' } map { $_->{ deductions }{ gamjeom } } @$scores;
+	my $i = int((int( @deductions ) + 1)/2) - 1; # At least half of the judges agree
+	return $counts[ $i ];
+}
+
+# ============================================================
+sub judge_presentation_mean {
+# ============================================================
+	my $self   = shift;
+	my $scores = shift;
+	my $n      = $self->{ judges };
+
+	my @presentation = map { $_->{ presentation }} @$scores;
+	my ($min, $max) = minmax @presentation;
+	my $i = first_index { $_ == $min } @$scores;
+	my $j = first_index { $_ == $max } @$scores;
+	my $original = reduce { $a + $b } @presentation;
+	my $adjusted = $original - ($min + $max)
+
+	return { 
+		original => { total => 0 + $original, mean => _real( $original / $n )},
+		adjusted => { total => 0 + $adjusted, mean => _real( $adjusted / ($n - 2)), high => { index => $j, value => $max }, low => { index => $i, value => $min }};
+	};
+}
+
+# ============================================================
+sub judge_technical_consensus {
+# ============================================================
+	my $self   = shift;
+	my $scores = shift;
+
+	my $points    = { punches => 1, bodykicks => 2, headkicks => 3, bodyturnkicks => 4, headturnkicks => 5 };
+	my $consensus = {};
+	my $total     = 0;
+	foreach my $technique (keys %$points) {
+		my @counts = sort { $a <=> $b } map { int( $_ ) } grep { $_ ne '' } map { $_->{ $technique } } @$scores;
+		my $i = int((int( @counts ) + 1)/2) - 1; # At least half of the judges agree
+		$consensus->{ $technique } = $counts[ $i ];
+		$total += $consensus->{ $technique } * $points->{ $technique };
 	}
-	return $clone;
+
+	# consensus: judge agreement distribution over techniques (e.g. judges agree there were 3 punches, 22 kicks, etc.)
+	# points:    total points for techniques
+	# score:     technical score
+	return { consensus => $consensus, points => $total, score => _real( $total / 40 )};
 }
 
 # ============================================================
@@ -668,34 +745,6 @@ sub write {
 }
 
 # ============================================================
-sub _drop_hilo {
-# ============================================================
-	my $scores   = shift;
-	my $category = shift;
-	my $n        = shift;
-
-	my @subtotals = map { 
-		my $subcats  = $_->{ $category }; 
-		my $subtotal = reduce { $a += $subcats->{ $b }; } 0.0, keys %$subcats;
-		if( $category eq 'technical' ) {
-			my $major    = $_->{ deductions }{ major };
-			my $minor    = $_->{ deductions }{ minor };
-			$subtotal   -= ($major + $minor);
-		}
-		$subtotal;
-	} @$scores;
-	my ($min, $max) = minmax @subtotals;
-	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
-	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
-	my $sum = reduce { $a += $b } 0, @subtotals;
-	$sum -= $min + $max;
-	$sum /= $n;
-	$sum = 0.0 + sprintf( "%.2f", $sum );
-
-	return ($sum, $i, $j);
-}
-
-# ============================================================
 sub _not_disqualified {
 # ============================================================
 	my $athletes = shift;
@@ -707,18 +756,29 @@ sub _not_disqualified {
 }
 
 # ============================================================
-sub _sum {
+sub _real {
 # ============================================================
-	my $first = shift;
-	my $stack = [ $first ];
-	my $sum   = 0.0;
-	while( @$stack ) {
-		my $node = shift @$stack;
-		if( ref( $node )) { push @$stack, $node->{ $_ } foreach (keys %$node); }
-		else              { $sum += $node; }
-	}
-	return $sum;
+	my $value = shift;
+	return 0 + sprintf( "%.2f", $value );
 }
+
+# ============================================================
+sub _tabulate_votes {
+# ============================================================
+	my $ballots = shift;
+	my $a       = shift;
+	my $b       = shift;
+
+	my $tabulation = 0;
+	foreach my $j ( 0 .. $#ballots ) {
+		my $votes      = $ballots->[ $j ];
+		my $vote_for_a = first { $_->{ athlete } == $a } @$votes;
+		my $vote_for_b = first { $_->{ athlete } == $b } @$votes;
+		$tabulation += $vote_for_b->{ presentation } <=> $vote_for_a->{ presentation };
+	}
+	if( $tabulation == 0 ) { return 0; } else { return ($tabulation / abs( $tabulation )); }
+}
+
 
 sub display          { my $self = shift; $self->{ state } = 'display'; }
 sub is_display       { my $self = shift; return $self->{ state } eq 'display'; }
