@@ -190,7 +190,7 @@ EOF
 					if( exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } eq $decision ) {
 						$decided = 1;
 						$place   = '&ndash;';
-						push @score, sprintf( "<td class=\"score\">%s<br><span class=\"tecpre\">&nbsp;</span></td>", $codes->{ $decision } );
+						push @score, sprintf( "<td class=\"score\">%s</td>", $codes->{ $decision } );
 						last;
 					}
 				}
@@ -208,7 +208,8 @@ EOF
 				if( exists $tb->{ place }) { $place = $tb->{ place }; }
 
 			} else {
-				push @score, '<td class="tiebreaker">&nbsp;</td>';
+				if( exists $athlete->{ decision }{ $round } ) { push @score, '<td class="tiebreaker">&nbsp;<br><span>&nbsp;</span></td>'; }
+				else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
 				push @score, '<td class="tiebreaker">&nbsp;</td>';
 			}
 
