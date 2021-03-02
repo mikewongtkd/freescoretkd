@@ -1,0 +1,60 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use JSON::XS;
+use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
+use List::Util qw( first );
+use List::MoreUtils qw( first_index );
+use Clone qw( clone );
+use Data::Dumper;
+use Cwd qw( getcwd );
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::FreeStyle;
+use Data::Dumper;
+
+$FreeScore::PATH = getcwd();
+
+my $json       = new JSON::XS();
+
+my $divisions  = [];
+
+foreach my $day (map { sprintf( "day-%d-complete", $_ )} ( 1 .. 6 )) {
+	next unless -e "$FreeScore::PATH/$day";
+	foreach my $ring ( 1 .. 4 ) {
+		my $rname = sprintf( "ring%02d", $ring );
+		next unless -e "$FreeScore::PATH/$day/$FreeScore::Forms::FreeStyle::SUBDIR/$rname";
+		my $results = new FreeScore::Forms::FreeStyle( $day, $ring );
+		push @$divisions, @{ $results->{ divisions }};
+	}
+	@$divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @$divisions;
+	print_divisions( $divisions );
+}
+
+# ============================================================
+sub print_divisions {
+# ============================================================
+	my $divisions = shift;
+	foreach my $division (@$divisions) {
+		my $divid      = $division->{ name };
+		my $athletes   = $division->{ athletes };
+		foreach my $round ( qw( prelim semfin finals )) {
+			next unless( exists( $division->{ order }{ $round }) && exists( $division->{ placements }{ $round }));
+			foreach my $i (@{$division->{ order }{ $round }}) {
+				my $athlete  = $division->{ athletes }[ $i ];
+				my $place    = first_index { $i == $_ } @{ $division->{ placements }{ $round }};
+				my $name     = $athlete->{ name };
+				my $noc      = $athlete->{ info }{ noc };
+				my $video    = '';
+				if( ref( $athlete->{ info }{ video }{ $round }) =~ /^array/i ) { $video = $athlete->{ info }{ video }{ $round }[ 0 ] }
+				else { $video = $athlete->{ info }{ video }{ $round }{ 0 }; }
+				my $uuid     = (split /\//, $video->{ file })[ 0 ];
+				my $decision = $video->{ decision };
+				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
+				$place = $decision if $decision;
+
+				print "$divid\t$round\t$place\t$uuid\t$noc\t$name\n";
+			}
+		}
+	}
+}

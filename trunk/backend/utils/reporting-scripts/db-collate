@@ -1,0 +1,65 @@
+#! /usr/bin/perl
+
+use JSON::XS();
+
+my $athletes = {};
+while( <> ) {
+	chomp;
+	my ($divid, $round, $place, $uuid, $noc, $name) = split /\t/;
+
+	$divid =~ s/[a-z]$//;
+
+	if( ! exists $athletes->{ $uuid }) { $athletes->{ $uuid } = { name => $name, noc => $noc }; }
+
+	$athletes->{ $uuid }{ div }{ $divid }{ $round } = $place;
+}
+
+my $json = new JSON::XS();
+foreach $athlete (values %$athletes) {
+	print $json->canonical->pretty->encode( $athlete ) . "\n";
+}
+
+my @results = ();
+foreach my $uuid (keys %$athletes) {
+	my $athlete = $athletes->{ $uuid };
+	foreach my $divid (sort keys %{ $athlete->{ div }}) {
+		my $div = $athlete->{ div }{ $divid };
+		if(    exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ finals } }; }
+		elsif( decision( $div, 'semfin' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ semfin } }; }
+		elsif( decision( $div, 'prelim' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ prelim } }; }
+		else                               { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => '-' }; }
+	}
+}
+
+foreach my $result (sort { by_divid( $a, $b ) } @results) {
+	printf "%s\t%s\t%s\t%s\t%s\n", @{$result}{ qw( divid place uuid noc name ) };
+}
+
+sub by_divid {
+	my $a = shift;
+	my $b = shift;
+
+	return $a->{ divid } cmp $b->{ divid } || by_place( $a->{ place }, $b->{ place })
+}
+
+sub by_place {
+	my $a = shift;
+	my $b = shift;
+
+	sub num { my $a = shift; return $a =~ /^\d+$/; }
+	my $val = { '-' => 1000, 'WDR' => 10000, 'DSQ' => 100000 };
+	my $retval = 0;
+	if( num( $a ) && num( $b )) { $retval = $a <=> $b; }
+	elsif( num( $a )) { $retval = $a <=> $val->{ $b }; }
+	elsif( num( $b )) { $retval = $val->{ $a } <=> $b; }
+	else              { $retval = $val->{ $a } <=> $val->{ $b }; }
+
+	return $retval;
+}
+
+sub decision {
+	my $div   = shift;
+	my $round = shift;
+	return 0 unless exists $div->{ $round };
+	return $div->{ $round } =~ /^(?:DSQ|WDR)$/;
+}
