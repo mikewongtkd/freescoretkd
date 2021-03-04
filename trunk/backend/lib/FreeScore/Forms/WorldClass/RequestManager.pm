@@ -432,11 +432,14 @@ sub handle_division_display {
 	try {
 		$division->autopilot( 'off' );
 		# MW Will need to move this low-level stuff to Division class later
+		my $forms = int( @{$division->{ forms }{ $division->{ round }}}) - 1;
 		if( $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /^ro\d+\w?$/ ) {
 			my $modes = [ 'score', 'summary', 'match-results', 'display' ];
 			my $i     = first_index { $_ eq $division->{ state } } @$modes;
 			my $j     = ($i + 1);
-			if( $modes->[ $j ] eq 'display' && $division->{ round } ne 'ro2' ) { $j = 0; } # Can't see results except for Ro2
+			if( $modes->[ $j ] eq 'match-results' && $division->{ form } < $forms ) { $j = 0; } # Can't see match results except for last form
+			if( $modes->[ $j ] eq 'display' && $division->{ round } ne 'ro2'      ) { $j = 0; } # Can't see leaderboard except for Ro2
+			if( $j >= int( @$modes )) { $j = 0; }
 			$division->{ state } = $modes->[ $j ];
 		} else {
 			if( $division->is_display() ) { $division->score();   } 
