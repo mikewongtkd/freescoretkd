@@ -9,8 +9,8 @@ use Data::Dumper;
 # ============================================================
 sub instantiate {
 # ============================================================
-	my $divid = shift; die "Division file '$file' not found" unless -e $file;
-	my $file  = "div.$divid.txt";
+	my $divid = shift; 
+	my $file  = "div.$divid.txt"; die "Division file '$file' not found" unless -e $file;
 	my $path  = abs_path( $file );
 	my @path  = split /\//, $path;
 	my $ring  = $path[ -2 ];
@@ -46,7 +46,6 @@ foreach my $top4 ( 0 .. 3 ) {
 my $order = { ro4a => [ $winners[0], $winners[3]], ro4b => [ $winners[2], $winners[1]]};
 my $json  = new JSON::XS();
 my $forms = join ';', map { sprintf( "%s:%s", $_, join( ',', @{$div->{ forms }{ $_ }})) } keys %{$div->{ forms }};
-my $divid = $file; $divid =~ s/^div\.//; $divid =~ s/\.txt$//;
 
 foreach my $round (qw( ro4a ro4b )) {
 	my $template =<<EOF;
@@ -69,6 +68,14 @@ EOF
 	my @athletes = @{$order->{ $round }};
 	foreach my $athlete (@athletes) {
 		my $vid_or_stream = exists $athlete->{ info }{ stream } ? 'stream' : 'video';
+		my $data = $json->decode( $athlete->{ info }{ $vid_or_stream });
+		foreach my $r (keys %$data) {
+			if( $round =~ /^$r/ ) {
+				$data->{ $round } = $data->{ $r }; # Specify from ro4 to ro4a or ro4b
+				delete $data->{ $r };
+			}
+		}
+		$athlete->{ info }{ $vid_or_stream } = $json->canonical->encode( $data );
 		$template .= "$athlete->{ name }\tnoc=$athlete->{ info }{ noc }\t$vid_or_stream=$athlete->{ info }{ $vid_or_stream }\n";
 	}
 

@@ -9,8 +9,8 @@ use Data::Dumper;
 # ============================================================
 sub instantiate {
 # ============================================================
-	my $num  = shift;
-	my $file = sprintf( "div.%s.txt", $num );
+	my $num  = shift; $num =~ s/^m//;
+	my $file = sprintf( "div.m%s.txt", $num );
 	my $path = abs_path( $file );
 	my @path = split /\//, $path;
 	my $ring = $path[ -2 ];
@@ -62,6 +62,7 @@ my $template =<<EOF;
 # description=$a->{ description }
 # forms=$forms
 # thirds=$thirds
+# matchdiv=$a->{ matchdiv }
 # ------------------------------------------------------------
 # ro2
 # ------------------------------------------------------------
