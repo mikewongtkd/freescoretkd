@@ -95,6 +95,6 @@ any '*command' => sub {
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3087' ], pid_file => '/var/run/vsparring.pid', workers => 1 });
+app->config( hypnotoad => { listen => [ 'http://*:3095' ], pid_file => '/var/run/vsparring.pid', workers => 1 });
 app->log( new Mojo::Log( path => '/var/log/freescore/vsparring.log', level => 'debug' ));
 app->start();
