@@ -45,6 +45,19 @@ use Data::Dumper;
 #          +- bounds
 #          +- restart
 #          +- misconduct
+#    +- pool
+#       +- round{}
+#          +- judges{}
+#             +- technical[] - All technical scores must be a non-negative integer or '' (empty string)
+#                +- 1-point techniques (index: 0): punches
+#                +- 2-point techniques (index: 1): body kicks and technicals
+#                +- 3-point techniques (index: 2): head kicks
+#             +- presentation
+#                +- difficulty
+#                +- creativity
+#                +- spirit
+#             +- deductions
+#                +- gamjeom
 #    +- scores
 #       +- round{}
 #          +- judges[]
@@ -58,19 +71,24 @@ use Data::Dumper;
 #                +- spirit
 #             +- deductions
 #                +- gamjeom
-#             +- time
-#                +- round[]
-#                   +- start
-#                   +- stop
-#                +- rest[]
-#                   +- start
-#                   +- stop
+#    +- time
+#       +- round{} # e.g. finals
+#          +- matchround[] # e.g. 1st round of match, 2nd round, etc.
+#             +- start
+#             +- stop
+#          +- rest[]
+#             +- start
+#             +- stop
 # +- current
 # +- file
 # +- judges
 # +- name
 # +- pending
-# +- timer
+# +- timers
+#    +- cycle
+#    +- pause
+#       +- leaderboard
+#       +- score
 #    +- round
 #    +- rest
 # +- technical
@@ -138,24 +156,90 @@ sub edit_athletes {
 # ============================================================
 sub read {
 # ============================================================
-	my $self = shift;
-	my $json = new JSON::XS();
+	my $self     = shift;
+	my $json     = new JSON::XS();
+	my $round    = 'finals';
+	my $athletes = {};
+	my $context  = '';
 
-	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
-	my $data      = bless $json->decode( $contents ), 'FreeScore::Sparring::Virtual::Division';
-	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
+	open my $fh, '<', $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
+	while( <$fh> ) {
+		chomp;
+		next if( /^$/ );
 
+		# ===== READ HEADER INFORMATION
+		if( /^#\s*(\w+)=(.*?)$/ ) {
+			$key   = $1;
+			$value = $2; # Either a scalar, a JSON object, or a JSON array
+			$value = $json->decode( $value ) if( $value =~ /^[\[\{]/ );
+			$self->{ $key } = $value;
+
+		# ===== ROUND SECTION START
+		} elsif( /^# (prelim|semfin|finals|ro\d+)/ ) {
+			$round = $1;
+
+		# ===== ATHLETE NAME AND INFO
+		} elsif( /^\w+/ ) {
+			my @info = split /\t/;
+			my $name = shift @info;
+			my $info = {};
+			$context = $name;
+
+			# Parse out athlete info using same approach as parsing headers
+			foreach my $item (@info) {
+				my ($key, $value) = split /=/, $item, 2;
+				$value = $json->decode( $value ) if( $value =~ /^[\[\{]/ );
+				$info->{ $key } = $value;
+			}
+			$athletes->{ $name } = $info;
+			push @{$order->{ $round }}, $name;
+
+		# ===== ATHLETE SCORE
+		} elsif( /^\tscore\t(?:r|j\d)\t/ ) {
+			my ($blank, $rowtype, $judge, $score) = split /\t/, $_, 4;
+			$score = $json->decode( $score );
+			my $i  = $judge eq 'r' ? 0 : $judge; $i =~ s/^j//; $i = int( $i );
+
+			$athletes->{ $context }{ scores }{ $round }[ $i ] = $score;
+
+		# ===== ATHLETE SCORE FROM JUDGE POOL
+		} elsif( /^\tpool\t\d+\t/ ) {
+			my ($blank, $rowtype, $jid, $score) = split /\t/, $_, 4;
+			$score = $json->decode( $score );
+			$athletes->{ $context }{ pool }{ $round }{ $jid } = $score;
+		}
+	}
+	close $fh;
+
+	bless $self, 'FreeScore::Sparring::Virtual::Division';
+
+	sub by_match_size {
+		my $a = shift;
+		my $b = shift;
+		my $asize = $a; $asize =~ s/^ro//;
+		my $bsize = $b; $bsize =~ s/^ro//;
+		return int( $bsize ) <=> int( $asize );
+	}
+	my @matches = sort by_match_size grep { /^ro/ } keys %$order;
+
+	my $aids = []; # Athlete IDs
+	foreach my $earliest (qw( prelim semfin finals ), @matches ) {
+		next unless exists $order->{ $earliest };
+		while( my $name = shift @{ $order->{ $earliest }}) {
+			push @$aids, { name => $name, info => $athletes->{ $name }};
+			delete $athletes->{ $name };
+			push @{$self->{ order }{ $earliest }}, $#$aids;
+		}
+		last unless int( keys %$athletes ) > 0;
+	}
+
+	$self->{ athletes } = $aids;
 	$self->{ current } ||= 0;
 	$self->{ judges }  ||= 5; # Default value
 	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
 	$self->{ state }   ||= 'score';
 	$self->{ file }    = $self->{ file };
-	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
-
-	foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
-		my $athlete = $self->{ athletes }[ $i ];
-		$athlete->{ id } = $i;
-	}
+	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/[^\/]*?$//;
 
 	$self->update();
 }
@@ -230,7 +314,7 @@ sub calculate_ranking_vote {
 
 	foreach my $i ( 0 .. $#{$self->{ order }{ $round }}) {
 		my $j       = $self->{ order }{ $round }[ $i ];
-		my $athlete = $self->{ athlete }[ $j ];
+		my $athlete = $self->{ athletes }[ $j ];
 		my $scores  = $athlete->{ scores }{ $round };
 		
 		# ===== PREPARE DATASTRUCTURE FOR JUDGE RANK VOTING
@@ -264,16 +348,21 @@ sub calculate_scores {
 	my $self  = shift;
 	my $round = shift || $self->{ round } or return;
 	my $order = $self->{ order }{ $round };
-
 	my $ranks = [];
 	
 	foreach my $i (0 .. $#$order) {
 		my $j         = $order->[ $i ];
 		my $athlete   = $self->{ athletes }[ $j ];
-		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
 		my $original  = $athlete->{ original }{ $round } = {};
 		my $adjusted  = $athlete->{ adjusted }{ $round } = {};
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
+		my $scores    = undef;
+
+		# ===== INITIALIZE ATHLETE SCORES
+		$athlete->{ scores }           = {} unless exists $athlete->{ scores };
+		$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
+		$scores = $athlete->{ scores }{ $round };
+		foreach my $j ( 0 .. $self->{ judges } - 1 ) { $scores[ $j ] = {} unless $scores[ $j ]; }
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
 		my $all_scores_received = @$scores == $self->{ judges } && all { defined $_ } @$scores;
@@ -465,16 +554,24 @@ sub record_pool_score {
 	my $self    = shift;
 	my $score   = shift;
 
+	print STDERR "RECORDING POOL SCORE: 1\n"; # MW
 	return unless $score->{ judge }{ id };
 
+	print STDERR "RECORDING POOL SCORE: 2 $score->{ judge }{ id }\n"; # MW
 	my $judge     = $score->{ judge };
 	my $round     = $self->{ round };
-	my $form      = $self->{ form };
 	my $k         = $self->{ judges };
 	my $n         = $self->{ poolsize };
 	my $athlete   = $self->current_athlete();
 	my $pool      = $athlete->{ pool }{ $round };
 	my $safety    = { margin => ($n - $k)};
+
+	print STDERR Dumper $pool; # MW
+	print STDERR "RECORDING POOL SCORE: 3 $athlete->{ name } $judge->{ id }\n"; # MW
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$score->{ status } = 'scored';
+	$pool->{ $judge->{ id }} = $score;
+
 	my $dsq       = [ grep { $_->{ video }{ feedback } eq 'dsq' } values %$pool ];
 	my $bad       = [ grep { $_->{ video }{ feedback } eq 'bad' } values %$pool ];
 	my $ok        = [ grep { $_->{ video }{ feedback } eq 'ok'  } values %$pool ];
@@ -497,10 +594,10 @@ sub record_pool_score {
 		max  => $n
 	};
 
-	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	$pool->{ $judge->{ id }} = $score;
 	my $have = int( grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool);
 
+	print STDERR Dumper $pool; # MW
+	print STDERR "RECORDING POOL SCORE: 4\n"; # MW
 	if( $have == $n ) {
 		my $result = $self->resolve_pool();
 		return $result;
@@ -565,7 +662,6 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
-			print STDERR Dumper $pool_score;
 			my $score = { 
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
@@ -724,10 +820,67 @@ sub write {
 	
 	$self->update();
 
-	my $contents = $json->pretty->canonical->encode( unbless( $self->clone()));
-	open FILE, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
-	print FILE $contents;
-	close FILE;
+	open my $fh, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
+
+	# ===== WRITE DIVISION HEADER
+	foreach my $header (sort keys %{$self}) {
+		next if $header =~ /(?:athletes|cache)/;
+		my $value = $self->{ $header };
+		$value = $json->canonical->encode( $value ) if( ref( $value ));
+		print $fh "# $header=$value\n";
+	}
+
+	# ===== WRITE EACH ROUND SECTION
+	sub by_match_size {
+		my $a = shift;
+		my $b = shift;
+		my $asize = $a; $asize =~ s/^ro//;
+		my $bsize = $b; $bsize =~ s/^ro//;
+		return int( $asize ) <=> int( $bsize );
+	}
+	my @matches = sort by_match_size grep { /^ro\d+$/ } keys %{ $self->{ order }};
+	foreach my $round ( @matches, qw( finals semfin prelim )) {
+		next unless exists $self->{ order }{ $round };
+		print $fh "# ------------------------------------------------------------\n";
+		print $fh "# $round\n";
+		print $fh "# ------------------------------------------------------------\n";
+
+		# ===== WRITE EACH ATHLETE
+		foreach my $aid (@{$self->{ order }{ $round }}) {
+			my $athlete = $self->{ athletes }[ $aid ];
+
+			# Concatenate the athlete information
+			my @info = (); 
+			foreach my $key (sort keys %{ $athlete->{ info }}) {
+				my $value = $athlete->{ info }{ $key };
+				$value = $json->canonical->encode( $value ) if ref( $value );
+				push @info, "$key=$value";
+			}
+			my $info = @info ? "\t" . join( "\t", @info ) : '';
+
+			print $fh "$athlete->{ name }$info\n";
+
+			# WRITE EACH SCORE
+			if( exists $athlete->{ scores }{ $round } && ref( $athlete->{ scores }{ $round }) =~ /^array/i && @{ $athlete->{ scores }{ $round }}) {
+				foreach my $i ( 0 .. $#{$athlete->{ scores }{ $round }}) {
+					my $judge = $i == 0 ? 'r' : "j$i";
+					my $score = $athlete->{ scores }{ $round }[ $i ];
+					printf $fh "\tscore\t%s\t%s\n", $judge, $json->canonical->encode( $score );
+				}
+			}
+
+			# WRITE EACH POOL SCORE
+			print STDERR Dumper "POOL (athlete: $aid, round: $round):", $athlete->{ pool }{ $round }; # MW
+			if( exists $athlete->{ pool }{ $round } && ref( $athlete->{ pool }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ pool }{ $round }}) > 0 ) {
+				foreach my $jid (sort keys %{ $athlete->{ pool }{ $round }}) {
+					my $score = $athlete->{ pool }{ $round }{ $jid };
+					printf $fh "\tpool\t%s\t%s\n", $jid, $json->canonical->encode( $score );
+				}
+			}
+		}
+		print $fh "\n";
+	}
+	close $fh;
 	chmod 0666, $self->{ file };
 
 	return 1;
@@ -767,7 +920,6 @@ sub _tabulate_votes {
 	}
 	return $count;
 }
-
 
 sub display          { my $self = shift; $self->{ state } = 'display'; }
 sub is_display       { my $self = shift; return $self->{ state } eq 'display'; }

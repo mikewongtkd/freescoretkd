@@ -444,7 +444,6 @@ sub handle_division_pool_judge_ready {
 	my $json     = $self->{ _json };
 	my $division = $progress->current();
 	my $athlete  = $division->current_athlete();
-	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2, pause => {} };
 	my $jname    = "$request->{ judge }{ fname } $request->{ judge }{ lname }";
 	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
 
