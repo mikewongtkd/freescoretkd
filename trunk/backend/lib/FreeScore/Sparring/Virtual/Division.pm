@@ -179,7 +179,7 @@ sub read {
 			$round = $1;
 
 		# ===== ATHLETE NAME AND INFO
-		} elsif( /^\w+/ ) {
+		} elsif( /^[A-Za-z0-9]+/ ) {
 			my @info = split /\t/;
 			my $name = shift @info;
 			my $info = {};
@@ -191,7 +191,7 @@ sub read {
 				$value = $json->decode( $value ) if( $value =~ /^[\[\{]/ );
 				$info->{ $key } = $value;
 			}
-			$athletes->{ $name } = $info;
+			$athletes->{ $name }{ info } = $info;
 			push @{$order->{ $round }}, $name;
 
 		# ===== ATHLETE SCORE
@@ -199,7 +199,6 @@ sub read {
 			my ($blank, $rowtype, $judge, $score) = split /\t/, $_, 4;
 			$score = $json->decode( $score );
 			my $i  = $judge eq 'r' ? 0 : $judge; $i =~ s/^j//; $i = int( $i );
-
 			$athletes->{ $context }{ scores }{ $round }[ $i ] = $score;
 
 		# ===== ATHLETE SCORE FROM JUDGE POOL
@@ -226,7 +225,8 @@ sub read {
 	foreach my $earliest (qw( prelim semfin finals ), @matches ) {
 		next unless exists $order->{ $earliest };
 		while( my $name = shift @{ $order->{ $earliest }}) {
-			push @$aids, { name => $name, info => $athletes->{ $name }};
+			my $athlete = $athletes->{ $name };
+			push @$aids, { name => $name, info => $athlete->{ info }, scores => $athlete->{ scores }, pool => $athlete->{ pool }};
 			delete $athletes->{ $name };
 			push @{$self->{ order }{ $earliest }}, $#$aids;
 		}
@@ -533,6 +533,7 @@ sub pool_judge_ready {
 	my $round   = $self->{ round };
 	my $k       = $self->{ judges };
 	my $athlete = $self->current_athlete();
+
 	my $pool    = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
 	my $jid     = $judge->{ id };
 
@@ -554,20 +555,16 @@ sub record_pool_score {
 	my $self    = shift;
 	my $score   = shift;
 
-	print STDERR "RECORDING POOL SCORE: 1\n"; # MW
 	return unless $score->{ judge }{ id };
 
-	print STDERR "RECORDING POOL SCORE: 2 $score->{ judge }{ id }\n"; # MW
 	my $judge     = $score->{ judge };
 	my $round     = $self->{ round };
 	my $k         = $self->{ judges };
 	my $n         = $self->{ poolsize };
 	my $athlete   = $self->current_athlete();
-	my $pool      = $athlete->{ pool }{ $round };
+	my $pool      = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
 	my $safety    = { margin => ($n - $k)};
 
-	print STDERR Dumper $pool; # MW
-	print STDERR "RECORDING POOL SCORE: 3 $athlete->{ name } $judge->{ id }\n"; # MW
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$score->{ status } = 'scored';
 	$pool->{ $judge->{ id }} = $score;
@@ -596,8 +593,6 @@ sub record_pool_score {
 
 	my $have = int( grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool);
 
-	print STDERR Dumper $pool; # MW
-	print STDERR "RECORDING POOL SCORE: 4\n"; # MW
 	if( $have == $n ) {
 		my $result = $self->resolve_pool();
 		return $result;
@@ -700,7 +695,6 @@ sub resolve_pool {
 
 	# ===== CASE 4: SHOULD NEVER HAPPEN
 	} else {
-		print STDERR "Invalid count of dropped judges.\n"; # MW
 		my @valid  = map { $_->{ judge }{ id } } (@$valid);
 		my @repeat = map { $_->{ judge }{ id } } (@$bad);
 		print STDERR Dumper \@valid;
@@ -870,7 +864,6 @@ sub write {
 			}
 
 			# WRITE EACH POOL SCORE
-			print STDERR Dumper "POOL (athlete: $aid, round: $round):", $athlete->{ pool }{ $round }; # MW
 			if( exists $athlete->{ pool }{ $round } && ref( $athlete->{ pool }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ pool }{ $round }}) > 0 ) {
 				foreach my $jid (sort keys %{ $athlete->{ pool }{ $round }}) {
 					my $score = $athlete->{ pool }{ $round }{ $jid };
