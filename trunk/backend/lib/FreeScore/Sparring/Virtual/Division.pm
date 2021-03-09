@@ -818,7 +818,7 @@ sub write {
 
 	# ===== WRITE DIVISION HEADER
 	foreach my $header (sort keys %{$self}) {
-		next if $header =~ /(?:athletes|cache)/;
+		next if $header =~ /^(?:athletes|cache|path|file|ring|name)$/;
 		my $value = $self->{ $header };
 		$value = $json->canonical->encode( $value ) if( ref( $value ));
 		print $fh "# $header=$value\n";
