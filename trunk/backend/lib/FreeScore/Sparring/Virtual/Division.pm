@@ -7,6 +7,7 @@ use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use File::Slurp qw( read_file );
 use Math::Utils qw( ceil );
+use Clone qw( clone );
 use base qw( FreeScore::Forms::Division Clone );
 use Data::Dumper;
 
@@ -432,12 +433,13 @@ sub judge_technical_consensus {
 	my $self   = shift;
 	my $scores = shift;
 
-	my $technical = [ 0 .. 2 ];
-	my $consensus = {};
-	my $total     = 0;
-	foreach my $i (@$technical) {
+	my $techniques = [ 0 .. 2 ];
+	my $consensus  = [];
+	my $total      = 0;
+	foreach my $i (@$techniques) {
+
 		my $points = $i + 1;
-		my @counts = sort { $a <=> $b } map { int( $_ ) } grep { defined $_ } map { $_->[ $i ] } @$scores;
+		my @counts = sort { $a <=> $b } map { int } grep { defined } map { $_->{ technical }[ $i ] } @$scores;
 		my $j      = int((int( @counts ) + 1)/2) - 1; # At least half of the judges agree
 		$consensus->[ $i ] = $counts[ $j ];
 		$total += $consensus->[ $i ] * $points;
@@ -657,31 +659,8 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
-			my $score = { 
-				technical => {
-					mft1  => $pool_score->{ technical }{ jump }{ side },
-					mft2  => $pool_score->{ technical }{ jump }{ front },
-					mft3  => $pool_score->{ technical }{ jump }{ spin },
-					mft4  => $pool_score->{ technical }{ consecutive },
-					mft5  => $pool_score->{ technical }{ acrobatic },
-					basic => $pool_score->{ technical }{ basic }
-				},
-				presentation => {
-					creativity   => $pool_score->{ presentation }{ creativity },
-					harmony      => $pool_score->{ presentation }{ harmony },
-					energy       => $pool_score->{ presentation }{ energy },
-					choreography => $pool_score->{ presentation }{ music },
-				},
-				deductions => {
-					stances => {
-						hakdari   => $pool_score->{ deductions }{ stances }{ hakdari },
-						beomseogi => $pool_score->{ deductions }{ stances }{ beomseogi },
-						dwigubi   => $pool_score->{ deductions }{ stances }{ dwigubi }
-					},
-					minor => $pool_score->{ deductions }{ minor },
-					major => $pool_score->{ deductions }{ major }
-				}
-			};
+			my $score = clone( $pool_score );
+			delete $score->{ $_ } foreach qw( judge as status ring video );
 			$self->record_score( $i, $score );
 		}
 		return { status => 'success', votes => $votes };
@@ -818,7 +797,7 @@ sub write {
 
 	# ===== WRITE DIVISION HEADER
 	foreach my $header (sort keys %{$self}) {
-		next if $header =~ /^(?:athletes|cache|path|file|ring|name)$/;
+		next if $header =~ /^(?:athletes|cache|path|file|ring|name|autopilot)$/;
 		my $value = $self->{ $header };
 		$value = $json->canonical->encode( $value ) if( ref( $value ));
 		print $fh "# $header=$value\n";
