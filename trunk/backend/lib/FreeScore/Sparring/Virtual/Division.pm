@@ -202,7 +202,7 @@ sub read {
 			$athletes->{ $context }{ scores }{ $round }[ $i ] = $score;
 
 		# ===== ATHLETE SCORE FROM JUDGE POOL
-		} elsif( /^\tpool\t\d+\t/ ) {
+		} elsif( /^\tpool\t\w+\t/ ) {
 			my ($blank, $rowtype, $jid, $score) = split /\t/, $_, 4;
 			$score = $json->decode( $score );
 			$athletes->{ $context }{ pool }{ $round }{ $jid } = $score;
