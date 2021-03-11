@@ -414,10 +414,10 @@ sub judge_presentation_mean {
 	my $scores = shift;
 	my $n      = $self->{ judges };
 
-	my @presentation = map { $_->{ presentation }} @$scores;
+	my @presentation = map { reduce { $a + $b } values %{$_->{ presentation }} } @$scores;
 	my ($min, $max) = minmax @presentation;
-	my $i = first_index { $_ == $min } @$scores;
-	my $j = first_index { $_ == $max } @$scores;
+	my $i = first_index { $_ == $min } @presentation;
+	my $j = first_index { $_ == $max } @presentation;
 	my $original = reduce { $a + $b } @presentation;
 	my $adjusted = $original - ($min + $max);
 
@@ -442,7 +442,7 @@ sub judge_technical_consensus {
 		my @counts = sort { $a <=> $b } map { int } grep { defined } map { $_->{ technical }[ $i ] } @$scores;
 		my $j      = int((int( @counts ) + 1)/2) - 1; # At least half of the judges agree
 		$consensus->[ $i ] = $counts[ $j ];
-		$total += $consensus->[ $i ] * $points;
+		$total += ($consensus->[ $i ] * $points);
 	}
 
 	# Apply score cap and scaling
@@ -845,7 +845,8 @@ sub write {
 			# WRITE EACH POOL SCORE
 			if( exists $athlete->{ pool }{ $round } && ref( $athlete->{ pool }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ pool }{ $round }}) > 0 ) {
 				foreach my $jid (sort keys %{ $athlete->{ pool }{ $round }}) {
-					my $score = $athlete->{ pool }{ $round }{ $jid };
+					my $score = clone( $athlete->{ pool }{ $round }{ $jid });
+					delete $score->{ $_ } foreach grep { !/(?:fname|lname|id|noc)/ } keys %$score; # White list of pool properties
 					printf $fh "\tpool\t%s\t%s\n", $jid, $json->canonical->encode( $score );
 				}
 			}
