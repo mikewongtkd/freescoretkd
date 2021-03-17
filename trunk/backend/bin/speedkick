@@ -1,0 +1,100 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Mojolicious::Lite;
+use Try::Tiny;
+use FreeScore;
+use FreeScore::Kicking::Speed;
+use FreeScore::Kicking::Speed::RequestManager;
+use JSON::XS;
+use Digest::SHA1 qw( sha1_hex );
+use List::MoreUtils (qw( first_index ));
+use Data::Dumper;
+use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
+use EV;
+
+our $json   = new JSON::XS();
+our $client = {};
+our $judge  = {};
+our $DEBUG  = 0;
+
+# ------------------------------------------------------------
+# MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
+# ------------------------------------------------------------
+websocket '/vsparring/:tournament/:ring/:role/:id' => sub {
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring'       );
+	my $id         = $self->param( 'id'         );
+	my $manager    = new FreeScore::Kicking::Speed::RequestManager( $tournament, $ring, $self->tx() );
+	my $progress   = undef;
+
+	$self->inactivity_timeout( 3600 ); # 1 hour
+
+	# ===== REGISTER THE CLIENT
+	my $c = $client->{ $id } = { id => $id, device => $self->tx() }; 
+	if( $DEBUG ) {
+		print STDERR "SETUP $tournament\n";
+		print STDERR "  $_\n" foreach sort keys %$client;
+		print STDERR "\n";
+	}
+
+	# ----------------------------------------
+	# Handle messages
+	# ----------------------------------------
+	$self->on( message => sub {
+		my $self    = shift;
+		my $request = $json->decode( shift );
+
+		$request->{ tournament } = $tournament;
+
+		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
+		my $log = clone( $request ); 
+		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
+		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
+		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
+
+		# ===== READ TOURNAMENT SETTINGS
+		try   { 
+			$progress = new FreeScore::Kicking::Speed( $tournament, $ring ); 
+		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament': $_" }}); };
+
+		# ===== HANDLE REQUEST
+		try   { $manager->handle( $request, $progress, $client ); }
+		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+		print STDERR "\n" if $DEBUG;
+	});
+
+	# ----------------------------------------
+	# Handle disconnects
+	# ----------------------------------------
+	$self->on( finish => sub { delete $client->{ $id }; });
+};
+
+# ============================================================
+# STATUS
+# ============================================================
+get '/status' => sub {
+	my $self = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( text => 'OK' );
+};
+
+# ============================================================
+# ERROR TRAPPING
+# ============================================================
+any '*command' => sub {
+	my $self = shift;
+	my $command = $self->param( 'command' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => { error => "FreeScore Speed Kicking Service Error: Unknown command: $command" });
+};
+
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
+app->config( hypnotoad => { listen => [ 'http://*:3095' ], pid_file => '/var/run/vsparring.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/vsparring.log', level => 'debug' ));
+app->start();

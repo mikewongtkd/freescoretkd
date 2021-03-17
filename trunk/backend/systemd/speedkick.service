@@ -1,0 +1,11 @@
+[Unit]
+Description=FreeScore Speed Kicking Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/speedkick
+ExecStop=/usr/bin/pkill speedkick
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
