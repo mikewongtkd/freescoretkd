@@ -22,7 +22,7 @@ our $DEBUG  = 0;
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/vsparring/:tournament/:ring/:role/:id' => sub {
+websocket '/speedkick/:tournament/:ring/:role/:id' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
@@ -95,6 +95,6 @@ any '*command' => sub {
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3095' ], pid_file => '/var/run/vsparring.pid', workers => 1 });
-app->log( new Mojo::Log( path => '/var/log/freescore/vsparring.log', level => 'debug' ));
+app->config( hypnotoad => { listen => [ 'http://*:3092' ], pid_file => '/var/run/speedkick.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/speedkick.log', level => 'debug' ));
 app->start();

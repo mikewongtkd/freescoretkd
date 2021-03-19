@@ -1,9 +1,9 @@
-package FreeScore::Sparring::Virtual::RequestManager;
+package FreeScore::Kicking::Speed::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
-use FreeScore::Sparring::Virtual;
+use FreeScore::Kicking::Speed;
 use File::Slurp qw( read_file );
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -711,8 +711,8 @@ sub handle_division_write {
 	print STDERR "Writing division data.\n" if $DEBUG;
 
 	try {
-		my $division = FreeScore::Sparring::Virtual::Division->from_json( $request->{ division } );
-		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Sparring::Virtual::SUBDIR, $ring, $division->{ name } );
+		my $division = FreeScore::Kicking::Speed::Division->from_json( $request->{ division } );
+		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Kicking::Speed::SUBDIR, $ring, $division->{ name } );
 
 		my $message   = $division->clone();
 		my $unblessed = unbless( $message ); 

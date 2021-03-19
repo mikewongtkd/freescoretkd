@@ -1,4 +1,4 @@
-package FreeScore::Sparring::Virtual::Division;
+package FreeScore::Kicking::Speed::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use JSON::XS;
@@ -57,9 +57,6 @@ use Data::Dumper;
 #       +- score
 #    +- round
 #    +- rest
-# +- technical
-#    +- cap
-#    +- scale
 # +- placements
 # +- places
 # +- state
@@ -176,7 +173,7 @@ sub read {
 	}
 	close $fh;
 
-	bless $self, 'FreeScore::Sparring::Virtual::Division';
+	bless $self, 'FreeScore::Kicking::Speed::Division';
 
 	sub by_match_size {
 		my $a = shift;
@@ -216,7 +213,6 @@ sub calculate_placements {
 	my $self     = shift;
 	my $round    = shift || $self->{ round } or return;
 	my $athletes = $self->{ athletes };
-	my $votes    = $self->calculate_ranking_vote( $round );
 
 	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
@@ -300,7 +296,7 @@ sub from_json {
 # ============================================================
 #** @method ( json_division_data )
 #   @brief  Class method that returns an instance using the given JSON division data
-#   Call as my $division = FreeScore::Sparring::Virtual->from_json( $json )
+#   Call as my $division = FreeScore::Kicking::Speed->from_json( $json )
 #*
 	my $class = shift;
 	my $data  = shift;
