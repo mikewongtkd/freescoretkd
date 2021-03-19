@@ -348,9 +348,6 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
-		# ===== CALCULATE CHOICE
-		# my $choice = sum @{$form->{ choice }};
-
 		# ===== CALCULATE ALL-SCORE MEANS
 		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
