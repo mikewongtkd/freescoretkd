@@ -3,16 +3,17 @@ use List::Util qw( all any );
 use FreeScore;
 use JSON::XS;
 
-our @criteria = qw( major minor rhythm power ki );
+our @criteria = qw( major minor rhythm power ki deduction bonus );
 
 # ============================================================
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
-	my $data    = shift || { major => 0.0, minor => 0.0, rhythm => 0.0, power => 0.0, ki => 0.0, complete => 0 };
+	my $data    = shift || { major => 0.0, minor => 0.0, rhythm => 0.0, power => 0.0, ki => 0.0, deduction => 0.0, bonus => 0.0, complete => 0 };
 	my $self = bless $data, $class;
 	$self->accuracy();
 	$self->presentation();
+	$self->choice();
 	return $self;
 }
 
@@ -57,6 +58,16 @@ sub presentation {
 }
 
 # ============================================================
+sub choice {
+# ============================================================
+	my $self = shift;
+	return undef unless $self->complete();
+	my $choice = $self->{ deduction } + $self->{ bonus };
+	$self->{ choice } = $choice;
+	return $choice;
+}
+
+# ============================================================
 sub reinstantiate {
 # ============================================================
 	my $self = shift;
@@ -87,10 +98,11 @@ sub complete {
 #-------------------------------------------------------------
 	my $self = shift;
 
-	my $complete = { accuracy => 0, presentation => 0 };
+	my $complete = { accuracy => 0, presentation => 0, choice => 0 };
 	$complete->{ accuracy }     = all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor )};
 	$complete->{ presentation } = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki )};
-	$self->{ complete } = $complete->{ accuracy } && $complete->{ presentation };
+	$complete->{ choice }       = all { defined $_                           } @{ $self }{ qw( deduction bonus )};
+	$self->{ complete } = $complete->{ accuracy } && $complete->{ presentation } && $complete->{ choice };
 	return $self->{ complete };
 }
 
@@ -98,10 +110,11 @@ sub complete {
 sub started {
 # ============================================================
 	my $self = shift;
-	my $started = { accuracy => 0, presentation => 0 };
+	my $started = { accuracy => 0, presentation => 0, choice => 0 };
 	$started->{ accuracy }     = any { defined $_ && $_ >  0.0              } @{ $self }{ qw( major minor )};
 	$started->{ presentation } = any { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki )};
-	$self->{ started } = $started->{ accuracy } || $started->{ presentation };
+	$started->{ choice }       = all { defined $_                           } @{ $self }{ qw( deduction bonus )};
+	$self->{ started } = $started->{ accuracy } || $started->{ presentation } && $started->{ choice };
 	return $self->{ started };
 }
 1;

@@ -26,6 +26,9 @@ our $JSON = new JSON::XS();
 #           - power
 #           - rhythm
 #           - energy # MW: not ki! Need to go back and fix this later
+#         - choice
+#           - deduction
+#           - bonus
 #         - status ( ready | scoring | waiting )
 # ============================================================
 
@@ -127,8 +130,9 @@ sub resolve {
 			my $s   = $valid[ $i ];
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
+			my $cho = $s->{ choice };
 			$s->{ as } = $i;
-			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, deduction => $cho->{ deduction }, bonus => $cho->{ bonus }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };
@@ -233,7 +237,8 @@ sub _have_scored {
 	my $score  = shift;
 	my $acc    = $score->{ accuracy };
 	my $pre    = $score->{ presentation };
-	my $scored = $acc->{ minor } <= 0 && $acc->{ major } <= 0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+	my $cho    = $score->{ choice };
+	my $scored = $acc->{ minor } <= 0 && $acc->{ major } <= 0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5 && $cho->{ deduction } <= 0 && $cho->{ bonus } >= 0;
 
 	return $scored;
 }

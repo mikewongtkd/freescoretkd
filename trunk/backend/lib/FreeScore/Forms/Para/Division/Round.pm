@@ -15,6 +15,7 @@ use Carp;
 # - adjusted
 #   - accuracy
 #   - presentation
+#   - choice
 #   - total
 # - complete
 # - forms
@@ -22,6 +23,7 @@ use Carp;
 #     - adjusted
 #       - accuracy
 #       - presentation
+#       - choice
 #       - total
 #     - complete
 #     - decision
@@ -31,6 +33,7 @@ use Carp;
 #     - original
 #       - accuracy
 #       - presentation
+#       - choice
 #       - total
 #     - penalties
 #     - started
@@ -314,7 +317,8 @@ sub calculate_means {
 
 		my @mean = (
 			accuracy     => 0.0 + sprintf( "%.2f", $stats->{ sumacc }),
-			presentation => 0.0 + sprintf( "%.2f", $stats->{ sumpre })
+			presentation => 0.0 + sprintf( "%.2f", $stats->{ sumpre }),
+			choice       => 0.0 + sprintf( "%.2f", $stats->{ choice })
 		);
 		my $adjusted = { @mean };
 		my $allscore = { @mean };
@@ -339,15 +343,19 @@ sub calculate_means {
 		# ===== ROUND TO TWO DECIMAL PRECISION
 		$adjusted->{ accuracy }     = 0.0 + sprintf( "%.2f", $adjusted->{ accuracy });
 		$adjusted->{ presentation } = 0.0 + sprintf( "%.2f", $adjusted->{ presentation });
+		$adjusted->{ choice }       = 0.0 + sprintf( "%.2f", $adjusted->{ choice });
 
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
+		# ===== CALCULATE CHOICE
+		# my $choice = sum @{$form->{ choice }};
+
 		# ===== CALCULATE ALL-SCORE MEANS
 		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
-		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
-		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } - $penalties;
+		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } + $adjusted->{ choice } - $penalties;
+		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } + $adjusted->{ choice } - $penalties;
 
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
@@ -359,18 +367,20 @@ sub calculate_means {
 	}
 
 	# ===== CACHE CALCULATIONS
-	$self->{ adjusted } = { total => 0, accuracy => 0, presentation => 0 };
+	$self->{ adjusted } = { total => 0, accuracy => 0, presentation => 0, choice => 0 };
 	$self->{ allscore } = { total => 0 };
 
 	foreach my $mean (@$means) {
 		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
 		$self->{ adjusted }{ accuracy }     += $mean->{ adjusted }{ accuracy };
 		$self->{ adjusted }{ presentation } += $mean->{ adjusted }{ presentation };
+		$self->{ adjusted }{ choice }       += $mean->{ adjusted }{ choice };
 		$self->{ allscore }{ total }        += $mean->{ allscore }{ total };
 	};
 
 	$self->{ adjusted }{ total }        = 0.0 + $self->{ adjusted }{ total };
 	$self->{ adjusted }{ presentation } = 0.0 + $self->{ adjusted }{ presentation };
+	$self->{ adjusted }{ choice }       = 0.0 + $self->{ adjusted }{ choice };
 	$self->{ allscore }{ total }        = 0.0 + $self->{ allscore }{ total };
 
 	return $self;
