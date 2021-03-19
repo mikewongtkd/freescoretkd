@@ -1,0 +1,398 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use CGI;
+use CGI::Carp qw( fatalsToBrowser );
+use List::Util qw( min max );
+use List::MoreUtils qw( first_index );
+use POSIX qw( ceil );
+use JSON::XS;
+use Data::Dumper;
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::Para;
+
+my $cgi        = new CGI();
+my $results    = undef;
+my $tournament = read_tournament_config();
+my $ring       = $cgi->param( 'ring' );
+my $divid      = $cgi->param( 'divid' );
+my @rounds     = ($cgi->param( 'round' ));
+
+my @divisions  = ();
+my $results    = undef;
+try {
+	if( defined $ring ) {
+		if( defined $divid ) {
+			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} else {
+			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	}
+} catch {
+	die $_;
+
+};
+
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+
+print $cgi->header();
+
+print <<EOF;
+<html>
+	<head>
+		<title>Para Poomsae Brackets</title>
+		<style type="text/css">
+			body {
+				font-family: Optima;
+			}
+			.division {
+				clear: both;
+				margin-top: 28px;
+				width: 920px;
+				height: 20px;
+				text-align: center;
+			}
+
+			.list {
+				position: fixed;
+				top: 80px;
+				left: calc( 50% - 220px );
+				width: 360px;
+				font-size: 9pt;
+			}
+
+			.list .col1,.col2 {
+				position: absolute;
+				width: 180px;
+			}
+
+			.list .col1 { top: 0; left: 0; }
+			.list .col2 { top: 0; left: 180px; }
+
+			table.bracket {
+				position: fixed;
+				border-spacing: 2px;
+				width: 920px;
+			}
+
+			.bracket td {
+			}
+
+			.branch {
+				position: relative;
+			}
+
+			.branch .ld {
+				position: absolute;
+				top: 50%;
+				left: 0;
+				width: 50%;
+				height: 20px;
+				border-top: 1px solid #333;
+				border-right: 1px solid #333;
+			}
+
+			.branch .lu {
+				position: absolute;
+				top: -20px;
+				left: 0;
+				width: 50%;
+				height: 20px;
+				border-bottom: 1px solid #333;
+				border-right: 1px solid #333;
+			}
+
+			.branch .lud {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 50%;
+				height: 40px;
+				border-right: 1px solid #333;
+			}
+
+			.branch .rd {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 50%;
+				height: 20px;
+				border-top: 1px solid #333;
+				border-left: 1px solid #333;
+			}
+
+			.branch .ru {
+				position: absolute;
+				top: -20px;
+				left: 50%;
+				width: 50%;
+				height: 20px;
+				border-bottom: 1px solid #333;
+				border-left: 1px solid #333;
+			}
+
+			.branch .rud {
+				position: absolute;
+				top: 0;
+				left: 50%;
+				width: 50%;
+				height: 40px;
+				border-left: 1px solid #333;
+			}
+
+			.match {
+				position: relative;
+				height: 40px;
+				font-size: 9pt;
+			}
+
+			.match .match-num {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 10%;
+				height: calc( 100% - 5px );
+				padding: 2px;
+				border: 1px solid #999;
+				text-align: center;
+				font-size: 6pt;
+			}
+
+			.match .player {
+				position: absolute;
+				left: calc( 10% + 5px );
+				width: calc( 90% - 8px );
+				height: calc( 50% - 5px );
+				padding: 2px;
+				border: 1px solid #999;
+			}
+			.match .blue { top:  0%; }
+			.match .red  { top: 50%; }
+			.match .bye  { color: #999; }
+
+			.placement {
+				page-break-after: always;
+				position: fixed;
+				bottom: 0;
+				left: calc( 50% - 140px );
+			}
+			.placement th         { text-align: left; }
+			.placement td         { padding: 2px 4px 2px 4px; }
+			.placement td.place   { text-align: bottom; height: 36px; width: 40px; }
+			.placement td.name    { border-bottom: 1px solid black; height: 36px; width: 200px; }
+		</style>
+	</head>
+	<body>
+EOF
+foreach my $division (@divisions) {
+	my $name   = uc $division->{ name };
+	my $judges = $division->{ judges } || 3;
+	@rounds = @FreeScore::Forms::Para::Division::round_order unless @rounds;
+	my $round = undef;
+	while( @rounds ) {
+		$round = shift @rounds;
+		next unless exists $division->{ order }{ $round };
+		last;
+	}
+	my $rname  = $FreeScore::Forms::Para::Division::round_name->{ $round };
+	my $forms  = join ", ", @{$division->{ forms }{ $round }};
+	my $n = $#{$division->{ order }{ $round }};
+	my @athletes = map {
+		my $j = $division->{ order }{ $round }[ $_ ];
+		$division->{ athletes }[ $j ];
+	} ( 0 .. $n );
+
+	@athletes = map { { name => '' } } (0 .. 8); $n = $#athletes;
+
+	my $half = int( $n/2 );
+	print "<div class=\"list\"><div class=\"col1\"><ol>";
+	foreach my $athlete (map { $athletes[ $_ ] } ( 0 .. $half)) { print "<li>$athlete->{ name }</li>"; }
+	print "</ol></div><div class=\"col2\"><ol start=\"" . ($half + 2) . "\">";
+	foreach my $athlete (map { $athletes[ $_ ] } (($half + 1) .. $n )) { print "<li>$athlete->{ name }</li>"; }
+	print "</ol></div></div>";
+
+	# Calculate bracket size
+	my $depth = ceil( log( int( @athletes ))/log( 2 ));
+	my $bracket = { size => 2 ** $depth };
+
+	# Add byes
+	for(($n + 1) .. ($bracket->{ size } - 1)) { push @athletes, { name => '<span class="bye">BYE</span>', is_bye => 1 };}
+
+	# Build initial matches
+	my @matches = ();
+	while( @athletes ) {
+		my $a = shift @athletes;
+		my $b = pop @athletes;
+		push @matches, { blue => $a, red => $b };
+	}
+
+	# Render the brackets
+	my $h     = $depth - 1;          # Half bracket depth
+	my $c     = $h > 0 ? $h - 1 : 0; # Number of columns per half
+	my @nodes = ();
+
+	# First half of the bracket
+	my $s = 1; # Match number
+	foreach my $i (0 .. $c) {
+		my $m = 2 ** ($c - $i) - 1; # Number of matches per depth level
+		foreach my $j (0 .. $m) {
+			my $k = 2 ** $i;  # Step
+			my $l = ($k - 1); # Offset
+			my $x = $i;
+			my $y = (2 * $j * $k) + $l;
+			if( $i == 0 ) {
+				push @nodes, [ $x, $y, $s, $matches[ $s - 1 ]];
+
+			} elsif( $i == 1 ) {
+				my $advance = {};
+				my $a = first_index { $_->[ 0 ] == $x - 1 && $_->[ 1 ] == $y - 1 } @nodes;
+				my $b = first_index { $_->[ 0 ] == $x - 1 && $_->[ 1 ] == $y + 1 } @nodes;
+				if( $a >= 0 ) {
+					my $match = $nodes[ $a ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ blue } = $match->{ blue }; }
+				}
+				if( $b >= 0 ) {
+					my $match = $nodes[ $b ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ red } = $match->{ blue }; }
+				}
+				push @nodes, [ $x, $y, $s, $advance ];
+
+			} else {
+				push @nodes, [ $x, $y, $s ];
+			}
+			$s += 2;
+		}
+	}
+	# Final match
+	push @nodes, [ $h, (2 ** $c) - 1, (2 ** $depth) - 1 ];
+
+	# Second half of the bracket
+	my $s = 2; # Match number
+	foreach my $i (0 .. $c) {
+		my $m = 2 ** ($c - $i) - 1; # Number of matches per depth level
+		foreach my $j (0 .. $m) {
+			my $k = 2 ** $i;  # Step
+			my $l = ($k - 1); # Offset
+			my $x = (2 * $h) - $i;
+			my $y = (2 * $j * $k) + $l;
+			if( $i == 0 ) {
+				push @nodes, [ $x, $y, $s, $matches[ $s - 1 ]];
+
+			} elsif( $i == 1 ) {
+				my $advance = {};
+				my $a = first_index { $_->[ 0 ] == $x + 1 && $_->[ 1 ] == $y - 1 } @nodes;
+				my $b = first_index { $_->[ 0 ] == $x + 1 && $_->[ 1 ] == $y + 1 } @nodes;
+				if( $a >= 0 ) {
+					my $match = $nodes[ $a ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ blue } = $match->{ blue }; }
+				}
+				if( $b >= 0 ) {
+					my $match = $nodes[ $b ]->[ 3 ];
+					if( $match->{ red }{ is_bye }) { $advance->{ red } = $match->{ blue }; }
+				}
+				push @nodes, [ $x, $y, $s, $advance ];
+
+			} else {
+				push @nodes, [ $x, $y, $s ];
+			}
+			$s += 2;
+		}
+	}
+	@nodes = sort { $a->[ 0 ] <=> $b->[ 0 ] || $a->[ 1 ] <=> $b->[ 1 ] } @nodes;
+
+	my $top = ([ 300, 300, 300, 150, 0, 0, 0, 0 ]->[ $h ]) . 'px'; # Position bracket to center of the page
+
+	# Header
+	print <<EOF;
+	<style>table.bracket { top: $top; }</style>
+	<div class="staging">
+	<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div>
+EOF
+
+	# Bracket
+	my $cols = max map { $_->[ 0 ] } @nodes;
+	my $rows = max map { $_->[ 1 ] } @nodes;
+
+	print "<table class=\"bracket\">\n";
+	foreach my $row ( 0 .. $rows ) {
+		print "<tr>";
+		foreach my $col ( 0 .. $cols ) {
+			my $i   = first_index { $_->[ 0 ] == $col && $_->[ 1 ] == $row; } @nodes;
+			if( $i >= 0 ) {
+				my $pos    = splice @nodes, $i, 1;
+				my $player = $pos->[ 3 ];
+				my $num    = $pos->[ 2 ];
+				print <<EOF;
+<td class="match">
+<div class="match" id="match-$num">
+	<div class="match-num">$num</div>
+	<div class="blue player">$player->{ blue }{ name }</div>
+	<div class="red player">$player->{ red }{ name }</div>
+</div>
+</td>
+EOF
+			} else {
+				print "<td></td>";
+			}
+		}
+		print "</tr>\n";
+	}
+
+	print <<EOF;
+</table>
+	</div>
+	<div class="placement">
+		<table border=0 cellpadding=0 cellspacing=0>
+			<tr><th>Place</th><th>Athlete</th></tr>
+			<tr><td class="place">1st</td><td class="name">&nbsp;</td></tr>
+			<tr><td class="place">2nd</td><td class="name">&nbsp;</td></tr>
+			<tr><td class="place">3rd</td><td class="name">&nbsp;</td></tr>
+			<tr><td class="place">3rd</td><td class="name">&nbsp;</td></tr>
+		</table>
+	</div>
+EOF
+}
+
+print <<EOF;
+	</body>
+</html>
+EOF
+
+# ============================================================
+sub ordinal {
+# ============================================================
+	my $n = shift;
+	my $d = $n % 10;
+	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+	elsif( $d == 1 )           { return $n . 'st'; }
+	elsif( $d == 2 )           { return $n . 'nd'; }
+	elsif( $d == 3 )           { return $n . 'rd'; }
+	else                       { return $n . 'th'; }
+}
+
+# ============================================================
+sub read_tournament_config {
+# ============================================================
+	my $php = '';
+	my $config = {
+		optscore => '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+		redhat   => '/var/www/html/freescore/include/php/config.php',
+		ubuntu   => '/var/www/freescore/include/php/config.php',
+		raspbian => '/var/www/html/include/php/config.php',
+	};
+	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+
+	my $json = new JSON::XS();
+	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+	my $config = $json->decode( $data );
+	return $config;
+}

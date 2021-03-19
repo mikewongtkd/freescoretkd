@@ -1,0 +1,11 @@
+[Unit]
+Description=FreeScore Para Poomsae Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/para
+ExecStop=/usr/bin/pkill para
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
