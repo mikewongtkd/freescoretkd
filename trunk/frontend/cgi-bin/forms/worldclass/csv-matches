@@ -7,6 +7,7 @@ use File::Slurp qw( read_file );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::Para;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::FreeStyle;
 

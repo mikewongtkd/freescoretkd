@@ -52,7 +52,7 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 print <<EOF;
 <html>
 	<head>
-		<title>Freestyle Forms Results</title>
+		<title>Freestyle Poomsae Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -104,7 +104,7 @@ print <<EOF;
 			$branding_css
 		</style>
 	</head>
-	<body>
+<body>
 <table>
 <thead><tr><td><div class="header-space"> </div></td></tr></thead>
 <tbody><tr><td>

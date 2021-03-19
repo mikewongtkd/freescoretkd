@@ -40,10 +40,13 @@ try {
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
-		<title>Results</title>
+		<title>Grass Roots Poomsae Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -80,7 +83,7 @@ print <<EOF;
 			.results th.number  { width: 20px; }
 			.results th.athlete { width: 240px; }
 
-			.results td { 
+			.results td {
 				padding: 2px 4px 2px 4px;
 			}
 			.results td .notes {
@@ -89,11 +92,11 @@ print <<EOF;
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 
-			.header, .header-space { height: 225px; }
-			.footer, .footer-space { height: 50px; }
-			.header { position: fixed; top: 0; }
-			.footer { position: fixed; bottom: 0; }
-
+			// .header, .header-space { height: 225px; }
+			// .footer, .footer-space { height: 50px; }
+			// .header { position: fixed; top: 0; }
+			// .footer { position: fixed; bottom: 0; }
+			$branding_css
 		</style>
 	</head>
 	<body>

@@ -24,7 +24,7 @@ my @divisions  = ();
 my $results    = undef;
 try {
 	if( defined $ring ) {
-		if( defined $divid ) { 
+		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
@@ -40,7 +40,7 @@ try {
 	}
 } catch {
 	die $_;
-	
+
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -53,7 +53,7 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 print <<EOF;
 <html>
 	<head>
-		<title>World Class Forms Results</title>
+		<title>World Class Poomsae Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -129,7 +129,7 @@ while (@divisions) {
 
 	# ===== DRAW BRACKETS
 	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:ro4[ab]|ro2)/;
-	if( ! $bracket ) { 
+	if( ! $bracket ) {
 		# Do nothing; don't draw brackets if it's not a bracketed division or round
 
 	} elsif( @$matches == 1 ) {
@@ -296,7 +296,7 @@ EOF
 					my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
 					my $mean  = $score->{ adjusted };
 					if( defined $mean ) {
-						if( $score->{ complete }) { 
+						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
 								my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 								foreach my $decision (keys %$codes) {
@@ -305,7 +305,7 @@ EOF
 									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 								}
 							} else {
-								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
+								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation });
 							}
 							$n++;
 						} else { push @scores, "<td>&nbsp;</td>"; }
@@ -336,7 +336,7 @@ EOF
 EOF
 			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 			else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
-			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>"; 
+			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>";
 			print "</tr>";
 			print @results;
 			print "\t</table>\n";
@@ -412,5 +412,3 @@ sub result {
 		return 'text-decoration="line-through"';
 	}
 }
-
-
