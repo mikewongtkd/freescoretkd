@@ -397,11 +397,18 @@ sub pool_judge_ready {
 	my $round   = $self->{ round };
 	my $k       = $self->{ judges };
 	my $athlete = $self->current_athlete();
-
-	my $pool    = exists $athlete->{ pool }{ $round } ? $athlete->{ pool }{ $round } : ($athlete->{ pool }{ $round } = {});
 	my $jid     = $judge->{ id };
 
-	$pool->{ $jid } = { judge => $judge, status => 'ready' } unless exists $pool->{ $jid };
+	print STDERR Dumper "READY 1", $judge, $athlete->{ pool }{ $round }; # MW
+
+	$athlete->{ pool }{ $round } = {} unless( exists $athlete->{ pool }{ $round });
+	my $pool    = $athlete->{ pool }{ $round };
+
+	print STDERR Dumper "READY 2", $judge, $athlete->{ pool }{ $round }; # MW
+
+	$athlete->{ pool }{ $round }{ $jid } = { judge => $judge, status => 'ready' };
+
+	print STDERR Dumper "READY 3", $judge, $athlete->{ pool }{ $round }; # MW
 
 	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
 	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
@@ -706,9 +713,10 @@ sub write {
 
 			# WRITE EACH POOL SCORE
 			if( exists $athlete->{ pool }{ $round } && ref( $athlete->{ pool }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ pool }{ $round }}) > 0 ) {
+				print STDERR Dumper "WRITE POOL", $athlete->{ pool }{ $round };
 				foreach my $jid (sort keys %{ $athlete->{ pool }{ $round }}) {
 					my $score = clone( $athlete->{ pool }{ $round }{ $jid });
-					delete $score->{ $_ } foreach grep { !/(?:fname|lname|id|noc)/ } keys %$score; # White list of pool properties
+					delete $score->{ judge }{ $_ } foreach grep { !/(?:fname|lname|id|noc)/ } keys %{$score->{ judge }}; # White list of pool properties
 					printf $fh "\tpool\t%s\t%s\n", $jid, $json->canonical->encode( $score );
 				}
 			}

@@ -846,7 +846,7 @@ sub write {
 			if( exists $athlete->{ pool }{ $round } && ref( $athlete->{ pool }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ pool }{ $round }}) > 0 ) {
 				foreach my $jid (sort keys %{ $athlete->{ pool }{ $round }}) {
 					my $score = clone( $athlete->{ pool }{ $round }{ $jid });
-					delete $score->{ $_ } foreach grep { !/(?:fname|lname|id|noc)/ } keys %$score; # White list of pool properties
+					delete $score->{ judge }{ $_ } foreach grep { !/(?:fname|lname|id|noc)/ } keys %{$score->{ judge }}; # White list of pool properties
 					printf $fh "\tpool\t%s\t%s\n", $jid, $json->canonical->encode( $score );
 				}
 			}
