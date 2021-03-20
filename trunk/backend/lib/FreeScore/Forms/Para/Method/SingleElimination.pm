@@ -106,10 +106,10 @@ sub rank_athletes {
 				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
 				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
 				else {
-					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
+					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WDR'; }
+					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DSQ'; }
+					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WDR'; }
+					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DSQ'; }
 				}
 			}
 		}
