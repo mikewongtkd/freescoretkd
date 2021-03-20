@@ -51,7 +51,7 @@ use strict;
 # - minor
 # - power
 # - rhythm
-# - ki
+# - energy
 #
 # Flight data structure
 # - id
@@ -230,18 +230,18 @@ sub rank_athletes {
 	}
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
-	@$placement = sort { 
+	@$placement = sort {
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
 		my $x = $self->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
 		my $y = $self->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
-		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		resolve_ties( $a, $b, $x, $y );
 
 		# ===== COMPARE BY TIE-BREAKERS IF TIED
 		if( _is_tie( $comparison )) {
-			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y ); 
+			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y );
 		}
 
 		$comparison;
@@ -289,7 +289,7 @@ sub detect_ties {
 
 			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
 			if( _is_tie( $comparison )) {
-				push @{ $ties->[ $i ]}, $j; 
+				push @{ $ties->[ $i ]}, $j;
 				$j++;
 
 			# ===== OTHERWISE LOOK AT NEXT PLACE
@@ -304,7 +304,7 @@ sub detect_ties {
 	my $medals   = $places->{ $round }[ $i ];
 	my $athletes = 0;
 	while( $i < $k && $medals ) {
-		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
+		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); }
 		elsif ( $athletes == 0     ) { $athletes  = 1; }
 
 		my $gave = $medals >= $athletes ? $athletes : $medals;
@@ -341,7 +341,7 @@ sub edit_athletes {
 
 	my $order       = $self->{ order }{ $round };
 	my $reorder     = [];
-	
+
 	for my $i ( 0 .. $#$edits ) {
 		my $edit    = $edits->[ $i ];
 		my $j       = $edit->{ order } - 1; # Get the athlete's previous relative order index
@@ -457,7 +457,7 @@ sub match_results {
 sub normalize {
 # ============================================================
 #** @method ()
-#   @brief Normalizes the division object. 
+#   @brief Normalizes the division object.
 #   Initializes the first round and maintain each athlete's scoring matrix.
 #*
 	my $self   = shift;
@@ -472,7 +472,7 @@ sub normalize {
 	if( defined $round ) {
 		die "Division Configuration Error: $self->{ file } No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
 		my $order = $self->{ order }{ $round };
-		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); } 
+		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
 
 	# ===== NO ROUND DEFINED; FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
 	} else {
@@ -481,7 +481,7 @@ sub normalize {
 		my $flight   = $self->is_flight();
 		my @athletes = ( 0 .. $#{ $self->{ athletes }});
 
-		if( $method eq 'aau-single-cutoff' ) { 
+		if( $method eq 'aau-single-cutoff' ) {
 			if    ( $n == 2  ) { $round = 'ro2';    $self->assign( $_, $round ) foreach @athletes; }
 			elsif ( $n == 3  ) { $round = 'prefin'; $self->assign( $_, $round ) foreach @athletes; }
 			elsif ( $n == 4  ) { $round = 'ro4a';   $self->assign( $_, 'ro4a' ) foreach @athletes[ 0, 1 ]; $self->assign( $_, 'ro4b' ) foreach @athletes[ 2, 3 ]; }
@@ -615,7 +615,7 @@ sub record_decision {
 			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 			$started ||= $athlete->{ scores }{ $round }->started();
 		}
-		if( $started ) { $self->{ flight }{ state } = 'in-progress'; } 
+		if( $started ) { $self->{ flight }{ state } = 'in-progress'; }
 		else           { $self->{ flight }{ state } = 'ready';       }
 	}
 }
@@ -632,7 +632,7 @@ sub remove_from_list {
 
 	foreach my $round ($self->rounds()) {
 		next unless exists $self->{ $list }{ $round };
-		@{$self->{ $list }{ $round }} = map { 
+		@{$self->{ $list }{ $round }} = map {
 			if    ( $_ == $i ) { ();     }
 			elsif ( $_ >  $i ) { $_ - 1; }
 			else               { $_;     }
@@ -765,7 +765,7 @@ sub read {
 				$athlete->{ info }   = { map { my ($key, $value) = split /=/, $_, 2; ($key => $value); } @info };
 				$athlete->{ scores } = {};
 
-				$athletes->{ $athlete->{ name } } = $athlete; 
+				$athletes->{ $athlete->{ name } } = $athlete;
 			}
 
 		# ===== READ ATHLETE SCORES
@@ -777,14 +777,14 @@ sub read {
 			# Scores are ordered by judge number (ref, 1, 2, etc.)
 			if    ( $judge =~ /^[jr]/ ) {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
-				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
-				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
+				my ($major, $minor, $rhythm, $power, $energy) = @score_criteria;
+				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $energy ||= 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round (missing round section header?)\n" if $round ne $score_round;
 				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
 
-				next unless( $major || $minor || $rhythm || $power || $ki );
+				next unless( $major || $minor || $rhythm || $power || $energy );
 
-				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, energy => $energy };
 				my $forms  = int( @{ $self->{ forms }{ $round }});
 				my $judges = $self->{ judges };
 				my $r      = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
@@ -917,7 +917,7 @@ sub split {
 	my $self  = shift;
 	my $n     = shift;
 	my $round = $self->{ round };
-	
+
 	return if $round ne 'prelim'; # Can only split prior to the preliminary round
 
 	my @athletes = shuffle @{$self->{ athletes }};
@@ -929,7 +929,7 @@ sub split {
 	foreach my $i ( 1 .. $n ) {
 		my $id     = chr( ord( 'a' ) + ($i - 1));
 		my $flight = $self->clone();
-		my $k      = min( int( @athletes ), $j ); 
+		my $k      = min( int( @athletes ), $j );
 		$flight->{ flight }{ id } = $id;
 		$flight->{ file } =~ s/$flight->{ name }\.txt$/$flight->{ name }$id.txt/;
 		$flight->{ name } = $flight->{ name } . $id;
@@ -992,7 +992,7 @@ sub update_status {
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
-	$self->rank_athletes(); 
+	$self->rank_athletes();
 	my $ties = $self->detect_ties();
 
 	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
@@ -1029,7 +1029,7 @@ sub update_status {
 			if( $k == 1 ) { $self->assign( $_, 'ro2' ) foreach @order; return; }
 			if( $k == 2 ) { $self->assign_with_bye( $order[ 0 ], 'ro4a' ); $self->assign( $_, 'ro4b' ) foreach @order[ qw( 1 2 ) ]; return; }
 
-			my @match_a  = $order[ 0 ], $order[ 3 ]; # First place seed vs 4th place seed 
+			my @match_a  = $order[ 0 ], $order[ 3 ]; # First place seed vs 4th place seed
 			my @match_b  = $order[ 1 ], $order[ 2 ]; # 2nd place seed vs 3rd place seed
 
 			$self->assign( $_, 'ro4a' ) foreach @match_a;
@@ -1057,7 +1057,7 @@ sub update_status {
 				if( int( @eligible ) == 1 ) { $self->assign_with_bye( $first, 'ro2'  ); return; }
 				if( int( @eligible ) == 2 ) { $self->assign( $_, 'ro2'  ) foreach @eligible ; return; }
 
-				$self->assign_with_bye( $first, 'ro4a'  ); 
+				$self->assign_with_bye( $first, 'ro4a'  );
 				$self->assign( $_,     'ro4b' ) foreach @eligible[qw( 1 2 )]; # Place others in the last match of the Round of 4
 			}
 
@@ -1107,7 +1107,7 @@ sub update_status {
 			my @order      = shuffle (@eligible[ 0 .. $half ]);
 			$self->assign( $_, 'semfin' ) foreach @order;
 
-		} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
+		} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) {
 			# Skip if athletes have already been assigned to the finals
 			my $finals = $self->{ order }{ finals };
 			return if( defined $finals && int( @$finals ) > 0 );
@@ -1304,8 +1304,8 @@ sub previous_round {
 		my $n    = int( @{$self->{ athletes }});
 
 		if    ( $round eq 'semfin' )           { $i = $map->{ ro2 }; }
-		elsif ( $round eq 'ro4a' )             { $i = $map->{ semfin }; } 
-		elsif ( $round eq 'ro4b' )             { $i = $map->{ ro4a } ? $map->{ ro4a } : ($map->{ prefin } ? $map->{ prefin } : $map->{ semfin }); } 
+		elsif ( $round eq 'ro4a' )             { $i = $map->{ semfin }; }
+		elsif ( $round eq 'ro4b' )             { $i = $map->{ ro4a } ? $map->{ ro4a } : ($map->{ prefin } ? $map->{ prefin } : $map->{ semfin }); }
 		else                                   { $i++; }
 
 	} else {
@@ -1456,7 +1456,7 @@ sub resolve_ties {
 	my $xat = sprintf( "%.3f", $x->{ allscore }{ total } / $n);
 	my $yat = sprintf( "%.3f", $y->{ allscore }{ total } / $n);
 
-	if( $xap == $yap ) { 
+	if( $xap == $yap ) {
 		if( $xat > $yat ) {
 			$xn->{ $xat } = { results => 'win',  reason => "Total $xat" };
 			$yn->{ $yat } = { results => 'loss', reason => "Total $yat" };
@@ -1557,7 +1557,7 @@ sub _parse_flights {
 	$group          = [ split /\s*,\s*/, $group ];
 	($key, $state)  = split /\s*:\s*/, $state;
 
-	return { id => $id, group => $group, state => $state }; 
+	return { id => $id, group => $group, state => $state };
 }
 
 # ============================================================
@@ -1569,12 +1569,12 @@ sub _parse_forms {
 #*
 	my $value = shift;
 
-	my @rounds = map { 
+	my @rounds = map {
 		my ($round, $forms) = split /\s*:\s*/;
 		my @forms = split /\s*,\s*/, $forms;
 		($round => [ @forms ]);
 	} split /\s*;\s*/, $value;
-	return { @rounds }; 
+	return { @rounds };
 }
 
 # ============================================================

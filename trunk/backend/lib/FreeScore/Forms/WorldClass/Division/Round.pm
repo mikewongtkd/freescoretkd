@@ -52,7 +52,7 @@ sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift || {};
-	my $self    = bless $data, $class; 
+	my $self    = bless $data, $class;
 	$self->init( @_ );
 	return $self;
 }
@@ -135,7 +135,7 @@ sub record_score {
 # ============================================================
 sub record_penalties {
 # ============================================================
-# Records penalties. Will overwrite. 
+# Records penalties. Will overwrite.
 #------------------------------------------------------------
  	my $self    = shift;
 	my $form    = shift;
@@ -149,7 +149,7 @@ sub record_penalties {
 # ============================================================
 sub record_pool_score {
 # ============================================================
-# Records a score from a judge pool. 
+# Records a score from a judge pool.
 #------------------------------------------------------------
  	my $self  = shift;
 	my $size  = shift;
@@ -172,7 +172,7 @@ sub record_pool_score {
 # ============================================================
 sub record_completion_time {
 # ============================================================
-# Records penalties. Will overwrite. 
+# Records penalties. Will overwrite.
 #------------------------------------------------------------
  	my $self = shift;
 	my $form = shift;
@@ -193,7 +193,7 @@ sub record_decision {
 
 	my $form = $self->{ forms }[ $i ];
 	if( $decision eq 'clear' ) {
-		foreach my $form (@{ $self->{ forms }}) { 
+		foreach my $form (@{ $self->{ forms }}) {
 			delete $form->{ decision }{ $_ } foreach (qw( disqualify withdraw ));
 			unless( exists( $form->{ decision }{ bye }) && defined( $form->{ decision }{ bye })) {
 				$form->{ complete } = 0;
@@ -284,8 +284,8 @@ sub calculate_means {
 			my $score        = $form->{ judge }[ $i ];
 			my $accuracy     = $score->{ accuracy };
 			my $presentation = $score->{ presentation };
-			die "Round Object Error: Accuracy not calculated!"  if ! defined $accuracy     && ! $punitive_decision;
-			die "Round Object Error: Precision not calculated!" if ! defined $presentation && ! $punitive_decision;
+			die "Round Object Error: Accuracy not calculated!"  if ! defined $accuracy        && ! $punitive_decision;
+			die "Round Object Error: Presentation not calculated!" if ! defined $presentation && ! $punitive_decision;
 			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
 			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
 			$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation } > $presentation ? $i : $stats->{ minpre };
@@ -330,7 +330,7 @@ sub calculate_means {
 
 			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
-			
+
 		# For fewer than 5 judges, take the mean (no outlier filtering)
 		} else {
 			$adjusted = { map { $_ => $adjusted->{ $_ }/$judges } keys %$adjusted };
@@ -389,7 +389,7 @@ sub form_complete {
 	$form->{ complete } = _now() if( ! $form->{ complete } && $self->form_has_punitive_decision( $i ));
 
 	# Return previously resolved cached value
-	return $form->{ complete } if $form->{ complete };   
+	return $form->{ complete } if $form->{ complete };
 
 	# ===== FORM IS COMPLETE IF ALL JUDGES HAVE REGISTERED A VALID SCORE
 	return 0 unless exists $form->{ judge };
@@ -442,8 +442,8 @@ sub any_punitive_decision {
 # ============================================================
 	my $self = shift;
 
-	foreach my $form (@{ $self->{ forms }}) { 
-		$self->form_complete( $form ); 
+	foreach my $form (@{ $self->{ forms }}) {
+		$self->form_complete( $form );
 		if( $self->form_has_punitive_decision( $form )) {
 			$self->{ complete } = 1;
 			return 1;
@@ -457,8 +457,8 @@ sub any_winning_decision {
 # ============================================================
 	my $self = shift;
 
-	foreach my $form (@{ $self->{ forms }}) { 
-		$self->form_complete( $form ); 
+	foreach my $form (@{ $self->{ forms }}) {
+		$self->form_complete( $form );
 		if( $self->form_has_winning_decision( $form )) {
 			$self->{ complete } = 1;
 			return 1;
@@ -503,8 +503,8 @@ sub reinstantiate {
 	my $sub = eval { $self->can( "record_score" ) };
 	my $ref = ref $self;
 	if( ! $sub ) {
-		if( $ref eq 'HASH' ) { bless $self, "FreeScore::Forms::WorldClass::Division::Round"; } 
-		else                 { die "Round Object Error: Attempting to instantiate an round object that is not an hash ($ref) $!"; }
+		if( $ref eq 'HASH' ) { bless $self, "FreeScore::Forms::WorldClass::Division::Round"; }
+		else                 { die "Round Object Error: Attempting to instantiate a round object that is not a hash ($ref) $!"; }
 	}
 	for( my $i = 0; $i < $forms; $i++ ) {
 		for( my $j = 0; $j < $judges; $j++ ) {
@@ -540,7 +540,7 @@ sub string {
 	my $forms  = shift;
 	my $judges = shift;
 	my @string = ();
-	
+
 	for( my $i = 0; $i < $forms; $i++ ) {
 		my $form    = $self->{ forms }[ $i ];
 		my $form_id = 'f' . ($i + 1);
