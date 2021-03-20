@@ -24,9 +24,8 @@ use strict;
 #
 # Round data structure (also see FreeScore::Forms::Para::Division::Round)
 # - adjusted
-#   - accuracy
+#   - technical
 #   - presentation
-#   - choice
 #   - total
 # - complete
 # - decision
@@ -48,13 +47,11 @@ use strict;
 #   (same substructure as forms)
 #
 # Score data structure (also see FreeScore::Forms::Para::Division::Round::Score)
-# - major
-# - minor
+# - stance
+# - technique
 # - power
 # - rhythm
-# - ki
-# - deduction
-# - bonus
+# - energy
 #
 # Flight data structure
 # - id
@@ -515,7 +512,7 @@ sub normalize {
 sub pool_judge_ready {
 # ============================================================
 #** @method ( size, judge )
-#   @brief Indicates that the judge is ready to start scoring accuracy
+#   @brief Indicates that the judge is ready to start scoring technical
 #*
 	my $self    = shift;
 	my $size    = shift;
@@ -780,14 +777,14 @@ sub read {
 			# Scores are ordered by judge number (ref, 1, 2, etc.)
 			if    ( $judge =~ /^[jr]/ ) {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
-				my ($major, $minor, $rhythm, $power, $ki, $deduction, $bonus) = @score_criteria;
-				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0; $deduction ||=0; $bonus ||=0;
+				my ($stance, $technique, $rhythm, $power, $energy) = @score_criteria;
+				$stance ||= 0; $technique ||= 0; $rhythm ||= 0; $power ||= 0; $energy ||= 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round (missing round section header?)\n" if $round ne $score_round;
 				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
 
-				next unless( $major || $minor || $rhythm || $power || $ki || $deduction || $bonus);
+				next unless( $stance || $technique || $rhythm || $power || $energy );
 
-				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki, deduction => $deduction, bonus => $bonus };
+				my $score  = { stance => $stance, technique => $technique, rhythm => $rhythm, power => $power, energy => $energy };
 				my $forms  = int( @{ $self->{ forms }{ $round }});
 				my $judges = $self->{ judges };
 				my $r      = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );

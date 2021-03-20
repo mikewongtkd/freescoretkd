@@ -13,17 +13,15 @@ use Carp;
 
 # Round data structure (also see FreeScore::Forms::Para::Division)
 # - adjusted
-#   - accuracy
+#   - technical
 #   - presentation
-#   - choice
 #   - total
 # - complete
 # - forms
 #   - [ form index ]
 #     - adjusted
-#       - accuracy
+#       - technical
 #       - presentation
-#       - choice
 #       - total
 #     - complete
 #     - decision
@@ -31,9 +29,8 @@ use Carp;
 #       - disqualify
 #       - bye
 #     - original
-#       - accuracy
+#       - technical
 #       - presentation
-#       - choice
 #       - total
 #     - penalties
 #     - started
@@ -279,46 +276,45 @@ sub calculate_means {
 			last;
 		}
 
-		my $stats  = { minacc => 0, minpre => 0, maxacc => 0, maxpre => 0 };
+		my $stats  = { mintec => 0, minpre => 0, maxtec => 0, maxpre => 0 };
 		my $k      = $#{ $form->{ judge }};
 
-		# ===== FIND MIN/MAX ACCURACY AND PRESENTATION
+		# ===== FIND MIN/MAX TECHNICAL AND PRESENTATION
 		foreach my $i (0 .. $k) {
 			my $score        = $form->{ judge }[ $i ];
-			my $accuracy     = $score->{ accuracy };
+			my $technical    = $score->{ technical };
 			my $presentation = $score->{ presentation };
-			die "Round Object Error: Accuracy not calculated!"  if ! defined $accuracy     && ! $punitive_decision;
-			die "Round Object Error: Precision not calculated!" if ! defined $presentation && ! $punitive_decision;
-			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
-			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
+			die "Round Object Error: Technical not calculated!"    if ! defined $technical    && ! $punitive_decision;
+			die "Round Object Error: Presentation not calculated!" if ! defined $presentation && ! $punitive_decision;
+			$stats->{ mintec } = $form->{ judge }[ $stats->{ mintec } ]{ technical    } > $technical    ? $i : $stats->{ mintec };
+			$stats->{ maxtec } = $form->{ judge }[ $stats->{ maxtec } ]{ technical    } < $technical    ? $i : $stats->{ maxtec };
 			$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation } > $presentation ? $i : $stats->{ minpre };
 			$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation } < $presentation ? $i : $stats->{ maxpre };
-			$stats->{ sumacc } += $accuracy;
+			$stats->{ sumtec } += $technical;
 			$stats->{ sumpre } += $presentation;
 		}
 
 		# ===== IF ALL SCORES ARE THE SAME, THEN WE NEED TO DROP DIFFERENT SCORES (ONE "HIGH" AND ONE "LOW")
-		if( $stats->{ minacc } == $stats->{ maxacc } && $k > 0 ) { $stats->{ maxacc }++; }
+		if( $stats->{ mintec } == $stats->{ maxtec } && $k > 0 ) { $stats->{ maxtec }++; }
 		if( $stats->{ minpre } == $stats->{ maxpre } && $k > 0 ) { $stats->{ maxpre }++; }
 
 		# ===== MARK THE SCORES AS MIN OR MAX
 		foreach my $i (0 .. $k) { $form->{ judge }[ $i ]->clear_minmax(); }
 
-		$form->{ judge }[ $stats->{ minacc } ]->mark_minmax( 'minacc' );
-		$form->{ judge }[ $stats->{ maxacc } ]->mark_minmax( 'maxacc' );
+		$form->{ judge }[ $stats->{ mintec } ]->mark_minmax( 'mintec' );
+		$form->{ judge }[ $stats->{ maxtec } ]->mark_minmax( 'maxtec' );
 		$form->{ judge }[ $stats->{ minpre } ]->mark_minmax( 'minpre' );
 		$form->{ judge }[ $stats->{ maxpre } ]->mark_minmax( 'maxpre' );
 
 		# ===== RE-MAP FROM INDICES TO VALUES
-		$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy };
-		$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy };
+		$stats->{ mintec } = $form->{ judge }[ $stats->{ mintec } ]{ technical };
+		$stats->{ maxtec } = $form->{ judge }[ $stats->{ maxtec } ]{ technical };
 		$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation };
 		$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
 		my @mean = (
-			accuracy     => 0.0 + sprintf( "%.2f", $stats->{ sumacc }),
-			presentation => 0.0 + sprintf( "%.2f", $stats->{ sumpre }),
-			choice       => 0.0 + sprintf( "%.2f", $stats->{ choice })
+			technical    => 0.0 + sprintf( "%.2f", $stats->{ sumtec }),
+			presentation => 0.0 + sprintf( "%.2f", $stats->{ sumpre })
 		);
 		my $adjusted = { @mean };
 		my $allscore = { @mean };
@@ -326,13 +322,13 @@ sub calculate_means {
 		# ===== CALCULATE ADJUSTED MEANS
 		# For 5 or more judges, drop the highs & lows and take the mean
 		if( $judges >= 5 ) {
-			$adjusted->{ accuracy }     -= ($stats->{ minacc } + $stats->{ maxacc });
+			$adjusted->{ technical }    -= ($stats->{ mintec } + $stats->{ maxtec });
 			$adjusted->{ presentation } -= ($stats->{ minpre } + $stats->{ maxpre });
 
-			$adjusted->{ accuracy }     /= ($judges - 2);
+			$adjusted->{ technical }    /= ($judges - 2);
 			$adjusted->{ presentation } /= ($judges - 2);
 
-			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
+			$adjusted->{ technical }    = $adjusted->{ technical }    < 0 ? 0 : $adjusted->{ technical };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
 
 		# For fewer than 5 judges, take the mean (no outlier filtering)
@@ -341,9 +337,8 @@ sub calculate_means {
 		}
 
 		# ===== ROUND TO TWO DECIMAL PRECISION
-		$adjusted->{ accuracy }     = 0.0 + sprintf( "%.2f", $adjusted->{ accuracy });
+		$adjusted->{ technical }    = 0.0 + sprintf( "%.2f", $adjusted->{ technical });
 		$adjusted->{ presentation } = 0.0 + sprintf( "%.2f", $adjusted->{ presentation });
-		$adjusted->{ choice }       = 0.0 + sprintf( "%.2f", $adjusted->{ choice });
 
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
@@ -351,8 +346,8 @@ sub calculate_means {
 		# ===== CALCULATE ALL-SCORE MEANS
 		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
-		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } + $adjusted->{ choice } - $penalties;
-		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } + $adjusted->{ choice } - $penalties;
+		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties;
+		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties;
 
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
@@ -364,20 +359,18 @@ sub calculate_means {
 	}
 
 	# ===== CACHE CALCULATIONS
-	$self->{ adjusted } = { total => 0, accuracy => 0, presentation => 0, choice => 0 };
+	$self->{ adjusted } = { total => 0, technical => 0, presentation => 0 };
 	$self->{ allscore } = { total => 0 };
 
 	foreach my $mean (@$means) {
 		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
-		$self->{ adjusted }{ accuracy }     += $mean->{ adjusted }{ accuracy };
+		$self->{ adjusted }{ technical }    += $mean->{ adjusted }{ technical };
 		$self->{ adjusted }{ presentation } += $mean->{ adjusted }{ presentation };
-		$self->{ adjusted }{ choice }       += $mean->{ adjusted }{ choice };
 		$self->{ allscore }{ total }        += $mean->{ allscore }{ total };
 	};
 
 	$self->{ adjusted }{ total }        = 0.0 + $self->{ adjusted }{ total };
 	$self->{ adjusted }{ presentation } = 0.0 + $self->{ adjusted }{ presentation };
-	$self->{ adjusted }{ choice }       = 0.0 + $self->{ adjusted }{ choice };
 	$self->{ allscore }{ total }        = 0.0 + $self->{ allscore }{ total };
 
 	return $self;
@@ -511,7 +504,7 @@ sub reinstantiate {
 	my $ref = ref $self;
 	if( ! $sub ) {
 		if( $ref eq 'HASH' ) { bless $self, "FreeScore::Forms::Para::Division::Round"; }
-		else                 { die "Round Object Error: Attempting to instantiate an round object that is not an hash ($ref) $!"; }
+		else                 { die "Round Object Error: Attempting to instantiate a round object that is not a hash ($ref) $!"; }
 	}
 	for( my $i = 0; $i < $forms; $i++ ) {
 		for( my $j = 0; $j < $judges; $j++ ) {
