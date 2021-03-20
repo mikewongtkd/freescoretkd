@@ -328,8 +328,8 @@ sub calculate_means {
 			$adjusted->{ technical }    /= ($judges - 2);
 			$adjusted->{ presentation } /= ($judges - 2);
 
-			$adjusted->{ technical }    = $adjusted->{ technical }    < 0 ? 0 : $adjusted->{ technical };
-			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
+			$adjusted->{ technical }     = $adjusted->{ technical }    < 0 ? 0 : $adjusted->{ technical };
+			$adjusted->{ presentation }  = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
 
 		# For fewer than 5 judges, take the mean (no outlier filtering)
 		} else {

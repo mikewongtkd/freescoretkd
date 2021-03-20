@@ -231,7 +231,7 @@ sub _have_scored {
 	my $score  = shift;
 	my $tec    = $score->{ technical };
 	my $pre    = $score->{ presentation };
-	my $scored = $tec->{ stance } >= 0.5 && $tec->{ technique } >= 0.5 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+	my $scored = $tec->{ stance } <= 0.0 && $tec->{ technique } <= 0.0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
 
 	return $scored;
 }
