@@ -4,7 +4,6 @@ use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::Para;
-use FreeScore::Forms::Para::Schedule;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -1096,7 +1095,7 @@ sub handle_registration_archive {
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 		my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", ($year + 1900), ($mon + 1), $mday, $hour, $min );
 
-		`cd $path && tar -cvzf $archive forms-grassroots forms-para forms-worldclass forms-freestyle sparring-olympic`;
+		`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass forms-para forms-freestyle sparring-olympic`;
 		`cd $path && rm -rf forms-grassroots/*/div*.txt`;
 		`cd $path && rm -rf forms-freestyle/*/div*.txt`;
 		`cd $path && rm -rf forms-worldclass/*/div*.txt`;

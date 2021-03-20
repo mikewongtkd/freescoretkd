@@ -49,7 +49,7 @@ use strict;
 # Score data structure (also see FreeScore::Forms::Para::Division::Round::Score)
 # - stance
 # - technique
-# - power
+# - memorization
 # - rhythm
 # - energy
 #
@@ -777,14 +777,14 @@ sub read {
 			# Scores are ordered by judge number (ref, 1, 2, etc.)
 			if    ( $judge =~ /^[jr]/ ) {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
-				my ($stance, $technique, $rhythm, $power, $energy) = @score_criteria;
-				$stance ||= 0; $technique ||= 0; $rhythm ||= 0; $power ||= 0; $energy ||= 0;
+				my ($stance, $technique, $rhythm, $memorization, $energy) = @score_criteria;
+				$stance ||= 0; $technique ||= 0; $rhythm ||= 0; $memorization ||= 0; $energy ||= 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round (missing round section header?)\n" if $round ne $score_round;
 				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
 
-				next unless( $stance || $technique || $rhythm || $power || $energy );
+				next unless( $stance || $technique || $rhythm || $memorization || $energy );
 
-				my $score  = { stance => $stance, technique => $technique, rhythm => $rhythm, power => $power, energy => $energy };
+				my $score  = { stance => $stance, technique => $technique, rhythm => $rhythm, memorization => $memorization, energy => $energy };
 				my $forms  = int( @{ $self->{ forms }{ $round }});
 				my $judges = $self->{ judges };
 				my $r      = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );

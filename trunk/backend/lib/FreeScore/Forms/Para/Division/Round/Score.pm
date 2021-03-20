@@ -3,13 +3,13 @@ use List::Util qw( all any );
 use FreeScore;
 use JSON::XS;
 
-our @criteria = qw( stance technique rhythm power energy );
+our @criteria = qw( stance technique rhythm memorization energy );
 
 # ============================================================
 sub new {
 # ============================================================
 	my ($class) = map { ref || $_ } shift;
-	my $data    = shift || { stance => 0.0, technique => 0.0, rhythm => 0.0, power => 0.0, energy => 0.0, complete => 0 };
+	my $data    = shift || { stance => 0.0, technique => 0.0, rhythm => 0.0, memorization => 0.0, energy => 0.0, complete => 0 };
 	my $self = bless $data, $class;
 	$self->technical();
 	$self->presentation();
@@ -21,7 +21,8 @@ sub technical {
 # ============================================================
 	my $self = shift;
 	return undef unless $self->complete();
-	my $technical = $self->{ stance } + $self->{ technique };
+	my $penalties = $self->{ stance } + $self->{ technique };
+	my $technical  = $penalties > 4.0 ? 0 : (4.0 - $penalties);
 	$self->{ technical } = $technical;
 	return $technical;
 }
@@ -50,7 +51,7 @@ sub presentation {
 # ============================================================
 	my $self = shift;
 	return undef unless $self->complete();
-	my $presentation = $self->{ rhythm } + $self->{ power } + $self->{ energy };
+	my $presentation = $self->{ rhythm } + $self->{ memorization } + $self->{ energy };
 	$self->{ presentation } = $presentation;
 	return $presentation;
 }
@@ -87,8 +88,8 @@ sub complete {
 	my $self = shift;
 
 	my $complete = { technical => 0, presentation => 0 };
-	$complete->{ technical }    = all { defined $_ && $_ <= 0.0              } @{ $self }{ qw( stance technique )};
-	$complete->{ presentation } = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power energy )};
+	$complete->{ technical }    = all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( stance technique )};
+	$complete->{ presentation } = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm memorization energy )};
 	$self->{ complete } = $complete->{ technical } && $complete->{ presentation };
 	return $self->{ complete };
 }
@@ -98,8 +99,8 @@ sub started {
 # ============================================================
 	my $self = shift;
 	my $started = { technical => 0, presentation => 0 };
-	$started->{ technical }    = any { defined $_ && $_ <= 0.0              } @{ $self }{ qw( stance technique )};
-	$started->{ presentation } = any { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power energy )};
+	$started->{ technical }    = any { defined $_ && $_ >  0.0              } @{ $self }{ qw( stance technique )};
+	$started->{ presentation } = any { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm memorization energy )};
 	$self->{ started } = $started->{ technical } || $started->{ presentation };
 	return $self->{ started };
 }
