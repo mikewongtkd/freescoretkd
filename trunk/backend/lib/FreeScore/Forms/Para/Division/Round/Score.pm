@@ -21,8 +21,7 @@ sub technical {
 # ============================================================
 	my $self = shift;
 	return undef unless $self->complete();
-	my $penalties = $self->{ stance } + $self->{ technique };
-	my $technical  = $penalties > 4.0 ? 0 : (4.0 - $penalties);
+	my $technical = $self->{ stance } + $self->{ technique };
 	$self->{ technical } = $technical;
 	return $technical;
 }
@@ -88,7 +87,7 @@ sub complete {
 	my $self = shift;
 
 	my $complete = { technical => 0, presentation => 0 };
-	$complete->{ technical }    = all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( stance technique )};
+	$complete->{ technical }    = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( stance technique )};
 	$complete->{ presentation } = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm memorization energy )};
 	$self->{ complete } = $complete->{ technical } && $complete->{ presentation };
 	return $self->{ complete };
@@ -99,7 +98,7 @@ sub started {
 # ============================================================
 	my $self = shift;
 	my $started = { technical => 0, presentation => 0 };
-	$started->{ technical }    = any { defined $_ && $_ >  0.0              } @{ $self }{ qw( stance technique )};
+	$started->{ technical }    = any { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( stance technique )};
 	$started->{ presentation } = any { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm memorization energy )};
 	$self->{ started } = $started->{ technical } || $started->{ presentation };
 	return $self->{ started };

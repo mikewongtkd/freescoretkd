@@ -7,7 +7,6 @@ use JSON::XS;
 use List::Util qw( all any );
 use base qw( Clone );
 use Data::Structure::Util qw( unbless );
-use Math::Round qw( nearest );
 use Data::Dumper;
 
 our $JSON = new JSON::XS();
@@ -126,7 +125,7 @@ sub resolve {
 			my $tec = $s->{ technical };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { stance => nearest( 0.1, - $tec->{ stance }), technique => nearest( 0.1, - $tec->{ technique }), memorization => $pre->{ memorization }, rhythm => $pre->{ rhythm }, energy => $pre->{ energy }, complete => 1 };
+			my $score = { stance => $tec->{ stance }, technique => $tec->{ technique }, memorization => $pre->{ memorization }, rhythm => $pre->{ rhythm }, energy => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };
@@ -231,7 +230,7 @@ sub _have_scored {
 	my $score  = shift;
 	my $tec    = $score->{ technical };
 	my $pre    = $score->{ presentation };
-	my $scored = $tec->{ technique } <= 0 && $tec->{ stance } <= 0 && $pre->{ memorization } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+	my $scored = $tec->{ technique } >= 0.5 && $tec->{ stance } >= 0.5 && $pre->{ memorization } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
 
 	return $scored;
 }
