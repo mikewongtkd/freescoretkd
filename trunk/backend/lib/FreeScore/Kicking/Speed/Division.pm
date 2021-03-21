@@ -269,7 +269,6 @@ sub calculate_scores {
 		my $j         = $order->[ $i ];
 		my $athlete   = $self->{ athletes }[ $j ];
 		my $original  = $athlete->{ original }{ $round } = {};
-		my $adjusted  = $athlete->{ adjusted }{ $round } = {};
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 		my $scores    = undef;
 
@@ -399,16 +398,11 @@ sub pool_judge_ready {
 	my $athlete = $self->current_athlete();
 	my $jid     = $judge->{ id };
 
-	print STDERR Dumper "READY 1", $judge, $athlete->{ pool }{ $round }; # MW
-
 	$athlete->{ pool }{ $round } = {} unless( exists $athlete->{ pool }{ $round });
-	my $pool    = $athlete->{ pool }{ $round };
 
-	print STDERR Dumper "READY 2", $judge, $athlete->{ pool }{ $round }; # MW
+	my $pool = $athlete->{ pool }{ $round };
 
-	$athlete->{ pool }{ $round }{ $jid } = { judge => $judge, status => 'ready' };
-
-	print STDERR Dumper "READY 3", $judge, $athlete->{ pool }{ $round }; # MW
+	$pool->{ $jid } = { judge => $judge, status => 'ready' };
 
 	my $ready  = [ grep { $pool->{ $_ }{ status } eq 'ready'  } keys %$pool ];
 	my $scored = [ grep { $pool->{ $_ }{ status } eq 'scored' } keys %$pool ];
@@ -666,7 +660,7 @@ sub write {
 
 	# ===== WRITE DIVISION HEADER
 	foreach my $header (sort keys %{$self}) {
-		next if $header =~ /^(?:athletes|cache|path|file|ring|name|autopilot)$/;
+		next if $header =~ /^(?:athletes|cache|path|file|ring|name)$/;
 		my $value = $self->{ $header };
 		$value = $json->canonical->encode( $value ) if( ref( $value ));
 		print $fh "# $header=$value\n";
@@ -713,7 +707,6 @@ sub write {
 
 			# WRITE EACH POOL SCORE
 			if( exists $athlete->{ pool }{ $round } && ref( $athlete->{ pool }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ pool }{ $round }}) > 0 ) {
-				print STDERR Dumper "WRITE POOL", $athlete->{ pool }{ $round };
 				foreach my $jid (sort keys %{ $athlete->{ pool }{ $round }}) {
 					my $score = clone( $athlete->{ pool }{ $round }{ $jid });
 					delete $score->{ judge }{ $_ } foreach grep { !/(?:fname|lname|id|noc)/ } keys %{$score->{ judge }}; # White list of pool properties
