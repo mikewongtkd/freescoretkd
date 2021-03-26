@@ -2,7 +2,7 @@ package FreeScore::Sparring::Virtual::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use JSON::XS;
-use List::Util qw( min reduce shuffle );
+use List::Util qw( min reduce shuffle any );
 use List::MoreUtils qw( all first_index last_index minmax part );
 use Data::Structure::Util qw( unbless );
 use File::Slurp qw( read_file );
@@ -225,9 +225,10 @@ sub read {
 	my $aids = []; # Athlete IDs
 	foreach my $earliest (qw( prelim semfin finals ), @matches ) {
 		next unless exists $order->{ $earliest };
+		$self->{ order }{ $earliest } = [];
 		while( my $name = shift @{ $order->{ $earliest }}) {
 			my $athlete = $athletes->{ $name };
-			push @$aids, { name => $name, info => $athlete->{ info }, scores => $athlete->{ scores }, pool => $athlete->{ pool }};
+			push @$aids, { name => $name, id => int( @$aids ), info => $athlete->{ info }, scores => $athlete->{ scores }, pool => $athlete->{ pool }};
 			delete $athletes->{ $name };
 			push @{$self->{ order }{ $earliest }}, $#$aids;
 		}
@@ -350,7 +351,7 @@ sub calculate_scores {
 	my $round = shift || $self->{ round } or return;
 	my $order = $self->{ order }{ $round };
 	my $ranks = [];
-	
+
 	foreach my $i (0 .. $#$order) {
 		my $j         = $order->[ $i ];
 		my $athlete   = $self->{ athletes }[ $j ];
