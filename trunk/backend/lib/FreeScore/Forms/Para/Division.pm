@@ -592,6 +592,25 @@ sub record_penalties {
 }
 
 # ============================================================
+sub record_choices {
+# ============================================================
+#** @method ( choice_object )
+#   @brief Records the given choices
+#*
+	my $self      = shift;
+	my $choices   = shift;
+
+	my $athlete   = $self->{ athletes }[ $self->{ current } ];
+	my $round     = $self->{ round };
+	my $form      = $self->{ form };
+	my $forms     = int( @{ $self->{ forms }{ $round }});
+	my $judges    = $self->{ judges };
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	$athlete->{ scores }{ $round }->record_choices( $form, $choices );
+}
+
+# ============================================================
 sub record_decision {
 # ============================================================
 #** @method ( punitive_declaration_text, athlete_index )
@@ -799,6 +818,15 @@ sub read {
 				my $judges    = $self->{ judges };
 				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$r->record_penalties( $form, $penalties );
+
+			# Choices for not drawn Poomsae (0.6 for not performing drawn Poomsae in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.5 additional deduction in P10 and P30 divisions), Taegeuk 4 to Taegeuk 7 (0.3 additional deduction in P10 to P30 divisions), Taegeuk 8 to Shipjin (0.0 additional deduction in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.0 bonus in P20 divisions), Taegeuk 4 to Taegeuk 7 (0.3 bonus in P20 divisions), Taegeuk 8 to Shipjin (0.5 bonus in P20 divisions)
+			} elsif ( $judge =~ /^c/ ) {
+
+				my ($choices) = @score_criteria;
+				my $forms     = int( @{ $self->{ forms }{ $round }});
+				my $judges    = $self->{ judges };
+				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_choices( $form, $choices );
 
 			# Status notes describe athlete withdraw or disqualification
 			} elsif ( $judge =~ /^s/ ) {

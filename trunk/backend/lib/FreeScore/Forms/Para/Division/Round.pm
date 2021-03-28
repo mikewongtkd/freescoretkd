@@ -46,6 +46,7 @@ use Carp;
 our @PENALTIES = qw( bounds timelimit restart );
 our @GAMJEOMS  = qw( misconduct );
 our @TIME      = qw( time );
+our @CHOICES    = qw( deduction bonus );
 
 # ============================================================
 sub new {
@@ -143,6 +144,20 @@ sub record_penalties {
 
 	foreach my $key (keys %$penalty) {
 		$self->{ forms }[ $form ]{ penalty }{ $key } = $penalty->{ $key };
+	}
+}
+
+# ============================================================
+sub record_choices {
+# ============================================================
+# Records choices. Will overwrite.
+#------------------------------------------------------------
+ 	my $self    = shift;
+	my $form    = shift;
+	my $choice  = shift;
+
+	foreach my $key (keys %$choice) {
+		$self->{ forms }[ $form ]{ choice }{ $key } = $choice->{ $key };
 	}
 }
 
@@ -343,11 +358,14 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
+		# ===== CALCULATE CHOICE
+		my $choices = sum @{$form->{ choice }}{ ( @CHOICES ) };
+
 		# ===== CALCULATE ALL-SCORE MEANS
 		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
-		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties;
-		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties;
+		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties + $choices;
+		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties + $choices;
 
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
@@ -556,6 +574,11 @@ sub string {
 		# ===== RECORD PENALTIES AND TIME (OVER)
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} && any { $_ } values %{ $form->{ penalty }}) {
 			push @string, join( "\t", ('', $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )})) . "\n";
+		}
+
+		# ===== RECORD CHOICES
+		if( exists $form->{ choice } && keys %{ $form->{ choice }} && any { $_ } values %{ $form->{ choice }}) {
+			push @string, join( "\t", ('', $round, $form_id, 'c', @{$form->{ choice }}{ ( @CHOICES )})) . "\n";
 		}
 
 		# ===== RECORD SCORES
