@@ -96,7 +96,7 @@ print <<EOF;
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 63px; }
 			.results td.athlete   { width: 768px; }
-			.results td.decisions { width: 32px; text-align: center; color: red; }
+			.results td.decisions { width: 32px; text-align: center; color: #d9534f; }
       		.results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
