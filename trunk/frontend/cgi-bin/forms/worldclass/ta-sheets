@@ -53,6 +53,9 @@ try {
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/reports.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
@@ -75,7 +78,6 @@ print <<EOF;
 			}
 			.results {
 				page-break-inside: avoid;
-				page-break-after: always;
 			}
 			.results table {
 				page-break-inside: avoid;
@@ -102,10 +104,7 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-			.header, .header-space { height: 180px; }
-			.footer, .footer-space { height: 300px; }
-			.header { position: fixed; top: 0; }
-			.footer { position: fixed; bottom: 0; }
+$branding_css
 		</style>
 	</head>
 	<body>
@@ -248,6 +247,14 @@ EOF
 				my $i = $places->[ $j ];
 				$placed->{ $i } = ordinal( $j + 1 );
 			}
+
+			# Quick kludge to avoid line breaks
+			my $map = { 'board breaking' => 'Breaking', 'speed kicking' => 'Sp.&nbsp;Kicking', 'virtual sparring' => 'V.&nbsp;Sparring' };
+			foreach my $event ( 'board breaking', 'speed kicking', 'virtual sparring' ) {
+				next unless $forms->[ 0 ] =~ /^$event/i;
+				$forms->[ 0 ] = $map->{ $event };
+			}
+			if( $forms->[ 0 ] =~ /^taegeuk (\d) or (\d)$/i ) { $forms->[ 0 ] = "Taegeuk&nbsp;$1&nbsp;or&nbsp;$2"; }
 
 			print <<EOF;
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
