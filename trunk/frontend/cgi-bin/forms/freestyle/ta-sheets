@@ -82,6 +82,10 @@ print <<EOF;
 					padding: 0 4px 0 4px;
 					text-align: left;
 				}
+				table {
+					page-break-inside: avoid;
+					page-break-after: always;
+				}
 				.results .number    { width: 32px; }
 				.results .usat      { width: 80px; }
 				.results .noc				{ width: 63px; }
