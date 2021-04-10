@@ -571,14 +571,17 @@ sub autopilot {
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
-	return; # MW DISABLING AUTOPILOT FOR CUTA
-
 	my $show  = {
 		score => sub {
 			my $delay = shift;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
+
+			$request->{ action } = 'score-display';
+			delete $request->{ judge };
+			delete $request->{ score };
+			delete $request->{ response };
 
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
@@ -587,6 +590,11 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
+
+			$request->{ action } = 'leaderboard-display';
+			delete $request->{ judge };
+			delete $request->{ score };
+			delete $request->{ response };
 
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
@@ -605,6 +613,12 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
 			$division->next();
 			$division->write();
+
+			$request->{ action }  = 'navigate';
+			$request->{ athlete } = $division->{ current };
+			delete $request->{ judge };
+			delete $request->{ score };
+			delete $request->{ response };
 
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
