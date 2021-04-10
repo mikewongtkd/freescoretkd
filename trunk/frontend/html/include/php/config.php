@@ -25,16 +25,22 @@
 		$grassroots = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-grassroots';
 		$worldclass = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-worldclass';
 		$freestyle  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-freestyle';
+		$vsparring  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/virtual-sparring';
+		$speedkick  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/speed-kicking';
 
 		if( ! file_exists( $grassroots )) { init_event( $grassroots ); }
 		if( ! file_exists( $worldclass )) { init_event( $worldclass ); }
 		if( ! file_exists( $freestyle  )) { init_event( $freestyle  ); }
+		if( ! file_exists( $vsparring  )) { init_event( $vsparring  ); }
+		if( ! file_exists( $speedkick  )) { init_event( $speedkick  ); }
 
 		$rings = [];
 		$rings[ 'grassroots' ] = preg_grep( '/ring|staging/', scandir( $grassroots ));
 		$rings[ 'worldclass' ] = preg_grep( '/ring|staging/', scandir( $worldclass ));
 		$rings[ 'freestyle' ]  = preg_grep( '/ring|staging/', scandir( $freestyle  ));
-		$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( $rings[ 'grassroots' ], $rings[ 'worldclass' ], $rings[ 'freestyle' ] )))));
+		$rings[ 'vsparring' ]  = preg_grep( '/ring|staging/', scandir( $vsparring  ));
+		$rings[ 'speedkick' ]  = preg_grep( '/ring|staging/', scandir( $speedkick  ));
+		$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( $rings[ 'grassroots' ], $rings[ 'worldclass' ], $rings[ 'freestyle' ], $rings[ 'vsparring' ], $rings[ 'speedkick' ] )))));
 		asort( $rings );
 		$tournament[ 'rings' ] = $rings;
 		$tournament = json_encode( $tournament );

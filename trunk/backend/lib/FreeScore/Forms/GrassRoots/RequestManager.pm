@@ -571,6 +571,8 @@ sub autopilot {
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
+	return; # MW DISABLING AUTOPILOT FOR CUTA
+
 	my $show  = {
 		score => sub {
 			my $delay = shift;

@@ -224,8 +224,8 @@ sub calculate_placements {
 		my $i_ori = $i->{ original }{ $round };
 		my $j_ori = $j->{ original }{ $round };
 
-		my $i_ori_total      = _real( $i_ori->{ total });
-		my $j_ori_total      = _real( $j_ori->{ total });
+		my $i_ori_total      = _real( $i_ori->{ technical }{ count });
+		my $j_ori_total      = _real( $j_ori->{ technical }{ count });
 
 		my $original_total   = $j_ori_total <=> $i_ori_total;
 

@@ -2,12 +2,13 @@
 use Try::Tiny;
 use CGI;
 use File::Slurp qw( read_file );
+use List::Util qw( reduce );
 use List::MoreUtils qw( minmax );
 use JSON::XS;
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::GrassRoots;
+use FreeScore::Sparring::Virtual;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -19,15 +20,15 @@ my @divisions  = ();
 try {
 	if( defined $ring ) {
 		if( defined $divid ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 		} else {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+		foreach my $ring ( qw( 1 2 3 )) {
+			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 		if( defined $divid ) {
@@ -105,6 +106,7 @@ $branding
 	<tbody><tr><td>
 
 EOF
+
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
@@ -112,7 +114,7 @@ foreach my $division (@divisions) {
 	my $i = 0;
 	foreach my $place (@{ $division->{ places }}) {
 		foreach my $j (1 .. $place->{ medals }) {
-			my $k = $division->{ placements }[ $i ];
+			my $k = $division->{ placements }{ finals }[ $i ];
 			$placed->{ $k } = $place->{ place };
 			$i++;
 		}
@@ -126,31 +128,39 @@ foreach my $division (@divisions) {
 				<th class="number">Rank</th>
 				<th class="number">NOC</th>
 				<th class="athlete">Name</th>
+				<th class="tech">Tech.</th>
 EOF
-	foreach my $i ( 1 .. $judges ) { print "<th>J$i</th>"; }
+	foreach my $i ( 0 .. $judges - 1 ) { print $i == 0 ? "<th>R</th>" : "<th>J$i</th>"; }
 	print <<EOF;
+				<th>Pres.</th>
 				<th>Total</th>
 			</tr>
 EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
-		my $j       = $division->{ placements }[ $i ];
-		my $athlete = $division->{ athletes }[ $j ];
-		my $rank    = $i < 3 ? $i + 1 : 3;
-		$rank = $athlete->{ info }{ decision } eq 'DSQ' ? '-' : $rank;
+		my $j        = $division->{ placements }{ finals }[ $i ];
+		my $athlete  = int( @{ $division->{ placements }{ finals }}) == 0 ? $division->{ athletes }[ $i ] : $division->{ athletes }[ $j ];
+		my $decision = $athlete->{ decision };
+		my $rank     = $i < 3 ? $i + 1 : 3;
+		$rank = $decision eq 'disqualify' || $decision eq 'withdraw' ? '-' : $rank;
 		print "<tr><td>$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
-		my ($min, $max) = minmax( map { sprintf( "%.1f", $_ ) } @{ $athlete->{ scores }});
-		my $found = { min => 0, max => 0 };
-		foreach my $i ( 0 .. ($judges - 1)) {
-			my $score = sprintf( "%.1f", $athlete->{ scores }[ $i ] );
-			$score = $score <= 0 ? '-' : $score;
-			if( $score ne '-' && $score == $min && ! $found->{ min }) { $found->{ min } = 1; $score = "<span class=\"ignore\">$score</span>"; }
-			if( $score ne '-' && $score == $max && ! $found->{ max }) { $found->{ max } = 1; $score = "<span class=\"ignore\">$score</span>"; }
-
-			print "<td>$score</td>";
+		my $technical = sprintf( "%.2f", $athlete->{ original }{ finals }{ technical }{ score });
+		print $technical == 0 ? '<td>-</td>' : "<td>$technical</td>";
+		my $presentation = $athlete->{ adjusted }{ finals }{ presentation };
+		foreach my $i ( 0 .. $division->{ judges } - 1) {
+			my $score  = $athlete->{ scores }{ finals }[ $i ];
+			my $pre    = sprintf( "%.1f", reduce { $a + $b } values %{$score->{ presentation }});
+			my $ignore = $i == $presentation->{ high }{ index } || $i == $presentation->{ low }{ index };
+			if( $pre == 0 ) { 
+				print "<td>-</td>";
+			} else {
+				print $ignore ? "<td><span class=\"ignore\">$pre</span></td>" : "<td>$pre</td>";
+			}
 		}
-		my $score = $athlete->{ info }{ decision } eq 'DSQ' ? 'DSQ' : sprintf( "%.1f", $athlete->{ score } );
-		print "<td>$score</td>";
+		my $pre = sprintf( "%.2f", $presentation->{ mean });
+		print $pre == 0 ? "<td>-</td>" : "<td>$pre</td>";
+		my $score = $decision ? $decision : sprintf( "%.2f", $athlete->{ adjusted }{ finals }{ total } );
+		print $score == 0 ? "<td>-</td>" : "<td>$score</td>";
 		print "</tr>\n";
 	}
 	print <<EOF;
