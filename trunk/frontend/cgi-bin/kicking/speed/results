@@ -91,6 +91,7 @@ print <<EOF;
 			.results td .ignore {
 				text-decoration: line-through;
 			}
+			.results td.number { text-align: center; }
 			.results td .notes {
 				font-size: 9pt;
 			}
@@ -143,7 +144,7 @@ EOF
 		my $rank      = $i < 3 ? $i + 1 : 3;
 
 		$rank = $decision eq 'disqualify' || $decision eq 'withdraw' ? '-' : $rank;
-		print "<tr><td>$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
+		print "<tr><td class=\"number\">$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
 
 		foreach my $i ( 0 .. $division->{ judges } - 1) {
 			my $count  = $athlete->{ scores }{ finals }[ $i ]{ count };
