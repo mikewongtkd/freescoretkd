@@ -154,7 +154,7 @@ EOF
 			if( $pre == 0 ) { 
 				print "<td></td>";
 			} else {
-				print $ignore ? "<td><span class=\"ignore\">$pre</span></td>" : "<td>$pre</td>";
+				print $ignore ? "<td><span class=\"ignore\"></span></td>" : "<td></td>";
 			}
 		}
 		my $pre = sprintf( "%.2f", $presentation->{ mean });
