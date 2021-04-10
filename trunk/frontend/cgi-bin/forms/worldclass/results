@@ -85,7 +85,7 @@ print <<EOF;
 				text-align: left;
 			}
 			.results td       { padding: 0px 4px 0px 4px; }
-			.results .number  { width: 37px; }
+			.results .number  { width: 37px; text-align: center; }
 			.results .noc     { width: 63px; }
 			.results .athlete { width: 275px; }
 			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
