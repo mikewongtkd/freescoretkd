@@ -154,7 +154,7 @@ EOF
 		if   ( $decision eq 'disqualify' ) { print "<td>DSQ</td>"; }
 		elsif( $decision eq 'withdraw'   ) { print "<td>WDR</td>"; }
 		elsif( $consensus == 0           ) { print "<td></td>"; }
-		else                               { print "<td>$consensus</td>"; }
+		else                               { print "<td> </td>"; }
 		print "</tr>\n";
 	}
 	print <<EOF;
