@@ -48,7 +48,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Virtual Sparring Results</title>
+		<title>Virtual Sparring Draws</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -128,12 +128,12 @@ foreach my $division (@divisions) {
 				<th class="number">Rank</th>
 				<th class="number">NOC</th>
 				<th class="athlete">Name</th>
-				<th class="tech">Tech.</th>
+				<th class="tech"></th>
 EOF
-	foreach my $i ( 0 .. $judges - 1 ) { print $i == 0 ? "<th>R</th>" : "<th>J$i</th>"; }
+	foreach my $i ( 0 .. $judges - 1 ) { print $i == 0 ? "<th></th>" : "<th></th>"; }
 	print <<EOF;
-				<th>Pres.</th>
-				<th>Total</th>
+				<th></th>
+				<th></th>
 			</tr>
 EOF
 	my $n = $#{$division->{ athletes }};
@@ -145,22 +145,22 @@ EOF
 		$rank = $decision eq 'disqualify' || $decision eq 'withdraw' ? '-' : $rank;
 		print "<tr><td>$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
 		my $technical = sprintf( "%.2f", $athlete->{ original }{ finals }{ technical }{ score });
-		print $technical == 0 ? '<td>-</td>' : "<td>$technical</td>";
+		print $technical == 0 ? '<td></td>' : "<td></td>";
 		my $presentation = $athlete->{ adjusted }{ finals }{ presentation };
 		foreach my $i ( 0 .. $division->{ judges } - 1) {
 			my $score  = $athlete->{ scores }{ finals }[ $i ];
 			my $pre    = sprintf( "%.1f", reduce { $a + $b } values %{$score->{ presentation }});
 			my $ignore = $i == $presentation->{ high }{ index } || $i == $presentation->{ low }{ index };
 			if( $pre == 0 ) { 
-				print "<td>-</td>";
+				print "<td></td>";
 			} else {
 				print $ignore ? "<td><span class=\"ignore\">$pre</span></td>" : "<td>$pre</td>";
 			}
 		}
 		my $pre = sprintf( "%.2f", $presentation->{ mean });
-		print $pre == 0 ? "<td>-</td>" : "<td>$pre</td>";
+		print $pre == 0 ? "<td></td>" : "<td></td>";
 		my $score = $decision ? $decision : sprintf( "%.2f", $athlete->{ adjusted }{ finals }{ total } );
-		print $score == 0 ? "<td>-</td>" : "<td>$score</td>";
+		print $score == 0 ? "<td></td>" : "<td></td>";
 		print "</tr>\n";
 	}
 	print <<EOF;
