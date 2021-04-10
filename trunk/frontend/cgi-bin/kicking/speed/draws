@@ -48,7 +48,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Speed Kicking Results</title>
+		<title>Speed Kicking Draws</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -129,9 +129,9 @@ foreach my $division (@divisions) {
 				<th class="number">NOC</th>
 				<th class="athlete">Name</th>
 EOF
-	foreach my $i ( 0 .. $judges - 1 ) { print $i == 0 ? "<th>R</th>" : "<th>J$i</th>"; }
+	foreach my $i ( 0 .. $judges - 1 ) { print $i == 0 ? "<th></th>" : "<th></th>"; }
 	print <<EOF;
-				<th>Total</th>
+				<th></th>
 			</tr>
 EOF
 	my $n = $#{$division->{ athletes }};
@@ -147,13 +147,13 @@ EOF
 
 		foreach my $i ( 0 .. $division->{ judges } - 1) {
 			my $count  = $athlete->{ scores }{ finals }[ $i ]{ count };
-			if( $count == 0             ) { print "<td>-</td>"; }
-			elsif( $count >= $consensus ) { print "<td>&check;</td>"; }
+			if( $count == 0             ) { print "<td></td>"; }
+			elsif( $count >= $consensus ) { print "<td></td>"; }
 			else                          { print "<td>&nbsp;</td>"; }
 		}
 		if   ( $decision eq 'disqualify' ) { print "<td>DSQ</td>"; }
 		elsif( $decision eq 'withdraw'   ) { print "<td>WDR</td>"; }
-		elsif( $consensus == 0           ) { print "<td>-</td>"; }
+		elsif( $consensus == 0           ) { print "<td></td>"; }
 		else                               { print "<td>$consensus</td>"; }
 		print "</tr>\n";
 	}
