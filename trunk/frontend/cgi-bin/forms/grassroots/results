@@ -96,7 +96,7 @@ print <<EOF;
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 
-$branding
+			$branding
 		</style>
 	</head>
 	<body>

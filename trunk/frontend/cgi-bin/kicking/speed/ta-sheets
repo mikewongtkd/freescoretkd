@@ -37,6 +37,8 @@ try {
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+my $branding = '/var/www/html/images/branding/reports.css';
+$branding = -e $branding ? read_file( $branding ) : '';
 
 print $cgi->header();
 
@@ -85,10 +87,11 @@ print <<EOF;
 			.results tbody tr:nth-child( even ) { background: #eee; }
 			.results tbody tr:nth-child( odd  ) { background: #fff; }
 
-			.header, .header-space { height: 225px; }
-			.footer, .footer-space { height: 50px; }
-			.header { position: fixed; top: 0; }
-			.footer { position: fixed; bottom: 0; }
+			# .header, .header-space { height: 225px; }
+			# .footer, .footer-space { height: 50px; }
+			# .header { position: fixed; top: 0; }
+			# .footer { position: fixed; bottom: 0; }
+			$branding
 
 		</style>
 	</head>
