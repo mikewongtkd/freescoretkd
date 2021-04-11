@@ -1,8 +1,15 @@
 #! /usr/bin/perl
 
 use JSON::XS();
+use Getopt::Long;
 
+my $options  = {};
 my $athletes = {};
+
+GetOptions(
+	"p|progression" => \$options->{ athletes },
+);
+
 while( <> ) {
 	chomp;
 	my ($divid, $round, $place, $uuid, $noc, $name) = split /\t/;
@@ -14,9 +21,11 @@ while( <> ) {
 	$athletes->{ $uuid }{ div }{ $divid }{ $round } = $place;
 }
 
+if( $options->{ athletes }) {
 my $json = new JSON::XS();
-foreach $athlete (values %$athletes) {
-	print $json->canonical->pretty->encode( $athlete ) . "\n";
+	foreach $athlete (values %$athletes) {
+		print $json->canonical->pretty->encode( $athlete ) . "\n";
+	}
 }
 
 my @results = ();
@@ -31,8 +40,10 @@ foreach my $uuid (keys %$athletes) {
 	}
 }
 
-foreach my $result (sort { by_divid( $a, $b ) } @results) {
-	printf "%s\t%s\t%s\t%s\t%s\n", @{$result}{ qw( divid place uuid noc name ) };
+if( ! $options->{ athletes }) {
+	foreach my $result (sort { by_divid( $a, $b ) } @results) {
+		printf "%s\t%s\t%s\t%s\t%s\n", @{$result}{ qw( divid place uuid noc name ) };
+	}
 }
 
 sub by_divid {
