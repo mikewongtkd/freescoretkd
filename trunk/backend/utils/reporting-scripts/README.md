@@ -20,3 +20,18 @@ delineation.
 
 Note that `db-collate` has an interim step to track each athlete's placements for each round of their division,
 creating a timeline of competition results for that athlete.
+
+## How to run the scripts
+
+1. Take backups of all the ring days as day-*-complete.tar.gz (Replace * with the day number)
+2. Move up 1 directory
+3. mkdir collate
+4. Copy the day-*-complete.tar.gz from the main directory over to the collate directory
+5. mkdir day-*-complete (Create a new directory for each ring day)
+6. tar -xvzf day-*-complete.tar.gz (Extract the day individually)
+7. mv forms-* (Move the forms-* into each day folder) day-*-complete
+8. db-dump-recognized > recognized.tsv
+9. db-dump-freestyle > freestyle.tsv
+10. cat recognized.tsv freestyle.tsv > combined.tsv
+11. cat combined.tsv | db-collate -p > athletes.json
+12. cat combined.tsv | db-collate > collated.tsv
