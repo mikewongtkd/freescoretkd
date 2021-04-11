@@ -1,7 +1,9 @@
 #! /usr/bin/perl
 
 use JSON::XS();
+use List::Util qw( max );
 use Getopt::Long;
+use Data::Dumper;
 
 my $options  = {};
 my $athletes = {};
@@ -10,15 +12,34 @@ GetOptions(
 	"p|progression" => \$options->{ athletes },
 );
 
-while( <> ) {
+my $prelim = {};
+my $semfin = {};
+my @entries = <>;
+
+foreach (@entries) {
 	chomp;
 	my ($divid, $round, $place, $uuid, $noc, $name) = split /\t/;
+
+	$prelim->{ $divid }{ $uuid } = 1 if( $round eq 'prelim' );
+	$semfin->{ $divid }{ $uuid } = 1 if( $round eq 'semfin' );
+}
+
+$prelim->{ $_ } = half( int( keys %{$prelim->{ $_ }})) foreach keys %$prelim;
+$semfin->{ $_ } = int( keys %{$semfin->{ $_ }}) foreach keys %$semfin;
+
+foreach (@entries) {
+	chomp;
+	my ($divid, $round, $place, $uuid, $noc, $name) = split /\t/;
+	my $prelim_place = $prelim->{ $divid };
 
 	$divid =~ s/[a-z]$//;
 
 	if( ! exists $athletes->{ $uuid }) { $athletes->{ $uuid } = { name => $name, noc => $noc }; }
 
 	$athletes->{ $uuid }{ div }{ $divid }{ $round } = $place;
+	if( $round eq 'prelim' && ($place ne 'WDR' || $place ne 'DSQ') && $place > $prelim_place) {
+		$athletes->{ $uuid }{ div }{ $divid }{ $round } = ($place - $prelim_place) + $semfin->{ $divid };
+	}
 }
 
 if( $options->{ athletes }) {
@@ -33,9 +54,11 @@ foreach my $uuid (keys %$athletes) {
 	my $athlete = $athletes->{ $uuid };
 	foreach my $divid (sort keys %{ $athlete->{ div }}) {
 		my $div = $athlete->{ div }{ $divid };
-		if(    exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ finals } }; }
-		elsif( decision( $div, 'semfin' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ semfin } }; }
+		if   ( decision( $div, 'semfin' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ semfin } }; }
 		elsif( decision( $div, 'prelim' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ prelim } }; }
+		elsif( exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ finals } }; }
+		elsif( exists $div->{ semfin }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ semfin } }; }
+		elsif( exists $div->{ prelim }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ prelim } }; }
 		else                               { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => '-' }; }
 	}
 }
@@ -73,4 +96,9 @@ sub decision {
 	my $round = shift;
 	return 0 unless exists $div->{ $round };
 	return $div->{ $round } =~ /^(?:DSQ|WDR)$/;
+}
+
+sub half {
+	my $value = int( shift );
+	return sprintf( "%d", ($value +1)/2 );
 }
