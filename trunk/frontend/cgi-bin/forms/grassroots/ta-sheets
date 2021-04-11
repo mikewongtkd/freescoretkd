@@ -55,7 +55,8 @@ print <<EOF;
 			}
 
 			.results {
-				page-berak-inside: avoid;
+				page-break-inside: avoid;
+				page-break-after: always;
 			}
 
 			.results table {
@@ -108,10 +109,10 @@ foreach my $division (@divisions) {
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
-					<th class="form">$athlete->{ info }{ video }{ forms }</th>
+					<th class="form">Board Breaking</th>
 					<th class="decision">Decisions</th>
-				</tr>
-				</thead>
+				 </tr>
+				 </thead>
 				<tbody>
 EOF
 	my $n = $#{$division->{ athletes }};

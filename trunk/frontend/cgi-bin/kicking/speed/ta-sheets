@@ -55,12 +55,14 @@ print <<EOF;
 			}
 
 			.results {
-				page-berak-inside: avoid;
+				page-break-inside: avoid;
+				page-break-after: always;
 			}
 
 			.results table {
 				width: 720px;
 				page-break-inside: avoid;
+				page-break-after: always;
 			}
 			.results thead tr { background: #eee; }
 			.results thead th {

@@ -1,9 +1,6 @@
 #! /usr/bin/perl
 use Try::Tiny;
 use CGI;
-use File::Slurp qw( read_file );
-use List::Util qw( reduce );
-use List::MoreUtils qw( minmax );
 use JSON::XS;
 use Data::Dumper;
 
@@ -27,7 +24,7 @@ try {
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
-		foreach my $ring ( qw( 1 2 3 )) {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
@@ -40,8 +37,6 @@ try {
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
-my $branding = '/var/www/html/images/branding/reports.css';
-$branding = -e $branding ? read_file( $branding ) : '';
 
 print $cgi->header();
 
@@ -54,117 +49,81 @@ print <<EOF;
 				font-family: Optima;
 			}
 			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 640px;
-				height: 20px;
-			}
-			.division .description {
-				float: left;
-			}
-			.division .ring {
-				float: right;
+				margin-top: 60px;
+				width: 720px;
+				height: 22px;
 			}
 
 			.results {
-				position: relative;
-				font-family: HelveticaNeue;
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
+
 			.results table {
-				width: 640px;
+				width: 720px;
+				page-break-inside: avoid;
 			}
-			.results th {
-				margin-top: 8px;
+			.results thead tr { background: #eee; }
+			.results thead th {
 				border-top: 1pt solid #ccc;
 				border-bottom: 1pt solid #ccc;
 				padding: 0 4px 0 4px;
 				text-align: left;
+				height: 22px;
 			}
-			.results th.number  { width: 20px; }
-			.results th.athlete { width: 240px; }
+			.results thead th.number  { width: 20px; }
+			.results thead th.noc     { width: 80px; }
+			.results thead th.athlete { width: 860px; }
+			.results thead th.form    { width: 200px; }
+			.results td.decision      { text-align: center; color: red; }
 
-			.results td { 
+			.results tbody td { 
 				padding: 2px 4px 2px 4px;
 			}
-			.results td .ignore {
-				text-decoration: line-through;
-			}
-			.results td .notes {
-				font-size: 9pt;
-			}
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
 
-$branding
+			.results tbody tr:nth-child( even ) { background: #eee; }
+			.results tbody tr:nth-child( odd  ) { background: #fff; }
+
+			.header, .header-space { height: 225px; }
+			.footer, .footer-space { height: 50px; }
+			.header { position: fixed; top: 0; }
+			.footer { position: fixed; bottom: 0; }
+
 		</style>
 	</head>
 	<body>
 	<table>
 	<thead><tr><td><div class="header-space"> </div></td></tr></thead>
 	<tbody><tr><td>
-
 EOF
-
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	my $placed = {};
 	my $i = 0;
-	foreach my $place (@{ $division->{ places }}) {
-		foreach my $j (1 .. $place->{ medals }) {
-			my $k = $division->{ placements }{ finals }[ $i ];
-			$placed->{ $k } = $place->{ place };
-			$i++;
-		}
-	}
-
 	print <<EOF;
 		<div class="results">
-		<div class="division"><b>Division $name</b> &mdash; $division->{ description }</div>
-		<table border=0 cellpadding=0 cellspacing=0>
-			<tr>
-				<th class="number">#</th>
-				<th class="number">NOC</th>
-				<th class="athlete">Name</th>
-				<th class="tech"></th>
-EOF
-	foreach my $i ( 0 .. $judges - 1 ) { print $i == 0 ? "<th></th>" : "<th></th>"; }
-	print <<EOF;
-				<th></th>
-				<th></th>
-			</tr>
+			<div class="division"><b>Division $name</b> &mdash; $division->{ description }</div>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<thead>
+				<tr>
+					<th class="number">#</th>
+					<th class="noc">NOC</th>
+					<th class="athlete">Name</th>
+					<th class="form"></th>
+					<th class="decision"></th>
+				</tr>
+				</thead>
+				<tbody>
 EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
-		my $j        = $division->{ placements }{ finals }[ $i ];
-		my $athlete  = int( @{ $division->{ placements }{ finals }}) == 0 ? $division->{ athletes }[ $i ] : $division->{ athletes }[ $j ];
-		my $decision = $athlete->{ decision };
-		my $rank     = $i < 3 ? $i + 1 : 3;
-		$rank = $decision eq 'disqualify' || $decision eq 'withdraw' ? '-' : $rank;
-		print "<tr><td>$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
-		my $technical = sprintf( "%.2f", $athlete->{ original }{ finals }{ technical }{ score });
-		print $technical == 0 ? '<td></td>' : "<td></td>";
-		my $presentation = $athlete->{ adjusted }{ finals }{ presentation };
-		foreach my $i ( 0 .. $division->{ judges } - 1) {
-			my $score  = $athlete->{ scores }{ finals }[ $i ];
-			my $pre    = sprintf( "%.1f", reduce { $a + $b } values %{$score->{ presentation }});
-			my $ignore = $i == $presentation->{ high }{ index } || $i == $presentation->{ low }{ index };
-			if( $pre == 0 ) { 
-				print "<td></td>";
-			} else {
-				print $ignore ? "<td><span class=\"ignore\"></span></td>" : "<td></td>";
-			}
-		}
-		my $pre = sprintf( "%.2f", $presentation->{ mean });
-		print $pre == 0 ? "<td></td>" : "<td></td>";
-		my $score = $decision ? $decision : sprintf( "%.2f", $athlete->{ adjusted }{ finals }{ total } );
-		print $score == 0 ? "<td></td>" : "<td></td>";
-		print "</tr>\n";
+		my $athlete = $division->{ athletes }[ $i ];
+		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td></td><td class=\"decision\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
 	}
 	print <<EOF;
-		</table>
+				</tbody>
+			</table>
 		</div>
 EOF
 }
@@ -180,11 +139,23 @@ print <<EOF;
 EOF
 
 # ============================================================
+sub ordinal {
+# ============================================================
+	my $n = shift;
+	my $d = $n % 10;
+	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+	elsif( $d == 1 )           { return $n . 'st'; }
+	elsif( $d == 2 )           { return $n . 'nd'; }
+	elsif( $d == 3 )           { return $n . 'rd'; }
+	else                       { return $n . 'th'; }
+}
+
+# ============================================================
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
 	my $config = [
-    '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
 		'/var/www/html/freescore/include/php/config.php',
 		'/var/www/html/include/php/config.php',
 		'/var/www/freescore/include/php/config.php',

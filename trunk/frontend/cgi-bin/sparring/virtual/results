@@ -68,12 +68,11 @@ print <<EOF;
 
 			.results {
 				position: relative;
-				font-family: HelveticaNeue;
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
 			.results table {
-				width: 640px;
+				width: 720px;
 			}
 			.results th {
 				margin-top: 8px;

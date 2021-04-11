@@ -55,7 +55,8 @@ print <<EOF;
 			}
 
 			.results {
-				page-berak-inside: avoid;
+				page-break-inside: avoid;
+				page-break-after: always;
 			}
 
 			.results table {
