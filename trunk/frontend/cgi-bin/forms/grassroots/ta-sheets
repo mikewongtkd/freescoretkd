@@ -58,7 +58,8 @@ print <<EOF;
 			}
 
 			.results {
-				page-berak-inside: avoid;
+				page-break-inside: avoid;
+				page-break-after: always;
 			}
 
 			.results table {
@@ -76,7 +77,7 @@ print <<EOF;
 			.results thead th.number  { width: 20px; }
 			.results thead th.noc     { width: 80px; }
 			.results thead th.athlete { width: 860px; }
-			.results .decision        { color: #d9534f; }
+			.results td.decisions     { text-align: center; color: red; }
 
 			.results tbody td {
 				padding: 2px 4px 2px 4px;
@@ -111,7 +112,8 @@ foreach my $division (@divisions) {
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
-					<th class="decision">&nbsp;</th>
+					<th class="form">Board Breaking</th>
+					<th class="decisions">Decisions</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -119,7 +121,7 @@ EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
 		my $athlete = $division->{ athletes }[ $i ];
-		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td>$athlete->{ info }{ video }{ decision }</td></tr>\n";
+		print "\t\t\t\t<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$athlete->{ info }{ noc }</td><td class=\"name\">$athlete->{ name }</td><td class=\"form\"></td><td class=\"decisions\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
 	}
 	print <<EOF;
 				</tbody>

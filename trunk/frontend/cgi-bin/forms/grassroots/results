@@ -54,8 +54,8 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 640px;
-				height: 20px;
+				width: 720px;
+				height: 22px;
 			}
 			.division .description {
 				float: left;
@@ -66,12 +66,11 @@ print <<EOF;
 
 			.results {
 				position: relative;
-				font-family: HelveticaNeue;
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
 			.results table {
-				width: 640px;
+				width: 720px;
 			}
 			.results th {
 				margin-top: 8px;
