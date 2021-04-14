@@ -511,7 +511,7 @@ sub handle_division_pool_resolve {
 
 		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO RECOGNIZED INTERFACES
 		delete $division->{ redirect } if exists $division->{ redirect };
-		$division->{ redirect } = 'worldclass' if( $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae';
+		$division->{ redirect } = 'worldclass' if( $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae' );
 
 		$division->write();
 		$version->commit( $division, $message );
