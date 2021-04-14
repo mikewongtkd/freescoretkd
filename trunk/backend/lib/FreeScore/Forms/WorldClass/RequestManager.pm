@@ -831,12 +831,16 @@ sub handle_division_pool_resolve {
 		my $response = $division->resolve_pool();
 		$request->{ response } = $response;
 
-		$division->write();
-		$version->commit( $division, $message );
-
 		my $round    = $division->{ round };
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+
+		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
+		delete $division->{ redirect } if exists $division->{ redirect };
+		$division->{ redirect } = 'freestyle' if( $round eq 'finals' && $form == 0 && $complete && $division->{ competition } eq 'mixed-poomsae' );
+
+		$division->write();
+		$version->commit( $division, $message );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
