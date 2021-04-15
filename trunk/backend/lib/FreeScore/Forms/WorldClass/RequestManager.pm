@@ -832,8 +832,8 @@ sub handle_division_pool_resolve {
 		$request->{ response } = $response;
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
 		delete $division->{ redirect } if exists $division->{ redirect };
@@ -902,8 +902,8 @@ sub handle_division_pool_score {
 		}
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 
@@ -1026,8 +1026,8 @@ sub handle_division_score {
 		$version->commit( $division, $message );
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
