@@ -233,7 +233,7 @@ sub rank_athletes {
 	}
 
 	# ===== MIXED POOMSAE: ENRICH FINAL ROUND WITH FREESTYLE SCORES
-	my $mixed     = $self->{ competition } eq 'mixed-poomsae' && $round eq 'finals';
+	my $mixed     = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae' && $round eq 'finals';
 	my $freestyle = undef;
 	if( $mixed ) {
 		my $subdir    = { worldclass => $FreeScore::Forms::WorldClass::SUBDIR, freestyle => $FreeScore::Forms::FreeStyle::SUBDIR };
@@ -1229,7 +1229,7 @@ sub write {
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
 	foreach my $field ( qw( matchdiv thirds competition redirect )) {
-		print FILE "# $field=$self->{ $field }\n" if $self->{ $field };
+		print FILE "# $field=$self->{ $field }\n" if exists $self->{ $field } && defined( $self->{ $field });
 	}
 	foreach my $round ($self->rounds()) {
 		my $order = $self->{ order }{ $round };
