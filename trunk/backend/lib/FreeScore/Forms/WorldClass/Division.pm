@@ -1224,11 +1224,11 @@ sub write {
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
 	print FILE "# timers=$self->{ timers }\n" if exists( $self->{ timers }) && defined( $self->{ timers } );
 	print FILE "# method=" . lc( $self->{ method } ) . "\n" if exists( $self->{ method } ) && defined( $self->{ method } );
+	print FILE "# vidsetup=$division->{ vidsetup } eq '2-forms-1-video'\n" if exists( $self->{ vidsetup }) && defined( $self->{ vidsetup });
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	print FILE "# vidsetup=$division->{ vidsetup } eq '2-forms-1-video'\n" if exists( $self->{ vidsetup }) && defined( $self->{ vidsetup });
 	foreach my $field ( qw( matchdiv thirds competition redirect )) {
 		print FILE "# $field=$self->{ $field }\n" if exists $self->{ $field } && defined( $self->{ $field });
 	}
