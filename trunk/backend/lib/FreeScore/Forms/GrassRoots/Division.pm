@@ -15,7 +15,7 @@ sub read {
 	my $index = 0;
 	$self->{ judges } = 3; # Default value
 	$self->{ places } = [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
-	$self->{ round }  = 'finals';
+	$self->{ round }  = 'fin';
 
 	my $json = new JSON::XS();
 
@@ -163,11 +163,11 @@ sub calculate_placements {
 		# Complete, unresolved
 		if( @$tied ) { 
 			$self->{ tied } = $tied;       
-			if( $self->{ round } eq 'finals' ) {
+			if( $self->{ round } eq 'fin' ) {
 				my $first = $tied->[ 0 ]{ tied }[ 0 ];
 				$self->{ current } = $first;
 			}
-			$self->{ round } = 'tiebreaker';
+			$self->{ round } = 'tb';
 
 		# Complete, resolved
 		} else { 
