@@ -2,9 +2,12 @@ package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
 use FreeScore::Forms::Time;
+use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use FreeScore::Forms::WorldClass::Division::Round::Pool;
+use FreeScore::Forms::FreeStyle;
+use FreeScore::Forms::FreeStyle::Division;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
 use Math::Round qw( round );
@@ -229,12 +232,25 @@ sub rank_athletes {
 		return;
 	}
 
+	# ===== MIXED POOMSAE: ENRICH FINAL ROUND WITH FREESTYLE SCORES
+	my $mixed     = $self->{ competition } eq 'mixed-poomsae' && $round eq 'finals';
+	my $freestyle = undef;
+	if( $mixed ) {
+		my $subdir    = { worldclass => $FreeScore::Forms::WorldClass::SUBDIR, freestyle => $FreeScore::Forms::FreeStyle::SUBDIR };
+		my $path      = $self->{ path }; $path =~ s/$subdir->{ worldclass }/$subdir->{ freestyle }/;
+		my $divid     = $self->{ name };
+
+		$freestyle    = new FreeScore::Forms::FreeStyle( $path, $divid );
+	}
+
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
 	@$placement = sort {
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
 		my $x = $self->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
 		my $y = $self->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
 		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
+
+		$comparison = _compare_mixed( $a, $b, $self, $freestyle ) if( $mixed );
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		resolve_ties( $a, $b, $x, $y );
@@ -1548,6 +1564,17 @@ sub rounds {
 
 	if( /^aau-single-cutoff$/ ) { return ( qw( prelim semfin prefin ro4a ro4b ro2 )); }
 	else                        { return ( qw( prelim semfin finals )); }
+}
+
+# ============================================================
+sub _compare_mixed {
+# ============================================================
+	my $i          = shift;
+	my $j          = shift;
+	my $recognized = shift;
+	my $freestyle  = shift;
+
+	# MW Finish this later
 }
 
 # ============================================================
