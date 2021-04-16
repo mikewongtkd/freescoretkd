@@ -621,6 +621,25 @@ sub record_decision {
 }
 
 # ============================================================
+sub redirect_clients {
+# ============================================================
+#** @method ( target )
+#   @brief Sets internal flag for redirection
+#*
+	my $self     = shift;
+	my $target   = shift;
+	my $round    = $self->{ round };
+	my $form     = $self->{ form };
+	my $comp     = $self->{ competition };
+	my $athlete  = $self->current_athlete();
+	my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+
+	if( $target eq 'off' ) { delete $self->{ redirect }; return; }
+
+	$self->{ redirect } = $target;
+}
+
+# ============================================================
 sub remove_from_list {
 # ============================================================
 #** @method ( list_name, athlete_index )
