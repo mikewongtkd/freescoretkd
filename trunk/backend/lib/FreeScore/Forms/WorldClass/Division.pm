@@ -628,12 +628,11 @@ sub redirect_clients {
 #*
 	my $self     = shift;
 	my $target   = shift;
-	my $round    = $self->{ round };
-	my $form     = $self->{ form };
-	my $comp     = $self->{ competition };
-	my $athlete  = $self->current_athlete();
-	my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
+	if( ! $target ) {
+		if( exists $self->{ redirect } && $self->{ redirect }) { return $self->{ redirect }; }
+		else { return 0; }
+	}
 	if( $target eq 'off' ) { delete $self->{ redirect }; return; }
 
 	$self->{ redirect } = $target;

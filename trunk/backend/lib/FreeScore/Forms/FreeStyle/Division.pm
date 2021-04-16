@@ -629,6 +629,24 @@ sub record_score {
 }
 
 # ============================================================
+sub redirect_clients {
+# ============================================================
+#** @method ( target )
+#   @brief Sets internal flag for redirection
+#*
+	my $self     = shift;
+	my $target   = shift;
+
+	if( ! $target ) {
+		if( exists $self->{ redirect } && $self->{ redirect }) { return $self->{ redirect }; }
+		else { return 0; }
+	}
+	if( $target eq 'off' ) { delete $self->{ redirect }; return; }
+
+	$self->{ redirect } = $target;
+}
+
+# ============================================================
 sub remove_athlete {
 # ============================================================
 	my $self = shift;

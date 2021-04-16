@@ -5,6 +5,8 @@ use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::Schedule;
+use FreeScore::Forms::FreeStyle;
+use FreeScore::Forms::FreeStyle::Division;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -805,10 +807,19 @@ sub handle_division_pool_judge_ready {
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 		
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
 		my $comp = exists $division->{ competition } ? $division->{ competition } : '';
 		if( $comp eq 'mixed-poomsae' ) {
-			# my $freestyle = new FreeScore::Forms::FreeStyle::Division( ... );
-			# $freestyle->redirect_clients( 'off' ) if( $response->{ responded } >= $size );
+			my $divid     = $division->{ name };
+			my $path      = $self->{ path }; $path =~ s/$FreeScore::Forms::WorldClass::SUBDIR/$FreeScore::Forms::FreeStyle::SUBDIR/;
+			my $freestyle = new FreeScore::Forms::FreeStyle::Division( $path, $divid );
+			my $all_here  = $response->{ responded } >= $size;
+
+			# If all judges are in the Recognized interface, then disable Freestyle interface redirection
+			if( $freestyle->redirect_clients() && $all_here ) {
+				$freestyle->redirect_clients( 'off' );
+				$freestyle->write();
+			}
 		}
 
 		$division->write();

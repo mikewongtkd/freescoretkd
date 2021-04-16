@@ -4,6 +4,8 @@ use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::FreeStyle;
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Division;
 use FreeScore::Registration::USAT;
 use File::Slurp qw( read_file );
 use JSON::XS;
@@ -471,6 +473,21 @@ sub handle_division_pool_judge_ready {
 		my $response = $division->pool_judge_ready( $size, $judge );
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
+
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		my $comp = exists $division->{ competition } ? $division->{ competition } : '';
+		if( $comp eq 'mixed-poomsae' ) {
+			my $divid      = $division->{ name };
+			my $path       = $self->{ path }; $path =~ s/$FreeScore::Forms::FreeStyle::SUBDIR/$FreeScore::Forms::WorldClass::SUBDIR/;
+			my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid );
+			my $all_here   = $response->{ responded } >= $size;
+
+			# If all judges are in the Freestyle interface, then disable Recognized interface redirection
+			if( $worldclass->redirect_clients() && $all_here ) {
+				$worldclass->redirect_clients( 'off' );
+				$worldclass->write();
+			}
+		}
 
 		$division->write();
 
