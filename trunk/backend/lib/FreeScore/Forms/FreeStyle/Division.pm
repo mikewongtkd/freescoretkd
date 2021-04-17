@@ -272,6 +272,31 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub filter_athletes {
+# ============================================================
+#** @method ( athlete_list )
+#   @brief  Filters out athletes that are not in athlete_list, and reorders to match the list
+#*
+	my $self = shift;
+	my $list = shift;
+
+	# Do nothing if the division already matches the requested athlete list
+	return if( $#$list == $#{$self->{ athletes }} && all { $self->{ athletes }[ $_ ]{ name } eq $list->[ $_ ]{ name } } (0 .. $#$list));
+
+	# Otherwise filter the list
+	my @athletes = @{ $self->{ athletes }};
+	my $lookup   = { map { $_->{ name } => $_ } @athletes };
+	my $filtered = [ map { $lookup->{ $_->{ name }} } @$list ];
+	my $order    = [ 0 .. $#$list ];
+	my $round    = $self->{ round };
+
+	$self->{ athletes }        = $filtered;
+	$self->{ order }{ $round } = $order;
+
+	return 1;
+}
+
+# ============================================================
 sub from_json {
 # ============================================================
 #** @method ( json_division_data )

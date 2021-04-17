@@ -44,6 +44,7 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
+		filter_athletes    => \&handle_division_filter_athletes,
 		judge_departure    => \&handle_division_judge_departure,
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
@@ -326,6 +327,28 @@ sub handle_division_edit_athletes {
 		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
 		$division->edit_athletes( $request->{ athletes } );
 		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_filter_athletes {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+
+	print STDERR "Filtering division athletes.\n" if $DEBUG;
+
+	try {
+		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
+		$division->filter_athletes( $request->{ athletes }) && $division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {

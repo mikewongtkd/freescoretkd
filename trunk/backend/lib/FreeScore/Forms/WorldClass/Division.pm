@@ -236,11 +236,33 @@ sub rank_athletes {
 	my $mixed     = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae' && $round eq 'finals';
 	my $freestyle = undef;
 	if( $mixed ) {
-		my $subdir    = { worldclass => $FreeScore::Forms::WorldClass::SUBDIR, freestyle => $FreeScore::Forms::FreeStyle::SUBDIR };
-		my $path      = $self->{ path }; $path =~ s/$subdir->{ worldclass }/$subdir->{ freestyle }/;
-		my $divid     = $self->{ name };
+		my $subdir = { recognized => $FreeScore::Forms::WorldClass::SUBDIR, freestyle => $FreeScore::Forms::FreeStyle::SUBDIR };
+		my $path   = $self->{ path };
+		my $divid  = $self->{ name };
+		my ($ring) = $path =~ /ring(\d+)/; $ring = int( $ring );
+		my $rname  = sprintf( "ring%02d", $ring );
 
-		$freestyle    = new FreeScore::Forms::FreeStyle( $path, $divid );
+		$path =~ s|^$FreeScore::PATH/||;
+		$path =~ s|$FreeScore::Forms::WorldClass::SUBDIR/||;
+		$path =~ s|$rname||;
+		$path =~ s|/$||;
+
+		$path = join( '/', $FreeScore::PATH, $path, $FreeScore::Forms::FreeStyle::SUBDIR, $rname );
+
+		$freestyle = new FreeScore::Forms::FreeStyle::Division( $path, $divid, $ring );
+
+		# Annotate each athlete with their corresponding freestyle score; mark them complete if they have a freestyle score
+		my $order = $self->{ order }{ $round };
+		foreach my $i ( 0 .. $#$order ) {
+			my $j        = $order->[ $i ];
+			my $athlete  = $self->{ athletes }[ $j ];
+			my $score    = { freestyle => $freestyle->{ athletes }[ $i ]}; # Really the athlete object, but more readable as "score"
+			my $complete = all { exists $_->{ total } && $_->{ total } > 0 } map { $score->{ freestyle }{ $_ }{ $round } } (qw( adjusted original ));
+			my $fscore   = $complete ? { map { ( $_ => $score->{ freestyle }{ $_ }{ $round })} (qw( adjusted original ))} : {};
+
+			$athlete->{ scores }{ $round }{ complete } = $complete ? 1 : 0;
+			$athlete->{ info }{ freestyle } = $fscore;
+		}
 	}
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
@@ -248,24 +270,31 @@ sub rank_athletes {
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
 		my $x = $self->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
 		my $y = $self->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
-		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
-		$comparison = _compare_mixed( $a, $b, $self, $freestyle ) if( $mixed );
+		my $comparison = undef;
 
-		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
-		resolve_ties( $a, $b, $x, $y );
+		if( $mixed ) {
+			$comparison = _compare_mixed( $a, $b, $self );
 
-		# ===== COMPARE BY TIE-BREAKERS IF TIED
-		if( _is_tie( $comparison )) {
-			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y );
+		} else {
+			$comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
+
+			# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
+			resolve_ties( $a, $b, $x, $y );
+
+			# ===== COMPARE BY TIE-BREAKERS IF TIED
+			if( _is_tie( $comparison )) {
+				$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y );
+			}
 		}
 
 		$comparison;
 	} @athlete_indices;
 
 	# ===== ASSIGN PLACEMENTS
-	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
-	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete
+	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement;                  # Athlete is assigned to round
+	if( $mixed ) { @$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }{ complete }; } @$placement; } # Athlete's score is complete for mixed (calculated above)
+	else         { @$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; } # Athlete's score is complete for others (calculated de novo)
 
 	$self->{ placement }{ $round } = $placement;
 
@@ -1224,12 +1253,11 @@ sub write {
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
 	print FILE "# timers=$self->{ timers }\n" if exists( $self->{ timers }) && defined( $self->{ timers } );
 	print FILE "# method=" . lc( $self->{ method } ) . "\n" if exists( $self->{ method } ) && defined( $self->{ method } );
-	print FILE "# vidsetup=$division->{ vidsetup } eq '2-forms-1-video'\n" if exists( $self->{ vidsetup }) && defined( $self->{ vidsetup });
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	foreach my $field ( qw( matchdiv thirds competition redirect )) {
+	foreach my $field ( qw( matchdiv thirds competition redirect vidsetup )) {
 		print FILE "# $field=$self->{ $field }\n" if exists $self->{ $field } && defined( $self->{ $field });
 	}
 	foreach my $round ($self->rounds()) {
@@ -1466,7 +1494,7 @@ sub resolve_ties {
 	return unless( $xt == $yt && $xt != 0 );
 
 	my $json = new JSON::XS();
-  my $n    = int( @{$x->{ forms }});
+	my $n    = int( @{$x->{ forms }});
 	my $xn   = $x->{ notes } ? $json->decode( $x->{ notes }) : {};
 	my $yn   = $y->{ notes } ? $json->decode( $y->{ notes }) : {};
 
@@ -1573,9 +1601,52 @@ sub _compare_mixed {
 	my $i          = shift;
 	my $j          = shift;
 	my $recognized = shift;
-	my $freestyle  = shift;
+	my $round      = 'finals';
 
-	# MW Finish this later
+	my $a = { recognized => $recognized->{ athletes }[ $i ]{ scores }{ $round }, freestyle => $recognized->{ athletes }[ $i ]{ info }{ freestyle }};
+	my $b = { recognized => $recognized->{ athletes }[ $j ]{ scores }{ $round }, freestyle => $recognized->{ athletes }[ $j ]{ info }{ freestyle }};
+
+	$a->{ total } = _real( $a->{ recognized }{ adjusted }{ total }) + _real( $a->{ freestyle }{ adjusted }{ total });
+	$b->{ total } = _real( $b->{ recognized }{ adjusted }{ total }) + _real( $b->{ freestyle }{ adjusted }{ total });
+	$a->{ tb1 }   = _real( $a->{ freestyle }{ adjusted }{ total });
+	$b->{ tb1 }   = _real( $b->{ freestyle }{ adjusted }{ total });
+	$a->{ tb2 }   = _real( $a->{ recognized }{ allscore }{ total }) + _real( $a->{ freestyle }{ original }{ total });
+	$b->{ tb2 }   = _real( $b->{ recognized }{ allscore }{ total }) + _real( $b->{ freestyle }{ original }{ total });
+
+	if( $a->{ total } == $b->{ total }) {
+		my $json = new JSON::XS();
+		my $an   = {};
+		my $bn   = {};
+		if     ( $a->{ tb1 } > $b->{ tb1 }) {
+			$an->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $a->{ tb1 }" };
+			$bn->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $b->{ tb1 }" };
+
+		} elsif( $b->{ tb1 } > $a->{ tb1 }) {
+			$an->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $a->{ tb1 }" };
+			$bn->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $b->{ tb1 }" };
+
+		} else {
+			$an->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $a->{ tb1 }" };
+			$bn->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $b->{ tb1 }" };
+
+			if     ( $a->{ tb2 } > $b->{ tb2 }) {
+				$an->{ 'total' } = { results => 'win',  reason => "Total $a->{ tb2 }" };
+				$bn->{ 'total' } = { results => 'loss', reason => "Total $b->{ tb2 }" };
+
+			} elsif( $b->{ tb2 } > $a->{ tb2 }) {
+				$an->{ 'total' } = { results => 'loss', reason => "Total $a->{ tb2 }" };
+				$bn->{ 'total' } = { results => 'win',  reason => "Total $b->{ tb2 }" };
+
+			} else {
+				$an->{ 'total' } = { results => 'tie',  reason => "Total $a->{ tb2 }" };
+				$bn->{ 'total' } = { results => 'tie',  reason => "Total $b->{ tb2 }" };
+			}
+		}
+		$a->{ recognized }{ notes } = $json->canonical->encode( $an );
+		$b->{ recognized }{ notes } = $json->canonical->encode( $bn );
+	}
+
+	return $a->{ total } <=> $b->{ total } || $a->{ tb1 } <=> $b->{ tb1 } || $a->{ tb2 } <=> $b->{ tb2 };
 }
 
 # ============================================================
@@ -1652,6 +1723,16 @@ sub _parse_placement {
 		($round => [ @placements ]);
 	} split /;/, $value;
 	return { @rounds };
+}
+
+# ============================================================
+sub _real {
+# ============================================================
+	my $value     = shift;
+	my $precision = shift || 2;
+	my $format    = sprintf( "%%.%df", $precision );
+
+	return 0 + sprintf( $format, $value );
 }
 
 1;
