@@ -28,7 +28,8 @@ foreach my $uuid (keys %$athletes) {
 	foreach my $divid (sort keys %{ $athlete->{ div }}) {
 		my $div  = $athlete->{ div }{ $divid };
 		my $desc = $descriptions->{ $divid };
-		if(    exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ finals } }; }
+		if(    exists $div->{ fin }      ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ fin } }; }
+		elsif( exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ finals } }; }
 		elsif( decision( $div, 'semfin' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ semfin } }; }
 		elsif( decision( $div, 'prelim' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ prelim } }; }
 		else                               { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => '-' }; }
