@@ -2,37 +2,42 @@
 
 use JSON::XS();
 
-my $athletes = {};
+my $descriptions = {};
+my $athletes     = {};
 while( <> ) {
 	chomp;
-	my ($divid, $round, $place, $uuid, $noc, $name) = split /\t/;
+	my ($divid, $divdesc, $round, $place, $uuid, $noc, $name) = split /\t/;
 
-	$divid =~ s/[a-z]$//;
+	$divid =~ s/[a-z]$// unless $divid =~ /^t/;
+	$descriptions->{ $divid } = $divdesc;
 
 	if( ! exists $athletes->{ $uuid }) { $athletes->{ $uuid } = { name => $name, noc => $noc }; }
 
 	$athletes->{ $uuid }{ div }{ $divid }{ $round } = $place;
 }
 
-my $json = new JSON::XS();
-foreach $athlete (values %$athletes) {
-	print $json->canonical->pretty->encode( $athlete ) . "\n";
-}
+my $json     = new JSON::XS();
+my @athletes = sort { $a->{ name } cmp $b->{ name } } values %$athletes;
+open my $fh, '>', 'athletes.json' or die $!;
+print $fh $json->canonical->pretty->encode( \@athletes );
+close $fh;
 
 my @results = ();
 foreach my $uuid (keys %$athletes) {
 	my $athlete = $athletes->{ $uuid };
 	foreach my $divid (sort keys %{ $athlete->{ div }}) {
-		my $div = $athlete->{ div }{ $divid };
-		if(    exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ finals } }; }
-		elsif( decision( $div, 'semfin' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ semfin } }; }
-		elsif( decision( $div, 'prelim' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => $div->{ prelim } }; }
-		else                               { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, place => '-' }; }
+		my $div  = $athlete->{ div }{ $divid };
+		my $desc = $descriptions->{ $divid };
+		if(    exists $div->{ fin }      ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ fin } }; }
+		elsif( exists $div->{ finals }   ) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ finals } }; }
+		elsif( decision( $div, 'semfin' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ semfin } }; }
+		elsif( decision( $div, 'prelim' )) { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => $div->{ prelim } }; }
+		else                               { push @results, { uuid => $uuid, name => $athlete->{ name }, noc => $athlete->{ noc }, divid => $divid, divdesc => $desc, place => '-' }; }
 	}
 }
 
 foreach my $result (sort { by_divid( $a, $b ) } @results) {
-	printf "%s\t%s\t%s\t%s\t%s\n", @{$result}{ qw( divid place uuid noc name ) };
+	print join( "\t", @{$result}{ qw( divid divdesc place uuid noc name ) }) . "\n";
 }
 
 sub by_divid {

@@ -10,8 +10,7 @@ use Data::Dumper;
 use Cwd qw( getcwd );
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::WorldClass;
-use FreeScore::Forms::FreeStyle;
+use FreeScore::Sparring::Virtual;
 
 $FreeScore::PATH = getcwd();
 
@@ -21,13 +20,14 @@ my $divisions  = [];
 
 foreach my $day (map { sprintf( "day-%d-complete", $_ )} ( 1 .. 6 )) {
 	next unless -e "$FreeScore::PATH/$day";
-	foreach my $ring ( 1 .. 4 ) {
+	foreach my $ring ( 1 .. 3 ) {
 		my $rname = sprintf( "ring%02d", $ring );
-		next unless -e "$FreeScore::PATH/$day/$FreeScore::Forms::WorldClass::SUBDIR/$rname";
-		my $results = new FreeScore::Forms::WorldClass( $day, $ring );
+		my $path  = "$FreeScore::PATH/$day/$FreeScore::Sparring::Virtual::SUBDIR/$rname";
+		next unless -e $path;
+		my $results = new FreeScore::Sparring::Virtual( $day, $ring );
 		push @$divisions, @{ $results->{ divisions }};
 	}
-	@$divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @$divisions;
+	@$divisions = sort { $a->{ name } cmp $b->{ name } } @$divisions;
 	print_divisions( $divisions );
 }
 
@@ -40,13 +40,13 @@ sub print_divisions {
 		my $divdesc    = sprintf( "%-64s", substr( $division->{ description }, 0, 64 ));
 		my $athletes   = $division->{ athletes };
 		foreach my $round ( qw( prelim semfin finals )) {
-			next unless( exists( $division->{ order }{ $round }) && exists( $division->{ placement }{ $round }));
+			next unless( exists( $division->{ order }{ $round }) && exists( $division->{ placements }{ $round }));
 			foreach my $i (@{$division->{ order }{ $round }}) {
 				my $athlete  = $division->{ athletes }[ $i ];
-				my $place    = first_index { $i == $_ } @{ $division->{ placement }{ $round }};
+				my $place    = first_index { $i == $_ } @{ $division->{ placements }{ $round }};
 				my $name     = $athlete->{ name };
 				my $noc      = $athlete->{ info }{ noc };
-				my $video    = $json->decode( $athlete->{ info }{ video });
+				my $video    = $athlete->{ info }{ video };
 				my $uuid     = (split /\//, $video->{ $round }[ 0 ]{ file })[ 0 ];
 				my $decision = $video->{ $round }[ 0 ]{ decision };
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }

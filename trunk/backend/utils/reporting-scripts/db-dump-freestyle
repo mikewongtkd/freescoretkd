@@ -37,6 +37,7 @@ sub print_divisions {
 	my $divisions = shift;
 	foreach my $division (@$divisions) {
 		my $divid      = $division->{ name };
+		my $divdesc    = sprintf( "%-64s", substr( $division->{ description }, 0, 64 ));
 		my $athletes   = $division->{ athletes };
 		foreach my $round ( qw( prelim semfin finals )) {
 			next unless( exists( $division->{ order }{ $round }) && exists( $division->{ placements }{ $round }));
@@ -53,7 +54,7 @@ sub print_divisions {
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
 				$place = $decision if $decision;
 
-				print "$divid\t$round\t$place\t$uuid\t$noc\t$name\n";
+				print "$divid\t$divdesc\t$round\t$place\t$uuid\t$noc\t$name\n";
 			}
 		}
 	}
