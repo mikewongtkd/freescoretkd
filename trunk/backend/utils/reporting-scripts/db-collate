@@ -16,10 +16,11 @@ while( <> ) {
 	$athletes->{ $uuid }{ div }{ $divid }{ $round } = $place;
 }
 
-my $json = new JSON::XS();
-foreach $athlete (values %$athletes) {
-	print $json->canonical->pretty->encode( $athlete ) . "\n";
-}
+my $json     = new JSON::XS();
+my @athletes = sort { $a->{ name } cmp $b->{ name } } values %$athletes;
+open my $fh, '>', 'athletes.json' or die $!;
+print $fh $json->canonical->pretty->encode( \@athletes );
+close $fh;
 
 my @results = ();
 foreach my $uuid (keys %$athletes) {
@@ -35,7 +36,7 @@ foreach my $uuid (keys %$athletes) {
 }
 
 foreach my $result (sort { by_divid( $a, $b ) } @results) {
-	printf "%s\t%s\t%s\t%s\t%s\n", @{$result}{ qw( divid divdesc place uuid noc name ) };
+	print join( "\t", @{$result}{ qw( divid divdesc place uuid noc name ) }) . "\n";
 }
 
 sub by_divid {
