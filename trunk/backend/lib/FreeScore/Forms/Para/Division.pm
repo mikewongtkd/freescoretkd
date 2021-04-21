@@ -35,6 +35,7 @@ use strict;
 #   - [ form index ]
 #     - complete
 #     - penalties
+#     - choices
 #     - decision
 #       - withdraw
 #       - disqualify

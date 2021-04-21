@@ -32,8 +32,8 @@ use Carp;
 #       - technical
 #       - presentation
 #       - total
-#     - choices
 #     - penalties
+#     - choices
 #     - started
 #   - judge
 #     - [ judge index ]
