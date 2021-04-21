@@ -209,6 +209,11 @@ sub read {
 			my ($blank, $rowtype, $jid, $score) = split /\t/, $_, 4;
 			$score = $json->decode( $score );
 			$athletes->{ $context }{ pool }{ $round }{ $jid } = $score;
+
+		# ===== ATHLETE DECISION
+		} elsif( /^\tdecision\t/ ) {
+			my ($blank, $rowtype, $decision) = split /\t/, $_, 3;
+			$athletes->{ $context }{ decision }{ $round } = $decision;
 		}
 	}
 	close $fh;
@@ -230,7 +235,8 @@ sub read {
 		$self->{ order }{ $earliest } = [];
 		while( my $name = shift @{ $order->{ $earliest }}) {
 			my $athlete = $athletes->{ $name };
-			push @$aids, { name => $name, id => int( @$aids ), info => $athlete->{ info }, scores => $athlete->{ scores }, pool => $athlete->{ pool }};
+			my $entry   = { name => $name, id => int( @$aids ), %$athlete };
+			push @$aids, $entry;
 			delete $athletes->{ $name };
 			push @{$self->{ order }{ $earliest }}, $#$aids;
 		}
@@ -284,6 +290,7 @@ sub calculate_placements {
 		my $original_pres      = $j_ori_pres      <=> $i_ori_pres;
 		my $deductions         = $i_ori_ded       <=> $j_ori_ded;
 		my $vote_results       = $j_votes         <=> $i_votes;
+		my $decision           = _compare_decision( $i, $j, $round );
 
 		# Add tiebreaker notations
 		if( $adjusted_total == 0 ) {
@@ -291,7 +298,7 @@ sub calculate_placements {
 			$j->{ tiebreakers }{ $a } = { tb1 => $j_adj_pres, tb2 => $j_ori_pres, tb3 => $j_ori_ded, tb4 => $j_votes };
 		}
 
-		$adjusted_total || $adjusted_pres || $original_pres || $deductions || $vote_results;
+		$decision || $adjusted_total || $adjusted_pres || $original_pres || $deductions || $vote_results;
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -450,7 +457,7 @@ sub judge_technical_consensus {
 
 	# Apply stages
 	my $score = 0;
-	die "Technical stages not defined for $self->{ name } $!" unless exists $self->{ techinical }{ stages };
+	die "Technical stages not defined for $self->{ name } $!" unless exists $self->{ technical }{ stages };
 	foreach my $stage (@{$self->{ technical }{ stages }}) {
 		my $points = $total;
 		my $min    = $stage->{ min }; # e.g. 81
@@ -846,6 +853,11 @@ sub write {
 
 			print $fh "$athlete->{ name }$info\n";
 
+			# WRITE DECISIONS
+			if( exists $athlete->{ decision } && exists $athlete->{ decision }{ $round }) {
+				printf $fh "\tdecision\t$athlete->{ decision }{ $round }\n";
+			}
+
 			# WRITE EACH SCORE
 			if( exists $athlete->{ scores }{ $round } && ref( $athlete->{ scores }{ $round }) =~ /^array/i && @{ $athlete->{ scores }{ $round }}) {
 				foreach my $i ( 0 .. $#{$athlete->{ scores }{ $round }}) {
@@ -888,6 +900,23 @@ sub _real {
 # ============================================================
 	my $value = shift;
 	return 0 + sprintf( "%.2f", $value );
+}
+
+# ============================================================
+sub _compare_decision {
+# ============================================================
+	my $a          = shift;
+	my $b          = shift;
+	my $round      = shift;
+	my $decision   = { a => exists $a->{ decision } && exists $a->{ decision }{ $round } ? $a->{ decision }{ $round } : '', a => exists $b->{ decision } && exists $b->{ decision }{ $round } ? $b->{ decision }{ $round } : '' };
+	my $withdraw   = { a => $decision->{ a } eq 'withdraw',   b => $decision->{ b } eq 'withdraw'   };
+	my $disqualify = { a => $decision->{ a } eq 'disqualify', b => $decision->{ b } eq 'disqualify' };
+
+	if(    $decision->{ a } eq $decision->{ b }) { return  0; }
+	elsif( $withdraw->{ a })   { return $disqualify->{ b } ? 1 : -1; }
+	elsif( $disqualify->{ a }) { return $withdraw->{ b } ? -1 : 1; }
+	elsif( $withdraw->{ b } || $disqualify->{ b }) { return 1; }
+
 }
 
 # ============================================================
