@@ -46,7 +46,7 @@ use Carp;
 our @PENALTIES = qw( bounds timelimit restart );
 our @GAMJEOMS  = qw( misconduct );
 our @TIME      = qw( time );
-our @CHOICES    = qw( choice minordeduction majordeduction minorbonus majorbonus );
+our @CHOICES    = qw( choicededuction minordeduction majordeduction choicebonus minorbonus majorbonus );
 
 # ============================================================
 sub new {
