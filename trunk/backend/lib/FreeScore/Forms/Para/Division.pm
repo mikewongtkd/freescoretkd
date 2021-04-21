@@ -830,7 +830,7 @@ sub read {
 				my $r      = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$r->record_score( $form, $judge, $score );
 
-			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
+			# Penalties for out-of-bounds (0.3 per error), other (0.6 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
 			} elsif ( $judge =~ /^p/ ) {
 
 				my @criteria  = (@FreeScore::Forms::Para::Division::Round::PENALTIES, @FreeScore::Forms::Para::Division::Round::GAMJEOMS, @FreeScore::Forms::Para::Division::Round::TIME);
@@ -840,7 +840,7 @@ sub read {
 				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$r->record_penalties( $form, $penalties );
 
-			# Deductions for not drawn Poomsae (0.6 for not performing drawn Poomsae in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.5 additional deduction in P10 and P30 divisions), Taegeuk 4 to Taegeuk 7 (0.3 additional deduction in P10 to P30 divisions), Taegeuk 8 to Shipjin (0.0 additional deduction in P10 and P30 divisions)
+			# Deductions for not drawn Poomsae (0.6 for not performing drawn Poomsae in P10 and P30 divisions), Taegeuk 4 to Taegeuk 7 (0.3 additional deduction in P10 to P30 divisions), Taegeuk 1 to Taegeuk 3 (0.5 additional deduction in P10 and P30 divisions), Taegeuk 8 to Shipjin (0.0 additional deduction in P10 and P30 divisions)
 			} elsif ( $judge =~ /^d/ ) {
 
 				my @criteria   = (@FreeScore::Forms::Para::Division::Round::DEDUCTIONS);

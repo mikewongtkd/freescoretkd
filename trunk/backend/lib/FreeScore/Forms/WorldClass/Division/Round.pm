@@ -43,7 +43,7 @@ use Carp;
 #   (same substructure as forms)
 # - total
 
-our @PENALTIES = qw( bounds timelimit restart );
+our @PENALTIES = qw( bounds other timelimit restart );
 our @GAMJEOMS  = qw( misconduct );
 our @TIME      = qw( time );
 

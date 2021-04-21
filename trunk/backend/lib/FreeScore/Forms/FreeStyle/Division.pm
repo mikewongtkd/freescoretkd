@@ -25,6 +25,7 @@ use Data::Dumper;
 #       +- round{}
 #          +- time
 #          +- bounds
+#          +- other
 #          +- restart
 #          +- misconduct
 #    +- scores
@@ -239,7 +240,7 @@ sub calculate_scores {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds other restart ));
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A DECISION HAS BEEN RENDERED
