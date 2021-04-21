@@ -46,7 +46,7 @@ use Carp;
 our @PENALTIES = qw( bounds timelimit restart );
 our @GAMJEOMS  = qw( misconduct );
 our @TIME      = qw( time );
-our @CHOICES    = qw( deduction bonus );
+our @CHOICES    = qw( choice minordeduction majordeduction minorbonus majorbonus );
 
 # ============================================================
 sub new {
@@ -364,8 +364,8 @@ sub calculate_means {
 		# ===== CALCULATE ALL-SCORE MEANS
 		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
-		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties + $choices;
-		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties + $choices;
+		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties - $choices;
+		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties - $choices;
 
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
