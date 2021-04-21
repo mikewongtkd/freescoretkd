@@ -29,14 +29,7 @@ try {
 
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			my $schedule = {
-				1 => [ qw( c002 c001 )],
-			};
-			if( exists $schedule->{ $ring }) {
-				push @divisions, map { my $divid = $_; first { $_->{ name } eq $divid } @{ $results->{ divisions }} } @{ $schedule->{ $ring }};
-			} else {
-				push @divisions, @{ $results->{ divisions }};
-			}
+			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
@@ -49,7 +42,9 @@ try {
 
 };
 
-@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+my $schedule = read_schedule();
+my $div_lookup = { map { $_->{ name } => $_ } @divisions };
+@divisions = map { $div_lookup->{ $_ } } @{ $schedule->{ $ring }};
 
 print $cgi->header();
 
@@ -324,6 +319,27 @@ sub noc {
 	my $noc     = $athlete->{ info }{ noc };
 	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 	return uc $noc;
+}
+
+# ============================================================
+sub read_schedule {
+# ============================================================
+	my $files = [
+		'/usr/local/freescore/data/test/forms-worldclass/schedule.json',
+		'/usr/local/freescore/data/test/forms-worldclass/schedule-order.json'
+	];
+
+	my $found = undef;
+	foreach my $file (@$files) { next unless -e $file; $found = $file; }
+	unless( $found ) {
+		print "No schedule found\n";
+		return {};
+	}
+
+	my $text = read_file( $found );
+	my $json = new JSON::XS();
+	my $data = $json->decode( $text );
+	return $data;
 }
 
 # ============================================================

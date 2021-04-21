@@ -93,8 +93,10 @@ use Data::Dumper;
 #    +- round
 #    +- rest
 # +- technical
-#    +- cap
-#    +- scale
+#    +- stages[]
+#       +- min
+#       +- max
+#       +- scale
 # +- placements
 # +- places
 # +- state
@@ -437,8 +439,8 @@ sub judge_technical_consensus {
 	my $techniques = [ 0 .. 2 ];
 	my $consensus  = [];
 	my $total      = 0;
-	foreach my $i (@$techniques) {
 
+	foreach my $i (@$techniques) {
 		my $points = $i + 1;
 		my @counts = sort { $a <=> $b } map { int } grep { defined } map { $_->{ technical }[ $i ] } @$scores;
 		my $j      = int((int( @counts ) + 1)/2) - 1; # At least half of the judges agree
@@ -446,15 +448,25 @@ sub judge_technical_consensus {
 		$total += ($consensus->[ $i ] * $points);
 	}
 
-	# Apply score cap and scaling
-	my $cap   = $self->{ technical }{ cap };
-	my $scale = $self->{ technical }{ scale };
-	$total = $total > $cap ? $cap : $total;
+	# Apply stages
+	my $score = 0;
+	die "Technical stages not defined for $self->{ name } $!" unless exists $self->{ techinical }{ stages };
+	foreach my $stage (@{$self->{ technical }{ stages }}) {
+		my $points = $total;
+		my $min    = $stage->{ min }; # e.g. 81
+		my $max    = $stage->{ max }; # e.g. 160
+		my $scale  = $stage->{ scale };
+
+		next unless $points >= $min;
+		$points = $max if( $points > $max );
+		$points -= ($min - 1);
+		$score += $points / $scale;
+	}
 
 	# consensus: judge agreement distribution over techniques (e.g. judges agree there were 3 punches, 22 kicks, etc.)
 	# points:    total points for techniques
 	# score:     technical score
-	return { consensus => $consensus, points => $total, score => _real( $total / $scale )};
+	return { consensus => $consensus, points => $total, score => _real( $score )};
 }
 
 # ============================================================
