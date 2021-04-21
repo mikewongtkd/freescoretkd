@@ -822,7 +822,8 @@ sub read {
 			# Choices for not drawn Poomsae (0.6 for not performing drawn Poomsae in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.5 additional deduction in P10 and P30 divisions), Taegeuk 4 to Taegeuk 7 (0.3 additional deduction in P10 to P30 divisions), Taegeuk 8 to Shipjin (0.0 additional deduction in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.0 bonus in P20 divisions), Taegeuk 4 to Taegeuk 7 (0.3 bonus in P20 divisions), Taegeuk 8 to Shipjin (0.5 bonus in P20 divisions)
 			} elsif ( $judge =~ /^c/ ) {
 
-				my ($choices) = @score_criteria;
+				my @criteria  = (@FreeScore::Forms::Para::Division::Round::CHOICES);
+				my $penalties = { map { $_ => shift @score_criteria } @criteria };
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
 				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );

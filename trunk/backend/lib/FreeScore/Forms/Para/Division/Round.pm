@@ -32,6 +32,7 @@ use Carp;
 #       - technical
 #       - presentation
 #       - total
+#     - choices
 #     - penalties
 #     - started
 #   - judge
@@ -358,7 +359,7 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
-		# ===== CALCULATE CHOICE
+		# ===== CALCULATE CHOICES
 		my $choices = sum @{$form->{ choice }}{ ( @CHOICES ) };
 
 		# ===== CALCULATE ALL-SCORE MEANS
