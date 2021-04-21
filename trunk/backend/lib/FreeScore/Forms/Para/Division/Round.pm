@@ -49,7 +49,7 @@ our @PENALTIES  = qw( bounds timelimit restart );
 our @GAMJEOMS   = qw( misconduct );
 our @TIME       = qw( time );
 our @DEDUCTIONS = qw( choicededuction minordeduction majordeduction );
-our @BONUSES    = qw( choicebonus minorbonus majorbonus )
+our @BONUSES    = qw( choicebonus minorbonus majorbonus );
 
 # ============================================================
 sub new {
