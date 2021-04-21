@@ -824,7 +824,7 @@ sub read {
 			} elsif ( $judge =~ /^c/ ) {
 
 				my @criteria  = (@FreeScore::Forms::Para::Division::Round::CHOICES);
-				my $penalties = { map { $_ => shift @score_criteria } @criteria };
+				my $choices   = { map { $_ => shift @score_criteria } @criteria };
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
 				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
