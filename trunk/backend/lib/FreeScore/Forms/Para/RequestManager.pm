@@ -43,7 +43,8 @@ sub init {
 		award_penalty           => \&handle_division_award_penalty,
 		allow_punitive          => \&handle_division_allow_punitive,
 		award_punitive          => \&handle_division_award_punitive,
-		award_choice            => \&handle_division_award_choice,
+		award_deduction         => \&handle_division_award_deduction,
+		award_bonus             => \&handle_division_award_bonus,
 		clear_judge_score       => \&handle_division_clear_judge_score,
 		display                 => \&handle_division_display,
 		edit_athletes           => \&handle_division_edit_athletes,
@@ -233,25 +234,54 @@ sub handle_division_award_penalty {
 }
 
 # ============================================================
-sub handle_division_award_choice {
+sub handle_division_award_deduction {
 # ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $version  = new FreeScore::RCS();
-	my $athlete  = $division->current_athlete();
-	my $choice   = join( ", ", grep { $request->{ choices }{ $_ } > 0 } sort keys %{ $request->{ choices }} );
-	my $message  = $choice ? "Award $choice choice to $athlete->{ name }\n" : "Clear choices for $athlete->{ name }\n";
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+	my $version   = new FreeScore::RCS();
+	my $athlete   = $division->current_athlete();
+	my $deduction = join( ", ", grep { $request->{ deductions }{ $_ } > 0 } sort keys %{ $request->{ deductions }} );
+	my $message   = $deduction ? "Award $deduction choice to $athlete->{ name }\n" : "Clear deductions for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
 	try {
 		$version->checkout( $division );
-		$division->record_choices( $request->{ choices });
+		$division->record_deductions( $request->{ deductions });
+		$division->write();
+		$version->commit( $division, $message );
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_award_bonus {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+	my $version   = new FreeScore::RCS();
+	my $athlete   = $division->current_athlete();
+	my $bonus     = join( ", ", grep { $request->{ bonuses }{ $_ } > 0 } sort keys %{ $request->{ bonuses }} );
+	my $message   = $bonus ? "Award $bonus choice to $athlete->{ name }\n" : "Clear bonuses for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$version->checkout( $division );
+		$division->record_bonuses( $request->{ bonuses });
 		$division->write();
 		$version->commit( $division, $message );
 

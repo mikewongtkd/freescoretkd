@@ -35,7 +35,8 @@ use strict;
 #   - [ form index ]
 #     - complete
 #     - penalties
-#     - choices
+#     - deductions
+#     - bonuses
 #     - decision
 #       - withdraw
 #       - disqualify
@@ -593,22 +594,41 @@ sub record_penalties {
 }
 
 # ============================================================
-sub record_choices {
+sub record_deductions {
 # ============================================================
-#** @method ( choice_object )
-#   @brief Records the given choices
+#** @method ( deduction_object )
+#   @brief Records the given deductions
 #*
-	my $self      = shift;
-	my $choices   = shift;
+	my $self       = shift;
+	my $deductions = shift;
 
-	my $athlete   = $self->{ athletes }[ $self->{ current } ];
-	my $round     = $self->{ round };
-	my $form      = $self->{ form };
-	my $forms     = int( @{ $self->{ forms }{ $round }});
-	my $judges    = $self->{ judges };
+	my $athlete    = $self->{ athletes }[ $self->{ current } ];
+	my $round      = $self->{ round };
+	my $form       = $self->{ form };
+	my $forms      = int( @{ $self->{ forms }{ $round }});
+	my $judges     = $self->{ judges };
 
 	$athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-	$athlete->{ scores }{ $round }->record_choices( $form, $choices );
+	$athlete->{ scores }{ $round }->record_deductions( $form, $deductions );
+}
+
+# ============================================================
+sub record_bonuses {
+# ============================================================
+#** @method ( bonus_object )
+#   @brief Records the given bonuses
+#*
+	my $self    = shift;
+	my $bonuses = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $round   = $self->{ round };
+	my $form    = $self->{ form };
+	my $forms   = int( @{ $self->{ forms }{ $round }});
+	my $judges  = $self->{ judges };
+
+	$athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+	$athlete->{ scores }{ $round }->record_bonuses( $form, $bonuses );
 }
 
 # ============================================================
@@ -820,15 +840,25 @@ sub read {
 				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$r->record_penalties( $form, $penalties );
 
-			# Choices for not drawn Poomsae (0.6 for not performing drawn Poomsae in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.5 additional deduction in P10 and P30 divisions), Taegeuk 4 to Taegeuk 7 (0.3 additional deduction in P10 to P30 divisions), Taegeuk 8 to Shipjin (0.0 additional deduction in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.0 bonus in P20 divisions), Taegeuk 4 to Taegeuk 7 (0.3 bonus in P20 divisions), Taegeuk 8 to Shipjin (0.5 bonus in P20 divisions)
-			} elsif ( $judge =~ /^c/ ) {
+			# Deductions for not drawn Poomsae (0.6 for not performing drawn Poomsae in P10 and P30 divisions), Taegeuk 1 to Taegeuk 3 (0.5 additional deduction in P10 and P30 divisions), Taegeuk 4 to Taegeuk 7 (0.3 additional deduction in P10 to P30 divisions), Taegeuk 8 to Shipjin (0.0 additional deduction in P10 and P30 divisions)
+			} elsif ( $judge =~ /^d/ ) {
 
-				my @criteria  = (@FreeScore::Forms::Para::Division::Round::CHOICES);
-				my $choices   = { map { $_ => shift @score_criteria } @criteria };
-				my $forms     = int( @{ $self->{ forms }{ $round }});
-				my $judges    = $self->{ judges };
-				my $r         = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$r->record_choices( $form, $choices );
+				my @criteria   = (@FreeScore::Forms::Para::Division::Round::DEDUCTIONS);
+				my $deductions = { map { $_ => shift @score_criteria } @criteria };
+				my $forms      = int( @{ $self->{ forms }{ $round }});
+				my $judges     = $self->{ judges };
+				my $r          = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_deductions( $form, $deductions );
+
+			# Bonuses for Taegeuk 1 to Taegeuk 3 (0.0 bonus in P20 divisions), Taegeuk 4 to Taegeuk 7 (0.3 bonus in P20 divisions), Taegeuk 8 to Shipjin (0.5 bonus in P20 divisions)
+			} elsif ( $judge =~ /^b/ ) {
+
+				my @criteria   = (@FreeScore::Forms::Para::Division::Round::BONUSES);
+				my $bonuses = { map { $_ => shift @score_criteria } @criteria };
+				my $forms      = int( @{ $self->{ forms }{ $round }});
+				my $judges     = $self->{ judges };
+				my $r          = $athlete->{ scores }{ $round } = FreeScore::Forms::Para::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$r->record_bonuses( $form, $bonuses );
 
 			# Status notes describe athlete withdraw or disqualification
 			} elsif ( $judge =~ /^s/ ) {

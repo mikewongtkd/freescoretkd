@@ -33,7 +33,8 @@ use Carp;
 #       - presentation
 #       - total
 #     - penalties
-#     - choices
+#     - deductions
+#     - bonuses
 #     - started
 #   - judge
 #     - [ judge index ]
@@ -44,10 +45,11 @@ use Carp;
 #   (same substructure as forms)
 # - total
 
-our @PENALTIES = qw( bounds timelimit restart );
-our @GAMJEOMS  = qw( misconduct );
-our @TIME      = qw( time );
-our @CHOICES    = qw( choicededuction minordeduction majordeduction choicebonus minorbonus majorbonus );
+our @PENALTIES  = qw( bounds timelimit restart );
+our @GAMJEOMS   = qw( misconduct );
+our @TIME       = qw( time );
+our @DEDUCTIONS = qw( choicededuction minordeduction majordeduction );
+our @BONUSES    = qw( choicebonus minorbonus majorbonus )
 
 # ============================================================
 sub new {
@@ -149,16 +151,30 @@ sub record_penalties {
 }
 
 # ============================================================
-sub record_choices {
+sub record_deductions {
 # ============================================================
-# Records choices. Will overwrite.
+# Records deductions. Will overwrite.
 #------------------------------------------------------------
- 	my $self    = shift;
-	my $form    = shift;
-	my $choice  = shift;
+ 	my $self      = shift;
+	my $form      = shift;
+	my $deduction = shift;
 
-	foreach my $key (keys %$choice) {
-		$self->{ forms }[ $form ]{ choice }{ $key } = $choice->{ $key };
+	foreach my $key (keys %$deduction) {
+		$self->{ forms }[ $form ]{ deduction }{ $key } = $deduction->{ $key };
+	}
+}
+
+# ============================================================
+sub record_bonuses {
+# ============================================================
+# Records bonuses. Will overwrite.
+#------------------------------------------------------------
+ 	my $self   = shift;
+	my $form   = shift;
+	my $bonus  = shift;
+
+	foreach my $key (keys %$bonus) {
+		$self->{ forms }[ $form ]{ bonus }{ $key } = $bonus->{ $key };
 	}
 }
 
@@ -359,14 +375,17 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
-		# ===== CALCULATE CHOICES
-		my $choices = sum @{$form->{ choice }}{ ( @CHOICES ) };
+		# ===== CALCULATE DEDUCTIONS
+		my $deductions = sum @{$form->{ deduction }}{ ( @DEDUCTIONS ) };
+
+		# ===== CALCULATE BONUSES
+		my $bonuses = sum @{$form->{ bonus }}{ ( @BONUSES ) };
 
 		# ===== CALCULATE ALL-SCORE MEANS
 		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
 
-		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties - $choices;
-		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties - $choices;
+		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties - $deductions + $bonuses;
+		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties - $deductions + $bonuses;
 
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
@@ -577,9 +596,14 @@ sub string {
 			push @string, join( "\t", ('', $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )})) . "\n";
 		}
 
-		# ===== RECORD CHOICES
-		if( exists $form->{ choice } && keys %{ $form->{ choice }} && any { $_ } values %{ $form->{ choice }}) {
-			push @string, join( "\t", ('', $round, $form_id, 'c', @{$form->{ choice }}{ ( @CHOICES )})) . "\n";
+		# ===== RECORD DEDUCTIONS
+		if( exists $form->{ deduction } && keys %{ $form->{ deduction }} && any { $_ } values %{ $form->{ deduction }}) {
+			push @string, join( "\t", ('', $round, $form_id, 'd', @{$form->{ deduction }}{ ( @DEDUCTIONS )})) . "\n";
+		}
+
+		# ===== RECORD BONUSES
+		if( exists $form->{ bonus } && keys %{ $form->{ bonus }} && any { $_ } values %{ $form->{ bonus }}) {
+			push @string, join( "\t", ('', $round, $form_id, 'b', @{$form->{ bonus }}{ ( @BONUSES )})) . "\n";
 		}
 
 		# ===== RECORD SCORES
