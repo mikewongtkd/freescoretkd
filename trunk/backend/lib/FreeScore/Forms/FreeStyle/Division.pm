@@ -141,6 +141,9 @@ sub calculate_placements {
 	my $self     = shift;
 	my $athletes = $self->{ athletes };
 	my $round    = $self->{ round } or return;
+	my $mixed    = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae' && $round eq 'finals';
+
+	$self->enrich_athletes_with_recognized_scores() if $mixed;
 
 	my ($pending, $complete) = part { $athletes->[ $i ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
@@ -148,24 +151,8 @@ sub calculate_placements {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
-		my $i_adj = $i->{ adjusted }{ $round };
-		my $i_ori = $i->{ original }{ $round };
-		my $j_adj = $j->{ adjusted }{ $round };
-		my $j_ori = $j->{ original }{ $round };
-
-		my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
-		my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
-		my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
-
-		my $j_adj_total      = 0.0 + sprintf( "%.2f", $j_adj->{ total });
-		my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
-		my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
-
-		my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
-		my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
-		my $original_total     = $j_ori_total     <=> $i_ori_total;
-
-		$adjusted_total || $adjusted_technical || $original_total;
+		if( $mixed ) { _compare_mixed( $i, $j, $self ); }
+		else         { _compare_freestyle( $i, $j ); }
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -269,6 +256,39 @@ sub calculate_scores {
 			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
 			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation });
 		}
+	}
+}
+
+# ============================================================
+sub enrich_athletes_with_recognized_scores {
+# ============================================================
+	my $self   = shift;
+	my $subdir = { recognized => $FreeScore::Forms::WorldClass::SUBDIR, freestyle => $FreeScore::Forms::FreeStyle::SUBDIR };
+	my $path   = $self->{ path };
+	my $divid  = $self->{ name };
+	my ($ring) = $path =~ /ring(\d+)/; $ring = int( $ring );
+	my $rname  = sprintf( "ring%02d", $ring );
+
+	$path =~ s|^$FreeScore::PATH/||;
+	$path =~ s|$FreeScore::Forms::FreeStyle/||;
+	$path =~ s|$rname||;
+	$path =~ s|/$||;
+
+	$path = join( '/', $FreeScore::PATH, $path, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
+
+	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
+
+	# Annotate each athlete with their corresponding freestyle score; mark them complete if they have a freestyle score
+	my $order = $self->{ order }{ $round };
+	foreach my $i ( 0 .. $#$order ) {
+		my $j          = $order->[ $i ];
+		my $athlete    = $self->{ athletes }[ $j ];
+		my $score      = { worldclass => $worldclass->{ athletes }[ $i ]}; # Really the athlete object, but more readable as "score"
+		my $complete   = all { exists $_->{ total } && $_->{ total } > 0 } map { $score->{ worldclass }{ $_ }{ $round } } (qw( adjusted allscores )); # MW Make this work
+		my $recognized = $complete ? { map { ( $_ => $score->{ worldclass }{ $_ }{ $round })} (qw( adjusted original ))} : {}; # MW Make this work
+
+		$athlete->{ scores }{ $round }{ complete } = $complete ? 1 : 0;
+		$athlete->{ info }{ recognized } = $recognized;
 	}
 }
 
@@ -712,6 +732,86 @@ sub write {
 	chmod 0666, $self->{ file };
 
 	return 1;
+}
+
+# ============================================================
+sub _compare_freestyle {
+# ============================================================
+	my $i = shift;
+	my $j = shift;
+
+	my $i_adj = $i->{ adjusted }{ $round };
+	my $i_ori = $i->{ original }{ $round };
+	my $j_adj = $j->{ adjusted }{ $round };
+	my $j_ori = $j->{ original }{ $round };
+
+	my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
+	my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
+	my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
+
+	my $j_adj_total      = 0.0 + sprintf( "%.2f", $j_adj->{ total });
+	my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
+	my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
+
+	my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
+	my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
+	my $original_total     = $j_ori_total     <=> $i_ori_total;
+
+	return $adjusted_total || $adjusted_technical || $original_total;
+}
+
+# ============================================================
+sub _compare_mixed { # MW Make this work
+# ============================================================
+	my $i         = shift;
+	my $j         = shift;
+	my $freestyle = shift;
+	my $round     = 'finals';
+
+	my $a = { freestyle => $recognized->{ athletes }[ $i ]{ scores }{ $round }, recognized => $recognized->{ athletes }[ $i ]{ info }{ recognized }};
+	my $b = { freestyle => $recognized->{ athletes }[ $j ]{ scores }{ $round }, recognized => $recognized->{ athletes }[ $j ]{ info }{ recognized }};
+
+	$a->{ total } = _real( $a->{ recognized }{ adjusted }{ total }) + _real( $a->{ freestyle }{ adjusted }{ total });
+	$b->{ total } = _real( $b->{ recognized }{ adjusted }{ total }) + _real( $b->{ freestyle }{ adjusted }{ total });
+	$a->{ tb1 }   = _real( $a->{ freestyle }{ adjusted }{ total });
+	$b->{ tb1 }   = _real( $b->{ freestyle }{ adjusted }{ total });
+	$a->{ tb2 }   = _real( $a->{ recognized }{ allscore }{ total }) + _real( $a->{ freestyle }{ original }{ total });
+	$b->{ tb2 }   = _real( $b->{ recognized }{ allscore }{ total }) + _real( $b->{ freestyle }{ original }{ total });
+
+	if( $a->{ total } == $b->{ total }) {
+		my $json = new JSON::XS();
+		my $an   = {};
+		my $bn   = {};
+		if     ( $a->{ tb1 } > $b->{ tb1 }) {
+			$an->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $a->{ tb1 }" };
+			$bn->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $b->{ tb1 }" };
+
+		} elsif( $b->{ tb1 } > $a->{ tb1 }) {
+			$an->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $a->{ tb1 }" };
+			$bn->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $b->{ tb1 }" };
+
+		} else {
+			$an->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $a->{ tb1 }" };
+			$bn->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $b->{ tb1 }" };
+
+			if     ( $a->{ tb2 } > $b->{ tb2 }) {
+				$an->{ 'total' } = { results => 'win',  reason => "Total $a->{ tb2 }" };
+				$bn->{ 'total' } = { results => 'loss', reason => "Total $b->{ tb2 }" };
+
+			} elsif( $b->{ tb2 } > $a->{ tb2 }) {
+				$an->{ 'total' } = { results => 'loss', reason => "Total $a->{ tb2 }" };
+				$bn->{ 'total' } = { results => 'win',  reason => "Total $b->{ tb2 }" };
+
+			} else {
+				$an->{ 'total' } = { results => 'tie',  reason => "Total $a->{ tb2 }" };
+				$bn->{ 'total' } = { results => 'tie',  reason => "Total $b->{ tb2 }" };
+			}
+		}
+		$a->{ freestyle }{ notes } = $json->canonical->encode( $an );
+		$b->{ freestyle }{ notes } = $json->canonical->encode( $bn );
+	}
+
+	return $a->{ total } <=> $b->{ total } || $a->{ tb1 } <=> $b->{ tb1 } || $a->{ tb2 } <=> $b->{ tb2 };
 }
 
 # ============================================================

@@ -204,6 +204,7 @@ sub handle_division_award_punitive {
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		my $athlete  = $division->{ athletes }[ $request->{ athlete_id }];
+		my $round    = $division->{ round };
 		my $complete = $athlete->{ complete }{ $round };
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
@@ -548,10 +549,6 @@ sub handle_division_pool_resolve {
 
 		my $round    = $division->{ round };
 		my $complete = $athlete->{ complete }{ $round };
-
-		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO RECOGNIZED INTERFACES
-		delete $division->{ redirect } if exists $division->{ redirect };
-		$division->{ redirect } = 'worldclass' if( $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae' );
 
 		$division->write();
 		$version->commit( $division, $message );
@@ -1122,6 +1119,12 @@ sub autopilot {
 		round   => ($round eq 'finals'),
 	};
 
+	# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO RECOGNIZED INTERFACES
+	my $round    = $division->{ round };
+	my $complete = $athlete->{ complete }{ $round };
+	my $mixed    = $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae';
+	delete $division->{ redirect } if exists $division->{ redirect };
+
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
@@ -1136,12 +1139,13 @@ sub autopilot {
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
-			if( $last->{ cycle } || $last->{ athlete } ) { 
+			if( $last->{ cycle } || $last->{ athlete }) { 
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
 				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}
@@ -1156,6 +1160,9 @@ sub autopilot {
 				round   =>   $last->{ athlete } && ! $last->{ round },
 				athlete => ! $last->{ athlete }
 			};
+
+			# Mixed poomsae competition: Show the score first, then redirect all clients
+			$division->{ redirect } = 'worldclass' if( $mixed );
 
 			if    ( $go_next->{ round }   ) { $division->next_round(); }
 			elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
