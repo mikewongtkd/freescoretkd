@@ -991,7 +991,7 @@ sub handle_ring_read {
 	my $clients  = shift;
 	my $judges   = shift;
 
-	print STDERR "Request ring data.\n" if $DEBUG;
+	print STDERR "Request ring $self->{ _ring } data.\n" if $DEBUG;
 
 	$self->send_ring_response( $request, $progress, $clients );
 }

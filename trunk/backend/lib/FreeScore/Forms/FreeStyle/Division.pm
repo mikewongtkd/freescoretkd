@@ -1,6 +1,8 @@
 package FreeScore::Forms::FreeStyle::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Division;
 use JSON::XS;
 use List::Util qw( min reduce shuffle );
 use List::MoreUtils qw( all first_index last_index minmax part );
@@ -262,19 +264,17 @@ sub calculate_scores {
 # ============================================================
 sub enrich_athletes_with_recognized_scores {
 # ============================================================
-	my $self   = shift;
-	my $subdir = { recognized => $FreeScore::Forms::WorldClass::SUBDIR, freestyle => $FreeScore::Forms::FreeStyle::SUBDIR };
-	my $path   = $self->{ path };
-	my $divid  = $self->{ name };
-	my ($ring) = $path =~ /ring(\d+)/; $ring = int( $ring );
-	my $rname  = sprintf( "ring%02d", $ring );
+	my $self       = shift;
+	my $path       = $self->{ file };
+	my $ring       = $self->{ ring };
+	my $divid      = $self->{ name };
+	my @path       = split /\//, $path;
+	my $file       = pop @path;
+	my $rname      = pop @path;
+	my $subdir     = pop @path;
+	my $tournament = pop @path;
 
-	$path =~ s|^$FreeScore::PATH/||;
-	$path =~ s|$FreeScore::Forms::FreeStyle/||;
-	$path =~ s|$rname||;
-	$path =~ s|/$||;
-
-	$path = join( '/', $FreeScore::PATH, $path, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
+	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
 
 	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
 
@@ -851,6 +851,16 @@ sub _not_disqualified {
 		my $athlete = $athletes->[ $_ ];
 		! exists $athlete->{ decision } || ! $athlete->{ decision } =~ /^disqual/i
 	} @$group;
+}
+
+# ============================================================
+sub _real {
+# ============================================================
+	my $value     = shift;
+	my $precision = shift || 2;
+	my $format    = sprintf( "%%.%df", $precision );
+
+	return 0 + sprintf( $format, $value );
 }
 
 # ============================================================
