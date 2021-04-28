@@ -532,6 +532,27 @@ sub pool_judge_ready {
 }
 
 # ============================================================
+sub record_athlete_info {
+# ============================================================
+#** @method ( key, value )
+#   @brief Records the given athlete metadata to the current athlete.
+#*
+	my $self    = shift;
+	my $key     = shift;
+	my $value   = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $json    = new JSON::XS();
+
+	$value = $json->canonical->encode( $value ) if( ref( $value ));
+
+	$athlete->{ info }{ $key } = $value;
+
+	return $athlete->{ info };
+}
+}
+
+# ============================================================
 sub record_pool_score {
 # ============================================================
 #** @method ( score_object )

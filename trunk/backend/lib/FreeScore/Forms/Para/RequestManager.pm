@@ -38,6 +38,7 @@ sub init {
 	$self->{ _watching }        = {};
 	$self->{ division }         = {
 		athlete_delete          => \&handle_division_athlete_delete,
+		athlete_info            => \&handle_division_athlete_info,
 		athlete_next            => \&handle_division_athlete_next,
 		athlete_prev            => \&handle_division_athlete_prev,
 		award_penalty           => \&handle_division_award_penalty,
@@ -391,6 +392,34 @@ sub handle_division_athlete_delete {
 		$division->remove_athlete( $request->{ athlete_id } );
 		$division->write();
 		$version->commit( $division, $message );
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_athlete_info {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $athlete  = $division->current_athlete();
+	my $json     = new JSON::XS();
+	my $value    = ref( $request->{ value }) ? $json->canonical->encode( $value ) : $value;
+	my $key      = $request->{ key };
+	my $message  = "Adding info $athlete->{ name } $key=$value from division\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$division->record_athlete_info( $key, $value );
+		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
