@@ -414,7 +414,6 @@ sub handle_division_athlete_info {
 	my $json     = new JSON::XS();
 	my $key      = $request->{ key };
 	my $value    = $request->{ value };
-	# my $value    = ref( $request->{ value }) ? $json->canonical->encode( $value ) : $value;
 	my $message  = $key ? "Adding info $athlete->{ name } $key=$value from division\n" : "Clear info for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
