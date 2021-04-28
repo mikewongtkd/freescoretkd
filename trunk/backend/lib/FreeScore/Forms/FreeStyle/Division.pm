@@ -32,13 +32,17 @@ use Data::Dumper;
 #             +- technical (index)
 #             +- presentation (index)
 #          +- total
+#    +- complete
+#       +- round{}
+#    +- decision
+#       +- round{}
+#    +- notes
+#       +- round{}
 #    +- original
 #       +- round{}
 #          +- technical
 #          +- presentation
 #          +- total
-#    +- decision
-#    +- complete
 #    +- penalty
 #       +- round{}
 #          +- time
@@ -797,8 +801,8 @@ sub _compare_mixed {
 	my $freestyle = shift;
 	my $round     = 'finals';
 
-	my $a = { freestyle => $recognized->{ athletes }[ $i ]{ scores }{ $round }, recognized => $recognized->{ athletes }[ $i ]{ info }{ recognized }};
-	my $b = { freestyle => $recognized->{ athletes }[ $j ]{ scores }{ $round }, recognized => $recognized->{ athletes }[ $j ]{ info }{ recognized }};
+	my $a = { freestyle => $freestyle->{ athletes }[ $i ], recognized => $freestyle->{ athletes }[ $i ]{ info }{ recognized }};
+	my $b = { freestyle => $freestyle->{ athletes }[ $j ], recognized => $freestyle->{ athletes }[ $j ]{ info }{ recognized }};
 
 	$a->{ total } = _real( $a->{ recognized }{ adjusted }{ total }) + _real( $a->{ freestyle }{ adjusted }{ total });
 	$b->{ total } = _real( $b->{ recognized }{ adjusted }{ total }) + _real( $b->{ freestyle }{ adjusted }{ total });
@@ -806,6 +810,8 @@ sub _compare_mixed {
 	$b->{ tb1 }   = _real( $b->{ freestyle }{ adjusted }{ total });
 	$a->{ tb2 }   = _real( $a->{ recognized }{ allscore }{ total }) + _real( $a->{ freestyle }{ original }{ total });
 	$b->{ tb2 }   = _real( $b->{ recognized }{ allscore }{ total }) + _real( $b->{ freestyle }{ original }{ total });
+
+	print STDERR Dumper $a, $b;
 
 	if( $a->{ total } == $b->{ total }) {
 		my $json = new JSON::XS();
@@ -836,8 +842,8 @@ sub _compare_mixed {
 				$bn->{ 'total' } = { results => 'tie',  reason => "Total $b->{ tb2 }" };
 			}
 		}
-		$a->{ freestyle }{ notes } = $json->canonical->encode( $an );
-		$b->{ freestyle }{ notes } = $json->canonical->encode( $bn );
+		$a->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $an );
+		$b->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $bn );
 	}
 
 	return $a->{ total } <=> $b->{ total } || $a->{ tb1 } <=> $b->{ tb1 } || $a->{ tb2 } <=> $b->{ tb2 };
