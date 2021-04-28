@@ -295,19 +295,9 @@ sub handle_division_award_punitive {
 			$self->broadcast_division_response( $request, $progress, $clients );
 
 		} else {
-			my $delay = shift;
-
-			# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
 			my $round    = $division->{ round };
 			my $form     = $division->{ form };
-			my $comp     = exists $division->{ competition } ? $division->{ competition } : '';
 			my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
-
-			print STDERR "REDIRECT: $comp $round $form $complete\n";
-			if( $comp eq 'mixed-poomsae' && $round eq 'finals' && $form == 0 && $complete ) {
-				$division->redirect_clients( 'freestyle' );
-				$division->write();
-			}
 
 			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 			print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -808,10 +798,18 @@ sub handle_division_pool_judge_ready {
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 		
 		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
-		my $comp = exists $division->{ competition } ? $division->{ competition } : '';
-		if( $comp eq 'mixed-poomsae' ) {
-			my $divid     = $division->{ name };
-			my $path      = $self->{ path }; $path =~ s/$FreeScore::Forms::WorldClass::SUBDIR/$FreeScore::Forms::FreeStyle::SUBDIR/;
+		my $comp  = exists $division->{ competition } ? $division->{ competition } : '';
+		my $round = $division->{ round };
+		my $mixed = $comp eq 'mixed-poomsae' && $round eq 'finals';
+		if( $mixed ) {
+			my $divid      = $division->{ name };
+			my $path       = $division->{ path };
+			my @paths      = split /\//, $path;
+			my $rname      = pop @paths;
+			my $subdir     = pop @paths;
+			my $tournament = pop @paths;
+
+			$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $rname );
 			my $freestyle = new FreeScore::Forms::FreeStyle::Division( $path, $divid );
 			my $all_here  = $response->{ responded } >= $size;
 
@@ -856,14 +854,9 @@ sub handle_division_pool_resolve {
 		my $response = $division->resolve_pool();
 		$request->{ response } = $response;
 
-		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
 		my $round    = $division->{ round };
 		my $form     = $division->{ form };
-		my $comp     = exists $division->{ competition } ? $division->{ competition } : '';
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
-
-		print STDERR "REDIRECT: $comp $round $form $complete\n";
-		$division->redirect_clients( 'freestyle' ) if( $comp eq 'mixed-poomsae' && $round eq 'finals' && $form == 0 && $complete );
 
 		$division->write();
 		$version->commit( $division, $message );
@@ -927,17 +920,9 @@ sub handle_division_pool_score {
 			return;
 		}
 
-		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
 		my $round    = $division->{ round };
 		my $form     = $division->{ form };
-		my $comp     = exists $division->{ competition } ? $division->{ competition } : '';
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
-
-		print STDERR "REDIRECT: $comp $round $form $complete\n";
-		if( $comp eq 'mixed-poomsae' && $round eq 'finals' && $form == 0 && $complete ) {
-			$division->redirect_clients( 'freestyle' );
-			$division->write();
-		}
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 
@@ -1059,14 +1044,9 @@ sub handle_division_score {
 		$division->write();
 		$version->commit( $division, $message );
 
-		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
 		my $round    = $division->{ round };
 		my $form     = $division->{ form };
-		my $comp     = exists $division->{ competition } ? $division->{ competition } : '';
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
-
-		print STDERR "REDIRECT: $comp $round $form $complete\n";
-		$division->redirect_clients( 'freestyle' ) if( $comp eq 'mixed-poomsae' && $round eq 'finals' && $form == 0 && $complete );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -2008,6 +1988,12 @@ sub autopilot {
 			round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
 			cycle   => (!(($j + 1) % $cycle)),
 		};
+		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
+		my $round    = $division->{ round };
+		my $form     = $division->{ form };
+		my $comp     = exists $division->{ competition } ? $division->{ competition } : '';
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+		my $mixed    = $comp eq 'mixed-poomsae' && $round eq 'finals' && $form == 0 && $complete;
 
 		$delay->steps(
 			sub { # Display the athlete's score for 9 seconds
@@ -2034,6 +2020,14 @@ sub autopilot {
 			},
 			sub { # Advance to the next form/athlete/round
 				my $delay = shift;
+
+				# Redirect for Mixed Poomsae competitions
+				if( $mixed ) {
+					print STDERR "REDIRECT: $comp $round $form $complete\n";
+					$division->redirect_clients( 'freestyle' );
+					$division->write();
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				}
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
