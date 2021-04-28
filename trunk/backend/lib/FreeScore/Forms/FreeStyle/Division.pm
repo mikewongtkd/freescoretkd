@@ -20,7 +20,23 @@ use Data::Dumper;
 #    +- name
 #    +- info
 #    +- adjusted
+#       +- round{}
+#          +- technical
+#          +- presentation
+#          +- major
+#          +- minor
+#          +- min
+#             +- technical (index)
+#             +- presentation (index)
+#          +- max
+#             +- technical (index)
+#             +- presentation (index)
+#          +- total
 #    +- original
+#       +- round{}
+#          +- technical
+#          +- presentation
+#          +- total
 #    +- decision
 #    +- complete
 #    +- penalty
