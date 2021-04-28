@@ -409,17 +409,20 @@ sub handle_division_athlete_info {
 	my $judges   = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
 	my $json     = new JSON::XS();
-	my $value    = ref( $request->{ value }) ? $json->canonical->encode( $value ) : $value;
 	my $key      = $request->{ key };
-	my $message  = "Adding info $athlete->{ name } $key=$value from division\n";
+	my $value    = ref( $request->{ value }) ? $json->canonical->encode( $value ) : $value;
+	my $message  = $value ? "Adding info $athlete->{ name } $key=$value from division\n" : "Clear info for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
 	try {
+		$version->checkout( $division );
 		$division->record_athlete_info( $key, $value );
 		$division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
