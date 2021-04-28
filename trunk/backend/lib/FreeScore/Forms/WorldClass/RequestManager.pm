@@ -798,10 +798,18 @@ sub handle_division_pool_judge_ready {
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 		
 		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
-		my $comp = exists $division->{ competition } ? $division->{ competition } : '';
-		if( $comp eq 'mixed-poomsae' ) {
-			my $divid     = $division->{ name };
-			my $path      = $self->{ path }; $path =~ s/$FreeScore::Forms::WorldClass::SUBDIR/$FreeScore::Forms::FreeStyle::SUBDIR/;
+		my $comp  = exists $division->{ competition } ? $division->{ competition } : '';
+		my $round = $division->{ round };
+		my $mixed = $comp eq 'mixed-poomsae' && $round eq 'finals';
+		if( $mixed ) {
+			my $divid      = $division->{ name };
+			my $path       = $division->{ path };
+			my @paths      = split /\//, $path;
+			my $rname      = pop @paths;
+			my $subdir     = pop @paths;
+			my $tournament = pop @paths;
+
+			$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $rname );
 			my $freestyle = new FreeScore::Forms::FreeStyle::Division( $path, $divid );
 			my $all_here  = $response->{ responded } >= $size;
 
@@ -1995,14 +2003,6 @@ sub autopilot {
 			sub { 
 				my $delay = shift;
 
-				# Redirect for Mixed Poomsae competitions
-				if( $mixed ) {
-					print STDERR "REDIRECT: $comp $round $form $complete\n";
-					$division->redirect_clients( 'freestyle' );
-					$division->write();
-					$self->broadcast_division_response( $request, $progress, $clients, $judges );
-				}
-
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
@@ -2020,6 +2020,14 @@ sub autopilot {
 			},
 			sub { # Advance to the next form/athlete/round
 				my $delay = shift;
+
+				# Redirect for Mixed Poomsae competitions
+				if( $mixed ) {
+					print STDERR "REDIRECT: $comp $round $form $complete\n";
+					$division->redirect_clients( 'freestyle' );
+					$division->write();
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				}
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 

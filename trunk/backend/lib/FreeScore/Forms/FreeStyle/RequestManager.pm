@@ -343,13 +343,17 @@ sub handle_division_filter_athletes {
 	my $progress = shift;
 	my $clients  = shift;
 	my $judges   = shift;
+	my $version  = new FreeScore::RCS();
 	my $client   = $self->{ _client };
 
-	print STDERR "Filtering division athletes.\n" if $DEBUG;
+	my $message = sprintf( "Filtering division athletes to: %s.", join( ', ', map { $_->{ name } } @{$request->{ athletes }}));
+	print STDERR "$message\n" if $DEBUG;
 
 	try {
 		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
+		$version->checkout( $division );
 		$division->filter_athletes( $request->{ athletes }) && $division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
