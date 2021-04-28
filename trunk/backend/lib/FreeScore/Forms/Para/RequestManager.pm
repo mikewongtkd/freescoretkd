@@ -247,7 +247,7 @@ sub handle_division_award_deduction {
 	my $version   = new FreeScore::RCS();
 	my $athlete   = $division->current_athlete();
 	my $deduction = join( ", ", grep { $request->{ deductions }{ $_ } > 0 } sort keys %{ $request->{ deductions }} );
-	my $message   = $deduction ? "Award $deduction choice to $athlete->{ name }\n" : "Clear deductions for $athlete->{ name }\n";
+	my $message   = $deduction ? "Award $deduction to $athlete->{ name }\n" : "Clear deductions for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
@@ -276,7 +276,7 @@ sub handle_division_award_bonus {
 	my $version   = new FreeScore::RCS();
 	my $athlete   = $division->current_athlete();
 	my $bonus     = join( ", ", grep { $request->{ bonuses }{ $_ } > 0 } sort keys %{ $request->{ bonuses }} );
-	my $message   = $bonus ? "Award $bonus choice to $athlete->{ name }\n" : "Clear bonuses for $athlete->{ name }\n";
+	my $message   = $bonus ? "Award $bonus to $athlete->{ name }\n" : "Clear bonuses for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
