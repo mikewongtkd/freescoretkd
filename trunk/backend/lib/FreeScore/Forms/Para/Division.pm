@@ -548,7 +548,7 @@ sub record_athlete_info {
 
 	$athlete->{ info }{ $key } = $value;
 
-	return $athlete->{ info }{ $key }->record_athlete_info( $key, $value );
+	return $athlete->{ info }->record_athlete_info( $key, $value );
 }
 
 # ============================================================
