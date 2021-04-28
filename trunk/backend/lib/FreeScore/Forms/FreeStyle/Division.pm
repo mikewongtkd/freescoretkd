@@ -741,13 +741,9 @@ sub update {
 # ============================================================
 	my $self  = shift;
 
-	print STDERR "UPDATING 1\n";
 	$self->calculate_scores();
-	print STDERR "UPDATING 2\n";
 	$self->calculate_placements();
-	print STDERR "UPDATING 3\n";
 	$self->calculate_round();
-	print STDERR "UPDATING 4\n";
 }
 
 # ============================================================
