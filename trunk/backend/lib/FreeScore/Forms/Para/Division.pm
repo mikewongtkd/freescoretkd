@@ -550,7 +550,6 @@ sub record_athlete_info {
 
 	return $athlete->{ info };
 }
-}
 
 # ============================================================
 sub record_pool_score {
