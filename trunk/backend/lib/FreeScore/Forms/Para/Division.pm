@@ -542,14 +542,13 @@ sub record_athlete_info {
 	my $value   = shift;
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
-	my $round   = $self->{ round };
 	my $json    = new JSON::XS();
 
 	$value = $json->canonical->encode( $value ) if( ref( $value ));
 
 	$athlete->{ info }{ $key } = $value;
 
-	return $athlete->{ info }->record_athlete_info( $key, $value );
+	return $athlete->{ info }
 }
 
 # ============================================================
