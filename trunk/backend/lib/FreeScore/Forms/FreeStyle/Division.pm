@@ -293,6 +293,8 @@ sub enrich_athletes_with_recognized_scores {
 	return if all { exists $_->{ info }{ recognized }} map { $self->{ athletes }[ $_ ] } @$order; # Already enriched
 
 	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
+	my $form       = $worldclass->{ forms }{ $round }[ 0 ];
+	$self->{ recognized } = { form => { name => $form }};
 
 	# Annotate each athlete with their corresponding recognized poomsae score
 	foreach my $i ( 0 .. $#$order ) {
