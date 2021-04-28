@@ -147,7 +147,7 @@ sub calculate_placements {
 
 	$self->enrich_athletes_with_recognized_scores() if $mixed;
 
-	my ($pending, $complete) = part { $athletes->[ $i ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
+	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
 	my $placements = [ sort { 
 		my $i = $athletes->[ $a ];
@@ -274,7 +274,7 @@ sub enrich_athletes_with_recognized_scores {
 
 	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
 
-	# Annotate each athlete with their corresponding recognized poomsae score; mark them complete if they have a freestyle score
+	# Annotate each athlete with their corresponding recognized poomsae score
 	foreach my $i ( 0 .. $#$order ) {
 		my $j          = $order->[ $i ];
 		my $athlete    = $self->{ athletes }[ $j ];
@@ -561,7 +561,7 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
-			print STDERR Dumper $pool_score;
+
 			my $score = { 
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
@@ -725,9 +725,13 @@ sub update {
 # ============================================================
 	my $self  = shift;
 
+	print STDERR "UPDATING 1\n";
 	$self->calculate_scores();
+	print STDERR "UPDATING 2\n";
 	$self->calculate_placements();
+	print STDERR "UPDATING 3\n";
 	$self->calculate_round();
+	print STDERR "UPDATING 4\n";
 }
 
 # ============================================================
@@ -735,7 +739,7 @@ sub write {
 # ============================================================
 	my $self  = shift;
 	my $json  = new JSON::XS();
-	
+
 	$self->update();
 
 	my $contents = $json->pretty->canonical->encode( unbless( $self->clone()));
@@ -774,7 +778,7 @@ sub _compare_freestyle {
 }
 
 # ============================================================
-sub _compare_mixed { # MW Make this work
+sub _compare_mixed {
 # ============================================================
 	my $i         = shift;
 	my $j         = shift;
