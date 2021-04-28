@@ -542,9 +542,9 @@ sub record_athlete_info {
 	my $value   = shift;
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
-	my $json    = new JSON::XS();
+	# my $json    = new JSON::XS();
 
-	$value = $json->canonical->encode( $value ) if( ref( $value ));
+	# $value = $json->canonical->encode( $value ) if( ref( $value ));
 
 	$athlete->{ info }{ $key } = $value;
 
