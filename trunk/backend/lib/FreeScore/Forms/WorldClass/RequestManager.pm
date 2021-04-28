@@ -2005,6 +2005,14 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
+				# Redirect for Mixed Poomsae competitions
+				if( $mixed ) {
+					print STDERR "REDIRECT: $comp $round $form $complete\n";
+					$division->redirect_clients( 'freestyle' );
+					$division->write();
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				}
+
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
@@ -2020,14 +2028,6 @@ sub autopilot {
 			},
 			sub { # Advance to the next form/athlete/round
 				my $delay = shift;
-
-				# Redirect for Mixed Poomsae competitions
-				if( $mixed ) {
-					print STDERR "REDIRECT: $comp $round $form $complete\n";
-					$division->redirect_clients( 'freestyle' );
-					$division->write();
-					$self->broadcast_division_response( $request, $progress, $clients, $judges );
-				}
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 

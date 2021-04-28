@@ -506,7 +506,7 @@ sub handle_division_pool_judge_ready {
 		my $comp = exists $division->{ competition } ? $division->{ competition } : '';
 		if( $comp eq 'mixed-poomsae' ) {
 			my $divid      = $division->{ name };
-			my $path       = $self->{ path }; $path =~ s/$FreeScore::Forms::FreeStyle::SUBDIR/$FreeScore::Forms::WorldClass::SUBDIR/;
+			my $path       = $division->recognized_path();
 			my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid );
 			my $all_here   = $response->{ responded } >= $size;
 

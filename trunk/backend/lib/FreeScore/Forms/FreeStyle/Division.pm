@@ -265,29 +265,22 @@ sub calculate_scores {
 sub enrich_athletes_with_recognized_scores {
 # ============================================================
 	my $self       = shift;
-	my $path       = $self->{ file };
+	my $path       = $self->recognized_path();
 	my $ring       = $self->{ ring };
 	my $divid      = $self->{ name };
-	my @path       = split /\//, $path;
-	my $file       = pop @path;
-	my $rname      = pop @path;
-	my $subdir     = pop @path;
-	my $tournament = pop @path;
-
-	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
+	my $round      = $self->{ round };
+	my $order      = $self->{ order }{ $round };
+	return if all { exists $_->{ info }{ recognized }} map { $self->{ athletes }[ $_ ] } @$order; # Already enriched
 
 	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
 
-	# Annotate each athlete with their corresponding freestyle score; mark them complete if they have a freestyle score
-	my $order = $self->{ order }{ $round };
+	# Annotate each athlete with their corresponding recognized poomsae score; mark them complete if they have a freestyle score
 	foreach my $i ( 0 .. $#$order ) {
 		my $j          = $order->[ $i ];
 		my $athlete    = $self->{ athletes }[ $j ];
-		my $score      = { worldclass => $worldclass->{ athletes }[ $i ]}; # Really the athlete object, but more readable as "score"
-		my $complete   = all { exists $_->{ total } && $_->{ total } > 0 } map { $score->{ worldclass }{ $_ }{ $round } } (qw( adjusted allscores )); # MW Make this work
-		my $recognized = $complete ? { map { ( $_ => $score->{ worldclass }{ $_ }{ $round })} (qw( adjusted original ))} : {}; # MW Make this work
+		my $score      = $worldclass->{ athletes }[ $i ]{ scores }{ $round };
+		my $recognized = { map { ( $_ => $score->{ $_ })} (qw( adjusted allscore )) };
 
-		$athlete->{ scores }{ $round }{ complete } = $complete ? 1 : 0;
 		$athlete->{ info }{ recognized } = $recognized;
 	}
 }
@@ -413,6 +406,7 @@ sub next_round {
 	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
 }
 
+
 # ============================================================
 sub pool_judge_ready {
 # ============================================================
@@ -439,6 +433,25 @@ sub pool_judge_ready {
 	return { have => $p, want => $k, all => $n, ready => $ready, scored => $scored, responded => [ @$ready, @$scored ] };
 }
 
+# ============================================================
+sub recognized_path {
+# ============================================================
+#** @method ()
+#   @brief Returns the partner recognized division path for mixed poomsae competition
+#*
+	my $self       = shift;
+	my $path       = $self->{ file };
+
+	my @path       = split /\//, $path;
+	my $file       = pop @path;
+	my $rname      = pop @path;
+	my $subdir     = pop @path;
+	my $tournament = pop @path;
+
+	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
+	return $path;
+}
+	
 # ============================================================
 sub record_pool_score {
 # ============================================================
