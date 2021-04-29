@@ -413,7 +413,7 @@ sub handle_division_athlete_info {
 	my $athlete  = $division->current_athlete();
 	my $json     = new JSON::XS();
 	my $key      = $request->{ key };
-	my $value    = $request->{ value } ? $json->canonical->encode( $value ) : $value;
+	my $value    = $json->canonical->encode( $request->{ value } );
 	my $message  = $key ? "Adding info for $athlete->{ name } where $key=$value for the division\n" : "Clear all info for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
