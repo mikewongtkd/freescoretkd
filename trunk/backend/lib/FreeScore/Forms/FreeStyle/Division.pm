@@ -290,7 +290,6 @@ sub enrich_athletes_with_recognized_scores {
 	my $divid      = $self->{ name };
 	my $round      = $self->{ round };
 	my $order      = $self->{ order }{ $round };
-	return if all { exists $_->{ info }{ recognized }} map { $self->{ athletes }[ $_ ] } @$order; # Already enriched
 
 	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
 	my $form       = $worldclass->{ forms }{ $round }[ 0 ];
@@ -846,7 +845,7 @@ sub _compare_mixed {
 		$j->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $jn );
 	}
 
-	return $i->{ total } <=> $j->{ total } || $i->{ tb1 } <=> $j->{ tb1 } || $i->{ tb2 } <=> $j->{ tb2 };
+	return $j->{ total } <=> $i->{ total } || $j->{ tb1 } <=> $i->{ tb1 } || $j->{ tb2 } <=> $i->{ tb2 };
 }
 
 # ============================================================
