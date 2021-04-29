@@ -1098,7 +1098,7 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $cycle    = $division->{ autodisplay } || 2;
+	my $cycle    = $division->{ autodisplay } || 1;
 	my $round    = $division->{ round };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
@@ -1124,10 +1124,11 @@ sub autopilot {
 	};
 
 	# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO RECOGNIZED INTERFACES
+	my $athlete  = $division->current_athlete();
 	my $round    = $division->{ round };
 	my $complete = $athlete->{ complete }{ $round };
 	my $mixed    = $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae';
-	delete $division->{ redirect } if exists $division->{ redirect };
+	print STDERR Dumper $round, $complete, $mixed;
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -1149,17 +1150,22 @@ sub autopilot {
 				$division->write(); 
 				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
 
-				# Mixed poomsae competition: Show the score first, then redirect all clients
-				if( $mixed ) {
-					$division->redirect_clients( 'worldclass' );
-					$division->write();
-				}
-
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}
+		},
+		sub {
+			my $delay = shift;
+			# Mixed poomsae competition: Show the score first, then redirect all clients
+			if( $mixed && ! $last->{ athlete }) {
+				print STDERR "REDIRECTING\n";
+				$division->redirect_clients( 'recognized' );
+				$division->write();
+				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+			}
+			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 		},
 		sub {
 			my $delay = shift;
