@@ -1148,6 +1148,13 @@ sub autopilot {
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
 				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
+
+				# Mixed poomsae competition: Show the score first, then redirect all clients
+				if( $mixed ) {
+					$division->redirect_clients( 'worldclass' );
+					$division->write();
+				}
+
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
 			} else {
@@ -1164,9 +1171,6 @@ sub autopilot {
 				round   =>   $last->{ athlete } && ! $last->{ round },
 				athlete => ! $last->{ athlete }
 			};
-
-			# Mixed poomsae competition: Show the score first, then redirect all clients
-			$division->{ redirect } = 'worldclass' if( $mixed );
 
 			if    ( $go_next->{ round }   ) { $division->next_round(); }
 			elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
