@@ -173,7 +173,7 @@ sub calculate_placements {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
-		if( $mixed ) { _compare_mixed( $i, $j, $self ); }
+		if( $mixed ) { _compare_mixed( $a, $b, $self ); }
 		else         { _compare_freestyle( $i, $j ); }
 	} @$complete ];
 
@@ -798,57 +798,55 @@ sub _compare_freestyle {
 # ============================================================
 sub _compare_mixed {
 # ============================================================
-	my $i         = shift;
-	my $j         = shift;
+	my $a         = shift;
+	my $b         = shift;
 	my $freestyle = shift;
 	my $round     = 'finals';
 
-	my $a = { freestyle => $freestyle->{ athletes }[ $i ], recognized => $freestyle->{ athletes }[ $i ]{ info }{ recognized }};
-	my $b = { freestyle => $freestyle->{ athletes }[ $j ], recognized => $freestyle->{ athletes }[ $j ]{ info }{ recognized }};
+	my $i = { freestyle => $freestyle->{ athletes }[ $a ], recognized => $freestyle->{ athletes }[ $a ]{ info }{ recognized }};
+	my $j = { freestyle => $freestyle->{ athletes }[ $b ], recognized => $freestyle->{ athletes }[ $b ]{ info }{ recognized }};
 
-	$a->{ total } = _real( $a->{ recognized }{ adjusted }{ total }) + _real( $a->{ freestyle }{ adjusted }{ total });
-	$b->{ total } = _real( $b->{ recognized }{ adjusted }{ total }) + _real( $b->{ freestyle }{ adjusted }{ total });
-	$a->{ tb1 }   = _real( $a->{ freestyle }{ adjusted }{ total });
-	$b->{ tb1 }   = _real( $b->{ freestyle }{ adjusted }{ total });
-	$a->{ tb2 }   = _real( $a->{ recognized }{ allscore }{ total }) + _real( $a->{ freestyle }{ original }{ total });
-	$b->{ tb2 }   = _real( $b->{ recognized }{ allscore }{ total }) + _real( $b->{ freestyle }{ original }{ total });
+	$i->{ total } = _real( $i->{ recognized }{ adjusted }{ total }) + _real( $i->{ freestyle }{ adjusted }{ total });
+	$j->{ total } = _real( $j->{ recognized }{ adjusted }{ total }) + _real( $j->{ freestyle }{ adjusted }{ total });
+	$i->{ tb1 }   = _real( $i->{ freestyle }{ adjusted }{ total });
+	$j->{ tb1 }   = _real( $j->{ freestyle }{ adjusted }{ total });
+	$i->{ tb2 }   = _real( $i->{ recognized }{ allscore }{ total }) + _real( $i->{ freestyle }{ original }{ total });
+	$j->{ tb2 }   = _real( $j->{ recognized }{ allscore }{ total }) + _real( $j->{ freestyle }{ original }{ total });
 
-	print STDERR Dumper $a, $b;
-
-	if( $a->{ total } == $b->{ total }) {
+	if( $i->{ total } == $j->{ total }) {
 		my $json = new JSON::XS();
-		my $an   = {};
-		my $bn   = {};
-		if     ( $a->{ tb1 } > $b->{ tb1 }) {
-			$an->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $a->{ tb1 }" };
-			$bn->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $b->{ tb1 }" };
+		my $in   = {};
+		my $jn   = {};
+		if     ( $i->{ tb1 } > $j->{ tb1 }) {
+			$in->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $i->{ tb1 }" };
+			$jn->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $j->{ tb1 }" };
 
-		} elsif( $b->{ tb1 } > $a->{ tb1 }) {
-			$an->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $a->{ tb1 }" };
-			$bn->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $b->{ tb1 }" };
+		} elsif( $j->{ tb1 } > $i->{ tb1 }) {
+			$in->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $i->{ tb1 }" };
+			$jn->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $j->{ tb1 }" };
 
 		} else {
-			$an->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $a->{ tb1 }" };
-			$bn->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $b->{ tb1 }" };
+			$in->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $i->{ tb1 }" };
+			$jn->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $j->{ tb1 }" };
 
-			if     ( $a->{ tb2 } > $b->{ tb2 }) {
-				$an->{ 'total' } = { results => 'win',  reason => "Total $a->{ tb2 }" };
-				$bn->{ 'total' } = { results => 'loss', reason => "Total $b->{ tb2 }" };
+			if     ( $i->{ tb2 } > $j->{ tb2 }) {
+				$in->{ 'total' } = { results => 'win',  reason => "Total $i->{ tb2 }" };
+				$jn->{ 'total' } = { results => 'loss', reason => "Total $j->{ tb2 }" };
 
-			} elsif( $b->{ tb2 } > $a->{ tb2 }) {
-				$an->{ 'total' } = { results => 'loss', reason => "Total $a->{ tb2 }" };
-				$bn->{ 'total' } = { results => 'win',  reason => "Total $b->{ tb2 }" };
+			} elsif( $j->{ tb2 } > $i->{ tb2 }) {
+				$in->{ 'total' } = { results => 'loss', reason => "Total $i->{ tb2 }" };
+				$jn->{ 'total' } = { results => 'win',  reason => "Total $j->{ tb2 }" };
 
 			} else {
-				$an->{ 'total' } = { results => 'tie',  reason => "Total $a->{ tb2 }" };
-				$bn->{ 'total' } = { results => 'tie',  reason => "Total $b->{ tb2 }" };
+				$in->{ 'total' } = { results => 'tie',  reason => "Total $i->{ tb2 }" };
+				$jn->{ 'total' } = { results => 'tie',  reason => "Total $j->{ tb2 }" };
 			}
 		}
-		$a->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $an );
-		$b->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $bn );
+		$i->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $in );
+		$j->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $jn );
 	}
 
-	return $a->{ total } <=> $b->{ total } || $a->{ tb1 } <=> $b->{ tb1 } || $a->{ tb2 } <=> $b->{ tb2 };
+	return $i->{ total } <=> $j->{ total } || $i->{ tb1 } <=> $j->{ tb1 } || $i->{ tb2 } <=> $j->{ tb2 };
 }
 
 # ============================================================
