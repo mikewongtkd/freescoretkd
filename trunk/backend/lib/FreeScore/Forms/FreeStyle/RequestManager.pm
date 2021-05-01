@@ -164,9 +164,10 @@ sub handle_division_award_penalty {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
+	my $round    = $division->{ round };
 	my $athlete  = $division->{ athletes }[ $request->{ athlete_id } ];
 	my $have     = $athlete->{ penalty }{ $round };
-	my $add      = clone( $request->{ penalty });
+	my $add      = clone( $request->{ penalty }{ $round });
 
 	foreach my $penalty (keys %$have) { delete $add->{ $penalty } if exists $add->{ $penalty }; }
 	if( keys %$add ) {
@@ -176,7 +177,7 @@ sub handle_division_award_penalty {
 	}
 
 	try {
-		$division->record_penalty( $request->{ penalty }, $request->{ athlete_id });
+		$division->record_penalty( $request->{ penalty }{ $round }, $request->{ athlete_id });
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
@@ -1128,7 +1129,6 @@ sub autopilot {
 	my $round    = $division->{ round };
 	my $complete = $athlete->{ complete }{ $round };
 	my $mixed    = $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae';
-	print STDERR Dumper $round, $complete, $mixed;
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
