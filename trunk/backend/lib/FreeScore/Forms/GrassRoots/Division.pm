@@ -281,6 +281,20 @@ sub disqualify {
 }
 
 # ============================================================
+sub withdraw {
+# ============================================================
+	my $self   = shift;
+	my $judge  = shift;
+	my $score  = shift;
+	my $judges = $self->{ judges };
+
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	$athlete->{ info }{ decision } = 'WDR';
+}
+
+# ============================================================
 sub is_single_elimination {
 # ============================================================
 	my $self = shift;
