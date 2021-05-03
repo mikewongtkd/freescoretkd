@@ -601,6 +601,11 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 
+			$request->{ action } = 'score-display';
+			delete $request->{ judge };
+			delete $request->{ score };
+			delete $request->{ response };
+
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		leaderboard => sub {
@@ -608,6 +613,11 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
+
+			$request->{ action } = 'leaderboard-display';
+			delete $request->{ judge };
+			delete $request->{ score };
+			delete $request->{ response };
 
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
@@ -626,6 +636,12 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
 			$division->next();
 			$division->write();
+
+			$request->{ action }  = 'navigate';
+			$request->{ athlete } = $division->{ current };
+			delete $request->{ judge };
+			delete $request->{ score };
+			delete $request->{ response };
 
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
