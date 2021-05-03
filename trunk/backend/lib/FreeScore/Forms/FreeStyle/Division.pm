@@ -133,31 +133,6 @@ sub edit_athletes {
 }
 
 # ============================================================
-sub read {
-# ============================================================
-	my $self = shift;
-	my $json = new JSON::XS();
-
-	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
-	my $data      = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
-	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
-
-	$self->{ current } ||= 0;
-	$self->{ judges }  ||= 5; # Default value
-	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
-	$self->{ state }   ||= 'score';
-	$self->{ file }    = $self->{ file };
-	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
-
-	foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
-		my $athlete = $self->{ athletes }[ $i ];
-		$athlete->{ id } = $i;
-	}
-
-	$self->update();
-}
-
-# ============================================================
 sub calculate_placements {
 # ============================================================
 	my $self     = shift;
@@ -363,6 +338,32 @@ sub get_only {
 }
 
 # ============================================================
+sub is_mixed {
+# ============================================================
+	my $self = shift;
+	my $comp = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae';
+	return $comp;
+}
+
+# ============================================================
+sub mixed_recognized {
+# ============================================================
+	my $self       = shift;
+	my $divid      = $self->{ name };
+	my $path       = $self->{ file };
+	my @path       = split /\//, $path;
+	my $file       = pop @path;
+	my $rname      = pop @path;
+	my $subdir     = pop @path;
+	my $tournament = pop @path;
+
+	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
+	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid );
+
+	return $worldclass;
+}
+
+# ============================================================
 sub navigate {
 # ============================================================
 	my $self   = shift;
@@ -454,25 +455,6 @@ sub pool_judge_ready {
 	return { have => $p, want => $k, all => $n, ready => $ready, scored => $scored, responded => [ @$ready, @$scored ] };
 }
 
-# ============================================================
-sub recognized_path {
-# ============================================================
-#** @method ()
-#   @brief Returns the partner recognized division path for mixed poomsae competition
-#*
-	my $self       = shift;
-	my $path       = $self->{ file };
-
-	my @path       = split /\//, $path;
-	my $file       = pop @path;
-	my $rname      = pop @path;
-	my $subdir     = pop @path;
-	my $tournament = pop @path;
-
-	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
-	return $path;
-}
-	
 # ============================================================
 sub record_pool_score {
 # ============================================================
@@ -657,6 +639,31 @@ sub previous_round {
 
 	$self->{ state } = 'score';
 	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
+}
+
+# ============================================================
+sub read {
+# ============================================================
+	my $self = shift;
+	my $json = new JSON::XS();
+
+	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
+	my $data      = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
+	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
+
+	$self->{ current } ||= 0;
+	$self->{ judges }  ||= 5; # Default value
+	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ state }   ||= 'score';
+	$self->{ file }    = $self->{ file };
+	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
+
+	foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
+		my $athlete = $self->{ athletes }[ $i ];
+		$athlete->{ id } = $i;
+	}
+
+	$self->update();
 }
 
 # ============================================================

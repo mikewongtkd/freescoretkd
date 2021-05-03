@@ -5,8 +5,6 @@ use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::Schedule;
-use FreeScore::Forms::FreeStyle;
-use FreeScore::Forms::FreeStyle::Division;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -798,19 +796,8 @@ sub handle_division_pool_judge_ready {
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 		
 		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
-		my $comp  = exists $division->{ competition } ? $division->{ competition } : '';
-		my $round = $division->{ round };
-		my $mixed = $comp eq 'mixed-poomsae' && $round eq 'finals';
-		if( $mixed ) {
-			my $divid      = $division->{ name };
-			my $path       = $division->{ path };
-			my @paths      = split /\//, $path;
-			my $rname      = pop @paths;
-			my $subdir     = pop @paths;
-			my $tournament = pop @paths;
-
-			$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $rname );
-			my $freestyle = new FreeScore::Forms::FreeStyle::Division( $path, $divid );
+		if( $division->is_mixed() ) {
+			my $freestyle = $division->mixed_freestyle();
 			my $all_here  = $response->{ responded } >= $size;
 
 			# If all judges are in the Recognized interface, then disable Freestyle interface redirection
@@ -895,6 +882,16 @@ sub handle_division_pool_score {
 
 		my $response = $division->record_pool_score( $score );
 		$request->{ response } = $response;
+
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $freestyle = $division->mixed_freestyle();
+
+			if( $freestyle->redirect_clients() ) {
+				$freestyle->redirect_clients( 'off' );
+				$freestyle->write();
+			}
+		}
 
 		$division->write();
 		$version->commit( $division, $message );
@@ -1991,9 +1988,8 @@ sub autopilot {
 		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
 		my $round    = $division->{ round };
 		my $form     = $division->{ form };
-		my $comp     = exists $division->{ competition } ? $division->{ competition } : '';
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
-		my $mixed    = $comp eq 'mixed-poomsae' && $round eq 'finals' && $form == 0 && $complete;
+		my $mixed    = $division->is_mixed() && $form == 0 && $complete;
 
 		$delay->steps(
 			sub { # Display the athlete's score for 9 seconds
@@ -2007,7 +2003,6 @@ sub autopilot {
 
 				# Redirect for Mixed Poomsae competitions
 				if( $mixed ) {
-					print STDERR "REDIRECT: $comp $round $form $complete\n";
 					$division->redirect_clients( 'freestyle' );
 					$division->write();
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );

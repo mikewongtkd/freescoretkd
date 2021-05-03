@@ -6,6 +6,8 @@ use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use FreeScore::Forms::WorldClass::Division::Round::Pool;
+use FreeScore::Forms::FreeStyle;
+use FreeScore::Forms::FreeStyle::Division;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
 use Math::Round qw( round );
@@ -137,6 +139,22 @@ sub autopilot {
 }
 
 # ============================================================
+sub calculate_means {
+# ============================================================
+	my $self = shift;
+
+	foreach my $round (keys %{ $self->{ forms }}) {
+		next unless exists $self->{ order }{ $round } && defined $self->{ order }{ $round };
+		my @athletes_in_round = @{$self->{ order }{ $round }};
+		foreach my $i (@athletes_in_round) {
+			my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
+			$scores = $self->{ athletes }[ $i ]{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() if( ! defined $scores );
+			$scores->calculate_means( $self->{ judges } );
+		}
+	}
+}
+
+# ============================================================
 sub clear_score {
 # ============================================================
 #** @method ( judge_index, score_object )
@@ -190,77 +208,6 @@ sub distribute_evenly {
 		$self->assign( $j, $group );
 		$i = ($i + 1) % $k;
 	}
-}
-
-# ============================================================
-sub from_json {
-# ============================================================
-#** @method ( json_division_data )
-#   @brief  Class method that returns an instance using the given JSON division data
-#   Call as my $division = FreeScore::Forms::WorldClass::Division->from_json( $json )
-#*
-	my $class = shift;
-	my $data  = shift;
-	my $clone = clone( $data );
-	return bless $clone, $class;
-}
-
-# ============================================================
-sub rank_athletes {
-# ============================================================
-#** @method ( [ round ] )
-#   @brief Calculates athlete rankings for the given (default = current) round. Auto-updates score averages.
-#*
-	my $self      = shift;
-	my $round     = shift || $self->{ round };
-	my $method    = $self->{ method };
-	my $placement = [];
-
-	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
-	die Dumper $round, $self->{ order }{ $round } if( ! $self->{ order }{ $round }); # MW
-	my @athlete_indices = @{$self->{ order }{ $round }};
-
-	# ===== CORNER CASE OF JUST 1 ATHLETE IN A BRACKETED ROUND (EXCEPT RO2; ERICA/LONE RANGER RULE)
-	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4a|ro4b)$/ && int( @athlete_indices ) == 1 ) {
-		my $i = $athlete_indices[ 0 ];
-		$self->{ placement }{ $round } = [ $i ];
-		my $athlete = $self->{ athletes }[ $i ];
-		$athlete->{ scores }{ $round }{ complete } = 1; # No need to score if there's only one athlete
-		$self->{ pending }{ $round } = [];
-		return;
-	}
-
-	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
-	@$placement = sort {
-		# ===== COMPARE BY COMPULSORY ROUND SCORES
-		my $x = $self->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
-		my $y = $self->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
-
-		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
-
-		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
-		resolve_ties( $a, $b, $x, $y );
-
-		# ===== COMPARE BY TIE-BREAKERS IF TIED
-		if( _is_tie( $comparison )) {
-			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y );
-		}
-
-		$comparison;
-	} @athlete_indices;
-
-	# ===== ASSIGN PLACEMENTS
-	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
-	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete for others (calculated de novo)
-
-	$self->{ placement }{ $round } = $placement;
-
-	# ===== CALCULATE PENDING
-	# Updates the leaderboard to indicate the next player
-	my $pending = [ @{$self->{ order }{ $round }} ];
-	@$pending   = grep { my $scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
-
-	$self->{ pending }{ $round } = $pending;
 }
 
 # ============================================================
@@ -402,6 +349,18 @@ sub first_form {
 	$self->{ form }  = 0;
 }
 
+# ============================================================
+sub from_json {
+# ============================================================
+#** @method ( json_division_data )
+#   @brief  Class method that returns an instance using the given JSON division data
+#   Call as my $division = FreeScore::Forms::WorldClass::Division->from_json( $json )
+#*
+	my $class = shift;
+	my $data  = shift;
+	my $clone = clone( $data );
+	return bless $clone, $class;
+}
 
 # ============================================================
 sub get_only {
@@ -442,6 +401,15 @@ sub is_match_results {
 }
 
 # ============================================================
+sub is_mixed {
+# ============================================================
+	my $self  = shift;
+	my $comp  = exists $self->{ competition } && $self->{ competition } eq 'mixed';
+	my $round = $self->{ round };
+	return $comp && $round eq 'finals';
+}
+
+# ============================================================
 sub is_summary {
 # ============================================================
 	my $self = shift;
@@ -453,6 +421,23 @@ sub match_results {
 # ============================================================
 	my $self = shift;
 	$self->{ state } = 'match-results';
+}
+
+# ============================================================
+sub mixed_freestyle {
+# ============================================================
+	my $self = shift;
+	my $divid      = $self->{ name };
+	my $path       = $self->{ path };
+	my @paths      = split /\//, $path;
+	my $rname      = pop @paths;
+	my $subdir     = pop @paths;
+	my $tournament = pop @paths;
+
+	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::FreeStyle::SUBDIR, $rname );
+	my $freestyle = new FreeScore::Forms::FreeStyle::Division( $path, $divid );
+
+	return $freestyle;
 }
 
 # ============================================================
@@ -1421,19 +1406,61 @@ sub previous_form {
 }
 
 # ============================================================
-sub calculate_means {
+sub rank_athletes {
 # ============================================================
-	my $self = shift;
+#** @method ( [ round ] )
+#   @brief Calculates athlete rankings for the given (default = current) round. Auto-updates score averages.
+#*
+	my $self      = shift;
+	my $round     = shift || $self->{ round };
+	my $method    = $self->{ method };
+	my $placement = [];
 
-	foreach my $round (keys %{ $self->{ forms }}) {
-		next unless exists $self->{ order }{ $round } && defined $self->{ order }{ $round };
-		my @athletes_in_round = @{$self->{ order }{ $round }};
-		foreach my $i (@athletes_in_round) {
-			my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
-			$scores = $self->{ athletes }[ $i ]{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() if( ! defined $scores );
-			$scores->calculate_means( $self->{ judges } );
-		}
+	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
+	die Dumper $round, $self->{ order }{ $round } if( ! $self->{ order }{ $round }); # MW
+	my @athlete_indices = @{$self->{ order }{ $round }};
+
+	# ===== CORNER CASE OF JUST 1 ATHLETE IN A BRACKETED ROUND (EXCEPT RO2; ERICA/LONE RANGER RULE)
+	if( $method eq 'aau-single-cutoff' && $round =~ /^(?:ro4a|ro4b)$/ && int( @athlete_indices ) == 1 ) {
+		my $i = $athlete_indices[ 0 ];
+		$self->{ placement }{ $round } = [ $i ];
+		my $athlete = $self->{ athletes }[ $i ];
+		$athlete->{ scores }{ $round }{ complete } = 1; # No need to score if there's only one athlete
+		$self->{ pending }{ $round } = [];
+		return;
 	}
+
+	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
+	@$placement = sort {
+		# ===== COMPARE BY COMPULSORY ROUND SCORES
+		my $x = $self->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
+		my $y = $self->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
+
+		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
+
+		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
+		resolve_ties( $a, $b, $x, $y );
+
+		# ===== COMPARE BY TIE-BREAKERS IF TIED
+		if( _is_tie( $comparison )) {
+			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y );
+		}
+
+		$comparison;
+	} @athlete_indices;
+
+	# ===== ASSIGN PLACEMENTS
+	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
+	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete for others (calculated de novo)
+
+	$self->{ placement }{ $round } = $placement;
+
+	# ===== CALCULATE PENDING
+	# Updates the leaderboard to indicate the next player
+	my $pending = [ @{$self->{ order }{ $round }} ];
+	@$pending   = grep { my $scores = $self->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
+
+	$self->{ pending }{ $round } = $pending;
 }
 
 # ============================================================

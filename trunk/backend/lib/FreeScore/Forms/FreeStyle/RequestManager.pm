@@ -504,11 +504,8 @@ sub handle_division_pool_judge_ready {
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 
 		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
-		my $comp = exists $division->{ competition } ? $division->{ competition } : '';
-		if( $comp eq 'mixed-poomsae' ) {
-			my $divid      = $division->{ name };
-			my $path       = $division->recognized_path();
-			my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid );
+		if( $division->is_mixed() ) {
+			my $worldclass = $division->mixed_recognized();
 			my $all_here   = $response->{ responded } >= $size;
 
 			# If all judges are in the Freestyle interface, then disable Recognized interface redirection
@@ -592,6 +589,16 @@ sub handle_division_pool_score {
 
 		my $response = $division->record_pool_score( $score );
 		$request->{ response } = $response;
+
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $worldclass = $division->mixed_recognized();
+
+			if( $worldclass->redirect_clients()) {
+				$worldclass->redirect_clients( 'off' );
+				$worldclass->write();
+			}
+		}
 
 		$division->write();
 		$version->commit( $division, $message );
@@ -1128,7 +1135,7 @@ sub autopilot {
 	my $athlete  = $division->current_athlete();
 	my $round    = $division->{ round };
 	my $complete = $athlete->{ complete }{ $round };
-	my $mixed    = $round eq 'finals' && $complete && $division->{ competition } eq 'mixed-poomsae';
+	my $mixed    = $division->is_mixed() && $complete;
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
