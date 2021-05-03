@@ -543,7 +543,8 @@ sub record_athlete_info {
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 
-	$athlete->{ info }{ $key } = $value;
+	if( defined $value && $value ne '' ) { $athlete->{ info }{ $key } = $value; } 
+	else                                 { delete $athlete->{ info }{ $key }; }
 
 	return $athlete->{ info };
 }
