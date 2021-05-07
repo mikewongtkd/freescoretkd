@@ -1966,6 +1966,7 @@ sub autopilot {
 					if( $complete->{ firstform }) { $division->{ form } = $#$forms; }
 
 				}
+				print STDERR "Disengaging autopilot.\n";
 				$division->autopilot( 'off' );
 				$division->write();
 
@@ -2004,10 +2005,11 @@ sub autopilot {
 
 				# Redirect for Mixed Poomsae competitions
 				if( $mixed ) {
-					print STDERR "Redirecting to Freestyle for mixed poomsae division.\n"
+					print STDERR "Redirecting to Freestyle for mixed poomsae division.\n";
 					$division->redirect_clients( 'freestyle' );
 					$division->write();
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 				} elsif( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
@@ -2026,8 +2028,10 @@ sub autopilot {
 				my $delay = shift;
 
 				if( $mixed ) {
-					print STDERR "Allowing time for redirection to complete for mixed poomsae division.\n"
+					print STDERR "Allowing time for redirection to complete for mixed poomsae division.\n";
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+				} else {
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
 			sub { # Advance to the next form/athlete/round
@@ -2046,6 +2050,7 @@ sub autopilot {
 				elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
 				elsif ( $go_next->{ form }    ) { $division->next_form(); }
 
+				print STDERR "Disengaging autopilot.\n";
 				$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 				$division->write();
 

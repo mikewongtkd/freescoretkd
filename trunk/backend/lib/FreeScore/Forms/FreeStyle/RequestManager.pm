@@ -1144,6 +1144,7 @@ sub autopilot {
 	$delay->steps(
 		sub {
 			my $delay = shift;
+			print STDERR "Showing scores.\n" if $DEBUG;
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 		},
 		sub {
@@ -1165,9 +1166,9 @@ sub autopilot {
 		},
 		sub {
 			my $delay = shift;
-			# Mixed poomsae competition: Show the score first, then redirect all clients
+			# Mixed poomsae competition: redirect all clients
 			if( $mixed && ! $last->{ athlete }) {
-				print STDERR "REDIRECTING\n";
+				print STDERR "Redirecting ring to recognized for mixed poomsae.\n";
 				$division->redirect_clients( 'recognized' );
 				$division->write();
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
@@ -1187,6 +1188,8 @@ sub autopilot {
 
 			if    ( $go_next->{ round }   ) { $division->next_round(); }
 			elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
+
+			print STDERR "Disengaging autopilot.\n" if $DEBUG;
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 
