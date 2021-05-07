@@ -1121,7 +1121,7 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { leaderboard => 9, next => 12, brief => 1 };
+	my $pause = { leaderboard => 9, next => 12, brief => 1, redirect => 3 };
 	my $j     = first_index { $division->{ current } == $_ } @{ $division->{ order }{ $round }};
 	my $n     = $#{ $division->{ order }{ $round }};
 
@@ -1160,6 +1160,18 @@ sub autopilot {
 
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
+			} else {
+				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+			}
+		},
+		sub {
+			my $delay = shift;
+
+			die "Disengaging autopilot\n" unless $division->autopilot();
+
+			if( $mixed && ! $last->{ athlete }) {
+				print STDERR "Allowing time for redirection.\n";
+				Mojo::IOLoop->timer( $pause->{ redirect } => $delay->begin );
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}

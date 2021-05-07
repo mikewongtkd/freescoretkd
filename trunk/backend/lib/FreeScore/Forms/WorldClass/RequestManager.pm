@@ -1827,6 +1827,7 @@ sub autopilot {
 	$pause->{ score }       ||= 9;
 	$pause->{ leaderboard } ||= 12;
 	$pause->{ brief }       ||= 1;
+	$pause->{ redirect }    ||= 5;
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -2016,8 +2017,8 @@ sub autopilot {
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display(); 
 					$division->write(); 
-					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 
 				# Otherwise keep displaying the score for another second
 				} else {
@@ -2029,7 +2030,7 @@ sub autopilot {
 
 				if( $mixed ) {
 					print STDERR "Allowing time for redirection to complete for mixed poomsae division.\n";
-					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+					Mojo::IOLoop->timer( $pause->{ redirect } => $delay->begin );
 				} else {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
