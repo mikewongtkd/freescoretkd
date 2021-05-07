@@ -260,13 +260,10 @@ sub calculate_scores {
 sub enrich_athletes_with_recognized_scores {
 # ============================================================
 	my $self       = shift;
-	my $path       = $self->recognized_path();
-	my $ring       = $self->{ ring };
-	my $divid      = $self->{ name };
 	my $round      = $self->{ round };
 	my $order      = $self->{ order }{ $round };
 
-	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid, $ring );
+	my $worldclass = $self->mixed_recognized();
 	my $form       = $worldclass->{ forms }{ $round }[ 0 ];
 	$self->{ recognized } = { form => { name => $form }};
 

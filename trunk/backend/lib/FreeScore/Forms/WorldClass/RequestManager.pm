@@ -813,6 +813,7 @@ sub handle_division_pool_judge_ready {
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
+		print STDERR "ERROR: $_\n";
 		$client->send( { json => { error => "$_" }});
 	}
 }
@@ -2009,22 +2010,16 @@ sub autopilot {
 				}
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( ! $mixed && ($last->{ form } && ( $last->{ cycle } || $last->{ athlete } ))) { 
+				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display(); 
 					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
+				# Otherwise keep displaying the score for another second
 				} else {
-					# If mixed, have a 9 second delay until advancing to the next athlete
-					if( $mixed ) {
-						Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
-
-					# Otherwise keep displaying the score for another second
-					} else {
-						Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
-					}
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
 			sub { # Advance to the next form/athlete/round

@@ -404,7 +404,7 @@ sub is_match_results {
 sub is_mixed {
 # ============================================================
 	my $self  = shift;
-	my $comp  = exists $self->{ competition } && $self->{ competition } eq 'mixed';
+	my $comp  = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae';
 	my $round = $self->{ round };
 	return $comp && $round eq 'finals';
 }
@@ -1417,7 +1417,6 @@ sub rank_athletes {
 	my $placement = [];
 
 	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
-	die Dumper $round, $self->{ order }{ $round } if( ! $self->{ order }{ $round }); # MW
 	my @athlete_indices = @{$self->{ order }{ $round }};
 
 	# ===== CORNER CASE OF JUST 1 ATHLETE IN A BRACKETED ROUND (EXCEPT RO2; ERICA/LONE RANGER RULE)
