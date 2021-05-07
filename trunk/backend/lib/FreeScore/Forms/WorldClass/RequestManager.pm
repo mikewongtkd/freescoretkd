@@ -2004,13 +2004,13 @@ sub autopilot {
 
 				# Redirect for Mixed Poomsae competitions
 				if( $mixed ) {
+					print STDERR "Redirecting to Freestyle for mixed poomsae division.\n"
 					$division->redirect_clients( 'freestyle' );
 					$division->write();
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
-				}
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
+				} elsif( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display(); 
 					$division->write(); 
@@ -2020,6 +2020,14 @@ sub autopilot {
 				# Otherwise keep displaying the score for another second
 				} else {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { # Delay for mixed divisions
+				my $delay = shift;
+
+				if( $mixed ) {
+					print STDERR "Allowing time for redirection to complete for mixed poomsae division.\n"
+					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 				}
 			},
 			sub { # Advance to the next form/athlete/round
