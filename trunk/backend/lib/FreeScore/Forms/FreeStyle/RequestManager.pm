@@ -1156,9 +1156,8 @@ sub autopilot {
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
-				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
-
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
 
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );

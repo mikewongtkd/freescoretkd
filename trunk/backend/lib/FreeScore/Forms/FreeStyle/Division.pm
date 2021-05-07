@@ -138,7 +138,8 @@ sub calculate_placements {
 	my $self     = shift;
 	my $athletes = $self->{ athletes };
 	my $round    = $self->{ round } or return;
-	my $mixed    = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae' && $round eq 'finals';
+	my $mixed    = $self->is_mixed();
+	print STDERR "MIXED COMPETITION: $mixed\n";
 
 	$self->enrich_athletes_with_recognized_scores() if $mixed;
 
@@ -338,7 +339,7 @@ sub get_only {
 sub is_mixed {
 # ============================================================
 	my $self = shift;
-	my $comp = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae';
+	my $comp = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae' && $self->{ round } eq 'finals';
 	return $comp;
 }
 
@@ -804,17 +805,18 @@ sub _compare_mixed {
 	my $a         = shift;
 	my $b         = shift;
 	my $freestyle = shift;
+	my $n         = $freestyle->{ judges } || 1;
 	my $round     = 'finals';
 
 	my $i = { freestyle => $freestyle->{ athletes }[ $a ], recognized => $freestyle->{ athletes }[ $a ]{ info }{ recognized }};
 	my $j = { freestyle => $freestyle->{ athletes }[ $b ], recognized => $freestyle->{ athletes }[ $b ]{ info }{ recognized }};
 
-	$i->{ total } = _real( $i->{ recognized }{ adjusted }{ total }) + _real( $i->{ freestyle }{ adjusted }{ total });
-	$j->{ total } = _real( $j->{ recognized }{ adjusted }{ total }) + _real( $j->{ freestyle }{ adjusted }{ total });
+	$i->{ total } = _real( $i->{ recognized }{ adjusted }{ total }) + _real( $i->{ freestyle }{ adjusted }{ $round }{ total });
+	$j->{ total } = _real( $j->{ recognized }{ adjusted }{ total }) + _real( $j->{ freestyle }{ adjusted }{ $round }{ total });
 	$i->{ tb1 }   = _real( $i->{ freestyle }{ adjusted }{ total });
 	$j->{ tb1 }   = _real( $j->{ freestyle }{ adjusted }{ total });
-	$i->{ tb2 }   = _real( $i->{ recognized }{ allscore }{ total }) + _real( $i->{ freestyle }{ original }{ total });
-	$j->{ tb2 }   = _real( $j->{ recognized }{ allscore }{ total }) + _real( $j->{ freestyle }{ original }{ total });
+	$i->{ tb2 }   = _real( $i->{ recognized }{ allscore }{ total }) + _real( $i->{ freestyle }{ original }{ $round }{ total } / $n);
+	$j->{ tb2 }   = _real( $j->{ recognized }{ allscore }{ total }) + _real( $j->{ freestyle }{ original }{ $round }{ total } / $n);
 
 	if( $i->{ total } == $j->{ total }) {
 		my $json = new JSON::XS();
