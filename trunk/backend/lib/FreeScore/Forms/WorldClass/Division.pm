@@ -517,6 +517,24 @@ sub pool_judge_ready {
 }
 
 # ============================================================
+sub record_athlete_info {
+# ============================================================
+#** @method ( key, value )
+#   @brief Records the given athlete metadata to the current athlete.
+#*
+	my $self    = shift;
+	my $key     = shift;
+	my $value   = shift;
+
+	my $athlete = $self->{ athletes }[ $self->{ current } ];
+
+	if( defined $value && $value ne '' ) { $athlete->{ info }{ $key } = $value; } 
+	else                                 { delete $athlete->{ info }{ $key }; }
+
+	return $athlete->{ info };
+}
+
+# ============================================================
 sub record_pool_score {
 # ============================================================
 #** @method ( score_object )

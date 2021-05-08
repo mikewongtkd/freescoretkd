@@ -39,6 +39,7 @@ sub init {
 	$self->{ _watching }        = {};
 	$self->{ division }         = {
 		athlete_delete          => \&handle_division_athlete_delete,
+		athlete_info            => \&handle_division_athlete_info,
 		athlete_next            => \&handle_division_athlete_next,
 		athlete_prev            => \&handle_division_athlete_prev,
 		award_penalty           => \&handle_division_award_penalty,
@@ -328,6 +329,37 @@ sub handle_division_athlete_delete {
 	try {
 		$version->checkout( $division );
 		$division->remove_athlete( $request->{ athlete_id } );
+		$division->write();
+		$version->commit( $division, $message );
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_athlete_info {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $athlete  = $division->current_athlete();
+	my $json     = new JSON::XS();
+	my $key      = $request->{ key };
+	my $value    = $json->canonical->encode( $request->{ value } );
+	my $message  = $key ? "Adding info for $athlete->{ name } where $key=$value for the division\n" : "Clear all info for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$version->checkout( $division );
+		$division->record_athlete_info( $key, $value );
 		$division->write();
 		$version->commit( $division, $message );
 
