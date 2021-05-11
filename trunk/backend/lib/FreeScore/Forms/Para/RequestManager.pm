@@ -1866,7 +1866,8 @@ sub autopilot {
 	my $division = $progress->current();
 	my $json     = $self->{ _json };
 	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2 };
-	my $cycle    = $timers->{ cycle };
+	# my $cycle    = $timers->{ cycle };
+	my $cycle    = 1;
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }

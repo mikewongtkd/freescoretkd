@@ -644,7 +644,17 @@ sub _compare {
 	my $b      = shift;
 	my $judges = shift;
 
-	my $score = sprintf( "%.1f", $b->{ score } ) <=> sprintf( "%.1f", $a->{ score } );
+	sub decision { my $athlete = shift; return $athlete->{ info }{ decision }; };
+	my $d     = { a => decision( $a ), b => decision( $b )};
+	my $decis = 0;
+	if   ( $d->{ a } eq 'DSQ' && $d->{ b } ne 'DSQ' ) { $decis =  1; }
+	elsif( $d->{ a } ne 'DSQ' && $d->{ b } eq 'DSQ' ) { $decis = -1; }
+	elsif( $d->{ a } eq 'WDR' && $d->{ b } eq 'DSQ' ) { $decis = -1; }
+	elsif( $d->{ a } eq 'DSQ' && $d->{ b } eq 'WDR' ) { $decis =  1; }
+	elsif( $d->{ a } eq 'WDR' && $d->{ b } ne 'WDR' ) { $decis =  1; }
+	elsif( $d->{ a } ne 'WDR' && $d->{ b } eq 'WDR' ) { $decis = -1; }
+
+	my $score = 0 + sprintf( "%.1f", $b->{ score } ) <=> 0 + sprintf( "%.1f", $a->{ score } );
 	my $high  = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ max } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ max } ])};
 	my $low   = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ min } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ min } ])};
 	my $hi    = ($score == 0 && $judges > 3) ? $high->{ b } <=> $high->{ a } : 0;
@@ -655,7 +665,7 @@ sub _compare {
 	if( $lo > 0 ) { $b->{ notes } = 'L';  } elsif( $lo < 0 ) { $a->{ notes } = 'L';  }
 	if( $tb > 0 ) { $b->{ notes } = 'TB'; } elsif( $tb < 0 ) { $a->{ notes } = 'TB'; }
 
-	return $score || $hi || $lo || $tb;
+	return $decis || $score || $hi || $lo || $tb;
 }
 
 # ============================================================
