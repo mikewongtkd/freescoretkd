@@ -199,6 +199,7 @@ sub calculate_scores {
 		my $stats    = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
 		my $done     = 0;
 		my $resolved = 0;
+		my $decision = _decision( $athlete );
 
 		# ===== CALCULATE SCORES
 		foreach my $j (0 .. $#{ $athlete->{ scores }}) {
@@ -208,7 +209,7 @@ sub calculate_scores {
 			$stats->{ max }  = $score > $athlete->{ scores }[ $stats->{ max }] ? $j : $stats->{ max };
 			$done++ if(( 0.0 + $score ) > 0 );
 		}
-		$athlete->{ complete } = ($judges == $done) || (exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } eq 'DSQ');
+		$athlete->{ complete } = ($judges == $done) || ($decision eq 'DSQ' || $decision eq 'WDR' );
 
 		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
@@ -644,15 +645,13 @@ sub _compare {
 	my $b      = shift;
 	my $judges = shift;
 
-	sub decision { my $athlete = shift; return $athlete->{ info }{ decision }; };
-	my $d     = { a => decision( $a ), b => decision( $b )};
-	my $decis = 0;
-	if   ( $d->{ a } eq 'DSQ' && $d->{ b } ne 'DSQ' ) { $decis =  1; }
-	elsif( $d->{ a } ne 'DSQ' && $d->{ b } eq 'DSQ' ) { $decis = -1; }
-	elsif( $d->{ a } eq 'WDR' && $d->{ b } eq 'DSQ' ) { $decis = -1; }
-	elsif( $d->{ a } eq 'DSQ' && $d->{ b } eq 'WDR' ) { $decis =  1; }
-	elsif( $d->{ a } eq 'WDR' && $d->{ b } ne 'WDR' ) { $decis =  1; }
-	elsif( $d->{ a } ne 'WDR' && $d->{ b } eq 'WDR' ) { $decis = -1; }
+	my $d     = { a => _decision( $a ), b => _decision( $b )};
+	if   ( $d->{ a } eq 'DSQ' && $d->{ b } ne 'DSQ' ) { return  1; }
+	elsif( $d->{ a } ne 'DSQ' && $d->{ b } eq 'DSQ' ) { return -1; }
+	elsif( $d->{ a } eq 'WDR' && $d->{ b } eq 'DSQ' ) { return -1; }
+	elsif( $d->{ a } eq 'DSQ' && $d->{ b } eq 'WDR' ) { return  1; }
+	elsif( $d->{ a } eq 'WDR' && $d->{ b } ne 'WDR' ) { return  1; }
+	elsif( $d->{ a } ne 'WDR' && $d->{ b } eq 'WDR' ) { return -1; }
 
 	my $score = 0 + sprintf( "%.1f", $b->{ score } ) <=> 0 + sprintf( "%.1f", $a->{ score } );
 	my $high  = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ max } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ max } ])};
@@ -665,8 +664,15 @@ sub _compare {
 	if( $lo > 0 ) { $b->{ notes } = 'L';  } elsif( $lo < 0 ) { $a->{ notes } = 'L';  }
 	if( $tb > 0 ) { $b->{ notes } = 'TB'; } elsif( $tb < 0 ) { $a->{ notes } = 'TB'; }
 
-	return $decis || $score || $hi || $lo || $tb;
+	return $score || $hi || $lo || $tb;
 }
+
+# ============================================================
+sub _decision { 
+# ============================================================
+	my $athlete = shift; 
+	return exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } ? $athlete->{ info }{ decision } : ''; 
+};
 
 # ============================================================
 sub _format_score {
