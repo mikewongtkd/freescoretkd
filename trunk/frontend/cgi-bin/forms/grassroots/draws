@@ -2,6 +2,7 @@
 use Try::Tiny;
 use CGI;
 use JSON::XS;
+use File::Slurp qw( read_file );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
