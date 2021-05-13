@@ -54,7 +54,7 @@ print <<EOF;
 			}
 			.division {
 				margin-top: 60px;
-				width: 720px;
+				width: 920px;
 				height: 22px;
 			}
 
@@ -64,7 +64,7 @@ print <<EOF;
 			}
 
 			.results table {
-				width: 720px;
+				width: 920px;
 				page-break-inside: avoid;
 			}
 			.results thead tr { background: #eee; }
@@ -75,10 +75,13 @@ print <<EOF;
 				text-align: left;
 				height: 22px;
 			}
-			.results thead th.number  { width: 20px; }
-			.results thead th.noc     { width: 80px; }
-			.results thead th.athlete { width: 860px; }
-			.results td.decisions     { text-align: center; color: red; }
+			.results thead th.number    { width:  20px; }
+			.results thead th.noc       { width:  80px; }
+			.results thead th.athlete   { width: 560px; }
+			.results thead th.form      { width: 180px; }
+			.results thead th.decisions { width:  80px; text-align: center; }
+			.results td.form            { width: 180px; }
+			.results td.decisions       { width: 80px; text-align: center; color: red; }
 
 			.results tbody td {
 				padding: 2px 4px 2px 4px;
@@ -87,10 +90,6 @@ print <<EOF;
 			.results tbody tr:nth-child( even ) { background: #eee; }
 			.results tbody tr:nth-child( odd  ) { background: #fff; }
 
-			// .header, .header-space { height: 225px; }
-			// .footer, .footer-space { height: 50px; }
-			// .header { position: fixed; top: 0; }
-			// .footer { position: fixed; bottom: 0; }
 			$branding_css
 		</style>
 	</head>
@@ -104,6 +103,7 @@ foreach my $division (@divisions) {
 	my $judges = $division->{ judges } || 3;
 	my $placed = {};
 	my $i = 0;
+	my $form   = $division->{ athletes }[ 0 ]{ info }{ video }{ form };
 	print <<EOF;
 		<div class="results">
 			<div class="division"><b>Division $name</b> &mdash; $division->{ description }</div>
@@ -113,7 +113,7 @@ foreach my $division (@divisions) {
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
-					<th class="form">Board Breaking</th>
+					<th class="form">$form</th>
 					<th class="decisions">Decisions</th>
 				</tr>
 				</thead>
