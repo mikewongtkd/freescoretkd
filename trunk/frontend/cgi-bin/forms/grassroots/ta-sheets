@@ -60,7 +60,6 @@ print <<EOF;
 
 			.results {
 				page-break-inside: avoid;
-				page-break-after: always;
 			}
 
 			.results table {
