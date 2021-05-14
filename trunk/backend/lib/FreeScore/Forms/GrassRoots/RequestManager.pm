@@ -248,7 +248,7 @@ sub handle_division_read {
 	my $client    = $self->{ _client };
 	my $division  = $progress->current();
 
-	print STDERR "Requesting divison " . uc( $division->{ name }) . " information\n" if $DEBUG;
+	print STDERR "Requesting division " . uc( $division->{ name }) . " information\n" if $DEBUG;
 
 	try {
 		$self->broadcast_division_response( $request, $progress, $clients );
