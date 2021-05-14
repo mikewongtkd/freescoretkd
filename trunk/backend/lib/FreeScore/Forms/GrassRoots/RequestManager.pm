@@ -181,7 +181,14 @@ sub handle_division_disqualify {
 	try {
 		$division->disqualify();
 		$division->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+
+		my $i        = $division->{ current };
+		my $athlete  = $division->{ athletes }[ $i ];
+		my $complete = $athlete->{ complete };
+		print STDERR "Checking to see if we need to engage autopilot... " . ($complete ? 'Yes; engaging autopilot.' : 'Not yet' ) . "\n";
+		autopilot( $self, $request, $progress, $clients, $division ) if $complete;
+
+	$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -203,6 +210,13 @@ sub handle_division_withdraw {
 	try {
 		$division->withdraw();
 		$division->write();
+
+		my $i        = $division->{ current };
+		my $athlete  = $division->{ athletes }[ $i ];
+		my $complete = $athlete->{ complete };
+		print STDERR "Checking to see if we need to engage autopilot... " . ($complete ? 'Yes; engaging autopilot.' : 'Not yet' ) . "\n";
+		autopilot( $self, $request, $progress, $clients, $division ) if $complete;
+
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {

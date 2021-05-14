@@ -279,6 +279,7 @@ sub disqualify {
 	my $athlete = $self->{ athletes }[ $i ];
 
 	$athlete->{ info }{ decision } = 'DSQ';
+	$athlete->{ complete } = 1;
 }
 
 # ============================================================
@@ -293,6 +294,7 @@ sub withdraw {
 	my $athlete = $self->{ athletes }[ $i ];
 
 	$athlete->{ info }{ decision } = 'WDR';
+	$athlete->{ complete } = 1;
 }
 
 # ============================================================
