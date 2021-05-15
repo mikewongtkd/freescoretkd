@@ -93,7 +93,10 @@ print <<EOF;
 			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
 			.results .tiebreaker { width: 40px; text-align: center; }
-			.results .freechoice { width: 100px; text-align: center; }
+			.results .freechoice { width: 88px; text-align: center; font-size: 9pt; }
+			.results .penalties  { font-size: 9pt; }
+			.results .deductions { font-size: 9pt; }
+			.results .bonuses    { font-size: 9pt; }
 			.results .notes  { font-size: 9pt; width: 40px; text-align: center; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
@@ -296,13 +299,22 @@ EOF
 				}
 
 				foreach my $j ( 0 .. 1 ) {
-					my $score       = $athlete->{ scores }{ $round }{ forms }[ $j ];
-					my $mean        = $score->{ adjusted };
-					my $freechoice  = $freechoices->{ $round }[ $j ];
-					my $penalties   = sum0 values %{$score->{ penalty }};
-					my $deductions  = sum0 values %{$score->{ deduction }};
-					my $bonuses     = sum0 values %{$score->{ bonus }};
-					my $adjustments = - $penalties - $deductions + $bonuses;
+					my $score          = $athlete->{ scores }{ $round }{ forms }[ $j ];
+					my $mean           = $score->{ adjusted };
+					my $freechoice     = $freechoices->{ $round }[ $j ];
+					my $penalties      = sum0 values %{$score->{ penalty }};
+					my $deductions     = sum0 values %{$score->{ deduction }};
+					my $bonuses        = sum0 values %{$score->{ bonus }};
+					my $fontawesomep   = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash' };
+					my $fontawesomed   = { choicededuction => 'fa-minus-circle', minordeduction => 'fa-minus-circle', majordeduction => 'fa-minus-circle' }
+					my $fontawesomeb   = { choicebonus => 'fa-plus-circle', minorbonus => 'fa-plus-circle', majorbonus => 'fa-plus-circle' }
+					my $penaltyicons   = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomep->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $deductionicons = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomed->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
+					my $bonusicons     = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomeb->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
+					my $adjustmentp    = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span>', $penaltyicons, - $penalties ) : '';
+					my $adjustmentd    = $deductions > 0 ? sprintf( '<br><span class="deductions">%s %.1f</span>', $deductionicons, - $deductions ) : '';
+					my $adjustmentb    = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s %.1f</span>', $bonusicons, + $bonuses ) : '';
+					my $adjustments    = $adjustmentp + $adjustmentd + $adjustmentb;
 					if( defined $mean ) {
 						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
@@ -310,10 +322,10 @@ EOF
 								foreach my $decision (keys %$codes) {
 									next unless $score->{ decision }{ $decision };
 									$punitive = $codes->{ $decision };
-									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span><br><span class=\"freechoice\">&ndash;</span></td>";
+									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 								}
 							} else {
-								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f/%.1f</span></td><br><span class=\"freechoice\">%s</span>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }, ,$adjustments, $freechoice );
+								push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">$freechoice</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s<td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }, $adjustments );
 							}
 							$n++;
 						} else { push @scores, "<td>&nbsp;</td>"; }
