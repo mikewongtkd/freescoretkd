@@ -5,6 +5,7 @@ use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
+use List::Util qw( sum0 );
 use List::MoreUtils qw( first_index );
 use Clone qw( clone );
 use Data::Dumper;
@@ -275,13 +276,14 @@ EOF
 
 			my @results = ();
 			foreach my $i (0 .. $n) {
-				my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
-				my $athlete  = $division->{ athletes }[ $j ];
-				my $sum      = 0.0;
-				my $n        = 0;
-				my $punitive = undef;
-				my @scores   = ();
-				my $tb       = $athlete->{ scores }{ $round }{ notes };
+				my $j           = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
+				my $athlete     = $division->{ athletes }[ $j ];
+				my $freechoices = $athlete->info( 'freechoice' );
+				my $sum         = 0.0;
+				my $n           = 0;
+				my $punitive    = undef;
+				my @scores      = ();
+				my $tb          = $athlete->{ scores }{ $round }{ notes };
 
 				if( $tb ) {
 					$tb  = $json->decode( $tb );
@@ -293,8 +295,13 @@ EOF
 				}
 
 				foreach my $j ( 0 .. 1 ) {
-					my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
-					my $mean  = $score->{ adjusted };
+					my $score       = $athlete->{ scores }{ $round }{ forms }[ $j ];
+					my $mean        = $score->{ adjusted };
+					my $freechoice  = $freechoices->{ $round }[ $j ];
+					my $penalties   = sum0 values %{$score->{ penalty }};
+					my $deductions  = sum0 values %{$score->{ deduction }};
+					my $bonuses     = sum0 values %{$score->{ bonus }};
+					my $adjustments = - $penalties - $deductions + $bonuses;
 					if( defined $mean ) {
 						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
@@ -302,10 +309,10 @@ EOF
 								foreach my $decision (keys %$codes) {
 									next unless $score->{ decision }{ $decision };
 									$punitive = $codes->{ $decision };
-									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
+									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span><br><span class=\"freechoice\">&ndash;</span></td>";
 								}
 							} else {
-								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation });
+								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f/%.1f</span></td><br><span class=\"freechoice\">%s</span>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }, ,$adjustments, $freechoice );
 							}
 							$n++;
 						} else { push @scores, "<td>&nbsp;</td>"; }
