@@ -3,6 +3,7 @@ use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use Data::Structure::Util qw( unbless );
+use List::Util qw( sum0 );
 use Clone qw( clone );
 use File::Slurp qw( read_file );
 use JSON::XS;
@@ -88,7 +89,7 @@ print <<EOF;
 			.results .athlete    { width: 275px; }
 			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
 			.results .tiebreaker { width: 40px; text-align: center; }
-
+			.results .penalties  { font-size: 9pt; }
 			.results td          { padding: 0px 4px 0px 4px; }
 			.results td .score   { text-align: center; }
 			.results td .tecpre  { font-size: 8pt; }
@@ -174,15 +175,19 @@ EOF
 		}
 
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $noc     = uc( $athlete->{ info }{ noc });
-			my $sum     = 0.0;
-			my $score   = $athlete->{ adjusted }{ $round };
-			my @score   = ();
-			my $decided = 0;
-			my $place   = sprintf( "%d.", $i + 1 );
+			my $j           = $division->{ placements }{ $round }[ $i ];
+			my $athlete     = $division->{ athletes }[ $j ];
+			my $notes       = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $noc         = uc( $athlete->{ info }{ noc });
+			my $sum         = 0.0;
+			my $score       = $athlete->{ adjusted }{ $round };
+			my @score       = ();
+			my $decided     = 0;
+			my $place       = sprintf( "%d.", $i + 1 );
+			my $penalties   = sum0 values %{$score->{ penalty }};
+			my $fontawesome = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash' };
+			my $icons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+			my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span>', $icons, - $penalties ) : '';
 
 			if( exists $athlete->{ decision } ) {
 				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
@@ -198,7 +203,7 @@ EOF
 				push @score, sprintf( "<td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td>" );
 
 			} else {
-				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } );
+				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation }, $adjustments );
 			}
 			my $key = sprintf( "%.2f", $score->{ total });
 			if( exists $ties->{ $key } && ! $decided ) {
