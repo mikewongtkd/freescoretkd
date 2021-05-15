@@ -115,7 +115,7 @@ foreach my $division (@divisions) {
 	my $judges = $division->{ judges } || 3;
 	@rounds = ( qw( finals semfin prelim )) unless @rounds;
 	my $copy = unbless( clone ( $division ) );
-	print "<script>var division = " . $json->encode( $copy ) . ";</script>\n";
+	print "<script>var division = " . $json->canonical->encode( $copy ) . ";</script>\n";
 	$division->calculate_placements();
 	foreach my $round (@rounds) {
 		next unless exists $division->{ order }{ $round };
