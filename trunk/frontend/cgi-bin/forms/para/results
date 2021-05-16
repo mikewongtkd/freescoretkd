@@ -301,17 +301,19 @@ EOF
 				}
 
 				foreach my $j ( 0 .. 1 ) {
-					my $score       = $athlete->{ scores }{ $round }{ forms }[ $j ];
-					my $mean        = $score->{ adjusted };
-					my $freechoice  = $freechoices->{ $round }[ $j ];
-					my $penalties   = sum0 values %{$score->{ penalty }};
-					my $deductions  = sum0 values %{$score->{ deduction }};
-					my $bonuses     = sum0 values %{$score->{ bonus }};
-					my $fontawesome = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash', choicededuction => 'fa-minus-circle', minordeduction => 'fa-minus-circle', majordeduction => 'fa-minus-circle', choicebonus => 'fa-plus-circle', minorbonus => 'fa-plus-circle', majorbonus => 'fa-plus-circle' };
-					my $icons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
-					my $dicons      = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
-					my $bicons      = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
-					my $adjustments = $penalties > 0 || $deductions > 0 || $bonuses > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span><span class="deductions">%s %.1f</span><span class="bonuses">%s %.1f</span>', $icons, - $penalties, $dicons, - $deductions, $bicons, + $bonuses ) : '';
+					my $score        = $athlete->{ scores }{ $round }{ forms }[ $j ];
+					my $mean         = $score->{ adjusted };
+					my $freechoice   = $freechoices->{ $round }[ $j ];
+					my $penalties    = sum0 values %{$score->{ penalty }};
+					my $deductions   = sum0 values %{$score->{ deduction }};
+					my $bonuses      = sum0 values %{$score->{ bonus }};
+					my $fontawesome  = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash', choicededuction => 'fa-minus-circle', minordeduction => 'fa-minus-circle', majordeduction => 'fa-minus-circle', choicebonus => 'fa-plus-circle', minorbonus => 'fa-plus-circle', majorbonus => 'fa-plus-circle' };
+					my $picons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $dicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
+					my $bicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
+					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span>', $picons, - $penalties ) : '';
+					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s %.1f</span>', $dicons, - $deductions ) : '';
+					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s %.1f</span>', $bicons, + $bonuses ) : '';
 					if( defined $mean ) {
 						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
@@ -322,7 +324,7 @@ EOF
 									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 								}
 							} else {
-								push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">%s</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s</td>", $freechoice, $mean->{ total }, $mean->{ technical }, $mean->{ presentation }, $adjustments );
+								push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">%s</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s</td>", $freechoice, $mean->{ total }, $mean->{ technical }, $mean->{ presentation }, $padjustments, $dadjustments, $badjustments );
 							}
 							$n++;
 						} else { push @scores, "<td>&nbsp;</td>"; }
