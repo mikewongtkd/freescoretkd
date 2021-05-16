@@ -311,9 +311,9 @@ EOF
 					my $picons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
 					my $dicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
 					my $bicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
-					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span>', $picons, - $penalties ) : '';
-					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s %.1f</span>', $dicons, - $deductions ) : '';
-					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s %.1f</span>', $bicons, + $bonuses ) : '';
+					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s -%.1f</span>', $picons, $penalties ) : '';
+					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s -%.1f</span>', $dicons, $deductions ) : '';
+					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s +%.1f</span>', $bicons, $bonuses ) : '';
 					if( defined $mean ) {
 						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {

@@ -297,7 +297,7 @@ EOF
 					my $penalties   = sum0 values %{$score->{ penalty }};
 					my $fontawesome = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash' };
 					my $icons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
-					my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span>', $icons, - $penalties ) : '';
+					my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s -%.1f</span>', $icons, $penalties ) : '';
 					if( defined $mean ) {
 						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
