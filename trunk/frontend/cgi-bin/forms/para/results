@@ -324,7 +324,7 @@ EOF
 									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 								}
 							} else {
-								push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">%s</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s</td>", $freechoice, $mean->{ total }, $mean->{ technical }, $mean->{ presentation }, $padjustments, $dadjustments, $badjustments );
+								push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">%s</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s%s%s</td>", $freechoice, $mean->{ total }, $mean->{ technical }, $mean->{ presentation }, $padjustments, $dadjustments, $badjustments );
 							}
 							$n++;
 						} else { push @scores, "<td>&nbsp;</td>"; }
