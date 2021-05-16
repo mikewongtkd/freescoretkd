@@ -307,10 +307,12 @@ EOF
 					my $penalties    = sum0 values %{$score->{ penalty }};
 					my $deductions   = sum0 values %{$score->{ deduction }};
 					my $bonuses      = sum0 values %{$score->{ bonus }};
-					my $fontawesome  = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash', choicededuction => 'fa-minus-circle', minordeduction => 'fa-minus-circle', majordeduction => 'fa-minus-circle', choicebonus => 'fa-plus-circle', minorbonus => 'fa-plus-circle', majorbonus => 'fa-plus-circle' };
-					my $picons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
-					my $dicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
-					my $bicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
+					my $fontawesomep = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash' };
+					my $fontawesomed = { choicededuction => 'fa-minus-circle', minordeduction => 'fa-minus-circle', majordeduction => 'fa-minus-circle' };
+					my $fontawesomeb = { choicebonus => 'fa-plus-circle', minorbonus => 'fa-plus-circle', majorbonus => 'fa-plus-circle' };
+					my $picons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomep->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $dicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomed->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
+					my $bicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomeb->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
 					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s -%.1f</span>', $picons, $penalties ) : '';
 					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s -%.1f</span>', $dicons, $deductions ) : '';
 					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s +%.1f</span>', $bicons, $bonuses ) : '';
