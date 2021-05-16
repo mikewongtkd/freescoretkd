@@ -307,15 +307,15 @@ EOF
 					my $penalties    = sum0 values %{$score->{ penalty }};
 					my $deductions   = sum0 values %{$score->{ deduction }};
 					my $bonuses      = sum0 values %{$score->{ bonus }};
-					my $fontawesomep = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash' };
-					my $fontawesomed = { choicededuction => 'fa-minus-circle', minordeduction => 'fa-minus-circle', majordeduction => 'fa-minus-circle' };
-					my $fontawesomeb = { choicebonus => 'fa-plus-circle', minorbonus => 'fa-plus-circle', majorbonus => 'fa-plus-circle' };
-					my $picons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomep->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
-					my $dicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomed->{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
-					my $bicons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesomeb->{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
-					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s -%.1f</span>', $picons, $penalties ) : '';
-					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s -%.1f</span>', $dicons, $deductions ) : '';
-					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s +%.1f</span>', $bicons, $bonuses ) : '';
+					my $fontawesomep = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
+					my $fontawesomed = { choicededuction => 'fas fa-minus-circle', minordeduction => 'fas fa-minus-square', majordeduction => 'fas fa-minus-square' };
+					my $fontawesomeb = { choicebonus => 'fas fa-plus-square', minorbonus => 'fas fa-plus-square', majorbonus => 'fas fa-plus-circle' };
+					my $picons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesomep->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $dicons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesomed->{ $_ }, $score->{ deduction }{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
+					my $bicons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;+%.1f", $fontawesomeb->{ $_ }, $score->{ bonus }{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
+					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s</span>', $picons ) : '';
+					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s</span>', $dicons ) : '';
+					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s</span>', $bicons ) : '';
 					if( defined $mean ) {
 						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
