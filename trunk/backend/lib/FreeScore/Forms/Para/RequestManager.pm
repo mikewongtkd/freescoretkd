@@ -4,6 +4,7 @@ use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::Para;
+use FreeScore::Forms::Para::Schedule;
 use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
@@ -118,7 +119,7 @@ sub broadcast_division_response {
 		my $user      = $clients->{ $id };
 		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
 		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
-		my $unblessed = unbless( $message );
+		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
@@ -148,7 +149,7 @@ sub broadcast_division_judge_status {
 		my $user      = $clients->{ $id };
 		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
 		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
-		my $unblessed = unbless( $message );
+		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
@@ -177,7 +178,7 @@ sub broadcast_ring_response {
 		my $user      = $clients->{ $id };
 		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
 		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $progress );
-		my $unblessed = unbless( $message );
+		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
@@ -353,11 +354,9 @@ sub handle_division_award_punitive {
 			$self->broadcast_division_response( $request, $progress, $clients );
 
 		} else {
-			my $delay = shift;
-
 			my $round    = $division->{ round };
-			my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-			my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+			my $form     = $division->{ form };
+			my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 			print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -533,7 +532,7 @@ sub handle_division_display {
 			if( $j >= int( @$modes )) { $j = 0; }
 			$division->{ state } = $modes->[ $j ];
 		} else {
-			if( $division->is_display() ) { $division->score();   }
+			if( $division->is_display() ) { $division->score();   } 
 			else                          { $division->display(); }
 		}
 		$division->write();
@@ -693,7 +692,7 @@ sub handle_division_judge_query {
 	foreach my $i ( 0 .. ($n - 1)) { $judges->[ $i ] ||= {}; }
 
 	# ===== BUILD UP THE COURT IF NEEDED
-	if( $j < $n ) {
+	if( $j < $n ) { 
 		print STDERR "Have $j judges, building up to $n judges, initializing " . ($n - $j) . " judges\n" if $DEBUG;
 
 	# ===== IF THE NUMBER OF JUDGES HAS BEEN REDUCED, REMOVE THE EXTRA JUDGES
@@ -764,22 +763,22 @@ sub handle_division_navigate {
 	my $object = $target->{ destination };
 	my $i      = undef;
 	if   ( exists $target->{ divid }) { $i = $target->{ divid }; }
-	elsif( exists $target->{ round }) { $i = $target->{ round }; }
+	elsif( exists $target->{ round }) { $i = $target->{ round }; } 
 	else                              { $i = int( $target->{ index }); }
 
 	print STDERR "Navigating to $object $i.\n" if $DEBUG;
 
 	try {
-		if( $object =~ /^division$/i ) {
-			$progress->navigate( $i );
+		if( $object =~ /^division$/i ) { 
+			$progress->navigate( $i ); 
 			$progress->write();
 			$division = $progress->current();
 			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
-		elsif( $object =~ /^(?:athlete|round|form)$/i ) {
-			$division->navigate( $object, $i );
+		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
+			$division->navigate( $object, $i ); 
 
 			my $roundid  = $division->{ round };
 			my $athlete  = $division->current_athlete();
@@ -887,6 +886,18 @@ sub handle_division_pool_judge_ready {
 		my $response = $division->pool_judge_ready( $size, $judge );
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
+		
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $freestyle = $division->mixed_freestyle();
+			my $all_here  = $response->{ responded } >= $size;
+
+			# If all judges are in the Recognized interface, then disable Freestyle interface redirection
+			if( $freestyle->redirect_clients() && $all_here ) {
+				$freestyle->redirect_clients( 'off' );
+				$freestyle->write();
+			}
+		}
 
 		$division->write();
 
@@ -894,6 +905,7 @@ sub handle_division_pool_judge_ready {
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
+		print STDERR "ERROR: $_\n";
 		$client->send( { json => { error => "$_" }});
 	}
 }
@@ -922,12 +934,12 @@ sub handle_division_pool_resolve {
 		my $response = $division->resolve_pool();
 		$request->{ response } = $response;
 
+		my $round    = $division->{ round };
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+
 		$division->write();
 		$version->commit( $division, $message );
-
-		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -964,13 +976,23 @@ sub handle_division_pool_score {
 		my $response = $division->record_pool_score( $score );
 		$request->{ response } = $response;
 
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $freestyle = $division->mixed_freestyle();
+
+			if( $freestyle->redirect_clients() ) {
+				$freestyle->redirect_clients( 'off' );
+				$freestyle->write();
+			}
+		}
+
 		$division->write();
 		$version->commit( $division, $message );
 
 		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
-		if( $response->{ status } eq 'in-progress' ) {
+		if( $response->{ status } eq 'in-progress' ) { 
 			$self->broadcast_division_response( $request, $progress, $clients );
-			return;
+			return; 
 
 		} elsif( $response->{ status } eq 'fail' ) {
 			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
@@ -989,8 +1011,8 @@ sub handle_division_pool_score {
 		}
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 
@@ -1113,8 +1135,8 @@ sub handle_division_score {
 		$version->commit( $division, $message );
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -1147,11 +1169,11 @@ sub handle_division_write {
 	try {
 		my $division = FreeScore::Forms::Para::Division->from_json( $request->{ division } );
 		foreach my $key (keys %$division) { delete $division->{ $key } unless exists $valid->{ $key }; }
-		if( $ring eq 'staging' ) { $division->{ file } = sprintf( "%s/%s/%s/%s/div.%s.txt",       $FreeScore::PATH, $tournament, $FreeScore::Forms::Para::SUBDIR, $ring, $division->{ name } ); }
+		if( $ring eq 'staging' ) { $division->{ file } = sprintf( "%s/%s/%s/%s/div.%s.txt",       $FreeScore::PATH, $tournament, $FreeScore::Forms::Para::SUBDIR, $ring, $division->{ name } ); } 
 		else                     { $division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Forms::Para::SUBDIR, $ring, $division->{ name } ); }
 
 		my $message   = clone( $division );
-		my $unblessed = unbless( $message );
+		my $unblessed = unbless( $message ); 
 
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
 			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
@@ -1181,17 +1203,17 @@ sub handle_registration_archive {
 	my $client   = $self->{ _client };
 
 	print STDERR "Archiving previous registration\n" if $DEBUG;
-
+	
 	try {
 		# ===== MAKE ARCHIVE & CLEAR PREVIOUS VALUES
 		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 		my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", ($year + 1900), ($mon + 1), $mday, $hour, $min );
 
-		`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass forms-para forms-freestyle sparring-olympic`;
+		`cd $path && tar -cvzf $archive forms-grassroots forms-para forms-worldclass forms-freestyle sparring-olympic`;
 		`cd $path && rm -rf forms-grassroots/*/div*.txt`;
 		`cd $path && rm -rf forms-freestyle/*/div*.txt`;
-		`cd $path && rm -rf forms-worldclass/*/div*.txt`;
 		`cd $path && rm -rf forms-para/*/div*.txt`;
+		`cd $path && rm -rf forms-worldclass/*/div*.txt`;
 		`cd $path && rm -rf forms-worldclass/schedule.json`;
 
 		$client->send({ json => { request => $request, archive => $archive }});
@@ -1209,7 +1231,7 @@ sub handle_registration_import {
 	my $client   = $self->{ _client };
 
 	print STDERR "Importing USAT Registration information\n" if $DEBUG;
-
+	
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	my $path = join '/', @path;
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
@@ -1232,7 +1254,7 @@ sub handle_registration_import {
 				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
 				my $forms                      = assign_draws( $draws, $draw ) if $draws;
 				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes < 20 ) { $round = 'semfin'; }
-				my $division                   = $progress->create_division( $divid );
+				my $division                   = $progress->create_division( $divid ); 
 				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
 				$division->{ current }         = 0;
 				$division->{ description }     = $description;
@@ -1261,7 +1283,7 @@ sub handle_registration_upload {
 	my $client   = $self->{ _client };
 
 	print STDERR "Uploading USAT Registration $request->{ target } information\n" if $DEBUG;
-
+	
 	my $target = $request->{ target } =~ /^(?:male|female|usat)$/ ? $request->{ target } : undef;
 	return unless defined $target;
 
@@ -1317,7 +1339,7 @@ sub handle_registration_read {
 	my $client   = $self->{ _client };
 
 	print STDERR "Reading USAT Registration information\n" if $DEBUG;
-
+	
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	my $path = join '/', @path;
 
@@ -1338,7 +1360,7 @@ sub handle_registration_read {
 			$male   = \0;
 			$usat   = \1;
 
-		}
+		} 
 		elsif( -e $male && -e $female ) {
 			$female = read_file( $female );
 			$male   = read_file( $male );
@@ -1350,7 +1372,7 @@ sub handle_registration_read {
 			$female = \1;
 			$male   = \1;
 			$usat   = \0;
-		}
+		} 
 		elsif( -e $male   ) { $female = \0; $male = \1; $usat = \0; }
 		elsif( -e $female ) { $female = \1; $male = \0; $usat = \0; }
 		else                { $female = \0; $male = \0; $usat = \0; }
@@ -1369,7 +1391,7 @@ sub handle_registration_remove {
 	my $client   = $self->{ _client };
 
 	print STDERR "Removing USAT Registration information\n" if $DEBUG;
-
+	
 	my $path = "$progress->{ path }/../..";
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
@@ -1531,7 +1553,7 @@ sub send_division_response {
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 
 	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
-	my $unblessed = unbless( $message );
+	my $unblessed = unbless( $message ); 
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
@@ -1561,7 +1583,7 @@ sub send_ring_response {
 	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
 
 	my $message   = clone( $progress );
-	my $unblessed = unbless( $message );
+	my $unblessed = unbless( $message ); 
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
@@ -1649,7 +1671,7 @@ sub handle_schedule_build {
 	my $client   = $self->{ _client };
 
 	print STDERR "Building schedule... " if $DEBUG;
-
+	
 	my $copy       = clone( $request );
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
@@ -1691,7 +1713,7 @@ sub handle_schedule_check {
 	my $client   = $self->{ _client };
 
 	print STDERR "Checking schedule... " if $DEBUG;
-
+	
 	my $copy       = clone( $request );
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
@@ -1735,7 +1757,7 @@ sub handle_schedule_init {
 	my $client   = $self->{ _client };
 
 	print STDERR "Creating a new schedule\n" if $DEBUG;
-
+	
 	my $copy       = clone( $request );
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
@@ -1760,7 +1782,7 @@ sub handle_schedule_read {
 	my $client   = $self->{ _client };
 
 	print STDERR "Reading schedule information\n" if $DEBUG;
-
+	
 	my $copy       = clone( $request );
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
@@ -1790,7 +1812,7 @@ sub handle_schedule_remove {
 	my $client   = $self->{ _client };
 
 	print STDERR "Removing schedule information\n" if $DEBUG;
-
+	
 	my $path = "$progress->{ path }/..";
 	try {
 		unlink( "$path/schedule.json" );
@@ -1810,7 +1832,7 @@ sub handle_schedule_write {
 	my $json     = $self->{ _json };
 
 	print STDERR "Writing schedule information for $request->{ stage } stage.\n" if $DEBUG;
-
+	
 	my $path       = "$progress->{ path }/..";
 	my $file       = "$path/schedule.json";
 	my $schedule   = $request->{ schedule };
@@ -1838,7 +1860,7 @@ sub assign_draws {
 	my $gender  = $draw->{ gender };
 	my $age     = $draw->{ age };
 	my $default = { prelim => [ 'Open' ], semfin => [ 'Open' ], finals => [ 'Open', 'Open' ]};
-
+	
 	return $default unless exists $draws->{ $event };
 	my $forms = $draws->{ $event };
 
@@ -1855,7 +1877,7 @@ sub autopilot {
 # ============================================================
 #** @method( request, progress, clients, judges )
 #   @brief Automatically advances to the next form/athlete/round/division
-#   Called when judges finish scoring an athlete's form
+#   Called when judges finish scoring an athlete's form 
 #*
 
 	my $self     = shift;
@@ -1866,8 +1888,7 @@ sub autopilot {
 	my $division = $progress->current();
 	my $json     = $self->{ _json };
 	my $timers   = exists $division->{ timers } && defined $division->{ timers } ? $json->decode( $division->{ timers }) : { cycle => 2 };
-	# my $cycle    = $timers->{ cycle };
-	my $cycle    = 1;
+	my $cycle    = $timers->{ cycle };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
 	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
@@ -1894,11 +1915,12 @@ sub autopilot {
 	my $score    = $athlete->{ scores }{ $round };
 	my $punitive = $score ? $score->any_punitive_decision() : 0;
 	my $j        = first_index { $_ == $division->{ current } } @$order;
-
+ 
 	# Default pauses
 	$pause->{ score }       ||= 9;
 	$pause->{ leaderboard } ||= 12;
 	$pause->{ brief }       ||= 1;
+	$pause->{ redirect }    ||= 5;
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -1910,7 +1932,7 @@ sub autopilot {
 		if( int( @athletes ) == 1 ) {
 			print STDERR "Match has a bye. Advancing the division to next match.\n" if $DEBUG;
 
-			$division->next_round();
+			$division->next_round(); 
 			$division->first_form();
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
@@ -1926,9 +1948,9 @@ sub autopilot {
 		my $firstform = { chung => $scores->{ chung }{ forms }[ 0 ],  hong  => $scores->{ hong  }{ forms }[ 0 ], };
 		my $form      = { chung => $scores->{ chung }{ forms }[ $f ], hong  => $scores->{ hong  }{ forms }[ $f ], };
 
-		my $last = {
+		my $last = { 
 			athlete => $division->{ current } == 1,
-			form    => $division->{ form } == $#$forms
+			form    => $division->{ form } == $#$forms 
 		};
 
 		my $complete = {
@@ -1952,15 +1974,15 @@ sub autopilot {
 
 		$delay->steps(
 			# Display the score summary
-			sub {
+			sub { 
 				my $delay = shift;
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				if( $show->{ score }) { # Display the judges score for 9 seconds
 					print STDERR "Showing judges score.\n" if $DEBUG;
-					$division->score() unless $division->is_score();
-					$division->write();
+					$division->score() unless $division->is_score(); 
+					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
@@ -1970,15 +1992,15 @@ sub autopilot {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
-			sub {
+			sub { 
 				my $delay = shift;
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				if( $show->{ score }) { # Display the summary score for 9 seconds
 					print STDERR "Showing score for both athletes.\n" if $DEBUG;
-					$division->summary() unless $division->summary();
-					$division->write();
+					$division->summary() unless $division->summary(); 
+					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
 				} else { # Skip ahead quickly
@@ -1986,15 +2008,15 @@ sub autopilot {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
-			sub {
+			sub { 
 				my $delay = shift;
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				if( $show->{ results }) { # Display the match results for 9 seconds
 					print STDERR "Showing final overall score (average of all forms).\n" if $DEBUG;
-					$division->match_results() unless $division->is_match_results();
-					$division->write();
+					$division->match_results() unless $division->is_match_results(); 
+					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
@@ -2004,16 +2026,16 @@ sub autopilot {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
 			},
-			sub {
+			sub { 
 				my $delay = shift;
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete })) {
+				if( $show->{ leaderboard }) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
-					$division->display() unless $division->is_display();
-					$division->write();
+					$division->display() unless $division->is_display(); 
+					$division->write(); 
 					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
 
@@ -2038,6 +2060,7 @@ sub autopilot {
 					if( $complete->{ firstform }) { $division->{ form } = $#$forms; }
 
 				}
+				print STDERR "Disengaging autopilot.\n";
 				$division->autopilot( 'off' );
 				$division->write();
 
@@ -2058,26 +2081,49 @@ sub autopilot {
 			round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
 			cycle   => (!(($j + 1) % $cycle)),
 		};
+		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
+		my $round    = $division->{ round };
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+		my $mixed    = $division->is_mixed() && $form == 0 && $complete;
 
 		$delay->steps(
 			sub { # Display the athlete's score for 9 seconds
 				my $delay = shift;
 				Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 			},
-			sub {
+			sub { 
 				my $delay = shift;
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
-				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) {
-					print STDERR "Showing leaderboard.\n" if $DEBUG;
-					$division->display() unless $division->is_display();
+				# Redirect for Mixed Poomsae competitions
+				if( $mixed ) {
+					print STDERR "Redirecting to Freestyle for mixed poomsae division.\n";
+					$division->redirect_clients( 'freestyle' );
 					$division->write();
-					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+
+				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+				} elsif( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
+					print STDERR "Showing leaderboard.\n" if $DEBUG;
+					$division->display() unless $division->is_display(); 
+					$division->write(); 
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 
 				# Otherwise keep displaying the score for another second
+				} else {
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { # Delay for mixed divisions
+				my $delay = shift;
+
+				if( $mixed ) {
+					print STDERR "Allowing time for redirection to complete for mixed poomsae division.\n";
+					Mojo::IOLoop->timer( $pause->{ redirect } => $delay->begin );
 				} else {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
@@ -2098,6 +2144,7 @@ sub autopilot {
 				elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
 				elsif ( $go_next->{ form }    ) { $division->next_form(); }
 
+				print STDERR "Disengaging autopilot.\n";
 				$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 				$division->write();
 
