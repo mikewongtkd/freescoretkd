@@ -2010,7 +2010,7 @@ sub autopilot {
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $show->{ leaderboard }) {
+				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete })) {
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display();
 					$division->write();
