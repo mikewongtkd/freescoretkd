@@ -185,9 +185,9 @@ EOF
 			my $decided     = 0;
 			my $place       = sprintf( "%d.", $i + 1 );
 			my $penalties   = sum0 values %{$score->{ penalty }};
-			my $fontawesome = { bounds => 'fa-sign-out-alt', other => 'fa-exclamation-triangle', timelimit => 'fa-clock', restart => 'fa-redo', misconduct => 'fa-comment-slash' };
-			my $icons       = join( ' ', map { sprintf( "<span class=\"fas %s\">&nbsp;</span>", $fontawesome->{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
-			my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s %.1f</span>', $icons, - $penalties ) : '';
+			my $fontawesome = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
+			my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesome->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+			my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s</span>', $icons ) : '';
 
 			if( exists $athlete->{ decision } ) {
 				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
@@ -203,7 +203,7 @@ EOF
 				push @score, sprintf( "<td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td>" );
 
 			} else {
-				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation }, $adjustments );
+				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span>%s</td>", $score->{ total }, $score->{ technical }, $score->{ presentation }, $adjustments );
 			}
 			my $key = sprintf( "%.2f", $score->{ total });
 			if( exists $ties->{ $key } && ! $decided ) {
