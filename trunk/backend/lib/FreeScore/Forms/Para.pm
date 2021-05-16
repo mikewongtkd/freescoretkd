@@ -20,11 +20,11 @@ sub init {
 	my $tournament = shift;
 	my $ring       = shift;
 
-	if( defined $ring ) {
+	if( defined $ring ) { 
 		# ===== LOAD THE DIVISIONS IN THE SPECIFIED RING
 		# Note: the application may need to load both the ring and staging;
 		# this is application specific, so we do not facilitate it here
-		$self->{ path } = $ring eq 'staging' ? join( "/", $FreeScore::PATH, $tournament, $SUBDIR, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring );
+		$self->{ path } = $ring eq 'staging' ? join( "/", $FreeScore::PATH, $tournament, $SUBDIR, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 		$self->{ name } = $ring;
 		my $divisions = $self->load_ring( $ring );
 		$self->{ divisions } = [];
@@ -37,9 +37,9 @@ sub init {
 		}
 		$self->read_draws();
 
-	} else {
+	} else { 
 		# ==== LOAD THE DIVISIONS IN STAGING
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR );
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 		my ($divisions, $rings) = $self->load_all();
 		my $loaded = [];
 		foreach my $id (@$divisions) {
@@ -50,7 +50,7 @@ sub init {
 
 		# ===== LOAD THE DIVISIONS IN EACH RING
 		foreach my $ring (@$rings) {
-			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring );
+			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );
 			foreach my $id (@$ring_divisions) {
 				my $division = new FreeScore::Forms::Para::Division( $self->{ path }, $id );
@@ -61,7 +61,7 @@ sub init {
 		$self->{ divisions } = $loaded;
 
 		# ===== RESTORE THE CURRENT PATH
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR );
+		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
 		$self->read_draws();
 	}
 }
@@ -217,7 +217,7 @@ sub next_available {
 
 	} else {
 		# Find the type with the largest available division number
-		my ($largest) = sort {
+		my ($largest) = sort { 
 			$divisions->{ $b }[ -1 ] <=> $divisions->{ $a }[ -1 ];
 		} keys %$divisions;
 		return sprintf( "%s%02d", $largest, (shift @{ $divisions->{ $largest }}));
@@ -288,11 +288,11 @@ sub update_division {
 
 	my $i = first_index { $_->{ name } eq $division->{ name } } @{ $self->{ divisions }};
 	# New division
-	if( $i < 0 ) {
-		push @{ $self->{ divisions }}, $division;
+	if( $i < 0 ) { 
+		push @{ $self->{ divisions }}, $division; 
 
 	# Merge with existing division
-	} else {
+	} else { 
 		my $previous = $self->{ divisions }[ $i ];
 		my $score    = {};
 		foreach my $athlete (@{ $previous->{ athletes }}) { $score->{ $athlete->{ name }} = $athlete; }
@@ -301,7 +301,7 @@ sub update_division {
 			$division->{ athletes }[ $i ] = $score->{ $name } if( exists $score->{ $name } );
 			$division->{ athletes }[ $i ]{ id } = $i;
 		}
-		$self->{ divisions }[ $i ] = $division;
+		$self->{ divisions }[ $i ] = $division; 
 	}
 }
 
