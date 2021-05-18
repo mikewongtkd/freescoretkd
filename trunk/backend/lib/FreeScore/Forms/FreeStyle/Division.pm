@@ -874,6 +874,7 @@ sub _drop_hilo {
 	my ($min, $max) = minmax @subtotals;
 	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
 	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
+	$j++ if( $i == $j ); # Avoid the corner-case when all judges send in the same exact score
 	my $sum = reduce { $a += $b } 0, @subtotals;
 	$sum -= $min + $max;
 	$sum /= $n;
