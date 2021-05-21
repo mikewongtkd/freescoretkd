@@ -8,8 +8,6 @@ use Data::Structure::Util qw( unbless );
 use List::Util qw( any first );
 use List::MoreUtils qw( first_index );
 use MIME::Base64;
-use Scalar::Util qw( looks_like_number );
-use Math::Round qw( nearest );
 use Clone qw( clone );
 use Time::Piece;
 use Data::Dumper;
@@ -245,10 +243,10 @@ sub handle_rescore {
 	my $forms = $division->{ forms }{ $key->{ round }};
 
 	foreach $score (values %$pool) {
-		next unless exists $score->{ as } && looks_like_number( $score->{ as });
-		my $acc    = $score->{ accuracy };
+		next unless exists $score->{ as };
+		my $tec    = $score->{ technical };
 		my $pre    = $score->{ presentation };
-		my $values = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+		my $values = { stance => $tec->{ stance }, technique => $tec->{ technique }, rhythm => $pre->{ rhythm }, memorization => $pre->{ memorization }, energy => $pre->{ energy }, complete => 1 };
 		$round->record_score( $key->{ form }, $score->{ as }, $values );
 	}
 
