@@ -284,7 +284,7 @@ sub calculate_means {
 			my $score        = $form->{ judge }[ $i ];
 			my $accuracy     = $score->{ accuracy };
 			my $presentation = $score->{ presentation };
-			die "Round Object Error: Accuracy not calculated!"  if ! defined $accuracy        && ! $punitive_decision;
+			die "Round Object Error: Accuracy not calculated!"     if ! defined $accuracy     && ! $punitive_decision;
 			die "Round Object Error: Presentation not calculated!" if ! defined $presentation && ! $punitive_decision;
 			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
 			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
