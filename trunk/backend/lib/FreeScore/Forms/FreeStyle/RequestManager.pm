@@ -167,9 +167,8 @@ sub handle_division_award_penalty {
 	my $round    = $division->{ round };
 	my $athlete  = $division->{ athletes }[ $request->{ athlete_id } ];
 	my $have     = $athlete->{ penalty }{ $round };
-	my $add      = clone( $request->{ penalty }{ $round });
+	my $add      = clone( $request->{ penalty });
 
-	foreach my $penalty (keys %$have) { delete $add->{ $penalty } if exists $add->{ $penalty }; }
 	if( keys %$add ) {
 		print STDERR "Award penalty: " . join( ' ', sort keys %$add ) . " to $athlete->{ name }.\n" if $DEBUG;
 	} else {
@@ -177,7 +176,7 @@ sub handle_division_award_penalty {
 	}
 
 	try {
-		$division->record_penalty( $request->{ penalty }{ $round }, $request->{ athlete_id });
+		$division->record_penalty( $request->{ penalty }, $request->{ athlete_id });
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );
