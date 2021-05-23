@@ -776,15 +776,18 @@ sub write {
 # ============================================================
 sub _compare_freestyle {
 # ============================================================
-	my $i = shift;
-	my $j = shift;
+	my $i     = shift;
+	my $j     = shift;
 	my $round = shift;
 
 	my $i_adj = $i->{ adjusted }{ $round };
 	my $i_ori = $i->{ original }{ $round };
 	my $j_adj = $j->{ adjusted }{ $round };
 	my $j_ori = $j->{ original }{ $round };
+	my $rank_decision = { '' => 1000, 'disqualify' => 10, 'withdraw' => 100 };
 
+	my $i_dec            = $rank_decision->{ $i->{ decision }{ $round }};
+	my $j_dec            = $rank_decision->{ $j->{ decision }{ $round }};
 	my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
 	my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
 	my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
@@ -793,11 +796,12 @@ sub _compare_freestyle {
 	my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
 	my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
 
+	my $dec                = $j_dec           <=> $i_dec;
 	my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
 	my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
 	my $original_total     = $j_ori_total     <=> $i_ori_total;
 
-	return $adjusted_total || $adjusted_technical || $original_total;
+	return $dec || $adjusted_total || $adjusted_technical || $original_total;
 }
 
 # ============================================================
