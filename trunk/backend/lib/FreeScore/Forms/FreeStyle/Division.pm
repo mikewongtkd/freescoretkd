@@ -150,7 +150,7 @@ sub calculate_placements {
 		my $j = $athletes->[ $b ];
 
 		if( $mixed ) { _compare_mixed( $a, $b, $self ); }
-		else         { _compare_freestyle( $i, $j ); }
+		else         { _compare_freestyle( $i, $j, $round ); }
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -778,6 +778,7 @@ sub _compare_freestyle {
 # ============================================================
 	my $i = shift;
 	my $j = shift;
+	my $round = shift;
 
 	my $i_adj = $i->{ adjusted }{ $round };
 	my $i_ori = $i->{ original }{ $round };
@@ -810,7 +811,10 @@ sub _compare_mixed {
 
 	my $i = { freestyle => $freestyle->{ athletes }[ $a ], recognized => $freestyle->{ athletes }[ $a ]{ info }{ recognized }};
 	my $j = { freestyle => $freestyle->{ athletes }[ $b ], recognized => $freestyle->{ athletes }[ $b ]{ info }{ recognized }};
+	my $rank_decision = { '' => 0, 'disqualify' => 1000, 'withdraw' => 100 };
 
+	$i->{ dec }   = $rank_decision->{ $i->{ freestyle }{ decision }{ $round }};
+	$j->{ dec }   = $rank_decision->{ $j->{ freestyle }{ decision }{ $round }};
 	$i->{ total } = _real( $i->{ recognized }{ adjusted }{ total }) + _real( $i->{ freestyle }{ adjusted }{ $round }{ total });
 	$j->{ total } = _real( $j->{ recognized }{ adjusted }{ total }) + _real( $j->{ freestyle }{ adjusted }{ $round }{ total });
 	$i->{ tb1 }   = _real( $i->{ freestyle }{ adjusted }{ total });
@@ -851,7 +855,7 @@ sub _compare_mixed {
 		$j->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $jn );
 	}
 
-	return $j->{ total } <=> $i->{ total } || $j->{ tb1 } <=> $i->{ tb1 } || $j->{ tb2 } <=> $i->{ tb2 };
+	return $i->{ dec } <=> $j->{ dec } || $j->{ total } <=> $i->{ total } || $j->{ tb1 } <=> $i->{ tb1 } || $j->{ tb2 } <=> $i->{ tb2 };
 }
 
 # ============================================================
