@@ -48,7 +48,8 @@ sub print_divisions {
 				my $noc      = $athlete->{ info }{ noc };
 				my $video    = '';
 				if( ref( $athlete->{ info }{ video }{ $round }) =~ /^array/i ) { $video = $athlete->{ info }{ video }{ $round }[ 0 ] }
-				else { $video = $athlete->{ info }{ video }{ $round }{ 0 }; }
+				elsif($athlete->{ info }{ video }{ $round }) { $video = $athlete->{ info }{ video }{ $round }{ 0 } }
+				else { $video = ''; }
 				my $uuid     = (split /\//, $video->{ file })[ 0 ];
 				my $decision = $video ? $video->{ decision } : $athlete->{ info }{ decision };
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
