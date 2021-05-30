@@ -45,9 +45,9 @@ sub print_divisions {
 				my $place    = first_index { $i == $_ } @{ $division->{ placement }{ $round }};
 				my $name     = $athlete->{ name };
 				my $noc      = $athlete->{ info }{ noc };
-				my $video    = $athlete->{ info }{ video } ? $json->decode( $athlete->{ info }{ video }) : '';
+				my $video    = $json->decode( $athlete->{ info }{ video });
 				my $uuid     = (split /\//, $video->{ $round }[ 0 ]{ file })[ 0 ];
-				my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : $athlete->{ info }{ decision };
+				my $decision = $video->{ $round }[ 0 ]{ decision };
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
 				$place = $decision if $decision;
 
