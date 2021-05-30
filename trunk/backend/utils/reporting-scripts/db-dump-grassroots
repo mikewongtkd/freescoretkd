@@ -45,7 +45,7 @@ sub print_divisions {
 				my $place    = first_index { $i == $_ } @{ $division->{ placements }};
 				my $name     = $athlete->{ name };
 				my $noc      = $athlete->{ info }{ noc };
-				my $video    = $athlete->{ info }{ video };
+				my $video    = $athlete->{ info }{ video } || '';
 				my $uuid     = (split /\//, $video->{ file })[ 0 ];
 				my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : $athlete->{ info }{ decision };
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
