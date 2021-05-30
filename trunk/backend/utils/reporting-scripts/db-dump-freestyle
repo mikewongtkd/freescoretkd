@@ -50,7 +50,7 @@ sub print_divisions {
 				if( ref( $athlete->{ info }{ video }{ $round }) =~ /^array/i ) { $video = $athlete->{ info }{ video }{ $round }[ 0 ] }
 				else { $video = $athlete->{ info }{ video }{ $round }{ 0 }; }
 				my $uuid     = (split /\//, $video->{ file })[ 0 ];
-				my $decision = $video->{ decision };
+				my $decision = $video ? $video->{ decision } : $athlete->{ info }{ decision };
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
 				$place = $decision if $decision;
 

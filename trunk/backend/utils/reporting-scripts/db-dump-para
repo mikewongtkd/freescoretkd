@@ -10,7 +10,7 @@ use Data::Dumper;
 use Cwd qw( getcwd );
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::GrassRoots;
+use FreeScore::Forms::Para;
 
 $FreeScore::PATH = getcwd();
 
@@ -20,14 +20,13 @@ my $divisions  = [];
 
 foreach my $day (map { sprintf( "day-%d-complete", $_ )} ( 1 .. 6 )) {
 	next unless -e "$FreeScore::PATH/$day";
-	foreach my $ring ( 1 .. 3 ) {
+	foreach my $ring ( 1 .. 4 ) {
 		my $rname = sprintf( "ring%02d", $ring );
-		my $path  = "$FreeScore::PATH/$day/$FreeScore::Forms::GrassRoots::SUBDIR/$rname";
-		next unless -e $path;
-		my $results = new FreeScore::Forms::GrassRoots( $day, $ring );
+		next unless -e "$FreeScore::PATH/$day/$FreeScore::Forms::Para::SUBDIR/$rname";
+		my $results = new FreeScore::Forms::Para( $day, $ring );
 		push @$divisions, @{ $results->{ divisions }};
 	}
-	@$divisions = sort { $a->{ name } cmp $b->{ name } } @$divisions;
+	@$divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @$divisions;
 	print_divisions( $divisions );
 }
 
@@ -39,14 +38,15 @@ sub print_divisions {
 		my $divid      = $division->{ name };
 		my $divdesc    = sprintf( "%-64s", substr( $division->{ description }, 0, 64 ));
 		my $athletes   = $division->{ athletes };
-		foreach my $round ( qw( fin )) {
-			foreach my $i ( 0 .. $#{$division->{ athletes }}) {
+		foreach my $round ( qw( prelim semfin finals )) {
+			next unless( exists( $division->{ order }{ $round }) && exists( $division->{ placement }{ $round }));
+			foreach my $i (@{$division->{ order }{ $round }}) {
 				my $athlete  = $division->{ athletes }[ $i ];
-				my $place    = first_index { $i == $_ } @{ $division->{ placements }};
+				my $place    = first_index { $i == $_ } @{ $division->{ placement }{ $round }};
 				my $name     = $athlete->{ name };
 				my $noc      = $athlete->{ info }{ noc };
-				my $video    = $athlete->{ info }{ video };
-				my $uuid     = (split /\//, $video->{ file })[ 0 ];
+				my $video    = $json->decode( $athlete->{ info }{ video });
+				my $uuid     = (split /\//, $video->{ $round }[ 0 ]{ file })[ 0 ];
 				my $decision = $video ? $video->{ $round }[ 0 ]{ decision } : $athlete->{ info }{ decision };
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
 				$place = $decision if $decision;
