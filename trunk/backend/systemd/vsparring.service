@@ -1,0 +1,11 @@
+[Unit]
+Description=FreeScore Virtual Sparring Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/vsparring
+ExecStop=/usr/bin/pkill vsparring
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

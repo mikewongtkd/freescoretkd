@@ -37,13 +37,15 @@ try {
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+my $branding = '/var/www/html/images/branding/reports.css';
+$branding = -e $branding ? read_file( $branding ) : '';
 
 print $cgi->header();
 
 print <<EOF;
 <html>
 	<head>
-		<title>Tournament Grass Roots Forms Results</title>
+		<title>Grass Roots Forms TA Sheets</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -55,7 +57,8 @@ print <<EOF;
 			}
 
 			.results {
-				page-berak-inside: avoid;
+				page-break-inside: avoid;
+				page-break-after: always;
 			}
 
 			.results table {
@@ -73,7 +76,7 @@ print <<EOF;
 			.results thead th.number  { width: 20px; }
 			.results thead th.noc     { width: 80px; }
 			.results thead th.athlete { width: 860px; }
-			.results .decision        { color: red; }
+			.results td.decision      { text-align: center; color: red; }
 
 			.results tbody td { 
 				padding: 2px 4px 2px 4px;
@@ -82,11 +85,11 @@ print <<EOF;
 			.results tbody tr:nth-child( even ) { background: #eee; }
 			.results tbody tr:nth-child( odd  ) { background: #fff; }
 
-			.header, .header-space { height: 225px; }
-			.footer, .footer-space { height: 50px; }
-			.header { position: fixed; top: 0; }
-			.footer { position: fixed; bottom: 0; }
-
+			# .header, .header-space { height: 225px; }
+			# .footer, .footer-space { height: 50px; }
+			# .header { position: fixed; top: 0; }
+			# .footer { position: fixed; bottom: 0; }
+			$branding
 		</style>
 	</head>
 	<body>
@@ -108,15 +111,16 @@ foreach my $division (@divisions) {
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
-					<th class="decision">&nbsp;</th>
-				</tr>
-				</thead>
+					<th class="form">Board Breaking</th>
+					<th class="decision">Decisions</th>
+				 </tr>
+				 </thead>
 				<tbody>
 EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
 		my $athlete = $division->{ athletes }[ $i ];
-		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td>$athlete->{ info }{ video }{ decision }</td></tr>\n";
+		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td></td><td class=\"decision\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
 	}
 	print <<EOF;
 				</tbody>

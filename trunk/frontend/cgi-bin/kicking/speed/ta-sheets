@@ -5,7 +5,7 @@ use JSON::XS;
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::GrassRoots;
+use FreeScore::Kicking::Speed;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -17,15 +17,15 @@ my @divisions  = ();
 try {
 	if( defined $ring ) {
 		if( defined $divid ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			$results = new FreeScore::Kicking::Speed( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 		} else {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			$results = new FreeScore::Kicking::Speed( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+			$results = new FreeScore::Kicking::Speed( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 		if( defined $divid ) {
@@ -45,7 +45,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Grass Roots Forms Draws</title>
+		<title>Speed Kicking TA Sheets</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -60,9 +60,11 @@ print <<EOF;
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
+
 			.results table {
 				width: 720px;
 				page-break-inside: avoid;
+				page-break-after: always;
 			}
 			.results thead tr { background: #eee; }
 			.results thead th {
@@ -75,6 +77,8 @@ print <<EOF;
 			.results thead th.number  { width: 20px; }
 			.results thead th.noc     { width: 80px; }
 			.results thead th.athlete { width: 860px; }
+			.results thead th.form    { width: 200px; }
+			.results td.decision      { text-align: center; color: red; }
 
 			.results tbody td { 
 				padding: 2px 4px 2px 4px;
@@ -88,6 +92,7 @@ print <<EOF;
 			# .header { position: fixed; top: 0; }
 			# .footer { position: fixed; bottom: 0; }
 			$branding
+
 		</style>
 	</head>
 	<body>
@@ -109,6 +114,8 @@ foreach my $division (@divisions) {
 					<th class="number">#</th>
 					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
+					<th class="form">Speed Kicking</th>
+					<th class="decision">Decisions</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -116,7 +123,7 @@ EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
 		my $athlete = $division->{ athletes }[ $i ];
-		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td></tr>\n";
+		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td></td><td class=\"decision\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
 	}
 	print <<EOF;
 				</tbody>

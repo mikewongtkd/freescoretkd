@@ -4,8 +4,8 @@ use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
 use Try::Tiny;
 use FreeScore;
-use FreeScore::Forms::FreeStyle;
-use FreeScore::Forms::FreeStyle::RequestManager;
+use FreeScore::Sparring::Virtual;
+use FreeScore::Sparring::Virtual::RequestManager;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
@@ -22,13 +22,12 @@ our $DEBUG  = 0;
 # ------------------------------------------------------------
 # MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
 # ------------------------------------------------------------
-websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
+websocket '/vsparring/:tournament/:ring/:role/:id' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
-	my $role       = $self->param( 'role'       );
 	my $id         = $self->param( 'id'         );
-	my $manager    = new FreeScore::Forms::FreeStyle::RequestManager( $tournament, $ring, $self->tx() );
+	my $manager    = new FreeScore::Sparring::Virtual::RequestManager( $tournament, $ring, $self->tx() );
 	my $progress   = undef;
 	my $group      = $ring eq 'staging' ? sha1_hex( "$tournament-staging" ) : sha1_hex( sprintf "%s-ring-%d", $tournament, $ring );  
 
@@ -59,7 +58,7 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 
 		# ===== READ TOURNAMENT SETTINGS
 		try   { 
-			$progress = new FreeScore::Forms::FreeStyle( $tournament, $ring ); 
+			$progress = new FreeScore::Sparring::Virtual( $tournament, $ring ); 
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament': $_" }}); };
 
 		# ===== HANDLE REQUEST
@@ -72,7 +71,7 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 	# ----------------------------------------
 	# Handle disconnects
 	# ----------------------------------------
-	$self->on( finish => sub { delete $client->{ $group }{ $id }; });
+	$self->on( finish => sub { delete $client->{ $id }; });
 };
 
 # ============================================================
@@ -91,13 +90,13 @@ any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
 	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
-	$self->render( json => { error => "FreeScore FreeStyle Service Error: Unknown command: $command" });
+	$self->render( json => { error => "FreeScore Virtual Sparring Service Error: Unknown command: $command" });
 };
 
 # ============================================================
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3082' ], pid_file => '/var/run/freestyle.pid', workers => 1 });
-app->log( new Mojo::Log( path => '/var/log/freescore/freestyle.log', level => 'debug' ));
+app->config( hypnotoad => { listen => [ 'http://*:3095' ], pid_file => '/var/run/vsparring.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/vsparring.log', level => 'debug' ));
 app->start();
