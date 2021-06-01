@@ -19,4 +19,16 @@ sub current {
 	return $form;
 }
 
+# ============================================================
+sub max {
+# ============================================================
+	my $self     = shift;
+	my $division = $self->{ _parent };
+	my $event    = $division->{ _event };
+	my $rid      = $division->{ current }{ round };
+	my $max      = $event->max_forms( $rid );
+
+	return $max;
+}
+
 1;
