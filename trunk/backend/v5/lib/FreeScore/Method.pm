@@ -28,7 +28,7 @@ sub next_round {
 #   @brief Returns the next round ID or undef if there are no more incomplete rounds
 #*
 	my $self = shift;
-	die "Stub method next_round() called $!";
+	die "Stub method Method::next_round() called $!";
 }
 
 # ============================================================
@@ -38,7 +38,7 @@ sub next_todo {
 #   @brief Returns the next todo item or undef if there are no more todo items remaining
 #*
 	my $self = shift;
-	die "Stub method next_todo() called $!";
+	die "Stub method Method::next_todo() called $!";
 }
 
 # ============================================================
@@ -48,7 +48,7 @@ sub previous_round {
 #   @brief Returns the previous round ID or undef if there are no earlier rounds
 #*
 	my $self = shift;
-	die "Stub method previous_round() called $!";
+	die "Stub method Method::previous_round() called $!";
 }
 
 # ============================================================
@@ -58,7 +58,7 @@ sub previous_todo {
 #   @brief Returns the previous todo item or undef if there are no prior todo items
 #*
 	my $self = shift;
-	die "Stub method previous_todo() called $!";
+	die "Stub method Method::previous_todo() called $!";
 }
 
 # ============================================================

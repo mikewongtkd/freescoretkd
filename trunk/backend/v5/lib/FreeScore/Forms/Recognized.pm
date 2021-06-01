@@ -1,7 +1,7 @@
-package FreeScore::Forms::WorldClass;
+package FreeScore::Forms::Recognized;
 use FreeScore;
 use FreeScore::Forms;
-use FreeScore::Forms::WorldClass::Division;
+use FreeScore::Forms::Recognized::Division;
 use Clone qw( clone );
 use base qw( FreeScore::Forms );
 use List::Util qw( first min max shuffle );
@@ -31,7 +31,7 @@ sub init {
 		foreach my $id (@$divisions) {
 			my $file = sprintf( "%s/div.%s.txt", $self->{ path }, $id );
 			next unless -e $file;
-			my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+			my $division = new FreeScore::Forms::Recognized::Division( $self->{ path }, $id );
 			$division->{ ring } = $ring eq 'staging' ? $ring : int( $ring );
 			push @{ $self->{ divisions }}, $division;
 		}
@@ -43,7 +43,7 @@ sub init {
 		my ($divisions, $rings) = $self->load_all();
 		my $loaded = [];
 		foreach my $id (@$divisions) {
-			my $division = new FreeScore::Forms::WorldClass::Division( "$self->{ path }/staging", $id );
+			my $division = new FreeScore::Forms::Recognized::Division( "$self->{ path }/staging", $id );
 			$division->{ ring } = 'staging';
 			push @$loaded, $division;
 		}
@@ -53,7 +53,7 @@ sub init {
 			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 			my $ring_divisions = $self->load_ring( $ring );
 			foreach my $id (@$ring_divisions) {
-				my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $id );
+				my $division = new FreeScore::Forms::Recognized::Division( $self->{ path }, $id );
 				$division->{ ring } = int( $ring );
 				push @$loaded, $division;
 			}
@@ -71,7 +71,7 @@ sub create_division {
 # ============================================================
 	my $self     = shift;
 	my $divid    = shift;
-	my $division = new FreeScore::Forms::WorldClass::Division( $self->{ path }, $divid );
+	my $division = new FreeScore::Forms::Recognized::Division( $self->{ path }, $divid );
 
 	return $division;
 }
