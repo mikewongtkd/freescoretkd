@@ -1,0 +1,412 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Clone qw( clone );
+use Data::Structure::Util qw( unbless );
+use Mojolicious::Lite;
+use JSON::XS;
+use Digest::SHA1 qw( sha1_hex );
+use FreeScore::Forms::GrassRoots::Division;
+use FreeScore::Forms::GrassRoots;
+use FreeScore::Forms::GrassRoots::RequestManager;
+use Try::Tiny;
+use PHP::Session;
+use Data::Dumper;
+use List::MoreUtils qw( first_index );
+
+srand();
+
+our $json   = new JSON::XS();
+our $client = {};
+
+# ============================================================
+websocket '/grassroots/:tournament/:ring' => sub {
+# ============================================================
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring'       );
+	my $manager    = new FreeScore::Forms::GrassRoots::RequestManager( $tournament, $ring, $self->tx() );
+	my $progress   = undef;
+	my $staging    = undef;
+	my $id         = sprintf "%s", sha1_hex( $self->tx() );
+	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
+
+	$self->inactivity_timeout( 3600 ); # 1 hour
+
+	# ===== REGISTER THE CLIENT GROUP
+	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
+
+	# ----------------------------------------
+	# Handle messages
+	# ----------------------------------------
+	$self->on( message => sub {
+		my $self    = shift;
+		my $request = $json->decode( shift );
+
+		$request->{ tournament } = $tournament;
+		$request->{ ring }       = $ring;
+
+		# ===== READ PROGRESS
+		try   { 
+			$progress = new FreeScore::Forms::GrassRoots( $tournament, $ring ); 
+		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
+
+		# ===== HANDLE REQUEST
+		my $clients = $client->{ $group };
+		try   { $manager->handle( $request, $progress, $clients ); }
+		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+	});
+};
+
+# ============================================================
+# JUDGE INTERFACE
+# ============================================================
+
+# ------------------------------------------------------------
+# GET THE NUMBER OF JUDGES FOR THIS DIVISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/judges' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	try {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { error => $_ });
+	}
+};
+
+# ------------------------------------------------------------
+# ALL DIVISIONS
+# ------------------------------------------------------------
+get '/:tournament/:ring/division/list' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $divisions  = unbless( clone( $progress->{ divisions }));
+	try {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'divisions' => $divisions } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# NEXT DIVISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/division/next' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	try {
+		$progress->next();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'current' => $progress->current() } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# PREVIOUS DIVISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/division/previous' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	try {
+		$progress->previous();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'current' => $progress->current() } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# TOGGLE CURRENT DIVISION DISPLAY STATE
+# ------------------------------------------------------------
+get '/:tournament/:ring/display' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+	if    ( $division->is_score()   ) { $division->display(); }
+	elsif ( $division->is_display() ) { $division->score();   }
+	else                              { $division->display(); }
+
+	try {
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'state' => $division->{ state } } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# SCORE FOR NEXT ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:ring/athlete/next' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+	try {
+		$division->next();
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# SCORE FOR PREVIOUS ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:ring/athlete/previous' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+	try {
+		$division->previous();
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# WRITE JUDGE SCORE FOR ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:ring/:judge/:score' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $judge      = $self->param( 'judge' );
+	my $score      = $self->param( 'score' ) / 10;
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	my $complete = $division->record_score( $judge, $score );
+
+	try {
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
+		autopilot( $self, $progress, $division ) if $complete;
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# WRITE JUDGE VOTE FOR ATHLETE IN SINGLE-ELIMINATION DIVISION
+# ------------------------------------------------------------
+get '/:tournament/:ring/:judge/vote/:vote' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $judge      = $self->param( 'judge' );
+	my $vote       = $self->param( 'vote' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	my $complete = $division->record_vote( $judge, $vote );
+
+	try {
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { bracket => $division->current_bracket(), judge => ($judge + 1), vote => $vote } );
+		autopilot( $self, $progress, $division ) if $complete && ! $division->is_single_elimination();
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# WRITE JUDGE TIEBREAKER FOR ATHLETE
+# ------------------------------------------------------------
+get '/:tournament/:ring/:judge/tb/:score' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $judge      = $self->param( 'judge' );
+	my $score      = $self->param( 'score' );
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->current();
+
+	$score /= 10 if( $score =~ /^\d+$/ );
+
+	my $complete = $division->record_tiebreaker( $judge, $score );
+
+	try {
+		$division->write();
+		$progress->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
+		autopilot( $self, $progress, $division ) if $complete;
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ------------------------------------------------------------
+# WRITE NEW TOURNAMENT INFORMATION
+# ------------------------------------------------------------
+post '/:tournament/:ring/:divid' => sub { 
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $divid      = $self->param( 'divid' );
+	my $json       = new JSON::XS();
+	my $data       = $json->decode( $self->req->body());
+	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+	my $division   = $progress->find( $divid );
+
+	my $path  = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $FreeScore::Forms::GrassRoots::SUBDIR, $ring );
+	$division = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring ) unless( $division );
+
+	try {
+		if( $division->exists() && ! exists $data->{ overwrite } ) {
+			$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+			$self->render( json => { division => $divid, status => 'exists' } );
+			return;
+		}
+		foreach my $key (keys %{ $data->{ header }}) { 
+			$data->{ header }{ $key } = $json->decode( $data->{ header }{ $key } ) if( $key eq 'brackets' );
+			$division->{ $key } = $data->{ header }{ $key }; 
+		}
+		delete $division->{ mode } if( ! exists $data->{ header }{ mode } );
+		my $athletes = [];
+		foreach my $i ( 0 .. $#{ $data->{ athletes }} ) {
+			my $athlete = { name => $data->{ athletes }[ $i ], index => $i, rank => undef, scores => [], tiebreakers => [] };
+			my $j       = first_index { $_->{ name } eq $athlete->{ name } } @{ $division->{ athletes }};
+			if( $j >= 0 ) { 
+				my $found = $division->{ athletes }[ $j ];
+				foreach my $key (qw( rank scores tiebreakers )) { $athlete->{ $key } = $found->{ $key }; }
+			}
+			push @$athletes, $athlete;
+		}
+		$division->{ athletes } = $athletes;
+		$division->write();
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { division => $divid, status => 'saved' } );
+
+	} catch {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->render( json => { 'error' => $_ } );
+	}
+};
+
+# ============================================================
+# STATUS
+# ============================================================
+get '/status' => sub {
+	my $self = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( text => 'OK' );
+};
+
+# ============================================================
+# ERROR TRAPPING
+# ============================================================
+any '*' => sub {
+	my $self = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => { error => 'FreeScore Grassroots: Unknown command' } );
+};
+
+# ============================================================
+sub autopilot {
+# ============================================================
+	my $self     = shift;
+	my $progress = shift;
+	my $division = shift;
+	my $delay    = new Mojo::IOLoop::Delay();
+	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
+
+	my $show  = {
+		score => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
+			if ( $division->is_display() ) { $division->score(); }
+			$division->write();
+		},
+		leaderboard => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
+			if ( $division->is_score() ) { $division->display(); }
+			$division->write();
+		},
+		next => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
+			if ( $division->is_display() ) { $division->score(); }
+			$division->write();
+		}
+	};
+	my $go = {
+		next => sub {
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
+			$division->next();
+			$division->write();
+		}
+	};
+
+	my @steps = ( $show->{ score }, $show->{ leaderboard } );
+	push @steps, $go->{ next }, $show->{ next } unless( $division->{ complete } );
+
+	$delay->steps( @steps )->catch( sub {} )->wait();
+}
+
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
+app->config( hypnotoad => { listen => [ 'http://*:3080' ], pid_file => '/var/run/grassroots.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/grassroots.log', level => 'error' ));
+app->start();

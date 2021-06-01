@@ -1,0 +1,145 @@
+#! /usr/bin/perl
+
+use lib qw( /usr/local/freescore/lib );
+use Mojolicious::Lite;
+use Try::Tiny;
+use FreeScore;
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::RequestManager;
+use JSON::XS;
+use Digest::SHA1 qw( sha1_hex );
+use List::MoreUtils (qw( first_index ));
+use MIME::Base64 qw( encode_base64 decode_base64 );
+use Data::Dumper;
+use Clone qw( clone );
+use EV;
+
+our $json   = new JSON::XS();
+our $client = {};
+our $judge  = {};
+our $DEBUG  = 0;
+
+# ------------------------------------------------------------
+# MANAGE RINGS, DIVISIONS, AND ATHLETES VIA WEBSOCKETS
+# ------------------------------------------------------------
+websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
+	my $self       = shift;
+	my $tournament = $self->param( 'tournament' );
+	my $ring       = $self->param( 'ring' );
+	my $role       = $self->param( 'role' ); $role =~ s/\+/ /g;
+	my $id         = $self->param( 'id' ) || sha1_hex( $self->tx()); 
+	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $id, $self->tx() );
+	my $progress   = undef;
+	my $staging    = undef;
+	my $group      = $ring eq 'staging' ? sha1_hex( "$tournament-staging" ) : sha1_hex( sprintf "%s-ring-%d", $tournament, $ring );
+
+	$self->inactivity_timeout( 3600 ); # 1 hour
+
+	# ===== REGISTER THE CLIENT
+	# Judges shall have 1 connection per device; other roles can have multiple
+	# connections, which shall communicate independently.
+	if( $role !~ /^(?:judge|referee)/ ) { $id   = sha1_hex( $self->tx()); }
+	if( $role eq 'computer operator'  ) { $role = 'comp op'; }
+	$self->cookie( 'id' => $id );
+	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() }; 
+	if( $DEBUG ) {
+		print STDERR "WORLDCLASS $tournament ring $ring\n";
+		print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
+		print STDERR "\n";
+	}
+
+	# ----------------------------------------
+	# Handle messages
+	# ----------------------------------------
+	$self->on( message => sub {
+		my $self    = shift;
+		my $request = $json->decode( shift );
+
+		# ===== GET RELEVANT COOKIES
+		my $value = $self->cookie( 'judge' );
+		if( defined $value ) {
+			$value =~ s/\+/ /g;
+			if( $role =~ /^(?:judge|referee)/ ) {
+				$request->{ cookie }{ judge } = $value;
+				$client->{ $group }{ $id }{ role } = $value == 0 ? 'referee': 'judge' . $value;
+			}
+		}
+
+		$request->{ tournament } = $tournament;
+		$request->{ ring }       = $ring;
+
+		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
+		if( $DEBUG ) {
+			my $log = clone( $request ); 
+			$log->{ cookie }{ id } = substr( $id, 0, 5 ) . '...';
+			$log->{ id } = substr( $id, 0, 5 ) . '...';
+			print STDERR $json->canonical->encode( $log ), "\n";
+		}
+
+		# ===== READ PROGRESS
+		try   { 
+			$progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); 
+			if( $request->{ type } eq 'ring' && $ring ne 'staging' ) {
+				$staging = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
+				push @{$progress->{ divisions }}, @{$staging->{ divisions }};
+			}
+		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
+
+		# ===== IDENTIFY WHICH CLIENTS ARE JUDGES
+		if( exists $request->{ cookie }{ judge } ) {
+			my $j = $c->{ judge } = $request->{ cookie }{ judge };
+			print STDERR $j == 0 ? "REFEREE: " : "JUDGE $j " if $DEBUG;
+		}
+
+		# ===== HANDLE REQUEST
+		$judge->{ $group } = [] unless exists $judge->{ $group };
+		my $clients = $client->{ $group };
+		my $judges  = $judge->{ $group };
+		try   { $manager->handle( $request, $progress, $clients, $judges ); }
+		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+		print STDERR "\n" if $DEBUG;
+	});
+
+	# ----------------------------------------
+	# Handle disconnects
+	# ----------------------------------------
+	$self->on( finish => sub { 
+		my $c = $client->{ $group }{ $id };
+		if( exists $c->{ judge } && defined( $c->{ judge }) && $c->{ judge } ne '') {
+			my $j = $c->{ judge };
+			foreach my $id (keys %{ $client->{ $group }}) {
+				$c = $client->{ $group }{ $id };
+				next if( exists $c->{ judge });
+				$c->{ device }->send({ json => { type => 'division', action => 'judge goodbye', judge => $j }});
+			}
+		}
+		delete $client->{ $group }{ $id }; 
+	});
+};
+
+# ============================================================
+# STATUS
+# ============================================================
+get '/status' => sub {
+	my $self = shift;
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( text => 'OK' );
+};
+
+# ============================================================
+# ERROR TRAPPING
+# ============================================================
+any '*command' => sub {
+	my $self = shift;
+	my $command = $self->param( 'command' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->render( json => { error => "FreeScore Worldclass Service Error: Unknown command: $command" });
+};
+
+# ============================================================
+# HYPNOTOAD SERVER
+# ============================================================
+mkdir '/var/log/freescore' unless -e '/var/log/freescore';
+app->config( hypnotoad => { listen => [ 'http://*:3088' ], pid_file => '/var/run/worldclass.pid', workers => 1 });
+app->log( new Mojo::Log( path => '/var/log/freescore/worldclass.log', level => 'debug' ));
+app->start();
