@@ -55,11 +55,12 @@ sub current {
 	my $rid      = $division->{ current }{ round };
 	my $fid      = $division->{ current }{ form };
 
-	# Autovivify form datastructure
-	if( ! exists $athlete->{ scores }{ $rid }) { $athlete->{ scores }{ $rid } = { forms => [ {} ]}; }
-	if( $fid > 0 ) { $athlete->{ scores }{ $rid }{ forms }[ $_ ] ||= {} foreach ( 1 .. $fid ); }
+	# Autovivify 
+	$athlete->{ scores }{ $rid } = { forms => [ {} ] } unless( exists $athlete->{ scores }{ $rid })
+	$athlete->{ scores }{ $rid }{ forms }[ $fid ] = {} unless defined $athlete->{ scores }{ $rid }{ forms }[ $fid ];
 
 	my $form = $self->context( $athlete->{ scores }{ $rid }{ forms }[ $fid ]);
+	$form->{ _id } = $fid;
 
 	return $form;
 }
@@ -70,6 +71,15 @@ sub decision {
 #**
 # @method ( [ decision ] )
 # @brief Sets form decision if a decision is provided. Returns form decision.
+# @details
+#
+# | Decision | Listed | Places | Above |
+# | -------- | ------ | ------ | ----- |
+# | <none>   |  Yes   |  Yes   | All   |
+# | bye      |  No    |  No    | None  |
+# | dsq      |  Yes   |  No    | None  |
+# | wdr      |  Yes   |  No    | dsq   |
+#
 #*
 	my $self     = shift;
 	my $decision = shift;
@@ -90,21 +100,37 @@ sub decision {
 }
 
 # ============================================================
+sub id {
+# ============================================================
+#**
+# @method ()
+# @brief Returns the form's ID (index)
+	my $self = shift;
+	return $self->{ _id };
+}
+
+# ============================================================
 sub info {
 # ============================================================
 #**
 # @method ( [ info=value, ... ] )
-# @brief Sets form info if information key-value pairs are provided. Returns form info.
+# @brief Sets form info if information key-value pairs are provided. Returns a single key if a single key is provided. Returns form info.
 #*
 	my $self = shift;
-	my %info = @_;
+	my @info = @_;
 
 	$form->{ info } = {} unless exists $form->{ info };
 
-	if( keys %info == 0 ) {
+	if( @info == 0 ) {
 		return $form->{ info };
 
+	} elsif( @info == 1 ) {
+		my $name = shift @info;
+		return undef unless exists $form->{ info }{ $name };
+		return $form->{ info }{ $name };
+
 	} else {
+		my %info = @info;
 		foreach $name (keys %info) {
 			my $value = $info{ $name };
 			if( $value eq '' ) { delete $form->{ info }{ $name };   } 
@@ -119,7 +145,7 @@ sub penalties {
 # ============================================================
 #**
 # @method ( [ penalty=value, ... ] )
-# @brief Sets form penalties if information key-value pairs are provided. Returns form penalties.
+# @brief Sets form penalties if information key-value pairs are provided. Clears penalties if the key 'clear' is provided. Returns form penalties.
 #*
 	my $self      = shift;
 	my @penalties = @_;
@@ -129,7 +155,7 @@ sub penalties {
 	if( @penalties == 0 ) {
 		return $form->{ penalties };
 
-	if( @penalties == 1 && $penalties[ 0 ] eq 'clear' ) {
+	} elsif( @penalties == 1 && $penalties[ 0 ] eq 'clear' ) {
 		delete $form->{ penalties };
 		return undef;
 

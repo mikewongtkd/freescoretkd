@@ -46,17 +46,17 @@ sub round {
 sub update {
 # ============================================================
 	my $self   = shift;
-	my $event  = $self->{ _event };
-	my $method = $self->{ _event };
+	my $round  = $self->{ _round };
+	my $method = $self->{ _method };
 	my $rid    = $self->{ current }{ round };
 
 	if( $self->form->complete()) {
-		$self->{ placement }{ $round } = $event->update_placements();
+		$self->{ placement }{ $round } = $round->placements();
 	}
 
 	if( $self->round->complete()) {
 		my $nrid                  = $self->round->next(); # next round ID
-		$self->{ order }{ $nrid } = $event->update_advancements();
+		$self->{ order }{ $nrid } = $round->advance();
 	}
 }
 

@@ -10,31 +10,45 @@ sub current {
 	my $method   = $division->{ _method };
 	die sprintf( "Division configuration error: Current round is set to '%s', which is not a valid round ID for method %s", $rid, $method->name()) unless $method->has_round( $rid );
 
-	return $rid;
+	my $round    = $self->context( { _id => $rid } );
+
+	return $round;
+}
+
+# ============================================================
+sub id {
+# ============================================================
+#** @method ()
+#   @brief Returns the round ID
+#*
+	my $self = shift;
+	return $self->{ _id };
 }
 
 # ============================================================
 sub next {
 # ============================================================
-#** @method ()
-#   @brief Calls FreeScore::Method::next_round()
+#** @method ( [ rid ] )
+#   @brief Calls Method::next_round()
 #*
 	my $self     = shift;
 	my $division = $self->{ _parent };
+	my $rid      = shift || $division->{ current }{ round };
 	my $method   = $division->{ _method };
-	return $method->next_round();
+	return $method->next_round( $rid );
 }
 
 # ============================================================
 sub previous {
 # ============================================================
-#** @method ()
-#   @brief Calls FreeScore::Method::next_round()
+#** @method ( [ rid ] )
+#   @brief Calls Method::previous_round()
 #*
 	my $self     = shift;
 	my $division = $self->{ _parent };
+	my $rid      = shift || $division->{ current }{ round };
 	my $method   = $division->{ _method };
-	return $method->previous_round();
+	return $method->previous_round( $rid );
 }
 
 1;
