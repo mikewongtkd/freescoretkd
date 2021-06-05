@@ -1,19 +1,41 @@
-package FreeScore::Event::Recognized::Scores;
+package FreeScore::Event::Recognized::Score;
 use base qw( FreeScore::Component );
-use List::Util qw( any );
+use List::Util qw( all any reduce );
 
-our @CATEGORIES = qw( major minor power rhythm energy );
+our @ACCURACY     = qw( major minor );
+our @PRESENTATION = qw( power rhythm energy );
+our @CATEGORIES   = ( @ACCURACY, @PRESENTATION );
 
 # ============================================================
-sub init {
+sub accuracy {
 # ============================================================
-	my $self   = shift;
-	my $parent = shift;
-	my $score  = shift;
-	$self->SUPER::init( $parent );
+#**
+# @method ()
+# @brief Calculates the accuracy subtotal
+	my $self = shift;
 
-	if( $score ) { return $self->context( $score ); } 
-	else         { return $self; }
+	# Cast values as numerical
+	$self->{ $_ } = 0.0 + sprintf( "%.1f", $self->{ $_ } foreach (@ACCURACY);
+	my $accuracy = 4.0 - (reduce { $a + $b } map { $self->{ $_ } } @ACCURACY);
+	$accuracy = $accuracy > 4 ? 4 : $accuracy;
+	$accuracy = $accuracy < 0 ? 0 : $accuracy;
+	return $accuracy;
+}
+
+
+# ============================================================
+sub complete {
+# ============================================================
+#**
+# @method ()
+# @brief A Recognized Poomsae score is complete if all fields have valid values
+#*
+	my $self         = shift;
+	my $accuracy     = all { defined $self->{ $_ } && $self->{ $_ } >= 0 } @ACCURACY;
+	my $presentation = all { defined $self->{ $_ } && $self->{ $_ } >= 0.5 && $self->{ $_ } <= 2.0 } @PRESENTATION;
+	my $complete     = $accuracy && $presentation;
+
+	return $complete;
 }
 
 # ============================================================
@@ -49,6 +71,23 @@ sub parse {
 		$value = 0 + $value;
 		$self->{ $category } = $value;
 	}
+}
+
+# ============================================================
+sub presentation {
+# ============================================================
+#**
+# @method ()
+# @brief Calculates the presentation subtotal
+	my $self = shift;
+
+	# Cast values as numerical
+	$self->{ $_ } = 0.0 + sprintf( "%.1f", $self->{ $_ } foreach (@PRESENTATION);
+
+	my $presentation = (reduce { $a + $b } map { $self->{ $_ } } @PRESENTATION);
+	$presentation = $presentation < 1.5 ? 1.5 : $presentation;
+	$presentation = $presentation > 6   ? 6   : $presentation;
+	return $presentation;
 }
 
 # ============================================================

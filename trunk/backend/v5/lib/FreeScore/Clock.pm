@@ -12,22 +12,33 @@ sub init {
 }
 
 # ============================================================
-sub time {
+sub now {
 # ============================================================
 #**
-# @method ( [ utc_string ] )
-# @brief Returns the current time in UTC format; if an UTC string is given, returns the corresponding Time::Piece object
+# @method ()
+# @brief Returns the current time in UTC format
+#*
+	my $self = shift;
+	my $t    = localtime;
+	return $t->strftime( $self->{ utc_format });
+}
+
+# ============================================================
+sub parse {
+# ============================================================
+#**
+# @method ( time_utc )
+# @param {string} [ time_utc ] - time in UTC format
+# @brief Returns a Time::Piece object for now; if an UTC string is given, returns the corresponding Time::Piece object
+# @details Time::Piece objects may be sorted, subtracted to get a difference in seconds, etc.
 #*
 	my $self  = shift;
 	my $input = shift;
+	my $t     = undef;
 
-	if( $input ) {
-		my $t = Time::Piece->strptime( $input, $self->{ utc_format });
-		return $t;
-	}
-
-	my $t = localtime;
-	return $t->strftime( $self->{ utc_format });
+	if( $input ) { $t = Time::Piece->strptime( $input, $self->{ utc_format }); }
+	else         { $t = Time::Piece->strptime( $self->now(), $self->{ utc_format }); }
+	return $t;
 }
 
 1;

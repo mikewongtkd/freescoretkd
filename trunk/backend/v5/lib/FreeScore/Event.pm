@@ -15,7 +15,7 @@ sub max_forms {
 }
 
 # ============================================================
-sub event {
+sub factory {
 # ============================================================
 #**
 # @method ( division )
@@ -35,8 +35,18 @@ sub event {
 	my @loaded   = map { s/\//::/g; s/\.pm$//; } grep { /^FreeScore\/Event/ } keys %INC;
 
 	die "Division configuration error: Event type '$event' not defined or loaded $!" unless ( any { $class eq $_ } @loaded );
+	my $self = new $class( $division );
+	$self->{ id } = $event;
 
-	return new $class( $division );
+	return $self;
+}
+
+# ============================================================
+sub ranking {
+# ============================================================
+	my $self    = shift;
+	my $ranking = shift;
+	die "Stub method Event::ranking() called $!";
 }
 
 # ============================================================

@@ -1430,7 +1430,7 @@ sub resolve_ties {
 	return unless( $xt == $yt && $xt != 0 );
 
 	my $json = new JSON::XS();
-  my $n    = int( @{$x->{ forms }});
+	my $n    = int( @{$x->{ forms }});
 	my $xn   = $x->{ notes } ? $json->decode( $x->{ notes }) : {};
 	my $yn   = $y->{ notes } ? $json->decode( $y->{ notes }) : {};
 

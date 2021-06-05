@@ -26,21 +26,29 @@ sub init {
 sub context {
 # ============================================================
 #**
-# @brief Factory method for instantiating objects
+# @method ( data )
+# @param {*} [data] - Data for context, defaults to calling object
+# @brief Factory method for instantiating objects with the given data
 #*
 	my $self  = shift;
-	my $item  = shift;
+	my $data  = shift;
 	my $class = ref $self;
 
-	if( ! $item ) {
-		return $self if $self->{ _context };
-		return $self->current();
-	}
+	return $self if( ! $data );
+	return $data if( ref $data eq $class );
 
-	return $item if( ref $item eq $class );
-	$item->{ _parent }  = $self->{ _parent };
-	$item->{ _context } = 1;
-	return bless $item, $class;
+	$data->{ _parent }  = $self->{ _parent };
+	return bless $data, $class;
 }
 
+# ============================================================
+sub parent {
+# ============================================================
+#**
+# @method ()
+# @brief Composition method returning the parent object
+#*
+	my $self = shift; 
+	return $self->{ _parent }; 
+}
 1;
