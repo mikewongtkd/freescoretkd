@@ -35,6 +35,24 @@ sub athletes {
 }
 
 # ============================================================
+sub complete {
+# ============================================================
+	my $self     = shift;
+	my $athletes = $self->athletes();
+
+	# The round is complete if all athletes in the round are complete
+	# An athlete in the round is complete if all forms are complete or any
+	# form has a decision
+	my $complete = all { 
+		my $forms = $_->forms();
+		any { $_->decision() } @$forms ||
+		all { $_->complete() } @$forms
+	} @$athletes
+
+	return $complete;
+}
+
+# ============================================================
 sub current {
 # ============================================================
 	my $self     = shift;
@@ -46,6 +64,21 @@ sub current {
 	my $round    = $self->context({ id => $rid });
 
 	return $round;
+}
+
+# ============================================================
+sub first {
+# ============================================================
+#** 
+# @method ()
+# @brief Returns the first relevant round for the division
+#*
+	my $self     = shift;
+	my $division = $self->parent();
+	my $method   = $division->method();
+
+	my $rid      = $method->first_round();
+	return $self->select( $rid );
 }
 
 # ============================================================
@@ -218,6 +251,21 @@ sub ranks2places {
 }
 
 # ============================================================
+sub read {
+# ============================================================
+	my $self     = shift;
+	my $cache    = shift;
+	my $division = $self->parent();
+	my $method   = $division->method();
+
+	my $rid_regex = join '|', $method->rounds();
+
+	if( $cache->[ 0 ] =~ /# (?:$rid_regex)/ ) {
+
+	}
+}
+
+# ============================================================
 sub select {
 # ============================================================
 #** @method ( rid )
@@ -230,6 +278,22 @@ sub select {
 	return undef unless any { $_ eq $rid } @{ $self->{ rounds }};
 
 	return $self->context({ id => $rid });
+}
+
+# ============================================================
+sub write {
+# ============================================================
+	my $self = shift;
+	my $fh   = shift;
+
+	my $rid  = $self->id();
+	
+	print $fh "# ------------------------------------------------------------\n";
+	print $fh "# $rid\n";
+	print $fh "# ------------------------------------------------------------\n";
+
+	my $athletes = $self->athletes();
+	foreach my $athlete (@$athletes) { $athlete->write( $fh, $rid ); }
 }
 
 1;

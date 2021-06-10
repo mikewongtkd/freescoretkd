@@ -1,6 +1,7 @@
 package FreeScore::Athlete;
 use base qw( FreeScore::Component );
 use List::MoreUtils qw( first_index );
+use JSON::XS;
 
 # ============================================================
 sub current {
@@ -73,11 +74,23 @@ sub form {
 }
 
 # ============================================================
+sub forms {
+# ============================================================
+#** 
+# @method ( rid )
+# @param {string} rid - Round ID
+# @brief Returns the forms for the given round
+#*
+	my $self = shift;
+	return $self->{ scores }{ $rid }{ forms };
+}
+
+# ============================================================
 sub goto {
 # ============================================================
 #** 
 # @method ( aid )
-# @param
+# @param {int} aid - Athlete ID
 # @brief Returns the athlete ID (aid)
 #*
 	my $self     = shift;
@@ -234,6 +247,23 @@ sub select {
 	$athlete->{ id } = $aid;
 
 	return $athlete;
+}
+
+# ============================================================
+sub write {
+# ============================================================
+	my $self = shift;
+	my $fh   = shift;
+	my $rid  = shift;
+
+	my $json = new JSON::XS();
+	my $info = $self->{ info };
+	my $name = $self->{ name };
+
+	if( ! $info ) { print $fh "$name\n"; }
+	else          { printf $fh "%s\t%s\n", $name, $json->canonical->encode( $info ); }
+
+	foreach my $form ( @{ $athlete->forms( $rid )}) { $form->write( $fh, $rid ); }
 }
 
 1;

@@ -274,4 +274,50 @@ sub select {
 	return $form;
 }
 
+# ============================================================
+sub write {
+# ============================================================
+#** 
+# @method ( fh, rid )
+# @param {file} fh - File handle
+# @param {string} rid - Round ID
+# @brief Returns the form corresponding to the Form ID (fid) and Round ID (rid; default is current round)
+#*
+	my $self  = shift;
+	my $rid   = shift;
+	my $fid   = $self->id();
+	my $event = $self->parent();
+	my $json  = new JSON::XS();
+	my $ford  = sprintf( "f%d", $fid + 1 ); # Form ordinal number
+
+	my $info      = $self->{ info };
+	my $decision  = $self->{ decision };
+	my $penalties = $self->{ penalties };
+
+	# Record the metadata
+	if( $info      ) { printf $fh "\t%s\t%s\ti\t%s\n", $rid, $ford, $json->canonical->encode( $info      ); }
+	if( $decision  ) { printf $fh "\t%s\t%s\td\t%s\n", $rid, $ford, $json->canonical->encode( $decision  ); }
+	if( $penalties ) { printf $fh "\t%s\t%s\tp\t%s\n", $rid, $ford, $json->canonical->encode( $penalties ); }
+
+	# Record the judges' scores
+	my $judges = $self->{ judge };
+	foreach my $i ( 0 .. $#$judges ) {
+		my $judge = $judges->[ $i ];
+		my $jid   = $i == 0 ? 'r' : "j$i";
+		printf $fh "\t%s\t%s\t%s\t", $rid, $ford, $jid; 
+		my $score = $event->score->context( $judge );
+		$score->write();
+		print $fh "\n";
+	}
+
+	# Record the pool
+	my $pool      = $self->{ pool };
+	my $j         = 1;
+	foreach my $jpid (sort keys %$pool) {
+		my $jpord = sprintf "p%d", $j;
+		printf $fh "\t%s\t%s\t%s\t%s\n", $rid, $ford, $jpord, $json->canonical->encode( $pool->{ $jpid });
+		$j++;
+	}
+}
+
 1;

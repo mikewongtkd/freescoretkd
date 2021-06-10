@@ -35,10 +35,17 @@ sub factory {
 	my @loaded   = map { s/\//::/g; s/\.pm$//; } grep { /^FreeScore\/Event/ } keys %INC;
 
 	die "Division configuration error: Event type '$event' not defined or loaded $!" unless ( any { $class eq $_ } @loaded );
-	my $self = new $class( $division );
-	$self->{ id } = $event;
+	my $self        = new $class( $division );
+	$self->{ name } = $event;
 
 	return $self;
+}
+
+# ============================================================
+sub name {
+# ============================================================
+	my $self = shift;
+	return $self->{ name };
 }
 
 # ============================================================

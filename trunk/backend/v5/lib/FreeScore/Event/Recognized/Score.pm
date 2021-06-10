@@ -39,7 +39,7 @@ sub complete {
 }
 
 # ============================================================
-sub parse {
+sub read {
 # ============================================================
 	my $self   = shift;
 	my @values = @_;
@@ -91,16 +91,17 @@ sub presentation {
 }
 
 # ============================================================
-sub string {
+sub write {
 # ============================================================
 	my $self = shift;
+	my $fh   = shift;
 
 	my @tsv = ();
 	foreach my $category (@CATEGORIES) {
 		if( exists $self->{ $category }) { push @tsv, 0 + $self->{ $category }; } 
 		else                             { push @tsv, '-'; }
 	}
-	return join "\t", @tsv;
+	print $fh join "\t", @tsv;
 }
 
 1;

@@ -33,6 +33,13 @@ sub factory {
 }
 
 # ============================================================
+sub first_round {
+# ============================================================
+	my $self = shift;
+	die "Stub method Method::next_todo() called $!";
+}
+
+# ============================================================
 sub has_round {
 # ============================================================
 	my $self  = shift;
@@ -48,14 +55,54 @@ sub name {
 	return $self->{ name };
 }
 
+
+# ============================================================
+sub next_display {
+# ============================================================
+#** 
+# @method ()
+# @brief Advances to the next display (wraps around to 1st display)
+#*
+	my $self     = shift;
+	my $division = $self->parent();
+	my $dispid   = shift || $division->{ current }{ display };
+	my $i        = first_index { $dispid eq $_ } @{ $self->{ displays }};
+	my $n        = $#{ $self->{ displays }};
+
+	die "Method error: Display mode: $dispid not available for Method $self->{ name } $!" if( $i < 0 );
+
+	return $self->{ displays }[ 0 ] if $i >= $n;
+	return $self->{ displays }[ $i + 1 ];
+}
+
 # ============================================================
 sub next_todo {
 # ============================================================
-#** @method ()
-#   @brief Returns the next todo item or undef if there are no more todo items remaining
+#** 
+# @method ()
+# @brief Returns the next todo item or undef if there are no more todo items remaining
 #*
 	my $self = shift;
 	die "Stub method Method::next_todo() called $!";
+}
+
+# ============================================================
+sub previous_display {
+# ============================================================
+#** 
+# @method ()
+# @brief Advances to the previous display (wraps around to last display)
+#*
+	my $self     = shift;
+	my $division = $self->parent();
+	my $dispid   = shift || $division->{ current }{ display };
+	my $i        = first_index { $dispid eq $_ } @{ $self->{ displays }};
+	my $n        = $#{ $self->{ displays }};
+
+	die "Method error: Display mode: $dispid not available for Method $self->{ name } $!" if( $i < 0 );
+
+	return $self->{ displays }[ $n ] if $i == 0 || $i > $n;
+	return $self->{ displays }[ $i - 1 ];
 }
 
 # ============================================================
@@ -82,6 +129,30 @@ sub previous_todo {
 #*
 	my $self = shift;
 	die "Stub method Method::previous_todo() called $!";
+}
+
+# ============================================================
+sub read_body {
+# ============================================================
+#**
+# @method ( file )
+# @param {string} file - Absolute path to the file
+# @brief Reads the division/match file
+#*
+	my $self     = shift;
+	my $cache    = shift;
+	my $division = $self->parent();
+
+	# Division body
+	$division->round->read( \@cache );
+
+	# Default values
+	unless( exists $division->{ current }) {
+		$division->{ current }{ athlete } = $division->athlete->first->id();
+		$division->{ current }{ round }   = $division->round->first->id();
+		$division->{ current }{ form }    = $division->form->first->id();
+		$division->{ current }{ display } = 'score';
+	}
 }
 
 # ============================================================
