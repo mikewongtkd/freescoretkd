@@ -4,6 +4,7 @@ use CGI;
 use File::Slurp qw( read_file );
 use List::MoreUtils qw( minmax );
 use JSON::XS;
+use File::Slurp qw( read_file );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
@@ -44,10 +45,13 @@ $branding = -e $branding ? read_file( $branding ) : '';
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
-		<title>Results</title>
+		<title>Grass Roots Poomsae Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -55,8 +59,8 @@ print <<EOF;
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 640px;
-				height: 20px;
+				width: 720px;
+				height: 22px;
 			}
 			.division .description {
 				float: left;
@@ -83,7 +87,7 @@ print <<EOF;
 			.results th.number  { width: 20px; }
 			.results th.athlete { width: 240px; }
 
-			.results td { 
+			.results td {
 				padding: 2px 4px 2px 4px;
 			}
 			.results td.number { text-align: center; }
@@ -96,7 +100,11 @@ print <<EOF;
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 
-			$branding
+			// .header, .header-space { height: 225px; }
+			// .footer, .footer-space { height: 50px; }
+			// .header { position: fixed; top: 0; }
+			// .footer { position: fixed; bottom: 0; }
+			$branding_css
 		</style>
 	</head>
 	<body>
@@ -127,7 +135,7 @@ foreach my $division (@divisions) {
 				<th class="number">NOC</th>
 				<th class="athlete">Name</th>
 EOF
-	foreach my $i ( 1 .. $judges ) { print "<th>J$i</th>"; }
+	foreach my $i ( 0 .. ($judges - 1)) { print $i == 0 ? "<th>R</th>" : "<th>J$i</th>"; }
 	print <<EOF;
 				<th>Total</th>
 			</tr>
@@ -141,6 +149,8 @@ EOF
 		print "<tr><td class=\"number\">$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
 		my ($min, $max) = minmax( map { sprintf( "%.1f", $_ ) } @{ $athlete->{ scores }});
 		my $found = { min => 0, max => 0 };
+		next unless $athlete->{ complete };
+		print "<tr><td>$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
 		foreach my $i ( 0 .. ($judges - 1)) {
 			my $score = sprintf( "%.1f", $athlete->{ scores }[ $i ] );
 			$score = $score <= 0 ? '-' : $score;

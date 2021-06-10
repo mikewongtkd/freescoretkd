@@ -2,6 +2,7 @@
 use Try::Tiny;
 use CGI;
 use JSON::XS;
+use File::Slurp qw( read_file );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
@@ -42,6 +43,9 @@ $branding = -e $branding ? read_file( $branding ) : '';
 
 print $cgi->header();
 
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
 print <<EOF;
 <html>
 	<head>
@@ -76,18 +80,18 @@ print <<EOF;
 			.results thead th.noc     { width: 80px; }
 			.results thead th.athlete { width: 860px; }
 
-			.results tbody td { 
+			.results tbody td {
 				padding: 2px 4px 2px 4px;
 			}
 
 			.results tbody tr:nth-child( even ) { background: #eee; }
 			.results tbody tr:nth-child( odd  ) { background: #fff; }
 
-			# .header, .header-space { height: 225px; }
-			# .footer, .footer-space { height: 50px; }
-			# .header { position: fixed; top: 0; }
-			# .footer { position: fixed; bottom: 0; }
-			$branding
+			// .header, .header-space { height: 225px; }
+			// .footer, .footer-space { height: 50px; }
+			// .header { position: fixed; top: 0; }
+			// .footer { position: fixed; bottom: 0; }
+			$branding_css
 		</style>
 	</head>
 	<body>

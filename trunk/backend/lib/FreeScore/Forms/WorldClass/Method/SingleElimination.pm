@@ -91,11 +91,11 @@ sub rank_athletes {
 	my @matches   = $self->matches();
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
-	@$placement = sort { 
+	@$placement = sort {
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
 		my $x = $div->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
 		my $y = $div->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
-		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
@@ -106,17 +106,17 @@ sub rank_athletes {
 				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
 				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
 				else {
-					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
+					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WDR'; }
+					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DSQ'; }
+					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WDR'; }
+					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DSQ'; }
 				}
 			}
 		}
 
 		# ===== COMPARE BY TIE-BREAKERS IF TIED
 		if( $comparison == 0 ) {
-			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y ); 
+			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y );
 		}
 
 		$comparison;

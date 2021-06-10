@@ -19,7 +19,7 @@ sub init {
 	my $self = shift;
 
 	$self->{ tournament } = new FreeScore::Tournament();
-	$self->{ events }     = { forms => [ qw( worldclass freestyle grassroots )]};
+	$self->{ events }     = { forms => [ qw( worldclass para freestyle grassroots )]};
 	$self->{ wifi }       = new FreeScore::Setup::Wifi();
 }
 
@@ -51,17 +51,17 @@ sub update_rings {
 			foreach my $ring (@$rings) {
 				my $ring_name = sprintf( "ring%02d", $ring );
 				my $ring_path = "$path/$ring_name";
-				if( exists $wanted->{ $ring } && exists $have->{ $ring } ) { 
+				if( exists $wanted->{ $ring } && exists $have->{ $ring } ) {
 
-				} elsif( exists $wanted->{ $ring } ) { 
-					mkdir $ring_path; 
+				} elsif( exists $wanted->{ $ring } ) {
+					mkdir $ring_path;
 					`chmod a+w $ring_path`;
-					`touch $ring_path/progress.txt`; 
+					`touch $ring_path/progress.txt`;
 					`chmod a+w $ring_path/progress.txt`;
 
-				} elsif( exists $have->{ $ring }   ) { 
-					`rm -f $ring_path/progress.txt $ring_path/div.*.txt $ring_path/.*.swp $ring_path/.DS_Store`; 
-					`rmdir $ring_path`; 
+				} elsif( exists $have->{ $ring }   ) {
+					`rm -f $ring_path/progress.txt $ring_path/div.*.txt $ring_path/.*.swp $ring_path/.DS_Store`;
+					`rmdir $ring_path`;
 				}
 			}
 			mkdir "$path/staging" unless -e "$path/$staging";

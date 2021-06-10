@@ -39,6 +39,7 @@ sub init {
 	$self->{ _watching }        = {};
 	$self->{ division }         = {
 		athlete_delete          => \&handle_division_athlete_delete,
+		athlete_info            => \&handle_division_athlete_info,
 		athlete_next            => \&handle_division_athlete_next,
 		athlete_prev            => \&handle_division_athlete_prev,
 		award_penalty           => \&handle_division_award_penalty,
@@ -293,11 +294,9 @@ sub handle_division_award_punitive {
 			$self->broadcast_division_response( $request, $progress, $clients );
 
 		} else {
-			my $delay = shift;
-
 			my $round    = $division->{ round };
-			my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-			my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+			my $form     = $division->{ form };
+			my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 			print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -330,6 +329,37 @@ sub handle_division_athlete_delete {
 	try {
 		$version->checkout( $division );
 		$division->remove_athlete( $request->{ athlete_id } );
+		$division->write();
+		$version->commit( $division, $message );
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_athlete_info {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $version  = new FreeScore::RCS();
+	my $athlete  = $division->current_athlete();
+	my $json     = new JSON::XS();
+	my $key      = $request->{ key };
+	my $value    = $json->canonical->encode( $request->{ value } );
+	my $message  = $key ? "Adding info for $athlete->{ name } where $key=$value for the division\n" : "Clear all info for $athlete->{ name }\n";
+
+	print STDERR $message if $DEBUG;
+
+	try {
+		$version->checkout( $division );
+		$division->record_athlete_info( $key, $value );
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -796,6 +826,18 @@ sub handle_division_pool_judge_ready {
 		my $response = $division->pool_judge_ready( $size, $judge );
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
+		
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $freestyle = $division->mixed_freestyle();
+			my $all_here  = $response->{ responded } >= $size;
+
+			# If all judges are in the Recognized interface, then disable Freestyle interface redirection
+			if( $freestyle->redirect_clients() && $all_here ) {
+				$freestyle->redirect_clients( 'off' );
+				$freestyle->write();
+			}
+		}
 
 		$division->write();
 
@@ -803,6 +845,7 @@ sub handle_division_pool_judge_ready {
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
+		print STDERR "ERROR: $_\n";
 		$client->send( { json => { error => "$_" }});
 	}
 }
@@ -831,12 +874,12 @@ sub handle_division_pool_resolve {
 		my $response = $division->resolve_pool();
 		$request->{ response } = $response;
 
+		my $round    = $division->{ round };
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+
 		$division->write();
 		$version->commit( $division, $message );
-
-		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -873,6 +916,16 @@ sub handle_division_pool_score {
 		my $response = $division->record_pool_score( $score );
 		$request->{ response } = $response;
 
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $freestyle = $division->mixed_freestyle();
+
+			if( $freestyle->redirect_clients() ) {
+				$freestyle->redirect_clients( 'off' );
+				$freestyle->write();
+			}
+		}
+
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -898,8 +951,8 @@ sub handle_division_pool_score {
 		}
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 
@@ -1022,8 +1075,8 @@ sub handle_division_score {
 		$version->commit( $division, $message );
 
 		my $round    = $division->{ round };
-		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -1806,6 +1859,7 @@ sub autopilot {
 	$pause->{ score }       ||= 9;
 	$pause->{ leaderboard } ||= 12;
 	$pause->{ brief }       ||= 1;
+	$pause->{ redirect }    ||= 5;
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -1945,6 +1999,7 @@ sub autopilot {
 					if( $complete->{ firstform }) { $division->{ form } = $#$forms; }
 
 				}
+				print STDERR "Disengaging autopilot.\n";
 				$division->autopilot( 'off' );
 				$division->write();
 
@@ -1965,6 +2020,11 @@ sub autopilot {
 			round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
 			cycle   => (!(($j + 1) % $cycle)),
 		};
+		# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO FREESTYLE INTERFACES
+		my $round    = $division->{ round };
+		my $form     = $division->{ form };
+		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
+		my $mixed    = $division->is_mixed() && $form == 0 && $complete;
 
 		$delay->steps(
 			sub { # Display the athlete's score for 9 seconds
@@ -1976,15 +2036,33 @@ sub autopilot {
 
 				die "Received a manual override command. Disengaging autopilot\n" unless $division->autopilot();
 
+				# Redirect for Mixed Poomsae competitions
+				if( $mixed ) {
+					print STDERR "Redirecting to Freestyle for mixed poomsae division.\n";
+					$division->redirect_clients( 'freestyle' );
+					$division->write();
+					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+
 				# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-				if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
+				} elsif( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
 					print STDERR "Showing leaderboard.\n" if $DEBUG;
 					$division->display() unless $division->is_display(); 
 					$division->write(); 
-					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 					$self->broadcast_division_response( $request, $progress, $clients, $judges );
+					Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 
 				# Otherwise keep displaying the score for another second
+				} else {
+					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+				}
+			},
+			sub { # Delay for mixed divisions
+				my $delay = shift;
+
+				if( $mixed ) {
+					print STDERR "Allowing time for redirection to complete for mixed poomsae division.\n";
+					Mojo::IOLoop->timer( $pause->{ redirect } => $delay->begin );
 				} else {
 					Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				}
@@ -2005,6 +2083,7 @@ sub autopilot {
 				elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
 				elsif ( $go_next->{ form }    ) { $division->next_form(); }
 
+				print STDERR "Disengaging autopilot.\n";
 				$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 				$division->write();
 

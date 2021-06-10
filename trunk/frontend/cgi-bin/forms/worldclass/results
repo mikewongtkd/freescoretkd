@@ -5,6 +5,7 @@ use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
+use List::Util qw( sum0 );
 use List::MoreUtils qw( first_index );
 use Clone qw( clone );
 use Data::Dumper;
@@ -24,7 +25,7 @@ my @divisions  = ();
 my $results    = undef;
 try {
 	if( defined $ring ) {
-		if( defined $divid ) { 
+		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
@@ -40,7 +41,7 @@ try {
 	}
 } catch {
 	die $_;
-	
+
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -53,7 +54,7 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 print <<EOF;
 <html>
 	<head>
-		<title>World Class Forms Results</title>
+		<title>World Class Poomsae Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -92,14 +93,16 @@ print <<EOF;
 			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
 			.results .preacc { font-size: 8pt; }
 			.results .tiebreaker { width: 40px; text-align: center; }
+			.results .penalties  { font-size: 9pt; }
 			.results .notes  { font-size: 9pt; width: 40px; text-align: center; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-$branding_css
+			$branding_css
     </style>
+		<link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
 	</head>
 	<body>
 <table>
@@ -125,7 +128,7 @@ while (@divisions) {
 
 	# ===== DRAW BRACKETS
 	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:ro4[ab]|ro2)/;
-	if( ! $bracket ) { 
+	if( ! $bracket ) {
 		# Do nothing; don't draw brackets if it's not a bracketed division or round
 
 	} elsif( @$matches == 1 ) {
@@ -289,10 +292,14 @@ EOF
 				}
 
 				foreach my $j ( 0 .. 1 ) {
-					my $score = $athlete->{ scores }{ $round }{ forms }[ $j ];
-					my $mean  = $score->{ adjusted };
+					my $score       = $athlete->{ scores }{ $round }{ forms }[ $j ];
+					my $mean        = $score->{ adjusted };
+					my $penalties   = sum0 values %{$score->{ penalty }};
+					my $fontawesome = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
+					my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesome->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s</span>', $icons ) : '';
 					if( defined $mean ) {
-						if( $score->{ complete }) { 
+						if( $score->{ complete }) {
 							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
 								my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
 								foreach my $decision (keys %$codes) {
@@ -301,15 +308,15 @@ EOF
 									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 								}
 							} else {
-								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }); 
+								push @scores, sprintf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s</td>", $mean->{ total }, $mean->{ accuracy }, $mean->{ presentation }, $adjustments );
 							}
 							$n++;
 						} else { push @scores, "<td>&nbsp;</td>"; }
 					} else {
 						if( @$forms == 1 ) {
-							push @scores, "<td class=\"score\">&nbsp;</td>";
+							push @scores, "<td class=\"score\">&nbsp;<br><span class=\"preacc\">&nbsp;</span></td>";
 						} elsif( @$forms == 2 ) {
-							push @scores, "<td class=\"score\">&ndash;</td>";
+							push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
 						}
 					}
 					$sum += $mean->{ total };
@@ -332,7 +339,7 @@ EOF
 EOF
 			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 			else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
-			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>"; 
+			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>";
 			print "</tr>";
 			print @results;
 			print "\t</table>\n";
@@ -408,5 +415,3 @@ sub result {
 		return 'text-decoration="line-through"';
 	}
 }
-
-

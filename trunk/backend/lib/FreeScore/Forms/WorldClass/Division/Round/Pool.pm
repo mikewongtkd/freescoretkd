@@ -15,7 +15,7 @@ our $JSON = new JSON::XS();
 # ============================================================
 # The structure for the Pool is similar to Round
 #
-# - forms 
+# - forms
 #   - [ form index]
 #     - scores
 #       - <judge id>
@@ -25,7 +25,7 @@ our $JSON = new JSON::XS();
 #         - presentation
 #           - power
 #           - rhythm
-#           - energy # MW: not ki! Need to go back and fix this later
+#           - energy
 #         - status ( ready | scoring | waiting )
 # ============================================================
 
@@ -53,7 +53,7 @@ sub ready {
 	$self->{ forms }[ $formid ]{ scores }{ $id } = {} unless defined $self->{ forms }[ $formid ]{ scores }{ $id };
 	my $judges                                   = $self->{ forms }[ $formid ]{ scores };
 	my $j                                        = $self->{ forms }[ $formid ]{ scores }{ $id };
-	
+
 	$j->{ status } = 'ready';
 	$j->{ judge }  = $judge;
 
@@ -128,7 +128,7 @@ sub resolve {
 			my $acc = $s->{ accuracy };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, ki => $pre->{ energy }, complete => 1 };
+			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, energy => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };
@@ -157,7 +157,7 @@ sub size {
 # ------------------------------------------------------------
 	my $self = shift;
 	my $n    = shift;
-	
+
 	return $self->{ size } if( $self->{ size });
 	$self->{ size } = $n;
 	return $n;
@@ -193,7 +193,7 @@ sub want {
 # ------------------------------------------------------------
 	my $self = shift;
 	my $k    = shift;
-	
+
 	return $self->{ want } if( $self->{ want });
 	$self->{ want } = $k;
 	return $k;
@@ -210,7 +210,7 @@ sub votes {
 	my @scores  = grep { exists $_->{ judge } } values %{$self->{ forms }[ $form ]{ scores }};
 
 	# Partition the scores based on judge video/network feedback
-	my $ok        = [ grep { _have_scored( $_ ) && ($_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good') } @scores ]; 
+	my $ok        = [ grep { _have_scored( $_ ) && ($_->{ video }{ feedback } eq 'ok' || $_->{ video }{ feedback } eq 'good') } @scores ];
 	my $bad       = [ grep { _have_scored( $_ ) && $_->{ video }{ feedback } eq 'bad' } @scores ];
 	my $dsq       = [ grep { _have_scored( $_ ) && $_->{ video }{ feedback } eq 'dsq' } @scores ];
 	my $responses = int( @$ok ) + int( @$bad ) + int( @$dsq );

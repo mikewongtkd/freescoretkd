@@ -27,7 +27,7 @@ foreach my $day (map { sprintf( "day-%d-complete", $_ )} ( 1 .. 6 )) {
 		my $results = new FreeScore::Forms::WorldClass( $day, $ring );
 		push @$divisions, @{ $results->{ divisions }};
 	}
-	@$divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @$divisions;
+	@$divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^gr0[45][01]$/ } @$divisions;
 	print_divisions( $divisions );
 }
 
@@ -37,6 +37,7 @@ sub print_divisions {
 	my $divisions = shift;
 	foreach my $division (@$divisions) {
 		my $divid      = $division->{ name };
+		my $divdesc    = sprintf( "%-64s", substr( $division->{ description }, 0, 64 ));
 		my $athletes   = $division->{ athletes };
 		foreach my $round ( qw( prelim semfin finals )) {
 			next unless( exists( $division->{ order }{ $round }) && exists( $division->{ placement }{ $round }));
@@ -51,7 +52,7 @@ sub print_divisions {
 				if( $place < 0 ) { $place = '-'; } else { $place = $place + 1; }
 				$place = $decision if $decision;
 
-				print "$divid\t$round\t$place\t$uuid\t$noc\t$name\n";
+				print "$divid\t$divdesc\t$round\t$place\t$uuid\t$noc\t$name\n";
 			}
 		}
 	}

@@ -1,6 +1,8 @@
 package FreeScore::Forms::FreeStyle::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Division;
 use JSON::XS;
 use List::Util qw( min reduce shuffle );
 use List::MoreUtils qw( all first_index last_index minmax part );
@@ -18,13 +20,34 @@ use Data::Dumper;
 #    +- name
 #    +- info
 #    +- adjusted
-#    +- original
-#    +- decision
+#       +- round{}
+#          +- technical
+#          +- presentation
+#          +- major
+#          +- minor
+#          +- min
+#             +- technical (index)
+#             +- presentation (index)
+#          +- max
+#             +- technical (index)
+#             +- presentation (index)
+#          +- total
 #    +- complete
+#       +- round{}
+#    +- decision
+#       +- round{}
+#    +- notes
+#       +- round{}
+#    +- original
+#       +- round{}
+#          +- technical
+#          +- presentation
+#          +- total
 #    +- penalty
 #       +- round{}
 #          +- time
 #          +- bounds
+#          +- other
 #          +- restart
 #          +- misconduct
 #    +- scores
@@ -110,61 +133,24 @@ sub edit_athletes {
 }
 
 # ============================================================
-sub read {
-# ============================================================
-	my $self = shift;
-	my $json = new JSON::XS();
-
-	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
-	my $data      = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
-	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
-
-	$self->{ current } ||= 0;
-	$self->{ judges }  ||= 5; # Default value
-	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
-	$self->{ state }   ||= 'score';
-	$self->{ file }    = $self->{ file };
-	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
-
-	foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
-		my $athlete = $self->{ athletes }[ $i ];
-		$athlete->{ id } = $i;
-	}
-
-	$self->update();
-}
-
-# ============================================================
 sub calculate_placements {
 # ============================================================
 	my $self     = shift;
 	my $athletes = $self->{ athletes };
 	my $round    = $self->{ round } or return;
+	my $mixed    = $self->is_mixed();
+	print STDERR "MIXED COMPETITION: $mixed\n";
 
-	my ($pending, $complete) = part { $athletes->[ $i ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
+	$self->enrich_athletes_with_recognized_scores() if $mixed;
+
+	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
 	my $placements = [ sort { 
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
-		my $i_adj = $i->{ adjusted }{ $round };
-		my $i_ori = $i->{ original }{ $round };
-		my $j_adj = $j->{ adjusted }{ $round };
-		my $j_ori = $j->{ original }{ $round };
-
-		my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
-		my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
-		my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
-
-		my $j_adj_total      = 0.0 + sprintf( "%.2f", $j_adj->{ total });
-		my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
-		my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
-
-		my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
-		my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
-		my $original_total     = $j_ori_total     <=> $i_ori_total;
-
-		$adjusted_total || $adjusted_technical || $original_total;
+		if( $mixed ) { _compare_mixed( $a, $b, $self ); }
+		else         { _compare_freestyle( $i, $j, $round ); }
 	} @$complete ];
 
 	$self->{ placements } = {} if not exists $self->{ placements };
@@ -239,7 +225,7 @@ sub calculate_scores {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds restart ));
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds other restart ));
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A DECISION HAS BEEN RENDERED
@@ -272,6 +258,53 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub enrich_athletes_with_recognized_scores {
+# ============================================================
+	my $self       = shift;
+	my $round      = $self->{ round };
+	my $order      = $self->{ order }{ $round };
+
+	my $worldclass = $self->mixed_recognized();
+	my $form       = $worldclass->{ forms }{ $round }[ 0 ];
+	$self->{ recognized } = { form => { name => $form }};
+
+	# Annotate each athlete with their corresponding recognized poomsae score
+	foreach my $i ( 0 .. $#$order ) {
+		my $j          = $order->[ $i ];
+		my $athlete    = $self->{ athletes }[ $j ];
+		my $score      = $worldclass->{ athletes }[ $i ]{ scores }{ $round };
+		my $recognized = { map { ( $_ => $score->{ $_ })} (qw( adjusted allscore )) };
+
+		$athlete->{ info }{ recognized } = $recognized;
+	}
+}
+
+# ============================================================
+sub filter_athletes {
+# ============================================================
+#** @method ( athlete_list )
+#   @brief  Filters out athletes that are not in athlete_list, and reorders to match the list
+#*
+	my $self = shift;
+	my $list = shift;
+
+	# Do nothing if the division already matches the requested athlete list
+	return if( $#$list == $#{$self->{ athletes }} && all { $self->{ athletes }[ $_ ]{ name } eq $list->[ $_ ]{ name } } (0 .. $#$list));
+
+	# Otherwise filter the list
+	my @athletes = @{ $self->{ athletes }};
+	my $lookup   = { map { $_->{ name } => $_ } @athletes };
+	my $filtered = [ map { $lookup->{ $_->{ name }} } @$list ];
+	my $order    = [ 0 .. $#$list ];
+	my $round    = $self->{ round };
+
+	$self->{ athletes }        = $filtered;
+	$self->{ order }{ $round } = $order;
+
+	return 1;
+}
+
+# ============================================================
 sub from_json {
 # ============================================================
 #** @method ( json_division_data )
@@ -300,6 +333,32 @@ sub get_only {
 		}
 	}
 	return $clone;
+}
+
+# ============================================================
+sub is_mixed {
+# ============================================================
+	my $self = shift;
+	my $comp = exists $self->{ competition } && $self->{ competition } eq 'mixed-poomsae' && $self->{ round } eq 'finals';
+	return $comp;
+}
+
+# ============================================================
+sub mixed_recognized {
+# ============================================================
+	my $self       = shift;
+	my $divid      = $self->{ name };
+	my $path       = $self->{ file };
+	my @path       = split /\//, $path;
+	my $file       = pop @path;
+	my $rname      = pop @path;
+	my $subdir     = pop @path;
+	my $tournament = pop @path;
+
+	$path = join( '/', $FreeScore::PATH, $tournament, $FreeScore::Forms::WorldClass::SUBDIR, $rname );
+	my $worldclass = new FreeScore::Forms::WorldClass::Division( $path, $divid );
+
+	return $worldclass;
 }
 
 # ============================================================
@@ -366,6 +425,7 @@ sub next_round {
 	$self->{ state } = 'score';
 	$self->{ current } = $self->{ order }{ $self->{ round }}[ 0 ];
 }
+
 
 # ============================================================
 sub pool_judge_ready {
@@ -502,7 +562,7 @@ sub resolve_pool {
 		foreach my $i ( 0 .. $#valid ) {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
-			print STDERR Dumper $pool_score;
+
 			my $score = { 
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
@@ -580,6 +640,31 @@ sub previous_round {
 }
 
 # ============================================================
+sub read {
+# ============================================================
+	my $self = shift;
+	my $json = new JSON::XS();
+
+	my $contents  = read_file( $self->{ file } ) or die "Database Read Error: Can't read '$self->{ file }' $!";
+	my $data      = bless $json->decode( $contents ), 'FreeScore::Forms::FreeStyle::Division';
+	$self->{ $_ } = $data->{ $_ } foreach (keys %$data);
+
+	$self->{ current } ||= 0;
+	$self->{ judges }  ||= 5; # Default value
+	$self->{ places }  ||= [ { place => 1, medals => 1 }, { place => 2, medals => 1 }, { place => 3, medals => 2 } ];
+	$self->{ state }   ||= 'score';
+	$self->{ file }    = $self->{ file };
+	$self->{ path }    = $self->{ file }; $self->{ path } =~ s/\/.*$//;
+
+	foreach my $i ( 0 .. $#{ $self->{ athletes }}) {
+		my $athlete = $self->{ athletes }[ $i ];
+		$athlete->{ id } = $i;
+	}
+
+	$self->update();
+}
+
+# ============================================================
 sub record_decision {
 # ============================================================
 #** @method ()
@@ -629,6 +714,24 @@ sub record_score {
 }
 
 # ============================================================
+sub redirect_clients {
+# ============================================================
+#** @method ( target )
+#   @brief Sets internal flag for redirection
+#*
+	my $self     = shift;
+	my $target   = shift;
+
+	if( ! $target ) {
+		if( exists $self->{ redirect } && $self->{ redirect }) { return $self->{ redirect }; }
+		else { return 0; }
+	}
+	if( $target eq 'off' ) { delete $self->{ redirect }; return; }
+
+	$self->{ redirect } = $target;
+}
+
+# ============================================================
 sub remove_athlete {
 # ============================================================
 	my $self = shift;
@@ -658,7 +761,7 @@ sub write {
 # ============================================================
 	my $self  = shift;
 	my $json  = new JSON::XS();
-	
+
 	$self->update();
 
 	my $contents = $json->pretty->canonical->encode( unbless( $self->clone()));
@@ -668,6 +771,91 @@ sub write {
 	chmod 0666, $self->{ file };
 
 	return 1;
+}
+
+# ============================================================
+sub _compare_freestyle {
+# ============================================================
+	my $i     = shift;
+	my $j     = shift;
+	my $round = shift;
+
+	my $i_adj = $i->{ adjusted }{ $round };
+	my $i_ori = $i->{ original }{ $round };
+	my $j_adj = $j->{ adjusted }{ $round };
+	my $j_ori = $j->{ original }{ $round };
+
+	my $i_adj_total      = 0.0 + sprintf( "%.2f", $i_adj->{ total });
+	my $i_adj_technical  = 0.0 + sprintf( "%.2f", $i_adj->{ technical });
+	my $i_ori_total      = 0.0 + sprintf( "%.2f", $i_ori->{ total });
+
+	my $j_adj_total      = 0.0 + sprintf( "%.2f", $j_adj->{ total });
+	my $j_adj_technical  = 0.0 + sprintf( "%.2f", $j_adj->{ technical });
+	my $j_ori_total      = 0.0 + sprintf( "%.2f", $j_ori->{ total });
+
+	my $adjusted_total     = $j_adj_total     <=> $i_adj_total;
+	my $adjusted_technical = $j_adj_technical <=> $i_adj_technical;
+	my $original_total     = $j_ori_total     <=> $i_ori_total;
+
+	return $adjusted_total || $adjusted_technical || $original_total;
+}
+
+# ============================================================
+sub _compare_mixed {
+# ============================================================
+	my $a         = shift;
+	my $b         = shift;
+	my $freestyle = shift;
+	my $n         = $freestyle->{ judges } || 1;
+	my $round     = 'finals';
+
+	my $i = { freestyle => $freestyle->{ athletes }[ $a ], recognized => $freestyle->{ athletes }[ $a ]{ info }{ recognized }};
+	my $j = { freestyle => $freestyle->{ athletes }[ $b ], recognized => $freestyle->{ athletes }[ $b ]{ info }{ recognized }};
+	my $rank_decision = { '' => 0, 'disqualify' => 1000, 'withdraw' => 100 };
+
+	$i->{ dec }   = $rank_decision->{ $i->{ freestyle }{ decision }{ $round }};
+	$j->{ dec }   = $rank_decision->{ $j->{ freestyle }{ decision }{ $round }};
+	$i->{ total } = _real( $i->{ recognized }{ adjusted }{ total }) + _real( $i->{ freestyle }{ adjusted }{ $round }{ total });
+	$j->{ total } = _real( $j->{ recognized }{ adjusted }{ total }) + _real( $j->{ freestyle }{ adjusted }{ $round }{ total });
+	$i->{ tb1 }   = _real( $i->{ freestyle }{ adjusted }{ total });
+	$j->{ tb1 }   = _real( $j->{ freestyle }{ adjusted }{ total });
+	$i->{ tb2 }   = _real( $i->{ recognized }{ allscore }{ total }) + _real( $i->{ freestyle }{ original }{ $round }{ total } / $n);
+	$j->{ tb2 }   = _real( $j->{ recognized }{ allscore }{ total }) + _real( $j->{ freestyle }{ original }{ $round }{ total } / $n);
+
+	if( $i->{ total } == $j->{ total }) {
+		my $json = new JSON::XS();
+		my $in   = {};
+		my $jn   = {};
+		if     ( $i->{ tb1 } > $j->{ tb1 }) {
+			$in->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $i->{ tb1 }" };
+			$jn->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $j->{ tb1 }" };
+
+		} elsif( $j->{ tb1 } > $i->{ tb1 }) {
+			$in->{ 'freestyle' } = { results => 'loss', reason => "Freestyle $i->{ tb1 }" };
+			$jn->{ 'freestyle' } = { results => 'win',  reason => "Freestyle $j->{ tb1 }" };
+
+		} else {
+			$in->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $i->{ tb1 }" };
+			$jn->{ 'freestyle' } = { results => 'tie',  reason => "Freestyle $j->{ tb1 }" };
+
+			if     ( $i->{ tb2 } > $j->{ tb2 }) {
+				$in->{ 'total' } = { results => 'win',  reason => "Total $i->{ tb2 }" };
+				$jn->{ 'total' } = { results => 'loss', reason => "Total $j->{ tb2 }" };
+
+			} elsif( $j->{ tb2 } > $i->{ tb2 }) {
+				$in->{ 'total' } = { results => 'loss', reason => "Total $i->{ tb2 }" };
+				$jn->{ 'total' } = { results => 'win',  reason => "Total $j->{ tb2 }" };
+
+			} else {
+				$in->{ 'total' } = { results => 'tie',  reason => "Total $i->{ tb2 }" };
+				$jn->{ 'total' } = { results => 'tie',  reason => "Total $j->{ tb2 }" };
+			}
+		}
+		$i->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $in );
+		$j->{ freestyle }{ notes }{ $round } = $json->canonical->encode( $jn );
+	}
+
+	return $i->{ dec } <=> $j->{ dec } || $j->{ total } <=> $i->{ total } || $j->{ tb1 } <=> $i->{ tb1 } || $j->{ tb2 } <=> $i->{ tb2 };
 }
 
 # ============================================================
@@ -690,6 +878,7 @@ sub _drop_hilo {
 	my ($min, $max) = minmax @subtotals;
 	my $i   = first_index { int( $_ * 10 ) == int( $min * 10 ) } @subtotals;
 	my $j   = first_index { int( $_ * 10 ) == int( $max * 10 ) } @subtotals;
+	$j++ if( $i == $j ); # Avoid the corner-case when all judges send in the same exact score
 	my $sum = reduce { $a += $b } 0, @subtotals;
 	$sum -= $min + $max;
 	$sum /= $n;
@@ -707,6 +896,16 @@ sub _not_disqualified {
 		my $athlete = $athletes->[ $_ ];
 		! exists $athlete->{ decision } || ! $athlete->{ decision } =~ /^disqual/i
 	} @$group;
+}
+
+# ============================================================
+sub _real {
+# ============================================================
+	my $value     = shift;
+	my $precision = shift || 2;
+	my $format    = sprintf( "%%.%df", $precision );
+
+	return 0 + sprintf( $format, $value );
 }
 
 # ============================================================

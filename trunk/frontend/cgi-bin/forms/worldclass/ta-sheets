@@ -54,7 +54,7 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 print <<EOF;
 <html>
 	<head>
-		<title>World Class Forms TA Sheets</title>
+		<title>World Class Poomsae TA Sheets</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -90,8 +90,8 @@ print <<EOF;
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 63px; }
 			.results td.athlete   { width: 768px; }
-			.results td.decisions { width: 32px; text-align: center; color: red; }
-			.results td.form,.score,.place { width: 100px; text-align: center; }
+			.results td.decisions { width: 32px; text-align: center; color: red }
+      		.results td.form,.score,.place { width: 100px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
@@ -99,7 +99,7 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-$branding_css
+			$branding_css
 		</style>
 	</head>
 	<body>

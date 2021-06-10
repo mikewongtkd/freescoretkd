@@ -19,7 +19,7 @@ my @divisions  = ();
 my $results    = undef;
 try {
 	if( defined $ring ) {
-		if( defined $divid ) { 
+		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
@@ -35,7 +35,7 @@ try {
 	}
 } catch {
 	die $_;
-	
+
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -45,7 +45,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Sport Poomsae</title>
+		<title>World Class Poomsae</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;

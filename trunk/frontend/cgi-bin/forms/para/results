@@ -1,0 +1,435 @@
+#! /usr/bin/perl
+use Try::Tiny;
+use CGI;
+use CGI::Carp qw( fatalsToBrowser );
+use JSON::XS;
+use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
+use List::Util qw( sum0 );
+use List::MoreUtils qw( first_index );
+use Clone qw( clone );
+use Data::Dumper;
+
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Forms::Para;
+
+my $cgi        = new CGI();
+my $results    = undef;
+my $tournament = read_tournament_config();
+my $ring       = $cgi->param( 'ring' );
+my $divid      = $cgi->param( 'divid' );
+my @rounds     = ($cgi->param( 'round' ));
+my $json       = new JSON::XS();
+
+my @divisions  = ();
+my $results    = undef;
+try {
+	if( defined $ring ) {
+		if( defined $divid ) {
+			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+
+		} else {
+			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	} else {
+		foreach my $ring ( @{$tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		}
+	}
+} catch {
+	die $_;
+
+};
+
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
+
+print $cgi->header();
+
+my $branding_css = "/var/www/html/images/branding/branding.css";
+$branding_css = -e $branding_css ? read_file( $branding_css ) : '';
+
+print <<EOF;
+<html>
+	<head>
+		<title>Para Poomsae Results</title>
+		<style type="text/css">
+			body {
+				font-family: Optima;
+			}
+			.division {
+				clear: both;
+				margin-top: 28px;
+				width: 920px;
+				height: 20px;
+			}
+			.division .description {
+				float: left;
+			}
+			.division .round {
+				float: right;
+			}
+			.results {
+				page-break-inside: avoid;
+				page-break-after: always;
+			}
+			.results table {
+				width: 920px;
+				page-break-after: always;
+			}
+			.results th {
+				margin-top: 8px;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
+				padding: 0 4px 0 4px;
+				text-align: left;
+			}
+			.results td       { padding: 0px 4px 0px 4px; }
+			.results .number  { width: 37px; text-align: center; }
+			.results .noc     { width: 63px; }
+			.results .athlete { width: 275px; }
+			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
+			.results .preacc { font-size: 8pt; }
+			.results .tiebreaker { width: 40px; text-align: center; }
+			.results .freechoice { text-align: center; font-size: 9pt; }
+			.results .penalties  { font-size: 9pt; }
+			.results .deductions { font-size: 9pt; }
+			.results .bonuses    { font-size: 9pt; }
+			.results .notes  { font-size: 9pt; width: 40px; text-align: center; }
+			.results tr:nth-child( even ) { background: #fff; }
+			.results tr:nth-child( odd  ) { background: #eee; }
+			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
+			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+
+			// .header, .header-space { height: 180px; }
+			// .footer, .footer-space { height: 320px; }
+			// .header { position: fixed; top: 0; }
+			// .footer { position: fixed; bottom: 0; }
+			$branding_css
+    </style>
+			<link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
+	</head>
+	<body>
+<table>
+<thead><tr><td><div class="header-space"> </div></td></tr></thead>
+<tbody><tr><td>
+EOF
+while (@divisions) {
+	my $division = shift @divisions;
+	my $matches  = [];
+
+	# ===== GROUP MATCHES
+	push @$matches, $division;
+	while( @divisions ) {
+		my $next = $divisions[ 0 ];
+		last if( ! exists $division->{ matchdiv });
+		last if( ! exists $next->{ matchdiv });
+		last if( $next->{ matchdiv } ne $division->{ matchdiv });
+		$next = shift @divisions;
+		push @$matches, $next;
+	}
+
+	print "\n\n<div class=\"results\">\n\n";
+
+	# ===== DRAW BRACKETS
+	my $bracket = $division->{ method } eq 'aau-single-cutoff' && $division->{ round } =~ /(?:ro4[ab]|ro2)/;
+	if( ! $bracket ) {
+		# Do nothing; don't draw brackets if it's not a bracketed division or round
+
+	} elsif( @$matches == 1 ) {
+		my $match = $matches->[ 0 ];
+		my $chung = $match->{ athletes }[ 0 ];
+		my $hong  = $match->{ athletes }[ 1 ];
+		$chung = { name => $chung->{ name }, noc => noc( $chung ), result => result( $chung, $match, 'ro2' )};
+		$hong  = { name => $hong->{ name } || '&nbsp;',  noc => noc( $hong ) || '&nbsp;', result => result( $hong, $match, 'ro2' )};
+
+		print <<EOF;
+	<svg width="920" height="44">
+		<rect x="140" y="5" width="10" height="34" style="fill:blue;stroke:black;" />
+		<rect x="150" y="5" width="240" height="34" style="fill:white;stroke:black;" />
+		<rect x="390" y="5" width="50" height="34" style="fill:white;stroke:black;" />
+		<text x="160" y="27" $chung->{ result }>$chung->{ name }</text>
+		<text x="415" y="27" text-anchor="middle">$chung->{ noc }</text>
+		<rect x="730" y="5" width="10" height="34" style="fill:red;stroke:black;" />
+		<rect x="490" y="5" width="240" height="34" style="fill:white;stroke:black;" />
+		<rect x="440" y="5" width="50" height="34" style="fill:white;stroke:black;" />
+		<text x="720" y="27" text-anchor="end" $hong->{ result }>$hong->{ name }</text>
+		<text x="465" y="27" text-anchor="middle">$hong->{ noc }</text>
+	</svg>
+EOF
+
+	} elsif( @$matches == 2 || @$matches == 3 ) {
+		my $divname = uc $division->{ matchdiv };
+		my $ro4a = {
+			match => uc $matches->[ 0 ]{ name },
+			chung => $matches->[ 0 ]{ athletes }[ 0 ],
+			hong  => $matches->[ 0 ]{ athletes }[ 1 ],
+		};
+		my $ro4b = {
+			match => uc $matches->[ 1 ]{ name },
+			chung => $matches->[ 1 ]{ athletes }[ 0 ],
+			hong  => $matches->[ 1 ]{ athletes }[ 1 ],
+		};
+		my $ro2 = @$matches == 3 ? {
+			match => uc $matches->[ 2 ]{ name },
+			chung => $matches->[ 2 ]{ athletes }[ 0 ],
+			hong  => $matches->[ 2 ]{ athletes }[ 1 ],
+		} : {
+			chung => { name => '', info => { noc => '' }},
+			hong  => { name => '', info => { noc => '' }},
+		};
+
+		foreach my $color (qw( chung hong )) {
+			$ro4a->{ $color } = { name => $ro4a->{ $color }{ name }, noc => noc( $ro4a->{ $color }), result => result( $ro4a->{ $color }, $matches->[ 0 ], 'ro4a' )};
+			$ro4b->{ $color } = { name => $ro4b->{ $color }{ name }, noc => noc( $ro4b->{ $color }), result => result( $ro4b->{ $color }, $matches->[ 1 ], 'ro4b' )};
+			$ro2->{ $color }  = { name => $ro2->{ $color }{ name },  noc => noc( $ro2->{ $color }),  result => result( $ro2->{ $color },  $matches->[ 2 ], 'ro2'  )};
+		}
+		print <<EOF;
+	<svg width="920" height="72">
+		<rect x="005"   y="05" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+		<rect x="012.5" y="05" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="182.5" y="05" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="020" y="22.5" font-size="15" $ro4a->{ chung }{ result }>$ro4a->{ chung }{ name }</text>
+		<text x="201.25" y="22.5"  font-size="15" text-anchor="middle">$ro4a->{ chung }{ noc }</text>
+
+		<rect x="005"   y="30.5" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+		<rect x="012.5" y="30.5" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="182.5" y="30.5" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="020" y="49" font-size="15" $ro4a->{ hong }{ result }>$ro4a->{ hong }{ name }</text>
+		<text x="201.25" y="49"  font-size="15" text-anchor="middle">$ro4a->{ hong }{ noc }</text>
+		<text x="100" y="68"  font-size="12" text-anchor="middle">$ro4a->{ match }</text>
+
+		<line x1="220" y1="30.5" x2="240" y2="30.5" stroke="black" />
+
+		<rect x="240"    y="17.75" width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+		<rect x="247.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="417.5"  y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="255"    y="36.25" font-size="15" $ro2->{ chung }{ result }>$ro2->{ chung }{ name }</text>
+		<text x="436.25" y="36.25" font-size="15" text-anchor="middle">$ro2->{ chung }{ noc }</text>
+
+		<text x="450" y="58"  font-size="12" text-anchor="middle">$ro2->{ match }</text>
+
+		<rect x="662.5"  y="17.75" width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+		<rect x="492.5"  y="17.75" width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="455"    y="17.75" width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="655"    y="36.25" font-size="15" text-anchor="end" $ro2->{ hong }{ result }>$ro2->{ hong }{ name }</text>
+		<text x="473.75" y="36.25" font-size="15" text-anchor="middle">$ro2->{ hong }{ noc }</text>
+
+		<line x1="670" y1="30.5" x2="690" y2="30.5" stroke="black" />
+
+		<rect x="897.5"  y="05"    width="7.5"  height="25.5" style="fill:blue;stroke:black;" />
+		<rect x="727.5"  y="05"    width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="690"    y="05"    width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="890"    y="22.5"  font-size="15" text-anchor="end" $ro4b->{ chung }{ result }>$ro4b->{ chung }{ name }</text>
+		<text x="708.75" y="22.5"  font-size="15" text-anchor="middle">$ro4b->{ chung }{ noc }</text>
+
+		<rect x="897.5"  y="30.5"  width="7.5"  height="25.5" style="fill:red;stroke:black;" />
+		<rect x="727.5"  y="30.5"  width="170"  height="25.5" style="fill:white;stroke:black;" />
+		<rect x="690"    y="30.5"  width="37.5" height="25.5" style="fill:white;stroke:black;" />
+		<text x="890"    y="49"    font-size="15" text-anchor="end" $ro4b->{ hong }{ result }>$ro4b->{ hong }{ name }</text>
+		<text x="708.75" y="49"    font-size="15" text-anchor="middle">$ro4b->{ hong }{ noc }</text>
+		<text x="800" y="68"  font-size="12" text-anchor="middle">$ro4b->{ match }</text>
+	</svg>
+
+	<div class="division"><div class="description"><b>Match $divname</b> &mdash; $division->{ description } </div><div class="round"><b>Finals Round</b></div></div>
+	<table border=0 cellpadding=0 cellspacing=0>
+		<tr>
+			<th class="number">Rank</th>
+			<th class="noc">NOC</th>
+			<th class="athlete">Name</th>
+EOF
+			print "</tr>";
+			my $ro2        = $matches->[ -1 ];
+			my $thirds     = @$matches == 3 ? $json->decode( $ro2->{ thirds }) : [];
+			my @placements = ((map { $ro2->{ athletes }[ $_ ] } @{$ro2->{ placement }{ ro2 }}), @{$thirds});
+
+			foreach my $i (0 .. $#placements) {
+				my $athlete = $placements[ $i ];
+				my $num     = $i >= 2 ? 3 : $i + 1;
+				my $name    = $athlete->{ name };
+				my $noc     = noc( $athlete );
+
+				print "<tr><td class=\"number\">$num.</td><td class=\"noc\">$noc</td><td style=\"width: 640px\">$name</td></tr>\n";
+			}
+			print "\t</table>\n";
+	}
+
+	foreach my $division (@$matches) {
+		my $matchnum = $division->{ name }; $matchnum =~ s/^m//i;
+		my $name     = exists $division->{ matchdiv } ? sprintf( "%s (Match %s)", uc $division->{ matchdiv }, $matchnum) : uc $division->{ name };
+		my $judges   = $division->{ judges } || 3;
+		@rounds = reverse $division->rounds() unless @rounds;
+		my $copy = unbless( clone( $division ));
+		print "<script>var division = " .  $json->canonical->encode( $copy ) . ";</script>\n";
+		foreach my $round (@rounds) {
+			next unless exists $division->{ order }{ $round };
+			my $rname  = $division->round_name( $round );
+			my $forms  = $division->{ forms }{ $round };
+			my $placed = {};
+			my $i      = 0;
+			my $places = $division->{ placement }{ $round };
+			foreach my $j ( 0 .. $#$places ) {
+				my $i = $places->[ $j ];
+				$placed->{ $i } = ordinal( $j + 1 );
+			}
+			my $order = $division->{ order }{ $round };
+			my $n     = $#$order;
+
+			$division->rank_athletes( $round );
+
+			my @results = ();
+			my $json = new JSON::XS();
+      foreach my $i (0 .. $n) {
+				my $j           = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
+				my $athlete     = $division->{ athletes }[ $j ];
+				my $freechoices = $athlete->{ info }{ freechoice } ? $json->decode( $athlete->{ info }{ freechoice }) : '';
+				my $sum         = 0.0;
+				my $n           = 0;
+				my $punitive    = undef;
+				my @scores      = ();
+				my $tb          = $athlete->{ scores }{ $round }{ notes };
+
+				if( $tb ) {
+					$tb  = $json->decode( $tb );
+					$tb  = [ map { $tb->{ $_ }{ reason } } sort keys %$tb ];
+					push @$tb, '&nbsp' if @$tb == 1;
+					$tb  = join "", map { "<td class=\"notes\">$_</td>" } @$tb;
+				} else {
+					$tb  = "<td class=\"notes\">&nbsp;</td><td class=\"notes\">&nbsp;</td>";
+				}
+
+				foreach my $j ( 0 .. 1 ) {
+					my $score        = $athlete->{ scores }{ $round }{ forms }[ $j ];
+					my $mean         = $score->{ adjusted };
+					my $freechoice   = $freechoices->{ $round }[ $j ];
+					my $penalties    = sum0 values %{$score->{ penalty }};
+					my $deductions   = sum0 values %{$score->{ deduction }};
+					my $bonuses      = sum0 values %{$score->{ bonus }};
+					my $fontawesomep = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
+					my $fontawesomed = { choicededuction => 'fas fa-minus-circle', minordeduction => 'fas fa-minus-circle', majordeduction => 'fas fa-minus-circle' };
+					my $fontawesomeb = { choicebonus => 'fas fa-plus-circle', minorbonus => 'fas fa-plus-circle', majorbonus => 'fas fa-plus-circle' };
+					my $picons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesomep->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $dicons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesomed->{ $_ }, $score->{ deduction }{ $_ } ) } sort grep { $score->{ deduction }{ $_ } > 0 } keys %{ $score->{ deduction }} );
+					my $bicons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;+%.1f", $fontawesomeb->{ $_ }, $score->{ bonus }{ $_ } ) } sort grep { $score->{ bonus }{ $_ } > 0 } keys %{ $score->{ bonus }} );
+					my $padjustments = $penalties  > 0 ? sprintf( '<br><span class="penalties">%s</span>', $picons ) : '';
+					my $dadjustments = $deductions > 0 ? sprintf( '<br><span class="deductions">%s</span>', $dicons ) : '';
+					my $badjustments = $bonuses    > 0 ? sprintf( '<br><span class="bonuses">%s</span>', $bicons ) : '';
+					if( defined $mean ) {
+						if( $score->{ complete }) {
+							if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
+								my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
+								foreach my $decision (keys %$codes) {
+									next unless $score->{ decision }{ $decision };
+									$punitive = $codes->{ $decision };
+									push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
+								}
+							} else {
+								push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">%s</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s%s%s</td>", $freechoice, $mean->{ total }, $mean->{ technical }, $mean->{ presentation }, $padjustments, $dadjustments, $badjustments );
+							}
+							$n++;
+						} else { push @scores, "<td>&nbsp;</td>"; }
+					} else {
+						if( @$forms == 1 ) {
+							push @scores, "<td class=\"score\">&nbsp;<br><span class=\"preacc\">&nbsp;</span></td>";
+						} elsif( @$forms == 2 ) {
+							push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
+						}
+					}
+					$sum += $mean->{ total };
+				}
+				my $noc = uc $athlete->{ info }{ noc };
+				$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+				push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+				push @results, @scores;
+				$n ||= 1;
+				push @results, sprintf( "<td class=\"score\">%s</td>%s", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );
+				push @results,  "</tr>\n";
+			}
+			print <<EOF;
+			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+					<th class="number">Rank</th>
+					<th class="noc">NOC</th>
+					<th class="athlete">Name</th>
+EOF
+			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
+			else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
+			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>";
+			print "</tr>";
+			print @results;
+			print "\t</table>\n";
+		}
+	}
+	print "</div>\n";
+}
+
+print <<EOF;
+</td></tr></tbody>
+<tfoot><tr><td><div class="footer-space"> </div></td></tr></tfoot>
+</table>
+<div class="header"><img src="/images/branding/header.png" width="100%"></div>
+<div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
+	</body>
+</html>
+EOF
+
+# ============================================================
+sub ordinal {
+# ============================================================
+	my $n = shift;
+	my $d = $n % 10;
+	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+	elsif( $d == 1 )           { return $n . 'st'; }
+	elsif( $d == 2 )           { return $n . 'nd'; }
+	elsif( $d == 3 )           { return $n . 'rd'; }
+	else                       { return $n . 'th'; }
+}
+
+# ============================================================
+sub read_tournament_config {
+# ============================================================
+	my $php = '';
+	my $config = [
+		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+		'/var/www/html/freescore/include/php/config.php',
+		'/var/www/html/include/php/config.php',
+		'/var/www/freescore/include/php/config.php',
+		'/var/www/include/php/config.php',
+	];
+	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+
+	my $json = new JSON::XS();
+	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+	my $config = $json->decode( $data );
+
+	return $config;
+}
+
+# ============================================================
+sub noc {
+# ============================================================
+	my $athlete = shift;
+	my $noc     = $athlete->{ info }{ noc };
+	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+	return uc $noc;
+}
+
+# ============================================================
+sub result {
+# ============================================================
+	my $athlete = shift;
+	my $match   = shift;
+	my $round   = shift;
+
+	my $winner  = $match->{ placement }{ $round }[ 0 ];
+
+	if( $athlete && $match->{ athletes }[ $winner ]{ name } eq $athlete->{ name }) {
+		return 'font-weight="bold"';
+	} else {
+		return 'text-decoration="line-through"';
+	}
+}

@@ -51,7 +51,7 @@ try {
 print <<EOF;
 <html>
 	<head>
-		<title>World Class Points by NOC</title>
+		<title>World Class Poomsae Points by NOC</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;

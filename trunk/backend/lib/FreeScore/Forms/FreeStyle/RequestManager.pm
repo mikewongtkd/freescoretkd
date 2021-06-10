@@ -4,6 +4,8 @@ use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::FreeStyle;
+use FreeScore::Forms::WorldClass;
+use FreeScore::Forms::WorldClass::Division;
 use FreeScore::Registration::USAT;
 use File::Slurp qw( read_file );
 use JSON::XS;
@@ -42,6 +44,7 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		display            => \&handle_division_display,
 		edit_athletes      => \&handle_division_edit_athletes,
+		filter_athletes    => \&handle_division_filter_athletes,
 		judge_departure    => \&handle_division_judge_departure,
 		judge_query        => \&handle_division_judge_query,
 		judge_registration => \&handle_division_judge_registration,
@@ -161,11 +164,11 @@ sub handle_division_award_penalty {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
+	my $round    = $division->{ round };
 	my $athlete  = $division->{ athletes }[ $request->{ athlete_id } ];
 	my $have     = $athlete->{ penalty }{ $round };
 	my $add      = clone( $request->{ penalty });
 
-	foreach my $penalty (keys %$have) { delete $add->{ $penalty } if exists $add->{ $penalty }; }
 	if( keys %$add ) {
 		print STDERR "Award penalty: " . join( ' ', sort keys %$add ) . " to $athlete->{ name }.\n" if $DEBUG;
 	} else {
@@ -201,6 +204,7 @@ sub handle_division_award_punitive {
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		my $athlete  = $division->{ athletes }[ $request->{ athlete_id }];
+		my $round    = $division->{ round };
 		my $complete = $athlete->{ complete }{ $round };
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
@@ -324,6 +328,32 @@ sub handle_division_edit_athletes {
 		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
 		$division->edit_athletes( $request->{ athletes } );
 		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_filter_athletes {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $version  = new FreeScore::RCS();
+	my $client   = $self->{ _client };
+
+	my $message = sprintf( "Filtering division athletes to: %s.", join( ', ', map { $_->{ name } } @{$request->{ athletes }}));
+	print STDERR "$message\n" if $DEBUG;
+
+	try {
+		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
+		$version->checkout( $division );
+		$division->filter_athletes( $request->{ athletes }) && $division->write();
+		$version->commit( $division, $message );
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -472,6 +502,18 @@ sub handle_division_pool_judge_ready {
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $worldclass = $division->mixed_recognized();
+			my $all_here   = $response->{ responded } >= $size;
+
+			# If all judges are in the Freestyle interface, then disable Recognized interface redirection
+			if( $worldclass->redirect_clients() && $all_here ) {
+				$worldclass->redirect_clients( 'off' );
+				$worldclass->write();
+			}
+		}
+
 		$division->write();
 
 		$request->{ response } = $response;
@@ -506,11 +548,11 @@ sub handle_division_pool_resolve {
 		my $response = $division->resolve_pool();
 		$request->{ response } = $response;
 
-		$division->write();
-		$version->commit( $division, $message );
-
 		my $round    = $division->{ round };
 		my $complete = $athlete->{ complete }{ $round };
+
+		$division->write();
+		$version->commit( $division, $message );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
@@ -546,6 +588,16 @@ sub handle_division_pool_score {
 
 		my $response = $division->record_pool_score( $score );
 		$request->{ response } = $response;
+
+		# ===== MIXED POOMSAE: CHECK IF ALL JUDGES ARE HERE
+		if( $division->is_mixed() ) {
+			my $worldclass = $division->mixed_recognized();
+
+			if( $worldclass->redirect_clients()) {
+				$worldclass->redirect_clients( 'off' );
+				$worldclass->write();
+			}
+		}
 
 		$division->write();
 		$version->commit( $division, $message );
@@ -950,7 +1002,7 @@ sub handle_ring_read {
 	my $clients  = shift;
 	my $judges   = shift;
 
-	print STDERR "Request ring data.\n" if $DEBUG;
+	print STDERR "Request ring $self->{ _ring } data.\n" if $DEBUG;
 
 	$self->send_ring_response( $request, $progress, $clients );
 }
@@ -1053,7 +1105,7 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $cycle    = $division->{ autodisplay } || 2;
+	my $cycle    = $division->{ autodisplay } || 1;
 	my $round    = $division->{ round };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
@@ -1068,7 +1120,7 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { leaderboard => 9, next => 12, brief => 1 };
+	my $pause = { leaderboard => 9, next => 12, brief => 1, redirect => 3 };
 	my $j     = first_index { $division->{ current } == $_ } @{ $division->{ order }{ $round }};
 	my $n     = $#{ $division->{ order }{ $round }};
 
@@ -1078,6 +1130,12 @@ sub autopilot {
 		round   => ($round eq 'finals'),
 	};
 
+	# ===== MIXED POOMSAE COMPETITION: REDIRECT CLIENTS TO RECOGNIZED INTERFACES
+	my $athlete  = $division->current_athlete();
+	my $round    = $division->{ round };
+	my $complete = $athlete->{ complete }{ $round };
+	my $mixed    = $division->is_mixed() && $complete;
+
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
@@ -1085,6 +1143,7 @@ sub autopilot {
 	$delay->steps(
 		sub {
 			my $delay = shift;
+			print STDERR "Showing scores.\n" if $DEBUG;
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 		},
 		sub {
@@ -1092,15 +1151,39 @@ sub autopilot {
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
-			if( $last->{ cycle } || $last->{ athlete } ) { 
+			if( $last->{ cycle } || $last->{ athlete }) { 
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
-				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
+
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}
+		},
+		sub {
+			my $delay = shift;
+
+			die "Disengaging autopilot\n" unless $division->autopilot();
+
+			if( $mixed && ! $last->{ athlete }) {
+				print STDERR "Allowing time for redirection.\n";
+				Mojo::IOLoop->timer( $pause->{ redirect } => $delay->begin );
+			} else {
+				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+			}
+		},
+		sub {
+			my $delay = shift;
+			# Mixed poomsae competition: redirect all clients
+			if( $mixed && ! $last->{ athlete }) {
+				print STDERR "Redirecting ring to recognized for mixed poomsae.\n";
+				$division->redirect_clients( 'recognized' );
+				$division->write();
+				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+			}
+			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 		},
 		sub {
 			my $delay = shift;
@@ -1115,6 +1198,8 @@ sub autopilot {
 
 			if    ( $go_next->{ round }   ) { $division->next_round(); }
 			elsif ( $go_next->{ athlete } ) { $division->next_athlete(); }
+
+			print STDERR "Disengaging autopilot.\n" if $DEBUG;
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 

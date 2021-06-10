@@ -30,12 +30,12 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 	my $id         = $self->param( 'id'         );
 	my $manager    = new FreeScore::Forms::FreeStyle::RequestManager( $tournament, $ring, $self->tx() );
 	my $progress   = undef;
-	my $group      = $ring eq 'staging' ? sha1_hex( "$tournament-staging" ) : sha1_hex( sprintf "%s-ring-%d", $tournament, $ring );  
+	my $group      = $ring eq 'staging' ? sha1_hex( "$tournament-staging" ) : sha1_hex( sprintf "%s-ring-%d", $tournament, $ring );
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
 
 	# ===== REGISTER THE CLIENT
-	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
+	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() };
 	if( $DEBUG ) {
 		print STDERR "SETUP $tournament\n";
 		print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
@@ -52,19 +52,18 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 		$request->{ tournament } = $tournament;
 
 		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
-		my $log = clone( $request ); 
-		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id }; 
-		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id }; 
+		my $log = clone( $request );
+		$log->{ cookie }{ id } = substr( $log->{ cookie }{ id }, 0, 5 ) . '...' if exists $log->{ cookie }{ id };
+		$log->{ id } = substr( $log->{ id }, 0, 5 ) . '...' if exists $log->{ id };
 		print STDERR $json->canonical->encode( $log ), "\n" if $DEBUG;
 
 		# ===== READ TOURNAMENT SETTINGS
-		try   { 
-			$progress = new FreeScore::Forms::FreeStyle( $tournament, $ring ); 
+		try   {
+			$progress = new FreeScore::Forms::FreeStyle( $tournament, $ring );
 		} catch { $c->{ device }->send( { json => { error => "Error reading database '$tournament': $_" }}); };
 
 		# ===== HANDLE REQUEST
-		my $clients = $client->{ $group };
-		try   { $manager->handle( $request, $progress, $clients ); }
+		try   { $manager->handle( $request, $progress, $client->{ $group } ); }
 		catch { $c->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 		print STDERR "\n" if $DEBUG;
 	});

@@ -22,7 +22,7 @@ my @divisions  = ();
 my $results    = undef;
 try {
 	if( defined $ring ) {
-		if( defined $divid ) { 
+		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
@@ -38,7 +38,7 @@ try {
 	}
 } catch {
 	die $_;
-	
+
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -48,7 +48,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Sport Poomsae</title>
+		<title>World Class Poomsae Brackets</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -109,7 +109,7 @@ print <<EOF;
 				border-bottom: 1px solid #333;
 				border-right: 1px solid #333;
 			}
-			
+
 			.branch .lud {
 				position: absolute;
 				top: 0;
@@ -205,13 +205,13 @@ foreach my $division (@divisions) {
 	my $rname  = $FreeScore::Forms::WorldClass::Division::round_name->{ $round };
 	my $forms  = join ", ", @{$division->{ forms }{ $round }};
 	my $n = $#{$division->{ order }{ $round }};
-	my @athletes = map { 
+	my @athletes = map {
 		my $j = $division->{ order }{ $round }[ $_ ];
 		$division->{ athletes }[ $j ];
 	} ( 0 .. $n );
 
 	@athletes = map { { name => '' } } (0 .. 8); $n = $#athletes;
-	
+
 	my $half = int( $n/2 );
 	print "<div class=\"list\"><div class=\"col1\"><ol>";
 	foreach my $athlete (map { $athletes[ $_ ] } ( 0 .. $half)) { print "<li>$athlete->{ name }</li>"; }

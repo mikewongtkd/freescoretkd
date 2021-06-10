@@ -40,7 +40,7 @@ sub advance_athletes {
 		my @order      = shuffle (@eligible[ 0 .. $half ]);
 		$div->assign( $_, 'semfin' ) foreach @order;
 
-	} elsif( $round eq 'finals' && $div->round_complete( 'semfin' )) { 
+	} elsif( $round eq 'finals' && $div->round_complete( 'semfin' )) {
 
 		# Skip if athletes have already been advanced to the finals
 		my $finals = $div->{ order }{ finals };
@@ -84,7 +84,7 @@ sub detect_ties {
 
 			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
 			if( $comparison == 0 ) {
-				push @{ $ties->[ $i ]}, $j; 
+				push @{ $ties->[ $i ]}, $j;
 				$j++;
 
 			# ===== OTHERWISE LOOK AT NEXT PLACE
@@ -99,7 +99,7 @@ sub detect_ties {
 	my $medals   = $places->{ $round }[ $i ];
 	my $athletes = 0;
 	while( $i < $k && $medals ) {
-		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
+		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); }
 		elsif ( $athletes == 0     ) { $athletes  = 1; }
 
 		my $gave = $medals >= $athletes ? $athletes : $medals;
@@ -142,11 +142,11 @@ sub rank_athletes {
 	my @athlete_indices = @{$div->{ order }{ $round }};
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
-	@$placement = sort { 
+	@$placement = sort {
 		# ===== COMPARE BY COMPULSORY ROUND SCORES
 		my $x = $div->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
 		my $y = $div->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
-		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
 
 		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
 		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
@@ -157,10 +157,10 @@ sub rank_athletes {
 				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
 				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
 				else {
-					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
+					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WDR'; }
+					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DSQ'; }
+					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WDR'; }
+					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DSQ'; }
 				}
 			}
 		}

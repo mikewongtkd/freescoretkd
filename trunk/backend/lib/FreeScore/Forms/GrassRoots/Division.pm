@@ -199,6 +199,7 @@ sub calculate_scores {
 		my $stats    = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
 		my $done     = 0;
 		my $resolved = 0;
+		my $decision = _decision( $athlete );
 
 		# ===== CALCULATE SCORES
 		foreach my $j (0 .. $#{ $athlete->{ scores }}) {
@@ -208,7 +209,7 @@ sub calculate_scores {
 			$stats->{ max }  = $score > $athlete->{ scores }[ $stats->{ max }] ? $j : $stats->{ max };
 			$done++ if(( 0.0 + $score ) > 0 );
 		}
-		$athlete->{ complete } = ($judges == $done) || (exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } eq 'DSQ');
+		$athlete->{ complete } = ($judges == $done) || ($decision eq 'DSQ' || $decision eq 'WDR' );
 
 		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
@@ -278,6 +279,22 @@ sub disqualify {
 	my $athlete = $self->{ athletes }[ $i ];
 
 	$athlete->{ info }{ decision } = 'DSQ';
+	$athlete->{ complete } = 1;
+}
+
+# ============================================================
+sub withdraw {
+# ============================================================
+	my $self   = shift;
+	my $judge  = shift;
+	my $score  = shift;
+	my $judges = $self->{ judges };
+
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	$athlete->{ info }{ decision } = 'WDR';
+	$athlete->{ complete } = 1;
 }
 
 # ============================================================
@@ -630,7 +647,15 @@ sub _compare {
 	my $b      = shift;
 	my $judges = shift;
 
-	my $score = sprintf( "%.1f", $b->{ score } ) <=> sprintf( "%.1f", $a->{ score } );
+	my $d     = { a => _decision( $a ), b => _decision( $b )};
+	if   ( $d->{ a } eq 'DSQ' && $d->{ b } ne 'DSQ' ) { return  1; }
+	elsif( $d->{ a } ne 'DSQ' && $d->{ b } eq 'DSQ' ) { return -1; }
+	elsif( $d->{ a } eq 'WDR' && $d->{ b } eq 'DSQ' ) { return -1; }
+	elsif( $d->{ a } eq 'DSQ' && $d->{ b } eq 'WDR' ) { return  1; }
+	elsif( $d->{ a } eq 'WDR' && $d->{ b } ne 'WDR' ) { return  1; }
+	elsif( $d->{ a } ne 'WDR' && $d->{ b } eq 'WDR' ) { return -1; }
+
+	my $score = 0 + sprintf( "%.1f", $b->{ score } ) <=> 0 + sprintf( "%.1f", $a->{ score } );
 	my $high  = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ max } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ max } ])};
 	my $low   = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ min } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ min } ])};
 	my $hi    = ($score == 0 && $judges > 3) ? $high->{ b } <=> $high->{ a } : 0;
@@ -643,6 +668,13 @@ sub _compare {
 
 	return $score || $hi || $lo || $tb;
 }
+
+# ============================================================
+sub _decision { 
+# ============================================================
+	my $athlete = shift; 
+	return exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } ? $athlete->{ info }{ decision } : ''; 
+};
 
 # ============================================================
 sub _format_score {
