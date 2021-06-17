@@ -1,5 +1,5 @@
-package FreeScore::Division::IO::DB
-use base qw( FreeScore::Division::IO );
+package FreeScore::Division::DB
+use base qw( FreeScore::Component );
 use FreeScore;
 use DBD::SQLite;
 use JSON::XS;
