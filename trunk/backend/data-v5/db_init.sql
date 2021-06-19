@@ -51,16 +51,35 @@ create table form (
 	primary key( divid, aid, rid, fid )
 );
 
-create table score (
+create table formscore (
 	divid text not null,
 	aid int not null,
 	rid text not null,
 	fid int not null,
 	jid int not null,
-	points text,
+	score text,
 	primary key( divid, aid, rid, fid, jid )
 );
 
+create table fight (
+	divid text not null,
+	aid int not null,
+	rid text not null,
+	fid int not null,
+	info text,
+	decision text,
+	primary key( divid, aid, rid, fid )
+);
+
+create table fightscore (
+	divid text not null,
+	aid int not null,
+	rid text not null,
+	fid int not null,
+	jid int not null,
+	score text,
+	primary key( divid, aid, rid, fid, jid )
+);
 create table pool (
 	divid text not null,
 	aid int not null,
@@ -83,8 +102,10 @@ create table history (
 	primary key( "table", divid, pkey )
 );
 
-create index idx_athletes      on athlete (divid);                 /* For retrieving all forms for a given division */
-create index idx_forms         on form    (divid, aid, rid);       /* For retrieving all forms for a given round (div,athlete,round) */
-create index idx_pool          on pool    (divid, aid, rid, fid);  /* For retrieving all pool scores for a given form (div,athlete,round,fid) */
-create index idx_scores        on score   (divid, aid, rid, fid ); /* For retrieving all scores for a given form (div,athlete,round,fid) */
-create index idx_history_divid on history (divid);
+create index idx_athletes      on athlete   (divid);                 /* For retrieving all forms for a given division */
+create index idx_forms         on form      (divid, aid, rid);       /* For retrieving all forms for a given round (div,athlete,round) */
+create index idx_formscore     on formscore (divid, aid, rid, fid);  /* For retrieving all pool scores for a given form (div,athlete,round,fid) */
+create index idx_pool          on pool      (divid, aid, rid, fid);  /* For retrieving all pool scores for a given form (div,athlete,round,fid) */
+create index idx_fights        on fight     (divid, aid, rid);       /* For retrieving all match records for a given round (div,athlete,round) */
+create index idx_formscore     on formscore (divid, aid, rid, fid);  /* For retrieving all pool scores for a given form (div,athlete,round,fid) */
+create index idx_history_divid on history   (divid);

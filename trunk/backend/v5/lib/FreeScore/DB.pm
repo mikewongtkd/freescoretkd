@@ -1,4 +1,4 @@
-package FreeScore::Division::DB
+package FreeScore::DB
 use base qw( FreeScore::Component );
 use FreeScore;
 use DBD::SQLite;

@@ -3,9 +3,9 @@ use base qw( FreeScore::Clonable );
 use FreeScore;
 use FreeScore::Athlete;
 use FreeScore::Clock;
+use FreeScore::DB;
 use FreeScore::Form;
 use FreeScore::Round;
-use FreeScore::Division::DB;
 
 # ============================================================
 sub new {
@@ -30,7 +30,7 @@ sub init {
 
 	$self->{ _athlete } = new FreeScore::Athlete( $self );
 	$self->{ _clock }   = new FreeScore::Clock( $self );
-	$self->{ _db }      = new FreeScore::Division::DB( $self );
+	$self->{ _db }      = new FreeScore::DB( $self );
 	$self->{ _event }   = FreeScore::Event->factory( $self );
 	$self->{ _method }  = FreeScore::Method->factory( $self );
 	$self->{ _round }   = new FreeScore::Round( $self );
