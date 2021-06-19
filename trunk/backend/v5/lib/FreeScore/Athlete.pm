@@ -4,17 +4,33 @@ use List::MoreUtils qw( first_index );
 use JSON::XS;
 
 # ============================================================
+sub init {
+# ============================================================
+	my $self   = shift;
+	my $parent = shift;
+
+	$self->SUPER::init( $parent );
+
+	$self->{ _info } = new FreeScore::Info( $self );
+}
+
+# ============================================================
 sub current {
 # ============================================================
-#** @method ()
-#   @brief Returns the current athlete
+#** 
+# @method ( aid )
+# @param {int} [ aid ] - Athlete ID
+# @brief Returns the current athlete or sets the current athlete if athlete ID given
 #*
 	my $self     = shift;
+	my $aid      = shift; $aid = $division->athlete->current->id() unless defined $aid;
 	my $division = $self->parent();
+	my $round    = $division->round();
 	my $divid    = $division->{ name };
-	my $aid      = $division->{ current }{ athlete };
-	my $order    = $division->{ order }{ $rid };
+	my $order    = $round->info->get( 'order' );
 	my $i        = first_index { $_ == $aid } @$order;
+
+	$division->info->current->athlete( $aid );
 
 	die sprintf( "Division configuration error: Current athlete ID is '%d', who is not in the ordering for %s %s", $aid, $divid, $rid ) unless $i >= 0;
 
@@ -24,14 +40,15 @@ sub current {
 # ============================================================
 sub first {
 # ============================================================
-#** @method ( [ rid ] )
-#   @brief Returns the first athlete for the given round (current round is the default)
+#** 
+# @method ( rid )
+# @param {string} [rid] - Round ID
+# @brief Returns the first athlete for the given round (current round is the default)
 #*
 	my $self     = shift;
 	my $division = $self->parent();
 	my $round    = $self->{ _round };
-	my $rid      = shift || $round->id();
-	my $order    = $division->{ order }{ $rid };
+	my $order    = $round->info->get( 'order' );
 
 	die "Division configuration error: No athletes assigned to $rid $!" if( @$order == 0 );
 
@@ -96,9 +113,10 @@ sub goto {
 	my $self     = shift;
 	my $aid      = shift;
 	my $division = $self->parent();
+	my $ring     = $division->parent();
 	my $divid    = $division->{ name };
-	my $rid      = $division->{ current }{ round };
-	my $order    = $division->{ order }{ $rid };
+	my $rid      = $ring->round->current->id();
+	my $order    = $round->info->get( 'order' );
 	my $i        = first_index { $_ == $aid } @$order;
 	my $n        = $#$order;
 
@@ -106,8 +124,8 @@ sub goto {
 	return undef if( $i >= $n );
 	my $athlete  = $self->select( $aid );
 	my $fid      = $division->event->form->first->id();
-	$division->{ current }{ athlete } = $aid;
-	$division->{ current }{ form }    = $fid;
+	$division->athlete->current->id( $aid );
+	$division->form->current->id( $fid );
 
 	return $athlete;
 }
@@ -124,40 +142,6 @@ sub id {
 }
 
 # ============================================================
-sub info {
-# ============================================================
-#**
-# @method ( key => value, ... )
-# @param {...key-value-pair} key => value - One or more key-value pairs
-# @param {string} key - Request value for a given key
-# @param no parameters - Request the info hash (all info values)
-# @brief Sets form info if information key-value pairs are provided. Returns a single value if a single key is provided. Returns all form info if no parameters given.
-#*
-	my $self = shift;
-	my @info = @_;
-
-	$self->{ info } = {} unless exists $self->{ info };
-
-	if( @info == 0 ) {
-		return $self->{ info };
-
-	} elsif( @info == 1 ) {
-		my $name = shift @info;
-		return undef unless exists $self->{ info }{ $name };
-		return $self->{ info }{ $name };
-
-	} else {
-		my %info = @info;
-		foreach $name (keys %info) {
-			my $value = $info{ $name };
-			if( $value eq '' ) { delete $self->{ info }{ $name };   } 
-			else               { $self->{ info }{ $name } = $value; }
-		}
-		return $self->{ info };
-	}
-}
-
-# ============================================================
 sub last_name {
 # ============================================================
 	my $self  = shift;
@@ -165,7 +149,7 @@ sub last_name {
 	my @names = split /\s/, $name;
 	my @last  = grep { $_ eq uc( $_ ) } @names;
 
-	return join ' ', @first;
+	return join ' ', @last;
 }
 
 # ============================================================
@@ -184,10 +168,11 @@ sub next {
 #*
 	my $self     = shift;
 	my $division = $self->parent();
+	my $ring     = $division->parent();
 	my $divid    = $division->{ name };
-	my $aid      = $division->{ current }{ athlete };
-	my $rid      = $division->{ current }{ round };
-	my $order    = $division->{ order }{ $rid };
+	my $aid      = $division->athlete->current->id();
+	my $rid      = $ring->round->current->id();
+	my $order    = $round->info->get( 'order' );
 	my $i        = first_index { $_ == $aid } @$order;
 	my $n        = $#$order;
 
@@ -197,8 +182,8 @@ sub next {
 	my $naid     = $order->[ $j ]; # next athlete ID
 	my $athlete  = $self->select( $naid );
 	my $fid      = $division->event->form->first->id();
-	$division->{ current }{ athlete } = $naid;
-	$division->{ current }{ form }    = $fid;
+	$division->athlete->current->id( $naid );
+	$division->form->current->id( $fid );
 
 	return $athlete;
 }
@@ -212,10 +197,11 @@ sub previous {
 #*
 	my $self     = shift;
 	my $division = $self->parent();
+	my $ring     = $division->parent();
 	my $divid    = $division->{ name };
-	my $aid      = $division->{ current }{ athlete };
-	my $rid      = $division->{ current }{ round };
-	my $order    = $division->{ order }{ $rid };
+	my $aid      = $division->athlete->current->id();
+	my $rid      = $ring->round->current->id();
+	my $order    = $round->info->get( 'order' );
 	my $i        = first_index { $_ == $aid } @$order;
 
 	die sprintf( "Division configuration error: Current athlete ID is '%d', who is not in the ordering for %s %s", $aid, $divid, $rid ) unless $i >= 0;
@@ -223,8 +209,8 @@ sub previous {
 	my $j        = $i - 1;
 	my $paid     = $order->[ $j ]; # previous athlete ID
 	my $athlete  = $self->select( $paid );
-	$division->{ current }{ athlete } = $paid;
-	$division->{ current }{ form }    = $fid;
+	$division->athlete->current->id( $paid );
+	$division->form->current->id( $fid );
 
 	return $athlete;
 }
@@ -265,5 +251,10 @@ sub write {
 
 	foreach my $form ( @{ $athlete->forms( $rid )}) { $form->write( $fh, $rid ); }
 }
+
+# ============================================================
+# COMPONENTS
+# ============================================================
+sub info { my $self = shift; return $self->{ _info }; }
 
 1;

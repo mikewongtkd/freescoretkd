@@ -1,14 +1,14 @@
 
 Division
-	headers
-		name
-		description
+	name
+	description
+	info
 	athletes
-	draws
+	Round
 
-Draws
-	<draw id>
+Round
 	<round id>
+	info
 	
 
 Athletes

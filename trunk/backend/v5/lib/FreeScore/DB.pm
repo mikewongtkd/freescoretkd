@@ -13,13 +13,27 @@ sub init {
 	$self->SUPER::init( $parent );
 	$self->{ db } = DBI->connect( "dbi:SQLite:dbname=$FreeScore::PATH/freescore.sqlite", '', '' );
 	$self->{ schema } = {
-		division => { name => 'string', header => 'json' },
-		athlete  => { divid => 'string', aid => 'int', name => 'string', info => 'json' },
-		form     => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', info => 'json', decision => 'json', penalties => 'json' },
-		judge    => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jid => 'int', score => 'json' },
-		pool     => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jpid => 'string', score => 'json' },
-		history  => { divid => 'string', pkey => 'json', timestamp => 'string', do => 'json', undo => 'json' }
+	$self->{ schema } = {
+		ring      => { rnum => 'int', name => 'string', current => 'json' },
+		court     => { rnum => 'int', judges => 'json' },
+		judge     => { jpim => 'text', fname => 'string', lname => 'string', noc => 'string', info => 'json' },
+		division  => { name => 'string', header => 'json' },
+		round     => { divid => 'string', rid => 'text', name => 'string', rnum => 'int', header => 'json' },
+		athlete   => { divid => 'string', aid => 'int', name => 'string', noc => 'string', info => 'json' },
+		form      => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', info => 'json', decision => 'json', penalties => 'json' },
+		point     => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jid => 'int', score => 'json' },
+		pool      => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jpid => 'string', score => 'json' },
+		history   => { divid => 'string', pkey => 'json', timestamp => 'string', message => 'string', commands => 'json' }
 	};
+}
+
+sub read_ring {
+}
+
+sub read_court {
+}
+
+sub read_judge {
 }
 
 # ============================================================
@@ -40,7 +54,7 @@ sub read_athlete {
 sub read_form {
 }
 
-sub read_score {
+sub read_point {
 }
 
 sub read_pool {
@@ -55,7 +69,7 @@ sub write_athlete {
 sub write_form {
 }
 
-sub write_score {
+sub write_point {
 }
 
 sub write_pool {

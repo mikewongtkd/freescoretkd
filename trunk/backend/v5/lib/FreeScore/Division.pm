@@ -22,8 +22,6 @@ sub init {
 # ============================================================
 	my $self = shift;
 
-	my $cache = $self->load( $file ) if( $file );
-
 	# Default values
 	$self->{ event }  = 'recognized' unless $self->{ event };
 	$self->{ method } = 'cutoff'     unless $self->{ method };

@@ -170,7 +170,7 @@ sub max {
 	my $self     = shift;
 	my $event    = $self->parent();
 	my $division = $event->parent();
-	my $rid      = shift || $division->{ current }{ round };
+	my $rid      = shift || $division->round->current->id();
 	my $max      = $event->max_forms( $rid );
 
 	return $max;
@@ -185,13 +185,14 @@ sub next {
 	my $self     = shift;
 	my $event    = $self->parent();
 	my $division = $event->parent();
-	my $aid      = $division->{ current }{ athlete };
-	my $rid      = $division->{ current }{ round };
-	my $fid      = $division->{ current }{ form } + 1;
+	my $ring     = $division->parent();
+	my $aid      = $division->athlete->current->id();
+	my $rid      = $division->round->current->id();
+	my $fid      = $division->form->current->id() + 1;
 	my $n        = $self->max( $rid );
 	return undef if( $fid < 0 || $fid >= $n );
 
-	$division->{ current }{ form } = $fid;
+	$ring->info->current->form( $fid );
 
 	return $self->select( $aid, $rid, $fid );
 }
