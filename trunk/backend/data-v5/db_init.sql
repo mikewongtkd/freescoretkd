@@ -1,3 +1,13 @@
+create table schedule {
+	divid text not null,
+	rid text not null,
+	rnum int not null default 0,
+	expected_start text,
+	expected_end text,
+	actual_start text,
+	actual_end text
+}
+
 create table ring {
 	rnum int primary key,
 	name text not null,
