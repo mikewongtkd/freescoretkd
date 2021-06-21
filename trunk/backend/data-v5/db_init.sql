@@ -20,6 +20,7 @@ create table judge {
 
 create table division (
 	name text primary key,
+	registration text not null,
 	info text
 );
 

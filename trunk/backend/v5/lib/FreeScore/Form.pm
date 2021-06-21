@@ -256,8 +256,10 @@ sub select {
 	my $self     = shift;
 	my $event    = $self->parent();
 	my $division = $event->parent();
+	my $round    = $division->current->round();
+	my $ring     = $round->ring();
 	my $aid      = shift || $division->{ current }{ athlete };
-	my $rid      = shift || $division->{ current }{ round };
+	my $rid      = shift || $round->id();
 	my $fid      = shift || $division->{ current }{ form };
 	my $max      = $self->max( $rid );
 	die "Form() bounds error: $fid is beyond bounds [ 0, $max ] for $rid $!" if( $fid < 0 || $fid > $max );

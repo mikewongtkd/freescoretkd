@@ -106,16 +106,17 @@ sub forms {
 sub goto {
 # ============================================================
 #** 
-# @method ( aid )
+# @method ( rnum, aid )
+# @param {int} rnum - Ring Number
 # @param {int} aid - Athlete ID
 # @brief Returns the athlete ID (aid)
 #*
 	my $self     = shift;
 	my $aid      = shift;
 	my $division = $self->parent();
-	my $ring     = $division->parent();
+	my $round    = $division->round->select( $rnum );
 	my $divid    = $division->{ name };
-	my $rid      = $ring->round->current->id();
+	my $rid      = $round->id();
 	my $order    = $round->info->get( 'order' );
 	my $i        = first_index { $_ == $aid } @$order;
 	my $n        = $#$order;
@@ -124,8 +125,8 @@ sub goto {
 	return undef if( $i >= $n );
 	my $athlete  = $self->select( $aid );
 	my $fid      = $division->event->form->first->id();
-	$division->athlete->current->id( $aid );
-	$division->form->current->id( $fid );
+	$round->athlete->current->id( $aid );
+	$round->form->current->id( $fid );
 
 	return $athlete;
 }

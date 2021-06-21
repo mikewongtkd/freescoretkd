@@ -20,7 +20,7 @@ sub new {
 # ============================================================
 sub init {
 # ============================================================
-	my $self = shift;
+	my $self   = shift;
 
 	# Default values
 	$self->{ event }  = 'recognized' unless $self->{ event };
