@@ -55,7 +55,6 @@ sub name {
 	return $self->{ name };
 }
 
-
 # ============================================================
 sub next_display {
 # ============================================================
@@ -108,8 +107,9 @@ sub previous_display {
 # ============================================================
 sub previous_round {
 # ============================================================
-#** @method ()
-#   @brief Returns the previous round or undef if there are no earlier rounds
+#** 
+# @method ()
+# @brief Returns the previous round or undef if there are no earlier rounds
 #*
 	my $self     = shift;
 	my $division = $self->parent();
@@ -124,35 +124,24 @@ sub previous_round {
 # ============================================================
 sub previous_todo {
 # ============================================================
-#** @method ()
-#   @brief Returns the previous todo item or undef if there are no prior todo items
+#** 
+# @method ()
+# @brief Returns the previous todo item or undef if there are no prior todo items
 #*
 	my $self = shift;
 	die "Stub method Method::previous_todo() called $!";
 }
 
 # ============================================================
-sub read_body {
+sub round_neighborhood {
 # ============================================================
-#**
-# @method ( file )
-# @param {string} file - Absolute path to the file
-# @brief Reads the division/match file
+#** 
+# @method ( rid )
+# @param {string} rid - Round ID
+# @brief Returns the neighboring rounds
 #*
-	my $self     = shift;
-	my $cache    = shift;
-	my $division = $self->parent();
-
-	# Division body
-	$division->round->read( \@cache );
-
-	# Default values
-	unless( exists $division->{ current }) {
-		$division->{ current }{ athlete } = $division->athlete->first->id();
-		$division->{ current }{ round }   = $division->round->first->id();
-		$division->{ current }{ form }    = $division->form->first->id();
-		$division->{ current }{ display } = 'score';
-	}
+	my $self = shift;
+	die "Stub method Method::round_neighborhood() called $!";
 }
 
 # ============================================================

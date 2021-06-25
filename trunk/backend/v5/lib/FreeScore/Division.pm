@@ -30,6 +30,7 @@ sub init {
 	$self->{ _clock }   = new FreeScore::Clock( $self );
 	$self->{ _db }      = new FreeScore::DB( $self );
 	$self->{ _event }   = FreeScore::Event->factory( $self );
+	$self->{ _info }    = FreeScore::Event->factory( $self );
 	$self->{ _method }  = FreeScore::Method->factory( $self );
 	$self->{ _round }   = new FreeScore::Round( $self );
 

@@ -4,19 +4,16 @@ use base qw( FreeScore::Component );
 # ============================================================
 sub init {
 # ============================================================
-	my $self   = shift;
-	my $parent = shift;
-	$self->SUPER::init( $parent );
-	my $rid    = shift;
-	my $above  = shift || [];
-	my $below  = shift || [];
-	my $next   = shift || undef;
-	my $prev   = shift || undef;
+	my $self      = shift;
+	my $division  = shift;
+	my $rid       = shift;
+	my $method    = $division->method();
 
-	$self->{ above } = $above;
-	$self->{ below } = $below;
-	$self->{ next }  = $next;
-	$self->{ prev }  = $prev;
+	$self->{ id } = $rid;
+
+	$self->SUPER::init( $division );
+	$self->arrange( $method->round_neighborhood( $rid ));
+
 }
 
 # ============================================================
@@ -35,6 +32,21 @@ sub advance {
 	my $method     = $division->method();
 
 	return $method->advance( $placements, $rid );
+}
+
+# ============================================================
+sub arrange {
+# ============================================================
+	my $self   = shift;
+	my $next   = shift || undef;
+	my $prev   = shift || undef;
+	my $left   = shift || undef;
+	my $right  = shift || undef;
+
+	$self->{ next }      = $next;
+	$self->{ previous }  = $prev;
+	$self->{ left }      = $left;
+	$self->{ right }     = $right;
 }
 
 # ============================================================
@@ -100,6 +112,30 @@ sub first {
 }
 
 # ============================================================
+sub goto {
+# ============================================================
+#** 
+# @method ( rid )
+# @param {string} rid - Round ID
+# @brief Returns the requested round or undef if the round doesn't exist
+#*
+	my $self     = shift;
+	my $rid      = shift;
+	my $division = $self->parent();
+	my $ring     = $self->ring();
+
+	return undef unless $rid;
+	return undef unless any { $rid eq $_ } keys %{ $division->{ rounds }};
+	return undef unless exists $division->{ rounds }{ $rid } && defined $division->{ rounds }{ $rid };
+
+	$ring->round->current( $rid );
+	$round->athlete->current( $round->athlete->first->id() );
+	$round->form->current( $division->event->form->first->id() );
+
+	return $self->select( $rid );
+}
+
+# ============================================================
 sub id {
 # ============================================================
 #** 
@@ -111,55 +147,10 @@ sub id {
 }
 
 # ============================================================
-sub next {
-# ============================================================
-#** 
-# @method ()
-# @brief Returns the next round or undef if there are no further rounds
-#*
-	my $self     = shift;
-	my $division = $self->parent();
-	my $rid      = $self->id();
-	my $n        = $#{ $self->{ rounds }};
-	my $i        = first_index { $rid eq $_ } @{ $self->{ rounds }};
-	return undef if( $i < 0 || $i >= $n );
-	my $j        = $i + 1;
-	my $nrid     = $self->{ rounds }[ $j ];
-	my $order    = $division->{ order }{ $rid };
-
-	return undef unless $self->complete(); # The current round is incomplete, so the next round is undefined
-	return undef unless( defined $order && @$order > 0 ); # The next round competition order has yet to be initialized
-
-	$division->{ current }{ round }   = $nrid
-	$division->{ current }{ athlete } = $division->athlete->first->id();
-	$division->{ current }{ form }    = $division->event->form->first->id();
-
-	return $self->context({ id => $self->{ rounds }[ $j ] });
-}
-
-# ============================================================
-sub previous {
-# ============================================================
-#** @method ()
-#   @brief Returns the previous round or undef if there are no prior rounds
-#*
-	my $self     = shift;
-	my $division = $self->parent();
-	my $rid      = $self->id();
-	my $i        = first_index { $rid eq $_ } @{ $self->{ rounds }};
-	return undef if( $i <= 0 );
-	my $j        = $i - 1;
-	my $prid     = $self->{ rounds }[ $j ];
-	my $order    = $division->{ order }{ $prid };
-
-	return undef unless( defined $order && @$order > 0 ); # The previous round competition order has yet to be initialized
-
-	$division->{ current }{ round }   = $prid
-	$division->{ current }{ athlete } = $division->athlete->first->id();
-	$division->{ current }{ form }    = $division->event->form->first->id();
-
-	return $self->context({ id => $self->{ rounds }[ $j ] });
-}
+sub next     { my $self = shift; $self->goto( $self->{ next }); }
+sub previous { my $self = shfit; $self->goto( $self->{ previous }); }
+sub left     { my $self = shfit; $self->goto( $self->{ left }); }
+sub right    { my $self = shfit; $self->goto( $self->{ right }); }
 
 # ============================================================
 sub place {
@@ -293,9 +284,16 @@ sub select {
 	my $rid      = shift;
 	my $division = $self->parent();
 
-	return undef unless any { $_ eq $rid } @{ $self->{ rounds }};
+	return undef unless any { $_ eq $rid } keys %{ $division->{ rounds }};
 
-	return $self->context({ id => $rid });
+	return $self->context( $division->{ rounds }{ $rid } );
+}
+
+# ============================================================
+sub siblings {
+# ============================================================
+	my $self     = shift;
+	my $siblings = [ $self->id() ];
 }
 
 # ============================================================

@@ -1,4 +1,4 @@
-create table schedule {
+create table schedule (
 	divid text not null,
 	rid text not null,
 	rnum int not null default 0,
@@ -6,42 +6,45 @@ create table schedule {
 	expected_end text,
 	actual_start text,
 	actual_end text
-}
+):
 
-create table ring {
+create table ring (
 	rnum int primary key,
 	name text not null,
 	info text not null, /* divid, rid, aid, state */
 	schedule text
-}
+);
 
-create table court {
+create table court (
 	rnum text not null,
 	judges text not null
-}
+);
 
-create table judge {
+create table judge (
 	jpid text primary key,
 	fname text,
 	lname text,
 	noc text,
 	info text
-}
+);
 
 create table division (
 	name text primary key,
+	description text,
+	event text default 'recognized',
+	method text default 'cutoff',
 	registration text not null,
 	info text
 );
 
-create table "round" {
+create table "round" (
 	divid text not null,
 	rid text not null,
 	name text not null,
 	rnum int not null default 0,
 	info text,
 	primary key( divid, rid )
-}
+);
 
 create table athlete (
 	divid text not null,
