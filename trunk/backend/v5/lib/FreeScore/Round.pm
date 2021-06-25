@@ -8,11 +8,10 @@ sub init {
 	my $division  = shift;
 	my $rid       = shift;
 	my $method    = $division->method();
-
 	$self->{ id } = $rid;
 
 	$self->SUPER::init( $division );
-	$self->arrange( $method->round_neighborhood( $rid ));
+	$self->arrange( $method->round_neighborhood( $rid )); # MW
 
 }
 
@@ -55,12 +54,12 @@ sub athletes {
 	my $self     = shift;
 	my $division = $self->parent();
 	my $rid      = $self->id();
-	my $athletes = $division->{ athletes };
-	my $order    = $division->{ order }{ $rid };
+	my $athletes = $division->{ registered };
+	my $order    = $self->{ athletes };
 
-	return () unless defined $order && ref $order eq 'ARRAY';
+	return [] unless defined $order && ref $order eq 'ARRAY';
 
-	my $athletes = [ map { $division->athlete->select( $_ ) } @{ $division->{ order }{ $rid }} ];
+	my $athletes = [ map { $division->athlete->select( $_ ) } @$order ];
 	return $athletes;
 }
 
@@ -68,13 +67,14 @@ sub athletes {
 sub complete {
 # ============================================================
 	my $self     = shift;
+	my $rid      = $self->id();
 	my $athletes = $self->athletes();
 
 	# The round is complete if all athletes in the round are complete
 	# An athlete in the round is complete if all forms are complete or any
 	# form has a decision
 	my $complete = all { 
-		my $forms = $_->forms();
+		my $forms = $_->forms( $rid );
 		any { $_->decision() } @$forms ||
 		all { $_->complete() } @$forms
 	} @$athletes
@@ -260,21 +260,6 @@ sub ranks2places {
 }
 
 # ============================================================
-sub read {
-# ============================================================
-	my $self     = shift;
-	my $cache    = shift;
-	my $division = $self->parent();
-	my $method   = $division->method();
-
-	my $rid_regex = join '|', $method->rounds();
-
-	if( $cache->[ 0 ] =~ /# (?:$rid_regex)/ ) {
-
-	}
-}
-
-# ============================================================
 sub select {
 # ============================================================
 #** @method ( rid )
@@ -297,19 +282,27 @@ sub siblings {
 }
 
 # ============================================================
-sub write {
+sub update {
 # ============================================================
-	my $self = shift;
-	my $fh   = shift;
+	my $self       = shift;
+	my $division   = $self->parent();
+	my $event      = $division->event();
+	my $method     = $division->method();
+	my $rid        = $self->id();
+	my $athletes   = $self->athletes();
+	my $placements = [];
 
-	my $rid  = $self->id();
-	
-	print $fh "# ------------------------------------------------------------\n";
-	print $fh "# $rid\n";
-	print $fh "# ------------------------------------------------------------\n";
+	if( $event->form->complete()) {
+		$placements = $self->place( $athletes );
+		$self->{ placement }{ $rid } = $placements;
+	}
 
-	my $athletes = $self->athletes();
-	foreach my $athlete (@$athletes) { $athlete->write( $fh, $rid ); }
+	if( $self->complete()) {
+		my $next = $self->next();
+		my $nrid = $next->id();
+
+		$next->advance( $placements );
+	}
 }
 
 1;

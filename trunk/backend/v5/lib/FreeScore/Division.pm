@@ -27,37 +27,10 @@ sub init {
 	$self->{ method } = 'cutoff'     unless $self->{ method };
 
 	$self->{ _athlete } = new FreeScore::Athlete( $self );
-	$self->{ _clock }   = new FreeScore::Clock( $self );
-	$self->{ _db }      = new FreeScore::DB( $self );
 	$self->{ _event }   = FreeScore::Event->factory( $self );
-	$self->{ _info }    = FreeScore::Event->factory( $self );
+	$self->{ _info }    = FreeScore::Info( $self );
 	$self->{ _method }  = FreeScore::Method->factory( $self );
-	$self->{ _round }   = new FreeScore::Round( $self );
 
-}
-
-# ============================================================
-sub update {
-# ============================================================
-	my $self       = shift;
-	my $event      = $self->event();
-	my $method     = $self->method();
-	my $round      = $self->round->current();
-	my $rid        = $round->id();
-	my $athletes   = $round->athletes();
-	my $placements = [];
-
-	if( $event->form->complete()) {
-		$placements = $round->place( $athletes );
-		$self->{ placement }{ $rid } = $placements;
-	}
-
-	if( $self->round->complete()) {
-		my $next = $self->round->next();
-		my $nrid = $next->id();
-
-		$self->{ order }{ $nrid } = $next->advance( $placements );
-	}
 }
 
 # ============================================================

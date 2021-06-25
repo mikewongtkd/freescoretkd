@@ -42,6 +42,7 @@ create table "round" (
 	rid text not null,
 	name text not null,
 	rnum int not null default 0,
+	athletes text not null,
 	info text,
 	primary key( divid, rid )
 );
