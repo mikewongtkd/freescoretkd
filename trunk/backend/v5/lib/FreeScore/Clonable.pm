@@ -1,6 +1,7 @@
 package FreeScore::Clonable;
 use Clone qw( clone );
 use Data::Structure::Util qw( unbless );
+use JSON::XS;
 
 # ============================================================
 sub clone {
@@ -16,6 +17,20 @@ sub clone {
 	_remove_interfaces_and_caches( $clone );
 
 	return $clone;
+}
+
+# ============================================================
+sub json {
+# ============================================================
+#**
+# @method ()
+# @brief Returns a JSON string of the cloned data (sans interfaces, caches, etc.)
+#*
+	my $self  = shift;
+	my $clone = $self->clone();
+	my $json  = new JSON::XS();
+
+	return $json->canonical->encode( $clone );
 }
 
 # ============================================================

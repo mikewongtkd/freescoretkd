@@ -1,4 +1,4 @@
-package FreeScore::Event::Recognized::Ranking;
+package FreeScore::Event::Recognized::Performance;
 use base qw( FreeScore::Component FreeScore::Clonable );
 use overload 'cmp' => \&_cmp;
 
@@ -29,7 +29,7 @@ sub complete {
 # ============================================================
 #**
 # @method ()
-# @brief A ranking for Recognized Poomsae is complete if all forms are complete
+# @brief A Recognized Poomsae Performance is complete if all forms are complete
 #*
 	my $self     = shift;
 	my $division = $self->parent->parent();

@@ -1,8 +1,18 @@
 package FreeScore::Form;
 use base qw( FreeScore::Component );
+use FreeScore::Metadata::Info;
 use List::Util qw( all any );
 
 our @DECISIONS       = qw( dsq wdr );
+
+# ============================================================
+sub init {
+# ============================================================
+	my $self   = shift;
+	my $parent = shift;
+	$self->SUPER::init( $parent );
+	$self->{ _info } = new FreeScore::Metadata::Info( $self );
+}
 
 # ============================================================
 sub complete {
@@ -28,7 +38,7 @@ sub complete {
 	return 0 unless exists $self->{ judge };
 	my $judges   = $self->judges();
 	my $complete = all { defined $_ && $_->complete() } @$judges
-	$self->{ info }{ time }{ completed } = $clock->now() if( ! $self->{ complete } && $complete );
+	$self->info->update( 'time', { completed => $clock->now()}) if( ! $self->{ complete } && $complete );
 	$self->{ complete } = $complete;
 
 	return $self->{ complete };
@@ -127,40 +137,6 @@ sub id {
 }
 
 # ============================================================
-sub info {
-# ============================================================
-#**
-# @method ( key => value, ... )
-# @param {...key-value-pair} key => value - One or more key-value pairs
-# @param {string} key - Request value for a given key
-# @param no parameters - Request the info hash (all info values)
-# @brief Sets form info if information key-value pairs are provided. Returns a single value if a single key is provided. Returns all form info if no parameters given.
-#*
-	my $self = shift;
-	my @info = @_;
-
-	$self->{ info } = {} unless exists $self->{ info };
-
-	if( @info == 0 ) {
-		return $self->{ info };
-
-	} elsif( @info == 1 ) {
-		my $name = shift @info;
-		return undef unless exists $self->{ info }{ $name };
-		return $self->{ info }{ $name };
-
-	} else {
-		my %info = @info;
-		foreach $name (keys %info) {
-			my $value = $info{ $name };
-			if( $value eq '' ) { delete $self->{ info }{ $name };   } 
-			else               { $self->{ info }{ $name } = $value; }
-		}
-		return $self->{ info };
-	}
-}
-
-# ============================================================
 sub max {
 # ============================================================
 #**
@@ -236,13 +212,13 @@ sub previous {
 	my $self     = shift;
 	my $event    = $self->parent();
 	my $division = $event->parent();
-	my $aid      = $division->{ current }{ athlete };
-	my $rid      = $division->{ current }{ round };
-	my $fid      = $division->{ current }{ form } - 1;
+	my $aid      = $round->athlete->current();
+	my $rid      = $ring->round->current();
+	my $fid      = $round->{ current }{ form } - 1;
 	my $n        = $self->max( $rid );
 	return undef if( $fid < 0 || $fid >= $n );
 
-	$division->{ current }{ form } = $fid;
+	$ring->info->current->form( $fid );
 
 	return $self->select( $aid, $rid, $fid );
 }
@@ -258,9 +234,9 @@ sub select {
 	my $division = $event->parent();
 	my $round    = $division->current->round();
 	my $ring     = $round->ring();
-	my $aid      = shift || $division->{ current }{ athlete };
+	my $aid      = shift || $round->athlete->current;
 	my $rid      = shift || $round->id();
-	my $fid      = shift || $division->{ current }{ form };
+	my $fid      = shift || $round->form->current;
 	my $max      = $self->max( $rid );
 	die "Form() bounds error: $fid is beyond bounds [ 0, $max ] for $rid $!" if( $fid < 0 || $fid > $max );
 
@@ -275,52 +251,6 @@ sub select {
 	$form         = $self->context( $form );
 
 	return $form;
-}
-
-# ============================================================
-sub write {
-# ============================================================
-#** 
-# @method ( fh, rid )
-# @param {file} fh - File handle
-# @param {string} rid - Round ID
-# @brief Returns the form corresponding to the Form ID (fid) and Round ID (rid; default is current round)
-#*
-	my $self  = shift;
-	my $rid   = shift;
-	my $fid   = $self->id();
-	my $event = $self->parent();
-	my $json  = new JSON::XS();
-	my $ford  = sprintf( "f%d", $fid + 1 ); # Form ordinal number
-
-	my $info      = $self->{ info };
-	my $decision  = $self->{ decision };
-	my $penalties = $self->{ penalties };
-
-	# Record the metadata
-	if( $info      ) { printf $fh "\t%s\t%s\ti\t%s\n", $rid, $ford, $json->canonical->encode( $info      ); }
-	if( $decision  ) { printf $fh "\t%s\t%s\td\t%s\n", $rid, $ford, $json->canonical->encode( $decision  ); }
-	if( $penalties ) { printf $fh "\t%s\t%s\tp\t%s\n", $rid, $ford, $json->canonical->encode( $penalties ); }
-
-	# Record the judges' scores
-	my $judges = $self->{ judge };
-	foreach my $i ( 0 .. $#$judges ) {
-		my $judge = $judges->[ $i ];
-		my $jid   = $i == 0 ? 'r' : "j$i";
-		printf $fh "\t%s\t%s\t%s\t", $rid, $ford, $jid; 
-		my $score = $event->score->context( $judge );
-		$score->write();
-		print $fh "\n";
-	}
-
-	# Record the pool
-	my $pool      = $self->{ pool };
-	my $j         = 1;
-	foreach my $jpid (sort keys %$pool) {
-		my $jpord = sprintf "p%d", $j;
-		printf $fh "\t%s\t%s\t%s\t%s\n", $rid, $ford, $jpord, $json->canonical->encode( $pool->{ $jpid });
-		$j++;
-	}
 }
 
 1;

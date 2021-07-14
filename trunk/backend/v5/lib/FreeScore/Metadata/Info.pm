@@ -77,15 +77,41 @@ sub set {
 # @param {...key-value-pair} key => value - One or more key-value pairs
 # @param {string} key - Request value for a given key
 # @param no parameters - Request the info hash (all info values)
-# @brief Sets form info if information key-value pairs are provided. 
+# @brief Sets info if information key-value pairs are provided. 
 #*
 	my $self = shift;
 	my %info = @_;
 
-	my %info = @info;
 	foreach $name (keys %info) {
 		my $value = $info{ $name };
 		$self->{ $name } = $self->_encode( $value );
+	}
+	return $self->clone();
+}
+
+# ============================================================
+sub update {
+# ============================================================
+#**
+# @method ( key => value, ... )
+# @param {...key-value-pair} key => value - One or more key-value pairs
+# @param {string} key - Request value for a given key
+# @param no parameters - Request the info hash (all info values)
+# @brief Updates info if information key-value pairs are provided. 
+#*
+	my $self = shift;
+	my %info = @_;
+
+	foreach $name (keys %info) {
+		my $original = $self->get( $name );
+		my $update   = $info{ $name };
+		$original = { type => ref $original, value => $original };
+		$update   = { type => ref $update,   value => $update   };
+		if( $original->{ type } eq 'HASH' && $update->{ type } eq $original->{ type });
+			$update->{ value }{ $_ } = $original->{ value }{ $_ } foreach keys %{ $original->{ value }};
+		}
+
+		$self->{ $name } = $self->_encode( $update->{ value });
 	}
 	return $self->clone();
 }

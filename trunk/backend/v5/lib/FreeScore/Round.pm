@@ -1,5 +1,6 @@
 package FreeScore::Round;
 use base qw( FreeScore::Component );
+use FreeScore::Form;
 
 # ============================================================
 sub init {
@@ -11,6 +12,7 @@ sub init {
 	$self->{ id } = $rid;
 
 	$self->SUPER::init( $division );
+	$self->{ _form } =
 	$self->arrange( $method->round_neighborhood( $rid )); # MW
 
 }

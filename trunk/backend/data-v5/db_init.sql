@@ -56,7 +56,7 @@ create table athlete (
 	primary key( divid, aid )
 );
 
-create table form (
+create table performance (
 	divid text not null,
 	aid int not null,
 	rid text not null,
@@ -67,13 +67,13 @@ create table form (
 	primary key( divid, aid, rid, fid )
 );
 
-create table point (
+create table score (
 	divid text not null,
 	aid int not null,
 	rid text not null,
 	fid int not null,
 	jid int not null,
-	score text,
+	points text,
 	primary key( divid, aid, rid, fid, jid )
 );
 
@@ -83,7 +83,7 @@ create table pool (
 	rid text not null,
 	fid int not null,
 	jpid text not null,
-	score text,
+	points text,
 	status text,
 	primary key( divid, aid, rid, fid, jpid )
 );
@@ -98,8 +98,8 @@ create table history (
 	primary key( "table", divid, pkey )
 );
 
-create index idx_athletes      on athlete   (divid);                 /* For retrieving all forms for a given division */
-create index idx_forms         on form      (divid, aid, rid);       /* For retrieving all forms for a given round (div,athlete,round) */
-create index idx_points        on point     (divid, aid, rid, fid);  /* For retrieving all point scores for a given form/fight (div,athlete,round,fid) */
-create index idx_pool          on pool      (divid, aid, rid, fid);  /* For retrieving all pool scores for a given form/fight (div,athlete,round,fid) */
-create index idx_history_divid on history   (divid);
+create index idx_athletes      on athlete     (divid);                 /* For retrieving all forms for a given division */
+create index idx_performance   on performance (divid, aid, rid);       /* For retrieving all forms for a given round (div,athlete,round) */
+create index idx_score         on score       (divid, aid, rid, fid);  /* For retrieving all point scores for a given form/fight (div,athlete,round,fid) */
+create index idx_pool          on pool        (divid, aid, rid, fid);  /* For retrieving all pool scores for a given form/fight (div,athlete,round,fid) */
+create index idx_history_divid on history     (divid);
