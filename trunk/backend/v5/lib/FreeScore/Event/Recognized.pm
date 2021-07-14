@@ -113,24 +113,6 @@ sub accuracy {
 }
 
 # ============================================================
-sub complete_score {
-# ============================================================
-#**
-# @method ( score )
-# @param score - Score to evaluate for completeness
-# @brief A Recognized Poomsae score is complete if all fields have valid values
-#*
-	my $self         = shift;
-	my $score        = shift;
-
-	my $accuracy     = all { defined $score->{ $_ } && $score->{ $_ } >= 0 } @ACCURACY;
-	my $presentation = all { defined $score->{ $_ } && $score->{ $_ } >= 0.5 && $score->{ $_ } <= 2.0 } @PRESENTATION;
-	my $complete     = $accuracy && $presentation;
-
-	return $complete;
-}
-
-# ============================================================
 sub presentation {
 # ============================================================
 #**
@@ -147,6 +129,24 @@ sub presentation {
 	$presentation = $presentation < 1.5 ? 1.5 : $presentation;
 	$presentation = $presentation > 6   ? 6   : $presentation;
 	return $presentation;
+}
+
+# ============================================================
+sub score_complete {
+# ============================================================
+#**
+# @method ( score )
+# @param score - Score to evaluate for completeness
+# @brief A Recognized Poomsae score is complete if all fields have valid values
+#*
+	my $self         = shift;
+	my $score        = shift;
+
+	my $accuracy     = all { defined $score->{ $_ } && $score->{ $_ } >= 0 } @ACCURACY;
+	my $presentation = all { defined $score->{ $_ } && $score->{ $_ } >= 0.5 && $score->{ $_ } <= 2.0 } @PRESENTATION;
+	my $complete     = $accuracy && $presentation;
+
+	return $complete;
 }
 
 1;
