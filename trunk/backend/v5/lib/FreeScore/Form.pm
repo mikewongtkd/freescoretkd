@@ -137,7 +137,7 @@ sub first {
 	my $divid = $self->{ divid } || $self->division->id();
 	my $aid   = $self->{ aid }   || $round->athlete->current->id();
 	my $rid   = $self->{ rid }   || $round->id();
-	my $fid   = 0;
+	my $fid   = $self->{ fid } = 0;
 
 	$self->select( $divid, $aid, $rid, $fid );
 }
@@ -149,7 +149,7 @@ sub id {
 # @method ()
 # @brief Returns the form's ID (index)
 	my $self = shift;
-	return $self->{ id };
+	return $self->{ fid };
 }
 
 # ============================================================
@@ -288,8 +288,6 @@ sub select {
 	die "Form() bounds error: $fid is beyond bounds [ 0, $max ] for $rid $!" if( $fid < 0 || $fid > $max );
 
 	my $form = $db->load_form( $divid, $rid, $aid, $fid );
-	$form->{ id } = $form->{ fid };
-	delete $form->{ fid };
 
 	return $self->context( $form );
 }

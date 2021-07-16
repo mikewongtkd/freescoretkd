@@ -1,6 +1,7 @@
 package FreeScore::Round;
 use base qw( FreeScore::Component );
 use FreeScore::Form;
+use List::MoreUtils qw( first_index );
 
 # ============================================================
 sub init {
@@ -166,97 +167,88 @@ sub place {
 
 	return [] if int( @$athletes ) == 0;
 
-	# Rank the athletes
-	my $rankings = $self->rank( $athletes );
+	my $performances = $self->performances();
 
 	# Place the athletes
-	my $placements = $self->ranks2places( $rankings );
+	my $placements = $self->place( $performances );
 
 	return $placements;
 }
 
 # ============================================================
-sub rank {
+sub performances {
 # ============================================================
 #**
-# @method ( athletes )
-# @param {array} athletes - List of athletes to rank
-# @returns ranking - Ordered list of athlete ids with ranking criteria
+# @method ()
+# @returns performances
 #*
 	my $self     = shift;
-	my $athletes = shift;
-	my $rid      = $self->id();
-	my $division = $self->parent();
-	my $event    = $division->event();
-
-	# Evaluate each athlete ranking (implicit in the ranking constructor)
-	my $rankings = [];
-	foreach my $athlete (@$athletes) {
-		# Autovivify
-		$athlete->{ scores }{ $rid } = {} unless exists $athlete->{ scores }{ $rid };
-
-		my $ranking = $event->ranking->context( $athlete->{ scores }{ $rid });
-		$ranking->{ aid } = $athlete->id();
-		push @$rankings, $ranking;
-	}
-
-	@$rankings = sort @$rankings;
-
-	return $rankings;
+	# MW
 }
 
 # ============================================================
-sub ranks2places {
+sub place {
 # ============================================================
-#** @method ( rankings )
-#   @param {array} rankings - List of ordered rankings
+#** @method ( performances )
+#   @param {array} performances - List of performances
 #   @brief Place athletes, grouping true ties together at the same placement
 #*
-	my $self       = shift;
-	my $rankings   = shift;
-	my $place      = 1;
-	my $placements = [];
+	my $self         = shift;
+	my $performances = shift;
+	my $place        = 1;
+	my $placements   = [];
 
-	my $a          = shift @$rankings;
-	my $placement  = { place => $place, athletes => [ $a->clone() ]};
+	@$performances   = sort @$performances;
+	my $a            = shift @$performances;
+	my $placement    = { place => $a->decision() ? $a->decision() : $place, performances => [ $a->clone() ]};
 	push @$placements, $placement;
-	my $current    = $placement;
+	my $current      = $placement;
 
-	while( @$rankings ) {
-		my $a   = $current->{ athletes }[ 0 ];
-		my $b   = shift @$rankings;
+	while( @$performances ) {
+		my $b   = shift @$performances;
 		my $cmp = $a cmp $b;
-		$place++;
+		$place++ unless $a->decision() || $b->decision();
 
 		# Tied; group the athletes as the same placement
 		if( $cmp == 0 ) {
-			push @{$current->{ athletes }}, $b->clone();
+			push @{$current->{ performance }}, $b->clone();
 
 		# Not tied, assign the athlete to a new placement
 		} else {
-			my $p              = $b->{ decision } =~ /^(?:dsq|wdr)$/ ? '-' : $place;
-			my $placement      = { place => $p, athletes => [ $b->clone() ]};
+			my $p              = $b->decision() ? $b->decision() : $place;
+			my $placement      = { place => $p, performances => [ $b->clone() ]};
 			my $tiebreaker     = $a->tiebreaker( $b );
 			$placement->{ tb } = $tiebreaker if $tiebreaker;
 
 			push @$placements, $placement;
 			$current = $placement;
 		}
+
+		$a = $b;
 	}
 
 	# Sort tied groups by last name, then first name
-	my $division = $self->parent();
 	foreach my $placement (@$placements) {
-		my $athletes = $placement->{ athletes };
-		my $sorted   = [];
-		foreach my $entry (@$athletes) {
-			my $aid      = $entry->{ aid };
-			my $athlete  = $division->athlete->select( $aid );
-			push @$sorted, { first => $athlete->first_name(), last => $athlete->last_name(), ranking => $entry };
+		my $performances = [ map { $self->performance->context( $_ ) } @{$placement->{ performances }}];
+		my $sorted       = [];
+		foreach my $performance (@$performances) {
+			my $aid      = $performance->{ aid };
+			my $athlete  = $self->athlete->select( $aid );
+			push @$sorted, { first => $athlete->first_name(), last => $athlete->last_name(), performance => $performance };
 		}
-		@$sorted = map { $_->{ ranking } } sort { $a->{ last } cmp $b->{ last } || $a->{ first } cmp $b->{ first } } @$sorted;
-		$placement->{ athletes } = $sorted;
+		@$sorted = map { $_->{ performance } } sort { $a->{ last } cmp $b->{ last } || $a->{ first } cmp $b->{ first } } @$sorted;
+		$placement->{ performances } = $sorted;
 	}
+
+	# Sort placements by place, putting WDR after valid
+	my $wdr = first_index { $_->{ place } eq 'wdr' } @$placements;
+	$wdr = splice( @$placements, $wdr, 1 ) if( defined( $wdr ));
+	my $dsq = first_index { $_->{ place } eq 'dsq' } @$placements;
+	$dsq = splice( @$placements, $dsq, 1 ) if( defined( $dsq ));
+
+	@$placements = sort { $a->{ place } <=> $b->{ place } } @$placements;
+	if( $wdr ) { $wdr->{ place } = '-'; push @$placements, $wdr; }
+	if( $dsq ) { $dsq->{ place } = '-'; push @$placements, $dsq; }
 
 	return $placements;
 }
@@ -306,5 +298,10 @@ sub update {
 		$next->advance( $placements );
 	}
 }
+
+# ============================================================
+# NAVIGATION
+# ============================================================
+sub division { my $self = shift; return $self->parent(); }
 
 1;

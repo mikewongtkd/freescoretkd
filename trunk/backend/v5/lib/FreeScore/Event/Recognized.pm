@@ -39,6 +39,32 @@ sub evaluate_performance {
 }
 
 # ============================================================
+sub performance_compare {
+# ============================================================
+#**
+# @method ( a, b )
+# @param {Performance} a - An instance of a Performance
+# @param {Performance} b - Another instance of a Performance
+# @brief Compares the two performances for ranking
+# @details Requires evaluate_performance() to be called prior
+#*
+	my $self = shift;
+	my $a    = shift;
+	my $b    = shift;
+
+	my $decision_value = { dsq => 10, wdr => 1 };
+	my $ad  = $a->decision();
+	my $bd  = $b->decision();
+	my $adv = $ad ? $decision_value->{ $ad } : 0;
+	my $bdv = $bd ? $decision_value->{ $bd } : 0;
+
+	return $adv <=> $bdv ||
+		$b->{ score } <=> $a->{ score } || 
+		$b->{ tb1 } <=> $a->{ tb1 } ||
+		$b->{ tb2 } <=> $a->{ tb2 }
+}
+
+# ============================================================
 sub performance_complete {
 # ============================================================
 	my $self     = shift;
@@ -64,7 +90,7 @@ sub performance_tiebreaker {
 	my $adv = exists $a->{ decision } && defined $a->{ decision } ? $decision_value->{ $a->{ decision }} : 0;
 	my $bdv = exists $b->{ decision } && defined $b->{ decision } ? $decision_value->{ $b->{ decision }} : 0;
 
-	return undef if $adv <=> $bdv;
+	return undef if $adv || $bdv;
 	return undef if $b->{ score } <=> $a->{ score };
 	return 'tb1' if $b->{ tb1 } <=> $a->{ tb1 };
 
