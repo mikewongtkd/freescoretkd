@@ -16,12 +16,14 @@ create table ring (
 );
 
 create table court (
+	cid text primary key,
 	rnum text not null,
-	judges text not null
+	judges text not null,
+	info text
 );
 
 create table judge (
-	jpid text primary key,
+	jid text primary key,
 	fname text,
 	lname text,
 	noc text,
@@ -42,7 +44,7 @@ create table "round" (
 	rid text not null,
 	name text not null,
 	rnum int not null default 0,
-	athletes text not null,
+	draw text not null,
 	info text,
 	primary key( divid, rid )
 );
@@ -51,7 +53,6 @@ create table athlete (
 	divid text not null,
 	aid int not null,
 	name text not null,
-	noc text not null,
 	info text,
 	primary key( divid, aid )
 );
@@ -83,7 +84,7 @@ create table score (
 	aid int not null,
 	rid text not null,
 	fid int not null,
-	jid int not null,
+	jid text not null,
 	points text,
 	primary key( divid, aid, rid, fid, jid )
 );
@@ -93,10 +94,10 @@ create table pool (
 	aid int not null,
 	rid text not null,
 	fid int not null,
-	jpid text not null,
+	jid text not null,
 	points text,
 	status text,
-	primary key( divid, aid, rid, fid, jpid )
+	primary key( divid, aid, rid, fid, jid )
 );
 
 create table history (

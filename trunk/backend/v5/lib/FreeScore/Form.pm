@@ -1,6 +1,7 @@
 package FreeScore::Form;
 use base qw( FreeScore::Component );
 use FreeScore::Metadata::Info;
+use FreeScore::Score;
 use List::Util qw( all any );
 
 our @DECISIONS = qw( dsq wdr );
@@ -10,8 +11,24 @@ sub init {
 # ============================================================
 	my $self   = shift;
 	my $parent = shift;
+
 	$self->SUPER::init( $parent );
-	$self->{ _info } = new FreeScore::Metadata::Info( $self );
+	$self->{ _info }    = new FreeScore::Metadata::Info( $self );
+	$self->{ _score }   = new FreeScore::Score( $self );
+	$self->{ _athlete } = new FreeScore::Athlete( $self );
+}
+
+# ============================================================
+sub athlete {
+# ============================================================
+#**
+# @method ()
+# @brief Returns the athlete for the given form
+#*
+	my $self    = shift;
+	my $athlete = $self->performance->athlete();
+
+	return $athlete;
 }
 
 # ============================================================
@@ -21,10 +38,10 @@ sub complete {
 # @method ()
 # @brief Calculates form completeness and returns true if form is complete, false otherwise
 #*
-	my $self     = shift;
-	my $event    = $self->event();
-	my $ring     = $self->ring();
-	my $clock    = $ring->clock();
+	my $self  = shift;
+	my $event = $self->event();
+	my $ring  = $self->ring();
+	my $clock = $ring->clock();
 
 	# If already calculated, return cached value
 	return $self->{ complete } if( exists( $self->{ complete }));
@@ -34,9 +51,10 @@ sub complete {
 	# 2. all scores are recorded
 	return $self->{ complete } = 1 if $self->decision();
 	
-	return 0 unless exists $self->{ judge };
-	my $judges   = $self->judges();
-	my $complete = all { defined $_ && $event->score_complete( $_ ) } @$judges
+	my $scores = $self->scores();
+	return 0 unless int( @$scores );
+
+	my $complete = all { defined $_ && $event->score_complete( $_ ) } @$scores
 	$self->info->update( 'time', { completed => $clock->now()}) if( ! $self->{ complete } && $complete );
 	$self->{ complete } = $complete;
 
@@ -107,37 +125,22 @@ sub evaluate {
 # Uses double dispatch with the Event object
 #**
 	my $self  = shift;
-	my $event = $self->black_magic(); # MW
+	my $event = $self->event();
 
-	return $event->evaluate( $self )
+	return $event->evaluate_form( $self )
 }
 
 # ============================================================
 sub first {
 # ============================================================
-	my $self     = shift;
-	my $event    = $self->parent();
-	my $division = $event->parent();
-	my $aid      = $division->athlete->current->id();
-	my $rid      = $division->round->current->id();
-	my $fid      = 0;
+	my $self  = shift;
+	my $round = $self->round();
+	my $divid = $self->{ divid } || $self->division->id();
+	my $aid   = $self->{ aid }   || $round->athlete->current->id();
+	my $rid   = $self->{ rid }   || $round->id();
+	my $fid   = 0;
 
-	$self->select( $aid, $rid, $fid );
-}
-
-# ============================================================
-sub judges {
-# ============================================================
-	my $self     = shift;
-	my $event    = $self->parent();
-	my $division = $event->parent();
-	my $event    = $division->event();
-	my $n        = $division->judges();
-
-	my $judge   = $self->{ judge };
-	my $judges  = [ map { defined $judge->[ $_ ] ? $event->score->context( $judge->[ $_ ]) : undef } ( 0 .. $n )];
-
-	return $judges;
+	$self->select( $divid, $aid, $rid, $fid );
 }
 
 # ============================================================
@@ -154,14 +157,13 @@ sub id {
 sub max {
 # ============================================================
 #**
-# @method ( rid )
-# @brief Returns the maximum number of regulation forms for the given round (default is current round)
+# @method ()
+# @brief Returns the maximum number of regulation forms for the given round
 #*
 	my $self     = shift;
-	my $event    = $self->parent();
-	my $division = $event->parent();
-	my $rid      = shift || $division->round->current->id();
-	my $max      = $event->max_forms( $rid );
+	my $round    = $self->round();
+	my $rid      = $round->id();
+	my $max      = int( @{$round->info->get( 'forms' )});
 
 	return $max;
 }
@@ -172,19 +174,18 @@ sub next {
 #** @method ()
 #   @brief Returns the next form or undef if there are no further forms
 #*
-	my $self     = shift;
-	my $event    = $self->parent();
-	my $division = $event->parent();
-	my $ring     = $division->parent();
-	my $aid      = $division->athlete->current->id();
-	my $rid      = $division->round->current->id();
-	my $fid      = $division->form->current->id() + 1;
-	my $n        = $self->max( $rid );
+	my $self  = shift;
+	my $round = $self->round();
+	my $divid = $self->{ divid } || $self->division->id();
+	my $aid   = $self->{ aid }   || $round->athlete->current->id();
+	my $rid   = $self->{ rid }   || $round->id();
+	my $fid   = $round->form->current->id() + 1;
+	my $n     = $self->max( $rid );
 	return undef if( $fid < 0 || $fid >= $n );
 
 	$ring->info->current->form( $fid );
 
-	return $self->select( $aid, $rid, $fid );
+	return $self->select( $divid, $aid, $rid, $fid );
 }
 
 # ============================================================
@@ -220,52 +221,91 @@ sub penalties {
 # ============================================================
 sub previous {
 # ============================================================
-#** @method ()
-#   @brief Returns the previous form or undef if there are no prior forms
+#** 
+# @method ()
+# @brief Returns the previous form or undef if there are no prior forms
 #*
-	my $self     = shift;
-	my $event    = $self->parent();
-	my $division = $event->parent();
-	my $aid      = $round->athlete->current->id();
-	my $rid      = $ring->round->current->id();
-	my $fid      = $round->{ current }{ form } - 1;
-	my $n        = $self->max( $rid );
+	my $self  = shift;
+	my $round = $self->round();
+	my $divid = $self->{ divid } || $self->division->id();
+	my $aid   = $self->{ aid }   || $round->athlete->current->id();
+	my $rid   = $self->{ rid }   || $round->id();
+	my $fid   = $round->form->current->id() - 1;
+	my $n     = $self->max( $rid );
 	return undef if( $fid < 0 || $fid >= $n );
 
 	$ring->info->current->form( $fid );
 
-	return $self->select( $aid, $rid, $fid );
+	return $self->select( $divid, $aid, $rid, $fid );
+}
+
+# ============================================================
+sub scores {
+# ============================================================
+#** 
+# @method ()
+# @brief Returns the form's current scores
+#*
+	my $self   = shift;
+	my $db     = $self->tournament->db();
+	my $round  = $self->round();
+	my $divid  = $self->division->id();
+	my $rid    = $round->id();
+	my $aid    = $round->athlete->current->id();
+	my $fid    = $self->id();
+	my $scores = [ map { $self->score->context( $_ ) } $db->get_scores( $divid, $rid, $aid, $fid )];
+
+	return $scores;
+}
+
+# ============================================================
+sub save {
+# ============================================================
+#** 
+# @method ()
+# @brief Saves the form to the database
+#*
+	my $self  = shift;
+	my $clone = $self->clone();
+	my $db    = $self->tournament->db();
+	$db->save_form( $clone );
 }
 
 # ============================================================
 sub select {
 # ============================================================
-#** @method ( aid, rid, fid )
-#   @brief Returns the form corresponding to the Form ID (fid) and Round ID (rid; default is current round)
+#** 
+# @method ( divid, aid, rid, fid )
+# @brief Returns the form corresponding to the Form ID (fid) and Round ID (rid; default is current round)
 #*
-	my $self     = shift;
-	my $round    = $self->round();
-	my $aid      = shift || $round->athlete->current;
-	my $rid      = shift || $round->id();
-	my $fid      = shift || $round->form->current;
-	my $max      = $self->max( $rid );
+	my $self  = shift;
+	my $db    = $self->tournament->db();
+	my $round = $self->round();
+	my $divid = shift || $self->division->id();
+	my $aid   = shift || $round->athlete->current->id();
+	my $rid   = shift || $round->id();
+	my $fid   = shift || $round->form->current->id();
+	my $max   = $self->max( $rid );
 	die "Form() bounds error: $fid is beyond bounds [ 0, $max ] for $rid $!" if( $fid < 0 || $fid > $max );
 
-	my $form = $db->get_form( $aid, $rid, $fid );
+	my $form = $db->load_form( $divid, $rid, $aid, $fid );
+	$form->{ id } = $form->{ fid };
+	delete $form->{ fid };
 
-	return $form;
+	return $self->context( $form );
 }
 
 # ============================================================
-# FAMILY TREE
+# NAVIGATION
 # ============================================================
-sub athlete    { my $self = shift; return $self->parent(); }
-sub db         { my $self = shift; return $self->parent->parent->ring->parent->db(); }
-sub division   { my $self = shift; return $self->parent->parent->parent(); }
-sub event      { my $self = shift; return $self->parent->parent->parent->event(); }
-sub method     { my $self = shift; return $self->parent->parent->parent->method(); }
-sub round      { my $self = shift; return $self->parent->parent(); }
-sub ring       { my $self = shift; return $self->parent->parent->ring(); }
-sub tournament { my $self = shift; return $self->parent->parent->ring->parent(); }
+sub info        { my $self = shift; return $self->{ _info }; }
+sub score       { my $self = shift; return $self->{ _score }; }
+sub performance { my $self = shift; return $self->parent(); }
+sub round       { my $self = shift; return $self->parent->parent(); }
+sub division    { my $self = shift; return $self->parent->parent->parent(); }
+sub tournament  { my $self = shift; return $self->parent->parent->parent->parent(); }
+sub event       { my $self = shift; return $self->division->event(); }
+sub method      { my $self = shift; return $self->division->method(); }
+sub ring        { my $self = shift; return $self->round->ring(); }
 
 1;

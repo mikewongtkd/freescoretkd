@@ -2,7 +2,6 @@ package FreeScore::Event::Recognized;
 use base qw( FreeScore::Event );
 use List::Util qw( all any reduce sum0 );
 use List::MoreUtils qw( first_index minmax );
-use FreeScore::Event::Recognized::Performance;
 
 our @ACCURACY     = qw( major minor );
 our @PRESENTATION = qw( power rhythm energy );
@@ -14,21 +13,70 @@ sub init {
 	my $self   = shift;
 	my $parent = shift;
 	$self->SUPER::init( $parent );
-	$self->{ name }         = 'recognized';
-	$self->{ _performance } = new FreeScore::Event::Recognized::Performance( $self );
+	$self->{ name } = 'recognized';
 }
 
 # ============================================================
-# COMPONENTS
+# PERFORMANCES
 # ============================================================
-sub performance { my $self = shift; return $self->{ _performance }; }
+
+# ============================================================
+sub evaluate_performance {
+# ============================================================
+	my $self        = shift;
+	my $performance = shift;
+	my $divid       = $self->division->id();
+	my $forms       = $performance->forms();
+
+	# Average the scores over all forms
+	my $n       = int( @$forms );
+	foreach $form (@$forms) {
+		$form->evaluate();
+		$self->{ $_ } += $form->{ ranking }{ $_ } foreach (qw( score tb1 tb2 ));
+		$self->{ decision } = $form->{ decision } if $form->{ decision };
+	}
+	$self->{ $_ }   = 0.0 + sprintf( "%.3f", $self->{ $_ } / $n ) foreach (qw( score tb1 tb2 ));
+}
+
+# ============================================================
+sub performance_complete {
+# ============================================================
+	my $self     = shift;
+	my $division = $self->parent->parent();
+	my $complete = 1;
+
+	foreach my $data (@{ $self->{ forms }}) {
+		my $form = $division->form->context( $data );
+		$complete &&= $form->complete();
+	}
+
+	return $complete;
+}
+
+# ============================================================
+sub performance_tiebreaker {
+# ============================================================
+	my $self = shift;
+	my $a    = shift;
+	my $b    = shift;
+
+	my $decision_value = { dsq => 10, wdr => 1 };
+	my $adv = exists $a->{ decision } && defined $a->{ decision } ? $decision_value->{ $a->{ decision }} : 0;
+	my $bdv = exists $b->{ decision } && defined $b->{ decision } ? $decision_value->{ $b->{ decision }} : 0;
+
+	return undef if $adv <=> $bdv;
+	return undef if $b->{ score } <=> $a->{ score };
+	return 'tb1' if $b->{ tb1 } <=> $a->{ tb1 };
+
+	return $b->{ tb2 } <=> $a->{ tb2 } ? 'tb2' : undef;
+}
 
 # ============================================================
 # FORMS
 # ============================================================
 
 # ============================================================
-sub evaluate {
+sub evaluate_form {
 # ============================================================
 #**
 # @method ( form )
@@ -148,5 +196,11 @@ sub score_complete {
 
 	return $complete;
 }
+
+# ============================================================
+# NAVIGATION
+# ============================================================
+sub division   { my $self = shift; return $self->parent(); }
+sub tournament { my $self = shift; return $self->parent->parent(); }
 
 1;
