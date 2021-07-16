@@ -40,25 +40,24 @@ sub complete {
 #*
 	my $self  = shift;
 	my $event = $self->event();
-	my $ring  = $self->ring();
-	my $clock = $ring->clock();
+	my $clock = $self->tournament->clock();
 
 	# If already calculated, return cached value
-	return $self->{ complete } if( exists( $self->{ complete }));
+	return $self->{ _complete } if( exists( $self->{ _complete }));
 	
 	# A form is complete when: 
 	# 1. a decision is rendered (e.g. DSQ, WDR, BYE)
 	# 2. all scores are recorded
-	return $self->{ complete } = 1 if $self->decision();
+	return $self->{ _complete } = 1 if $self->decision();
 	
 	my $scores = $self->scores();
 	return 0 unless int( @$scores );
 
 	my $complete = all { defined $_ && $event->score_complete( $_ ) } @$scores
-	$self->info->update( 'time', { completed => $clock->now()}) if( ! $self->{ complete } && $complete );
-	$self->{ complete } = $complete;
+	$self->info->update( 'time', { completed => $clock->now()}) if( ! $self->{ _complete } && $complete );
+	$self->{ _complete } = $complete;
 
-	return $self->{ complete };
+	return $self->{ _complete };
 }
 
 # ============================================================
@@ -240,6 +239,19 @@ sub previous {
 }
 
 # ============================================================
+sub save {
+# ============================================================
+#** 
+# @method ()
+# @brief Saves the form to the database
+#*
+	my $self  = shift;
+	my $clone = $self->clone();
+	my $db    = $self->tournament->db();
+	$db->save_form( $clone );
+}
+
+# ============================================================
 sub scores {
 # ============================================================
 #** 
@@ -256,19 +268,6 @@ sub scores {
 	my $scores = [ map { $self->score->context( $_ ) } $db->get_scores( $divid, $rid, $aid, $fid )];
 
 	return $scores;
-}
-
-# ============================================================
-sub save {
-# ============================================================
-#** 
-# @method ()
-# @brief Saves the form to the database
-#*
-	my $self  = shift;
-	my $clone = $self->clone();
-	my $db    = $self->tournament->db();
-	$db->save_form( $clone );
 }
 
 # ============================================================
@@ -305,7 +304,5 @@ sub round       { my $self = shift; return $self->parent->parent(); }
 sub division    { my $self = shift; return $self->parent->parent->parent(); }
 sub tournament  { my $self = shift; return $self->parent->parent->parent->parent(); }
 sub event       { my $self = shift; return $self->division->event(); }
-sub method      { my $self = shift; return $self->division->method(); }
-sub ring        { my $self = shift; return $self->round->ring(); }
 
 1;

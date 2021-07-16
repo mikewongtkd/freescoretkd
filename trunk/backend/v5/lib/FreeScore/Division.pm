@@ -2,8 +2,6 @@ package FreeScore::Division;
 use base qw( FreeScore::Clonable );
 use FreeScore;
 use FreeScore::Athlete;
-use FreeScore::Clock;
-use FreeScore::DB;
 use FreeScore::Form;
 use FreeScore::Round;
 
@@ -37,7 +35,7 @@ sub init {
 # COMPONENTS
 # ============================================================
 sub athlete { my $self = shift; return $self->{ _athlete }; }
-sub clock   { my $self = shift; return $self->{ _clock };   }
+sub clock   { my $self = shift; return $self->parent->clock(); }
 sub event   { my $self = shift; return $self->{ _event };   }
 sub method  { my $self = shift; return $self->{ _method };  }
 sub round   { my $self = shift; return $self->{ _round };   }
