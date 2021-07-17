@@ -1,8 +1,8 @@
 package FreeScore::Performance;
 use base qw( FreeScore::Component FreeScore::Clonable );
-use FreeScore::Form;
-use FreeScore::Fight;
 use FreeScore::Athlete;
+use FreeScore::Fight;
+use FreeScore::Form;
 use List::Util qw( first );
 use overload 'cmp' => \&compare;
 
@@ -14,8 +14,8 @@ sub init {
 	my $event  = $self->event();
 
 	$self->{ _athlete } = new FreeScore::Athlete();
-	$self->{ _form }    = new FreeScore::Form();
 	$self->{ _fight }   = new FreeScore::Fight();
+	$self->{ _form }    = new FreeScore::Form();
 
 	$event->evaluate_performance( $self );
 }

@@ -14,20 +14,26 @@ sub init {
 	$self->{ db } = DBI->connect( "dbi:SQLite:dbname=$FreeScore::PATH/freescore.sqlite", '', '' );
 	$self->{ schema } = {
 	$self->{ schema } = {
-		ring      => { rnum => 'int', name => 'string', current => 'json' },
-		court     => { rnum => 'int', judges => 'json' },
-		judge     => { jpim => 'text', fname => 'string', lname => 'string', noc => 'string', info => 'json' },
-		division  => { name => 'string', header => 'json' },
-		round     => { divid => 'string', rid => 'text', name => 'string', rnum => 'int', header => 'json' },
-		athlete   => { divid => 'string', aid => 'int', name => 'string', noc => 'string', info => 'json' },
-		form      => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', info => 'json', decision => 'json', penalties => 'json' },
-		point     => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jid => 'int', score => 'json' },
-		pool      => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jpid => 'string', score => 'json' },
-		history   => { divid => 'string', pkey => 'json', timestamp => 'string', message => 'string', commands => 'json' }
+		athlete    => { divid => 'string', aid => 'int', regid => 'string', name => 'string', noc => 'string', info => 'json' },
+		court      => { cid => 'string', rnum => 'int', judges => 'json' },
+		division   => { name => 'string', header => 'json' },
+		form       => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', info => 'json', decision => 'json', penalties => 'json' },
+		history    => { divid => 'string', pkey => 'json', timestamp => 'datetime', message => 'string', commands => 'json' }
+		judge      => { jpim => 'text', fname => 'string', lname => 'string', noc => 'string', info => 'json' },
+		score      => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jid => 'int', category => 'json' },
+		pool       => { divid => 'string', aid => 'int', rid => 'string', fid => 'int', jpid => 'string', score => 'json' },
+		ring       => { rnum => 'int', name => 'string', info => 'json' },
+		round      => { divid => 'string', rid => 'text', name => 'string', rnum => 'int', info => 'json' },
+		schedule   => { divid => 'string', rid => 'text', rnum => 'int', expected_start => 'datetime' , expected_end => 'datetime', actual_start => 'datetime', actual_end => 'datetime' },
+		tournament => { name => 'string', description => 'text', timezone => 'string' },
 	};
 }
 
 sub read_ring {
+}
+
+sub read_ring_schedule {
+	my $self = shift;
 }
 
 sub read_court {
@@ -128,9 +134,10 @@ sub db_history {
 		my $value = $updates->{ $key };
 		my $type  = $typeof->{ $key } or die "Database error: $table.$key does not exist in schema $!";
 
-		if   ( $type eq 'int'    ) { push @$values, _intify( $value );   }
-		elsif( $type eq 'string' ) { push @$values, _stringify( $value ); }
-		elsif( $type eq 'json'   ) { push @$values, _jsonify( $value ); }
+		if   ( $type eq 'int'      ) { push @$values, _intify( $value );   }
+		elsif( $type eq 'string'   ) { push @$values, _stringify( $value ); }
+		elsif( $type eq 'datetime' ) { push @$values, _timify( $value ); }
+		elsif( $type eq 'json'     ) { push @$values, _jsonify( $value ); }
 		else { die "Database error: Unknown type '$type' for $table.$key $!"; }
 	}
 
@@ -195,9 +202,10 @@ sub insert_statement {
 		my $value = $updates->{ $key };
 		my $type  = $typeof->{ $key } or die "Database error: $table.$key does not exist in schema $!";
 
-		if   ( $type eq 'int'    ) { push @$values, _intify( $value );   }
-		elsif( $type eq 'string' ) { push @$values, _stringify( $value ); }
-		elsif( $type eq 'json'   ) { push @$values, _jsonify( $value ); }
+		if   ( $type eq 'int'      ) { push @$values, _intify( $value );   }
+		elsif( $type eq 'string'   ) { push @$values, _stringify( $value ); }
+		elsif( $type eq 'datetime' ) { push @$values, _timify( $value ); }
+		elsif( $type eq 'json'     ) { push @$values, _jsonify( $value ); }
 		else { die "Database error: Unknown type '$type' for $table.$key $!"; }
 	}
 
@@ -247,8 +255,9 @@ sub _primary_key_select {
 	return join( ' and ', @$criteria );
 }
 
+sub _jsonify   { my $value = shift; my $json = new JSON::XS(); $value = $json->canonical->encode( $value ); $value =~ s/'/''/g; return "'$value'"; }
 sub _intify    { my $value = shift; return $value; }
 sub _stringify { my $value = shift; $value =~ s/'/''/g; return "'$value'"; }
-sub _jsonify   { my $value = shift; my $json = new JSON::XS(); $value = $json->canonical->encode( $value ); $value =~ s/'/''/g; return "'$value'"; }
+sub _timify    { my $value = shift; } # MW Convert to UTC Zulu String
 
 1;
