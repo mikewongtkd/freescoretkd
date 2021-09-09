@@ -426,32 +426,27 @@ sub handle_division_pool_score {
 			$self->broadcast_division_response( $request, $progress, $clients );
 			return; 
 
-		} elsif( $response->{ status } eq 'fail' ) {
-			# ===== A MAJORITY OF POOL JUDGES DISQUALIFY ATHLETE FOR BAD VIDEO
-			if( $response->{ solution } eq 'discuss-disqualify' ) {
-				print STDERR "  At least one judge has voted to disqualify\n";
+		# ===== SCORING IS COMPLETE
+		} elsif( $response->{ status } eq 'complete' ) {
 
-			# ===== INSUFFICIENT JUDGES HAVE SCORED
-			} elsif( $response->{ solution } eq 'replay' ) {
-				print STDERR "  Insufficient judges have scored; rescore the video\n";
-			}
+			$division->resolve_pool();
+			$version->checkout( $division );
+			$division->write();
+			$version->commit( $division, "Resolving completed score\n" );
+			$self->broadcast_division_response( $request, $progress, $clients );
+
+			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+			print STDERR "Scoring complete. Engaging autopilot\n"  if $DEBUG;
+			$self->autopilot( $request, $progress, $clients, $judges );
+			return;
+
+		} elsif( $response->{ status } eq 'ok' ) {
 			$self->broadcast_division_response( $request, $progress, $clients );
 			return;
 
-		} elsif( $response->{ status } eq 'error' ) {
-			return;
+		} else {
+			die "Unknown response status after scoring\n";
 		}
-
-		my $want     = int( @{ $division->{ judges }});
-		my $have     = int( @{ $athlete->{ scores }} );
-		my $complete = $have >= $want;
-
-		$self->broadcast_division_response( $request, $progress, $clients );
-
-		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
-		die $autopilot->{ error } if exists $autopilot->{ error };
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

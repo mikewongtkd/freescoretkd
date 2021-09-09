@@ -439,8 +439,20 @@ sub record_pool_score {
 	$pool->{ $jid }  = 0.0 + sprintf( "%.1f", $score );
 	$athlete->{ info }{ pool } = $pool;
 
-	my $status  = $self->pool_status();
-	return $status;
+	my $response  = $self->pool_status();
+	if( $response->{ have } < $response->{ want }) {
+		$response->{ status } = 'in-progress';
+
+	} elsif( $response->{ have } >= $size ) {
+		$response->{ status } = 'complete';
+
+	} elsif( $response->{ have } >= $response->{ want }) {
+		$response->{ status } = 'ok';
+
+	} else {
+		$response->{ status } = 'error';
+	}
+	return $response;
 }
 
 # ============================================================
