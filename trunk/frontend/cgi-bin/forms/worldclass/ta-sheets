@@ -44,7 +44,7 @@ try {
 
 my $schedule = read_schedule();
 my $div_lookup = { map { $_->{ name } => $_ } @divisions };
-@divisions = map { $div_lookup->{ $_ } } @{ $schedule->{ $ring }};
+@divisions = map { die "Missing division $_ $!" unless exists $div_lookup->{ $_ }; $div_lookup->{ $_ } } @{ $schedule->{ $ring }};
 
 print $cgi->header();
 
@@ -332,7 +332,6 @@ sub read_schedule {
 	my $found = undef;
 	foreach my $file (@$files) { next unless -e $file; $found = $file; }
 	unless( $found ) {
-		print "No schedule found\n";
 		return {};
 	}
 
