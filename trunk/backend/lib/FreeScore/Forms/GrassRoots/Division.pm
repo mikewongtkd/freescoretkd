@@ -366,7 +366,7 @@ sub pool_judge_ready {
 	my $pool    = $athlete->{ info }{ pool } || {};
 
 	return if exists $pool->{ $jid };
-	$pool->{ $jid }{ status } = 'ready';
+	$pool->{ $jid } = 'r';
 	$athlete->{ info }{ pool } = $pool;
 
 	return $self->pool_status();
@@ -378,17 +378,18 @@ sub pool_status {
 #** @method ()
 #   @brief Returns the pool status
 #*
-	my $self    = shift;
-	my $athlete = $self->current_athlete();
-	my $size    = $self->{ poolsize };
-	my $want    = $self->{ judges };
-	my $pool    = $athlete->{ info }{ pool } || {};
-	my $ready   = grep { $_->{ status } eq 'ready'  } values %$pool;
-	my $scored  = grep { $_->{ status } eq 'scored' } values %$pool;
-	my $have    = int( @$ready );
-	my $safety  = $size - $want;
+	my $self      = shift;
+	my $athlete   = $self->current_athlete();
+	my $size      = $self->{ poolsize };
+	my $want      = $self->{ judges };
+	my $pool      = $athlete->{ info }{ pool } || {};
+	my $ready     = [ grep { $pool->{ $_ } eq 'r'                         } sort keys %$pool ];
+	my $scored    = [ grep { $pool->{ $_ } ne 'r' && $pool->{ $_ } ne '-' } sort keys %$pool ];
+	my $responded = [ sort ( @$ready, @$scored )];
+	my $have      = int( @$ready );
+	my $safety    = $size - $want;
 
-	return { have => $have, want => $want, all => $size, safety => $safety, ready => $ready, scored => $scored, responded => [ @$ready, @$scored ]};
+	return { have => $have, want => $want, all => $size, safety => $safety, ready => $ready, scored => $scored, responded => $responded };
 }
 
 # ============================================================
@@ -420,23 +421,6 @@ sub previous {
 }
 
 # ============================================================
-sub record_readyup {
-# ============================================================
-	my $self   = shift;
-	my $judge  = shift;
-	my $score  = shift;
-	my $judges = $self->{ judges };
-
-	my $i       = $self->{ current };
-	my $athlete = $self->{ athletes }[ $i ];
-
-	return 0 if( $athlete->{ scores }[ $judge ] =~ /^\d+(?:\.\d+)$/ );
-	$athlete->{ scores }[ $judge ] = 'r';
-
-	return 1;
-}
-
-# ============================================================
 sub record_pool_score {
 # ============================================================
 #** @method ( score_object )
@@ -452,7 +436,7 @@ sub record_pool_score {
 	my $pool    = $athlete->{ info }{ pool } || {};
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	$pool->{ $jid }  = { status => 'scored', score => $score };
+	$pool->{ $jid }  = 0.0 + sprintf( "%.1f", $score );
 	$athlete->{ info }{ pool } = $pool;
 
 	my $status  = $self->pool_status();
@@ -801,7 +785,6 @@ sub _format_score {
 # ============================================================
 	my $score = shift;
 	if((! defined $score) || $score eq '' || $score eq '-' ) { return '-'; }
-	if( $score eq 'r' ) { return 'r'; }
 	return 0.0 + sprintf( "%.1f", $score );
 }
 

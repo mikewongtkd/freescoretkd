@@ -42,7 +42,6 @@ sub init {
 		disqualify         => \&handle_division_disqualify,
 		withdraw           => \&handle_division_withdraw,
 		navigate           => \&handle_division_navigate,
-		readyup            => \&handle_division_readyup,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
 	};
@@ -270,33 +269,6 @@ sub handle_division_read {
 	print STDERR "Requesting division " . uc( $division->{ name }) . " information\n" if $DEBUG;
 
 	try {
-		$self->broadcast_division_response( $request, $progress, $clients );
-
-	} catch {
-		$client->send({ json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_readyup {
-# ============================================================
-	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
-	my $judge     = $request->{ judge };
-	my $division  = $progress->current();
-	my $jname     = $judge ? "Judge $judge" : "Referee";
-
-	print STDERR "$jname is ready to score\n" if $DEBUG;
-
-	try {
-
-		$division->record_readyup( $judge );
-		$division->write();
-		$progress->write();
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
