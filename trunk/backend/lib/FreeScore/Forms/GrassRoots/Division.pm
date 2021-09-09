@@ -4,7 +4,7 @@ use FreeScore::Forms::Division;
 use JSON::XS;
 use base qw( FreeScore::Forms::Division Clone );
 use POSIX qw( ceil );
-use List::Util qw( sum );
+use List::Util qw( shuffle sum );
 use Data::Dumper;
 
 # ============================================================
@@ -234,6 +234,15 @@ sub calculate_scores {
 }
 
 # ============================================================
+sub current_athlete {
+# ============================================================
+	my $self    = shift;
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+	return $athlete;
+}
+
+# ============================================================
 sub current_bracket {
 # ============================================================
 	my $self = shift; return undef unless exists $self->{ brackets } && defined $self->{ brackets };
@@ -341,6 +350,48 @@ sub next {
 }
 
 # ============================================================
+sub pool_judge_ready {
+# ============================================================
+#** @method ( size, judge )
+#   @brief Indicates that the judge is ready to start scoring accuracy
+#*
+	my $self    = shift;
+	my $size    = shift;
+	my $judge   = shift;
+
+	$self->{ poolsize } = $size;
+	my $athlete = $self->current_athlete();
+	my $want    = $self->{ judges };
+	my $jid     = $judge->{ id };
+	my $pool    = $athlete->{ info }{ pool } || {};
+
+	return if exists $pool->{ $jid };
+	$pool->{ $jid }{ status } = 'ready';
+	$athlete->{ info }{ pool } = $pool;
+
+	return $self->pool_status();
+}
+
+# ============================================================
+sub pool_status {
+# ============================================================
+#** @method ()
+#   @brief Returns the pool status
+#*
+	my $self    = shift;
+	my $athlete = $self->current_athlete();
+	my $size    = $self->{ poolsize };
+	my $want    = $self->{ judges };
+	my $pool    = $athlete->{ info }{ pool } || {};
+	my $ready   = grep { $_->{ status } eq 'ready'  } values %$pool;
+	my $scored  = grep { $_->{ status } eq 'scored' } values %$pool;
+	my $have    = int( @$ready );
+	my $safety  = $size - $want;
+
+	return { have => $have, want => $want, all => $size, safety => $safety, ready => $ready, scored => $scored, responded => [ @$ready, @$scored ]};
+}
+
+# ============================================================
 sub previous {
 # ============================================================
 	my $self = shift;
@@ -383,6 +434,29 @@ sub record_readyup {
 	$athlete->{ scores }[ $judge ] = 'r';
 
 	return 1;
+}
+
+# ============================================================
+sub record_pool_score {
+# ============================================================
+#** @method ( score_object )
+#   @brief Records the given score within a judge's pool for online tournaments
+#*
+	my $self    = shift;
+	my $jid     = shift;
+	my $score   = shift;
+
+	my $athlete = $self->current_athlete();
+	my $judges  = $self->{ judges };
+	my $size    = $self->{ poolsize };
+	my $pool    = $athlete->{ info }{ pool } || {};
+
+	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$pool->{ $jid }  = { status => 'scored', score => $score };
+	$athlete->{ info }{ pool } = $pool;
+
+	my $status  = $self->pool_status();
+	return $status;
 }
 
 # ============================================================
@@ -473,6 +547,52 @@ sub record_vote {
 		return 0 unless $voted;
 	}
 	return 1;
+}
+
+# ============================================================
+sub resolve_pool {
+# ============================================================
+#** @method ( score_object )
+#   @brief Records the given score within a judge's pool for online tournaments
+#*
+	my $self    = shift;
+
+	my $athlete = $self->current_athlete();
+	my $judges  = $self->{ judges };
+	my $size    = $self->{ poolsize };
+	my $status  = $self->pool_status();
+	my $scores  = $athlete->{ scores };
+	my $scored  = int( grep { defined( $_ ) && $_ ne '-' } @$scores );
+
+	$self->{ state } = 'score'; # Return to the scoring state when handling scores
+
+	# ===== CASE 1: SUFFICIENT SCORES TO PROCEED WITH RESOLUTION
+	if( $status->{ have } >= $status->{ want }) {
+
+		if     ( $scored > $judges ) { 
+			die "Data integrity error! There are more scores than judges for $athlete->{ name } $!";
+
+		# POOL PREVIOUSLY RESOLVED
+		} elsif( $scored == $judges ) {
+			return { status => 'success', votes => $status->{ have }};
+
+		# RESOLVE POOL BY RANDOMLY DRAWING SCORES;
+		} elsif( $scored == 0 ) {
+			my @scores = shuffle map { $_->{ score } } grep { $_->{ status } eq 'scored' } values %$pool; # Shuffle
+			splice @scores, 0, $judges; # Take just enough scores
+			@{$athlete->{ scores }} = @scores;
+			return { status => 'success', votes => $status->{ have }};
+
+		# SOME WEIRD PARTIAL RESOLUTION STATE
+		} elsif( $scored > 0 && $scored < $judges ) {
+			die "Data integrity error! $athlete->{ name } has been previously incompletely resolved $!";
+
+		# SHOULD BE IMPOSSIBLE TO GET HERE
+		} else {
+			die "Data integrity error! $!";
+		}
+	} else {
+	}
 }
 
 # ============================================================
