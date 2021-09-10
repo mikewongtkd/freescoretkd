@@ -385,7 +385,7 @@ sub handle_division_pool_resolve {
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		$self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		$self->autopilot( $request, $progress, $clients, $division ) if $complete;
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -429,6 +429,8 @@ sub handle_division_pool_score {
 		# ===== SCORING IS COMPLETE
 		} elsif( $response->{ status } eq 'complete' ) {
 
+			print STDERR "All judges have responded. Resolving score.\n";
+
 			$version->checkout( $division );
 			$division->resolve_pool();
 			$division->write();
@@ -437,7 +439,8 @@ sub handle_division_pool_score {
 
 			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 			print STDERR "Scoring complete. Engaging autopilot\n"  if $DEBUG;
-			$self->autopilot( $request, $progress, $clients, $judges );
+			print STDERR Dumper $division; # MW
+			$self->autopilot( $request, $progress, $clients, $division );
 			return;
 
 		} elsif( $response->{ status } eq 'ok' ) {
@@ -720,11 +723,13 @@ sub autopilot {
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
+	print STDERR Dumper $division;
 	print STDERR "Autopilot invoked.\n"; # MW
 
 	my $show  = {
 		score => sub {
 			my $delay = shift;
+			print STDERR Dumper $division;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
@@ -734,8 +739,6 @@ sub autopilot {
 			delete $request->{ score };
 			delete $request->{ response };
 
-			print STDERR "Showing scores.\n"; # MW
-	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		leaderboard => sub {
@@ -749,8 +752,6 @@ sub autopilot {
 			delete $request->{ score };
 			delete $request->{ response };
 
-			print STDERR "Showing leaderboard.\n"; # MW
-	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		next => sub {
@@ -759,8 +760,6 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 
-			print STDERR "Switching back from leaderboard to score.\n"; # MW
-	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	};
@@ -777,8 +776,6 @@ sub autopilot {
 			delete $request->{ score };
 			delete $request->{ response };
 
-			print STDERR "Proceeding to next athlete.\n"; # MW
-	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	};
@@ -786,7 +783,11 @@ sub autopilot {
 	my @steps = ( $show->{ score }, $show->{ leaderboard } );
 	push @steps, $go->{ next }, $show->{ next } unless( $division->{ complete } );
 
-	$delay->steps( @steps )->catch( sub {} )->wait();
+	print STDERR map { "$_\n" } map { ref } @steps; # MW
+
+	$delay->steps( @steps )->catch()->wait();
+
+	print STDERR "Autopilot complete.\n"; # MW
 }
 
 
