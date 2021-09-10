@@ -329,16 +329,15 @@ sub handle_division_pool_judge_ready {
 	my $json     = $self->{ _json };
 	my $division = $progress->current();
 	my $athlete  = $division->current_athlete();
-	my $judge    = $request->{ judge };
+	my $size     = $request->{ size };  # Required parameter
+	my $judge    = $request->{ judge }; # Required parameter
 	my $jname    = "$judge->{ fname } $judge->{ lname }";
 	my $message  = "  $jname is ready to score athlete $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
 	try {
-		my $size     = $request->{ size };          # Required parameter
-		my $judge    = $request->{ judge };         # Required parameter
-		my $response = $division->pool_judge_ready( $size, $judge );
+		my $response = $division->pool_judge_ready( $size, $judge->{ id } );
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
 		
@@ -406,8 +405,9 @@ sub handle_division_pool_score {
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
 	my $athlete  = $division->current_athlete();
-	my $jname    = "$request->{ score }{ judge }{ fname } $request->{ score }{ judge }{ lname }";
-	my $message  = "  $jname has scored for $athlete->{ name } ($division->{ round }-$division->{ form })\n";
+	my $judge    = $request->{ judge };
+	my $jname    = "$judge->{ fname } $judge->{ lname }";
+	my $message  = "  $jname has scored for $athlete->{ name }\n";
 
 	print STDERR $message if $DEBUG;
 
@@ -415,7 +415,7 @@ sub handle_division_pool_score {
 		my $score = clone( $request->{ score } );
 		$version->checkout( $division );
 
-		my $response = $division->record_pool_score( $score );
+		my $response = $division->record_pool_score( $judge->{ id }, $score );
 		$request->{ response } = $response;
 
 		$division->write();
@@ -429,8 +429,8 @@ sub handle_division_pool_score {
 		# ===== SCORING IS COMPLETE
 		} elsif( $response->{ status } eq 'complete' ) {
 
-			$division->resolve_pool();
 			$version->checkout( $division );
+			$division->resolve_pool();
 			$division->write();
 			$version->commit( $division, "Resolving completed score\n" );
 			$self->broadcast_division_response( $request, $progress, $clients );
@@ -720,6 +720,8 @@ sub autopilot {
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
+	print STDERR "Autopilot invoked.\n"; # MW
+
 	my $show  = {
 		score => sub {
 			my $delay = shift;
@@ -732,6 +734,8 @@ sub autopilot {
 			delete $request->{ score };
 			delete $request->{ response };
 
+			print STDERR "Showing scores.\n"; # MW
+	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		leaderboard => sub {
@@ -745,6 +749,8 @@ sub autopilot {
 			delete $request->{ score };
 			delete $request->{ response };
 
+			print STDERR "Showing leaderboard.\n"; # MW
+	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		},
 		next => sub {
@@ -753,6 +759,8 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 
+			print STDERR "Switching back from leaderboard to score.\n"; # MW
+	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	};
@@ -769,6 +777,8 @@ sub autopilot {
 			delete $request->{ score };
 			delete $request->{ response };
 
+			print STDERR "Proceeding to next athlete.\n"; # MW
+	
 			$self->broadcast_division_response( $request, $progress, $clients );
 		}
 	};

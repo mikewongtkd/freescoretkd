@@ -357,12 +357,11 @@ sub pool_judge_ready {
 #*
 	my $self    = shift;
 	my $size    = shift;
-	my $judge   = shift;
+	my $jid     = shift;
 
 	$self->{ poolsize } = $size;
 	my $athlete = $self->current_athlete();
 	my $want    = $self->{ judges };
-	my $jid     = $judge->{ id };
 	my $pool    = $athlete->{ info }{ pool } || {};
 
 	return if exists $pool->{ $jid };
@@ -386,7 +385,7 @@ sub pool_status {
 	my $ready     = [ grep { $pool->{ $_ } eq 'r'                         } sort keys %$pool ];
 	my $scored    = [ grep { $pool->{ $_ } ne 'r' && $pool->{ $_ } ne '-' } sort keys %$pool ];
 	my $responded = [ sort ( @$ready, @$scored )];
-	my $have      = int( @$ready );
+	my $have      = int( @$scored );
 	my $safety    = $size - $want;
 
 	return { have => $have, want => $want, all => $size, safety => $safety, ready => $ready, scored => $scored, responded => $responded };
@@ -558,6 +557,7 @@ sub resolve_pool {
 	my $size    = $self->{ poolsize };
 	my $status  = $self->pool_status();
 	my $scores  = $athlete->{ scores };
+	my $pool    = $athlete->{ info }{ pool };
 	my $scored  = int( grep { defined( $_ ) && $_ ne '-' } @$scores );
 
 	$self->{ state } = 'score'; # Return to the scoring state when handling scores
@@ -574,9 +574,9 @@ sub resolve_pool {
 
 		# RESOLVE POOL BY RANDOMLY DRAWING SCORES;
 		} elsif( $scored == 0 ) {
-			my @scores = shuffle map { $_->{ score } } grep { $_->{ status } eq 'scored' } values %$pool; # Shuffle
-			splice @scores, 0, $judges; # Take just enough scores
-			@{$athlete->{ scores }} = @scores;
+			my @scores = shuffle grep { $_ ne 'r' && $_ ne '-' && /^\d+(?:\.\d)?$/ } values %$pool; # Shuffle
+			@scores = splice @scores, 0, $judges; # Take just enough scores
+			$athlete->{ scores } = [ @scores ];
 			return { status => 'success', votes => $status->{ have }};
 
 		# SOME WEIRD PARTIAL RESOLUTION STATE
@@ -588,6 +588,7 @@ sub resolve_pool {
 			die "Data integrity error! $!";
 		}
 	} else {
+		print STDERR "Insufficient judge scores to resolve the athlete score.\n";
 	}
 }
 
@@ -684,6 +685,7 @@ sub write {
 	print FILE "# state=$self->{ state }\n";
 	print FILE "# current=$self->{ current }\n";
 	print FILE "# round=$self->{ round }\n" if exists $self->{ round };
+	print FILE "# poolsize=$self->{ poolsize }\n" if exists $self->{ poolsize } && $self->{ poolsize };
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# description=$self->{ description }\n" if exists $self->{ description };
 	print FILE "# mode=$self->{ mode }\n" if $self->{ mode };
