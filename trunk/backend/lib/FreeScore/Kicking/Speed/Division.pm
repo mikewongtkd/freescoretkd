@@ -27,6 +27,7 @@ use Data::Dumper;
 #       +- round{}
 #          +- time
 #          +- bounds
+#          +- other
 #          +- restart
 #          +- misconduct
 #    +- pool
@@ -79,7 +80,7 @@ sub autopilot {
 # ============================================================
 	my $self  = shift;
 	my $state = shift;
-	
+
 	if( defined $state ) {
 		if( $state eq 'off' ) { delete $self->{ autopilot }; } else { $self->{ autopilot } = $state; }
 	}
@@ -217,7 +218,7 @@ sub calculate_placements {
 
 	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
-	my $placements = [ sort { 
+	my $placements = [ sort {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
@@ -265,7 +266,7 @@ sub calculate_scores {
 	my $round = shift || $self->{ round } or return;
 	my $order = $self->{ order }{ $round };
 	my $ranks = [];
-	
+
 	foreach my $i (0 .. $#$order) {
 		my $j         = $order->[ $i ];
 		my $athlete   = $self->{ athletes }[ $j ];
@@ -654,7 +655,7 @@ sub write {
 # ============================================================
 	my $self  = shift;
 	my $json  = new JSON::XS();
-	
+
 	$self->update();
 
 	open my $fh, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
@@ -687,7 +688,7 @@ sub write {
 			my $athlete = $self->{ athletes }[ $aid ];
 
 			# Concatenate the athlete information
-			my @info = (); 
+			my @info = ();
 			foreach my $key (sort keys %{ $athlete->{ info }}) {
 				my $value = $athlete->{ info }{ $key };
 				$value = $json->canonical->encode( $value ) if ref( $value );

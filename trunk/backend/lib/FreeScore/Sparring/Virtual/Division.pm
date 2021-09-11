@@ -43,6 +43,7 @@ use Data::Dumper;
 #    +- penalty
 #       +- round{}
 #          +- time
+#          +- other
 #          +- bounds
 #          +- restart
 #          +- misconduct
@@ -119,7 +120,7 @@ sub autopilot {
 # ============================================================
 	my $self  = shift;
 	my $state = shift;
-	
+
 	if( defined $state ) {
 		if( $state eq 'off' ) { delete $self->{ autopilot }; } else { $self->{ autopilot } = $state; }
 	}
@@ -264,7 +265,7 @@ sub calculate_placements {
 
 	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
-	my $placements = [ sort { 
+	my $placements = [ sort {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
@@ -311,7 +312,7 @@ sub calculate_placements {
 # ============================================================
 sub calculate_ranking_vote {
 # ============================================================
-# Returns an array of presentation scores for each athlete that 
+# Returns an array of presentation scores for each athlete that
 # has a score or decision.
 #
 # +- judge[]
@@ -327,7 +328,7 @@ sub calculate_ranking_vote {
 		my $j       = $self->{ order }{ $round }[ $i ];
 		my $athlete = $self->{ athletes }[ $j ];
 		my $scores  = $athlete->{ scores }{ $round };
-		
+
 		# ===== PREPARE DATASTRUCTURE FOR JUDGE RANK VOTING
 		next unless exists $athlete->{ complete }{ $round } && $athlete->{ complete }{ $round };
 		foreach my $k ( 0 .. $#$scores ) {
@@ -431,7 +432,7 @@ sub judge_presentation_mean {
 	my $original = reduce { $a + $b } @presentation;
 	my $adjusted = $original - ($min + $max);
 
-	return { 
+	return {
 		original => { total => 0 + $original, mean => _real( $original / $n )},
 		adjusted => { total => 0 + $adjusted, mean => _real( $adjusted / ($n - 2)), high => { index => $j, value => $max }, low => { index => $i, value => $min }}
 	};
@@ -810,7 +811,7 @@ sub write {
 # ============================================================
 	my $self  = shift;
 	my $json  = new JSON::XS();
-	
+
 	$self->update();
 
 	open my $fh, ">$self->{ file }" or die "Database Write Error: Can't write to '$self->{ file }' $!";
@@ -843,7 +844,7 @@ sub write {
 			my $athlete = $self->{ athletes }[ $aid ];
 
 			# Concatenate the athlete information
-			my @info = (); 
+			my @info = ();
 			foreach my $key (sort keys %{ $athlete->{ info }}) {
 				my $value = $athlete->{ info }{ $key };
 				$value = $json->canonical->encode( $value ) if ref( $value );
