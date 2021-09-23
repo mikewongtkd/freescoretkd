@@ -530,7 +530,7 @@ sub record_athlete_info {
 
 	my $athlete = $self->{ athletes }[ $self->{ current } ];
 
-	if( defined $value && $value ne '' ) { $athlete->{ info }{ $key } = $value; } 
+	if( defined $value && $value ne '' ) { $athlete->{ info }{ $key } = $value; }
 	else                                 { delete $athlete->{ info }{ $key }; }
 
 	return $athlete->{ info };
@@ -1277,7 +1277,7 @@ sub write {
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	foreach my $field ( qw( matchdiv thirds competition redirect vidsetup )) {
+	foreach my $field ( qw( matchdiv thirds competition redirect vidsetup classification )) {
 		print FILE "# $field=$self->{ $field }\n" if exists $self->{ $field } && defined( $self->{ $field });
 	}
 	foreach my $round ($self->rounds()) {
