@@ -1,13 +1,12 @@
-package FreeScore::Forms::WorldClass::Division::Round::Pool;
+package FreeScore::Forms::Para::Division::Round::Pool;
 use List::Util qw( all any shuffle );
 use FreeScore;
-use FreeScore::Forms::WorldClass::Division::Round;
+use FreeScore::Forms::Para::Division::Round;
 use Digest::SHA1 qw( sha1_hex );
 use JSON::XS;
 use List::Util qw( all any );
 use base qw( Clone );
 use Data::Structure::Util qw( unbless );
-use Math::Round qw( nearest );
 use Data::Dumper;
 
 our $JSON = new JSON::XS();
@@ -19,13 +18,13 @@ our $JSON = new JSON::XS();
 #   - [ form index]
 #     - scores
 #       - <judge id>
-#         - accuracy
-#           - major
-#           - minor
+#         - technical
+#           - stance
+#           - technique
 #         - presentation
-#           - power
+#           - memorization
 #           - rhythm
-#           - energy # MW: not ki! Need to go back and fix this later
+#           - energy
 #         - status ( ready | scoring | waiting )
 # ============================================================
 
@@ -119,16 +118,14 @@ sub resolve {
 		if( $round->form_complete( $form )) { return { status => 'success', votes => $votes }; }
 
 		# ===== IF THE POOL HAS NOT BEEN PREVIOUSLY RESOLVED, RESOLVE NOW
-		# Note: Major is also currently used for Para Poomsae "Stances" category.
-		# Will need to change this to in future.
 		my @valid = shuffle (@{$scores->{ valid }});  # Randomize
 		@valid = splice( @valid, 0, $k ); # Take $k scores
 		foreach my $i ( 0 .. $#valid ) {
 			my $s   = $valid[ $i ];
-			my $acc = $s->{ accuracy };
+			my $tec = $s->{ technical };
 			my $pre = $s->{ presentation };
 			$s->{ as } = $i;
-			my $score = { major => nearest( 0.1, - $acc->{ major }), minor => nearest( 0.1, - $acc->{ minor }), power => $pre->{ power }, rhythm => $pre->{ rhythm }, energy => $pre->{ energy }, complete => 1 };
+			my $score = { stance => $tec->{ stance }, technique => $tec->{ technique }, memorization => $pre->{ memorization }, rhythm => $pre->{ rhythm }, energy => $pre->{ energy }, complete => 1 };
 			$round->record_score( $form, $i, $score );
 		}
 		return { status => 'success', votes => $votes };
@@ -169,7 +166,7 @@ sub string {
 	my $self   = shift;
 	my $round  = shift;
 	my $form   = shift;
-	my $json   = $FreeScore::Forms::WorldClass::Division::Round::Pool::JSON;
+	my $json   = $FreeScore::Forms::Para::Division::Round::Pool::JSON;
 	my $copy   = unbless( $self->clone());
 	my @string = ();
 
@@ -231,9 +228,9 @@ sub votes {
 sub _have_scored {
 # ============================================================
 	my $score  = shift;
-	my $acc    = $score->{ accuracy };
+	my $tec    = $score->{ technical };
 	my $pre    = $score->{ presentation };
-	my $scored = $acc->{ minor } <= 0 && $acc->{ major } <= 0 && $pre->{ power } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
+	my $scored = $tec->{ technique } >= 0.5 && $tec->{ stance } >= 0.5 && $pre->{ memorization } >= 0.5 && $pre->{ rhythm } >= 0.5 && $pre->{ energy } >= 0.5;
 
 	return $scored;
 }
