@@ -1277,7 +1277,7 @@ sub write {
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	foreach my $field ( qw( matchdiv thirds competition redirect vidsetup classification )) {
+	foreach my $field ( qw( matchdiv thirds competition redirect vidsetup sportclass )) {
 		print FILE "# $field=$self->{ $field }\n" if exists $self->{ $field } && defined( $self->{ $field });
 	}
 	foreach my $round ($self->rounds()) {
