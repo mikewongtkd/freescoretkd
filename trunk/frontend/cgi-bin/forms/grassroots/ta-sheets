@@ -49,48 +49,35 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 print <<EOF;
 <html>
 	<head>
-		<title>Grass Roots Forms TA Sheets</title>
+		<title>Grass Roots Poomsae TA Sheets</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
+			body { font-family: Optima; }
 			.division {
-				margin-top: 60px;
+				clear: both;
+				margin-top: 28px;
 				width: 920px;
-				height: 22px;
+				height: 20px;
 			}
-
 			.results {
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
-
-			.results table {
-				width: 920px;
-				page-break-inside: avoid;
-			}
-			.results thead tr { background: #eee; }
-			.results thead th {
-				border-top: 1pt solid #ccc;
-				border-bottom: 1pt solid #ccc;
+			.results table { width: 920px; }
+			.results th {
+				margin-top: 8px;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
 				padding: 0 4px 0 4px;
 				text-align: left;
-				height: 22px;
 			}
-			.results thead th.number    { width:  20px; }
-			.results thead th.noc       { width:  80px; }
-			.results thead th.athlete   { width: 560px; }
-			.results thead th.form      { width: 180px; }
-			.results thead th.decisions { width:  80px; text-align: center; }
-			.results td.form            { width: 180px; }
-			.results td.decisions       { width: 80px; text-align: center; color: red; }
-
-			.results tbody td {
-				padding: 2px 4px 2px 4px;
-			}
-
-			.results tbody tr:nth-child( even ) { background: #eee; }
-			.results tbody tr:nth-child( odd  ) { background: #fff; }
+			.results .number      { width: 32px; text-align: center; }
+			.results .noc         { width: 63px; }
+			.results .athlete     { width: 768px; }
+			.results .form        { width: 100px; text-align: center; }
+			.results td           { padding: 2px 4px 2px 4px; }
+			.results td.decisions { width: 80px; text-align: center; color: red; }
+			.results tr:nth-child( even ) { background: #fff; }
+			.results tr:nth-child( odd  ) { background: #eee; }
 
 			$branding_css
 		</style>

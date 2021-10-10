@@ -29,7 +29,14 @@ try {
 
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
+			my $schedule = {
+				1 => [ qw( c002 c001 )],
+			};
+			if( exists $schedule->{ $ring }) {
+				push @divisions, map { my $divid = $_; first { $_->{ name } eq $divid } @{ $results->{ divisions }} } @{ $schedule->{ $ring }};
+			} else {
+				push @divisions, @{ $results->{ divisions }};
+			}
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
@@ -42,13 +49,11 @@ try {
 
 };
 
-my $schedule = read_schedule();
-my $div_lookup = { map { $_->{ name } => $_ } @divisions };
-@divisions = map { die "Missing division $_ $!" unless exists $div_lookup->{ $_ }; $div_lookup->{ $_ } } @{ $schedule->{ $ring }};
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
 print $cgi->header();
 
-my $branding_css = "/var/www/html/images/branding/reports.css";
+my $branding_css = "/var/www/html/images/branding/branding.css";
 $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 
 print <<EOF;
@@ -56,28 +61,20 @@ print <<EOF;
 	<head>
 		<title>World Class Poomsae TA Sheets</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
+			body { font-family: Optima; }
 			.division {
 				clear: both;
 				margin-top: 28px;
 				width: 920px;
 				height: 20px;
 			}
-			.division .description {
-				float: left;
-			}
-			.division .round {
-				float: right;
-			}
+			.division .description { float: left; }
+			.division .round { float: right; }
 			.results {
 				page-break-inside: avoid;
+				page-break-after: always;
 			}
-			.results table {
-				page-break-inside: avoid;
-				width: 920px;
-			}
+			.results table { width: 920px; }
 			.results th {
 				margin-top: 8px;
 				border-top: 1px solid #999;
@@ -85,7 +82,7 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+			.results td           { padding: 2px 4px 2px 4px; }
 			.results td.number    { width: 32px; }
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 63px; }
@@ -243,14 +240,6 @@ EOF
 				$placed->{ $i } = ordinal( $j + 1 );
 			}
 
-			# Quick kludge to avoid line breaks
-			my $map = { 'board breaking' => 'Breaking', 'speed kicking' => 'Sp.&nbsp;Kicking', 'virtual sparring' => 'V.&nbsp;Sparring' };
-			foreach my $event ( 'board breaking', 'speed kicking', 'virtual sparring' ) {
-				next unless $forms->[ 0 ] =~ /^$event/i;
-				$forms->[ 0 ] = $map->{ $event };
-			}
-			if( $forms->[ 0 ] =~ /^taegeuk (\d) or (\d)$/i ) { $forms->[ 0 ] = "Taegeuk&nbsp;$1&nbsp;or&nbsp;$2"; }
-
 			print <<EOF;
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
 			<table border=0 cellpadding=0 cellspacing=0>
@@ -319,26 +308,6 @@ sub noc {
 	my $noc     = $athlete->{ info }{ noc };
 	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 	return uc $noc;
-}
-
-# ============================================================
-sub read_schedule {
-# ============================================================
-	my $files = [
-		'/usr/local/freescore/data/test/forms-worldclass/schedule.json',
-		'/usr/local/freescore/data/test/forms-worldclass/schedule-order.json'
-	];
-
-	my $found = undef;
-	foreach my $file (@$files) { next unless -e $file; $found = $file; }
-	unless( $found ) {
-		return {};
-	}
-
-	my $text = read_file( $found );
-	my $json = new JSON::XS();
-	my $data = $json->decode( $text );
-	return $data;
 }
 
 # ============================================================

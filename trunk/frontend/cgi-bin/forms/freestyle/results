@@ -55,28 +55,20 @@ print <<EOF;
 	<head>
 		<title>Freestyle Poomsae Results</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
+			body { font-family: Optima; }
 			.division {
 				clear: both;
 				margin-top: 28px;
 				width: 920px;
 				height: 20px;
 			}
-			.division .description {
-				float: left;
-			}
-			.division .round {
-				float: right;
-			}
+			.division .description { float: left; }
+			.division .round { float: right; }
 			.results {
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
-			.results table {
-				width: 920px;
-			}
+			.results table { width: 920px; }
 			.results th {
 				margin-top: 8px;
 				border-top: 1px solid #999;
@@ -86,8 +78,8 @@ print <<EOF;
 			}
 			.results .number     { width: 37px; text-align: center; }
 			.results .noc        { width: 63px; }
-			.results .athlete    { width: 275px; }
-			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
+			.results .athlete    { width: 768px; }
+			.results .form,.score,.place { width: 100px; text-align: center; }
 			.results .tiebreaker { width: 40px; text-align: center; }
 			.results .penalties  { font-size: 9pt; }
 			.results td          { padding: 0px 4px 0px 4px; }
@@ -98,10 +90,6 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-			// .header, .header-space { height: 200px; }
-			// .footer, .footer-space { height: 320px; }
-			// .header { position: fixed; top: 0; }
-			// .footer { position: fixed; bottom: 0; }
 			$branding_css
 		</style>
 	</head>

@@ -53,57 +53,38 @@ print <<EOF;
 	<head>
 		<title>Grass Roots Poomsae Results</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
+			body { font-family: Optima; }
 			.division {
 				clear: both;
 				margin-top: 28px;
-				width: 720px;
-				height: 22px;
+				width: 920px;
+				height: 20px;
 			}
-			.division .description {
-				float: left;
-			}
-			.division .ring {
-				float: right;
-			}
-
+			.division .description { float: left; }
+			.division .ring { float: right; }
 			.results {
 				position: relative;
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
-			.results table {
-				width: 720px;
-			}
+			.results table { width: 920px; }
 			.results th {
 				margin-top: 8px;
-				border-top: 1pt solid #ccc;
-				border-bottom: 1pt solid #ccc;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results th.number  { width: 20px; }
-			.results th.athlete { width: 240px; }
-
-			.results td {
-				padding: 2px 4px 2px 4px;
-			}
-			.results td.number { text-align: center; }
-			.results td .ignore {
-				text-decoration: line-through;
-			}
-			.results td .notes {
-				font-size: 9pt;
-			}
+			.results .number    { width: 20px; text-align: center; }
+			.results .noc       { width: 80px; }
+			.results .athlete   { width: 768px; }
+			.results .form      { width: 100px; text-align: center; }
+			.results td         { padding: 2px 4px 2px 4px; }
+			.results td.ignore  { text-decoration: line-through; }
+			.results td.notes   { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
 			.results tr:nth-child( odd  ) { background: #eee; }
 
-			// .header, .header-space { height: 225px; }
-			// .footer, .footer-space { height: 50px; }
-			// .header { position: fixed; top: 0; }
-			// .footer { position: fixed; bottom: 0; }
 			$branding_css
 		</style>
 	</head>

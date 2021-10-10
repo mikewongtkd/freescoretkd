@@ -61,29 +61,20 @@ print <<EOF;
 	<head>
 		<title>Para Poomsae TA Sheets</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
+			body { font-family: Optima; }
 			.division {
 				clear: both;
 				margin-top: 28px;
 				width: 920px;
 				height: 20px;
 			}
-			.division .description {
-				float: left;
-			}
-			.division .round {
-				float: right;
-			}
+			.division .description { float: left; }
+			.division .round { float: right; }
 			.results {
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
-			.results table {
-				page-break-inside: avoid;
-				width: 920px;
-			}
+			.results table { width: 920px; }
 			.results th {
 				margin-top: 8px;
 				border-top: 1px solid #999;
@@ -91,7 +82,7 @@ print <<EOF;
 				padding: 0 4px 0 4px;
 				text-align: left;
 			}
-			.results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+			.results td           { padding: 2px 4px 2px 4px }
 			.results td.number    { width: 32px; }
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 63px; }
@@ -105,10 +96,6 @@ print <<EOF;
 			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
 			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
 
-			// .header, .header-space { height: 180px; }
-			// .footer, .footer-space { height: 300px; }
-			// .header { position: fixed; top: 0; }
-			// .footer { position: fixed; bottom: 0; }
 			$branding_css
 		</style>
 	</head>

@@ -49,48 +49,37 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 print <<EOF;
 <html>
 	<head>
-		<title>Grass Roots Forms Draws</title>
+		<title>Grass Roots Poomsae Draws</title>
 		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
+			body { font-family: Optima; }
 			.division {
-				margin-top: 60px;
-				width: 720px;
-				height: 22px;
+				clear: both;
+				margin-top: 28px;
+				width: 920px;
+				height: 20px;
 			}
-
 			.results {
 				page-break-inside: avoid;
 				page-break-after: always;
 			}
-			.results table {
-				width: 720px;
-				page-break-inside: avoid;
-			}
-			.results thead tr { background: #eee; }
-			.results thead th {
-				border-top: 1pt solid #ccc;
-				border-bottom: 1pt solid #ccc;
+			.results table { width: 920px; }
+			.results th {
+				margin-top: 8px;
+				border-top: 1px solid #999;
+				border-bottom: 1px solid #999;
 				padding: 0 4px 0 4px;
 				text-align: left;
-				height: 22px;
 			}
-			.results thead th.number  { width: 20px; }
-			.results thead th.noc     { width: 80px; }
-			.results thead th.athlete { width: 860px; }
+			.results .number    { width: 20px; text-align: center; }
+			.results .noc       { width: 80px; }
+			.results .athlete   { width: 768px; }
+			.results .form      { width: 100px; text-align: center; }
+			.results td         { padding: 2px 4px 2px 4px; }
+			.results td.ignore  { text-decoration: line-through; }
+			.results td.notes   { font-size: 9pt; }
+			.results tr:nth-child( even ) { background: #fff; }
+			.results tr:nth-child( odd  ) { background: #eee; }
 
-			.results tbody td {
-				padding: 2px 4px 2px 4px;
-			}
-
-			.results tbody tr:nth-child( even ) { background: #eee; }
-			.results tbody tr:nth-child( odd  ) { background: #fff; }
-
-			// .header, .header-space { height: 225px; }
-			// .footer, .footer-space { height: 50px; }
-			// .header { position: fixed; top: 0; }
-			// .footer { position: fixed; bottom: 0; }
 			$branding_css
 		</style>
 	</head>
