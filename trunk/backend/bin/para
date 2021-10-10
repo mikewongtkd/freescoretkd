@@ -40,6 +40,7 @@ websocket '/para/:tournament/:ring/:role/:id' => sub {
 	# connections, which shall communicate independently.
 	if( $role !~ /^(?:judge|referee)/ ) { $id   = sha1_hex( $self->tx()); }
 	if( $role eq 'computer operator'  ) { $role = 'comp op'; }
+	if( $role eq 'commentator'        ) { $role = 'commentator'; }
 	$self->cookie( 'id' => $id );
 	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() };
 	if( $DEBUG ) {

@@ -27,7 +27,7 @@ websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $role       = $self->param( 'role' ); $role =~ s/\+/ /g;
-	my $id         = $self->param( 'id' ) || sha1_hex( $self->tx()); 
+	my $id         = $self->param( 'id' ) || sha1_hex( $self->tx());
 	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $id, $self->tx() );
 	my $progress   = undef;
 	my $staging    = undef;
@@ -40,8 +40,9 @@ websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
 	# connections, which shall communicate independently.
 	if( $role !~ /^(?:judge|referee)/ ) { $id   = sha1_hex( $self->tx()); }
 	if( $role eq 'computer operator'  ) { $role = 'comp op'; }
+	if( $role eq 'commentator'        ) { $role = 'commentator'; }
 	$self->cookie( 'id' => $id );
-	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() }; 
+	my $c = $client->{ $group }{ $id } = { id => $id, role => $role, device => $self->tx() };
 	if( $DEBUG ) {
 		print STDERR "WORLDCLASS $tournament ring $ring\n";
 		print STDERR "  $_\n" foreach sort keys %{$client->{ $group }};
@@ -70,15 +71,15 @@ websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
 
 		# ===== SHOW A HUMAN-READABLE VERSION OF THE REQUEST
 		if( $DEBUG ) {
-			my $log = clone( $request ); 
+			my $log = clone( $request );
 			$log->{ cookie }{ id } = substr( $id, 0, 5 ) . '...';
 			$log->{ id } = substr( $id, 0, 5 ) . '...';
 			print STDERR $json->canonical->encode( $log ), "\n";
 		}
 
 		# ===== READ PROGRESS
-		try   { 
-			$progress = new FreeScore::Forms::WorldClass( $tournament, $ring ); 
+		try   {
+			$progress = new FreeScore::Forms::WorldClass( $tournament, $ring );
 			if( $request->{ type } eq 'ring' && $ring ne 'staging' ) {
 				$staging = new FreeScore::Forms::WorldClass( $tournament, 'staging' );
 				push @{$progress->{ divisions }}, @{$staging->{ divisions }};
@@ -103,7 +104,7 @@ websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
 	# ----------------------------------------
 	# Handle disconnects
 	# ----------------------------------------
-	$self->on( finish => sub { 
+	$self->on( finish => sub {
 		my $c = $client->{ $group }{ $id };
 		if( exists $c->{ judge } && defined( $c->{ judge }) && $c->{ judge } ne '') {
 			my $j = $c->{ judge };
@@ -113,7 +114,7 @@ websocket '/worldclass/:tournament/:ring/:role/:id' => sub {
 				$c->{ device }->send({ json => { type => 'division', action => 'judge goodbye', judge => $j }});
 			}
 		}
-		delete $client->{ $group }{ $id }; 
+		delete $client->{ $group }{ $id };
 	});
 };
 
