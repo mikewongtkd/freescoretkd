@@ -54,6 +54,7 @@ print <<EOF;
 <html>
 	<head>
 		<title>Freestyle Poomsae Results</title>
+		<link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
 		<style type="text/css">
 			body { font-family: Optima; }
 			.division {
