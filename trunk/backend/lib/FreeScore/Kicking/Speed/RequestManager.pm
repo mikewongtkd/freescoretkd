@@ -85,7 +85,7 @@ sub broadcast_division_response {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
 		my $message   = $division->clone();
-		my $unblessed = unbless( $message ); 
+		my $unblessed = unbless( $message );
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
@@ -116,7 +116,7 @@ sub broadcast_ring_response {
 		my $broadcast = $clients->{ $id };
 		my $is_judge  = exists $broadcast->{ judge } && defined $broadcast->{ judge };
 		my $message   = $progress->clone();
-		my $unblessed = unbless( $message ); 
+		my $unblessed = unbless( $message );
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
@@ -284,7 +284,7 @@ sub handle_division_display {
 
 	try {
 		$division->autopilot( 'off' );
-		if( $division->is_display() ) { $division->score();   } 
+		if( $division->is_display() ) { $division->score();   }
 		else                          { $division->display(); }
 		$division->write();
 
@@ -353,7 +353,7 @@ sub handle_division_judge_query {
 	my $j        = @$judges;
 
 	# ===== INITIALIZE IF NOT PREVIOUSLY SET
-	if( $j < $n ) { 
+	if( $j < $n ) {
 		foreach my $i ( 0 .. ($n - 1)) { $judges->[ $i ] ||= {}; }
 		print STDERR "Initializing $n judges\n" if $DEBUG;
 
@@ -413,16 +413,16 @@ sub handle_division_navigate {
 	print STDERR "Navigating to $object $i.\n" if $DEBUG;
 
 	try {
-		if( $object =~ /^division$/i ) { 
-			$progress->navigate( $i ); 
+		if( $object =~ /^division$/i ) {
+			$progress->navigate( $i );
 			$progress->write();
 			$division = $progress->current();
 			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_ring_response( $request, $progress, $clients );
 		}
-		elsif( $object =~ /^athlete$/i ) { 
-			$division->navigate( $object, $i ); 
+		elsif( $object =~ /^athlete$/i ) {
+			$division->navigate( $object, $i );
 			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_division_response( $request, $progress, $clients );
@@ -536,9 +536,9 @@ sub handle_division_pool_score {
 		$version->commit( $division, $message );
 
 		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
-		if( $response->{ status } eq 'in-progress' ) { 
+		if( $response->{ status } eq 'in-progress' ) {
 			$self->broadcast_division_response( $request, $progress, $clients );
-			return; 
+			return;
 
 		} elsif( $response->{ status } eq 'fail' ) {
 			# ===== POOL JUDGES REQUEST DISCUSSION TO DISQUALIFY ATHLETE
@@ -715,8 +715,8 @@ sub handle_division_write {
 		$division->{ file } = sprintf( "%s/%s/%s/ring%02d/div.%s.txt", $FreeScore::PATH, $tournament, $FreeScore::Kicking::Speed::SUBDIR, $ring, $division->{ name } );
 
 		my $message   = $division->clone();
-		my $unblessed = unbless( $message ); 
-			
+		my $unblessed = unbless( $message );
+
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
 			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
 
@@ -829,7 +829,7 @@ sub send_division_response {
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $message   = $division->clone();
-	my $unblessed = unbless( $message ); 
+	my $unblessed = unbless( $message );
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
@@ -857,7 +857,7 @@ sub send_ring_response {
 	my $id        = sprintf "%s", sha1_hex( $client );
 
 	my $message   = clone( $progress );
-	my $unblessed = unbless( $message ); 
+	my $unblessed = unbless( $message );
 	my $encoded   = $json->canonical->encode( $unblessed );
 	my $digest    = sha1_hex( $encoded );
 
@@ -898,7 +898,7 @@ sub autopilot {
 # ============================================================
 #** @method( request, progress, clients, judges )
 #   @brief Automatically advances to the next athlete/division
-#   Called when judges finish scoring an athlete's form 
+#   Called when judges finish scoring an athlete's form
 #*
 	my $self     = shift;
 	my $request  = shift;
@@ -906,7 +906,7 @@ sub autopilot {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $division = $progress->current();
-	my $cycle    = $division->{ autodisplay } || 2;
+	my $cycle    = $division->{ autodisplay } || 1;
 	my $round    = $division->{ round };
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
@@ -945,10 +945,10 @@ sub autopilot {
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
 
-			if( $last->{ cycle } || $last->{ athlete } ) { 
+			if( $last->{ cycle } || $last->{ athlete } ) {
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
-				$division->display() unless $division->is_display(); 
-				$division->write(); 
+				$division->display() unless $division->is_display();
+				$division->write();
 				Mojo::IOLoop->timer( $pause->{ next } => $delay->begin );
 				$self->broadcast_division_response( $request, $progress, $clients, $judges );
 			} else {
@@ -961,7 +961,7 @@ sub autopilot {
 			die "Disengaging autopilot\n" unless $division->autopilot();
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
-			my $go_next = { 
+			my $go_next = {
 				round   =>   $last->{ athlete } && ! $last->{ round },
 				athlete => ! $last->{ athlete }
 			};
