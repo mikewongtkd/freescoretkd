@@ -87,7 +87,7 @@ sub broadcast_division_response {
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
 		my $message   = $division->clone();
-		my $unblessed = unbless( $message ); 
+		my $unblessed = unbless( $message );
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 
@@ -117,7 +117,7 @@ sub broadcast_ring_response {
 	foreach my $id (sort keys %$clients) {
 		my $user      = $clients->{ $id };
 		my $message   = clone( $progress );
-		my $unblessed = unbless( $message ); 
+		my $unblessed = unbless( $message );
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
 		my $response  = { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
@@ -247,7 +247,7 @@ sub handle_division_navigate {
 	try {
 		if    ( $dest eq 'athlete' )  { $division->navigate( $id ); $division->write(); }
 		elsif ( $dest eq 'division' ) { $progress->navigate( $id ); $progress->write(); }
-			
+
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
@@ -294,7 +294,7 @@ sub handle_division_score {
 
 	if( $DEBUG ) {
 		my $name = $judge ? "Judge $judge" : "Referee";
-		if    ( $score ) { print STDERR "$name scores $score.\n" } 
+		if    ( $score ) { print STDERR "$name scores $score.\n" }
 		elsif ( $vote  ) { print STDERR "$name votes $vote.\n" }
 	}
 
@@ -309,7 +309,7 @@ sub handle_division_score {
 
 		my $clone = unbless( $division->clone());
 		$request->{ response } = { status => 'ok' };
-			
+
 		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
@@ -340,7 +340,7 @@ sub handle_division_pool_judge_ready {
 		my $response = $division->pool_judge_ready( $size, $judge->{ id } );
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
-		
+
 		$division->write();
 
 		$request->{ response } = $response;
@@ -376,16 +376,14 @@ sub handle_division_pool_resolve {
 		my $response = $division->resolve_pool();
 		$request->{ response } = $response;
 
-		my $round    = $division->{ round };
-		my $form     = $division->{ form };
-		my $complete = $athlete->{ scores }{ $round }->form_complete( $form );
-
 		$division->write();
 		$version->commit( $division, $message );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
-		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		$self->autopilot( $request, $progress, $clients, $division ) if $complete;
+		print STDERR "Scoring complete. Engaging autopilot\n" if $DEBUG;
+		print STDERR Dumper $division; # AP
+		$self->autopilot( $request, $progress, $clients, $division );
+		return;
 
 		$self->broadcast_division_response( $request, $progress, $clients );
 	} catch {
@@ -422,9 +420,9 @@ sub handle_division_pool_score {
 		$version->commit( $division, $message );
 
 		# ===== SCORING IS IN PROGRESS; CONFIRM SCORE RECEIVED AND RECORDED
-		if( $response->{ status } eq 'in-progress' ) { 
+		if( $response->{ status } eq 'in-progress' ) {
 			$self->broadcast_division_response( $request, $progress, $clients );
-			return; 
+			return;
 
 		# ===== SCORING IS COMPLETE
 		} elsif( $response->{ status } eq 'complete' ) {
@@ -464,7 +462,7 @@ sub handle_registration_import {
 	my $clients  = shift;
 	my $judges   = shift;
 	my $client   = $self->{ _client };
-	
+
 	print STDERR "Importing USAT Registration information.\n" if $DEBUG;
 
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
@@ -487,7 +485,7 @@ sub handle_registration_import {
 				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
 				my $athletes                   = $divisions->{ $subevent }{ $key };
 				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
-				my $division                   = $progress->create_division( $divid ); 
+				my $division                   = $progress->create_division( $divid );
 				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
 				$division->{ current }         = 0;
 				$division->{ description }     = $description;
@@ -512,7 +510,7 @@ sub handle_registration_read {
 	my $client   = $self->{ _client };
 
 	print STDERR "Reading USAT Registration information\n" if $DEBUG;
-	
+
 	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
 	my $path = join '/', @path;
 
@@ -530,7 +528,7 @@ sub handle_registration_read {
 
 			$female = \1;
 			$male   = \1;
-		} 
+		}
 		elsif( -e $male   ) { $female = \0; $male = \1; }
 		elsif( -e $female ) { $female = \1; $male = \0; }
 		else                { $female = \0; $male = \0; }
@@ -549,7 +547,7 @@ sub handle_registration_upload {
 	my $client   = $self->{ _client };
 
 	print STDERR "Uploading USAT Registration $request->{ gender } information\n" if $DEBUG;
-	
+
 	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
 	return unless defined $gender;
 
@@ -670,7 +668,7 @@ sub handle_schedule_stage {
 		my $event    = $data->{ events }{ $evid };
 		my $div      = new FreeScore::Forms::GrassRoots::Division( $path, $divid, $ring );
 		my @athletes = sort { $a->{ name } cmp $b->{ name } } map { $data->{ athletes }{ $_ } } grep { $data->{ checkin }{ $divid }{ $_ } } keys %{$data->{ checkin }{ $divid }};
-		
+
 		$div->{ current } = 0;
 		$div->{ judges  } = 5;
 		$div->{ mode }    = 'single-elimination' if $event->{ method } eq 'single elimination';
@@ -789,5 +787,3 @@ sub autopilot {
 
 	print STDERR "Autopilot complete.\n"; # MW
 }
-
-
