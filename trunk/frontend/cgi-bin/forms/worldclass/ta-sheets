@@ -13,7 +13,7 @@ use FreeScore::Forms::WorldClass;
 my $cgi        = new CGI();
 my $results    = undef;
 my $tournament = read_tournament_config();
-my $ring       = $cgi->param( 'ring' );
+my $ring       = int $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
 my $ringcapt   = $cgi->param( 'ringcaptain' );
 my @rounds     = ($cgi->param( 'round' ));
@@ -30,12 +30,15 @@ try {
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			my $schedule = {
-				1 => [ qw( c002 c001 )],
+				1 => [ qw( t401 t407 t411 t417 t305 t308a t308b t329 t204 t208a t208b t216 t104 t107 t111 t116 t125 t007a t013b t016c t017a t017b t029f r007 r016 o401 o307 o308 o208 o113 o116 o010 o014 ck402 ck305 ck208 ck210 ck010 ck013 ck014 vs108 )],
+				2 => [ qw( t404 t408 t304 t307 t310 t314 t205 t210a t210b t214 t108 t113 t126 t014a r010 r013 o408 o313 o214 o108 o117 o125 o013 o017 ck405 ck310 ck311 ck313 ck214 ck108 ck110 ck111 vs208 )],
+				3 => [ qw( t405 t410 t414 t311 t313 t316 t317 t207 t213 t211 t225 t110 t114 t117 t010a t011a t014c t019d t028h t031e t034c r011 r014 r017 r028 o305 o210 o213 o216 o111 o114 o034 ck407 ck414 ck304 ck308 ck211 ck213 ck113 ck114 vs014 )]
 			};
 			if( exists $schedule->{ $ring }) {
 				push @divisions, map { my $divid = $_; first { $_->{ name } eq $divid } @{ $results->{ divisions }} } @{ $schedule->{ $ring }};
 			} else {
 				push @divisions, @{ $results->{ divisions }};
+				@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 			}
 		}
 	} else {
@@ -43,17 +46,17 @@ try {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+		@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 	}
 } catch {
 	die $_;
 
 };
 
-@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
 print $cgi->header();
 
-my $branding_css = "/var/www/html/images/branding/branding.css";
+my $branding_css = "/var/www/html/images/branding/reports.css";
 $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 
 print <<EOF;
@@ -72,7 +75,6 @@ print <<EOF;
 			.division .round { float: right; }
 			.results {
 				page-break-inside: avoid;
-				page-break-after: always;
 			}
 			.results table { width: 920px; }
 			.results th {
@@ -86,9 +88,9 @@ print <<EOF;
 			.results td.number    { width: 32px; }
 			.results td.usat      { width: 80px; }
 			.results td.noc       { width: 63px; }
-			.results td.athlete   { width: 768px; }
+			.results td.athlete   { width: 585px; }
 			.results td.decisions { width: 32px; text-align: center; color: red }
-      		.results td.form,.score,.place { width: 100px; text-align: center; }
+      		.results td.form,.score,.place { width: 120px; text-align: center; }
 			.results td.preacc { font-size: 8pt; }
 			.results td.notes  { font-size: 9pt; }
 			.results tr:nth-child( even ) { background: #fff; }
@@ -221,7 +223,8 @@ EOF
 		my $judges   = $division->{ judges } || 3;
 		my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
 
-		@rounds = reverse $division->rounds() unless @rounds;
+		@rounds = (qw( finals ));
+		# @rounds = reverse $division->rounds() unless @rounds;
 
 		my $first = 0;
 		foreach my $round (@rounds) {

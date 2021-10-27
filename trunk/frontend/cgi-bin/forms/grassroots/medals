@@ -10,15 +10,13 @@ use Clone qw( clone );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::WorldClass;
-use FreeScore::Forms::FreeStyle;
+use FreeScore::Forms::GrassRoots;
 
 my $cgi        = new CGI();
 my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
-my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
 my @divisions  = ();
@@ -28,20 +26,18 @@ print $cgi->header();
 try {
 	if( defined $ring ) {
 		if( defined $divid ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
 		} else {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
-		my $freestyle = new FreeScore::Forms::FreeStyle( $tournament->{ db }, 1 );
-		push @divisions, @{ $freestyle->{ divisions }};
 	}
 } catch {
 	die $_;
@@ -58,19 +54,17 @@ my $championship = [];
 
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
-	my $round  = 'finals';
 	my ($num)  = $division->{ name } =~ /[bfpr]\d*(\d{3})/;
 
-	next unless exists $division->{ order }{ $round };
 	if( $division->can( 'rank_athletes' )) {
-		$division->rank_athletes( $round );
+		$division->rank_athletes();
 	} elsif( $division->can( 'calculate_placements' )) {
-		$division->calculate_placements( $round );
+		$division->calculate_placements();
 	}
 
 	my $placements = undef;
-	if(    exists $division->{ placement  }) { $placements = $division->{ placement }{ $round }; }
-	elsif( exists $division->{ placements }) { $placements = $division->{ placements }{ $round }; }
+	if(    exists $division->{ placement  }) { $placements = $division->{ placement }; }
+	elsif( exists $division->{ placements }) { $placements = $division->{ placements }; }
 
 	my @results = ();
 	foreach my $i (0 .. 6) {
@@ -88,12 +82,7 @@ foreach my $division (@divisions) {
 		$place = 3 if $place >= 3 && $age <= 11;
 		next if $place > 3;
 
-		if( ref( $division ) =~ /worldclass/i ) {
-			next if $athlete->{ scores }{ $round }->any_punitive_decision();
-
-		} elsif( ref( $division ) =~ /freestyle/i ) {
-			next if $athlete->{ decision }{ $round };
-		}
+		next if FreeScore::Forms::GrassRoots::Division::_decision( $athlete );
 
 		$athlete  = unbless( clone( $athlete));
 
@@ -101,14 +90,10 @@ foreach my $division (@divisions) {
 		$nocpoints->{ $noc }{ total } += $points->{ $place };
 
 		my $video = ref( $athlete->{ info }{ video }) ? $athlete->{ info }{ video } : $json->decode( $athlete->{ info }{ video });
-		my $uuid  = ref( $video->{ finals } ) =~ /^array/i ? $video->{ finals }[ 0 ]{ file } : $video->{ finals }{ 0 }{ file };
+		my $uuid  = $video->{ file };
 		$uuid =~ s/\/finals-0\.mp4$//;
 
 		printf "%s\t%-4s\t%d\t%3s\t%s\n", $name, $uuid, $place, $noc, $athlete->{ name };
-
-		if( $name =~ /^r/i && $num < 40 && $i == 0 ) {
-			push @$championship, { divid => $name, name => $athlete->{ name }, uuid => $uuid, noc => $noc }
-		}
 	}
 }
 
@@ -119,12 +104,6 @@ print "Divisions tallied across all belt ranks\n\n";
 print "NOC\tGold\tSilver\tBronze\tPoints\n";
 foreach my $noc (sort { $nocpoints->{ $b }{ total } <=> $nocpoints->{ $a }{ total } || $nocpoints->{ $b }{ 1 } <=> $nocpoints->{ $a }{ 1 } || $nocpoints->{ $b }{ 2 } <=> $nocpoints->{ a }{ 2 } || $nocpoints->{ $b }{ 3 } <=> $nocpoints->{ $a }{ 3 } || $a cmp $b } keys %$nocpoints) {
 	printf "%-3s\t%d\t%d\t%d\t%d\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
-}
-
-print "<h1>Championships</h1>\n";
-
-foreach my $champion (@$championship) {
-	printf "%-4s\t%s\t%s\t%s\n", $champion->{ divid }, $champion->{ uuid }, $champion->{ noc }, $champion->{ name };
 }
 
 # ============================================================

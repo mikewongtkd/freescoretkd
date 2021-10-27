@@ -10,8 +10,7 @@ use Clone qw( clone );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
-use FreeScore::Forms::WorldClass;
-use FreeScore::Forms::FreeStyle;
+use FreeScore::Sparring::Virtual;
 
 my $cgi        = new CGI();
 my $results    = undef;
@@ -28,20 +27,18 @@ print $cgi->header();
 try {
 	if( defined $ring ) {
 		if( defined $divid ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
 		} else {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
 		foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			$results = new FreeScore::Sparring::Virtual( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
-		my $freestyle = new FreeScore::Forms::FreeStyle( $tournament->{ db }, 1 );
-		push @divisions, @{ $freestyle->{ divisions }};
 	}
 } catch {
 	die $_;
@@ -87,13 +84,7 @@ foreach my $division (@divisions) {
 		$age =~ s/junior/17/i;
 		$place = 3 if $place >= 3 && $age <= 11;
 		next if $place > 3;
-
-		if( ref( $division ) =~ /worldclass/i ) {
-			next if $athlete->{ scores }{ $round }->any_punitive_decision();
-
-		} elsif( ref( $division ) =~ /freestyle/i ) {
-			next if $athlete->{ decision }{ $round };
-		}
+		next if $athlete->{ decision }{ $round };
 
 		$athlete  = unbless( clone( $athlete));
 
@@ -119,12 +110,6 @@ print "Divisions tallied across all belt ranks\n\n";
 print "NOC\tGold\tSilver\tBronze\tPoints\n";
 foreach my $noc (sort { $nocpoints->{ $b }{ total } <=> $nocpoints->{ $a }{ total } || $nocpoints->{ $b }{ 1 } <=> $nocpoints->{ $a }{ 1 } || $nocpoints->{ $b }{ 2 } <=> $nocpoints->{ a }{ 2 } || $nocpoints->{ $b }{ 3 } <=> $nocpoints->{ $a }{ 3 } || $a cmp $b } keys %$nocpoints) {
 	printf "%-3s\t%d\t%d\t%d\t%d\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
-}
-
-print "<h1>Championships</h1>\n";
-
-foreach my $champion (@$championship) {
-	printf "%-4s\t%s\t%s\t%s\n", $champion->{ divid }, $champion->{ uuid }, $champion->{ noc }, $champion->{ name };
 }
 
 # ============================================================
