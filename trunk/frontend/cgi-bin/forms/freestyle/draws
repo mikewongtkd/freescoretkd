@@ -123,6 +123,7 @@ EOF
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $noc     = $athlete->{ info }{ noc };
+			$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
 			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";

@@ -128,6 +128,7 @@ EOF
 			my $j       = $division->{ order }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $noc     = $athlete->{ info }{ noc };
+			$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
       my $video = $json->encode( $athlete->{ info }{ video }{ $round } );
 			my $stream = $json->encode( $athlete->{ info }{ stream } );
