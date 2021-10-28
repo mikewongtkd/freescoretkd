@@ -79,7 +79,7 @@ print <<EOF;
 			.results thead th.form    { width: 200px; }
 			.results td.decision      { text-align: center; color: red; }
 
-			.results tbody td { 
+			.results tbody td {
 				padding: 2px 4px 2px 4px;
 			}
 
@@ -121,7 +121,9 @@ EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
 		my $athlete = $division->{ athletes }[ $i ];
-		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td><td></td><td class=\"decision\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
+		my $noc     = uc $athlete->{ info }{ noc };
+		$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+		print "\t\t\t\t<tr><td>" . ($i + 1) . "</td><td>$noc</td><td>$athlete->{ name }</td><td></td><td class=\"decision\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
 	}
 	print <<EOF;
 				</tbody>

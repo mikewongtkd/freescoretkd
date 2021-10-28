@@ -109,7 +109,9 @@ EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
 		my $athlete = $division->{ athletes }[ $i ];
-		print "\t\t\t\t<tr><td>" . ($i + 1) . ".</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td></tr>\n";
+		my $noc     = uc $athlete->{ info }{ noc };
+		$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+		print "\t\t\t\t<tr><td>" . ($i + 1) . "</td><td>$noc</td><td>$athlete->{ name }</td></tr>\n";
 	}
 	print <<EOF;
 				</tbody>

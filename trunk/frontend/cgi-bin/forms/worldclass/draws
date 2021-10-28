@@ -255,7 +255,7 @@ EOF
 				my $n        = 0;
 
 				$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
-				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
+				print "<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td><td>$decision</td></tr>\n";
 			}
 			print '</table>';
 		}

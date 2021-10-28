@@ -268,7 +268,7 @@ EOF
 
 				$noc = $noc =~ /\// ? uc((split /\//, $noc)[ -1 ]) : uc( $noc );
 
-				print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+				print "<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
         print "<td class=\"form\">&nbsp;</td>";
         print "<td class=\"form\">&nbsp;</td>";
         print "<td class=\"decisions\">$decision</td></tr>\n";

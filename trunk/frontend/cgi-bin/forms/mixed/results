@@ -172,6 +172,7 @@ EOF
 			my $athlete     = $division->{ athletes }[ $j ];
 			my $notes       = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $noc         = uc( $athlete->{ info }{ noc });
+			$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 			my $sum         = 0.0;
 			my $score       = $athlete->{ adjusted }{ $round };
 			my @score       = ();

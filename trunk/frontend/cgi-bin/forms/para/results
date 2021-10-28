@@ -328,7 +328,7 @@ EOF
 				}
 				my $noc = uc $athlete->{ info }{ noc };
 				$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
-				push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1) . '.') . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+				push @results, "<tr><td class=\"number\">" . ($punitive ? '&ndash;' : ($i + 1)) . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 				push @results, @scores;
 				$n ||= 1;
 				push @results, sprintf( "<td class=\"score\">%s</td>%s", ($punitive ? $punitive : sprintf( "%.3f", $sum/$n)), $tb );

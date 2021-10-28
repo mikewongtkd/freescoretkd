@@ -129,8 +129,10 @@ EOF
 		$rank = $athlete->{ info }{ decision } eq 'DSQ' ? '-' : $rank;
 		my ($min, $max) = minmax( map { sprintf( "%.1f", $_ ) } @{ $athlete->{ scores }});
 		my $found = { min => 0, max => 0 };
+		my $noc   = uc $athlete->{ info }{ noc };
+		$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 		next unless $athlete->{ complete };
-		print "<tr><td class=\"number\">$rank.</td><td>$athlete->{ info }{ noc }</td><td>$athlete->{ name }</td>";
+		print "<tr><td class=\"number\">$rank</td><td>$noc</td><td>$athlete->{ name }</td>";
 		foreach my $i ( 0 .. ($judges - 1)) {
 			my $score = sprintf( "%.1f", $athlete->{ scores }[ $i ] );
 			$score = $score <= 0 ? '-' : $score;
