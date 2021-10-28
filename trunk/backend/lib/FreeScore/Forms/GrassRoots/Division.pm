@@ -563,6 +563,7 @@ sub resolve_pool {
 	$self->{ state } = 'score'; # Return to the scoring state when handling scores
 
 	# ===== CASE 1: SUFFICIENT SCORES TO PROCEED WITH RESOLUTION
+	print STDERR Dumper $status; # MW
 	if( $status->{ have } >= $status->{ want }) {
 
 		if     ( $scored > $judges ) { 

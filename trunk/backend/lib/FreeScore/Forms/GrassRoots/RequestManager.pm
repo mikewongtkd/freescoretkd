@@ -381,7 +381,6 @@ sub handle_division_pool_resolve {
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Scoring complete. Engaging autopilot\n" if $DEBUG;
-		print STDERR Dumper $division; # AP
 		$self->autopilot( $request, $progress, $clients, $division );
 		return;
 
@@ -437,7 +436,6 @@ sub handle_division_pool_score {
 
 			# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 			print STDERR "Scoring complete. Engaging autopilot\n"  if $DEBUG;
-			print STDERR Dumper $division; # MW
 			$self->autopilot( $request, $progress, $clients, $division );
 			return;
 
@@ -721,13 +719,11 @@ sub autopilot {
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
-	print STDERR Dumper $division;
 	print STDERR "Autopilot invoked.\n"; # MW
 
 	my $show  = {
 		score => sub {
 			my $delay = shift;
-			print STDERR Dumper $division;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
