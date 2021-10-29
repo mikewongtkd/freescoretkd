@@ -34,10 +34,10 @@ try {
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
+		# foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
-		}
+		# }
 	}
 } catch {
 	die $_;
@@ -57,41 +57,49 @@ print <<EOF;
 		<title>World Class Poomsae Results</title>
 		<link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
 		<style type="text/css">
-			body { font-family: Optima; }
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description { float: left; }
-			.division .round { float: right; }
-			.results {
-				page-break-inside: avoid;
-				page-break-after: always;
-			}
-			.results table { width: 920px; }
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
+			body { font-family: Optima; margin: 0; }
+            .division {
+                clear: both;
+                margin-top: 28px;
+                width: 820px;
+                height: 20px;
+            }
+            .division .description { float: left; }
+            .division .round { float: right; }
+            .results {
+                padding: 0 50px 0 50px;
+                page-break-inside: allow;
+                page-break-after: always;
+            }
+            table { width: 920px; border-spacing: 0; }
+            .results th {
+                margin-top: 8px;
+                border-top: 1px solid #999;
+                border-bottom: 1px solid #999;
+                padding: 0 4px 0 4px;
+                text-align: center;
+                background: #eee;
+            }
+			.results th.number,th.noc,th.athlete {
 				text-align: left;
 			}
-			.results td       { padding: 0px 4px 0px 4px; }
-			.results .number  { width: 32px; text-align: center; }
-			.results .noc     { width: 63px; }
-			.results .athlete { width: 768px; }
-			.results .form,.score,.place { width: 100px; text-align: center; }
-			.results .preacc { font-size: 8pt; }
-			.results .tiebreaker { width: 40px; text-align: center; }
-			.results .penalties  { font-size: 9pt; }
-			.results .notes  { font-size: 9pt; width: 40px; text-align: center; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-
+            td { padding: 0; }
+            .title                { text-align: center; padding: 5px 0; }
+            .results table        { width: 820px; page-break-after: always; }
+            .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+            .results td.number    { width: 32px; }
+            .results td.usat      { width: 80px; }
+            .results td.noc       { width: 63px; }
+            .results td.athlete   { width: 768px; }
+            .results td.decisions { width: 32px; text-align: center; color: red }
+            .results td.form,.score,.place { width: 200px; text-align: center; }
+            .results td.preacc    { font-size: 8pt; }
+            .results td.notes     { font-size: 9pt; }
+            .results tr:nth-child( odd ) { background: #fff; }
+            .results tr:nth-child( even ) { background: #eee; }
+            .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
+            .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
+            
 			$branding_css
     	</style>
 	</head>
@@ -321,19 +329,20 @@ EOF
 				push @results,  "</tr>\n";
 			}
 			print <<EOF;
+			<h1 class="title">Result Sheet</h1>
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
-			<table border=0 cellpadding=0 cellspacing=0>
+			<table border=0 cellpadding=0 cellspacing=0><thead>
 				<tr>
 					<th class="number">Rank</th>
-					<th class="noc">NOC</th>
+					<th class="noc">State</th>
 					<th class="athlete">Name</th>
 EOF
 			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 			else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>";
-			print "</tr>";
+			print "</tr></thead><tbody>";
 			print @results;
-			print "\t</table>\n";
+			print "</tbody>\t</table>\n";
 		}
 	}
 	print "</div>\n";

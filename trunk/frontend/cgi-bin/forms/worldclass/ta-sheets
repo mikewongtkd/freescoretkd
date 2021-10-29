@@ -15,7 +15,6 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
-my $ringcapt   = $cgi->param( 'ringcaptain' );
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
@@ -29,20 +28,13 @@ try {
 
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			my $schedule = {
-				1 => [ qw( c002 c001 )],
-			};
-			if( exists $schedule->{ $ring }) {
-				push @divisions, map { my $divid = $_; first { $_->{ name } eq $divid } @{ $results->{ divisions }} } @{ $schedule->{ $ring }};
-			} else {
-				push @divisions, @{ $results->{ divisions }};
-			}
-		}
-	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
+	} else {
+		# foreach my $ring ( @{ $tournament->{ rings }} ) {
+			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+			push @divisions, @{ $results->{ divisions }};
+		# }
 	}
 } catch {
 	die $_;
@@ -61,41 +53,49 @@ print <<EOF;
 	<head>
 		<title>World Class Poomsae TA Sheets</title>
 		<style type="text/css">
-			body { font-family: Optima; }
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description { float: left; }
-			.division .round { float: right; }
-			.results {
-				page-break-inside: avoid;
-				page-break-after: always;
-			}
-			.results table { width: 920px; }
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
+			body { font-family: Optima; margin: 0; }
+      .division {
+          clear: both;
+          margin-top: 28px;
+          width: 820px;
+          height: 20px;
+      }
+      .division .description { float: left; }
+      .division .round { float: right; }
+      .results {
+          padding: 0 50px 0 50px;
+          page-break-inside: allow;
+          page-break-after: always;
+      }
+      table { width: 920px; border-spacing: 0; }
+      .results th {
+          margin-top: 8px;
+          border-top: 1px solid #999;
+          border-bottom: 1px solid #999;
+          padding: 0 4px 0 4px;
+          text-align: center;
+          background: #eee;
+      }
+			.results th.number,th.noc,th.athlete {
 				text-align: left;
 			}
-			.results td           { padding: 2px 4px 2px 4px; }
-			.results td.number    { width: 32px; }
-			.results td.usat      { width: 80px; }
-			.results td.noc       { width: 63px; }
-			.results td.athlete   { width: 768px; }
-			.results td.decisions { width: 32px; text-align: center; color: red }
-      		.results td.form,.score,.place { width: 100px; text-align: center; }
-			.results td.preacc { font-size: 8pt; }
-			.results td.notes  { font-size: 9pt; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-
+      td { padding: 0; }
+      .title                { text-align: center; padding: 5px 0; }
+      .results table        { width: 820px; page-break-after: always; }
+      .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+      .results td.number    { width: 32px; }
+      .results td.usat      { width: 80px; }
+      .results td.noc       { width: 63px; }
+      .results td.athlete   { width: 768px; }
+      .results td.decisions { width: 32px; text-align: center; color: red }
+      .results td.form,.score,.place { width: 200px; text-align: center; }
+      .results td.preacc    { font-size: 8pt; }
+      .results td.notes     { font-size: 9pt; }
+      .results tr:nth-child( odd ) { background: #fff; }
+      .results tr:nth-child( even ) { background: #eee; }
+      .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
+      .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
+            
 			$branding_css
 		</style>
 	</head>
@@ -222,37 +222,32 @@ EOF
 		my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
 
 		@rounds = reverse $division->rounds() unless @rounds;
-
-		my $first = 0;
-		foreach my $round (@rounds) {
-			next unless exists $division->{ order }{ $round };
-			next if $first; # Skip to next division if first round already processed
-			my $rname  = $division->round_name( $round );
-			my $forms  = $division->{ forms }{ $round };
-			my $placed = {};
-			my $i      = 0;
-			my $places = $division->{ placement }{ $round };
-
-			$first = 1;
-
-			foreach my $j ( 0 .. $#$places ) {
-				my $i = $places->[ $j ];
-				$placed->{ $i } = ordinal( $j + 1 );
-			}
+    foreach my $round (@rounds) {
+      next unless exists $division->{ order }{ $round };
+      my $rname  = $division->round_name( $round );
+      my $forms  = $division->{ forms }{ $round };
+      my $placed = {};
+      my $i      = 0;
+      my $places = $division->{ placement }{ $round };
+      foreach my $j ( 0 .. $#$places ) {
+        my $i = $places->[ $j ];
+        $placed->{ $i } = ordinal( $j + 1 );
+      }
 
 			print <<EOF;
+			<h1 class="title">TA Sheet</h1>
 			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
-			<table border=0 cellpadding=0 cellspacing=0>
+			<table border=0 cellpadding=0 cellspacing=0><thead>
 				<tr>
 					<th class="number">#</th>
-					<th class="noc">NOC</th>
+					<th class="noc">State</th>
 					<th class="athlete">Name</th>
 EOF
       if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
       else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 			print <<EOF;
           <th class="decisions">Decisions</th>
-      	</tr>
+      	</tr></thead><tbody>
 EOF
 			my $n = $#{$division->{ order }{ $round }};
 			foreach my $i (0 .. $n) {
@@ -273,7 +268,7 @@ EOF
         print "<td class=\"form\">&nbsp;</td>";
         print "<td class=\"decisions\">$decision</td></tr>\n";
 			}
-			print '</table>';
+			print "<tbody>\t</table>\n";
 		}
 	}
 	print "</div>\n";
