@@ -79,12 +79,13 @@ print <<EOF;
             .title                { text-align: center; padding: 5px 0; }
             .results table        { width: 820px; page-break-after: always; }
             .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
-            .results td.number    { width: 32px; text-align: center; }
+            .results td.number    { width: 32px; }
             .results td.usat      { width: 80px; }
             .results td.noc       { width: 63px; }
             .results td.athlete   { width: 768px; }
             .results td.decisions { width: 32px; text-align: center; color: red }
             .results td.form,.score,.place { width: 200px; text-align: center; }
+			.results td.tiebreaker { width: 40px; text-align: center; }
             .results td.preacc    { font-size: 8pt; }
             .results td.notes     { font-size: 9pt; }
             .results tr:nth-child( odd ) { background: #fff; }
@@ -134,7 +135,7 @@ EOF
 			$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
 			if( exists $score->{ decision } ) {
 				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
