@@ -83,7 +83,7 @@ print <<EOF;
             .title                { text-align: center; padding: 5px 0; }
             .results table        { width: 820px; page-break-after: always; }
             .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
-            .results td.number    { width: 32px; }
+            .results td.number    { width: 32px; text-align: center; }
             .results td.usat      { width: 80px; }
             .results td.noc       { width: 63px; }
             .results td.athlete   { width: 768px; }

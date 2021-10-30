@@ -80,7 +80,7 @@ print <<EOF;
 				.title                { text-align: center; padding: 5px 0; }
 				.results table        { width: 820px; page-break-after: always; }
 				.results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
-				.results td.number    { width: 32px; }
+				.results td.number    { width: 32px; text-align: center; }
 				.results td.usat      { width: 80px; }
 				.results td.noc       { width: 63px; }
 				.results td.athlete   { width: 768px; }
@@ -119,6 +119,7 @@ foreach my $division (@divisions) {
 
 		print <<EOF;
 		<div class="results">
+		<h1 class="title">TA Sheet</h1>
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0><thead>
 			<tr>
