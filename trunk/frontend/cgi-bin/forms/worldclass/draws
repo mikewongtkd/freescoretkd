@@ -27,22 +27,21 @@ try {
 		if( defined $divid ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-
 		} else {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
-			@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 		}
 	} else {
 		# foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		# }
-		@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 	}
 } catch {
 	die $_;
 };
+
+@divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
 
 print $cgi->header();
 
@@ -77,9 +76,7 @@ print <<EOF;
                 text-align: center;
                 background: #eee;
             }
-			.results th.number,th.noc,th.athlete {
-				text-align: left;
-			}
+			.results th.number,th.noc,th.athlete { text-align: left; }
             td { padding: 0; }
             .title                { text-align: center; padding: 5px 0; }
             .results table        { width: 820px; page-break-after: always; }
@@ -89,14 +86,14 @@ print <<EOF;
             .results td.noc       { width: 63px; }
             .results td.athlete   { width: 768px; }
             .results td.decisions { width: 32px; text-align: center; color: red }
-            .results td.form,.score,.place { width: 200px; text-align: center; }
+            .results td.form,.score,.place { width: 100px; text-align: center; }
             .results td.preacc    { font-size: 8pt; }
             .results td.notes     { font-size: 9pt; }
             .results tr:nth-child( odd ) { background: #fff; }
             .results tr:nth-child( even ) { background: #eee; }
             .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
             .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
-            
+
 			$branding_css
 		</style>
 	</head>
@@ -242,11 +239,11 @@ EOF
 
 			print <<EOF;
 			<h1 class="title">Draw Sheet</h1>
-			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight </div><div class="round"><b>$rname Round</b></div></div>
-			<table border=0 cellpadding=0 cellspacing=0></thead>
+			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname Round</b></div></div>
+			<table border=0 cellpadding=0 cellspacing=0><thead>
 				<tr>
 					<th class="number">#</th>
-					<th class="noc">State</th>
+					<th class="noc">NOC</th>
 					<th class="athlete">Name</th>
 					<th class="decisions"></th>
 				</tr></thead><tbody>

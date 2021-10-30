@@ -27,21 +27,19 @@ try {
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
+		# foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
-		}
-		if( defined $divid ) {
-			@divisions = grep { $_->{ name } eq $divid } @divisions;
-		}
+		# }
+		# if( defined $divid ) {
+		# 	@divisions = grep { $_->{ name } eq $divid } @divisions;
+		# }
 	}
 } catch {
 	die $_;
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
-my $branding = '/var/www/html/images/branding/reports.css';
-$branding = -e $branding ? read_file( $branding ) : '';
 
 print $cgi->header();
 
@@ -53,46 +51,55 @@ print <<EOF;
 	<head>
 		<title>Grass Roots Poomsae Results</title>
 		<style type="text/css">
-			body { font-family: Optima; }
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description { float: left; }
-			.division .ring { float: right; }
-			.results {
-				position: relative;
-				page-break-inside: avoid;
-				page-break-after: always;
-			}
-			.results table { width: 920px; }
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
-				text-align: left;
-			}
-			.results .number    { width: 20px; text-align: center; }
-			.results .noc       { width: 80px; }
-			.results .athlete   { width: 768px; }
-			.results .form      { width: 100px; text-align: center; }
-			.results td         { padding: 2px 4px 2px 4px; }
-			.results td.ignore  { text-decoration: line-through; }
-			.results td.notes   { font-size: 9pt; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
+			body { font-family: Optima; margin: 0; }
+            .division {
+                clear: both;
+                margin-top: 28px;
+                width: 820px;
+                height: 20px;
+            }
+            .division .description { float: left; }
+            .division .round { float: right; }
+            .results {
+                padding: 0 50px 0 50px;
+                page-break-inside: allow;
+                page-break-after: always;
+            }
+            table { width: 920px; border-spacing: 0; }
+            .results th {
+                margin-top: 8px;
+                border-top: 1px solid #999;
+                border-bottom: 1px solid #999;
+                padding: 0 4px 0 4px;
+                text-align: center;
+                background: #eee;
+            }
+			.results th.number,th.noc,th.athlete { text-align: left; }
+            td { padding: 0; }
+            .title                { text-align: center; padding: 5px 0; }
+            .results table        { width: 820px; page-break-after: always; }
+            .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+            .results td.number    { width: 32px; }
+            .results td.usat      { width: 80px; }
+            .results td.noc       { width: 63px; }
+            .results td.athlete   { width: 768px; }
+			.results td.ignore    { text-decoration: line-through; }
+            .results td.decisions { width: 32px; text-align: center; color: red }
+            .results td.form,.score,.place { width: 200px; text-align: center; }
+            .results td.preacc    { font-size: 8pt; }
+            .results td.notes     { font-size: 9pt; }
+            .results tr:nth-child( odd ) { background: #fff; }
+            .results tr:nth-child( even ) { background: #eee; }
+            .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
+            .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
 
 			$branding_css
 		</style>
 	</head>
 	<body>
-	<table>
-	<thead><tr><td><div class="header-space"> </div></td></tr></thead>
-	<tbody><tr><td>
-
+<table>
+<thead><tr><td><div class="header-space"> </div></td></tr></thead>
+<tbody><tr><td>
 EOF
 foreach my $division (@divisions) {
 	my $name   = uc $division->{ name };
@@ -109,17 +116,18 @@ foreach my $division (@divisions) {
 
 	print <<EOF;
 		<div class="results">
-		<div class="division"><b>Division $name</b> &mdash; $division->{ description }</div>
-		<table border=0 cellpadding=0 cellspacing=0>
+		<h1 class="title">Result Sheet</h1>
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div></div>
+		<table border=0 cellpadding=0 cellspacing=0><thead>
 			<tr>
 				<th class="number">Rank</th>
-				<th class="number">NOC</th>
+				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
 EOF
 	foreach my $i ( 0 .. ($judges - 1)) { print $i == 0 ? "<th>R</th>" : "<th>J$i</th>"; }
 	print <<EOF;
 				<th>Total</th>
-			</tr>
+			</tr></thead><tbody>
 EOF
 	my $n = $#{$division->{ athletes }};
 	foreach my $i (0 .. $n) {
@@ -146,14 +154,15 @@ EOF
 		print "</tr>\n";
 	}
 	print <<EOF;
+		</tbody>
 		</table>
 		</div>
 EOF
 }
 
 print <<EOF;
-	</td></tr></tbody>
-	<tfoot><tr><td><div class="footer-space"> </div></td></tr></tfoot>
+</td></tr></tbody>
+<tfoot><tr><td><div class="footer-space"> </div></td></tr></tfoot>
 </table>
 <div class="header"><img src="/images/branding/header.png" width="100%"></div>
 <div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
@@ -162,11 +171,23 @@ print <<EOF;
 EOF
 
 # ============================================================
+sub ordinal {
+# ============================================================
+	my $n = shift;
+	my $d = $n % 10;
+	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+	elsif( $d == 1 )           { return $n . 'st'; }
+	elsif( $d == 2 )           { return $n . 'nd'; }
+	elsif( $d == 3 )           { return $n . 'rd'; }
+	else                       { return $n . 'th'; }
+}
+
+# ============================================================
 sub read_tournament_config {
 # ============================================================
 	my $php = '';
 	my $config = [
-    '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+    	'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
 		'/var/www/html/freescore/include/php/config.php',
 		'/var/www/html/include/php/config.php',
 		'/var/www/freescore/include/php/config.php',

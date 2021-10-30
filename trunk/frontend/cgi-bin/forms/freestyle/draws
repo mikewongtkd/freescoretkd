@@ -14,7 +14,9 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
+my $ringcapt   = $cgi->param( 'ringcaptain' );
 my @rounds     = ($cgi->param( 'round' ));
+my $json       = new JSON::XS();
 
 my @divisions  = ();
 my $results    = undef;
@@ -23,20 +25,18 @@ try {
 		if( defined $divid ) {
 			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-
 		} else {
 			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
+		# foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
-		}
+		# }
 	}
 } catch {
 	die $_;
-
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -51,44 +51,51 @@ print <<EOF;
 	<head>
 		<title>Freestyle Poomsae Draws</title>
 		<style type="text/css">
-			body { font-family: Optima; }
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description { float: left; }
-			.division .round { float: right; }
-			.results {
-				page-break-inside: avoid;
-				page-break-after: always;
-			}
-			.results table { width: 920px; }
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
-				text-align: left;
-			}
-			.results .number    { width: 32px; }
-			.results .usat      { width: 80px; }
-			.results .athlete   { width: 768px; }
-			.results .form      { width: 100px; text-align: center; }
-			.results .noc		{ width: 63px; }
-			.results td         { padding: 2px 4px 2px 4px; }
-			.results td.score   { text-align: center; }
-			.results td.preacc  { font-size: 8pt; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+			body { font-family: Optima; margin: 0; }
+            .division {
+                clear: both;
+                margin-top: 28px;
+                width: 820px;
+                height: 20px;
+            }
+            .division .description { float: left; }
+            .division .round { float: right; }
+            .results {
+                padding: 0 50px 0 50px;
+                page-break-inside: allow;
+                page-break-after: always;
+            }
+            table { width: 920px; border-spacing: 0; }
+            .results th {
+                margin-top: 8px;
+                border-top: 1px solid #999;
+                border-bottom: 1px solid #999;
+                padding: 0 4px 0 4px;
+                text-align: center;
+                background: #eee;
+            }
+			.results th.number,th.noc,th.athlete { text-align: left; }
+            td { padding: 0; }
+            .title                { text-align: center; padding: 5px 0; }
+            .results table        { width: 820px; page-break-after: always; }
+            .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+            .results td.number    { width: 32px; }
+            .results td.usat      { width: 80px; }
+            .results td.noc       { width: 63px; }
+            .results td.athlete   { width: 768px; }
+            .results td.decisions { width: 32px; text-align: center; color: red }
+            .results td.form,.score,.place { width: 200px; text-align: center; }
+            .results td.preacc    { font-size: 8pt; }
+            .results td.notes     { font-size: 9pt; }
+            .results tr:nth-child( odd ) { background: #fff; }
+            .results tr:nth-child( even ) { background: #eee; }
+            .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
+            .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
 
 			$branding_css
-    	</style>
-  	</head>
-  <body>
+		</style>
+	</head>
+	<body>
 <table>
 <thead><tr><td><div class="header-space"> </div></td></tr></thead>
 <tbody><tr><td>
@@ -110,13 +117,14 @@ foreach my $division (@divisions) {
 
 		print <<EOF;
 		<div class="results">
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname</b></div></div>
-		<table border=0 cellpadding=0 cellspacing=0>
+		<h1 class="title">Draw Sheet</h1>
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname</b></div></div>
+		<table border=0 cellpadding=0 cellspacing=0><thead>
 			<tr>
 				<th class="number">#</th>
 				<th class="noc">NOC</th>
 				<th class="athlete">Name</th>
-			</tr>
+			</tr></thead><tbody>
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
@@ -134,6 +142,7 @@ EOF
 			print "</tr>\n";
 		}
 		print <<EOF;
+		</tbody>
 		</table>
 		</div>
 EOF
@@ -146,7 +155,7 @@ print <<EOF;
 </table>
 <div class="header"><img src="/images/branding/header.png" width="100%"></div>
 <div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
-  </body>
+	</body>
 </html>
 EOF
 

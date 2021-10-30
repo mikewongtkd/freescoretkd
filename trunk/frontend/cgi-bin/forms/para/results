@@ -18,6 +18,7 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
+my $ringcapt   = $cgi->param( 'ringcaptain' );
 my @rounds     = ($cgi->param( 'round' ));
 my $json       = new JSON::XS();
 
@@ -28,20 +29,18 @@ try {
 		if( defined $divid ) {
 			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
 			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-
 		} else {
 			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
 		}
 	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
+		# foreach my $ring ( @{$tournament->{ rings }} ) {
 			$results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
 			push @divisions, @{ $results->{ divisions }};
-		}
+		# }
 	}
 } catch {
 	die $_;
-
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -57,46 +56,49 @@ print <<EOF;
 		<title>Para Poomsae Results</title>
 		<link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
 		<style type="text/css">
-			body { font-family: Optima; }
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description { float: left; }
-			.division .round { float: right; }
-			.results {
-				page-break-inside: avoid;
-				page-break-after: always;
-			}
-			.results table { width: 920px; }
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
-				text-align: left;
-			}
-			.results td       { padding: 0px 4px 0px 4px; }
-			.results .number  { width: 32px; text-align: center; }
-			.results .noc     { width: 63px; }
-			.results .athlete { width: 768px; }
-			.results .form,.score,.place { width: 88px; text-align: center; }
-			.results .preacc { font-size: 8pt; }
-			.results .tiebreaker { width: 40px; text-align: center; }
-			.results .freechoice { text-align: center; font-size: 9pt; }
-			.results .penalties  { font-size: 9pt; }
-			.results .deductions { font-size: 9pt; }
-			.results .bonuses    { font-size: 9pt; }
-			.results .notes  { font-size: 9pt; width: 40px; text-align: center; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+			body { font-family: Optima; margin: 0; }
+            .division {
+                clear: both;
+                margin-top: 28px;
+                width: 820px;
+                height: 20px;
+            }
+            .division .description { float: left; }
+            .division .round { float: right; }
+            .results {
+                padding: 0 50px 0 50px;
+                page-break-inside: allow;
+                page-break-after: always;
+            }
+            table { width: 920px; border-spacing: 0; }
+            .results th {
+                margin-top: 8px;
+                border-top: 1px solid #999;
+                border-bottom: 1px solid #999;
+                padding: 0 4px 0 4px;
+                text-align: center;
+                background: #eee;
+            }
+			.results th.number,th.noc,th.athlete { text-align: left; }
+            td { padding: 0; }
+            .title                { text-align: center; padding: 5px 0; }
+            .results table        { width: 820px; page-break-after: always; }
+            .results td           { padding: 2px 4px 2px 4px; page-break-inside: avoid; }
+            .results td.number    { width: 32px; }
+            .results td.usat      { width: 80px; }
+            .results td.noc       { width: 63px; }
+            .results td.athlete   { width: 768px; }
+            .results td.decisions { width: 32px; text-align: center; color: red }
+            .results td.form,.score,.place { width: 100px; text-align: center; }
+            .results td.preacc    { font-size: 8pt; }
+            .results td.notes     { font-size: 9pt; }
+            .results tr:nth-child( odd ) { background: #fff; }
+            .results tr:nth-child( even ) { background: #eee; }
+            .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
+            .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
 
 			$branding_css
-    </style>
+    	</style>
 	</head>
 	<body>
 <table>
@@ -267,16 +269,14 @@ EOF
 			$division->rank_athletes( $round );
 
 			my @results = ();
-			my $json = new JSON::XS();
-      foreach my $i (0 .. $n) {
-				my $j           = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
-				my $athlete     = $division->{ athletes }[ $j ];
-				my $freechoices = $athlete->{ info }{ freechoice } ? $json->decode( $athlete->{ info }{ freechoice }) : '';
-				my $sum         = 0.0;
-				my $n           = 0;
-				my $punitive    = undef;
-				my @scores      = ();
-				my $tb          = $athlete->{ scores }{ $round }{ notes };
+			foreach my $i (0 .. $n) {
+				my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
+				my $athlete  = $division->{ athletes }[ $j ];
+				my $sum      = 0.0;
+				my $n        = 0;
+				my $punitive = undef;
+				my @scores   = ();
+				my $tb       = $athlete->{ scores }{ $round }{ notes };
 
 				if( $tb ) {
 					$tb  = $json->decode( $tb );
@@ -335,8 +335,9 @@ EOF
 				push @results,  "</tr>\n";
 			}
 			print <<EOF;
-			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname Round</b></div></div>
-			<table border=0 cellpadding=0 cellspacing=0>
+			<h1 class="title">Result Sheet</h1>
+			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname Round</b></div></div>
+			<table border=0 cellpadding=0 cellspacing=0><thead>
 				<tr>
 					<th class="number">Rank</th>
 					<th class="noc">NOC</th>
@@ -345,9 +346,9 @@ EOF
 			if( @$forms == 1 ) { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">&nbsp;</th>";}
 			else               { print "<th class=\"form\">$forms->[ 0 ]</th>"; print "<th class=\"form\">$forms->[ 1 ]</th>";}
 			print "<th class=\"score\">AVG</th><th class=\"tiebreaker\">TB1</th><th class=\"tiebreaker\">TB2</th>";
-			print "</tr>";
+			print "</tr></thead><tbody>";
 			print @results;
-			print "\t</table>\n";
+			print "</tbody>\t</table>\n";
 		}
 	}
 	print "</div>\n";
