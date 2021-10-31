@@ -19,17 +19,6 @@ my @entries = <>;
 
 foreach (@entries) {
 	chomp;
-	my ($divid, $round, $place, $uuid, $noc, $name) = split /\t/;
-
-	$prelim->{ $divid }{ $uuid } = 1 if( $round eq 'prelim' );
-	$semfin->{ $divid }{ $uuid } = 1 if( $round eq 'semfin' );
-}
-
-$prelim->{ $_ } = half( int( keys %{$prelim->{ $_ }})) foreach keys %$prelim;
-$semfin->{ $_ } = int( keys %{$semfin->{ $_ }}) foreach keys %$semfin;
-
-foreach (@entries) {
-	chomp;
 	my ($divid, $divdesc, $round, $place, $uuid, $noc, $name) = split /\t/;
 	my $prelim_place = $prelim->{ $divid };
 
