@@ -387,6 +387,9 @@ sub calculate_means {
 		$adjusted->{ total } = $adjusted->{ technical } + $adjusted->{ presentation } - $penalties - $deductions + $bonuses;
 		$allscore->{ total } = $allscore->{ technical } + $allscore->{ presentation } - $penalties - $deductions + $bonuses;
 
+		if( $adjusted->{ total } < 0 ) { $adjusted->{ total } = 0.0; }
+		if( $allscore->{ total } < 0 ) { $allscore->{ total } = 0.0; }
+
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
 
