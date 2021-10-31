@@ -349,6 +349,9 @@ sub calculate_means {
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
 		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } - $penalties;
 
+		if( $adjusted->{ total } < 1.5 ) { $adjusted->{ total } = 1.5; }
+		if( $allscore->{ total } < 1.5 ) { $allscore->{ total } = 1.5; }
+
 		$form->{ adjusted } = $adjusted;
 		$form->{ allscore } = $allscore;
 
