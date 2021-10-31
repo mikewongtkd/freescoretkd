@@ -243,16 +243,20 @@ sub calculate_scores {
 		}
 		$original->{ total } = ($original->{ technical } + $original->{ presentation });
 
+		# ===== CALCULATE PENALTY DEDUCTIONS
+		my $penalty = 0.0;
+		$penalty += $penalties->{ $_ } foreach ( sort keys %{ $penalties });
+
 		# ===== LEAVE SCORES AS THEY ARE FOR SMALL COURTS (3 JUDGES)
 		if( $n == $k ) {
 			foreach (qw( presentation technical total )) {
-				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n)) - $penalties;
+				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n)) - $penalty;
 			}
 
 		# ===== ADJUST SCORES FOR LARGER COURTS
 		} else {
 			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
-			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) - $penalties;
+			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) - $penalty;
 		}
 	}
 }
