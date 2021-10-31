@@ -118,7 +118,7 @@ foreach my $division (@divisions) {
 	print <<EOF;
 		<div class="results">
 		<h1 class="title">Result Sheet</h1>
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div></div>
+		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>Finals Round</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0><thead>
 			<tr>
 				<th class="number">Rank</th>
