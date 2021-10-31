@@ -74,7 +74,7 @@ print <<EOF;
                 text-align: center;
                 background: #eee;
             }
-			.results th.number,.noc,.athlete { text-align: left; }
+			.results th.number,th.noc,th.athlete { text-align: left; }
             td { padding: 0; }
             .title                { text-align: center; padding: 5px 0; }
             .results table        { width: 820px; page-break-after: always; }
