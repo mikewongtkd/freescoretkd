@@ -241,7 +241,7 @@ EOF
 				my $name    = $athlete->{ name };
 				my $noc     = noc( $athlete );
 
-				print "<tr><td class=\"number\">$num.</td><td class=\"noc\">$noc</td><td style=\"width: 640px\">$name</td></tr>\n";
+				print "<tr><td class=\"number\">$num</td><td class=\"noc\">$noc</td><td style=\"width: 640px\">$name</td></tr>\n";
 			}
 			print "\t</table>\n";
 	}
@@ -293,7 +293,7 @@ EOF
 					my $mean        = $score->{ adjusted };
 					my $penalties   = sum0 values %{$score->{ penalty }};
 					my $fontawesome = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
-					my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f", $fontawesome->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+					my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f<br>", $fontawesome->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
 					my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s</span>', $icons ) : '';
 					if( defined $mean ) {
 						if( $score->{ complete }) {
