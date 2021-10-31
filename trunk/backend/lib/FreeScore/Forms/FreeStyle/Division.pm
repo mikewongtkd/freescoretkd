@@ -45,7 +45,7 @@ use Data::Dumper;
 #          +- total
 #    +- penalty
 #       +- round{}
-#          +- time
+#          +- timelimit
 #          +- bounds
 #          +- other
 #          +- restart
@@ -95,7 +95,7 @@ sub autopilot {
 # ============================================================
 	my $self  = shift;
 	my $state = shift;
-	
+
 	if( defined $state ) {
 		if( $state eq 'off' ) { delete $self->{ autopilot }; } else { $self->{ autopilot } = $state; }
 	}
@@ -145,7 +145,7 @@ sub calculate_placements {
 
 	my ($pending, $complete) = part { $athletes->[ $_ ]{ complete }{ $round } ? 1 : 0 } @{ $self->{ order }{ $round }};
 
-	my $placements = [ sort { 
+	my $placements = [ sort {
 		my $i = $athletes->[ $a ];
 		my $j = $athletes->[ $b ];
 
@@ -179,10 +179,10 @@ sub calculate_round {
 	my $order      = $self->{ order } || {};
 	my $placements = $self->{ placements };
 	if( ! exists $order->{ $round } || ! defined $order->{ $round } || @{$order->{ $round }} == 0 ) {
-		if      ( $round eq 'prelim' ) { 
-			$order->{ $round } = [( 0 .. $#$athletes )]; 
+		if      ( $round eq 'prelim' ) {
+			$order->{ $round } = [( 0 .. $#$athletes )];
 
-		} elsif ( $round eq 'semfin' ) { 
+		} elsif ( $round eq 'semfin' ) {
 
 			# Advance athletes from previous round
 			if( exists $order->{ 'prelim' } && ref( $order->{ 'prelim' }) eq 'ARRAY' && @{ $order->{ 'prelim' }} ) {
@@ -225,7 +225,7 @@ sub calculate_scores {
 		my $scores    = exists $athlete->{ scores } ? $athlete->{ scores }{ $round } : [];
 		my $original  = $athlete->{ original }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
 		my $adjusted  = $athlete->{ adjusted }{ $round }  = { presentation => 0.0, technical => 0.0, minor => 0.0, major => 0.0 };
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( time bounds other restart ));
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( timelimit bounds other restart ));
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A DECISION HAS BEEN RENDERED
@@ -244,15 +244,15 @@ sub calculate_scores {
 		$original->{ total } = ($original->{ technical } + $original->{ presentation });
 
 		# ===== LEAVE SCORES AS THEY ARE FOR SMALL COURTS (3 JUDGES)
-		if( $n == $k ) { 
+		if( $n == $k ) {
 			foreach (qw( presentation technical total )) {
-				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n));
+				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n)) - $penalties;
 			}
 
 		# ===== ADJUST SCORES FOR LARGER COURTS
-		} else { 
+		} else {
 			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
-			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation });
+			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) - $penalties;
 		}
 	}
 }
@@ -563,7 +563,7 @@ sub resolve_pool {
 			my $pool_score = $valid[ $i ];
 			$pool_score->{ as } = $i;
 
-			my $score = { 
+			my $score = {
 				technical => {
 					mft1  => $pool_score->{ technical }{ jump }{ side },
 					mft2  => $pool_score->{ technical }{ jump }{ front },
@@ -865,8 +865,8 @@ sub _drop_hilo {
 	my $category = shift;
 	my $n        = shift;
 
-	my @subtotals = map { 
-		my $subcats  = $_->{ $category }; 
+	my @subtotals = map {
+		my $subcats  = $_->{ $category };
 		my $subtotal = reduce { $a += $subcats->{ $b }; } 0.0, keys %$subcats;
 		if( $category eq 'technical' ) {
 			my $major    = $_->{ deductions }{ major };
