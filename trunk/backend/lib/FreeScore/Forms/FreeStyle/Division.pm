@@ -253,13 +253,13 @@ sub calculate_scores {
 				$adjusted->{ $_ } = 0.0 + sprintf( "%.2f", ($original->{ $_ } / $n));
 			}
 			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) - $penalty;
-			if( $adjusted->{ total } < 0 ) { $adjusted->{ total } = 0.00; }
+			if( $adjusted->{ total } < 0 ) { $adjusted->{ total } = 0.0; }
 
 		# ===== ADJUST SCORES FOR LARGER COURTS
 		} else {
 			($adjusted->{ $_ }, $adjusted->{ min }{ $_ }, $adjusted->{ max }{ $_ }) = _drop_hilo( $scores, $_, $n ) foreach (qw( presentation technical ));
 			$adjusted->{ total } = ($adjusted->{ technical } + $adjusted->{ presentation }) - $penalty;
-			if( $adjusted->{ total } < 0 ) { $adjusted->{ total } = 0.00; }
+			if( $adjusted->{ total } < 0 ) { $adjusted->{ total } = 0.0; }
 		}
 	}
 }
