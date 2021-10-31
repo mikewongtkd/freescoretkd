@@ -49,7 +49,7 @@ print <<EOF;
 	<head>
 		<title>Grass Roots Poomsae Draws</title>
 		<style type="text/css">
-			body { font-family: Optima; margin: 0; }
+            body { font-family: Optima; margin: 0; }
             .division {
                 clear: both;
                 margin-top: 28px;
@@ -72,7 +72,7 @@ print <<EOF;
                 text-align: center;
                 background: #eee;
             }
-			.results th.number,th.noc,th.athlete { text-align: left; }
+            .results th.number,th.noc,th.athlete { text-align: left; }
             td { padding: 0; }
             .title                { text-align: center; padding: 5px 0; }
             .results table        { width: 820px; page-break-after: always; }
@@ -81,10 +81,10 @@ print <<EOF;
             .results td.usat      { width: 80px; }
             .results td.noc       { width: 63px; }
             .results td.athlete   { width: 768px; }
-			.results td.ignore    { text-decoration: line-through; }
+            .results span.ignore  { text-decoration: line-through; }
             .results td.decisions { width: 32px; text-align: center; color: red }
             .results td.form,.score,.place { width: 200px; text-align: center; }
-			.results td.tiebreaker { width: 40px; text-align: center; }
+            .results td.tiebreaker { width: 40px; text-align: center; }
             .results td.preacc    { font-size: 8pt; }
             .results td.notes     { font-size: 9pt; }
             .results tr:nth-child( odd ) { background: #fff; }
@@ -92,7 +92,7 @@ print <<EOF;
             .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
             .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
 
-			$branding_css
+            $branding_css
 		</style>
 	</head>
 	<body>
@@ -121,7 +121,7 @@ EOF
 		my $athlete = $division->{ athletes }[ $i ];
 		my $noc     = uc $athlete->{ info }{ noc };
 		$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
-		print "\t\t\t\t<tr><td>" . ($i + 1) . "</td><td>$noc</td><td>$athlete->{ name }</td></tr>\n";
+		print "\t\t\t\t<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td></tr>\n";
 	}
 	print <<EOF;
 		</tbody>
