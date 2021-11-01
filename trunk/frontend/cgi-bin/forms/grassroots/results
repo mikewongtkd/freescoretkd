@@ -2,6 +2,7 @@
 use Try::Tiny;
 use CGI;
 use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
 use List::MoreUtils qw( minmax );
 use JSON::XS;
 use File::Slurp qw( read_file );
@@ -102,6 +103,8 @@ EOF
 foreach my $division (@divisions) {
     my $name   = uc $division->{ name };
     my $judges = $division->{ judges } || 3;
+    my $copy = unbless( clone ( $division ) );
+    print "<script>var division = " . $json->canonical->encode( $copy ) . ";</script>\n";
     my $placed = {};
     my $i = 0;
     foreach my $place (@{ $division->{ places }}) {
