@@ -3,6 +3,7 @@ use Try::Tiny;
 use CGI;
 use File::Slurp qw( read_file );
 use Data::Structure::Util qw( unbless );
+use Clone qw( clone );
 use List::MoreUtils qw( minmax );
 use JSON::XS;
 use File::Slurp qw( read_file );
