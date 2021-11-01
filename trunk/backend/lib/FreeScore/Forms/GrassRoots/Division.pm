@@ -4,7 +4,7 @@ use FreeScore::Forms::Division;
 use JSON::XS;
 use base qw( FreeScore::Forms::Division Clone );
 use POSIX qw( ceil );
-use List::Util qw( shuffle sum );
+use List::Util qw( shuffle sum reduce );
 use Data::Dumper;
 
 # ============================================================
