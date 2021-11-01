@@ -24,22 +24,22 @@ my $json       = new JSON::XS();
 my @divisions  = ();
 my $results    = undef;
 try {
-	if( defined $ring ) {
-		if( defined $divid ) {
-			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
-			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-		} else {
-			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		}
-	} else {
-		# foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		# }
-	}
+    if( defined $ring ) {
+        if( defined $divid ) {
+            $results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+            push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+        } else {
+            $results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        }
+    } else {
+        # foreach my $ring ( @{$tournament->{ rings }} ) {
+            $results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        # }
+    }
 } catch {
-	die $_;
+    die $_;
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -51,11 +51,11 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 
 print <<EOF;
 <html>
-	<head>
-		<title>Mixed Poomsae Results</title>
-		<link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
-		<style type="text/css">
-			body { font-family: Optima; margin: 0; }
+    <head>
+        <title>Mixed Poomsae Results</title>
+        <link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
+        <style type="text/css">
+            body { font-family: Optima; margin: 0; }
             .division {
                 clear: both;
                 margin-top: 28px;
@@ -78,7 +78,7 @@ print <<EOF;
                 text-align: center;
                 background: #eee;
             }
-			.results th.number,th.noc,th.athlete { text-align: left; }
+            .results th.number,th.noc,th.athlete { text-align: left; }
             td { padding: 0; }
             .title                { text-align: center; padding: 5px 0; }
             .results table        { width: 820px; page-break-after: always; }
@@ -89,7 +89,7 @@ print <<EOF;
             .results td.athlete   { width: 768px; }
             .results td.decisions { width: 32px; text-align: center; color: red }
             .results td.form,.score,.place { width: 100px; text-align: center; }
-			.results td.tiebreaker { width: 40px; text-align: center; }
+            .results td.tiebreaker { width: 40px; text-align: center; }
             .results td.tecpre    { font-size: 8pt; }
             .results td.notes     { font-size: 9pt; }
             .results tr:nth-child( odd ) { background: #fff; }
@@ -97,141 +97,141 @@ print <<EOF;
             .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
             .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
 
-			$branding_css
-		</style>
-	</head>
+            $branding_css
+        </style>
+    </head>
 <body>
 <table>
 <thead><tr><td><div class="header-space"> </div></td></tr></thead>
 <tbody><tr><td>
 EOF
 foreach my $division (@divisions) {
-	next unless $division->{ competition } eq 'mixed-poomsae';
-	my $name   = uc $division->{ name };
-	my $judges = $division->{ judges } || 3;
-	my $form   = $division->{ recognized }{ form }{ name };
-	@rounds = ( qw( finals semfin prelim )) unless @rounds;
-	my $copy = unbless( clone ( $division ) );
-	print "<script>var division = " . $json->canonical->encode( $copy ) . ";</script>\n";
-	$division->calculate_placements();
-	foreach my $round (@rounds) {
-		next unless exists $division->{ order }{ $round };
-		my $rname  = { prelim => 'Preliminary Round', semfin => 'Semi-Finals Round', finals => 'Finals Round' }->{ $round };
-		my $i      = 0;
+    next unless $division->{ competition } eq 'mixed-poomsae';
+    my $name   = uc $division->{ name };
+    my $judges = $division->{ judges } || 3;
+    my $form   = $division->{ recognized }{ form }{ name };
+    @rounds = ( qw( finals semfin prelim )) unless @rounds;
+    my $copy = unbless( clone ( $division ) );
+    print "<script>var division = " . $json->canonical->encode( $copy ) . ";</script>\n";
+    $division->calculate_placements();
+    foreach my $round (@rounds) {
+        next unless exists $division->{ order }{ $round };
+        my $rname  = { prelim => 'Preliminary Round', semfin => 'Semi-Finals Round', finals => 'Finals Round' }->{ $round };
+        my $i      = 0;
 
-		print <<EOF;
-		<div class="results">
-		<h1 class="title">Result Sheet</h1>
-		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname</b></div></div>
-		<table border=0 cellpadding=0 cellspacing=0><thead>
-			<tr>
-				<th class="number">Rank</th>
-				<th class="noc">NOC</th>
-				<th class="athlete">Name</th>
-				<th class="form">$form</th>
-				<th class="form">Freestyle</th>
-				<th class="form">AVG</th>
-				<th class="tiebreaker">TB1</th>
-				<th class="tiebreaker">TB2</th>
-			</tr></thead><tbody>
+        print <<EOF;
+        <div class="results">
+        <h1 class="title">Result Sheet</h1>
+        <div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname</b></div></div>
+        <table border=0 cellpadding=0 cellspacing=0><thead>
+            <tr>
+                <th class="number">Rank</th>
+                <th class="noc">NOC</th>
+                <th class="athlete">Name</th>
+                <th class="form">$form</th>
+                <th class="form">Freestyle</th>
+                <th class="form">AVG</th>
+                <th class="tiebreaker">TB1</th>
+                <th class="tiebreaker">TB2</th>
+            </tr></thead><tbody>
 EOF
-		my $n = $#{$division->{ placements }{ $round }};
-		my $ties = {};
-		foreach my $i ( 0 .. $n ) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			foreach my $k ( $i + 1 .. $n ) {
-				my $l       = $division->{ placements }{ $round }[ $k ];
-				my $next    = $division->{ athletes }[ $l ];
-				my $faa     = $athlete->{ adjusted }{ $round };
-				my $fab     = $next->{ adjusted }{ $round };
-				my $foa     = $athlete->{ original }{ $round };
-				my $fob     = $next->{ original }{ $round };
-				my $raa     = $athlete->{ info }{ recognized }{ adjusted };
-				my $rab     = $next->{ info }{ recognized }{ adjusted };
-				my $roa     = $athlete->{ info }{ recognized }{ allscore };
-				my $rob     = $next->{ info }{ recognized }{ allscore };
+        my $n = $#{$division->{ placements }{ $round }};
+        my $ties = {};
+        foreach my $i ( 0 .. $n ) {
+            my $j       = $division->{ placements }{ $round }[ $i ];
+            my $athlete = $division->{ athletes }[ $j ];
+            foreach my $k ( $i + 1 .. $n ) {
+                my $l       = $division->{ placements }{ $round }[ $k ];
+                my $next    = $division->{ athletes }[ $l ];
+                my $faa     = $athlete->{ adjusted }{ $round };
+                my $fab     = $next->{ adjusted }{ $round };
+                my $foa     = $athlete->{ original }{ $round };
+                my $fob     = $next->{ original }{ $round };
+                my $raa     = $athlete->{ info }{ recognized }{ adjusted };
+                my $rab     = $next->{ info }{ recognized }{ adjusted };
+                my $roa     = $athlete->{ info }{ recognized }{ allscore };
+                my $rob     = $next->{ info }{ recognized }{ allscore };
 
-				my $totala  = sprintf( "%.2f", $faa->{ total } + $raa->{ total });
-				my $totalb  = sprintf( "%.2f", $fab->{ total } + $rab->{ total });
-				my $freea    = sprintf( "%.1f", $faa->{ total });
-				my $freeb    = sprintf( "%.1f", $fab->{ total });
-				my $origa    = sprintf( "%.2f", $foa->{ total } + $roa->{ total });
-				my $origb    = sprintf( "%.2f", $fob->{ total } + $rob->{ total });
+                my $totala  = sprintf( "%.2f", $faa->{ total } + $raa->{ total });
+                my $totalb  = sprintf( "%.2f", $fab->{ total } + $rab->{ total });
+                my $freea    = sprintf( "%.1f", $faa->{ total });
+                my $freeb    = sprintf( "%.1f", $fab->{ total });
+                my $origa    = sprintf( "%.2f", $foa->{ total } + $roa->{ total });
+                my $origb    = sprintf( "%.2f", $fob->{ total } + $rob->{ total });
 
-				if( $totala eq $totalb && $totala + 0 != 0 ) {
-					$ties->{ $totala }{ $j } = {} if ! exists $ties->{ $totala }{ $j };
-					$ties->{ $totala }{ $l } = {} if ! exists $ties->{ $totala }{ $l };
+                if( $totala eq $totalb && $totala + 0 != 0 ) {
+                    $ties->{ $totala }{ $j } = {} if ! exists $ties->{ $totala }{ $j };
+                    $ties->{ $totala }{ $l } = {} if ! exists $ties->{ $totala }{ $l };
 
-					$ties->{ $totala }{ $j }{ tb1 } = $freea;
-					$ties->{ $totala }{ $l }{ tb1 } = $freeb;
+                    $ties->{ $totala }{ $j }{ tb1 } = $freea;
+                    $ties->{ $totala }{ $l }{ tb1 } = $freeb;
 
-					if( $freea eq $freeb && $freea + 0 != 0 ) {
-						$ties->{ $totala }{ $j }{ tb2 } = $origa;
-						$ties->{ $totala }{ $l }{ tb2 } = $origb;
-					}
-				}
-			}
-		}
+                    if( $freea eq $freeb && $freea + 0 != 0 ) {
+                        $ties->{ $totala }{ $j }{ tb2 } = $origa;
+                        $ties->{ $totala }{ $l }{ tb2 } = $origb;
+                    }
+                }
+            }
+        }
 
-		foreach my $i (0 .. $n) {
-			my $j           = $division->{ placements }{ $round }[ $i ];
-			my $athlete     = $division->{ athletes }[ $j ];
-			my $notes       = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $noc         = uc( $athlete->{ info }{ noc });
-			$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
-			my $sum         = 0.0;
-			my $score       = $athlete->{ adjusted }{ $round };
-			my @score       = ();
-			my $decided     = 0;
-			my $place       = sprintf( "%d", $i + 1 );
-			my $penalties   = sum0 values %{$score->{ penalty }};
-			my $fontawesome = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
-			my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f<br>", $fontawesome->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
-			my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s</span>', $icons ) : '';
-			my $recog       = $athlete->{ info }{ recognized }{ adjusted };
+        foreach my $i (0 .. $n) {
+            my $j           = $division->{ placements }{ $round }[ $i ];
+            my $athlete     = $division->{ athletes }[ $j ];
+            my $notes       = $athlete->{ notes } ? $athlete->{ notes } : '';
+            my $noc         = uc( $athlete->{ info }{ noc });
+            $noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+            my $sum         = 0.0;
+            my $score       = $athlete->{ adjusted }{ $round };
+            my @score       = ();
+            my $decided     = 0;
+            my $place       = sprintf( "%d", $i + 1 );
+            my $penalties   = sum0 values %{$score->{ penalty }};
+            my $fontawesome = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
+            my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f<br>", $fontawesome->{ $_ }, $score->{ penalty }{ $_ } ) } sort grep { $score->{ penalty }{ $_ } > 0 } keys %{ $score->{ penalty }} );
+            my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s</span>', $icons ) : '';
+            my $recog       = $athlete->{ info }{ recognized }{ adjusted };
 
-			if( exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } ) {
-				my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
-				foreach my $decision (sort keys %$codes) {
-					if( exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } eq $decision ) {
-						$decided = 1;
-						$place   = '&ndash;';
-						push @score, sprintf( "<td class=\"score\">&ndash;</td><td class=\"score\">&ndash;</td><td class=\"score\">%s</td>", $codes->{ $decision } );
-						last;
-					}
-				}
-			} elsif( $recog->{ total } + $score->{ total } == 0 ) {
-				push @score, "<td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td><td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td><td class=\"score\">&nbsp;</td>";
+            if( exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } ) {
+                my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
+                foreach my $decision (sort keys %$codes) {
+                    if( exists $athlete->{ decision }{ $round } && $athlete->{ decision }{ $round } eq $decision ) {
+                        $decided = 1;
+                        $place   = '&ndash;';
+                        push @score, sprintf( "<td class=\"score\">&ndash;</td><td class=\"score\">&ndash;</td><td class=\"score\">%s</td>", $codes->{ $decision } );
+                        last;
+                    }
+                }
+            } elsif( $recog->{ total } + $score->{ total } == 0 ) {
+                push @score, "<td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td><td class=\"score\">&nbsp;<br><span class=\"tecpre\">&nbsp;</span></td><td class=\"score\">&nbsp;</td>";
 
-			} else {
-				push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td><td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span>%s</td><td class=\"score\">%.3f</td>", $recog->{ total }, $recog->{ accuracy }, $recog->{ presentation }, $score->{ total }, $score->{ technical }, $score->{ presentation }, $adjustments, ($score->{ total } + $recog->{ total })/2 );
-			}
-			my $key = sprintf( "%.2f", $recog->{ total } + $score->{ total });
-			if( exists $ties->{ $key } && ! $decided ) {
-				$tb = $ties->{ $key }{ $j };
-				if( exists $tb->{ tb1 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb1 }</td>"; }
-				if( exists $tb->{ tb2 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb2 }</td>"; } else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
-				if( exists $tb->{ place }) { $place = $tb->{ place }; }
+            } else {
+                push @score, sprintf( "<td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span></td><td class=\"score\">%.2f<br><span class=\"tecpre\">%.2f/%.2f</span>%s</td><td class=\"score\">%.3f</td>", $recog->{ total }, $recog->{ accuracy }, $recog->{ presentation }, $score->{ total }, $score->{ technical }, $score->{ presentation }, $adjustments, ($score->{ total } + $recog->{ total })/2 );
+            }
+            my $key = sprintf( "%.2f", $recog->{ total } + $score->{ total });
+            if( exists $ties->{ $key } && ! $decided ) {
+                $tb = $ties->{ $key }{ $j };
+                if( exists $tb->{ tb1 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb1 }</td>"; }
+                if( exists $tb->{ tb2 }) { push @score, "<td class=\"tiebreaker\">$tb->{ tb2 }</td>"; } else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
+                if( exists $tb->{ place }) { $place = $tb->{ place }; }
 
-			} else {
-				if( exists $athlete->{ decision }{ $round } ) { push @score, '<td class="tiebreaker">&nbsp;<br><span>&nbsp;</span></td>'; }
-				else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
-				push @score, '<td class="tiebreaker">&nbsp;</td>';
-			}
+            } else {
+                if( exists $athlete->{ decision }{ $round } ) { push @score, '<td class="tiebreaker">&nbsp;<br><span>&nbsp;</span></td>'; }
+                else { push @score, '<td class="tiebreaker">&nbsp;</td>'; }
+                push @score, '<td class="tiebreaker">&nbsp;</td>';
+            }
 
-			if( $recog->{ total } + $score->{ total } == 0 && $place ne '&ndash;' ) { $place = '&nbsp;'; }
+            if( $recog->{ total } + $score->{ total } == 0 && $place ne '&ndash;' ) { $place = '&nbsp;'; }
 
-			print "<tr><td class=\"number\">$place</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
-			print @score;
-			print "</tr>\n";
-		}
-		print <<EOF;
-		</tbody>
-		</table>
-		</div>
+            print "<tr><td class=\"number\">$place</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
+            print @score;
+            print "</tr>\n";
+        }
+        print <<EOF;
+        </tbody>
+        </table>
+        </div>
 EOF
-	}
+    }
 }
 
 print <<EOF;
@@ -240,37 +240,37 @@ print <<EOF;
 </table>
 <div class="header"><img src="/images/branding/header.png" width="100%"></div>
 <div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
-	</body>
+    </body>
 </html>
 EOF
 
 # ============================================================
 sub ordinal {
 # ============================================================
-	my $n = shift;
-	my $d = $n % 10;
-	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
-	elsif( $d == 1 )           { return $n . 'st'; }
-	elsif( $d == 2 )           { return $n . 'nd'; }
-	elsif( $d == 3 )           { return $n . 'rd'; }
-	else                       { return $n . 'th'; }
+    my $n = shift;
+    my $d = $n % 10;
+    if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+    elsif( $d == 1 )           { return $n . 'st'; }
+    elsif( $d == 2 )           { return $n . 'nd'; }
+    elsif( $d == 3 )           { return $n . 'rd'; }
+    else                       { return $n . 'th'; }
 }
 
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = '';
-	my $config = {
-		redhat   => '/var/www/html/freescore/include/php/config.php',
-		ubuntu   => '/var/www/freescore/include/php/config.php',
-		raspbian => '/var/www/html/include/php/config.php',
-		optscore => '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
-	};
-	foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
-	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+    my $php = '';
+    my $config = {
+        redhat   => '/var/www/html/freescore/include/php/config.php',
+        ubuntu   => '/var/www/freescore/include/php/config.php',
+        raspbian => '/var/www/html/include/php/config.php',
+        optscore => '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+    };
+    foreach $os (keys %$config) { if( -e $config->{ $os } ) { $php = $config->{ $os }; last; } }
+    if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
-	my $json = new JSON::XS();
-	my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
-	my $config = $json->decode( $data );
-	return $config;
+    my $json = new JSON::XS();
+    my $data = `(cat $php; echo '<?php echo \$tournament ?>') | php`;
+    my $config = $json->decode( $data );
+    return $config;
 }

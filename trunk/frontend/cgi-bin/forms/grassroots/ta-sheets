@@ -16,25 +16,25 @@ my $divid      = $cgi->param( 'divid' );
 
 my @divisions  = ();
 try {
-	if( defined $ring ) {
-		if( defined $divid ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-		} else {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		}
-	} else {
-		# foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		# }
-		# if( defined $divid ) {
-		# 	@divisions = grep { $_->{ name } eq $divid } @divisions;
-		# }
-	}
+    if( defined $ring ) {
+        if( defined $divid ) {
+            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+            push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+        } else {
+            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        }
+    } else {
+        # foreach my $ring ( @{$tournament->{ rings }} ) {
+            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        # }
+        # if( defined $divid ) {
+        # 	@divisions = grep { $_->{ name } eq $divid } @divisions;
+        # }
+    }
 } catch {
-	die $_;
+    die $_;
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -46,9 +46,9 @@ $branding_css = -e $branding_css ? read_file( $branding_css ) : '';
 
 print <<EOF;
 <html>
-	<head>
-		<title>Grass Roots Poomsae TA Sheets</title>
-		<style type="text/css">
+    <head>
+        <title>Grass Roots Poomsae TA Sheets</title>
+        <style type="text/css">
             body { font-family: Optima; margin: 0; }
             .division {
                 clear: both;
@@ -93,43 +93,43 @@ print <<EOF;
             .results tr:nth-child( even ) td { border-bottom: 1px solid #eee; }
 
             $branding_css
-		</style>
-	</head>
-	<body>
+        </style>
+    </head>
+    <body>
 <table>
 <thead><tr><td><div class="header-space"> </div></td></tr></thead>
 <tbody><tr><td>
 EOF
 foreach my $division (@divisions) {
-	my $name   = uc $division->{ name };
-	my $judges = $division->{ judges } || 3;
-	my $placed = {};
-	my $i = 0;
-	my $form   = $division->{ athletes }[ 0 ]{ info }{ video }{ form };
-	print <<EOF;
-		<div class="results">
-		<h1 class="title">TA Sheet</h1>
-			<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>Finals Round</b></div></div>
-			<table border=0 cellpadding=0 cellspacing=0><thead>
-				<tr>
-					<th class="number">#</th>
-					<th class="noc">NOC</th>
-					<th class="athlete">Name</th>
-					<th class="form">$form</th>
-					<th class="decisions">Decisions</th>
-				</tr></thead><tbody>
+    my $name   = uc $division->{ name };
+    my $judges = $division->{ judges } || 3;
+    my $placed = {};
+    my $i = 0;
+    my $form   = $division->{ athletes }[ 0 ]{ info }{ video }{ form };
+    print <<EOF;
+        <div class="results">
+        <h1 class="title">TA Sheet</h1>
+            <div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>Finals Round</b></div></div>
+            <table border=0 cellpadding=0 cellspacing=0><thead>
+                <tr>
+                    <th class="number">#</th>
+                    <th class="noc">NOC</th>
+                    <th class="athlete">Name</th>
+                    <th class="form">$form</th>
+                    <th class="decisions">Decisions</th>
+                </tr></thead><tbody>
 EOF
-	my $n = $#{$division->{ athletes }};
-	foreach my $i (0 .. $n) {
-		my $athlete = $division->{ athletes }[ $i ];
-		my $noc     = uc $athlete->{ info }{ noc };
-		$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
-		print "\t\t\t\t<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$noc</td><td class=\"name\">$athlete->{ name }</td><td class=\"form\"></td><td class=\"decisions\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
-	}
-	print <<EOF;
-		</tbody>
-		</table>
-		</div>
+    my $n = $#{$division->{ athletes }};
+    foreach my $i (0 .. $n) {
+        my $athlete = $division->{ athletes }[ $i ];
+        my $noc     = uc $athlete->{ info }{ noc };
+        $noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+        print "\t\t\t\t<tr><td class=\"number\">" . ($i + 1) . "</td><td class=\"noc\">$noc</td><td class=\"name\">$athlete->{ name }</td><td class=\"form\"></td><td class=\"decisions\">$athlete->{ info }{ video }{ decision }</td></tr>\n";
+    }
+    print <<EOF;
+        </tbody>
+        </table>
+        </div>
 EOF
 }
 
@@ -139,40 +139,40 @@ print <<EOF;
 </table>
 <div class="header"><img src="/images/branding/header.png" width="100%"></div>
 <div class="footer"><img src="/images/branding/footer.png" width="100%"></div>
-	</body>
+    </body>
 </html>
 EOF
 
 # ============================================================
 sub ordinal {
 # ============================================================
-	my $n = shift;
-	my $d = $n % 10;
-	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
-	elsif( $d == 1 )           { return $n . 'st'; }
-	elsif( $d == 2 )           { return $n . 'nd'; }
-	elsif( $d == 3 )           { return $n . 'rd'; }
-	else                       { return $n . 'th'; }
+    my $n = shift;
+    my $d = $n % 10;
+    if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+    elsif( $d == 1 )           { return $n . 'st'; }
+    elsif( $d == 2 )           { return $n . 'nd'; }
+    elsif( $d == 3 )           { return $n . 'rd'; }
+    else                       { return $n . 'th'; }
 }
 
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = '';
-	my $config = [
-		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
-		'/var/www/html/freescore/include/php/config.php',
-		'/var/www/html/include/php/config.php',
-		'/var/www/freescore/include/php/config.php',
-		'/var/www/include/php/config.php',
-	];
-	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
-	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+    my $php = '';
+    my $config = [
+        '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+        '/var/www/html/freescore/include/php/config.php',
+        '/var/www/html/include/php/config.php',
+        '/var/www/freescore/include/php/config.php',
+        '/var/www/include/php/config.php',
+    ];
+    foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+    if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
-	my $json = new JSON::XS();
-	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
-	my $config = $json->decode( $data );
+    my $json = new JSON::XS();
+    my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+    my $config = $json->decode( $data );
 
-	return $config;
+    return $config;
 
 }
