@@ -200,7 +200,7 @@ sub calculate_scores {
 		my $done      = 0;
 		my $resolved  = 0;
 		my $decision  = _decision( $athlete );
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( timelimit bounds other restart ));
+		my $penalties = reduce { $athlete->{ info }{ penalty } } (qw( timelimit bounds other restart ));
 
 		# ===== CALCULATE SCORES
 		foreach my $j (0 .. $#{ $athlete->{ scores }}) {
@@ -493,10 +493,9 @@ sub record_penalty {
 	my $penalty  = shift;
 	my $i        = shift;
 	my $athletes = $self->{ athletes };
-	my $round    = $self->{ round };
 
 	return unless $i >= 0 && $i < @$athletes;
-	$athletes->[ $i ]{ penalty }{ $round } = $penalty;
+	$athletes->[ $i ]{ penalty } = $penalty;
 }
 
 # ============================================================

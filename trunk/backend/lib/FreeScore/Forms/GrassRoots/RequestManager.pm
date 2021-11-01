@@ -182,9 +182,9 @@ sub handle_division_award_penalty {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
-	my $round    = $division->{ round };
-	my $athlete  = $division->{ athletes }[ $request->{ athlete_id } ];
-	my $have     = $athlete->{ penalty }{ $round };
+	my $i        = $division->{ current };
+	my $athlete  = $division->{ athletes }[ $i ];
+	my $have     = $athlete->{ info }{ penalty };
 	my $add      = clone( $request->{ penalty });
 
 	if( keys %$add ) {
