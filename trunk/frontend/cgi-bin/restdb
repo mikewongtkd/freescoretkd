@@ -158,7 +158,7 @@ sub parse_athletes {
 	my $athletes = [];
 	foreach ( sql( $db, $sql )) {
 		chomp;
-		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|/;
+		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|;
 		push @$athletes, {
 			id => $id, fname => $fname, lname => $lname, gender => $gender, age => $age,
 			belt => $belt, weight => $weight
@@ -178,7 +178,7 @@ sub parse_divisions {
 		my (
 				$id, $event, $gender, $age, $rank, $weight, $vector, $exhibition, $rounds,
 				$time, $rest, $contact, $note, $staged, $started, $finished, $replaced_by
-		) = split /\|/;
+		) = split /\|;
 
 		foreach my $time ( \$staged, \$started, \$finished ) {
 			next unless $$time;
