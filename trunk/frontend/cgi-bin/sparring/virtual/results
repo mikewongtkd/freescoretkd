@@ -123,7 +123,7 @@ foreach my $division (@divisions) {
 EOF
     foreach my $i ( 0 .. ($judges - 1)) { print $i == 0 ? "<th class=\"score\">R</th>" : "<th class=\"score\">J$i</th>"; }
     print <<EOF;
-                <th class="">Pres.</th>
+                <th class="score">Pres.</th>
                 <th class="score">Total</th>
             </tr></thead><tbody>
 EOF
@@ -138,7 +138,7 @@ EOF
         $rank = $decision eq 'disqualify' || $decision eq 'withdraw' ? '-' : $rank;
         print "<tr><td class=\"number\">$rank</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
         my $technical = sprintf( "%.2f", $athlete->{ original }{ finals }{ technical }{ score });
-        print $technical == 0 ? '<td>-</td>' : "<td>$technical</td>";
+        print $technical == 0 ? "<td class=\"score\">-</td>" : "<td class=\"score\">$technical</td>";
         my $presentation = $athlete->{ adjusted }{ finals }{ presentation };
         foreach my $i ( 0 .. $division->{ judges } - 1) {
             my $score  = $athlete->{ scores }{ finals }[ $i ];
