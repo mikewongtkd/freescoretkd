@@ -491,8 +491,8 @@ sub record_penalty {
 #*
 	my $self     = shift;
 	my $penalty  = shift;
-	my $i        = shift;
-	my $athletes = $self->{ athletes };
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
 
 	return unless $i >= 0 && $i < @$athletes;
 	$athletes->[ $i ]{ penalty } = $penalty;
