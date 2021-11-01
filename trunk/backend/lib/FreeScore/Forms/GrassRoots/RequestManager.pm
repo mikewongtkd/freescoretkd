@@ -39,6 +39,7 @@ sub init {
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
 		display            => \&handle_division_display,
+		award_penalty      => \&handle_division_award_penalty,
 		disqualify         => \&handle_division_disqualify,
 		withdraw           => \&handle_division_withdraw,
 		navigate           => \&handle_division_navigate,
@@ -167,6 +168,38 @@ sub handle_division_display {
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_award_penalty {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	my $round    = $division->{ round };
+	my $athlete  = $division->{ athletes }[ $request->{ athlete_id } ];
+	my $have     = $athlete->{ penalty }{ $round };
+	my $add      = clone( $request->{ penalty });
+
+	if( keys %$add ) {
+		print STDERR "Award penalty: " . join( ' ', sort keys %$add ) . " to $athlete->{ name }.\n" if $DEBUG;
+	} else {
+		print STDERR "Clear penalties for $athlete->{ name }.\n" if $DEBUG;
+	}
+
+	try {
+		$division->record_penalty( $request->{ penalty }, $request->{ athlete_id });
+		$division->write();
+
+		$self->broadcast_division_response( $request, $progress, $clients );
+	} catch {
+		$client->send( { json => { error => "$_" }});
 	}
 }
 

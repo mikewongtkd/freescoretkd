@@ -28,7 +28,7 @@ sub read {
 		if( /^#/ ) {
 			s/^#\s+//;
 			my ($key, $value) = split /=/, $_, 2;
-			if    ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; } 
+			if    ( $key eq 'placements' ) { $self->{ $key } = [ split( /,/, $value ) ]; }
 			elsif ( $key eq 'brackets'   ) { $self->{ $key } = $json->decode( $value ); }
 			elsif ( $key eq 'videos'     ) { $self->{ $key } = $json->decode( $value ); }
 			elsif ( $key eq 'tied'       ) {} # Do nothing; better to calculate this fresh
@@ -39,7 +39,7 @@ sub read {
 					push @$places, { place => $place, medals => $medals };
 				}
 				$self->{ $key } = $places;
- 
+
 			} else { $self->{ $key } = $value; }
 			next;
 		}
@@ -161,8 +161,8 @@ sub calculate_placements {
 
 	if( $self->{ complete } ) {
 		# Complete, unresolved
-		if( @$tied ) { 
-			$self->{ tied } = $tied;       
+		if( @$tied ) {
+			$self->{ tied } = $tied;
 			if( $self->{ round } eq 'fin' ) {
 				my $first = $tied->[ 0 ]{ tied }[ 0 ];
 				$self->{ current } = $first;
@@ -170,11 +170,11 @@ sub calculate_placements {
 			$self->{ round } = 'tb';
 
 		# Complete, resolved
-		} else { 
-			$self->{ placements } = $placements; 
+		} else {
+			$self->{ placements } = $placements;
 		}
 	} else {
-		$self->{ placements } = $placements; 
+		$self->{ placements } = $placements;
 		$self->{ pending }    = [ grep { ! $self->{ athletes }[ $_ ]{ complete } } ( 0 .. $#{ $self->{ athletes }}) ];
 		$self->{ complete }   = @{$self->{ pending }} == 0;
 	}
@@ -196,10 +196,11 @@ sub calculate_scores {
 	my $complete = 1;
 
 	foreach my $athlete (@{ $self->{ athletes }}) {
-		my $stats    = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
-		my $done     = 0;
-		my $resolved = 0;
-		my $decision = _decision( $athlete );
+		my $stats     = { min => 0, max => 0, sum => 0.0, tb => 0.0 };
+		my $done      = 0;
+		my $resolved  = 0;
+		my $decision  = _decision( $athlete );
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( timelimit bounds other restart ));
 
 		# ===== CALCULATE SCORES
 		foreach my $j (0 .. $#{ $athlete->{ scores }}) {
@@ -210,6 +211,10 @@ sub calculate_scores {
 			$done++ if(( 0.0 + $score ) > 0 );
 		}
 		$athlete->{ complete } = ($judges == $done) || ($decision eq 'DSQ' || $decision eq 'WDR' );
+
+		# ===== CALCULATE PENALTY DEDUCTIONS
+		my $penalty = 0.0;
+		$penalty += $penalties->{ $_ } foreach ( sort keys %{ $penalties });
 
 		# ===== CALCULATE TIEBREAKERS
 		foreach my $j ( 0 .. $#{ $athlete->{ tiebreakers }} ) {
@@ -222,11 +227,14 @@ sub calculate_scores {
 		# ===== IF THE SCORES ARE ALL THE SAME, THEN THE MIN WILL EQUAL MAX, SO DIFFERENTIATE THEM
 		$stats->{ max }++ if( $stats->{ min } == $stats->{ max });
 
-		if( $judges <= 3 ) { $athlete->{ score } = $stats->{ sum }; } 
-		else {
+		if( $judges <= 3 ) {
+			$athlete->{ score } = $stats->{ sum } - $penalty;
+			if( $athlete->{ score } < 0 ) { $athlete->{ score } = 0.0 }
+		} else {
 			$athlete->{ min }   = $stats->{ min };
 			$athlete->{ max }   = $stats->{ max };
-			$athlete->{ score } = $stats->{ sum } - ($athlete->{ scores }[ $stats->{ min }] + $athlete->{ scores }[ $stats->{ max }]);
+			$athlete->{ score } = $stats->{ sum } - ($athlete->{ scores }[ $stats->{ min }] + $athlete->{ scores }[ $stats->{ max }]) - $penalty;
+			if( $athlete->{ score } < 0 ) { $athlete->{ score } = 0.0 }
 		}
 		$complete &&= $athlete->{ complete };
 	}
@@ -476,6 +484,22 @@ sub record_score {
 }
 
 # ============================================================
+sub record_penalty {
+# ============================================================
+#** @method ()
+#   @brief Updates penalties
+#*
+	my $self     = shift;
+	my $penalty  = shift;
+	my $i        = shift;
+	my $athletes = $self->{ athletes };
+	my $round    = $self->{ round };
+
+	return unless $i >= 0 && $i < @$athletes;
+	$athletes->[ $i ]{ penalty }{ $round } = $penalty;
+}
+
+# ============================================================
 sub record_tiebreaker {
 # ============================================================
 	my $self   = shift;
@@ -488,7 +512,7 @@ sub record_tiebreaker {
 	if( (int( @{ $tie->{ tied }}) == 2) && ($score eq 'red' || $score eq 'blue')) {
 		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
 		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
-		if      ( $score eq 'blue' ) { 
+		if      ( $score eq 'blue' ) {
 			$blue->{ tiebreakers }[ $judge ] = 1;
 			$red->{ tiebreakers }[ $judge ]  = 0;
 
@@ -566,7 +590,7 @@ sub resolve_pool {
 	print STDERR Dumper $status; # MW
 	if( $status->{ have } >= $status->{ want }) {
 
-		if     ( $scored > $judges ) { 
+		if     ( $scored > $judges ) {
 			die "Data integrity error! There are more scores than judges for $athlete->{ name } $!";
 
 		# POOL PREVIOUSLY RESOLVED
@@ -779,7 +803,7 @@ sub _compare {
 	my $low   = { a => sprintf( "%.1f", $a->{ scores }[ $a->{ min } ]), b => sprintf( "%.1f", $b->{ scores }[ $b->{ min } ])};
 	my $hi    = ($score == 0 && $judges > 3) ? $high->{ b } <=> $high->{ a } : 0;
 	my $lo    = ($score == 0 && $judges > 3) ? $low->{ b }  <=> $low->{ a }  : 0;
-	my $tb    = (defined $a->{ tb } && defined $b->{ tb }) ? sprintf( "%.1f", $b->{ tb } ) <=> sprintf( "%.1f", $a->{ tb } ) : 0; 
+	my $tb    = (defined $a->{ tb } && defined $b->{ tb }) ? sprintf( "%.1f", $b->{ tb } ) <=> sprintf( "%.1f", $a->{ tb } ) : 0;
 
 	if( $hi > 0 ) { $b->{ notes } = 'H';  } elsif( $hi < 0 ) { $a->{ notes } = 'H';  }
 	if( $lo > 0 ) { $b->{ notes } = 'L';  } elsif( $lo < 0 ) { $a->{ notes } = 'L';  }
@@ -789,10 +813,10 @@ sub _compare {
 }
 
 # ============================================================
-sub _decision { 
+sub _decision {
 # ============================================================
-	my $athlete = shift; 
-	return exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } ? $athlete->{ info }{ decision } : ''; 
+	my $athlete = shift;
+	return exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision } ? $athlete->{ info }{ decision } : '';
 };
 
 # ============================================================
@@ -808,7 +832,7 @@ sub _format_tiebreaker {
 # ============================================================
 	my $tb = shift;
 	if((! defined $tb) || $tb eq '' || $tb eq '-' ) { return '-'; }
-	if( $tb == int( $tb )) { return int( $tb ); } 
+	if( $tb == int( $tb )) { return int( $tb ); }
 	else                   { return 0.0 + sprintf( "%.1f", $tb ); }
 }
 
