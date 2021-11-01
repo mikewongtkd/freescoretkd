@@ -25,24 +25,24 @@ my $results    = undef;
 
 print $cgi->header();
 try {
-	if( defined $ring ) {
-		if( defined $divid ) {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+    if( defined $ring ) {
+        if( defined $divid ) {
+            $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+            push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
-		} else {
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		}
-	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
-			next if $ring >= 4; # MW
-			$results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		}
-	}
+        } else {
+            $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        }
+    } else {
+        foreach my $ring ( @{$tournament->{ rings }} ) {
+            next if $ring >= 4; # MW
+            $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        }
+    }
 } catch {
-	die $_;
+    die $_;
 
 };
 
@@ -50,85 +50,85 @@ try {
 
 print <<EOF;
 <html>
-	<head>
-		<title>World Class Poomsae Points by NOC</title>
-		<style type="text/css">
-			body {
-				font-family: Optima;
-			}
-			.division {
-				clear: both;
-				margin-top: 28px;
-				width: 920px;
-				height: 20px;
-			}
-			.division .description {
-				float: left;
-			}
-			.division .round {
-				float: right;
-			}
-			.results {
-				page-break-inside: avoid;
-			}
-			.results table {
-				width: 410px;
-				margin-left: auto;
-				margin-right:auto;
-			}
-			.results th {
-				margin-top: 8px;
-				border-top: 1px solid #999;
-				border-bottom: 1px solid #999;
-				padding: 0 4px 0 4px;
-				text-align: left;
-			}
-			.results td       { padding: 2px 4px 2px 4px; }
-			.results .number  { width: 37px; text-align:center; }
-			.results .noc     { width: 63px; }
-			.results .athlete { width: 275px; }
-			.results .form, .results .score, .results .place { width: 88px; text-align: center; }
-			.results .preacc { font-size: 8pt; }
-			.results .tiebreaker { width: 40px; text-align: center; }
-			.results .notes  { font-size: 9pt; width: 40px; }
-			.results tr:nth-child( even ) { background: #fff; }
-			.results tr:nth-child( odd  ) { background: #eee; }
-			.results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
-			.results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
-		</style>
-	</head>
-	<body>
+    <head>
+        <title>World Class Poomsae Points by NOC</title>
+        <style type="text/css">
+            body {
+                font-family: Optima;
+            }
+            .division {
+                clear: both;
+                margin-top: 28px;
+                width: 920px;
+                height: 20px;
+            }
+            .division .description {
+                float: left;
+            }
+            .division .round {
+                float: right;
+            }
+            .results {
+                page-break-inside: avoid;
+            }
+            .results table {
+                width: 410px;
+                margin-left: auto;
+                margin-right:auto;
+            }
+            .results th {
+                margin-top: 8px;
+                border-top: 1px solid #999;
+                border-bottom: 1px solid #999;
+                padding: 0 4px 0 4px;
+                text-align: left;
+            }
+            .results td       { padding: 2px 4px 2px 4px; }
+            .results .number  { width: 37px; text-align:center; }
+            .results .noc     { width: 63px; }
+            .results .athlete { width: 275px; }
+            .results .form, .results .score, .results .place { width: 88px; text-align: center; }
+            .results .preacc { font-size: 8pt; }
+            .results .tiebreaker { width: 40px; text-align: center; }
+            .results .notes  { font-size: 9pt; width: 40px; }
+            .results tr:nth-child( even ) { background: #fff; }
+            .results tr:nth-child( odd  ) { background: #eee; }
+            .results tr:nth-child( even ) td { border-bottom: 1px solid #fff; }
+            .results tr:nth-child( odd  ) td { border-bottom: 1px solid #eee; }
+        </style>
+    </head>
+    <body>
 EOF
 
 
 my $nocpoints    = {};
 
 foreach my $division (@divisions) {
-	my $name   = uc $division->{ name };
-	my $round  = 'finals';
-	my ($num)  = $division->{ name } =~ /r(\d+)/;
+    my $name   = uc $division->{ name };
+    my $round  = 'finals';
+    my ($num)  = $division->{ name } =~ /r(\d+)/;
 
-	next unless exists $division->{ order }{ $round };
-	# next if $num > 100; #HACKY - SHOULD REALLY REMOVE THIS
-	if( $division->can( 'rank_athletes' )) {
-		$division->rank_athletes( $round );
-	} elsif( $division->can( 'calculate_placements' )) {
-		$division->calculate_placements( $round );
-	}
+    next unless exists $division->{ order }{ $round };
+    # next if $num > 100; #HACKY - SHOULD REALLY REMOVE THIS
+    if( $division->can( 'rank_athletes' )) {
+        $division->rank_athletes( $round );
+    } elsif( $division->can( 'calculate_placements' )) {
+        $division->calculate_placements( $round );
+    }
 
-	my @results = ();
-	foreach my $i (0 .. 3) {
-		next if $i > $#{$division->{ placement }{ $round }};
-		my $place    = $i + 1;
-		my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
-		my $athlete  = unbless( clone( $division->{ athletes }[ $j ]));
-		my $noc      = $athlete->{ info }{ noc };
-		my $points   = { 1 => 5, 2 => 3, 3 => 1 };
-		$place = 3 if $place == 4;
+    my @results = ();
+    foreach my $i (0 .. 3) {
+        next if $i > $#{$division->{ placement }{ $round }};
+        my $place    = $i + 1;
+        my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
+        my $athlete  = unbless( clone( $division->{ athletes }[ $j ]));
+        my $noc      = $athlete->{ info }{ noc };
+        my $points   = { 1 => 5, 2 => 3, 3 => 1 };
+        $place = 3 if $place == 4;
 
-		$nocpoints->{ $noc }{ $place }++;
-		$nocpoints->{ $noc }{ total } += $points->{ $place };
-	}
+        $nocpoints->{ $noc }{ $place }++;
+        $nocpoints->{ $noc }{ total } += $points->{ $place };
+    }
 }
 
 print <<EOF;
@@ -144,7 +144,7 @@ print <<EOF;
     </tr>
 EOF
 foreach my $noc (sort { $nocpoints->{ $b }{ total } <=> $nocpoints->{ $a }{ total } || $nocpoints->{ $b }{ 1 } <=> $nocpoints->{ $a }{ 1 } || $nocpoints->{ $b }{ 2 } <=> $nocpoints->{ a }{ 2 } || $nocpoints->{ $b }{ 3 } <=> $nocpoints->{ $a }{ 3 } || $a cmp $b } keys %$nocpoints) {
-	printf "<tr><td class=\"noc\">%-3s</td><td class=\"number\">%d</td><td class=\"number\">%d</td><td class=\"number\">%d</td><td class=\"number\">%d</td></tr>\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
+    printf "<tr><td class=\"noc\">%-3s</td><td class=\"number\">%d</td><td class=\"number\">%d</td><td class=\"number\">%d</td><td class=\"number\">%d</td></tr>\n", $noc, $nocpoints->{ $noc }{ 1 }, $nocpoints->{ $noc }{ 2 }, $nocpoints->{ $noc }{ 3 }, $nocpoints->{ $noc }{ total };
 }
 print <<EOF;
 </table>
@@ -156,32 +156,32 @@ EOF
 # ============================================================
 sub ordinal {
 # ============================================================
-	my $n = shift;
-	my $d = $n % 10;
-	if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
-	elsif( $d == 1 )           { return $n . 'st'; }
-	elsif( $d == 2 )           { return $n . 'nd'; }
-	elsif( $d == 3 )           { return $n . 'rd'; }
-	else                       { return $n . 'th'; }
+    my $n = shift;
+    my $d = $n % 10;
+    if( $n >= 11 && $n <= 13 ) { return $n . 'th'; }
+    elsif( $d == 1 )           { return $n . 'st'; }
+    elsif( $d == 2 )           { return $n . 'nd'; }
+    elsif( $d == 3 )           { return $n . 'rd'; }
+    else                       { return $n . 'th'; }
 }
 
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = '';
-	my $config = [
-		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
-		'/var/www/html/freescore/include/php/config.php',
-		'/var/www/html/include/php/config.php',
-		'/var/www/freescore/include/php/config.php',
-		'/var/www/include/php/config.php',
-	];
-	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
-	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+    my $php = '';
+    my $config = [
+        '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+        '/var/www/html/freescore/include/php/config.php',
+        '/var/www/html/include/php/config.php',
+        '/var/www/freescore/include/php/config.php',
+        '/var/www/include/php/config.php',
+    ];
+    foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+    if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
-	my $json = new JSON::XS();
-	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
-	my $config = $json->decode( $data );
+    my $json = new JSON::XS();
+    my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+    my $config = $json->decode( $data );
 
-	return $config;
+    return $config;
 }

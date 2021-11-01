@@ -21,25 +21,25 @@ my $json       = new JSON::XS();
 my @divisions  = ();
 
 try {
-	if( defined $ring ) {
-		if( defined $divid ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-		} else {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		}
-	} else {
-		foreach my $ring ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-			push @divisions, @{ $results->{ divisions }};
-		}
-		if( defined $divid ) {
-			@divisions = grep { $_->{ name } eq $divid } @divisions;
-		}
-	}
+    if( defined $ring ) {
+        if( defined $divid ) {
+            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+            push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+        } else {
+            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        }
+    } else {
+        foreach my $ring ( @{$tournament->{ rings }} ) {
+            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+            push @divisions, @{ $results->{ divisions }};
+        }
+        if( defined $divid ) {
+            @divisions = grep { $_->{ name } eq $divid } @divisions;
+        }
+    }
 } catch {
-	die $_;
+    die $_;
 };
 
 @divisions = sort { $a->{ name } cmp $b->{ name } } @divisions;
@@ -53,21 +53,20 @@ exit( 0 );
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = '';
-	my $config = [
-    '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
-		'/var/www/html/freescore/include/php/config.php',
-		'/var/www/html/include/php/config.php',
-		'/var/www/freescore/include/php/config.php',
-		'/var/www/include/php/config.php',
-	];
-	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
-	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+   my $php = '';
+    my $config = [
+        '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+        '/var/www/html/freescore/include/php/config.php',
+        '/var/www/html/include/php/config.php',
+        '/var/www/freescore/include/php/config.php',
+        '/var/www/include/php/config.php',
+    ];
+    foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+    if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
-	my $json = new JSON::XS();
-	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
-	my $config = $json->decode( $data );
+    my $json = new JSON::XS();
+    my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+    my $config = $json->decode( $data );
 
-	return $config;
-
+    return $config;
 }

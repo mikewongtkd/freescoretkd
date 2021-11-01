@@ -32,33 +32,33 @@ print "data: $update$eol$eol";
 # ===== MONITOR FOR CHANGES
 UPDATE: while( 1 ) {
 
-	$watcher->wait( sub {
-		$id     = time();
-		$update = update( $tournament, $ring );
+    $watcher->wait( sub {
+        $id     = time();
+        $update = update( $tournament, $ring );
 
-		print "id: $id$eol";
-		print "data: $update$eol$eol";
-	});
+        print "id: $id$eol";
+        print "data: $update$eol$eol";
+    });
 }
 
 # ============================================================
 sub update {
 # ============================================================
-	my $tournament = shift;
-	my $ring       = shift;
-	my $update     = undef;
-	my $data       = undef;
+    my $tournament = shift;
+    my $ring       = shift;
+    my $update     = undef;
+    my $data       = undef;
 
-	try {
-		$data = new FreeScore::Forms::GrassRoots( $tournament, $ring );
-		unbless( $data );
+    try {
+        $data = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+        unbless( $data );
 
-	} catch {
-		$data = { error => $_ };
-	};
+    } catch {
+        $data = { error => $_ };
+    };
 
-	my $update = $json->canonical->encode( $data );
-	$update =~ s/"(\d+(?:\.\d+)?)"/$1/g; # Convert strings of real numbers to real numbers
+    my $update = $json->canonical->encode( $data );
+    $update =~ s/"(\d+(?:\.\d+)?)"/$1/g; # Convert strings of real numbers to real numbers
 
-	return $update;
+    return $update;
 }

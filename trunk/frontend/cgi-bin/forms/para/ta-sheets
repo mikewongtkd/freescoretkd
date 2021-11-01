@@ -31,10 +31,8 @@ try {
             push @divisions, @{ $results->{ divisions }};
         }
     } else {
-        # foreach my $ring ( @{ $tournament->{ rings }} ) {
-            $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
-            push @divisions, @{ $results->{ divisions }};
-        # }
+        $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+        push @divisions, @{ $results->{ divisions }};
     }
 } catch {
     die $_;

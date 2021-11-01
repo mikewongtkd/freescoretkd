@@ -27,13 +27,8 @@ try {
             push @divisions, @{ $results->{ divisions }};
         }
     } else {
-        # foreach my $ring ( @{$tournament->{ rings }} ) {
-            $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
-            push @divisions, @{ $results->{ divisions }};
-        # }
-        # if( defined $divid ) {
-        # 	@divisions = grep { $_->{ name } eq $divid } @divisions;
-        # }
+        $results = new FreeScore::Forms::GrassRoots( $tournament->{ db }, $ring );
+        push @divisions, @{ $results->{ divisions }};
     }
 } catch {
     die $_;
@@ -135,7 +130,8 @@ EOF
         my $j       = $division->{ placements }[ $i ];
         my $athlete = $division->{ athletes }[ $j ];
         my $rank    = $i < 3 ? $i + 1 : 3;
-        $rank = $athlete->{ info }{ decision } eq 'DSQ' ? '-' : $rank;
+        my $decision = $athlete->{ info }{ decision };
+        $rank = $decision eq 'DSQ' || $decision eq 'WDR' ? '-' : $rank;
         my ($min, $max) = minmax( map { sprintf( "%.1f", $_ ) } @{ $athlete->{ scores }});
         my $found = { min => 0, max => 0 };
         my $noc   = uc $athlete->{ info }{ noc };
@@ -202,5 +198,4 @@ sub read_tournament_config {
     my $config = $json->decode( $data );
 
     return $config;
-
 }

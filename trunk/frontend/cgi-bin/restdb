@@ -7,7 +7,7 @@ srand();
 
 our $freescore_dir = "/Users/mikewong899/devel/freescore/backend/data";
 
-get '/:tournament/*object' => sub { 
+get '/:tournament/*object' => sub {
 	my $self = shift;
 	my ($type, $data) = retrieve( $self );
 	$self->render( $type => $data );
@@ -159,9 +159,9 @@ sub parse_athletes {
 	foreach ( sql( $db, $sql )) {
 		chomp;
 		my ($id, $fname, $lname, $gender, $belt, $age, $weight) = split /\|/;
-		push @$athletes, { 
-			id => $id, fname => $fname, lname => $lname, gender => $gender, age => $age, 
-			belt => $belt, weight => $weight 
+		push @$athletes, {
+			id => $id, fname => $fname, lname => $lname, gender => $gender, age => $age,
+			belt => $belt, weight => $weight
 		};
 	}
 	return $athletes;
@@ -176,7 +176,7 @@ sub parse_divisions {
 	foreach ( sql( $db, $sql )) {
 		chomp;
 		my (
-				$id, $event, $gender, $age, $rank, $weight, $vector, $exhibition, $rounds, 
+				$id, $event, $gender, $age, $rank, $weight, $vector, $exhibition, $rounds,
 				$time, $rest, $contact, $note, $staged, $started, $finished, $replaced_by
 		) = split /\|/;
 
@@ -185,12 +185,12 @@ sub parse_divisions {
 			$$time = $$time * 1000; # JavaScript Date() objects uses milliseconds, not seconds
 		}
 
-		push @$divisions, { 
-				id => $id, event => $event, gender => $gender, age => $age, rank => $rank, 
-				weight => $weight, vector => $vector, rounds => $rounds, 'time' => $time, 
-				rest => $rest, contact => $contact, exhibition => $exhibition, 
-				note => $note, staged => $staged, started => $started, 
-				finished => $finished, replacedBy => $replaced_by 
+		push @$divisions, {
+				id => $id, event => $event, gender => $gender, age => $age, rank => $rank,
+				weight => $weight, vector => $vector, rounds => $rounds, 'time' => $time,
+				rest => $rest, contact => $contact, exhibition => $exhibition,
+				note => $note, staged => $staged, started => $started,
+				finished => $finished, replacedBy => $replaced_by
 		};
 	}
 	return $divisions;

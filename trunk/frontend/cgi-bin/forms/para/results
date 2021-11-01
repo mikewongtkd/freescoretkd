@@ -34,10 +34,8 @@ try {
             push @divisions, @{ $results->{ divisions }};
         }
     } else {
-        # foreach my $ring ( @{$tournament->{ rings }} ) {
-            $results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
-            push @divisions, @{ $results->{ divisions }};
-        # }
+        $results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
+        push @divisions, @{ $results->{ divisions }};
     }
 } catch {
     die $_;
@@ -378,6 +376,15 @@ sub ordinal {
 }
 
 # ============================================================
+sub noc {
+# ============================================================
+    my $athlete = shift;
+    my $noc     = $athlete->{ info }{ noc };
+    $noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+    return uc $noc;
+}
+
+# ============================================================
 sub read_tournament_config {
 # ============================================================
     my $php = '';
@@ -396,15 +403,6 @@ sub read_tournament_config {
     my $config = $json->decode( $data );
 
     return $config;
-}
-
-# ============================================================
-sub noc {
-# ============================================================
-    my $athlete = shift;
-    my $noc     = $athlete->{ info }{ noc };
-    $noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
-    return uc $noc;
 }
 
 # ============================================================

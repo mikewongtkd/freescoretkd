@@ -25,235 +25,235 @@ my $json       = new JSON::XS();
 
 my $results    = undef;
 try {
-	if( $ringnum ) {
-		if( $divid ) { 
-			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
-			push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+    if( $ringnum ) {
+        if( $divid ) {
+            $results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
+            push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
 
-		} else {
-			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
-			push @divisions, @{ $results->{ divisions }};
-		}
-	} else {
-		foreach my $ringnum ( @{$tournament->{ rings }} ) {
-			$results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
-			if( $divid ) {
-				push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
-			} else {
-				push @divisions, @{ $results->{ divisions }};
-			}
-		}
-	}
+        } else {
+            $results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
+            push @divisions, @{ $results->{ divisions }};
+        }
+    } else {
+        foreach my $ringnum ( @{$tournament->{ rings }} ) {
+            $results = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
+            if( $divid ) {
+                push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
+            } else {
+                push @divisions, @{ $results->{ divisions }};
+            }
+        }
+    }
 } catch {
-	die $_;
-	
+    die $_;
+
 };
 
 @divisions = sort { (exists $a->{ matchdiv } && exists $b->{ matchdiv }) ? $a->{ matchdiv } cmp $b->{ matchdiv } : 0 || $a->{ name } cmp $b->{ name } } @divisions;
 $results->{ divisions } = [ @divisions ];
 
-if( $cgi->request_method() eq 'GET' ) { 
-	print $cgi->header( 'application/json' );
-	my $response = unbless( clone( $results ));
-	print $json->canonical->encode( $response );
-	exit( 0 );
+if( $cgi->request_method() eq 'GET' ) {
+    print $cgi->header( 'application/json' );
+    my $response = unbless( clone( $results ));
+    print $json->canonical->encode( $response );
+    exit( 0 );
 
 } elsif( $cgi->request_method() eq 'POST' ) {
-	check_authorization();
+    check_authorization();
 
-	my $division = get_division();
-	my $key      = get_key();
-	my $action   = $cgi->param( 'action' );
-	my $data     = $cgi->param( 'data' );
+    my $division = get_division();
+    my $key      = get_key();
+    my $action   = $cgi->param( 'action' );
+    my $data     = $cgi->param( 'data' );
 
-	my $handle   = {
-		approve_decision => \&handle_approve_decision,
-		rescore          => \&handle_rescore,
-	};
+    my $handle   = {
+        approve_decision => \&handle_approve_decision,
+        rescore          => \&handle_rescore,
+    };
 
-	try {
-		$action =~ s/\W/_/g;
-		unless( exists $handle->{ $action }) { $cgi->cgi_error( '400 Bad request' ); print $cgi->header( -status => $cgi->cgi_error ); exit( 0 ); }
-		my $response = $handle->{ $action }( $division, $key, $data );
-		print STDERR "ACTION COMPLETE\n";
-		$cgi->header( 'application/json' );
-		print $json->canonical->encode( $response );
-		print STDERR "RESPONSE: " . $json->canonical->encode( $response ) . "\n";
-		exit( 0 );
+    try {
+        $action =~ s/\W/_/g;
+        unless( exists $handle->{ $action }) { $cgi->cgi_error( '400 Bad request' ); print $cgi->header( -status => $cgi->cgi_error ); exit( 0 ); }
+        my $response = $handle->{ $action }( $division, $key, $data );
+        print STDERR "ACTION COMPLETE\n";
+        $cgi->header( 'application/json' );
+        print $json->canonical->encode( $response );
+        print STDERR "RESPONSE: " . $json->canonical->encode( $response ) . "\n";
+        exit( 0 );
 
-	} catch {
-		print STDERR "ERROR: $_\n";
-		fail( 500 );
-	};
+    } catch {
+        print STDERR "ERROR: $_\n";
+        fail( 500 );
+    };
 }
 
 # ============================================================
 sub check_authorization {
 # ============================================================
-	my $sessid   = lc $cgi->param( 'authtoken' );
-	my $session  = new PHP::Session( $sessid, { save_path => '/usr/local/freescore/sessions' });
-	my $auth     = $session->get( 'is_auth' );
-	my $role     = $session->get( 'role' );
+    my $sessid   = lc $cgi->param( 'authtoken' );
+    my $session  = new PHP::Session( $sessid, { save_path => '/usr/local/freescore/sessions' });
+    my $auth     = $session->get( 'is_auth' );
+    my $role     = $session->get( 'role' );
 
-	fail( 403 ) if( ! $auth || $role ne 'admin' );
+    fail( 403 ) if( ! $auth || $role ne 'admin' );
 }
 
 # ============================================================
 sub fail {
 # ============================================================
-	my $code   = shift;
-	my $errors = {
-		400 => 'Bad Request',
-		401 => 'Unauthorized',
-		403 => 'Forbidden',
-		404 => 'Not Found',
-		405 => 'Method Not Allowed',
-		408 => 'Request Timeout',
-		409 => 'Conflict',
-		500 => 'Internal Server Error'
-	};
-	unless( exists $errors->{ $code }) {
-		$cgi->cgi_error( '500 Internal Server Error' ); 
-		print $cgi->header( -status => $cgi->cgi_error ); 
-		exit( 0 );
-	}
+    my $code   = shift;
+    my $errors = {
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        403 => 'Forbidden',
+        404 => 'Not Found',
+        405 => 'Method Not Allowed',
+        408 => 'Request Timeout',
+        409 => 'Conflict',
+        500 => 'Internal Server Error'
+    };
+    unless( exists $errors->{ $code }) {
+        $cgi->cgi_error( '500 Internal Server Error' );
+        print $cgi->header( -status => $cgi->cgi_error );
+        exit( 0 );
+    }
 
-	my $response = sprintf( "%d %s", $code, $errors->{ $code });
-	$cgi->cgi_error( $response ); 
-	print $cgi->header( -status => $cgi->cgi_error ); 
-	exit( 0 );
+    my $response = sprintf( "%d %s", $code, $errors->{ $code });
+    $cgi->cgi_error( $response );
+    print $cgi->header( -status => $cgi->cgi_error );
+    exit( 0 );
 }
 
 # ============================================================
 sub get_division {
 # ============================================================
-	fail( 400 ) if( ! $ringnum || ! $divid );
-	my $ring     = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
-	my $division = first { $_->{ name } eq $divid } @{ $ring->{ divisions }};
-	fail( 404 ) if( ! $division );
+    fail( 400 ) if( ! $ringnum || ! $divid );
+    my $ring     = new FreeScore::Forms::FreeStyle( $tournament->{ db }, $ringnum );
+    my $division = first { $_->{ name } eq $divid } @{ $ring->{ divisions }};
+    fail( 404 ) if( ! $division );
 
-	return $division;
+    return $division;
 }
 
 # ============================================================
 sub get_key {
 # ============================================================
-	my $athid    = $cgi->param( 'athlete' );
-	my $rid      = $cgi->param( 'round' );
+    my $athid    = $cgi->param( 'athlete' );
+    my $rid      = $cgi->param( 'round' );
 
-	my $athlete  = $division->{ athletes }[ $athid ];
-	my $score    = $athlete->{ scores }{ $rid };
+    my $athlete  = $division->{ athletes }[ $athid ];
+    my $score    = $athlete->{ scores }{ $rid };
 
-	return { athlete => $athid, round => $rid };
+    return { athlete => $athid, round => $rid };
 }
 
 # ============================================================
 sub handle_approve_decision {
 # ============================================================
-	my $division = shift;
-	my $key      = shift;
-	my $decision = shift;
-	my $version  = new FreeScore::RCS();
+    my $division = shift;
+    my $key      = shift;
+    my $decision = shift;
+    my $version  = new FreeScore::RCS();
 
-	fail( 404 ) if( $key->{ athlete } < 0 || $key->{ athlete } > $#{$division->{ athletes }});
+    fail( 404 ) if( $key->{ athlete } < 0 || $key->{ athlete } > $#{$division->{ athletes }});
 
-	my $athlete  = $division->{ athletes }[ $key->{ athlete }];
-	my $video    = $athlete->{ info }{ video };
+    my $athlete  = $division->{ athletes }[ $key->{ athlete }];
+    my $video    = $athlete->{ info }{ video };
 
-	fail( 500 ) unless $video;
-	fail( 404 ) unless exists $video->{ $key->{ round }};
+    fail( 500 ) unless $video;
+    fail( 404 ) unless exists $video->{ $key->{ round }};
 
-	my $forms = $video->{ $key->{ round }};
-	fail( 500 ) if( ref( $forms ) !~ /array/i );
-	fail( 404 ) if( $key->{ form } < 0 | $key->{ form } > $#$forms );
-	my $form  = $forms->[ $key->{ form }];
-	if( $decision eq 'clear' ) { delete $form->{ decision }; } else { $form->{ decision } = $decision; }
+    my $forms = $video->{ $key->{ round }};
+    fail( 500 ) if( ref( $forms ) !~ /array/i );
+    fail( 404 ) if( $key->{ form } < 0 | $key->{ form } > $#$forms );
+    my $form  = $forms->[ $key->{ form }];
+    if( $decision eq 'clear' ) { delete $form->{ decision }; } else { $form->{ decision } = $decision; }
 
-	$athlete->{ info }{ video } = $video;
+    $athlete->{ info }{ video } = $video;
 
-	my $message = sprintf( "Admin approving decision of %s for %s in %s round, %s form\n", $decision, $athlete->{ name }, $key->{ round }, $key->{ form } == 0 ? '1st' : '2nd' );
+    my $message = sprintf( "Admin approving decision of %s for %s in %s round, %s form\n", $decision, $athlete->{ name }, $key->{ round }, $key->{ form } == 0 ? '1st' : '2nd' );
 
-	$version->checkout( $division );
-	$division->write();
-	$version->commit( $division, $message );
+    $version->checkout( $division );
+    $division->write();
+    $version->commit( $division, $message );
 
-	$athlete = unbless( clone( $athlete ));
-	print $cgi->header( 'application/json' );
-	print $json->canonical->encode( $athlete );
-	exit( 0 );
+    $athlete = unbless( clone( $athlete ));
+    print $cgi->header( 'application/json' );
+    print $json->canonical->encode( $athlete );
+    exit( 0 );
 }
 
 # ============================================================
 sub handle_rescore {
 # ============================================================
-	my $division = shift;
-	my $key      = shift;
-	my $rescore  = $json->decode( shift );
-	my $version  = new FreeScore::RCS();
+    my $division = shift;
+    my $key      = shift;
+    my $rescore  = $json->decode( shift );
+    my $version  = new FreeScore::RCS();
 
-	fail( 404 ) if( $key->{ athlete } < 0 || $key->{ athlete } > $#{$division->{ athletes }});
+    fail( 404 ) if( $key->{ athlete } < 0 || $key->{ athlete } > $#{$division->{ athletes }});
 
-	my $athlete  = $division->{ athletes }[ $key->{ athlete }];
+    my $athlete  = $division->{ athletes }[ $key->{ athlete }];
 
-	fail( 404 ) unless( exists $athlete->{ scores }{ $key->{ round }});
-	fail( 404 ) unless( exists $athlete->{ pool }{ $key->{ round }});
+    fail( 404 ) unless( exists $athlete->{ scores }{ $key->{ round }});
+    fail( 404 ) unless( exists $athlete->{ pool }{ $key->{ round }});
 
-	my $score = $athlete->{ scores }{ $key->{ round }};
-	my $pool  = $athlete->{ pool }{ $key->{ round }};
+    my $score = $athlete->{ scores }{ $key->{ round }};
+    my $pool  = $athlete->{ pool }{ $key->{ round }};
 
-	# Assign rescore
-	foreach my $jid (keys %$rescore) { 
-		$pool->{ $jid } = $rescore->{ $jid }; 
-	}
+    # Assign rescore
+    foreach my $jid (keys %$rescore) {
+        $pool->{ $jid } = $rescore->{ $jid };
+    }
 
-	foreach $ps (values %$pool) {
-		next unless exists $ps->{ as } && looks_like_number( $ps->{ as });
-		my $seat   = $ps->{ as };
-		my $tech   = $ps->{ technical };
-		my $pres   = {%{$ps->{ presentation }}}; $pres->{ choreograpy } = $pres->{ music }; delete $pres->{ music };
-		my $ded    = $ps->{ deductions };
-		my $values = { technical => { mft1 => $tech->{ jump }{ side }, mft2 => $tech->{ jump }{ front }, mft3 => $tech->{ jump }{ spin }, mft4 => $tech->{ consecutive }, mft5 => $tech->{ acrobatic }, basic => $tech->{ basic }}, presentation => { %$pres }, deductions => { %$ded }};
-		$score->[ $seat ] = $values;
-	}
+    foreach $ps (values %$pool) {
+        next unless exists $ps->{ as } && looks_like_number( $ps->{ as });
+        my $seat   = $ps->{ as };
+        my $tech   = $ps->{ technical };
+        my $pres   = {%{$ps->{ presentation }}}; $pres->{ choreograpy } = $pres->{ music }; delete $pres->{ music };
+        my $ded    = $ps->{ deductions };
+        my $values = { technical => { mft1 => $tech->{ jump }{ side }, mft2 => $tech->{ jump }{ front }, mft3 => $tech->{ jump }{ spin }, mft4 => $tech->{ consecutive }, mft5 => $tech->{ acrobatic }, basic => $tech->{ basic }}, presentation => { %$pres }, deductions => { %$ded }};
+        $score->[ $seat ] = $values;
+    }
 
-	my $message = sprintf( "Admin editing score for %s, %s round\n", $athlete->{ name }, $key->{ round });
+    my $message = sprintf( "Admin editing score for %s, %s round\n", $athlete->{ name }, $key->{ round });
 
-	$version->checkout( $division );
-	$division->write();
-	$version->commit( $division, $message );
+    $version->checkout( $division );
+    $division->write();
+    $version->commit( $division, $message );
 
-	$athlete = unbless( clone( $athlete ));
-	print $cgi->header( 'application/json' );
-	print $json->canonical->encode( $athlete );
-	exit( 0 );
+    $athlete = unbless( clone( $athlete ));
+    print $cgi->header( 'application/json' );
+    print $json->canonical->encode( $athlete );
+    exit( 0 );
 }
 
 # ============================================================
 sub read_tournament_config {
 # ============================================================
-	my $php = '';
-	my $config = [
-		'/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
-		'/var/www/html/freescore/include/php/config.php',
-		'/var/www/html/include/php/config.php',
-		'/var/www/freescore/include/php/config.php',
-		'/var/www/include/php/config.php',
-	];
-	foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
-	if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
+    my $php = '';
+    my $config = [
+        '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.php',
+        '/var/www/html/freescore/include/php/config.php',
+        '/var/www/html/include/php/config.php',
+        '/var/www/freescore/include/php/config.php',
+        '/var/www/include/php/config.php',
+    ];
+    foreach my $file (@$config) { next unless -e $file; $php = $file; last; }
+    if( ! $php ) { die "Can't find configuration file 'config.php' $!"; }
 
-	my $json = new JSON::XS();
-	my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
-	my $config = $json->decode( $data );
+    my $json = new JSON::XS();
+    my $data = `echo \$(cat $php; echo '<?php echo( \$tournament ); ?>') | php`;
+    my $config = $json->decode( $data );
 
-	return $config;
+    return $config;
 }
 
 # ============================================================
 sub noc {
 # ============================================================
-	my $athlete = shift;
-	my $noc     = $athlete->{ info }{ noc };
-	$noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
-	return uc $noc;
+    my $athlete = shift;
+    my $noc     = $athlete->{ info }{ noc };
+    $noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+    return uc $noc;
 }
