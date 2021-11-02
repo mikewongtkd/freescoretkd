@@ -228,12 +228,12 @@ sub calculate_scores {
 		$stats->{ max }++ if( $stats->{ min } == $stats->{ max });
 
 		if( $judges <= 3 ) {
-			$athlete->{ score } = $stats->{ sum } - $penalty;
+			$athlete->{ score } = $stats->{ sum } - ( $penalty * $judges );
 			if( $athlete->{ score } < 0 ) { $athlete->{ score } = 0.0 }
 		} else {
 			$athlete->{ min }   = $stats->{ min };
 			$athlete->{ max }   = $stats->{ max };
-			$athlete->{ score } = $stats->{ sum } - ($athlete->{ scores }[ $stats->{ min }] + $athlete->{ scores }[ $stats->{ max }]) - $penalty;
+			$athlete->{ score } = $stats->{ sum } - ($athlete->{ scores }[ $stats->{ min }] + $athlete->{ scores }[ $stats->{ max }]) - ( $penalty * ( $judges - 2 ));
 			if( $athlete->{ score } < 0 ) { $athlete->{ score } = 0.0 }
 		}
 		$complete &&= $athlete->{ complete };
