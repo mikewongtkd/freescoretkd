@@ -194,7 +194,7 @@ sub handle_division_award_penalty {
 	}
 
 	try {
-		$division->record_penalty( $request->{ penalty }, $request->{ athlete_id });
+		$division->record_penalty( $request->{ penalty }, $request->{ athletes }[ $i ]);
 		$division->write();
 
 		$self->broadcast_division_response( $request, $progress, $clients );

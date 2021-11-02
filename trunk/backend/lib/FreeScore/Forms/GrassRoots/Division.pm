@@ -495,7 +495,7 @@ sub record_penalty {
 	my $athlete = $self->{ athletes }[ $i ];
 
 	return unless $i >= 0 && $i < @$athletes;
-	$athletes->[ $i ]{ penalty } = $penalty;
+	$athletes->[ $i ]{ info }{ penalty } = $penalty;
 }
 
 # ============================================================
