@@ -130,7 +130,7 @@ foreach my $division (@divisions) {
 EOF
     foreach my $i ( 0 .. ($judges - 1)) { print $i == 0 ? "<th class=\"score\">R</th>" : "<th class=\"score\">J$i</th>"; }
     print <<EOF;
-                <th class="score">Total</th>
+                <th class="score">Average</th>
             </tr></thead><tbody>
 EOF
     my $n = $#{$division->{ athletes }};
