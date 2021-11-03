@@ -865,14 +865,6 @@ sub write {
 				printf $fh "\tdecision\t$athlete->{ decision }{ $round }\n";
 			}
 
-			# WRITE PENALTIES
-			if( exists $athlete->{ penalty }{ $round } && ref( $athlete->{ penalty }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ penalty }{ $round }}) > 0 ) {
-				foreach my $p ( sort keys %{ $athlete->{ penalty }{ $round }}) {
-					my $penalty = clone( $athlete->{ penalty }{ $round });
-					printf $fh "\tpenalty\t%s\t%s\n", $p, $json->canonical->encode( $penalty );
-				}
-			}
-
 			# WRITE EACH SCORE
 			if( exists $athlete->{ scores }{ $round } && ref( $athlete->{ scores }{ $round }) =~ /^array/i && @{ $athlete->{ scores }{ $round }}) {
 				foreach my $i ( 0 .. $#{$athlete->{ scores }{ $round }}) {
