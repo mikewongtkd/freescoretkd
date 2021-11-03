@@ -713,11 +713,6 @@ sub write {
 				printf $fh "\tdecision\t$athlete->{ decision }{ $round }\n";
 			}
 
-			# WRITE PENALTIES
-			if( exists $athlete->{ penalty } && exists $athlete->{ penalty }{ $round }) {
-				printf $fh "\tpenalty\t$athlete->{ penalty }{ $round }\n";
-			}
-
 			# WRITE EACH SCORE
 			if( exists $athlete->{ scores }{ $round } && ref( $athlete->{ scores }{ $round }) =~ /^array/i && @{ $athlete->{ scores }{ $round }}) {
 				foreach my $i ( 0 .. $#{$athlete->{ scores }{ $round }}) {
