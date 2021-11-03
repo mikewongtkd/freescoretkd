@@ -813,7 +813,7 @@ sub read {
 				my $r      = $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 				$r->record_score( $form, $judge, $score );
 
-			# Penalties for out-of-bounds (0.3 per error), other (0.6 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
+			# Penalties for out-of-bounds (0.3 per error), other (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
 			} elsif ( $judge =~ /^p/ ) {
 
 				my @criteria  = (@FreeScore::Forms::WorldClass::Division::Round::PENALTIES, @FreeScore::Forms::WorldClass::Division::Round::GAMJEOMS, @FreeScore::Forms::WorldClass::Division::Round::TIME);
