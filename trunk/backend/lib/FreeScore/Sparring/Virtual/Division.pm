@@ -216,6 +216,11 @@ sub read {
 			my ($blank, $rowtype, $decision) = split /\t/, $_, 3;
 			$athletes->{ $context }{ decision }{ $round } = $decision;
 		}
+		# ===== ATHLETE PENALTY
+		} elsif( /^\tpenalty\t/ ) {
+			my ($blank, $rowtype, $penalty) = split /\t/, $_, 3;
+			$athletes->{ $context }{ penalty }{ $round } = $penalty;
+		}
 	}
 	close $fh;
 
