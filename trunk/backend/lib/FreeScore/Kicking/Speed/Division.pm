@@ -271,6 +271,7 @@ sub calculate_scores {
 		my $j         = $order->[ $i ];
 		my $athlete   = $self->{ athletes }[ $j ];
 		my $original  = $athlete->{ original }{ $round } = {};
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( timelimit bounds other restart ));
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 		my $scores    = undef;
 
@@ -279,6 +280,10 @@ sub calculate_scores {
 		$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
 		$scores = $athlete->{ scores }{ $round };
 		foreach my $j ( 0 .. $self->{ judges } - 1 ) { $scores[ $j ] = {} unless $scores[ $j ]; }
+
+		# ===== CALCULATE PENALTY DEDUCTIONS
+		my $penalty = 0.0;
+		$penalty += $penalties->{ $_ } foreach ( sort keys %{ $penalties });
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
 		my $all_scores_received = @$scores == $self->{ judges } && all { defined $_ } @$scores;

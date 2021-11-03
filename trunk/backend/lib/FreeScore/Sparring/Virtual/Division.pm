@@ -367,6 +367,7 @@ sub calculate_scores {
 		my $athlete   = $self->{ athletes }[ $j ];
 		my $original  = $athlete->{ original }{ $round } = {};
 		my $adjusted  = $athlete->{ adjusted }{ $round } = {};
+		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( timelimit bounds other restart ));
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 		my $scores    = undef;
 
@@ -375,6 +376,10 @@ sub calculate_scores {
 		$athlete->{ scores }{ $round } = [] unless exists $athlete->{ scores }{ $round };
 		$scores = $athlete->{ scores }{ $round };
 		foreach my $j ( 0 .. $self->{ judges } - 1 ) { $scores[ $j ] = {} unless $scores[ $j ]; }
+
+		# ===== CALCULATE PENALTY DEDUCTIONS
+		my $penalty = 0.0;
+		$penalty += $penalties->{ $_ } foreach ( sort keys %{ $penalties });
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
 		my $all_scores_received = @$scores == $self->{ judges } && all { defined $_ } @$scores;
@@ -390,7 +395,8 @@ sub calculate_scores {
 		$original->{ deductions }   = $ded;
 		$original->{ presentation } = $pres->{ original };
 		$adjusted->{ presentation } = $pres->{ adjusted };
-		$adjusted->{ total }        = $original->{ technical }{ score } + $adjusted->{ presentation }{ mean } - _real( $ded * 0.3 );
+		$adjusted->{ total }        = $original->{ technical }{ score } + $adjusted->{ presentation }{ mean } - _real( $ded * 0.3 ) - $penalty;
+		if( $adjusted->{ total } < 0 ) { $adjusted->{ total } = 0.0 }
 	}
 }
 
