@@ -158,7 +158,7 @@ EOF
 
             print "<td class=\"score\">$score</td>";
         }
-        my $score = $athlete->{ info }{ decision } eq 'DSQ' ? 'DSQ' : sprintf( "%.1f%s", ( $judges == 3 ? $athlete->{ score } / $judges : $athlete->{ score } / ( $judges - 2 )), $adjustments );
+        my $score = $athlete->{ info }{ decision } eq 'DSQ' ? 'DSQ' : sprintf( "%.2f%s", ( $judges == 3 ? $athlete->{ score } / $judges : $athlete->{ score } / ( $judges - 2 )), $adjustments );
         print "<td class=\"score\">$score</td>";
         print "</tr>\n";
     }
