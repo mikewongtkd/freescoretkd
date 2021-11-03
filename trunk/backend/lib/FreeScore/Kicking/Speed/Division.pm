@@ -709,8 +709,11 @@ sub write {
 			}
 
 			# WRITE PENALTIES
-			if( exists $athlete->{ penalty } && exists $athlete->{ penalty }{ $round }) {
-				printf $fh "\tpenalty\t$athlete->{ penalty }{ $round }\n";
+			if( exists $athlete->{ penalty }{ $round } && ref( $athlete->{ penalty }{ $round }) =~ /^hash/i && (keys %{ $athlete->{ penalty }{ $round }}) > 0 ) {
+				foreach my $p ( sort keys %{ $athlete->{ penalty }{ $round }}) {
+					my $penalty = clone( $athlete->{ penalty }{ $round });
+					printf $fh "\tpenalty\t%s\t%s\n", $p, $json->canonical->encode( $penalty );
+				}
 			}
 
 			# WRITE EACH SCORE
