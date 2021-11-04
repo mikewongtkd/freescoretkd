@@ -271,7 +271,7 @@ sub calculate_scores {
 		my $j         = $order->[ $i ];
 		my $athlete   = $self->{ athletes }[ $j ];
 		my $original  = $athlete->{ original }{ $round } = {};
-		my $penalties = reduce { $athlete->{ penalty }{ $round } } (qw( timelimit bounds other restart ));
+		my $penalties = reduce { $athlete->{ info }{ penalty }{ $round } } (qw( timelimit bounds other restart ));
 		my $decision  = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $athlete->{ decision }{ $round } : '';
 		my $scores    = undef;
 
@@ -611,7 +611,7 @@ sub record_penalty {
 	my $round    = $self->{ round };
 
 	return unless $i >= 0 && $i < @$athletes;
-	$athletes->[ $i ]{ penalty }{ $round } = $penalty;
+	$athletes->[ $i ]{ info }{ penalty }{ $round } = $penalty;
 }
 
 # ============================================================
