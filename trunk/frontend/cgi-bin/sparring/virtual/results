@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 use Try::Tiny;
 use CGI;
+use CGI::Carp qw( fatalsToBrowser );
 use File::Slurp qw( read_file );
 use List::Util qw( reduce sum0 );
 use List::MoreUtils qw( minmax );
@@ -18,6 +19,7 @@ my $results    = undef;
 my $tournament = read_tournament_config();
 my $ring       = $cgi->param( 'ring' );
 my $divid      = $cgi->param( 'divid' );
+my $json       = new JSON::XS();
 
 my @divisions  = ();
 try {

@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 use Try::Tiny;
 use CGI;
+use CGI::Carp qw( fatalsToBrowser );
 use File::Slurp qw( read_file );
 use List::MoreUtils qw( minmax );
 use JSON::XS;

@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 use Try::Tiny;
 use CGI;
+use CGI::Carp qw( fatalsToBrowser );
 use Time::HiRes qw( usleep );
 use Data::Structure::Util qw( unbless );
 use JSON::XS;
