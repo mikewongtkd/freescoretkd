@@ -282,7 +282,7 @@ sub calculate_scores {
 		foreach my $j ( 0 .. $self->{ judges } - 1 ) { $scores[ $j ] = {} unless $scores[ $j ]; }
 
 		# ===== CALCULATE PENALTY DEDUCTIONS
-		my $penalty = 0.0;
+		my $penalty = 0;
 		$penalty += $penalties->{ $_ } foreach ( sort keys %{ $penalties });
 
 		# ===== A SCORE IS COMPLETE WHEN ALL JUDGES HAVE SENT THEIR SCORES OR A PUNITIVE DECISION IS GIVEN
@@ -291,7 +291,8 @@ sub calculate_scores {
 		if( $all_scores_received || $decided ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
 
 		# ===== CALCULATE CONSENSUS AND MEANS
-		my $tech = $self->judge_technical_consensus( $scores );
+		my $tech = $self->judge_technical_consensus( $scores ) - $penalty;
+		if( $tech < 0 ) { $tech = 0; }
 
 		$original->{ technical }    = $tech;
 	}
