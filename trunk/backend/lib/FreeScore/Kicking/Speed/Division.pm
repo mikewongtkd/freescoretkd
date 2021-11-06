@@ -291,10 +291,10 @@ sub calculate_scores {
 		if( $all_scores_received || $decided ) { $athlete->{ complete }{ $round } = 1; } else { delete $athlete->{ complete }{ $round }; next; }
 
 		# ===== CALCULATE CONSENSUS AND MEANS
-		my $tech = $self->judge_technical_consensus( $scores ) - $penalty;
-		if( $tech < 0 ) { $tech = 0; }
+		my $tech = $self->judge_technical_consensus( $scores );
 
-		$original->{ technical }    = $tech;
+		$original->{ technical }    = $tech - $penalty;
+		if( $original->{ technical } < 0 ) { $original->{ technical } = 0; }
 	}
 }
 
