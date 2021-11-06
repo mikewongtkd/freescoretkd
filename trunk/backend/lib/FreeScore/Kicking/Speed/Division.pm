@@ -293,8 +293,7 @@ sub calculate_scores {
 		# ===== CALCULATE CONSENSUS AND MEANS
 		my $tech = $self->judge_technical_consensus( $scores );
 
-		$original->{ technical }    = $tech - $penalty;
-		if( $original->{ technical } < 0 ) { $original->{ technical } = 0; }
+		$original->{ technical }    = $tech;
 	}
 }
 
