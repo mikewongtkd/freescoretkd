@@ -3,6 +3,7 @@ use Try::Tiny;
 use CGI;
 use JSON::XS;
 use Data::Dumper;
+use File::Slurp qw( read_file );
 
 use lib qw( /usr/local/freescore/lib );
 use FreeScore::Kicking::Speed;

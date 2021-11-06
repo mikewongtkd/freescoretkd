@@ -2,8 +2,11 @@
 use Try::Tiny;
 use CGI;
 use File::Slurp qw( read_file );
-use List::Util qw( reduce );
+use List::Util qw( reduce sum0 );
 use List::MoreUtils qw( minmax );
+use Clone qw( clone );
+use File::Slurp qw( read_file );
+use Data::Structure::Util qw( unbless );
 use JSON::XS;
 use Data::Dumper;
 
@@ -45,6 +48,7 @@ print <<EOF;
 <html>
     <head>
         <title>Virtual Sparring Results</title>
+        <link rel="stylesheet" href="/fonts/fontawesome/css/all.min.css"></link>
         <style type="text/css">
             body { font-family: Optima; margin: 0; }
             .division {
@@ -99,6 +103,8 @@ print <<EOF;
 EOF
 foreach my $division (@divisions) {
     my $name   = uc $division->{ name };
+    my $copy = unbless( clone ( $division ) );
+    print "<script>var division = " . $json->canonical->encode( $copy ) . ";</script>\n";
     my $judges = $division->{ judges } || 3;
     my $placed = {};
     my $i = 0;
@@ -135,6 +141,10 @@ EOF
         my $rank     = $i < 3 ? $i + 1 : 3;
         my $noc      = uc $athlete->{ info }{ noc };
         $noc = $noc =~ /\// ? (split /\//, $noc)[ -1 ] : $noc;
+        my $penalties   = sum0 values %{$athlete->{ penalty }{ finals }};
+        my $fontawesome = { bounds => 'fas fa-sign-out-alt', other => 'fas fa-exclamation-triangle', timelimit => 'fas fa-clock', restart => 'fas fa-redo', misconduct => 'fas fa-comment-slash' };
+        my $icons       = join( ' ', map { sprintf( "<span class=\"%s\"></span>&nbsp;-%.1f<br>", $fontawesome->{ $_ }, $athlete->{ penalty }{ finals }{ $_ } ) } sort grep { $athlete->{ penalty }{ finals }{ $_ } > 0 } keys %{ $athlete->{ penalty }{ finals }} );
+        my $adjustments = $penalties > 0 ? sprintf( '<br><span class="penalties">%s</span>', $icons ) : '';
         $rank = $decision eq 'disqualify' || $decision eq 'withdraw' ? '-' : $rank;
         print "<tr><td class=\"number\">$rank</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
         my $technical = sprintf( "%.2f", $athlete->{ original }{ finals }{ technical }{ score });
@@ -152,7 +162,7 @@ EOF
         }
         my $pre = sprintf( "%.2f", $presentation->{ mean });
         print $pre == 0 ? "<td class=\"score\">-</td>" : "<td class=\"score\">$pre</td>";
-        my $score = $decision ? $decision : sprintf( "%.2f", $athlete->{ adjusted }{ finals }{ total } );
+        my $score = $decision ? $decision : sprintf( "%.2f%s", $athlete->{ adjusted }{ finals }{ total }, $adjustments );
         print $score == 0 ? "<td class=\"score\">-</td>" : "<td class=\"score\">$score</td>";
         print "</tr>\n";
     }
