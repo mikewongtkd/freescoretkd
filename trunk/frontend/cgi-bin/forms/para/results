@@ -315,7 +315,7 @@ EOF
                                 push @scores, sprintf( "<td class=\"score\"><span class=\"freechoice\">%s</span><br>%.2f<br><span class=\"preacc\">%.2f/%.2f</span>%s%s%s</td>", $freechoice, $mean->{ total }, $mean->{ technical }, $mean->{ presentation }, $padjustments, $dadjustments, $badjustments );
                             }
                             $n++;
-                        } else { push @scores, "<td>&nbsp;</td>"; }
+                        } else { push @scores, "<td class=\"score\">&nbsp;</td>"; }
                     } else {
                         if( @$forms == 1 ) {
                             push @scores, "<td class=\"score\">&nbsp;<br><span class=\"preacc\">&nbsp;</span></td>";
