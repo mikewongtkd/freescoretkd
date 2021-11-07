@@ -151,14 +151,14 @@ EOF
         next unless $athlete->{ complete };
         print "<tr><td class=\"number\">$rank</td><td class=\"noc\">$noc</td><td class=\"athlete\">$athlete->{ name }</td>";
         foreach my $i ( 0 .. ($judges - 1)) {
-            my $score = sprintf( "%.1f", $athlete->{ scores }[ $i ] );
+            my $score = $decision ? '-' : sprintf( "%.1f", $athlete->{ scores }[ $i ] );
             $score = $score <= 0 ? '-' : $score;
             if( $score ne '-' && $score == $min && ! $found->{ min } && $judges > 3 ) { $found->{ min } = 1; $score = "<span class=\"ignore\">$score</span>"; }
             if( $score ne '-' && $score == $max && ! $found->{ max } && $judges > 3 ) { $found->{ max } = 1; $score = "<span class=\"ignore\">$score</span>"; }
 
             print "<td class=\"score\">$score</td>";
         }
-        my $score = $athlete->{ info }{ decision } eq 'DSQ' ? 'DSQ' : sprintf( "%.2f%s", ( $judges == 3 ? $athlete->{ score } / $judges : $athlete->{ score } / ( $judges - 2 )), $adjustments );
+        my $score = $decision eq 'DSQ' ? 'DSQ' : $decision eq 'WDR' ? 'WDR' : sprintf( "%.2f%s", ( $judges == 3 ? $athlete->{ score } / $judges : $athlete->{ score } / ( $judges - 2 )), $adjustments );
         print "<td class=\"score\">$score</td>";
         print "</tr>\n";
     }

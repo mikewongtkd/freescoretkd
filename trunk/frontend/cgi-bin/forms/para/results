@@ -306,6 +306,10 @@ EOF
                         if( $score->{ complete }) {
                             if( exists $score->{ decision } && defined $score->{ decision } && ( $score->{ decision }{ disqualify } || $score->{ decision }{ withdraw })) {
                                 my $codes = { disqualify => 'DSQ', withdraw => 'WDR' };
+                                if( @scores != 0 ) {
+                                    $#scores = -1;
+                                    push @scores, "<td class=\"score\">&ndash;<br><span class=\"preacc\">&nbsp;</span></td>";
+                                };
                                 foreach my $decision (keys %$codes) {
                                     next unless $score->{ decision }{ $decision };
                                     $punitive = $codes->{ $decision };
