@@ -26,7 +26,7 @@ foreach my $day (map { sprintf( "day-%d-complete", $_ )} ( 1 .. 6 )) {
 		my $results = new FreeScore::Forms::Para( $day, $ring );
 		push @$divisions, @{ $results->{ divisions }};
 	}
-	@$divisions = sort { $a->{ name } cmp $b->{ name } } grep { $_->{ name } !~ /^c00[12]$/ } @$divisions;
+	@$divisions = sort { $a->{ name } cmp $b->{ name } } @$divisions;
 	print_divisions( $divisions );
 }
 
