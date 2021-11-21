@@ -88,8 +88,8 @@ print <<EOF;
             .results td.decisions { width: 32px; text-align: center; color: red }
             .results td.form,.score,.place { width: 100px; text-align: center; }
             .results td.tiebreaker { width: 40px; text-align: center; }
-            .results td.tecpre    { font-size: 8pt; }
-            .results td.notes     { font-size: 9pt; }
+            .results .tecpre    { font-size: 8pt; }
+            .results .notes     { font-size: 9pt; }
             .results tr:nth-child( odd ) { background: #fff; }
             .results tr:nth-child( even ) { background: #eee; }
             .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }

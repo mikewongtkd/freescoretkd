@@ -89,8 +89,8 @@ print <<EOF;
             .results td.decisions { width: 32px; text-align: center; color: red }
             .results td.form,.score,.place { width: 100px; text-align: center; }
             .results td.tiebreaker { width: 40px; text-align: center; }
-            .results td.preacc    { font-size: 8pt; }
-            .results td.notes     { font-size: 9pt; }
+            .results .preacc      { font-size: 8pt; }
+            .results .notes,.freechoice { font-size: 9pt; }
             .results tr:nth-child( odd ) { background: #fff; }
             .results tr:nth-child( even ) { background: #eee; }
             .results tr:nth-child( odd ) td { border-bottom: 1px solid #fff; }
@@ -248,6 +248,7 @@ EOF
         my $matchnum = $division->{ name }; $matchnum =~ s/^m//i;
         my $name     = exists $division->{ matchdiv } ? sprintf( "%s (Match %s)", uc $division->{ matchdiv }, $matchnum) : uc $division->{ name };
         my $judges   = $division->{ judges } || 3;
+        my $flight   = $name =~ /([A-Za-z])$/ ? sprintf( " (Group %s)", uc( $1 )) : '';
         @rounds = reverse $division->rounds() unless @rounds;
         my $copy = unbless( clone( $division ));
         print "<script>var division = " .  $json->canonical->encode( $copy ) . ";</script>\n";
@@ -271,6 +272,7 @@ EOF
             foreach my $i (0 .. $n) {
                 my $j        = $division->{ placement }{ $round }[ $i ]; next unless defined( $j );
                 my $athlete  = $division->{ athletes }[ $j ];
+                my $freechoices = $athlete->{ info }{ freechoice } ? $json->decode( $athlete->{ info }{ freechoice }) : '';
                 my $sum      = 0.0;
                 my $n        = 0;
                 my $punitive = undef;
@@ -339,7 +341,7 @@ EOF
             }
             print <<EOF;
             <h1 class="title">Result Sheet</h1>
-            <div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }</div><div class="round"><b>$rname Round</b></div></div>
+            <div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description }$flight</div><div class="round"><b>$rname Round</b></div></div>
             <table border=0 cellpadding=0 cellspacing=0><thead>
                 <tr>
                     <th class="number">Rank</th>
