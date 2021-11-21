@@ -24,14 +24,14 @@ my $results    = undef;
 try {
     if( defined $ring ) {
         if( defined $divid ) {
-            $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+            $results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
             push @divisions, grep { $_->{ name } eq $divid } @{ $results->{ divisions }};
         } else {
-            $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+            $results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
             push @divisions, @{ $results->{ divisions }};
         }
     } else {
-        $results = new FreeScore::Forms::WorldClass( $tournament->{ db }, $ring );
+        $results = new FreeScore::Forms::Para( $tournament->{ db }, $ring );
         push @divisions, @{ $results->{ divisions }};
     }
 } catch {
