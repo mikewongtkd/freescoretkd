@@ -4,6 +4,7 @@ use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
 use Try::Tiny;
 use FreeScore;
+use FreeScore::Config;
 use FreeScore::Sparring::Olympic;
 use FreeScore::Sparring::Olympic::RequestManager;
 use JSON::XS;
@@ -17,6 +18,7 @@ use EV;
 our $json   = new JSON::XS();
 our $client = {};
 our $judge  = {};
+our $host   = FreeScore::Config::host();
 our $DEBUG  = 0;
 
 # ------------------------------------------------------------
@@ -77,7 +79,7 @@ websocket '/sparring/:tournament/:ring' => sub {
 # ============================================================
 get '/status' => sub {
 	my $self = shift;
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 	$self->render( text => 'OK' );
 };
 
@@ -87,7 +89,7 @@ get '/status' => sub {
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 	$self->render( json => { error => "FreeScore Olympic Sparring Service Error: Unknown command: $command" });
 };
 

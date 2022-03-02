@@ -6,6 +6,7 @@ use Data::Structure::Util qw( unbless );
 use Mojolicious::Lite;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
+use FreeScore::Config;
 use FreeScore::Forms::GrassRoots::Division;
 use FreeScore::Forms::GrassRoots;
 use FreeScore::Forms::GrassRoots::RequestManager;
@@ -18,6 +19,7 @@ srand();
 
 our $json   = new JSON::XS();
 our $client = {};
+our $host   = FreeScore::Config::host();
 
 # ============================================================
 websocket '/grassroots/:tournament/:ring' => sub {
@@ -73,11 +75,11 @@ get '/:tournament/:ring/judges' => sub {
 	my $division   = $progress->current();
 
 	try {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { error => $_ });
 	}
 };
@@ -91,12 +93,13 @@ get '/:tournament/:ring/division/list' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $divisions  = unbless( clone( $progress->{ divisions }));
+
 	try {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'divisions' => $divisions } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -109,14 +112,15 @@ get '/:tournament/:ring/division/next' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+
 	try {
 		$progress->next();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'current' => $progress->current() } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -129,14 +133,15 @@ get '/:tournament/:ring/division/previous' => sub {
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
+
 	try {
 		$progress->previous();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'current' => $progress->current() } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -150,6 +155,7 @@ get '/:tournament/:ring/display' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
+
 	if    ( $division->is_score()   ) { $division->display(); }
 	elsif ( $division->is_display() ) { $division->score();   }
 	else                              { $division->display(); }
@@ -157,11 +163,11 @@ get '/:tournament/:ring/display' => sub {
 	try {
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'state' => $division->{ state } } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -175,15 +181,16 @@ get '/:tournament/:ring/athlete/next' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
+
 	try {
 		$division->next();
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -197,15 +204,16 @@ get '/:tournament/:ring/athlete/previous' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
+
 	try {
 		$division->previous();
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -221,18 +229,17 @@ get '/:tournament/:ring/:judge/:score' => sub {
 	my $score      = $self->param( 'score' ) / 10;
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
-
-	my $complete = $division->record_score( $judge, $score );
+	my $complete   = $division->record_score( $judge, $score );
 
 	try {
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
 		autopilot( $self, $progress, $division ) if $complete;
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -248,18 +255,17 @@ get '/:tournament/:ring/:judge/vote/:vote' => sub {
 	my $vote       = $self->param( 'vote' );
 	my $progress   = new FreeScore::Forms::GrassRoots( $tournament, $ring );
 	my $division   = $progress->current();
-
-	my $complete = $division->record_vote( $judge, $vote );
+	my $complete   = $division->record_vote( $judge, $vote );
 
 	try {
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { bracket => $division->current_bracket(), judge => ($judge + 1), vote => $vote } );
 		autopilot( $self, $progress, $division ) if $complete && ! $division->is_single_elimination();
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -283,12 +289,12 @@ get '/:tournament/:ring/:judge/tb/:score' => sub {
 	try {
 		$division->write();
 		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
 		autopilot( $self, $progress, $division ) if $complete;
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -311,7 +317,7 @@ post '/:tournament/:ring/:divid' => sub {
 
 	try {
 		if( $division->exists() && ! exists $data->{ overwrite } ) {
-			$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+			$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 			$self->render( json => { division => $divid, status => 'exists' } );
 			return;
 		}
@@ -332,11 +338,11 @@ post '/:tournament/:ring/:divid' => sub {
 		}
 		$division->{ athletes } = $athletes;
 		$division->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { division => $divid, status => 'saved' } );
 
 	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 		$self->render( json => { 'error' => $_ } );
 	}
 };
@@ -346,7 +352,7 @@ post '/:tournament/:ring/:divid' => sub {
 # ============================================================
 get '/status' => sub {
 	my $self = shift;
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 	$self->render( text => 'OK' );
 };
 
@@ -355,7 +361,7 @@ get '/status' => sub {
 # ============================================================
 any '*' => sub {
 	my $self = shift;
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
 	$self->render( json => { error => 'FreeScore Grassroots: Unknown command' } );
 };
 

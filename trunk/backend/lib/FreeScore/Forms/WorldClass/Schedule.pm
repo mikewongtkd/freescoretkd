@@ -248,7 +248,7 @@ sub build {
 	foreach my $i (0 .. $#{$self->{ days }}) {
 		my $day       = $self->{ days }[ $i ];
 		my $j         = $i + 1;
-		my $start     = _parse_utc( $UTC, $day->{ start });
+		my $start     = _parse_utc( $day->{ start }); 
 		my $d         = $start->printf( '%b %d, %Y' ); # Month day, year; eg. Apr 09, 2020
 		my $rings     = $day->{ rings };
 		my @blocks    = @{ $day->{ blocks }};
