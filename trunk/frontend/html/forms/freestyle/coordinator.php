@@ -377,7 +377,8 @@
 				},
 				ring: function( ring ) {
 					$( '#ring' ).empty();
-					ring.divisions.forEach(( d ) => {
+					console.log( 'DIVISIONS', ring.divisions );
+					ring.divisions.forEach( d => {
 						var division    = new Division( d );
 						var button      = html.a.clone().addClass( "list-group-item" );
 						var title       = html.h4.clone().html( division.summary() );
@@ -391,10 +392,11 @@
 							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
 							var divid    = clicked.attr( 'divid' );
 							var division = ring.divisions.find(( d ) => { return d.name == divid; });
+							division = new Division( division );
 
 							$.cookie( 'divid', divid, { expires: 1, path: '/' });
-							refresh.athletes( new Division( division ), division.name == ring.current );
-							refresh.judges( division, curDiv );
+							refresh.athletes( division , division.name() == ring.current );
+							refresh.judges( division );
 							sound.next.play();
 							page.transition();
 						});
