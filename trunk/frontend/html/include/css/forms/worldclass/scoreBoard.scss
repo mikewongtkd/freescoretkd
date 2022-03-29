@@ -98,8 +98,8 @@
 			margin: 0;
 			height: 120px;
 			width: 694px;
-			font-size: 72pt;
-			line-height: 72pt;
+			font-size: 64pt;
+			line-height: 64pt;
 			text-align: center;
 			overflow: hidden;
 		}
@@ -141,24 +141,24 @@
 
 			.accuracy     { 
 				position: absolute; 
-				top: 16px;
+				top: 32px;
 				left: 16px;
 				width: 248px;
 				height: 80px;
 				color: #600; 
-				font-size: 96pt;
-				line-height: 96pt;
+				font-size: 80pt;
+				line-height: 80pt;
 				color: #f99;
 			}
 			.presentation { 
 				position: absolute; 
-				top: 16px;
+				top: 32px;
 				left: 438px;
 				width: 248px;
 				height: 80px;
 				color: #006; 
-				font-size: 96pt;
-				line-height: 96pt;
+				font-size: 80pt;
+				line-height: 80pt;
 				color: #99f;
 			}
 			.total {
@@ -168,7 +168,7 @@
 				width: 700px;
 				height: 290px;
 				color: lime;
-				font-size: 300pt;
+				font-size: 240pt;
 			}
 		}
 
@@ -202,10 +202,10 @@
 				}
 				.score {
 					color: yellow;
-					font-size: 48pt;
-					line-height: 48pt;
+					font-size: 36pt;
+					line-height: 36pt;
 					position: absolute;
-					top: 6px;
+					top: 18px;
 					left: 0;
 					width: 200px;
 					height: 60px;

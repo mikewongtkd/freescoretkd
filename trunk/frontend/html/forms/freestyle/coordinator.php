@@ -227,6 +227,7 @@
 							var rows     = [ 'tec', 'pre', 'sum' ];
 							console.log( scores, adjusted );
 							for( var k = 0; k < n; k++ ) {
+								if( ! scores ) { continue; }
 								var score  = scores[ k ];
 								var points = {
 									tec : Object.values( score.technical ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
@@ -238,9 +239,9 @@
 								if( k == max.technical    || k == min.technical    ) { $( `#j${k}-tec` ).addClass( 'ignore' ); }
 							}
 							var points = {
-								tec: adjusted.technical.toFixed( 2 ),
-								pre: adjusted.presentation.toFixed( 2 ),
-								sum: adjusted.total.toFixed( 2 ),
+								tec: adjusted.technical ? adjusted.technical.toFixed( 2 ) : '',
+								pre: adjusted.presentation ? adjusted.presentation.toFixed( 2 ) : '',
+								sum: adjusted.total ? adjusted.total.toFixed( 2 ) : '',
 							};
 							rows.forEach(( key ) => { $( `#score-${key}` ).text( points[ key ] ); });
 							// Report range here. // MW
