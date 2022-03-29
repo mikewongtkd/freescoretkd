@@ -76,7 +76,7 @@ print <<EOF;
 				text-align: left;
 			}
 			.results .number    { width: 32px; }
-			.results .usat      { width: 80px; }
+			.results .usat      { width: 80px; font-size: 9pt; }
 			.results .athlete   { width: 408px; }
 			.results .form      { width: 100px; text-align: center; }
 
@@ -115,7 +115,7 @@ foreach my $division (@divisions) {
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
 				<th class="number">#</th>
-				<th class="usat">USAT ID</th>
+				<th class="usat">USAT ID/CID</th>
 				<th class="athlete">Name</th>
 EOF
 		print "<th class=\"form\">Score</th>";
@@ -129,7 +129,7 @@ EOF
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"usat\">$athlete->{ usat }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"usat\">$athlete->{ info }{ usatid }<br>$athlete->{ info }{ cid }</td><td class=\"athlete\">$athlete->{ name }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
 			if( exists $score->{ decision } ) {
 				my $codes = { disqualify => 'DQ', withdraw => 'WD' };
