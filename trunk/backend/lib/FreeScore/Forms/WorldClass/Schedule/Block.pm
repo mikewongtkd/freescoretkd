@@ -1,6 +1,6 @@
 package FreeScore::Forms::WorldClass::Schedule::Block;
 
-use List::Util qw( uniq );
+use List::MoreUtils qw( uniq );
 use Date::Manip;
 use FreeScore::Forms::WorldClass::Schedule;
 
