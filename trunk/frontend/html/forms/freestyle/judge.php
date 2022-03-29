@@ -31,6 +31,7 @@
 		<div class="container">
 			<div class="menu">
 				<ul id="tabs" class="nav nav-pills nav-stacked" role="tablist">
+					<li style="padding: 14px;"><?= $judge == 0 ? "Referee" : "Judge {$judge}" ?></li>
 					<li class="active" ><a href="#mft1"         id="mft1-tab"         role="tab" data-toggle="tab" >Jumping Side Kick</a><li>
 					<li                ><a href="#mft2"         id="mft2-tab"         role="tab" data-toggle="tab" >Jumping Front Kicks</a><li>
 					<li                ><a href="#mft3"         id="mft3-tab"         role="tab" data-toggle="tab" >Jumping Spin Kick</a><li>
