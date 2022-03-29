@@ -228,15 +228,19 @@
 							console.log( scores, adjusted );
 							for( var k = 0; k < n; k++ ) {
 								if( ! scores ) { continue; }
-								var score  = scores[ k ];
-								var points = {
-									tec : Object.values( score.technical ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
-									pre : Object.values( score.presentation ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
-								};
+								let score  = scores[ k ];
+								let points = { display : score => {
+									if( score === null || score === undefined ) { return '-'; }
+									return Object.values( score ).reduce(( a, b ) => parseFloat( a ) + parseFloat( b ), 0.0 ).toFixed( 2 );
+								}};
+								points.tec = points.display( score ? score.technical : {} );
+								points.pre = points.display( score ? score.presentation : {} );
 								points.sum = (parseFloat( points.tec ) + parseFloat( points.pre )).toFixed( 2 );
 								rows.forEach(( key ) => { $( `#j${k}-${key}` ).text( points[ key ] ).removeClass( 'ignore' ); });
-								if( k == max.presentation || k == min.presentation ) { $( `#j${k}-pre` ).addClass( 'ignore' ); }
-								if( k == max.technical    || k == min.technical    ) { $( `#j${k}-tec` ).addClass( 'ignore' ); }
+								if( max && min ) {
+									if( k == max.presentation || k == min.presentation ) { $( `#j${k}-pre` ).addClass( 'ignore' ); }
+									if( k == max.technical    || k == min.technical    ) { $( `#j${k}-tec` ).addClass( 'ignore' ); }
+								}
 							}
 							var points = {
 								tec: adjusted.technical ? adjusted.technical.toFixed( 2 ) : '',
