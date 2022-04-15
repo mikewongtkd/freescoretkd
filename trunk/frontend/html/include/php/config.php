@@ -52,7 +52,7 @@
 	}
 
 	$config     = read_config();
-	$host       = $config[ 'host' ];
+	$host       = $config[ 'host' ] . (isset( $config[ 'port' ]) ? ":{$config[ 'port' ]}" : '');
 	$tournament = read_rings( $config[ 'tournament' ]);
 
 ?>

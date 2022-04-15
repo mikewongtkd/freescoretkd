@@ -1,7 +1,5 @@
 #! /usr/bin/sh
 
-chmod a+w /freescore/trunk/backend/data
-
 # ============================================================
 # Devel Tools
 # ============================================================
@@ -31,3 +29,5 @@ cpanm install \
 	Statistics::Descriptive \
 	Time::Piece \
 	Try::Tiny
+
+a2enmod proxy proxy_http proxy_wstunnel
