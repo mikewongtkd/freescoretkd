@@ -5,11 +5,21 @@
 		return intval( $n );
 	};
 
-	$host       = "freescore.net";
-	$tournament = [ 
-		"name" => "FreeScore",
-		"db"   => "test", 
-	];
+	function read_config() {
+		$paths = [ '/var/www/html/include/php', '/var/www/include/php' ];
+		foreach( $paths as $path ) {
+			$file = "{$path}/config.json";
+			if( ! file_exists( $file )) { continue; }
+			$text = file_get_contents( $file );
+			$data = json_decode( $text, true );
+			return $data;
+		}
+		return null;
+	}
+
+	$config     = read_config();
+	$host       = $config[ 'host' ];
+	$tournament = $config[ 'tournament' ];
 	$rings = [];
 	$rings[ 'grassroots' ] = preg_grep( '/ring|staging/', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-grassroots' ));
 	$rings[ 'worldclass' ] = preg_grep( '/ring|staging/', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-worldclass' ));

@@ -4,6 +4,7 @@ use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
 use Try::Tiny;
 use FreeScore;
+use FreeScore::Config;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::RequestManager;
 use JSON::XS;
@@ -17,6 +18,7 @@ use EV;
 our $json   = new JSON::XS();
 our $client = {};
 our $judge  = {};
+our $config = new FreeScore::Config();
 our $DEBUG  = 0;
 
 # ------------------------------------------------------------
@@ -122,7 +124,8 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 # ============================================================
 get '/status' => sub {
 	my $self = shift;
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	my $host = $config->host();
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => "http://$host" );
 	$self->render( text => 'OK' );
 };
 
@@ -131,8 +134,9 @@ get '/status' => sub {
 # ============================================================
 any '*command' => sub {
 	my $self = shift;
+	my $host = $config->host();
 	my $command = $self->param( 'command' );
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://freescore.net' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://$host' );
 	$self->render( json => { error => "FreeScore Worldclass Service Error: Unknown command: $command" });
 };
 
