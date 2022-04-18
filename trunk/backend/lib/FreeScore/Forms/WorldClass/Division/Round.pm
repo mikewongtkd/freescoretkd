@@ -16,6 +16,9 @@ use Carp;
 # - complete
 # - forms
 #   - [ form index ]
+#     - judge
+#       - [ judge index ]
+#         - Score Object
 #     - adjusted
 #       - accuracy
 #       - presentation
@@ -30,9 +33,6 @@ use Carp;
 #       - total
 #     - penalties
 #     - started
-#   - judge
-#     - [ judge index ]
-#       - Score Object
 # - started
 # - tiebreakers
 #   (same substructure as forms)
