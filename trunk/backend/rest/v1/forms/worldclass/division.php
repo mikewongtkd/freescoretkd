@@ -16,10 +16,98 @@ class Division {
 		}
 	}
 
+	// ============================================================
 	private function calculate_placements() {
+	// ============================================================
+		$division  = &$this->data;
+		$placement = [];
+		foreach( Division::ROUNDS as $rid ) {
+			if( ! array_key_exists( $rid, $division[ 'order' ])) { continue; }
+			$round_placements = array_filter( $division[ 'order' ][ $rid ], function( $aid ) use ( $division, $rid ) { return $division[ 'athletes' ][ $aid ][ 'scores' ][ $rid ][ 'complete' ]; });
+			usort( $round_placements, function( $a, $b ) use ( $division, $rid ) {
+				$scorea = $division[ 'athletes' ][ $a ][ 'scores' ][ $rid ];
+				$scoreb = $division[ 'athletes' ][ $b ][ 'scores' ][ $rid ];
+				$namea  = $division[ 'athletes' ][ $a ][ 'name' ];
+				$nameb  = $division[ 'athletes' ][ $b ][ 'name' ];
+
+				$deca = isset( $scorea[ 'decision' ]);
+				$decb = isset( $scoreb[ 'decision' ]);
+
+				$adjtot = $scoreb[ 'adjusted' ][ 'total' ]        <=> $scorea[ 'adjusted' ][ 'total' ];
+				$adjpre = $scoreb[ 'adjusted' ][ 'presentation' ] <=> $scorea[ 'adjusted' ][ 'presentation' ];
+				$oritot = $scoreb[ 'original' ][ 'total' ]        <=> $scorea[ 'original' ][ 'total' ];
+				$cmp    = $adjtot == 0 ? ($adjpre == 0 ? ($oritot == 0 ? 0 : $oritot) : $adjpre) : $adjtot;
+
+				if( ! $deca && ! $decb ) { return	$cmp; } else 
+				if(   $deca && ! $decb ) { return  1;   } else 
+				if( ! $deca &&   $decb ) { return -1;   } else 
+				if(   $deca &&   $decb ) {
+					$dsqa = isset( $scorea[ 'decision' ][ 'disqualify' ]);
+					$dsqb = isset( $scoreb[ 'decision' ][ 'disqualify' ]);
+					$wdra = isset( $scorea[ 'decision' ][ 'withdraw' ]);
+					$wdrb = isset( $scoreb[ 'decision' ][ 'withdraw' ]);
+					$name = strcmp( $namea, $nameb );
+
+					if( $dsqa && $dsqb ) { return $name; } else
+					if( $wdra && $dsqb ) { return -1;    } else
+					if( $dsqa && $wdrb ) { return  1;    } else
+					if( $wdra && $wdrb ) { return $name; }
+				}
+			});
+
+			$placement[ $rid ] = $round_placements;
+		}
+		$division[ 'placement' ] = $placement;
+
+		$results = [];
+		foreach( Division::ROUNDS as $rid ) {
+			if( ! array_key_exists( $rid, $placement )) { continue; }
+			$results[ $rid ] = [];
+			$round_placements = $placement[ $rid ];
+			$n = count( $round_placements ) - 1;
+
+			foreach( range( 0, $n ) as $place ) {
+				$aid   = $round_placements[ $place ];
+				$score = $division[ 'athletes' ][ $aid ][ 'scores' ][ $rid ];
+
+				$dsq = isset( $score[ 'decision' ]) && isset( $score[ 'decision' ][ 'disqualify' ]);
+				$wdr = isset( $score[ 'decision' ]) && isset( $score[ 'decision' ][ 'withdraw' ]);
+
+				if( $dsq ) { $results[ $rid ][ $place ] = [ 'aid' => $aid, 'total' => 'DSQ' ]; } else
+				if( $wdr ) { $results[ $rid ][ $place ] = [ 'aid' => $aid, 'total' => 'WDR' ]; } else
+						       { $results[ $rid ][ $place ] = [ 'aid' => $aid, 'total' => $score[ 'adjusted' ][ 'total' ]]; }
+			}
+
+			if( $n <= 1 ) { continue; }
+			foreach( range( 0, $n - 1 ) as $place ) {
+				$next   = $place + 1;
+				$aida   = $round_placements[ $place ];
+				$aidb   = $round_placements[ $next ];
+				$scorea = $division[ 'athletes' ][ $aida ][ 'scores' ][ $rid ];
+				$scoreb = $division[ 'athletes' ][ $aidb ][ 'scores' ][ $rid ];
+
+				$dec    = isset( $scorea[ 'decision' ]);
+
+				$tied   = floatval( sprintf( "%.3f", $scoreb[ 'adjusted' ][ 'total' ]        - $scorea[ 'adjusted' ][ 'total' ])) == 0;
+				$tb1    = floatval( sprintf( "%.3f", $scoreb[ 'adjusted' ][ 'presentation' ] - $scorea[ 'adjusted' ][ 'presentation' ])) == 0;
+
+				if( $tied && ! $dec ) {
+					$results[ $rid ][ $place ][ 'tb1' ] = $scorea[ 'adjusted' ][ 'presentation' ];
+					$results[ $rid ][ $next  ][ 'tb1' ] = $scoreb[ 'adjusted' ][ 'presentation' ];
+
+					if( $tb1 ) {
+						$results[ $rid ][ $place ][ 'tb2' ] = $scorea[ 'original' ][ 'total' ];
+						$results[ $rid ][ $next  ][ 'tb2' ] = $scoreb[ 'original' ][ 'total' ];
+					}
+				}
+			}
+		}
+		$division[ 'results' ] = $results;
 	}
 
+	// ============================================================
 	private function calculate_scores() {
+	// ============================================================
 
 		$division = &$this->data;
 		foreach( Division::ROUNDS as $rid ) {
@@ -50,16 +138,16 @@ class Division {
 					$form[ 'complete' ] = $form[ 'complete' ] || isset( $form[ 'decision' ]) ? 1 : 0;
 
 					if( ! $form[ 'complete' ]) { continue; }
-					$n = count( $form[ 'judge' ]);
+					$n = $division[ 'judges' ];
 					$form[ 'original' ] = [];
-					$form[ 'original' ][ 'accuracy' ]     = floatval( sprintf( "%.2f", floatval( array_sum( array_map( function( $score ) { return $score[ 'acc' ]; }, $form[ 'judge' ])) / $n )));
-					$form[ 'original' ][ 'presentation' ] = floatval( sprintf( "%.2f", floatval( array_sum( array_map( function( $score ) { return $score[ 'pre' ]; }, $form[ 'judge' ])) / $n )));
+					$form[ 'original' ][ 'accuracy' ]     = floatval( sprintf( "%.2f", floatval( array_sum( array_map( function( $s ) { return $s[ 'acc' ]; }, $form[ 'judge' ])) / $n )));
+					$form[ 'original' ][ 'presentation' ] = floatval( sprintf( "%.2f", floatval( array_sum( array_map( function( $s ) { return $s[ 'pre' ]; }, $form[ 'judge' ])) / $n )));
 					$form[ 'original' ][ 'total' ]        = floatval( sprintf( "%.2f", $form[ 'original' ][ 'accuracy' ] + $form[ 'original' ][ 'presentation' ]));
 
 					$maxmin = [];
 					foreach( [ 'acc', 'pre' ] as $category ) {
 							$scores = $form[ 'judge' ];
-							$values = array_map( function( $score ) use ( $category ) { return $score[ $category ]; }, $scores );
+							$values = array_map( function( $s ) use ( $category ) { return $s[ $category ]; }, $scores );
 							$maxs = array_keys( $values, max( $values ));
 							$mins = array_keys( $values, min( $values ));
 
@@ -81,26 +169,36 @@ class Division {
 
 					} else if( $n >= 4 ) {
 						$m = $n - 2;
-						$form[ 'adjusted' ][ 'accuracy' ]     = floatval( sprintf( "%.2f", floatval( array_sum( array_map( function( $score ) { return $score[ 'acc' ]; }, $form[ 'judge' ]))) - ($maxmin[ 'acc' ][ 'min' ][ 'value' ] + $maxmin[ 'acc' ][ 'max' ][ 'value' ]) / $m ));
-						$form[ 'adjusted' ][ 'presentation' ] = floatval( sprintf( "%.2f", floatval( array_sum( array_map( function( $score ) { return $score[ 'pre' ]; }, $form[ 'judge' ]))) - ($maxmin[ 'pre' ][ 'min' ][ 'value' ] + $maxmin[ 'pre' ][ 'max' ][ 'value' ]) / $m ));
+						$form[ 'adjusted' ][ 'accuracy' ]     = floatval( sprintf( "%.2f", (floatval( array_sum( array_map( function( $s ) { return $s[ 'acc' ]; }, $form[ 'judge' ]))) - ($maxmin[ 'acc' ][ 'min' ][ 'value' ] + $maxmin[ 'acc' ][ 'max' ][ 'value' ])) / $m ));
+						$form[ 'adjusted' ][ 'presentation' ] = floatval( sprintf( "%.2f", (floatval( array_sum( array_map( function( $s ) { return $s[ 'pre' ]; }, $form[ 'judge' ]))) - ($maxmin[ 'pre' ][ 'min' ][ 'value' ] + $maxmin[ 'pre' ][ 'max' ][ 'value' ])) / $m ));
 						$form[ 'adjusted' ][ 'total' ]        = floatval( sprintf( "%.2f", $form[ 'adjusted' ][ 'accuracy' ] + $form[ 'adjusted' ][ 'presentation' ]));
 					}
 				}
+				$decisions = array_map( function( $form ) { return $form[ 'decision' ]; }, array_filter( $round[ 'forms' ], function( $form ) { return isset( $form[ 'decision' ]); }));
+				if( count( $decisions ) > 0 ) { $round[ 'decision' ] = $decisions[ 0 ]; }
 
 				$round[ 'complete' ] = array_product( array_map( function( $x ) { return $x[ 'complete' ]; }, $round[ 'forms' ])) ? 1 : 0;
-				$round[ 'complete' ] = $round[ 'complete' ] || count( array_filter( $round[ 'forms' ], function( $form ) { return isset( $form[ 'decision' ]); })) > 0 ? 1 : 0;
+				$round[ 'complete' ] = $round[ 'complete' ] || count( $decisions ) > 0 ? 1 : 0;
 				if( $round[ 'complete' ]) {
 						$n = count( $round[ 'forms' ]);
 						$round[ 'original' ][ 'accuracy' ]     = floatval( sprintf( "%.3f", floatval( array_sum( array_map( function( $form ) { return $form[ 'original' ][ 'accuracy' ];     }, $round[ 'forms' ])) / $n)));
 						$round[ 'original' ][ 'presentation' ] = floatval( sprintf( "%.3f", floatval( array_sum( array_map( function( $form ) { return $form[ 'original' ][ 'presentation' ]; }, $round[ 'forms' ])) / $n)));
+						$round[ 'original' ][ 'total' ]        = floatval( sprintf( "%.3f", $round[ 'original' ][ 'accuracy' ] + $round[ 'original' ][ 'presentation' ]));
+						$round[ 'adjusted' ][ 'accuracy' ]     = floatval( sprintf( "%.3f", floatval( array_sum( array_map( function( $form ) { return $form[ 'adjusted' ][ 'accuracy' ];     }, $round[ 'forms' ])) / $n)));
+						$round[ 'adjusted' ][ 'presentation' ] = floatval( sprintf( "%.3f", floatval( array_sum( array_map( function( $form ) { return $form[ 'adjusted' ][ 'presentation' ]; }, $round[ 'forms' ])) / $n)));
+						$round[ 'adjusted' ][ 'total' ]        = floatval( sprintf( "%.3f", $round[ 'adjusted' ][ 'accuracy' ] + $round[ 'adjusted' ][ 'presentation' ]));
 				}
 			}
 		}
 	}
 
+	// ============================================================
 	public function data() { return $this->data; }
+	// ============================================================
 
+	// ============================================================
 	private function parse_metadata( $meta, $type = null ) {
+	// ============================================================
 		switch( $type ) {
 			case 'flight':
 				list( $id, $group, $state ) = preg_split( '/\s*;\s*/', $meta );
@@ -111,14 +209,14 @@ class Division {
 				return [ 'id' => $id, 'group' => $group, 'state' => $state ];
 
 			case 'dict':
-				$dicts  = preg_split( '/\s*;\s*/', $meta );
-				$rounds = [];
-				foreach( $dicts as $dict ) {
-					list( $round, $list ) = preg_split( '/\s*:\s*/', $dict );
-					$list = preg_split( '/\s*,\s*/', $list );
-					$rounds[ $round ] = $list;
+				$keyvalues  = preg_split( '/\s*;\s*/', $meta );
+				$dict = [];
+				foreach( $keyvalues as $keyvalue ) {
+					list( $key, $value ) = preg_split( '/\s*:\s*/', $keyvalue );
+					$list = preg_split( '/\s*,\s*/', $value );
+					$dict[ $key ] = $list;
 				}
-				return $rounds;
+				return $dict;
 
 			case 'json':
 				return json_decode( $meta, true );
@@ -128,18 +226,20 @@ class Division {
 		}
 	}
 
+	// ============================================================
 	private function read( $file ) {
+	// ============================================================
 		$division = [ 'athletes' => []];
 		$athletes = [];
 		$athlete  = [];
 		$round    = null;
 
-		$add_athlete = function ( &$athlete, $round ) use ( &$division, &$athletes ) {
-			if( ! isset( $round )) { return; }
+		$add_athlete = function ( $athlete, $round ) use ( &$division, &$athletes ) {
 			if( ! isset( $athlete[ 'name' ])) { return; }
-			if( ! isset( $athletes[ $athlete[ 'name' ]])) { $athletes[ $athlete[ 'name' ]] = $athlete; }
+			if( ! isset( $round )) { return; }
+			$name = $athlete[ 'name' ];
+			if( ! isset( $athletes[ $name ])) { $athletes[ $name ] = $athlete; }
 			$division[ 'order' ][ $round ] []= $athlete[ 'name' ];
-			$athlete = [];
 		};
 
 		$fp = fopen( $file, 'r' );
@@ -171,12 +271,12 @@ class Division {
 					$division[ $key ] = $meta;
 
 				} else {
-					$add_athlete( $athlete, $round );
 
 					$matches = [];
 					$regex   = implode( '|', Division::ROUNDS );
 					preg_match( "/({$regex})/", $line, $matches );
 					if( isset( $matches[ 1 ])) {
+						$athlete = $add_athlete( $athlete, $round );
 						$round = $matches[ 1 ];
 						if( ! isset( $division[ 'round' ])) { $division[ 'round' ] = $round; }
 					}
@@ -185,13 +285,14 @@ class Division {
 
 				$add_athlete( $athlete, $round );
 
-				if( array_key_exists( $athlete[ 'name' ], $athletes )) {
-					$athlete = $athletes[ $athlete[ 'name' ]];
+				$info = explode( "\t", $line );
+				$name = array_shift( $info );
+
+				if( array_key_exists( $name, $athletes )) { 
+					$athlete = &$athletes[ $name ]; 
 
 				} else {
-					$info = explode( "\t", $line );
-					$name = array_shift( $info );
-
+					$athlete = [];
 					$athlete[ 'name' ] = $name;
 					if( count( $info ) > 0 ) { $athlete[ 'info' ] = []; }
 					foreach( $info as $keyvalue ) {
@@ -200,40 +301,45 @@ class Division {
 					}
 				}
 
+
 			} else if( preg_match( '/^\t\w/', $line )) {
 				$line   = ltrim( $line );
 				$info   = explode( "\t", $line );
 				$sround = array_shift( $info );
 				$form   = array_shift( $info );
-				$judge  = array_shift( $info );
+				$record = array_shift( $info );
 
-				$f = intval( substr( $form, 1, 1 )) - 1;
-				$j = $judge == 'r' ? 0 : intval( substr( $judge, 1, 1 ));
-				if( ! isset( $athlete[ 'scores' ]))                                       { $athlete[ 'scores' ]                                       = []; }
-				if( ! isset( $athlete[ 'scores' ][ $round ]))                             { $athlete[ 'scores' ][ $round ]                             = []; }
-				if( ! isset( $athlete[ 'scores' ][ $round ][ 'forms' ]))                  { $athlete[ 'scores' ][ $round ][ 'forms' ]                  = []; }
-				if( ! isset( $athlete[ 'scores' ][ $round ][ 'forms' ][ $f ]))            { $athlete[ 'scores' ][ $round ][ 'forms' ][ $f ]            = []; }
-				if( ! isset( $athlete[ 'scores' ][ $round ][ 'forms' ][ $f ][ 'judge' ])) { $athlete[ 'scores' ][ $round ][ 'forms' ][ $f ][ 'judge' ] = []; }
+				$fid = intval( substr( $form, 1, 1 )) - 1;
 
-				if( preg_match( '/^[jr]/', $judge )) {
-					$score      = [];
+				if( ! isset( $athlete[ 'scores' ]))                                          { $athlete[ 'scores' ]                                          = []; }
+				if( ! isset( $athlete[ 'scores' ][ $sround ]))                               { $athlete[ 'scores' ][ $sround ]                               = []; }
+				if( ! isset( $athlete[ 'scores' ][ $sround ][ 'forms' ]))                    { $athlete[ 'scores' ][ $sround ][ 'forms' ]                    = []; }
+				if( ! isset( $athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ]))            { $athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ]            = []; }
+				if( ! isset( $athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ][ 'judge' ])) { $athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ][ 'judge' ] = []; }
+
+				if( preg_match( '/^[jr]/', $record )) {
+					$jid   = $record == 'r' ? 0 : intval( substr( $record, 1, 1 ));
+					$score = [];
 					foreach( Division::SCORE_CRITERIA as $key ) {
 						$score[ $key ] = floatval( array_shift( $info ));
 					}
-					$athlete[ 'scores' ][ $round ][ 'forms' ][ $f ][ 'judge' ][ $j ] = $score;
+					$athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ][ 'judge' ][ $jid ] = $score;
 
-				} else if( preg_match( '/^p/', $judge )) {
+				} else if( preg_match( '/^p/', $record )) {
 					$penalties  = [];
 					foreach( Division::SCORE_CRITERIA as $key ) {
 						$penalties[ $key ] = array_shift( $info );
 					}
-					$athlete[ 'scores' ][ $round ][ 'penalty' ] = $penalties;
+					$athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ][ 'penalty' ] = $penalties;
 
-				} else if( preg_match( '/^s/', $judge )) {
+				} else if( preg_match( '/^s/', $record )) {
 					foreach( $info as $decision ) {
 						list( $type, $value ) = explode( '=', $decision, 2 );
-						$athlete[ 'scores' ][ $round ][ 'forms' ][ $f ][ 'decision' ][ $type ] = 1;
+						$athlete[ 'scores' ][ $sround ][ 'forms' ][ $fid ][ 'decision' ][ $type ] = 1;
 					}
+				}
+				if( $sround == 'finals' && $fid == 1 && $jid == 4 ) { 
+					$name = $athlete[ 'name' ];
 				}
 			}
 		}
@@ -242,11 +348,13 @@ class Division {
 		foreach( Division::ROUNDS as $round ) {
 			if( array_key_exists( $round, $division[ 'order' ])) { $first = $round; break; }
 		}
+
 		$lookup = [];
 		foreach( $division[ 'order' ][ $first ] as $name ) {
 			$lookup[ $name ] = count( $division[ 'athletes' ]);
 			$division[ 'athletes' ] []= $athletes[ $name ];
 		}
+
 		foreach( $division[ 'order' ] as $round => &$order ) {
 			$order = array_map( function( $name ) use ( $lookup ) { return $lookup[ $name ]; }, $order );
 		}
@@ -254,14 +362,19 @@ class Division {
 		if( ! feof( $fp )) { die( "Error in reading file '{$file}' $!" ); }
 
 		fclose( $fp );
+
 		return $division;
 	}
 
+	// ============================================================
 	public function update( $data ) {
+	// ============================================================
 		$this->data = $data;
 	}
 
+	// ============================================================
 	public function write() {
+	// ============================================================
 	}
 }
 
