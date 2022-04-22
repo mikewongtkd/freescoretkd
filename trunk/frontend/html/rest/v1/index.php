@@ -108,7 +108,7 @@
 
 			case 'post':
 				$object->post( $_POST );
-				http_response_code( 200 );
+				http_response_code( 204 );
 				break;
 		}
 	}

@@ -197,6 +197,30 @@ class Division {
 	// ============================================================
 
 	// ============================================================
+	private function encode_metadata( $meta, $type = null ) {
+	// ============================================================
+		switch( $type ) {
+			case 'flight':
+				$group  = implode( ',', $meta[ 'group' ]);
+				$flight = sprintf( "id:%s;group:%s;state:%s", $meta[ 'id' ], $group, $meta[ 'state' ] );
+				return $flight;
+
+			case 'dict':
+				$list = [];
+				foreach( array_keys( $meta ) as $key ) {
+					$list []= $key . ":" . implode( ',', $meta[ $key ]);
+				}
+				return implode( ';', $list );
+
+			case 'json':
+				return json_encode( $meta );
+
+			default:
+				return null;
+		}
+	}
+
+	// ============================================================
 	private function parse_metadata( $meta, $type = null ) {
 	// ============================================================
 		switch( $type ) {
@@ -229,7 +253,7 @@ class Division {
 	// ============================================================
 	private function read( $file ) {
 	// ============================================================
-		$division = [ 'athletes' => []];
+		$division = [ 'athletes' => [], 'file' => $file ];
 		$athletes = [];
 		$athlete  = [];
 		$round    = null;
@@ -375,6 +399,67 @@ class Division {
 	// ============================================================
 	public function write() {
 	// ============================================================
+		$division = $this->data;
+
+		$this->calculate_scores();
+		$this->calculate_placements();
+
+		$fp = fopen( $division[ 'file' ], 'w' );
+		if( ! $fp ) { return null; }
+
+		fprintf( $fp, "# state=%s\n", $division[ 'state' ] );
+		fprintf( $fp, "# current=%s\n", $division[ 'current' ] );
+		fprintf( $fp, "# form=%s\n", $division[ 'form' ] );
+		fprintf( $fp, "# round=%s\n", $division[ 'round' ] );
+		fprintf( $fp, "# judges=%s\n", $division[ 'judges' ] );
+		if( isset( $division[ 'autopilot' ])) { fprintf( $fp, "# autopilot=%s\n", $division[ 'autopilot' ]); }
+		if( isset( $division[ 'method' ])) { fprintf( $fp, "# autopilot=%s\n", $division[ 'method' ]); }
+		fprintf( $fp, "# description=%s\n", $division[ 'description' ]);
+		fprintf( $fp, "# forms=%s\n", $this->encode_meta( $division[ 'forms' ], 'dict' ));
+		if( isset( $division[ 'placement' ])) { fprintf( $fp, "# forms=%s\n", $this->encode_meta( $division[ 'placement' ], 'dict' )); }
+		if( isset( $division[ 'flight' ])) { fprintf( $fp, "# forms=%s\n", $this->encode_meta( $division[ 'flight' ], 'flight' )); }
+
+		foreach( Division::ROUNDS as $rid ) {
+			if( ! array_key_exists( $rid, $division[ 'order' ])) { continue; }
+			$order = $division[ 'order' ][ $rid ];
+			if( ! isset( $order )) { continue; }
+
+			fprintf( $fp, "# ------------------------------------------------------------\n" );
+			fprintf( $fp, "# %s\n", $rid );
+			fprintf( $fp, "# ------------------------------------------------------------\n" );
+
+			$forms = intval( $division[ 'forms' ][ $rid ]);
+
+			foreach( $order as $aid ) {
+				$athlete = $division[ 'athletes' ][ $aid ];
+				$info    = implode( "\t", array_map( function( $meta ) { return encode_meta( $meta, 'json' ); }, $athlete[ 'info' ]));
+				fprintf( $fp, "%s\t%s\n", $athlete[ 'name' ], $info );
+
+				foreach( $athlete[ 'scores' ][ $rid ][ 'forms' ] as $f => $form ) {
+					$fid = $f + 1;
+					if( isset( $form[ 'decision' ])) {
+						if( isset( $form[ 'decision' ][ 'disqualify' ])) {
+							fprintf( $fp, "\t%s\tf%d\ts\t%s\n", $rid, $fid, "disqualify=1" );
+
+						} else if( isset( $form[ 'decision' ][ 'withdraw' ])) {
+							fprintf( $fp, "\t%s\tf%d\ts\t%s\n", $rid, $fid, "withdraw=1" );
+						}
+					}
+
+					if( isset( $form[ 'penalty' ])) {
+						$penalty = $form[ 'penalty' ];
+						$string  = vsprintf( "%.1f\t%.1f\t%.1f\t%d\t%s", array_map( function( $x ) use ( $penalty ) { return $penalty[ $x ]; }, Division::PENALTIES ));
+						fprintf( $fp,"\t%s\tf%d\tp\t%s\n", $rid, $fid, $string );
+					}
+
+					foreach( $form[ 'judge' ] as $j => $score ) {
+						$jid    = $j == 0 ? 'r' : "j{$j}";
+						$string = vsprintf( $fp, "%.1f\t%.1f\t%.1f\t%.1f\t%.1f", array_map( function( $x ) use ( $score ) { return $score[ $x ]; }, Division::SCORE_CRITERIA ));
+						fprintf( $fp, "\t%s\tf%d\t%s\t%s\n", $rid, $fid, $jid, $string );
+					}
+				}
+			}
+		}
 	}
 }
 

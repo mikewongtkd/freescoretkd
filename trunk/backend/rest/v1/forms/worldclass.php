@@ -10,20 +10,23 @@ class Worldclass extends REST {
 
 	function __construct( $request ) {
 		
+		$ring = $this->get_param( 'ring' );
+		if( intval( $ring )) { $ring = sprintf( "ring%02d", $ring ); }
+
 		$this->divid = isset( $request[ 'id' ]) ? $request[ 'id' ] : $this->get_param( 'divid' );
-		$this->ring  = $this->get_param( 'ring' );
+		$this->ring  = $ring;
 		$this->db    = $this->get_param( 'db', 'test' );
 		$this->path  = "/usr/local/freescore/data/{$this->db}/" . self::SUBDIR;
 	}
 
-	function delete( $id ) {
+	function delete() {
 	}
 
-	function get( $id = null ) {
+	function get() {
 		return $this->divisions();
 	}
 
-	function patch( $data, $id = null ) { 
+	function patch( $data ) { 
 	}
 
 	function post( $data ) { 
