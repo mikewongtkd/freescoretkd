@@ -27,9 +27,17 @@ class Worldclass extends REST {
 	}
 
 	function patch( $data ) { 
+		if( ! isset( $this->divid )) { return false; }
+		if( ! isset( $this->ring  )) { return false; }
+		$file = sprintf( "%s/%s/div.%s.txt", $this->path, $this->ring, $this->divid );
+		$division = new Division( $file );
+		$division->update( $data );
+		$division->write();
 	}
 
 	function post( $data ) { 
+		$division = Division::create( $data );
+		$division->write();
 	}
 
 	private function divisions() {

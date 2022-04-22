@@ -80,29 +80,27 @@ $.widget( "freescore.scoreboard", {
 				mean += parseFloat( total );
 				n++;
 				var form = {
-					display : e.html.div.clone() .addClass( "form" ),
+					display : e.html.div.clone() .addClass( `form form${i+1}` ),
 					name    : e.html.div.clone() .addClass( "name" ),
-					score   : e.html.div.clone() .addClass( "score" )
+					score   : e.html.div.clone() .addClass( "score" ),
 				};
 				form.name.html( name );
 				form.score.html( total );
 				form.display.append( form.name, form.score );
-				form.display.css( "left", (i * 220) + 20 );
 				div.append( form.display );
 			}
 
 			// ===== SHOW MEAN FOR ALL FORMS
 			var form = {
-				display : e.html.div.clone() .addClass( "form" ),
+				display : e.html.div.clone() .addClass( "form mean" ),
 				name    : e.html.div.clone() .addClass( "name" ),
 				score   : e.html.div.clone() .addClass( "score" )
 			};
 			if( ! isNaN( mean ) && n != 0 ) {
-				mean = (mean / n).toFixed( 2 );
+				mean = (mean / n).toFixed( 3 );
 				form.name.html( "Average" );
 				form.score.html( mean );
 				form.display.append( form.name, form.score );
-				form.display.css( "left", 460 );
 				div.append( form.display );
 			}
 
@@ -185,13 +183,13 @@ $.widget( "freescore.scoreboard", {
 		)) {
 			var flag = defined( current.athlete.info( 'flag' ) ) ? '<img src="../../images/flags/' + current.athlete.info( 'flag' ) + '.png" width="80px" />' : '';
 			var name = html.span.clone() .append( current.athlete.display.name() );
-			if( flag ) { e.athlete.css({ left: '120px', width: '574px' }); } // Make room for the flag
+			if( flag ) { e.athlete.css({ left: '10%', width: '90%' }); } // Make room for the flag
 			e.athlete .fadeOut( 300, function() { e.athlete .empty() .html( name )           .fadeIn(); });
 			e.flag    .fadeOut( 300, function() { e.flag    .empty() .html( flag )           .fadeIn(); });
 			e.round   .fadeOut( 300, function() { e.round   .empty() .append( round.ticker ) .fadeIn(); });
 			e.forms   .fadeOut( 300, function() { show_form_score( e.forms )                 .fadeIn(); });
 
-			e.athlete .fitText( 0.75 ); // Scale athlete name for best visibility and size
+			// e.athlete .fitText(); // Scale athlete name for best visibility and size
 		}
 
 		// ===== CHANGE OF SCORE
