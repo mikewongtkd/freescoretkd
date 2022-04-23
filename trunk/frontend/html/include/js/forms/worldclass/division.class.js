@@ -102,13 +102,14 @@ function Division( division ) {
 		}
 	};
 
-	this.pending = function( round ) { 
+	this.pending = function( round = null ) { 
 		round = defined( round ) ? round : division.round;
 		return division.pending[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	};
 
-	this.placement = function( round ) {
+	this.placement = function( round = null ) {
 		round = defined( round ) ? round : division.round;
+		console.log( 'DIVISION PLACEMENT: ', division.placement );
 		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	}
 

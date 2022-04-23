@@ -65,8 +65,9 @@ $.widget( "freescore.scoreboard", {
 		var show_form_score = function( div ) {
 		// ============================================================
 			div.empty();
-			var mean = 0.0;
-			var n    = 0;
+			let mean     = 0.0;
+			let n        = 0;
+			let decision = false;
 
 			// ===== SHOW ROUND FORMS
 			for( var i = 0; i <= current.form; i++ ) {
@@ -76,7 +77,7 @@ $.widget( "freescore.scoreboard", {
 				if( ! defined( adjusted )) { continue; }
 				var penalty = score.penalty();
 				var total = (parseFloat( adjusted.accuracy ) + parseFloat( adjusted.presentation ) - penalty.total()).toFixed( 2 );
-				total = total == 'NaN' ? '' : total;
+				total = isNaN( total ) ? '' : total;
 				mean += parseFloat( total );
 				n++;
 				var form = {
@@ -84,6 +85,9 @@ $.widget( "freescore.scoreboard", {
 					name    : e.html.div.clone() .addClass( "name" ),
 					score   : e.html.div.clone() .addClass( "score" ),
 				};
+				if( score.decision.is.disqualify()) { total = 'DSQ'; decision = 'DSQ'; } else
+				if( score.decision.is.withdraw())   { total = 'WDR'; decision = 'WDR'; }
+
 				form.name.html( name );
 				form.score.html( total );
 				form.display.append( form.name, form.score );
@@ -98,6 +102,7 @@ $.widget( "freescore.scoreboard", {
 			};
 			if( ! isNaN( mean ) && n != 0 ) {
 				mean = (mean / n).toFixed( 3 );
+				if( decision ) { mean = decision; }
 				form.name.html( "Average" );
 				form.score.html( mean );
 				form.display.append( form.name, form.score );
@@ -110,13 +115,13 @@ $.widget( "freescore.scoreboard", {
 		// ============================================================
 		var show_score = function() {
 		// ============================================================
-			var accuracy      = 0;
-			var presentation  = 0;
-			var score         = 0;
+			let accuracy      = 0;
+			let presentation  = 0;
+			let score         = 0;
 
-			var form     = current.athlete.score( current.round ).form( current.form );
-			var adjusted = form.adjusted();
-			var penalty  = form.penalty();
+			let form     = current.athlete.score( current.round ).form( current.form );
+			let adjusted = form.adjusted();
+			let penalty  = form.penalty();
 
 			if( defined( penalty )) {
 				e.penalty.bounds     .find( 'span.value' ).html( '-' + penalty.from( 'bounds' ) );
@@ -132,11 +137,21 @@ $.widget( "freescore.scoreboard", {
 			if( defined( adjusted )) { 
 				accuracy      = parseFloat( adjusted.accuracy );
 				presentation  = parseFloat( adjusted.presentation );
-				score         = accuracy + presentation - penalty.total();
+				score         = parseFloat( accuracy + presentation - penalty.total());
 
-				accuracy      = accuracy     >= 0 ? accuracy     .toFixed( 2 ) : '';
-				presentation  = presentation >= 0 ? presentation .toFixed( 2 ) : '';
-				score         = score        >= 0 ? score        .toFixed( 2 ) : '';
+				// Adjusted presentation and total are previously calculated for tiebreaking purposes; accuracy is not
+				if( isNaN( accuracy )) { 
+					accuracy     = '';
+					presentation = '';
+					score        = '';
+				} else {
+					accuracy     = accuracy.toFixed( 2 );
+					presentation = presentation.toFixed( 2 );
+					score        = score.toFixed( 2 );
+				}
+
+				if( form.decision.is.disqualify() ) { score = 'DSQ'; } else
+				if( form.decision.is.withdraw() )   { score = 'WDR'; }
 
 				e.accuracy     .html( accuracy );
 				e.presentation .html( presentation );

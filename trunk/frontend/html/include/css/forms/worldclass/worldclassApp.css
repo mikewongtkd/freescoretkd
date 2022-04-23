@@ -227,8 +227,8 @@ body {
 }
 .worldclass .scoreboard .totalScores .round ul {
   list-style-type: none;
-  line-height: 54pt;
-  height: 64px;
+  line-height: 56pt;
+  height: 76px;
 }
 .worldclass .scoreboard .totalScores .round ul b {
   color: orange;
@@ -244,7 +244,7 @@ body {
   position: absolute;
   top: 0;
   height: 15%;
-  left: 33.333%;
+  left: 25%;
   width: 25%;
   color: #600;
   font-size: 120pt;
@@ -256,7 +256,7 @@ body {
   position: absolute;
   top: 0;
   height: 15%;
-  left: 66.666%;
+  left: 75%;
   width: 25%;
   color: #006;
   font-size: 120pt;
@@ -266,11 +266,11 @@ body {
 }
 .worldclass .scoreboard .totalScores .score .total {
   position: absolute;
-  top: 5%;
+  top: 10%;
   left: 50%;
   width: 100%;
   color: lime;
-  font-size: 360pt;
+  font-size: 300pt;
   transform: translateX(-50%);
 }
 .worldclass .scoreboard .totalScores .forms {
@@ -327,21 +327,21 @@ body {
   transform: translateX(-50%);
 }
 .worldclass .scoreboard .totalScores .penalty {
+  position: absolute;
   color: white;
   font-size: 24pt;
-  position: absolute;
-  width: 100px;
-  height: 41px;
+  width: 10%;
+  height: 5%;
 }
 .worldclass .scoreboard .totalScores .penalty .icon {
   position: absolute;
-  left: 0px;
-  top: 0px;
+  left: 0;
+  top: 0;
   background: darkorchid;
   background-size: 28px;
   border-radius: 21px;
-  width: 41px;
-  height: 41px;
+  width: 33.333%;
+  height: 100%;
 }
 .worldclass .scoreboard .totalScores .penalty .icon .glyphicon {
   position: absolute;
@@ -351,41 +351,48 @@ body {
 }
 .worldclass .scoreboard .totalScores .penalty .value {
   position: absolute;
-  left: 44px;
-  top: -2px;
-  height: 41px;
+  left: 33.333%;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  text-align: right;
 }
 .worldclass .scoreboard .totalScores .bounds {
-  left: 254px;
-  top: 168px;
+  left: 45%;
+  top: 20%;
+  transform: translateX(-50%);
 }
 .worldclass .scoreboard .totalScores .timelimit {
-  left: 254px;
-  top: 120px;
+  left: 45%;
+  top: 12%;
+  transform: translateX(-50%);
 }
 .worldclass .scoreboard .totalScores .restart {
-  left: 354px;
-  top: 168px;
+  left: 55%;
+  top: 20%;
+  transform: translateX(-50%);
 }
 .worldclass .scoreboard .totalScores .misconduct {
-  left: 354px;
-  top: 120px;
+  left: 55%;
+  top: 12%;
+  transform: translateX(-50%);
 }
 .worldclass .leaderboard {
-  width: 1000px;
-  height: 720px;
+  width: 1600px;
+  height: 900px;
   font-family: FjallaOne, Barlow;
   color: white;
   overflow: hidden;
 }
 .worldclass .leaderboard .division {
-  width: 1000px;
-  height: 720px;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 .worldclass .leaderboard .division .placement {
   position: absolute;
-  width: 984px;
+  width: 100%;
+  height: 100%;
   font-size: 48pt;
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -421,8 +428,8 @@ body {
   color: #999;
   font-size: 36pt;
   position: absolute;
-  left: 0;
-  width: 4%;
+  left: 1.5%;
+  width: 2%;
   font-weight: bold;
   overflow: hidden;
 }
@@ -430,30 +437,37 @@ body {
   color: yellow;
   position: absolute;
   left: 4%;
-  width: 50%;
+  width: 61%;
   font-weight: bold;
   text-overflow: ellipse;
   overflow: hidden;
 }
+.worldclass .leaderboard .division .placement .athlete.current {
+  background: #330066;
+  background: -webkit-linear-gradient(to top, #330066 0%, #6600cc 100%);
+  /* W3C */
+  background: linear-gradient(to top, #330066 0%, #6600cc 100%);
+  /* W3C */
+}
 .worldclass .leaderboard .division .placement .athlete .form1 {
   color: #f39;
   position: absolute;
-  left: 54%;
-  width: 13%;
+  left: 65%;
+  width: 10%;
   text-align: center;
 }
 .worldclass .leaderboard .division .placement .athlete .form2 {
   color: #39f;
   position: absolute;
-  left: 68%;
-  width: 13%;
+  left: 75%;
+  width: 10%;
   text-align: center;
 }
 .worldclass .leaderboard .division .placement .athlete .score {
   color: lime;
   position: absolute;
-  left: 80%;
-  width: 20%;
+  left: 85%;
+  width: 15%;
   text-align: center;
 }
 .worldclass .leaderboard .division .placement .athlete .score .notes {
@@ -463,17 +477,22 @@ body {
 }
 .worldclass .leaderboard .division .placement .athlete .medal {
   position: relative;
-  left: 0;
-  top: 16px;
+  left: 0.5%;
+  top: 33.333%;
   width: 0;
+  transform: translateY(-50%);
+}
+.worldclass .leaderboard .division .placement .athlete.cutoff {
+  height: 88px;
+  border-bottom: 4px solid #666666;
 }
 .worldclass .leaderboard .division .placement .results {
   line-height: 64pt;
 }
 .worldclass .leaderboard .division .placement .header {
-  font-size: 14pt;
-  line-height: 14pt !important;
-  height: 20px;
+  font-size: 24pt;
+  line-height: 24pt !important;
+  height: 32px;
   opacity: 0.7;
   border-bottom: 2px solid #666;
   vertical-align: top;
@@ -527,19 +546,19 @@ body {
 }
 .worldclass .leaderboard .division .top-row {
   position: absolute;
-  height: 480px;
+  height: 80%;
   top: 0;
   left: 0;
 }
 .worldclass .leaderboard .division .bottom-row {
   position: absolute;
-  height: 200px;
-  top: 500px;
+  height: 20%;
+  top: 80%;
   left: 0;
 }
 .worldclass .leaderboard .division .full-height {
   position: absolute;
-  height: 704px;
+  height: 100%;
   top: 0;
   left: 0;
 }

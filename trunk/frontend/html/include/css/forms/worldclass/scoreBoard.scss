@@ -125,8 +125,8 @@
 
 			ul {
 				list-style-type: none;
-				line-height: 54pt;
-				height: 64px;
+				line-height: 56pt;
+				height: 76px;
 
 				b { color: orange; }
 			}
@@ -143,7 +143,7 @@
 				position: absolute; 
 				top: 0;
 				height: 15%;
-				left: 33.333%;
+				left: 25%;
 				width: 25%;
 				color: #600; 
 				font-size: 120pt;
@@ -155,7 +155,7 @@
 				position: absolute; 
 				top: 0;
 				height: 15%;
-				left: 66.666%;
+				left: 75%;
 				width: 25%;
 				color: #006; 
 				font-size: 120pt;
@@ -165,11 +165,11 @@
 			}
 			.total {
 				position: absolute;
-				top: 5%;
+				top: 10%;
 				left: 50%;
 				width: 100%;
 				color: lime;
-				font-size: 360pt;
+				font-size: 300pt;
 				transform: translateX(-50%);
 			}
 		}
@@ -223,21 +223,21 @@
 		}
 
 		.penalty {
+			position: absolute;
 			color: white;
 			font-size: 24pt;
-			position: absolute;
-			width: 100px;
-			height: 41px;
+			width: 10%;
+			height: 5%;
 
 			.icon {
 				position: absolute;
-				left: 0px;
-				top: 0px;
+				left: 0;
+				top: 0;
 				background: darkorchid;
 				background-size: 28px;
 				border-radius: 21px;
-				width: 41px;
-				height: 41px;
+				width: 33.333%;
+				height: 100%;
 
 				.glyphicon {
 					position: absolute;
@@ -248,29 +248,35 @@
 			}
 			.value {
 				position: absolute;
-				left: 44px;
-				top: -2px;
-				height: 41px;
+				left: 33.333%;
+				top: 0;
+				height: 100%;
+				width: 50%;
+				text-align: right;
 			}
 		}
 		.bounds {
-			left: 254px;
-			top:  168px;
+			left: 45%;
+			top:  20%;
+			transform: translateX( -50% );
 		}
 
 		.timelimit {
-			left: 254px;
-			top:  120px;
+			left: 45%;
+			top:  12%;
+			transform: translateX( -50% );
 		}
 
 		.restart {
-			left: 354px;
-			top:  168px;
+			left: 55%;
+			top:  20%;
+			transform: translateX( -50% );
 		}
 
 		.misconduct {
-			left: 354px;
-			top:  120px;
+			left: 55%;
+			top:  12%;
+			transform: translateX( -50% );
 		}
 	}
 }

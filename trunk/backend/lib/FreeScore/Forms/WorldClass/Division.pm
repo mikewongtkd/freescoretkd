@@ -217,12 +217,8 @@ sub place_athletes {
 
 	# ===== ASSIGN PLACEMENTS
 	my $half = int( (int(@{ $self->{ athletes }}) + 1) /2 );
-	my $n    = 0;
-	if( $self->{ places }{ $round }[ 0 ] eq 'half' ) { $n = $half; }
-	else  { $n = reduce { $a + $b } @{ $self->{ places }{ $round }} };
-	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };                    } @$placement; # Athlete is assigned to round
-	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete();                } @$placement; # Athlete's score is complete
-	@$placement = splice( @$placement, 0, $n );
+	@$placement = grep { defined $self->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
+	@$placement = grep { $self->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete
 
 	$self->{ placement }{ $round } = $placement;
 
