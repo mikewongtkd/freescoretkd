@@ -6,7 +6,7 @@
 	};
 
 	function read_config() {
-		$paths = [ '/var/www/html/include/php', '/var/www/include/php' ];
+		$paths = [ '/usr/local/freescore', '/usr/freescore', '/home/ubuntu/freescore', '/freescore', '/home/root/freescore' ];
 		foreach( $paths as $path ) {
 			$file = "{$path}/config.json";
 			if( ! file_exists( $file )) { continue; }
