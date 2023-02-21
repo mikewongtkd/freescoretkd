@@ -22,7 +22,7 @@
 		$http = 'http://';
 		$host = $config[ 'host' ];
 		$port = '';
-		if( ! array_key_exists( 'protocol', $config )) { $http = 'http://' } # Default
+		if( ! array_key_exists( 'protocol', $config )) { $http = 'http://'; } # Default
 		if( ! array_key_exists( 'port', $config ) || $config[ 'port' ] == 80 ) { $port = ''; } else { $port = ":{$port}"; }
 
 		$url = "{$http}{$host}{$port}";
