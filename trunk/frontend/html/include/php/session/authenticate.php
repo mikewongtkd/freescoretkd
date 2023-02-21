@@ -8,7 +8,8 @@
 		if( array_key_exists( 'password', $config )) {
 			$host = config_host( $config );
 			if( ! array_key_exists( 'is_auth', $_SESSION ) || ! $_SESSION[ 'is_auth' ]) {
-				header( "Location: {$host}/login.php" )
+				$referrer = urlencode( base64_encode( $_SERVER[ 'HTTP_REFERER' ] ));
+				header( "Location: {$host}/login.php?referrer={$referrer}" );
 			}
 		}
 	}
