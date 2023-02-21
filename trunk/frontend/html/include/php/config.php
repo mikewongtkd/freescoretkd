@@ -32,12 +32,12 @@
 			return $url;
 		}
 
-		public function password( $ring ) {
+		public function password( $ring = null ) {
 			$config = $this->data;
 			if( ! array_key_exists( 'password', $config )) { return null; }
 
 			if( ! is_array( $config[ 'password' ])) { return $config[ 'password' ]; }
-
+			if( is_null( $ring )) { return null; }
 			if( ! array_key_exists( $ring, $config[ 'password' ])) { return null; }
 
 			return $config[ 'password' ][ $ring ];
