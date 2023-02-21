@@ -47,7 +47,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> });
+			$( '#judgeController' ).judgeController( { server : '<?= $config->websocket( 'worldclass' ) ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>
