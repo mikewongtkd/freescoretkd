@@ -119,7 +119,6 @@
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
-			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
 			var html       = FreeScore.html;
 			var network    = { reconnect: 0 }
@@ -151,7 +150,7 @@
 
 				if( defined( ws )) { ws.close(); }
 
-				ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${target}/computer+operator` );
+				ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${target}/computer+operator` );
 
 				ws.onerror = network.error = function() {
 					setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds

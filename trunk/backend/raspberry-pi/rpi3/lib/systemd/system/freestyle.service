@@ -7,8 +7,8 @@ Documentation=https://github.com/mikewongtkd/freescoretkd
 [Service]
 ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/freestyle
 WorkingDirectory=/usr/local/freescore
-Type=simple
-PIDFile=/var/run/freescore/freestyle.pid
+Type=forking
+PIDFile=/run/freescore/freestyle.pid
 
 [Install]
 WantedBy=multi-user.target

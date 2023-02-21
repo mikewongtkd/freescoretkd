@@ -7,8 +7,8 @@ Documentation=https://github.com/mikewongtkd/freescoretkd
 [Service]
 ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/fswifi
 WorkingDirectory=/usr/local/freescore
-Type=simple
-PIDFile=/var/run/freescore/fswifi.pid
+Type=forking
+PIDFile=/run/freescore/fswifi.pid
 
 [Install]
 WantedBy=multi-user.target

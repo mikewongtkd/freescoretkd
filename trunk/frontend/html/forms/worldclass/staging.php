@@ -144,14 +144,13 @@ var page = {
 };
 
 var html       = FreeScore.html;
-var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 
 // ===== BUSINESS LOGIC
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging` );
+var ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/staging` );
 
 ws.onopen = function() {
 	var request;

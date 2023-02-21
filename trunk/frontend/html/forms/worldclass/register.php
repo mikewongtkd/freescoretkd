@@ -59,12 +59,11 @@ body { background-color: black; color: gold; }
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
-			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
 			var ring       = { num: <?= $i ?> };
 			var judges     = {};
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/register` );
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/register` );
 			var network    = { reconnect: 0 }
 			var url        = $.url();
 			var first      = ( el ) => { return defined( el ); };
@@ -135,7 +134,7 @@ body { background-color: black; color: gold; }
 						sound.next.play();
 
 						ws.close();
-						ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/register` );
+						ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/register` );
 						ws.onopen    = network.connect;
 						ws.onerror   = network.error;
 						ws.onmessage = network.message;

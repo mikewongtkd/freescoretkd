@@ -99,7 +99,6 @@ $( '.list-group a' ).click( function( ev ) {
 	setTimeout( function() { window.location = href }, 300 );
 });
 
-var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var draws      = undefined;
 var settings   = { age: { groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, events: {}, gender: false, method: 'cutoff', timestamp: moment().format( 'lll' ), checksum: undefined };
@@ -621,7 +620,7 @@ $( '.pt-page-3 .print' ).off( 'click' ).click(() => { alertify.dismissAll(); win
 $( '.pt-page-3 .accept' ).off( 'click' ).click(() => { window.location = '../../index.php'; });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` );
+var ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/staging/computer+operator` );
 
 ws.onopen = function() {
 	var request;
