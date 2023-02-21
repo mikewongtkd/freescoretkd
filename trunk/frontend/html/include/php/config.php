@@ -82,7 +82,7 @@
 			$ws     = 'ws://'; # Default
 			$port   = '';
 			$path   = '';
-			if( array_key_exists( 'protocol', $config ) && preg_match( '/^wss/i', $config[ 'protocol' ])) { 
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
 				$ws   = 'wss://'; 
 				$port = '';
 				$path = "/{$service}/request";
