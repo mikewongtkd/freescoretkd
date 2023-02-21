@@ -102,7 +102,7 @@ var tournament = <?= $tournament ?>;
 <?php
 	$services = [];
 	foreach( $config->services() as $service ) {
-		$services[ $service ] = $config->websocket( $service );
+		$services[ $service ] = $config->service_test( $service );
 	}
 	$services = json_encode( $services, JSON_UNESCAPED_SLASHES );
 ?>
@@ -127,8 +127,6 @@ function disable_service( service ) {
 // ------------------------------------------------------------
 function test_service( service, url ) {
 // ------------------------------------------------------------
-	url = url.replace( /^ws/, 'http' );
-	url = url.replace( /\/\w+$/, '/status' );
 	$.ajax( {
 		type:        'GET',
 		crossDomain: true,
