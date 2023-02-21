@@ -57,7 +57,7 @@
 			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
 				$http = 'https://'; 
 				$port = '';
-				$path = "/{$service}/request/status";
+				$path = "/{$service}/status";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
 				$port = ":{$config[ 'service' ][ $service ]}";
