@@ -17,7 +17,7 @@ sub new {
 sub init {
 # ============================================================
 	my $self  = shift;
-	my $paths = [ qw( /var/www/html/include/php /var/www/include/php )];
+	my $paths = [ qw( /usr/local/freescore /usr/freescore /home/ubuntu/freescore /freescore /home/root/freescore )];
 	foreach my $path (@$paths) {
 		my $file = "$path/config.json";
 		next unless -e $file;
@@ -52,7 +52,7 @@ sub init {
 sub host {
 # ============================================================
 	my $self = shift;
-	if( $self->{ port }) {
+	if( $self->{ port } && int( $self->{ port }) != 80 ) {
 		return "$self->{ host }:$self->{ port }";
 	} else {
 		return $self->{ host };
