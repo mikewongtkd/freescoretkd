@@ -20,7 +20,7 @@
 		}
 
 		public function host() {
-			$config = &$this->data;
+			$config = $this->data;
 			if( ! array_key_exists( 'host', $config )) { return 'http://freescore.net'; } # Default
 			$http = 'http://';
 			$host = $config[ 'host' ];
@@ -30,6 +30,17 @@
 
 			$url = "{$http}{$host}{$port}";
 			return $url;
+		}
+
+		public function password( $ring ) {
+			$config = $this->data;
+			if( ! array_key_exists( 'password', $config )) { return null; }
+
+			if( ! is_array( $config[ 'password' ])) { return $config[ 'password' ]; }
+
+			if( ! array_key_exists( $ring, $config[ 'password' ])) { return null; }
+
+			return $config[ 'password' ][ $ring ];
 		}
 
 		public function services() {

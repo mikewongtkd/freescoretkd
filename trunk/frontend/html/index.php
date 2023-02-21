@@ -129,14 +129,12 @@ function test_service( service, url ) {
 // ------------------------------------------------------------
 	url = url.replace( /^ws/, 'http' );
 	url = url.replace( /\/\w+$/, '/status' );
-	console.log( 'SERVICE', service, url ); // MW
 	$.ajax( {
 		type:        'GET',
 		crossDomain: true,
 		url:         url,
 		data:        {},
 		success:     response => { 
-			console.log( 'RESPONSE', response ); // MW
 			if( response != 'OK' ) {
 				sound.error.play();
 				alertify.error( response.error );
