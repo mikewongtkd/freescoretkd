@@ -124,8 +124,7 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 # ============================================================
 get '/status' => sub {
 	my $self = shift;
-	my $host = $config->host();
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => "http://$host" );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( text => 'OK' );
 };
 
@@ -134,9 +133,8 @@ get '/status' => sub {
 # ============================================================
 any '*command' => sub {
 	my $self = shift;
-	my $host = $config->host();
 	my $command = $self->param( 'command' );
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => 'http://$host' );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( json => { error => "FreeScore Worldclass Service Error: Unknown command: $command" });
 };
 

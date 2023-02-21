@@ -99,44 +99,54 @@ $( '.list-group a' ).click( function( ev ) {
 
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
-var services   = { setup: 3085, grassroots: 3080, worldclass: 3088, freestyle: 3082 };
+<?php
+	$services = [];
+	foreach( $config->services() as $service ) {
+		$services[ $service ] = $config->websocket( $service );
+	}
+	$services = json_encode( $services, JSON_UNESCAPED_SLASHES );
+?>
+var services   = <?= $services ?>
 
 // ------------------------------------------------------------
 function disable_service( service ) {
 // ------------------------------------------------------------
-	if( service == 'setup' ) {
-		for( var setup of [ 'setup', 'wifi' ]) {
-			var button = $( '#' + setup );
-			console.log( button );
+	if( service == 'fswifi' ) {
+		for( let setup of [ 'setup', 'wifi' ]) {
+			let button = $( `#${setup}` );
 			button.addClass( 'disabled' );
 			button.css({ opacity: 0.20 });
 		}
 	} else {
-		var div = '.' + service;
-		$( div + ' a' ).addClass( 'disabled' ); // Disable clicking
+		var div = `.${service}`;
+		$( `${div} a` ).addClass( 'disabled' ); // Disable clicking
 		$( div ).css({ opacity : 0.20 });
 	}
 }
 
 // ------------------------------------------------------------
-function test_service( service, port ) {
+function test_service( service, url ) {
 // ------------------------------------------------------------
-	var url = 'http://' + host + ':' + port + '/status';
+	url = url.replace( /^ws/, 'http' );
+	url = url.replace( /\/\w+$/, '/status' );
+	console.log( 'SERVICE', service, url ); // MW
 	$.ajax( {
 		type:        'GET',
 		crossDomain: true,
 		url:         url,
 		data:        {},
-		success:     function( response ) { 
-			if( defined( response.error )) {
+		success:     response => { 
+			console.log( 'RESPONSE', response ); // MW
+			if( response != 'OK' ) {
 				sound.error.play();
 				alertify.error( response.error );
-				if( service != 'setup' ) { disable_service( service ); }
+				if( service != 'fswifi' ) { disable_service( service ); }
 			}
 		},
-		error:       function( response ) { 
+		error:       response => { 
 			sound.error.play(); 
-			alertify.error( service.capitalize() + " service failed to start." ); 
+			if( service == 'fswifi' ) { alertify.error( "Setup service failed to start." ); } 
+			else                      { alertify.error( `${service.capitalize()} service failed to start.` ); }
 			disable_service( service );
 		},
 	});

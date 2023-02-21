@@ -53,7 +53,10 @@ sub host {
 # ============================================================
 	my $self = shift;
 	if( $self->{ port } && int( $self->{ port }) != 80 ) {
-		return "$self->{ host }:$self->{ port }";
+		my $port = int( $self->{ port });
+		if   ( $port == 80 )  { return "http://$self->{ host }"; } 
+		elsif( $port == 443 ) { return "https://$self->{ host }"; } 
+		else                  { return "http://$self->{ host }:$self->{ port }"; }
 	} else {
 		return $self->{ host };
 	}

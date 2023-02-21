@@ -32,25 +32,10 @@
 			return $url;
 		}
 
-		public function websocket( $service ) {
+		public function services() {
 			$config = $this->data;
-			$ws     = 'ws://'; # Default
-			$port   = '';
-			$path   = '';
-			if( array_key_exists( 'protocol', $config ) && preg_match( '/^wss/i', $config[ 'protocol' ])) { 
-				$ws   = 'wss://'; 
-				$port = '';
-				$path = "/{$service}/request";
-
-			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ]}";
-				$path = "/{$service}";
-				
-			}
-			$host = $config[ 'host' ];
-
-			$url = "{$ws}{$host}{$port}{$path}";
-			return $url;
+			if( ! array_key_exists( 'service', $config )) { return []; }
+			return array_keys( $config[ 'service' ]);
 		}
 
 		public function tournament() {
@@ -80,6 +65,28 @@
 
 			return $tournament;
 		}
+
+		public function websocket( $service ) {
+			$config = $this->data;
+			$ws     = 'ws://'; # Default
+			$port   = '';
+			$path   = '';
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^wss/i', $config[ 'protocol' ])) { 
+				$ws   = 'wss://'; 
+				$port = '';
+				$path = "/{$service}/request";
+
+			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
+				$port = ":{$config[ 'service' ][ $service ]}";
+				$path = "/{$service}";
+				
+			}
+			$host = $config[ 'host' ];
+
+			$url = "{$ws}{$host}{$port}{$path}";
+			return $url;
+		}
+
 	}
 
 	$config     = new Config();
