@@ -106,14 +106,16 @@
 			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
 				$http = 'https://'; 
 				$port = '';
+				$path = "/{$service}/webservice";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
 				$port = ":{$config[ 'service' ][ $service ]}";
+				$path = '';
 				
 			}
 			$host = $config[ 'host' ];
 
-			$url = "{$http}{$host}{$port}";
+			$url = "{$http}{$host}{$port}{$path}";
 			return $url;
 		}
 
