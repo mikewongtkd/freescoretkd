@@ -86,7 +86,6 @@ $.widget( "freescore.register", {
 		// ------------------------------------------------------------
 		register.roles.show = function() { 
 		// ------------------------------------------------------------
-			console.log( 'roles.show url:', o.url );
 			if( defined( o.url ) && ( o.url.match( /judge|computer operator/   ) != null)) {
 				if( o.url.match( /judge/ )       != null ) { 
 					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES

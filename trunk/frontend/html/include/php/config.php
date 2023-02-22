@@ -98,6 +98,25 @@
 			return $tournament;
 		}
 
+		public function webservice( $service ) {
+			$config = $this->data;
+			$http   = 'http://'; # Default
+			$port   = '';
+			$path   = '';
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
+				$http = 'https://'; 
+				$port = '';
+
+			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
+				$port = ":{$config[ 'service' ][ $service ]}";
+				
+			}
+			$host = $config[ 'host' ];
+
+			$url = "{$http}{$host}{$port}";
+			return $url;
+		}
+
 		public function websocket( $service ) {
 			$config = $this->data;
 			$ws     = 'ws://'; # Default
