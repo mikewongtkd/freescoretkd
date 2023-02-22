@@ -90,8 +90,7 @@ $.widget( "freescore.register", {
 			if( defined( o.url ) && ( o.url.match( /judge|computer operator/   ) != null)) {
 				if( o.url.match( /judge/ )       != null ) { 
 					// ===== GET NUMBER OF JUDGES AND SHOW THE JUDGES
-					var port = ':3080/';
-					var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+					var url = `${o.server}/${o.tournament.db}/${$.cookie( "ring" )}/judges`;
 					$.ajax( {
 						type:    'GET',
 						url:     url,
@@ -121,8 +120,7 @@ $.widget( "freescore.register", {
 
 					if( role.name == "Judge" ) {
 						role.dom.animate( { left: 200 }, 400, 'swing', function() {
-							var port = ':3080/';
-							var url = 'http://' + o.server + port + o.tournament.db + '/' + $.cookie( "ring" ) + '/judges';
+							var url = `${o.server}/${o.tournament.db}/${$.cookie( "ring" )}/judges`;
 							$.ajax( {
 								type:    'GET',
 								url:     url,
