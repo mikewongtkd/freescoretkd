@@ -14,9 +14,9 @@ function formsList( $round, $id ) {
 	<option>Taegeuk 8</option>
 	<option>Koryo</option>
 	<option>Keumgang</option>
-	<option>Taebaek</option>
+	<option>Taeback</option>
 	<option>Pyongwon</option>
-	<option>Sipjin</option>
+	<option>Shipjin</option>
 	<option>Jitae</option>
 	<option>Chonkwon</option>
 	<option>Hansu</option>
@@ -73,7 +73,7 @@ EOD;
 	// FORM SELECTION BEHAVIOR
 	// ============================================================
 	var selected = { method: 'cutoff', forms : { prelim : [], semfin : [], finals : [] }, description: '', manual: { prelim: false, semfin: false, finals: false }, update : function() { 
-		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taebaek', 'Pyongwon', 'Sipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
+		var forms = [ 'Open', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 		var all   = [].concat( selected.forms.prelim, selected.forms.semfin, selected.forms.finals );
 
 		// ===== IF THE DRAWS ARE DEFINED, USE THE DRAWS
