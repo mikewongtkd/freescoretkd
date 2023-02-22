@@ -1,6 +1,6 @@
 <?php 
-	$referer = $_GET[ 'referer' ];
-	include( "../../include/php/config.php" ); 
+	include_once( "../../include/php/config.php" ); 
+	$referer = array_key_exists( 'referer', $_GET ) ? $_GET[ 'referer' ] : null;
 ?>
 <html>
 	<head>
