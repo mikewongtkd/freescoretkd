@@ -171,7 +171,7 @@
 			var tournament = <?= $tournament ?>;
 			var ring       = file.shift();
 			var divId      = file.shift();
-			var ws         = new WebSocket( `ws://<?= $host ?>:3088/worldclass/${tournament.db}/${ring}/computer+operator` );
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring}/computer+operator` );
 			var draws      = undefined;
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
