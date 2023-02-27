@@ -39,6 +39,7 @@ sub init {
 		decision           => \&handle_division_decision,
 		inspection         => \&handle_division_inspection,
 		navigate           => \&handle_division_navigate,
+		read               => \&handle_division_read,
 		score              => \&handle_division_score,
 		time_start         => \&handle_division_time_start,
 		time_stop          => \&handle_division_time_stop,
@@ -201,6 +202,31 @@ sub handle_division_navigate {
 		elsif ( $dest eq 'division' ) { $progress->navigate( $id ); $progress->write(); }
 			
 		$self->broadcast_ring_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_read {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $clients  = shift;
+	my $judges   = shift;
+	my $json     = $self->{ _json };
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+
+	if( $DEBUG ) {
+		print STDERR "Requesting information for division " . uc( $division->{ name }) . "\n";
+	}
+
+	my $clone = unbless( $division->clone());
+	try {
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, division => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});

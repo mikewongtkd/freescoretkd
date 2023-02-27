@@ -108,18 +108,9 @@ sub calculate_scores {
 # ============================================================
 	my $self     = shift;
 	my $judges   = $self->{ judges };
-	my $complete = 1;
+	my $complete = (all { _athlete_scores_complete( $_ )} @{ $self->{ athletes }}) ? 1 : 0;
 
-	foreach my $athlete (@{ $self->{ athletes }}) {
-
-		unless( _athlete_scores_complete( $athlete )) {
-			$complete = 0;
-			$athlete->{ complete } = 1;
-			next;
-		}
-
-		$self->trim_scores( $athlete );
-	}
+	$self->trim_scores( $_ ) foreach @{ $self->{ athletes }};
 	$self->{ complete } = $complete;
 }
 
@@ -269,6 +260,8 @@ sub trim_scores {
 	my $athlete = shift;
 	my $judges  = $self->{ judges };
 
+	return unless $athlete->{ complete };
+
 	my $hi = {};
 	my $lo = {};
 
@@ -351,7 +344,10 @@ sub write {
 sub _athlete_scores_complete {
 # ============================================================
 	my $athlete = shift;
-	return all { ref( $score ) ? 1 : 0 } @{ $athlete->{ scores }};
+	return 0 unless $athlete;
+
+	$athlete->{ complete } = all { ref( $_ ) ? 1 : 0 } @{ $athlete->{ scores }};
+	return $athlete->{ complete };
 }
 
 # ============================================================

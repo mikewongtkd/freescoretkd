@@ -1,0 +1,163 @@
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  background-color: black;
+  padding: 8px;
+  font-family: Optima, Biolinum, Lato;
+}
+
+.judge-scoring-interface {
+  font-size: 1.6em;
+  width: 1008px;
+  height: 584px;
+  margin: 0%;
+  border: 4px solid white;
+  border-radius: 16px;
+}
+.judge-scoring-interface .judge-tool-nav {
+  padding: 2px;
+}
+.judge-scoring-interface .judge-tool-nav ul li:first-child a {
+  border-radius: 12px 4px 4px 4px;
+}
+.judge-scoring-interface .judge-tool-nav ul li:last-child a {
+  border-radius: 4px 12px 4px 4px;
+}
+.judge-scoring-interface .judge-tools {
+  width: 1000px;
+  height: 519px;
+  padding: 2.5% 2.5% 0% 2.5%;
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  border-radius: 0 0 12px 12px;
+  color: white;
+  overflow-y: auto;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .athlete-info {
+  color: yellow;
+  font-size: 2em;
+  text-align: center;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .division-info {
+  color: grey;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .division-info .division-summary, .judge-scoring-interface .judge-tools #tool-deductions .division-info .division-progress {
+  text-align: center;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .division-info .division-progress {
+  font-size: 0.75em;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a {
+  display: inline-block;
+  color: black;
+  border-radius: 12px;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a label {
+  position: relative;
+  top: 50%;
+  text-align: center;
+  font-weight: normal;
+  transform: translatey(-50%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a.undo {
+  position: absolute;
+  top: 184px;
+  width: 120px;
+  height: 120px;
+  font-size: 1.5em;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a.give {
+  position: absolute;
+  top: 324px;
+  width: 120px;
+  height: 240px;
+  font-size: 2em;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .minor-deductions .undo-minor-deductions {
+  left: 40px;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions .minor-deductions .give-minor-deductions {
+  left: 40px;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions .major-deductions .undo-major-deductions {
+  left: 864px;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions .major-deductions .give-major-deductions {
+  left: 864px;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions a.btn-next {
+  position: absolute;
+  top: 530px;
+  left: 268px;
+  width: 480px;
+}
+.judge-scoring-interface .judge-tools #tool-help {
+  color: white;
+  font-size: 0.75em;
+  padding-bottom: 10%;
+}
+.judge-scoring-interface .judge-tools #tool-help h1 {
+  font-size: 1.4em;
+}
+.judge-scoring-interface .judge-tools #tool-help td, .judge-scoring-interface .judge-tools #tool-help th {
+  font-size: 0.8em;
+}
+
+/*# sourceMappingURL=judge.css.map */

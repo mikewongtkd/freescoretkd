@@ -1,0 +1,133 @@
+@import 'fonts';
+$jsi-border-radius: 16px;
+
+body {
+	background-color: black;
+	padding: 8px;
+	font-family: Optima, Biolinum, Lato;
+}
+
+.judge-scoring-interface {
+	font-size: 1.6em;
+	width: 1008px;
+	height: 584px;
+	margin: 0%;
+	border: 4px solid white;
+	border-radius: $jsi-border-radius;
+
+	.judge-tool-nav {
+		padding: 2px;
+		ul li {
+			&:first-child { a { border-radius: 12px 4px 4px 4px; }}
+			&:last-child  { a { border-radius: 4px 12px 4px 4px; }}
+		}
+	}
+
+	.judge-tools {
+		width: 1000px;
+		height: 519px;
+		padding: 2.5% 2.5% 0% 2.5%;
+		background: linear-gradient( to top, #45484d 0%, #000000 100% );
+		border-radius: 0 0 12px 12px;
+		color: white;
+
+		overflow-y: auto;
+
+		#tool-deductions {
+			.athlete-info { 
+				color: yellow; 
+				font-size: 2em;
+				text-align: center;
+			}
+			.division-info { 
+				color: grey; 
+				.division-summary, .division-progress { text-align: center; }
+				.division-progress { font-size: 0.75em; }
+			}
+
+			.deductions {
+				a {
+					display: inline-block;
+					color: black;
+					border-radius: 12px;
+
+					label {
+						position: relative;
+						top: 50%;
+						text-align: center;
+						font-weight: normal;
+						transform: translatey( -50% );
+					}
+
+					&.undo {
+						position: absolute;
+						top: 184px;
+						width: 120px;
+						height: 120px;
+						font-size: 1.5em;
+					}
+
+					&.give {
+						position: absolute;
+						top: 324px;
+						width: 120px;
+						height: 240px;
+						font-size: 2em;
+					}
+				}
+			}
+
+			.minor-deductions {
+				.undo-minor-deductions {
+					left: 40px;
+					background: #9dd53a;
+					background: -webkit-linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+					background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+				}
+
+				.give-minor-deductions {
+					left: 40px;
+					background: #6db3f2;
+					background: -webkit-linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+					background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+				}
+			}
+
+			.major-deductions {
+				.undo-major-deductions {
+					left: 864px;
+					background: #ffb76b;
+					background: -webkit-linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+					background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+				}
+
+				.give-major-deductions {
+					left: 864px;
+					background: #fceabb;
+					background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+					background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+				}
+			}
+
+			a.btn-next {
+				position: absolute;
+				top: 530px;
+				left: 268px;
+				width: 480px;
+			}
+		}
+
+		#tool-help {
+			color: white;
+			font-size: 0.75em;
+
+			h1 { font-size: 1.4em; }
+
+			td, th {
+				font-size: 0.8em;
+			}
+
+			padding-bottom: 10%;
+		}
+	}
+}
