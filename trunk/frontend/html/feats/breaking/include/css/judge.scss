@@ -57,6 +57,7 @@ body {
 						text-align: center;
 						font-weight: normal;
 						transform: translatey( -50% );
+						&:hover { cursor: pointer; }
 					}
 
 					&.undo {

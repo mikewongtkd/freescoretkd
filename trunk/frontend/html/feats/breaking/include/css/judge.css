@@ -104,6 +104,9 @@ body {
   font-weight: normal;
   transform: translatey(-50%);
 }
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a label:hover {
+  cursor: pointer;
+}
 .judge-scoring-interface .judge-tools #tool-deductions .deductions a.undo {
   position: absolute;
   top: 184px;
