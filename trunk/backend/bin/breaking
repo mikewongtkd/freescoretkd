@@ -71,10 +71,10 @@ get '/:tournament/:ring/judges' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
 
 	try {
+		my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
+		my $division   = $progress->current();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 		$self->render( json => { 'division' => $division->{ name }, 'judges' => $division->{ judges } } );
 
@@ -358,7 +358,7 @@ get '/status' => sub {
 any '*' => sub {
 	my $self = shift;
 	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-	$self->render( json => { error => 'FreeScore Grassroots: Unknown command' } );
+	$self->render( json => { error => 'FreeScore Breaking Unknown command' } );
 };
 
 # ============================================================

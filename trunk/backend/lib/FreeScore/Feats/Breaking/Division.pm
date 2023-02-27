@@ -4,9 +4,10 @@ use FreeScore::Feats::Division;
 use JSON::XS;
 use base qw( FreeScore::Feats::Division Clone );
 use POSIX qw( ceil );
-use List::Util qw( all any max min sum );
+use List::Util qw( all any first max min sum );
 use List::MoreUtils qw( first_index );
 use Try::Tiny;
+use Date::Manip;
 use Data::Dumper;
 
 # ============================================================
@@ -17,7 +18,7 @@ sub read {
 	my $index = 0;
 	$self->{ judges } = 3; # Default value
 
-	$self->{ round }  = 'finals';
+	$self->{ round }  = 'fin';
 
 	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
 	while( <FILE> ) {
@@ -69,7 +70,7 @@ sub calculate_placements {
 
 		return $placements unless defined $j;
 
-		while( $a->{ trimmed }{ total } == $b->{ trimmed }{ total }) {
+		while( $a->{ trimmed }{ total } > 0 && $a->{ trimmed }{ total } == $b->{ trimmed }{ total }) {
 			$j = shift @sorted;
 			$b = $self->{ athletes }[ $j ];
 
@@ -191,6 +192,21 @@ sub record_decision {
 }
 
 # ============================================================
+sub record_inspection {
+# ============================================================
+	my $self   = shift;
+	my $name   = shift;
+	my $boards = shift;
+
+	my $athlete = first { $_->{ name } eq $name } @{$self->{ athletes }};
+	
+	return unless $athlete;
+	$athlete->{ info }{ boards } = $boards;
+
+	return 1;
+}
+
+# ============================================================
 sub record_score {
 # ============================================================
 	my $self   = shift;
@@ -206,6 +222,44 @@ sub record_score {
 	# Score is complete when all judges have scored
 	return 1 if _athlete_scores_complete( $athlete );
 	return 0;
+}
+
+# ============================================================
+sub time_reset {
+# ============================================================
+	my $self    = shift;
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	delete $athlete->{ info }{ time };
+
+	return 1;
+}
+
+# ============================================================
+sub time_start {
+# ============================================================
+	my $self    = shift;
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+	$athlete->{ info }{ time }{ start } = $now;
+
+	return 1;
+}
+
+# ============================================================
+sub time_stop {
+# ============================================================
+	my $self    = shift;
+	my $i       = $self->{ current };
+	my $athlete = $self->{ athletes }[ $i ];
+
+	my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+	$athlete->{ info }{ time }{ stop } = $now;
+
+	return 1;
 }
 
 # ============================================================
@@ -253,8 +307,8 @@ sub trim_scores {
 	$athlete->{ trimmed }{ total }          = $athlete->{ trimmed }{ subtotal } - $deductions;
 
 	# Calculate mean with highs & lows included
-	$athlete->{ untrimmed }{ technical }    = 0.0 + sprintf( "%.2f", (sum @$technical   ))/$judges );
-	$athlete->{ untrimmed }{ presentation } = 0.0 + sprintf( "%.2f", (sum @$presentation))/$judges );
+	$athlete->{ untrimmed }{ technical }    = 0.0 + sprintf( "%.2f", (sum @$technical   )/$judges );
+	$athlete->{ untrimmed }{ presentation } = 0.0 + sprintf( "%.2f", (sum @$presentation)/$judges );
 	$athlete->{ untrimmed }{ subtotal }     = sum @{$athlete->{ original }}{ qw( technical presentation )};
 	$athlete->{ untrimmed }{ total }        = $athlete->{ original }{ subtotal } - $deductions;
 

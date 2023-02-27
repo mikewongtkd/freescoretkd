@@ -1,12 +1,10 @@
-package FreeScore::Feats::GrassRoots::RequestManager;
+package FreeScore::Feats::Breaking::RequestManager;
 use lib qw( /usr/local/freescore/lib );
 use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
-use FreeScore::Feats::GrassRoots;
-use FreeScore::Feats::GrassRoots::Schedule;
-use FreeScore::Feats::GrassRoots::Division;
-use FreeScore::Registration::USAT;
+use FreeScore::Feats::Breaking;
+use FreeScore::Feats::Breaking::Division;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::Util (qw( first shuffle ));
@@ -39,8 +37,12 @@ sub init {
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
 		decision           => \&handle_division_decision,
+		inspection         => \&handle_division_inspection,
 		navigate           => \&handle_division_navigate,
-		score              => \&handle_division_score
+		score              => \&handle_division_score,
+		time_start         => \&handle_division_time_start,
+		time_stop          => \&handle_division_time_stop,
+		time_reset         => \&handle_division_time_reset
 	};
 	$self->{ ring }        = {
 		read               => \&handle_ring_read,
@@ -137,17 +139,40 @@ sub handle_division_decision {
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
-		print STDERR "$name scores $score.\n";
+		print STDERR "Decision: $decision\n";
 	}
 
 	try {
 		$division->record_decision( $decision );
 		$division->write();
-		$progress->write();
 		autopilot( $self, $request, $progress, $division );
 
-		my $clone = unbless( $division->clone());
-			
+		$self->broadcast_ring_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_inspection {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $athlete   = $request->{ athlete };
+	my $boards    = $request->{ boards };
+	my $division  = $progress->current();
+	my $client    = $self->{ _client };
+
+	print STDERR "Inspection complete for $athlete, who has $boards boards\n" if $DEBUG;
+
+	try {
+		$division->record_inspection( $athlete, $decision );
+		$division->write();
+		
 		$self->broadcast_ring_response( $request, $progress, $clients );
 
 	} catch {
@@ -206,8 +231,84 @@ sub handle_division_score {
 		$division->write();
 		$progress->write();
 		autopilot( $self, $request, $progress, $division ) if $complete;
+			
+		$self->broadcast_ring_response( $request, $progress, $clients );
 
-		my $clone = unbless( $division->clone());
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_time_reset {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+
+	if( $DEBUG ) {
+		print STDERR "Time reset\n";
+	}
+
+	try {
+		my $complete = $division->time_reset();
+		$division->write();
+			
+		$self->broadcast_ring_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_time_start {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+
+	if( $DEBUG ) {
+		print STDERR "Time started\n";
+	}
+
+	try {
+		my $complete = $division->time_start();
+		$division->write();
+			
+		$self->broadcast_ring_response( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_time_stop {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+
+	if( $DEBUG ) {
+		print STDERR "Time stopped\n";
+	}
+
+	try {
+		my $complete = $division->time_stop();
+		$division->write();
 			
 		$self->broadcast_ring_response( $request, $progress, $clients );
 

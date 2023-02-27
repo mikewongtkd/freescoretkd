@@ -14,12 +14,12 @@
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.register.js"></script>
+		<script src="../../include/js/feats/breaking/jquery.register.js"></script>
 	</head>
 	<body>
 		<div id="setup"></div>
 		<script type="text/javascript">
-			$( '#setup' ).register({ server : '<?= $host ?>', tournament : <?= $tournament ?>, 'event' : 'grassroots' });
+			$( '#setup' ).register({ server : '<?= $config->webservice( 'breaking' ) ?>', tournament : <?= $tournament ?>, 'event' : 'breaking' });
 		</script>
 	</body>
 </html>
