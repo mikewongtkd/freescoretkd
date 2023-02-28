@@ -256,6 +256,25 @@ sub time_stop {
 # ============================================================
 sub trim_scores {
 # ============================================================
+#
+# {
+# 	"technical" : {
+# 		"difficulty" : <float>,
+# 		"deductions" : { # Referee only
+# 			"major" : <float>,
+# 			"minor" : <float>,
+# 		}
+# 	},
+# 	"procedural" : { # Referee only
+# 		"deductions" : <float>
+# 	},
+# 	"presentation" : {
+# 		"technique" : <float>,
+# 		"rhythm" : <float>,
+# 		"style" : <float>,
+# 		"creativity" : <float>
+# 	}
+# }
 	my $self    = shift;
 	my $athlete = shift;
 	my $judges  = $self->{ judges };
@@ -265,8 +284,10 @@ sub trim_scores {
 	my $hi = {};
 	my $lo = {};
 
-	my $technical    = [ map { 0.0 + $_->{ technical }{ difficulty } } @{ $athlete->{ scores }}];
-	my $presentation = [ map { 0.0 + sum @{$_}{ qw( technique rhythm style creativity )} } map { $_->{ presentation } } @{ $athlete->{ scores }}];
+	my $scores       = $athlete->{ scores };
+	my $boards       = exists $athlete->{ info } && exists $athlete->{ info }{ boards } ? int( $athlete->{ info }{ boards }) : 0;
+	my $technical    = [ map { 0.0 + $_->{ technical }{ difficulty } } @$scores ];
+	my $presentation = [ map { 0.0 + sum @{$_}{ qw( technique rhythm style creativity )} } map { $_->{ presentation } } @$scores ];
 
 	if( $judges == 5 ) {
 		# Find high & low for technical & presentation values
@@ -286,28 +307,43 @@ sub trim_scores {
 		$athlete->{ trimmed }{ hilo }{ presentation }{ hi } = { judge => $hi->{ pi }, value => $hi->{ pv }};
 		$athlete->{ trimmed }{ hilo }{ presentation }{ lo } = { judge => $lo->{ pi }, value => $lo->{ pv }};
 
-	} else {
+	} elsif( $judges == 3 ) {
 		$hi->{ $_ } = $lo->{ $_ } = 0 foreach (qw( tv pv ));
+
+	} else {
+		die "Invalid number of judges for division ($judges) $!";
 	}
 	
-	my $referee    = $athlete->{ scores }[ 0 ];
-	my $deductions = $referee->{ technical }{ deductions } + $referee->{ procedural }{ deductions };
-
 	# Calculate trimmed mean
-	$athlete->{ trimmed }{ technical }      = 0.0 + sprintf( "%.2f", (sum @$technical    - ( $hi->{ tv } + $lo->{ tv }))/3 );
-	$athlete->{ trimmed }{ presentation }   = 0.0 + sprintf( "%.2f", (sum @$presentation - ( $hi->{ pv } + $lo->{ pv }))/3 );
+	my $referee    = $scores->[ 0 ];
+	my $deductions = {
+		technical    => $referee->{ technical }{ deductions }{ major } + $referee->{ technical }{ deductions }{ minor },
+		procedural   => $referee->{ procedural }{ deductions }
+	};
+	my $mean       = {
+		technical    => 0.0 + sprintf( "%.2f", (sum @$technical    - ( $hi->{ tv } + $lo->{ tv }))/3 ),
+		presentation => 0.0 + sprintf( "%.2f", (sum @$presentation - ( $hi->{ pv } + $lo->{ pv }))/3 )
+	};
+
+	$athlete->{ trimmed }{ technical }      = $mean->{ technical } + ($boards * 0.2) - $deductions->{ technical };
+	$athlete->{ trimmed }{ presentation }   = $mean->{ presentation };
 	$athlete->{ trimmed }{ subtotal }       = sum @{$athlete->{ trimmed }}{ qw( technical presentation )};
-	$athlete->{ trimmed }{ total }          = $athlete->{ trimmed }{ subtotal } - $deductions;
+	$athlete->{ trimmed }{ total }          = $athlete->{ trimmed }{ subtotal } - $deductions->{ procedural };
 
 	# Calculate mean with highs & lows included
-	$athlete->{ untrimmed }{ technical }    = 0.0 + sprintf( "%.2f", (sum @$technical   )/$judges );
-	$athlete->{ untrimmed }{ presentation } = 0.0 + sprintf( "%.2f", (sum @$presentation)/$judges );
+	my $sum = {
+		technical    => 0.0 + sprintf( "%.2f", (sum @$technical   )/$judges ),
+		presentation => 0.0 + sprintf( "%.2f", (sum @$presentation)/$judges )
+	};
+
+	$athlete->{ untrimmed }{ technical }    = $sum->{ technical } + ($boards * 0.2) - $deductions->{ technical };
+	$athlete->{ untrimmed }{ presentation } = $sum->{ presentation };
 	$athlete->{ untrimmed }{ subtotal }     = sum @{$athlete->{ original }}{ qw( technical presentation )};
-	$athlete->{ untrimmed }{ total }        = $athlete->{ original }{ subtotal } - $deductions;
+	$athlete->{ untrimmed }{ total }        = $athlete->{ original }{ subtotal } - $deductions->{ procedural };
 
 	# Calculate tiebreaker values
 	$athlete->{ tb1 } = $athlete->{ untrimmed }{ total };
-	$athlete->{ tb2 } = $referee->{ technical }{ deductions };
+	$athlete->{ tb2 } = $deductions->{ technical };
 
 	return $athlete;
 }

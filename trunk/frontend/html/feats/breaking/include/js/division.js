@@ -22,7 +22,7 @@ class Division {
 		let progress = this.division.athletes.reduce(( a, b ) => { if( b.complete ) { return a + 1; } else { return a; }}, 0 );
 		let count    = this.division.athletes.length;
 
-		return `${progress} completed of ${count} contestant${count > 1 ? 's' : ''}`;
+		return `${progress} of ${count} contestant${count > 1 ? 's' : ''} scored`;
 	}
 
 	summary() { 

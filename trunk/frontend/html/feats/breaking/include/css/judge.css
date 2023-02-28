@@ -54,7 +54,7 @@ body {
 
 .judge-scoring-interface {
   font-size: 1.6em;
-  width: 1008px;
+  width: 808px;
   height: 584px;
   margin: 0%;
   border: 4px solid white;
@@ -70,7 +70,7 @@ body {
   border-radius: 4px 12px 4px 4px;
 }
 .judge-scoring-interface .judge-tools {
-  width: 1000px;
+  width: 800px;
   height: 519px;
   padding: 2.5% 2.5% 0% 2.5%;
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -81,6 +81,7 @@ body {
 .judge-scoring-interface .judge-tools #tool-deductions .athlete-info {
   color: yellow;
   font-size: 2em;
+  line-height: 1.2em;
   text-align: center;
 }
 .judge-scoring-interface .judge-tools #tool-deductions .division-info {
@@ -107,49 +108,155 @@ body {
 .judge-scoring-interface .judge-tools #tool-deductions .deductions a label:hover {
   cursor: pointer;
 }
-.judge-scoring-interface .judge-tools #tool-deductions .deductions a.undo {
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a.undo-major {
   position: absolute;
-  top: 184px;
   width: 120px;
-  height: 120px;
   font-size: 1.5em;
 }
-.judge-scoring-interface .judge-tools #tool-deductions .deductions a.give {
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a.give-major {
   position: absolute;
-  top: 324px;
   width: 120px;
-  height: 240px;
   font-size: 2em;
 }
-.judge-scoring-interface .judge-tools #tool-deductions .minor-deductions .undo-minor-deductions {
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a.undo-minor {
+  position: absolute;
+  font-size: 1.5em;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .deductions a.give-minor {
+  position: absolute;
+  font-size: 2em;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .procedural-deductions > label {
+  font-size: 0.75em;
+  text-align: center;
+  position: absolute;
+  top: 184px;
   left: 40px;
+  width: 120px;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .procedural-deductions .undo-procedural-deductions {
+  left: 40px;
+  height: 45px;
+  top: 244px;
   background: #9dd53a;
   background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
   background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
 }
-.judge-scoring-interface .judge-tools #tool-deductions .minor-deductions .give-minor-deductions {
+.judge-scoring-interface .judge-tools #tool-deductions .procedural-deductions .give-procedural-deductions {
+  top: 304px;
   left: 40px;
+  height: 260px;
   background: #6db3f2;
   background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
   background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
 }
-.judge-scoring-interface .judge-tools #tool-deductions .major-deductions .undo-major-deductions {
-  left: 864px;
+.judge-scoring-interface .judge-tools #tool-deductions .major-technical-deductions > label {
+  font-size: 0.75em;
+  text-align: center;
+  position: absolute;
+  top: 184px;
+  left: 664px;
+  width: 120px;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .major-technical-deductions .undo-technical-deductions {
+  top: 244px;
+  left: 664px;
+  height: 45px;
   background: #ffb76b;
   background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
   background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
 }
-.judge-scoring-interface .judge-tools #tool-deductions .major-deductions .give-major-deductions {
-  left: 864px;
+.judge-scoring-interface .judge-tools #tool-deductions .major-technical-deductions .give-technical-deductions {
+  top: 306px;
+  left: 664px;
+  height: 120px;
   background: #fceabb;
   background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
   background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
 }
+.judge-scoring-interface .judge-tools #tool-deductions .minor-technical-deductions .undo-technical-deductions {
+  top: 519px;
+  left: 664px;
+  height: 45px;
+  width: 120px;
+  background: #cc00ff;
+  background: -webkit-linear-gradient(to bottom, #cc33ff 0%, #cc00ff 50%, #aa0099 51%, #bb00ff 100%);
+  background: linear-gradient(to bottom, #cc33ff 0%, #cc00ff 50%, #aa0099 51%, #bb00ff 100%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions .minor-technical-deductions .give-technical-deductions {
+  top: 442px;
+  left: 664px;
+  height: 60px;
+  width: 120px;
+  background: #cc00ff;
+  background: -webkit-linear-gradient(to bottom, #ff0066 0%, #ff3366 50%, #dd0066 51%, #ee0066 100%);
+  background: linear-gradient(to bottom, #ff0066 0%, #ff3366 50%, #dd0066 51%, #ee0066 100%);
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info {
+  position: absolute;
+  top: 214px;
+  left: 210px;
+  border: 4px solid white;
+  border-radius: 12px;
+  height: 300px;
+  width: 400px;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .board-count {
+  position: absolute;
+  top: 40px;
+  width: 400px;
+  text-align: center;
+  color: grey;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .technical-deductions {
+  position: absolute;
+  top: 0;
+  left: 196px;
+  width: 196px;
+  background: white;
+  color: black;
+  text-align: center;
+  border-radius: 0 6px 0 0;
+  border-bottom: 4px solid white;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .procedural-deductions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 196px;
+  background: black;
+  color: white;
+  text-align: center;
+  border-radius: 6px 0 0 0;
+  border-bottom: 4px solid white;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .technical-explanation {
+  position: absolute;
+  top: 74px;
+  width: 400px;
+  text-align: center;
+  font-size: 0.75em;
+  color: green;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .technical-score {
+  position: absolute;
+  top: 106px;
+  width: 400px;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .technical-score .score {
+  font-size: 8em;
+  line-height: 0.8em;
+  color: lime;
+}
+.judge-scoring-interface .judge-tools #tool-deductions .score-info .technical-score label, .judge-scoring-interface .judge-tools #tool-deductions .score-info .technical-score .score {
+  width: 400px;
+  text-align: center;
+}
 .judge-scoring-interface .judge-tools #tool-deductions a.btn-next {
   position: absolute;
   top: 530px;
-  left: 268px;
-  width: 480px;
+  left: 210px;
+  width: 400px;
 }
 .judge-scoring-interface .judge-tools #tool-help {
   color: white;
@@ -158,9 +265,16 @@ body {
 }
 .judge-scoring-interface .judge-tools #tool-help h1 {
   font-size: 1.4em;
+  color: yellow;
 }
 .judge-scoring-interface .judge-tools #tool-help td, .judge-scoring-interface .judge-tools #tool-help th {
-  font-size: 0.8em;
+  font-size: 1em;
+}
+.judge-scoring-interface .judge-tools #tool-help td {
+  color: white;
+}
+.judge-scoring-interface .judge-tools #tool-help th {
+  color: cyan;
 }
 
 /*# sourceMappingURL=judge.css.map */

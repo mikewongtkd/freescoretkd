@@ -30,7 +30,7 @@
       <div class="judge-tool-nav">
         <ul class="nav nav-pills nav-justified">
 <?php if( referee()): ?>
-          <li role="presentation" class="active"><a id="nav-deductions" href="#tool-deductions" data-toggle="pill">Penalties</a></li>
+          <li role="presentation" class="active"><a id="nav-deductions" href="#tool-deductions" data-toggle="pill">Deductions</a></li>
 <?php endif; ?>
           <li role="presentation"><a id="nav-scoring" href="#tool-scoring" data-toggle="pill">Scoring</a></li>
           <li role="presentation"><a id="nav-inspection" href="#tool-inspection" data-toggle="pill">Inspection</a></li>
@@ -40,20 +40,32 @@
       <div class="judge-tools tab-content">
 <?php if( referee()): ?>
         <div role="tabpanel" class="tab-pane fade in active" id="tool-deductions">
-          <div class="division-info"><div class="division-summary"></div><div class="division-progress"></div></div>
           <div class="athlete-info"></div>
+          <div class="division-info"><div class="division-summary"></div><div class="division-progress"></div></div>
           <div class="athlete-boards"></div>
-          <div class="technical-score-info">
+          <div class="score-info">
             <div class="board-count"></div>
-            <div class="technical-score"></div>
+            <div class="technical-deductions"></div>
+            <div class="procedural-deductions"></div>
+            <div class="technical-explanation"></div>
+            <div class="technical-score">
+              <div class="score"></div>
+              <label>Technical Score</label>
+            </div>
           </div>
-          <div class="deductions major-deductions">
-            <a class="btn undo undo-major-deductions"><label>+0.3</label></a>
-            <a class="btn give give-major-deductions"><label>-0.3</label></a>
+          <div class="deductions procedural-deductions">
+            <label>Procedural<br>Deductions</label>
+            <a class="btn undo-major undo-procedural-deductions"><label>+0.3</label></a>
+            <a class="btn give-major give-procedural-deductions"><label>-0.3</label></a>
           </div>
-          <div class="deductions minor-deductions">
-            <a class="btn undo undo-minor-deductions"><label>+0.1</label></a>
-            <a class="btn give give-minor-deductions"><label>-0.1</label></a>
+          <div class="deductions major-technical-deductions">
+            <label>Technical<br>Deductions</label>
+            <a class="btn undo-major undo-technical-deductions"><label>+0.3</label></a>
+            <a class="btn give-major give-technical-deductions"><label>-0.3</label></a>
+          </div>
+          <div class="deductions minor-technical-deductions">
+            <a class="btn undo-minor undo-technical-deductions"><label>+0.1</label></a>
+            <a class="btn give-minor give-technical-deductions"><label>-0.1</label></a>
           </div>
           <a class="btn btn-success btn-next">Next</a>
         </div>
@@ -87,6 +99,27 @@
     var tournament = <?= $tournament ?>;
     var ring       = <?= $_COOKIE[ 'ring' ] ?>;
     var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}` );
+    var state = {
+      "score" : {
+        "technical" : { 
+          "difficulty" : 0.0<?php if( referee()): ?>,
+          "deductions" : {
+            "major" : 0.0,
+            "minor" : 0.0
+          }
+        },
+        "procedural" : {
+          "deductions" : 0.0
+<?php endif; ?>
+        },
+        "presentation" : {
+          "technique"  : 0.0,
+          "rhythm"     : 0.0,
+          "style"      : 0.0,
+          "creativity" : 0.0
+        }
+      }
+    };
 
     sound.ok    = new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]});
     sound.error = new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]});
