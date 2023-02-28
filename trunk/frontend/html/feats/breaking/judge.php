@@ -45,8 +45,8 @@
           <div class="athlete-boards"></div>
           <div class="score-info">
             <div class="board-count"></div>
-            <div class="technical-deductions"></div>
-            <div class="procedural-deductions"></div>
+            <div class="technical-deductions">Technical: -<span></span></div>
+            <div class="procedural-deductions">Procedural: -<span></span></div>
             <div class="technical-explanation"></div>
             <div class="technical-score">
               <div class="score"></div>

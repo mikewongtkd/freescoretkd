@@ -4,7 +4,7 @@ class Athlete {
 	boards() {
 		if( ! this.athlete.info ) { return 0; }
 		if( ! this.athlete.info.boards ) { return 0; }
-		return int( this.athlete.info.boards );
+		return parseInt( this.athlete.info.boards );
 	}
 	name() { return this.athlete.name; }
 }
