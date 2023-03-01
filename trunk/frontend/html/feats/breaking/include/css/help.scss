@@ -10,6 +10,26 @@
 	td { color: white; }
 	th { color: cyan; }
 
+	h4 { color: cyan; }
+
+	.division-summary {
+		color: grey;
+	}
+	
+	.caution {
+		margin-left: 2em;
+		margin-right: 2em;
+		margin-bottom: 1em;
+		color: red;
+		font-weight: bold;
+	}
+	
+	.correct-board {
+		color: gold;
+		font-weight: bold;
+		text-decoration: underline;
+	}
+
 	padding-bottom: 10%;
 }
 

@@ -1,7 +1,36 @@
 
 var refresh = {
+	on : {
+		inspection: update => {
+			let request  = update.request;
+			let division = new Division( update.division );
+			let id       = parseInt( request.athlete );
+            let boards   = parseInt( request.boards );
+            $( `#tool-inspection .inspection-list a[data-id="${id}"]` ).attr({ 'data-boards' : boards });
+            $( `#tool-inspection .inspection-list a[data-id="${id}"] .badge` ).html( boards );
+            if( state.current.athleteid == id ) { refresh.tool.deductions( division ); }
+		},
+
+		navigate: update => {
+			let divid       = update.ring.current;
+			let division    = update.ring.divisions.find( division => { return division.name == divid; });
+			update.division = division;
+			refresh.on.read( update ); 
+			return; 
+		},
+
+		read: update => {
+			let division = new Division( update.division );
+            state.current.divid     = division.name();
+            state.current.athleteid = division.current.athleteid();
+            refresh.tool.deductions( division );
+            refresh.tool.scoring( division );
+            refresh.tool.inspection( division );
+            refresh.tool.help( division );
+		}
+	},
 	tool : {
-		deductions : ( division ) => {
+		deductions : division => {
 			let athlete = division.current.athlete();
 			let display = {
 				"athlete" : {
@@ -128,9 +157,9 @@ var refresh = {
 				$( '#nav-scoring' ).click();
 			});
 		},
-		scoring : ( division ) => {
+		scoring : division => {
 		},
-		inspection : ( division ) => {
+		inspection : division => {
 			const max    = 15;
 			let athletes = division.athletes();
 			let list     = $( '#tool-inspection .inspection-list' );
@@ -199,6 +228,35 @@ var refresh = {
 				$( '#board-number-pad' ).modal( 'hide' );
 
 			});
+		},
+		help : division => {
+			let summary = division.summary();
+			$( '#tool-help .division-summary' ).html( summary );
+			let agegroup = {
+				'6-7'    : 'ages-6-9',
+				'dragon' : 'ages-6-9',
+				'u7'     : 'ages-6-9',
+				'8-9'    : 'ages-6-9',
+				'tiger'  : 'ages-6-9',
+				'u9'     : 'ages-6-9',
+				'10-11'  : 'ages-10-14',
+				'youth'  : 'ages-10-14',
+				'u12'    : 'ages-10-14',
+				'12-14'  : 'ages-10-14',
+				'cadet'  : 'ages-10-14',
+				'u14'    : 'ages-10-14',
+				'15-17'  : 'ages-10-14',
+				'junior' : 'ages-15-up',
+				'u17'    : 'ages-15-up',
+				'18+'    : 'ages-15-up',
+				'18-30'  : 'ages-15-up',
+				'senior' : 'ages-15-up',
+				'u30'    : 'ages-15-up'
+			};
+
+			let match = Object.keys( agegroup ).find( key => { let regex = new RegExp( key, 'i' ); return summary.match( regex ); });
+			$( '.agegroup' ).removeClass( 'correct-board' );
+			if( match ) { $( `.${agegroup[ match ]}` ).addClass( 'correct-board' ); }
 		}
 	}
 };

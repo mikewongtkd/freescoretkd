@@ -32,7 +32,7 @@
 <?php if( referee()): ?>
           <li role="presentation" class="active"><a id="nav-deductions" href="#tool-deductions" data-toggle="pill">Deductions</a></li>
 <?php endif; ?>
-          <li role="presentation"><a id="nav-scoring" href="#tool-scoring" data-toggle="pill">Scoring</a></li>
+          <li role="presentation" <?php if( ! referee()): ?>class="active"<?php endif; ?>><a id="nav-scoring" href="#tool-scoring" data-toggle="pill">Scoring</a></li>
           <li role="presentation"><a id="nav-inspection" href="#tool-inspection" data-toggle="pill">Inspection</a></li>
           <li role="presentation"><a id="nav-help" href="#tool-help" data-toggle="pill">Help</a></li>
         </ul>
@@ -44,11 +44,14 @@
         </div>
 <?php endif; ?>
         <div role="tabpanel" class="tab-pane fade" id="tool-scoring">
+<?php include( 'judge/scoring.php' ); ?>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="tool-inspection">
 <?php include( 'judge/inspection.php' ); ?>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="tool-help">
+<div class="division-summary"></div>
+<?php include( 'judge/help/inspection.php' ); ?>
 <?php include( 'judge/help/scoring.php' ); ?>
 <?php include( 'judge/help/deductions.php' ); ?>
         </div>
@@ -120,22 +123,9 @@
 
       if( request.type == 'division' ) {
         switch( request.action ) {
-          case 'inspection':
-            let id      = parseInt( request.athlete );
-            let boards  = parseInt( request.boards );
-            $( `#tool-inspection .inspection-list a[data-id="${id}"]` ).attr({ 'data-boards' : boards });
-            $( `#tool-inspection .inspection-list a[data-id="${id}"] .badge` ).html( boards );
-            if( state.current.athleteid == id ) { refresh.tool.deductions( division ); }
-
-            break;
-
-          case 'read':
-            state.current.divid     = division.name();
-            state.current.athleteid = division.current.athleteid();
-            refresh.tool.deductions( division );
-            refresh.tool.scoring( division );
-            refresh.tool.inspection( division );
-            break;
+          case 'inspection': refresh.on.inspection( update ); break;
+          case 'read'      : refresh.on.read( update );       break;
+          case 'navigate'  : refresh.on.navigate( update );   break;
         }
       }
     };

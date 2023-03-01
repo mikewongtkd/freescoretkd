@@ -349,5 +349,23 @@ body {
 .judge-scoring-interface .judge-tools #tool-help th {
   color: cyan;
 }
+.judge-scoring-interface .judge-tools #tool-help h4 {
+  color: cyan;
+}
+.judge-scoring-interface .judge-tools #tool-help .division-summary {
+  color: grey;
+}
+.judge-scoring-interface .judge-tools #tool-help .caution {
+  margin-left: 2em;
+  margin-right: 2em;
+  margin-bottom: 1em;
+  color: red;
+  font-weight: bold;
+}
+.judge-scoring-interface .judge-tools #tool-help .correct-board {
+  color: gold;
+  font-weight: bold;
+  text-decoration: underline;
+}
 
 /*# sourceMappingURL=judge.css.map */
