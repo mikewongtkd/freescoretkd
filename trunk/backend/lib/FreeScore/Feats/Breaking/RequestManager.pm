@@ -164,14 +164,14 @@ sub handle_division_inspection {
 	my $clients   = shift;
 	my $judges    = shift;
 	my $id        = $request->{ athlete };
-	my $boards    = $request->{ boards };
+	my $boards    = int( $request->{ boards });
 	my $division  = $progress->current();
 	my $n         = int( @{$self->{ athletes }});
 	my $client    = $self->{ _client };
 	my $athlete   = $division->{ athletes }[ $id ];
 
 	if( $id < 0 || $id > $n ) {
-		my $error = "Invalid athlete ID $id for division $division->{ name }"
+		my $error = "Invalid athlete ID $id for division $division->{ name }";
 		print STDERR "$error\n";
 		$client->send({ json => { error => $error }});
 		return;
@@ -180,7 +180,7 @@ sub handle_division_inspection {
 	print STDERR "Inspection complete for $athlete->{ name }, who has $boards boards\n" if $DEBUG;
 
 	try {
-		$division->record_inspection( $id, $decision );
+		$division->record_inspection( $id, $boards );
 		$division->write();
 		
 		$self->broadcast_division_response( $request, $progress, $clients );

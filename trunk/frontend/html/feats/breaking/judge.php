@@ -121,11 +121,16 @@
       if( request.type == 'division' ) {
         switch( request.action ) {
           case 'inspection':
+            let id      = parseInt( request.athlete );
+            let boards  = parseInt( request.boards );
+            $( `#tool-inspection .inspection-list a[data-id="${id}"]` ).attr({ 'data-boards' : boards });
+            $( `#tool-inspection .inspection-list a[data-id="${id}"] .badge` ).html( boards );
+            if( state.current.athleteid == id ) { refresh.tool.deductions( division ); }
 
             break;
 
           case 'read':
-            state.current.divid = division.name();
+            state.current.divid     = division.name();
             state.current.athleteid = division.current.athleteid();
             refresh.tool.deductions( division );
             refresh.tool.scoring( division );

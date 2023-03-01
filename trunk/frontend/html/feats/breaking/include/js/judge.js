@@ -153,6 +153,7 @@ var refresh = {
 				$( '#board-number-pad' ).modal( 'show' );
 				$( '#board-number-pad .board-input' ).html( boards );
 				$( '#board-number-pad .btn-confirm' ).attr({ 'data-id' : id });
+				$( '#board-number-pad .btn-confirm' ).attr({ 'data-athlete' : name });
 			});
 
 			$( '#board-number-pad button' ).off( 'click' ).click( ev => {
@@ -189,10 +190,13 @@ var refresh = {
 				let send    = $( '#board-number-pad .btn-confirm' );
 				let boards  = parseInt( input.text());
 				let id      = target.attr( 'data-id' );
+				let name    = target.attr( 'data-athlete' );
 
 				let request = { data : { type : 'division', action : 'inspection', athlete : id, boards }};
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
+				alertify.notify( `Sending inspection confirmation to server. ${name} has ${boards} board${boards == 1 ? '' : 's'}` );
+				$( '#board-number-pad' ).modal( 'hide' );
 
 			});
 		}
