@@ -6,8 +6,15 @@ class Division {
 				let current  = this.division.current;
 				let athletes = this.division.athletes;
 				return new Athlete( athletes[ current ]);
+			},
+			athleteid : () => {
+				return this.division.current;
 			}
 		};
+	}
+
+	athletes() {
+		return this.division.athletes.map( x => new Athlete( x ));
 	}
 
 	description() { 

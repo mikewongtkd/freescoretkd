@@ -78,6 +78,79 @@ body {
   color: white;
   overflow-y: auto;
 }
+.judge-scoring-interface .judge-tools #tool-inspection h1 {
+  color: lime;
+}
+.judge-scoring-interface .judge-tools #tool-inspection .inspection-list-header {
+  height: 24px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection .inspection-list-header label {
+  font-size: 0.75em;
+  font-weight: normal;
+  color: cyan;
+}
+.judge-scoring-interface .judge-tools #tool-inspection .inspection-list-header .athlete-name {
+  margin-left: 15px;
+  float: left;
+}
+.judge-scoring-interface .judge-tools #tool-inspection .inspection-list-header .board-count {
+  margin-right: 15px;
+  float: right;
+}
+.judge-scoring-interface .judge-tools #tool-inspection .inspection-list a .badge {
+  font-size: 1em;
+  font-weight: normal;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-dialog {
+  width: 300px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-content {
+  width: 300px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-header {
+  color: yellow;
+  background-color: black;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-header button {
+  color: white;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body {
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body p {
+  font-size: 0.75em;
+  color: lime;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body .numpad {
+  margin-left: 28px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body .numpad .board-input {
+  height: 38px;
+  width: 210px;
+  margin-bottom: 8px;
+  background-color: white;
+  color: black;
+  text-align: center;
+  line-height: 1.8em;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body .numpad button {
+  height: 40px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body .numpad button.single-width {
+  width: 66px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-body .numpad button.double-width {
+  width: 138px;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .modal-footer {
+  background-color: black;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad button {
+  color: black;
+}
+.judge-scoring-interface .judge-tools #tool-inspection #board-number-pad .btn-confirm {
+  color: white;
+}
 .judge-scoring-interface .judge-tools #tool-deductions .athlete-info {
   color: yellow;
   font-size: 2em;

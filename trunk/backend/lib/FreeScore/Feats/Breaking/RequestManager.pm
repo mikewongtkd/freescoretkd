@@ -53,7 +53,7 @@ sub init {
 # ============================================================
 sub broadcast_division_response {
 # ============================================================
-# Broadcasts to ring
+# Broadcasts updated division information to the ring
 # ------------------------------------------------------------
  	my $self      = shift;
 	my $request   = shift;
@@ -84,7 +84,7 @@ sub broadcast_division_response {
 # ============================================================
 sub broadcast_ring_response {
 # ============================================================
-# Broadcasts to ring
+# Broadcasts updated ring information to the ring
 # ------------------------------------------------------------
  	my $self      = shift;
 	my $request   = shift;
@@ -148,7 +148,7 @@ sub handle_division_decision {
 		$division->write();
 		autopilot( $self, $request, $progress, $division );
 
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -163,18 +163,27 @@ sub handle_division_inspection {
 	my $progress  = shift;
 	my $clients   = shift;
 	my $judges    = shift;
-	my $athlete   = $request->{ athlete };
+	my $id        = $request->{ athlete };
 	my $boards    = $request->{ boards };
 	my $division  = $progress->current();
+	my $n         = int( @{$self->{ athletes }});
 	my $client    = $self->{ _client };
+	my $athlete   = $division->{ athletes }[ $id ];
 
-	print STDERR "Inspection complete for $athlete, who has $boards boards\n" if $DEBUG;
+	if( $id < 0 || $id > $n ) {
+		my $error = "Invalid athlete ID $id for division $division->{ name }"
+		print STDERR "$error\n";
+		$client->send({ json => { error => $error }});
+		return;
+	}
+
+	print STDERR "Inspection complete for $athlete->{ name }, who has $boards boards\n" if $DEBUG;
 
 	try {
-		$division->record_inspection( $athlete, $decision );
+		$division->record_inspection( $id, $decision );
 		$division->write();
 		
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_division_response( $request, $progress, $clients );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -221,12 +230,12 @@ sub handle_division_read {
 	my $division = $progress->current();
 
 	if( $DEBUG ) {
-		print STDERR "Requesting information for division " . uc( $division->{ name }) . "\n";
+		print STDERR "Client requesting information for division " . uc( $division->{ name }) . "\n";
 	}
 
 	my $clone = unbless( $division->clone());
 	try {
-		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, division => $clone }});
+		$client->send({ json => { request => $request, division => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});

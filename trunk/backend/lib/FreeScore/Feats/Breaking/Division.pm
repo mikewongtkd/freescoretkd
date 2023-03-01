@@ -186,10 +186,12 @@ sub record_decision {
 sub record_inspection {
 # ============================================================
 	my $self   = shift;
-	my $name   = shift;
+	my $id     = shift;
 	my $boards = shift;
+	my $n      = int( @{ $self->{ athletes }});
 
-	my $athlete = first { $_->{ name } eq $name } @{$self->{ athletes }};
+	return 0 if( $id < 0 || $id > $n );
+	my $athlete = $self->{ athletes }[ $id ];
 	
 	return unless $athlete;
 	$athlete->{ info }{ boards } = $boards;
