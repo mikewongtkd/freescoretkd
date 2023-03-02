@@ -2,16 +2,15 @@
 <div class="division-info"><div class="division-summary"></div><div class="division-progress"></div></div>
 <div class="athlete-boards"></div>
 <div class="score-info">
-  <div class="board-count"></div>
   <div class="technical">Technical: <span></span></div>
   <div class="presentation">Presentation: <span></span></div>
-  <div class="score">
+  <div class="total-score">
     <div class="score"></div>
-    <label>Score</label>
+    <label>Score (out of 10)</label>
   </div>
 </div>
 <div class="scores">
-  <h1>Technical Score</h1>
+  <h1 class="technical">Technical Score</h1>
   <div class="technical">
     <h4>Difficulty of Techniques</h4>
     <div class="btn-group difficulty">
@@ -29,10 +28,10 @@
     </div>
   </div>
 
-  <h1>Presentation Score</h1>
+  <h1 class="presentation">Presentation Score</h1>
   <div class="presentation">
     <h4>Use of Correct Taekwondo Technique</h4>
-    <div class="btn-group presentation-technique">
+    <div class="btn-group technique">
       <button class="btn btn-default">1.0</button>
       <button class="btn btn-default">0.9</button>
       <button class="btn btn-default">0.8</button>
@@ -42,7 +41,7 @@
     </div>
 
     <h4>Balance &amp; Rhythm</h4>
-    <div class="btn-group presentation-rhythm">
+    <div class="btn-group rhythm">
       <button class="btn btn-default">1.0</button>
       <button class="btn btn-default">0.9</button>
       <button class="btn btn-default">0.8</button>
@@ -51,8 +50,8 @@
       <button class="btn btn-default">0.5</button>
     </div>
 
-    <h4>Style, Attitude, Expression of Energy &amp; Confidence</h4>
-    <div class="btn-group presentation-style">
+    <h4>Style &amp; Expression of Energy</h4>
+    <div class="btn-group style">
       <button class="btn btn-default">1.0</button>
       <button class="btn btn-default">0.9</button>
       <button class="btn btn-default">0.8</button>
@@ -62,7 +61,7 @@
     </div>
 
     <h4>Creativity</h4>
-    <div class="btn-group presentation-creativity">
+    <div class="btn-group creativity">
       <button class="btn btn-default">1.0</button>
       <button class="btn btn-default">0.9</button>
       <button class="btn btn-default">0.8</button>

@@ -21,16 +21,77 @@ var refresh = {
 
 		read: update => {
 			let division = new Division( update.division );
+			state.reset();
             state.current.divid     = division.name();
             state.current.athleteid = division.current.athleteid();
             refresh.tool.deductions( division );
             refresh.tool.scoring( division );
             refresh.tool.inspection( division );
             refresh.tool.help( division );
+		},
+
+		score: update => {
+			let request   = update.request
+			let division  = new Division( update.division );
+			let athlete   = division.current.athlete();
+			let athleteid = division.current.athleteid();
+			if( athleteid == state.current.athleteid && request.judge == state.judge ) {
+				setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); sound.ok.play(); }, 500 );
+			}
+		}
+	},
+	scoring : {
+		component : {
+			score : athlete => {
+				let boards  = athlete.boards();
+				let score   = { "technical" : { "boards" : (boards * 0.2).toFixed( 1 )}, "presentation" : {}};
+				let count   = boards == 0 ? 'Pending inspection' : `${boards} Board${boards > 1 ? 's' : ''} &rarr; +${score.technical.boards} pts`;
+				let display = {
+					"athlete" : {
+						"technical" : { 
+							"score" : $( '#tool-scoring .score-info .technical span' ),
+						},
+						"presentation" : {
+							"score" : $( '#tool-scoring .score-info .presentation span' ),
+						},
+						"score" : $( '#tool-scoring .score-info .total-score .score' )
+					}
+				};
+				let presentation = { 'categories' : [ 'technique', 'rhythm', 'style', 'creativity' ]};
+
+				score.technical.difficulty = state.score.technical.difficulty;
+				score.technical.summary    = score.technical.difficulty == 0 ? '&mdash;' : (parseFloat( score.technical.boards ) + parseFloat( score.technical.difficulty )).toFixed( 1 );
+				score.presentation.summary = presentation.categories.some( x => state.score.presentation[ x ] == 0 ) ? '&mdash;' : (presentation.categories.reduce(( a, b ) => { return parseFloat( a ) + parseFloat( state.score.presentation[ b ]); }, 0.0 ).toFixed( 1 ));
+				score.summary              = score.technical.summary == '&mdash;' || score.presentation.summary == '&mdash;' ? '&mdash;' : (parseFloat( score.technical.summary ) + parseFloat( score.presentation.summary )).toFixed( 1 );
+
+				display.athlete.technical.score.html( score.technical.summary );
+				display.athlete.presentation.score.html( score.presentation.summary );
+				display.athlete.score.html( score.summary );
+
+				let button = {
+					send : $( '#tool-scoring .btn-send' )
+				};
+
+				button.send.off( 'click' ).click( ev => { 
+					let copy = JSON.parse( JSON.stringify( state.score ));
+					// Only the referee needs to send in technical and procedural deductions
+					if( state.judge != 0 ) {
+						delete copy.technical.deductions;
+						delete copy.procedural;
+					}
+					let request = { data : { type : 'division', action : 'score', judge : state.judge, score : copy }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+					sound.next.play();
+					alertify.notify( `Sending score for ${athlete.name()}` );
+				});
+			}
 		}
 	},
 	tool : {
+		// ============================================================
 		deductions : division => {
+		// ============================================================
 			let athlete = division.current.athlete();
 			let display = {
 				"athlete" : {
@@ -66,7 +127,7 @@ var refresh = {
 			display.athlete.technical.score.html(( score - deductions.technical ).toFixed( 1 ));
 
 			// ============================================================
-			// BEHAVIOR
+			// DEDUCTIONS UI BEHAVIOR
 			// ============================================================
 			let button = {
 				"procedural" : {
@@ -157,9 +218,91 @@ var refresh = {
 				$( '#nav-scoring' ).click();
 			});
 		},
+		// ============================================================
 		scoring : division => {
+		// ============================================================
+			let athlete = division.current.athlete();
+			let boards  = athlete.boards();
+			let score   = { "technical" : { "boards" : (boards * 0.2).toFixed( 1 )}, "presentation" : {}};
+			let count   = boards == 0 ? 'Pending inspection' : `${boards} Board${boards > 1 ? 's' : ''} &rarr; +${score.technical.boards} pts`;
+			let display = {
+				"athlete" : {
+					"boards" : $( '#tool-scoring .athlete-boards' ),
+					"name" : $( '#tool-scoring .athlete-info' ),
+				},
+				"division" : {
+					"progress" : $( '#tool-scoring .division-info .division-progress' ),
+					"summary" : $( '#tool-scoring .division-info .division-summary' )
+				}
+			};
+			display.athlete.name.html( athlete.name());
+			display.division.summary.html( division.summary());
+			display.division.progress.html( division.progress());
+			display.athlete.boards.html( count );
+			refresh.scoring.component.score( athlete );
+
+			// ============================================================
+			// SCORING UI BEHAVIOR
+			// ============================================================
+			let button = {
+				"technical" : {
+					"difficulty" : $( '#tool-scoring .scores .technical .difficulty button' ),
+				},
+				"presentation" : {
+					"technique"  : $( '#tool-scoring .scores .presentation .technique button' ),
+					"rhythm"     : $( '#tool-scoring .scores .presentation .rhythm button' ),
+					"style"      : $( '#tool-scoring .scores .presentation .style button' ),
+					"creativity" : $( '#tool-scoring .scores .presentation .creativity button' ),
+				}
+			};
+			button.technical.difficulty.off( 'click' ).click( ev => {
+				button.technical.difficulty.removeClass( 'active' );
+				let target = $( ev.target );
+				let value  = parseFloat( target.text());
+				target.addClass( 'active' );
+				state.score.technical.difficulty = value;
+				refresh.scoring.component.score( athlete );
+			});
+
+			button.presentation.technique.off( 'click' ).click( ev => {
+				button.presentation.technique.removeClass( 'active' );
+				let target = $( ev.target );
+				let value  = parseFloat( target.text());
+				target.addClass( 'active' );
+				state.score.presentation.technique = value;
+				refresh.scoring.component.score( athlete );
+			});
+
+			button.presentation.rhythm.off( 'click' ).click( ev => {
+				button.presentation.rhythm.removeClass( 'active' );
+				let target = $( ev.target );
+				let value  = parseFloat( target.text());
+				target.addClass( 'active' );
+				state.score.presentation.rhythm = value;
+				refresh.scoring.component.score( athlete );
+			});
+
+			button.presentation.style.off( 'click' ).click( ev => {
+				button.presentation.style.removeClass( 'active' );
+				let target = $( ev.target );
+				let value  = parseFloat( target.text());
+				target.addClass( 'active' );
+				state.score.presentation.style = value;
+				refresh.scoring.component.score( athlete );
+			});
+
+			button.presentation.creativity.off( 'click' ).click( ev => {
+				button.presentation.creativity.removeClass( 'active' );
+				let target = $( ev.target );
+				let value  = parseFloat( target.text());
+				target.addClass( 'active' );
+				state.score.presentation.creativity = value;
+				refresh.scoring.component.score( athlete );
+			});
 		},
+		// ============================================================
 		inspection : division => {
+		// ============================================================
 			const max    = 15;
 			let athletes = division.athletes();
 			let list     = $( '#tool-inspection .inspection-list' );
@@ -229,7 +372,9 @@ var refresh = {
 
 			});
 		},
+		// ============================================================
 		help : division => {
+		// ============================================================
 			let summary = division.summary();
 			$( '#tool-help .division-summary' ).html( summary );
 			let agegroup = {

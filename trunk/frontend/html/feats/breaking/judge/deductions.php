@@ -1,6 +1,5 @@
 <div class="athlete-info"></div>
 <div class="division-info"><div class="division-summary"></div><div class="division-progress"></div></div>
-<div class="athlete-boards"></div>
 <div class="score-info">
   <div class="board-count"></div>
   <div class="technical-deductions">Technical: -<span></span></div>

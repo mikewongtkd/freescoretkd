@@ -43,7 +43,7 @@
 <?php include( 'judge/deductions.php' ); ?>
         </div>
 <?php endif; ?>
-        <div role="tabpanel" class="tab-pane fade" id="tool-scoring">
+        <div role="tabpanel" class="tab-pane fade <?php if( ! referee()): ?>in active<?php endif; ?>" id="tool-scoring">
 <?php include( 'judge/scoring.php' ); ?>
         </div>
         <div role="tabpanel" class="tab-pane fade" id="tool-inspection">
@@ -75,37 +75,23 @@
     var sound      = {};
     var tournament = <?= $tournament ?>;
     var ring       = <?= $_COOKIE[ 'ring' ] ?>;
-    var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}` );
     var state = {
       "current" : {
         "divid" : null,
         "athlete" : null
       },
-      "score" : {
-        "technical" : { 
-          "difficulty" : 0.0<?php if( referee()): ?>,
-          "deductions" : {
-            "major" : 0.0,
-            "minor" : 0.0
-          }
-        },
-        "procedural" : {
-          "deductions" : 0.0
-<?php endif; ?>
-        },
-        "presentation" : {
-          "technique"  : 0.0,
-          "rhythm"     : 0.0,
-          "style"      : 0.0,
-          "creativity" : 0.0
-        }
-      }
+      "judge" : <?= $_COOKIE[ 'judge' ] - 1 ?>,
+      "reset" : () => { state.current.divid = null; state.current.athlete = null; state.score = { "technical" : { "difficulty" : 0.0, "deductions" : { "major" : 0.0, "minor" : 0.0 }}, "procedural" : { "deductions" : 0.0 }, "presentation" : { "technique" : 0.0, "rhythm" : 0.0, "style" : 0.0, "creativity" : 0.0 }}}
     };
+
+    state.reset();
 
     sound.ok    = new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]});
     sound.error = new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]});
     sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]});
     sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]});
+
+    var ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}` );
 
     ws.onopen = () => {
       let request = { data : { type : 'division', action : 'read' }};
@@ -125,6 +111,7 @@
         switch( request.action ) {
           case 'inspection': refresh.on.inspection( update ); break;
           case 'read'      : refresh.on.read( update );       break;
+          case 'score'     : refresh.on.score( update );      break;
           case 'navigate'  : refresh.on.navigate( update );   break;
         }
       }

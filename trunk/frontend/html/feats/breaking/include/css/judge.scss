@@ -33,56 +33,9 @@ body {
 
 		overflow-y: auto;
 
-		#tool-inspection {
-			h1 { color: lime; }
-			.inspection-list-header {
-				height: 24px;
-				label {
-					font-size: 0.75em;
-					font-weight: normal;
-					color: cyan;
-				}
-				.athlete-name { margin-left: 15px; float: left; }
-				.board-count  { margin-right: 15px; float: right; }
-			}
-			.inspection-list a .badge {
-				font-size: 1em;
-				font-weight: normal;
-			}
-			#board-number-pad {
-				.modal-dialog { width: 300px; }
-				.modal-content { width: 300px; }
-				.modal-header { color: yellow; background-color: black; button { color: white; }}
-				.modal-body {
-					background: linear-gradient( to top, #45484d 0%, #000000 100% );
-					p { font-size: 0.75em; color: lime; }
-					.numpad {
-						margin-left: 28px;
-						.board-input { 
-							height: 38px; 
-							width: 210px; 
-							margin-bottom: 8px;
-							background-color: white; 
-							color: black; 
-							text-align: center;
-							line-height: 1.8em;
-						}
-						button {
-							height: 40px;
-							&.single-width { width: 66px; }
-							&.double-width { width: 138px; }
-						}
-					}
-				}
-				.modal-footer { background-color: black; }
-
-				button {
-					color: black;
-				}
-				.btn-confirm { color: white; }
-			}
-		}
 		@import 'deductions';
+		@import 'scoring';
+		@import 'inspection';
 		@import 'help';
 	}
 }

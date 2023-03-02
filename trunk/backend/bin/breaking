@@ -30,7 +30,7 @@ websocket '/breaking/:tournament/:ring' => sub {
 	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $self->tx() );
 	my $progress   = undef;
 	my $staging    = undef;
-	my $id         = sprintf "%s", sha1_hex( $self->tx() );
+	my $id         = $self->cookie( 'freescore-session' );
 	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
