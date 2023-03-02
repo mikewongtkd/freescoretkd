@@ -15,7 +15,7 @@
 <html>
 	<head>
 		<link href="../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../include/css/forms/grassroots/coordinator.css" rel="stylesheet" />
+		<link href="include/css/coordinator.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -33,9 +33,9 @@
 		<script src="../../include/bootstrap/add-ons/brackets.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/forms/grassroots/score.class.js"></script>
-		<script src="../../include/js/forms/grassroots/athlete.class.js"></script>
-		<script src="../../include/js/forms/grassroots/division.class.js"></script>
+		<script src="../../include/js/feats/breaking/score.class.js"></script>
+		<script src="../../include/js/feats/breaking/athlete.class.js"></script>
+		<script src="../../include/js/feats/breaking/division.class.js"></script>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -109,7 +109,7 @@
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			
-			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
+			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
 
 			var handle = {
 				ring: {
@@ -118,7 +118,7 @@
 
 						var ring = update.ring;
 						refresh.ring( ring );
-						var divid = $.cookie( 'grassroots-divid' );
+						var divid = $.cookie( 'breaking-divid' );
 						if( defined( divid )) {
 							var division = ring.divisions.find( d => d.name == divid );
 							var current  = ring.divisions.find( d => d.name == ring.current );
@@ -218,7 +218,7 @@
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
-						$.removeCookie( 'grassroots-divid' );
+						$.removeCookie( 'breaking-divid' );
 						page.transition(); 
 					});
 
@@ -282,7 +282,7 @@
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						sound.prev.play();
-						$.removeCookie( 'grassroots-divid' );
+						$.removeCookie( 'breaking-divid' );
 						page.transition(); 
 					});
 					refresh.navadmin( division );
@@ -380,8 +380,8 @@
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
-							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-grassroots/' + ring + '/div.' + divid + '.txt', '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/grassroots/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
+							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/feats-breaking/' + ring + '/div.' + divid + '.txt', '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/feats/breaking/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
 						}
 					};
 
@@ -410,7 +410,7 @@
 							var divid    = clicked.attr( 'divid' );
 							var division = ring.divisions.find(( d ) => { return d.name == divid; });
 
-							$.cookie( 'grassroots-divid', divid, { expires: 1, path: '/' });
+							$.cookie( 'breaking-divid', divid, { expires: 1, path: '/' });
 							division = new Division( division );
 							var se = division.is.single.elimination();
 							if( se ) { refresh.brackets( division, division.name() == ring.current ); } 
