@@ -4,6 +4,7 @@ use lib qw( /usr/local/freescore/lib );
 use Clone qw( clone );
 use Data::Structure::Util qw( unbless );
 use Mojolicious::Lite;
+use Mojo::IOLoop::Delay;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use FreeScore::Config;
