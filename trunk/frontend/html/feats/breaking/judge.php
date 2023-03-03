@@ -3,6 +3,7 @@
   $judge = isset( $_GET[ 'judge' ]) ? $_GET[ 'judge' ] : $_COOKIE[ 'judge' ];
   if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: register.php' ); exit(); }
   include( "../../include/php/config.php" ); 
+  include( "../../session.php" ); 
   
   function referee() {
     global $judge;
@@ -77,13 +78,13 @@
 
     var sound      = {};
     var tournament = <?= $tournament ?>;
-    var ring       = <?= $_COOKIE[ 'ring' ] ?>;
+    var ring       = <?= $ring ?>;
     var state = {
       "current" : {
         "divid" : null,
         "athlete" : null
       },
-      "judge" : <?= $_COOKIE[ 'judge' ] - 1 ?>,
+      "judge" : <?= $judge ?>,
       "reset" : () => { state.current.divid = null; state.current.athleteid = null; state.score = { "technical" : { "difficulty" : 0.0, "deductions" : { "major" : 0.0, "minor" : 0.0 }}, "procedural" : { "deductions" : 0.0 }, "presentation" : { "technique" : 0.0, "rhythm" : 0.0, "style" : 0.0, "creativity" : 0.0 }}}
     };
 

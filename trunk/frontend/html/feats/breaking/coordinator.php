@@ -1,6 +1,7 @@
 <?php 
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( "../../include/php/config.php" ); 
+	include( "../../session.php" ); 
 	setcookie( 'judge', '', $clear_cookie, '/' );
 	setcookie( 'role', 'display', 0, '/' );
 	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
@@ -85,6 +86,10 @@
 <?php include_once( 'coordinator/judge-scores.php' ); ?>
 								</div>
 							</div>
+							<div class="autopilot">
+								<h4>Autopilot</h4>
+								<a class="btn btn-block btn-default disabled status">Disengaged</a>
+							</div>
 							<div class="decision">
 								<h4>Decisions</h4>
 								<div class="list-group">
@@ -121,6 +126,24 @@
 			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
 
 			var handle = {
+				autopilot : {
+					display : update => {
+						$( '.autopilot .status' ).html( 'Showing Leaderboard' );
+					},
+					next : update => {
+						$( '.autopilot .status' ).html( 'Next Athlete' );
+					},
+					score : update => {
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+						$( '.autopilot .status' ).html( 'Showing Score' );
+					},
+					update : update => {
+						let request = update.request;
+						if( ! request || ! request.action ) { return; }
+						handle.autopilot[ request.action ]( update );
+					}
+				},
 				ring: {
 					read : ( update ) => {
 

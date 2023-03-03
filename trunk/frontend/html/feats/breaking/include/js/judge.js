@@ -36,7 +36,11 @@ var refresh = {
 			let athlete   = division.current.athlete();
 			let athleteid = division.current.athleteid();
 			if( athleteid == state.current.athleteid && request.judge == state.judge ) {
-				setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); sound.ok.play(); }, 500 );
+				if( request.score == 'clear' ) {
+					setTimeout( () => { alertify.notify( `Score for ${athlete.name()} cleared by computer operator` ); sound.ok.play(); }, 500 );
+				} else {
+					setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); sound.ok.play(); }, 500 );
+				}
 			}
 		}
 	},

@@ -152,6 +152,7 @@ html, body {
 }
 #judge-scores .deductions {
   text-align: left;
+  padding-left: 8px;
 }
 #judge-scores .dropped {
   text-decoration: line-through;

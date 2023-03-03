@@ -410,6 +410,6 @@ sub autopilot {
 # HYPNOTOAD SERVER
 # ============================================================
 mkdir '/var/log/freescore' unless -e '/var/log/freescore';
-app->config( hypnotoad => { listen => [ 'http://*:3078' ], pid_file => '/var/run/breaking.pid' });
+app->config( hypnotoad => { listen => [ 'http://*:3078' ], pid_file => '/var/run/breaking.pid', workers => 1 });
 app->log( new Mojo::Log( path => '/var/log/freescore/breaking.log', level => 'error' ));
 app->start();

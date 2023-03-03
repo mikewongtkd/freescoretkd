@@ -150,7 +150,7 @@ sub handle_division_decision {
 	try {
 		$division->record_decision( $decision );
 		$division->write();
-		autopilot( $self, $request, $progress, $division );
+		autopilot( $self, $request, $progress, $division, $clients );
 
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
@@ -273,7 +273,7 @@ sub handle_division_score {
 	try {
 		my $complete = $division->record_score( $judge, $score );
 		$division->write();
-		autopilot( $self, $request, $progress, $division ) if $complete;
+		autopilot( $self, $request, $progress, $division, $clients ) if $complete;
 			
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
@@ -391,8 +391,11 @@ sub autopilot {
 	my $request  = shift;
 	my $progress = shift;
 	my $division = shift;
+	my $clients  = shift;
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
+
+	$request->{ type } = 'autopilot';
 
 	my $show  = {
 		score => sub {
@@ -400,6 +403,7 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
+			$request->{ action } = 'score';
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
 		},
@@ -408,6 +412,7 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
+			$request->{ action } = 'display';
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
 		},
@@ -416,6 +421,7 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
+			$request->{ action } = 'next';
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
 		}
