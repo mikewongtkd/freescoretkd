@@ -404,6 +404,7 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 			$request->{ action } = 'score';
+			$request->{ delay }  = $pause->{ score };
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
 		},
@@ -413,6 +414,7 @@ sub autopilot {
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
 			$request->{ action } = 'display';
+			$request->{ delay }  = $pause->{ leaderboard };
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
 		},
@@ -422,6 +424,7 @@ sub autopilot {
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
 			$request->{ action } = 'next';
+			$request->{ delay }  = $pause->{ next };
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
 		}

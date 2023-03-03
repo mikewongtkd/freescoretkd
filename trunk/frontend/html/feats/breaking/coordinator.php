@@ -122,21 +122,35 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
+			var state      = { autopilot : { timer : null }};
 			
 			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
 
 			var handle = {
 				autopilot : {
 					display : update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
 						$( '.autopilot .status' ).html( 'Showing Leaderboard' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).html( 'Disengaged' ); }, delay );
+
 					},
 					next : update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
 						$( '.autopilot .status' ).html( 'Next Athlete' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).html( 'Disengaged' ); }, delay );
 					},
 					score : update => {
+						let request  = update.request;
+						let delay    = (request.delay + 1) * 1000;
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
 						$( '.autopilot .status' ).html( 'Showing Score' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).html( 'Disengaged' ); }, delay );
 					},
 					update : update => {
 						let request = update.request;
