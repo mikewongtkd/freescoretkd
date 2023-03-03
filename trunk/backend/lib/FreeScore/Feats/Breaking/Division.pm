@@ -174,10 +174,18 @@ sub record_decision {
 # ============================================================
 	my $self     = shift;
 	my $decision = shift;
+	my $n      = int( @{ $self->{ athletes }});
 
+	return 0 if( $id < 0 || $id > $n );
 	my $i       = $self->{ current };
 	my $athlete = $self->{ athletes }[ $i ];
-	$athlete->{ info } = { %{$athlete->{ info }}, decision => $decision };
+
+	return 0 unless $athlete;
+	if( $decision eq 'clear' ) {
+		delete $athlete->{ info }{ decision };
+	} else {
+		$athlete->{ info }{ decision } = $decision;
+	}
 
 	return 1;
 }
@@ -193,7 +201,7 @@ sub record_inspection {
 	return 0 if( $id < 0 || $id > $n );
 	my $athlete = $self->{ athletes }[ $id ];
 	
-	return unless $athlete;
+	return 0 unless $athlete;
 	$athlete->{ info }{ boards } = $boards;
 
 	return 1;
@@ -282,6 +290,7 @@ sub trim_scores {
 	my $judges  = $self->{ judges };
 
 	return unless $athlete->{ complete };
+	return if( exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision });
 
 	my $hi = {};
 	my $lo = {};
@@ -323,8 +332,8 @@ sub trim_scores {
 		procedural   => $referee->{ procedural }{ deductions }
 	};
 	my $mean       = {
-		technical    => 0.0 + sprintf( "%.2f", (sum @$technical    - ( $hi->{ tv } + $lo->{ tv }))/3 ),
-		presentation => 0.0 + sprintf( "%.2f", (sum @$presentation - ( $hi->{ pv } + $lo->{ pv }))/3 )
+		technical    => 0.0 + sprintf( "%.2f", ((sum @$technical)    - ( $hi->{ tv } + $lo->{ tv }))/3 ),
+		presentation => 0.0 + sprintf( "%.2f", ((sum @$presentation) - ( $hi->{ pv } + $lo->{ pv }))/3 )
 	};
 
 	$athlete->{ trimmed }{ technical }      = $mean->{ technical } + ($boards * 0.2) - $deductions->{ technical };
@@ -340,8 +349,8 @@ sub trim_scores {
 
 	$athlete->{ untrimmed }{ technical }    = $sum->{ technical } + ($boards * 0.2) - $deductions->{ technical };
 	$athlete->{ untrimmed }{ presentation } = $sum->{ presentation };
-	$athlete->{ untrimmed }{ subtotal }     = sum @{$athlete->{ original }}{ qw( technical presentation )};
-	$athlete->{ untrimmed }{ total }        = $athlete->{ original }{ subtotal } - $deductions->{ procedural };
+	$athlete->{ untrimmed }{ subtotal }     = sum @{$athlete->{ untrimmed }}{ qw( technical presentation )};
+	$athlete->{ untrimmed }{ total }        = $athlete->{ untrimmed }{ subtotal } - $deductions->{ procedural };
 
 	# Calculate tiebreaker values
 	$athlete->{ tb1 } = $athlete->{ untrimmed }{ total };

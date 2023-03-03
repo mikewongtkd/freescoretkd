@@ -21,8 +21,12 @@ class Division {
 		return this.division.description; 
 	}
 
+	judges() {
+		return this.division.judges;
+	}
+
 	name() { 
-		return this.division.name.toUpperCase(); 
+		return this.division.name; 
 	}
 
 	progress() { 
@@ -32,7 +36,11 @@ class Division {
 		return `${progress} of ${count} contestant${count > 1 ? 's' : ''} scored`;
 	}
 
+	ring() {
+		return this.division.ring;
+	}
+
 	summary() { 
-		return `${this.name()} &ndash; ${this.description()}`; 
+		return `${this.name().toUpperCase()} &ndash; ${this.description()}`; 
 	}
 }

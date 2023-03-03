@@ -70,7 +70,7 @@ html, body {
 .athlete-name {
   position: relative;
   display: inline-block;
-  width: 65%;
+  width: 70%;
   font-size: 14pt;
   line-height: 14pt;
 }
@@ -86,24 +86,15 @@ html, body {
   color: white !important;
 }
 
-.athlete-penalties {
-  display: inline-block;
-  position: relative;
-  width: 20%;
-  text-align: right;
-  color: white;
-}
-.athlete-penalties .penalty {
-  width: 33.3%;
-}
-
 .athlete-score {
   display: inline-block;
   position: relative;
-  width: 10%;
+  width: 20%;
+  font-size: 14pt;
+  line-height: 14pt;
   margin-left: 5%;
   text-align: right;
-  color: #666;
+  color: white;
 }
 
 .active h4 {
@@ -141,6 +132,33 @@ html, body {
   margin-left: 8px;
 }
 
+#judge-scores .label {
+  font-size: 1em;
+}
+#judge-scores .tech.label {
+  color: blue;
+}
+#judge-scores .pres.label {
+  color: red;
+}
+#judge-scores .sum.label {
+  color: black;
+}
+#judge-scores table {
+  width: 100%;
+}
+#judge-scores td, #judge-scores th {
+  text-align: center;
+}
+#judge-scores .dropped {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.action-menu .fas {
+  width: 12px;
+  text-align: center;
+}
 .action-menu .list-group-item span {
   margin-right: 12px;
 }

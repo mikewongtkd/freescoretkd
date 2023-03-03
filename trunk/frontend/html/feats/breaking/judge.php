@@ -81,7 +81,7 @@
         "athlete" : null
       },
       "judge" : <?= $_COOKIE[ 'judge' ] - 1 ?>,
-      "reset" : () => { state.current.divid = null; state.current.athlete = null; state.score = { "technical" : { "difficulty" : 0.0, "deductions" : { "major" : 0.0, "minor" : 0.0 }}, "procedural" : { "deductions" : 0.0 }, "presentation" : { "technique" : 0.0, "rhythm" : 0.0, "style" : 0.0, "creativity" : 0.0 }}}
+      "reset" : () => { state.current.divid = null; state.current.athleteid = null; state.score = { "technical" : { "difficulty" : 0.0, "deductions" : { "major" : 0.0, "minor" : 0.0 }}, "procedural" : { "deductions" : 0.0 }, "presentation" : { "technique" : 0.0, "rhythm" : 0.0, "style" : 0.0, "creativity" : 0.0 }}}
     };
 
     state.reset();
