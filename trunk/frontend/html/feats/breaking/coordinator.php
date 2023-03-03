@@ -141,6 +141,17 @@
 						}
 					},
 					update: ( update ) => { handle.ring.read( update ); }
+				},
+				division : {
+					decision: update => {
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+					},
+					update: update => {
+						let request = update.request;
+						if( ! request || ! request.action ) { return; }
+						handle.division[ request.action ]( update );
+					}
 				}
 			};
 
@@ -152,7 +163,6 @@
 				},
 				message: ( response ) => { 
 					let update = JSON.parse( response.data );
-					console.log( 'MESSAGE RESPONSE', update );
 
 					let type = update.type;
 					if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
@@ -291,6 +301,8 @@
 						}
 						display.column.show();
 						display.technical.empty().removeClass( 'dropped' );
+						display.presentation.empty().removeClass( 'dropped' );
+						display.sum.empty().removeClass( 'dropped' );
 						if( score.technical()) {
 							display.technical.html(( boards + parseFloat( score.technical())).toFixed( 1 ));
 							if( score.dropped.technical ) { display.technical.addClass( 'dropped' ); }
