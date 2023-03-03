@@ -140,7 +140,11 @@ sub handle_division_decision {
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
-		print STDERR "Decision: $decision\n";
+		if( $decision eq 'clear' ) {
+			print STDERR "Clearing all decisions\n";
+		} else {
+			print STDERR "Decision: $decision\n";
+		}
 	}
 
 	try {

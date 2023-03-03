@@ -152,6 +152,7 @@
 				},
 				message: ( response ) => { 
 					let update = JSON.parse( response.data );
+					console.log( 'MESSAGE RESPONSE', update );
 
 					let type = update.type;
 					if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
@@ -160,6 +161,10 @@
 					if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
 
 					handle[ type ][ action ]( update );
+				},
+				send: request => {
+					request.json = JSON.stringify( request.data ); 
+					ws.send( request.json );
 				}
 			};
 			ws.onopen    = network.open;
@@ -180,6 +185,25 @@
 			};
 
 			var refresh = { 
+				// ------------------------------------------------------------
+				actions : division => {
+				// ------------------------------------------------------------
+					var athlete = division.current.athlete();
+					var current = division.current.athleteid();
+
+					var action = {
+						decision : {
+							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'WDR'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to disqualify <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'DSQ' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							clear      : () => { sound.next.play(); alertify.confirm( "Clear Decisions for " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to clear WDR and DSQ decisions for <b class="text-danger">' + athlete.name() + '</b> or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'clear' ); alertify.success( athlete.name() + ' has been cleared of punitive decisions' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							send       : ( reason ) => { network.send( { data : { type : 'division', action : 'decision', decision: reason }} ); }
+						},
+					};
+
+					$( "#decision-withdraw" )   .off( 'click' ).click( action.decision.withdraw );
+					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
+					$( "#decision-clear" )      .off( 'click' ).click( action.decision.clear );
+				},
 				// ------------------------------------------------------------
 				athletes: function( division, isCurrentDivision ) {
 				// ------------------------------------------------------------
@@ -241,6 +265,7 @@
 					if( isCurrentDivision ) { $( '.navigate-division' ).hide(); $( '.administration' ).show(); $( '.decision' ).show(); $( '.scoring' ).show(); } 
 					else                    { $( '.navigate-division' ).show(); $( '.administration' ).hide(); $( '.decision' ).hide(); $( '.scoring' ).hide(); }
 
+					refresh.actions( division );
 					$( '.navigate-athlete' ).hide();
 				},
 				// ------------------------------------------------------------
@@ -315,7 +340,7 @@
 						navigate : {
 							athlete   : () => { sound.ok.play(); let i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  id : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', id : divid } ); },
-							to        : ( target ) => { let request = { data : { type : 'division', action : 'navigate', target: target }}; request.json = JSON.stringify( request.data ); ws.send( request.json ); }
+							to        : ( target ) => { network.send( { data : { type : 'division', action : 'navigate', target: target }}); }
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
