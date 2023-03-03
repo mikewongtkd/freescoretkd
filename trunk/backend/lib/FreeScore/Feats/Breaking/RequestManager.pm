@@ -262,7 +262,12 @@ sub handle_division_score {
 
 	if( $DEBUG ) {
 		my $name = $judge ? "Judge $judge" : "Referee";
-		print STDERR "$name scores: " . $json->canonical->encode( $score ) . "\n";
+		if( $score eq 'clear' ) {
+			print STDERR "Computer Operator has cleared the score from $name.\n";
+
+		} else {
+			print STDERR "$name scores: " . $json->canonical->encode( $score ) . "\n";
+		}
 	}
 
 	try {

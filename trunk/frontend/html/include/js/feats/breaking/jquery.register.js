@@ -162,7 +162,7 @@ $.widget( "freescore.register", {
 
 			text.html( "Which judge?" );
 			for( var k = 0; k < o.max_judges; k++ ) { 
-				var judge = register.judges.add( k+1 ); 
+				var judge = register.judges.add( k ); 
 				register.judges.data.push( judge ); 
 				register.judges.view.append( judge.dom ); 
 			}
@@ -202,7 +202,7 @@ $.widget( "freescore.register", {
 			var dom   = html.div.clone() .addClass( "judge" ) .attr( "num", num ) .css( "top", 0 );
 			var src   = "../../images/roles/judge.png";
 			var img   = html.img.clone() .attr( "src", src ) .attr( "height", 100 );
-			var label = html.p.clone() .append( num == 1 ? "Referee" : "Judge " + (num - 1) );
+			var label = html.p.clone() .append( num == 0 ? "Referee" : `Judge ${num}` );
 			dom.append( img, label );
 			dom.click( register.judges.select( num ));
 			return { num: num, dom: dom };
@@ -230,9 +230,9 @@ $.widget( "freescore.register", {
 				var num   = $.cookie( "judge" );
 				role = register.judges.add( num );
 				role.dom.css( 'left', '200px' );
-				url = "./judge.php";
+				url = `./judge.php?ring=${selected.ring}&judge=${selected.judge}`;
 			} else {
-				if      ( role == "computer operator" ) { url = "./coordinator.php"; }
+				if      ( role == "computer operator" ) { url = `./coordinator.php?ring=${selected.ring}`; }
 				role = register.roles.add( role.capitalize(), '200px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );

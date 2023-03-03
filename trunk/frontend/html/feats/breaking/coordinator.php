@@ -123,7 +123,6 @@
 			var handle = {
 				ring: {
 					read : ( update ) => {
-						console.log( update );
 
 						let ring = update.ring;
 						refresh.ring( ring );
@@ -147,6 +146,10 @@
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
 					},
+					score: update => {
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+					},
 					update: update => {
 						let request = update.request;
 						if( ! request || ! request.action ) { return; }
@@ -163,6 +166,7 @@
 				},
 				message: ( response ) => { 
 					let update = JSON.parse( response.data );
+					console.log( update );
 
 					let type = update.type;
 					if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
@@ -298,7 +302,10 @@
 							technical : $( `#judge-scores .j${i}.tech` ),
 							presentation : $( `#judge-scores .j${i}.pres` ),
 							sum : $( `#judge-scores .j${i}.sum` )
-						}
+						};
+						let button = {
+							clear : $( `#judge-scores .j${i}.clear` )
+						};
 						display.column.show();
 						display.technical.empty().removeClass( 'dropped' );
 						display.presentation.empty().removeClass( 'dropped' );
@@ -314,6 +321,21 @@
 						if( score.technical() && score.presentation()) {
 							display.sum.html(( boards + parseFloat( score.technical()) + parseFloat( score.presentation())).toFixed( 1 ));
 						}
+
+						button.clear.off( 'click' ).click( ev => {
+							let judge = i == 0 ? 'Referee' : `Judge ${i}`;
+							sound.next.play();
+							alertify.confirm( 
+								`Clear score from ${judge}?`, 
+								`Click <b>OK</b> to clear the score from ${judge} for ${athlete.name()}, <b>Cancel</b> to leave the score as it is.`,
+								ev => {
+									network.send( { data : { type : 'division', action : 'score', judge : i, score : 'clear' }});
+									sound.ok.play();
+									alertify.success( `Score from ${judge} cleared` );
+								},
+								ev => {}
+							);
+						});
 					}
 
 					let display = {
@@ -328,8 +350,8 @@
 							sum          : $( '#judge-scores .range.sum' )
 						},
 						deductions : {
-							technical    : $( '#judge-scores .deductions.tech span' ),
-							procedural   : $( '#judge-scores .deductions.proc span' ),
+							technical    : $( '#judge-scores .deductions.tech' ),
+							procedural   : $( '#judge-scores .deductions.proc' ),
 						}
 					};
 

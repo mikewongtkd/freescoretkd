@@ -150,6 +150,9 @@ html, body {
 #judge-scores td, #judge-scores th {
   text-align: center;
 }
+#judge-scores .deductions {
+  text-align: left;
+}
 #judge-scores .dropped {
   text-decoration: line-through;
   opacity: 0.5;

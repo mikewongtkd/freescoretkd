@@ -2,10 +2,10 @@
 	<tr>
 		<td>&nbsp;</td>
 		<th class="j0 judge-col">R</th>
-		<th class="j1 judge-col">1</th>
-		<th class="j2 judge-col">2</th>
-		<th class="j3 judge-col">3</th>
-		<th class="j4 judge-col">4</th>
+		<th class="j1 judge-col">J1</th>
+		<th class="j2 judge-col">J2</th>
+		<th class="j3 judge-col">J3</th>
+		<th class="j4 judge-col">J4</th>
 		<th>Mean</th>
 		<th>Range</th>
 	</tr>
@@ -49,6 +49,16 @@
 		<th>&nbsp;</th>
 		<th>&nbsp;</th>
 	</tr>
+	<tr>
+		<th colspan=4 class="deductions">Technical deductions:</th>
+		<td class="j3">&nbsp;</td>
+		<td class="j4">&nbsp;</td>
+		<td colspan=2 class="tech deductions"></td>
+	</tr>
+	<tr>
+		<th colspan=4 class="deductions">Procedural deductions:</th>
+		<td class="j3">&nbsp;</td>
+		<td class="j4">&nbsp;</td>
+		<td colspan=2 class="proc deductions"></td>
+	</tr>
 </table>
-<div class="tech deductions">Technical deductions: <span></span></div>
-<div class="proc deductions">Procedural deductions: <span></span></div>

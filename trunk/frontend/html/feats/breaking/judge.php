@@ -1,9 +1,12 @@
 <?php 
+  $ring  = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
+  $judge = isset( $_GET[ 'judge' ]) ? $_GET[ 'judge' ] : $_COOKIE[ 'judge' ];
   if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: register.php' ); exit(); }
   include( "../../include/php/config.php" ); 
   
   function referee() {
-    return isset( $_COOKIE[ 'judge' ]) && $_COOKIE[ 'judge' ] == 1; # First judge is referee (Should be index 0 instead of 1, but whatever)
+    global $judge;
+    return $judge == 0;
   }
 ?>
 <html>
@@ -119,4 +122,4 @@
 
   </script>
 </html>
-<!-- vim: ts=2 sw=2 expandtab -->
+<!-- vim: set ts=2 sw=2 expandtab -->

@@ -218,7 +218,11 @@ sub record_score {
 	my $i       = $self->{ current };
 	my $athlete = $self->{ athletes }[ $i ];
 
-	$athlete->{ scores }[ $judge ] = $score;
+	if( $score eq 'clear' ) {
+		$athlete->{ scores }[ $judge ] = '';
+	} else {
+		$athlete->{ scores }[ $judge ] = $score;
+	}
 
 	# Score is complete when all judges have scored
 	return 1 if _athlete_scores_complete( $athlete );
@@ -289,7 +293,10 @@ sub trim_scores {
 	my $athlete = shift;
 	my $judges  = $self->{ judges };
 
-	return unless $athlete->{ complete };
+	unless( $athlete->{ complete }) {
+		delete $athlete->{ trimmed } if exists $athlete->{ trimmed };
+		return;
+	}
 	return if( exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision });
 
 	my $hi = {};
