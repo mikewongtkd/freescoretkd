@@ -28,6 +28,7 @@ class Athlete {
 				if( 'hilo' in this.athlete.trimmed ) {
 					let dropped = this.athlete.trimmed.hilo;
 					sum -= dropped.technical.hi.value + dropped.technical.lo.value;
+					if( sum < 0 ) { sum = 0; } // The technical score cannot drop below 0
 				}
 				let mean = (boards + ( sum / 3 )).toFixed( 2 );
 				return mean;
@@ -85,7 +86,22 @@ class Athlete {
 		if( ! this.athlete.info.boards ) { return 0; }
 		return parseInt( this.athlete.info.boards );
 	}
+
+	complete() {
+		return this.athlete.complete;
+	}
+
+	decision() {
+		if( ! this.athlete.info || ! this.athlete.info.decision ) { return null; }
+		return this.athlete.info.decision;
+	}
+
 	name() { return this.athlete.name; }
+
+	noc() {
+		if( ! this.athlete.info || ! this.athlete.info.noc ) { return null; }
+		return this.athlete.info.noc;
+	}
 
 	presentation() {
 		if( ! this.athlete.complete    ) { return null; }

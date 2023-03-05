@@ -128,29 +128,29 @@
 
 			var handle = {
 				autopilot : {
-					display : update => {
+					leaderboard : update => {
 						let request = update.request;
 						let delay   = (request.delay + 1) * 1000;
-						$( '.autopilot .status' ).html( 'Showing Leaderboard' );
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
 						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).html( 'Disengaged' ); }, delay );
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 
 					},
 					next : update => {
 						let request = update.request;
 						let delay   = (request.delay + 1) * 1000;
-						$( '.autopilot .status' ).html( 'Next Athlete' );
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
 						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).html( 'Disengaged' ); }, delay );
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 					},
-					score : update => {
+					scoreboard : update => {
 						let request  = update.request;
 						let delay    = (request.delay + 1) * 1000;
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
-						$( '.autopilot .status' ).html( 'Showing Score' );
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
 						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).html( 'Disengaged' ); }, delay );
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 					},
 					update : update => {
 						let request = update.request;
@@ -183,10 +183,12 @@
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
 					},
+					leaderboard: update => {},
 					score: update => {
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
 					},
+					scoreboard: update => {},
 					update: update => {
 						let request = update.request;
 						if( ! request || ! request.action ) { return; }

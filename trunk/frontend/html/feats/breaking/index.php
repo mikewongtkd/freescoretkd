@@ -3,40 +3,91 @@ include( "../../include/php/config.php" );
 $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
 ?>
 <html>
-	<head>
-		<link href="../../include/css/flippable.css" rel="stylesheet" />
-		<link href="../../include/css/forms/grassroots/tiebreaker.css" rel="stylesheet" />
-		<link href="../../include/css/forms/grassroots/grassrootsApp.css" rel="stylesheet" />
-		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
-		<link href="../../include/css/brackets.css" rel="stylesheet" />
-		<script src="../../include/jquery/js/jquery.js"></script>
-		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
-		<script src="../../include/jquery/js/jquery.purl.js"></script>
-		<script src="../../include/jquery/js/jquery.cookie.js"></script>
-		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/forms/grassroots/score.class.js"></script>
-		<script src="../../include/js/forms/grassroots/athlete.class.js"></script>
-		<script src="../../include/js/forms/grassroots/division.class.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.grassroots.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.voteDisplay.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.leaderboard.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.scoreboard.js"></script>
-		<script src="../../include/js/forms/grassroots/jquery.judgeScore.js"></script>
-		<script src="../../include/opt/svg/svg.min.js"></script>
-		<script src="../../include/bootstrap/add-ons/brackets.js"></script>
-	</head>
-	<body>
-		<div id="grassroots"></div>
-		<script type="text/javascript">
-			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : { num: <?= $ring ?> }});
-			var zoom       = { scale: 1.0 };
+  <head>
+    <link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="./include/css/display.css" rel="stylesheet" />
+    <link href="../../include/page-transitions/css/animations.css" rel="stylesheet" />
+    <link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
+    <link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
+    <script src="../../include/jquery/js/jquery.js"></script>
+    <script src="../../include/jquery/js/jquery-ui.min.js"></script>
+    <script src="../../include/jquery/js/jquery.howler.min.js"></script>
+    <script src="../../include/jquery/js/jquery.purl.js"></script>
+    <script src="../../include/jquery/js/jquery.cookie.js"></script>
+    <script src="../../include/alertify/alertify.min.js"></script>
+    <script src="../../include/page-transitions/js/pagetransitions.js"></script>
+    <script src="../../include/js/freescore.js"></script>
+    <script src="./include/js/score.js"></script>
+    <script src="./include/js/athlete.js"></script>
+    <script src="./include/js/division.js"></script>
+  </head>
+  <body>
+    <div id="breaking-display">
+      <div id="pt-main" class="pt-perspective">
+        <div class="pt-page pt-page-1 scoreboard">
+          <div class="division-summary"></div>
+          <div class="athlete-info">
+            <div class="athlete-noc"></div>
+            <div class="athlete-name"></div>
+            <div class="athlete-boards"></div>
+          </div>
+          <div class="timer-display"><span class="fas fa-clock"></span> 3:00</div>
+          <div class="judge-scores">
+            <div class="judge score r "><label>R</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
+            <div class="judge score j1"><label>J1</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
+            <div class="judge score j2"><label>J2</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
+            <div class="judge score j3"><label>J3</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
+            <div class="judge score j4"><label>J4</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
+            <div class="score mean"><label>AVG</label><div class="tech"></div><div class="pres"></div></div>
+          </div>
+          <div class="score-display">
+            <div class="subtotal">
+              <label>Subtotal</label>
+              <span></span>
+            </div>
+            <div class="deductions">
+              <div class="tech">
+                <label>Technical Deductions</label>
+                <span></span>
+              </div>
+              <div class="proc">
+                <label>Procedural Deductions</label>
+                <span></span>
+              </div>
+            </div>
+            <div class="total">
+              <label>Final Score</label>
+              <span></span>
+            </div>
+          </div>
+        </div>
+        <div class="pt-page pt-page-2 leaderboard">
+          <div class="leaderboard-rankings"></div>
+        </div>
+      </div>
+    </div>
+    <script src="./include/js/display.js"></script>
+    <script type="text/javascript">
+      var screen    = { scale: 1.0, offsetX : 0, offsetY : 0 };
+      screen.zoom = function( scale )  { screen.scale   += scale;  $( 'body' ).css({ 'transform' : `scale( ${screen.scale.toFixed( 2 )}) translateX( ${screen.offsetX}) translateY( ${screen.offsetY})` }); alertify.notify( `Zooming to ${screen.scale.toFixed( 2 )}` ); };
+      screen.panX = function( deltaX ) { screen.offsetX += deltaX; $( 'body' ).css({ 'transform' : `scale( ${screen.scale.toFixed( 2 )}) translateX( ${screen.offsetX}) translateY( ${screen.offsetY})` }); alertify.notify( `Panning to ${screen.offsetX}, ${screen.offsetY}` ); };
+      screen.panY = function( deltaY ) { screen.offsetY += deltaY; $( 'body' ).css({ 'transform' : `scale( ${screen.scale.toFixed( 2 )}) translateX( ${screen.offsetX}) translateY( ${screen.offsetY})` }); alertify.notify( `Panning to ${screen.offsetX}, ${screen.offsetY}` ); };
+      $( 'body' ).keydown(( ev ) => {
+        switch( ev.keyCode ) {
+          case 74:  screen.panX( -10 ); break;   // j key
+          case 76:  screen.panX(  10 ); break;   // l key
+          case 73:  screen.panY( -10 ); break;   // i key
+          case 75:  screen.panY(  10 ); break;   // k key
+          case 187: screen.zoom(  0.05 ); break; // +/-
+          case 189: screen.zoom( -0.05 ); break; // -/_
+      }});
+      var tournament = <?= $tournament ?>;
+      var ring       = { num : <?= $ring ?> };
+      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
+      ws.onopen      = network.open;
+      ws.onmessage   = network.message;
 
-			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };
-			$( 'body' ).keydown(( ev ) => {
-				switch( ev.key ) {
-				case '=': zoom.screen(  0.05 );break;
-				case '-': zoom.screen( -0.05 );break;
-			}});
-		</script>
-	</body>
+    </script>
+  </body>
 </html>
+<!-- vim: set ts=2 sw=2 expandtab -->

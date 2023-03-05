@@ -24,6 +24,10 @@ class Division {
 	judges() {
 		return this.division.judges;
 	}
+	
+	leaderboard() {
+		return this.division.state == 'display';
+	}
 
 	name() { 
 		return this.division.name; 
@@ -38,6 +42,10 @@ class Division {
 
 	ring() {
 		return this.division.ring;
+	}
+
+	scoreboard() {
+		return this.division.state == 'score';
 	}
 
 	summary() { 

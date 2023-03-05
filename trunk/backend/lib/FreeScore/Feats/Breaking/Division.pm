@@ -343,7 +343,10 @@ sub trim_scores {
 		presentation => 0.0 + sprintf( "%.2f", ((sum @$presentation) - ( $hi->{ pv } + $lo->{ pv }))/3 )
 	};
 
+	$athlete->{ trimmed }{ boards }         = $boards * 0.2;
+	$athlete->{ trimmed }{ difficulty }     = $mean->{ technical };
 	$athlete->{ trimmed }{ technical }      = $mean->{ technical } + ($boards * 0.2) - $deductions->{ technical };
+	$athlete->{ trimmed }{ technical }      = 0 unless $athlete->{ trimmed }{ technical } > 0;
 	$athlete->{ trimmed }{ presentation }   = $mean->{ presentation };
 	$athlete->{ trimmed }{ subtotal }       = sum @{$athlete->{ trimmed }}{ qw( technical presentation )};
 	$athlete->{ trimmed }{ total }          = $athlete->{ trimmed }{ subtotal } - $deductions->{ procedural };
@@ -354,7 +357,10 @@ sub trim_scores {
 		presentation => 0.0 + sprintf( "%.2f", (sum @$presentation)/$judges )
 	};
 
+	$athlete->{ untrimmed }{ boards }       = ($boards * 0.2);
+	$athlete->{ untrimmed }{ difficulty }   = $sum->{ technical };
 	$athlete->{ untrimmed }{ technical }    = $sum->{ technical } + ($boards * 0.2) - $deductions->{ technical };
+	$athlete->{ untrimmed }{ technical }    = 0 unless $athlete->{ untrimmed }{ technical } > 0;
 	$athlete->{ untrimmed }{ presentation } = $sum->{ presentation };
 	$athlete->{ untrimmed }{ subtotal }     = sum @{$athlete->{ untrimmed }}{ qw( technical presentation )};
 	$athlete->{ untrimmed }{ total }        = $athlete->{ untrimmed }{ subtotal } - $deductions->{ procedural };

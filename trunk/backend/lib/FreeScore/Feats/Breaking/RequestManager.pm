@@ -38,9 +38,11 @@ sub init {
 	$self->{ division }    = {
 		decision           => \&handle_division_decision,
 		inspection         => \&handle_division_inspection,
+		leaderboard        => \&handle_division_leaderboard,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
+		scoreboard         => \&handle_division_scoreboard,
 		time_start         => \&handle_division_time_start,
 		time_stop          => \&handle_division_time_stop,
 		time_reset         => \&handle_division_time_reset
@@ -239,7 +241,7 @@ sub handle_division_read {
 
 	my $clone = unbless( $division->clone());
 	try {
-		$client->send({ json => { request => $request, division => $clone }});
+		$client->send({ json => { type => 'division', action => 'update', request => $request, division => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -403,7 +405,7 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
-			$request->{ action } = 'score';
+			$request->{ action } = 'scoreboard';
 			$request->{ delay }  = $pause->{ score };
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
@@ -413,7 +415,7 @@ sub autopilot {
 			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
-			$request->{ action } = 'display';
+			$request->{ action } = 'leaderboard';
 			$request->{ delay }  = $pause->{ leaderboard };
 
 			$self->broadcast_updated_division( $request, $progress, $clients );
