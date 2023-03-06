@@ -219,6 +219,28 @@ html, body {
   border-color: #2e6da4;
   color: white;
 }
+.action-menu .timer #time {
+  height: 32px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.75em;
+  background-color: black;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+.action-menu .timer #time.overtime {
+  color: red;
+}
+.action-menu .timer .btn-group {
+  width: 100%;
+}
+.action-menu .timer .btn-group .btn {
+  width: 50%;
+}
+.action-menu .timer .btn-group #time-stop {
+  border-radius: 4px 0 0 4px;
+}
 .action-menu .administration p {
   margin: 0 8px 0 8px;
   font-size: 9pt;

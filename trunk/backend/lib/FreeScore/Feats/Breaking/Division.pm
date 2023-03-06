@@ -236,9 +236,12 @@ sub time_reset {
 	my $i       = $self->{ current };
 	my $athlete = $self->{ athletes }[ $i ];
 
-	delete $athlete->{ info }{ time };
+	if( exists $athlete->{ info }{ time }) { 
+		delete $athlete->{ info }{ time }; 
+		return 1;
+	}
 
-	return 1;
+	return 0;
 }
 
 # ============================================================

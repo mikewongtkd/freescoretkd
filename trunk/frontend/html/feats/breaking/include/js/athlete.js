@@ -78,7 +78,23 @@ class Athlete {
 
 				return (max - min).toFixed( 1 );
 			}
-		}
+		};
+
+		this.time = {
+			reset : () => {
+				if( ! this.athlete.info && ! this.athlete.info.time && ! this.athlete.info.time.start ) { return null; }
+				this.athlete.info.time.start = null;
+				this.athlete.info.time.stop  = null;
+			},
+			start : () => {
+				if( ! this.athlete.info && ! this.athlete.info.time && ! this.athlete.info.time.start ) { return null; }
+				return this.athlete.info.time.start;
+			},
+			stop : () => {
+				if( ! this.athlete.info && ! this.athlete.info.time && ! this.athlete.info.time.stop ) { return null; }
+				return this.athlete.info.time.stop;
+			}
+		};
 	}
 
 	boards() {

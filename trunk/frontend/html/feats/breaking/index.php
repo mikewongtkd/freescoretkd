@@ -1,5 +1,6 @@
 <?php 
 include( "../../include/php/config.php" ); 
+include( "../../session.php" ); 
 $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
 ?>
 <html>
@@ -31,7 +32,7 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
             <div class="athlete-name"></div>
             <div class="athlete-boards"></div>
           </div>
-          <div class="timer-display"><span class="fas fa-clock"></span> 3:00</div>
+          <div class="timer-display"><span class="fas fa-clock"></span> <span class="time">0:00</span></div>
           <div class="judge-scores">
             <div class="judge score r "><label>R</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
             <div class="judge score j1"><label>J1</label><div class="tech"></div><div class="pres"></div><div class="received"></div></div>
@@ -84,6 +85,7 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
       var tournament = <?= $tournament ?>;
       var ring       = { num : <?= $ring ?> };
       var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
+      var state      = { time : { elapsed : 0, start : null, stop : null, limit : 180, timer : null }};
       ws.onopen      = network.open;
       ws.onmessage   = network.message;
 

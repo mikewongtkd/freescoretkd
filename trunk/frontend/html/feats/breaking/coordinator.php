@@ -90,6 +90,15 @@
 								<h4>Autopilot</h4>
 								<a class="btn btn-block btn-default disabled status">Disengaged</a>
 							</div>
+							<div class="timer">
+								<h4>Timer</h4>
+								<div class="timer-display" id="time">0:00</div>
+								<div class="btn-group">
+									<a class="btn btn-primary" id="time-start"><span class="fas fa-play"></span></a>
+									<a class="btn btn-primary" id="time-stop"><span class="fas fa-pause"></span></a>
+									<a class="btn btn-primary" id="time-reset"><span class="fas fa-fast-backward"></span></a>
+								</div>
+							</div>
 							<div class="decision">
 								<h4>Decisions</h4>
 								<div class="list-group">
@@ -122,7 +131,7 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var state      = { autopilot : { timer : null }};
+			var state      = { autopilot : { timer : null }, time : { start : null, elapsed : 0, stop : null, limit : 180, timer : null, warning : false }};
 			
 			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
 
@@ -189,6 +198,9 @@
 						refresh.athletes( division, true );
 					},
 					scoreboard: update => {},
+					'time reset' : update => {},
+					'time start' : update => {},
+					'time stop'  : update => {},
 					update: update => {
 						let request = update.request;
 						if( ! request || ! request.action ) { return; }
@@ -320,6 +332,61 @@
 
 					refresh.actions( division );
 					$( '.navigate-athlete' ).hide();
+
+					// ===== TIMER BEHAVIOR
+					let time = {
+						reset : ev => {
+							sound.prev.play();
+							$( '#time-start' ).show().off( 'click' ).click( ev => { time.start( ev );});
+							$( '#time-stop' ).hide();
+							$( '#time-reset' ).addClass( 'disabled' );
+							$( '#time' ).removeClass( 'overtime' ).html( '0:00' );
+							state.time.warning = false;
+							state.time.elapsed = 0;
+							if( state.time.start ) { 
+								state.time.start = null;
+								state.time.stop  = null;
+								network.send({ data : { type : 'division', action : 'time reset'}});
+							}
+						},
+						start : ev => {
+							sound.next.play();
+							state.time.timer = setInterval( time.tick, 500 );
+							state.time.start = Date.now();
+							$( '#time-start' ).hide();
+							$( '#time-stop' ).show().off( 'click' ).click( ev => { time.stop( ev ); });
+							network.send({ data : { type : 'division', action : 'time start'}});
+						},
+						stop : ev => {
+							sound.prev.play();
+							clearInterval( state.time.timer );
+							$( '#time-reset' ).removeClass( 'disabled' ).off( 'click' ).click( ev => { time.reset( ev ); });
+							$( '#time-stop' ).hide();
+							$( '#time-start' ).show().off( 'click' ).click( ev => { time.start( ev ); });
+							network.send({ data : { type : 'division', action : 'time stop'}});
+							state.time.stop    = Date.now();
+							state.time.elapsed = Math.floor(( state.time.stop - state.time.start) / 1000 ) + state.time.elapsed;
+							if( state.time.warning ) {
+								let over  = state.time.elapsed - state.time.limit;
+								let count = Math.ceil( over / 10 );
+								alertify.error( `${count} procedural penalties must be applied because the performance is ${over} seconds over time.`, 60 );
+							}
+						},
+						tick : () => {
+							let seconds = Math.round(( Date.now() - (state.time.start ))/1000) + state.time.elapsed;
+							let minutes = Math.floor( seconds / 60 );
+							if( seconds > state.time.limit && ! state.time.warning ) { 
+								state.time.warning = true;
+								alertify.error( 'When the performance is complete, let the referee know that an overtime penalty must be applied', 60 );
+								$( '#time' ).addClass( 'overtime' ); 
+							}
+							seconds %= 60;
+
+							$( '#time' ).html( `${minutes}:${seconds < 10 ? 0 : ''}${seconds}` );
+						}
+					};
+					time.reset();
+
 				},
 				// ------------------------------------------------------------
 				judges : function( division ) {

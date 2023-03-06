@@ -11,6 +11,7 @@ use List::Util (qw( first shuffle ));
 use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
+use Date::Manip;
 use Clone qw( clone );
 use File::Slurp qw( read_file );
 use Encode qw( encode );
@@ -75,9 +76,11 @@ sub broadcast_updated_division {
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
+		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+		my $response  = { type => $request->{ type }, action => 'update', digest => $digest, time => $now, division => $unblessed, request => $request };
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
+		$user->{ device }->send( { json => $response });
 		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
@@ -105,7 +108,8 @@ sub broadcast_updated_ring {
 		my $unblessed = unbless( $message ); 
 		my $encoded   = $json->canonical->encode( $unblessed );
 		my $digest    = sha1_hex( $encoded );
-		my $response  = { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
+		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request };
 
 		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 		$user->{ device }->send( { json => $response });
@@ -234,6 +238,7 @@ sub handle_division_read {
 	my $json     = $self->{ _json };
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $now      = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 
 	if( $DEBUG ) {
 		print STDERR "Client requesting information for division " . uc( $division->{ name }) . "\n";
@@ -241,7 +246,7 @@ sub handle_division_read {
 
 	my $clone = unbless( $division->clone());
 	try {
-		$client->send({ json => { type => 'division', action => 'update', request => $request, division => $clone }});
+		$client->send({ json => { type => 'division', action => 'update', time => $now, request => $request, division => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -300,7 +305,7 @@ sub handle_division_time_reset {
 	}
 
 	try {
-		my $complete = $division->time_reset();
+		$division->time_reset();
 		$division->write();
 			
 		$self->broadcast_updated_division( $request, $progress, $clients );
@@ -326,7 +331,7 @@ sub handle_division_time_start {
 	}
 
 	try {
-		my $complete = $division->time_start();
+		$division->time_start();
 		$division->write();
 			
 		$self->broadcast_updated_division( $request, $progress, $clients );
@@ -352,7 +357,7 @@ sub handle_division_time_stop {
 	}
 
 	try {
-		my $complete = $division->time_stop();
+		$division->time_stop();
 		$division->write();
 			
 		$self->broadcast_updated_division( $request, $progress, $clients );

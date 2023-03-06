@@ -162,6 +162,29 @@ html, body {
 			color: white;
 		}
 	}
+	.timer {
+		#time {
+			height: 32px;
+			width: 100%;
+			text-align: center;
+			font-size: 1.75em;
+			background-color: black;
+			color: white;
+			border-radius: 8px;
+			margin-bottom: 2px;
+
+			&.overtime {
+				color: red;
+			}
+		}
+		.btn-group {
+			width: 100%;
+			.btn { width: 50%; }
+			#time-stop {
+				border-radius: 4px 0 0 4px;
+			}
+		}
+	}
 	.administration {
 		p { 
 			margin: 0 8px 0 8px; 

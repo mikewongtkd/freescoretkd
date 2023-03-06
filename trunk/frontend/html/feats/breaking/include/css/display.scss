@@ -88,10 +88,20 @@ body {
 		right: $bd-padding;
 		height: 80px;
 		width: 180px;
-		font-size: 1.8em;
-		color: lime;
+		.time {
+			font-size: 1.8em;
+			color: lime;
 
-		.fas { font-size: 0.66em; color: grey; }
+			&.overtime {
+				color: red;
+			}
+		}
+
+		.fas { 
+			transform: translateY( -50% );
+			font-size: 0.66em; 
+			color: grey; 
+		}
 	}
 
 	$judge-score-width: 180px;
