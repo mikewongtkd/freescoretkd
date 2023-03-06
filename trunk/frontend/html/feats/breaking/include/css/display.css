@@ -53,8 +53,10 @@ body {
   font-family: Optima, Biolinum, Lato;
 }
 
-#breaking-display {
+.scoreboard, .leaderboard {
   position: absolute;
+  top: 0;
+  left: 0;
   background: #45484d;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -67,7 +69,8 @@ body {
   padding: 20px;
   color: white;
 }
-#breaking-display .division-summary {
+
+.scoreboard .division-summary {
   position: absolute;
   top: 20px;
   left: 20px;
@@ -75,25 +78,25 @@ body {
   text-align: center;
   color: grey;
 }
-#breaking-display .athlete-info {
+.scoreboard .athlete-info {
   position: absolute;
   top: 58px;
   left: 20px;
   width: 1192px;
   height: 120px;
 }
-#breaking-display .athlete-info .athlete-noc {
+.scoreboard .athlete-info .athlete-noc {
   position: absolute;
   top: 0;
   left: 0;
   height: 80px;
   width: 180px;
 }
-#breaking-display .athlete-info .athlete-noc img {
+.scoreboard .athlete-info .athlete-noc img {
   height: 80px;
   width: 80px;
 }
-#breaking-display .athlete-info .athlete-name {
+.scoreboard .athlete-info .athlete-name {
   position: absolute;
   top: 0;
   left: 180px;
@@ -104,7 +107,7 @@ body {
   text-align: center;
   color: yellow;
 }
-#breaking-display .athlete-info .athlete-boards {
+.scoreboard .athlete-info .athlete-boards {
   position: absolute;
   top: 80px;
   left: 496px;
@@ -112,57 +115,57 @@ body {
   width: 200px;
   text-align: center;
 }
-#breaking-display .timer-display {
+.scoreboard .timer-display {
   position: absolute;
   top: 58px;
   right: 20px;
   height: 80px;
   width: 180px;
 }
-#breaking-display .timer-display .time {
+.scoreboard .timer-display .time {
   font-size: 1.8em;
   color: lime;
 }
-#breaking-display .timer-display .time.overtime {
+.scoreboard .timer-display .time.overtime {
   color: red;
 }
-#breaking-display .timer-display .fas {
+.scoreboard .timer-display .fas {
   transform: translateY(-50%);
   font-size: 0.66em;
   color: grey;
 }
-#breaking-display .judge-scores {
+.scoreboard .judge-scores {
   position: absolute;
   top: 192px;
   left: 0;
 }
-#breaking-display .judge-scores .score {
+.scoreboard .judge-scores .score {
   width: 540px;
   text-align: center;
   color: #999;
   font-size: 2em;
   line-height: 1.2em;
 }
-#breaking-display .judge-scores .score:last-child label {
+.scoreboard .judge-scores .score:last-child label {
   border-radius: 0 0 0 12px;
 }
-#breaking-display .judge-scores .score.judges3 {
+.scoreboard .judge-scores .score.judges3 {
   height: 120px;
   font-size: 2.5em;
   line-height: 1.5em;
 }
-#breaking-display .judge-scores .score.judges5 {
+.scoreboard .judge-scores .score.judges5 {
   height: 80px;
   font-size: 2em;
   line-height: 1em;
 }
-#breaking-display .judge-scores .score label {
+.scoreboard .judge-scores .score label {
   display: block;
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
 }
-#breaking-display .judge-scores .score label, #breaking-display .judge-scores .score .tech, #breaking-display .judge-scores .score .pres, #breaking-display .judge-scores .score .received {
+.scoreboard .judge-scores .score label, .scoreboard .judge-scores .score .tech, .scoreboard .judge-scores .score .pres, .scoreboard .judge-scores .score .received {
   position: absolute;
   width: 180px;
   text-align: center;
@@ -170,38 +173,38 @@ body {
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
 }
-#breaking-display .judge-scores .score label.judges3, #breaking-display .judge-scores .score .tech.judges3, #breaking-display .judge-scores .score .pres.judges3, #breaking-display .judge-scores .score .received.judges3 {
+.scoreboard .judge-scores .score label.judges3, .scoreboard .judge-scores .score .tech.judges3, .scoreboard .judge-scores .score .pres.judges3, .scoreboard .judge-scores .score .received.judges3 {
   height: 120px;
 }
-#breaking-display .judge-scores .score label.judges5, #breaking-display .judge-scores .score .tech.judges5, #breaking-display .judge-scores .score .pres.judges5, #breaking-display .judge-scores .score .received.judges5 {
+.scoreboard .judge-scores .score label.judges5, .scoreboard .judge-scores .score .tech.judges5, .scoreboard .judge-scores .score .pres.judges5, .scoreboard .judge-scores .score .received.judges5 {
   height: 80px;
 }
-#breaking-display .judge-scores .score .tech {
+.scoreboard .judge-scores .score .tech {
   left: 182px;
   width: 180px;
   color: #f99;
 }
-#breaking-display .judge-scores .score .tech.ignore {
+.scoreboard .judge-scores .score .tech.ignore {
   color: #c66;
   opacity: 0.75;
   text-decoration: line-through;
 }
-#breaking-display .judge-scores .score .pres {
+.scoreboard .judge-scores .score .pres {
   left: 364px;
   width: 180px;
   color: #99f;
 }
-#breaking-display .judge-scores .score .pres.ignore {
+.scoreboard .judge-scores .score .pres.ignore {
   color: #66c;
   opacity: 0.75;
   text-decoration: line-through;
 }
-#breaking-display .judge-scores .score .received {
+.scoreboard .judge-scores .score .received {
   left: 182px;
   width: 362px;
   color: #0c0;
 }
-#breaking-display .score-display {
+.scoreboard .score-display {
   position: absolute;
   top: 192px;
   left: 564px;
@@ -214,48 +217,48 @@ body {
   background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
 }
-#breaking-display .score-display .subtotal, #breaking-display .score-display .deductions {
+.scoreboard .score-display .subtotal, .scoreboard .score-display .deductions {
   position: absolute;
   top: 0;
   font-size: 0.5em;
   height: 40px;
   text-align: center;
 }
-#breaking-display .score-display .subtotal span, #breaking-display .score-display .deductions span {
+.scoreboard .score-display .subtotal span, .scoreboard .score-display .deductions span {
   display: block;
   font-size: 2.5em;
 }
-#breaking-display .score-display .subtotal {
+.scoreboard .score-display .subtotal {
   left: 0;
   width: 196px;
 }
-#breaking-display .score-display .subtotal span {
+.scoreboard .score-display .subtotal span {
   color: gold;
 }
-#breaking-display .score-display .deductions {
+.scoreboard .score-display .deductions {
   position: absolute;
   width: 588px;
 }
-#breaking-display .score-display .deductions .tech, #breaking-display .score-display .deductions .proc {
+.scoreboard .score-display .deductions .tech, .scoreboard .score-display .deductions .proc {
   position: absolute;
   width: 196px;
 }
-#breaking-display .score-display .deductions .tech span, #breaking-display .score-display .deductions .proc span {
+.scoreboard .score-display .deductions .tech span, .scoreboard .score-display .deductions .proc span {
   display: block;
 }
-#breaking-display .score-display .deductions .tech {
+.scoreboard .score-display .deductions .tech {
   left: 196px;
 }
-#breaking-display .score-display .deductions .tech span {
+.scoreboard .score-display .deductions .tech span {
   color: cyan;
 }
-#breaking-display .score-display .deductions .proc {
+.scoreboard .score-display .deductions .proc {
   left: 392px;
 }
-#breaking-display .score-display .deductions .proc span {
+.scoreboard .score-display .deductions .proc span {
   color: magenta;
 }
-#breaking-display .score-display .total {
+.scoreboard .score-display .total {
   position: absolute;
   top: 80px;
   left: 20px;
@@ -263,7 +266,7 @@ body {
   height: 320px;
   text-align: center;
 }
-#breaking-display .score-display .total span {
+.scoreboard .score-display .total span {
   display: block;
   color: lime;
   font-size: 9em;

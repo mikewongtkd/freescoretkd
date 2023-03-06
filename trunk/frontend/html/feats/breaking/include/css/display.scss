@@ -17,8 +17,10 @@ body {
 	font-family: $text-font-stack;
 }
 
-#breaking-display {
+.scoreboard, .leaderboard {
 	position: absolute;
+	top: 0;
+	left: 0;
 	background: #45484d;
 	background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
 	background: linear-gradient(to top, #45484d 0%, #000000 100%); 
@@ -31,6 +33,9 @@ body {
 	padding: $bd-padding;
 	color: white;
 
+}
+
+.scoreboard {
 	.division-summary {
 		position: absolute;
 		top: $bd-padding;

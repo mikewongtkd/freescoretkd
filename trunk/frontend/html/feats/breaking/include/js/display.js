@@ -1,31 +1,31 @@
 var display = {
 	scoreboard : {
 		athlete  : {
-			name   : $( '#breaking-display .scoreboard .athlete-info .athlete-name' ),
-			noc    : $( '#breaking-display .scoreboard .athlete-info .athlete-noc' ),
-			boards : $( '#breaking-display .scoreboard .athlete-info .athlete-boards' )
+			name   : $( '.scoreboard .athlete-info .athlete-name' ),
+			noc    : $( '.scoreboard .athlete-info .athlete-noc' ),
+			boards : $( '.scoreboard .athlete-info .athlete-boards' )
 		},
 		deductions : {
-			technical  : $( '#breaking-display .score-display .deductions .tech span' ),
-			procedural : $( '#breaking-display .score-display .deductions .proc span' )
+			technical  : $( '.score-display .deductions .tech span' ),
+			procedural : $( '.score-display .deductions .proc span' )
 		},
-		division : { summary : $( '#breaking-display .scoreboard .division-summary' ) },
+		division : { summary : $( '.scoreboard .division-summary' ) },
 		judges   : {
-			all  : $( '#breaking-display .scoreboard .judge-scores .judge' ),
-			r    : { row : $( '#breaking-display .scoreboard .judge-scores .r ' ), technical : $( '#breaking-display .scoreboard .judge-scores .r  .tech' ), presentation : $( '#breaking-display .scoreboard .judge-scores .r  .pres' ), received : $( '#breaking-display .scoreboard .judge-scores .r  .received' )},
-			j1   : { row : $( '#breaking-display .scoreboard .judge-scores .j1' ), technical : $( '#breaking-display .scoreboard .judge-scores .j1 .tech' ), presentation : $( '#breaking-display .scoreboard .judge-scores .j1 .pres' ), received : $( '#breaking-display .scoreboard .judge-scores .j1 .received' )},
-			j2   : { row : $( '#breaking-display .scoreboard .judge-scores .j2' ), technical : $( '#breaking-display .scoreboard .judge-scores .j2 .tech' ), presentation : $( '#breaking-display .scoreboard .judge-scores .j2 .pres' ), received : $( '#breaking-display .scoreboard .judge-scores .j2 .received' )},
-			j3   : { row : $( '#breaking-display .scoreboard .judge-scores .j3' ), technical : $( '#breaking-display .scoreboard .judge-scores .j3 .tech' ), presentation : $( '#breaking-display .scoreboard .judge-scores .j3 .pres' ), received : $( '#breaking-display .scoreboard .judge-scores .j3 .received' )},
-			j4   : { row : $( '#breaking-display .scoreboard .judge-scores .j4' ), technical : $( '#breaking-display .scoreboard .judge-scores .j4 .tech' ), presentation : $( '#breaking-display .scoreboard .judge-scores .j4 .pres' ), received : $( '#breaking-display .scoreboard .judge-scores .j4 .received' )},
-			tech : $( '#breaking-display .scoreboard .judge-scores .judge .tech' ),
-			pres : $( '#breaking-display .scoreboard .judge-scores .judge .pres' )
+			all  : $( '.scoreboard .judge-scores .judge' ),
+			r    : { row : $( '.scoreboard .judge-scores .r ' ), technical : $( '.scoreboard .judge-scores .r  .tech' ), presentation : $( '.scoreboard .judge-scores .r  .pres' ), received : $( '.scoreboard .judge-scores .r  .received' )},
+			j1   : { row : $( '.scoreboard .judge-scores .j1' ), technical : $( '.scoreboard .judge-scores .j1 .tech' ), presentation : $( '.scoreboard .judge-scores .j1 .pres' ), received : $( '.scoreboard .judge-scores .j1 .received' )},
+			j2   : { row : $( '.scoreboard .judge-scores .j2' ), technical : $( '.scoreboard .judge-scores .j2 .tech' ), presentation : $( '.scoreboard .judge-scores .j2 .pres' ), received : $( '.scoreboard .judge-scores .j2 .received' )},
+			j3   : { row : $( '.scoreboard .judge-scores .j3' ), technical : $( '.scoreboard .judge-scores .j3 .tech' ), presentation : $( '.scoreboard .judge-scores .j3 .pres' ), received : $( '.scoreboard .judge-scores .j3 .received' )},
+			j4   : { row : $( '.scoreboard .judge-scores .j4' ), technical : $( '.scoreboard .judge-scores .j4 .tech' ), presentation : $( '.scoreboard .judge-scores .j4 .pres' ), received : $( '.scoreboard .judge-scores .j4 .received' )},
+			tech : $( '.scoreboard .judge-scores .judge .tech' ),
+			pres : $( '.scoreboard .judge-scores .judge .pres' )
 		},
-		mean     : { row : $( '#breaking-display .scoreboard .judge-scores .mean' ), technical : $( '#breaking-display .scoreboard .judge-scores .mean .tech' ), presentation : $( '#breaking-display .scoreboard .judge-scores .mean .pres' )},
+		mean     : { row : $( '.scoreboard .judge-scores .mean' ), technical : $( '.scoreboard .judge-scores .mean .tech' ), presentation : $( '.scoreboard .judge-scores .mean .pres' )},
 		score   : {
-			subtotal : $( '#breaking-display .scoreboard .score-display .subtotal span' ),
-			total    : $( '#breaking-display .scoreboard .score-display .total span' )
+			subtotal : $( '.scoreboard .score-display .subtotal span' ),
+			total    : $( '.scoreboard .score-display .total span' )
 		},
-		timer    : $( '#breaking-display .scoreboard .timer-display .time' )
+		timer    : $( '.scoreboard .timer-display .time' )
 	}
 };
 var refresh = {
@@ -136,7 +136,6 @@ var handle = {
 		next : update => {
 			let request = update.request;
 			let division = new Division( update.division );
-			page.transition();
 			refresh.scoreboard( division );
 		},
 		scoreboard : update => {
@@ -158,12 +157,12 @@ var handle = {
 		},
 		leaderboard: update => {
 			let division = new Division( update.division );
-			if( division.scoreboard()) { page.transition(); }
+			page.transition();
 			refresh.leaderboard( division );
 		},
 		read: update => {
 			let division = new Division( update.division );
-			if( division.leaderboard()) { page.transition(); }
+			$( '.pt-page-2' ).hide();
 			refresh.scoreboard( division );
 		},
 		score: update => {
@@ -230,7 +229,16 @@ var sound = {
 
 var page = {
 	num : 1,
-	transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
+	transition: () => { 
+		let current = page.num;
+		let other   = current == 1 ? 2 : 1;
+		$( `.pt-page-${current}` ).hide()
+		$( `.pt-page-${other}` ).show();
+		page.num = other;
+	}
+/*	
+ 	transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
 	animation:  ( pn ) => { return 38 - pn; } // Newspaper and Fall animations 37 and 36 respectively
+*/
 };
 

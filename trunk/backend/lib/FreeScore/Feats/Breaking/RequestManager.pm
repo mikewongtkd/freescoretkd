@@ -201,6 +201,32 @@ sub handle_division_inspection {
 }
 
 # ============================================================
+sub handle_division_leaderboard {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+
+	if( $DEBUG ) {
+		print STDERR "Showing leaderboard.\n";
+	}
+
+	try {
+		$division->leaderboard();
+		$division->write();
+			
+		$self->broadcast_updated_division( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
 sub handle_division_navigate {
 # ============================================================
 	my $self      = shift;
@@ -281,6 +307,32 @@ sub handle_division_score {
 		my $complete = $division->record_score( $judge, $score );
 		$division->write();
 		autopilot( $self, $request, $progress, $division, $clients ) if $complete;
+			
+		$self->broadcast_updated_division( $request, $progress, $clients );
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_scoreboard {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $clients   = shift;
+	my $judges    = shift;
+	my $client    = $self->{ _client };
+	my $division  = $progress->current();
+
+	if( $DEBUG ) {
+		print STDERR "Showing scoreboard.\n";
+	}
+
+	try {
+		$division->scoreboard();
+		$division->write();
 			
 		$self->broadcast_updated_division( $request, $progress, $clients );
 

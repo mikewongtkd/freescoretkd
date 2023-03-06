@@ -110,7 +110,8 @@
 							<div class="administration">
 								<h4>Administration</h4>
 								<div class="list-group">
-									<a class="list-group-item" id="admin-display"><span class="glyphicon glyphicon-eye-open"></span>Show Display</a>
+									<a class="list-group-item" id="admin-display"><span class="fas fa-desktop"></span>Show Display</a>
+									<a class="list-group-item" id="admin-view"><span class="glyphicon glyphicon-eye-open"></span>Change View</a>
 									<a class="list-group-item" id="admin-edit"><span class="glyphicon glyphicon-edit"></span>Edit Division</a>
 									<a class="list-group-item" id="admin-print"><span class="glyphicon glyphicon-print"></span>Print Results</a>
 								</div>
@@ -484,6 +485,7 @@
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
+							view       : () => { sound.next.play(); network.send({ data : { type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }}); },
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/feats-breaking/' + ring + '/div.' + divid + '.txt', '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/feats/breaking/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
 						}
@@ -492,6 +494,7 @@
 					$( "#navigate-athlete" )    .off( 'click' ).click( action.navigate.athlete );
 					$( "#navigate-division" )   .off( 'click' ).click( action.navigate.division );
 					$( "#admin-display" )       .off( 'click' ).click( action.administration.display );
+					$( "#admin-view" )          .off( 'click' ).click( action.administration.view );
 					$( "#admin-edit" )          .off( 'click' ).click( action.administration.edit );
 					$( "#admin-print" )         .off( 'click' ).click( action.administration.print );
 				},

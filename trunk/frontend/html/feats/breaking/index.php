@@ -16,16 +16,15 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
     <script src="../../include/jquery/js/jquery.purl.js"></script>
     <script src="../../include/jquery/js/jquery.cookie.js"></script>
     <script src="../../include/alertify/alertify.min.js"></script>
-    <script src="../../include/page-transitions/js/pagetransitions.js"></script>
     <script src="../../include/js/freescore.js"></script>
     <script src="./include/js/score.js"></script>
     <script src="./include/js/athlete.js"></script>
     <script src="./include/js/division.js"></script>
   </head>
   <body>
-    <div id="breaking-display">
-      <div id="pt-main" class="pt-perspective">
-        <div class="pt-page pt-page-1 scoreboard">
+    <div id="pt-main" class="pt-perspective">
+      <div class="pt-page pt-page-1">
+        <div class="scoreboard container">
           <div class="division-summary"></div>
           <div class="athlete-info">
             <div class="athlete-noc"></div>
@@ -62,11 +61,14 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
             </div>
           </div>
         </div>
-        <div class="pt-page pt-page-2 leaderboard">
+      </div>
+      <div class="pt-page pt-page-2">
+        <div class="leaderboard container">
           <div class="leaderboard-rankings"></div>
         </div>
       </div>
     </div>
+    <script src="../../include/page-transitions/js/pagetransitions.js"></script>
     <script src="./include/js/display.js"></script>
     <script type="text/javascript">
       var screen    = { scale: 1.0, offsetX : 0, offsetY : 0 };

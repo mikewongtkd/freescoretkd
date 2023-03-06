@@ -147,6 +147,16 @@ sub compare {
 }
 
 # ============================================================
+sub leaderboard {
+# ============================================================
+	my $self = shift;
+
+	$self->{ state } = 'display';
+
+	return $self->{ state };
+}
+
+# ============================================================
 sub navigate {
 # ============================================================
 	my $self  = shift;
@@ -227,6 +237,16 @@ sub record_score {
 	# Score is complete when all judges have scored
 	return 1 if _athlete_scores_complete( $athlete );
 	return 0;
+}
+
+# ============================================================
+sub scoreboard {
+# ============================================================
+	my $self = shift;
+
+	$self->{ state } = 'score';
+
+	return $self->{ state };
 }
 
 # ============================================================
