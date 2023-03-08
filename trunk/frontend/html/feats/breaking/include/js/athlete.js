@@ -148,6 +148,9 @@ class Athlete {
 		return scores;
 	}
 
+	tb1() { return this.athlete.tb1; }
+	tb2() { return this.athlete.tb2; }
+
 	technical() {
 		if( ! this.athlete.complete    ) { return null; }
 		if( this.athlete.info.decision ) { return null; }

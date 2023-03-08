@@ -33,6 +33,10 @@ class Division {
 		return this.division.name; 
 	}
 
+	placements() {
+		return this.division.placements;
+	}
+
 	progress() { 
 		let progress = this.division.athletes.reduce(( a, b ) => { if( b.complete ) { return a + 1; } else { return a; }}, 0 );
 		let count    = this.division.athletes.length;

@@ -1,4 +1,7 @@
 var display = {
+	leaderboard : {
+		rankings : $( '.leaderboard .leaderboard-rankings' )
+	},
 	scoreboard : {
 		athlete  : {
 			name   : $( '.scoreboard .athlete-info .athlete-name' ),
@@ -30,7 +33,6 @@ var display = {
 };
 var refresh = {
 	display : division => {
-		console.log( 'DISPLAY', division.division.state, page.num == page.scoreboard, division.scoreboard(), page.num == page.leaderboard, division.leaderboard() );
 		if( division.scoreboard()) { refresh.scoreboard( division ); }
 		else                       { refresh.leaderboard( division ); }
 		if(( division.scoreboard() && page.num == page.leaderboard ) || ( division.leaderboard() && page.num == page.scoreboard )) { page.transition(); }
@@ -78,6 +80,24 @@ var refresh = {
 		}
 	},
 	leaderboard : division => {
+		let rankings = display.leaderboard.rankings;
+		rankings.empty();
+		let placements = division.placements();
+		let athletes   = division.athletes();
+		let justwent   = division.current.athleteid();
+
+		let row     = $( `<div class="placement"><div class="place">#</div><div class="name">Name</div><div class="score">Score</div><div class="tb1">TB1</div><div class="tb2">TB2</div></div>` );
+		rankings.append( row );
+		placements.forEach( placement => {
+			placement.athletes.forEach( aid => {
+				let current = aid == justwent ? ' current' : '';
+				let athlete = athletes[ aid ];
+				let tb1     = placement.show.includes( 'tb1' ) ? athlete.tb1() : '';
+				let tb2     = placement.show.includes( 'tb2' ) ? athlete.tb2() : '';
+				let row     = $( `<div class="placement${current}"><div class="place">${placement.place}</div><div class="name">${athlete.name()}</div><div class="score">${athlete.score()}</div><div class="tb1">${tb1}</div><div class="tb2">${tb2}</div></div>` );
+				rankings.append( row );
+			});
+		});
 	},
 	scoreboard : division => {
 		let athlete    = division.current.athlete();

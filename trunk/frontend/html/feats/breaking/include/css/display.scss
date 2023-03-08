@@ -232,3 +232,25 @@ body {
 		}
 	}
 }
+
+.leaderboard {
+	.leaderboard-rankings {
+		overflow-y: auto;
+		.placement {
+			font-size: 1.5em;
+			width: $bd-width;
+
+			.place, .name, .score, .tb1, .tb2 { display: inline-block; }
+			.place { width: $bd-width * 0.075; color: lime; text-align: center; }
+			.name  { width: $bd-width * 0.550; color: yellow; }
+			.score { width: $bd-width * 0.125; color: gold; text-align: center; }
+			.tb1   { width: $bd-width * 0.125; color: magenta; text-align: center; }
+			.tb2   { width: $bd-width * 0.125; color: cyan; text-align: center; }
+
+			&.current {
+				background: rgb(2,0,36);
+				background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 50%, rgba(0,106,228,1) 100%);
+			}
+		}
+	}
+}

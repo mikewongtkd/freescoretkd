@@ -274,4 +274,43 @@ body {
   width: 588px;
 }
 
+.leaderboard .leaderboard-rankings {
+  overflow-y: auto;
+}
+.leaderboard .leaderboard-rankings .placement {
+  font-size: 1.5em;
+  width: 1192px;
+}
+.leaderboard .leaderboard-rankings .placement .place, .leaderboard .leaderboard-rankings .placement .name, .leaderboard .leaderboard-rankings .placement .score, .leaderboard .leaderboard-rankings .placement .tb1, .leaderboard .leaderboard-rankings .placement .tb2 {
+  display: inline-block;
+}
+.leaderboard .leaderboard-rankings .placement .place {
+  width: 89.4px;
+  color: lime;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement .name {
+  width: 655.6px;
+  color: yellow;
+}
+.leaderboard .leaderboard-rankings .placement .score {
+  width: 149px;
+  color: gold;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement .tb1 {
+  width: 149px;
+  color: magenta;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement .tb2 {
+  width: 149px;
+  color: cyan;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement.current {
+  background: #020024;
+  background: linear-gradient(0deg, #020024 0%, #090979 50%, #006ae4 100%);
+}
+
 /*# sourceMappingURL=display.css.map */

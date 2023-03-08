@@ -53,12 +53,12 @@ sub read {
 sub calculate_placements {
 # ============================================================
 	my $self       = shift;
-	my $n          = $#{ $self->{ athletes }};
-	my @sorted     = sort { $self->compare( $a, $b ) } ( 0 .. $n );
-	my $placements = [];
+	my $n          = int @{$self->{ athletes }};
+	my @sorted     = sort { $self->compare( $a, $b ) } ( 0 .. $n - 1 );
+	my $placements = $self->{ placements } = [];
 	my $place      = 1;
 
-	return [] if $n == 0;
+	return if $n == 0;
 
 	while( @sorted ) {
 		my $i = shift @sorted;
