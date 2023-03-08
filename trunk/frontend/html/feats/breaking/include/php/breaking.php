@@ -24,6 +24,14 @@ class BreakingDivision {
 		return "/usr/local/freescore/data/{$db}/feats-breaking/{$ring}/div.{$divid}.txt";
 	}
 
+	function list() {
+		$text = '';
+		foreach( $this->data[ 'athletes' ] as $athlete ) {
+			$text .= "{$athlete[ 'name' ]}\n";
+		}
+		return $text;
+	}
+
 	function json() {
 		return json_encode( $this->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 	}
@@ -31,8 +39,9 @@ class BreakingDivision {
 	function read( $file ) {
 		$lines  = file( $file );
 		$header = preg_grep( '/^#/', $lines );
-		$lines  = preg_grep( '/^\s*$/', $lines, true ); # Ignore empty lines
-		$this->data = [];
+		$lines  = preg_grep( '/^#/', $lines, true ); # Filter header lines
+		$lines  = preg_grep( '/^\s*$/', $lines, true ); # Filter empty lines
+		$this->data = [ 'name' => $this->divid, 'ring' => $this->ring ];
 
 		function is_valid_json( $data = null ) {
 			if( empty( $data )) { return false; }
@@ -57,6 +66,7 @@ class BreakingDivision {
 			$info    = array_shift( $athlete );
 			$scores  = array_map( function( $data ) { return is_valid_json( $data ) ? json_decode( $data, true ) : ''; }, $athlete );
 			$athlete = [ 'name' => $name, 'info' => $info, 'scores' => $scores ];
+			array_push( $this->data[ 'athletes' ], $athlete );
 		}
 	}
 

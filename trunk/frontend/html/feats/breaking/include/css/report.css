@@ -1,0 +1,81 @@
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  font-family: Optima, Biolinum, Lato;
+}
+
+.division-description {
+  font-size: 1.5em;
+  margin-top: 20px;
+}
+
+table {
+  width: 920px;
+}
+table thead th.place, table thead td.place {
+  width: 7.5%;
+  text-align: left;
+}
+table thead th.name, table thead td.name {
+  text-align: left;
+}
+table thead th.score, table thead td.score {
+  width: 12.5%;
+  text-align: left;
+}
+table thead th.tb1, table thead td.tb1 {
+  width: 12.5%;
+  text-align: left;
+}
+table thead th.tb2, table thead td.tb2 {
+  width: 12.5%;
+  text-align: left;
+}
+
+/*# sourceMappingURL=report.css.map */

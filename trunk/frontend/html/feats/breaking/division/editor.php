@@ -1,6 +1,6 @@
 <?php
 	include( '../../../include/php/config.php' );
-	include( 'include/php/breaking.php' );
+	include( '../include/php/breaking.php' );
 
 	$ring  = $_GET[ 'ring' ];
 	$divid = $_GET[ 'divid' ];
@@ -63,14 +63,12 @@
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<button id="division-description" type="button" class="btn btn-primary btn-no-border pull-left"><span class="glyphicon glyphicon-pencil"></span></button>
-					<h4 class="panel-title pull-left" id="panel-title" style="margin-top: 4px; margin-left: 8px;">
-						Division <?= strtoupper( $id ) ?> <?= $setting[ 'description' ] ?>
-					</h4>
+					<h4 class="panel-title pull-left" id="panel-title" style="margin-top: 4px; margin-left: 8px;"></h4>
 					<button id="division-judges" class="btn btn-primary btn-no-border btn-sm pull-right"><span class="glyphicon glyphicon-user"></span>&nbsp;<span id="judges"><?= $setting[ 'judges' ] ?></span> Judges</button>
 					<div class="clearfix"></div>
 				</div>
 				<div class="panel-body">
-					<textarea id="athletes" class="panel-body"><?= $list?></textarea>
+					<textarea id="athletes" class="panel-body"><?= $breaking->list() ?></textarea>
 				</div>
 				<div class="panel-footer panel-primary clearfix">
 					<div id="user-message" class="text-muted pull-left" style="margin-top: 8px;">Please edit the list of athletes for this division</div>
@@ -82,12 +80,13 @@
 
 		</div>
 		<script>
-			var division = <?= $breaking->json(); ?>
+			var division = <?= $breaking->json(); ?>;
 			division.judges = defined( division.judges ) ? division.judges : 3;
 			$( '#judges' ).html( division.judges );
 
-			var describe = function( division ) { return 'Division ' + division.name.toUpperCase() + ' ' + division.description; }
+			var describe = function( division ) { return `Division ${division.name.toUpperCase()} ${division.description}`; }
 			$( 'title' ).html( describe( division ));
+			$( '#panel-title' ).html( describe( division ));
 
 			$( '#division-description' ).click( function( ev ) {
 				bootbox.prompt({
@@ -95,8 +94,9 @@
 					callback: function( results ) {
 						if( ! results ) { return; }
 						division.description = results;
-						$( '#panel-title' ).html( describe( division ) );
-					}
+						$( '#panel-title' ).html( describe( division ));
+					},
+					value : division.description
 				});
 				$( 'input.bootbox-input' ).attr({ placeholder: '<?= $setting[ 'description' ] ?>' });
 			});
