@@ -1,0 +1,24 @@
+@import 'fonts';
+
+body {
+	font-family: $text-font-stack;
+}
+
+.division-description {
+	font-size: 1.5em;
+	margin-top: 20px;
+}
+
+table {
+	width: 920px;
+
+	thead {
+		th, td {
+			&.place { width: 7.5%; text-align: left; }
+			&.name  { text-align: left; }
+			&.score { width: 12.5%; text-align: left; }
+			&.tb1   { width: 12.5%; text-align: left; }
+			&.tb2   { width: 12.5%; text-align: left; }
+		}
+	}
+}

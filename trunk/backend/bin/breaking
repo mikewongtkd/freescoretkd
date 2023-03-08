@@ -85,214 +85,51 @@ get '/:tournament/:ring/judges' => sub {
 	}
 };
 
+# ============================================================
+# ADMIN INTERFACE
+# ============================================================
+
 # ------------------------------------------------------------
-# ALL DIVISIONS
+# GET THE DIVISION INFORMATION AS JSON
 # ------------------------------------------------------------
-get '/:tournament/:ring/division/list' => sub { 
+get '/:tournament/:ring/:divid/json' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $divisions  = unbless( clone( $progress->{ divisions }));
+	my $divid      = $self->param( 'divid' );
+
 	try {
+		my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
+		my $found      = $progress->find( $divid );
+		my $division   = $found ? $found : $progress->current();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'divisions' => $divisions } );
+		$self->render( text => $division->to_json(), format => 'json' );
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
+		$self->render( json => { error => $_ });
 	}
 };
 
 # ------------------------------------------------------------
-# NEXT DIVISION
+# GET THE DIVISION INFORMATION AS CSV
 # ------------------------------------------------------------
-get '/:tournament/:ring/division/next' => sub { 
+get '/:tournament/:ring/:divid/csv' => sub { 
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
+	my $divid      = $self->param( 'divid' );
+
 	try {
-		$progress->next();
-		$progress->write();
+		my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
+		my $found      = $progress->find( $divid );
+		my $division   = $found ? $found : $progress->current();
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'current' => $progress->current() } );
+		$self->render( text => $division->to_csv(), format => 'txt' );
 
 	} catch {
 		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# PREVIOUS DIVISION
-# ------------------------------------------------------------
-get '/:tournament/:ring/division/previous' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	try {
-		$progress->previous();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'current' => $progress->current() } );
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# TOGGLE CURRENT DIVISION DISPLAY STATE
-# ------------------------------------------------------------
-get '/:tournament/:ring/display' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
-	if    ( $division->is_score()   ) { $division->display(); }
-	elsif ( $division->is_display() ) { $division->score();   }
-	else                              { $division->display(); }
-
-	try {
-		$division->write();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'state' => $division->{ state } } );
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# SCORE FOR NEXT ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/athlete/next' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
-	try {
-		$division->next();
-		$division->write();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# SCORE FOR PREVIOUS ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/athlete/previous' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
-	try {
-		$division->previous();
-		$division->write();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'current' => $division->{ current }, 'state' => $division->{ state } } );
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# WRITE JUDGE SCORE FOR ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/:judge/:score' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $judge      = $self->param( 'judge' );
-	my $score      = $self->param( 'score' ) / 10;
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
-
-	my $complete = $division->record_score( $judge, $score );
-
-	try {
-		$division->write();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), score => $score } );
-		autopilot( $self, $progress, $division ) if $complete;
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# WRITE JUDGE VOTE FOR ATHLETE IN SINGLE-ELIMINATION DIVISION
-# ------------------------------------------------------------
-get '/:tournament/:ring/:judge/vote/:vote' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $judge      = $self->param( 'judge' );
-	my $vote       = $self->param( 'vote' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
-
-	my $complete = $division->record_vote( $judge, $vote );
-
-	try {
-		$division->write();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { bracket => $division->current_bracket(), judge => ($judge + 1), vote => $vote } );
-		autopilot( $self, $progress, $division ) if $complete && ! $division->is_single_elimination();
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
-	}
-};
-
-# ------------------------------------------------------------
-# WRITE JUDGE TIEBREAKER FOR ATHLETE
-# ------------------------------------------------------------
-get '/:tournament/:ring/:judge/tb/:score' => sub { 
-	my $self       = shift;
-	my $tournament = $self->param( 'tournament' );
-	my $ring       = $self->param( 'ring' );
-	my $judge      = $self->param( 'judge' );
-	my $score      = $self->param( 'score' );
-	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
-	my $division   = $progress->current();
-
-	$score /= 10 if( $score =~ /^\d+$/ );
-
-	my $complete = $division->record_tiebreaker( $judge, $score );
-
-	try {
-		$division->write();
-		$progress->write();
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { athlete => $division->{ current }, judge => ($judge + 1), tiebraker => $score } );
-		autopilot( $self, $progress, $division ) if $complete;
-
-	} catch {
-		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
-		$self->render( json => { 'error' => $_ } );
+		$self->render( json => { error => $_ });
 	}
 };
 
@@ -325,11 +162,11 @@ post '/:tournament/:ring/:divid' => sub {
 		delete $division->{ mode } if( ! exists $data->{ header }{ mode } );
 		my $athletes = [];
 		foreach my $i ( 0 .. $#{ $data->{ athletes }} ) {
-			my $athlete = { name => $data->{ athletes }[ $i ], index => $i, rank => undef, scores => [], tiebreakers => [] };
-			my $j       = first_index { $_->{ name } eq $athlete->{ name } } @{ $division->{ athletes }};
+			my $athlete = { name => $data->{ athletes }[ $i ], index => $i, info => undef, scores => [] };
+			my $j       = first_index { lc $_->{ name } eq lc $athlete->{ name } } @{ $division->{ athletes }};
 			if( $j >= 0 ) { 
 				my $found = $division->{ athletes }[ $j ];
-				foreach my $key (qw( rank scores tiebreakers )) { $athlete->{ $key } = $found->{ $key }; }
+				foreach my $key (qw( info scores )) { $athlete->{ $key } = $found->{ $key }; }
 			}
 			push @$athletes, $athlete;
 		}

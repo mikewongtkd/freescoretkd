@@ -493,7 +493,7 @@
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
 							view       : () => { sound.next.play(); network.send({ data : { type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }}); },
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/feats-breaking/' + ring + '/div.' + divid + '.txt', '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/feats/breaking/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( `report.php?ring=${ringid}&divid=${divid}`, '_blank' )},
 						}
 					};
 

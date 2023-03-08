@@ -1,42 +1,15 @@
 <?php
-	include( "../../../include/php/config.php" );
-	$file       = '/usr/local/freescore/data/' . $_GET[ 'file' ];
-	$url        = preg_split( '/\//', $_GET[ 'file' ] );
-	$db         = array_shift( $url );
-	$grassroots = array_shift( $url );
-	$ring_name  = array_shift( $url );
-	$file_name  = array_shift( $url );
-	$ring       = intval( preg_replace( '/ring/', '', $ring_name ));
-	$id         = $_GET[ 'file' ]; $id = preg_replace( '/\w*\/forms-grassroots\/ring\d+\/div\./', '', $id ); $id = preg_replace( '/\.txt/', '', $id );
-	$setting    = [];
-	$athletes   = [];
+	include( '../../../include/php/config.php' );
+	include( 'include/php/breaking.php' );
 
-	if( file_exists( $file )) {
-		$lines      = file( $file );
-		$header     = preg_grep( "/^#/", $lines );
-		$lines      = preg_grep( "/^\s*$/", $lines, true );  # Ignore empty lines
-		foreach( $header as $line ) {
-			$line = rtrim( $line );
-			$line = preg_replace( '/^#\s*/', '', $line );
-			$keyvalue = preg_split( "/=/", $line, 2 );
-			$setting[ $keyvalue[0] ] = $keyvalue[1];
-		}
-		$header   = join( "", $header );
-		$athletes = array_filter( array_map( function( $n ) { $n = preg_replace( '/\t.*/', '', $n ); $n = preg_replace( '/\n/', '', $n ); return $n; }, preg_grep( "/^#/", $lines, true ))); 
-		$list     = join( "\n", $athletes );
-	}
+	$ring  = $_GET[ 'ring' ];
+	$divid = $_GET[ 'divid' ];
 
-	if( $setting[ mode ] == 'single-elimination' ) {
-		$mode     = 'Single Elimination';
-		$modeicon = 'fa fa-thumbs-up';
-	} else {
-		$mode     = 'Numeric Score';
-		$modeicon = 'fa fa-list-ol';
-	}
+	$breaking = new BreakingDivision( $divid, $ring );
 ?>
 <html>
 	<head>
-		<title>Grassroots Division</title>
+		<title>Creative Breaking Division</title>
 		<link href="../../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
@@ -94,7 +67,6 @@
 						Division <?= strtoupper( $id ) ?> <?= $setting[ 'description' ] ?>
 					</h4>
 					<button id="division-judges" class="btn btn-primary btn-no-border btn-sm pull-right"><span class="glyphicon glyphicon-user"></span>&nbsp;<span id="judges"><?= $setting[ 'judges' ] ?></span> Judges</button>
-					<button id="division-mode" class="btn btn-primary btn-no-border btn-sm pull-right"><span id="mode-icon" class="<?= $modeicon ?>"></span>&nbsp;<span id="mode"><?= $mode ?></span></button>
 					<div class="clearfix"></div>
 				</div>
 				<div class="panel-body">
@@ -110,21 +82,11 @@
 
 		</div>
 		<script>
-			var division = {
-				name : '<?= $id ?>',
-				header : {
-<?php
-foreach ($setting as $key => $value) {
-	echo "					$key: '$value',\n";
-}
-?>
-				},
-				athletes: [ <?php echo join( ", ", array_map( function( $n ) { return "'$n'"; }, $athletes ));  ?> ]
-			};
-			division.header.judges = defined( division.header.judges ) ? division.header.judges : 3;
-			$( '#judges' ).html( division.header.judges );
+			var division = <?= $breaking->json(); ?>
+			division.judges = defined( division.judges ) ? division.judges : 3;
+			$( '#judges' ).html( division.judges );
 
-			var describe = function( division ) { return 'Division ' + division.name.toUpperCase() + ' ' + division.header.description; }
+			var describe = function( division ) { return 'Division ' + division.name.toUpperCase() + ' ' + division.description; }
 			$( 'title' ).html( describe( division ));
 
 			$( '#division-description' ).click( function( ev ) {
@@ -132,7 +94,7 @@ foreach ($setting as $key => $value) {
 					title : 'Division Description',
 					callback: function( results ) {
 						if( ! results ) { return; }
-						division.header.description = results;
+						division.description = results;
 						$( '#panel-title' ).html( describe( division ) );
 					}
 				});
@@ -146,31 +108,16 @@ foreach ($setting as $key => $value) {
 					inputType: 'select',
 					inputOptions: [
 						{ text: '3 judges', value: '3', },
-						{ text: '5 judges', value: '5', },
-						{ text: '7 judges', value: '7', },
+						{ text: '5 judges', value: '5', }
 					],
 					callback: function ( results ) {
 						if( ! results ) { return; }
-						division.header.judges = results; 
-						$( '#judges' ).html( division.header.judges );
+						division.judges = results; 
+						$( '#judges' ).html( division.judges );
 					}
 				});
 				$( 'option' ).prop( 'selected', false );
-				$( 'option[value=' + division.header.judges + ']' ).prop( 'selected', true );
-			});
-
-			$( '#division-mode' ).off( 'click' ).click( function( ev ) {
-				if( division.header.mode == 'single-elimination' ) {
-					delete division.header.mode;
-					$( '#mode' ).html( 'Numeric Score' );
-					$( '#mode-icon' ).removeClass( 'fa-thumbs-up' );
-					$( '#mode-icon' ).addClass( 'fa-list-ol' );
-				} else {
-					division.header.mode = 'single-elimination';
-					$( '#mode' ).html( 'Single Elimination' );
-					$( '#mode-icon' ).removeClass( 'fa-list-ol' );
-					$( '#mode-icon' ).addClass( 'fa-thumbs-up' );
-				}
+				$( 'option[value=' + division.judges + ']' ).prop( 'selected', true );
 			});
 
 			$( '#randomize-button' ).off( 'click' ).click( function() {
@@ -187,14 +134,13 @@ foreach ($setting as $key => $value) {
 
 			$( '#save-division' ).off( 'click' ).click( function( ev ) {
 				var tournament = <?= $tournament ?>;
-				var host       = '<?= $host ?>';
 				$( '#user-message' ).html( "Saving " + describe( division ) );
 				division.athletes = athletes.list().split( /\n/ ).reduce(( acc, cur ) => { if( cur ) { acc.push( cur ); }; return acc; }, [] );
 				
 				function save( division ) {
 					$.ajax({
 						type: 'POST',
-						url: 'http://' + host + ':3080/' + tournament.db + '/<?= $ring ?>/' + division.name,
+						url: `<?= $config->webservice( 'breaking' ) ?>/${tournament.db}/<?= $ring ?>/${division.name}`,
 						data: JSON.stringify( division ),
 						success: function( response ) {
 							if( response.status == 'saved' ) {

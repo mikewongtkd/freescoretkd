@@ -6,6 +6,7 @@ use base qw( FreeScore::Feats::Division Clone );
 use POSIX qw( ceil );
 use List::Util qw( all any first max min sum );
 use List::MoreUtils qw( first_index );
+use Data::Structure::Util qw( unbless );
 use Try::Tiny;
 use Date::Manip;
 use Data::Dumper;
@@ -247,6 +248,53 @@ sub scoreboard {
 	$self->{ state } = 'score';
 
 	return $self->{ state };
+}
+
+# ============================================================
+sub to_csv {
+# ============================================================
+	my $self = shift;
+	my $csv  = '';
+
+	$csv .= "$self->{ name } -- $self->{ description }\n";
+	$csv .= "Registered\n";
+	$csv .= "Name,USATID,Score\n";
+	foreach my $i (0 .. $#{$self->{ athletes }}) {
+		my $j       = $i + 1;
+		my $athlete = $self->{ athletes }[ $i ];
+		if( exists $athlete->{ complete } && $athlete->{ complete }) {
+			if( exists $athlete->{ info } && exists $athlete->{ info }{ decision } && $athlete->{ info }{ decision }) {
+				$csv .= "$athlete->{ name },$athlete->{ info }{ usatid },$athlete->{ info }{ decision }\n";
+			} else {
+				$csv .= "$athlete->{ name },$athlete->{ info }{ usatid },$athlete->{ trimmed }{ total }\n";
+			}
+		} else {
+			$csv .= "$athlete->{ name },$athlete->{ info }{ usatid }\n";
+		}
+	}
+
+	$csv .= "Placements\n";
+	$csv .= "Place,Name,USATID,Score,TB1,TB2\n";
+	foreach my $placement (@{$self->{ placements }}) {
+		foreach my $aid (@{$placement->{ athletes }}) {
+			my $athlete = $self->{ athletes }[ $aid ];
+			my $tb1     = (grep { $_ eq 'tb1' } @{$placement->{ show }}) ? ",$athlete->{ tb1 }" : '';
+			my $tb2     = (grep { $_ eq 'tb2' } @{$placement->{ show }}) ? ",$athlete->{ tb2 }" : '';
+			$csv .= "$placement->{ place },$athlete->{ name },$athlete->{ info }{ usatid },$athlete->{ trimmed }{ total }$tb1$tb2\n";
+		}
+	}
+
+	return $csv;
+}
+
+# ============================================================
+sub to_json {
+# ============================================================
+	my $self  = shift;
+	my $clone = unbless( $self->clone());
+	my $json  = new JSON::XS();
+
+	return $json->canonical->encode( $clone );
 }
 
 # ============================================================
