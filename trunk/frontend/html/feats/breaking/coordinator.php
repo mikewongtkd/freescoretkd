@@ -193,12 +193,18 @@
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
 					},
-					leaderboard: update => {},
+					leaderboard: update => {
+						let division = new Division( update.division );
+						refresh.navadmin( division );
+					},
 					score: update => {
 						let division = new Division( update.division );
 						refresh.athletes( division, true );
 					},
-					scoreboard: update => {},
+					scoreboard: update => {
+						let division = new Division( update.division );
+						refresh.navadmin( division );
+					},
 					'time reset' : update => {},
 					'time start' : update => {},
 					'time stop'  : update => {},

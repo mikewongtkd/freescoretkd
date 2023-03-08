@@ -29,6 +29,12 @@ var display = {
 	}
 };
 var refresh = {
+	display : division => {
+		console.log( 'DISPLAY', division.division.state, page.num == page.scoreboard, division.scoreboard(), page.num == page.leaderboard, division.leaderboard() );
+		if( division.scoreboard()) { refresh.scoreboard( division ); }
+		else                       { refresh.leaderboard( division ); }
+		if(( division.scoreboard() && page.num == page.leaderboard ) || ( division.leaderboard() && page.num == page.scoreboard )) { page.transition(); }
+	},
 	judges : ( names, athlete ) => {
 		let scoreboard = display.scoreboard;
 		let n          = names.length;
@@ -129,19 +135,17 @@ var handle = {
 		leaderboard : update => {
 			let request = update.request;
 			let division = new Division( update.division );
-			page.transition();
-			refresh.leaderboard( division );
-
+			refresh.display( division );
 		},
 		next : update => {
 			let request = update.request;
 			let division = new Division( update.division );
-			refresh.scoreboard( division );
+			refresh.display( division );
 		},
 		scoreboard : update => {
 			let request  = update.request;
 			let division = new Division( update.division );
-			refresh.scoreboard( division );
+			refresh.display( division );
 		},
 		update : update => {
 			let request = update.request;
@@ -153,27 +157,23 @@ var handle = {
 		decision: update => {
 			let division = new Division( update.division );
 			refresh.display( division );
-			refresh.leaderboard( division );
 		},
 		leaderboard: update => {
 			let division = new Division( update.division );
-			page.transition();
-			refresh.leaderboard( division );
+			refresh.display( division );
 		},
 		read: update => {
 			let division = new Division( update.division );
 			$( '.pt-page-2' ).hide();
-			refresh.scoreboard( division );
+			refresh.display( division );
 		},
 		score: update => {
 			let division = new Division( update.division );
-			if( division.leaderboard()) { page.transition(); }
-			refresh.scoreboard( division );
+			refresh.display( division );
 		},
 		scoreboard: update => {
 			let division = new Division( update.division );
-			if( division.leaderboard()) { page.transition(); }
-			refresh.scoreboard( division );
+			refresh.display( division );
 		},
 		'time reset' : update => {
 			let division = new Division( update.division );
@@ -228,7 +228,9 @@ var sound = {
 };
 
 var page = {
+	leaderboard : 2,
 	num : 1,
+	scoreboard : 1,
 	transition: () => { 
 		let current = page.num;
 		let other   = current == 1 ? 2 : 1;
