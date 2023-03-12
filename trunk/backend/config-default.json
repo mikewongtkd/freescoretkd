@@ -1,6 +1,11 @@
 {
 	"host" : "localhost",
 	"port" : 8073,
+	"password" : {
+		"ring01" : "1234",
+		"ring02" : "1234",
+		"ring03" : "5678"
+	},
 	"service" : {
 		"breaking"   : 3078,
 		"freestyle"  : 3082,
