@@ -4,17 +4,31 @@
 	session_start();
 
 	class Session {
-		static function authenticate() {
-			$referrer = null;
+		static function authenticate( $referrer = null ) {
+			global $config;
+
+			// If no password is needed, do nothing
+			if( $config->password() === false ) { return; }
 
 			// If already authorized, do nothing
 			if( isset( $_SESSION[ 'is_auth' ]) && $_SESSION[ 'is_auth' ]) { return; }
 
 			// Set referrer
 			if( isset( $_GET[ 'referrer' ])) { $referrer = $_GET[ 'referrer' ]; }
-			if( ! isset( $referrer )) { $referrer = Session::urlencode( $_SERVER[ 'HTTP_REFERER' ]); }
+			if( ! isset( $referrer )) { $referrer = $_SERVER[ 'HTTP_REFERER' ]; }
+			if( ! isset( $referrer )) {
+				$protocol = (( ! empty( $_SERVER[ 'HTTPS' ]) && $_SERVER[ 'HTTPS' ] != 'off') || $_SERVER[ 'SERVER_PORT' ] == 443) ? "https://" : "http://";
+				$url = "{$protocol}{$_SERVER[ 'HTTP_HOST' ]}{$_SERVER[ 'REQUEST_URI' ]}";
+				$referrer = $url;
+			}
 
-			Session::error( 'Unauthorized', $referrer );
+			if( ! preg_match( '/index.php/', $referrer )) {
+				Session::error( 'Unauthorized', $referrer );
+			} else {
+				$host = $config->host();
+				$referrer = Session::urlencode( $referrer );
+				Session::redirect( "{$host}/login.php?referrer=$referrer" );
+			}
 		}
 
 		static function login( $password = null ) {
@@ -70,9 +84,9 @@
 			$host = $config->host();
 			if( isset( $_GET[ 'referrer' ])) { $referrer = $_GET[ 'referrer' ]; }
 			if( ! isset( $message )) { $error = 'Unknown error'; }
+			$message  = Session::urlencode( $message );
 			if( isset( $referrer )) {
 				$referrer = Session::urlencode( $referrer );
-				$message  = Session::urlencode( $message );
 				header( "Location: {$host}/login.php?referrer={$referrer}&message={$message}" );
 			} else {
 				header( "Location: {$host}/login.php?message={$message}" );
@@ -81,11 +95,11 @@
 		}
 
 		static function urlencode( $string ) {
-			return urlencode( base64_encode( $string ));
+			return rawurlencode( base64_encode( $string ));
 		}
 
 		static function urldecode( $string ) {
-			return base64_decode( urldecode( $string ));
+			return base64_decode( rawurldecode( $string ));
 		}
 	}
 ?>

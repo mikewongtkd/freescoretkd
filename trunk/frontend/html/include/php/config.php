@@ -34,13 +34,29 @@
 
 		public function password( $ring = null ) {
 			$config = $this->data;
-			if( ! array_key_exists( 'password', $config )) { return null; }
+			if( ! array_key_exists( 'password', $config )) { return false; }
 
 			if( ! is_array( $config[ 'password' ])) { return $config[ 'password' ]; }
 			if( is_null( $ring )) { return null; }
 			if( ! array_key_exists( $ring, $config[ 'password' ])) { return null; }
 
 			return $config[ 'password' ][ $ring ];
+		}
+
+		public function rings() {
+			$config     = $this->data;
+			$services   = $config[ 'service' ];
+			$tournament = $config[ 'tournament' ];
+
+			$rings = [];
+			foreach( $services as $name => $service ) {
+				$rings[ $name ] = array_values( preg_grep( '/^(?:ring\d{2}|staging)$/', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . "/{$service[ 'path' ]}" )));
+			}
+
+			$rings = array_unique( array_merge( ... array_values( $rings )));
+			$rings = array_values( array_filter( array_map( 'Config::get_ring_number', $rings )));
+			sort( $rings );
+			return $rings;
 		}
 
 		public function services() {
@@ -60,7 +76,7 @@
 				$path = "/{$service}/status";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ]}";
+				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
 				$path = "/status";
 				
 			}
@@ -71,27 +87,9 @@
 		}
 
 		public function tournament() {
-			$config = $this->data;
-			function get_ring_number( $n ) {
-				if( ! preg_match( '/ring/', $n )) { return null; }
-				$n = preg_replace( '/ring/', '', $n );
-				return intval( $n );
-			}
+			$rings      = $this->rings();
+			$config     = $this->data;
 			$tournament = $config[ 'tournament' ];
-			$services = [ 
-				'worldclass' => 'forms-worldclass', 
-				'grassroots' => 'forms-grassroots', 
-				'freestyle'  => 'forms-freestyle' 
-			];
-
-			$rings = [];
-			foreach( $services as $service => $path ) {
-				$rings[ $service ] = array_values( preg_grep( '/ring|staging/', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . "/{$path}" )));
-			}
-
-			$rings = array_unique( array_merge( ... array_values( $rings )));
-			$rings = array_values( array_filter( array_map( 'get_ring_number', $rings )));
-			sort( $rings );
 			$tournament[ 'rings' ] = $rings;
 			$tournament = json_encode( $tournament );
 
@@ -109,7 +107,7 @@
 				$path = "/{$service}/webservice";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ]}";
+				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
 				$path = '';
 				
 			}
@@ -130,7 +128,7 @@
 				$path = "/{$service}/request";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ]}";
+				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
 				$path = "/{$service}";
 				
 			}
@@ -140,6 +138,11 @@
 			return $url;
 		}
 
+		public static function get_ring_number( $n ) {
+			if( ! preg_match( '/ring/', $n )) { return null; }
+			$n = preg_replace( '/ring/', '', $n );
+			return intval( $n );
+		}
 	}
 
 	$config     = new Config();

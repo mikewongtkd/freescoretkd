@@ -1,6 +1,13 @@
 <?php
 	include_once( "./include/php/version.php" );
 	include_once( "./include/php/config.php" );
+	include_once( "session.php" );
+
+	$referrer = isset( $_GET[ 'referrer' ]) ? base64_decode( rawurldecode( $_GET[ 'referrer' ])) : false;
+	$message  = isset( $_GET[ 'message' ]) ? base64_decode( rawurldecode( $_GET[ 'message' ])) : false;
+
+	// No password needed? Go straight to the desired page
+	if( $config->password() === false ) { Session::redirect(); }
 ?>
 <html>
 	<head>
@@ -22,7 +29,14 @@
 		<div class="container">
 			<div class="page-header">
 				<h1>Welcome</h1>
-				<p class="text-primary">Please Login</p>
+				<p class="text-primary">Please choose a ring and enter a password to login</p>
+<?php if( is_null( $config->password())): ?>
+				<div class="btn-group rings">
+<?php foreach( $config->rings() as $ring ): ?>
+					<button class="btn btn-ring" data-ring="<?= $ring ?>">Ring <?= $ring ?></button>
+<?php endforeach; ?>
+				</div>
+<?php endif; ?>
 			</div>
 
 			<div class="password-input">
@@ -64,6 +78,11 @@
 			</footer>
 		</div>
 		<script>
+<?php if( $message !== false ): ?>
+		$(() => {
+			alertify.error( '<?= $message ?>' );
+		});
+<?php endif; ?>
 
 var sound = {
 	send      : new Howl({ urls: [ "./sounds/upload.mp3",   "./sounds/upload.ogg"   ]}),
@@ -74,9 +93,19 @@ var sound = {
 };
 
 var inputs = [ 0, 1, 2, 3 ];
-var state  = { cursor : 0, password : null };
+var state  = { cursor : 0, ring : null, password : null };
 var handle = {
 	button : {
+		ring : {
+			click: ev => {
+				sound.next.play();
+				let target = $( ev.target );
+				$( '.btn-ring' ).removeClass( 'btn-primary' );
+				target.addClass( 'btn-primary' );
+				state.ring = parseInt( target.attr( 'data-ring' ));
+				if( state.password ) { handle.button.login.enable(); }
+			},
+		},
 		numeric : {
 			click: ev => {
 				sound.next.play(); 
@@ -85,15 +114,14 @@ var handle = {
 				let code   = $( `input[name="code-${state.cursor}"]` );
 				code.val( value );
 
-				if( state.cursor <= 3 ) {
-					state.cursor++;
+				if( state.cursor < 3 ) {
 					state.password = inputs.map( i => { return $( `input[name="code-${i}"]` ).val(); }).reduce(( a, b ) => a + b, '' );
-					alertify.notify( state.password );
+					state.cursor   = state.password.length;
 					handle.button.clear.enable();
 					handle.button.back.enable();
 
 				} else {
-					handle.button.login.enable(); 
+					if( state.ring ) { handle.button.login.enable(); }
 					handle.button.numeric.disable(); 
 				}
 			},
@@ -104,7 +132,8 @@ var handle = {
 			click: ev => {
 				sound.prev.play();
 
-				state.cursor--;
+				state.password = inputs.map( i => { return $( `input[name="code-${i}"]` ).val(); }).reduce(( a, b ) => a + b, '' );
+				state.cursor   = state.password.length - 1;
 				let code   = $( `input[name="code-${state.cursor}"]` );
 				code.val( null );
 
@@ -116,8 +145,6 @@ var handle = {
 					handle.button.back.disable();
 				}
 
-				state.password = inputs.map( i => { return $( `input[name="code-${i}"]` ).val(); }).reduce(( a, b ) => a + b, '' );
-				alertify.notify( state.password );
 			},
 			disable : () => { $( '.btn-back' ).addClass( 'disabled' ).off( 'click' ); },
 			enable  : () => { $( '.btn-back' ).removeClass( 'disabled' ).off( 'click' ).click( handle.button.back.click ); }
@@ -148,6 +175,7 @@ var handle = {
 	}
 };
 
+$( '.btn-ring' ).off( 'click' ).click( handle.button.ring.click );
 $( '.btn-numeric' ).off( 'click' ).click( handle.button.numeric.click );
 $( '.btn-back' ).off( 'click' );
 $( '.btn-clear' ).off( 'click' );
