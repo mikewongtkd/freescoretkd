@@ -8,6 +8,7 @@ use FreeScore;
 use FreeScore::Config;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::RequestManager;
+use PHP::Session;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::MoreUtils (qw( first_index ));
@@ -34,6 +35,7 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 	my $manager    = new FreeScore::Forms::WorldClass::RequestManager( $tournament, $ring, $id, $self->tx() );
 	my $progress   = undef;
 	my $staging    = undef;
+	my $session    = new PHP::Session( $id, { save_path => '/usr/local/freescore/sessions' });
 	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
@@ -58,6 +60,13 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 		my $self    = shift;
 		my $request = $json->decode( shift );
 
+		# ===== REJECT UNAUTHORIZED USERS
+		my $authorized = $session->get( 'is_auth' );
+		unless( $authorized ) {
+			$c->{ device }->send( { json => { error => "Unauthorized user ($id) in ring $ring" }});
+			return;
+		}
+		
 		# ===== GET RELEVANT COOKIES
 		my $value = $self->cookie( 'judge' );
 		if( defined $value ) {
