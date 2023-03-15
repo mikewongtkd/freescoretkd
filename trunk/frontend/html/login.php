@@ -68,7 +68,12 @@
 						<button class="btn btn-back disabled">Back</button>
 					</div>
 					<div class="number-pad-row">
-						<button class="btn btn-success btn-login disabled">Login</button>
+						<form method="POST" action="include/php/session/login.php">
+							<input type="hidden" name="referrer" value="<?= $referrer ?>" />
+							<input type="hidden" name="ring" value="" />
+							<input type="hidden" name="password" value="" />
+							<button class="btn btn-success btn-login disabled">Login</button>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -113,9 +118,9 @@ var handle = {
 				let value  = parseInt( target.text());
 				let code   = $( `input[name="code-${state.cursor}"]` );
 				code.val( value );
+				state.password = inputs.map( i => { return $( `input[name="code-${i}"]` ).val(); }).reduce(( a, b ) => a + b, '' );
 
 				if( state.cursor < 3 ) {
-					state.password = inputs.map( i => { return $( `input[name="code-${i}"]` ).val(); }).reduce(( a, b ) => a + b, '' );
 					state.cursor   = state.password.length;
 					handle.button.clear.enable();
 					handle.button.back.enable();
@@ -167,7 +172,14 @@ var handle = {
 		},
 		login : {
 			click: ev => {
+				ev.preventDefault();
 				sound.send.play();
+				$( 'input[name="ring"]' ).val( state.ring );
+				$( 'input[name="password"]' ).val( state.password );
+
+				setTimeout(() => {
+					$( 'form' ).submit();
+				}, 1500 );
 			},
 			disable : () => { $( '.btn-login' ).addClass( 'disabled' ).off( 'click' ); },
 			enable  : () => { $( '.btn-login' ).removeClass( 'disabled' ).off( 'click' ).click( handle.button.login.click ); }

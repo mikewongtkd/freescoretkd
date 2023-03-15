@@ -22,41 +22,40 @@
 				$referrer = $url;
 			}
 
-			if( ! preg_match( '/index.php/', $referrer )) {
-				Session::error( 'Unauthorized', $referrer );
-			} else {
+			if( preg_match( '/index.php/', $referrer )) {
 				$host = $config->host();
 				$referrer = Session::urlencode( $referrer );
 				Session::redirect( "{$host}/login.php?referrer=$referrer" );
+
+			} else {
+				Session::error( 'Unauthorized', $referrer );
 			}
 		}
 
-		static function login( $password = null ) {
+		static function login() {
+			global $config;
+			$host     = $config->host();
 			$ring     = null;
-			$referrer = null;
-
-			// If already authorized, do nothing
-			if( isset( $_SESSION[ 'is_auth' ]) && $_SESSION[ 'is_auth' ]) { return; }
 
 			// Set referrer
+			$referrer = "{$host}/index.php";
 			if( isset( $_GET[ 'referrer' ])) { $referrer = $_GET[ 'referrer' ]; }
-			if( ! isset( $referrer )) { $referrer = Session::urlencode( $_SERVER[ 'HTTP_REFERER' ]); }
+
+			// If already authorized, go straight to resource
+			if( isset( $_SESSION[ 'is_auth' ]) && $_SESSION[ 'is_auth' ]) { Session::redirect( $referrer ); }
 
 			// Get password
-			if( ! isset( $password ) && ! isset( $_POST[ 'password' ])) {
-				Session::error( 'Please provide a password', $referrer );
-			}
+			if( ! isset( $_POST[ 'password' ])) { Session::error( 'Please provide a password', $referrer ); }
 			$password = $_POST[ 'password' ];
+			if( $password == '' ) { Session::error( 'Please provide a valid password', $referrer ); }
 
 			// Get ring
 			if     ( isset( $_GET[ 'ring' ]))  { $ring = $_GET[ 'ring' ];  $ring = $ring == 'staging' ? $ring : sprintf( 'ring%02d', $ring ); }
 			else if( isset( $_POST[ 'ring' ])) { $ring = $_POST[ 'ring' ]; $ring = $ring == 'staging' ? $ring : sprintf( 'ring%02d', $ring ); }
 
 			$correct = $config->password( $ring );
-
-			if( $password != $correct ) {
-				Session::error( 'Password does not match our records' );
-			}
+			if( $correct == '' ) { Session::error( 'Configuration error: invalid password set in configuration' ); }
+			if( $password != $correct ) { Session::error( 'Password does not match our records' ); }
 
 			$_SESSION[ 'is_auth' ] = 1;
 			Session::redirect( $referrer );
