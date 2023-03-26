@@ -208,6 +208,10 @@
 									<a class="btn btn-primary" id="navigate-next-round">Next</a>
 								</div>
 							</div>
+							<div class="autopilot">
+								<h4>Autopilot</h4>
+								<a class="btn btn-block btn-default disabled status">Disengaged</a>
+							</div>
 							<div class="penalties">
 								<h4>Penalties</h4>
 								<div class="list-group">
@@ -256,68 +260,101 @@
 			var network    = { reconnect: 0 }
 			var polling    = {};
 
+			network.send = data => {
+					let request  = { data };
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+			};
+
+			var handle = {
+				autopilot : {
+					leaderboard : update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+
+					},
+					next : update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					},
+					scoreboard : update => {
+						let request  = update.request;
+						let delay    = (request.delay + 1) * 1000;
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					},
+					update : update => {
+						let request = update.request;
+						if( ! request || ! request.action ) { return; }
+						handle.autopilot[ request.action ]( update );
+					}
+				},
+				ring : {
+					update : update => {
+						if( ! defined( update.ring )) { return; }
+						refresh.ring( update.ring );
+						let divid = $.cookie( 'divid' );
+						if( defined( divid ) && divid != 'undefined' ) {
+							let division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
+							let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
+							let isCurDiv = defined( current ) ? division.name == current.name : false;
+							division = new Division( division );
+							refresh.athletes( division, isCurDiv );
+
+							if( page.num == 1 ) { page.transition() };
+
+							network.send({ type : 'division', action : 'judge query' });
+						}
+					}
+				},
+				division : { 
+					judges : update => { refresh.judges( update ); },
+					'judges goodbye' : update => { 
+						refresh.judges( update ); 
+
+						setTimeout(() => { network.send({ type : 'division', action : 'judge query' }); }, 500 );
+					},
+					update : update => {
+						let division = update.division;
+						if( ! defined( division )) { return; }
+
+						division   = new Division( division );
+						refresh.athletes( division, true );
+						if( page.num == 1 ) { page.transition() };
+
+						network.send({ type : 'division', action : 'judge query' });
+					},
+					'server pong' : update => { refresh.judge( update ); }
+				}
+			};
+
 			ws.onerror = network.error = function() {
 				setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
 			};
 
 			ws.onopen = network.connect = function() {
-				var request;
-				request      = { data : { type : 'ring', action : 'read' }};
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
-
+				network.send({ type : 'ring', action : 'read' });
 			};
 
 			ws.onmessage = network.message = function( response ) {
-				var update = JSON.parse( response.data );
+				let update = JSON.parse( response.data );
 				if( update.action != 'server pong' ) { console.log( update ); }
 
-				if( update.type == 'ring' && update.action == 'update' ) {
-					if( ! defined( update.ring )) { return; }
-					refresh.ring( update.ring );
-					var divid = $.cookie( 'divid' );
-					if( defined( divid ) && divid != 'undefined' ) {
-						var division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
-						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						var isCurDiv = defined( current ) ? division.name == current.name : false;
-						division = new Division( division );
-						refresh.athletes( division, isCurDiv );
+				let type = update.type;
+				if( ! (type in handle)) { alertify.error( `No handler for ${type} object` ); console.log( update ); return; }
+				let action = update.action;
+				if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
 
-						if( page.num == 1 ) { page.transition() };
-
-						var request  = { data : { type : 'division', action : 'judge query' }};
-						request.json = JSON.stringify( request.data );
-						ws.send( request.json );
-
-					}
-				} else if( update.type == 'division' && update.action == 'judges' ) {
-					refresh.judges( update );
-
-				} else if( update.type == 'division' && update.action == 'judge goodbye' ) {
-					refresh.judge( update );
-
-					setTimeout(() => {
-						var request  = { data : { type : 'division', action : 'judge query' }};
-						request.json = JSON.stringify( request.data );
-						ws.send( request.json );
-					}, 500 );
-
-				} else if( update.type == 'division' && update.action == 'update' ) {
-
-					var division = update.division;
-					if( ! defined( division )) { return; }
-
-					division   = new Division( division );
-					refresh.athletes( division, true );
-					if( page.num == 1 ) { page.transition() };
-
-					var request  = { data : { type : 'division', action : 'judge query' }};
-					request.json = JSON.stringify( request.data );
-					ws.send( request.json );
-
-				} else if( update.type == 'division' && update.action == 'server pong' ) {
-					refresh.judge( update );
-				}
+				handle[ type ][ action ]( update );
 			};
 
 			// ===== TRY TO RECONNECT IF WEBSOCKET CLOSES

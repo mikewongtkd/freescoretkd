@@ -234,7 +234,8 @@
 
 					handle[ type ][ action ]( update );
 				},
-				send: request => {
+				send: data => {
+					let request = { data };
 					request.json = JSON.stringify( request.data ); 
 					ws.send( request.json );
 				}
@@ -268,7 +269,7 @@
 							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'WDR'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
 							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to disqualify <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'DSQ' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
 							clear      : () => { sound.next.play(); alertify.confirm( "Clear Decisions for " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to clear WDR and DSQ decisions for <b class="text-danger">' + athlete.name() + '</b> or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'clear' ); alertify.success( athlete.name() + ' has been cleared of punitive decisions' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							send       : ( reason ) => { network.send( { data : { type : 'division', action : 'decision', decision: reason }} ); }
+							send       : ( reason ) => { network.send({ type : 'division', action : 'decision', decision: reason }); }
 						},
 					};
 
@@ -353,7 +354,7 @@
 							if( state.time.start ) { 
 								state.time.start = null;
 								state.time.stop  = null;
-								network.send({ data : { type : 'division', action : 'time reset'}});
+								network.send({ type : 'division', action : 'time reset'});
 							}
 						},
 						start : ev => {
@@ -362,7 +363,7 @@
 							state.time.start = Date.now();
 							$( '#time-start' ).hide();
 							$( '#time-stop' ).show().off( 'click' ).click( ev => { time.stop( ev ); });
-							network.send({ data : { type : 'division', action : 'time start'}});
+							network.send({ type : 'division', action : 'time start' });
 						},
 						stop : ev => {
 							sound.prev.play();
@@ -370,7 +371,7 @@
 							$( '#time-reset' ).removeClass( 'disabled' ).off( 'click' ).click( ev => { time.reset( ev ); });
 							$( '#time-stop' ).hide();
 							$( '#time-start' ).show().off( 'click' ).click( ev => { time.start( ev ); });
-							network.send({ data : { type : 'division', action : 'time stop'}});
+							network.send({ type : 'division', action : 'time stop' });
 							state.time.stop    = Date.now();
 							state.time.elapsed = Math.floor(( state.time.stop - state.time.start) / 1000 ) + state.time.elapsed;
 							if( state.time.warning ) {
@@ -442,7 +443,7 @@
 								`Clear score from ${judge}?`, 
 								`Click <b>OK</b> to clear the score from ${judge} for ${athlete.name()}, <b>Cancel</b> to leave the score as it is.`,
 								ev => {
-									network.send( { data : { type : 'division', action : 'score', judge : i, score : 'clear' }});
+									network.send({ type : 'division', action : 'score', judge : i, score : 'clear' });
 									sound.ok.play();
 									alertify.success( `Score from ${judge} cleared` );
 								},
@@ -487,11 +488,11 @@
 						navigate : {
 							athlete   : () => { sound.ok.play(); let i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  id : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', id : divid } ); },
-							to        : ( target ) => { network.send( { data : { type : 'division', action : 'navigate', target: target }}); }
+							to        : ( target ) => { network.send({ type : 'division', action : 'navigate', target: target }); }
 						},
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
-							view       : () => { sound.next.play(); network.send({ data : { type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }}); },
+							view       : () => { sound.next.play(); network.send({ type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }); },
 							edit       : () => { sound.next.play(); page.editor  = window.open( `division/editor.php?ring=${ringid}&divid=${divid}`, '_blank' )},
 							print      : () => { sound.next.play(); page.print   = window.open( `report.php?ring=${ringid}&divid=${divid}`, '_blank' )},
 						}
