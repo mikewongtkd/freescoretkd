@@ -32,8 +32,8 @@
 				<p class="text-primary">Please choose a ring and enter a password to login</p>
 <?php if( is_null( $config->password())): ?>
 				<div class="btn-group rings">
-<?php foreach( $config->rings() as $ring ): ?>
-					<button class="btn btn-ring" data-ring="<?= $ring ?>">Ring <?= $ring ?></button>
+<?php foreach( $config->rings() as $ring ): $ringid = sprintf( 'ring%02d', $ring ); ?>
+					<button class="btn btn-ring" data-ring="<?= $ringid ?>">Ring <?= $ring ?></button>
 <?php endforeach; ?>
 				</div>
 <?php endif; ?>
@@ -107,7 +107,7 @@ var handle = {
 				let target = $( ev.target );
 				$( '.btn-ring' ).removeClass( 'btn-primary' );
 				target.addClass( 'btn-primary' );
-				state.ring = parseInt( target.attr( 'data-ring' ));
+				state.ring = target.attr( 'data-ring' );
 				if( state.password ) { handle.button.login.enable(); }
 			},
 		},
@@ -184,9 +184,29 @@ var handle = {
 			disable : () => { $( '.btn-login' ).addClass( 'disabled' ).off( 'click' ); },
 			enable  : () => { $( '.btn-login' ).removeClass( 'disabled' ).off( 'click' ).click( handle.button.login.click ); }
 		}
+	},
+	keydown : ev => {
+		if( ev.keyCode == 27 ) { $( '.btn-clear' ).click(); return; }
+		if( ev.keyCode == 8 )  { $( '.btn-back' ).click();  return; }
+		if( ev.keyCode < 48 || ev.keyCode > 57 ) { sound.error.play(); return; }
+		sound.next.play(); 
+		let value  = ev.key;
+		let code   = $( `input[name="code-${state.cursor}"]` );
+		code.val( value );
+		state.password = inputs.map( i => { return $( `input[name="code-${i}"]` ).val(); }).reduce(( a, b ) => a + b, '' );
+		if( state.cursor < 3 ) {
+			state.cursor   = state.password.length;
+			handle.button.clear.enable();
+			handle.button.back.enable();
+
+		} else {
+			if( state.ring ) { handle.button.login.enable(); }
+			handle.button.numeric.disable(); 
+		}
 	}
 };
 
+$( 'body' ).off( 'keydown' ).keydown( handle.keydown );
 $( '.btn-ring' ).off( 'click' ).click( handle.button.ring.click );
 $( '.btn-numeric' ).off( 'click' ).click( handle.button.numeric.click );
 $( '.btn-back' ).off( 'click' );

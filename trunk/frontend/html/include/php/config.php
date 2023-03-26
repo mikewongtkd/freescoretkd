@@ -38,6 +38,7 @@
 
 			if( ! is_array( $config[ 'password' ])) { return $config[ 'password' ]; }
 			if( is_null( $ring )) { return null; }
+			if( ! preg_match( '/^(?:ring\d+|staging)/', $ring )) { return null; }
 			if( ! array_key_exists( $ring, $config[ 'password' ])) { return null; }
 
 			return $config[ 'password' ][ $ring ];
