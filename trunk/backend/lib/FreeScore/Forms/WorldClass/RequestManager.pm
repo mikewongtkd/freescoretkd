@@ -89,7 +89,7 @@ sub init {
 }
 
 # ============================================================
-sub broadcast_division_response {
+sub broadcast_updated_division {
 # ============================================================
 # Broadcasts to ring
 # ------------------------------------------------------------
@@ -149,7 +149,7 @@ sub broadcast_division_judge_status {
 }
 
 # ============================================================
-sub broadcast_ring_response {
+sub broadcast_updated_ring {
 # ============================================================
 # Broadcasts to ring
 # ------------------------------------------------------------
@@ -220,7 +220,7 @@ sub handle_division_award_penalty {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -251,7 +251,7 @@ sub handle_division_award_punitive {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -280,7 +280,7 @@ sub handle_division_athlete_delete {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -304,7 +304,7 @@ sub handle_division_athlete_next {
 		$division->next_athlete();
 		$division->write();
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -328,7 +328,7 @@ sub handle_division_athlete_prev {
 		$division->previous_athlete();
 		$division->write();
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -358,7 +358,7 @@ sub handle_division_clear_judge_score {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -383,7 +383,7 @@ sub handle_division_display {
 		else                          { $division->display(); }
 		$division->write();
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -405,7 +405,7 @@ sub handle_division_edit_athletes {
 		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
 		$division->write();
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -428,7 +428,7 @@ sub handle_division_form_next {
 		$division->autopilot( 'off' );
 		$division->next_form();
 		$division->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -451,7 +451,7 @@ sub handle_division_form_prev {
 		$division->autopilot( 'off' );
 		$division->previous_form();
 		$division->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -474,7 +474,7 @@ sub handle_division_history {
 	try {
 		my @history = $version->history( $division );
 		$division->{ history } = [ @history ];
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -621,13 +621,13 @@ sub handle_division_navigate {
 			$division = $progress->current();
 			$division->autopilot( 'off' );
 			$division->write();
-			$self->broadcast_ring_response( $request, $progress, $clients );
+			$self->broadcast_updated_ring( $request, $progress, $clients );
 		}
 		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
 			$division->navigate( $object, $i ); 
 			$division->autopilot( 'off' );
 			$division->write();
-			$self->broadcast_division_response( $request, $progress, $clients );
+			$self->broadcast_updated_division( $request, $progress, $clients );
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -667,7 +667,7 @@ sub handle_division_restore {
 		$division->read();
 		$progress->update_division( $division );
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -690,7 +690,7 @@ sub handle_division_round_next {
 		$division->autopilot( 'off' );
 		$division->next_round();
 		$division->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -713,7 +713,7 @@ sub handle_division_round_prev {
 		$division->autopilot( 'off' );
 		$division->previous_round();
 		$division->write();
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -754,7 +754,7 @@ sub handle_division_score {
 		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
-		$self->broadcast_division_response( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -798,7 +798,7 @@ sub handle_division_write {
 			$client->send( { json => {  type => 'division', action => 'write ok', division => $unblessed }});
 
 			# ===== BROADCAST THE UPDATE
-			$self->broadcast_ring_response( $request, $progress, $clients );
+			$self->broadcast_updated_ring( $request, $progress, $clients );
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -1012,7 +1012,7 @@ sub handle_ring_division_delete {
 	try {
 		$progress->delete_division( $request->{ divid });
 		$progress->write();
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1033,7 +1033,7 @@ sub handle_ring_division_merge {
 	try {
 		$progress->merge_division( $request->{ name });
 		$progress->write();
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1054,7 +1054,7 @@ sub handle_ring_division_next {
 	try {
 		$progress->next();
 		$progress->write();
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1075,7 +1075,7 @@ sub handle_ring_division_prev {
 	try {
 		$progress->previous();
 		$progress->write();
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1098,7 +1098,7 @@ sub handle_ring_division_split {
 	try {
 		$progress->split_division( $divid, $flights );
 		$progress->write();
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1197,7 +1197,7 @@ sub handle_ring_transfer {
 	try {
 		$progress->transfer( $divid, $transfer );
 
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1218,7 +1218,7 @@ sub handle_ring_draws_delete {
 	try {
 		$progress->delete_draws();
 
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1239,7 +1239,7 @@ sub handle_ring_draws_write {
 	try {
 		$progress->write_draws( $draws );
 
-		$self->broadcast_ring_response( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $clients );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1479,12 +1479,14 @@ sub autopilot {
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
-	$delay->steps(
-		sub { # Display the athlete's score for 9 seconds
+	my $show = {
+		score => sub { # Display the athlete's score for 9 seconds
 			my $delay = shift;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+			$request->{ action } = 'scoreboard';
+			$self->broadcast_updated_division( $request, $progress, $clients, $judges );
 		},
-		sub { 
+		leaderboard => sub { 
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
@@ -1495,14 +1497,15 @@ sub autopilot {
 				$division->display() unless $division->is_display(); 
 				$division->write(); 
 				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
-				$self->broadcast_division_response( $request, $progress, $clients, $judges );
+				$request->{ action } = 'leaderboard';
+				$self->broadcast_updated_division( $request, $progress, $clients, $judges );
 
 			# Otherwise keep displaying the score for another second
 			} else {
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 			}
 		},
-		sub { # Advance to the next form/athlete/round
+		next => sub { # Advance to the next form/athlete/round
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $division->autopilot();
@@ -1520,13 +1523,12 @@ sub autopilot {
 			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$division->write();
 
-			$self->broadcast_division_response( $request, $progress, $clients, $judges );
-		},
-	)->catch( sub {
-		my $delay = shift;
-		my $error = shift;
-
-	})->wait();
+			$request->{ action } = 'next';
+			$self->broadcast_updated_division( $request, $progress, $clients, $judges );
+		}
+	};
+	my @steps = ( $show->{ score }, $show->{ leaderboard }, $show->{ next });
+	$delay->steps( @steps )->catch( sub {} )->wait();
 }
 
 1;
