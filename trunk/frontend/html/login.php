@@ -188,7 +188,7 @@ var handle = {
 	keydown : ev => {
 		if( ev.keyCode == 27 ) { $( '.btn-clear' ).click(); return; }
 		if( ev.keyCode == 8 )  { $( '.btn-back' ).click();  return; }
-		if( ev.keyCode < 48 || ev.keyCode > 57 ) { sound.error.play(); return; }
+		if( ev.keyCode < 48 || ev.keyCode > 57 ) { return; }
 		sound.next.play(); 
 		let value  = ev.key;
 		let code   = $( `input[name="code-${state.cursor}"]` );

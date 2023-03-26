@@ -50,8 +50,8 @@
 			if( $password == '' ) { Session::error( 'Please provide a valid password', $referrer ); }
 
 			// Get ring
-			if     ( isset( $_GET[ 'ring' ]))  { $ring = $_GET[ 'ring' ];  $ring = $ring == 'staging' ? $ring : sprintf( 'ring%02d', $ring ); }
-			else if( isset( $_POST[ 'ring' ])) { $ring = $_POST[ 'ring' ]; $ring = $ring == 'staging' ? $ring : sprintf( 'ring%02d', $ring ); }
+			if     ( isset( $_GET[ 'ring' ]))  { $ring = $_GET[ 'ring' ];  }
+			else if( isset( $_POST[ 'ring' ])) { $ring = $_POST[ 'ring' ]; }
 
 			$correct = $config->password( $ring );
 			if( $correct == '' ) { Session::error( 'Configuration error: invalid password set in configuration' ); }
