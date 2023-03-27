@@ -51,7 +51,9 @@
 
 			$rings = [];
 			foreach( $services as $name => $service ) {
-				$rings[ $name ] = array_values( preg_grep( '/^(?:ring\d{2}|staging)$/', scandir( '/usr/local/freescore/data/' . $tournament[ 'db' ] . "/{$service[ 'path' ]}" )));
+				$path = "/usr/local/freescore/data/{$tournament[ 'db' ]}/{$service[ 'path' ]}";
+				if( ! file_exists( $path )) { continue; }
+				$rings[ $name ] = array_values( preg_grep( '/^(?:ring\d{2}|staging)$/', scandir( $path )));
 			}
 
 			$rings = array_unique( array_merge( ... array_values( $rings )));
