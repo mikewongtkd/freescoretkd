@@ -1453,7 +1453,7 @@ sub autopilot {
 	request->{ type } = 'autopilot';
 
 	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
-	if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
+	# if( my $locked = $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
 
 	# ===== ENGAGE AUTOPILOT
 	try {
