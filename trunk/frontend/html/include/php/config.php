@@ -63,6 +63,11 @@
 			return $rings;
 		}
 
+		public function secured() {
+			$config = $this->data;
+			if( ! array_key_exists( 'password', $config )) { return true; }
+		}
+
 		public function services() {
 			$config = $this->data;
 			if( ! array_key_exists( 'service', $config )) { return []; }
