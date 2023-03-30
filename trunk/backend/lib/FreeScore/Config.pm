@@ -24,21 +24,14 @@ sub init {
 		my $text = read_file( $file );
 		my $json = new JSON::XS();
 		my $data = $json->decode( $text );
-		$self->{ host }       = $data->{ host };
-		$self->{ port }       = $data->{ port } if $data->{ port };
-		$self->{ tournament } = $data->{ tournament };
+		foreach my $key (keys %$data) { $self->{ $key } = $data->{ $key }; }
 	}
 	return unless $self->{ host };
 
-	my $subpath = {
-		grassroots => 'forms-grassroots',
-		worldclass => 'forms-worldclass',
-		freestyle  => 'forms-freestyle',
-	};
-
 	my @rings = ();
-	foreach my $event (sort keys %$subpath) {
-		my $path = "/usr/local/freescore/data/$self->{ tournament }{ db }/$subpath->{ event }";
+	foreach my $service (sort keys %{$self->{ service }}) {
+		next unless $service->{ path };
+		my $path = "/usr/local/freescore/data/$self->{ tournament }{ db }/$service->{ path }";
 		next unless -d $path;
 		opendir my $dh, $path;
 		push @rings, map { /^ring(\d+)$/; int( $1 ); } grep { /^(?:ring)/ } readdir $dh;
