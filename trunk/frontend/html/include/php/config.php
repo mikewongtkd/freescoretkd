@@ -65,7 +65,8 @@
 
 		public function secured() {
 			$config = $this->data;
-			if( ! array_key_exists( 'password', $config )) { return true; }
+			if( array_key_exists( 'password', $config )) { return true; }
+			return false;
 		}
 
 		public function services() {

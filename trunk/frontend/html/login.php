@@ -7,7 +7,10 @@
 	$message  = isset( $_GET[ 'message' ]) ? base64_decode( rawurldecode( $_GET[ 'message' ])) : false;
 
 	// No password needed? Go straight to the desired page
-	if( $config->password() === false ) { Session::redirect(); }
+	if( ! $config->secured()) { 
+		if( $referrer ) { Session::redirect( $referrer ); } 
+		else            { Session::redirect( 'index.php' ); }
+	}
 ?>
 <html>
 	<head>
