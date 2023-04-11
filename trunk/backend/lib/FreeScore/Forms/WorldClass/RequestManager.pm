@@ -86,6 +86,9 @@ sub init {
 		write              => \&handle_schedule_write,
 		remove             => \&handle_schedule_remove,
 	};
+	$self->{ tournament } = {
+		read               => \&handle_tournament_read,
+	}
 }
 
 # ============================================================
@@ -1407,6 +1410,29 @@ sub handle_schedule_write {
 	try {
 		$schedule->write( $file );
 		$client->send( { json => {  type => 'schedule', schedule => $schedule->data(), divisions => $divisions, action => 'write', result => 'ok' }});
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_tournament_read {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $json     = $self->{ _json };
+	my $client   = $self->{ _client };
+
+	print STDERR "Reading all ring information\n" if $DEBUG;
+	
+	my $copy       = clone( $request );
+	my $tournament = $request->{ tournament };
+	my $all        = new FreeScore::Forms::WorldClass( $tournament );
+
+	$divisions = unbless( $all->{ divisions } );
+	try {
+		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, divisions => $divisions }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}

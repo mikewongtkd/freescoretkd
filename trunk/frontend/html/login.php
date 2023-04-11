@@ -8,6 +8,7 @@
 
 	// No password needed? Go straight to the desired page
 	if( ! $config->secured()) { 
+		$_SESSION[ 'is_auth' ] = True;
 		if( $referrer ) { Session::redirect( $referrer ); } 
 		else            { Session::redirect( 'index.php' ); }
 	}
