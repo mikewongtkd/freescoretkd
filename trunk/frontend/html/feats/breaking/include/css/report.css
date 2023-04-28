@@ -62,27 +62,51 @@ body {
 table.placements {
   width: 920px;
 }
-table.placements thead th.place, table.placements thead td.place {
+table.placements thead th.place {
   width: 7.5%;
   text-align: left;
 }
-table.placements thead th.usatid, table.placements thead td.usatid {
+table.placements thead th.usatid {
   width: 15%;
   text-align: left;
 }
-table.placements thead th.name, table.placements thead td.name {
+table.placements thead th.name {
   width: 40%;
   text-align: left;
 }
-table.placements thead th.score, table.placements thead td.score {
+table.placements thead th.score {
   width: 12.5%;
   text-align: left;
 }
-table.placements thead th.tb1, table.placements thead td.tb1 {
+table.placements thead th.tb1 {
   width: 12.5%;
   text-align: left;
 }
-table.placements thead th.tb2, table.placements thead td.tb2 {
+table.placements thead th.tb2 {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements tbody td.place {
+  width: 7.5%;
+  text-align: left;
+}
+table.placements tbody td.usatid {
+  width: 15%;
+  text-align: left;
+}
+table.placements tbody td.name {
+  width: 40%;
+  text-align: left;
+}
+table.placements tbody td.score {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements tbody td.tb1 {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements tbody td.tb2 {
   width: 12.5%;
   text-align: left;
 }
@@ -90,15 +114,27 @@ table.placements thead th.tb2, table.placements thead td.tb2 {
 table.draws {
   width: 920px;
 }
-table.draws thead th.order, table.draws thead td.order {
+table.draws thead th.order {
   width: 7.5%;
   text-align: left;
 }
-table.draws thead th.name, table.draws thead td.name {
+table.draws thead th.name {
   width: 77.5%;
   text-align: left;
 }
-table.draws thead th.usatid, table.draws thead td.usatid {
+table.draws thead th.usatid {
+  width: 15%;
+  text-align: right;
+}
+table.draws tbody td.order {
+  width: 7.5%;
+  text-align: left;
+}
+table.draws tbody td.name {
+  width: 77.5%;
+  text-align: left;
+}
+table.draws tbody td.usatid {
   width: 15%;
   text-align: right;
 }
