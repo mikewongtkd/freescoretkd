@@ -11,9 +11,17 @@
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
+		<style>
+table .place { width: 5%; text-align: center; }
+table .name { width: 35%; }
+table .usatid { width: 30%; }
+table .score { width: 10%; }
+table .tb1 { width: 10%; }
+table .tb2 { width: 10%; }
+		</style>
 	</head>
 	<body>
-		<div id="worldclass"></div>
+		<div id="report-tabular" class="container"></div>
 		<script type="text/javascript">
 			var tournament = <?= $tournament ?>;
 			var ring       = { num : 1 };
@@ -27,10 +35,91 @@
 					ws.send( request.json );
 			};
 
-			var handle = {
-				ring : {
-					read : update => {
+			var display = {
+				athlete : {
+					decision : scores => {
+						let code = { 'withdraw' : 'WDR', 'disqualify' : 'DSQ', '' : false };
+						let decision = '';
+						if( ! ( 'forms' in scores )) { return false; }
+						scores.forms.forEach( form => {
+							if( !( 'decision' in form )) { return false; }
+							decision = Object.keys( form.decision )[ 0 ];
+						});
+						decision = code[ decision ];
+						return decision;
+					}
+				},
+				results : {
+					table : division => {
+						console.log( division.name.toUpperCase(), division );
+						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
+						let tables  = [];
+						let rounds  = [{ code : 'finals', name : 'Final' }];
+						let n       = division.athletes.length;
+
+						if( n >   8 ) { rounds.push({ code : 'semfin', name : 'Semi-Final' }); }
+						if( n >= 20 ) { rounds.push({ code : 'prelim', name : 'Preliminary' }); }
+						if( 'flight' in division ) {
+							rounds = [{ code : 'prelim', name : 'Preliminary' }];
+						}
 						
+						rounds.forEach( round => {
+							let table = $( '<table class="table table-striped" />' );
+							let thead = $( '<thead />' );
+							let tbody = $( '<tbody />' );
+							if( division.name.match( /^p[pt]/ )) {
+								thead.append( '<tr><th class="place">Place</th><th class="name">Names</th><th class="usatid">USAT IDs</th><th class="score">Score</th><th class="tb1">TB1</th><th class="tb2">TB2</th></tr>' );
+							} else {
+								thead.append( '<tr><th class="place">Place</th><th class="name">Name</th><th class="usatid">USAT ID</th><th class="score">Score</th><th class="tb1">TB1</th><th class="tb2">TB2</th></tr>' );
+							}
+							table.append( thead, tbody );
+							tables.push( `<h3>${round.name} Round</h3>`, table );
+
+							let placements = round.code in division.placement ? division.placement[ round.code ] : [];
+							let athletes   = placements.map( i => division.athletes[ i ]);
+
+							athletes.forEach(( athlete, i ) => {
+								let j        = i > 0 ? i - 1 : null;
+								let k        = i < athletes.length ? i + 1 : null;
+								let prev     = j === null ? null : athletes[ j ];
+								let next     = k === null ? null : athletes[ k ];
+								let num      = `${i + 1}.`;
+								let name     = athlete.name;
+								let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
+								let scores   = round.code in athlete.scores ? athlete.scores[ round.code ] : { adjusted : { presentation : null, total : null }, allscore : null };
+								let pscore   = prev && round.code in prev.scores ? prev.scores[ round.code ] : { adjusted : { presentation : null, total : null }, allscore : null };
+								let nscore   = next && round.code in next.scores ? next.scores[ round.code ] : { adjusted : { presentation : null, total : null }, allscore : null };
+								let tb1      = '';
+								let tb2      = '';
+								let decision = display.athlete.decision( scores );
+								let score    = '';
+								console.log( athlete.name, decision );
+								if( decision ) { score = decision; num = '&ndash;';} 
+								else           { score = parseFloat( scores.adjusted.total ).toFixed( 2 ); }
+								if( scores.adjusted.total && ((scores.adjusted.total == pscore.adjusted.total) || (scores.adjusted.total == nscore.adjusted.total))) {
+									tb1 = parseFloat( scores.adjusted.presentation ).toFixed( 2 );
+									if( scores.adjusted.presentation && ((scores.adjusted.presentation == pscore.adjusted.presentation) || (scores.adjusted.presentation == nscore.adjusted.presentation))) {
+										tb2 = parseFloat( scores.allscore.total ).toFixed( 2 );
+									}
+								}
+								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${score}</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );
+
+
+							});
+
+						});
+
+						$( '#report-tabular' ).append( summary, tables );
+					}
+				}
+			};
+
+			var handle = {
+				tournament : {
+					read : update => {
+						let divisions = update.divisions.sort(( a, b ) => a.name.localeCompare( b.name ));
+						$( '#report-tabular' ).empty();
+						divisions.forEach( division => { display.results.table( division ); });
 					}
 				}
 			};
@@ -40,7 +129,7 @@
 			};
 
 			ws.onopen = network.connect = () => {
-				network.send({ type : 'ring', action : 'read' });
+				network.send({ type : 'tournament', action : 'read' });
 			};
 
 			ws.onmessage = network.message = response => {

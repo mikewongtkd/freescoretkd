@@ -2,6 +2,23 @@ class Athlete {
 	constructor( data ) { 
 		this.athlete = data; 
 
+		let get = {
+			technical : {
+				difficulty : score => {
+					if( typeof( score ) != 'object' ) { return null; }
+					if( !( 'technical' in score )) { return null; }
+					if( !( 'difficulty' in score.technical )) { return null; }
+					return parseFloat( score.technical.difficulty );
+				}
+			},
+			presentation : score => {
+				if( typeof( score ) != 'object' ) { return null; }
+				if( !( 'presentation' in score )) { return null; }
+				if( typeof( score.presentation ) != 'object' ) { return null; }
+				return Object.keys( score.presentation ).map( y => parseFloat( score.presentation[ y ])).reduce(( a, b ) => a + b, 0.0 )
+			}
+		};
+
 		this.deductions = {
 			technical : () => {
 				if( ! this.athlete.scores[ 0 ]) { return null; }
@@ -22,8 +39,10 @@ class Athlete {
 			technical: () => { 
 				if( !('trimmed' in this.athlete )) { return null; } 
 				let boards = parseInt( this.athlete.info.boards ) * 0.2;
-				let scores = this.athlete.scores.map( x => parseFloat( x.technical.difficulty ));
-				let n      = this.athlete.scores.length; if( n == 0 ) { return null; }
+				let scores = this.athlete.scores.map( x => get.technical.difficulty( x )).filter( x => x !== null );
+				let k      = this.athlete.scores.length;
+				let n      = scores.length; 
+				if( n == 0 || ( n != k && k != 0 )) { return null; }
 				let sum    = scores.reduce(( a, b ) => a + b, 0.0);
 				if( 'hilo' in this.athlete.trimmed ) {
 					let dropped = this.athlete.trimmed.hilo;
@@ -35,8 +54,10 @@ class Athlete {
 			},
 			presentation: () => { 
 				if( !( 'trimmed' in this.athlete )) { return null; }
-				let scores = this.athlete.scores.map( x => Object.keys( x.presentation ).map( y => parseFloat( x.presentation[ y ])).reduce(( a, b ) => a + b, 0.0 ));
-				let n      = this.athlete.scores.length; if( n == 0 ) { return null; }
+				let scores = this.athlete.scores.map( x => get.presentation( x )).filter( x => x !== null );
+				let k      = this.athlete.scores.length;
+				let n      = scores.length; 
+				if( n == 0 || ( n != k && k != 0 )) { return null; }
 				let sum    = scores.reduce(( a, b ) => a + b, 0.0);
 				if( 'hilo' in this.athlete.trimmed ) {
 					let dropped = this.athlete.trimmed.hilo;
@@ -46,16 +67,23 @@ class Athlete {
 				return mean;
 			},
 			total: () => { 
-				if( !('trimmed' in this.athlete )) { return null; } 
-				return (parseFloat( this.mean.technical()) + parseFloat(this.mean.presentation())).toFixed( 2 );
+				if( ! this.athlete.complete ) { return null; } 
+				let tech = this.mean.technical();
+				let pres = this.mean.presentation();
+				if( tech === null || pres === null ) { return null; }
+
+				tech = parseFloat( tech );
+				pres = parseFloat( pres );
+
+				return (tech + pres).toFixed( 2 );
 			}
 		};
 
 		this.range = {
 			technical: () => { 
 				if( !('trimmed' in this.athlete )) { return null; } 
-				let boards = parseInt( this.athlete.info.boards ) * 0.2;
-				let scores = this.athlete.scores.map( x => boards + parseFloat( x.technical.difficulty ));
+				let scores = this.athlete.scores.map( x => get.technical.difficulty( x )).filter( x => x !== null );
+				if( scores.length == 0 ) { return null; }
 				let max = Math.max( ... scores );
 				let min = Math.min( ... scores );
 
@@ -63,7 +91,10 @@ class Athlete {
 			},
 			presentation: () => { 
 				if( !( 'trimmed' in this.athlete )) { return null; }
-				let scores = this.athlete.scores.map( x => Object.keys( x.presentation ).map( y => parseFloat( x.presentation[ y ])).reduce(( a, b ) => a + b, 0.0 ));
+				let scores = this.athlete.scores.map( x => get.presentation( x )).filter( x => x !== null );
+				let k      = this.athlete.scores.length;
+				let n      = scores.length;
+				if( n == 0 || ( n != k && k != 0 )) { return null; }
 				let max = Math.max( ... scores );
 				let min = Math.min( ... scores );
 
@@ -72,7 +103,16 @@ class Athlete {
 			total: () => { 
 				if( !('trimmed' in this.athlete )) { return null; } 
 				let boards = parseInt( this.athlete.info.boards ) * 0.2;
-				let scores = this.athlete.scores.map( x => boards + parseFloat( x.technical.difficulty ) + Object.keys( x.presentation ).map( y => parseFloat( x.presentation[ y ])).reduce(( a, b ) => a + b, 0.0 ));
+				let tech   = this.athlete.scores.map( x => get.technical.difficulty( x ));
+				let pres   = this.athlete.scores.map( x => get.presentation( x ));
+				let scores = tech.map(( t, i ) => { 
+					let p = pres[ i ]; 
+					if( t === null ) { return null; } 
+					if( p === null ) { return null; } 
+					return t + p; 
+				}).filter( x => x !== null );
+				if( scores.length == 0 || scores.length != this.athlete.scores.length ) { return null; }
+
 				let max = Math.max( ... scores );
 				let min = Math.min( ... scores );
 
