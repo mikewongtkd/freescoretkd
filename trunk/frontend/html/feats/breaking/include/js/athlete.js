@@ -152,6 +152,11 @@ class Athlete {
 		return this.athlete.info.decision;
 	}
 
+	info( key ) {
+		if( key in this.athlete.info ) { return this.athlete.info[ key ]; }
+		return null;
+	}
+
 	name() { return this.athlete.name; }
 
 	noc() {

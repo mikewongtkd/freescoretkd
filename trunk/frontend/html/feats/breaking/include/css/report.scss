@@ -4,21 +4,43 @@ body {
 	font-family: $text-font-stack;
 }
 
+.results {
+	page-break-after: always;
+}
+
 .division-description {
 	font-size: 1.5em;
 	margin-top: 20px;
 }
 
-table {
+table.placements {
 	width: 920px;
 
 	thead {
 		th, td {
-			&.place { width: 7.5%; text-align: left; }
-			&.name  { text-align: left; }
-			&.score { width: 12.5%; text-align: left; }
-			&.tb1   { width: 12.5%; text-align: left; }
-			&.tb2   { width: 12.5%; text-align: left; }
+			&.place  { width: 7.5%; text-align: left; }
+			&.usatid { width: 15%;  text-align: left; }
+			&.name   { width: 40%;  text-align: left; }
+			&.score  { width: 12.5%; text-align: left; }
+			&.tb1    { width: 12.5%; text-align: left; }
+			&.tb2    { width: 12.5%; text-align: left; }
 		}
 	}
+}
+
+table.draws {
+	width: 920px;
+
+	thead {
+		th, td {
+			&.order  { width: 7.5%; text-align: left; }
+			&.usatid { width: 15%;  text-align: left; }
+			&.name   { width: 77.5%;  text-align: left; }
+		}
+	}
+}
+
+#copy-to-clipboard {
+	margin-top: 1em;
+	margin-bottom: 1em;
 }

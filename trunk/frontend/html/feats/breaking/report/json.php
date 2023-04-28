@@ -10,9 +10,12 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
   <head>
     <link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
     <link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
+    <link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
     <link href="../include/css/report.css" rel="stylesheet" />
     <script src="../../../include/jquery/js/jquery.js"></script>
     <script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../../include/alertify/alertify.min.js"></script>
     <script src="../../../include/js/freescore.js"></script>
     <script src="../include/js/score.js"></script>
     <script src="../include/js/athlete.js"></script>
@@ -20,6 +23,7 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
   </head>
   <body>
     <div class="container">
+      <button class="btn btn-primary" id="copy-to-clipboard"><span class="fas fa-copy"></span> Copy to Clipboard</button>
       <pre class="json">
       </pre>
     </div>
@@ -27,15 +31,32 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
       var handle  = {
         ring : {
           read : update => {
+            $( 'pre' ).empty();
 <?php if( isset( $divid )): ?>
             let found = update.ring.divisions.find( division => division.name == '<?= $divid ?>' );
             if( ! found ) { return; }
-			$( 'pre' ).empty();
-			$( 'pre' ).append( JSON.stringify( found, null, 2 ));
+            $( 'pre' ).append( JSON.stringify( found, null, 2 ));
+            $( '#copy-to-clipboard' ).off( 'click' ).click( async ( ev ) => {
+              try {
+                await navigator.clipboard.writeText( JSON.stringify( found, null, 2 ));
+                alertify.success( 'JSON copied to clipboard' );
+
+              } catch( err ) {
+                alertify.error( `JSON failed to copy to clipboard: ${err}` );
+              }
+            });
 
 <?php else: ?>
-            $( '.pre' ).empty();
-			$( 'pre' ).append( JSON.stringify( update, null, 2 ));
+            $( 'pre' ).append( JSON.stringify( update, null, 2 ));
+            $( '#copy-to-clipboard' ).off( 'click' ).click( async ( ev ) => {
+              try {
+                await navigator.clipboard.writeText( JSON.stringify( update, null, 2 ));
+                alertify.success( 'JSON copied to clipboard' );
+
+              } catch( err ) {
+                alertify.error( `JSON failed to copy to clipboard: ${err}` );
+              }
+            });
 <?php endif; ?>
           }
         }
