@@ -51,7 +51,7 @@ table .usatid { width: 30%; text-align: right; }
 					table : division => {
 						let results = $( '<div class="results"></div>' );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
-						let round   = { code : 'finals', name : 'Final' };
+						let round   = '<h4>Final Round</h4>';
 						let n       = division.athletes.length;
 
 						if( n >   8 ) { round = '<h4>Semi-Final Round</h4>'; }
