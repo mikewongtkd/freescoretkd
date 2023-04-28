@@ -33,8 +33,8 @@ if( $format == 'csv' ) {
         <table class="table table-striped draws">
           <thead>
             <th class="order">#</th>
-            <th class="usatid">USAT ID</th>
             <th class="name">Name</th>
+            <th class="usatid">USAT ID</th>
           </thead>
           <tbody>
           </tbody>
@@ -60,7 +60,7 @@ if( $format == 'csv' ) {
             display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
             athletes.forEach(( athlete, i ) => {
                 let num     = i + 1;
-                let row     = $( `<tr><td>${num}<td>${ athlete.info( 'usatid' ) }</td><td>${ athlete.name() }</td></tr>` );
+                let row     = $( `<tr><td>${num}</td><td>${ athlete.name() }</td><td>${ athlete.info( 'usatid' ) }</td></tr>` );
                 display.draw.table.append( row );
               });
             });
@@ -80,7 +80,7 @@ if( $format == 'csv' ) {
               display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
               athletes.forEach(( athlete, i ) => {
                 let num     = i + 1;
-                let row     = $( `<tr><td>${num}<td>${ athlete.info( 'usatid' ) }</td><td>${ athlete.name() }</td></tr>` );
+                let row     = $( `<tr><td>${num}</td><td>${ athlete.name() }</td><td>${ athlete.info( 'usatid' ) }</td></tr>` );
                 display.draw.table.append( row );
               });
               $( '.container' ).append( results );

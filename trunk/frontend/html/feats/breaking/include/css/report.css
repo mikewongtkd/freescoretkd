@@ -94,13 +94,13 @@ table.draws thead th.order, table.draws thead td.order {
   width: 7.5%;
   text-align: left;
 }
-table.draws thead th.usatid, table.draws thead td.usatid {
-  width: 15%;
-  text-align: left;
-}
 table.draws thead th.name, table.draws thead td.name {
   width: 77.5%;
   text-align: left;
+}
+table.draws thead th.usatid, table.draws thead td.usatid {
+  width: 15%;
+  text-align: right;
 }
 
 #copy-to-clipboard {

@@ -34,8 +34,8 @@ table.draws {
 	thead {
 		th, td {
 			&.order  { width: 7.5%; text-align: left; }
-			&.usatid { width: 15%;  text-align: left; }
 			&.name   { width: 77.5%;  text-align: left; }
+			&.usatid { width: 15%;  text-align: right; }
 		}
 	}
 }
