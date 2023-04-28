@@ -15,6 +15,7 @@
 table .order { width: 5%; text-align: center; }
 table .name { width: 65%; }
 table .usatid { width: 30%; text-align: right; }
+.results { page-break-after: always; }
 		</style>
 	</head>
 	<body>
@@ -48,17 +49,16 @@ table .usatid { width: 30%; text-align: right; }
 				},
 				results : {
 					table : division => {
-						console.log( division.name.toUpperCase(), division );
+						let results = $( '<div class="results"></div>' );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
-						let tables  = [];
 						let round   = { code : 'finals', name : 'Final' };
 						let n       = division.athletes.length;
 
-						if( n >   8 ) { round = { code : 'semfin', name : 'Semi-Final' }; }
-						if( n >= 20 ) { round = { code : 'prelim', name : 'Preliminary' }; }
+						if( n >   8 ) { round = '<h4>Semi-Final Round</h4>'; }
+						if( n >= 20 ) { round = '<h4>Preliminary Round</h4>' }; }
 
 						if( 'flight' in division ) {
-							round = { code : 'prelim', name : 'Preliminary' };
+							round = '<h4>Preliminary Round</h4>';
 						}
 						
 						let table = $( '<table class="table table-striped" />' );
@@ -70,7 +70,6 @@ table .usatid { width: 30%; text-align: right; }
 							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
 						}
 						table.append( thead, tbody );
-						tables.push( `<h3>${round.name} Round</h3>`, table );
 
 						let athletes = division.athletes;
 
@@ -81,7 +80,8 @@ table .usatid { width: 30%; text-align: right; }
 							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
 						});
 
-						$( '#report-tabular' ).append( summary, tables );
+						results.append( summary, round, table );
+						$( '#report-tabular' ).append( results );
 					}
 				}
 			};
