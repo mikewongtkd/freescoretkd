@@ -60,7 +60,7 @@ if( $format == 'csv' ) {
             display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
             athletes.forEach(( athlete, i ) => {
                 let num     = i + 1;
-                let row     = $( `<tr><td>${num}</td><td>${ athlete.name() }</td><td>${ athlete.info( 'usatid' ) }</td></tr>` );
+                let row     = $( `<tr><td class="order">${num}</td><td class="name">${ athlete.name() }</td><td class="usatid">${ athlete.info( 'usatid' ) }</td></tr>` );
                 display.draw.table.append( row );
               });
             });
@@ -80,7 +80,7 @@ if( $format == 'csv' ) {
               display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
               athletes.forEach(( athlete, i ) => {
                 let num     = i + 1;
-                let row     = $( `<tr><td>${num}</td><td>${ athlete.name() }</td><td>${ athlete.info( 'usatid' ) }</td></tr>` );
+                let row     = $( `<tr><td class="order">${num}</td><td class="name">${ athlete.name() }</td><td class="usatid">${ athlete.info( 'usatid' ) }</td></tr>` );
                 display.draw.table.append( row );
               });
               $( '.container' ).append( results );
