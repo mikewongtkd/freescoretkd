@@ -168,20 +168,28 @@ sub handle_division_decision {
 # ============================================================
 sub handle_division_inspection {
 # ============================================================
-	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
-	my $id        = $request->{ athlete };
-	my $boards    = int( $request->{ boards });
-	my $division  = $progress->current();
-	my $n         = int( @{$self->{ athletes }});
-	my $client    = $self->{ _client };
-	my $athlete   = $division->{ athletes }[ $id ];
+	my $self          = shift;
+	my $request       = shift;
+	my $progress      = shift;
+	my $clients       = shift;
+	my $judges        = shift;
+	my ($divid, $aid) = split /\|/, $request->{ athlete };
+	my $boards        = int( $request->{ boards });
+	my $division      = $progress->find( $divid );
 
-	if( $id < 0 || $id > $n ) {
-		my $error = "Invalid athlete ID $id for division $division->{ name }";
+	unless( $division ) { 
+		my $error = "Division ID $divid not found";
+		print STDERR "$error\n";
+		$client->send({ json => { error => $error }});
+		return;
+	}
+
+	my $n       = int( @{$division->{ athletes }});
+	my $client  = $self->{ _client };
+	my $athlete = $division->{ athletes }[ $aid ];
+
+	if( $aid < 0 || $aid >= $n ) {
+		my $error = "Invalid athlete ID $aid for division $division->{ name }";
 		print STDERR "$error\n";
 		$client->send({ json => { error => $error }});
 		return;
@@ -190,7 +198,7 @@ sub handle_division_inspection {
 	print STDERR "Inspection complete for $athlete->{ name }, who has $boards boards\n" if $DEBUG;
 
 	try {
-		$division->record_inspection( $id, $boards );
+		$division->record_inspection( $aid, $boards );
 		$division->write();
 		
 		$self->broadcast_updated_division( $request, $progress, $clients );

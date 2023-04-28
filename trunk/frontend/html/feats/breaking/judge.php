@@ -58,6 +58,7 @@
 <?php include( 'judge/help/inspection.php' ); ?>
 <?php include( 'judge/help/scoring.php' ); ?>
 <?php include( 'judge/help/deductions.php' ); ?>
+<?php include( 'judge/help/coordinator.php' ); ?>
         </div>
       </div>
     </div>
@@ -110,15 +111,13 @@
       if( ! defined( update.division )) { return; }
       let division = new Division( update.division );
       let request  = update.request;
+	  let type     = request.type;
+	  let action   = request.action;
 
-      if( request.type == 'division' ) {
-        switch( request.action ) {
-          case 'inspection': refresh.on.inspection( update ); break;
-          case 'read'      : refresh.on.read( update );       break;
-          case 'score'     : refresh.on.score( update );      break;
-          case 'navigate'  : refresh.on.navigate( update );   break;
-        }
-      }
+	  if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
+	  if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
+
+	  handle[ type ][ action ]( update );
     };
 
   </script>

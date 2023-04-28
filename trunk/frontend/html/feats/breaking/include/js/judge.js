@@ -1,13 +1,18 @@
-
-var refresh = {
-	on : {
+var handle = {
+	autopilot : {
+		score       : () => {}, // Do nothing during autopilot actions
+		scoreboard  : () => {}, // Do nothing during autopilot actions
+		leaderboard : () => {}
+	},
+	division : {
 		inspection: update => {
 			let request  = update.request;
 			let division = new Division( update.division );
-			let id       = parseInt( request.athlete );
+			let divid    = division.name();
+			let id       = parseInt( request.athlete.split( /\|/ )[ 1 ] );
             let boards   = parseInt( request.boards );
-            $( `#tool-inspection .inspection-list a[data-id="${id}"]` ).attr({ 'data-boards' : boards });
-            $( `#tool-inspection .inspection-list a[data-id="${id}"] .badge` ).html( boards );
+            $( `#tool-inspection .inspection-list a[data-id="${divid}|${id}"]` ).attr({ 'data-boards' : boards });
+            $( `#tool-inspection .inspection-list a[data-id="${divid}|${id}"] .badge` ).html( boards );
             if( state.current.athleteid == id ) { refresh.tool.deductions( division ); }
 		},
 
@@ -44,6 +49,17 @@ var refresh = {
 			}
 		}
 	},
+	ring : {
+		read : update => {
+			let division = update.divisions.find( division => division.name == update.current );
+			if( ! division ) { console.log( `Current division ${update.current} not found`, update ); return; }
+			update.division = division;
+			handle.division.read( update );
+		}
+	}
+};
+
+var refresh = {
 	scoring : {
 		component : {
 			score : athlete => {
@@ -309,13 +325,14 @@ var refresh = {
 		// ============================================================
 			const max    = 15;
 			let athletes = division.athletes();
+			let divid    = division.name();
 			let list     = $( '#tool-inspection .inspection-list' );
 			list.empty();
 
 			athletes.forEach(( athlete, id ) => {
 				let boards = athlete.boards();
 				let name   = athlete.name();
-				list.append( `<a class="list-group-item" data-athlete="${name}" data-id=${id} data-boards="${boards}">${name} <span class="badge">${boards == 0 ? '&mdash;' : boards}</span></a>` );
+				list.append( `<a class="list-group-item" data-athlete="${name}" data-id="${divid}|${id}" data-boards="${boards}">${name} <span class="badge">${boards == 0 ? '&mdash;' : boards}</span></a>` );
 			});
 
 			list.children( 'a' ).off( 'click' ).click( ev => {
