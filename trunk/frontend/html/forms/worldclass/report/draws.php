@@ -12,12 +12,9 @@
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<style>
-table .place { width: 5%; text-align: center; }
-table .name { width: 35%; }
+table .order { width: 5%; text-align: center; }
 table .usatid { width: 30%; }
-table .score { width: 10%; }
-table .tb1 { width: 10%; }
-table .tb2 { width: 10%; }
+table .name { width: 65%; }
 		</style>
 	</head>
 	<body>
@@ -54,43 +51,34 @@ table .tb2 { width: 10%; }
 						console.log( division.name.toUpperCase(), division );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
 						let tables  = [];
-						let rounds  = [{ code : 'finals', name : 'Final' }];
+						let round   = { code : 'finals', name : 'Final' };
 						let n       = division.athletes.length;
 
-						if( n >   8 ) { rounds.push({ code : 'semfin', name : 'Semi-Final' }); }
-						if( n >= 20 ) { rounds.push({ code : 'prelim', name : 'Preliminary' }); }
+						if( n >   8 ) { round = { code : 'semfin', name : 'Semi-Final' }; }
+						if( n >= 20 ) { round = { code : 'prelim', name : 'Preliminary' }; }
+
 						if( 'flight' in division ) {
-							rounds = [{ code : 'prelim', name : 'Preliminary' }];
+							round = { code : 'prelim', name : 'Preliminary' };
 						}
 						
-						rounds.forEach( round => {
-							let table = $( '<table class="table table-striped" />' );
-							let thead = $( '<thead />' );
-							let tbody = $( '<tbody />' );
-							if( division.name.match( /^p[pt]/ )) {
-								thead.append( '<tr><th class="place">Place</th><th class="usatid">USAT IDs</th><th class="name">Names</th></tr>' );
-							} else {
-								thead.append( '<tr><th class="place">Place</th><th class="usatid">USAT ID</th><th class="name">Name</th></tr>' );
-							}
-							table.append( thead, tbody );
-							tables.push( `<h3>${round.name} Round</h3>`, table );
+						let table = $( '<table class="table table-striped" />' );
+						let thead = $( '<thead />' );
+						let tbody = $( '<tbody />' );
+						if( division.name.match( /^p[pt]/ )) {
+							thead.append( '<tr><th class="order">Num</th><th class="usatid">USAT IDs</th><th class="name">Names</th></tr>' );
+						} else {
+							thead.append( '<tr><th class="order">Num</th><th class="usatid">USAT ID</th><th class="name">Name</th></tr>' );
+						}
+						table.append( thead, tbody );
+						tables.push( `<h3>${round.name} Round</h3>`, table );
 
-							let placements = round.code in division.placement ? division.placement[ round.code ] : [];
-							let athletes   = placements.map( i => division.athletes[ i ]);
+						let athletes = division.athletes;
 
-							athletes.forEach(( athlete, i ) => {
-								let j        = i > 0 ? i - 1 : null;
-								let k        = i < athletes.length ? i + 1 : null;
-								let prev     = j === null ? null : athletes[ j ];
-								let next     = k === null ? null : athletes[ k ];
-								let num      = `${i + 1}.`;
-								let name     = athlete.name;
-								let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
-								tbody.append( `<tr><td>${num}</td><td class="usatid">${usatid}</td><td class="name">${name}</td></tr>` );
-
-
-							});
-
+						athletes.forEach(( athlete, i ) => {
+							let num      = `${i + 1}.`;
+							let name     = athlete.name;
+							let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
+							tbody.append( `<tr><td>${num}</td><td class="usatid">${usatid}</td><td class="name">${name}</td></tr>` );
 						});
 
 						$( '#report-tabular' ).append( summary, tables );
