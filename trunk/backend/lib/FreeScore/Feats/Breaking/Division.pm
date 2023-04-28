@@ -55,7 +55,7 @@ sub calculate_placements {
 # ============================================================
 	my $self       = shift;
 	my $n          = int @{$self->{ athletes }};
-	my @sorted     = sort { $self->compare( $a, $b ) } ( 0 .. $n - 1 );
+	my @sorted     = sort { $self->compare( $a, $b ) } grep { $self->{ athletes }[ $_ ]{ complete } } ( 0 .. $n - 1 );
 	my $placements = $self->{ placements } = [];
 	my $place      = 1;
 

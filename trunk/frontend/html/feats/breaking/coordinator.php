@@ -468,7 +468,6 @@
 							procedural   : $( '#judge-scores .deductions.proc' ),
 						}
 					};
-					console.log( 'ATHLETE', athlete, athlete.mean.technical(), athlete.mean.total());
 
 					display.mean.technical.html( athlete.mean.technical() );
 					display.mean.presentation.html( athlete.mean.presentation() );
