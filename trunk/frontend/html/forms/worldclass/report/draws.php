@@ -13,8 +13,8 @@
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<style>
 table .order { width: 5%; text-align: center; }
-table .usatid { width: 30%; }
 table .name { width: 65%; }
+table .usatid { width: 30%; text-align: right; }
 		</style>
 	</head>
 	<body>
@@ -65,9 +65,9 @@ table .name { width: 65%; }
 						let thead = $( '<thead />' );
 						let tbody = $( '<tbody />' );
 						if( division.name.match( /^p[pt]/ )) {
-							thead.append( '<tr><th class="order">Num</th><th class="usatid">USAT IDs</th><th class="name">Names</th></tr>' );
+							thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
 						} else {
-							thead.append( '<tr><th class="order">Num</th><th class="usatid">USAT ID</th><th class="name">Name</th></tr>' );
+							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
 						}
 						table.append( thead, tbody );
 						tables.push( `<h3>${round.name} Round</h3>`, table );
@@ -78,7 +78,7 @@ table .name { width: 65%; }
 							let num      = `${i + 1}.`;
 							let name     = athlete.name;
 							let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
-							tbody.append( `<tr><td>${num}</td><td class="usatid">${usatid}</td><td class="name">${name}</td></tr>` );
+							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
 						});
 
 						$( '#report-tabular' ).append( summary, tables );
