@@ -55,7 +55,7 @@ table .usatid { width: 30%; text-align: right; }
 						let n       = division.athletes.length;
 
 						if( n >   8 ) { round = '<h4>Semi-Final Round</h4>'; }
-						if( n >= 20 ) { round = '<h4>Preliminary Round</h4>' }; }
+						if( n >= 20 ) { round = '<h4>Preliminary Round</h4>' }
 
 						if( 'flight' in division ) {
 							round = '<h4>Preliminary Round</h4>';
