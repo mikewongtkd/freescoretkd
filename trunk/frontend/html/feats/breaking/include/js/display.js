@@ -152,21 +152,9 @@ var refresh = {
 };
 var handle = {
 	autopilot : {
-		leaderboard : update => {
-			let request = update.request;
-			let division = new Division( update.division );
-			refresh.display( division );
-		},
-		next : update => {
-			let request = update.request;
-			let division = new Division( update.division );
-			refresh.display( division );
-		},
-		scoreboard : update => {
-			let request  = update.request;
-			let division = new Division( update.division );
-			refresh.display( division );
-		},
+		leaderboard : update => { refresh.display( new Division( update.division )); },
+		next        : update => { refresh.display( new Division( update.division )); },
+		scoreboard  : update => { refresh.display( new Division( update.division )); },
 		update : update => {
 			let request = update.request;
 			if( ! request || ! request.action ) { return; }
@@ -174,17 +162,13 @@ var handle = {
 		}
 	},
 	division : {
-		decision: update => {
-			let division = new Division( update.division );
-			refresh.display( division );
-		},
-		leaderboard: update => {
-			let division = new Division( update.division );
-			refresh.display( division );
+		decision: update => { refresh.display( new Division( update.division )); },
+		leaderboard: update => { refresh.display( new Division( update.division )); },
+		inspection : update => {
+			refresh.display( new Division( update.division ));
 		},
 		navigate : update => {
-			let division = new Division( update.division );
-			refresh.display( division );
+			refresh.display( new Division( update.division ));
 		},
 		read: update => {
 			let division = new Division( update.division );
@@ -192,12 +176,10 @@ var handle = {
 			refresh.display( division );
 		},
 		score: update => {
-			let division = new Division( update.division );
-			refresh.display( division );
+			refresh.display( new Division( update.division ));
 		},
 		scoreboard: update => {
-			let division = new Division( update.division );
-			refresh.display( division );
+			refresh.display( new Division( update.division ));
 		},
 		'time reset' : update => {
 			let division = new Division( update.division );
@@ -215,7 +197,6 @@ var handle = {
 			let request = update.request;
 			if( ! request || ! request.action ) { return; }
 			let action = request.action;
-			console.log( 'HANDLING DIVISION ACTION', action );
 			handle.division[ action ]( update );
 		}
 	},
@@ -241,11 +222,12 @@ var network = {
 		let update = JSON.parse( response.data );
 		console.log( update );
 
+		let request = update.request;
 		let type = update.type;
-		if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
+		if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( `No handler for ${type} object`, update ); return; }
 
 		let action = update.action;
-		if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
+		if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( `No handler for ${action} action`, update ); return; }
 
 		handle[ type ][ action ]( update );
 	},

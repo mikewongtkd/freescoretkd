@@ -390,7 +390,8 @@
 							}
 							seconds %= 60;
 
-							$( '#time' ).html( `${minutes}:${seconds < 10 ? 0 : ''}${seconds}` );
+							let time = `${minutes}:${seconds < 10 ? 0 : ''}${seconds}`;
+							$( '#time' ).html( time );
 						}
 					};
 					time.reset();
