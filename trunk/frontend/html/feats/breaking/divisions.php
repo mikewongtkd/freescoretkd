@@ -53,7 +53,7 @@
 							$( '#new-division' ).show();
 							$( '#refresh' ).show();
 							$( '#new-division' ).off( 'click' ).click(( ev ) => {
-								window.open( 'division/editor.php?file=test/feats-breaking/' + ring + '/div.' + divid + '.txt' );
+								window.open( `division/editor.php?ring=${ring}&divid=${divid}` );
 							});
 						}
 					},

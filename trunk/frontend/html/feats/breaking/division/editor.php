@@ -4,6 +4,17 @@
 
 	$ring  = $_GET[ 'ring' ];
 	$divid = $_GET[ 'divid' ];
+	$file  = $_GET[ 'file' ];
+
+	if( isset( $file )) {
+		preg_match( '/^(ring\d+|staging)\/div\.(\w*[A-Za-z]\d+)\.txt$/', $file, $matches );
+		$ring  = $matches[ 1 ];
+		$divid = $matches[ 2 ];
+		if( preg_match( '/^ring/', $ring )) {
+			$ring = preg_replace( '/^ring/', '', $ring );
+			$ring = intval( $ring );
+		}
+	}
 
 	$breaking = new BreakingDivision( $divid, $ring );
 ?>

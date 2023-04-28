@@ -51,7 +51,7 @@ $opts = array(
 		array(
 			'driver'        => 'LocalFileSystem',           // driver for accessing file system (REQUIRED)
 			'path'          => '/usr/local/freescore/data/test/feats-breaking', // path to files (REQUIRED)
-			'URL'           => dirname($_SERVER['PHP_SELF']) . '/../../../../feats/breaking/division/editor.php?file=' . $tournament[ 'db' ] . '/feats-breaking', // URL to files (REQUIRED)
+			'URL'           => dirname($_SERVER['PHP_SELF']) . '/../../../../feats/breaking/division/editor.php?file=', // URL to files (REQUIRED)
 			'uploadDeny'    => array('all'),                // All Mimetypes not allowed to upload
 			'uploadAllow'   => array('text/plain'),// Mimetype `image` and `text/plain` allowed to upload
 			'uploadOrder'   => array('deny', 'allow'),      // allowed Mimetype `text/plain` only

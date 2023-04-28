@@ -182,6 +182,10 @@ var handle = {
 			let division = new Division( update.division );
 			refresh.display( division );
 		},
+		navigate : update => {
+			let division = new Division( update.division );
+			refresh.display( division );
+		},
 		read: update => {
 			let division = new Division( update.division );
 			$( '.pt-page-2' ).hide();
@@ -210,7 +214,19 @@ var handle = {
 		update: update => {
 			let request = update.request;
 			if( ! request || ! request.action ) { return; }
-			handle.division[ request.action ]( update );
+			let action = request.action;
+			console.log( 'HANDLING DIVISION ACTION', action );
+			handle.division[ action ]( update );
+		}
+	},
+	ring : {
+		update : update => {
+			let progress = update.ring;
+			let divid    = progress.current;
+			let division = progress.divisions.find( div => div.name == divid );
+
+			division = new Division( division );
+			refresh.display( division );
 		}
 	}
 };

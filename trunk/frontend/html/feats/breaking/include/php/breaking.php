@@ -12,7 +12,18 @@ class BreakingDivision {
 		$this->db    = $db;
 
 		$file = $this->file();
-		if( ! file_exists( $file )) { return; }
+
+		if( ! file_exists( $file )) { 
+			# Default data
+			$this->data = [
+				'name' => $divid,
+				'ring' => $ring,
+				'description' => 'New Breaking Division',
+				'judges' => 3,
+				'athletes' => []
+			];
+			return; 
+		}
 		$this->read( $file );
 	}
 
@@ -26,6 +37,7 @@ class BreakingDivision {
 
 	function list() {
 		$text = '';
+		if( ! isset( $this->data )) { return $text; }
 		foreach( $this->data[ 'athletes' ] as $athlete ) {
 			$text .= "{$athlete[ 'name' ]}\n";
 		}
