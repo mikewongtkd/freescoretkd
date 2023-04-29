@@ -13,6 +13,7 @@ use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
 use Clone qw( clone );
+use PHP::Session;
 use File::Slurp qw( read_file );
 use Encode qw( encode );
 
@@ -33,7 +34,7 @@ sub init {
 	my $self               = shift;
 	$self->{ _tournament } = shift;
 	$self->{ _ring }       = shift;
-	$self->{ _client }     = shift;
+	$self->{ _client_id }  = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
@@ -62,11 +63,8 @@ sub broadcast_updated_division {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-	my $client_id = sprintf "%s", sha1_hex( $client );
 
 	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
 
@@ -79,9 +77,8 @@ sub broadcast_updated_division {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => $request->{ type }, action => 'update', digest => $digest, time => $now, division => $unblessed, request => $request };
 
-		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+		printf STDERR "    user: %s (device: %s, window: %s) message: %s\n", $user->{ role }, substr( $user->{ sessid }, 0, 4 ), substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 		$user->{ device }->send( { json => $response });
-		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
 	print STDERR "\n" if $DEBUG;
 }
@@ -95,10 +92,7 @@ sub broadcast_updated_ring {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
-	my $client_id = sprintf "%s", sha1_hex( $client );
 	my $ring      = $request->{ ring };
 
 	print STDERR "  Broadcasting ring $ring information to:\n" if $DEBUG;
@@ -111,10 +105,19 @@ sub broadcast_updated_ring {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request };
 
-		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
+		printf STDERR "    user: %s (device: %s, window: %s) message: %s\n", $user->{ role }, substr( $user->{ sessid }, 0, 4 ), substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
 		$user->{ device }->send( { json => $response });
-		$self->{ _last_state } = $digest if $client_id eq $id;
 	}
+}
+
+# ============================================================
+sub client {
+# ============================================================
+	my $self    = shift;
+	my $clients = shift;
+	my $cid     = $self->{ _client_id };
+	my $client  = $clients->{ $cid }{ device };
+	return $client;
 }
 
 # ============================================================
@@ -124,12 +127,11 @@ sub handle {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
-	my $judges   = shift;
 	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
 	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
 
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
-	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
+	return $self->$dispatch( $request, $progress, $clients ) if defined $dispatch;
 	print STDERR "Unknown request $type, $action\n";
 }
 
@@ -140,8 +142,6 @@ sub handle_division_decision {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $decision  = $request->{ decision };
 	my $division  = $progress->current();
 
@@ -161,6 +161,7 @@ sub handle_division_decision {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -172,7 +173,7 @@ sub handle_division_inspection {
 	my $request       = shift;
 	my $progress      = shift;
 	my $clients       = shift;
-	my $judges        = shift;
+	my $client        = $self->client( $clients );
 	my ($divid, $aid) = split /\|/, $request->{ athlete };
 	my $boards        = int( $request->{ boards });
 	my $division      = $progress->find( $divid );
@@ -185,7 +186,6 @@ sub handle_division_inspection {
 	}
 
 	my $n       = int( @{$division->{ athletes }});
-	my $client  = $self->{ _client };
 	my $athlete = $division->{ athletes }[ $aid ];
 
 	if( $aid < 0 || $aid >= $n ) {
@@ -215,8 +215,6 @@ sub handle_division_leaderboard {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -230,6 +228,7 @@ sub handle_division_leaderboard {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -241,12 +240,10 @@ sub handle_division_navigate {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
 	my $target    = $request->{ target };
 	my $dest      = $target->{ destination };
 	my $id        = $target->{ id };
 	my $division  = $progress->current();
-	my $client    = $self->{ _client };
 
 	print STDERR "Navigating to $dest $id\n" if $DEBUG;
 
@@ -257,6 +254,7 @@ sub handle_division_navigate {
 		$self->broadcast_updated_ring( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -268,9 +266,8 @@ sub handle_division_read {
 	my $request  = shift;
 	my $progress = shift;
 	my $clients  = shift;
-	my $judges   = shift;
 	my $json     = $self->{ _json };
-	my $client   = $self->{ _client };
+	my $client   = $self->client( $clients );
 	my $division = $progress->current();
 	my $now      = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 
@@ -294,9 +291,7 @@ sub handle_division_score {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
 	my $json      = $self->{ _json };
-	my $client    = $self->{ _client };
 	my $judge     = $request->{ judge };
 	my $score     = $request->{ score };
 	my $division  = $progress->current();
@@ -319,6 +314,7 @@ sub handle_division_score {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -330,8 +326,6 @@ sub handle_division_scoreboard {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -345,6 +339,7 @@ sub handle_division_scoreboard {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -356,8 +351,6 @@ sub handle_division_time_reset {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -371,6 +364,7 @@ sub handle_division_time_reset {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -382,8 +376,6 @@ sub handle_division_time_start {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -397,6 +389,7 @@ sub handle_division_time_start {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -408,8 +401,6 @@ sub handle_division_time_stop {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -423,6 +414,7 @@ sub handle_division_time_stop {
 		$self->broadcast_updated_division( $request, $progress, $clients );
 
 	} catch {
+		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -434,8 +426,7 @@ sub handle_ring_read {
 	my $request   = shift;
 	my $progress  = shift;
 	my $clients   = shift;
-	my $judges    = shift;
-	my $client    = $self->{ _client };
+	my $client    = $self->client( $clients );
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
 

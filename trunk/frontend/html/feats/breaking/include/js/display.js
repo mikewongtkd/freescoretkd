@@ -229,6 +229,7 @@ var network = {
 		let action = update.action;
 		if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( `No handler for ${action} action`, update ); return; }
 
+		console.log( 'HANDLER:', type, action, 'REQUEST:', update.request ); // MW
 		handle[ type ][ action ]( update );
 	},
 	send: request => {

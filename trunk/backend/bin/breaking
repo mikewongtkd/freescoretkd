@@ -28,16 +28,18 @@ websocket '/breaking/:tournament/:ring' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
-	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $self->tx() );
+	my $id         = sha1_hex( $self->tx());
+	my $sessid     = $self->cookie( 'freescore-session' );
+	my $role       = $self->cookie( 'role' );
+	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $id );
 	my $progress   = undef;
 	my $staging    = undef;
-	my $id         = $self->cookie( 'freescore-session' );
 	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
 
 	# ===== REGISTER THE CLIENT GROUP
-	my $c = $client->{ $group }{ $id } = { id => $id, device => $self->tx() }; 
+	my $c = $client->{ $group }{ $id } = { id => $id, sessid => $sessid, role => $role, device => $self->tx() }; 
 
 	# ----------------------------------------
 	# Handle messages
