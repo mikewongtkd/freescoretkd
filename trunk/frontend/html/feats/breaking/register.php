@@ -19,7 +19,7 @@
 	<body>
 		<div id="setup"></div>
 		<script type="text/javascript">
-			$( '#setup' ).register({ server : '<?= $config->websocket( 'breaking' ) ?>', tournament : <?= $tournament ?>, 'event' : 'breaking' });
+			$( '#setup' ).register({ server : '<?= $config->webservice( 'breaking' ) ?>', tournament : <?= $tournament ?>, 'event' : 'breaking' });
 		</script>
 	</body>
 </html>

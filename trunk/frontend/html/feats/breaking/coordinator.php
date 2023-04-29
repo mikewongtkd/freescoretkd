@@ -492,6 +492,7 @@
 							to        : ( target ) => { network.send({ type : 'division', action : 'navigate', target: target }); }
 						},
 						administration : {
+							refresh    : () => { page.display.location.reload(); window.location.reload(); },
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
 							view       : () => { sound.next.play(); network.send({ type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }); },
 							edit       : () => { sound.next.play(); page.editor  = window.open( `division/editor.php?ring=${ringid}&divid=${divid}`, '_blank' )},

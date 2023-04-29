@@ -121,7 +121,7 @@
 			var ring       = { num: <?= $ring ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+      var ws         = new WebSocket( `<?= $config->websocket( 'freestyle' ) ?>/${tournament.db}/${ring.num}` );
 			var timer      = new Timer();
 
 			timer.addEventListener( 'secondTenthsUpdated', function( e ) {
