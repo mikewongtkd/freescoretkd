@@ -71,6 +71,7 @@ sub calculate_placements {
 
 		return $placements unless defined $j;
 
+    # Tiebreaking
 		while( $a->{ trimmed }{ total } > 0 && $a->{ trimmed }{ total } == $b->{ trimmed }{ total }) {
 			$j = shift @sorted;
 			$b = $self->{ athletes }[ $j ];
@@ -88,12 +89,12 @@ sub calculate_placements {
 
 				# Otherwise tiebreaker 2 resolves the tie
 				} else {
-					$place += int( @{$previous->{ athletes }});
+					$place += int(@{ $previous->{ athletes }});
 					push @$placements, { place => $place, athletes => [ $j ], show => [ 'tb1', 'tb2' ]};
 				}
 
 			} else {
-				$place += int( @{$previous->{ athletes }});
+				$place += int(@{ $previous->{ athletes }});
 				push @$placements, { place => $place, athletes => [ $j ], show => [ 'tb1' ]};
 			}
 
@@ -101,6 +102,7 @@ sub calculate_placements {
 			$j = $sorted[ 0 ];
 			$b = $self->{ athletes }[ $j ];
 		}
+    $place++;
 	}
 }
 
