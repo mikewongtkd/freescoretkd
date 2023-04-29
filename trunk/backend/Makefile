@@ -40,4 +40,4 @@ setup-stop:
 breaking-stop:
 	sudo pkill -f 'hypnotoad -f ./bin/breaking'
 
-all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop sparring-stop breaking-start
+all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop sparring-stop breaking-stop
