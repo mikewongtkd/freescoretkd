@@ -1,0 +1,18 @@
+#ring {
+  position: absolute;
+  top: 40px;
+  left: 80px; }
+
+#athlete {
+  position: absolute;
+  top: 80px;
+  left: 80px;
+  font-size: 36pt;
+  color: gold; }
+
+#send {
+  position: absolute;
+  top: 160px;
+  left: 80px; }
+
+/*# sourceMappingURL=client.css.map */
