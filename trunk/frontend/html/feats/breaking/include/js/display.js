@@ -103,7 +103,7 @@ var refresh = {
 		let athlete    = division.current.athlete();
 		let scoreboard = display.scoreboard;
 		let noc        = athlete.noc();
-		let flag       = noc ? `<img src="../../images/flags/${noc}.png">` : '';
+		let flag       = noc ? `<img src="../../images/flags/${noc.toLowerCase()}.png">` : '';
 		let boards     = athlete.boards() ? `${athlete.boards()} board${athlete.boards() == 1 ? '' : 's'}` : 'Pending inspection';
 		scoreboard.athlete.name.html( athlete.name() );
 		scoreboard.athlete.noc.html( flag );
