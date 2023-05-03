@@ -96,7 +96,7 @@
     sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]});
     sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]});
 
-    var ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}` );
+	var ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}/judge<?= $judge ?>` );
 
     ws.onopen = () => {
       let request = { data : { type : 'division', action : 'read' }};

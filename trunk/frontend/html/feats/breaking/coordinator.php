@@ -134,7 +134,7 @@
 			var html       = FreeScore.html;
 			var state      = { autopilot : { timer : null }, time : { start : null, elapsed : 0, stop : null, limit : 180, timer : null, warning : false }};
 			
-			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
+			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
 
 			var handle = {
 				autopilot : {

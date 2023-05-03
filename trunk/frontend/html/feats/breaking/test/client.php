@@ -53,7 +53,7 @@
 			$( "input[type=radio][name='ring']"   ).change(( e ) => { 
 				ring.num = $( e.target ).val(); 
 				if( defined( ws )) { ws.close(); }
-				ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/` );
+				ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/tester` );
 
 				ws.onopen = () => {
 					let request  = { data : { type : 'division', action : 'read' }};

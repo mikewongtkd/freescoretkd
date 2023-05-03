@@ -86,7 +86,7 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
       }});
       var tournament = <?= $tournament ?>;
       var ring       = { num : <?= $ring ?> };
-      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
+      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/display` );
       var state      = { time : { elapsed : 0, start : null, stop : null, limit : 180, timer : null }};
       ws.onopen      = network.open;
       ws.onmessage   = network.message;

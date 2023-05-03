@@ -115,7 +115,7 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
 
       var tournament = <?= $tournament ?>;
       var ring       = { num : <?= $ring ?> };
-      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
+      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/report` );
       ws.onopen      = network.open;
       ws.onmessage   = network.message;
 

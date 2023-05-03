@@ -5,14 +5,6 @@ include( "../include/php/breaking.php" );
 $ring   = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
 $divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : (isset( $_COOKIE[ 'divid' ]) ? $_COOKIE[ 'divid' ] : null);
 $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
-if( $format == 'csv' ) {
-  $breaking = new BreakingDivision( $divid, $ring );
-
-} else if( $format == 'json' ) {
-  $breaking = new BreakingDivision( $divid, $ring );
-  echo( $breaking->json());
-  exit();
-}
 ?>
 <html>
   <head>
@@ -113,7 +105,7 @@ if( $format == 'csv' ) {
 
       var tournament = <?= $tournament ?>;
       var ring       = { num : <?= $ring ?> };
-      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}` );
+      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/report` );
       ws.onopen      = network.open;
       ws.onmessage   = network.message;
 

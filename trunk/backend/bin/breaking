@@ -23,14 +23,14 @@ our $config = new FreeScore::Config();
 our $client = {};
 
 # ============================================================
-websocket '/breaking/:tournament/:ring' => sub {
+websocket '/breaking/:tournament/:ring/:role' => sub {
 # ============================================================
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
+	my $role       = $self->param( 'role'       );
 	my $id         = sha1_hex( $self->tx());
 	my $sessid     = $self->cookie( 'freescore-session' );
-	my $role       = $self->cookie( 'role' );
 	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $id );
 	my $progress   = undef;
 	my $staging    = undef;
