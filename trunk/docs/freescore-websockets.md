@@ -9,11 +9,47 @@ rings concurrently scoring for one division at-a-time.
 
 ## Protocol
 
-### Object Types
+### Client Request Object/Action Types
+
+* Form
+  * Navigate (Goto/Next/Previous)
+* Round
+  * Navigate (Goto/Next/Previous)
+* Athlete
+  * Decision
+  * Navigate (Goto/Next/Previous)
+  * Score
+* Division
+  * Display (Scoreboard/Leaderboard)
+  * Navigate (Goto/Next/Previous)
+  * Read/Write
+* Ring
+  * Read
+  * Register Device
+  * Transfer
+* Tournament
+  * Read
+  * Register Device
+
+### Server Response Object/Action Types
 
 * Division
+  * Update
 * Ring
+  * Update
 * Tournament
+  * Update
+
+### Server Autopilot Response Object/Action Type
+
+The server autopilot is a special server response object type where the server
+acts on its own without a client response. Autopilot can be triggered by a
+request (e.g. athlete score), or may be spontaneous.
+
+* Autopilot
+  * Navigate
+  * Leaderboard
+  * Scoreboard
 
 ## Security
 
