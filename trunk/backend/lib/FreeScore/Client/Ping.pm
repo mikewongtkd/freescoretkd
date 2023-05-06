@@ -29,6 +29,16 @@ sub init {
 }
 
 # ============================================================
+sub changed {
+# ============================================================
+	my $self = shift;
+	return 0 unless exists $self->{ health };
+	my $health = $self->health();
+
+	return $self->{ health } eq $health;
+}
+
+# ============================================================
 sub fast {
 # ============================================================
 	my $self = shift;
@@ -66,11 +76,11 @@ sub health {
 	my $self = shift;
 	my $dropped = int( keys %{$self->{ pings }});
 
-	return 'strong' if( $dropped <= 5 );
-	return 'good'   if( $dropped <= 10 );
-	return 'weak'   if( $dropped <= 20 );
-	return 'bad'    if( $dropped <= 30 );
-	return 'dead'   if( $dropped >  30 );
+	return 'strong' if( $dropped <= 1  );
+	return 'good'   if( $dropped <= 5  );
+	return 'weak'   if( $dropped <= 10 );
+	return 'bad'    if( $dropped <= 20 );
+	return 'dead'   if( $dropped >  20 );
 }
 
 # ============================================================
@@ -94,8 +104,6 @@ sub pong {
 		my $date1     = new Date::Manip::Date( $server_ts );
 		my $date2     = new Date::Manip::Date( $client_ts );
 		my $delta     = $date1->calc( $date2 );
-
-		print STDERR "Server: $server_ts, Client: $client_ts\n"; # MW
 
 		$self->{ timestats }->add_data( _total_seconds( $delta ));
 		$client->{ timedelta } = $self->{ timestats }->mean();
@@ -134,7 +142,8 @@ sub start {
 # ============================================================
 	my $self     = shift;
 	my $interval = shift || 30;
-	my $ws       = $self->{ client }{ websocket };
+	my $client   = $self->{ client };
+	my $ws       = $client->{ websocket };
 
 	$self->{ interval } = $interval;
 

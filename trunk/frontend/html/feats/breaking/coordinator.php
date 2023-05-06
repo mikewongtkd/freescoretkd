@@ -186,7 +186,8 @@
 							if( page.num == 1 ) { page.transition() };
 						}
 					},
-					update: ( update ) => { handle.ring.read( update ); }
+					update: update => { handle.ring.read( update ); },
+					users: update => { console.log( 'RING USER HEALTH CHECK:', update ); /* MW */ }
 				},
 				server : {
 					ping : ping => {

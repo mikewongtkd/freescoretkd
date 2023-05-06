@@ -1,6 +1,8 @@
 package FreeScore::Client::Group;
 use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Controller;
+use Digest::SHA1 qw( sha1_hex );
+use JSON::XS;
 
 # ============================================================
 sub new {
@@ -43,6 +45,19 @@ sub add {
 	my $client = shift;
 	my $cid    = $client->id();
 	$self->{ client }{ $cid } = $client;
+}
+
+# ============================================================
+sub changed {
+# ============================================================
+	my $self    = shift;
+	my $json    = new JSON::XS();
+	# memorize state and change immediately after checking current state
+	my $health  = sha1_hex( $json->canonical->encode( [ map { $_->status() } $self->clients() ]));
+	my $changed = $health eq $self->{ health };
+	$self->{ health } = $health;
+
+	return $changed;
 }
 
 # ============================================================

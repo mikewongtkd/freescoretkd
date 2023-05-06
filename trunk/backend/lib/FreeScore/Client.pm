@@ -104,6 +104,18 @@ sub send {
 	$self->device->send( @_ );
 }
 
+# ============================================================
+sub status {
+# ============================================================
+	my $self   = shift;
+	my $cid    = $self->cid();
+	my $ping   = $self->ping();
+	my $role   = $self->role();
+	my $health = $ping ? $ping->health() : undef;
+
+	return { cid => $cid, role => $role, health => $health };
+}
+
 sub device     { my $self = shift; return $self->{ device };     }
 sub gid        { my $self = shift; return $self->{ gid };        }
 sub id         { my $self = shift; return $self->{ id };         }

@@ -125,7 +125,7 @@ sub broadcast_updated_users {
 	my $group     = shift;
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
-	my $users     = [ map { { cid => $_->cid(), role => $_->role(), health => $_->ping->health() } } $group->clients() ];
+	my $users     = [ map { $_->status() } $group->clients() ];
 	my $digest    = sha1_hex( $json->canonical->encode( $users ));
 	my $mid       = substr( $digest, 0, 4 );
 
@@ -163,16 +163,11 @@ sub handle_client_pong {
 	my $progress  = shift;
 	my $group     = shift;
 	my $client    = $self->{ _client };
-	my $user      = $client->description();
 
 	my $ping      = $request->{ server }{ ping };
 	my $pong      = $request->{ client }{ pong };
 
-	print STDERR "  Receiving pong for $user\n";
-
 	$client->ping->pong( $ping->{ timestamp }, $pong->{ timestamp });
-
-	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
 # ============================================================
