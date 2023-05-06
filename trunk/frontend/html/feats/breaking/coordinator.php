@@ -170,8 +170,7 @@
 					}
 				},
 				ring: {
-					read : ( update ) => {
-
+					read : update => {
 						let ring = update.ring;
 						refresh.ring( ring );
 						let divid = $.cookie( 'breaking-divid' );
@@ -188,6 +187,12 @@
 						}
 					},
 					update: ( update ) => { handle.ring.read( update ); }
+				},
+				server : {
+					ping : ping => {
+						let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.timestamp }}, client : { pong : { timestamp : (new Date).toISOString()}}};
+						network.send( pong );
+					}
 				},
 				division : {
 					decision: update => {

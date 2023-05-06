@@ -11,7 +11,7 @@ use FreeScore::Config;
 use FreeScore::Feats::Breaking::Division;
 use FreeScore::Feats::Breaking;
 use FreeScore::Feats::Breaking::RequestManager;
-use FreeScore::Device::Registry;
+use FreeScore::Client::Registry;
 use Try::Tiny;
 use PHP::Session;
 use Data::Dumper;
@@ -21,7 +21,7 @@ srand();
 
 our $json     = new JSON::XS();
 our $config   = new FreeScore::Config();
-our $registry = {};
+our $registry = new FreeScore::Client::Registry();
 
 # ============================================================
 websocket '/breaking/:tournament/:ring/:role' => sub {
@@ -29,18 +29,13 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 	my $self       = shift;
 	my $tournament = $self->param( 'tournament' );
 	my $ring       = $self->param( 'ring'       );
-	my $role       = $self->param( 'role'       );
-	my $id         = sha1_hex( $self->tx());
-	my $sessid     = $self->cookie( 'freescore-session' );
-	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $id );
+	my $client     = $registry->add( $self );
+	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $client );
 	my $progress   = undef;
 	my $staging    = undef;
-	my $group      = $ring eq 'staging' ? "$tournament-staging" : sprintf "%s-ring-%d", $tournament, $ring;
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
-
-	# ===== REGISTER THE CLIENT GROUP
-	my $client = $registry->{ $group }{ $id } = { id => $id, tournament => $tournament, ring => $ring, sessid => $sessid, role => $role, device => $self->tx() }; 
+	$client->ping->start();
 
 	# ----------------------------------------
 	# Handle messages
@@ -51,17 +46,26 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
-		$request->{ from }       = { id => $id, role => $role };
+		$request->{ from }       = { id => substr( $client->id(), 0, 4 ), sessid => substr( $client->sessid(), 0, 4 ), role => $client->role() };
 
 		# ===== READ PROGRESS
 		try   { 
 			$progress = new FreeScore::Feats::Breaking( $tournament, $ring ); 
-		} catch { $client->{ device }->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
+		} catch { $client->send( { json => { error => "Error reading database '$tournament', ring $ring: $_" }}); };
 
 		# ===== HANDLE REQUEST
-		my $clients = $registry->{ $group };
-		try   { $manager->handle( $request, $progress, $clients ); }
-		catch { $client->{ device }->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+		try   { $manager->handle( $request, $progress, $client->group()); }
+		catch { $client->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
+	});
+
+	# ----------------------------------------
+	# Handle websocket close
+	# ----------------------------------------
+	$self->on( finish => sub {
+		my $request = { type => 'ring', action => 'leave', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
+		$registry->remove( $client );
+		$manager->broadcast_updated_ring( $request, $progress, $client->group());
+		$client->ping->quit();
 	});
 };
 
@@ -202,50 +206,6 @@ any '*' => sub {
 	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( json => { error => 'FreeScore Breaking Unknown command' } );
 };
-
-# ============================================================
-sub autopilot {
-# ============================================================
-	my $self     = shift;
-	my $progress = shift;
-	my $division = shift;
-	my $delay    = new Mojo::IOLoop::Delay();
-	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
-
-	my $show  = {
-		score => sub {
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
-			if ( $division->is_display() ) { $division->score(); }
-			$division->write();
-		},
-		leaderboard => sub {
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
-			if ( $division->is_score() ) { $division->display(); }
-			$division->write();
-		},
-		next => sub {
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
-			if ( $division->is_display() ) { $division->score(); }
-			$division->write();
-		}
-	};
-	my $go = {
-		next => sub {
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
-			$division->next();
-			$division->write();
-		}
-	};
-
-	my @steps = ( $show->{ score }, $show->{ leaderboard } );
-	push @steps, $go->{ next }, $show->{ next } unless( $division->{ complete } );
-
-	$delay->steps( @steps )->catch( sub {} )->wait();
-}
 
 # ============================================================
 # HYPNOTOAD SERVER

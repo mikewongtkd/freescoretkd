@@ -152,12 +152,17 @@ var refresh = {
 };
 var handle = {
 	autopilot : {
+		decision    : update => {}, // Triggers autopilot
 		leaderboard : update => { refresh.display( new Division( update.division )); },
 		next        : update => { refresh.display( new Division( update.division )); },
+		score       : update => {}, // Can trigger autopilot
 		scoreboard  : update => { refresh.display( new Division( update.division )); },
 		update : update => {
 			let request = update.request;
 			if( ! request || ! request.action ) { return; }
+			if( ! (request.action in handle.autopilot)) {
+				console.log( `No handler for autopilot ${request.action}` );
+			}
 			handle.autopilot[ request.action ]( update );
 		}
 	},
@@ -197,6 +202,9 @@ var handle = {
 			let request = update.request;
 			if( ! request || ! request.action ) { return; }
 			let action = request.action;
+			if( ! (request.action in handle.division)) {
+				console.log( `No handler for division ${request.action}` );
+			}
 			handle.division[ action ]( update );
 		}
 	},

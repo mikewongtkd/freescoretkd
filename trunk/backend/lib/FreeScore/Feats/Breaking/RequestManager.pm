@@ -34,7 +34,7 @@ sub init {
 	my $self               = shift;
 	$self->{ _tournament } = shift;
 	$self->{ _ring }       = shift;
-	$self->{ _client_id }  = shift;
+	$self->{ _client }     = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
@@ -52,6 +52,9 @@ sub init {
 	$self->{ ring }        = {
 		read               => \&handle_ring_read,
 	};
+	$self->{ client }      = {
+		pong               => \&handle_client_pong
+	};
 }
 
 # ============================================================
@@ -62,23 +65,23 @@ sub broadcast_updated_division {
  	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $json      = $self->{ _json };
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
+	my $message   = $division->clone();
+	my $unblessed = unbless( $message ); 
+	my $encoded   = $json->canonical->encode( $unblessed );
+	my $digest    = sha1_hex( $encoded );
+	my $mid       = substr( $digest, 0, 4 );
 
-	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
+	print STDERR "  Broadcasting division information (message ID: $mid) to:\n" if $DEBUG;
 
-	foreach my $id (sort keys %$clients) {
-		my $user      = $clients->{ $id };
-		my $message   = $division->clone();
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
+	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => $request->{ type }, action => 'update', digest => $digest, time => $now, division => $unblessed, request => $request };
 
-		printf STDERR "    user: %s (device: %s, window: %s) message: %s\n", $user->{ role }, substr( $user->{ sessid }, 0, 4 ), substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => $response });
+		printf STDERR "    %s\n", $client->description() if $DEBUG;
+		$client->send( { json => $response });
 	}
 	print STDERR "\n" if $DEBUG;
 }
@@ -91,33 +94,51 @@ sub broadcast_updated_ring {
  	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
+	my $message   = clone( $progress );
+	my $unblessed = unbless( $message ); 
+	my $encoded   = $json->canonical->encode( $unblessed );
+	my $digest    = sha1_hex( $encoded );
+	my $mid       = substr( $digest, 0, 4 );
 
-	print STDERR "  Broadcasting ring $ring information to:\n" if $DEBUG;
-	foreach my $id (sort keys %$clients) {
-		my $user      = $clients->{ $id };
-		my $message   = clone( $progress );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
+	print STDERR "  Broadcasting ring $ring information (message ID: $mid) to:\n" if $DEBUG;
+
+	my $users = [ map { { cid => $_->cid(), role => $_->role() } } $group->clients() ];
+	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request };
+		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request, users => $users };
 
-		printf STDERR "    user: %s (device: %s, window: %s) message: %s\n", $user->{ role }, substr( $user->{ sessid }, 0, 4 ), substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => $response });
+		printf STDERR "    %s\n", $client->description() if $DEBUG;
+		$client->send( { json => $response });
 	}
 }
 
 # ============================================================
-sub client {
+sub broadcast_updated_users {
 # ============================================================
-	my $self    = shift;
-	my $clients = shift;
-	my $cid     = $self->{ _client_id };
-	my $client  = $clients->{ $cid }{ device };
-	return $client;
+# Broadcasts updated user information to the ring
+# ------------------------------------------------------------
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $group     = shift;
+	my $json      = $self->{ _json };
+	my $ring      = $request->{ ring };
+	my $users     = [ map { { cid => $_->cid(), role => $_->role() } } $group->clients() ];
+	my $digest    = sha1_hex( $json->canonical->encode( $users ));
+	my $mid       = substr( $digest, 0, 4 );
+
+	print STDERR "  Broadcasting ring $ring user information (message ID: $mid) to:\n" if $DEBUG;
+
+	foreach my $client ($group->clients()) {
+		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+		my $response  = { type => 'users', action => 'update', digest => $digest, time => $now, request => $request, users => $users };
+
+		printf STDERR "    %s\n", $client->description() if $DEBUG;
+		$client->send( { json => $response });
+	}
 }
 
 # ============================================================
@@ -126,13 +147,30 @@ sub handle {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
+	my $group    = shift;
 	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
 	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
 
 	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
-	return $self->$dispatch( $request, $progress, $clients ) if defined $dispatch;
+	return $self->$dispatch( $request, $progress, $group ) if defined $dispatch;
 	print STDERR "Unknown request $type, $action\n";
+}
+
+# ============================================================
+sub handle_client_pong {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $group     = shift;
+	my $client    = $self->{ _client };
+
+	my $ping      = $request->{ server }{ ping };
+	my $pong      = $request->{ client }{ pong };
+
+	$client->ping->pong( $ping->{ timestamp }, $pong->{ timestamp });
+
+	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
 # ============================================================
@@ -141,7 +179,7 @@ sub handle_division_decision {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $decision  = $request->{ decision };
 	my $division  = $progress->current();
 
@@ -156,12 +194,12 @@ sub handle_division_decision {
 	try {
 		$division->record_decision( $decision );
 		$division->write();
-		autopilot( $self, $request, $progress, $division, $clients );
+		autopilot( $self, $request, $progress, $division, $group );
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -172,11 +210,12 @@ sub handle_division_inspection {
 	my $self          = shift;
 	my $request       = shift;
 	my $progress      = shift;
-	my $clients       = shift;
-	my $client        = $self->client( $clients );
+	my $group         = shift;
+	my $client        = $self->{ _client };
 	my ($divid, $aid) = split /\|/, $request->{ athlete };
 	my $boards        = int( $request->{ boards });
 	my $division      = $progress->find( $divid );
+	my $user          = $client->description();
 
 	unless( $division ) { 
 		my $error = "Division ID $divid not found";
@@ -195,13 +234,13 @@ sub handle_division_inspection {
 		return;
 	}
 
-	print STDERR "Inspection complete for $athlete->{ name }, who has $boards boards\n" if $DEBUG;
+	print STDERR "$user has inspected $athlete->{ name }, who has $boards boards\n" if $DEBUG;
 
 	try {
 		$division->record_inspection( $aid, $boards );
 		$division->write();
 		
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
 		$client->send({ json => { error => "$_" }});
@@ -214,7 +253,7 @@ sub handle_division_leaderboard {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -225,10 +264,10 @@ sub handle_division_leaderboard {
 		$division->leaderboard();
 		$division->write();
 			
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -239,7 +278,7 @@ sub handle_division_navigate {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $target    = $request->{ target };
 	my $dest      = $target->{ destination };
 	my $id        = $target->{ id };
@@ -251,10 +290,10 @@ sub handle_division_navigate {
 		if    ( $dest eq 'athlete' )  { $division->navigate( $id ); $division->write(); }
 		elsif ( $dest eq 'division' ) { $progress->navigate( $id ); $progress->write(); }
 			
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -265,15 +304,14 @@ sub handle_division_read {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $json     = $self->{ _json };
-	my $client   = $self->client( $clients );
+	my $group    = shift;
+	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $now      = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+	my $user     = $client->description();
+	my $divid    = uc( $division->{ name });
 
-	if( $DEBUG ) {
-		print STDERR "Client requesting information for division " . uc( $division->{ name }) . "\n";
-	}
+	print STDERR "$user requests division $divid data\n" if( $DEBUG );
 
 	my $clone = unbless( $division->clone());
 	try {
@@ -290,8 +328,9 @@ sub handle_division_score {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $json      = $self->{ _json };
+	my $client    = $self->{ _client };
 	my $judge     = $request->{ judge };
 	my $score     = $request->{ score };
 	my $division  = $progress->current();
@@ -302,19 +341,19 @@ sub handle_division_score {
 			print STDERR "Computer Operator has cleared the score from $name.\n";
 
 		} else {
-			print STDERR "$name scores: " . $json->canonical->encode( $score ) . "\n";
+			my $user = $client->description( $judge );
+			print STDERR "$user scores: " . $json->canonical->encode( $score ) . "\n";
 		}
 	}
 
 	try {
 		my $complete = $division->record_score( $judge, $score );
 		$division->write();
-		autopilot( $self, $request, $progress, $division, $clients ) if $complete;
+		autopilot( $self, $request, $progress, $division, $group ) if $complete;
 			
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -325,21 +364,19 @@ sub handle_division_scoreboard {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $division  = $progress->current();
 
-	if( $DEBUG ) {
-		print STDERR "Showing scoreboard.\n";
-	}
+	print STDERR "Showing scoreboard.\n" if( $DEBUG );
 
 	try {
 		$division->scoreboard();
 		$division->write();
 			
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -350,21 +387,19 @@ sub handle_division_time_reset {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $division  = $progress->current();
 
-	if( $DEBUG ) {
-		print STDERR "Time reset\n";
-	}
+	print STDERR "Time reset\n" if( $DEBUG );
 
 	try {
 		$division->time_reset();
 		$division->write();
 			
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -375,21 +410,19 @@ sub handle_division_time_start {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $division  = $progress->current();
 
-	if( $DEBUG ) {
-		print STDERR "Time started\n";
-	}
+	print STDERR "Time started\n" if( $DEBUG );
 
 	try {
 		$division->time_start();
 		$division->write();
 			
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -400,7 +433,7 @@ sub handle_division_time_stop {
 	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
+	my $group     = shift;
 	my $division  = $progress->current();
 
 	if( $DEBUG ) {
@@ -411,10 +444,10 @@ sub handle_division_time_stop {
 		$division->time_stop();
 		$division->write();
 			
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		my $client = $self->client( $clients );
+		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -425,12 +458,13 @@ sub handle_ring_read {
  	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
-	my $client    = $self->client( $clients );
+	my $group     = shift;
+	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
+	my $user      = $client->description();
 
-	print STDERR "Request ring $ring data.\n" if $DEBUG;
+	print STDERR "$user requests ring $ring data.\n" if $DEBUG;
 
 	my $clone = unbless( clone( $progress ));
 
@@ -449,7 +483,7 @@ sub autopilot {
 	my $request  = shift;
 	my $progress = shift;
 	my $division = shift;
-	my $clients  = shift;
+	my $group    = shift;
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
@@ -464,7 +498,7 @@ sub autopilot {
 			$request->{ action } = 'scoreboard';
 			$request->{ delay }  = $pause->{ score };
 
-			$self->broadcast_updated_division( $request, $progress, $clients );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		},
 		leaderboard => sub {
 			my $delay = shift;
@@ -474,7 +508,7 @@ sub autopilot {
 			$request->{ action } = 'leaderboard';
 			$request->{ delay }  = $pause->{ leaderboard };
 
-			$self->broadcast_updated_division( $request, $progress, $clients );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		},
 		next => sub {
 			my $delay = shift;
@@ -484,7 +518,7 @@ sub autopilot {
 			$request->{ action } = 'next';
 			$request->{ delay }  = $pause->{ next };
 
-			$self->broadcast_updated_division( $request, $progress, $clients );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	};
 	my $go = {
@@ -494,7 +528,7 @@ sub autopilot {
 			$division->next();
 			$division->write();
 
-			$self->broadcast_updated_division( $request, $progress, $clients );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	};
 
@@ -503,5 +537,4 @@ sub autopilot {
 
 	$delay->steps( @steps )->catch( sub {} )->wait();
 }
-
 

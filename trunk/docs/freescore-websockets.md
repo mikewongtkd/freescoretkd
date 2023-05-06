@@ -16,9 +16,9 @@ rings concurrently scoring for one division at-a-time.
 * Round
   * Navigate (Goto/Next/Previous)
 * Athlete
-  * Decision
+  * Decision - Triggers autopilot
   * Navigate (Goto/Next/Previous)
-  * Score
+  * Score - Can trigger autopilot
 * Division
   * Display (Scoreboard/Leaderboard)
   * Navigate (Goto/Next/Previous)
@@ -43,13 +43,18 @@ rings concurrently scoring for one division at-a-time.
 ### Server Autopilot Response Object/Action Type
 
 The server autopilot is a special server response object type where the server
-acts on its own without a client response. Autopilot can be triggered by a
-request (e.g. athlete score), or may be spontaneous.
+acts on its own. Autopilot must be initiated by a request (e.g. athlete score).
+The autopilot sequence is: (1) show the score for the current athlete; (2) show
+the leaderboard after every 2 athletes; and (3) navigate to the next form,
+athlete, or round and reset the display to show the (empty) scoreboard for the
+new form or athlete (unless there are no more forms, athletes, or rounds). The
+autopilot delays and number of athletes per leaderboard display are
+configurable.
 
 * Autopilot
-  * Navigate
-  * Leaderboard
   * Scoreboard
+  * Leaderboard
+  * Navigate
 
 ## Security
 
