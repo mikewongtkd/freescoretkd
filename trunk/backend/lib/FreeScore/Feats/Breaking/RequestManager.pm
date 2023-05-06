@@ -105,7 +105,7 @@ sub broadcast_updated_ring {
 
 	print STDERR "  Broadcasting ring $ring information (message ID: $mid) to:\n" if $DEBUG;
 
-	my $users = [ map { { cid => $_->cid(), role => $_->role() } } $group->clients() ];
+	my $users = [ map { { cid => $_->cid(), role => $_->role(), health => $_->ping->health() } } $group->clients() ];
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request, users => $users };
@@ -164,9 +164,12 @@ sub handle_client_pong {
 	my $progress  = shift;
 	my $group     = shift;
 	my $client    = $self->{ _client };
+	my $user      = $client->description();
 
 	my $ping      = $request->{ server }{ ping };
 	my $pong      = $request->{ client }{ pong };
+
+	print STDERR "  Receiving pong for $user\n";
 
 	$client->ping->pong( $ping->{ timestamp }, $pong->{ timestamp });
 

@@ -110,6 +110,7 @@ sub id         { my $self = shift; return $self->{ id };         }
 sub ring       { my $self = shift; return $self->{ ring };       }
 sub role       { my $self = shift; return $self->{ role };       }
 sub sessid     { my $self = shift; return $self->{ sessid };     }
+sub timedelta  { my $self = shift; return $self->{ timedelta };  }
 sub tournament { my $self = shift; return $self->{ tournament }; }
 
 1;

@@ -4,6 +4,7 @@ use List::Util qw( sum );
 use Date::Manip;
 use Mojolicious::Controller;
 use Mojo::IOLoop;
+use Statistics::Descriptive;
 use Try::Tiny;
 
 # ============================================================
@@ -21,10 +22,10 @@ sub init {
 	my $self   = shift;
 	my $client = shift;
 
-	$self->{ pings }     = {};
-	$self->{ client }    = $client;
-	$self->{ timedelta } = 0;
-	$self->{ timestats } = new Statistics::Descriptive::Full();
+	$self->{ pings }       = {};
+	$self->{ client }      = $client;
+	$client->{ timedelta } = 0;
+	$self->{ timestats }   = new Statistics::Descriptive::Full();
 }
 
 # ============================================================
@@ -85,20 +86,23 @@ sub pong {
 	my $self      = shift;
 	my $server_ts = shift;
 	my $client_ts = shift;
+	my $client    = $self->{ client };
 
 	delete $self->{ pings }{ $server_ts } if( exists $self->{ pings }{ $server_ts });
 
 	try {
 		my $date1     = new Date::Manip::Date( $server_ts );
 		my $date2     = new Date::Manip::Date( $client_ts );
-		my $delta     = _total_seconds( $date1->calc( $date2 ));
+		my $delta     = $date1->calc( $date2 );
 
-		$self->{ timestats }->add_data( $delta );
-		$self->{ timedelta } = $self->{ timestats }->mean();
+		print STDERR "Server: $server_ts, Client: $client_ts\n"; # MW
+
+		$self->{ timestats }->add_data( _total_seconds( $delta ));
+		$client->{ timedelta } = $self->{ timestats }->mean();
 	} catch {
 
 		print STDERR "One or more invalid dates ($server_ts, $client_ts) $_";
-	}
+	};
 
 	my $health = $self->health();
 
