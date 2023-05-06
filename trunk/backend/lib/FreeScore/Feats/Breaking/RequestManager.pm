@@ -105,10 +105,9 @@ sub broadcast_updated_ring {
 
 	print STDERR "  Broadcasting ring $ring information (message ID: $mid) to:\n" if $DEBUG;
 
-	my $users = [ map { { cid => $_->cid(), role => $_->role(), health => $_->ping->health() } } $group->clients() ];
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request, users => $users };
+		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request };
 
 		printf STDERR "    %s\n", $client->description() if $DEBUG;
 		$client->send( { json => $response });
@@ -126,7 +125,7 @@ sub broadcast_updated_users {
 	my $group     = shift;
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
-	my $users     = [ map { { cid => $_->cid(), role => $_->role() } } $group->clients() ];
+	my $users     = [ map { { cid => $_->cid(), role => $_->role(), health => $_->ping->health() } } $group->clients() ];
 	my $digest    = sha1_hex( $json->canonical->encode( $users ));
 	my $mid       = substr( $digest, 0, 4 );
 

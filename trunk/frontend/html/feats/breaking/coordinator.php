@@ -191,7 +191,7 @@
 				server : {
 					ping : ping => {
 						let timestamp = (new Date).toISOString();
-						let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.timestamp }}, client : { pong : { timestamp }}};
+						let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
 						network.send( pong );
 					}
 				},
