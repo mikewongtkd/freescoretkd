@@ -586,7 +586,7 @@ $( '.pt-page-1 .delete' ).off( 'click' ).click(() => {
 		() => {
 			var request;
 
-			request = { data : { type : 'ring', action : 'draws delete' }};
+			request = { data : { type : 'tournament', action : 'draws delete' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 		},
@@ -608,7 +608,7 @@ $( '.pt-page-2 .accept' ).off( 'click' ).click(() => {
 		settings.timestamp = moment().format( 'lll' ); // Mark timestamp for when updated draws are accepted
 	}
 	draws.settings = settings;
-	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
+	var request  = { data : { type : 'tournament', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
 	delete draws.settings;
 	ws.send( request.json );

@@ -1,11 +1,11 @@
 package FreeScore::Forms::WorldClass::RequestManager;
 use lib qw( /usr/local/freescore/lib );
+use base FreeScore::RequestManager;
 use Try::Tiny;
 use FreeScore;
 use FreeScore::RCS;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::Schedule;
-use FreeScore::Registration::USAT;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::Util (qw( first shuffle ));
@@ -17,15 +17,6 @@ use File::Slurp qw( read_file );
 use Encode qw( encode );
 
 our $DEBUG = 1;
-
-# ============================================================
-sub new {
-# ============================================================
-	my ($class) = map { ref || $_ } shift;
-	my $self = bless {}, $class;
-	$self->init( @_ );
-	return $self;
-}
 
 # ============================================================
 sub init {
@@ -49,10 +40,7 @@ sub init {
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
 		history            => \&handle_division_history,
-		judge_departure    => \&handle_division_judge_departure,
-		judge_ping         => \&handle_division_judge_ping,
 		judge_query        => \&handle_division_judge_query,
-		judge_registration => \&handle_division_judge_registration,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		restore            => \&handle_division_restore,
@@ -67,136 +55,15 @@ sub init {
 		division_next      => \&handle_ring_division_next,
 		division_prev      => \&handle_ring_division_prev,
 		division_split     => \&handle_ring_division_split,
-		draws_delete       => \&handle_ring_draws_delete,
-		draws_write        => \&handle_ring_draws_write,
 		read               => \&handle_ring_read,
 		transfer           => \&handle_ring_transfer,
 	};
-	$self->{ registration } = {
-		archive            => \&handle_registration_archive,
-		import             => \&handle_registration_import,
-		read               => \&handle_registration_read,
-		remove             => \&handle_registration_remove,
-		upload             => \&handle_registration_upload,
-	};
-	$self->{ schedule }    = {
-		build              => \&handle_schedule_build,
-		check              => \&handle_schedule_check,
-		read               => \&handle_schedule_read,
-		write              => \&handle_schedule_write,
-		remove             => \&handle_schedule_remove,
-	};
 	$self->{ tournament } = {
 		read               => \&handle_tournament_read,
-	}
-}
-
-# ============================================================
-sub broadcast_updated_division {
-# ============================================================
-# Broadcasts to ring
-# ------------------------------------------------------------
- 	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
-	my $client_id = $self->{ _id };
-	my $client    = $self->{ _client };
-	my $json      = $self->{ _json };
-	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-
-	print STDERR "  Broadcasting division information to:\n" if $DEBUG;
-
-	foreach my $id (sort keys %$clients) {
-		my $user      = $clients->{ $id };
-		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
-
-		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
-		$self->{ _last_state } = $digest if $client_id eq $id;
-	}
-	print STDERR "\n" if $DEBUG;
-}
-
-# ============================================================
-sub broadcast_division_judge_status {
-# ============================================================
-# Broadcasts to ring
-# ------------------------------------------------------------
- 	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
-	my $client_id = $self->{ _id };
-	my $client    = $self->{ _client };
-	my $json      = $self->{ _json };
-	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-
-	foreach my $id (sort keys %$clients) {
-		my $user      = $clients->{ $id };
-		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $division );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
-
-		$user->{ device }->send( { json => { %$request }});
-		$self->{ _last_state } = $digest if $client_id eq $id;
-	}
-}
-
-# ============================================================
-sub broadcast_updated_ring {
-# ============================================================
-# Broadcasts to ring
-# ------------------------------------------------------------
- 	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
-	my $client_id = $self->{ _id };
-	my $client    = $self->{ _client };
-	my $json      = $self->{ _json };
-	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-
-	print STDERR "  Broadcasting ring information to:\n" if $DEBUG;
-	foreach my $id (sort keys %$clients) {
-		my $user      = $clients->{ $id };
-		my $is_judge  = exists $user->{ judge } && defined $user->{ judge };
-		my $message   = clone( $is_judge ? $division->get_only( $user->{ judge } ) : $progress );
-		my $unblessed = unbless( $message ); 
-		my $encoded   = $json->canonical->encode( $unblessed );
-		my $digest    = sha1_hex( $encoded );
-		my $response  = $is_judge ? { type => 'division', action => 'update', digest => $digest, division => $unblessed, request => $request } : { type => 'ring', action => 'update', digest => $digest, ring => $unblessed, request => $request };
-
-		printf STDERR "    user: %s (%s) message: %s\n", $user->{ role }, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-		$user->{ device }->send( { json => $response });
-		$self->{ _last_state } = $digest if $client_id eq $id;
-	}
-	print STDERR "\n" if $DEBUG;
-}
-
-# ============================================================
-sub handle {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $action   = $request->{ action }; $action =~ s/\s+/_/g;
-	my $type     = $request->{ type };   $type =~ s/\s+/_/g;
-
-	my $dispatch = $self->{ $type }{ $action } if exists $self->{ $type } && exists $self->{ $type }{ $action };
-	return $self->$dispatch( $request, $progress, $clients, $judges ) if defined $dispatch;
-	print STDERR "Unknown request $type, $action\n";
+		draws_delete       => \&handle_tournament_draws_delete,
+		draws_write        => \&handle_tournament_draws_write,
+	};
+	$self->init_client_server();
 }
 
 # ============================================================
@@ -205,8 +72,7 @@ sub handle_division_award_penalty {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -223,7 +89,7 @@ sub handle_division_award_penalty {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -235,8 +101,7 @@ sub handle_division_award_punitive {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -254,7 +119,7 @@ sub handle_division_award_punitive {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -266,8 +131,7 @@ sub handle_division_athlete_delete {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -283,7 +147,7 @@ sub handle_division_athlete_delete {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -295,8 +159,7 @@ sub handle_division_athlete_next {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -307,7 +170,7 @@ sub handle_division_athlete_next {
 		$division->next_athlete();
 		$division->write();
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -319,8 +182,7 @@ sub handle_division_athlete_prev {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -331,7 +193,7 @@ sub handle_division_athlete_prev {
 		$division->previous_athlete();
 		$division->write();
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -343,8 +205,7 @@ sub handle_division_clear_judge_score {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -361,7 +222,7 @@ sub handle_division_clear_judge_score {
 		$division->write();
 		$version->commit( $division, $message );
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -373,8 +234,7 @@ sub handle_division_display {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -386,7 +246,7 @@ sub handle_division_display {
 		else                          { $division->display(); }
 		$division->write();
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -397,8 +257,7 @@ sub handle_division_edit_athletes {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Editing division athletes.\n" if $DEBUG;
@@ -408,7 +267,7 @@ sub handle_division_edit_athletes {
 		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
 		$division->write();
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -420,8 +279,7 @@ sub handle_division_form_next {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -431,7 +289,7 @@ sub handle_division_form_next {
 		$division->autopilot( 'off' );
 		$division->next_form();
 		$division->write();
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -443,8 +301,7 @@ sub handle_division_form_prev {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -454,7 +311,7 @@ sub handle_division_form_prev {
 		$division->autopilot( 'off' );
 		$division->previous_form();
 		$division->write();
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -466,8 +323,7 @@ sub handle_division_history {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -477,124 +333,36 @@ sub handle_division_history {
 	try {
 		my @history = $version->history( $division );
 		$division->{ history } = [ @history ];
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
 }
 
 # ============================================================
-sub handle_division_judge_departure {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-
-	print STDERR "Requesting judge departure.\n" if $DEBUG;
-
-	my $id = $request->{ cookie }{ id };
-	my $i  = first_index { $_->{ id } eq $id; } @$judges;
-	$judges->[ $i ] = {} unless $i < 0;
-	$client->send( { json => { type => 'division', action => 'judge goodbye' }});
-	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
-
-	print STDERR "Goodbye $name\n" if $DEBUG;
-}
-
-# ============================================================
-sub handle_division_judge_ping {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $id       = $self->{ _id };
-	my $division = $progress->current();
-
-	my $jid  = substr( $id, 0, 4); # short judge id
-	my $name = $i < 0 ? '' : $i == 0 ? 'Referee' : 'Judge ' . $i;
-	print STDERR "$name device ($jid) ping.\n" if $DEBUG > 1;
-
-	$self->broadcast_division_judge_status({ type => 'division', action => 'server pong', judge => $request->{ judge }, id => $id }, $progress, $clients );
-}
-
-# ============================================================
 sub handle_division_judge_query {
 # ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $n        = $division->{ judges };
-	my $j        = @$judges;
+	my $self       = shift;
+	my $request    = shift;
+	my $progress   = shift;
+	my $group      = shift;
+	my $division   = $progress->current();
+	my $n          = $division->{ judges };
+	my $judges     = [];
 
-	# ===== INITIALIZE IF NOT PREVIOUSLY SET
-	foreach my $i ( 0 .. ($n - 1)) { $judges->[ $i ] ||= {}; }
-
-	# ===== BUILD UP THE COURT IF NEEDED
-	if( $j < $n ) { 
-		print STDERR "Have $j judges, building up to $n judges, initializing " . ($n - $j) . " judges\n" if $DEBUG;
-
-	# ===== IF THE NUMBER OF JUDGES HAS BEEN REDUCED, REMOVE THE EXTRA JUDGES
-	} elsif( $j > $n ) {
-		print STDERR "Reducing from $j to $n judges\n" if $DEBUG;
-		splice( @$judges, $n );
+	foreach my $i ( 0 .. $n - 1 ) {
+		my $name = $i == 0 ? 'Referee' : "Judge $i";
+		$judges[ $i ] = { cid => undef, jid => $i, name => $name };
 	}
 
-	if( $DEBUG ) {
-		print STDERR "Requesting judge information for $n judges.\n";
-		foreach my $i ( 0 .. ($n - 1)) {
-			my $name = $i == 0 ? 'Referee' : 'Judge ' . $i;
-			my $judge = $judges->[ $i ];
-			printf STDERR "  Found %s (%s)\n", $name, substr( $judge->{ id }, 0, 4 ) if exists $judge->{ id };
-		}
+	foreach my $judge ($group->judges()) {
+		my $jid  = $judge->jid();
+		next if $jid >= $n;
+		my $name = $jid == 0 ? 'Referee' : "Judge $jid";
+		$judges[ $jid ] = { cid => $judge->cid(), jid => $judge->jid(), name => $name };
 	}
 
 	$client->send( { json => { type => 'division', action => 'judges', judges => $judges }} );
-}
-
-# ============================================================
-sub handle_division_judge_registration {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $id       = $request->{ id };
-	my $num      = $request->{ num };
-	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
-	my $sid      = substr( $id, 0, 4 );
-
-	print STDERR "Requesting $judge registration ($id).\n" if $DEBUG;
-
-	# De-register the judge from other positions
-	foreach my $i ( 0 .. $#$judges ) {
-		my $judge = $judges->[ $i ];
-		$judges->[ $i ] = {} if( $judge->{ id } eq $id );
-	}
-	$judges->[ $num ]{ id } = $id;
-
-	print STDERR "  Broadcasting judge registration information to:\n" if $DEBUG;
-	foreach my $id (sort keys %$clients) {
-		my $user = $clients->{ $id };
-
-		printf STDERR "    user: %s (%s)\n", $user->{ role }, $id if $DEBUG;
-		$user->{ device }->send( { json => { type => $request->{ type }, action => 'judges', judges => $judges }});
-	}
-	print STDERR "\n" if $DEBUG;
-
 }
 
 # ============================================================
@@ -603,8 +371,7 @@ sub handle_division_navigate {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -624,13 +391,13 @@ sub handle_division_navigate {
 			$division = $progress->current();
 			$division->autopilot( 'off' );
 			$division->write();
-			$self->broadcast_updated_ring( $request, $progress, $clients );
+			$self->broadcast_updated_ring( $request, $progress, $group );
 		}
 		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
 			$division->navigate( $object, $i ); 
 			$division->autopilot( 'off' );
 			$division->write();
-			$self->broadcast_updated_division( $request, $progress, $clients );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	} catch {
 		$client->send( { json => { error => "$_" }});
@@ -643,12 +410,11 @@ sub handle_division_read {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 
 	print STDERR "Request division data.\n" if $DEBUG;
 
-	$self->send_division_response( $request, $progress, $clients );
+	$self->send_division_response( $request, $progress, $group );
 }
 
 # ============================================================
@@ -657,8 +423,7 @@ sub handle_division_restore {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -670,7 +435,7 @@ sub handle_division_restore {
 		$division->read();
 		$progress->update_division( $division );
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -682,8 +447,7 @@ sub handle_division_round_next {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -693,7 +457,7 @@ sub handle_division_round_next {
 		$division->autopilot( 'off' );
 		$division->next_round();
 		$division->write();
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -705,8 +469,7 @@ sub handle_division_round_prev {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 
@@ -716,7 +479,7 @@ sub handle_division_round_prev {
 		$division->autopilot( 'off' );
 		$division->previous_round();
 		$division->write();
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -728,8 +491,7 @@ sub handle_division_score {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
@@ -754,10 +516,10 @@ sub handle_division_score {
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
-		my $autopilot = $self->autopilot( $request, $progress, $clients, $judges ) if $complete;
+		my $autopilot = $self->autopilot( $request, $progress, $group ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
-		$self->broadcast_updated_division( $request, $progress, $clients );
+		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -769,8 +531,7 @@ sub handle_division_write {
 	my $self       = shift;
 	my $request    = shift;
 	my $progress   = shift;
-	my $clients    = shift;
-	my $judges     = shift;
+	my $group      = shift;
 	my $client     = $self->{ _client };
 	my $tournament = $self->{ _tournament };
 	my $ring       = $self->{ _ring };
@@ -801,200 +562,8 @@ sub handle_division_write {
 			$client->send( { json => {  type => 'division', action => 'write ok', division => $unblessed }});
 
 			# ===== BROADCAST THE UPDATE
-			$self->broadcast_updated_ring( $request, $progress, $clients );
+			$self->broadcast_updated_ring( $request, $progress, $group );
 		}
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_registration_archive {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Archiving previous registration\n" if $DEBUG;
-	
-	try {
-		# ===== MAKE ARCHIVE & CLEAR PREVIOUS VALUES
-		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
-		my $archive = sprintf( "archive.%d-%d-%d.%d-%d.tar.gz", ($year + 1900), ($mon + 1), $mday, $hour, $min );
-
-		`cd $path && tar -cvzf $archive forms-grassroots forms-worldclass forms-freestyle sparring-olympic`;
-		`cd $path && rm -rf forms-grassroots/*/div*.txt`;
-		`cd $path && rm -rf forms-freestyle/*/div*.txt`;
-		`cd $path && rm -rf forms-worldclass/*/div*.txt`;
-		`cd $path && rm -rf forms-worldclass/schedule.json`;
-
-		$client->send({ json => { request => $request, archive => $archive }});
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_registration_import {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Importing USAT Registration information\n" if $DEBUG;
-	
-	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
-	my $path = join '/', @path;
-	my $json = new JSON::XS();
-	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
-
-	my $draws = $progress->{ draws };
-
-	# ===== IMPORT
-	try {
-		my $settings     = $request->{ settings };
-		my $female       = read_file( "$path/registration.female.txt" );
-		my $male         = read_file( "$path/registration.male.txt" );
-		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->worldclass_poomsae( $settings );
-		my $copy         = clone( $request ); delete $copy->{ data };
-
-		foreach my $subevent (keys %$divisions) {
-			foreach my $key (keys %{$divisions->{ $subevent }}) {
-				my $divid                      = FreeScore::Registration::USAT::divid( $subevent, $key );
-				my $athletes                   = $divisions->{ $subevent }{ $key };
-				my ($description, $draw)       = FreeScore::Registration::USAT::description( $subevent, $key );
-				my $forms                      = assign_draws( $draws, $draw ) if $draws;
-				my $round                      = 'prelim'; if( @$athletes <= 8 ) { $round = 'finals'; } elsif( @$athletes < 20 ) { $round = 'semfin'; }
-				my $division                   = $progress->create_division( $divid ); 
-				$division->{ athletes }        = [ shuffle map { { name => join( " ", map { ucfirst } split /\s+/, $_->{ first }) . ' ' . uc( $_->{ last }), info => { state => $_->{ state }} }} @$athletes ];
-				$division->{ current }         = 0;
-				$division->{ description }     = $description;
-				$division->{ form }            = 0;
-				$division->{ forms }           = $draws ? $forms : { prelim => [ 'Open' ], semfin => [ 'Open' ], finals => [ 'Open', 'Open' ]};
-				$division->{ judges }          = 5;
-				$division->{ order }{ $round } = [ 0 .. $#$athletes ];
-				$division->{ round }           = $round;
-
-				print STDERR "  $divid: $description\n" if $DEBUG;
-				$division->write();
-			}
-		}
-		$client->send({ json => { request => $copy, result => 'success' }});
-	} catch {
-		$client->send( { json => { error => "$_", result => 'failure' }});
-	}
-}
-
-# ============================================================
-sub handle_registration_upload {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Uploading USAT Registration $request->{ gender } information\n" if $DEBUG;
-	
-	my $gender = $request->{ gender } =~ /^(?:fe)?male$/ ? $request->{ gender } : undef;
-	return unless defined $gender;
-
-	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
-	my $path = join '/', @path;
-	my $json = new JSON::XS();
-
-	open FILE, ">$path/registration.$gender.txt" or die $!;
-	print FILE encode( 'UTF-8', $request->{ data });
-	close FILE;
-
-	try {
-		$client->send({ json => { type => 'registration', action => 'read', result => "$gender division file received" }});
-
-	} catch {
-		print STDERR "Error: $_\n";
-		$client->send( { json => { error => "$_" }});
-	}
-	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
-
-	try {
-		my $female       = read_file( "$path/registration.female.txt" );
-		my $male         = read_file( "$path/registration.male.txt" );
-		my $registration = new FreeScore::Registration::USAT( $female, $male );
-		my $divisions    = $registration->worldclass_poomsae();
-		my $copy         = clone( $request ); delete $copy->{ data };
-
-		$client->send({ json => { request => $copy, divisions => $divisions }});
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_registration_read {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Reading USAT Registration information\n" if $DEBUG;
-	
-	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
-	my $path = join '/', @path;
-
-	try {
-		my $female    = "$path/registration.female.txt";
-		my $male      = "$path/registration.male.txt";
-		my $copy      = clone( $request );
-		my @divisions = ();
-		if( -e $male && -e $female ) {
-			$female = read_file( $female );
-			$male   = read_file( $male );
-			my $registration = new FreeScore::Registration::USAT( $female, $male );
-			my $poomsae      = $registration->worldclass_poomsae();
-			@divisions       = ( divisions => $poomsae );
-			$copy->{ action } = 'upload';
-
-			$female = \1;
-			$male   = \1;
-		} 
-		elsif( -e $male   ) { $female = \0; $male = \1; }
-		elsif( -e $female ) { $female = \1; $male = \0; }
-		else                { $female = \0; $male = \0; }
-		$client->send({ json => { request => $copy, male => $male, female => $female, @divisions }});
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_registration_remove {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Removing USAT Registration information\n" if $DEBUG;
-	
-	my $path = "$progress->{ path }/../..";
-	my @path = split /\//, $progress->{ path }; @path = splice @path, 0, int( @path ) - 2;
-	return if( ! -e "$path/registration.female.txt" || ! -e "$path/registration.male.txt" );
-
-	try {
-		my $female = "$path/registration.female.txt";
-		my $male   = "$path/registration.male.txt";
-		my $copy   = clone( $request );
-
-		unlink $female;
-		unlink $male;
-		$copy->{ action } = 'remove';
-
-		my $result = -e $female || -e $male ? 'failed' : 'success';
-
-		$client->send({ json => { request => $copy, type => 'registration', action => 'remove', result => $result }});
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1006,8 +575,7 @@ sub handle_ring_division_delete {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Deleting division $request->{ divid }.\n" if $DEBUG;
@@ -1015,7 +583,7 @@ sub handle_ring_division_delete {
 	try {
 		$progress->delete_division( $request->{ divid });
 		$progress->write();
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1027,8 +595,7 @@ sub handle_ring_division_merge {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Merging flights for division $request->{ name }.\n" if $DEBUG;
@@ -1036,7 +603,7 @@ sub handle_ring_division_merge {
 	try {
 		$progress->merge_division( $request->{ name });
 		$progress->write();
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1048,8 +615,7 @@ sub handle_ring_division_next {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Next division.\n" if $DEBUG;
@@ -1057,7 +623,7 @@ sub handle_ring_division_next {
 	try {
 		$progress->next();
 		$progress->write();
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1069,8 +635,7 @@ sub handle_ring_division_prev {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Previous division.\n" if $DEBUG;
@@ -1078,7 +643,7 @@ sub handle_ring_division_prev {
 	try {
 		$progress->previous();
 		$progress->write();
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1090,8 +655,7 @@ sub handle_ring_division_split {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $divid    = $request->{ name };
 	my $flights  = $request->{ flights };
@@ -1101,7 +665,7 @@ sub handle_ring_division_split {
 	try {
 		$progress->split_division( $divid, $flights );
 		$progress->write();
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1113,13 +677,12 @@ sub handle_ring_read {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $ring     = $request->{ ring } eq 'staging' ? 'Staging' : sprintf( "Ring %02d", $request->{ ring } );
 
 	print STDERR "Request $ring data.\n" if $DEBUG;
 
-	$self->send_ring_response( $request, $progress, $clients );
+	$self->send_ring_response( $request, $progress, $group );
 }
 
 # ============================================================
@@ -1128,8 +691,7 @@ sub send_division_response {
  	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
+	my $group     = shift;
 	my $id        = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
@@ -1159,8 +721,7 @@ sub send_ring_response {
  	my $self      = shift;
 	my $request   = shift;
 	my $progress  = shift;
-	my $clients   = shift;
-	my $judges    = shift;
+	my $group     = shift;
 	my $id        = $self->{ _id };
 	my $client    = $self->{ _client };
 	my $json      = $self->{ _json };
@@ -1188,8 +749,7 @@ sub handle_ring_transfer {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $divid    = $request->{ name };
 	my $transfer = $request->{ transfer };
@@ -1200,20 +760,19 @@ sub handle_ring_transfer {
 	try {
 		$progress->transfer( $divid, $transfer );
 
-		$self->broadcast_updated_ring( $request, $progress, $clients );
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
 }
 
 # ============================================================
-sub handle_ring_draws_delete {
+sub handle_tournament_draws_delete {
 # ============================================================
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $client   = $self->{ _client };
 
 	print STDERR "Deleting draws in database.\n" if $DEBUG;
@@ -1221,195 +780,7 @@ sub handle_ring_draws_delete {
 	try {
 		$progress->delete_draws();
 
-		$self->broadcast_updated_ring( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-# ============================================================
-sub handle_ring_draws_write {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
-	my $client   = $self->{ _client };
-	my $draws    = $request->{ draws };
-
-	print STDERR "Writing draws to database.\n" if $DEBUG;
-
-	try {
-		$progress->write_draws( $draws );
-
-		$self->broadcast_updated_ring( $request, $progress, $clients );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_schedule_build {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $json     = $self->{ _json };
-	my $client   = $self->{ _client };
-
-	print STDERR "Building schedule... " if $DEBUG;
-	
-	my $copy       = clone( $request );
-	my $path       = "$progress->{ path }/..";
-	my $file       = "$path/schedule.json";
-	my $tournament = $request->{ tournament };
-	my $all        = new FreeScore::Forms::WorldClass( $tournament );
-
-	$divisions = unbless( $all->{ divisions } );
-	try {
-		unless( -e $file ) {
-			$client->send( { json => { error => "Schedule file '$file' does not exist" }});
-			return;
-		}
-
-		my $schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-		my $build = $schedule->build();
-		$schedule->write();
-
-		my $schedule_data = $schedule->data();
-
-		if( $build->{ ok }) {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule_data, divisions => $divisions, warnings => $build->{ warnings }}});
-			print STDERR "OK\n" if $DEBUG && $build->{ ok };
-		} else {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule_data, errors => $build->{ errors }, warnings => $build->{ warnings }}});
-			print STDERR "failed\n" if $DEBUG;
-		}
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_schedule_check {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $json     = $self->{ _json };
-	my $client   = $self->{ _client };
-
-	print STDERR "Checking schedule... " if $DEBUG;
-	
-	my $copy       = clone( $request );
-	my $path       = "$progress->{ path }/..";
-	my $file       = "$path/schedule.json";
-	my $schedule   = undef;
-	my $tournament = $request->{ tournament };
-	my $all        = new FreeScore::Forms::WorldClass( $tournament );
-	my $build      = { ok => 0 };
-	my $check      = { ok => 0 };
-
-	$divisions = unbless( $all->{ divisions } );
-	try {
-		unless( -e $file ) {
-			$client->send( { json => { error => "Schedule file '$file' does not exist" }});
-			return;
-		}
-
-		$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-		$check    = $schedule->check();
-
-		if( $check->{ ok }) {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'ok', schedule => $schedule->data(), divisions => $divisions, warnings => $check->{ warnings }}});
-			print STDERR "OK\n" if $DEBUG && $check->{ ok };
-		} else {
-			my $error  = @{ $check->{ errors }} ? $check->{ errors }[ 0 ] : undef;
-			my $reason = $error ? $error->{ cause }{ reason } : $check->{ results };
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, results => 'failed', schedule => $schedule->data(), errors => $check->{ errors }, warnings => $check->{ warnings }}});
-			print STDERR "$reason\n" if $DEBUG;
-		}
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_schedule_read {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $json     = $self->{ _json };
-	my $client   = $self->{ _client };
-
-	print STDERR "Reading schedule information\n" if $DEBUG;
-	
-	my $copy       = clone( $request );
-	my $path       = "$progress->{ path }/..";
-	my $file       = "$path/schedule.json";
-	my $schedule   = undef;
-	my $tournament = $request->{ tournament };
-	my $all        = new FreeScore::Forms::WorldClass( $tournament );
-
-	$divisions = unbless( $all->{ divisions } );
-	try {
-		if( -e $file ) {
-			$schedule = new FreeScore::Forms::WorldClass::Schedule( $file );
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, schedule => $schedule->data(), divisions => $divisions }});
-		} else {
-			$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, divisions => $divisions }});
-		}
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_schedule_remove {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Removing schedule information\n" if $DEBUG;
-	
-	my $path = "$progress->{ path }/..";
-	try {
-		unlink( "$path/schedule.json" );
-		$client->send({ json => { request => $copy, result => 'success' }});
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_schedule_write {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $client   = $self->{ _client };
-	my $json     = $self->{ _json };
-
-	print STDERR "Writing schedule information\n" if $DEBUG;
-	
-	my $path       = "$progress->{ path }/..";
-	my $file       = "$path/schedule.json";
-	my $schedule   = $request->{ schedule };
-	my $tournament = $request->{ tournament };
-	my $all        = new FreeScore::Forms::WorldClass( $tournament );
-
-	# ===== DO NOT CACHE DIVISION INFORMATION; RETRIEVE IT FRESH FROM THE DB EVERY TIME
-	$divisions = unbless( $all->{ divisions } );
-	$schedule  = bless $schedule, 'FreeScore::Forms::WorldClass::Schedule';
-
-	$schedule->clear() if( $request->{ clear });
-
-	try {
-		$schedule->write( $file );
-		$client->send( { json => {  type => 'schedule', schedule => $schedule->data(), divisions => $divisions, action => 'write', result => 'ok' }});
+		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
 	}
@@ -1439,31 +810,30 @@ sub handle_tournament_read {
 }
 
 # ============================================================
-sub assign_draws {
+sub handle_tournament_draws_write {
 # ============================================================
-	my $draws = shift;
-	my $draw  = shift;
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $client   = $self->{ _client };
+	my $draws    = $request->{ draws };
 
-	my $event   = $draw->{ event };
-	my $gender  = $draw->{ gender };
-	my $age     = $draw->{ age };
-	my $default = { prelim => [ 'Open' ], semfin => [ 'Open' ], finals => [ 'Open', 'Open' ]};
-	
-	return $default unless exists $draws->{ $event };
-	my $forms = $draws->{ $event };
+	print STDERR "Writing draws to database.\n" if $DEBUG;
 
-	if   ( exists $forms->{ $gender }) { $forms = $forms->{ $gender }; }
-	elsif( exists $forms->{ c }      ) { $forms = $forms->{ c };       }
-	else { return $default; }
+	try {
+		$progress->write_draws( $draws );
 
-	return $default unless exists $forms->{ $age };
-	return $forms->{ $age };
+		$self->broadcast_updated_ring( $request, $progress, $group );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
 }
 
 # ============================================================
 sub autopilot {
 # ============================================================
-#** @method( request, progress, clients, judges )
+#** @method( request, progress, group )
 #   @brief Automatically advances to the next form/athlete/round/division
 #   Called when judges finish scoring an athlete's form 
 #*
@@ -1471,8 +841,7 @@ sub autopilot {
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
-	my $clients  = shift;
-	my $judges   = shift;
+	my $group    = shift;
 	my $division = $progress->current();
 	my $cycle    = $division->{ autodisplay } || 2;
 
@@ -1512,7 +881,7 @@ sub autopilot {
 			my $delay = shift;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 			$request->{ action } = 'scoreboard';
-			$self->broadcast_updated_division( $request, $progress, $clients, $judges );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		},
 		leaderboard => sub { 
 			my $delay = shift;
@@ -1526,7 +895,7 @@ sub autopilot {
 				$division->write(); 
 				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 				$request->{ action } = 'leaderboard';
-				$self->broadcast_updated_division( $request, $progress, $clients, $judges );
+				$self->broadcast_updated_division( $request, $progress, $group );
 
 			# Otherwise keep displaying the score for another second
 			} else {
@@ -1552,7 +921,7 @@ sub autopilot {
 			$division->write();
 
 			$request->{ action } = 'next';
-			$self->broadcast_updated_division( $request, $progress, $clients, $judges );
+			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	};
 	my @steps = ( $show->{ score }, $show->{ leaderboard }, $show->{ next });

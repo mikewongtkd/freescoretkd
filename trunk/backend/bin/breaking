@@ -43,21 +43,21 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 	# Handle messages
 	# ----------------------------------------
 	$self->on( message => sub {
-		my $self     = shift;
-		my $request  = $json->decode( shift );
-		my $security = new FreeScore::Security( $config );
+		my $self    = shift;
+		my $request = $json->decode( shift );
 
 		# ===== REJECT UNAUTHORIZED USERS
+		my $security = new FreeScore::Security( $config );
 		if( $security->enabled()) {
 			unless( $security->authenticated( $client ) && $security->authorized( $ring )) {
-				$client->send({ json => { error => $security->unauthorized()}});
+				$client->send({ json => { error => $security->unauthorized(), request => $request }});
 				return;
 			}
 		}
 
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
-		$request->{ from }       = { id => substr( $client->id(), 0, 4 ), sessid => substr( $client->sessid(), 0, 4 ), role => $client->role() };
+		$request->{ from }       = { cid => $client->cid(), role => $client->role() };
 
 		# ===== READ PROGRESS
 		try   { 

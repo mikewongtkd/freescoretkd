@@ -59,6 +59,14 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
             });
 <?php endif; ?>
           }
+        },
+        server : {
+          ping : update => {
+            network.send({ type : 'server', action : 'stop ping' });
+          }
+        },
+        users : {
+          update : update => {}
         }
       }
       var network = {

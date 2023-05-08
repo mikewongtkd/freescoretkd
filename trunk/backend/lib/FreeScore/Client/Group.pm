@@ -65,11 +65,20 @@ sub clients {
 # ============================================================
 	my $self    = shift;
 	my $filter  = shift;
-	my @clients = sort { $a->description() cmp $b->description() } values %{ $self->{ client }};
+	my @clients = sort { $a->role() cmp $b->role() || $a->cid() cmp $b->cid() } values %{ $self->{ client }};
 
 	if( $filter ) {
 		@clients = grep { $_->role() =~ /^$filter/ } @clients;
 	}
+
+	return @clients;
+}
+
+# ============================================================
+sub judges {
+# ============================================================
+	my $self    = shift;
+	my @clients = grep { $_->role() =~ /^judge/i } sort { $a->role() cmp $b->role() || $a->cid() cmp $b->cid() } values %{ $self->{ client }};
 
 	return @clients;
 }
