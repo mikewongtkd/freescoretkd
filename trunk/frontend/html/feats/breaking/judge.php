@@ -96,29 +96,34 @@
     sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]});
     sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]});
 
-	var ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}/judge<?= $judge ?>` );
+    var ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}/judge<?= $judge ?>` );
+    var network = {
+      open: () => {
+        network.send({ type : 'division', action : 'read' });
+      },
+      message: response => { 
+        let update = JSON.parse( response.data );
+        if( update.type != 'server' && update.action != 'ping' ) {
+          console.log( update );
+        }
 
-    ws.onopen = () => {
-      let request = { data : { type : 'division', action : 'read' }};
-      request.json = JSON.stringify( request.data );
-      ws.send( request.json );
+        let type   = update.type;
+        let action = update.action;
+
+        if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
+        if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
+
+        handle[ type ][ action ]( update );
+      },
+      send: data => {
+        let request = { data };
+        request.json = JSON.stringify( request.data ); 
+        ws.send( request.json );
+      }
     };
 
-    ws.onmessage = response => {
-      let update = JSON.parse( response.data );
-      console.log( 'UPDATE', update );
-
-      if( ! defined( update.division )) { return; }
-      let division = new Division( update.division );
-      let request  = update.request;
-	  let type     = request.type;
-	  let action   = request.action;
-
-	  if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
-	  if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
-
-	  handle[ type ][ action ]( update );
-    };
+    ws.onopen = network.open;
+    ws.onmessage = network.message;
 
   </script>
 </html>

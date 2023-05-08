@@ -217,18 +217,28 @@ var handle = {
 			division = new Division( division );
 			refresh.display( division );
 		}
+	},
+	server : {
+		ping : ping => {
+			let timestamp = (new Date).toISOString();
+			let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
+			network.send( pong );
+		}
+	},
+	users : {
+		update : update => {}
 	}
 };
 
 var network = {
 	open: () => {
-		let request = { data : { type : 'division', action : 'read' }};
-		request.json = JSON.stringify( request.data );
-		ws.send( request.json );
+		network.send({ type : 'division', action : 'read' });
 	},
 	message: ( response ) => { 
 		let update = JSON.parse( response.data );
-		console.log( update );
+		if( update.type != 'server' && update.action != 'ping' ) {
+			console.log( update );
+		}
 
 		let request = update.request;
 		let type = update.type;
@@ -237,11 +247,11 @@ var network = {
 		let action = update.action;
 		if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( `No handler for ${action} action`, update ); return; }
 
-		console.log( 'HANDLER:', type, action, 'REQUEST:', update.request ); // MW
 		handle[ type ][ action ]( update );
 	},
-	send: request => {
-		request.json = JSON.stringify( request.data ); 
+	send: data => {
+		let request = { data };
+		request.json = JSON.stringify( data ); 
 		ws.send( request.json );
 	}
 };

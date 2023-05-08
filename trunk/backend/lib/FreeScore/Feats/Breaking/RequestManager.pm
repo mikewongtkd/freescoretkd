@@ -55,6 +55,9 @@ sub init {
 	$self->{ client }      = {
 		pong               => \&handle_client_pong
 	};
+	$self->{ server }      = {
+		stop_ping          => \&handle_server_stop_ping
+	};
 }
 
 # ============================================================
@@ -79,8 +82,8 @@ sub broadcast_updated_division {
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => $request->{ type }, action => 'update', digest => $digest, time => $now, division => $unblessed, request => $request };
-
-		printf STDERR "    %s\n", $client->description() if $DEBUG;
+		my $status    = $client->status();
+		printf STDERR "    %-17s  %s  %s\n", $status->{ role }, $status->{ cid }, $status->{ health } if $DEBUG;
 		$client->send( { json => $response });
 	}
 	print STDERR "\n" if $DEBUG;
@@ -108,8 +111,8 @@ sub broadcast_updated_ring {
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request };
-
-		printf STDERR "    %s\n", $client->description() if $DEBUG;
+		my $status    = $client->status();
+		printf STDERR "    %-17s  %s  %s\n", $status->{ role }, $status->{ cid }, $status->{ health } if $DEBUG;
 		$client->send( { json => $response });
 	}
 }
@@ -125,19 +128,32 @@ sub broadcast_updated_users {
 	my $group     = shift;
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
-	my $users     = [ map { $_->status() } $group->clients() ];
-	my $digest    = sha1_hex( $json->canonical->encode( $users ));
+	my $status    = $group->status();
+	my $digest    = sha1_hex( $json->canonical->encode( $status ));
 	my $mid       = substr( $digest, 0, 4 );
 
-	print STDERR "  Broadcasting ring $ring user information (message ID: $mid) to:\n" if $DEBUG;
+	print STDERR "  Broadcasting user information (message ID: $mid) in ring $ring to:\n" if $DEBUG;
 
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		my $response  = { type => 'users', action => 'update', digest => $digest, time => $now, request => $request, users => $users };
-
-		printf STDERR "    %s\n", $client->description() if $DEBUG;
+		my $response  = { type => 'users', action => 'update', digest => $digest, time => $now, request => $request, users => $status };
+		my $status    = $client->status();
+		printf STDERR "    %-17s  %s  %s\n", $status->{ role }, $status->{ cid }, $status->{ health } if $DEBUG;
 		$client->send( { json => $response });
 	}
+}
+
+# ============================================================
+sub client_health_check {
+# ============================================================
+	my $self  = shift;
+	my $ring  = shift;
+	my $group = shift;
+
+	return unless $ring ne 'staging' && $group->changed();
+
+	my $request = { type => 'users', action => 'update', ring => $ring };
+	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
 # ============================================================
@@ -471,6 +487,24 @@ sub handle_ring_read {
 	} catch {
 		$client->send({ json => { error => "$_" }});
 	}
+}
+
+# ============================================================
+sub handle_server_stop_ping {
+# ============================================================
+ 	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $group     = shift;
+	my $client    = $self->{ _client };
+	my $user      = $client->description();
+
+	print STDERR "$user requests server stop pinging them.\n" if $DEBUG;
+
+	$client->ping->quit();
+
+	my $request = { type => 'users', action => 'update', ring => $ring };
+	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
 # ============================================================

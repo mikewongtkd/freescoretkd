@@ -58,6 +58,7 @@
 			if( $password != $correct ) { Session::error( 'Password does not match our records' ); }
 
 			$_SESSION[ 'is_auth' ] = 1;
+			$_SESSION[ 'ring' ] = $ring;
 			Session::redirect( $referrer );
 		}
 

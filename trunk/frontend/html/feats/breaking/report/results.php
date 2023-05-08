@@ -89,15 +89,25 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
             });
 <?php endif; ?>
           }
+        },
+        server : {
+          ping : update => {
+            network.send({ type : 'server', action : 'stop ping' });
+          }
+        },
+        users : {
+          update : update => {}
         }
       }
       var network = {
         open: () => {
-          network.send({ data : { type : 'ring', ring : <?= $ring ?>, action : 'read' }});
+          network.send({ type : 'ring', ring : <?= $ring ?>, action : 'read' });
         },
         message: ( response ) => { 
           let update = JSON.parse( response.data );
-          console.log( update );
+          if( update.type != 'server' && update.action != 'ping' ) {
+            console.log( update );
+          }
 
           let type = update.type;
           if( ! (type in handle))           { return; }
@@ -107,7 +117,8 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
 
           handle[ type ][ action ]( update );
         },
-        send: request => {
+        send: data => {
+          let request = { data };
           request.json = JSON.stringify( request.data ); 
           ws.send( request.json );
         }

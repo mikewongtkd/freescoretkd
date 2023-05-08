@@ -1,7 +1,10 @@
 package FreeScore::Client::Ping;
 use lib qw( /usr/local/freescore/lib );
+use base qw( Clone );
 use List::Util qw( sum );
+use Data::Structure::Util qw( unbless );
 use Date::Manip;
+use JSON::XS;
 use Mojolicious::Controller;
 use Mojo::IOLoop;
 use Statistics::Descriptive;
@@ -26,6 +29,8 @@ sub init {
 	$self->{ client }      = $client;
 	$client->{ timedelta } = 0;
 	$self->{ timestats }   = new Statistics::Descriptive::Full();
+	# $self->{ speed } = { normal => 30, fast => 15, faster => 5, fastest => 1 };
+	$self->{ speed } = { normal => 5, fast => 5, faster => 5, fastest => 5 };
 }
 
 # ============================================================
@@ -42,21 +47,21 @@ sub changed {
 sub fast {
 # ============================================================
 	my $self = shift;
-	$self->go( 15 );
+	$self->go( $self->{ speed }{ fast });
 }
 
 # ============================================================
 sub faster {
 # ============================================================
 	my $self = shift;
-	$self->go( 5 );
+	$self->go( $self->{ speed }{ faster });
 }
 
 # ============================================================
 sub fastest {
 # ============================================================
 	my $self = shift;
-	$self->go( 1 );
+	$self->go( $self->{ speed }{ fastest });
 }
 
 # ============================================================
@@ -67,7 +72,7 @@ sub go {
 	return if $self->{ interval } == $interval;
 
 	$self->stop();
-	$self->start( 30 );
+	$self->start( $interval );
 }
 
 # ============================================================
@@ -76,6 +81,11 @@ sub health {
 	my $self = shift;
 	my $dropped = int( keys %{$self->{ pings }});
 
+	my $clone = unbless( $self->clone());
+	delete $clone->{ $_ } foreach( qw( client timestats ));
+	my $json = new JSON::XS();
+	print STDERR $json->canonical->encode( $clone );
+	
 	return 'strong' if( $dropped <= 1  );
 	return 'good'   if( $dropped <= 5  );
 	return 'weak'   if( $dropped <= 10 );
@@ -87,7 +97,7 @@ sub health {
 sub normal {
 # ============================================================
 	my $self = shift;
-	$self->go( 30 );
+	$self->go( $self->{ speed }{ normal });
 }
 
 # ============================================================
@@ -132,6 +142,8 @@ sub quit {
 
 	return unless $id;
 
+	printf STDERR "No longer pinging %s (%s)\n", $client->Role(), $client->cid(); # MW
+
 	Mojo::IOLoop->remove( $id );
 	delete $self->{ id };
 	delete $client->{ ping };
@@ -141,7 +153,7 @@ sub quit {
 sub start {
 # ============================================================
 	my $self     = shift;
-	my $interval = shift || 30;
+	my $interval = shift || $self->{ speed }{ normal };
 	my $client   = $self->{ client };
 	my $ws       = $client->{ websocket };
 

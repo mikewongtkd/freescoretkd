@@ -187,13 +187,24 @@
 						}
 					},
 					update: update => { handle.ring.read( update ); },
-					users: update => { console.log( 'RING USER HEALTH CHECK:', update ); /* MW */ }
 				},
 				server : {
 					ping : ping => {
 						let timestamp = (new Date).toISOString();
 						let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
 						network.send( pong );
+					}
+				},
+				users : {
+					update : update => {
+						let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default' }; 
+						let any = 'btn-success btn-warning btn-danger btn-default';
+						update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
+							let role = user.role;
+							role = role.replace( /udge/, '' );
+							let health = user.health;
+							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
+						});
 					}
 				},
 				division : {
@@ -226,13 +237,13 @@
 
 			var network = {
 				open: () => {
-					let request = { data : { type : 'ring', action : 'read' }};
-					request.json = JSON.stringify( request.data );
-					ws.send( request.json );
+					network.send({ type : 'ring', action : 'read' });
 				},
 				message: ( response ) => { 
 					let update = JSON.parse( response.data );
-					console.log( update );
+					if( update.type != 'server' && update.action != 'ping' ) {
+						console.log( update );
+					}
 
 					let type = update.type;
 					if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }

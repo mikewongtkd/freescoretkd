@@ -52,10 +52,10 @@ sub changed {
 # ============================================================
 	my $self    = shift;
 	my $json    = new JSON::XS();
-	# memorize state and change immediately after checking current state
-	my $health  = sha1_hex( $json->canonical->encode( [ map { $_->status() } $self->clients() ]));
-	my $changed = $health eq $self->{ health };
-	$self->{ health } = $health;
+
+	my $status  = sha1_hex( $json->canonical->encode( $self->status()));
+	my $changed = $status ne $self->{ status };
+	$self->{ status } = $status;
 
 	return $changed;
 }
@@ -90,6 +90,13 @@ sub remove {
 
 	$cid = ref $client ? $client->id() : $client;
 	delete $self->{ client }{ $cid };
+}
+
+# ============================================================
+sub status {
+# ============================================================
+	my $self = shift;
+	return [ map { $_->status() } $self->clients() ];
 }
 
 1;

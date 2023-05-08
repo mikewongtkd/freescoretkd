@@ -2,7 +2,17 @@ var handle = {
 	autopilot : {
 		score       : () => {}, // Do nothing during autopilot actions
 		scoreboard  : () => {}, // Do nothing during autopilot actions
-		leaderboard : () => {}
+		leaderboard : () => {},
+		update : update => {
+			let request = update.request;
+			let type    = request.type;
+			let action  = request.action;
+
+			if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
+			if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
+
+			handle[ type ][ action ]( update );
+		}
 	},
 	division : {
 		inspection: update => {
@@ -47,6 +57,17 @@ var handle = {
 					setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); sound.ok.play(); }, 500 );
 				}
 			}
+		},
+
+		update : update => {
+			let request = update.request;
+			let type    = request.type;
+			let action  = request.action;
+
+			if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
+			if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
+
+			handle[ type ][ action ]( update );
 		}
 	},
 	ring : {
@@ -55,7 +76,27 @@ var handle = {
 			if( ! division ) { console.log( `Current division ${update.current} not found`, update ); return; }
 			update.division = division;
 			handle.division.read( update );
+		},
+		update : update => {
+			let request = update.request;
+			let type    = request.type;
+			let action  = request.action;
+
+			if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
+			if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
+
+			handle[ type ][ action ]( update );
 		}
+	},
+	server : {
+		ping : ping => {
+			let timestamp = (new Date).toISOString();
+			let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
+			network.send( pong );
+		}
+	},
+	users : {
+		update : update => {}
 	}
 };
 

@@ -11,6 +11,12 @@ rings concurrently scoring for one division at-a-time.
 
 ### Client Request Object/Action Types
 
+The client should be able to issue the following requests
+
+* Client
+  * Join (automatically handled by WebSocket instantiation; no separate handler needed)
+  * Leave (automatically handled by WebSocket finalization; no seaprate handler needed)
+  * Pong
 * Form
   * Navigate (Goto/Next/Previous)
 * Round
@@ -22,9 +28,9 @@ rings concurrently scoring for one division at-a-time.
 * Division
   * Display (Scoreboard/Leaderboard)
   * Navigate (Goto/Next/Previous)
-  * Read/Write
+  * Read/Update
 * Ring
-  * Read
+  * Read/Update
   * Register Device
   * Transfer
 * Tournament
@@ -32,15 +38,6 @@ rings concurrently scoring for one division at-a-time.
   * Register Device
 
 ### Server Response Object/Action Types
-
-* Division
-  * Update
-* Ring
-  * Update
-* Tournament
-  * Update
-
-### Server Autopilot Response Object/Action Type
 
 The server autopilot is a special server response object type where the server
 acts on its own. Autopilot must be initiated by a request (e.g. athlete score).
@@ -51,10 +48,23 @@ new form or athlete (unless there are no more forms, athletes, or rounds). The
 autopilot delays and number of athletes per leaderboard display are
 configurable.
 
+The server should be able to issue the following responses.
+
 * Autopilot
   * Scoreboard
   * Leaderboard
   * Navigate
+* Division
+  * Update
+* Server
+  * Ping
+  * Stop Ping
+* Ring
+  * Update
+* Users
+  * Update
+* Tournament
+  * Update
 
 ## Security
 

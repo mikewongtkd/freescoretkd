@@ -1,11 +1,11 @@
 <table>
 	<tr>
 		<td>&nbsp;</td>
-		<th class="j0 judge-col">R</th>
-		<th class="j1 judge-col">J1</th>
-		<th class="j2 judge-col">J2</th>
-		<th class="j3 judge-col">J3</th>
-		<th class="j4 judge-col">J4</th>
+		<th class="j0 judge-col"><button class="btn btn-xs btn-default">R</button></th>
+		<th class="j1 judge-col"><button class="btn btn-xs btn-default">J1</button></th>
+		<th class="j2 judge-col"><button class="btn btn-xs btn-default">J2</button></th>
+		<th class="j3 judge-col"><button class="btn btn-xs btn-default">J3</button></th>
+		<th class="j4 judge-col"><button class="btn btn-xs btn-default">J4</button></th>
 		<th>Mean</th>
 		<th>Range</th>
 	</tr>

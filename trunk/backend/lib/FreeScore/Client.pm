@@ -98,6 +98,15 @@ sub ping {
 }
 
 # ============================================================
+sub Role {
+# ============================================================
+	my $self = shift;
+	my $role = $self->role();
+	$role = join( ' ', map { ucfirst } split /\s/, $role );
+	return $role;
+}
+
+# ============================================================
 sub send {
 # ============================================================
 	my $self = shift;
@@ -110,8 +119,8 @@ sub status {
 	my $self   = shift;
 	my $cid    = $self->cid();
 	my $ping   = $self->ping();
-	my $role   = $self->role();
-	my $health = $ping ? $ping->health() : undef;
+	my $role   = $self->Role();
+	my $health = $ping ? $ping->health() : 'n/a';
 
 	return { cid => $cid, role => $role, health => $health };
 }

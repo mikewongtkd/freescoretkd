@@ -62,9 +62,10 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 
 		# ===== REJECT UNAUTHORIZED USERS
 		my $authorized = $session->get( 'is_auth' );
+		my $restricted = $session->get( 'ring' );
 		my $secured    = $config->secured();
 		if( $secured ) {
-			unless( $authorized ) {
+			unless( $authorized && ((! defined $restricted) || ($restricted == $ring ))) {
 				$c->{ device }->send( { json => { error => "Unauthorized user ($id) in ring $ring", request => $request }});
 				return;
 			}

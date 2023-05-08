@@ -8,6 +8,7 @@ use Mojo::IOLoop::Delay;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use FreeScore::Config;
+use FreeScore::Security;
 use FreeScore::Feats::Breaking::Division;
 use FreeScore::Feats::Breaking;
 use FreeScore::Feats::Breaking::RequestManager;
@@ -42,8 +43,17 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 	# Handle messages
 	# ----------------------------------------
 	$self->on( message => sub {
-		my $self    = shift;
-		my $request = $json->decode( shift );
+		my $self     = shift;
+		my $request  = $json->decode( shift );
+		my $security = new FreeScore::Security( $config );
+
+		# ===== REJECT UNAUTHORIZED USERS
+		if( $security->enabled()) {
+			unless( $security->authenticated( $client ) && $security->authorized( $ring )) {
+				$client->send({ json => { error => $security->unauthorized()}});
+				return;
+			}
+		}
 
 		$request->{ tournament } = $tournament;
 		$request->{ ring }       = $ring;
@@ -59,11 +69,7 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 		catch { $client->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 
 		# ===== HEALTH CHECK ON ALL CLIENTS
-		my $group = $client->group();
-		if( $group->changed() ) {
-			my $request = { type => 'ring', action => 'users' };
-			$manager->broadcast_updated_users( $request, $progress, $client->group());
-		}
+		$manager->client_health_check( $ring, $client->group());
 	});
 
 	# ----------------------------------------
