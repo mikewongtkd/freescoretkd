@@ -118,7 +118,7 @@ sub status {
 # ============================================================
 	my $self   = shift;
 	my $cid    = $self->cid();
-	my $ping   = $self->ping();
+	my $ping   = exists $self->{ ping } ? $self->ping() : undef;
 	my $role   = $self->Role();
 	my $health = $ping ? $ping->health() : 'n/a';
 

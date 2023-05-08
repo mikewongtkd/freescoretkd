@@ -29,8 +29,8 @@ sub init {
 	$self->{ client }      = $client;
 	$client->{ timedelta } = 0;
 	$self->{ timestats }   = new Statistics::Descriptive::Full();
-	# $self->{ speed } = { normal => 30, fast => 15, faster => 5, fastest => 1 };
-	$self->{ speed } = { normal => 5, fast => 5, faster => 5, fastest => 5 };
+	$self->{ speed } = { normal => 30, fast => 15, faster => 5, fastest => 1 };
+	# $self->{ speed } = { normal => 5, fast => 5, faster => 5, fastest => 5 };
 }
 
 # ============================================================
@@ -81,11 +81,6 @@ sub health {
 	my $self = shift;
 	my $dropped = int( keys %{$self->{ pings }});
 
-	my $clone = unbless( $self->clone());
-	delete $clone->{ $_ } foreach( qw( client timestats ));
-	my $json = new JSON::XS();
-	print STDERR $json->canonical->encode( $clone );
-	
 	return 'strong' if( $dropped <= 1  );
 	return 'good'   if( $dropped <= 5  );
 	return 'weak'   if( $dropped <= 10 );
@@ -141,8 +136,6 @@ sub quit {
 	my $id     = $self->{ id };
 
 	return unless $id;
-
-	printf STDERR "No longer pinging %s (%s)\n", $client->Role(), $client->cid(); # MW
 
 	Mojo::IOLoop->remove( $id );
 	delete $self->{ id };

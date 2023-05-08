@@ -60,7 +60,7 @@
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
 				<div class="container">
-				<div class="page-header"><a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Ring <?= $i ?></a> <span id="division-header"></span></div>
+				<div class="page-header"><a id="back-to-divisions" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left"></span> Ring <?= $i ?></a> <span id="division-header"></span><div class="ping-display"><span class="fas fa-heart"></span></div></div>
 					<div class="row">
 						<div class="col-lg-9">
 							<div class="list-group" id="athletes">
@@ -193,6 +193,8 @@
 						let timestamp = (new Date).toISOString();
 						let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
 						network.send( pong );
+						$( '.ping-display .fas' ).removeClass( 'fa-heart' ).addClass( 'fa-heartbeat' );
+						setTimeout( () => { $( '.ping-display .fas' ).removeClass( 'fa-heartbeat' ).addClass( 'fa-heart' ); }, 500 );
 					}
 				},
 				users : {
@@ -205,6 +207,11 @@
 							let health = user.health;
 							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
 						});
+						let display = update.users.find( user => user.role.match( /^display/i ));
+						if( ! display ) { alertify.notify( 'No display currently being shown. Please show display' ); }
+						else if( display.health == 'strong' || display.health == 'good' ) { alertify.success( `Display connection is ${display.health}` ); }
+						else if( display.health == 'weak' )                               { alertify.warning( `Display connection is ${display.health}` ); }
+						else if( display.health == 'bad' || display.health == 'dead' )    { alertify.danger( `Display connection is ${display.health}` ); }
 					}
 				},
 				division : {
@@ -314,6 +321,7 @@
 					division.athletes().forEach(( athlete, i ) => {
 						let button    = html.a.clone().addClass( "list-group-item" );
 						let name      = html.span.clone().addClass( "athlete-name" ).html( athlete.name() );
+						let boards    = html.span.clone().addClass( "athlete-boards" ).html( `${athlete.boards()} board${athlete.boards()==1 ? '' : 's'}` );
 						let total     = html.span.clone().addClass( "athlete-score" ).html( athlete.score() );
 						let j         = division.current.athleteid();
 
@@ -349,7 +357,7 @@
 							button.off( 'click' );
 						}
 						refresh.navadmin( division );
-						button.append( name, total );
+						button.append( name, boards, total );
 						$( '#athletes' ).append( button );
 					});
 

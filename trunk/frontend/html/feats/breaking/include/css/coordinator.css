@@ -101,6 +101,13 @@ html, body {
   font-weight: bold;
   border-radius: 4px;
 }
+.page-header .ping-display {
+  float: right;
+  font-size: 12pt;
+  line-height: 12pt;
+  color: red;
+  margin-top: 8px;
+}
 
 #back-to-divisions {
   margin-top: -3px;
@@ -134,15 +141,15 @@ html, body {
   color: white !important;
 }
 
-.athlete-score {
+.athlete-boards, .athlete-score {
   display: inline-block;
   position: relative;
-  width: 20%;
+  width: 12.5%;
   font-size: 14pt;
   line-height: 14pt;
-  margin-left: 5%;
+  margin-left: 2.5%;
   text-align: right;
-  color: black;
+  color: white;
 }
 
 .active h4 {
