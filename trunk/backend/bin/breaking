@@ -8,7 +8,6 @@ use Mojo::IOLoop::Delay;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use FreeScore::Config;
-use FreeScore::Security;
 use FreeScore::Feats::Breaking::Division;
 use FreeScore::Feats::Breaking;
 use FreeScore::Feats::Breaking::RequestManager;
@@ -35,6 +34,9 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 	my $manager    = new FreeScore::Feats::Breaking::RequestManager( $tournament, $ring, $client );
 	my $progress   = undef;
 	my $staging    = undef;
+	my $user       = $client->description();
+
+	print STDERR "$user has connected.\n";
 
 	$self->inactivity_timeout( 3600 ); # 1 hour
 	$client->ping->start();
@@ -47,7 +49,7 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 		my $request = $json->decode( shift );
 
 		# ===== REJECT UNAUTHORIZED USERS
-		my $security = new FreeScore::Security( $config );
+		my $security = $config->security();
 		if( $security->enabled()) {
 			unless( $security->authenticated( $client ) && $security->authorized( $ring )) {
 				$client->send({ json => { error => $security->unauthorized(), request => $request }});
@@ -76,7 +78,7 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 	# Handle websocket close
 	# ----------------------------------------
 	$self->on( finish => sub {
-		my $request = { type => 'ring', action => 'leave', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
+		my $request = { type => 'users', action => 'update', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
 		$registry->remove( $client );
 		$manager->broadcast_updated_users( $request, $progress, $client->group());
 		$client->ping->quit();

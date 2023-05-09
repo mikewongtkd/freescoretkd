@@ -47,8 +47,8 @@ sub description {
 	my $cid    = $self->cid();
 	my $role   = $self->role();
 	$role = join( ' ', map { ucfirst } split( /(?:\s)/, $role ));
-	my $jid = $role =~ /^Judge(\d)$/;
-	$role = $jid == 0 ? 'Referee' : "Judge $jid" if $jid;
+	my $jid = $self->jid();
+	$role = $jid == 0 ? 'Referee' : "Judge $jid" if defined $jid;
 
 	return sprintf( "%s (%s)", $role, $cid );
 }

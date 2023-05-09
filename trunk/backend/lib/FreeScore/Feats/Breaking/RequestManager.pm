@@ -7,15 +7,11 @@ use FreeScore::RCS;
 use FreeScore::Feats::Breaking;
 use FreeScore::Feats::Breaking::Division;
 use JSON::XS;
-use Digest::SHA1 qw( sha1_hex );
-use List::Util (qw( first shuffle ));
-use List::MoreUtils (qw( first_index ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
 use Clone qw( clone );
 use PHP::Session;
-use File::Slurp qw( read_file );
 use Encode qw( encode );
 
 our $DEBUG = 1;

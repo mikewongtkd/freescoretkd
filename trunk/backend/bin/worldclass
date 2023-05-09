@@ -6,7 +6,6 @@ use Mojo::IOLoop::Delay;
 use Try::Tiny;
 use FreeScore;
 use FreeScore::Config;
-use FreeScore::Security;
 use FreeScore::Client::Registry;
 use FreeScore::Forms::WorldClass;
 use FreeScore::Forms::WorldClass::RequestManager;
@@ -48,7 +47,7 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 		my $request = $json->decode( shift );
 
 		# ===== REJECT UNAUTHORIZED USERS
-		my $security   = new FreeScore::Security( $config );
+		my $security   = $config->security();
 		if( $security->enabled() ) {
 			unless( $security->authenticated( $client ) && $security->authorized( $ring )) {
 				$client->send( { json => { error => $security->unauthorized(), request => $request }});
@@ -79,7 +78,7 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 	# Handle disconnects
 	# ----------------------------------------
 	$self->on( finish => sub { 
-		my $request = { type => 'ring', action => 'leave', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
+		my $request = { type => 'users', action => 'update', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
 		$registry->remove( $client );
 		$manager->broadcast_updated_users( $request, $progress, $client->group());
 		$client->ping->quit();

@@ -28,6 +28,8 @@
     <script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
     <script src="../../include/alertify/alertify.min.js"></script>
     <script src="../../include/js/freescore.js"></script>
+    <script src="../../include/js/websocket.js"></script>
+    <script src="../../include/js/sound.js"></script>
   </head>
   <body>
     <div class="judge-scoring-interface">
@@ -66,7 +68,6 @@
   <script src="include/js/score.js"></script>
   <script src="include/js/athlete.js"></script>
   <script src="include/js/division.js"></script>
-  <script src="include/js/judge.js"></script>
   <script>
     // ============================================================
     // Alertify defaults
@@ -77,7 +78,7 @@
     // Judge Tool: Deductions
     // ============================================================
 
-    var sound      = {};
+    var sound      = new FreeScore.Sound( '../../sounds' );
     var tournament = <?= $tournament ?>;
     var ring       = <?= $ring ?>;
     var state = {
@@ -91,40 +92,9 @@
 
     state.reset();
 
-    sound.ok    = new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]});
-    sound.error = new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]});
-    sound.next  = new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]});
-    sound.prev  = new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]});
-
-    var ws = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}/judge<?= $judge ?>` );
-    var network = {
-      open: () => {
-        network.send({ type : 'division', action : 'read' });
-      },
-      message: response => { 
-        let update = JSON.parse( response.data );
-        if( update.type != 'server' && update.action != 'ping' ) {
-          console.log( update );
-        }
-
-        let type   = update.type;
-        let action = update.action;
-
-        if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
-        if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
-
-        handle[ type ][ action ]( update );
-      },
-      send: data => {
-        let request = { data };
-        request.json = JSON.stringify( request.data ); 
-        ws.send( request.json );
-      }
-    };
-
-    ws.onopen = network.open;
-    ws.onmessage = network.message;
-
+	var network = new FreeScore.WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}/judge<?= $judge ?>`, { type : 'division', action : 'read' } );
+   
   </script>
+  <script src="include/js/judge.js"></script>
 </html>
 <!-- vim: set ts=2 sw=2 expandtab -->

@@ -1,104 +1,57 @@
-var handle = {
-	autopilot : {
-		score       : () => {}, // Do nothing during autopilot actions
-		scoreboard  : () => {}, // Do nothing during autopilot actions
-		leaderboard : () => {},
-		update : update => {
-			let request = update.request;
-			let type    = request.type;
-			let action  = request.action;
-
-			if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
-			if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
-
-			handle[ type ][ action ]( update );
-		}
-	},
-	division : {
-		inspection: update => {
-			let request  = update.request;
-			let division = new Division( update.division );
-			let divid    = division.name();
-			let id       = parseInt( request.athlete.split( /\|/ )[ 1 ] );
-            let boards   = parseInt( request.boards );
-            $( `#tool-inspection .inspection-list a[data-id="${divid}|${id}"]` ).attr({ 'data-boards' : boards });
-            $( `#tool-inspection .inspection-list a[data-id="${divid}|${id}"] .badge` ).html( boards );
-            if( state.current.athleteid == id ) { refresh.tool.deductions( division ); }
-		},
-
-		navigate: update => {
-			let divid       = update.ring.current;
-			let division    = update.ring.divisions.find( division => { return division.name == divid; });
-			update.division = division;
-			refresh.on.read( update ); 
-			return; 
-		},
-
-		read: update => {
-			let division = new Division( update.division );
-			state.reset();
-            state.current.divid     = division.name();
-            state.current.athleteid = division.current.athleteid();
-            refresh.tool.deductions( division );
-            refresh.tool.scoring( division );
-            refresh.tool.inspection( division );
-            refresh.tool.help( division );
-		},
-
-		score: update => {
-			let request   = update.request
-			let division  = new Division( update.division );
-			let athlete   = division.current.athlete();
-			let athleteid = division.current.athleteid();
-			if( athleteid == state.current.athleteid && request.judge == state.judge ) {
-				if( request.score == 'clear' ) {
-					setTimeout( () => { alertify.notify( `Score for ${athlete.name()} cleared by computer operator` ); sound.ok.play(); }, 500 );
-				} else {
-					setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); sound.ok.play(); }, 500 );
-				}
+network.on
+	.response( 'division' )
+	.handle( 'inspection' )
+	.by( update => {
+		let request  = update.request;
+		let division = new Division( update.division );
+		let divid    = division.name();
+		let id       = parseInt( request.athlete.split( /\|/ )[ 1 ] );
+		let boards   = parseInt( request.boards );
+		$( `#tool-inspection .inspection-list a[data-id="${divid}|${id}"]` ).attr({ 'data-boards' : boards });
+		$( `#tool-inspection .inspection-list a[data-id="${divid}|${id}"] .badge` ).html( boards );
+		if( state.current.athleteid == id ) { refresh.tool.deductions( division ); }
+	})
+	.handle( 'navigate' )
+	.by( update => {
+		let divid       = update.ring.current;
+		let division    = update.ring.divisions.find( division => { return division.name == divid; });
+		update.division = division;
+		refresh.on.read( update ); 
+		return; 
+	})
+	.handle( 'read' )
+	.by( update => {
+		let division = new Division( update.division );
+		state.reset();
+		state.current.divid     = division.name();
+		state.current.athleteid = division.current.athleteid();
+		refresh.tool.deductions( division );
+		refresh.tool.scoring( division );
+		refresh.tool.inspection( division );
+		refresh.tool.help( division );
+	})
+	.handle( 'score' )
+	.by( update => {
+		let request   = update.request
+		let division  = new Division( update.division );
+		let athlete   = division.current.athlete();
+		let athleteid = division.current.athleteid();
+		if( athleteid == state.current.athleteid && request.judge == state.judge ) {
+			if( request.score == 'clear' ) {
+				setTimeout( () => { alertify.notify( `Score for ${athlete.name()} cleared by computer operator` ); sound.ok.play(); }, 500 );
+			} else {
+				setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); sound.ok.play(); }, 500 );
 			}
-		},
-
-		update : update => {
-			let request = update.request;
-			let type    = request.type;
-			let action  = request.action;
-
-			if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
-			if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
-
-			handle[ type ][ action ]( update );
 		}
-	},
-	ring : {
-		read : update => {
-			let division = update.divisions.find( division => division.name == update.current );
-			if( ! division ) { console.log( `Current division ${update.current} not found`, update ); return; }
-			update.division = division;
-			handle.division.read( update );
-		},
-		update : update => {
-			let request = update.request;
-			let type    = request.type;
-			let action  = request.action;
-
-			if( !( type in handle ))           { console.log( `No handler for ${type} object`, update ); return; }
-			if( !( action in handle[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
-
-			handle[ type ][ action ]( update );
-		}
-	},
-	server : {
-		ping : ping => {
-			let timestamp = (new Date).toISOString();
-			let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
-			network.send( pong );
-		}
-	},
-	users : {
-		update : update => {}
-	}
-};
+	})
+	.response( 'ring' )
+	.handle( 'read' )
+	.by( update => {
+		let division = update.divisions.find( division => division.name == update.current );
+		if( ! division ) { console.log( `Current division ${update.current} not found`, update ); return; }
+		update.division = division;
+		handle.division.read( update );
+	});
 
 var refresh = {
 	scoring : {
@@ -440,20 +393,20 @@ var refresh = {
 			let summary = division.summary();
 			$( '#tool-help .division-summary' ).html( summary );
 			let agegroup = {
-				'6-7'    : 'ages-6-9',
+				'6-7'    : 'ages-6-9', // Ages 6-9 use 1/4 inch board
 				'dragon' : 'ages-6-9',
 				'u7'     : 'ages-6-9',
 				'8-9'    : 'ages-6-9',
 				'tiger'  : 'ages-6-9',
 				'u9'     : 'ages-6-9',
-				'10-11'  : 'ages-10-14',
+				'10-11'  : 'ages-10-14', // Ages 10-14 use 1/2 inch board
 				'youth'  : 'ages-10-14',
 				'u12'    : 'ages-10-14',
 				'12-14'  : 'ages-10-14',
 				'cadet'  : 'ages-10-14',
 				'u14'    : 'ages-10-14',
 				'15-17'  : 'ages-10-14',
-				'junior' : 'ages-15-up',
+				'junior' : 'ages-15-up', // Ages 15+ use 1 inch board
 				'u17'    : 'ages-15-up',
 				'18+'    : 'ages-15-up',
 				'18-30'  : 'ages-15-up',

@@ -1,4 +1,10 @@
 package FreeScore::RequestManager;
+use Clone qw( clone );
+use Digest::SHA1 qw( sha1_hex );
+use Data::Dumper;
+use Data::Structure::Util qw( unbless );
+use Date::Manip;
+use JSON::XS;
 
 # ============================================================
 sub new {

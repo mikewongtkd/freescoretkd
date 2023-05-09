@@ -3,6 +3,8 @@ package FreeScore::Config;
 use List::Util qw( uniq );
 use JSON::XS;
 use File::Slurp qw( read_file );
+use lib qw( /usr/local/freescore/lib );
+use FreeScore::Security;
 
 # ============================================================
 sub new {
@@ -73,9 +75,14 @@ sub password {
 sub secured {
 # ============================================================
 	my $self = shift;
-	my $ring = shift;
+	return exists( $self->{ password }) && defined $self->{ password };
+}
 
-	return exists( $self->{ password });
+# ============================================================
+sub security {
+# ============================================================
+	my $self = shift;
+	return new FreeScore::Security( $self );
 }
 
 # ============================================================
