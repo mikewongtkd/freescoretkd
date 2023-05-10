@@ -15,15 +15,29 @@ body {
 	border: 4px solid white;
 	border-radius: $jsi-border-radius;
 
-	.judge-tool-nav {
+	.judge-page-nav {
 		padding: 2px;
 		ul li {
 			&:first-child { a { border-radius: 12px 4px 4px 4px; }}
 			&:last-child  { a { border-radius: 4px 12px 4px 4px; }}
+			&.ring-judge {
+				font-size: 0.75em;
+				line-height: 1.2em;
+				text-align: center;
+				vertical-align: middle;
+				margin: 0;
+				padding: 0;
+				.ring {
+					color: gold;
+				}
+				.judge {
+					color: cyan;
+				}
+			}
 		}
 	}
 
-	.judge-tools {
+	.judge-pages {
 		width: 800px;
 		height: 519px;
 		padding: 2.5% 2.5% 0% 2.5%;

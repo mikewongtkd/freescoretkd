@@ -23,6 +23,12 @@ FreeScore.App = class FSApp {
 	get sound()   { return this._sound; }
 	get state()   { return this._state; }
 
+	// Common case is to read the current division
+	connect( url ) {
+		this._network.set( url );
+		this._network.connect({ type : 'division', action : 'read' });
+	}
+
 	request( request ) {
 		this._network.connect( request );
 	}

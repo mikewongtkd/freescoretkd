@@ -5,7 +5,7 @@
   include( "../../include/php/config.php" ); 
   include( "../../session.php" ); 
 
-  $url = $config->websocket( 'breaking', "judge{$judge}" );
+  $url = $config->websocket( 'breaking', $ring, "judge{$judge}" );
   
   function referee() {
     global $judge;
@@ -36,30 +36,30 @@
   </head>
   <body>
     <div class="judge-scoring-interface">
-      <div class="judge-tool-nav">
+      <div class="judge-page-nav">
         <ul class="nav nav-pills nav-justified">
+          <li class="ring-judge"><div class="ring">Ring <?= $ring ?></div><div class="judge"><?= $judge == 0 ? 'Referee' : "Judge {$judge}" ?></div></li>
 <?php if( referee()): ?>
-          <li role="presentation" class="active"><a id="nav-deductions" href="#tool-deductions" data-toggle="pill">Deductions</a></li>
+          <li role="presentation" class="active"><a id="nav-deductions" href="#page-deductions" data-toggle="pill">Deductions</a></li>
 <?php endif; ?>
-          <li role="presentation" <?php if( ! referee()): ?>class="active"<?php endif; ?>><a id="nav-scoring" href="#tool-scoring" data-toggle="pill">Scoring</a></li>
-          <li role="presentation"><a id="nav-inspection" href="#tool-inspection" data-toggle="pill">Inspection</a></li>
-          <li role="presentation"><a id="nav-help" href="#tool-help" data-toggle="pill">Help</a></li>
+          <li role="presentation" <?php if( ! referee()): ?>class="active"<?php endif; ?>><a id="nav-scoring" href="#page-scoring" data-toggle="pill">Scoring</a></li>
+          <li role="presentation"><a id="nav-inspection" href="#page-inspection" data-toggle="pill">Inspection</a></li>
+          <li role="presentation"><a id="nav-help" href="#page-help" data-toggle="pill">Help</a></li>
         </ul>
       </div>
-      <div class="judge-tools tab-content">
+      <div class="judge-pages tab-content">
 <?php if( referee()): ?>
-        <div role="tabpanel" class="tab-pane fade in active" id="tool-deductions">
+        <div role="tabpanel" class="tab-pane fade in active" id="page-deductions">
 <?php include( 'judge/deductions.php' ); ?>
         </div>
 <?php endif; ?>
-        <div role="tabpanel" class="tab-pane fade <?php if( ! referee()): ?>in active<?php endif; ?>" id="tool-scoring">
+        <div role="tabpanel" class="tab-pane fade <?php if( ! referee()): ?>in active<?php endif; ?>" id="page-scoring">
 <?php include( 'judge/scoring.php' ); ?>
         </div>
-        <div role="tabpanel" class="tab-pane fade" id="tool-inspection">
+        <div role="tabpanel" class="tab-pane fade" id="page-inspection">
 <?php include( 'judge/inspection.php' ); ?>
         </div>
-        <div role="tabpanel" class="tab-pane fade" id="tool-help">
-<div class="division-summary"></div>
+        <div role="tabpanel" class="tab-pane fade" id="page-help">
 <?php include( 'judge/help/inspection.php' ); ?>
 <?php include( 'judge/help/scoring.php' ); ?>
 <?php include( 'judge/help/deductions.php' ); ?>
@@ -87,7 +87,7 @@
       .on.connect( '<?= $url ?>' )
       .request({ type : 'ring', action : 'read' });
 
-    app.state.current = { divid : null, athlete : null };
+    app.state.current = { divid : null, athleteid : null };
     app.state.judge   = <?= $judge ?>;
     app.state.reset   = () => { 
         app.state.current.divid = null; 

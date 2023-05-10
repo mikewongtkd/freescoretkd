@@ -1,9 +1,13 @@
-<h1>Inspection and Board Count</h1>
-<div class="inspection-list-header">
-  <label class="athlete-name">Athlete</label>
-  <label class="board-count">Board count</label>
+<h3>Read the following instructions to the competitors prior to competition</h3>
+<div class="caution">You must stage the performance so that flying boards do not endanger officials, spectators, or other competitors.</div>
+<h3>Divisions and Athletes</h3>
+<div class="inspection-lists">
+  <div class="inspection-list-header">
+    <label class="athlete-name">Athlete</label>
+    <label class="board-count">Board count</label>
+  </div>
+  <ul class="list-group inspection-list"></ul>
 </div>
-<ul class="list-group inspection-list"></ul>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="board-number-pad">
   <div class="modal-dialog" role="document">

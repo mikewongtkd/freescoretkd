@@ -1,18 +1,44 @@
-#tool-inspection {
-	h1 { color: lime; }
-	.inspection-list-header {
-		height: 24px;
-		label {
-			font-size: 0.75em;
-			font-weight: normal;
-			color: cyan;
-		}
-		.athlete-name { margin-left: 15px; float: left; }
-		.board-count  { margin-right: 15px; float: right; }
+#page-inspection {
+	h3 {
+		color: lightblue;
 	}
-	.inspection-list a .badge {
-		font-size: 1em;
-		font-weight: normal;
+	.caution {
+		color: red;
+		margin-left: 30px;
+		margin-right: 30px;
+	}
+	.inspection-lists {
+		margin-bottom: 5em;
+
+		.inspection-list-header {
+			margin-top: 20px;
+			height: 80px;
+			.division-header {
+				height: 32px;
+				font-size: 1em;
+				font-weight: normal;
+				color: yellow;
+				margin-left: 15px;
+			}
+			.correct-board {
+				font-size: 0.75em;
+				font-weight: normal;
+				color: lime;
+				margin-left: 15px;
+			}
+			label {
+				font-size: 0.75em;
+				font-weight: normal;
+				color: cyan;
+
+				&.athlete-name { margin-left: 15px; float: left; }
+				&.board-count  { margin-right: 15px; float: right; }
+			}
+		}
+		.inspection-list a .badge {
+			font-size: 1em;
+			font-weight: normal;
+		}
 	}
 	#board-number-pad {
 		.modal-dialog { width: 300px; }

@@ -2,6 +2,7 @@
 include( "../../include/php/config.php" ); 
 include( "../../session.php" ); 
 $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
+$url  = $config->websocket( 'breaking', $ring, 'display' );
 ?>
 <html>
   <head>
@@ -87,7 +88,11 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
           case 187: screen.zoom(  0.05 ); break; // +/-
           case 189: screen.zoom( -0.05 ); break; // -/_
       }});
-      var tournament = <?= $tournament ?>;
+      var app = new FreeScore.App();
+      app
+        .on.connect( '<?= $url ?>' )
+        .request({ type : 'division', action : 'read' })
+
       var ring       = { num : <?= $ring ?> };
       var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/display` );
       var state      = { time : { elapsed : 0, start : null, stop : null, limit : 180, timer : null }};
