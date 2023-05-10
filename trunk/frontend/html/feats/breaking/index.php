@@ -73,7 +73,6 @@ $url  = $config->websocket( 'breaking', $ring, 'display' );
       </div>
     </div>
     <script src="../../include/page-transitions/js/pagetransitions.js"></script>
-    <script src="./include/js/display.js"></script>
     <script type="text/javascript">
       var screen    = { scale: 1.0, offsetX : 0, offsetY : 0 };
       screen.zoom = function( scale )  { screen.scale   += scale;  $( 'body' ).css({ 'transform' : `scale( ${screen.scale.toFixed( 2 )}) translateX( ${screen.offsetX}) translateY( ${screen.offsetY})` }); alertify.notify( `Zooming to ${screen.scale.toFixed( 2 )}` ); };
@@ -91,15 +90,12 @@ $url  = $config->websocket( 'breaking', $ring, 'display' );
       var app = new FreeScore.App();
       app
         .on.connect( '<?= $url ?>' )
-        .request({ type : 'division', action : 'read' })
+        .request({ type : 'division', action : 'read' });
 
-      var ring       = { num : <?= $ring ?> };
-      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/display` );
-      var state      = { time : { elapsed : 0, start : null, stop : null, limit : 180, timer : null }};
-      ws.onopen      = network.open;
-      ws.onmessage   = network.message;
+      app.state = { time : { elapsed : 0, start : null, stop : null, limit : 180, timer : null }};
 
     </script>
+    <script src="./include/js/display.js"></script>
   </body>
 </html>
 <!-- vim: set ts=2 sw=2 expandtab -->

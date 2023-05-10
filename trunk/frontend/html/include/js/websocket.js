@@ -56,6 +56,12 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.context.action = action;
 		return this;
 	}
+
+	pass() {
+		let handler = update => {};
+		this.add( this.context.type, this.context.action, handler );
+		return this;
+	}
 	
 	response( type ) {
 		if( !( type in this.table )) {
