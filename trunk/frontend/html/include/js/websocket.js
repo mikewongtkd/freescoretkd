@@ -1,13 +1,14 @@
 FreeScore.ResponseManager = class FSResponseManager {
-	constructor() {
-		this.context = {};
-		this.table   = {}; // Dispatch table
+	constructor( websocket ) {
+		this.context   = {};
+		this.table     = {}; // Dispatch table
+		this.websocket = websocket;
 
 		// ===== DEFAULT HANDLERS
 		this.add( 'server', 'ping', ping => {
 			let timestamp = (new Date).toISOString();
 			let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
-			network.send( pong );
+			this.websocket.network.send( pong );
 		});
 		this.add( 'users', 'update' );
 		this.add( 'autopilot' );
@@ -45,10 +46,6 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	dispatch( type, action, update ) {
-		if( update.type != 'server' && update.action != 'ping' ) {
-			console.log( update );
-		}
-
 		if( ! (type in this.table ))          { alertify.error( `No handler for ${type} response` ); console.log( update ); return; }
 		if( ! (action in this.table[ type ])) { alertify.error( `No handler for ${type} ${action} action` ); console.log( update ); return; }
 
@@ -71,12 +68,17 @@ FreeScore.ResponseManager = class FSResponseManager {
 };
 
 FreeScore.WebSocket = class FSWebSocket {
-	constructor( url, onopen ) {
-		this.ws = new WebSocket( url );
-		this.rm = new FreeScore.ResponseManager();
+	constructor() {
+		this.rm  = null;
+		this.url = null;
+		this.ws  = null;
+
+	}
+
+	connect( request ) {
 		this.network = {
 			open: () => {
-				network.send( onopen );
+				this.network.send( request );
 			},
 			message: response => { 
 				let update = JSON.parse( response.data );
@@ -95,6 +97,8 @@ FreeScore.WebSocket = class FSWebSocket {
 				this.ws.send( request.json );
 			}
 		};
+		this.rm = new FreeScore.ResponseManager( this );
+		this.ws = new WebSocket( this.url );
 		this.ws.onopen    = this.network.open;
 		this.ws.onmessage = this.network.message;
 		this.on           = {
@@ -104,7 +108,15 @@ FreeScore.WebSocket = class FSWebSocket {
 		};
 	}
 
+	handle( update ) {
+		this.rm.dispatch( update.type, update.action, update );
+	}
+
 	send( message ) {
 		this.network.send( message );
+	}
+
+	set( url ) {
+		this.url = url;
 	}
 }

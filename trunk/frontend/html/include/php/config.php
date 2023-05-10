@@ -127,7 +127,7 @@
 			return $url;
 		}
 
-		public function websocket( $service ) {
+		public function websocket( $service, $role ) {
 			$config = $this->data;
 			$ws     = 'ws://'; # Default
 			$port   = '';
@@ -143,8 +143,10 @@
 				
 			}
 			$host = $config[ 'host' ];
+			$db   = $config[ 'tournament' ][ 'db' ];
+			$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
 
-			$url = "{$ws}{$host}{$port}{$path}";
+			$url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
 			return $url;
 		}
 

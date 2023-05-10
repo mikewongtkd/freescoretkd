@@ -339,7 +339,7 @@ sub handle_ring_read {
 	my $clone = unbless( clone( $progress ));
 
 	try {
-		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, ring => $clone }});
+		$client->send({ json => { request => $request, type => $request->{ type }, action => 'update', ring => $clone }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});

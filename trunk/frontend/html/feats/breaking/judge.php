@@ -4,6 +4,8 @@
   if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: register.php' ); exit(); }
   include( "../../include/php/config.php" ); 
   include( "../../session.php" ); 
+
+  $url = $config->websocket( 'breaking', "judge{$judge}" );
   
   function referee() {
     global $judge;
@@ -30,6 +32,7 @@
     <script src="../../include/js/freescore.js"></script>
     <script src="../../include/js/websocket.js"></script>
     <script src="../../include/js/sound.js"></script>
+    <script src="../../include/js/app.js"></script>
   </head>
   <body>
     <div class="judge-scoring-interface">
@@ -78,21 +81,25 @@
     // Judge Tool: Deductions
     // ============================================================
 
-    var sound      = new FreeScore.Sound( '../../sounds' );
-    var tournament = <?= $tournament ?>;
-    var ring       = <?= $ring ?>;
-    var state = {
-      "current" : {
-        "divid" : null,
-        "athlete" : null
-      },
-      "judge" : <?= $judge ?>,
-      "reset" : () => { state.current.divid = null; state.current.athleteid = null; state.score = { "technical" : { "difficulty" : 0.0, "deductions" : { "major" : 0.0, "minor" : 0.0 }}, "procedural" : { "deductions" : 0.0 }, "presentation" : { "technique" : 0.0, "rhythm" : 0.0, "style" : 0.0, "creativity" : 0.0 }}}
+    var app = new FreeScore.App();
+
+    app
+      .on.connect( '<?= $url ?>' )
+      .request({ type : 'ring', action : 'read' });
+
+    app.state.current = { divid : null, athlete : null };
+    app.state.judge   = <?= $judge ?>;
+    app.state.reset   = () => { 
+        app.state.current.divid = null; 
+        app.state.current.athleteid = null; 
+        app.state.score = { 
+          technical : { difficulty : 0.0, deductions : { major : 0.0, minor : 0.0 }}, 
+          procedural : { deductions : 0.0 }, 
+          presentation : { technique : 0.0, rhythm : 0.0, style : 0.0, creativity : 0.0 }
+        };
     };
 
-    state.reset();
-
-	var network = new FreeScore.WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring}/judge<?= $judge ?>`, { type : 'division', action : 'read' } );
+    app.state.reset();
    
   </script>
   <script src="include/js/judge.js"></script>
