@@ -5,6 +5,7 @@ include( "../include/php/breaking.php" );
 $ring   = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
 $divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : (isset( $_COOKIE[ 'divid' ]) ? $_COOKIE[ 'divid' ] : null);
 $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
+$url    = $config->websocket( 'breaking', $ring, 'report' );
 ?>
 <html>
   <head>
@@ -88,6 +89,13 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
               $( '.container' ).append( results );
             });
 <?php endif; ?>
+          },
+          update : update => {
+            let request = update.request;
+            let type    = request.type;
+            let action  = request.action;
+
+            handle[ type ][ action ]( update );
           }
         },
         server : {
@@ -124,9 +132,7 @@ $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
         }
       };
 
-      var tournament = <?= $tournament ?>;
-      var ring       = { num : <?= $ring ?> };
-      var ws         = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/report` );
+	  var ws         = new WebSocket( '<?= $url ?>' );
       ws.onopen      = network.open;
       ws.onmessage   = network.message;
 

@@ -12,6 +12,7 @@
 	} else {
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
+	$url = $config->websocket( 'breaking', $i, 'computer+operator' );
 ?>
 <html>
 	<head>
@@ -127,14 +128,11 @@
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
-			var host       = '<?= $host ?>';
-			var tournament = <?= $tournament ?>;
-			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			var state      = { autopilot : { timer : null }, time : { start : null, elapsed : 0, stop : null, limit : 180, timer : null, warning : false }};
 			
-			var ws     = new WebSocket( `<?= $config->websocket( 'breaking' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
+			var ws     = new WebSocket( '<?= $url ?>' );
 
 			var handle = {
 				autopilot : {
