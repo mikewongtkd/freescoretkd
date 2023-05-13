@@ -15,6 +15,9 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
     <script src="../../../include/jquery/js/jquery.js"></script>
     <script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
     <script src="../../../include/js/freescore.js"></script>
+    <script src="../../../include/js/websocket.js"></script>
+    <script src="../../../include/js/sound.js"></script>
+    <script src="../../../include/js/app.js"></script>
     <script src="../include/js/score.js"></script>
     <script src="../include/js/athlete.js"></script>
     <script src="../include/js/division.js"></script>
@@ -38,20 +41,48 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
       </div>
     </div>
     <script>
-      var handle  = {
-        ring : {
-          read : update => {
+      var app = new FreeScore.App();
+      app
+        .on.connect( '<?= $url ?>' )
+        .request({ type : 'ring', action : 'read' });
+
+      app.network.on
+        .response( 'ring' )
+        .handle( 'read' ).by( update => {
 <?php if( isset( $divid )): ?>
-            let found = update.ring.divisions.find( division => division.name == '<?= $divid ?>' );
-            if( ! found ) { return; }
+          let found = update.ring.divisions.find( division => division.name == '<?= $divid ?>' );
+          if( ! found ) { return; }
 
+          let display = {
+            division : { description : $( '.division-description' ) },
+            placement : { table : $( '.placements tbody' ) }
+          };
+
+          display.placement.table.empty();
+          let division = new Division( found );
+          let athletes = division.athletes();
+          display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
+          division.placements().forEach( placement => {
+            placement.athletes.forEach( aid => {
+              let athlete = athletes[ aid ];
+              let tb1     = placement.show.includes( 'tb1' ) ? athlete.tb1() : '';
+              let tb2     = placement.show.includes( 'tb2' ) ? athlete.tb2() : '';
+              let row     = $( `<tr><td>${placement.place}<td>${athlete.info( 'usatid' )}</td><td>${ athlete.name() }</td><td>${ athlete.score() }</td><td>${tb1}</td><td>${tb2}</td></tr>` );
+              display.placement.table.append( row );
+            });
+          });
+<?php else: ?>
+          let template = $( '.results' );
+          template.detach();
+
+          $( '.container' ).empty();
+          update.ring.divisions.forEach( division => {
+            let results = template.clone();
             let display = {
-              division : { description : $( '.division-description' ) },
-              placement : { table : $( '.placements tbody' ) }
+              division : { description : results.find( '.division-description' ) },
+              placement : { table : results.find( '.placements tbody' ) }
             };
-
-            display.placement.table.empty();
-            let division = new Division( found );
+            division = new Division( division );
             let athletes = division.athletes();
             display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
             division.placements().forEach( placement => {
@@ -59,82 +90,20 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
                 let athlete = athletes[ aid ];
                 let tb1     = placement.show.includes( 'tb1' ) ? athlete.tb1() : '';
                 let tb2     = placement.show.includes( 'tb2' ) ? athlete.tb2() : '';
-                let row     = $( `<tr><td>${placement.place}<td>${athlete.info( 'usatid' )}</td><td>${ athlete.name() }</td><td>${ athlete.score() }</td><td>${tb1}</td><td>${tb2}</td></tr>` );
+                let row     = $( `<tr><td>${placement.place}<td>${ athlete.info( 'usatid' ) }</td><td>${ athlete.name() }</td><td>${ athlete.score() }</td><td>${tb1}</td><td>${tb2}</td></tr>` );
                 display.placement.table.append( row );
               });
             });
-<?php else: ?>
-            let template = $( '.results' );
-            template.detach();
-
-            $( '.container' ).empty();
-            update.ring.divisions.forEach( division => {
-              let results = template.clone();
-              let display = {
-                division : { description : results.find( '.division-description' ) },
-                placement : { table : results.find( '.placements tbody' ) }
-              };
-              division = new Division( division );
-              let athletes = division.athletes();
-              display.division.description.html( `<b>${division.name().toUpperCase()}</b> &mdash; ${division.description()}` );
-              division.placements().forEach( placement => {
-                placement.athletes.forEach( aid => {
-                  let athlete = athletes[ aid ];
-                  let tb1     = placement.show.includes( 'tb1' ) ? athlete.tb1() : '';
-                  let tb2     = placement.show.includes( 'tb2' ) ? athlete.tb2() : '';
-                  let row     = $( `<tr><td>${placement.place}<td>${ athlete.info( 'usatid' ) }</td><td>${ athlete.name() }</td><td>${ athlete.score() }</td><td>${tb1}</td><td>${tb2}</td></tr>` );
-                  display.placement.table.append( row );
-                });
-              });
-              $( '.container' ).append( results );
-            });
+            $( '.container' ).append( results );
+          });
 <?php endif; ?>
-          },
-          update : update => {
-            let request = update.request;
-            let type    = request.type;
-            let action  = request.action;
-
-            handle[ type ][ action ]( update );
-          }
-        },
-        server : {
-          ping : update => {
-            network.send({ type : 'server', action : 'stop ping' });
-          }
-        },
-        users : {
-          update : update => {}
-        }
-      }
-      var network = {
-        open: () => {
-          network.send({ type : 'ring', ring : <?= $ring ?>, action : 'read' });
-        },
-        message: ( response ) => { 
-          let update = JSON.parse( response.data );
-          if( update.type != 'server' && update.action != 'ping' ) {
-            console.log( update );
-          }
-
-          let type = update.type;
-          if( ! (type in handle))           { return; }
-
-          let action = update.action;
-          if( ! (action in handle[ type ])) { return; }
-
-          handle[ type ][ action ]( update );
-        },
-        send: data => {
-          let request = { data };
-          request.json = JSON.stringify( request.data ); 
-          ws.send( request.json );
-        }
-      };
-
-	  var ws         = new WebSocket( '<?= $url ?>' );
-      ws.onopen      = network.open;
-      ws.onmessage   = network.message;
+        })
+        .response( 'server' )
+        .handle( 'ping' ).by( update => {
+          network.send({ type : 'server', action : 'stop ping' });
+        })
+        .response( 'users' )
+        .handle( 'update' ).pass();
 
     </script>
   </body>

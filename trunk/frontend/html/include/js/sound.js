@@ -3,6 +3,10 @@ FreeScore.Sound = class FSSound {
 		let paths = [ '../..', '../../..', '../../../..', '..' ];
 		let library = { ok : 'upload', error : 'quack', next : 'next', prev : 'prev' };
 		let formats = [ 'mp3', 'ogg' ];
+		if( typeof Howl != 'function' ) {
+			console.log( 'Please include Howl library in a <script> tag before using.' );
+			return;
+		}
 		Object.keys( library ).forEach( sound => {
 			let urls = [];
 			let file = library[ sound ];
