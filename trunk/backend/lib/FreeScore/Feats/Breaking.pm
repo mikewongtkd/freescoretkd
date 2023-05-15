@@ -15,7 +15,7 @@ sub init {
 
 	if( defined $ring ) { 
 		$self->{ path } = $ring eq 'staging' ? sprintf( "%s/%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
-		my $divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
+		my $divisions = $self->load_ring(); # reads $self->{ divisions } from ring progress file
 
 		# ===== SUBSTITUTE DIVISION NAMES WITH INFORMATION FROM DIVISION FILES
 		$self->{ divisions } = [];
@@ -34,13 +34,16 @@ sub init {
 		}
 
 		# ===== LOAD EACH RING
+		my $current = {};
 		foreach my $ring (@$rings) {
 			$self->{ path } = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
-			my $ring_divisions = $self->load_ring( $ring );
+			my $ring_divisions = $self->load_ring();
+			$current->{ $ring } = $self->{ current };
 			foreach my $id (@$ring_divisions) {
 				push @{ $self->{ divisions }}, new FreeScore::Feats::Breaking::Division( $self->{ path }, $id, $ring );
 			}
 		}
+		$self->{ current } = $current;
 
 		# ===== RESTORE THE CURRENT PATH
 		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 

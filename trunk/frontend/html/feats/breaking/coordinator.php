@@ -35,6 +35,9 @@
 		<script src="../../include/bootstrap/add-ons/brackets.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/websocket.js"></script>
+		<script src="../../include/js/sound.js"></script>
+		<script src="../../include/js/app.js"></script>
 		<script src="include/js/score.js"></script>
 		<script src="include/js/athlete.js"></script>
 		<script src="include/js/division.js"></script>
@@ -130,150 +133,114 @@
 
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var state      = { autopilot : { timer : null }, time : { start : null, elapsed : 0, stop : null, limit : 180, timer : null, warning : false }};
-			
-			var ws     = new WebSocket( '<?= $url ?>' );
+			var app        = new FreeScore.App();
 
-			var handle = {
-				autopilot : {
-					leaderboard : update => {
-						let request = update.request;
-						let delay   = (request.delay + 1) * 1000;
-						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
-						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-
-					},
-					next : update => {
-						let request = update.request;
-						let delay   = (request.delay + 1) * 1000;
-						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
-						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-            handle.division.score( update );
-					},
-					scoreboard : update => {
-						let request  = update.request;
-						let delay    = (request.delay + 1) * 1000;
-						let division = new Division( update.division );
-						refresh.athletes( division, true );
-						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
-						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-					},
-					update : update => {
-						let request = update.request;
-						if( ! request || ! request.action ) { return; }
-						handle.autopilot[ request.action ]( update );
-					}
-				},
-				ring: {
-					read : update => {
-						let ring = update.ring;
-						refresh.ring( ring );
-						let divid = $.cookie( 'breaking-divid' );
-						if( defined( divid )) {
-							let division = ring.divisions.find( d => d.name == divid );
-							let current  = ring.divisions.find( d => d.name == ring.current );
-
-							if( ! defined( division )) { return; }
-							division = new Division( division );
-							let isCurDiv = division.name() == current.name;
-							refresh.athletes( division, isCurDiv );
-
-							if( page.num == 1 ) { page.transition() };
-						}
-					},
-					update: update => { handle.ring.read( update ); },
-				},
-				server : {
-					ping : ping => {
-						let timestamp = (new Date).toISOString();
-						let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
-						network.send( pong );
-						$( '.ping-display .fas' ).removeClass( 'fa-heart' ).addClass( 'fa-heartbeat' );
-						setTimeout( () => { $( '.ping-display .fas' ).removeClass( 'fa-heartbeat' ).addClass( 'fa-heart' ); }, 500 );
-					}
-				},
-				users : {
-					update : update => {
-						let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default' }; 
-						let any = 'btn-success btn-warning btn-danger btn-default';
-						update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
-							let role = user.role;
-							role = role.replace( /udge/, '' );
-							let health = user.health;
-							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
-						});
-						let display = update.users.find( user => user.role.match( /^display/i ));
-						if( ! display ) { alertify.notify( 'No display currently being shown. Please show display' ); }
-						else if( display.health == 'strong' || display.health == 'good' ) { alertify.success( `Display connection is ${display.health}` ); }
-						else if( display.health == 'weak' )                               { alertify.warning( `Display connection is ${display.health}` ); }
-						else if( display.health == 'bad' || display.health == 'dead' )    { alertify.danger( `Display connection is ${display.health}` ); }
-					}
-				},
-				division : {
-					decision: update => {
-						let division = new Division( update.division );
-						refresh.athletes( division, true );
-					},
-					leaderboard: update => {
-						let division = new Division( update.division );
-						refresh.navadmin( division );
-					},
-					score: update => {
-						let division = new Division( update.division );
-						refresh.athletes( division, true );
-					},
-					scoreboard: update => {
-						let division = new Division( update.division );
-						refresh.navadmin( division );
-					},
-					'time reset' : update => {},
-					'time start' : update => {},
-					'time stop'  : update => {},
-					update: update => {
-						let request = update.request;
-						if( ! request || ! request.action ) { return; }
-						handle.division[ request.action ]( update );
-					}
-				}
+			app.state.reset = () => {
+				app.state.autopilot = { timer : null };
+				app.state.time = { start : null, elapsed : 0, stop : null, limit : 180, timer : null, warning : false };
 			};
+			app.state.reset();
 
-			var network = {
-				open: () => {
-					network.send({ type : 'ring', action : 'read' });
-				},
-				message: ( response ) => { 
-					let update = JSON.parse( response.data );
-					if( update.type != 'server' && update.action != 'ping' ) {
-						console.log( update );
+			app.on.connect( '<?= $url ?>' ).read.ring();
+
+			app.network.on
+				.response( 'autopilot' )
+				.handle( 'leaderboard' )
+				.by( update => {
+					let request = update.request;
+					let delay   = (request.delay + 1) * 1000;
+					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
+					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+
+				})
+				.handle( 'next' )
+				.by( update => {
+					let request = update.request;
+					let delay   = (request.delay + 1) * 1000;
+					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
+					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					app.dispatch( 'division', 'score', update );
+				})
+				.handle( 'scoreboard' )
+				.by( update => {
+					let request  = update.request;
+					let delay    = (request.delay + 1) * 1000;
+					let division = new Division( update.division );
+					app.refresh.athletes( division, true );
+					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
+					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+				})
+				.response( 'ring' )
+				.handle( 'read' )
+				.by( update => {
+					let ring = update.ring;
+					app.refresh.ring( ring );
+					let divid = $.cookie( 'breaking-divid' );
+					if( defined( divid )) {
+						let division = ring.divisions.find( d => d.name == divid );
+						let current  = ring.divisions.find( d => d.name == ring.current );
+
+						if( ! defined( division )) { return; }
+						division = new Division( division );
+						let isCurDiv = division.name() == current.name;
+						app.refresh.athletes( division, isCurDiv );
+
+						if( page.num == 1 ) { page.transition() };
 					}
-
-					let type = update.type;
-					if( ! (type in handle))           { alertify.error( `No handler for ${type} object` );   console.log( update ); return; }
-
-					let action = update.action;
-					if( ! (action in handle[ type ])) { alertify.error( `No handler for ${action} action` ); console.log( update ); return; }
-
-					handle[ type ][ action ]( update );
-				},
-				send: data => {
-					let request = { data };
-					request.json = JSON.stringify( request.data ); 
-					ws.send( request.json );
-				}
-			};
-			ws.onopen    = network.open;
-			ws.onmessage = network.message;
-
-			var sound = {
-				ok      : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg"  ]}),
-				warning : new Howl({ urls: [ "../../sounds/warning.mp3",  "../../sounds/warning.ogg" ]}),
-				error   : new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"   ]}),
-				next    : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"    ]}),
-				prev    : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"    ]}),
-			};
+				})
+				.response( 'server' )
+				.handle( 'ping' )
+				.by( ping => {
+					let timestamp = (new Date).toISOString();
+					let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
+					app.network.send( pong );
+					$( '.ping-display .fas' ).removeClass( 'fa-heart' ).addClass( 'fa-heartbeat' );
+					setTimeout( () => { $( '.ping-display .fas' ).removeClass( 'fa-heartbeat' ).addClass( 'fa-heart' ); }, 500 );
+				})
+				.response( 'users' )
+				.handle( 'update' )
+				.by( update => {
+					let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default' }; 
+					let any = 'btn-success btn-warning btn-danger btn-default';
+					update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
+						let role = user.role;
+						role = role.replace( /udge/, '' );
+						let health = user.health;
+						$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
+					});
+					let display = update.users.find( user => user.role.match( /^display/i ));
+					if( ! display ) { alertify.notify( 'No display currently being shown. Please show display' ); }
+					else if( display.health == 'strong' || display.health == 'good' ) { alertify.success( `Display connection is ${display.health}` ); }
+					else if( display.health == 'weak' )                               { alertify.warning( `Display connection is ${display.health}` ); }
+					else if( display.health == 'bad' || display.health == 'dead' )    { alertify.danger( `Display connection is ${display.health}` ); }
+				})
+				.response( 'division' )
+				.handle( 'decision' )
+				.by( update => {
+					let division = new Division( update.division );
+					app.refresh.athletes( division, true );
+				})
+				.handle( 'leaderboard' )
+				.by( update => {
+					let division = new Division( update.division );
+					app.refresh.navadmin( division );
+				})
+				.handle( 'score' )
+				.by( update => {
+					let division = new Division( update.division );
+					app.refresh.athletes( division, true );
+				})
+				.handle( 'scoreboard' )
+				.by( update => {
+					let division = new Division( update.division );
+					app.refresh.navadmin( division );
+				})
+				.handle( 'time reset' ).pass()
+				.handle( 'time start' ).pass()
+				.handle( 'time stop'  ).pass();
 
 			var page = {
 				num : 1,
@@ -281,7 +248,7 @@
 				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
 			};
 
-			var refresh = { 
+			app.refresh = { 
 				// ------------------------------------------------------------
 				actions : division => {
 				// ------------------------------------------------------------
@@ -290,10 +257,10 @@
 
 					var action = {
 						decision : {
-							withdraw   : () => { sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'WDR'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							disqualify : () => { sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to disqualify <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'DSQ' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							clear      : () => { sound.next.play(); alertify.confirm( "Clear Decisions for " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to clear WDR and DSQ decisions for <b class="text-danger">' + athlete.name() + '</b> or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'clear' ); alertify.success( athlete.name() + ' has been cleared of punitive decisions' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
-							send       : ( reason ) => { network.send({ type : 'division', action : 'decision', decision: reason }); }
+							withdraw   : () => { app.sound.next.play(); alertify.confirm( "Withdraw "   + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to withdraw <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'WDR'   ); alertify.error( athlete.name() + ' has withdrawn' );         }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							disqualify : () => { app.sound.next.play(); alertify.confirm( "Disqualify " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to disqualify <b class="text-danger">' + athlete.name() + '</b> from competition or <b class="text-warning">Cancel</b> to do nothing.', function() { sound.ok.play(); action.decision.send( 'DSQ' ); alertify.error( athlete.name() + ' has been disqualified' ); }, function() { sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							clear      : () => { app.sound.next.play(); alertify.confirm( "Clear Decisions for " + athlete.name() + "?", 'Click <b class="text-danger">OK</b> to clear WDR and DSQ decisions for <b class="text-danger">' + athlete.name() + '</b> or <b class="text-warning">Cancel</b> to do nothing.', function() { app.sound.ok.play(); action.decision.send( 'clear' ); alertify.success( athlete.name() + ' has been cleared of punitive decisions' ); }, function() { app.sound.prev.play(); }); $( '.ajs-header' ).addClass( 'decision-punitive-header' ); },
+							send       : ( reason ) => { app.network.send({ type : 'division', action : 'decision', decision: reason }); }
 						},
 					};
 
@@ -309,7 +276,7 @@
 					$( 'body' ).off( 'keypress' );
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
-						sound.prev.play();
+						app.sound.prev.play();
 						$.removeCookie( 'breaking-divid' );
 						page.transition(); 
 					});
@@ -327,13 +294,13 @@
 						if( i == j && isCurrentDivision ) { 
 							button.addClass( "active" ); 
 							button.off( 'click' ).click(( ev ) => { 
-								sound.prev.play(); 
+								app.sound.prev.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								$( "#navigate-athlete" ).attr({ 'athlete-id' :i });
 								$( ".navigate-athlete" ).hide(); 
 								$( ".decision" ).show(); 
 							});
-							refresh.judges( division );
+							app.refresh.judges( division );
 
 						// ===== ATHLETE IN CURRENT DIVISION
 						} else if( isCurrentDivision ) {
@@ -341,7 +308,7 @@
 							button.off( 'click' ).click(( ev ) => { 
 								let clicked = $( ev.target );
 								if( ! clicked.is( 'a' )) { clicked = clicked.parents( 'a' ); }
-								sound.next.play(); 
+								app.sound.next.play(); 
 								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
 								clicked.addClass( 'selected-athlete' ); 
 								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.name()); 
@@ -354,7 +321,7 @@
 						} else {
 							button.off( 'click' );
 						}
-						refresh.navadmin( division );
+						app.refresh.navadmin( division );
 						button.append( name, boards, total );
 						$( '#athletes' ).append( button );
 					});
@@ -363,53 +330,53 @@
 					if( isCurrentDivision ) { $( '.navigate-division' ).hide(); $( '.administration' ).show(); $( '.decision' ).show(); $( '.scoring' ).show(); } 
 					else                    { $( '.navigate-division' ).show(); $( '.administration' ).hide(); $( '.decision' ).hide(); $( '.scoring' ).hide(); }
 
-					refresh.actions( division );
+					app.refresh.actions( division );
 					$( '.navigate-athlete' ).hide();
 
 					// ===== TIMER BEHAVIOR
 					let time = {
 						reset : ev => {
-							sound.prev.play();
+							app.sound.prev.play();
 							$( '#time-start' ).show().off( 'click' ).click( ev => { time.start( ev );});
 							$( '#time-stop' ).hide();
 							$( '#time-reset' ).addClass( 'disabled' );
 							$( '#time' ).removeClass( 'overtime' ).html( '0:00' );
-							state.time.warning = false;
-							state.time.elapsed = 0;
-							if( state.time.start ) { 
-								state.time.start = null;
-								state.time.stop  = null;
-								network.send({ type : 'division', action : 'time reset'});
+							app.state.time.warning = false;
+							app.state.time.elapsed = 0;
+							if( app.state.time.start ) { 
+								app.state.time.start = null;
+								app.state.time.stop  = null;
+								app.network.send({ type : 'division', action : 'time reset'});
 							}
 						},
 						start : ev => {
-							sound.next.play();
-							state.time.timer = setInterval( time.tick, 500 );
-							state.time.start = Date.now();
+							app.sound.next.play();
+							app.state.time.timer = setInterval( time.tick, 500 );
+							app.state.time.start = Date.now();
 							$( '#time-start' ).hide();
 							$( '#time-stop' ).show().off( 'click' ).click( ev => { time.stop( ev ); });
-							network.send({ type : 'division', action : 'time start' });
+							app.network.send({ type : 'division', action : 'time start' });
 						},
 						stop : ev => {
-							sound.prev.play();
-							clearInterval( state.time.timer );
+							app.sound.prev.play();
+							clearInterval( app.state.time.timer );
 							$( '#time-reset' ).removeClass( 'disabled' ).off( 'click' ).click( ev => { time.reset( ev ); });
 							$( '#time-stop' ).hide();
 							$( '#time-start' ).show().off( 'click' ).click( ev => { time.start( ev ); });
-							network.send({ type : 'division', action : 'time stop' });
-							state.time.stop    = Date.now();
-							state.time.elapsed = Math.floor(( state.time.stop - state.time.start) / 1000 ) + state.time.elapsed;
-							if( state.time.warning ) {
-								let over  = state.time.elapsed - state.time.limit;
+							app.network.send({ type : 'division', action : 'time stop' });
+							app.state.time.stop    = Date.now();
+							app.state.time.elapsed = Math.floor(( app.state.time.stop - app.state.time.start) / 1000 ) + app.state.time.elapsed;
+							if( app.state.time.warning ) {
+								let over  = app.state.time.elapsed - app.state.time.limit;
 								let count = Math.ceil( over / 10 );
 								alertify.error( `${count} procedural penalties must be applied because the performance is ${over} seconds over time.`, 60 );
 							}
 						},
 						tick : () => {
-							let seconds = Math.round(( Date.now() - (state.time.start ))/1000) + state.time.elapsed;
+							let seconds = Math.round(( Date.now() - (app.state.time.start ))/1000) + app.state.time.elapsed;
 							let minutes = Math.floor( seconds / 60 );
-							if( seconds > state.time.limit && ! state.time.warning ) { 
-								state.time.warning = true;
+							if( seconds > app.state.time.limit && ! app.state.time.warning ) { 
+								app.state.time.warning = true;
 								alertify.error( 'When the performance is complete, let the referee know that an overtime penalty must be applied', 60 );
 								$( '#time' ).addClass( 'overtime' ); 
 							}
@@ -464,13 +431,13 @@
 
 						button.clear.off( 'click' ).click( ev => {
 							let judge = i == 0 ? 'Referee' : `Judge ${i}`;
-							sound.next.play();
+							app.sound.next.play();
 							alertify.confirm( 
 								`Clear score from ${judge}?`, 
 								`Click <b>OK</b> to clear the score from ${judge} for ${athlete.name()}, <b>Cancel</b> to leave the score as it is.`,
 								ev => {
-									network.send({ type : 'division', action : 'score', judge : i, score : 'clear' });
-									sound.ok.play();
+									app.network.send({ type : 'division', action : 'score', judge : i, score : 'clear' });
+									app.sound.ok.play();
 									alertify.success( `Score from ${judge} cleared` );
 								},
 								ev => {}
@@ -512,16 +479,16 @@
 					let divid   = division.name();
 					let action = {
 						navigate : {
-							athlete   : () => { sound.ok.play(); let i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  id : i     } ); },
-							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', id : divid } ); },
-							to        : ( target ) => { network.send({ type : 'division', action : 'navigate', target: target }); }
+							athlete   : () => { app.sound.ok.play(); let i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  id : i     } ); },
+							division  : () => { app.sound.ok.play(); action.navigate.to( { destination: 'division', id : divid } ); },
+							to        : ( target ) => { app.network.send({ type : 'division', action : 'navigate', target: target }); }
 						},
 						administration : {
 							refresh    : () => { page.display.location.reload(); window.location.reload(); },
-							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
-							view       : () => { sound.next.play(); network.send({ type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }); },
-							edit       : () => { sound.next.play(); page.editor  = window.open( `division/editor.php?ring=${ringid}&divid=${divid}`, '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( `report/results.php?ring=${ringid}&divid=${divid}`, '_blank' )},
+							display    : () => { app.sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
+							view       : () => { app.sound.next.play(); app.network.send({ type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }); },
+							edit       : () => { app.sound.next.play(); page.editor  = window.open( `division/editor.php?ring=${ringid}&divid=${divid}`, '_blank' )},
+							print      : () => { app.sound.next.play(); page.print   = window.open( `report/results.php?ring=${ringid}&divid=${divid}`, '_blank' )},
 						}
 					};
 
@@ -553,8 +520,8 @@
 
 							$.cookie( 'breaking-divid', divid, { expires: 1, path: '/' });
 							division = new Division( division );
-							refresh.athletes( division, division.name() == ring.current );
-							sound.next.play();
+							app.refresh.athletes( division, division.name() == ring.current );
+							app.sound.next.play();
 							page.transition();
 						});
 						if( d.name == ring.current ) { button.addClass( "active" ); }

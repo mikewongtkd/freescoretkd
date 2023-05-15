@@ -11,6 +11,8 @@
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
 	include( '../../session.php' );
+
+	$url = $config->websocket( 'worldclass', 'computer+operator' );
 ?>
 <html>
 	<head>
@@ -49,18 +51,6 @@
 								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
 								<li><a data-toggle="tab" href="#staging">Staging Divisions</a></li>
 							</ul>
-						</div>
-						<div class="pull-right judges">
-							<label for="judges">Judges</label>
-							<div class="btn-group" data-toggle="buttons">
-								<button class="btn btn-xs btn-default judge0">R</button>
-								<button class="btn btn-xs btn-default judge1">1</button>
-								<button class="btn btn-xs btn-default judge2">2</button>
-								<button class="btn btn-xs btn-default judge3">3</button>
-								<button class="btn btn-xs btn-default judge4">4</button>
-								<button class="btn btn-xs btn-default judge5">5</button>
-								<button class="btn btn-xs btn-default judge6">6</button>
-							</div>
 						</div>
 					</div>
 					<div class="tab-content">
@@ -135,13 +125,13 @@
 								<table>
 									<tr>
 										<td>&nbsp;</td>
-										<th id="j0-col">R</th>
-										<th id="j1-col">1</th>
-										<th id="j2-col">2</th>
-										<th id="j3-col">3</th>
-										<th id="j4-col">4</th>
-										<th id="j5-col">5</th>
-										<th id="j6-col">6</th>
+										<th id="j0-col"><button class="btn btn-xs btn-default">R</button></th>
+										<th id="j1-col"><button class="btn btn-xs btn-default">1</button></th>
+										<th id="j2-col"><button class="btn btn-xs btn-default">2</button></th>
+										<th id="j3-col"><button class="btn btn-xs btn-default">3</button></th>
+										<th id="j4-col"><button class="btn btn-xs btn-default">4</button></th>
+										<th id="j5-col"><button class="btn btn-xs btn-default">5</button></th>
+										<th id="j6-col"><button class="btn btn-xs btn-default">6</button></th>
 										<th>Score</th>
 										<th>Range</th>
 									</tr>
@@ -256,7 +246,7 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
+			var ws         = new WebSocket( '<?= $url ?>' );
 			var network    = { reconnect: 0 }
 			var polling    = {};
 
@@ -317,23 +307,17 @@
 					}
 				},
 				division : { 
-					judges : update => { refresh.judges( update ); },
-					'judges goodbye' : update => { 
-						refresh.judges( update ); 
-
-						setTimeout(() => { network.send({ type : 'division', action : 'judge query' }); }, 500 );
-					},
 					update : update => {
 						let division = update.division;
 						if( ! defined( division )) { return; }
 
 						division   = new Division( division );
 						refresh.athletes( division, true );
+						refresh.judges( update );
 						if( page.num == 1 ) { page.transition() };
 
 						network.send({ type : 'division', action : 'judge query' });
-					},
-					'server pong' : update => { refresh.judge( update ); }
+					}
 				}
 			};
 
@@ -408,23 +392,6 @@
 					alertify.confirm( title, message, ok, cancel );
 				}
 			};
-
-			var judgeStatus = function( i, judge, state ) {
-				var message = undefined;
-				if( state.match( /not/i )) {
-					if( state.match( /registered/i )) {
-						message = alertify.error;
-					} else if( state.match( /needed/i )) {
-						message = alertify.message;
-					}
-				} else {
-					message = alertify.success;
-				}
-				return function() {
-					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
-					message( name + ' is ' + state );
-				}
-			}
 
 			var clearJudgeScore = function( i, judge, athlete ) {
 				return function() {
@@ -638,31 +605,22 @@
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
 					$( "#decision-clear" )      .off( 'click' ).click( action.decision.clear );
 				},
-				judge: function( update ) {
-					var i      = update.judge;
-					var name   = "judge" + i;
-					var button = $( ".judges button." + name );
-					if( update.action == 'server pong' ) {
-						var judge = { id: update.id };
-						button.removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge, 'Ready' ));
-					} else if( button.hasClass( 'btn-success' )) {
-						button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ).click( judgeStatus( i, {}, 'not registered' ));
-					} else if( button.hasClass( 'btn-primary' )) {
-						button.removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'disabled' ).off( 'click' );
-					}
-				},
 				judges : function( update ) {
 					for( var i = 0; i < 7; i++ ) {
 						var name = "judge" + i;
 
+						let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default' }; 
+						let any = 'btn-success btn-warning btn-danger btn-default';
+						update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
+							let role = user.role;
+							role = role.replace( /udge/, '' );
+							let health = user.health;
+							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
+						});
+
 						if( i < update.judges.length ) {
 							var judge = update.judges[ i ];
 							
-							// Judge registered and communicating
-							if( defined( judge.id )) { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-danger' ).addClass( 'btn-success' ).click( depart( i, judge, 'Ready' ) ); }
-							// Judge not registered or not communicating
-							else                     { $( ".judges button." + name ).removeClass( 'disabled btn-primary btn-warning btn-success' ).addClass( 'btn-danger' ).off( 'click' ).click( judgeStatus( i, judge, 'not registered' )); }
-
 							$( '#j' + i + '-col' ).show();
 							$( '#j' + i + '-acc' ).show();
 							$( '#j' + i + '-pre' ).show();

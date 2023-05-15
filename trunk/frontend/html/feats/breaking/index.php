@@ -88,9 +88,7 @@ $url  = $config->websocket( 'breaking', $ring, 'display' );
           case 189: screen.zoom( -0.05 ); break; // -/_
       }});
       var app = new FreeScore.App();
-      app
-        .on.connect( '<?= $url ?>' )
-        .request({ type : 'division', action : 'read' });
+      app.on.connect( '<?= $url ?>' ).read.division();
 
       app.state = { time : { elapsed : 0, start : null, stop : null, limit : 180, timer : null }};
 

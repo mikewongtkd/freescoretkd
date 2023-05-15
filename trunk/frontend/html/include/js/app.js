@@ -13,6 +13,18 @@ FreeScore.App = class FSApp {
 				return this;
 			}
 		};
+
+		this.read = {
+			division : () => {
+				this._network.connect({ type : 'division', action : 'read' });
+			},
+			ring : () => {
+				this._network.connect({ type : 'ring', action : 'read' });
+			},
+			tournament : () => {
+				this._network.connect({ type : 'tournament', action : 'read' });
+			},
+		};
 	}
 
 	get button()  { return this._button; }
@@ -23,11 +35,12 @@ FreeScore.App = class FSApp {
 	get sound()   { return this._sound; }
 	get state()   { return this._state; }
 
-	// Common case is to read the current division
-	connect( url ) {
-		this._network.set( url );
-		this._network.connect({ type : 'division', action : 'read' });
-	}
+	// App caches for general UI/UX usage
+	set button( value )  { this._button  = value; } // For button behavior
+	set display( value ) { this._display = value; } // To reference general display components
+	set input( value )   { this._input   = value; } // For input behavior
+	set refresh( value ) { this._refresh = value; } // Callbacks for app component behavior
+	set state( value )   { this._state   = value; } // For app state (e.g. DFA graphs and transitions)
 
 	request( request ) {
 		this._network.connect( request );

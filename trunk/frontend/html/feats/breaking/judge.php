@@ -83,9 +83,7 @@
 
     var app = new FreeScore.App();
 
-    app
-      .on.connect( '<?= $url ?>' )
-      .request({ type : 'ring', action : 'read' });
+    app.on.connect( '<?= $url ?>' ).read.ring();
 
     app.state.current = { divid : null, athleteid : null };
     app.state.judge   = <?= $judge ?>;

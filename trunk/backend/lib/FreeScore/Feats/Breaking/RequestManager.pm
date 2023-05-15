@@ -40,6 +40,9 @@ sub init {
 	$self->{ ring }        = {
 		read               => \&handle_ring_read,
 	};
+	$self->{ tournament }  = {
+		read               => \&handle_tournament_read,
+	};
 	$self->init_client_server();
 }
 
@@ -340,6 +343,52 @@ sub handle_ring_read {
 
 	try {
 		$client->send({ json => { request => $request, type => $request->{ type }, action => 'update', ring => $clone }});
+
+	} catch {
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_tournament_read {
+# ============================================================
+ 	my $self       = shift;
+	my $request    = shift;
+	my $progress   = shift;
+	my $group      = shift;
+	my $tournament = $self->{ _tournament };
+	my $client     = $self->{ _client };
+	my $json       = $self->{ _json };
+	my $user       = $client->description();
+
+	print STDERR "$user requests tournament data.\n" if $DEBUG;
+
+	$progress   = unbless( clone( new FreeScore::Feats::Breaking( $tournament )));
+	my $rings   = {};
+	my $staging = { num => 'staging', name => 'staging', divisions => [] };
+
+	foreach my $division (@{ $progress->{ divisions }}) {
+		if( $division->{ ring } eq 'staging' ) {
+			push @{$staging->{ divisions }}, $division;
+		} else {
+			my $rnum  = int( $division->{ ring });
+			my $rname = sprintf( "ring%02d", $rnum );
+			$rings->{ $rname } = { num => $rnum, name => $rname } unless( exists $rings->{ $rname });
+			push @{$rings->{ $rname }{ divisions }}, $division;
+		}
+	}
+	foreach my $rnum (keys %{ $progress->{ current }}) {
+		if( $rnum eq 'staging' ) {
+			$staging->{ current } = $progress->{ current }{ $rnum };
+		} else {
+			my $rname = sprintf( "ring%02d", $rnum );
+			$rings->{ $rname }{ current } = $progress->{ current }{ $rnum };
+		}
+	}
+	$rings = [ (sort { $a->{ num } <=> $b->{ num } } values %$rings), $staging ];
+
+	try {
+		$client->send({ json => { request => $request, type => $request->{ type }, action => 'update', rings => $rings }});
 
 	} catch {
 		$client->send({ json => { error => "$_" }});

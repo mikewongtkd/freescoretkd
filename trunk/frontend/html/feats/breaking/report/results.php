@@ -42,9 +42,7 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
     </div>
     <script>
       var app = new FreeScore.App();
-      app
-        .on.connect( '<?= $url ?>' )
-        .request({ type : 'ring', action : 'read' });
+      app.on.connect( '<?= $url ?>' ).read.ring();
 
       app.network.on
         .response( 'ring' )
