@@ -17,6 +17,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.add( 'autopilot', 'leaderboard' );
 		this.add( 'division' );
 		this.add( 'ring' );
+		this.add( 'tournament' );
 	}
 
 	add( type, action = null, handler = null ) {

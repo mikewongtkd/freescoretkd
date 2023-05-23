@@ -14,6 +14,10 @@ FreeScore.App = class FSApp {
 			}
 		};
 
+		this.ping = {
+			off: () => { this._network.add( 'server', 'ping', (() => { this.send({ type : 'server', action : 'stop ping' }); }).bind( this._network )); }
+		};
+
 		this.read = {
 			division : () => {
 				this._network.connect({ type : 'division', action : 'read' });

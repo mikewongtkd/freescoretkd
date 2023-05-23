@@ -2,15 +2,17 @@
 	$clear_cookie = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
 	include( '../../session.php' );
 	include( '../../include/php/config.php' ); 
-	$i = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
-	if( ! isset( $i )) { $i = 1; }
+	$rnum = isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
+	if( ! isset( $rnum )) { $rnum = 1; }
 	$k = json_decode( $tournament )->rings->count;
-	if( $i == 'staging' || (ctype_digit( $i ) && (integer) $i >= 1 && (integer) $i <= $k)) { 
-		setcookie( 'ring', $i, 0, '/' ); 
+	if( $rnum == 'staging' || (ctype_digit( $rnum ) && (integer) $rnum >= 1 && (integer) $rnum <= $k)) { 
+		setcookie( 'ring', $rnum, 0, '/' ); 
 		$cookie_set = true;
 	} else {
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
+
+	$url = $config->websocket( 'worldclass', $ring, 'register' );
 ?>
 <html>
 	<head>
@@ -28,6 +30,9 @@
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/opt/js-cookie/js.cookie.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/websocket.js"></script>
+		<script src="../../include/js/sound.js"></script>
+		<script src="../../include/js/app.js"></script>
 		<script src="../../include/js/date.format.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -60,11 +65,9 @@ body { background-color: black; color: gold; }
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
 			var tournament = <?= $tournament ?>;
-			var ring       = { num: <?= $i ?> };
+			var ring       = { num: <?= $rnum ?> };
 			var judges     = {};
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/register` );
-			var network    = { reconnect: 0 }
 			var url        = $.url();
 			var first      = ( el ) => { return defined( el ); };
 			var reg        = {
@@ -73,50 +76,29 @@ body { background-color: black; color: gold; }
 				id   : [ url.param( 'id' ), Cookies.get( 'id' )].find( first ),
 				judge: parseInt( [ url.param( 'judge' ), Cookies.get( 'judge' )].find( first )),
 			};
+			var app        = new FreeScore.App();
+			app.on.connect( '<?= $url ?>' ).read.division();
 
 			$( '.register h1' ).html( `Register ${reg.role.split( ' ' ).map(( word ) => { return word.capitalize(); }).join( ' ' )} Device` );
 
 			[ 'ring', 'role', 'id', 'judge' ].forEach(( item ) => { Cookies.remove( item ); });
 
-			ws.onerror = network.error = function() {
-				setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
-			};
+			app.ping.off();
 
-			ws.onopen = network.connect = function() {
-				var request;
-				request      = { data : { type : 'division', action : 'judge query' }};
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
+			app.network.on
+				// ========================================
+				.response( 'division' )
+				// ========================================
+				.handle( 'read' )
+				.by( update => {
+					console.log( 'DIVISION READ' );
+					app.refresh.roles( update );
+					app.refresh.rings( tournament );
+					app.refresh.actions();
+				});
 
-				request      = { data : { type : 'division', action : 'read' }};
-				request.json = JSON.stringify( request.data );
-				ws.send( request.json );
-			};
-
-			ws.onmessage = network.message = function( response ) {
-				var update = JSON.parse( response.data );
-				console.log( update );
-
-				if( update.type == 'division' ) {
-					if( update.action == 'judges' ) {
-						judges = update.judges;			
-						refresh.roles( judges );
-					}
-					refresh.rings();
-					refresh.actions();
-				}
-			};
-
-			var sound = {
-				ok    : new Howl({ urls: [ "../../sounds/upload.mp3",   "../../sounds/upload.ogg" ]}),
-				error : new Howl({ urls: [ "../../sounds/quack.mp3",    "../../sounds/quack.ogg"  ]}),
-				next  : new Howl({ urls: [ "../../sounds/next.mp3",     "../../sounds/next.ogg"   ]}),
-				prev  : new Howl({ urls: [ "../../sounds/prev.mp3",     "../../sounds/prev.ogg"   ]}),
-			};
-
-			var refresh = { 
-
-				rings : () => {
+			app.refresh = { 
+				rings : tournament => {
 					// ===== RING VIEW UPDATE
 					$( '#rings' ).empty();
 					tournament.rings.forEach(( ring ) => {

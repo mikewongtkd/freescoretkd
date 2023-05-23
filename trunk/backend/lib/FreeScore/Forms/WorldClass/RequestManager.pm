@@ -24,7 +24,6 @@ sub init {
 	my $self               = shift;
 	$self->{ _tournament } = shift;
 	$self->{ _ring }       = shift;
-	$self->{ _id }         = shift;
 	$self->{ _client }     = shift;
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
@@ -414,7 +413,7 @@ sub handle_division_read {
 
 	print STDERR "Request division data.\n" if $DEBUG;
 
-	$self->send_division_response( $request, $progress, $group );
+	$self->broadcast_updated_division( $request, $progress, $group );
 }
 
 # ============================================================
@@ -682,65 +681,7 @@ sub handle_ring_read {
 
 	print STDERR "Request $ring data.\n" if $DEBUG;
 
-	$self->send_ring_response( $request, $progress, $group );
-}
-
-# ============================================================
-sub send_division_response {
-# ============================================================
- 	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $group     = shift;
-	my $id        = $self->{ _id };
-	my $client    = $self->{ _client };
-	my $json      = $self->{ _json };
-	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
-	my $unblessed = undef;
-	my $is_judge  = exists $request->{ cookie }{ judge } && defined $request->{ cookie }{ judge } && $request->{ cookie }{ judge } ne '' && int( $request->{ cookie }{ judge } ) >= 0;
-	my $judge     = $is_judge ? int($request->{ cookie }{ judge }) : undef;
-	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
-
-	my $message   = clone( $is_judge ? $division->get_only( $judge ) : $division );
-	my $unblessed = unbless( $message ); 
-	my $encoded   = $json->canonical->encode( $unblessed );
-	my $digest    = sha1_hex( $encoded );
-
-	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-
-	print STDERR "  Sending division response to " . ($is_judge ? $judge == 0 ? "Referee" : "Judge $judge" : $role) . "\n" if $DEBUG;
-	printf STDERR "    user: %s (%s) message: %s\n", $role, substr( $id, 0, 4 ), substr( $digest, 0, 4 ) if $DEBUG;
-
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, division => $unblessed, request => $request }});
-	$self->{ _last_state } = $digest;
-}
-
-# ============================================================
-sub send_ring_response {
-# ============================================================
- 	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $group     = shift;
-	my $id        = $self->{ _id };
-	my $client    = $self->{ _client };
-	my $json      = $self->{ _json };
-	my $unblessed = undef;
-	my $is_judge  = exists $request->{ cookie }{ judge } && int( $request->{ cookie }{ judge } ) >= 0;
-	my $judge     = $is_judge ? int( $request->{ cookie }{ judge }) : undef;
-	my $role      = exists $request->{ cookie }{ role } ? $request->{ cookie }{ role } : 'client';
-
-	my $message   = clone( $progress );
-	my $unblessed = unbless( $message ); 
-	my $encoded   = $json->canonical->encode( $unblessed );
-	my $digest    = sha1_hex( $encoded );
-
-	my $jname     = [ qw( R 1 2 3 4 5 6 ) ];
-	print STDERR "  Sending ring response to " . ($is_judge ? "Judge " . $jname->[ $judge ] : $role) . "\n" if $DEBUG;
-	printf STDERR "    user: %s (%s) message: %s\n", substr( $id, 0, 4 ), $role, substr( $digest, 0, 4 ) if $DEBUG;
-
-	$client->send( { json => { type => $request->{ type }, action => 'update', digest => $digest, ring => $unblessed, request => $request }});
-	$self->{ _last_state } = $digest;
+	$self->broadcast_updated_ring( $request, $progress, $group );
 }
 
 # ============================================================

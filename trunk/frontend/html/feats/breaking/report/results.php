@@ -44,6 +44,8 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
       var app = new FreeScore.App();
       app.on.connect( '<?= $url ?>' ).read.ring();
 
+	  app.ping.off();
+
       app.network.on
         .response( 'ring' )
         .handle( 'read' ).by( update => {
@@ -95,10 +97,6 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
             $( '.container' ).append( results );
           });
 <?php endif; ?>
-        })
-        .response( 'server' )
-        .handle( 'ping' ).by( update => {
-          network.send({ type : 'server', action : 'stop ping' });
         })
         .response( 'users' )
         .handle( 'update' ).pass();
