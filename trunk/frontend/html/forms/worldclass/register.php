@@ -12,7 +12,7 @@
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
 
-	$url = $config->websocket( 'worldclass', $ring, 'register' );
+	$url = $config->websocket( 'worldclass', $rnum, 'register' );
 ?>
 <html>
 	<head>
@@ -77,7 +77,6 @@ body { background-color: black; color: gold; }
 				judge: parseInt( [ url.param( 'judge' ), Cookies.get( 'judge' )].find( first )),
 			};
 			var app        = new FreeScore.App();
-			app.on.connect( '<?= $url ?>' ).read.division();
 
 			$( '.register h1' ).html( `Register ${reg.role.split( ' ' ).map(( word ) => { return word.capitalize(); }).join( ' ' )} Device` );
 
@@ -113,14 +112,7 @@ body { background-color: black; color: gold; }
 						$( '#rings button' ).removeClass( 'active' );
 						target.addClass( 'active' );
 						ring.num = reg.ring = parseInt( target.attr( 'data-ring' ));
-						sound.next.play();
-
-						ws.close();
-						ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/register` );
-						ws.onopen    = network.connect;
-						ws.onerror   = network.error;
-						ws.onmessage = network.message;
-						ws.onclose   = network.close;
+						app.sound.next.play();
 					});
 				},
 
@@ -175,7 +167,7 @@ body { background-color: black; color: gold; }
 							$( '#roles button.role' ).removeClass( 'active' );
 							target.addClass( 'active' );
 							if( reg.role == 'judge' ) { reg.judge = i; }
-							sound.next.play();
+							app.sound.next.play();
 						}
 					});
 
@@ -185,17 +177,13 @@ body { background-color: black; color: gold; }
 					$( '#ok' ).off( 'click' ).click(( ev ) => { 
 						if( $( ev.target ).hasClass( 'disabled' )) { alertify.message( 'Choose a judge seat' ); return; }
 						Cookies.set( 'ring',  reg.ring,  { path : '/' });
-						sound.ok.play(); 
+						app.sound.ok.play(); 
 
 						if( reg.role == 'judge' ) {
 							if( ! defined( reg.id )) { reg.id = "<?= session_id() ?>"; }
 							Cookies.set( 'id',    reg.id,    { path : '/' });
 							Cookies.set( 'judge', reg.judge, { path : '/' });
 
-							// Send registration request to broadcast to peers
-							var request = { data: { type: 'division', action: 'judge registration', num: reg.judge, id: reg.id }};
-							request.json = JSON.stringify( request.data );
-							ws.send( request.json );
 							setTimeout( function() { location = 'judge.php'; }, 500 ); 
 
 						} else {
@@ -204,6 +192,8 @@ body { background-color: black; color: gold; }
 					});
 				}
 			};
+
+			app.on.connect( '<?= $url ?>' ).read.division();
 		</script>
 	</body>
 </html>
