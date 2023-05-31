@@ -3,6 +3,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.context   = {};
 		this.table     = {}; // Dispatch table
 		this.websocket = websocket;
+		this._catch    = error => console.log( error );
 
 		// ===== DEFAULT HANDLERS
 		this.add( 'server', 'ping', ping => {
@@ -29,10 +30,12 @@ FreeScore.ResponseManager = class FSResponseManager {
 				let type    = request.type;
 				let action  = request.action;
 
-				if( !( type in this.table ))           { console.log( `No handler for ${type} response`, update ); return; }
-				if( !( action in this.table[ type ] )) { console.log( `No handler for ${type} ${action} action`, update ); return; }
+				try {
+					this.dispatch( type, action, update );
+				} catch( error ) {
 
-				this.dispatch( type, action, update );
+					this._catch( error );
+				}
 			}
 
 		} else if( handler === null ) {
@@ -47,8 +50,22 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	dispatch( type, action, update ) {
-		if( ! (type in this.table ))          { alertify.error( `No handler for ${type} response` ); console.log( update ); return; }
-		if( ! (action in this.table[ type ])) { alertify.error( `No handler for ${type} ${action} action` ); console.log( update ); return; }
+		if( ! (type in this.table )) { 
+			if( alertify ) { 
+				if( update.error ) { throw new Error( update.error ); }
+				alertify.error( `No handler for Type ${type} response` ); 
+			} 
+			console.log( update ); 
+			return; 
+		}
+		if( ! (action in this.table[ type ])) { 
+			if( alertify ) { 
+				if( update.error ) { throw new Error( update.error ); }
+				alertify.error( `No handler for Type ${type} action ${action} response` ); 
+			} 
+			console.log( update ); 
+			return; 
+		}
 
 		this.table[ type ][ action ]( update );
 	}
@@ -96,7 +113,11 @@ FreeScore.WebSocket = class FSWebSocket {
 					console.log( update );
 				}
 
-				this.rm.dispatch( type, action, update );
+				try {
+					this.rm.dispatch( type, action, update );
+				} catch( error ) {
+					this.rm._catch( error );
+				}
 			},
 			send: data => {
 				let request = { data };
@@ -115,8 +136,24 @@ FreeScore.WebSocket = class FSWebSocket {
 		};
 	}
 
+	catch( callback ) {
+		this.rm._catch = callback;
+	}
+
+	close() {
+		this.ws.close();
+	}
+
 	handle( update ) {
 		this.rm.dispatch( update.type, update.action, update );
+	}
+
+	reconnect( url ) {
+		this.close();
+		this.url = url;
+		this.ws = new WebSocket( this.url );
+		this.ws.onopen    = this.network.open;
+		this.ws.onmessage = this.network.message;
 	}
 
 	send( message ) {

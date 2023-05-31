@@ -37,6 +37,7 @@ sub broadcast_updated_division {
 	my $progress  = shift;
 	my $group     = shift;
 	my $json      = $self->{ _json };
+	my $status    = $group->status();
 	my $division  = defined $request->{ divid } ? $progress->find( $request->{ divid } ) : $progress->current();
 	my $message   = $division->clone();
 	my $unblessed = unbless( $message ); 
@@ -48,9 +49,9 @@ sub broadcast_updated_division {
 
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		my $response  = { type => $request->{ type }, action => 'update', digest => $digest, time => $now, division => $unblessed, request => $request };
-		my $status    = $client->status();
-		printf STDERR "    %-17s  %s  %s\n", $status->{ role }, $status->{ cid }, $status->{ health } if $DEBUG;
+		my $response  = { type => $request->{ type }, action => 'update', digest => $digest, time => $now, division => $unblessed, request => $request, users => $status };
+		my $cstatus   = $client->status();
+		printf STDERR "    %-17s  %s  %s\n", $cstatus->{ role }, $cstatus->{ cid }, $cstatus->{ health } if $DEBUG;
 		$client->send( { json => $response });
 	}
 	print STDERR "\n" if $DEBUG;
@@ -67,6 +68,7 @@ sub broadcast_updated_ring {
 	my $group     = shift;
 	my $json      = $self->{ _json };
 	my $ring      = $request->{ ring };
+	my $status    = $group->status();
 	my $message   = clone( $progress );
 	my $unblessed = unbless( $message ); 
 	my $encoded   = $json->canonical->encode( $unblessed );
@@ -77,9 +79,9 @@ sub broadcast_updated_ring {
 
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request };
-		my $status    = $client->status();
-		printf STDERR "    %-17s  %s  %s\n", $status->{ role }, $status->{ cid }, $status->{ health } if $DEBUG;
+		my $response  = { type => 'ring', action => 'update', digest => $digest, time => $now, ring => $unblessed, request => $request, users => $status };
+		my $cstatus   = $client->status();
+		printf STDERR "    %-17s  %s  %s\n", $cstatus->{ role }, $cstatus->{ cid }, $cstatus->{ health } if $DEBUG;
 		$client->send( { json => $response });
 	}
 }
@@ -104,8 +106,8 @@ sub broadcast_updated_users {
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		my $response  = { type => 'users', action => 'update', digest => $digest, time => $now, request => $request, users => $status };
-		my $status    = $client->status();
-		printf STDERR "    %-17s  %s  %s\n", $status->{ role }, $status->{ cid }, $status->{ health } if $DEBUG;
+		my $cstatus   = $client->status();
+		printf STDERR "    %-17s  %s  %s\n", $cstatus->{ role }, $cstatus->{ cid }, $cstatus->{ health } if $DEBUG;
 		$client->send( { json => $response });
 	}
 }

@@ -11,7 +11,14 @@
 				$text = file_get_contents( $file );
 				$data = json_decode( $text, true );
 
+				if( array_key_exists( 'service', $data )) {
+					foreach( $data[ 'service' ] as $name => &$service ) {
+						$service[ 'name' ] = $name;
+					}
+				}
+
 				$this->data = $data;
+
 				return;
 			}
 
@@ -67,6 +74,14 @@
 			$config = $this->data;
 			if( array_key_exists( 'password', $config )) { return true; }
 			return false;
+		}
+
+		public function service( $service ) {
+			$config = $this->data;
+			if( ! array_key_exists( 'service', $config )) { return false; }
+			if( ! array_key_exists( $service, $config[ 'service' ])) { return false; }
+
+			return $config[ 'service' ][ $service ];
 		}
 
 		public function services() {
