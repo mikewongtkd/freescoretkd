@@ -389,57 +389,6 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-.presentationBar {
-  position: relative;
-  font-family: Optima, Biolinum, Lato;
-  width: 396px;
-  height: 64px;
-  margin: 0 0 0 20px;
-}
-.presentationBar .pb-label {
-  top: 0;
-  left: 24px;
-  position: absolute;
-  font-size: 12pt;
-  width: 400px;
-  color: #ccc;
-  line-height: 24pt;
-  margin-left: 20px;
-}
-.presentationBar .slider {
-  position: absolute;
-  top: 32px;
-  left: 30px;
-  width: 254px;
-}
-.presentationBar .value {
-  position: absolute;
-  top: 32px;
-  left: 320px;
-  font-size: 24pt;
-  color: white;
-  float: left;
-  width: 64px;
-  text-align: center;
-  line-height: 14pt;
-  vertical-align: top;
-}
-.presentationBar .nudge {
-  position: absolute;
-  height: 40px;
-  width: 40px;
-  margin: 0;
-  padding: 0;
-  top: 18px;
-  border-radius: 6px;
-}
-.presentationBar .plus {
-  left: -8px;
-}
-.presentationBar .minus {
-  left: 280px;
-}
-
 .presentationButtons {
   position: relative;
   font-family: Optima, Biolinum;
@@ -614,15 +563,15 @@ body {
   height: 124px;
   width: 188px;
   border: 4px solid #333;
-  border: 4px solid -webkit-linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
-  border: 4px solid linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
   border-radius: 12px;
   background: black;
   top: 20px;
   left: 10px;
   padding: 0 8px 0 8px;
   text-align: center;
+  overflow-x: hidden;
   overflow-y: auto;
+  font-size: 10pt;
 }
 .judgeController .front .division-info .label {
   position: relative;
@@ -638,20 +587,18 @@ body {
   color: white;
 }
 .judgeController .front .division-info .description {
-  font-size: 12pt;
   color: lime;
 }
 .judgeController .front .division-info .round {
   margin-top: 4px;
-  font-size: 12pt;
   color: skyblue;
 }
 .judgeController .front .division-info .form {
   color: #999;
-  font-size: 12pt;
 }
 .judgeController .front .division-info .form .current {
   color: yellow;
+  text-decoration: underline;
 }
 .judgeController .front .flip {
   position: absolute;
@@ -702,8 +649,8 @@ body {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  width: 240px;
-  left: 72px;
+  width: 340px;
+  left: 22px;
 }
 .judgeController .front .score > .athlete .details {
   color: #ccc;
@@ -716,9 +663,9 @@ body {
 .judgeController .front .score > .accuracy, .judgeController .front .score > .presentation {
   position: absolute;
   width: 194px;
-  height: 208px;
-  font-size: 72pt;
-  line-height: 72pt;
+  height: 168px;
+  font-size: 48pt;
+  line-height: 48pt;
   padding-top: 48px;
   text-align: center;
   top: 0;
@@ -732,8 +679,8 @@ body {
   left: 0;
 }
 .judgeController .front .score > .accuracy span {
-  font-size: 18pt;
-  line-height: 18pt;
+  font-size: 14pt;
+  line-height: 14pt;
 }
 .judgeController .front .score > .presentation {
   border-radius: 0 18pt 18pt 0;
@@ -743,26 +690,26 @@ body {
   left: 194px;
 }
 .judgeController .front .score > .presentation span {
-  font-size: 18pt;
-  line-height: 18pt;
+  font-size: 14pt;
+  line-height: 14pt;
 }
 .judgeController .front .score > .total {
-  color: white;
-  font-size: 24pt;
-  line-height: 24pt;
-  background: #333;
-  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
-  background: linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
+  color: skyblue;
+  font-size: 32pt;
+  line-height: 32pt;
+  background: #020024;
+  background: linear-gradient(0deg, #020024 0%, #070755 50%, #004390 100%);
   position: absolute;
-  top: 168px;
-  left: 154px;
-  width: 80px;
+  top: 132px;
+  left: 134px;
+  width: 120px;
   border-radius: 12pt;
+  border: 3px solid #020024;
   text-align: center;
 }
 .judgeController .front .score > .total .total-label {
-  font-size: 12pt;
-  line-height: 12pt;
+  font-size: 14pt;
+  line-height: 14pt;
   color: #ccc;
 }
 .judgeController .front .controls {

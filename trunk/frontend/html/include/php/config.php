@@ -142,7 +142,7 @@
 			return $url;
 		}
 
-		public function websocket( $service, $ring, $role ) {
+		public function websocket( $service, $ring = 'staging', $role = 'observer' ) {
 			$config = $this->data;
 			$ws     = 'ws://'; # Default
 			$port   = '';

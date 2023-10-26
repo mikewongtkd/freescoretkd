@@ -1,109 +1,82 @@
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Biolinum';
+  font-family: "Biolinum";
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Barlow';
+  font-family: "Barlow";
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'FjallaOne';
+  font-family: "FjallaOne";
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal; }
-.presentationBar {
-  position: relative;
-  font-family: Optima, Biolinum, Lato;
-  width: 396px;
-  height: 64px;
-  margin: 0 0 0 20px; }
-  .presentationBar .pb-label {
-    top: 0;
-    left: 24px;
-    position: absolute;
-    font-size: 12pt;
-    width: 400px;
-    color: #ccc;
-    line-height: 24pt;
-    margin-left: 20px; }
-  .presentationBar .slider {
-    position: absolute;
-    top: 32px;
-    left: 30px;
-    width: 254px; }
-  .presentationBar .value {
-    position: absolute;
-    top: 32px;
-    left: 320px;
-    font-size: 24pt;
-    color: white;
-    float: left;
-    width: 64px;
-    text-align: center;
-    line-height: 14pt;
-    vertical-align: top; }
-  .presentationBar .nudge {
-    position: absolute;
-    height: 40px;
-    width: 40px;
-    margin: 0;
-    padding: 0;
-    top: 18px;
-    border-radius: 6px; }
-  .presentationBar .plus {
-    left: -8px; }
-  .presentationBar .minus {
-    left: 280px; }
-
+  font-style: normal;
+}
 .presentationButtons {
   position: relative;
   font-family: Optima, Biolinum;
-  margin: 22px 0 0 10px; }
-  .presentationButtons .pb-panel {
-    width: 100%;
-    height: 48px;
-    text-align: center; }
-    .presentationButtons .pb-panel .pb-label {
-      text-align: left;
-      font-size: 12pt; }
-    .presentationButtons .pb-panel .btn-group {
-      position: relative; }
-      .presentationButtons .pb-panel .btn-group .btn-xs {
-        font-size: 10pt; }
-    .presentationButtons .pb-panel .low {
-      left: 45px; }
-    .presentationButtons .pb-panel .high {
-      left: 45px; }
-  .presentationButtons label {
-    padding: 4px 15px 2px 15px; }
-    .presentationButtons label.context {
-      padding: 4px 2px 2px 2px; }
+  margin: 22px 0 0 10px;
+}
+.presentationButtons .pb-panel {
+  width: 100%;
+  height: 48px;
+  text-align: center;
+}
+.presentationButtons .pb-panel .pb-label {
+  text-align: left;
+  font-size: 12pt;
+}
+.presentationButtons .pb-panel .btn-group {
+  position: relative;
+}
+.presentationButtons .pb-panel .btn-group .btn-xs {
+  font-size: 10pt;
+}
+.presentationButtons .pb-panel .low {
+  left: 45px;
+}
+.presentationButtons .pb-panel .high {
+  left: 45px;
+}
+.presentationButtons label {
+  padding: 4px 15px 2px 15px;
+}
+.presentationButtons label.context {
+  padding: 4px 2px 2px 2px;
+}
 
 /*# sourceMappingURL=presentationWidgets.css.map */

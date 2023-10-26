@@ -1,7 +1,9 @@
 <?php 
 	include( '../../include/php/config.php' ); 
 	include( '../../session.php' ); 
-	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'judge' ] )) { header( 'Location: ../../forms/worldclass/register.php?role=judge' ); exit(); }
+	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'judge' ] )) { header( 'Location: ../../register.php?service=worldclass&role=judge' ); exit(); }
+	$rnum = intval( $_COOKIE[ 'ring' ]);
+	$jid  = intval( $_COOKIE[ 'judge' ]);
 ?>
 <html>
 	<head>
@@ -28,12 +30,10 @@
 		<script src="../../include/jquery/js/jquery.ui.touch-punch.min.js"></script>
 		<script src="../../include/jquery/js/jquery.ui.slider-rtl.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
-		<script src="../../include/jquery/js/jquery.timer.js"></script>
-		<script src="../../include/jquery/js/jquery.totemticker.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
-		<script src="../../include/opt/ws-heartbeat/websocket-heartbeat.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
@@ -47,7 +47,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?= $config->websocket( 'worldclass' ) ?>', tournament : <?= $tournament ?> });
+			$( '#judgeController' ).judgeController( { server : '<?= $config->websocket( 'worldclass', $rnum, "judge{$jid}" ) ?>', tournament : <?= $tournament ?> });
 		</script>
 	</body>
 </html>

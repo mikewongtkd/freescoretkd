@@ -113,13 +113,13 @@ var load = ( settings ) => {
 	if( settings.gender ) { $( '#gender-draw' ).bootstrapToggle( 'on' ); } else { $( '#gender-draw' ).bootstrapToggle( 'off' ); }
 
 	// Count
-	Object.keys( settings.count ).forEach(( round ) => {
+	Object.keys( settings.count ).forEach( round => {
 		var toggle = ( state ) => { $( `#${round}-count` ).bootstrapToggle( state ); }
 		if( settings.count[ round ] == 1 ) { toggle( 'off' ); } else { toggle( 'on' ); }
 	});
 
 	// Events
-	Object.keys( settings.events ).forEach(( ev ) => {
+	Object.keys( settings.events ).forEach( ev => {
 		var checked = settings.events[ ev ];
 		var button  = $( `input.events[value="${ev}"]` );
 		var label   = button.parents( 'label' );
@@ -128,7 +128,7 @@ var load = ( settings ) => {
 	});
 
 	// Age Groups
-	Object.keys( settings.age.groups ).forEach(( age ) => {
+	Object.keys( settings.age.groups ).forEach( age => {
 		var checked = settings.age.groups[ age ];
 		var button  = $( `input.age-group[value="${age}"]` );
 		var label   = button.parents( 'label' );
@@ -547,7 +547,7 @@ $( 'input[type="checkbox"].age-group' ).change(( ev ) => {
 });
 
 // ===== BUTTON BEHAVIOR
-$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition( 2 ); });
+$( '#instant-draw' ).off( 'click' ).click( el => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition( 2 ); });
 
 $( '#back-to-draws' ).off( 'click' ).click(( ev ) => { 
 	// ===== SWITCH THE PAGE
@@ -620,7 +620,7 @@ $( '.pt-page-3 .print' ).off( 'click' ).click(() => { alertify.dismissAll(); win
 $( '.pt-page-3 .accept' ).off( 'click' ).click(() => { window.location = '../../index.php'; });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/staging/computer+operator` );
+var ws = new WebSocket( '<?= $config->websocket( 'worldclass', 'staging', 'computer+operator' ) ?>' );
 
 ws.onopen = function() {
 	var request;
