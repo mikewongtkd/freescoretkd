@@ -1,6 +1,8 @@
 <?php 
 	include( __DIR__ . './../../../session.php' );
 	include( __DIR__ . '/../../../include/php/config.php' ); 
+  $ringnum = isset( $_GET[ 'ring' ]) ? intval( $_GET[ 'ring' ]) : null;
+  $divid   = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
 ?>
 <html>
 	<head>
@@ -16,6 +18,7 @@ table .order { width: 5%; text-align: center; }
 table .name { width: 65%; }
 table .usatid { width: 30%; text-align: right; }
 .results { page-break-after: always; }
+.forms { font-size: 1.25em; float: right; }
 		</style>
 	</head>
 	<body>
@@ -51,14 +54,16 @@ table .usatid { width: 30%; text-align: right; }
 					table : division => {
 						let results = $( '<div class="results"></div>' );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
-						let round   = '<h4>Final Round</h4>';
+						let round   = 'finals';
 						let n       = division.athletes.length;
+            let rname   = { prelim : '<h4>Preliminary Round</h4>', semfin : '<h4>Semi-Final Round</h4>', finals : '<h4>Final Round</h4>' };
+            let forms   = '<div class="forms">' + division.forms[ round ].join( ', ' ) + '</div>';
 
-						if( n >   8 ) { round = '<h4>Semi-Final Round</h4>'; }
-						if( n >= 20 ) { round = '<h4>Preliminary Round</h4>' }
+						if( n >   8 ) { round = 'semfin'; }
+						if( n >= 20 ) { round = 'prelim' }
 
 						if( 'flight' in division ) {
-							round = '<h4>Preliminary Round</h4>';
+							round = 'prelim';
 						}
 						
 						let table = $( '<table class="table table-striped" />' );
@@ -80,7 +85,7 @@ table .usatid { width: 30%; text-align: right; }
 							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
 						});
 
-						results.append( summary, round, table );
+						results.append( summary, forms, rname[ round ], table );
 						$( '#report-tabular' ).append( results );
 					}
 				}

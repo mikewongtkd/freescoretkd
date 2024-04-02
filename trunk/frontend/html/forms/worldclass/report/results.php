@@ -1,6 +1,8 @@
 <?php 
 	include( __DIR__ . './../../../session.php' );
 	include( __DIR__ . '/../../../include/php/config.php' ); 
+  $ringnum = isset( $_GET[ 'ring' ]) ? intval( $_GET[ 'ring' ]) : null;
+  $divid   = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
 ?>
 <html>
 	<head>
@@ -12,6 +14,7 @@
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<style>
+.forms { font-size: 1.25em; float: right; }
 table .place { width: 5%; text-align: center; }
 table .name { width: 35%; }
 table .usatid { width: 30%; }
@@ -28,6 +31,7 @@ table .tb2 { width: 10%; }
 			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
 			var network    = { reconnect: 0 };
 			var divisions  = [];
+      var selected   = { ring : <?= is_null( $ringnum ) ? 'null' : $ringnum ?>, divid : <?= is_null( $divid ) ? 'null' : "'$divid'" ?> };
 
 			network.send = data => {
 					let request  = { data };
@@ -51,6 +55,8 @@ table .tb2 { width: 10%; }
 				},
 				results : {
 					table : division => {
+            if( selected.ring && division.ring != selected.ring ) { return; }
+            if( selected.divid && division.name != selected.divid ) { return; }
 						console.log( division.name.toUpperCase(), division );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
 						let tables  = [];
@@ -64,6 +70,7 @@ table .tb2 { width: 10%; }
 						}
 						
 						rounds.forEach( round => {
+              let forms = '<div class="forms">' + division.forms[ round.code ].join( ', ' ) + '</div>';
 							let table = $( '<table class="table table-striped" />' );
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
@@ -73,7 +80,7 @@ table .tb2 { width: 10%; }
 								thead.append( '<tr><th class="place">Place</th><th class="name">Name</th><th class="usatid">USAT ID</th><th class="score">Score</th><th class="tb1">TB1</th><th class="tb2">TB2</th></tr>' );
 							}
 							table.append( thead, tbody );
-							tables.push( `<h3>${round.name} Round</h3>`, table );
+							tables.push( forms, `<h3>${round.name} Round</h3>`, table );
 
 							let placements = round.code in division.placement ? division.placement[ round.code ] : [];
 							let athletes   = placements.map( i => division.athletes[ i ]);

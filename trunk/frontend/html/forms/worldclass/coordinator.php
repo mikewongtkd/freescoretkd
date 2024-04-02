@@ -699,7 +699,7 @@
 							view       : () => { sound.next.play(); sendRequest( { data: { type: 'division', action: 'display' }});},
 							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=' + ring, '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
-							results    : () => { sound.next.play(); page.results = window.open( `/cgi-bin/freescore/forms/worldclass/report/results.php?ring=${ring}&divid=${divid}`, '_blank' )},
+							results    : () => { sound.next.play(); page.results = window.open( `/forms/worldclass/report/results.php?ring=${ring}&divid=${divid}`, '_blank' )},
 							history    : () => { sound.next.play(); page.results = window.open( 'history.php?ring=' + ring, '_blank' )},
 						}
 					};
