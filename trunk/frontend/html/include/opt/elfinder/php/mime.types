@@ -33,7 +33,6 @@ application/emma+xml emma
 application/epub+zip epub
 application/exi exi
 application/font-tdpfr pfr
-application/font-woff woff
 application/gml+xml gml
 application/gpx+xml gpx
 application/gxf gxf
@@ -322,6 +321,7 @@ application/vnd.ms-htmlhelp chm
 application/vnd.ms-ims ims
 application/vnd.ms-lrm lrm
 application/vnd.ms-officetheme thmx
+application/vnd.ms-outlook msg
 application/vnd.ms-pki.seccat cat
 application/vnd.ms-pki.stl stl
 application/vnd.ms-powerpoint ppt pps pot
@@ -516,10 +516,8 @@ application/x-eva eva
 application/x-font-bdf bdf
 application/x-font-ghostscript gsf
 application/x-font-linux-psf psf
-application/x-font-otf otf
 application/x-font-pcf pcf
 application/x-font-snf snf
-application/x-font-ttf ttf ttc
 application/x-font-type1 pfa pfb pfm afm
 application/x-freearc arc
 application/x-futuresplash spl
@@ -638,6 +636,11 @@ chemical/x-cmdf cmdf
 chemical/x-cml cml
 chemical/x-csml csml
 chemical/x-xyz xyz
+font/collection ttc
+font/otf otf
+font/ttf ttf
+font/woff woff
+font/woff2 woff2
 image/bmp bmp
 image/cgm cgm
 image/g3fax g3

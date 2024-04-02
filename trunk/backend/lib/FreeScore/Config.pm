@@ -64,6 +64,7 @@ sub password {
 	$ring = sprintf( 'ring%02d', $ring ) if( $ring =~ /^\d+$/ );
 	return undef if( ! exists( $self->{ password }));
 	return undef if( ! $self->{ password });
+  return $self->{ password } unless ref( $self->{ password });
 	return undef if( $ring && ! exists( $self->{ password }{ $ring }));
 
 	return $self->{ password }{ $ring };
