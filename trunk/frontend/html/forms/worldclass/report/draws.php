@@ -16,7 +16,8 @@
 		<style>
 table .order { width: 5%; text-align: center; }
 table .name { width: 65%; }
-table .usatid { width: 30%; text-align: right; }
+table .usatid { width: 20%; text-align: right; }
+table .seeding { width: 10%; text-align: center; }
 .results { page-break-after: always; }
 .forms { font-size: 1.25em; float: right; }
 		</style>
@@ -56,8 +57,8 @@ table .usatid { width: 30%; text-align: right; }
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
 						let round   = 'finals';
 						let n       = division.athletes.length;
-            let rname   = { prelim : '<h4>Preliminary Round</h4>', semfin : '<h4>Semi-Final Round</h4>', finals : '<h4>Final Round</h4>' };
-            let forms   = '<div class="forms">' + division.forms[ round ].join( ', ' ) + '</div>';
+						let rname   = { prelim : '<h4>Preliminary Round</h4>', semfin : '<h4>Semi-Final Round</h4>', finals : '<h4>Final Round</h4>' };
+						let forms   = '<div class="forms">' + division.forms[ round ].join( ', ' ) + '</div>';
 
 						if( n >   8 ) { round = 'semfin'; }
 						if( n >= 20 ) { round = 'prelim' }
@@ -72,7 +73,7 @@ table .usatid { width: 30%; text-align: right; }
 						if( division.name.match( /^p[pt]/ )) {
 							thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
 						} else {
-							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
+							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th><th class="seeding">Seeding</th></tr>' );
 						}
 						table.append( thead, tbody );
 
@@ -82,7 +83,8 @@ table .usatid { width: 30%; text-align: right; }
 							let num      = `${i + 1}.`;
 							let name     = athlete.name;
 							let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
-							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
+							let seed     = athlete.info.seed;
+							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="seeding">${seed}</td></tr>` );
 						});
 
 						results.append( summary, forms, rname[ round ], table );
