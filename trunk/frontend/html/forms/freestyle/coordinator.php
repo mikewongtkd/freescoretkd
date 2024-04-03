@@ -352,14 +352,14 @@
 						navigate : {
 							athlete   : () => { sound.ok.play(); var i = $( '#navigate-athlete' ).attr( 'athlete-id' ); action.navigate.to( { destination: 'athlete',  index : i     } ); },
 							division  : () => { sound.ok.play(); action.navigate.to( { destination: 'division', divid : divid } ); },
-							round     : { next : () => { sound.ok.play(); sendRequest( { data : { type : 'division', action : 'round next' }} ); }, prev : () => { sound.ok.play(); sendRequest({ data : { type : 'division', action : 'round prev' }} ); }},
+							round     : { next : () => { sound.ok.play(); sendRequest( { data : { type : 'division', action : 'round next' }} ); }, prev : () => { sound.ok.play(); sendRequest({ data : { type : 'division', action : 'round prev' }}); }},
 							to        : ( target ) => { sendRequest( { data : { type : 'division', action : 'navigate', target : target }} ); }
 						},
 						administration : {
-							view       : () => { sound.next.play(); sendRequest({ data : { type : 'division', action: 'view next' }})},
-							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=<?= $ring?>', '_blank' )},
-							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-freestyle/ring' + (ring.num < 10 ? '0' + ring.num : ring.num) + '/div.' + divid + '.txt', '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/freestyle/results?ring=' + ring.num + '&divid=' + divid, '_blank' )},
+							view       : () => { sound.next.play(); sendRequest({ data : { type : 'division', action: 'view next' }}); },
+							display    : () => { sound.next.play(); page.display = window.open( 'index.php?ring=<?= $ring?>', '_blank' ); },
+							edit       : () => { sound.next.play(); page.editor  = window.open( `division/editor.php?file=${ tournament.db}/forms-freestyle/ring${ring.num < 10 ? '0' + ring.num : ring.num}/div.${divid}.txt`, '_blank' ); },
+							print      : () => { sound.next.play(); page.print   = window.open( `/forms/freestyle/report/results.php?ring=${ring.num}&divid=${divid}`, '_blank' ); },
 						}
 					};
 
