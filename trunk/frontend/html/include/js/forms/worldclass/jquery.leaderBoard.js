@@ -124,14 +124,18 @@ $.widget( "freescore.leaderboard", {
 			else if( o.division.round.is.semfin() ) { max = k > 8    ? 8    : k; }
 			update_placements( k, max );
 
-			// ===== SCROLL DOWN ONCE
+			// ===== SCROLL DOWN AND UP ENDLESSLY
 			var duration  = 9000;
+			e.placement.stop( true );
+			e.placement.off( 'scroll-up' ).on( 'scroll-up', ( ev ) => {
+				$( e.placement ).animate({ scrollTop: 0 }, duration, 'swing', () => { setTimeout(() => { e.placement.trigger( 'scroll-down' );}, Math.floor( duration/3 ));});
+			});
 			e.placement.off( 'scroll-down' ).on( 'scroll-down', ( ev ) => {
 				var bottom = $( e.placement ).height();
-				$( e.placement ).animate({ scrollTop: bottom }, duration, 'swing' );
+				$( e.placement ).animate({ scrollTop: bottom }, duration, 'swing', () => { setTimeout(() => { e.placement.trigger( 'scroll-up' ); }, Math.floor( duration/3 ));});
 			});
 			e.placement.scrollTop( 0 );
-			e.placement.trigger( 'scroll-down' );
+			setTimeout(() => { e.placement.trigger( 'scroll-down' ); }, duration );
 		}
 		
 		// ===== HIDE 'NEXT UP' PANEL IF THERE ARE NO REMAINING ATHLETES
