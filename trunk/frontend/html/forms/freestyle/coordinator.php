@@ -154,7 +154,7 @@
 					if( defined( divid )) {
 						var division = update.ring.divisions.find(( d ) => { return d.name == divid; });
 						var current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						var curDiv   = division.name == current.name;
+						var curDiv   = division.name == current?.name;
 						if( ! defined( division )) { return; }
 						division = new Division( division );
 						refresh.athletes( division, curDiv );
@@ -226,16 +226,26 @@
 							var max      = adjusted.max;
 							var rows     = [ 'tec', 'pre', 'sum' ];
 							console.log( scores, adjusted );
+							$( '#judge-scores .tec' ).removeClass( 'ignore' ).html( '' );
+							$( '#judge-scores .pre' ).removeClass( 'ignore' ).html( '' );
+							$( '#judge-scores .sum' ).removeClass( 'ignore' ).html( '' );
 							for( var k = 0; k < n; k++ ) {
 								if( ! scores ) { continue; }
 								let score  = scores[ k ];
 								let points = { display : score => {
-									if( score === null || score === undefined ) { return '-'; }
-									return Object.values( score ).reduce(( a, b ) => parseFloat( a ) + parseFloat( b ), 0.0 ).toFixed( 2 );
-								}};
-								points.tec = points.display( score ? score.technical : {} );
-								points.pre = points.display( score ? score.presentation : {} );
-								points.sum = (parseFloat( points.tec ) + parseFloat( points.pre )).toFixed( 2 );
+										if( score === null || score === undefined ) { return '-'; }
+										return Object.values( score ).reduce(( a, b ) => parseFloat( a ) + parseFloat( b ), 0.0 ).toFixed( 2 );
+									},
+									total : () => {
+										let tec = parseFloat( points.tec );
+										let pre = parseFloat( points.pre );
+										if( isNaN( tec ) || isNaN( pre )) { return '-'; }
+										return (tec + pre).toFixed( 2 );
+									}
+								};
+								points.tec = points.display( score ? score.technical : null );
+								points.pre = points.display( score ? score.presentation : null );
+								points.sum = points.total();
 								rows.forEach(( key ) => { $( `#j${k}-${key}` ).text( points[ key ] ).removeClass( 'ignore' ); });
 								if( max && min ) {
 									if( k == max.presentation || k == min.presentation ) { $( `#j${k}-pre` ).addClass( 'ignore' ); }
@@ -249,7 +259,14 @@
 							};
 							rows.forEach(( key ) => { $( `#score-${key}` ).text( points[ key ] ); });
 							// Report range here. // MW
-							// Add behavior to clear judge score. // MW
+
+							// Clear Score button behavior
+							for( let k = 0; k < n; k++ ) {
+								$( `#j${k}-clr button` ).off( 'click' ).click( ev => {
+									sendRequest( { data : { type : 'division', action : 'score', judge: k, score: null }} );
+									sound.next.play();
+								});
+							}
 
 							timer.stop(); $( '#timer-display' ).html( '0:00.0' );
 							refresh.actions( division );
