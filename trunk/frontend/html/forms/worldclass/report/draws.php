@@ -21,6 +21,7 @@ table .seeding { width: 10%; text-align: center; }
 .results { page-break-after: always; }
 .forms { font-size: 1.25em; float: right; }
 		</style>
+    <title>Recognized Poomsae Brackets</title>
 	</head>
 	<body>
 		<div id="report-tabular" class="container"></div>
@@ -58,15 +59,15 @@ table .seeding { width: 10%; text-align: center; }
 						let round   = 'finals';
 						let n       = division.athletes.length;
 						let rname   = { prelim : '<h4>Preliminary Round</h4>', semfin : '<h4>Semi-Final Round</h4>', finals : '<h4>Final Round</h4>' };
-						let forms   = '<div class="forms">' + division.forms[ round ].join( ', ' ) + '</div>';
 
 						if( n >   8 ) { round = 'semfin'; }
-						if( n >= 20 ) { round = 'prelim' }
+						if( n >= 20 ) { round = 'prelim'; }
 
 						if( 'flight' in division ) {
 							round = 'prelim';
 						}
 						
+						let forms = '<div class="forms">' + division.forms[ round ].join( ', ' ) + '</div>';
 						let table = $( '<table class="table table-striped" />' );
 						let thead = $( '<thead />' );
 						let tbody = $( '<tbody />' );
