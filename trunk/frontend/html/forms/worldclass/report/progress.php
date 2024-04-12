@@ -14,14 +14,8 @@
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<style>
-table .order { width: 5%; text-align: center; }
-table .name { width: 65%; }
-table .usatid { width: 20%; text-align: right; }
-table .seeding { width: 10%; text-align: center; }
-.results { page-break-after: always; }
-.forms { font-size: 1.25em; float: right; }
+.summary { font-weight: bold; font-size: 1.2em; }
 		</style>
-    <title>Recognized Poomsae Brackets</title>
 	</head>
 	<body>
 		<div id="report-tabular" class="container"></div>
@@ -31,6 +25,7 @@ table .seeding { width: 10%; text-align: center; }
 			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
 			var network    = { reconnect: 0 };
 			var divisions  = [];
+      var selected   = { ring : <?= is_null( $ringnum ) ? 'null' : $ringnum ?>, divid : <?= is_null( $divid ) ? 'null' : "'$divid'" ?> };
 
 			network.send = data => {
 					let request  = { data };
@@ -39,68 +34,59 @@ table .seeding { width: 10%; text-align: center; }
 			};
 
 			var display = {
-				athlete : {
-					decision : scores => {
-						let code = { 'withdraw' : 'WDR', 'disqualify' : 'DSQ', '' : false };
-						let decision = '';
-						if( ! ( 'forms' in scores )) { return false; }
-						scores.forms.forEach( form => {
-							if( !( 'decision' in form )) { return false; }
-							decision = Object.keys( form.decision )[ 0 ];
-						});
-						decision = code[ decision ];
-						return decision;
-					}
-				},
-				results : {
+				progress : {
 					table : division => {
-						let results = $( '<div class="results"></div>' );
-						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
-						let round   = 'finals';
-						let n       = division.athletes.length;
-						let rname   = { prelim : '<h4>Preliminary Round</h4>', semfin : '<h4>Semi-Final Round</h4>', finals : '<h4>Final Round</h4>' };
+            if( selected.ring && division.ring != selected.ring ) { return; }
+            if( selected.divid && division.name != selected.divid ) { return; }
+						console.log( division.name.toUpperCase(), division );
+						let progress = [];
+						let rounds   = [{ code : 'finals', name : 'Final' }];
+						let n        = division.athletes.length;
 
-						if( n >   8 ) { round = 'semfin'; }
-						if( n >= 20 ) { round = 'prelim'; }
-
+						if( n >   8 ) { rounds.push({ code : 'semfin', name : 'Semi-Final' }); }
+						if( n >= 20 ) { rounds.push({ code : 'prelim', name : 'Preliminary' }); }
 						if( 'flight' in division ) {
-							round = 'prelim';
+							rounds = [{ code : 'prelim', name : 'Preliminary' }];
 						}
+
+            let divprog = { count : 0, complete : 0 };
 						
-						let forms = '<div class="forms">' + division.forms[ round ]?.join( ', ' ) + '</div>';
-						let table = $( '<table class="table table-striped" />' );
-						let thead = $( '<thead />' );
-						let tbody = $( '<tbody />' );
-						if( division.name.match( /^p[pt]/ )) {
-							thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
-						} else {
-							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th><th class="seeding">Seeding</th></tr>' );
-						}
-						table.append( thead, tbody );
+						rounds.forEach( round => {
 
-						let athletes = division.athletes;
+							let placements = round.code in division.placement ? division.placement[ round.code ] : [];
+              let pending    = round.code in division.pending ? division.pending[ round.code ] : [];
+              let n          = placements.length + pending.length;
+              let complete   = Math.floor(( placements.length / n) * 100);
 
-						athletes.forEach(( athlete, i ) => {
-							let num      = `${i + 1}.`;
-							let name     = athlete.name;
-							let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
-							let seed     = athlete.info.seed;
-							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="seeding">${seed}</td></tr>` );
+              if( n == 0 ) { return; }
+
+              divprog.complete += placements.length;
+              divprog.count    += n;
+
+							// progress.push( `<div class="row"><div class="col-sm-2">${round.name} Round</div><div class="col-sm-10"><div class="progress"><div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div></div></div></div>` );
 						});
 
-						results.append( summary, forms, rname[ round ], table );
-						$( '#report-tabular' ).append( results );
+            let complete = Math.floor((divprog.complete / divprog.count ) * 100);
+						progress.push( `` );
+
+						let summary = `<div class="row"><div class="col-sm-2">Ring ${division.ring}</div><div class="summary col-sm-6">${division.name.toUpperCase()}: ${division.description}</div><div class="col-sm-4"><div class="progress"><div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div></div></div></div>`;
+						$( '#report-tabular' ).append( '<div class="division">', summary, progress, "</div>" );
+						return divprog;
 					}
 				}
 			};
 
 			var handle = {
-        division : read : () => {},
 				tournament : {
 					read : update => {
 						let divisions = update.divisions.sort(( a, b ) => a.name.localeCompare( b.name ));
+						let progress  = { count: 0, complete: 0 };
 						$( '#report-tabular' ).empty();
-						divisions.forEach( division => { display.results.table( division ); });
+						divisions.forEach( division => { 
+							let divprog = display.progress.table( division ); 
+							progress.count   += divprog.count;
+							progress.coplete += divprog.complete;
+						});
 					}
 				}
 			};

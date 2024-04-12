@@ -70,7 +70,7 @@ table .tb2 { width: 10%; }
 						}
 						
 						rounds.forEach( round => {
-              let forms = '<div class="forms">' + division.forms[ round.code ].join( ', ' ) + '</div>';
+              let forms = '<div class="forms">' + division.forms[ round.code ]?.join( ', ' ) + '</div>';
 							let table = $( '<table class="table table-striped" />' );
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
