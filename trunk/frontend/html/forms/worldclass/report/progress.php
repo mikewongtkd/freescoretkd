@@ -14,11 +14,17 @@
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<style>
-.summary { font-weight: bold; font-size: 1.2em; }
+.tournament-progress { font-size: 1.5em; }
+.division-progress { font-size: 1em; }
+.ringname { font-weight: bold; }
+.panel-body { background-color: white; }
 		</style>
 	</head>
 	<body>
-		<div id="report-tabular" class="container"></div>
+    <div class="container">
+      <h1>Recognized Poomsae Progress</h1>
+      <div id="report-tabular" class="panel-group" id="accordion" role="tablist" aria-multiselectable="true"></div>
+    </div>
 		<script type="text/javascript">
 			var tournament = <?= $tournament ?>;
 			var ring       = { num : 1 };
@@ -35,11 +41,36 @@
 
 			var display = {
 				progress : {
-					summary : progress => {
+          row : ( container, progress ) => {
             let complete = Math.floor((progress.complete / progress.count ) * 100);
 						let division = progress.division;
-						let summary  = `<div class="row"><div class="col-sm-2">${progress.label}</div><div class="summary col-sm-6">${division}</div><div class="col-sm-4"><div class="progress"><div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div></div></div></div>`;
-						$( '#report-tabular' ).append( '<div class="division">', summary, "</div>" );
+						let row  = 
+            `<div class="division-progress row">
+              <div class="col-sm-8">${progress.label}</div>
+              <div class="col-sm-4"><div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div>
+              </div>
+            </div>`;
+						container.append( row );
+          },
+					summary : ( container, progress ) => {
+            let complete = Math.floor((progress.complete / progress.count ) * 100);
+						let division = progress.division;
+						let summary  = 
+            `<div class="panel panel-default overview">
+              <div class="panel-heading">
+                <div class="tournament-progress row">
+                  <div class="col-sm-8 ringname">${progress.label}</div>
+                  <div class="col-sm-4"><div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-collapse collapse in" role="tabpanel">
+                <div class="panel-body ${progress.body}"></div>
+              </div>
+            </div>`;
+						container.append( summary );
 					},
 					table : division => {
             if( selected.ring && division.ring != selected.ring ) { return; }
@@ -53,8 +84,9 @@
 							rounds = [{ code : 'prelim', name : 'Preliminary' }];
 						}
 
-						console.log( 'RING', division.ring );
-            let progress = { ring : division.ring == 'staging' ? 0 : division.ring, count : 0, complete : 0 };
+            let ringnum  = division.ring == 'staging' ? 0 : division.ring;
+            let label    = `${division.name.toUpperCase()}: ${division.description}`;
+            let progress = { label, ring : ringnum, body: `ring-${ringnum}`, body: '', count : 0, complete : 0 };
 						
 						rounds.forEach( round => {
 
@@ -68,7 +100,7 @@
               progress.complete += placements.length;
               progress.count    += n;
 						});
-
+            division.progress = progress;
 						return progress;
 					}
 				}
@@ -79,8 +111,8 @@
 					read : update => {
 						let divisions = update.divisions.sort(( a, b ) => a.name.localeCompare( b.name ));
 						let n         = update.divisions.reduce(( a, b ) => a > b.ring ? a : b.ring, 0 );
-						let progress  = { label: 'Recognized Poomsae', count: 0, complete: 0, division: '', rings : [] };
-						for( let i = 0; i <= n; i++ ) { progress.rings[ i ] = { label : `Ring ${i}`, count : 0, complete: 0, division: { name: '', description : '' }}; }
+						let progress  = { label: 'Overall', body : '', count: 0, complete: 0, division: '', rings : [] };
+						for( let i = 0; i <= n; i++ ) { progress.rings[ i ] = { label : `Ring ${i}`, body : `ring-${i}`, count : 0, complete: 0, division: '' }; }
 
 						$( '#report-tabular' ).empty();
 						divisions.forEach( division => { 
@@ -91,7 +123,22 @@
 							progress.rings[ i ].count    += divprog.count;
 							progress.rings[ i ].complete += divprog.complete;
 						});
-						display.progress.summary( progress );
+						display.progress.summary( $( '#report-tabular' ), progress );
+            progress.rings.forEach( ring => {
+              if( ring.label == 'Ring 0' ) { ring.label = 'Staging'; return; }
+						  display.progress.summary( $( '#report-tabular' ), ring );
+            });
+						divisions.forEach( division => { 
+							let i       = division.ring;
+              display.progress.row( $( `.ring-${i}` ), division.progress );
+						});
+            $( '.collapse' ).collapse();
+            $( '.panel-heading' ).off( 'click' ).click( ev => {
+              let target = $( ev.target );
+              if( ! target.hasClass( 'panel-heading' )) { target = target.parents( '.panel-heading' ); }
+              $( '.collapse' ).collapse( 'hide' );
+              target.children( '.collapse' ).collapse( 'toggle' );
+            });
 					}
 				}
 			};
