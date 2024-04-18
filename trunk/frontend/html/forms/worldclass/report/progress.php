@@ -35,11 +35,15 @@
 
 			var display = {
 				progress : {
+					summary : progress => {
+            let complete = Math.floor((progress.complete / progress.count ) * 100);
+						let division = progress.division;
+						let summary  = `<div class="row"><div class="col-sm-2">${progress.label}</div><div class="summary col-sm-6">${division}</div><div class="col-sm-4"><div class="progress"><div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div></div></div></div>`;
+						$( '#report-tabular' ).append( '<div class="division">', summary, "</div>" );
+					},
 					table : division => {
             if( selected.ring && division.ring != selected.ring ) { return; }
             if( selected.divid && division.name != selected.divid ) { return; }
-						console.log( division.name.toUpperCase(), division );
-						let progress = [];
 						let rounds   = [{ code : 'finals', name : 'Final' }];
 						let n        = division.athletes.length;
 
@@ -49,7 +53,8 @@
 							rounds = [{ code : 'prelim', name : 'Preliminary' }];
 						}
 
-            let divprog = { count : 0, complete : 0 };
+						console.log( 'RING', division.ring );
+            let progress = { ring : division.ring == 'staging' ? 0 : division.ring, count : 0, complete : 0 };
 						
 						rounds.forEach( round => {
 
@@ -60,18 +65,11 @@
 
               if( n == 0 ) { return; }
 
-              divprog.complete += placements.length;
-              divprog.count    += n;
-
-							// progress.push( `<div class="row"><div class="col-sm-2">${round.name} Round</div><div class="col-sm-10"><div class="progress"><div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div></div></div></div>` );
+              progress.complete += placements.length;
+              progress.count    += n;
 						});
 
-            let complete = Math.floor((divprog.complete / divprog.count ) * 100);
-						progress.push( `` );
-
-						let summary = `<div class="row"><div class="col-sm-2">Ring ${division.ring}</div><div class="summary col-sm-6">${division.name.toUpperCase()}: ${division.description}</div><div class="col-sm-4"><div class="progress"><div class="progress-bar" role="progressbar" style="width: ${complete}%;">${complete}%</div></div></div></div>`;
-						$( '#report-tabular' ).append( '<div class="division">', summary, progress, "</div>" );
-						return divprog;
+						return progress;
 					}
 				}
 			};
@@ -80,13 +78,20 @@
 				tournament : {
 					read : update => {
 						let divisions = update.divisions.sort(( a, b ) => a.name.localeCompare( b.name ));
-						let progress  = { count: 0, complete: 0 };
+						let n         = update.divisions.reduce(( a, b ) => a > b.ring ? a : b.ring, 0 );
+						let progress  = { label: 'Recognized Poomsae', count: 0, complete: 0, division: '', rings : [] };
+						for( let i = 0; i <= n; i++ ) { progress.rings[ i ] = { label : `Ring ${i}`, count : 0, complete: 0, division: { name: '', description : '' }}; }
+
 						$( '#report-tabular' ).empty();
 						divisions.forEach( division => { 
 							let divprog = display.progress.table( division ); 
-							progress.count   += divprog.count;
-							progress.coplete += divprog.complete;
+							let i       = divprog.ring;
+							progress.count               += divprog.count;
+							progress.complete            += divprog.complete;
+							progress.rings[ i ].count    += divprog.count;
+							progress.rings[ i ].complete += divprog.complete;
 						});
+						display.progress.summary( progress );
 					}
 				}
 			};
