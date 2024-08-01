@@ -12,8 +12,8 @@ use FreeScore::Forms::WorldClass::Schedule::Block;
 use Scalar::Util qw( blessed );
 use Data::Dumper;
 
-our $TIME_PER_FORM = 4;
-our $TIME_PER_FREESTYLE_FORM = 8;
+our $TIME_PER_FORM = 2.5;
+our $TIME_PER_FREESTYLE_FORM = 5;
 
 # ============================================================
 sub new {
