@@ -78,7 +78,7 @@ class Form {
 	}
 
 	penalty() {
-		if( ! defined( form.penalty )) { return { data : () => null, from : key => 0, total : () => 0 }; }
+		if( ! defined( this.form.penalty )) { return { data : () => null, from : key => 0, total : () => 0 }; }
 		return {
 			data : function() { return form.penalty; },
 			from : function( key ) {

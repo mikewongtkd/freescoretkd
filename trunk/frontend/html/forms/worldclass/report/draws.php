@@ -23,7 +23,7 @@ table .usatid { width: 30%; text-align: right; }
 		<script type="text/javascript">
 			var tournament = <?= $tournament ?>;
 			var ring       = { num : 1 };
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
+			var ws         = new WebSocket( '<?= $config->websocket( 'worldclass', 1, 'computer+operator' ) ?>' );
 			var network    = { reconnect: 0 };
 			var divisions  = [];
 
@@ -51,23 +51,25 @@ table .usatid { width: 30%; text-align: right; }
 					table : division => {
 						let results = $( '<div class="results"></div>' );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
-						let round   = '<h4>Final Round</h4>';
+						let round   = { display: '<h4>Final Round</h4>', code : 'finals' };
 						let n       = division.athletes.length;
 
-						if( n >   8 ) { round = '<h4>Semi-Final Round</h4>'; }
-						if( n >= 20 ) { round = '<h4>Preliminary Round</h4>' }
+						if( n >   8 ) { round = { display : '<h4>Semi-Final Round</h4>', code : 'semfin' }; }
+						if( n >= 20 ) { round = { display : '<h4>Preliminary Round</h4>', code : 'prelim' } }
 
 						if( 'flight' in division ) {
-							round = '<h4>Preliminary Round</h4>';
+							round = { display : '<h4>Preliminary Round</h4>', code : 'prelim' };
 						}
 						
 						let table = $( '<table class="table table-striped" />' );
 						let thead = $( '<thead />' );
 						let tbody = $( '<tbody />' );
 						if( division.name.match( /^p[pt]/ )) {
-							thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
+							// thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
+							thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">&nbsp;</th></tr>' );
 						} else {
-							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
+							// thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
+							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">&nbsp;</th></tr>' );
 						}
 						table.append( thead, tbody );
 
@@ -76,11 +78,11 @@ table .usatid { width: 30%; text-align: right; }
 						athletes.forEach(( athlete, i ) => {
 							let num      = `${i + 1}.`;
 							let name     = athlete.name;
-							let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
+							let usatid   = athlete.info?.usatid ? athlete.info.usatid.replace( /,/g, ', ' ) : '';
 							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
 						});
 
-						results.append( summary, round, table );
+						results.append( summary, round.display, division.forms[ round.code ].join( ', ' ), table );
 						$( '#report-tabular' ).append( results );
 					}
 				}
@@ -124,7 +126,7 @@ table .usatid { width: 30%; text-align: right; }
 					setTimeout(() => {
 						if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 						network.reconnect++;
-						ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` ); 
+						ws = new WebSocket( '<?= $config->websocket( 'worldclass', 1, 'computer+operator' ) ?>' ); 
 						
 						ws.onerror   = network.error;
 						ws.onmessage = network.message;
