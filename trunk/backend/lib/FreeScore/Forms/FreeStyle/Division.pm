@@ -410,8 +410,6 @@ sub record_score {
 	my $i     = $self->{ current };
 	my $round = $self->{ round };
 
-	my $json = new JSON::XS();
-
 	$self->{ state } = 'score';
 	my $athlete = $self->{ athletes }[ $i ];
 	$athlete->{ scores }{ $round }[ $judge ] = $score;
