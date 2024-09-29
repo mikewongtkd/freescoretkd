@@ -155,11 +155,13 @@
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
 				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
 				$path = "/{$service}";
-				
 			}
 			$host = $config[ 'host' ];
 			$db   = $config[ 'tournament' ][ 'db' ];
 			$url  = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
+			if( $service == 'freestyle' ) {
+				$url = "{$ws}{$host}{$port}/freestyle";
+			}
 			return $url;
 		}
 
