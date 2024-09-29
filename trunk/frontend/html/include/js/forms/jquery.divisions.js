@@ -70,7 +70,7 @@ $.widget( "freescore.divisions", {
 			e.input.autocomplete({ source : Object.keys( o.input )});
 		}
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/' + o.event + '/update?tournament=' + o.tournament.db );
+		e.source = new EventSource( '/cgi-bin/forms/' + o.event + '/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
 	}
 });
