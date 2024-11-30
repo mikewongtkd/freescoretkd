@@ -1,6 +1,7 @@
 package FreeScore::Forms::WorldClass::Division;
 use FreeScore;
 use FreeScore::Forms::Division;
+use FreeScore::Forms::WorldClass::Method;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all any none first min shuffle reduce );
@@ -137,25 +138,6 @@ sub clear_score {
 	$athlete->{ scores }{ $round }->clear_score( $form, $judge );
 }
 
-
-# ============================================================
-sub distribute_evenly {
-# ============================================================
-#** @method ( group_name_array, athlete_array )
-#   @brief Uniformly distributes the athletes across the array of groups for bracketed round assignments
-#*
-	my $self   = shift;
-	my $groups = shift;
-	my $queue  = shift || [ ( 0 .. $#{ $self->{ athletes }} ) ];
-	my $i      = 0;
-	my $k      = int( @$groups );
-	while( @$queue ) {
-		my $j     = shift @$queue;
-		my $group = $groups->[ $i ];
-		$self->assign( $j, $group );
-		$i = ($i + 1) % $k;
-	}
-}
 
 # ============================================================
 sub from_json {
@@ -401,55 +383,166 @@ sub is_flight {
 }
 
 # ============================================================
+sub method {
+# ============================================================
+	my $self   = shift;
+	my $round  = shift || $self->{ round };
+	my $method = exists $self->{ method } ? $self->{ method } : 'cutoff';
+
+	$method ||= 'cutoff'; # Default is cutoff
+
+	if( ref $method eq 'HASH' ) {
+		if( exists $method->{ $round }) {
+			return $method->{ $round };
+		} else {
+			return 'cutoff';
+		}
+
+	} else {
+		return $method;
+	}
+}
+
+# ============================================================
 sub normalize {
 # ============================================================
-#** @method ()
-#   @brief Normalizes the division object.
-#*
 	my $self   = shift;
-	my $judges = $self->{ judges };
-	my $round  = $self->{ round };
+	my @rounds = $self->rounds();
 
-	$self->{ state } ||= 'score';
-	$self->{ form }  ||= 0;
-
-	# ===== ASSIGN ALL ATHLETES TO THE DEFINED ROUND
-	if( defined $round ) {
-		die "Division Configuration Error: No forms defined for round '$round' $!" unless defined $self->{ forms }{ $round };
-		my $order = $self->{ order }{ $round };
-		if( ! (defined $order && int( @$order ))) { $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); } 
-
-	# ===== NO ROUND DEFINED; FIGURE OUT WHICH ROUND TO START WITH, GIVEN THE NUMBER OF ATHLETES
-	} else {
-		my $n      = int( @{ $self->{ athletes }} );
-		my $half   = int( ($n-1)/2 );
-		my $flight = $self->is_flight();
-
-		if    ( $flight || $n >= 20 ) { $round = 'prelim'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		elsif ( $n >   8            ) { $round = 'semfin'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		else { 
-			# ===== COMBINATION METHOD USES SINGLE ELIMINATION IN FINAL ROUND
-			if( $self->{ method } eq 'combination' ) {
-				if    ( $n > 4 ) { $round = 'final1'; $self->distribute_evenly( 'final1' ); } 
-				elsif ( $n > 2 ) { $round = 'final2'; $self->distribute_evenly( 'final2' ); } 
-				else             { $round = 'final3'; $self->distribute_evenly( 'final3' ); }
-
-			# ===== CUTOFF METHOD USES SAME METHODOLOGY AS BEFORE
-			} else { $round = 'finals'; $self->assign( $_, $round ) foreach ( 0 .. $#{ $self->{ athletes }} ); }
-		}
-	}
-
-	# ===== NORMALIZE THE SCORING MATRIX
-	my $forms  = int( @{ $self->{ forms }{ $round }});
-	my @rounds = grep { my $order = $self->{ order }{ $_ }; defined $order && int( @$order ); } @FreeScore::Forms::WorldClass::Division::round_order;
 	foreach my $round (@rounds) {
-		foreach my $i (@{ $self->{ order }{ $round }}) {
-			my $athlete = $self->{ athletes }[ $i ];
-			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+		my $method = $self->method( $round );
+		$method->normalize( $round );
+	}
+}
+
+# ============================================================
+sub read {
+# ============================================================
+#** @method ()
+#   @brief Reads the division from the database
+#*
+	my $self  = shift;
+
+	# ===== DEFAULTS
+	$self->{ state }   = 'score';
+	$self->{ places }  = _parse_places( 'prelim:half;semfin:8;finals:1,1,2' );
+
+	my $round    = 'autodetect_required';
+	my $order    = {}; # Athlete order by name (not by index!)
+	my $athletes = {}; # Dictionary of athletes by name (not by index!)
+	my $athlete  = {};
+	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
+	while( <FILE> ) {
+		chomp;
+		next if /^\s*$/; # Skip empty or pure whitespace lines
+
+		# ===== READ DIVISION STATE INFORMATION
+		if( /^#/ ) {
+			if( /=/ ) {
+				s/^#\s+//;
+				my ($key, $value) = split /=/;
+				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );                                       }
+				elsif ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );                                         }
+				elsif ( $key eq 'method'      ) { $self->{ $key } = FreeScore::Forms::WorldClass::Method::factory( $value, $self ); }
+				elsif ( $key eq 'tiebreakers' ) { $self->{ $key } = _parse_forms( $value );                                         }
+				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );                                        }
+				elsif ( $key eq 'placement'   ) { $self->{ $key } = _parse_placement( $value );                                     }
+				else                            { $self->{ $key } = $value;                                                         }
+
+				$round = $self->{ round } if( defined $self->{ round } );
+
+			# Round information is explicitly given
+			} elsif( /prelim|ro256|ro128|ro64|ro32|semfin|ro16|finals|ro8|ro4|ro2/i ) {
+				s/^#\s+//;
+
+				# Store the last athlete for the previous round
+				if( $athlete->{ name } ) {
+					push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
+					$athlete = {};
+				}
+
+				# Assign round
+				$round = $_;
+
+			}
+		# ===== READ ATHLETE INFORMATION
+		} elsif( /^\w/ ) {
+			die "Division Configuration Error: Number of Judges not defined before athlete information" unless $self->{ judges };
+			die "Division Configuration Error: Forms not defined before athlete information"            unless $self->{ forms };
+
+			# Store the current athlete before starting a new athlete
+			if( $athlete->{ name } ) {
+				push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
+				$athlete = {};
+			}
+
+			my ($name, @info) = split /\t/;
+
+			# Reload the athlete seen from a previous round or...
+			if( exists $athletes->{ $name } ) {
+				$athlete = $athletes->{ $name };
+
+			# Start a new athlete
+			} else {
+				$athlete->{ name }   = $name;
+				$athlete->{ info }   = { map { my ($key, $value) = split /=/, $_, 2; ($key => $value); } @info };
+				$athlete->{ scores } = {};
+
+				$athletes->{ $athlete->{ name } } = $athlete; 
+			}
+
+		# ===== READ ATHLETE SCORES
+		} elsif( /^\t\w/ ) {
+			s/^\t//;
+			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
+			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
+
+			# Scores are ordered by judge number (ref, 1, 2, etc.)
+			if    ( $judge =~ /^[jr]/ ) {
+				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
+				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
+				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
+				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
+				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
+
+				next unless( $major || $minor || $rhythm || $power || $ki );
+
+				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
+				my $forms  = int( @{ $self->{ forms }{ $round }});
+				my $judges = $self->{ judges };
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+
+			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
+			} elsif ( $judge =~ /^p/ ) {
+
+				my @criteria  = (@FreeScore::Forms::WorldClass::Division::Round::PENALTIES, @FreeScore::Forms::WorldClass::Division::Round::GAMJEOMS, @FreeScore::Forms::WorldClass::Division::Round::TIME);
+				my $penalties = { map { $_ => shift @score_criteria } @criteria };
+				my $forms     = int( @{ $self->{ forms }{ $round }});
+				my $judges    = $self->{ judges };
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
+
+			# Status notes describe athlete withdraw or disqualification
+			} elsif ( $judge =~ /^s/ ) {
+				my $decision  = [ (map { my ($key, $value) = split /=/, $_, 2; ($key); } @score_criteria) ];
+				my $forms     = int( @{ $self->{ forms }{ $round }});
+				my $judges    = $self->{ judges };
+				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+				$athlete->{ scores }{ $round }->record_decision( $form, $_ ) foreach @$decision;
+			}
+
+		} else {
+			die "Database Read Error: Unknown line type '$_'\n";
 		}
 	}
+	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
+	close FILE;
 
-	$self->{ current } = $self->athletes_in_round( 'first' ) unless defined $self->{ current };
+
+	$self->initialize( $athletes, $order );
+	$self->normalize();
+	$self->update_status();
 }
 
 # ============================================================
@@ -591,170 +684,27 @@ sub reorder {
 }
 
 # ============================================================
-sub read {
+sub rounds {
 # ============================================================
-#** @method ()
-#   @brief Reads the division from the database
-#*
-	my $self  = shift;
-
-	# ===== DEFAULTS
-	$self->{ state }   = 'score';
-	$self->{ places }  = _parse_places( 'prelim:half;semfin:8;finals:1,1,2' );
-
-	my $round    = 'autodetect_required';
-	my $order    = {};
-	my $athletes = {};
-	my $athlete  = {};
-	open FILE, $self->{ file } or die "Database Read Error: Can't read '$self->{ file }' $!";
-	while( <FILE> ) {
-		chomp;
-		next if /^\s*$/; # Skip empty or pure whitespace lines
-
-		# ===== READ DIVISION STATE INFORMATION
-		if( /^#/ ) {
-			if( /=/ ) {
-				s/^#\s+//;
-				my ($key, $value) = split /=/;
-				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );     }
-				elsif ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
-				elsif ( $key eq 'tiebreakers' ) { $self->{ $key } = _parse_forms( $value );     }
-				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );    }
-				elsif ( $key eq 'placement'   ) { $self->{ $key } = _parse_placement( $value ); }
-				else                            { $self->{ $key } = $value;                     }
-
-				$round = $self->{ round } if( defined $self->{ round } );
-
-			} elsif( /prelim|semfin|finals|final1|final2|final3/i ) {
-				s/^#\s+//;
-
-				# Store the last athlete
-				if( $athlete->{ name } ) {
-					push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
-					$athlete = {};
-				}
-
-				# Assign round
-				$round = $_;
-
-			}
-		# ===== READ ATHLETE INFORMATION
-		} elsif( /^\w/ ) {
-			die "Division Configuration Error: Number of Judges not defined before athlete information" unless $self->{ judges };
-			die "Division Configuration Error: Forms not defined before athlete information"            unless $self->{ forms };
-
-			# Store the current athlete before starting a new athlete
-			if( $athlete->{ name } ) {
-				push @{ $order->{ $round }}, $athlete->{ name } if( $athlete->{ name } );
-				$athlete = {};
-			}
-
-			my ($name, @info) = split /\t/;
-
-			# Reload the athlete seen from a previous round or...
-			if( exists $athletes->{ $name } ) {
-				$athlete = $athletes->{ $name };
-
-			# Start a new athlete
-			} else {
-				$athlete->{ name }   = $name;
-				$athlete->{ info }   = { map { my ($key, $value) = split /=/, $_, 2; ($key => $value); } @info };
-				$athlete->{ scores } = {};
-
-				$athletes->{ $athlete->{ name } } = $athlete; 
-			}
-
-		# ===== READ ATHLETE SCORES
-		} elsif( /^\t\w/ ) {
-			s/^\t//;
-			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
-			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
-
-			# Scores are ordered by judge number (ref, 1, 2, etc.)
-			if    ( $judge =~ /^[jr]/ ) {
-				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
-				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
-				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
-				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
-				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
-
-				next unless( $major || $minor || $rhythm || $power || $ki );
-
-				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
-				my $forms  = int( @{ $self->{ forms }{ $round }});
-				my $judges = $self->{ judges };
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
-
-			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
-			} elsif ( $judge =~ /^p/ ) {
-
-				my @criteria  = (@FreeScore::Forms::WorldClass::Division::Round::PENALTIES, @FreeScore::Forms::WorldClass::Division::Round::GAMJEOMS, @FreeScore::Forms::WorldClass::Division::Round::TIME);
-				my $penalties = { map { $_ => shift @score_criteria } @criteria };
-				my $forms     = int( @{ $self->{ forms }{ $round }});
-				my $judges    = $self->{ judges };
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
-
-			# Status notes describe athlete withdraw or disqualification
-			} elsif ( $judge =~ /^s/ ) {
-				my $decision  = [ (map { my ($key, $value) = split /=/, $_, 2; ($key); } @score_criteria) ];
-				my $forms     = int( @{ $self->{ forms }{ $round }});
-				my $judges    = $self->{ judges };
-				$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
-				$athlete->{ scores }{ $round }->record_decision( $form, $_ ) foreach @$decision;
-			}
-
-		} else {
-			die "Database Read Error: Unknown line type '$_'\n";
+	my $self   = shift;
+	my @rounds = ();
+	if( exists $self->{ method }) {
+		my @order  = qw( prelim ro256 ro128 ro64 ro32 semfin ro16 finals ro8 ro4 ro2 );
+		if( ref( $self->{ method }) eq 'HASH' ) {
+			@rounds = grep { exists $self->{ method }{ $_ } } @order;
+		} elsif( $self->{ method } eq 'cutoff' ) {
+			@rounds = qw( prelim semfin finals );
+		} elsif( $self->{ method } eq 'se' || $self->{ method } eq 'sbs' ) {
+			@rounds = qw( prelim semfin finals );
 		}
-	}
-	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
-	close FILE;
 
-	foreach my $i ( 0 .. $#{ $self->{ athletes }} ) {
-		next unless $athlete->{ scores }{ prelim };
+	} else {
+		@rounds = qw( prelim semfin finals );
 	}
 
-	# ===== AUTODETECT THE FIRST ROUND
-	if( exists $order->{ 'autodetect_required' } ) {
-		my $n      = int( keys %$athletes );
-		my $flight = $self->is_flight();
-
-		if    ( $n ==  0            ) { die "Division Configuration Error: No athletes declared $!"; }
-		elsif ( $n >= 20 || $flight ) { $round = 'prelim'; $order->{ 'prelim' } = $order->{ 'autodetect_required' }; }
-		elsif ( $n <  20 && $n >  8 ) { $round = 'semfin'; $order->{ 'semfin' } = $order->{ 'autodetect_required' }; }
-		elsif ( $n <=  8            ) { $round = 'finals'; $order->{ 'finals' } = $order->{ 'autodetect_required' }; }
-
-		delete $order->{ 'autodetect_required' };
-	}
-
-	# ===== READ THE ATHLETE ASSIGNMENT FOR THE ROUND SUB-HEADER IN THE FILE
-	my $initial_order = {};
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		next unless exists $order->{ $round };
-
-		# Establish order by athlete name, based on the earliest round
-		if( keys %$initial_order ) {
-			foreach my $name (@{ $order->{ $round }}) {
-				push @{$self->{ order }{ $round }}, $initial_order->{ $name } if defined $initial_order->{ $name };
-			}
-
-		# No initial order set; this must be the earliest round
-		} else {
-			my $i = 0;
-			foreach my $name (@{ $order->{ $round }}) {
-				$initial_order->{ $name } = $i;
-				$athletes->{ $name }{ id } = $i unless exists $athletes->{ $name }{ id };
-				push @{$self->{ order }{ $round }}, $i;
-				push @{ $self->{ athletes }}, $athletes->{ $name };
-				$i++;
-			}
-		}
-	}
-
-	$self->normalize();
-	$self->update_status();
+	# Get the first round and all rounds thereafter
+	my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
+	return slice @order, $i;
 }
 
 # ============================================================
@@ -800,7 +750,7 @@ sub update_status {
 #   @brief Determine athlete placements and tie detection
 #*
 	my $self   = shift;
-	my $method = $self->{ method };
+	my $method = $self->method();
 	my $round  = $self->{ round };
 
 	# ===== CALCULATE SCORE MEANS FOR ALL ROUNDS
@@ -954,7 +904,7 @@ sub write {
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
-	print FILE "# method=" . lc( $self->{ method } ) . "\n" if exists( $self->{ method } ) && defined( $self->{ method } );
+	print FILE "# method=" . lc( $self->{ method } ) . "\n" if exists( $self->{ method } ) && defined( $self->{ method } ); # MW FIX
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
@@ -1254,6 +1204,24 @@ sub _parse_forms {
 		($round => [ @forms ]);
 	} split /\s*;\s*/, $value;
 	return { @rounds }; 
+}
+
+# ============================================================
+sub _parse_methods {
+# ============================================================
+#** @function ( methods_text )
+#   @brief Parses serialized methods text, which is simply a string or JSON
+#   @details For use with 'method' header
+#*
+	my $value = shift;
+
+	if( $value =~ /^(?:\{|\[)/ ) {
+		my $json = new JSON::XS();
+		return $json->decode( $value );
+
+	} else {
+		return $value;
+	}
 }
 
 # ============================================================
