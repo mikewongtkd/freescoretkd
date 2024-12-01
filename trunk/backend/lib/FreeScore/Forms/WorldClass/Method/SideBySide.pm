@@ -1,5 +1,6 @@
-package FreeScore::Forms::WorldClass::Method::SingleElimination;
+package FreeScore::Forms::WorldClass::Method::SideBySide;
 use base qw( FreeScore::Forms::WorldClass::Method );
+use List::Util qw( first );
 
 our @rounds = [
 	{ code => 'ro256', name => 'Round of 256',  matches => 128, min => 129, max => 256 },
@@ -11,23 +12,4 @@ our @rounds = [
 	{ code => 'ro4',   name => 'Semifinals',    matches => 2,   min => 3,   max => 4   },
 	{ code => 'ro2',   name => 'Finals',        matches => 1,   min => 1,   max => 2   }
 ];
-
-# ============================================================
-sub distribute_evenly {
-# ============================================================
-#** @method ( group_name_array, athlete_array )
-#   @brief Uniformly distributes the athletes across the array of groups for bracketed round assignments
-#*
-	my $self   = shift;
-	my $groups = shift;
-	my $queue  = shift || [ ( 0 .. $#{ $div->{ athletes }} ) ];
-	my $i      = 0;
-	my $k      = int( @$groups );
-	while( @$queue ) {
-		my $j     = shift @$queue;
-		my $group = $groups->[ $i ];
-		$div->assign( $j, $group );
-		$i = ($i + 1) % $k;
-	}
-}
 

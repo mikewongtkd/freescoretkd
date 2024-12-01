@@ -1,6 +1,8 @@
 package FreeScore::Forms::WorldClass::Method::Cutoff;
 use base qw( FreeScore::Forms::WorldClass::Method );
+use FreeScore::Forms::WorldClass::Division::Round
 use List::Util qw( first );
+
 
 our @rounds = [
 	{ code => 'prelim', name => 'Preliminary', min => 20 },
@@ -9,64 +11,30 @@ our @rounds = [
 ];
 
 # ============================================================
-sub initialize {
+sub assign {
 # ============================================================
-#** @method ()
-#   @brief Normalizes the division object.
+#** @method ( athlete_index, round )
+#   @brief Assigns the athlete to a round
 #*
-	my $self     = shift;
-	my $athletes = shift; # Dictionary of athletes by name (not by index!)
-	my $order    = shift; # Athlete order by name (not by index!)
-	my $div      = $self->{ division };
-	my $judges   = $div->{ judges };
-	my $round    = $div->{ round };
+	my $self       = shift;
+	my $i          = shift;
+	my $round      = shift;
+	my $div        = $self->{ division };
+	my $judges     = $div->{ judges };
+	my $athlete    = $div->{ athletes }[ $i ];
 
-	my ($prelim, $semfin, $finals) = @FreeSore::Forms::WorldClass::Method::Cutoff::rounds;
+	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $div->{ forms }{ $round };
+	my @compulsory = @{ $div->{ forms }{ $round }};
+	my $forms      = int( @compulsory );
+	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
 
-	$div->{ state } ||= 'score';
-	$div->{ form }  ||= 0;
+	# Do nothing if athlete is already assigned to the round
+	return if( any { $_ == $i } @{ $div->{ order }{ $round }});
 
-	# ===== AUTODETECT THE FIRST ROUND
-	if( exists $order->{ autodetect_required } ) {
-		my $n      = int( keys %$athletes );
-		my $flight = $div->is_flight();
-
-		if    ( $n ==  0            ) { die "Division Configuration Error: No athletes declared $!"; }
-		elsif ( $n >= $prelim->{ min } || $flight )               { $round = 'prelim'; $order->{ prelim } = $order->{ autodetect_required }; }
-		elsif ( $n <  $prelim->{ min } && $n >= $semfin->{ min }) { $round = 'semfin'; $order->{ semfin } = $order->{ autodetect_required }; }
-		elsif ( $n <=  $finals->{ max }            )              { $round = 'finals'; $order->{ finals } = $order->{ autodetect_required }; }
-
-		delete $order->{ autodetect_required };
-	}
-
-	# ===== CONVERT FROM NAME INDEX TO NUMERIC INDEX
-	# Indices have full document scope; that is, recurring names in subsequent
-	# rounds refer to the same athlete of the same name from the previous
-	# round, and therefore should have the same numeric index.
-	my $numeric_index = {};
-	foreach my $round ($self->rounds()) {
-		next unless exists $order->{ $round };
-
-		# Establish order by athlete name, based on the earliest round
-		if( keys %$numeric_index ) {
-			foreach my $name (@{ $order->{ $round }}) {
-				next unless exists $numeric_index->{ $name };
-				my $i = $numeric_index->{ $name };
-				$div->assign( $i, $round );
-			}
-
-		# No initial order set; this must be the earliest round
-		} else {
-			foreach my $i ( 0 .. $#{ $order->{ $round }}) {
-				my $name = $order->{ $round }[ $i ];
-				$numeric_index->{ $name } = $i;
-				$athletes->{ $name }{ id } = $i unless exists $athletes->{ $name }{ id };
-				$div->assign( $i, $round );
-				push @{ $div->{ athletes }}, $athletes->{ $name };
-			}
-		}
-	}
+	$div->reinstantiate_round( $round, $i );
+	push @{ $div->{ order }{ $round }}, $i;
 }
+
 
 # ============================================================
 sub normalize {
@@ -87,7 +55,7 @@ sub normalize {
 	if( exists $div->{ order } && exists $div->{ order }{ $round }) {
 		foreach my $i (@{ $div->{ order }{ $round }}) {
 			my $athlete = $div->{ athletes }[ $i ];
-			$athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
+			$div->reinstantiate_round( $round, $i );
 		}
 	}
 
@@ -95,10 +63,68 @@ sub normalize {
 }
 
 # ============================================================
-sub string {
+sub place_athletes {
 # ============================================================
-	my $self = shift;
-	return 'cutoff';
+#** @method ()
+#   @brief Calculates placements for the current round. Auto-updates score averages.
+#*
+	my $self      = shift;
+	my $div       = $self->{ division };
+	my $round     = $div->{ round };
+	my $placement = [];
+
+	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
+	my @athlete_indices = @{$div->{ order }{ $round }};
+
+	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
+	@$placement = sort { 
+		# ===== COMPARE BY COMPULSORY ROUND SCORES
+		my $x = $div->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
+		my $y = $div->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
+		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+
+		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
+		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
+		if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
+			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $x->{ notes } = 'P'; }
+			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $y->{ notes } = 'P'; }
+			else {
+				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
+				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
+				else {
+					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
+					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
+					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
+					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
+				}
+			}
+		}
+
+		# ===== COMPARE BY TIE-BREAKERS IF TIED
+		if( abs( $comparison ) < 0.010 ) {
+			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y ); 
+		}
+
+		$comparison;
+	} @athlete_indices;
+
+	# ===== ASSIGN PLACEMENTS
+	my $half = int( (int(@{ $div->{ athletes }}) + 1) /2 );
+	@$placement = grep { defined $div->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
+	@$placement = grep { $div->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete
+
+	$div->{ placement }{ $round } = $placement;
+
+	# ===== CALCULATE PENDING
+	# Updates the leaderboard to indicate the next player
+	my $pending = [ @{$div->{ order }{ $round }} ];
+	@$pending   = grep { my $scores = $div->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
+
+	$div->{ pending }{ $round } = $pending;
 }
+
+# ============================================================
+sub string { return 'cutoff'; }
+# ============================================================
 
 1;

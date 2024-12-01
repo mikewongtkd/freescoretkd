@@ -20,7 +20,7 @@ sub init {
 	my $round = shift;
 
 	$self->{ division } = $div;
-	$self->{ round }    = $round;
+	$self->{ round }    = $round if $round;
 }
 
 # ============================================================
@@ -43,12 +43,35 @@ sub factory {
 }
 
 # ============================================================
+sub round {
+# ============================================================
+	my $self  = shift;
+	my $rcode = shift;
+	my $class  = ref( $self );
+	my $rvar   = "\@$class::rounds";
+	my @rounds = eval $rvar;
+
+	return first { $_->{ code } eq $rcode } @rounds;
+}
+
+# ============================================================
 sub rounds {
 # ============================================================
 	my $self   = shift;
+	my $mode   = shift || 'code';
 	my $class  = ref( $self );
 	my $rvar   = "\@$class::rounds";
-	my @rounds = map { $_->{ code } } eval $rvar;
+	my @rounds = eval $rvar;
+
+	if( $mode eq 'object' ) {
+		return @rounds;
+
+	} elsif( $mode =~ /^(?:code|name|min|max|matches)$/ ) {
+		return map { $_->{ $mode } } @rounds;
+
+	} else {
+		die "Unrecognized mode request '$mode' $!";
+	}
 
 	return @rounds;
 }
