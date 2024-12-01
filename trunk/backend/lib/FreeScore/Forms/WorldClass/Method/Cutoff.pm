@@ -1,14 +1,72 @@
 package FreeScore::Forms::WorldClass::Method::Cutoff;
 use base qw( FreeScore::Forms::WorldClass::Method );
-use FreeScore::Forms::WorldClass::Division::Round
-use List::Util qw( first );
-
+use FreeScore::Forms::WorldClass::Division;
+use FreeScore::Forms::WorldClass::Division::Round;
+use List::Util qw( first shuffle );
+use List::MoreUtils qw( first_index );
 
 our @rounds = [
 	{ code => 'prelim', name => 'Preliminary', min => 20 },
 	{ code => 'semfin', name => 'Semi-Finals', min => 9, max => 19 },
 	{ code => 'finals', name => 'Finals',      min => 1, max => 8  }
 ];
+
+# ============================================================
+sub advance_athletes {
+# ============================================================
+#** @method ( round )
+#   @brief Advances the winning athletes of the current round to the next round
+#*
+	my $self        = shift;
+	my $div         = $self->{ division };
+	my $round       = shift || $div->{ round };
+	my @rounds      = $div->rounds();
+	my @round_order = @FreeScore::Forms::WorldClass::Division::round_order;
+	my $i           = first_index { $_ eq $round } @round_order;
+
+	# ===== DO NOTHING IF THE CURRENT ROUND IS THE FINALS (NO FURTHER ROUNDS)
+	if( $round eq 'finals' ) { return; }
+
+	# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
+	my $n = int( @{ $div->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
+
+	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
+	if( $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged' ) {
+		$div->{ flight }{ state } = 'complete';
+		return;
+	}
+
+	my $prelim = first_index { $_ eq 'prelim' } @round_order;
+	my $semfin = first_index { $_ eq 'prelim' } @round_order;
+	my $advanced = {
+		semfin => exists $div->{ order }{ semfin } && ref $div->{ order }{ semfin } eq 'ARRAY' && int( @{$div->{ order }{ semfin }}) > 0,
+		finals => exists $div->{ order }{ finals } && ref $div->{ order }{ finals } eq 'ARRAY' && int( @{$div->{ order }{ finals }}) > 0
+	};
+
+	# ===== ADVANCE PRELIMINARY ATHLETES IF PRELIMINARY ROUND IS COMPLETE
+	# Skip if the athletes have already been advanced to the semi-final round
+	if( $i > $prelim && $div->round_complete( 'prelim' ) && ! $advanced->{ semfin }) {
+
+		# Semi-final round goes in random order
+		my $half       = int( ($n-1)/2 );
+		my @candidates = @{ $div->{ placement }{ prelim }};
+		my @eligible   = $div->eligible_athletes( 'prelim', @candidates );
+		my @order      = shuffle (@eligible[ 0 .. $half ]);
+		$div->assign( $_, 'semfin' ) foreach @order;
+	} 
+
+	# ===== ADVANCE SEMI-FINAL ATHLETES IF SEMI-FINAL ROUND IS COMPLETE
+	# Skip if the athletes have already been advanced to the finals
+	if( $i > $semfin && $div->round_complete( 'semfin' ) && ! $advanced->{ finals }) { 
+
+		# Finals go in reverse placement order of semi-finals
+		my $k          = $n > 8 ? 7 : ($n - 1);
+		my @candidates = @{ $div->{ placement }{ semfin }};
+		my @eligible   = $div->eligible_athletes( 'semfin', @candidates );
+		my @order      = reverse (@eligible[ 0 .. $k ]);
+		$div->assign( $_, 'finals' ) foreach @order;
+	}
+}
 
 # ============================================================
 sub assign {
@@ -18,7 +76,7 @@ sub assign {
 #*
 	my $self       = shift;
 	my $i          = shift;
-	my $round      = shift;
+	my $round      = $self->{ round };
 	my $div        = $self->{ division };
 	my $judges     = $div->{ judges };
 	my $athlete    = $div->{ athletes }[ $i ];

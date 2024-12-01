@@ -62,8 +62,7 @@ sub assign {
 	my $i          = shift;
 	my $round      = shift;
 
-	my $method = $self->method( $round );
-	$method->assign( $i, $round );
+	$self->method( $round )->assign( $i );
 }
 
 # ============================================================
@@ -446,9 +445,8 @@ sub normalize {
 # ============================================================
 sub place_athletes {
 # ============================================================
-	my $self   = shift;
-	my $method = $self->method();
-	$method->place_athletes();
+	my $self = shift;
+	$self->method->place_athletes();
 }
 
 # ============================================================
@@ -676,7 +674,7 @@ sub remove_from_list {
 	my $list = shift;
 	my $i    = shift;
 
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		next unless exists $self->{ $list }{ $round };
 		@{$self->{ $list }{ $round }} = map { 
 			if    ( $_ == $i ) { ();     }
@@ -738,31 +736,31 @@ sub reorder {
 sub rounds {
 # ============================================================
 	my $self   = shift;
-	my $mode   = shift;
+	my $mode   = shift; # Undef for round codes, 'object' for round objects
 	my @rounds = ();
 	my $method = exists $self->{ method } && $self->{ method } ? $self->{ method } : 'cutoff';
-
-	my @order  = qw( prelim ro256 ro128 ro64 ro32 semfin ro16 finals ro8 ro4 ro2 );
+	my @order  = @FreeScore::Forms::WorldClass::round_order;
 
 	# Combination methods
 	if( ref( $method ) eq 'HASH' ) {
 		@rounds = grep { exists $self->{ method }{ $_ } } @order;
 
-	# Cutoff
-	} elsif( $method eq 'cutoff' ) {
-		@rounds = qw( prelim semfin finals );
+	} else {
+		# Cutoff
+		if( $method eq 'cutoff' ) {
+			@rounds = qw( prelim semfin finals );
 
-	# Single Elimination (SE) or Side-by-Side (SBS)
-	} elsif( $method eq 'se' || $self->{ method } eq 'sbs' ) {
-		@rounds = qw( ro256 ro128 ro64 ro32 ro16 ro8 ro4 ro2 );
+		# Single Elimination (SE) or Side-by-Side (SBS)
+		} elsif( $method eq 'se' || $self->{ method } eq 'sbs' ) {
+			@rounds = qw( ro256 ro128 ro64 ro32 ro16 ro8 ro4 ro2 );
+		}
+
+		# Get the first round and all rounds thereafter
+		my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
+		die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
+		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 	}
 
-	# Get the first round and all rounds thereafter
-	my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
-
-	die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
-
-	@rounds = slice @order, $i;
 	@rounds = map { $self->method( $_ )->round( $_ ) } @rounds if $mode;
 
 	return @rounds;
@@ -830,38 +828,8 @@ sub update_status {
 		}
 	}
 
-	# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
-	my $n = int( @{ $self->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
+	$method->advance_athletes();
 
-	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
-	if     (($round eq 'prelim' || $round eq 'semfin') && $self->is_flight() && $self->round_complete( 'prelim' ) && $self->{ flight }{ state } ne 'merged' ) {
-		$self->{ flight }{ state } = 'complete';
-
-	} elsif( $round eq 'semfin' && $self->round_complete( 'prelim' )) {
-
-		# Skip if athletes have already been assigned to the semi-finals
-		my $semfin = $self->{ order }{ semfin };
-		return if( defined $semfin && int( @$semfin ) > 0 );
-
-		# Semi-final round goes in random order
-		my $half       = int( ($n-1)/2 );
-		my @candidates = @{ $self->{ placement }{ prelim }};
-		my @eligible   = $self->eligible_athletes( 'prelim', @candidates );
-		my @order      = shuffle (@eligible[ 0 .. $half ]);
-		$self->assign( $_, 'semfin' ) foreach @order;
-
-	} elsif( $round eq 'finals' && $self->round_complete( 'semfin' )) { 
-		# Skip if athletes have already been assigned to the finals
-		my $finals = $self->{ order }{ finals };
-		return if( defined $finals && int( @$finals ) > 0 );
-
-		# Finals go in reverse placement order of semi-finals
-		my $k          = $n > 8 ? 7 : ($n - 1);
-		my @candidates = @{ $self->{ placement }{ semfin }};
-		my @eligible   = $self->eligible_athletes( 'semfin', @candidates );
-		my @order      = reverse (@eligible[ 0 .. $k ]);
-		$self->assign( $_, 'finals' ) foreach @order;
-	}
 }
 
 # ============================================================
@@ -905,7 +873,7 @@ sub write {
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
 	my @tiebreakers = ();
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		push @forms,       "$round:" . join( ",", @{$self->{ forms }{ $round }} )       if exists $self->{ forms }{ $round }       && @{ $self->{ forms }{ $round }};
 		push @tiebreakers, "$round:" . join( ",", @{$self->{ tiebreakers }{ $round }} ) if exists $self->{ tiebreakers }{ $round } && @{ $self->{ tiebreakers }{ $round }};
 	}
@@ -913,7 +881,7 @@ sub write {
 	# ===== PREPARE THE PLACEMENTS AND PENDING ATHLETES
 	$self->{ placement } = {} unless defined $self->{ placement };
 	my @places = ();
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		my $placements = $self->{ placement }{ $round };
 		next unless defined $placements && int( @$placements );
 		next unless grep { /^\d+$/ } @$placements;
@@ -934,7 +902,7 @@ sub write {
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
+	foreach my $round ($self->rounds()) {
 		my $order = $self->{ order }{ $round };
 		next unless defined $order && int( @$order );
 		print FILE "# ------------------------------------------------------------\n";
@@ -974,14 +942,11 @@ sub navigate_to_start {
 #** @method ()
 #   @brief Navigates the division to the beginning
 #*
-	my $self = shift;
+	my $self   = shift;
+	my @rounds = $self->rounds();
+	my $first  = $rounds[ 0 ];
 
-	foreach my $round (@FreeScore::Forms::WorldClass::Division::round_order) {
-		next unless exists $self->{ rounds }{ $round };
-		$self->{ round } = $round;
-		last;
-	}
-
+	$self->{ round }   = $first;
 	$self->{ current } = 0;
 	$self->{ form }    = 0;
 }
@@ -995,16 +960,15 @@ sub next_round {
 #*
 	my $self    = shift;
 	my $round   = $self->{ round };
-	my @rounds  = @FreeScore::Forms::WorldClass::Division::round_order;
-	my @i       = grep { exists $self->{ order }{ $rounds[ $_ ] } } (0 .. $#rounds);
-	my $first   = $i[ 0 ];
-	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
-	my $i       = $map->{ $round };
+	my @rounds  = $self->rounds();
+	my $i       = first_index { $_ == $round } @rounds;
+	my $first   = $rounds[ 0 ];
+	my $last    = $rounds[ -1 ];
 
 	return if( $self->is_flight() ); # Flights have only one round: prelim
 
-	if    ( $round eq 'finals' ) { $i = $first; }
-	else                         { $i++;        }
+	if( $round eq $last ) { $i = 0; }
+	else                  { $i++;   }
 
 	# ===== GO TO NEXT ROUND
 	$self->{ state } = 'score';
@@ -1022,14 +986,13 @@ sub previous_round {
 #*
 	my $self    = shift;
 	my $round   = $self->{ round };
-	my @rounds  = @FreeScore::Forms::WorldClass::Division::round_order;
-	my @i       = grep { exists $self->{ order }{ $rounds[ $_ ] } } (0 .. $#rounds);
-	my $first   = $i[ 0 ];
-	my $map     = { map { ($rounds[ $_ ] => $_) } @i };
-	my $i       = $map->{ $round };
+	my @rounds  = $self->rounds();
+	my $i       = first_index { $_ == $round } @rounds;
+	my $first   = $rounds[ 0 ];
+	my $last    = $rounds[ -1 ];
 
-	if    ( $round eq $rounds[ $first ] ) { $i = $map->{ finals }; } # first round wraps around to finals
-	else                                  { $i--;                  }
+	if( $round eq $first ) { $i = $last; } # first round wraps around to finals
+	else                   { $i--;       }
 
 	# ===== GO TO PREVIOUS ROUND
 	$self->{ round } = $rounds[ $i ];
@@ -1268,7 +1231,7 @@ sub _parse_placement {
 	return { @rounds };
 }
 
-our @round_order = ( qw( prelim semfin finals ) );
+our @round_order = (qw( prelim ro256 ro128 ro64 ro32 semfin ro16 finals ro8 ro4 ro2 ));
 our $round_name  = { prelim => 'Preliminary', semfin => 'Semi-Finals', finals => 'Finals' };
 
 1;
