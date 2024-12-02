@@ -1,5 +1,5 @@
 package FreeScore::Forms::WorldClass::Method::SideBySide;
-use base qw( FreeScore::Forms::WorldClass::Method );
+use base qw( FreeScore::Forms::WorldClass::Method::SingleElimination );
 use List::Util qw( first );
 
 our @rounds = [

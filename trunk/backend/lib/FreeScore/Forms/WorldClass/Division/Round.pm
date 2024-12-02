@@ -16,6 +16,10 @@ use Carp;
 # - complete
 # - forms
 #   - [ form index ]
+#     - complete
+#     - decision
+#       - withdraw
+#       - disqualify
 #     - judge
 #       - [ judge index ]
 #         - Score Object
@@ -23,16 +27,13 @@ use Carp;
 #       - accuracy
 #       - presentation
 #       - total
-#     - complete
-#     - decision
-#       - withdraw
-#       - disqualify
 #     - original
 #       - accuracy
 #       - presentation
 #       - total
 #     - penalties
 #     - started
+# - match
 # - started
 # - tiebreakers
 #   (same substructure as forms)
@@ -337,6 +338,15 @@ sub complete {
 }
 
 # ============================================================
+sub match {
+# ============================================================
+	my $self  = shift;
+	my $match = shift;
+	$self->{ match } = $match if defined $match && exists $self->{ match } && ! defined $self->{ match };
+	return exists $self->{ match } ? $self->{ match } : undef;
+}
+
+# ============================================================
 sub reinstantiate {
 # ============================================================
 	my $self   = shift;
@@ -393,7 +403,10 @@ sub string {
 	my $round  = shift;
 	my $forms  = shift;
 	my $judges = shift;
+	my $match  = exists $self->{ match } && $self->{ match } ? sprintf( "m%d", ($self->{ match } + 1)) : undef;
 	my @string = ();
+
+	$round .= $match if $match;
 	
 	for( my $i = 0; $i < $forms; $i++ ) {
 		my $form    = $self->{ forms }[ $i ];

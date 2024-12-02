@@ -22,6 +22,10 @@ use strict;
 #       - Round Object
 #
 # Round data structure (also see FreeScore::Forms::WorldClass::Division::Round)
+# - adjusted
+#   - accuracy
+#   - presentation
+#   - total
 # - complete
 # - decision
 #   - withdraw
@@ -33,11 +37,24 @@ use strict;
 #     - decision
 #       - withdraw
 #       - disqualify
-#   - judge
-#     - [ judge index ]
-#       - Score Object
+#     - judge
+#       - [ judge index ]
+#         - Score Object
+#     - adjusted
+#       - accuracy
+#       - presentation
+#       - total
+#     - original
+#       - accuracy
+#       - presentation
+#       - total
+#     - penalties
+#     - started
+# - match
+# - started
 # - tiebreakers
 #   (same substructure as forms)
+# - total
 #
 # Score data structure (also see FreeScore::Forms::WorldClass::Division::Round::Score)
 # - major
@@ -79,8 +96,7 @@ sub assign_tiebreaker {
 	my $forms      = $self->{ tiebreakers }{ $round };
 
 	if( exists $self->{ tiebreakers }{ $round } ) {
-		$self->reinstantiate_round( $round, $i );
-		$athlete->{ scores }{ $round }->add_tiebreaker( $judges );
+		$self->reinstantiate_round( $round, $i )->add_tiebreaker( $judges );
 	}
 }
 
@@ -119,13 +135,11 @@ sub clear_score {
 	if( $self->is_flight()) {
 		my $started = 0;
 		foreach $athlete (@{ $self->{ athletes }}) {
-			$self->reinstantiate_round( $round );
-			$started ||= $athlete->{ scores }{ $round }->started();
+			$started ||= $self->reinstantiate_round( $round, $athlete )->started();
 		}
 		$self->{ flight }{ state } = 'ready' if( ! $started );
 	}
-	$self->reinstantiate_round( $round );
-	$athlete->{ scores }{ $round }->clear_score( $form, $judge );
+	$self->reinstantiate_round( $round )->clear_score( $form, $judge );
 }
 
 
@@ -532,6 +546,13 @@ sub read {
 			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
 			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
 
+			# Match number for Single Elimination and Side-by-Side
+			my $match = undef;
+			if( $score_round =~ /m(\d+)$/ ) {
+				$match = int( $1 ) - 1;
+				$score_round =~ s/m\d+$//;
+			}
+
 			# Scores are ordered by judge number (ref, 1, 2, etc.)
 			if    ( $judge =~ /^[jr]/ ) {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
@@ -545,8 +566,9 @@ sub read {
 				my $score  = { major => $major, minor => $minor, rhythm => $rhythm, power => $power, ki => $ki };
 				my $forms  = int( @{ $self->{ forms }{ $round }});
 				my $judges = $self->{ judges };
-				$self->reinstantiate_round( $round, $athlete );
-				$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+				my $ar     = $self->reinstantiate_round( $round, $athlete );
+				$ar->record_score( $form, $judge, $score );
+				$ar->match( $match );
 
 			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
 			} elsif ( $judge =~ /^p/ ) {
@@ -555,16 +577,18 @@ sub read {
 				my $penalties = { map { $_ => shift @score_criteria } @criteria };
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
-				$self->reinstantiate_round( $round, $athlete );
-				$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
+				my $ar        = $self->reinstantiate_round( $round, $athlete );
+				$ar->record_penalties( $form, $penalties );
+				$ar->match( $match );
 
 			# Status notes describe athlete withdraw or disqualification
 			} elsif ( $judge =~ /^s/ ) {
 				my $decision  = [ (map { my ($key, $value) = split /=/, $_, 2; ($key); } @score_criteria) ];
 				my $forms     = int( @{ $self->{ forms }{ $round }});
 				my $judges    = $self->{ judges };
-				$self->reinstantiate_round( $round, $athlete );
-				$athlete->{ scores }{ $round }->record_decision( $form, $_ ) foreach @$decision;
+				my $ar        = $self->reinstantiate_round( $round, $athlete );
+				$ar->record_decision( $form, $_ ) foreach @$decision;
+				$ar->match( $match );
 			}
 
 		} else {
@@ -598,8 +622,7 @@ sub record_score {
 
 	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$self->{ flight }{ state } = 'in-progress' if( $self->is_flight() && $self->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored
-	$self->reinstantiate_round( $round );
-	$athlete->{ scores }{ $round }->record_score( $form, $judge, $score );
+	$self->reinstantiate_round( $round )->record_score( $form, $judge, $score );
 }
 
 # ============================================================
@@ -617,8 +640,7 @@ sub record_penalties {
 	my $forms     = int( @{ $self->{ forms }{ $round }});
 	my $judges    = $self->{ judges };
 
-	$self->reinstantiate_round( $round );
-	$athlete->{ scores }{ $round }->record_penalties( $form, $penalties );
+	$self->reinstantiate_round( $round )->record_penalties( $form, $penalties );
 }
 
 # ============================================================
@@ -637,13 +659,11 @@ sub record_decision {
 	my $forms     = int( @{ $self->{ forms }{ $round }});
 	my $judges    = $self->{ judges };
 
-	$self->reinstantiate_round( $round, $i );
-	$athlete->{ scores }{ $round }->record_decision( $form, $decision );
+	$self->reinstantiate_round( $round, $i )->record_decision( $form, $decision );
 	if( $self->is_flight()) {
 		my $started = 0;
 		foreach $athlete (@{ $self->{ athletes }}) {
-			$self->reinstantiate_round( $round, $i );
-			$started ||= $athlete->{ scores }{ $round }->started();
+			$started ||= $self->reinstantiate_round( $round, $i )->started();
 		}
 		if( $started ) { $self->{ flight }{ state } = 'in-progress'; } 
 		else           { $self->{ flight }{ state } = 'ready';       }
@@ -656,8 +676,8 @@ sub reinstantiate_round {
 	my $self       = shift;
 	my $round      = shift;
 	my $i          = shift || $self->{ current }; # Athlete index or reference to Athlete
-	my $judges     = $self->{ judges };
 	my $athlete    = ref $i ? $i : $self->{ athletes }[ $i ];
+	my $judges     = $self->{ judges };
 	my @compulsory = @{ $self->{ forms }{ $round }};
 	my $forms      = int( @compulsory );
 
@@ -754,13 +774,14 @@ sub rounds {
 		} elsif( $method eq 'se' || $self->{ method } eq 'sbs' ) {
 			@rounds = qw( ro256 ro128 ro64 ro32 ro16 ro8 ro4 ro2 );
 		}
-
-		# Get the first round and all rounds thereafter
-		my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
-		die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
-		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 	}
 
+	# Get the first round and all rounds thereafter
+	my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
+	die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
+	@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
+
+	# Convert to objects if so requested
 	@rounds = map { $self->method( $_ )->round( $_ ) } @rounds if $mode;
 
 	return @rounds;
@@ -847,9 +868,7 @@ sub round_complete {
 	return 0 unless @athletes;
 
 	foreach my $i (@athletes) {
-		my $athlete = $self->{ athletes }[ $i ];
-		$self->reinstantiate_round( $round, $i ) unless defined $athlete->{ scores }{ $round };
-		$complete &&= $athlete->{ scores }{ $round }->complete();
+		$complete $self->reinstantiate_round( $round, $i )->complete();
 	}
 	return $complete;
 }

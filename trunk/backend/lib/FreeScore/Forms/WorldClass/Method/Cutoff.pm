@@ -17,18 +17,18 @@ sub advance_athletes {
 #** @method ( round )
 #   @brief Advances the winning athletes of the current round to the next round
 #*
-	my $self        = shift;
-	my $div         = $self->{ division };
-	my $round       = shift || $div->{ round };
-	my @rounds      = $div->rounds();
-	my @round_order = @FreeScore::Forms::WorldClass::Division::round_order;
-	my $i           = first_index { $_ eq $round } @round_order;
+	my $self     = shift;
+	my $div      = $self->{ division };
+	my $round    = shift || $div->{ round };
+	my @rounds   = $div->rounds();
+	my $i        = first_index { $_ eq $round } @rounds;
+	my $i_n      = $i < $#rounds ? $i + 1 : undef;
+	my $i_p      = $i > 0 ? $i - 1 : undef;
+	my $previous = defined $i_p ? $rounds[ $i_p ] : undef;
+	my $next     = defined $i_n ? $rounds[ $i_n ] : undef;
 
-	# ===== DO NOTHING IF THE CURRENT ROUND IS THE FINALS (NO FURTHER ROUNDS)
-	if( $round eq 'finals' ) { return; }
-
-	# ===== ASSIGN THE WINNING ATHLETES TO THE NEXT ROUND
-	my $n = int( @{ $div->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
+	# ===== DO NOTHING IF THERE ARE NO FURTHER ROUNDS
+	if( ! defined $next ) { return; }
 
 	# Flights have only one round (prelim); if it is completed, then mark the flight as complete (unless it is already merged)
 	if( $div->is_flight() && $div->round_complete( 'prelim' ) && $div->{ flight }{ state } ne 'merged' ) {
@@ -36,36 +36,28 @@ sub advance_athletes {
 		return;
 	}
 
-	my $prelim = first_index { $_ eq 'prelim' } @round_order;
-	my $semfin = first_index { $_ eq 'prelim' } @round_order;
-	my $advanced = {
-		semfin => exists $div->{ order }{ semfin } && ref $div->{ order }{ semfin } eq 'ARRAY' && int( @{$div->{ order }{ semfin }}) > 0,
-		finals => exists $div->{ order }{ finals } && ref $div->{ order }{ finals } eq 'ARRAY' && int( @{$div->{ order }{ finals }}) > 0
-	};
+	# ===== ADVANCE WINNING ATHLETES TO THE NEXT ROUND IF CURRENT ROUND IS COMPLETE
+	# Skip if the athletes have already been advanced to the current round
+	my $skip    = exists $div->{ order }{ $next } && ref $div->{ order }{ $next } eq 'ARRAY' && int( @{$div->{ order }{ $next }}) > 0;
+	my @winners = ();
+	my $n       = int( @{ $div->{ athletes }} ); # Note: n is the number of registered athletes, not remaining eligible athletes
 
-	# ===== ADVANCE PRELIMINARY ATHLETES IF PRELIMINARY ROUND IS COMPLETE
-	# Skip if the athletes have already been advanced to the semi-final round
-	if( $i > $prelim && $div->round_complete( 'prelim' ) && ! $advanced->{ semfin }) {
+	return unless( $div->round_complete( $round ) && ! $skip );
 
-		# Semi-final round goes in random order
-		my $half       = int( ($n-1)/2 );
-		my @candidates = @{ $div->{ placement }{ prelim }};
-		my @eligible   = $div->eligible_athletes( 'prelim', @candidates );
-		my @order      = shuffle (@eligible[ 0 .. $half ]);
-		$div->assign( $_, 'semfin' ) foreach @order;
-	} 
+	if( $round eq 'prelim' ) {
+		my $half     = int( ($n-1)/2 );
+		my @athletes = @{ $div->{ placement }{ $round }};
+		my @eligible = $div->eligible_athletes( $round, @athletes );
+		@winners     = shuffle (@eligible[ 0 .. $half ]);
 
-	# ===== ADVANCE SEMI-FINAL ATHLETES IF SEMI-FINAL ROUND IS COMPLETE
-	# Skip if the athletes have already been advanced to the finals
-	if( $i > $semfin && $div->round_complete( 'semfin' ) && ! $advanced->{ finals }) { 
-
-		# Finals go in reverse placement order of semi-finals
-		my $k          = $n > 8 ? 7 : ($n - 1);
-		my @candidates = @{ $div->{ placement }{ semfin }};
-		my @eligible   = $div->eligible_athletes( 'semfin', @candidates );
-		my @order      = reverse (@eligible[ 0 .. $k ]);
-		$div->assign( $_, 'finals' ) foreach @order;
+	} elsif( $round eq 'semfin' ) {
+		my $k        = $n > 8 ? 7 : ($n - 1);
+		my @athletes = @{ $div->{ placement }{ $round }};
+		my @eligible = $div->eligible_athletes( $round, @athletes );
+		@winners     = reverse (@eligible[ 0 .. $k ]);
 	}
+	$div->assign( $_, $next ) foreach @winners;
+	$method->bracket( $next );
 }
 
 # ============================================================
@@ -93,7 +85,6 @@ sub assign {
 	push @{ $div->{ order }{ $round }}, $i;
 }
 
-
 # ============================================================
 sub normalize {
 # ============================================================
@@ -112,7 +103,6 @@ sub normalize {
 	my $forms  = int( @{ $div->{ forms }{ $round }});
 	if( exists $div->{ order } && exists $div->{ order }{ $round }) {
 		foreach my $i (@{ $div->{ order }{ $round }}) {
-			my $athlete = $div->{ athletes }[ $i ];
 			$div->reinstantiate_round( $round, $i );
 		}
 	}
@@ -131,7 +121,7 @@ sub place_athletes {
 	my $round     = $div->{ round };
 	my $placement = [];
 
-	# ===== ASSEMBLE THE RELEVANT COMPULSORY AND TIEBREAKER SCORES
+	# ===== GET ALL THE ATHLETES FOR THE GIVEN ROUND
 	my @athlete_indices = @{$div->{ order }{ $round }};
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
