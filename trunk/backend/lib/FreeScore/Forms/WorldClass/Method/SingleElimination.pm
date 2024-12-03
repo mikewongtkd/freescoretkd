@@ -1,7 +1,7 @@
 package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
-use List::Util qw( all );
+use List::Util qw( all uniq );
 use List::MoreUtils qw( first_index part );
 
 our @rounds = [
@@ -134,6 +134,43 @@ sub calculate_winners {
 }
 
 # ============================================================
+sub find_athlete {
+# ============================================================
+	my $self     = shift;
+	my $div      = $self->{ division };
+	my $option   = shift;
+	my $round    = $div->{ round };
+	my $athletes = $div->order();
+	my @ars      = map { $div->reinstantiate_round( $round, $_ ); } @$athletes; # Athlete-Rounds
+	my @matches  = sort { $a <=> $b } uniq map { $_->match() } @ars;
+
+	my $first = { match => first { any { $_ >= 0 } @$_ } @matches }; # Skip matches where the previous winner either WDR or DSQ (rare event)
+	$first->{ athlete } = first { $_ >= 0 } @{$first->{ match }};    # Find the first athlete in a match who has not WDR or DSQ
+	my $last = { match => first { any { $_ >= 0 } @$_ } reverse @matches }; # Skip matches where the previous winner either WDR or DSQ (rare event)
+	$last->{ athlete } = first { $_ >= 0 } reverse @{$last->{ match }};     # Find the first athlete in a match who has not WDR or DSQ
+	my $current = { match =>  $matches[ $i ] };
+	$current->{ athlete } = $div->{ current };
+
+	if( $option =~ /^(?:first|last)$/ ) {
+		if( $option =~ /^first$/ ) {
+			return $first->{ athlete };
+		} else {
+			return $last->{ athlete };
+		}
+	} elsif( $option =~ /^(?:next|prev)/ {
+		my $i = first_index { grep { $_ == $div->{ current }} @$_ } @matches
+		grep { $_->match() == $current->{ match } } @ars;
+		if( $option =~ /^next$/ ) {
+			if( $current->{ athlete } == $last->{ athlete  }) { return $first->{ athlete }; } # Wrap around to first
+			return $athletes->[ $i + 1 ];
+		} else {
+			if( $current->{ athlete } == $first->{ athlete }) { return $last->{ athhlete }; } # Wrap around to last
+			return $athletes->[ $i - 1 ];
+		}
+	}
+}
+
+# ============================================================
 sub normalize {
 # ============================================================
 #** @method ()
@@ -195,6 +232,35 @@ sub place_athletes {
 	@$pending   = grep { my $scores = $div->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$div->{ pending }{ $round } = $pending;
+}
+
+# ============================================================
+sub record_score {
+# ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Records the scores for Side-By-Side
+#*
+	my $self   = shift;
+	my $judge  = shift;
+	my $scores = shift;
+	my $div    = $self->{ division };
+	my $round  = $div->{ round };
+	my $form   = $div->{ form };
+	my $match  = $scores->{ match };
+	my $chung  = $scores->{ chung };
+	my $hong   = $scores->{ hong };
+
+	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
+
+	# Score both athletes
+	foreach my $athlete ( $chung, $hong ) {
+		my $name   = $div->{ athletes }[ $athlete->{ index } ]{ name };
+		my $ar     = $div->reinstantiate_round( $round, $athlete->{ index })
+		my $target = $ar->match();
+		my $error  = sprintf( "Database error: Score for %s given for %s Match %d but athlete is bracketed to Match %d", $name, uc $round, $match + 1, $target + 1 );
+		die $error unless $match == $target;
+		$ar->record_score( $form, $judge, $athlete->{ score });
+	}
 }
 
 # ============================================================

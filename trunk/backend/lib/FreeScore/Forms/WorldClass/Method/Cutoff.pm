@@ -86,6 +86,33 @@ sub assign {
 }
 
 # ============================================================
+sub find_athlete {
+# ============================================================
+	my $self     = shift;
+	my $div      = $self->{ division };
+	my $option   = shift;
+	my $athletes = $div->order();
+
+	if( $option =~ /^(?:first|last)$/ ) {
+		if( $option =~ /^first$/ ) {
+			return 0;
+		} else {
+			return -1;
+		}
+	} elsif( $option =~ /^(?:next|prev)/ {
+		my $i    = first_index { $_ == $div->{ current } } @$athletes;
+		my $last = $#$athletes;
+		if( $option =~ /^next$/ ) {
+			if( $i == $last ) { return 0; } # Wrap around to first
+			return $athletes->[ $i + 1 ];
+		} else {
+			if( $i == 0 ) { return $last; } # Wrap around to last
+			return $athletes->[ $i - 1 ];
+		}
+	}
+}
+
+# ============================================================
 sub normalize {
 # ============================================================
 #** @method ()
@@ -100,11 +127,10 @@ sub normalize {
 	$div->{ form }  ||= 0;
 
 	# ===== NORMALIZE THE SCORING MATRIX
-	my $forms  = int( @{ $div->{ forms }{ $round }});
-	if( exists $div->{ order } && exists $div->{ order }{ $round }) {
-		foreach my $i (@{ $div->{ order }{ $round }}) {
-			$div->reinstantiate_round( $round, $i );
-		}
+	my $forms = int( @{ $div->{ forms }{ $round }});
+	my $order = $div->order( $round );
+	if( $order ) {
+		$div->reinstantiate_round( $round, $_ ) foreach (@$order);
 	}
 
 	$div->{ current } = $div->athletes_in_round( 'first' ) unless defined $div->{ current };
@@ -169,6 +195,22 @@ sub place_athletes {
 	@$pending   = grep { my $scores = $div->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$div->{ pending }{ $round } = $pending;
+}
+
+# ============================================================
+sub record_score {
+# ============================================================
+	my $self    = shift;
+	my $judge   = shift;
+	my $score   = shift;
+	my $div     = $self->{ division };
+	my $athlete = $div->{ athletes }[ $div->{ current } ];
+	my $round   = $div->{ round };
+	my $form    = $div->{ form };
+
+	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$div->{ flight }{ state } = 'in-progress' if( $div->is_flight() && $div->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored
+	$div->reinstantiate_round( $round )->record_score( $form, $judge, $score );
 }
 
 # ============================================================

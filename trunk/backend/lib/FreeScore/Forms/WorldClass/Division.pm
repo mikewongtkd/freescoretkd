@@ -610,19 +610,12 @@ sub record_score {
 #** @method ( judge_index, score_object )
 #   @brief Records the given score for the given judge
 #*
-	my $self    = shift;
-	my $judge   = shift;
-	my $score   = shift;
+	my $self   = shift;
+	my $judge  = shift;
+	my $score  = shift;
+	my $method = $self->method();
 
-	my $athlete = $self->{ athletes }[ $self->{ current } ];
-	my $round   = $self->{ round };
-	my $form    = $self->{ form };
-	my $forms   = int( @{ $self->{ forms }{ $round }});
-	my $judges  = $self->{ judges };
-
-	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	$self->{ flight }{ state } = 'in-progress' if( $self->is_flight() && $self->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored
-	$self->reinstantiate_round( $round )->record_score( $form, $judge, $score );
+	$method->record_score( $judge, $score );
 }
 
 # ============================================================
@@ -637,8 +630,6 @@ sub record_penalties {
 	my $athlete   = $self->{ athletes }[ $self->{ current } ];
 	my $round     = $self->{ round };
 	my $form      = $self->{ form };
-	my $forms     = int( @{ $self->{ forms }{ $round }});
-	my $judges    = $self->{ judges };
 
 	$self->reinstantiate_round( $round )->record_penalties( $form, $penalties );
 }
@@ -656,8 +647,6 @@ sub record_decision {
 	my $athlete   = $self->{ athletes }[ $i ];
 	my $round     = $self->{ round };
 	my $form      = $self->{ form };
-	my $forms     = int( @{ $self->{ forms }{ $round }});
-	my $judges    = $self->{ judges };
 
 	$self->reinstantiate_round( $round, $i )->record_decision( $form, $decision );
 	if( $self->is_flight()) {
@@ -777,7 +766,7 @@ sub rounds {
 	}
 
 	# Get the first round and all rounds thereafter
-	my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
+	my $i = first_index { $self->order( $_ )} @rounds;
 	die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
 	@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 
@@ -1046,7 +1035,7 @@ sub next_available_athlete {
 	my $searched  = 0;
 	do {
 		$self->{ current } = $self->athletes_in_round( 'next' );
-		$available = ! $self->{ athletes }[ $self->{ current } ]{ scores }{ $round }->complete();
+		$available = ! $self->reinstantiate_round( $round )->complete();
 		$searched++;
 	} while( ! $available && $searched < int( @athletes ));
 	$self->{ state } = 'score';
@@ -1068,6 +1057,23 @@ sub next_form {
 
 	return unless( $form < $max_forms );
 	$self->{ form }++;
+}
+
+# ============================================================
+sub order {
+# ============================================================
+#** @method () [ round ]
+#   @brief Returns the order for the given round
+#*
+	my $self  = shift;
+	my $round = shift || $self->{ round };
+	
+	return undef unless exists  $self->{ order }{ $round };
+	return undef unless defined $self->{ order }{ $round };
+	return undef unless ref $self->{ order }{ $round } eq 'ARRAY';
+	return undef unless int( @{$self->{ order }{ $round }});
+
+	return $self->{ order }{ $round };
 }
 
 # ============================================================
@@ -1105,8 +1111,9 @@ sub calculate_means {
 	my $self = shift;
 
 	foreach my $round (keys %{ $self->{ forms }}) {
-		next unless exists $self->{ order }{ $round } && defined $self->{ order }{ $round };
-		my @athletes_in_round = @{$self->{ order }{ $round }};
+		my $order = $self->order( $round );
+		next unless $order;
+		my @athletes_in_round = @$order;
 		foreach my $i (@athletes_in_round) {
 			my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
 			$scores = $self->{ athletes }[ $i ]{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() if( ! defined $scores );
@@ -1123,34 +1130,19 @@ sub athletes_in_round {
 #*
 	my $self   = shift;
 	my $option = shift;
-
-	my $i      = undef;
-	my $find   = 0;
-	my $round  = $self->{ round };
-
-	if    ( $option eq 'first'   ) { $i     =  0; }
-	elsif ( $option eq 'last'    ) { $i     = -1; }
-	elsif ( $option eq 'next'    ) { $find  =  1; }
-	elsif ( $option eq 'prev'    ) { $find  = -1; }
-	elsif ( $option eq 'prelim'  ) { $round = $option; }
-	elsif ( $option eq 'semfin'  ) { $round = $option; }
-	elsif ( $option eq 'finals'  ) { $round = $option; }
-
-	$self->{ order }{ $round } ||= [];
-	my @athletes_in_round = @{$self->{ order }{ $round }};
-
-	if( defined $i ) {
-		return $athletes_in_round[ $i ];
-
-	} elsif( $find ) {
-		die "Division Configuration Error: While searching for $option athlete in '$round', found no athletes assigned to '$round'" unless( int( @athletes_in_round ));
-		my $j = first { $athletes_in_round[ $_ ] == $self->{ current } } ( 0 .. $#athletes_in_round );
-		my $k = ($j + $find) < 0 ? $#athletes_in_round : ($j + $find) % int( @athletes_in_round );
-		return $athletes_in_round[ $k ];
-
-	} else {
-		return @athletes_in_round;
+	my @rounds = $self->rounds();
+	
+	# ===== REQUEST FOR ALL ATHLETES IN A GIVEN ROUND
+	if( grep { $_ eq $option } @rounds ) {
+		my $order = $self->order( $option );
+		return $order ? @$order : ();
 	}
+
+	# ===== REQUEST FOR AN ATHLETE IN THE CURRENT ROUND
+	my $round    = $self->{ round };
+	my $i        = $self->method->find_athlete( $option );
+
+	return $self->order()->[ $i ];
 }
 
 # ============================================================
