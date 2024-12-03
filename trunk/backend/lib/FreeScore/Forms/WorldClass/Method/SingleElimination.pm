@@ -141,15 +141,15 @@ sub find_athlete {
 	my $option   = shift;
 	my $round    = $div->{ round };
 	my $athletes = $div->order();
-	my @ars      = map { $div->reinstantiate_round( $round, $_ ); } @$athletes; # Athlete-Rounds
-	my @matches  = sort { $a <=> $b } uniq map { $_->match() } @ars;
+	my @matches  = part { $div->reinstantiate_round( $round, $_ )->match() } grep { $_ >= 0 } @$athletes; # Athlete-Rounds
 
 	my $first = { match => first { any { $_ >= 0 } @$_ } @matches }; # Skip matches where the previous winner either WDR or DSQ (rare event)
 	$first->{ athlete } = first { $_ >= 0 } @{$first->{ match }};    # Find the first athlete in a match who has not WDR or DSQ
 	my $last = { match => first { any { $_ >= 0 } @$_ } reverse @matches }; # Skip matches where the previous winner either WDR or DSQ (rare event)
 	$last->{ athlete } = first { $_ >= 0 } reverse @{$last->{ match }};     # Find the first athlete in a match who has not WDR or DSQ
-	my $current = { match =>  $matches[ $i ] };
-	$current->{ athlete } = $div->{ current };
+	my $current = { athlete => $div->{ current }};
+	my $i = first_index { any { $_ == $div->{ current }} @$_ } @matches
+	$current->{ match } = $matches[ $i ];
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
@@ -158,14 +158,26 @@ sub find_athlete {
 			return $last->{ athlete };
 		}
 	} elsif( $option =~ /^(?:next|prev)/ {
-		my $i = first_index { grep { $_ == $div->{ current }} @$_ } @matches
-		grep { $_->match() == $current->{ match } } @ars;
 		if( $option =~ /^next$/ ) {
-			if( $current->{ athlete } == $last->{ athlete  }) { return $first->{ athlete }; } # Wrap around to first
-			return $athletes->[ $i + 1 ];
+			my $next  = { match => $i < $#matches ? $matches[ $i + 1 ] : $matches[ 0 ] };
+			my $limit = 0;
+			while( any { $_ < 0 } @{$next->{ match }} && $limit < $#$matches ) { $next->{ match } = $next->{ match } < $#matches ? $next->{ match } + 1 : $matches[ 0 ]; $limit++; } # Go to the next valid match (no WDR or DSQ)
+			return $first->{ athlete } if( $current->{ athlete } == $last->{ athlete  }); # Wrap around to first
+			if( $current->{ match }[ 0 ] == $current->{ athlete } && @{$current->{ match }} == 2 ) { 
+				return $current->{ match }[ 1 ];
+			} else {
+				return $next->{ match }[ 0 ];
+			}
 		} else {
-			if( $current->{ athlete } == $first->{ athlete }) { return $last->{ athhlete }; } # Wrap around to last
-			return $athletes->[ $i - 1 ];
+			my $prev  = { match => $i > 0 ? $matches[ $i - 1 ] : $matches[ -1 ] };
+			my $limit = 0;
+			while( any { $_ < 0 } @{$next->{ match }} && $limit < $#$matches ) { $prev->{ match } = $prev->{ match } > 0 ? $prev->{ match } - 1 : $matches[ - 1 ]; $limit++; } # Go to the previous valid match (no WDR or DSQ)
+			return $last->{ athlete } if( $current->{ athlete } == $first->{ athlete }); # Wrap around to last
+			if( $current->{ match }[ 1 ] == $current->{ athlete } && @{$current->{ match }} == 2 ) { 
+				return $current->{ match }[ 0 ];
+			} else {
+				return $prev->{ match }[ -1 ];
+			}
 		}
 	}
 }
