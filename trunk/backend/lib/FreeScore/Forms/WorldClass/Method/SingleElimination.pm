@@ -1,7 +1,8 @@
 package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
-use List::Util qw( all uniq );
+use FreeScore::Forms::WorldClass::Division::Method::Matches;
+use List::Util qw( all any );
 use List::MoreUtils qw( first_index part );
 
 our @rounds = [
@@ -26,14 +27,19 @@ sub advance_athletes {
 	my $round    = shift || $div->{ round };
 	my @rounds   = $div->rounds();
 	my $i        = first_index { $_ eq $round } @rounds;
-	my $i_n      = $i < $#rounds ? $i + 1 : undef;
-	my $next     = defined $i_n ? $rounds[ $i_n ] : undef;
+	my $j        = $i < $#rounds ? $i + 1 : undef;
+	my $next     = defined $j ? $rounds[ $j ] : undef;
+
+	# ===== SKIP IF THERE IS NO NEXT ROUND
+	return unless defined $next
 
 	# ===== ADVANCE WINNING ATHLETES TO THE NEXT ROUND IF CURRENT ROUND IS COMPLETE
 	# Skip if the athletes have already been advanced to the current round
-	my $skip    = exists $div->{ order }{ $next } && ref $div->{ order }{ $next } eq 'ARRAY' && int( @{$div->{ order }{ $next }}) > 0;
+	my $already_done = exists $div->{ order }{ $next } && ref $div->{ order }{ $next } eq 'ARRAY' && int( @{$div->{ order }{ $next }}) > 0;
 
-	return unless( $div->round_complete( $round ) && ! $skip );
+	return if ! $div->round_complete( $round );
+	return if $already_done;
+
 	my @winners = $self->calculate_winners( $round );
 
 	$div->assign( $_, $next ) foreach @winners;
@@ -65,6 +71,100 @@ sub assign {
 }
 
 # ============================================================
+sub autopilot_steps {
+# ============================================================
+	my $self    = shift;
+	my $rm      = shift; # Request Manager
+	my $div     = $self->{ division };
+	my $pause   = { score => 9, leaderboard => 12, brief => 1 };
+	my $round   = $div->{ round };
+	my $order   = $div->{ order }{ $round };
+	my $forms   = $div->{ forms }{ $round };
+	my $j       = first_index { $_ == $div->{ current } } @$order;
+	my $matches = $self->matches();
+
+	my $last = {
+		match   => $matches->is_last_match(),
+		athlete => $div->{ current } == $matches->last_match->last_athlete(),
+		form    => ($div->{ form }   == int( @$forms ) - 1),
+		round   => ($div->{ round } eq 'ro2'),
+		cycle   => (!(($j + 1) % 2)),
+	};
+
+	# ===== AUTOPILOT BEHAVIOR
+	# Autopilot behavior comprises the two afforementioned actions in
+	# serial, with delays between.
+	my $delay = new Mojo::IOLoop::Delay();
+	my $show = {
+		complete => sub { # Show that all judges have scored for 1 second
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
+			$request->{ action } = 'scoreboard';
+			$rm->broadcast_updated_division( $request, $progress, $group );
+		},
+		score => sub { # Display the athlete's score for 9 seconds
+			my $delay = shift;
+			my $delay = shift;
+			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+			$request->{ action } = 'match';
+			$rm->broadcast_updated_division( $request, $progress, $group );
+
+		},
+		leaderboard => sub { 
+			my $delay = shift;
+
+			die "Disengaging autopilot\n" unless $div->autopilot();
+
+			print STDERR "Showing leaderboard.\n" if $DEBUG;
+			$div->display() unless $div->is_display(); 
+			$div->write(); 
+			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+			$request->{ action } = 'leaderboard';
+			$rm->broadcast_updated_division( $request, $progress, $group );
+		},
+		next => sub { # Advance to the next form/athlete/round
+			my $delay = shift;
+
+			die "Disengaging autopilot\n" unless $div->autopilot();
+			print STDERR "Advancing the division to next item.\n" if $DEBUG;
+
+			my $go = {
+				round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
+				match   =>   $last->{ form } && ! $last->{ match },
+				athlete =>   $last->{ form } && ! $last->{ athlete },
+				form    => ! $last->{ form }
+			};
+
+			if    ( $go_next->{ round }   ) { $div->next_round(); $div->first_form(); }
+			elsif ( $go_next->{ athlete } ) { $div->next_available_athlete(); }
+			elsif ( $go_next->{ form }    ) { $div->next_form(); }
+			$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
+			$div->write();
+
+			$request->{ action } = 'next';
+			$rm->broadcast_updated_division( $request, $progress, $group );
+		}
+	};
+
+	# score blue
+	# score red
+	# show scores
+	# next form
+	# score blue
+	# score red
+	# show scores
+	# show final scores
+
+	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
+	my @steps = ();
+	push @steps, $step->{ show }{ score };
+	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+	push @steps, $step->{ go }{ next };
+
+	return @steps;
+}
+
+# ============================================================
 sub bracket {
 # ============================================================
 #** @method ( round )
@@ -86,7 +186,7 @@ sub bracket {
 
 		# Assign Chung athlete (if one exists)
 		my $chung = $order[ $i ];
-		$div->reinstantiate_round( $round, $chung )->match( $mnum ) unless $chung < 0; # -1 indicates player has WDR or DSQ decision
+		$div->reinstantiate_round( $round, $chung )->match( $mnum );
 
 		# Do not assign Hong athlete if there is a bye
 		next if( $j > $k );
@@ -106,23 +206,30 @@ sub calculate_winners {
 	my $annotate = shift || 0;
 
 	my $athletes = $div->{ order }{ $round };
-	my @matches  = part { $div->reinstantiate_round( $round, $_ )->match() } @$athletes;
+	my $matches  = $self->matches();
 	my @winners  = ();
 
-	foreach my $match (@matches) {
+	foreach my $match ($matches->list()) {
 		my ($winner, $loser);
-		if( int( @$match ) == 1 ) {
-			my $winner = $match->[ 0 ];
 
+		# ===== IDENTIFY WINNER
+		# Uncontested matches
+		if( $match->uncontested() ) {
+			$winner = $match->uncontested_winner();
+			$loser  = undef;
+
+		# Contested matches
 		} else {
 			($winner, $loser) = sort { 
-				my $x = $div->{ athletes }[ $a ]{ scores }{ $round };
-				my $y = $div->{ athletes }[ $b ]{ scores }{ $round };
+				my $x = $div->reinstantiate_round( $round, $a );
+				my $y = $div->reinstantiate_round( $round, $b );
 				_annotate( $x, $y ) if $annotate;
 				FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ) 
 			} @$match;
 		}
-		if( $div->{ athletes }[ $winner ]{ scores }{ $round }->any_punitive_decision()) {
+
+		# ===== COLLATE WINNERS FOR THE ROUND
+		if( $div->reinstantiate_round( $round, $winner )->any_punitive_decision()) {
 			push @winners, -1; # -1 indicates player has WDR or DSQ decision
 
 		} else {
@@ -141,45 +248,53 @@ sub find_athlete {
 	my $option   = shift;
 	my $round    = $div->{ round };
 	my $athletes = $div->order();
-	my @matches  = part { $div->reinstantiate_round( $round, $_ )->match() } grep { $_ >= 0 } @$athletes; # Athlete-Rounds
-
-	my $first = { match => first { any { $_ >= 0 } @$_ } @matches }; # Skip matches where the previous winner either WDR or DSQ (rare event)
-	$first->{ athlete } = first { $_ >= 0 } @{$first->{ match }};    # Find the first athlete in a match who has not WDR or DSQ
-	my $last = { match => first { any { $_ >= 0 } @$_ } reverse @matches }; # Skip matches where the previous winner either WDR or DSQ (rare event)
-	$last->{ athlete } = first { $_ >= 0 } reverse @{$last->{ match }};     # Find the first athlete in a match who has not WDR or DSQ
-	my $current = { athlete => $div->{ current }};
-	my $i = first_index { any { $_ == $div->{ current }} @$_ } @matches
-	$current->{ match } = $matches[ $i ];
+	my $matches  = $self->matches();
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
-			return $first->{ athlete };
+			return $matches->first_match->first_athlete();
 		} else {
-			return $last->{ athlete };
+			return $matches->last_match->last_athlete();
 		}
+
+	} elsif( $option =~ /^(?:chung|hong)/ {
+		if( $option =~ /^next$/ ) {
+			return $matches->current_match->chung();
+		} else {
+			return $matches->current_match->hong();
+		}
+
 	} elsif( $option =~ /^(?:next|prev)/ {
 		if( $option =~ /^next$/ ) {
-			my $next  = { match => $i < $#matches ? $matches[ $i + 1 ] : $matches[ 0 ] };
-			my $limit = 0;
-			while( any { $_ < 0 } @{$next->{ match }} && $limit < $#$matches ) { $next->{ match } = $next->{ match } < $#matches ? $next->{ match } + 1 : $matches[ 0 ]; $limit++; } # Go to the next valid match (no WDR or DSQ)
-			return $first->{ athlete } if( $current->{ athlete } == $last->{ athlete  }); # Wrap around to first
-			if( $current->{ match }[ 0 ] == $current->{ athlete } && @{$current->{ match }} == 2 ) { 
-				return $current->{ match }[ 1 ];
+			my $current = $matches->current_match();
+
+			if( $current->contested() && $current->first_athlete() == $div->{ current }) { 
+				return $current->last_athlete();
 			} else {
-				return $next->{ match }[ 0 ];
+				return $matches->next_match->first_athlete();
 			}
 		} else {
-			my $prev  = { match => $i > 0 ? $matches[ $i - 1 ] : $matches[ -1 ] };
-			my $limit = 0;
-			while( any { $_ < 0 } @{$next->{ match }} && $limit < $#$matches ) { $prev->{ match } = $prev->{ match } > 0 ? $prev->{ match } - 1 : $matches[ - 1 ]; $limit++; } # Go to the previous valid match (no WDR or DSQ)
-			return $last->{ athlete } if( $current->{ athlete } == $first->{ athlete }); # Wrap around to last
-			if( $current->{ match }[ 1 ] == $current->{ athlete } && @{$current->{ match }} == 2 ) { 
-				return $current->{ match }[ 0 ];
+			my $current = $matches->current_match();
+
+			if( $current->contested() && $current->last_athlete() == $div->{ current }) { 
+				return $current->first_athlete();
 			} else {
-				return $prev->{ match }[ -1 ];
+				return $matches->prev_match->last_athlete();
 			}
 		}
 	}
+}
+
+# ============================================================
+sub matches {
+# ============================================================
+	my $self     = shift;
+	my $div      = $self->{ division };
+	my $round    = $div->{ round };
+	my $athletes = $div->order();
+	my $matches  = [ part { $div->reinstantiate_round( $round, $_ )->match() } grep { $_ >= 0 } @$athletes ];
+
+	return new FreeScore::Forms::WorldClass::Method::SingleElimination::Matches( $matches, $self );
 }
 
 # ============================================================

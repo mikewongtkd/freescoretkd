@@ -86,6 +86,84 @@ sub assign {
 }
 
 # ============================================================
+sub autopilot_steps {
+# ============================================================
+	my $self  = shift;
+	my $rm    = shift; # Request Manager
+	my $div   = $self->{ division };
+	my $pause = { score => 9, leaderboard => 12, brief => 1 };
+	my $round = $div->{ round };
+	my $order = $div->{ order }{ $round };
+	my $forms = $div->{ forms }{ $round };
+	my $j     = first_index { $_ == $div->{ current } } @$order;
+
+	my $last = {
+		athlete => ($div->{ current } == $order->[ -1 ]),
+		form    => ($div->{ form }    == int( @$forms ) - 1),
+		round   => ($div->{ round } eq 'finals'),
+		cycle   => (!(($j + 1) % 2)),
+	};
+
+	# ===== AUTOPILOT BEHAVIOR
+	# Autopilot behavior comprises the two afforementioned actions in
+	# serial, with delays between.
+	my $delay = new Mojo::IOLoop::Delay();
+	my $step = {
+		show => {
+			score => sub { # Display the athlete's score for 9 seconds
+				my $delay = shift;
+				Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+				$request->{ action } = 'scoreboard';
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			},
+			leaderboard => sub { 
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $div->autopilot();
+
+				print STDERR "Showing leaderboard.\n" if $DEBUG;
+				$div->display() unless $div->is_display(); 
+				$div->write(); 
+				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+				$request->{ action } = 'leaderboard';
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			}
+		},
+		go => {
+			next => sub { # Advance to the next form/athlete/round
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $div->autopilot();
+				print STDERR "Advancing the division to next item.\n" if $DEBUG;
+
+				my $go_next = {
+					round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
+					athlete =>   $last->{ form } && ! $last->{ athlete },
+					form    => ! $last->{ form }
+				};
+
+				if    ( $go_next->{ round }   ) { $div->next_round(); $div->first_form(); }
+				elsif ( $go_next->{ athlete } ) { $div->next_available_athlete(); }
+				elsif ( $go_next->{ form }    ) { $div->next_form(); }
+				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
+				$div->write();
+
+				$request->{ action } = 'next';
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			}
+		}
+	};
+
+	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
+	my @steps = ();
+	push @steps, $step->{ show }{ score };
+	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+	push @steps, $step->{ go }{ next };
+
+	return @steps;
+}
+
+# ============================================================
 sub find_athlete {
 # ============================================================
 	my $self     = shift;

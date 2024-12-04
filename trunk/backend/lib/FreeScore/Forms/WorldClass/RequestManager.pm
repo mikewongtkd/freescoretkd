@@ -788,9 +788,6 @@ sub autopilot {
 
 	request->{ type } = 'autopilot';
 
-	# ===== DISALLOW REDUNDANT AUTOPILOT REQUESTS
-	# if( $division->autopilot() ) { print STDERR "Autopilot already engaged.\n" if $DEBUG; return { warning => 'Autopilot is already engaged.' }; }
-
 	# ===== ENGAGE AUTOPILOT
 	try {
 		print STDERR "Engaging autopilot.\n" if $DEBUG;
@@ -800,73 +797,7 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	my $pause = { score => 9, leaderboard => 12, brief => 1 };
-	my $round = $division->{ round };
-	my $order = $division->{ order }{ $round };
-	my $forms = $division->{ forms }{ $round };
-	my $j     = first_index { $_ == $division->{ current } } @$order;
-
-	my $last = {
-		athlete => ($division->{ current } == $order->[ -1 ]),
-		form    => ($division->{ form }    == int( @$forms ) - 1),
-		round   => ($division->{ round } eq 'finals' || $division->{ round } eq 'ro2'),
-		cycle   => (!(($j + 1) % $cycle)),
-	};
-
-	# ===== AUTOPILOT BEHAVIOR
-	# Autopilot behavior comprises the two afforementioned actions in
-	# serial, with delays between.
-	my $delay = new Mojo::IOLoop::Delay();
-	my $show = {
-		score => sub { # Display the athlete's score for 9 seconds
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
-			$request->{ action } = 'scoreboard';
-			$self->broadcast_updated_division( $request, $progress, $group );
-		},
-		leaderboard => sub { 
-			my $delay = shift;
-
-			die "Disengaging autopilot\n" unless $division->autopilot();
-
-			# Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
-			if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )) { 
-				print STDERR "Showing leaderboard.\n" if $DEBUG;
-				$division->display() unless $division->is_display(); 
-				$division->write(); 
-				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
-				$request->{ action } = 'leaderboard';
-				$self->broadcast_updated_division( $request, $progress, $group );
-
-			# Otherwise keep displaying the score for another second
-			} else {
-				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
-			}
-		},
-		next => sub { # Advance to the next form/athlete/round
-			my $delay = shift;
-
-			die "Disengaging autopilot\n" unless $division->autopilot();
-			print STDERR "Advancing the division to next item.\n" if $DEBUG;
-
-			my $go_next = {
-				round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
-				athlete =>   $last->{ form } && ! $last->{ athlete },
-				form    => ! $last->{ form }
-			};
-
-			if    ( $go_next->{ round }   ) { $division->next_round(); $division->first_form(); }
-			elsif ( $go_next->{ athlete } ) { $division->next_available_athlete(); }
-			elsif ( $go_next->{ form }    ) { $division->next_form(); }
-			$division->autopilot( 'off' ); # Finished. Disengage autopilot for now.
-			$division->write();
-
-			$request->{ action } = 'next';
-			$self->broadcast_updated_division( $request, $progress, $group );
-		}
-	};
-	my @steps = ( $show->{ score }, $show->{ leaderboard }, $show->{ next });
-	$delay->steps( @steps )->catch( sub {} )->wait();
+	$delay->steps( $division->method->autopilot_steps( $self ))->catch( sub {} )->wait();
 }
 
 1;
