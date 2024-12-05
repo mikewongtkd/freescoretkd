@@ -91,6 +91,14 @@ sub autopilot_steps {
 		cycle   => (!(($j + 1) % 2)),
 	};
 
+	$last->{ chung } = $last->{ form } && $matches->current_match->hong() == $div->{ current };
+	$last->{ hong }  = $last->{ form } && $matches->current_match->chung() == $div->{ current };
+
+	my $first = {
+		chung => (! $last->{ form }) && $matches->current_match->hong() == $div->{ current },
+		hong  => (! $last->{ form }) && $matches->current_match->chung() == $div->{ current }
+	};
+
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
@@ -129,15 +137,23 @@ sub autopilot_steps {
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
 			my $go = {
-				round   =>   $last->{ form } &&   $last->{ athlete } && ! $last->{ round },
-				match   =>   $last->{ form } && ! $last->{ match },
-				athlete =>   $last->{ form } && ! $last->{ athlete },
-				form    => ! $last->{ form }
+				chung   =>   $last->{ chung },
+				hong    =>   $first->{ hong } || $last->{ hong },
+				next => {
+					round   =>   $last->{ form } &&   $last->{ match } && ! $last->{ round },
+					match   =>   $last->{ form } && ! $last->{ match },
+					form    =>  $first->{ hong } && ! $last->{ form }
+				}
 			};
 
-			if    ( $go_next->{ round }   ) { $div->next_round(); $div->first_form(); }
-			elsif ( $go_next->{ athlete } ) { $div->next_available_athlete(); }
-			elsif ( $go_next->{ form }    ) { $div->next_form(); }
+			# ===== ATHLETE NAVIGATION
+			if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current_match->chung() ); }
+			elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current_match->hong() ); }
+
+			# ===== ATHLETE NAVIGATION
+			if    ( $go->{ next }{ round }) { $div->next_round(); $div->first_form(); }
+			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next_match->first_athlete() ); $div->first_form(); }
+			elsif ( $go->{ next }{ form })  { $div->next_form(); }
 			$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$div->write();
 

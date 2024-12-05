@@ -941,6 +941,7 @@ sub navigate {
 
 	if    ( $object eq 'round'   ) { $self->{ round }   = $value; }
 	elsif ( $object eq 'athlete' ) { $self->{ current } = $value; }
+	elsif ( $object eq 'match'   ) { $self->{ current } = $value; }
 	elsif ( $object eq 'form'    ) { $self->{ form }    = $value; }
 }
 
