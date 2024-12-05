@@ -94,11 +94,9 @@ sub autopilot_steps {
 	$last->{ performance }{ chung } = $last->{ form } && $matches->current_match->hong() == $div->{ current };
 	$last->{ performance }{ hong }  = $last->{ form } && $matches->current_match->chung() == $div->{ current };
 
-	my $first = {
-		performance => {
-			chung => $matches->current_match->hong() == $div->{ current },
-			hong  => $matches->current_match->chung() == $div->{ current }
-		}
+	my $has_gone = {
+		chung => $matches->current_match->hong() == $div->{ current },
+		hong  => $matches->current_match->chung() == $div->{ current }
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
@@ -140,8 +138,8 @@ sub autopilot_steps {
 
 			# Go to X after Y
 			my $go = {
-				chung => $first->{ performance }{ hong },
-				hong  => $first->{ performance }{ chung } || $last->{ performance }{ chung },
+				chung => $has_gone->{ hong } && ! $last->{ form },
+				hong  => $has_gone->{ chung }
 				next  => {
 					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
 					match   =>  $last->{ performance }{ hong } && ! $last->{ match },
@@ -154,7 +152,7 @@ sub autopilot_steps {
 			elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current_match->hong() ); }
 
 			# ===== ATHLETE NAVIGATION
-			if    ( $go->{ next }{ round }) { $div->next_round(); $div->first_form(); }
+			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first_match->first_athlete(); $div->first_form(); }
 			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next_match->first_athlete() ); $div->first_form(); }
 			elsif ( $go->{ next }{ form })  { $div->next_form(); }
 			$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
