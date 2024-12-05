@@ -91,12 +91,14 @@ sub autopilot_steps {
 		cycle   => (!(($j + 1) % 2)),
 	};
 
-	$last->{ chung } = $last->{ form } && $matches->current_match->hong() == $div->{ current };
-	$last->{ hong }  = $last->{ form } && $matches->current_match->chung() == $div->{ current };
+	$last->{ performance }{ chung } = $last->{ form } && $matches->current_match->hong() == $div->{ current };
+	$last->{ performance }{ hong }  = $last->{ form } && $matches->current_match->chung() == $div->{ current };
 
 	my $first = {
-		chung => (! $last->{ form }) && $matches->current_match->hong() == $div->{ current },
-		hong  => (! $last->{ form }) && $matches->current_match->chung() == $div->{ current }
+		performance => {
+			chung => $matches->current_match->hong() == $div->{ current },
+			hong  => $matches->current_match->chung() == $div->{ current }
+		}
 	};
 
 	# ===== AUTOPILOT BEHAVIOR
@@ -130,19 +132,20 @@ sub autopilot_steps {
 			$request->{ action } = 'leaderboard';
 			$rm->broadcast_updated_division( $request, $progress, $group );
 		},
-		next => sub { # Advance to the next form/athlete/round
+		next => sub { # Advance to the next form/athlete/match/round
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $div->autopilot();
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
+			# Go to X after Y
 			my $go = {
-				chung   =>   $last->{ chung },
-				hong    =>   $first->{ hong } || $last->{ hong },
-				next => {
-					round   =>   $last->{ form } &&   $last->{ match } && ! $last->{ round },
-					match   =>   $last->{ form } && ! $last->{ match },
-					form    =>  $first->{ hong } && ! $last->{ form }
+				chung => $first->{ performance }{ hong },
+				hong  => $first->{ performance }{ chung } || $last->{ performance }{ chung },
+				next  => {
+					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
+					match   =>  $last->{ performance }{ hong } && ! $last->{ match },
+					form    =>  $first->{ hong }
 				}
 			};
 
