@@ -91,13 +91,13 @@ sub autopilot_steps {
 		cycle   => (!(($j + 1) % 2)),
 	};
 
-	$last->{ performance }{ chung } = $last->{ form } && $matches->current_match->hong() == $div->{ current };
-	$last->{ performance }{ hong }  = $last->{ form } && $matches->current_match->chung() == $div->{ current };
-
 	my $has_gone = {
-		chung => $matches->current_match->hong() == $div->{ current },
-		hong  => $matches->current_match->chung() == $div->{ current }
+		chung => $matches->current_match->chung() == $div->{ current },
+		hong  => $matches->current_match->hong()  == $div->{ current }
 	};
+
+	$last->{ chung }{ form } = $last->{ form } && $has_gone->{ chung },
+	$last->{ hong }{ form }  = $last->{ form } && $has_gone->{ hong }
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -136,13 +136,13 @@ sub autopilot_steps {
 			die "Disengaging autopilot\n" unless $div->autopilot();
 			print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
-			# Go to X after Y
+			# Go to X => after Y
 			my $go = {
 				chung => $has_gone->{ hong } && ! $last->{ form },
 				hong  => $has_gone->{ chung }
 				next  => {
 					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
-					match   =>  $last->{ performance }{ hong } && ! $last->{ match },
+					match   =>  $last->{ hong }{ form } && ! $last->{ match },
 					form    =>  $first->{ hong }
 				}
 			};
@@ -151,7 +151,7 @@ sub autopilot_steps {
 			if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current_match->chung() ); }
 			elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current_match->hong() ); }
 
-			# ===== ATHLETE NAVIGATION
+			# ===== FORM/MATCH/ROUND NAVIGATION
 			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first_match->first_athlete(); $div->first_form(); }
 			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next_match->first_athlete() ); $div->first_form(); }
 			elsif ( $go->{ next }{ form })  { $div->next_form(); }
@@ -174,7 +174,7 @@ sub autopilot_steps {
 
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
-	push @steps, $step->{ show }{ score };
+	push @steps, $step->{ show }{ score } if ;
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 	push @steps, $step->{ go }{ next };
 
