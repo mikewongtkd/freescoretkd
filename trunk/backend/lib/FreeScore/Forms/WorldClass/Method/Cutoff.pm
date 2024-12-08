@@ -2,7 +2,7 @@ package FreeScore::Forms::WorldClass::Method::Cutoff;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
-use List::Util qw( first shuffle );
+use List::Util qw( any first shuffle );
 use List::MoreUtils qw( first_index );
 
 our @rounds = [

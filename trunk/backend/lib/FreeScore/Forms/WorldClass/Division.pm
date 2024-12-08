@@ -342,7 +342,7 @@ sub initialize {
 			$order->{ prelim } = $order->{ autodetect_required }; 
 
 		} else {
-			foreach my $r ($self->rounds( 'object' )) {
+			foreach my $r ($self->rounds( 'object', 'nofilter' )) {
 				my $rcode = $r->{ code };
 				my $min   = exists $r->{ min } ? $r->{ min } : $n;
 				my $max   = exists $r->{ max } ? $r->{ max } : $n;
@@ -744,11 +744,12 @@ sub reorder {
 # ============================================================
 sub rounds {
 # ============================================================
-	my $self   = shift;
-	my $mode   = shift; # Undef for round codes, 'object' for round objects
-	my @rounds = ();
-	my $method = exists $self->{ method } && $self->{ method } ? $self->{ method } : 'cutoff';
-	my @order  = @FreeScore::Forms::WorldClass::round_order;
+	my $self     = shift;
+	my $mode     = shift; # Undef for round codes, 'object' for round objects
+	my $nofilter = shift; # Undef to enable filter; 'nofilter' to disable filter
+	my @rounds   = ();
+	my $method   = exists $self->{ method } && $self->{ method } ? $self->{ method } : 'cutoff';
+	my @order    = @FreeScore::Forms::WorldClass::round_order;
 
 	# Combination methods
 	if( ref( $method ) eq 'HASH' ) {
@@ -766,9 +767,11 @@ sub rounds {
 	}
 
 	# Get the first round and all rounds thereafter
-	my $i = first_index { $self->order( $_ )} @rounds;
-	die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
-	@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
+	if( $nofilter ) {
+		my $i = first_index { $self->order( $_ )} @rounds;
+		die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
+		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
+	}
 
 	# Convert to objects if so requested
 	@rounds = map { $self->method( $_ )->round( $_ ) } @rounds if $mode;

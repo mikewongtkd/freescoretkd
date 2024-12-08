@@ -37,13 +37,12 @@ sub factory {
 	my $dispatch = {
 		cutoff => 'Cutoff',
 		sbs    => 'SideBySide',
-		se     => 'SingleElimination',
+		se     => 'SingleElimination'
 	};
 
-	return undef unless( exists $dispatch->{ $type });
-	my $class = "FreeScore::Forms::WorldClass::Method::$code";
+	my $class = "FreeScore::Forms::WorldClass::Method::$dispatch->{ $type }";
 
-	return new $class->( $div, $round );
+	return $class->new( $div, $round );
 }
 
 # ============================================================
