@@ -104,12 +104,6 @@ sub autopilot_steps {
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
 	my $show = {
-		complete => sub { # Show that all judges have scored for 1 second
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
-			$request->{ action } = 'scoreboard';
-			$rm->broadcast_updated_division( $request, $progress, $group );
-		},
 		score => sub { # Display the athlete's score for 9 seconds
 			my $delay = shift;
 			my $delay = shift;
@@ -163,18 +157,9 @@ sub autopilot_steps {
 		}
 	};
 
-	# score blue
-	# score red
-	# show scores
-	# next form
-	# score blue
-	# score red
-	# show scores
-	# show final scores
-
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
-	push @steps, $step->{ show }{ score } if ;
+	push @steps, $step->{ show }{ score };
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 	push @steps, $step->{ go }{ next };
 
@@ -381,30 +366,16 @@ sub place_athletes {
 # ============================================================
 sub record_score {
 # ============================================================
-#** @method ( judge_index, score_object )
-#   @brief Records the scores for Side-By-Side
-#*
-	my $self   = shift;
-	my $judge  = shift;
-	my $scores = shift;
-	my $div    = $self->{ division };
-	my $round  = $div->{ round };
-	my $form   = $div->{ form };
-	my $match  = $scores->{ match };
-	my $chung  = $scores->{ chung };
-	my $hong   = $scores->{ hong };
+	my $self    = shift;
+	my $judge   = shift;
+	my $score   = shift;
+	my $div     = $self->{ division };
+	my $athlete = $div->{ athletes }[ $div->{ current } ];
+	my $round   = $div->{ round };
+	my $form    = $div->{ form };
 
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
-
-	# Score both athletes
-	foreach my $athlete ( $chung, $hong ) {
-		my $name   = $div->{ athletes }[ $athlete->{ index } ]{ name };
-		my $ar     = $div->reinstantiate_round( $round, $athlete->{ index })
-		my $target = $ar->match();
-		my $error  = sprintf( "Database error: Score for %s given for %s Match %d but athlete is bracketed to Match %d", $name, uc $round, $match + 1, $target + 1 );
-		die $error unless $match == $target;
-		$ar->record_score( $form, $judge, $athlete->{ score });
-	}
+	$div->reinstantiate_round( $round )->record_score( $form, $judge, $score );
 }
 
 # ============================================================

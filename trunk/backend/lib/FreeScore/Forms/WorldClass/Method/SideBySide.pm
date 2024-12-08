@@ -19,7 +19,7 @@ sub autopilot_steps {
 	my $self    = shift;
 	my $rm      = shift; # Request Manager
 	my $div     = $self->{ division };
-	my $pause   = { score => 9, leaderboard => 12, brief => 1 };
+	my $pause   = { score => 9, leaderboard => 6, brief => 1 };
 	my $round   = $div->{ round };
 	my $order   = $div->{ order }{ $round };
 	my $forms   = $div->{ forms }{ $round };
@@ -30,24 +30,14 @@ sub autopilot_steps {
 		match   => $matches->is_last_match(),
 		athlete => $div->{ current } == $matches->last_match->last_athlete(),
 		form    => ($div->{ form }   == int( @$forms ) - 1),
-		round   => ($div->{ round } eq 'ro2'),
-		cycle   => (!(($j + 1) % 2)),
+		round   => ($div->{ round } eq 'ro2')
 	};
-
-	$last->{ performance }{ chung } = $last->{ form } && $matches->current_match->hong() == $div->{ current };
-	$last->{ performance }{ hong }  = $last->{ form } && $matches->current_match->chung() == $div->{ current };
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
 	my $delay = new Mojo::IOLoop::Delay();
 	my $show = {
-		complete => sub { # Show that all judges have scored for 1 second
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
-			$request->{ action } = 'scoreboard';
-			$rm->broadcast_updated_division( $request, $progress, $group );
-		},
 		score => sub { # Display the athlete's score for 9 seconds
 			my $delay = shift;
 			my $delay = shift;
@@ -68,7 +58,7 @@ sub autopilot_steps {
 			$request->{ action } = 'leaderboard';
 			$rm->broadcast_updated_division( $request, $progress, $group );
 		},
-		next => sub { # Advance to the next form/athlete/match/round
+		next => sub { # Advance to the next form/match/round
 			my $delay = shift;
 
 			die "Disengaging autopilot\n" unless $div->autopilot();
@@ -78,8 +68,8 @@ sub autopilot_steps {
 			my $go = {
 				next  => {
 					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
-					match   =>  $last->{ performance }{ hong } && ! $last->{ match },
-					form    =>  $first->{ hong }
+					match   =>  $last->{ form } && ! $last->{ match },
+					form    =>  ! $last->{ form }
 				}
 			};
 
@@ -95,21 +85,46 @@ sub autopilot_steps {
 		}
 	};
 
-	# score blue
-	# score red
-	# show scores
-	# next form
-	# score blue
-	# score red
-	# show scores
-	# show final scores
-
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
-	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+	push @steps, $step->{ show }{ leaderboard } if($last->{ form }); # Display the leaderboard (brackets) for 6 seconds after every match
 	push @steps, $step->{ go }{ next };
 
 	return @steps;
 }
+
+# ============================================================
+sub record_score {
+# ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Records the scores for Side-By-Side
+#*
+	my $self   = shift;
+	my $judge  = shift;
+	my $scores = shift;
+	my $div    = $self->{ division };
+	my $round  = $div->{ round };
+	my $form   = $div->{ form };
+	my $match  = $scores->{ match };
+	my $chung  = $scores->{ chung };
+	my $hong   = $scores->{ hong };
+
+	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
+
+	# Score both athletes
+	foreach my $athlete ( $chung, $hong ) {
+		my $i      = $athlete->{ index };
+		my $name   = $div->{ athletes }[ $i ]{ name };
+		my $ar     = $div->reinstantiate_round( $round, $i )
+		my $target = $ar->match();
+		my $error  = sprintf( "Database error: Score for %s given for %s Match %d but athlete is bracketed to Match %d", $name, uc $round, $match + 1, $target + 1 );
+		die $error unless $match == $target;
+		$ar->record_score( $form, $judge, $athlete->{ score });
+	}
+}
+
+# ============================================================
+sub string { return 'sbs'; }
+# ============================================================
 
