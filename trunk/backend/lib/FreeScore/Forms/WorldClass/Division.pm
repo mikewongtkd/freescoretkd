@@ -857,7 +857,7 @@ sub round_complete {
 	return 0 unless @athletes;
 
 	foreach my $i (@athletes) {
-		$complete $self->reinstantiate_round( $round, $i )->complete();
+		$complete = $self->reinstantiate_round( $round, $i )->complete();
 	}
 	return $complete;
 }

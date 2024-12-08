@@ -177,7 +177,7 @@ sub find_athlete {
 		} else {
 			return -1;
 		}
-	} elsif( $option =~ /^(?:next|prev)/ {
+	} elsif( $option =~ /^(?:next|prev)/ ) {
 		my $i    = first_index { $_ == $div->{ current } } @$athletes;
 		my $last = $#$athletes;
 		if( $option =~ /^next$/ ) {

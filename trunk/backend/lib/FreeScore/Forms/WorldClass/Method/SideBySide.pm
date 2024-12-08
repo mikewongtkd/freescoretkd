@@ -116,7 +116,7 @@ sub record_score {
 	foreach my $athlete ( $chung, $hong ) {
 		my $i      = $athlete->{ index };
 		my $name   = $div->{ athletes }[ $i ]{ name };
-		my $ar     = $div->reinstantiate_round( $round, $i )
+		my $ar     = $div->reinstantiate_round( $round, $i );
 		my $target = $ar->match();
 		my $error  = sprintf( "Database error: Score for %s given for %s Match %d but athlete is bracketed to Match %d", $name, uc $round, $match + 1, $target + 1 );
 		die $error unless $match == $target;

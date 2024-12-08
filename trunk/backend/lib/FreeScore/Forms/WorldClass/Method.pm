@@ -43,7 +43,7 @@ sub factory {
 	return undef unless( exists $dispatch->{ $type });
 	my $class = "FreeScore::Forms::WorldClass::Method::$code";
 
-	return new $class( $div, $round );
+	return new $class->( $div, $round );
 }
 
 # ============================================================

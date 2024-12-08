@@ -1,7 +1,7 @@
 package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
-use FreeScore::Forms::WorldClass::Division::Method::Matches;
+use FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
 use List::Util qw( all any );
 use List::MoreUtils qw( first_index part );
 
@@ -31,7 +31,7 @@ sub advance_athletes {
 	my $next     = defined $j ? $rounds[ $j ] : undef;
 
 	# ===== SKIP IF THERE IS NO NEXT ROUND
-	return unless defined $next
+	return unless defined $next;
 
 	# ===== ADVANCE WINNING ATHLETES TO THE NEXT ROUND IF CURRENT ROUND IS COMPLETE
 	# Skip if the athletes have already been advanced to the current round
@@ -96,8 +96,8 @@ sub autopilot_steps {
 		hong  => $matches->current_match->hong()  == $div->{ current }
 	};
 
-	$last->{ chung }{ form } = $last->{ form } && $has_gone->{ chung },
-	$last->{ hong }{ form }  = $last->{ form } && $has_gone->{ hong }
+	$last->{ chung }{ form } = $last->{ form } && $has_gone->{ chung };
+	$last->{ hong }{ form }  = $last->{ form } && $has_gone->{ hong };
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -133,7 +133,7 @@ sub autopilot_steps {
 			# Go to X => after Y
 			my $go = {
 				chung => $has_gone->{ hong } && ! $last->{ form },
-				hong  => $has_gone->{ chung }
+				hong  => $has_gone->{ chung },
 				next  => {
 					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
 					match   =>  $last->{ hong }{ form } && ! $last->{ match },
@@ -259,14 +259,14 @@ sub find_athlete {
 			return $matches->last_match->last_athlete();
 		}
 
-	} elsif( $option =~ /^(?:chung|hong)/ {
+	} elsif( $option =~ /^(?:chung|hong)/ ) {
 		if( $option =~ /^next$/ ) {
 			return $matches->current_match->chung();
 		} else {
 			return $matches->current_match->hong();
 		}
 
-	} elsif( $option =~ /^(?:next|prev)/ {
+	} elsif( $option =~ /^(?:next|prev)/ ) {
 		if( $option =~ /^next$/ ) {
 			my $current = $matches->current_match();
 
@@ -343,7 +343,7 @@ sub place_athletes {
 	foreach my $rcode (@rounds) {
 		my $order = exists $div->{ order }{ $rcode } && int( @{$div->{ order }{ $rcode }}) ? $div->{ order }{ $rcode } : undef;
 		next unless $order;
-		next if all { ! $div->reinstantiate_round( $rcode, $_ )->complete() } @$order
+		next if all { ! $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
 
 		my @winners = $self->calculate_winners( $rcode, 'annotate' );
 
