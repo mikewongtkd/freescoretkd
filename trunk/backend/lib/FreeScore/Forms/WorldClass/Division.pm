@@ -363,7 +363,7 @@ sub initialize {
 	# rounds refer to the same athlete of the same name from the previous
 	# round, and therefore should have the same numeric index.
 	my $numeric_index = {};
-	foreach my $round ($self->rounds()) {
+	foreach my $round ($self->rounds( 'code', 'nofilter' )) {
 		next unless exists $order->{ $round };
 
 		# Establish order by athlete name, based on the earliest round
@@ -598,7 +598,6 @@ sub read {
 	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
 	close FILE;
 
-
 	$self->initialize( $athletes, $order );
 	$self->normalize();
 	$self->update_status();
@@ -767,14 +766,15 @@ sub rounds {
 	}
 
 	# Get the first round and all rounds thereafter
-	if( $nofilter ) {
-		my $i = first_index { $self->order( $_ )} @rounds;
-		die "Database error: No first round defined $!" unless int( @rounds ) && $i >= 0;
+	unless( defined $nofilter ) {
+		my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
+		die "Database error: No first round defined for $method$!" unless int( @rounds ) && $i >= 0;
 		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 	}
 
+
 	# Convert to objects if so requested
-	@rounds = map { $self->method( $_ )->round( $_ ) } @rounds if $mode;
+	@rounds = map { $self->method( $_ )->round( $_ ) } @rounds if $mode =~ /^object/i;
 
 	return @rounds;
 }
@@ -908,7 +908,7 @@ sub write {
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
-	print FILE "# method=" . $self->method_string();
+	print FILE "# method=" . $self->method_string() . "\n";
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;

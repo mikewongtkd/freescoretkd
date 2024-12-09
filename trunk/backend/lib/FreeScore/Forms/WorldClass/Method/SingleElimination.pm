@@ -358,7 +358,7 @@ sub place_athletes {
 	# ===== CALCULATE PENDING
 	# Updates the leaderboard to indicate the next player
 	my $pending = [ @{$div->{ order }{ $round }} ];
-	@$pending   = grep { my $scores = $div->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
+	@$pending   = grep { my $scores = $div->reinstantiate_round( $round, $_ ); ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$div->{ pending }{ $round } = $pending;
 }
