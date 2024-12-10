@@ -328,7 +328,7 @@
 					var ok      = function() {
 						var request  = { data : { type : 'division', action : 'clear judge score', judge: i }};
 						request.json = JSON.stringify( request.data );
-						ws.send( request.json );
+						app.network.send( request.json );
 						app.sound.ok.play();
 						alertify.success( name + ' score cleared for ' + athlete );
 
@@ -363,7 +363,7 @@
 						// ===== GET THE LATEST RING STATUS
 						var request  = { data : { type : 'ring', action : 'read' }};
 						request.json = JSON.stringify( request.data );
-						ws.send( request.json );
+						app.network.send( request.json );
 
 						// ===== SWITCH THE PAGE
 						app.sound.prev.play();

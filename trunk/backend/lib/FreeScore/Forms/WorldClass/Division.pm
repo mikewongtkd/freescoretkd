@@ -320,7 +320,7 @@ sub get_only {
 sub initialize {
 # ============================================================
 #** @method ( athletes, order ) [round]
-#   @brief Initializes the division object.
+#   @brief Initializes the athlete information and competition order.
 #*
 	my $self     = shift;
 	my $athletes = shift; # Dictionary of athletes by name (not by index!)
@@ -420,7 +420,8 @@ sub method_string {
 		my $json = new JSON::XS();
 		return $json->canonical->encode( $method );
 	} else {
-		return $method;
+		my $method = $self->method();
+		return $method->string();
 	}
 }
 

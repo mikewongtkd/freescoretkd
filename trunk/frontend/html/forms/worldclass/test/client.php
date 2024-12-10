@@ -1,6 +1,7 @@
 <?php 
 	include( "../../../include/php/config.php" ); 
 	$t = json_decode( $tournament );
+	$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 'staging';
 ?>
 <html>
 	<head>
@@ -42,8 +43,34 @@
 			var sound      = {};
 			var division   = undefined;
 			var tournament = <?= $tournament ?>;
-			var ring       = { num: 1 };
-			var ws         = undefined;
+			var ring       = { num: '<?= $ring ?>' };
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ring ) ?>` );
+
+			ws.onopen = () => {
+				var request  = { data : { type : 'division', action : 'read' }};
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+			};
+
+			ws.onmessage = ( response ) => {
+				var update = JSON.parse( response.data );
+				console.log( update );
+
+				if( defined( update.error )) {
+					if( update.error.match( /Division not in ring/i )) { alertify.error( "No division in ring " + ring.num ); }
+				}
+
+				if( ! defined( update.division )) { return; }
+
+				division = new Division( update.division );
+				if( ! defined( division )) { return; }
+
+				if( update.action == 'update' && update.type == 'division' ) {
+					var athlete = division.current.athlete()
+					$( '#send-scores, #send-one-score' ).removeClass( 'disabled' );
+					$( '#athlete' ).html( athlete.display.name() );
+				}
+			};
 
 			sound.ok    = new Howl({ urls: [ "../../../sounds/upload.mp3",   "../../../sounds/upload.ogg" ]});
 			sound.error = new Howl({ urls: [ "../../../sounds/quack.mp3",    "../../../sounds/quack.ogg"  ]});
@@ -52,34 +79,7 @@
 
 			$( "input[type=radio][name='ring']"   ).change(( e ) => { 
 				ring.num = $( e.target ).val(); 
-				if( defined( ws )) { ws.close(); }
-				ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
-
-				ws.onopen = () => {
-					var request  = { data : { type : 'division', action : 'read' }};
-					request.json = JSON.stringify( request.data );
-					ws.send( request.json );
-				};
-
-				ws.onmessage = ( response ) => {
-					var update = JSON.parse( response.data );
-					console.log( update );
-
-					if( defined( update.error )) {
-						if( update.error.match( /Division not in ring/i )) { alertify.error( "No division in ring " + ring.num ); }
-					}
-
-					if( ! defined( update.division )) { return; }
-
-					division = new Division( update.division );
-					if( ! defined( division )) { return; }
-
-					if( update.action == 'update' && update.type == 'division' ) {
-						var athlete = division.current.athlete()
-						$( '#send-scores, #send-one-score' ).removeClass( 'disabled' );
-						$( '#athlete' ).html( athlete.display.name() );
-					}
-				};
+				window.location = "?ring=<?= $ring ?>";
 			});
 
 			var rand = ( x ) => { return Math.floor( Math.random() * x ); };
