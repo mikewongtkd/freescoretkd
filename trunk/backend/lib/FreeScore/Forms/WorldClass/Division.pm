@@ -909,7 +909,7 @@ sub write {
 	print FILE "# round=$self->{ round }\n";
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
-	print FILE "# method=" . $self->method_string() . "\n";
+	print FILE "# method=" . $self->method_string() . "\n" if exists( $self->{ method }) && $self->{ method } ne 'cutoff';
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;

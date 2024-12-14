@@ -326,9 +326,8 @@
 					var title   = 'Clear ' + name + '\'s score for athlete ' + athlete + '?'; 
 					var message = 'Click <b class="text-danger">OK</b> to clear <b class="text-danger">' + name + '\'s</b> score for <b class="text-danger">' + athlete + '</b> or <b class="text-warning">Cancel</b> to do nothing.';
 					var ok      = function() {
-						var request  = { data : { type : 'division', action : 'clear judge score', judge: i }};
-						request.json = JSON.stringify( request.data );
-						app.network.send( request.json );
+						var request  = { type : 'division', action : 'clear judge score', judge: i };
+						app.network.send( request );
 						app.sound.ok.play();
 						alertify.success( name + ' score cleared for ' + athlete );
 
@@ -361,9 +360,8 @@
 					$( '#division-header' ).html( division.summary() );
 					$( '#back-to-divisions' ).off( 'click' ).click(( ev ) => { 
 						// ===== GET THE LATEST RING STATUS
-						var request  = { data : { type : 'ring', action : 'read' }};
-						request.json = JSON.stringify( request.data );
-						app.network.send( request.json );
+						var request  = { type : 'ring', action : 'read' };
+						app.network.send( request );
 
 						// ===== SWITCH THE PAGE
 						app.sound.prev.play();

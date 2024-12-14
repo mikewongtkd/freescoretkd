@@ -4,7 +4,7 @@ class Form {
 		this.award = {
 			penalty: function( category ) {
 				// Initialize penalties
-				if( ! defined( form.penalty )) { form.penalty = { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 }; }
+				if( ! defined( form ) || ! defined( form.penalty )) { form.penalty = { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 }; }
 				[ 'bounds', 'timelimit', 'restart', 'misconduct' ].forEach(( category, i ) => { form.penalty[ category ] = defined( form.penalty[ category ]) ? form.penalty[ category ] : 0; });
 
 				// Award the penalty
@@ -78,7 +78,8 @@ class Form {
 	}
 
 	penalty() {
-		if( ! defined( this.form.penalty )) { return { data : () => null, from : key => 0, total : () => 0 }; }
+		let form = this.form;
+		if( ! defined( form ) || ! defined( this.form.penalty )) { return { data : () => null, from : key => 0, total : () => 0 }; }
 		return {
 			data : function() { return form.penalty; },
 			from : function( key ) {
