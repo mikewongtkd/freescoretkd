@@ -57,6 +57,7 @@ class Form {
 	}
 
 	judge( j ) {
+		let form = this.form;
 		let judgeScore = form.judge[ j ];
 		return {
 			score : {

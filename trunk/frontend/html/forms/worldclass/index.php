@@ -38,6 +38,7 @@
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/jquery.errormessage.js"></script>
+		<script src="../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../include/js/forms/worldclass/division.class.js"></script>
@@ -49,7 +50,7 @@
 	<body>
 		<div id="worldclass"></div>
 		<script type="text/javascript">
-			$( '#worldclass' ).worldclass({ server: '<?= $config->websocket( 'worldclass' ) ?>', tournament : <?= $tournament ?>, ring : <?= $ring ?> });
+			$( '#worldclass' ).worldclass({ server: '<?= $config->websocket( 'worldclass', $ring ) ?>', tournament : <?= $tournament ?>, ring : <?= $ring ?> });
 			$( 'body' ).click( function() {
 				if( screenfull.enabled ) { screenfull.toggle(); }
 			});
