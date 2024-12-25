@@ -4,6 +4,7 @@ use FreeScore::Forms::WorldClass::Division;
 use FreeScore::Forms::WorldClass::Division::Round;
 use List::Util qw( any first shuffle );
 use List::MoreUtils qw( first_index );
+use Mojo::IOLoop;
 
 our @rounds = [
 	{ code => 'prelim', name => 'Preliminary', min => 20 },
@@ -88,14 +89,17 @@ sub assign {
 # ============================================================
 sub autopilot_steps {
 # ============================================================
-	my $self  = shift;
-	my $rm    = shift; # Request Manager
-	my $div   = $self->{ division };
-	my $pause = { score => 9, leaderboard => 12, brief => 1 };
-	my $round = $div->{ round };
-	my $order = $div->{ order }{ $round };
-	my $forms = $div->{ forms }{ $round };
-	my $j     = first_index { $_ == $div->{ current } } @$order;
+	my $self     = shift;
+	my $rm       = shift; # Request Manager
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $div      = $self->{ division };
+	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
+	my $round    = $div->{ round };
+	my $order    = $div->{ order }{ $round };
+	my $forms    = $div->{ forms }{ $round };
+	my $j        = first_index { $_ == $div->{ current } } @$order;
 
 	my $last = {
 		athlete => ($div->{ current } == $order->[ -1 ]),
@@ -107,7 +111,6 @@ sub autopilot_steps {
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
-	my $delay = new Mojo::IOLoop::Delay();
 	my $step = {
 		show => {
 			score => sub { # Display the athlete's score for 9 seconds

@@ -73,15 +73,18 @@ sub assign {
 # ============================================================
 sub autopilot_steps {
 # ============================================================
-	my $self    = shift;
-	my $rm      = shift; # Request Manager
-	my $div     = $self->{ division };
-	my $pause   = { score => 9, leaderboard => 12, brief => 1 };
-	my $round   = $div->{ round };
-	my $order   = $div->{ order }{ $round };
-	my $forms   = $div->{ forms }{ $round };
-	my $j       = first_index { $_ == $div->{ current } } @$order;
-	my $matches = $self->matches();
+	my $self     = shift;
+	my $rm       = shift; # Request Manager
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $div      = $self->{ division };
+	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
+	my $round    = $div->{ round };
+	my $order    = $div->{ order }{ $round };
+	my $forms    = $div->{ forms }{ $round };
+	my $j        = first_index { $_ == $div->{ current } } @$order;
+	my $matches  = $self->matches();
 
 	my $last = {
 		match   => $matches->is_last_match(),
@@ -102,10 +105,8 @@ sub autopilot_steps {
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
-	my $delay = new Mojo::IOLoop::Delay();
 	my $show = {
 		score => sub { # Display the athlete's score for 9 seconds
-			my $delay = shift;
 			my $delay = shift;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 			$request->{ action } = 'match';

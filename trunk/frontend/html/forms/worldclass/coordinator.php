@@ -300,6 +300,7 @@
 						let isCurDiv = defined( current ) ? division.name == current.name : false;
 						division = new Division( division );
 						refresh.athletes( division, isCurDiv );
+						refresh.judges( update );
 
 						if( page.num == 1 ) { page.transition() };
 					}
@@ -541,25 +542,30 @@
 							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
 						});
 
-						if( i < update.judges.length ) {
-							let judge = update.judges[ i ];
-							
-							$( `#j${i}-col` ).show();
-							$( `#j${i}-acc` ).show();
-							$( `#j${i}-pre` ).show();
-							$( `#j${i}-sum` ).show();
-							$( `#j${i}-clr` ).show();
+						let n = update.judges?.length;
+						if( defined( update.ring )) {
+							let ring = update.ring;
+							if( defined( ring.divisions )) {
+								let current = ring.divisions.find( div => div.name == ring.current );
+								if( ! defined( n )) { n = current.judges; }
+							}
+						} else if( defined( update.division )) {
+							if( ! defined( n )) { n = update.division.judges; }
+						}
+						let rows = [ 'col', 'acc', 'pre', 'sum', 'clr' ];
+						if( n && i < n ) {
+							rows.forEach( row => $( `#j${i}-${row}` ).show() );
 						} else {
 							// Judge registered but not needed
-							if( defined( judge.id )) { $( `.judges button.${jname}` ).removeClass( `disabled ${any}` ).addClass( 'btn-primary' ).off( 'click' ); }
-							// Judge not needed
-							else                     { $( `.judges button.${jname}` ).removeClass( `disabled ${any}` ).addClass( `${color.bye} disabled` ).off( 'click' ); }
+							if( defined( update.judges ) && defined( update.judges[ i ])) { 
+								$( `.judges button.${jname}` ).removeClass( `disabled ${any}` ).addClass( 'btn-primary' ).off( 'click' ); 
 
-							$( `#j${i}-col` ).hide();
-							$( `#j${i}-acc` ).hide();
-							$( `#j${i}-pre` ).hide();
-							$( `#j${i}-sum` ).hide();
-							$( `#j${i}-clr` ).hide();
+							// Judge not needed
+							} else { 
+								$( `.judges button.${jname}` ).removeClass( `disabled ${any}` ).addClass( `${color.bye} disabled` ).off( 'click' ); 
+							}
+
+							rows.forEach( row => $( `#j${i}-${row}` ).hide() );
 						}
 					}
 				},

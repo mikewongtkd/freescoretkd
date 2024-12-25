@@ -36,7 +36,7 @@
 			</div>
 
 			<div id="athlete"></div>
-			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="send-one-score" class="btn btn-success disabled" style="margin-left: 40px;">Send One Score</a></div>
+			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="send-one-score" class="btn btn-success disabled" style="margin-left: 40px;">Send One Score</a><a id="clear-scores" class="btn btn-danger disabled" style="margin-left: 40px;">Clear Scores</a></div>
 
 		</div>
 		<script>
@@ -67,7 +67,7 @@
 
 				if( update.action == 'update' && update.type == 'division' ) {
 					var athlete = division.current.athlete()
-					$( '#send-scores, #send-one-score' ).removeClass( 'disabled' );
+					$( '#send-scores, #send-one-score, #clear-scores' ).removeClass( 'disabled' );
 					$( '#athlete' ).html( athlete.display.name() );
 				}
 			};
@@ -103,14 +103,14 @@
 			}
 
 			$( '#send-scores' ).off( 'click' ).click(() => {
-				var request = undefined;
-				var j       = division.judges();
-				var scores  = create_scores( j );
-				var athlete = division.current.athlete();
+				let request = undefined;
+				let j       = division.judges();
+				let scores  = create_scores( j );
+				let athlete = division.current.athlete();
 
 				sound.ok.play();
 				for( i = 0; i < j; i++ ) {
-					var send = ( i, scores ) => { return () => {
+					let send = ( i, scores ) => { return () => {
 						$.cookie( 'judge', i );
 						alertify.notify( 'Score for ' + athlete.display.name() + ' sent for ' + ( i == 0 ? 'Referee' : 'Judge ' + i ));
 						score        = scores[ i ];
@@ -124,14 +124,14 @@
 			});
 
 			$( '#send-one-score' ).off( 'click' ).click(() => {
-				var request = undefined;
-				var j       = division.judges();
-				var scores  = create_scores( j );
-				var athlete = division.current.athlete();
-				var i       = rand( j );
+				let request = undefined;
+				let j       = division.judges();
+				let scores  = create_scores( j );
+				let athlete = division.current.athlete();
+				let i       = rand( j );
 
 				sound.ok.play();
-				var send = ( i, score ) => { return () => {
+				let send = ( i, score ) => { return () => {
 					$.cookie( 'judge', i );
 					alertify.notify( 'Score for ' + athlete.display.name() + ' sent for ' + ( i == 0 ? 'Referee' : 'Judge ' + i ));
 					request      = { data : { type : 'division', action : 'score', score: score, judge: i, cookie : { judge: i }}};
@@ -140,6 +140,19 @@
 					console.log( request.data );
 				}};
 				send( i, scores[ i ] )();
+			});
+
+			$( '#clear-scores' ).off( 'click' ).click(() => {
+				let j       = division.judges();
+				let athlete = division.current.athlete();
+
+				alertify.notify( `Clearing scores for ${athlete.display.name()}` );
+				for( i = 0; i < j; i++ ) {
+					let request  = { data : { type : 'division', action : 'clear judge score', judge: i }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+					console.log( request.data );
+				}
 			});
 
 		</script>

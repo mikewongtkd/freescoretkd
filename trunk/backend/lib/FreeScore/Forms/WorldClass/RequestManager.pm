@@ -15,6 +15,8 @@ use Data::Structure::Util qw( unbless );
 use Clone qw( clone );
 use File::Slurp qw( read_file );
 use Encode qw( encode );
+use Mojo::IOLoop;
+use Mojo::IOLoop::Delay;
 
 our $DEBUG = 1;
 
@@ -797,7 +799,10 @@ sub autopilot {
 		return { error => $_ };
 	};
 
-	$delay->steps( $division->method->autopilot_steps( $self ))->catch( sub {} )->wait();
+	my @steps = $division->method->autopilot_steps( $self, $request, $progress, $group );
+	my $delay = new Mojo::IOLoop::Delay();
+	$delay->steps( @steps );
+	$delay->wait();
 }
 
 1;
