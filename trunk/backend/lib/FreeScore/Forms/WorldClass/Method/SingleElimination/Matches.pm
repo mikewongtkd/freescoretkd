@@ -26,7 +26,7 @@ sub init {
 }
 
 # ============================================================
-sub current_match {
+sub current {
 # ============================================================
 	my $self    = shift;
 	my $round   = $self->{ division }{ round };
@@ -37,7 +37,7 @@ sub current_match {
 }
 
 # ============================================================
-sub first_match {
+sub first {
 # ============================================================
 	my $self = shift;
 
@@ -47,16 +47,16 @@ sub first_match {
 }
 
 # ============================================================
-sub is_last_match {
+sub is_last {
 # ============================================================
 	my $self = shift;
-	my $current = $self->current_match();
-	my $last    = $self->last_match();
+	my $current = $self->current();
+	my $last    = $self->last();
 	return int( @$current ) == int( @$last ) && join( ',', @$current ) eq join( ',', @$last );
 }
 
 # ============================================================
-sub last_match {
+sub last {
 # ============================================================
 	my $self = shift;
 
@@ -98,7 +98,7 @@ sub match_with_athlete {
 }
 
 # ============================================================
-sub next_match {
+sub next {
 # ============================================================
 	my $self    = shift;
 	my $current = first_index { $_->has( $athlete ) } @{$self->{ matches }};
@@ -117,7 +117,7 @@ sub next_match {
 }
 
 # ============================================================
-sub prev_match {
+sub prev {
 # ============================================================
 	my $self    = shift;
 	my $current = first_index { $_->has( $athlete ) } @{$self->{ matches }};

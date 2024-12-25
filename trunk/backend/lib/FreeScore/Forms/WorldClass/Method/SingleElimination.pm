@@ -87,16 +87,16 @@ sub autopilot_steps {
 	my $matches  = $self->matches();
 
 	my $last = {
-		match   => $matches->is_last_match(),
-		athlete => $div->{ current } == $matches->last_match->last_athlete(),
+		match   => $matches->is_last(),
+		athlete => $div->{ current } == $matches->last->last_athlete(),
 		form    => ($div->{ form }   == int( @$forms ) - 1),
 		round   => ($div->{ round } eq 'ro2'),
 		cycle   => (!(($j + 1) % 2)),
 	};
 
 	my $has_gone = {
-		chung => $matches->current_match->chung() == $div->{ current },
-		hong  => $matches->current_match->hong()  == $div->{ current }
+		chung => $matches->current->chung() == $div->{ current },
+		hong  => $matches->current->hong()  == $div->{ current }
 	};
 
 	$last->{ chung }{ form } = $last->{ form } && $has_gone->{ chung };
@@ -143,12 +143,12 @@ sub autopilot_steps {
 			};
 
 			# ===== ATHLETE NAVIGATION
-			if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current_match->chung() ); }
-			elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current_match->hong() ); }
+			if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current->chung() ); }
+			elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current->hong() ); }
 
 			# ===== FORM/MATCH/ROUND NAVIGATION
-			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first_match->first_athlete(); $div->first_form(); }
-			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next_match->first_athlete() ); $div->first_form(); }
+			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first->first_athlete(); $div->first_form(); }
+			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next->first_athlete() ); $div->first_form(); }
 			elsif ( $go->{ next }{ form })  { $div->next_form(); }
 			$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$div->write();
@@ -255,34 +255,38 @@ sub find_athlete {
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
-			return $matches->first_match->first_athlete();
+			return $matches->first->first_athlete();
 		} else {
-			return $matches->last_match->last_athlete();
+			return $matches->last->last_athlete();
 		}
 
 	} elsif( $option =~ /^(?:chung|hong)/ ) {
 		if( $option =~ /^next$/ ) {
-			return $matches->current_match->chung();
+			return $matches->current->chung();
 		} else {
-			return $matches->current_match->hong();
+			return $matches->current->hong();
 		}
 
-	} elsif( $option =~ /^(?:next|prev)/ ) {
-		if( $option =~ /^next$/ ) {
-			my $current = $matches->current_match();
+	} elsif( $option =~ /^(?:next|prev)/i ) {
+		if( $option =~ /^next$/i ) {
+			my $current = $matches->current();
 
 			if( $current->contested() && $current->first_athlete() == $div->{ current }) { 
 				return $current->last_athlete();
 			} else {
-				return $matches->next_match->first_athlete();
+				my $next = $matches->next();
+				return $next->first_athlete() if $next;
+				die "No next match $!";
 			}
 		} else {
-			my $current = $matches->current_match();
+			my $current = $matches->current();
 
 			if( $current->contested() && $current->last_athlete() == $div->{ current }) { 
 				return $current->first_athlete();
 			} else {
-				return $matches->prev_match->last_athlete();
+				my $prev = $matches->prev();
+				return $prev->last_athlete() if $prev;
+				die "No previous match $!";
 			}
 		}
 	}

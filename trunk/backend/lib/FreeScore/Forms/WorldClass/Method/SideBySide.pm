@@ -16,19 +16,22 @@ our @rounds = [
 # ============================================================
 sub autopilot_steps {
 # ============================================================
-	my $self    = shift;
-	my $rm      = shift; # Request Manager
-	my $div     = $self->{ division };
-	my $pause   = { score => 9, leaderboard => 6, brief => 1 };
-	my $round   = $div->{ round };
-	my $order   = $div->{ order }{ $round };
-	my $forms   = $div->{ forms }{ $round };
-	my $j       = first_index { $_ == $div->{ current } } @$order;
-	my $matches = $self->matches();
+	my $self     = shift;
+	my $rm       = shift; # Request Manager
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $div      = $self->{ division };
+	my $pause    = { score => 9, leaderboard => 6, brief => 1 };
+	my $round    = $div->{ round };
+	my $order    = $div->{ order }{ $round };
+	my $forms    = $div->{ forms }{ $round };
+	my $j        = first_index { $_ == $div->{ current } } @$order;
+	my $matches  = $self->matches();
 
 	my $last = {
-		match   => $matches->is_last_match(),
-		athlete => $div->{ current } == $matches->last_match->last_athlete(),
+		match   => $matches->is_last(),
+		athlete => $div->{ current } == $matches->last->last_athlete(),
 		form    => ($div->{ form }   == int( @$forms ) - 1),
 		round   => ($div->{ round } eq 'ro2')
 	};
@@ -36,10 +39,8 @@ sub autopilot_steps {
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
-	my $delay = new Mojo::IOLoop::Delay();
 	my $show = {
 		score => sub { # Display the athlete's score for 9 seconds
-			my $delay = shift;
 			my $delay = shift;
 			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 			$request->{ action } = 'match';
@@ -74,8 +75,8 @@ sub autopilot_steps {
 			};
 
 			# ===== FORM/MATCH/ROUND NAVIGATION
-			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first_match->first_athlete(); $div->first_form(); }
-			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next_match->first_athlete() ); $div->first_form(); }
+			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first->first_athlete(); $div->first_form(); }
+			elsif ( $go->{ next }{ match }) { my $next = $matches->next(); if( $next ) { $div->navigate( 'athlete', $next->first_athlete() ); $div->first_form(); } else { die "No next match $!"; }}
 			elsif ( $go->{ next }{ form })  { $div->next_form(); }
 			$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 			$div->write();
