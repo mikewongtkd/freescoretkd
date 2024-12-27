@@ -233,34 +233,10 @@ sub place_athletes {
 
 	# ===== SORT THE ATHLETES BY COMPULSORY FORM SCORES, THEN TIE BREAKER SCORES
 	@$placement = sort { 
-		# ===== COMPARE BY COMPULSORY ROUND SCORES
-		my $x = $div->{ athletes }[ $a ]{ scores }{ $round }; # a := first athlete index;  x := first athlete round scores
-		my $y = $div->{ athletes }[ $b ]{ scores }{ $round }; # b := second athlete index; y := second athlete round score
-		my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ); 
+		my $x = $div->reinstantiate_round( $round, $a ); # a := first athlete index;  x := first athlete round scores
+		my $y = $div->reinstantiate_round( $round, $b ); # b := second athlete index; y := second athlete round score
 
-		# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
-		# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
-		if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
-			if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $x->{ notes } = 'P'; }
-			elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $y->{ notes } = 'P'; }
-			else {
-				if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
-				elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
-				else {
-					if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
-					if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
-					if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
-					if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
-				}
-			}
-		}
-
-		# ===== COMPARE BY TIE-BREAKERS IF TIED
-		if( abs( $comparison ) < 0.010 ) {
-			$comparison = FreeScore::Forms::WorldClass::Division::Round::_tiebreaker( $x, $y ); 
-		}
-
-		$comparison;
+		$x->compare( $y );
 	} @athlete_indices;
 
 	# ===== ASSIGN PLACEMENTS

@@ -437,7 +437,7 @@ body {
   color: yellow;
   position: absolute;
   left: 4%;
-  width: 61%;
+  width: 56%;
   font-weight: bold;
   text-overflow: ellipse;
   overflow: hidden;
@@ -452,27 +452,28 @@ body {
 .worldclass .leaderboard .division .placement .athlete .form1 {
   color: #f39;
   position: absolute;
-  left: 65%;
+  left: 60%;
   width: 10%;
   text-align: center;
 }
 .worldclass .leaderboard .division .placement .athlete .form2 {
   color: #39f;
   position: absolute;
-  left: 75%;
+  left: 70%;
   width: 10%;
   text-align: center;
 }
 .worldclass .leaderboard .division .placement .athlete .score {
   color: lime;
   position: absolute;
-  left: 85%;
-  width: 15%;
+  left: 80%;
+  width: 20%;
   text-align: center;
 }
-.worldclass .leaderboard .division .placement .athlete .score .notes {
-  font-size: 24pt;
-  color: green;
+.worldclass .leaderboard .division .placement .athlete .score .tiebreaker {
+  font-size: 18pt;
+  width: 5%;
+  color: skyblue;
   display: inline-block;
 }
 .worldclass .leaderboard .division .placement .athlete .medal {

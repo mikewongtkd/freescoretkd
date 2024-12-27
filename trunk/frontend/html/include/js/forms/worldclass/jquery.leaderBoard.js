@@ -70,22 +70,16 @@ $.widget( "freescore.leaderboard", {
 			// ===== ADD ATHLETES
 			var round = o.division.current.roundId();
 			for( let i = 0; i < k; i++ ) {
-				let athlete  = placement[ i ];
-				let score    = athlete.score( round );
-				let notes    = defined( score.notes() ) ? score.notes() : '';
-				let number   = i+1;
-				let name     = athlete.display.name();
-				let namespan = html.span.clone() .html( name );
-				let total    = parseFloat( score.adjusted.total()).toFixed( 2 );
-				let n        = score.forms.count() - 1;
-				let current  = athlete.id() == o.division.current.athleteId() ? ' current' : '';
-				let cutoff   = i == max - 1 ? ' cutoff' : '';
-
-				for( let j = 0; j < n; j++ ) {
-					let form = score.form( j );
-					if( form.decision.is.disqualify()) { total = 'DSQ'; break; } else
-					if( form.decision.is.withdraw())   { total = 'WDR'; break; }
-				}
+				let athlete    = placement[ i ];
+				let score      = athlete.score( round );
+				let tiebreaker = score?.tb ? score.tb.map( x => `<span class="tiebreaker">${x}</span>` ).join( '' ) : '';
+				let number     = i+1;
+				let name       = athlete.display.name();
+				let namespan   = html.span.clone() .html( name );
+				let total      = score?.adjusted?.decision ? score.adjusted.decision : parseFloat( score.adjusted.total()).toFixed( 2 );
+				let n          = score.forms.count() - 1;
+				let current    = athlete.id() == o.division.current.athleteId() ? ' current' : '';
+				let cutoff     = i == max - 1 ? ' cutoff' : '';
 
 				let entry = {
 					panel : html.div.clone() .addClass( `athlete results${current}${cutoff}` ),
@@ -93,7 +87,7 @@ $.widget( "freescore.leaderboard", {
 					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
 					form1 : form_mean_score( score.form( 0 ), 'form1' ),
 					form2 : form_mean_score( score.form( 1 ), 'form2' ),
-					score : html.div.clone() .addClass( "score" ) .html( total + "<span class=\"notes\">" + notes + "</span>" ),
+					score : html.div.clone() .addClass( "score" ) .html( `${total}${tiebreaker}` ),
 					medal : html.div.clone() .addClass( "medal" ),
 				};
 

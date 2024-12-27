@@ -28,6 +28,10 @@ sub bracket {}
 # ============================================================
 
 # ============================================================
+sub division { my $self = shift; return $self->{ division }; }
+# ============================================================
+
+# ============================================================
 sub factory {
 # ============================================================
 	my $type  = shift;
@@ -53,10 +57,12 @@ sub matches {}
 sub round {
 # ============================================================
 	my $self  = shift;
-	my $rcode = shift;
+	my $rcode = shift || $self->{ round };
 	my $class  = ref( $self );
 	my $rvar   = "\@$class::rounds";
 	my @rounds = eval $rvar;
+
+	die "No round specified for $class round() $!" unless $rcode;
 
 	return first { $_->{ code } eq $rcode } @rounds;
 }
@@ -81,6 +87,29 @@ sub rounds {
 	}
 
 	return @rounds;
+}
+
+# ============================================================
+sub _annotate {
+# ============================================================
+# Determines if a tie-breaking criteria is needed and adds them
+# to the list for display
+# ------------------------------------------------------------
+	my $x = shift;
+	my $y = shift;
+
+	my $dcode = { disqualify => 'DSQ', withdraw => 'WDR' };
+	if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
+		if( $x->{ adjusted }{ presentation } != $y->{ adjusted }{ presentation }) { 
+			$x->{ tb }[ 0 ] = $x->{ adjusted }{ presentation }; 
+			$y->{ tb }[ 0 ] = $y->{ adjusted }{ presentation }; 
+		} else {
+			if( $x->{ original }{ total } != $y->{ original }{ total } ) { 
+				$x->{ tb }[ 1 ] = $x->{ original }{ total };
+				$y->{ tb }[ 1 ] = $y->{ original }{ total };
+			}
+		}
+	}
 }
 
 1;

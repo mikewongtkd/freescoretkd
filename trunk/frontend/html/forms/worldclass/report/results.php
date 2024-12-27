@@ -36,19 +36,6 @@ table .tb2 { width: 10%; }
 			};
 
 			var display = {
-				athlete : {
-					decision : scores => {
-						let code = { 'withdraw' : 'WDR', 'disqualify' : 'DSQ', '' : false };
-						let decision = '';
-						if( ! ( 'forms' in scores )) { return false; }
-						scores.forms.forEach( form => {
-							if( !( 'decision' in form )) { return false; }
-							decision = Object.keys( form.decision )[ 0 ];
-						});
-						decision = code[ decision ];
-						return decision;
-					}
-				},
 				results : {
 					table : division => {
 						console.log( division.name.toUpperCase(), division );
@@ -85,13 +72,13 @@ table .tb2 { width: 10%; }
 								let next     = k === null ? null : athletes[ k ];
 								let num      = `${i + 1}.`;
 								let name     = athlete.name;
-								let usatid   = athlete.info.usatid.replace( /,/g, ', ' );
-								let scores   = round.code in athlete.scores ? athlete.scores[ round.code ] : { adjusted : { presentation : null, total : null }, allscore : null };
-								let pscore   = prev && round.code in prev.scores ? prev.scores[ round.code ] : { adjusted : { presentation : null, total : null }, allscore : null };
-								let nscore   = next && round.code in next.scores ? next.scores[ round.code ] : { adjusted : { presentation : null, total : null }, allscore : null };
+								let usatid   = athlete?.info?.usatid ? athlete.info.usatid.replace( /,/g, ', ' ) : '';
+								let scores   = round.code in athlete.scores ? athlete.scores[ round.code ] : { adjusted : { presentation : null, total : null }, original : null };
+								let pscore   = prev && round.code in prev.scores ? prev.scores[ round.code ] : { adjusted : { presentation : null, total : null }, original : null };
+								let nscore   = next && round.code in next.scores ? next.scores[ round.code ] : { adjusted : { presentation : null, total : null }, original : null };
 								let tb1      = '';
 								let tb2      = '';
-								let decision = display.athlete.decision( scores );
+								let decision = scores?.adjusted?.decision;
 								let score    = '';
 								console.log( athlete.name, decision );
 								if( decision ) { score = decision; num = '&ndash;';} 
@@ -99,7 +86,7 @@ table .tb2 { width: 10%; }
 								if( scores.adjusted.total && ((scores.adjusted.total == pscore.adjusted.total) || (scores.adjusted.total == nscore.adjusted.total))) {
 									tb1 = parseFloat( scores.adjusted.presentation ).toFixed( 2 );
 									if( scores.adjusted.presentation && ((scores.adjusted.presentation == pscore.adjusted.presentation) || (scores.adjusted.presentation == nscore.adjusted.presentation))) {
-										tb2 = parseFloat( scores.allscore.total ).toFixed( 2 );
+										tb2 = parseFloat( scores.original.total ).toFixed( 2 );
 									}
 								}
 								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${score}</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );

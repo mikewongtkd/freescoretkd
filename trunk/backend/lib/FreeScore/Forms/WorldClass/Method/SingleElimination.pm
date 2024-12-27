@@ -187,14 +187,17 @@ sub bracket {
 		my $i = $mnum;
 		my $j = $round->{ max } - ($i + 1);
 
-		# Assign Chung athlete (if one exists)
+		# Skip if there are more matches than remaining athletes
+		next if( $i > $j );
+
+		# Assign Chung athlete
 		my $chung = $order[ $i ];
 		$div->reinstantiate_round( $round, $chung )->match( $mnum );
 
 		# Do not assign Hong athlete if there is a bye
 		next if( $j > $k );
 
-		# Assign Hong athlete (if one exists)
+		# Assign Hong athlete
 		my $hong = $order[ $j ];
 		$div->reinstantiate_round( $round, $hong )->match( $mnum );
 	}
@@ -206,38 +209,13 @@ sub calculate_winners {
 	my $self     = shift;
 	my $div      = $self->{ division };
 	my $round    = shift || $div->{ round };
-	my $annotate = shift || 0;
 
 	my $athletes = $div->{ order }{ $round };
 	my $matches  = $self->matches();
 	my @winners  = ();
 
 	foreach my $match ($matches->list()) {
-		my ($winner, $loser);
-
-		# ===== IDENTIFY WINNER
-		# Uncontested matches
-		if( $match->uncontested() ) {
-			$winner = $match->uncontested_winner();
-			$loser  = undef;
-
-		# Contested matches
-		} else {
-			($winner, $loser) = sort { 
-				my $x = $div->reinstantiate_round( $round, $a );
-				my $y = $div->reinstantiate_round( $round, $b );
-				_annotate( $x, $y ) if $annotate;
-				FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y ) 
-			} @$match;
-		}
-
-		# ===== COLLATE WINNERS FOR THE ROUND
-		if( $div->reinstantiate_round( $round, $winner )->any_punitive_decision()) {
-			push @winners, -1; # -1 indicates player has WDR or DSQ decision
-
-		} else {
-			push @winners, $winner;
-		}
+		push @winners, $match->winner();
 	}
 
 	return @winners;
@@ -386,29 +364,5 @@ sub record_score {
 # ============================================================
 sub string { return 'se'; }
 # ============================================================
-
-# ============================================================
-sub _annotate {
-# ============================================================
-	my $x = shift;
-	my $y = shift;
-
-	# ===== ANNOTATE SCORES WITH TIE-RESOLUTION RESULTS
-	# P: Presentation score, HL: High/Low score, TB: Tie-breaker form required
-	if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
-		if    ( $x->{ adjusted }{ presentation } > $y->{ adjusted }{ presentation } ) { $x->{ notes } = 'P'; }
-		elsif ( $x->{ adjusted }{ presentation } < $y->{ adjusted }{ presentation } ) { $y->{ notes } = 'P'; }
-		else {
-			if    ( $x->{ allscore }{ total } > $y->{ allscore }{ total } ) { $x->{ notes } = 'HL'; }
-			elsif ( $x->{ allscore }{ total } < $y->{ allscore }{ total } ) { $y->{ notes } = 'HL'; }
-			else {
-				if( exists $x->{ decision }{ withdraw }   ) { $x->{ notes } = 'WD'; }
-				if( exists $x->{ decision }{ disqualify } ) { $x->{ notes } = 'DQ'; }
-				if( exists $y->{ decision }{ withdraw }   ) { $y->{ notes } = 'WD'; }
-				if( exists $y->{ decision }{ disqualify } ) { $y->{ notes } = 'DQ'; }
-			}
-		}
-	}
-}
 
 1;

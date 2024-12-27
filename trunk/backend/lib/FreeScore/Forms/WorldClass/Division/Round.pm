@@ -13,6 +13,7 @@ use Carp;
 #   - accuracy
 #   - presentation
 #   - total
+#   - decision
 # - complete
 # - forms
 #   - [ form index ]
@@ -140,6 +141,7 @@ sub record_decision {
 		$form->{ complete } = 0;
 		$form->{ started }  = 0;
 		$self->{ complete } = 0 if( none { $self->form_complete( $_ )} @{$self->{ forms }} );
+
 	} else {
 		$form->{ decision }{ $decision } = 1;
 		$form->{ complete }              = 1;
@@ -158,24 +160,26 @@ sub add_tiebreaker {
 }
 
 # ============================================================
-sub calculate_means {
+sub calculate_totals {
 # ============================================================
 	my $self   = shift;
 	my $judges = shift;
-	my $means  = [];
+	my $totals = [];
 
 	$self->started();
 	$self->complete();
+	my $dcode = { disqualify => 'DSQ', withdraw => 'WDR' };
 	foreach my $form (@{$self->{ forms }}) {
 		next unless $form->{ complete };
 		next unless exists $form->{ judge };
 
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
-		my $punitive_decision = $self->form_has_punitive_decision( $form );
-		if( $punitive_decision ) {
+		my $decision = $self->form_has_punitive_decision( $form );
+		if( $decision ) {
 			$self->{ adjusted }{ total }        = sprintf( "%.2f", 0.0 );
 			$self->{ adjusted }{ presentation } = sprintf( "%.2f", 0.0 );
 			$self->{ total }                    = sprintf( "%.2f", 0.0 );
+			$self->{ adjusted }{ decision }     = $dcode->{ $decision };
 			last;
 		}
 
@@ -215,14 +219,14 @@ sub calculate_means {
 		$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation };
 		$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
-		my @mean = (
+		my @subtotals = (
 			accuracy     => sprintf( "%.2f", $stats->{ sumacc }),
 			presentation => sprintf( "%.2f", $stats->{ sumpre })
 		);
-		my $adjusted = { @mean };
-		my $allscore = { @mean };
+		my $adjusted = { @subtotals };
+		my $original = { @subtotals };
 
-		# ===== CALCULATE ADJUSTED MEANS
+		# ===== CALCULATE ADJUSTED TOTALS
 		if( $judges >= 5 ) {
 			$adjusted->{ accuracy }     -= ($stats->{ minacc } + $stats->{ maxacc });
 			$adjusted->{ presentation } -= ($stats->{ minpre } + $stats->{ maxpre });
@@ -243,34 +247,31 @@ sub calculate_means {
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
-		# ===== CALCULATE ALL-SCORE MEANS
-		$allscore = { map { ( $_ => sprintf( "%.2f", ($allscore->{ $_ }/$judges))) } keys %$allscore };
+		# ===== CALCULATE TOTALS AND APPLY PENALTIES
+		$original = { map { ( $_ => sprintf( "%.2f", ($original->{ $_ }/$judges))) } keys %$original };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
-		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } - $penalties;
+		$original->{ total } = $original->{ accuracy } + $original->{ presentation } - $penalties;
 
 		$form->{ adjusted } = $adjusted;
-		$form->{ allscore } = $allscore;
+		$form->{ original } = $original;
 
-		push @$means, { adjusted => $adjusted, allscore => $allscore };
-	}
-	# ===== CALCULATE TIEBREAKER SCORES (NOT YET IMPLEMENTED)
-	foreach my $form (@{$self->{ tiebreakers }}) {
+		push @$totals, { adjusted => $adjusted, original => $original };
 	}
 
 	# ===== CACHE CALCULATIONS
 	$self->{ adjusted } = { total => 0, presentation => 0 };
 
-	foreach my $mean (@$means) {
-		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
-		$self->{ adjusted }{ accuracy }     += $mean->{ adjusted }{ accuracy };
-		$self->{ adjusted }{ presentation } += $mean->{ adjusted }{ presentation };
-		$self->{ allscore }{ total }        += $mean->{ allscore }{ total };
+	foreach my $total (@$totals) {
+		$self->{ adjusted }{ total }        += $total->{ adjusted }{ total };
+		$self->{ adjusted }{ accuracy }     += $total->{ adjusted }{ accuracy };
+		$self->{ adjusted }{ presentation } += $total->{ adjusted }{ presentation };
+		$self->{ total }                    += $total->{ original }{ total };
 	};
 
 	$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", $self->{ adjusted }{ total } );
 	$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", $self->{ adjusted }{ presentation } );
-	$self->{ allscore }{ total }        = 0.0 + sprintf( "%.2f", $self->{ allscore }{ total } );
+	$self->{ total }                    = 0.0 + sprintf( "%.2f", $self->{ total } );
 
 	return $self;
 }
@@ -300,11 +301,18 @@ sub form_has_punitive_decision {
 	my $i    = shift; # Index or reference to the form
 	my $form = ref $i ? $i : $self->{ forms }[ $i ];
 
-	if( exists $form->{ decision } && ($form->{ decision }{ withdraw } || $form->{ decision }{ disqualify })) {
+	return 0 unless exists $form->{ decision };
+	my $fd = $form->{ decision };
+
+	foreach my $decision (qw( withdraw disqualify )) {
+		next unless exists $fd->{ $decision } && defined $fd->{ $decision };
+
 		$form->{ adjusted }{ total }        = 0.0;
 		$form->{ adjusted }{ presentation } = 0.0;
-		return 1;
+
+		return $decision;
 	}
+	return 0;
 }
 
 # ============================================================
@@ -320,6 +328,15 @@ sub any_punitive_decision {
 		}
 	}
 	return 0;
+}
+
+# ============================================================
+sub compare {
+# ============================================================
+	my $self  = shift;
+	my $other = shift;
+
+	return FreeScore::Forms::WorldClass::Division::Round::_compare( $self, $other );
 }
 
 # ============================================================
@@ -447,10 +464,29 @@ sub _compare {
 	if( ! defined $a ) { return  1; }
 	if( ! defined $b ) { return -1; }
 
+	my $pa = $a->any_punitive_decision();
+	my $pb = $b->any_punitive_decision();
+
+	return  0 if( $pa && $pb || ((! $pa) && (! $pb)));
+	return  1 if( $pa );
+	return -1 if( $pb );
+
+	if( $a->{ adjusted }{ total } == $b->{ adjusted }{ total } && $a->{ adjusted }{ total } != 0 ) {
+		if( $a->{ adjusted }{ presentation } != $b->{ adjusted }{ presentation }) { 
+			$a->{ tb }[ 0 ] = $a->{ adjusted }{ presentation }; 
+			$b->{ tb }[ 0 ] = $b->{ adjusted }{ presentation }; 
+		} else {
+			if( $a->{ total } != $b->{ total } ) { 
+				$a->{ tb }[ 1 ] = $a->{ total };
+				$b->{ tb }[ 1 ] = $b->{ total };
+			}
+		}
+	}
+
 	return
 		$b->{ adjusted }{ total }        <=> $a->{ adjusted }{ total }        ||
 		$b->{ adjusted }{ presentation } <=> $a->{ adjusted }{ presentation } ||
-		$b->{ allscore }{ total }        <=> $a->{ allscore }{ total };
+		$b->{ total }                    <=> $a->{ total };
 }
 
 # ============================================================

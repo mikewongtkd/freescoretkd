@@ -827,7 +827,7 @@ sub update_status {
 	my $round  = $self->{ round };
 
 	# ===== CALCULATE SCORE MEANS FOR ALL ROUNDS
-	$self->calculate_means();
+	$self->calculate_totals();
 
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
@@ -1111,7 +1111,7 @@ sub previous_form {
 }
 
 # ============================================================
-sub calculate_means {
+sub calculate_totals {
 # ============================================================
 	my $self = shift;
 
@@ -1122,7 +1122,7 @@ sub calculate_means {
 		foreach my $i (@athletes_in_round) {
 			my $scores = $self->{ athletes }[ $i ]{ scores }{ $round };
 			$scores = $self->{ athletes }[ $i ]{ scores }{ $round } = new FreeScore::Forms::WorldClass::Division::Round() if( ! defined $scores );
-			$scores->calculate_means( $self->{ judges } );
+			$scores->calculate_totals( $self->{ judges } );
 		}
 	}
 }
