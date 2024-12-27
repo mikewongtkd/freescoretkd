@@ -93,10 +93,10 @@ FreeScore.ResponseManager = class FSResponseManager {
 
 FreeScore.WebSocket = class FSWebSocket {
 	constructor() {
-		this.rm  = null;
-		this.url = null;
-		this.ws  = null;
-
+		this.rm        = null;
+		this.url       = null;
+		this.ws        = null;
+		this.listeners = [];
 	}
 
 	connect( request ) {
@@ -112,6 +112,8 @@ FreeScore.WebSocket = class FSWebSocket {
 				if( type != 'server' || action != 'ping' ) {
 					console.log( update );
 				}
+
+				this.listeners.forEach( listener => listener.refresh( update ));
 
 				try {
 					this.rm.dispatch( type, action, update );
@@ -154,6 +156,10 @@ FreeScore.WebSocket = class FSWebSocket {
 		this.ws = new WebSocket( this.url );
 		this.ws.onopen    = this.network.open;
 		this.ws.onmessage = this.network.message;
+	}
+
+	register( listener ) {
+		this.listeners.push( listener );
 	}
 
 	send( message ) {

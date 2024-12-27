@@ -176,9 +176,9 @@ sub calculate_totals {
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
 		my $decision = $self->form_has_punitive_decision( $form );
 		if( $decision ) {
-			$self->{ adjusted }{ total }        = sprintf( "%.2f", 0.0 );
-			$self->{ adjusted }{ presentation } = sprintf( "%.2f", 0.0 );
-			$self->{ total }                    = sprintf( "%.2f", 0.0 );
+			$self->{ adjusted }{ total }        = sprintf( "%.3f", 0.0 );
+			$self->{ adjusted }{ presentation } = sprintf( "%.3f", 0.0 );
+			$self->{ total }                    = sprintf( "%.3f", 0.0 );
 			$self->{ adjusted }{ decision }     = $dcode->{ $decision };
 			last;
 		}
@@ -220,8 +220,8 @@ sub calculate_totals {
 		$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
 		my @subtotals = (
-			accuracy     => sprintf( "%.2f", $stats->{ sumacc }),
-			presentation => sprintf( "%.2f", $stats->{ sumpre })
+			accuracy     => sprintf( "%.3f", $stats->{ sumacc }),
+			presentation => sprintf( "%.3f", $stats->{ sumpre })
 		);
 		my $adjusted = { @subtotals };
 		my $original = { @subtotals };
@@ -237,18 +237,18 @@ sub calculate_totals {
 			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
 			
-			$adjusted->{ accuracy }     = sprintf( "%.2f", $adjusted->{ accuracy } );
-			$adjusted->{ presentation } = sprintf( "%.2f", $adjusted->{ presentation } );
+			$adjusted->{ accuracy }     = sprintf( "%.3f", $adjusted->{ accuracy } );
+			$adjusted->{ presentation } = sprintf( "%.3f", $adjusted->{ presentation } );
 
 		} else {
-			$adjusted = { map { ( $_ => sprintf( "%.2f", ($adjusted->{ $_ }/$judges))) } keys %$adjusted };
+			$adjusted = { map { ( $_ => sprintf( "%.3f", ($adjusted->{ $_ }/$judges))) } keys %$adjusted };
 		}
 
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
 		# ===== CALCULATE TOTALS AND APPLY PENALTIES
-		$original = { map { ( $_ => sprintf( "%.2f", ($original->{ $_ }/$judges))) } keys %$original };
+		$original = { map { ( $_ => sprintf( "%.3f", ($original->{ $_ }/$judges))) } keys %$original };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
 		$original->{ total } = $original->{ accuracy } + $original->{ presentation } - $penalties;
@@ -269,9 +269,9 @@ sub calculate_totals {
 		$self->{ total }                    += $total->{ original }{ total };
 	};
 
-	$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", $self->{ adjusted }{ total } );
-	$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", $self->{ adjusted }{ presentation } );
-	$self->{ total }                    = 0.0 + sprintf( "%.2f", $self->{ total } );
+	$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.3f", $self->{ adjusted }{ total } );
+	$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.3f", $self->{ adjusted }{ presentation } );
+	$self->{ total }                    = 0.0 + sprintf( "%.3f", $self->{ total } );
 
 	return $self;
 }
