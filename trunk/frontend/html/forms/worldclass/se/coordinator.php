@@ -34,6 +34,8 @@
 		<script src="../../../include/js/sound.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
+		<script src="widgets/judges.js"></script>
+		<script src="widgets/autopilot.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -141,6 +143,8 @@
 					completed : new FreeScore.SingleElimination.DivisionList( app, 'completed' ),
 					staging   : new FreeScore.SingleElimination.DivisionList( app, 'staging'   ),
 				},
+				judges    : new FreeScore.SingleElimination.Judges( app, 'judge-scores' )
+				autopilot : new FreeScore.SingleElimination.Autopilot( app, 'judge-scores' )
 			};
 
 			app.network.on
