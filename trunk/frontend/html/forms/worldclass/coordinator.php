@@ -257,7 +257,7 @@
 				.by( update => {
 					let request = update.request;
 					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
+					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Form or Athlete' );
 					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
 					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 				})

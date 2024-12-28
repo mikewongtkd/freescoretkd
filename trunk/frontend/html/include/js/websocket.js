@@ -113,7 +113,7 @@ FreeScore.WebSocket = class FSWebSocket {
 					console.log( update );
 				}
 
-				this.listeners.forEach( listener => listener.refresh( update ));
+				this.listeners.forEach( listener => listener.handle( update ));
 
 				try {
 					this.rm.dispatch( type, action, update );

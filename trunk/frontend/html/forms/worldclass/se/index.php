@@ -1,5 +1,5 @@
 <?php 
-	include( "../../include/php/config.php" ); 
+	include( "../../../include/php/config.php" ); 
 	$rnum  = intval( isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ]);
 	if( $rnum == 'staging' || in_array( $rnum, $config->rings())) { 
 		setcookie( 'ring', $rnum, 0, '/' ); 
@@ -69,7 +69,7 @@
 				</div>
 			</div>
 		</div>
-		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
+		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
