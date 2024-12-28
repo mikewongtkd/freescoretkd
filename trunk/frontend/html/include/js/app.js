@@ -7,6 +7,7 @@ FreeScore.App = class FSApp {
 		this._refresh = {};
 		this._sound   = new FreeScore.Sound();
 		this._state   = {};
+		this._widget  = {};
 		this.on       = {
 			connect : url => {
 				this._network.set( url );
@@ -38,6 +39,8 @@ FreeScore.App = class FSApp {
 	get refresh() { return this._refresh; }
 	get sound()   { return this._sound; }
 	get state()   { return this._state; }
+	get widget()  { return this._widget; }
+
 
 	// App caches for general UI/UX usage
 	set button( value )  { this._button  = value; } // For button behavior
@@ -45,6 +48,7 @@ FreeScore.App = class FSApp {
 	set input( value )   { this._input   = value; } // For input behavior
 	set refresh( value ) { this._refresh = value; } // Callbacks for app component behavior
 	set state( value )   { this._state   = value; } // For app state (e.g. DFA graphs and transitions)
+	set widget( value )  { this._widget  = value; } // Widgets
 
 	request( request ) {
 		this._network.connect( request );

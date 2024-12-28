@@ -1,6 +1,10 @@
 FreeScore.Widget = class FSWidget {
-	constructor() {
+	constructor( app, dom ) {
 		this._refresh = {};
+		this._app     = app;
+		this._dom     = $( dom );
+
+		this.listen( app.network );
 
 	}
 
@@ -9,5 +13,17 @@ FreeScore.Widget = class FSWidget {
 	}
 
 	handle( update ) {
+	}
+
+	get refresh() {
+		return this._refresh;
+	}
+
+	set refresh( value ) {
+		this._refresh = value;
+	}
+
+	set widget( value ) {
+		this._widget = value;
 	}
 }
