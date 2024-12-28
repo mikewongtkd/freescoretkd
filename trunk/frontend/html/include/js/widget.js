@@ -1,23 +1,23 @@
 FreeScore.Widget = class FSWidget {
-	constructor( app, dom ) {
+	constructor( app, dom, options = null ) {
 		this._refresh = {};
 		this._app     = app;
-		this._dom     = $( dom );
 		this._button  = {};
+		this._dom     = dom.match( /^#/ ) ? $( dom ) : $( `#${dom}` );
 		this._input   = {};
+		this._options = options;
 		this._sound   = app.sound;
 		this._state   = {};
 
 		this.listen( app.network );
-
 	}
 
 	listen( network ) {
 		network.register( this );
 	}
 
-	response( type ) {
-		return this._app.network.rm.response( type );
+	heard( type ) {
+		return this._app.network.rm.heard( type );
 	}
 
 	get button()         { return this._button; }

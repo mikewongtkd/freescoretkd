@@ -144,103 +144,90 @@
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			app.network.on
-				.response( 'autopilot' )
-				.handle( 'leaderboard' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
-					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
-					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+				.heard( 'autopilot' )
+					.command( 'leaderboard' ) 
+						.respond( update => { 
+							app.refresh.autopilot( update, 'Showing Leaderboard' ); 
+						})
+					.command( 'next' )
+						.respond( update => {
+							app.refresh.autopilot( update, 'Next Athlete' );
+							app.dispatch( 'division', 'score', update );
+						})
+					.command( 'scoreboard' )
+						.respond( update => {
+							app.refresh.autopilot( update, 'Showing Score' );
+							let division = new Division( update.division );
+							app.refresh.athletes( division, true );
+						})
+				.heard( 'ring' )
+					.command( 'read' )
+						.respond( update => {
+							let ring = update.ring;
+							app.refresh.ring( ring );
+							let divid = $.cookie( 'breaking-divid' );
+							if( defined( divid )) {
+								let division = ring.divisions.find( d => d.name == divid );
+								let current  = ring.divisions.find( d => d.name == ring.current );
 
-				})
-				.handle( 'next' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
-					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
-					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-					app.dispatch( 'division', 'score', update );
-				})
-				.handle( 'scoreboard' )
-				.by( update => {
-					let request  = update.request;
-					let delay    = (request.delay + 1) * 1000;
-					let division = new Division( update.division );
-					app.refresh.athletes( division, true );
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
-					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
-					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
-				.response( 'ring' )
-				.handle( 'read' )
-				.by( update => {
-					let ring = update.ring;
-					app.refresh.ring( ring );
-					let divid = $.cookie( 'breaking-divid' );
-					if( defined( divid )) {
-						let division = ring.divisions.find( d => d.name == divid );
-						let current  = ring.divisions.find( d => d.name == ring.current );
+								if( ! defined( division )) { return; }
+								division = new Division( division );
+								let isCurDiv = division.name() == current.name;
+								app.refresh.athletes( division, isCurDiv );
 
-						if( ! defined( division )) { return; }
-						division = new Division( division );
-						let isCurDiv = division.name() == current.name;
-						app.refresh.athletes( division, isCurDiv );
-
-						if( page.num == 1 ) { page.transition() };
-					}
-				})
-				.response( 'server' )
-				.handle( 'ping' )
-				.by( ping => {
-					let timestamp = (new Date).toISOString();
-					let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
-					app.network.send( pong );
-					$( '.ping-display .fas' ).removeClass( 'fa-heart' ).addClass( 'fa-heartbeat' );
-					setTimeout( () => { $( '.ping-display .fas' ).removeClass( 'fa-heartbeat' ).addClass( 'fa-heart' ); }, 500 );
-				})
-				.response( 'users' )
-				.handle( 'update' )
-				.by( update => {
-					let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default' }; 
-					let any = 'btn-success btn-warning btn-danger btn-default';
-					update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
-						let role = user.role;
-						role = role.replace( /udge/, '' );
-						let health = user.health;
-						$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
-					});
-					let display = update.users.find( user => user.role.match( /^display/i ));
-					if( ! display ) { alertify.notify( 'No display currently being shown. Please show display' ); }
-					else if( display.health == 'strong' || display.health == 'good' ) { alertify.success( `Display connection is ${display.health}` ); }
-					else if( display.health == 'weak' )                               { alertify.warning( `Display connection is ${display.health}` ); }
-					else if( display.health == 'bad' || display.health == 'dead' )    { alertify.danger( `Display connection is ${display.health}` ); }
-				})
-				.response( 'division' )
-				.handle( 'decision' )
-				.by( update => {
-					let division = new Division( update.division );
-					app.refresh.athletes( division, true );
-				})
-				.handle( 'leaderboard' )
-				.by( update => {
-					let division = new Division( update.division );
-					app.refresh.navadmin( division );
-				})
-				.handle( 'score' )
-				.by( update => {
-					let division = new Division( update.division );
-					app.refresh.athletes( division, true );
-				})
-				.handle( 'scoreboard' )
-				.by( update => {
-					let division = new Division( update.division );
-					app.refresh.navadmin( division );
-				})
-				.handle( 'time reset' ).pass()
-				.handle( 'time start' ).pass()
-				.handle( 'time stop'  ).pass();
+								if( page.num == 1 ) { page.transition() };
+							}
+						})
+				.heard( 'server' )
+					.command( 'ping' )
+						.respond( ping => {
+							let timestamp = (new Date).toISOString();
+							let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
+							app.network.send( pong );
+							$( '.ping-display .fas' ).removeClass( 'fa-heart' ).addClass( 'fa-heartbeat' );
+							setTimeout( () => { $( '.ping-display .fas' ).removeClass( 'fa-heartbeat' ).addClass( 'fa-heart' ); }, 500 );
+						})
+				.heard( 'users' )
+					.command( 'update' )
+						.respond( update => {
+							let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default' }; 
+							let any = 'btn-success btn-warning btn-danger btn-default';
+							update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
+								let role = user.role;
+								role = role.replace( /udge/, '' );
+								let health = user.health;
+								$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
+							});
+							let display = update.users.find( user => user.role.match( /^display/i ));
+							if( ! display ) { alertify.notify( 'No display currently being shown. Please show display' ); }
+							else if( display.health == 'strong' || display.health == 'good' ) { alertify.success( `Display connection is ${display.health}` ); }
+							else if( display.health == 'weak' )                               { alertify.warning( `Display connection is ${display.health}` ); }
+							else if( display.health == 'bad' || display.health == 'dead' )    { alertify.danger( `Display connection is ${display.health}` ); }
+						})
+				.heard( 'division' )
+					.command( 'decision' )
+						.respond( update => {
+							let division = new Division( update.division );
+							app.refresh.athletes( division, true );
+						})
+					.command( 'leaderboard' )
+						.respond( update => {
+							let division = new Division( update.division );
+							app.refresh.navadmin( division );
+						})
+					.command( 'score' )
+					.respond( update => {
+						let division = new Division( update.division );
+						app.refresh.athletes( division, true );
+					})
+					.command( 'scoreboard' )
+						.respond( update => {
+							let division = new Division( update.division );
+							app.refresh.navadmin( division );
+						})
+					.command( 'time reset' ).pass()
+					.command( 'time start' ).pass()
+					.command( 'time stop'  ).pass();
 
 			var page = {
 				num : 1,
@@ -388,6 +375,15 @@
 					};
 					time.reset();
 
+				},
+				// ------------------------------------------------------------
+				autopilot : ( update, message ) => {
+				// ------------------------------------------------------------
+					let request = update.request;
+					let delay   = (request.delay + 1) * 1000;
+					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( message );
+					if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+					app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 				},
 				// ------------------------------------------------------------
 				judges : function( division ) {

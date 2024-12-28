@@ -47,8 +47,8 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
 	  app.ping.off();
 
       app.network.on
-        .response( 'ring' )
-        .handle( 'read' ).by( update => {
+        .heard( 'ring' )
+        .command( 'read' ).respond( update => {
 <?php if( isset( $divid )): ?>
           let found = update.ring.divisions.find( division => division.name == '<?= $divid ?>' );
           if( ! found ) { return; }
@@ -98,8 +98,8 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
           });
 <?php endif; ?>
         })
-        .response( 'users' )
-        .handle( 'update' ).pass();
+        .heard( 'users' )
+        .command( 'update' ).pass();
 
     </script>
   </body>

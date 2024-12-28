@@ -242,77 +242,77 @@
 
 			app.network.on
 				// ============================================================
-				.response( 'autopilot' )
+				.heard( 'autopilot' )
 				// ============================================================
-				.handle( 'leaderboard' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+				.command( 'leaderboard' )
+					.respond( update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 
-				})
-				.handle( 'next' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Form or Athlete' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
-				.handle( 'scoreboard' )
-				.by( update => {
-					let request  = update.request;
-					let delay    = (request.delay + 1) * 1000;
-					let division = new Division( update.division );
-					refresh.athletes( division, true );
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
-
-				// ============================================================
-				.response( 'division' )
-				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-					let division = update.division;
-					if( ! defined( division )) { return; }
-
-					division   = new Division( division );
-					refresh.athletes( division, true );
-					refresh.judges( update );
-					if( page.num == 1 ) { page.transition() };
-				})
+					})
+				.command( 'next' )
+					.respond( update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Form or Athlete' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					})
+				.command( 'scoreboard' )
+					.respond( update => {
+						let request  = update.request;
+						let delay    = (request.delay + 1) * 1000;
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
+						if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
+						state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					})
 
 				// ============================================================
-				.response( 'ring' )
+				.heard( 'division' )
 				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-					if( ! defined( update.ring )) { return; }
-					refresh.ring( update.ring );
-					let divid = $.cookie( 'divid' );
-					if( defined( divid ) && divid != 'undefined' ) {
-						let division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
-						let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						let isCurDiv = defined( current ) ? division.name == current.name : false;
-						division = new Division( division );
-						refresh.athletes( division, isCurDiv );
+				.command( 'update' )
+					.respond( update => {
+						let division = update.division;
+						if( ! defined( division )) { return; }
+
+						division   = new Division( division );
+						refresh.athletes( division, true );
 						refresh.judges( update );
-
 						if( page.num == 1 ) { page.transition() };
-					}
-				})
+					})
 
 				// ============================================================
-				.response( 'users' )
+				.heard( 'ring' )
 				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-					refresh.judges( update );
-				});
+				.command( 'update' )
+					.respond( update => {
+						if( ! defined( update.ring )) { return; }
+						refresh.ring( update.ring );
+						let divid = $.cookie( 'divid' );
+						if( defined( divid ) && divid != 'undefined' ) {
+							let division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
+							let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
+							let isCurDiv = defined( current ) ? division.name == current.name : false;
+							division = new Division( division );
+							refresh.athletes( division, isCurDiv );
+							refresh.judges( update );
+
+							if( page.num == 1 ) { page.transition() };
+						}
+					})
+
+				// ============================================================
+				.heard( 'users' )
+				// ============================================================
+				.command( 'update' )
+					.respond( update => {
+						refresh.judges( update );
+					});
 
 			var page = {
 				num : 1,
@@ -531,6 +531,16 @@
 					$( "#decision-clear" )      .off( 'click' ).click( action.decision.clear );
 				},
 				judges : function( update ) {
+					let n = update.judges?.length;
+					if( defined( update.ring )) {
+						let ring = update.ring;
+						if( defined( ring.divisions )) {
+							let current = ring.divisions.find( div => div.name == ring.current );
+							if( ! defined( n )) { n = current.judges; }
+						}
+					} else if( defined( update.division )) {
+						if( ! defined( n )) { n = update.division.judges; }
+					}
 					for( var i = 0; i < 7; i++ ) {
 						let jname = "judge" + i;
 						let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default', 'bye' : 'btn-default' }; 
@@ -542,16 +552,6 @@
 							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
 						});
 
-						let n = update.judges?.length;
-						if( defined( update.ring )) {
-							let ring = update.ring;
-							if( defined( ring.divisions )) {
-								let current = ring.divisions.find( div => div.name == ring.current );
-								if( ! defined( n )) { n = current.judges; }
-							}
-						} else if( defined( update.division )) {
-							if( ! defined( n )) { n = update.division.judges; }
-						}
 						let rows = [ 'col', 'acc', 'pre', 'sum', 'clr' ];
 						if( n && i < n ) {
 							rows.forEach( row => $( `#j${i}-${row}` ).show() );

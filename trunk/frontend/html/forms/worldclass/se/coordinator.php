@@ -135,84 +135,65 @@
 
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
-			app.network.widget.division = {};
-			app.network.widget.division.ready     = new FreeScore.SingleElimination.DivisionList( app, '#ring-ready' );
-			app.network.widget.division.completed = new FreeScore.SingleElimination.DivisionList( app, '#ring-completed' );
-			app.network.widget.division.staging   = new FreeScore.SingleElimination.DivisionList( app, '#staging-divisions' );
+			app.network.widget = {
+				divisions : {
+					ready     : new FreeScore.SingleElimination.DivisionList( app, 'ready'     ),
+					completed : new FreeScore.SingleElimination.DivisionList( app, 'completed' ),
+					staging   : new FreeScore.SingleElimination.DivisionList( app, 'staging'   ),
+				},
+			};
 
 			app.network.on
 				// ============================================================
-				.response( 'autopilot' )
+				.heard( 'autopilot' )
 				// ============================================================
-				.handle( 'leaderboard' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-
-				})
-				.handle( 'next' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
-				.handle( 'scoreboard' )
-				.by( update => {
-					let request  = update.request;
-					let delay    = (request.delay + 1) * 1000;
-					let division = new Division( update.division );
-					refresh.athletes( division, true );
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
+				.command( 'scoreboard' )
+					.respond( update => {
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+					})
 
 				// ============================================================
-				.response( 'division' )
+				.heard( 'division' )
 				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-					let division = update.division;
-					if( ! defined( division )) { return; }
+				.command( 'update' )
+					.respond( update => {
+						let division = update.division;
+						if( ! defined( division )) { return; }
 
-					division   = new Division( division );
-					refresh.athletes( division, true );
-					refresh.judges( update );
-					if( page.num == 1 ) { page.transition() };
-				})
-
-				// ============================================================
-				.response( 'ring' )
-				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-					if( ! defined( update.ring )) { return; }
-					refresh.ring( update.ring );
-					let divid = $.cookie( 'divid' );
-					if( defined( divid ) && divid != 'undefined' ) {
-						let division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
-						let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-						let isCurDiv = defined( current ) ? division.name == current.name : false;
-						division = new Division( division );
-						refresh.athletes( division, isCurDiv );
+						division   = new Division( division );
+						refresh.athletes( division, true );
 						refresh.judges( update );
-
 						if( page.num == 1 ) { page.transition() };
-					}
-				})
+					})
 
 				// ============================================================
-				.response( 'users' )
+				.heard( 'ring' )
 				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-					refresh.judges( update );
-				});
+				.command( 'update' )
+					.respond( update => {
+						if( ! defined( update.ring )) { return; }
+						refresh.ring( update.ring );
+						let divid = $.cookie( 'divid' );
+						if( defined( divid ) && divid != 'undefined' ) {
+							let division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
+							let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
+							let isCurDiv = defined( current ) ? division.name == current.name : false;
+							division = new Division( division );
+							refresh.athletes( division, isCurDiv );
+							refresh.judges( update );
+
+							if( page.num == 1 ) { page.transition() };
+						}
+					})
+
+				// ============================================================
+				.heard( 'users' )
+				// ============================================================
+				.command( 'update' )
+					.respond( update => {
+						refresh.judges( update );
+					});
 
 			var page = {
 				num : 1,

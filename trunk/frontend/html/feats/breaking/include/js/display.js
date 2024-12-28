@@ -155,45 +155,45 @@ app.refresh.time = {
 
 app.network.on
 	// ========================================
-	.response( 'autopilot' )
+	.heard( 'autopilot' )
 	// ========================================
-	.handle( 'decision' )    .pass()
-	.handle( 'leaderboard' ) .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'next' )        .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'score' )       .pass()
-	.handle( 'scoreboard' )  .by( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'decision' )    .pass()
+	.command( 'leaderboard' ) .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'next' )        .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'score' )       .pass()
+	.command( 'scoreboard' )  .respond( update => { app.refresh.display( new Division( update.division )); })
 
 	// ========================================
-	.response( 'division' )
+	.heard( 'division' )
 	// ========================================
-	.handle( 'decision' )    .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'leaderboard' ) .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'inspection' )  .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'navigate' )    .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'read' )        .by( update => {
+	.command( 'decision' )    .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'leaderboard' ) .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'inspection' )  .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'navigate' )    .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'read' )        .respond( update => {
 		let division = new Division( update.division );
 		$( '.pt-page-2' ).hide();
 		app.refresh.display( division );
 	})
-	.handle( 'score' )       .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'scoreboard' )  .by( update => { app.refresh.display( new Division( update.division )); })
-	.handle( 'time reset' )  .by( update => {
+	.command( 'score' )       .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'scoreboard' )  .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'time reset' )  .respond( update => {
 		let division = new Division( update.division );
 		app.refresh.time.reset( division );
 	})
-	.handle( 'time start' )  .by( update => {
+	.command( 'time start' )  .respond( update => {
 		let division = new Division( update.division );
 		app.refresh.time.start( division );
 	})
-	.handle( 'time stop' )   .by( update => {
+	.command( 'time stop' )   .respond( update => {
 		let division = new Division( update.division );
 		app.refresh.time.stop( division );
 	})
 
 	// ========================================
-	.response( 'users' )
+	.heard( 'users' )
 	// ========================================
-	.handle( 'update' ).pass();
+	.command( 'update' ).pass();
 
 var page = {
 	leaderboard : 2,

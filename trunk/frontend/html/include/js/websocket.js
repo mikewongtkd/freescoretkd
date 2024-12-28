@@ -44,8 +44,8 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.table[ type ][ action ] = handler;
 	}
 
-	by( handler ) {
-		this.add( this.context.type, this.context.action, handler );
+	command( action ) {
+		this.context.action = action;
 		return this;
 	}
 
@@ -70,8 +70,11 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.table[ type ][ action ]( update );
 	}
 
-	handle( action ) {
-		this.context.action = action;
+	heard( type ) {
+		if( !( type in this.table )) {
+			this.table[ type ] = {};
+		}
+		this.context.type = type;
 		return this;
 	}
 
@@ -81,11 +84,8 @@ FreeScore.ResponseManager = class FSResponseManager {
 		return this;
 	}
 	
-	response( type ) {
-		if( !( type in this.table )) {
-			this.table[ type ] = {};
-		}
-		this.context.type = type;
+	respond( handler ) {
+		this.add( this.context.type, this.context.action, handler );
 		return this;
 	}
 
@@ -132,8 +132,8 @@ FreeScore.WebSocket = class FSWebSocket {
 		this.ws.onopen    = this.network.open;
 		this.ws.onmessage = this.network.message;
 		this.on           = {
-			response : type => {
-				return this.rm.response( type );
+			heard : type => {
+				return this.rm.heard( type );
 			}
 		};
 	}

@@ -2,6 +2,7 @@ FreeScore.Widget.Autopilot = class FSWidgetAutopilot extends FSWidget {
 	constructor( app, dom ) {
 		super( app, dom );
 
+		// ===== ADD THE DOM
 		this.dom.html( `
 
 		<div class="autopilot">
@@ -11,9 +12,13 @@ FreeScore.Widget.Autopilot = class FSWidgetAutopilot extends FSWidget {
 
 		` );
 
+		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.button.status = this.dom.children( 'a.btn.status' );
+
+		// ===== ADD STATE
 		this.state.autopilot = { timer : null };
 
+		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.status = ( update, message ) => {
 			let request  = update.request;
 			let delay    = (request.delay + 1) * 1000;
@@ -22,20 +27,11 @@ FreeScore.Widget.Autopilot = class FSWidgetAutopilot extends FSWidget {
 			this.state.autopilot.timer = setTimeout( () => { this.button.status.addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 		}
 
-		this.response( 'autopilot' )
-		.handle( 'scoreboard' )
-		.by( update => {
-			this.refresh.status( update, 'Showing Score' );
-		})
-		.handle( 'draw' ) by( update => {
-			this.refresh.status( update, 'Drawing Poomsae' );
-		})
-		.handle( 'leaderboard' ) by( update => {
-			this.refresh.status( update, 'Showing Leaderboard' );
-		})
-		.handle( 'next' )
-		.by( update => {
-			this.refresh.status( update, 'Advancing' );
-		})
+		// ===== ADD LISTENER/RESPONSE HANDLERS
+		this.app.on.heard( 'autopilot' )
+		.command( 'scoreboard' )  .respond( update => { this.refresh.status( update, 'Showing Score' );       })
+		.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
+		.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })
+		.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
 	}
 }

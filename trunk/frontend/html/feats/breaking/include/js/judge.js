@@ -1,7 +1,7 @@
 app.network.on
-	.response( 'division' )
-	.handle( 'inspection' )
-	.by( update => {
+	.heard( 'division' )
+	.command( 'inspection' )
+	.respond( update => {
 		let request  = update.request;
 		let divid    = request.athlete.split( /\|/ )[ 0 ];
 		let aid      = parseInt( request.athlete.split( /\|/ )[ 1 ] );
@@ -13,8 +13,8 @@ app.network.on
 		if( current.divid && current.aid ) { app.refresh.page.deductions( division ); }
 		app.sound.ok.play();
 	})
-	.handle( 'navigate' )
-	.by( update => {
+	.command( 'navigate' )
+	.respond( update => {
 		let divid       = update.ring.current;
 		let division    = update.ring.divisions.find( division => { return division.name == divid; });
 		update.division = division;
@@ -23,8 +23,8 @@ app.network.on
 		app.refresh.on.read( update ); 
 		return; 
 	})
-	.handle( 'read' )
-	.by( update => {
+	.command( 'read' )
+	.respond( update => {
 		let division = new Division( update.division );
 		app.state.reset();
 		app.state.current.divid     = division.name();
@@ -33,8 +33,8 @@ app.network.on
 		app.refresh.page.scoring( division );
 		app.refresh.page.help( division );
 	})
-	.handle( 'score' )
-	.by( update => {
+	.command( 'score' )
+	.respond( update => {
 		let request   = update.request
 		let division  = new Division( update.division );
 		let athlete   = division.current.athlete();
@@ -47,9 +47,9 @@ app.network.on
 			}
 		}
 	})
-	.response( 'ring' )
-	.handle( 'read' )
-	.by( update => {
+	.heard( 'ring' )
+	.command( 'read' )
+	.respond( update => {
 		let ring     = update.ring;
 		let division = ring.divisions.find( division => division.name == ring.current );
 		if( ! division ) { console.log( `Current division ${ring.current} not found`, update ); return; }
