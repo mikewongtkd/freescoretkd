@@ -144,7 +144,7 @@
 					staging   : new FreeScore.SingleElimination.DivisionList( app, 'staging'   ),
 				},
 				judges    : new FreeScore.SingleElimination.Judges( app, 'judge-scores' )
-				autopilot : new FreeScore.SingleElimination.Autopilot( app, 'judge-scores' )
+				autopilot : new FreeScore.SingleElimination.Autopilot( app, 'autopilot' )
 			};
 
 			app.network.on
