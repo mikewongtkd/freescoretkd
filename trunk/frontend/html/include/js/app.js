@@ -15,6 +15,64 @@ FreeScore.App = class FSApp {
 			}
 		};
 
+		this._event = {
+			trigger : ( type, source, message ) => {
+				if( ! type in this.event.listeners ) {
+					let name = source.constructor.name;
+					console.log( `No listeners for event ${type} from ${name}`, message );
+					return;
+				}
+
+				let listeners = this.event.listeners[ type ];
+
+				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
+					let name = source.constructor.name;
+					console.log( `Listeners not defined as array for event ${type} from ${name}`, message );
+					return;
+				}
+
+				listeners.forEach( listener => {
+					listener.event.handle( type, source, message );
+				});
+			},
+			listeners : {},
+			register : ( type, listener ) => {
+				if( ! type in this.event.listeners ) {
+					this.event.listeners[ type ] = [];
+				}
+
+				let listeners = this.event.listeners[ type ];
+
+				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
+					let name = listener.constructor.name;
+					console.log( `Registering ${name} as a listener: Failed, listener not defined as array for event ${type}` );
+					return;
+				}
+
+				let found = listeners.find( widget => widget.id == listener.id );
+				if( found ) { return; }
+
+				listeners.push( listener );
+
+			},
+			remove : ( type, listener ) => {
+				if( ! type in this.event.listeners ) { return; }
+
+				let listeners = this.event.listeners[ type ];
+
+				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
+					let name = listener.constructor.name;
+					console.log( `Removing ${name} as a listener: Failed, listener not defined as array for event ${type}` );
+					return;
+				}
+
+				let found = listeners.findIndex( widget => widget.id == listener.id );
+				if( found < 0 ) { return; }
+
+				this.event.listeners[ type ].splice( found, 1 );
+			}
+		};
+
 		this.ping = {
 			off: () => { this.network.rm?.response( 'server' ).handle( 'ping' ).by( () => { this.network.send({ type : 'server', action : 'stop ping' }); }); }
 		};
@@ -34,6 +92,7 @@ FreeScore.App = class FSApp {
 
 	get button()  { return this._button; }
 	get display() { return this._display; }
+	get event()   { return this._event; }
 	get input()   { return this._input; }
 	get network() { return this._network; }
 	get refresh() { return this._refresh; }
