@@ -28,24 +28,30 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 			judge : { 
 				clear : {
 					score : update => {
+						// Get Division information
 						let division = update?.division;
 						if( ! division ) {
+							let ring = update?.ring;
+							if( ! ring ) {
+								return;
+							}
+							division = ring.divisions.find( div => div.name == ring.current );
 						}
+						// Get Athlete
+						let athlete = division.athletes[ division.current ];
+
 						for( let i = 0 ; i < this.state.judges; i++ ) {
+							let judge = { id: i, name : i == 0 ? 'Referee' : `Judge ${i}` };
 							this.judge[ i ].clear.off( 'click' ).click( ev => {
 								app.sound.next.play();
-								let name = {
-									athlete : 
-									judge : i == 0 ? 'Referee' : `Judge ${i}`,
-								};
 								let dialog = {
-									title : `Clear ${name}'s score for athlete`,
+									title : `Clear ${judge.name}'s score for ${athlete.name}`,
 									message : ``,
 									ok : () => {
 										let request = { type : 'division', action : 'clear judge score', judge : i };
 										app.network.send( request );
 										app.sound.ok.play();
-										alertify.success( `${name} cleared for ${athlete}` );
+										alertify.success( `${judge.name}'s score cleared for ${athlete.name}` );
 										return true;
 									},
 									cancel : () => { app.sound.prev.play(); return true; }
