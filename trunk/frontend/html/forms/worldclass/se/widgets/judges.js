@@ -32,11 +32,11 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 						let division = update?.division;
 						if( ! division ) {
 							let ring = update?.ring;
-							if( ! ring ) {
-								return;
-							}
+							if( ! ring ) { return; }
 							division = ring.divisions.find( div => div.name == ring.current );
+							if( ! division ) { return; }
 						}
+
 						// Get Athlete
 						let athlete = division.athletes[ division.current ];
 
@@ -170,21 +170,21 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 			// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.status( update, 'Showing Score' );
+					this.refresh.judges( update );
 				})
 			// ============================================================
 			.heard( 'ring' )
 			// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.status( update, 'Showing Score' );
+					this.refresh.judges( update );
 				})
 			// ============================================================
 			.heard( 'users' )
 			// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.status( update, 'Showing Score' );
+					this.refresh.judges( update );
 				})
 	}
 
