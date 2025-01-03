@@ -28,7 +28,7 @@ FreeScore.App = class FSApp {
 			},
 			handler : {},
 			ignore : type => {
-				this.app.event.ignore( type, this );
+				this.app.event.unregister( type, this );
 			},
 			listen : ( type, callback ) => {
 				this.event.handler[ type ] = callback;
@@ -54,7 +54,7 @@ FreeScore.App = class FSApp {
 				listeners.push( listener );
 
 			},
-			remove : ( type, listener ) => {
+			unregister : ( type, listener ) => {
 				if( ! type in this.event.listeners ) { return; }
 
 				let listeners = this.event.listeners[ type ];

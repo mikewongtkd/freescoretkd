@@ -21,7 +21,7 @@ FreeScore.Widget = class FSWidget {
 			},
 			handler : {},
 			ignore : type => {
-				this.app.event.ignore( type, this );
+				this.app.event.unregister( type, this );
 			},
 			listen : ( type, callback ) => {
 				this.event.handler[ type ] = callback;
