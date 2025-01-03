@@ -28,6 +28,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 			judge : { 
 				clear : {
 					score : update => {
+						// MW TODO This is a kludge, update at the message-level
 						// Get Division information
 						let division = update?.division;
 						if( ! division ) {
@@ -36,6 +37,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 							division = ring.divisions.find( div => div.name == ring.current );
 							if( ! division ) { return; }
 						}
+						// -- end kludge --
 
 						// Get Athlete
 						let athlete = division.athletes[ division.current ];
@@ -62,6 +64,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 					}
 				},
 				count : update => {
+					// MW TODO This is a kludge, update at the message-level
 					let n = update.judges?.length;
 					if( defined( update.ring )) {
 						let ring = update.ring;
@@ -73,6 +76,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 						if( ! defined( n )) { n = update.division?.judges; }
 					}
 					return n;
+					// -- end kludge --
 				},
 				table : update => {
 					// See if the table structure is the same as before, if so, skip
@@ -164,6 +168,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
+		// MW TODO Do a better job of handling messages
 		this.app.on
 			// ============================================================
 			.heard( 'division' )
