@@ -28,6 +28,9 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 			judge : { 
 				clear : {
 					score : update => {
+						let division = update?.division;
+						if( ! division ) {
+						}
 						for( let i = 0 ; i < this.state.judges; i++ ) {
 							this.judge[ i ].clear.off( 'click' ).click( ev => {
 								app.sound.next.play();
@@ -35,7 +38,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 									athlete : 
 									judge : i == 0 ? 'Referee' : `Judge ${i}`,
 								};
-								let modal = {
+								let dialog = {
 									title : `Clear ${name}'s score for athlete`,
 									message : ``,
 									ok : () => {
@@ -43,14 +46,11 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 										app.network.send( request );
 										app.sound.ok.play();
 										alertify.success( `${name} cleared for ${athlete}` );
+										return true;
 									},
-									cancel : () => {
-									}
+									cancel : () => { app.sound.prev.play(); return true; }
 								};
-								// MW TODO Continue adding the "Clear Score" behavior
-								alertify.confirm(
-									
-								);
+								alertify.confirm( dialog.title, dialog.message, dialog.ok, dialog.cancel );
 							});
 						}
 					}
