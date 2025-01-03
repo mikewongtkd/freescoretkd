@@ -1,5 +1,6 @@
 FreeScore.Widget = class FSWidget {
 	constructor( app, dom, options = null ) {
+		this._id      = self.crypto.randomUUID();
 		this._refresh = {};
 		this._app     = app;
 		this._button  = {};
@@ -9,9 +10,6 @@ FreeScore.Widget = class FSWidget {
 		this._sound   = app.sound;
 		this._state   = {};
 		this._event   = {
-			trigger : ( type, message ) => { 
-				this.app.event.trigger( type, this, message ); 
-			},
 			handle : ( type, source, message ) => {
 				if( ! type in this.event.handler ) {
 					let name = this.constructor.name;
@@ -28,9 +26,11 @@ FreeScore.Widget = class FSWidget {
 			listen : ( type, callback ) => {
 				this.event.handler[ type ] = callback;
 				this.app.event.register( type, this );
+			},
+			trigger : ( type, message ) => { 
+				this.app.event.trigger( type, this, message ); 
 			}
 		}
-		this._id = self.crypto.randomUUID();
 
 		this.listen( app.network );
 	}

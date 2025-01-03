@@ -1,5 +1,6 @@
 FreeScore.App = class FSApp {
 	constructor() {
+		this._id      = self.crypto.randomUUID();
 		this._button  = {};
 		this._display = {};
 		this._input   = {};
@@ -16,25 +17,23 @@ FreeScore.App = class FSApp {
 		};
 
 		this._event = {
-			trigger : ( type, source, message ) => {
-				if( ! type in this.event.listeners ) {
-					let name = source.constructor.name;
-					console.log( `No listeners for event ${type} from ${name}`, message );
+			handle : ( type, source, message ) => {
+				if( ! type in this.event.handler ) {
+					let name = this.constructor.name;
+					console.log( `${name} registered to handle event ${type}, but no handler defined` );
 					return;
 				}
-
-				let listeners = this.event.listeners[ type ];
-
-				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
-					let name = source.constructor.name;
-					console.log( `Listeners not defined as array for event ${type} from ${name}`, message );
-					return;
-				}
-
-				listeners.forEach( listener => {
-					listener.event.handle( type, source, message );
-				});
+				let callback = this.event.handler[ type ];
+				callback( type, source, message );
 			},
+			handler : {},
+			ignore : type => {
+				this.app.event.ignore( type, this );
+			},
+			listen : ( type, callback ) => {
+				this.event.handler[ type ] = callback;
+				this.app.event.register( type, this );
+			}
 			listeners : {},
 			register : ( type, listener ) => {
 				if( ! type in this.event.listeners ) {
@@ -70,6 +69,25 @@ FreeScore.App = class FSApp {
 				if( found < 0 ) { return; }
 
 				this.event.listeners[ type ].splice( found, 1 );
+			},
+			trigger : ( type, source, message ) => {
+				if( ! type in this.event.listeners ) {
+					let name = source.constructor.name;
+					console.log( `No listeners for event ${type} from ${name}`, message );
+					return;
+				}
+
+				let listeners = this.event.listeners[ type ];
+
+				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
+					let name = source.constructor.name;
+					console.log( `Listeners not defined as array for event ${type} from ${name}`, message );
+					return;
+				}
+
+				listeners.forEach( listener => {
+					listener.event.handle( type, source, message );
+				});
 			}
 		};
 
@@ -93,6 +111,7 @@ FreeScore.App = class FSApp {
 	get button()  { return this._button; }
 	get display() { return this._display; }
 	get event()   { return this._event; }
+	get id()      { return this._id; }
 	get input()   { return this._input; }
 	get network() { return this._network; }
 	get refresh() { return this._refresh; }
