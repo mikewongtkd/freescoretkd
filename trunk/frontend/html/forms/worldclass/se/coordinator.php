@@ -34,8 +34,9 @@
 		<script src="../../../include/js/sound.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
-		<script src="widgets/judges.js"></script>
 		<script src="widgets/autopilot.js"></script>
+		<script src="widgets/division-list.js"></script>
+		<script src="widgets/judges.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -52,41 +53,14 @@
 					<div class="page-header"><span id="ring-header">Ring <?= $rnum ?> Operations</span></div>
 					<div class="clearfix">
 						<div class="pull-left">
-							<ul class="nav nav-tabs">
+							<ul class="nav nav-tabs" id="division-nav-tabs">
 								<li class="active"><a data-toggle="tab" href="#ready">Ready Divisions</a></li>
 								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
 								<li><a data-toggle="tab" href="#staging">Staging Divisions</a></li>
 							</ul>
 						</div>
 					</div>
-					<div class="tab-content">
-						<div id="ready" class="tab-pane fade in active">
-							<form role="form">
-								<div class="form-group">
-									<input id="search-ready" class="form-control" type="search" placeholder="Search..." />
-								</div>
-								<div class="list-group" id="ring-ready">
-								</div>
-							</form>
-						</div>
-						<div id="completed" class="tab-pane fade">
-							<form role="form">
-								<div class="form-group">
-									<input id="search-completed" class="form-control" type="search" placeholder="Search..." />
-								</div>
-								<div class="list-group" id="ring-completed">
-								</div>
-							</form>
-						</div>
-						<div id="staging" class="tab-pane fade">
-							<form role="form">
-								<div class="form-group">
-									<input id="search-staging" class="form-control" type="search" placeholder="Search..." />
-								</div>
-								<div class="list-group" id="staging-divisions">
-								</div>
-							</form>
-						</div>
+					<div class="tab-content" id="division-tab-contents">
 					</div>
 				</div>
 			</div>
