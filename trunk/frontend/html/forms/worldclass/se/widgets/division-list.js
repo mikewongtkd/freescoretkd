@@ -69,17 +69,11 @@ FreeScore.Widget.SEDivisionList = class FSWidgetSEDivisionList extends FreeScore
 				lgitem.append( item.title, item.description );
 				lgitem.attr({ divid : div.name()});
 				if( div.name() == ring.current ) { lgitem.addClass( 'active' ); }
-				lgitem.off( 'click' ).click( ev => {
-					let target = $( ev.target );
-					if( ! target.hasClass( 'list-group-item' )) { target = target.parent( '.list-group-item' ); }
-					this.display.list.find( '.list-group-item' ).removeClass( 'active' );
-					this.app.sound.next.play();
-					target.addClass( 'active' );
-				});
+				this.refresh.listgroup.item( lgitem, ring );
 				this.display.list.append( lgitem );
 			});
 
-			this.dom.btsListFilter( `#search-${this.type}`, { initial: false, resetOnBlur: false });
+			this.display.list.btsListFilter( `#search-${this.type}`, { initial: false, resetOnBlur: false });
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS

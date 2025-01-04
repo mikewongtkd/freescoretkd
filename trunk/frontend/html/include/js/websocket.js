@@ -35,6 +35,9 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	dispatch( type, action, update ) {
+		// Ignore server pings if there's no handler
+		if( type == 'server' && action == 'ping' && ! this.table?.[ type ]?.[ action ]) { return; }
+
 		if( ! defined( this.table?.[ type ])) { 
 			if( alertify ) { 
 				if( update?.error ) { throw new Error( update.error ); }

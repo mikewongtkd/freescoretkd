@@ -18,7 +18,7 @@ FreeScore.App = class FSApp {
 		};
 
 		// Event Handler
-		this._event = new FreeScore.Event.Server( this );
+		this._event = new FreeScore.EventServer( this );
 
 		// Server Ping behavior
 		this.ping = {};

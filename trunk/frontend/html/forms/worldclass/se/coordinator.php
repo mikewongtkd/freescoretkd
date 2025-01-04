@@ -204,7 +204,7 @@
 						// ===== SWITCH THE PAGE
 						app.sound.prev.play();
 						$.removeCookie( 'divid' );
-						page.transition(); 
+						app.page.transition(); 
 					});
 
 					var round = division.current.roundId();
@@ -421,7 +421,7 @@
 							$.cookie( 'divid', divid, { expires: 1, path: '/' });
 							refresh.athletes( new Division( division ), division.name == ring.current );
 							app.sound.next.play();
-							page.transition();
+							app.page.transition();
 						});
 						if( d.name == ring.current ) { button.addClass( "active" ); }
 

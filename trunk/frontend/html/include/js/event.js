@@ -1,16 +1,14 @@
-if( ! defined( FreeScore.Event )) {
-	FreeScore.Event = {};
-}
-
-FreeScore.Event.Client = class FSEventClient {
-	constructor( app ) {
-		this._app     = app;
+FreeScore.EventClient = class FSEventClient {
+	constructor( widget ) {
+		this._widget  = widget;
+		this._app     = widget?.app ? widget.app : widget;
 		this._handler = {};
 	}
 	handle( type, source, message ) {
-		let callback = this?.event?.handler?.[ type ];
+		let caller   = this.widget?.app ? this.widget : this.app;
+		let callback = caller?.event?.handler?.[ type ];
 		if( ! defined( callback )) {
-			let name = this.constructor.name;
+			let name = caller.constructor.name;
 			console.log( `${name} registered to handle event ${type}, but no callback defined` );
 			return;
 		}
@@ -22,8 +20,9 @@ FreeScore.Event.Client = class FSEventClient {
 	}
 
 	listen( type, callback ) {
+		let caller = this.widget?.app ? this.widget : this.app;
 		this.handler[ type ] = callback;
-		this.app.event.register( type, this );
+		this.app.event.register( type, caller );
 	}
 
 	trigger( type, message ) { 
@@ -32,12 +31,13 @@ FreeScore.Event.Client = class FSEventClient {
 
 	get app()     { return this._app; }
 	get handler() { return this._handler; }
+	get widget()  { return this._widget; }
 
 }
 
-FreeScore.Event.Server = class FSEventServer extends FreeScore.Event.Client {
-	constructor( app ) {
-		super( app );
+FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
+	constructor( widget ) {
+		super( widget );
 		this._listeners = {};
 	}
 
@@ -88,6 +88,7 @@ FreeScore.Event.Server = class FSEventServer extends FreeScore.Event.Client {
 		}
 
 		listeners.forEach( listener => {
+			console.log( 'LISTENER', listener ); // MW
 			listener.event.handle( type, source, message );
 		});
 	}
