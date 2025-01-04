@@ -4,21 +4,6 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.table     = {}; // Dispatch table
 		this.websocket = websocket;
 		this._catch    = error => console.log( error );
-
-		// ===== DEFAULT HANDLERS
-		this.add( 'server', 'ping', ping => {
-			let timestamp = (new Date).toISOString();
-			let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
-			this.websocket.network.send( pong );
-		});
-		this.add( 'users', 'update' );
-		this.add( 'autopilot' );
-		this.add( 'autopilot', 'score' );
-		this.add( 'autopilot', 'scoreboard' );
-		this.add( 'autopilot', 'leaderboard' );
-		this.add( 'division' );
-		this.add( 'ring' );
-		this.add( 'tournament' );
 	}
 
 	add( type, action = null, handler = null ) {
@@ -52,16 +37,18 @@ FreeScore.ResponseManager = class FSResponseManager {
 	dispatch( type, action, update ) {
 		if( ! defined( this.table?.[ type ])) { 
 			if( alertify ) { 
-				if( update.error ) { throw new Error( update.error ); }
-				console.log( `No handler for response object ${type}` ); 
+				if( update?.error ) { throw new Error( update.error ); }
+				// console.log( `No handler for response object ${type}` ); 
+				// alertify.error( `No handler for response object ${type}` ); 
 			} 
 			console.log( update ); 
 			return; 
 		}
 		if( ! (this.table?.[ type ]?.[ action ])) { 
 			if( alertify ) { 
-				if( update.error ) { throw new Error( update.error ); }
-				console.log( `No handler for response object ${type} action ${action}` ); 
+				if( update?.error ) { throw new Error( update.error ); }
+				// console.log( `No handler for response object ${type} action ${action}` ); 
+				// alertify.error( `No handler for response object ${type} action ${action}` ); 
 			} 
 			console.log( update ); 
 			return; 
@@ -115,7 +102,7 @@ FreeScore.WebSocket = class FSWebSocket {
 					console.log( update );
 				}
 
-				this.listeners.forEach( listener => listener.handle( update ));
+				this.listeners.forEach( listener => listener.rm.dispatch( type, action, update ));
 
 				try {
 					this.rm.dispatch( type, action, update );

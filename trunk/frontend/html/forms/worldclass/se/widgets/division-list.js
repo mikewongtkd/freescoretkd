@@ -76,7 +76,7 @@ FreeScore.Widget.SingleElimination.DivisionList = class FSWidgetDivisionList ext
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.app.on.heard( 'ring' )
+		this.app.network.on.heard( 'ring' )
 			.command( 'update' )
 				.respond( update => { 
 					this.refresh.list( update ); 

@@ -20,9 +20,6 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FreeScore.Widget {
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.button.status = this.dom.children( 'a.btn.status' );
 
-		// ===== ADD STATE
-		this.state.judges = null;
-
 		// ===== ADD REFRESH BEHAVIOR
 		// .judge.clear.score( division ) - Updates the "clear score" button behavior
 		// .judge.scores( division )      - Updates the judges scores and spread

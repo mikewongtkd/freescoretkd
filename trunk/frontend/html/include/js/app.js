@@ -17,95 +17,25 @@ FreeScore.App = class FSApp {
 			}
 		};
 
-		this._event = {
-			handle : ( type, source, message ) => {
-				if( ! type in this.event.handler ) {
-					let name = this.constructor.name;
-					console.log( `${name} registered to handle event ${type}, but no handler defined` );
-					return;
-				}
-				let callback = this.event.handler[ type ];
-				callback( type, source, message );
-			},
-			handler : {},
-			ignore : type => {
-				this.app.event.unregister( type, this );
-			},
-			listen : ( type, callback ) => {
-				this.event.handler[ type ] = callback;
-				this.app.event.register( type, this );
-			},
-			listeners : {},
-			register : ( type, listener ) => {
-				if( ! type in this.event.listeners ) {
-					this.event.listeners[ type ] = [];
-				}
+		// Event Handler
+		this._event = new FreeScore.Event.Server( this );
 
-				let listeners = this.event.listeners[ type ];
-
-				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
-					let name = listener.constructor.name;
-					console.log( `Registering ${name} as a listener: Failed, listener not defined as array for event ${type}` );
-					return;
-				}
-
-				let found = listeners.find( widget => widget.id == listener.id );
-				if( found ) { return; }
-
-				listeners.push( listener );
-
-			},
-			unregister : ( type, listener ) => {
-				if( ! type in this.event.listeners ) { return; }
-
-				let listeners = this.event.listeners[ type ];
-
-				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
-					let name = listener.constructor.name;
-					console.log( `Removing ${name} as a listener: Failed, listener not defined as array for event ${type}` );
-					return;
-				}
-
-				let found = listeners.findIndex( widget => widget.id == listener.id );
-				if( found < 0 ) { return; }
-
-				this.event.listeners[ type ].splice( found, 1 );
-			},
-			trigger : ( type, source, message ) => {
-				if( ! type in this.event.listeners ) {
-					let name = source.constructor.name;
-					console.log( `No listeners for event ${type} from ${name}`, message );
-					return;
-				}
-
-				let listeners = this.event.listeners[ type ];
-
-				if( ! defined( listeners ) || ! Array.isArray( listeners )) {
-					let name = source.constructor.name;
-					console.log( `Listeners not defined as array for event ${type} from ${name}`, message );
-					return;
-				}
-
-				listeners.forEach( listener => {
-					listener.event.handle( type, source, message );
-				});
-			}
+		// Server Ping behavior
+		this.ping = {};
+		this.ping.off = () => { this.network.rm?.heard( 'server' ).command( 'ping' ).respond(() => { this.network.send({ type : 'server', action : 'stop ping' }); }); }
+		this.ping.on  = () => {
+			this.network.rm.add( 'server', 'ping', ping => {
+				let timestamp = (new Date).toISOString();
+				let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
+				this.network.send( pong );
+			});
 		};
 
-		this.ping = {
-			off: () => { this.network.rm?.heard( 'server' ).command( 'ping' ).respond( () => { this.network.send({ type : 'server', action : 'stop ping' }); }); }
-		};
-
+		// On Connect actions
 		this.read = {
-			division : () => {
-				this._network.connect({ type : 'division', action : 'read' });
-			},
-			ring : () => {
-				this._network.connect({ type : 'ring', action : 'read' });
-			},
-			tournament : () => {
-				this._network.connect({ type : 'tournament', action : 'read' });
-			},
+			division :   () => { this._network.connect({ type : 'division',   action : 'read' }); this.ping.on(); },
+			ring :       () => { this._network.connect({ type : 'ring',       action : 'read' }); this.ping.on(); },
+			tournament : () => { this._network.connect({ type : 'tournament', action : 'read' }); this.ping.on(); }
 		};
 	}
 
