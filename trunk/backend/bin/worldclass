@@ -78,7 +78,7 @@ websocket '/worldclass/:tournament/:ring/:role' => sub {
 	# Handle disconnects
 	# ----------------------------------------
 	$self->on( finish => sub { 
-		my $request = { type => 'users', action => 'update', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
+		my $request = { type => 'users', action => 'update', user => { action => 'disconnect', sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
 		$registry->remove( $client );
 		$manager->broadcast_updated_users( $request, $progress, $client->group());
 		$client->ping->quit();

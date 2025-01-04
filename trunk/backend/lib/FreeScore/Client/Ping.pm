@@ -30,7 +30,6 @@ sub init {
 	$client->{ timedelta } = 0;
 	$self->{ timestats }   = new Statistics::Descriptive::Full();
 	$self->{ speed } = { normal => 30, fast => 15, faster => 5, fastest => 1 };
-	# $self->{ speed } = { normal => 5, fast => 5, faster => 5, fastest => 5 };
 }
 
 # ============================================================
@@ -155,6 +154,7 @@ sub start {
 	$self->{ id } = Mojo::IOLoop->recurring( $interval => sub ( $ioloop ) {
 		my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		$self->{ pings }{ $now } = 1;
+
 		my $ping = { type => 'server', action => 'ping', server => { timestamp => $now }};
 		$ws->send({ json => $ping });
 	});

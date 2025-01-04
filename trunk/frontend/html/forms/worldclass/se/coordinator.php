@@ -1,6 +1,6 @@
 <?php 
 	$an_hour_ago = time() - 3600; # set cookie expiration data to an hour ago (expire immediately)
-	include( "../../include/php/config.php" ); 
+	include( "../../../include/php/config.php" ); 
 	setcookie( 'judge', '', $an_hour_ago, '/' );
 	$rnum  = intval( isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ]);
 	if( $rnum == 'staging' || in_array( $rnum, $config->rings())) { 
@@ -9,7 +9,7 @@
 	} else {
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
-	include( '../../session.php' );
+	include( '../../../session.php' );
 
 	$url = $config->websocket( 'worldclass', $rnum, 'computer+operator' );
 ?>
@@ -99,27 +99,40 @@
 				</div>
 			</div>
 		</div>
-		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
+		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
-			var tournament = <?= $tournament ?>;
-			var ring       = { num: <?= $rnum ?> };
-			var html       = FreeScore.html;
-			var app        = new FreeScore.App();
+			let tournament = <?= $tournament ?>;
+			let ring       = { num: <?= $rnum ?> };
+			let html       = FreeScore.html;
+			let app        = new FreeScore.App();
+
+			app.page = {
+				num : 1,
+				count: 2,
+				transition: ( ev ) => { app.page.num = PageTransitions.nextPage({ animation: app.page.animation( app.page.num )}); },
+				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
+			};
 
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			app.network.widget = {
 				divisions : {
-					ready     : new FreeScore.SingleElimination.DivisionList( app, 'ready'     ),
-					completed : new FreeScore.SingleElimination.DivisionList( app, 'completed' ),
-					staging   : new FreeScore.SingleElimination.DivisionList( app, 'staging'   ),
+					ready     : new FreeScore.Widget.SingleElimination.DivisionList( app, 'ready'     ),
+					completed : new FreeScore.Widget.SingleElimination.DivisionList( app, 'completed' ),
+					staging   : new FreeScore.Widget.SingleElimination.DivisionList( app, 'staging'   ),
 				},
-				judges    : new FreeScore.SingleElimination.Judges( app, 'judge-scores' )
+				judges    : new FreeScore.SingleElimination.Judges( app, 'judge-scores' ),
 				autopilot : new FreeScore.SingleElimination.Autopilot( app, 'autopilot' )
 			};
+
+			app.event.listen( 'division-show', ( type, source, message ) => {
+				app.state.current = message.divid;
+				app.sound.next.play();
+				app.page.transition();
+			});
 
 			app.network.on
 				// ============================================================
@@ -141,62 +154,29 @@
 
 						division   = new Division( division );
 						refresh.athletes( division, true );
-						refresh.judges( update );
-						if( page.num == 1 ) { page.transition() };
+						if( app.page.num == 1 ) { app.page.transition() };
 					})
 
 				// ============================================================
 				.heard( 'ring' )
 				// ============================================================
+				.command( 'read' )
 				.command( 'update' )
 					.respond( update => {
-						if( ! defined( update.ring )) { return; }
-						refresh.ring( update.ring );
+						if( ! defined( update?.ring )) { return; }
 						let divid = $.cookie( 'divid' );
+						app.state.divisions = ring?.divisions;
+						app.state.current   = divid ? divid : ring?.current;
 						if( defined( divid ) && divid != 'undefined' ) {
-							let division = update.ring.divisions.find(( d ) => { return d.name == divid; }); if( ! defined( division )) { return; }
-							let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
-							let isCurDiv = defined( current ) ? division.name == current.name : false;
+							let division = update.ring.divisions.find( d => d.name == divid ); if( ! defined( division )) { return; }
+							let current  = update.ring.divisions.find( d => d.name == update.ring.current );
+							let isCurDiv = defined( current ) && division.name == current.name ? true : false;
 							division = new Division( division );
 							refresh.athletes( division, isCurDiv );
-							refresh.judges( update );
 
-							if( page.num == 1 ) { page.transition() };
+							if( app.page.num == 1 ) { app.page.transition() };
 						}
-					})
-
-				// ============================================================
-				.heard( 'users' )
-				// ============================================================
-				.command( 'update' )
-					.respond( update => {
-						refresh.judges( update );
 					});
-
-			var page = {
-				num : 1,
-				transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
-				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
-			};
-
-			var clearJudgeScore = function( i, judge, athlete ) {
-				return function() {
-					app.sound.next.play();
-					var name    = i == 0 ? 'Referee' : 'Judge ' + i;
-					var title   = 'Clear ' + name + '\'s score for athlete ' + athlete + '?'; 
-					var message = 'Click <b class="text-danger">OK</b> to clear <b class="text-danger">' + name + '\'s</b> score for <b class="text-danger">' + athlete + '</b> or <b class="text-warning">Cancel</b> to do nothing.';
-					var ok      = function() {
-						var request  = { type : 'division', action : 'clear judge score', judge: i };
-						app.network.send( request );
-						app.sound.ok.play();
-						alertify.success( name + ' score cleared for ' + athlete );
-
-						return true;
-					}
-					var cancel  = function() { app.sound.prev.play(); return true; }
-					alertify.confirm( title, message, ok, cancel );
-				};
-			};
 
 			var changeCurrentForm = function( i, form ) {
 				return function() {
@@ -389,45 +369,6 @@
 					$( "#decision-disqualify" ) .off( 'click' ).click( action.decision.disqualify );
 					$( "#decision-clear" )      .off( 'click' ).click( action.decision.clear );
 				},
-				judges : function( update ) {
-					for( var i = 0; i < 7; i++ ) {
-						let jname = "judge" + i;
-						let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default', 'bye' : 'btn-default' }; 
-						let any = 'btn-success btn-warning btn-danger btn-default';
-						update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
-							let role = user.role;
-							role = role.replace( /udge/, '' );
-							let health = user.health;
-							$( `.${role}.judge-col button` ).removeClass( any ).addClass( color[ health ]);
-						});
-
-						let n = update.judges?.length;
-						if( defined( update.ring )) {
-							let ring = update.ring;
-							if( defined( ring.divisions )) {
-								let current = ring.divisions.find( div => div.name == ring.current );
-								if( ! defined( n )) { n = current.judges; }
-							}
-						} else if( defined( update.division )) {
-							if( ! defined( n )) { n = update.division.judges; }
-						}
-						let rows = [ 'col', 'acc', 'pre', 'sum', 'clr' ];
-						if( n && i < n ) {
-							rows.forEach( row => $( `#j${i}-${row}` ).show() );
-						} else {
-							// Judge registered but not needed
-							if( defined( update.judges ) && defined( update.judges[ i ])) { 
-								$( `.judges button.${jname}` ).removeClass( `disabled ${any}` ).addClass( 'btn-primary' ).off( 'click' ); 
-
-							// Judge not needed
-							} else { 
-								$( `.judges button.${jname}` ).removeClass( `disabled ${any}` ).addClass( `${color.bye} disabled` ).off( 'click' ); 
-							}
-
-							rows.forEach( row => $( `#j${i}-${row}` ).hide() );
-						}
-					}
-				},
 				navadmin : function( division ) {
 					let ring    = division.ring();
 					let divid   = division.name();
@@ -500,29 +441,6 @@
 
 				},
 				score: function( score, athlete, isCurrent ) {
-					var spread = { acc : [], pre : [], sum: [] };
-					var n      = score.judge.length;
-					score.judge.forEach(( judge, i ) => {
-						var name = '#j' + i;
-						var acc  = $( name + '-acc' );
-						var pre  = $( name + '-pre' );
-						var sum  = $( name + '-sum' );
-						var drop = { hilo : (n > 3), acc : (judge.minacc || judge.maxacc), pre : (judge.minpre || judge.maxpre)};
-
-						acc.removeClass( 'ignore' );
-						pre.removeClass( 'ignore' );
-
-						if( defined( judge.accuracy     )) { acc.html( judge.accuracy.toFixed( 1 ));     } else { acc.empty(); }
-						if( defined( judge.presentation )) { pre.html( judge.presentation.toFixed( 1 )); } else { pre.empty(); }
-						if( drop.hilo && drop.acc ) { acc.addClass( 'ignore' ); } else if( defined( judge.accuracy     )) { spread.acc.push( parseFloat( judge.accuracy ));     }
-						if( drop.hilo && drop.pre ) { pre.addClass( 'ignore' ); } else if( defined( judge.presentation )) { spread.pre.push( parseFloat( judge.presentation )); }
-
-						var total = judge.accuracy + judge.presentation;
-						if( defined( judge.accuracy ) && defined( judge.presentation )) { sum.html( total.toFixed( 1 )); spread.sum.push( total ); } else { sum.empty(); }
-
-						var clear = $( name + '-clr' );
-						clear.find( 'button' ).off( 'click' ).click( clearJudgeScore( i, judge, athlete ));
-					});
 					if( isCurrent ) { $( '#clear-judge-scores' ).show(); }
 					else            { $( '#clear-judge-scores' ).hide(); }
 

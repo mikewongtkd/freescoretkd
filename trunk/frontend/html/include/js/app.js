@@ -8,6 +8,7 @@ FreeScore.App = class FSApp {
 		this._refresh = {};
 		this._sound   = new FreeScore.Sound();
 		this._state   = {};
+		this._page    = {};
 		this._widget  = {};
 		this.on       = {
 			connect : url => {
@@ -33,7 +34,7 @@ FreeScore.App = class FSApp {
 			listen : ( type, callback ) => {
 				this.event.handler[ type ] = callback;
 				this.app.event.register( type, this );
-			}
+			},
 			listeners : {},
 			register : ( type, listener ) => {
 				if( ! type in this.event.listeners ) {
@@ -92,7 +93,7 @@ FreeScore.App = class FSApp {
 		};
 
 		this.ping = {
-			off: () => { this.network.rm?.response( 'server' ).handle( 'ping' ).by( () => { this.network.send({ type : 'server', action : 'stop ping' }); }); }
+			off: () => { this.network.rm?.heard( 'server' ).command( 'ping' ).respond( () => { this.network.send({ type : 'server', action : 'stop ping' }); }); }
 		};
 
 		this.read = {
@@ -114,6 +115,7 @@ FreeScore.App = class FSApp {
 	get id()      { return this._id; }
 	get input()   { return this._input; }
 	get network() { return this._network; }
+	get page()    { return this._page; }
 	get refresh() { return this._refresh; }
 	get sound()   { return this._sound; }
 	get state()   { return this._state; }
@@ -124,6 +126,7 @@ FreeScore.App = class FSApp {
 	set button( value )  { this._button  = value; } // For button behavior
 	set display( value ) { this._display = value; } // To reference general display components
 	set input( value )   { this._input   = value; } // For input behavior
+	set page( value )    { this._page    = value; } // For multipaged apps
 	set refresh( value ) { this._refresh = value; } // Callbacks for app component behavior
 	set state( value )   { this._state   = value; } // For app state (e.g. DFA graphs and transitions)
 	set widget( value )  { this._widget  = value; } // Widgets

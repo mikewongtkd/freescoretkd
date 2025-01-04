@@ -1,4 +1,4 @@
-FreeScore.Widget.Autopilot = class FSWidgetAutopilot extends FSWidget {
+FreeScore.Widget.Autopilot = class FSWidgetAutopilot extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 

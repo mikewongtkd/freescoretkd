@@ -1,4 +1,4 @@
-FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
+FreeScore.Widget.Judges = class FSWidgetJudges extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 		this._judge = [];
@@ -24,21 +24,16 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 		this.state.judges = null;
 
 		// ===== ADD REFRESH BEHAVIOR
+		// .judge.clear.score( division ) - Updates the "clear score" button behavior
+		// .judge.scores( division )      - Updates the judges scores and spread
+		// .judge.status( update )        - Updates the judge status when a user status or health changes
+		// .judge.table( division )       - Updates the judge table
 		this.refresh = {
 			judge : { 
 				clear : {
-					score : update => {
-						// MW TODO This is a kludge, update at the message-level
-						// Get Division information
-						let division = update?.division;
-						if( ! division ) {
-							let ring = update?.ring;
-							if( ! ring ) { return; }
-							division = ring.divisions.find( div => div.name == ring.current );
-							if( ! division ) { return; }
-						}
-						// -- end kludge --
-
+					// ------------------------------------------------------------
+					score : division => {
+					// ------------------------------------------------------------
 						// Get Athlete
 						let athlete = division.athletes[ division.current ];
 
@@ -63,25 +58,78 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 						}
 					}
 				},
-				count : update => {
-					// MW TODO This is a kludge, update at the message-level
-					let n = update.judges?.length;
-					if( defined( update.ring )) {
-						let ring = update.ring;
-						if( defined( ring.divisions )) {
-							let current = ring.divisions.find( div => div.name == ring.current );
-							if( ! defined( n )) { n = current.judges; }
+				// ------------------------------------------------------------
+				scores : division => {
+				// ------------------------------------------------------------
+					let current = { athlete : division?.current, round : division?.round, form : division?.form };
+					if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
+
+					let n      = division.judges;
+					let scores = division.athletes?.[ current.athlete ]?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
+					let value  = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
+					let spread = { acc : [], pre : [], sum : []};
+					scores.forEach(( score, jid ) => {
+						let acc   = value( score.accuracy );
+						let pre   = value( score.presentation );
+						let sum   = acc + pre;
+						let judge = this.judge[ jid ];
+
+						// If the judge is not defined, clear the scores 
+						if( ! defined( this.judge?.[ jid ]?.accuracy ) || ! defined( this.judge?.[ jid ]?.presentation )) { 
+							judge.accuracy.removeClass( 'ignore' ).empty();
+							judge.presentation.removeClass( 'ignore' ).empty();
+							judge.sum.removeClass( 'ignore' ).empty();
+							return; 
 						}
-					} else if( defined( update.division )) {
-						if( ! defined( n )) { n = update.division?.judges; }
-					}
-					return n;
-					// -- end kludge --
+
+						// Update the scores otherwise
+						judge.accuracy.html( acc.toFixed( 1 )).removeClass( 'ignore' );
+						judge.presentation.html( pre.toFixed( 1 )).removeClass( 'ignore' );
+						judge.sum.html( sum.toFixed( 1 ));
+
+						if( n > 3 ) {
+							if( score?.minacc || score?.maxacc ) { judge.accuracy.addClass( 'ignore' );     } else { spread.acc.push( acc ); }
+							if( score?.minpre || score?.maxpre ) { judge.presentation.addClass( 'ignore' ); } else { spread.pre.push( pre ); }
+						} else {
+							spread.acc.push( acc );
+							spread.pre.push( pre );
+						}
+						spread.sum.push( sum );
+					});
 				},
-				table : update => {
+				// ------------------------------------------------------------
+				status : update => {
+				// ------------------------------------------------------------
+					let user  = update?.user;
+					let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default', 'bye' : 'btn-default' }; 
+					const all = 'btn-success btn-warning btn-danger btn-default';
+
+					// User not defined
+					if( ! defined( user )) { return; }
+
+					// Judge not initialized or judge status button not initialized
+					if( ! this.judge?.[ jid ]?.status ) { return; }
+
+					if( user?.action == 'disconnect' && user?.role?.match( /^judge/ )) {
+						let match = user.role.match( /^judge(\d+)/ );
+						let jid   = match[ 1 ];
+						this.judge[ jid ].status.removeClass( all );
+						this.judge[ jid ].status.addClass( color.bye );
+						return;
+					}
+
+					if( color?.[ user?.health ]) {
+						this.judge[ jid ].status.removeClass( all );
+						this.judge[ jid ].status.addClass( color[ user.health ]);
+						return;
+					}
+				},
+				// ------------------------------------------------------------
+				table : division => {
+				// ------------------------------------------------------------
 					// See if the table structure is the same as before, if so, skip
-					let n = this.refresh.judge.count( update );
-					if( this.state.judgees == n ) { return; }
+					let n = division.judges;
+					if( this.state.judges == n ) { return; }
 
 					let dom  = {};
 					let rows = [ 'status', 'accuracy', 'presentation', 'sum', 'clear' ];
@@ -161,35 +209,44 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FSWidget {
 					this.state.judges = n;
 				}
 			},
-			judges : update => {
-				this.refresh.judge.table( update );
-				this.refresh.judge.clear.score( update );
-			};
+			// ------------------------------------------------------------
+			judges : division => {
+			// ------------------------------------------------------------
+				this.refresh.judge.table( division );
+				this.refresh.judge.clear.score( division );
+			}
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		// MW TODO Do a better job of handling messages
 		this.app.on
 			// ============================================================
 			.heard( 'division' )
 			// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.judges( update );
+					let division = update.division;
+					this.refresh.judges( division );
+					this.refresh.judge.scores( division );
 				})
 			// ============================================================
 			.heard( 'ring' )
 			// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.judges( update );
+					let ring = update.ring;
+					if( ! defined( ring )) { return; }
+
+					let division = ring.divisions.find( div => div.name == ring.current );
+					if( ! defined( division )) { return; }
+
+					this.refresh.judges( division );
 				})
 			// ============================================================
 			.heard( 'users' )
 			// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.judges( update );
+					this.refresh.judge.status( update );
 				})
 	}
 

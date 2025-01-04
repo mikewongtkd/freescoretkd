@@ -1,12 +1,19 @@
-FreeScore.Widget.DivisionList = class FSWidgetDivisionList extends FSWidget {
+if( ! defined( FreeScore.Widget?.SingleElimination )) { FreeScore.Widget.SingleElimination = {}; }
+FreeScore.Widget.SingleElimination.DivisionList = class FSWidgetDivisionList extends FreeScore.Widget {
 	constructor( app, type ) {
-		const tabs = "division-tab-contents";
-		const navs = "division-nav-tabs";
+		const tabs   = "division-tab-contents";
+		const navs   = "division-nav-tabs";
+		const filter = {
+			ready :     div => div?.ring() != 'staging' && div?.is?.complete() === false,
+			completed : div => div?.ring() != 'staging' && div?.is?.complete() === true,
+			staging :   div => div?.ring() == 'staging'
+		};
 
 		super( app, tabs );
 
 		this._type   = type;
 		this._active = type == 'ready' ? 'active' : '';
+		this._filter = filter[ type ];
 
 		// ===== ADD THE DOM
 		this.dom.append( `
@@ -34,16 +41,46 @@ FreeScore.Widget.DivisionList = class FSWidgetDivisionList extends FSWidget {
 		this.state = null;
 
 		// ===== ADD REFRESH BEHAVIOR
+		this.refresh.listgroup = {
+			item : ( lgitem, ring ) => {
+				lgitem.off( 'click' ).click( ev => {
+					let clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
+					let divid    = clicked.attr( 'divid' );
+					let division = ring.divisions.find(( d ) => { return d.name == divid; });
+
+					$.cookie( 'divid', divid, { expires: 1, path: '/' });
+					this.event.trigger( 'division-show', { divid });
+				});
+			}
+		};
 		this.refresh.list = update => {
 			let ring = update?.ring;
 			if( ! defined( ring )) { return; }
 
 			this.display.list.empty();
+			let divisions = ring.divisions.map( data => new Division( data )).filter( this.filter );
+			divisions.forEach( div => {
+				let lgitem = html.a.clone().addClass( 'list-group-item' );
+				let item = {};
+				item.title       = html.h4.clone().html( div.summary()),
+				item.count       = div.athletes().length,
+				item.description = html.p.clone().append( `<b>${item.count} Athlete${count > 1 ? 's' : ''}:</b>` . div.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
+
+				lgitem.empty();
+				lgitem.append( title, description );
+				lgitem.attr({ divid : div.name()});
+				if( div.name() == ring.current ) { lgitem.addClass( 'active' ); }
+			});
+
+			this.dom.btsListFilter( `#search-${this.type}`, { initial: false, resetOnBlur: false });
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
 		this.app.on.heard( 'ring' )
-		.command( 'update' ).respond( update => { this.refresh.list( update ); });
+			.command( 'update' )
+				.respond( update => { 
+					this.refresh.list( update ); 
+				});
 
 		// ===== INITIALIZE DISPLAY
 		this.display.tabs.append( this.tab() );
@@ -56,6 +93,7 @@ FreeScore.Widget.DivisionList = class FSWidgetDivisionList extends FSWidget {
 		` );
 	}
 
-	get type()   { return this._type; }
 	get active() { return this._active; }
+	get type()   { return this._type; }
+	get filter() { return this._filter; }
 }

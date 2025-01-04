@@ -1,6 +1,6 @@
 FreeScore.ResponseManager = class FSResponseManager {
 	constructor( websocket ) {
-		this.context   = {};
+		this.context   = { type : null, action : []};
 		this.table     = {}; // Dispatch table
 		this.websocket = websocket;
 		this._catch    = error => console.log( error );
@@ -22,7 +22,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	add( type, action = null, handler = null ) {
-		this.response( type );
+		this.heard( type );
 		if( action === null ) {
 			action = 'update';
 			handler = update => {
@@ -45,23 +45,23 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	command( action ) {
-		this.context.action = action;
+		this.context.action.push( action );
 		return this;
 	}
 
 	dispatch( type, action, update ) {
-		if( ! (type in this.table )) { 
+		if( ! defined( this.table?.[ type ])) { 
 			if( alertify ) { 
 				if( update.error ) { throw new Error( update.error ); }
-				alertify.error( `No handler for Type ${type} response` ); 
+				console.log( `No handler for response object ${type}` ); 
 			} 
 			console.log( update ); 
 			return; 
 		}
-		if( ! (action in this.table[ type ])) { 
+		if( ! (this.table?.[ type ]?.[ action ])) { 
 			if( alertify ) { 
 				if( update.error ) { throw new Error( update.error ); }
-				alertify.error( `No handler for Type ${type} action ${action} response` ); 
+				console.log( `No handler for response object ${type} action ${action}` ); 
 			} 
 			console.log( update ); 
 			return; 
@@ -71,7 +71,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	heard( type ) {
-		if( !( type in this.table )) {
+		if( ! defined( this.table?.[ type ])) {
 			this.table[ type ] = {};
 		}
 		this.context.type = type;
@@ -80,12 +80,14 @@ FreeScore.ResponseManager = class FSResponseManager {
 
 	pass() {
 		let handler = update => {};
-		this.add( this.context.type, this.context.action, handler );
+		this.context.action.forEach( action => this.add( this.context.type, action, handler ));
+		this.context.action = [];
 		return this;
 	}
 	
 	respond( handler ) {
-		this.add( this.context.type, this.context.action, handler );
+		this.context.action.forEach( action => this.add( this.context.type, action, handler ));
+		this.context.action = [];
 		return this;
 	}
 
