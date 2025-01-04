@@ -17,22 +17,20 @@ FreeScore.Widget.SEDivisionList = class FSWidgetSEDivisionList extends FreeScore
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<div class="tab-content">
-			<div id="${this.type}-tab" class="tab-pane fade in ${this.active}">
-				<form role="form">
-					<div class="form-group">
-						<input id="search-${this.type}" class="form-control" type="search" placeholder="Search..." />
-					</div>
-					<div class="list-group" id="ring-${this.type}">
-					</div>
-				</form>
-			</div>
+		<div id="${this.type}-tab" class="tab-pane fade in ${this.active}">
+			<form role="form">
+				<div class="form-group">
+					<input id="search-${this.type}" class="form-control" type="search" placeholder="Search..." />
+				</div>
+				<div class="list-group" id="ring-${this.type}">
+				</div>
+			</form>
 		</div>
 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.list = this.dom.children( `#ring-${this.type}` );
+		this.display.list = this.dom.find( `#ring-${this.type}` );
 		this.display.navs = $( `#${navs}` );
 		this.display.tabs = $( `#${tabs}` );
 
@@ -64,20 +62,29 @@ FreeScore.Widget.SEDivisionList = class FSWidgetSEDivisionList extends FreeScore
 				let athletes     = div.athletes();
 				item.title       = html.h4.clone().html( div.summary()),
 				item.count       = athletes.length;
-				item.athletes    = athletes.map(( a ) => { return a.name(); }).join( ', ' );
-				item.description = html.p.clone().append( `<b>${item.count} Athlete${item.count > 1 ? 's' : ''}:</b>${item.athletes}` );
+				item.athletes    = athletes.map(( a, i ) => { return `(${i+1}) ${a.name()}`; }).join( ', ' );
+				item.description = html.p.clone().append( `<b>${item.count} Athlete${item.count > 1 ? 's' : ''}:</b> ${item.athletes}` );
 
 				lgitem.empty();
 				lgitem.append( item.title, item.description );
 				lgitem.attr({ divid : div.name()});
 				if( div.name() == ring.current ) { lgitem.addClass( 'active' ); }
+				lgitem.off( 'click' ).click( ev => {
+					let target = $( ev.target );
+					if( ! target.hasClass( 'list-group-item' )) { target = target.parent( '.list-group-item' ); }
+					this.display.list.find( '.list-group-item' ).removeClass( 'active' );
+					this.app.sound.next.play();
+					target.addClass( 'active' );
+				});
+				this.display.list.append( lgitem );
 			});
 
 			this.dom.btsListFilter( `#search-${this.type}`, { initial: false, resetOnBlur: false });
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.app.network.on.heard( 'ring' )
+		this.network.on.heard( 'ring' )
+			.command( 'read' )
 			.command( 'update' )
 				.respond( update => { 
 					this.refresh.list( update ); 

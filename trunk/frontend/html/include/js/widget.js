@@ -13,6 +13,12 @@ FreeScore.Widget = class FSWidget {
 		this._rm      = new FreeScore.ResponseManager( this.app.network );
 		this._event   = new FreeScore.Event.Client( this.app );
 
+		this.network  = {
+			on : {
+				heard : type => { return this.rm.heard( type ); }
+			},
+			send : message => { return this.app.network.send( message ); }
+		};
 		this.listen( app.network );
 	}
 

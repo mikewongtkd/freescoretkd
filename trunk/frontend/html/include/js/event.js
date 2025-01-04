@@ -47,21 +47,14 @@ FreeScore.Event.Server = class FSEventServer extends FreeScore.Event.Client {
 
 	register( type, listener ) {
 		let listeners = this.listeners?.[ type ];
-		if( ! defined( listeners )) {
-			this.listeners[ type ] = [];
-		}
 
-		if( ! Array.isArray( listeners )) {
-			let name = listener.constructor.name;
-			console.log( `Registering ${name} as a listener: Failed, listener not defined as array for event ${type}` );
-			return;
-		}
+		if( ! defined( listeners ))       { listeners = this.listeners[ type ] = []; }
+		if( ! Array.isArray( listeners )) { listeners = this.listeners[ type ] = []; }
 
 		let found = listeners.find( widget => widget.id == listener.id );
 		if( found ) { return; }
 
 		listeners.push( listener );
-
 	}
 	
 	unregister( type, listener ) {

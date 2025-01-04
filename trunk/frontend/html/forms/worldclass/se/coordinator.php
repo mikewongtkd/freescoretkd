@@ -122,8 +122,8 @@
 					completed : new FreeScore.Widget.SEDivisionList( app, 'completed' ),
 					staging   : new FreeScore.Widget.SEDivisionList( app, 'staging'   ),
 				},
-				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
-				autopilot : new FreeScore.Widget.SEAutopilot( app, 'autopilot' )
+//				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
+//				autopilot : new FreeScore.Widget.SEAutopilot( app, 'autopilot' )
 			};
 
 			app.event.listen( 'division-show', ( type, source, message ) => {
