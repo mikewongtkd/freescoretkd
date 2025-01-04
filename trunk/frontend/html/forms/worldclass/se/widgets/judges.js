@@ -1,4 +1,4 @@
-FreeScore.Widget.Judges = class FSWidgetJudges extends FreeScore.Widget {
+FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 		this._judge = [];
@@ -215,7 +215,7 @@ FreeScore.Widget.Judges = class FSWidgetJudges extends FreeScore.Widget {
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.app.on
+		this.app.network.on
 			// ============================================================
 			.heard( 'division' )
 			// ============================================================

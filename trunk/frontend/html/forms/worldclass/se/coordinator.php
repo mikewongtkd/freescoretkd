@@ -55,9 +55,6 @@
 					<div class="clearfix">
 						<div class="pull-left">
 							<ul class="nav nav-tabs" id="division-nav-tabs">
-								<li class="active"><a data-toggle="tab" href="#ready">Ready Divisions</a></li>
-								<li><a data-toggle="tab" href="#completed">Completed Divisions</a></li>
-								<li><a data-toggle="tab" href="#staging">Staging Divisions</a></li>
 							</ul>
 						</div>
 					</div>
@@ -121,12 +118,12 @@
 
 			app.network.widget = {
 				divisions : {
-					ready     : new FreeScore.Widget.SingleElimination.DivisionList( app, 'ready'     ),
-					completed : new FreeScore.Widget.SingleElimination.DivisionList( app, 'completed' ),
-					staging   : new FreeScore.Widget.SingleElimination.DivisionList( app, 'staging'   ),
+					ready     : new FreeScore.Widget.SEDivisionList( app, 'ready'     ),
+					completed : new FreeScore.Widget.SEDivisionList( app, 'completed' ),
+					staging   : new FreeScore.Widget.SEDivisionList( app, 'staging'   ),
 				},
-				judges    : new FreeScore.SingleElimination.Judges( app, 'judge-scores' ),
-				autopilot : new FreeScore.SingleElimination.Autopilot( app, 'autopilot' )
+				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
+				autopilot : new FreeScore.Widget.SEAutopilot( app, 'autopilot' )
 			};
 
 			app.event.listen( 'division-show', ( type, source, message ) => {

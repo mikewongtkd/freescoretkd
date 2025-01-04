@@ -1,8 +1,7 @@
-if( ! defined( FreeScore.Widget?.SingleElimination )) { FreeScore.Widget.SingleElimination = {}; }
-FreeScore.Widget.SingleElimination.DivisionList = class FSWidgetDivisionList extends FreeScore.Widget {
+FreeScore.Widget.SEDivisionList = class FSWidgetSEDivisionList extends FreeScore.Widget {
 	constructor( app, type ) {
-		const tabs   = "division-tab-contents";
 		const navs   = "division-nav-tabs";
+		const tabs   = "division-tab-contents";
 		const filter = {
 			ready :     div => div?.ring() != 'staging' && div?.is?.complete() === false,
 			completed : div => div?.ring() != 'staging' && div?.is?.complete() === true,
@@ -60,14 +59,16 @@ FreeScore.Widget.SingleElimination.DivisionList = class FSWidgetDivisionList ext
 			this.display.list.empty();
 			let divisions = ring.divisions.map( data => new Division( data )).filter( this.filter );
 			divisions.forEach( div => {
-				let lgitem = html.a.clone().addClass( 'list-group-item' );
-				let item = {};
+				let lgitem       = html.a.clone().addClass( 'list-group-item' );
+				let item         = {};
+				let athletes     = div.athletes();
 				item.title       = html.h4.clone().html( div.summary()),
-				item.count       = div.athletes().length,
-				item.description = html.p.clone().append( `<b>${item.count} Athlete${count > 1 ? 's' : ''}:</b>` . div.athletes().map(( a ) => { return a.name(); }).join( ', ' ));
+				item.count       = athletes.length;
+				item.athletes    = athletes.map(( a ) => { return a.name(); }).join( ', ' );
+				item.description = html.p.clone().append( `<b>${item.count} Athlete${item.count > 1 ? 's' : ''}:</b>${item.athletes}` );
 
 				lgitem.empty();
-				lgitem.append( title, description );
+				lgitem.append( item.title, item.description );
 				lgitem.attr({ divid : div.name()});
 				if( div.name() == ring.current ) { lgitem.addClass( 'active' ); }
 			});
@@ -83,14 +84,12 @@ FreeScore.Widget.SingleElimination.DivisionList = class FSWidgetDivisionList ext
 				});
 
 		// ===== INITIALIZE DISPLAY
-		this.display.tabs.append( this.tab() );
+		this.display.navs.append( this.nav() );
 	}
 
-	tab() {
+	nav() {
 		let active = this.active ? ` class="${this.active}"` : '';
-		return $( `
-			<li${active}><a data-toggle="tab" href="#${this.type}-tab">${this.type.capitalize()} Divisions</a></li>
-		` );
+		return $( `<li${active}><a data-toggle="tab" href="#${this.type}-tab">${this.type.capitalize()} Divisions</a></li>` );
 	}
 
 	get active() { return this._active; }
