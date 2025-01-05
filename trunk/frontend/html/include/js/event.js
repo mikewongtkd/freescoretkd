@@ -88,7 +88,6 @@ FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
 		}
 
 		listeners.forEach( listener => {
-			console.log( 'LISTENER', listener ); // MW
 			listener.event.handle( type, source, message );
 		});
 	}

@@ -80,52 +80,52 @@
 			var html       = FreeScore.html;
 			var app        = new FreeScore.App();
 
-			app.on.connect( '<?= $url ?>' ).read.ring();
+			app.on.connect( '<?= $url ?>' ).read.division();
 
 			app.network.on
 				// ============================================================
-				.response( 'autopilot' )
+				.heard( 'autopilot' )
 				// ============================================================
-				.handle( 'leaderboard' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+				.command( 'leaderboard' )
+					.respond( update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
+						if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+						app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 
-				})
-				.handle( 'next' )
-				.by( update => {
-					let request = update.request;
-					let delay   = (request.delay + 1) * 1000;
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
-				.handle( 'scoreboard' )
-				.by( update => {
-					let request  = update.request;
-					let delay    = (request.delay + 1) * 1000;
-					let division = new Division( update.division );
-					refresh.athletes( division, true );
-					$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
-					if( state.autopilot.timer ) { clearTimeout( state.autopilot.timer ); }
-					state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-				})
+					})
+				.command( 'next' )
+					.respond( update => {
+						let request = update.request;
+						let delay   = (request.delay + 1) * 1000;
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
+						if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+						app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					})
+				.command( 'scoreboard' )
+					.respond( update => {
+						let request  = update.request;
+						let delay    = (request.delay + 1) * 1000;
+						let division = new Division( update.division );
+						refresh.athletes( division, true );
+						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
+						if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
+						app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+					})
 
 				// ============================================================
-				.response( 'division' )
+				.heard( 'division' )
 				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-				})
+				.command( 'update' )
+					.respond( update => {
+					})
 				// ============================================================
-				.response( 'ring' )
+				.heard( 'ring' )
 				// ============================================================
-				.handle( 'update' )
-				.by( update => {
-				});
+				.command( 'update' )
+					.respond( update => {
+					});
 
 			var page = {
 				num : 1,

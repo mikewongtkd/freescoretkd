@@ -37,6 +37,7 @@
 		<script src="../../../include/js/widget.js"></script>
 		<script src="widgets/autopilot.js"></script>
 		<script src="widgets/division-list.js"></script>
+		<script src="widgets/athlete-list.js"></script>
 		<script src="widgets/judges.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
@@ -122,6 +123,9 @@
 					completed : new FreeScore.Widget.SEDivisionList( app, 'completed' ),
 					staging   : new FreeScore.Widget.SEDivisionList( app, 'staging'   ),
 				},
+				athlete : {
+					list : new FreeScore.Widget.SEAthleteList( app, 'athletes' )
+				}
 //				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
 //				autopilot : new FreeScore.Widget.SEAutopilot( app, 'autopilot' )
 			};
@@ -129,6 +133,14 @@
 			app.event.listen( 'division-show', ( type, source, message ) => {
 				app.state.current = message.divid;
 				app.sound.next.play();
+				app.page.transition();
+			});
+
+			app.event.listen( 'ring-show', ( type, source, message ) => {
+				$.removeCookie( 'divid' );
+				let request = { type : 'ring', action : 'read' };
+				app.network.send( request );
+				app.sound.prev.play();
 				app.page.transition();
 			});
 
@@ -260,60 +272,6 @@
 
 						return [ bounds, timelimit, restart, misconduct ];
 					};
-
-					// ===== POPULATE THE ATHLETE LIST
-					$( '#athletes' ).empty();
-					division.current.athletes( round ).forEach(( athlete ) => {
-						var score     = athlete.score( round ); 
-						var button    = html.a.clone().addClass( "list-group-item" );
-						var name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-						var penalties = html.span.clone().addClass( "athlete-penalties" ).append( iconize( athlete.penalties( round, n )));
-						var total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
-						var current   = parseInt( division.current.athleteId());
-						var k         = division.current.formId();
-						var id        = athlete.id();
-
-						// ===== CURRENT ATHLETE
-						if( id == current && currentDivision ) { 
-							button.addClass( "active" ); 
-							button.off( 'click' ).click(( ev ) => { 
-								app.sound.prev.play(); 
-								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
-								$( ".navigate-athlete" ).hide(); 
-								$( ".penalties" ).show();
-								$( ".decision" ).show();
-								refresh.score( score.score.forms[ k ], athlete.name(), true );
-							});
-							refresh.score( score.score.forms[ k ], athlete.name(), true );
-							$( '.penalties, .decision' ).show();
-							$( '.penalty-button' ).hide();
-							refresh.actions( division );
-
-						// ===== ATHLETE IN CURRENT DIVISION
-						} else if( currentDivision ) {
-							if( id == division.next.athleteId() ) { button.addClass( "on-deck" ); } // Athlete on deck
-							button.off( 'click' ).click(( ev ) => { 
-								var clicked = $( ev.target );
-								if( ! clicked.is( 'a' )) { clicked = clicked.parents( 'a' ); }
-								app.sound.next.play(); 
-								$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
-								clicked.addClass( 'selected-athlete' ); 
-								$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.display.name()); 
-								$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
-								$( ".navigate-athlete" ).show(); 
-								refresh.score( score.score.forms[ k ], athlete.name(), false );
-								$( '.penalties, .decision' ).hide();
-							});
-
-						// ===== ATHLETE IN ANOTHER DIVISION
-						} else {
-							button.off( 'click' );
-						}
-						refresh.navadmin( division );
-						button.append( name, penalties, total );
-						$( '#athletes' ).append( button );
-					});
 
 					// ===== ACTION MENU BEHAVIOR
 					if( currentDivision ) { 
