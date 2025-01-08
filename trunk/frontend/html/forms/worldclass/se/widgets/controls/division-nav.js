@@ -5,22 +5,21 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<div class="navigate-round">
-			<h4>Round</h4>
-			<div class="btn-group btn-group-justified">
-				<a class="btn btn-primary" id="navigate-prev-round">Previous</a>
-				<a class="btn btn-primary" id="navigate-next-round">Next</a>
+		<div class="navigate-division">
+			<h4>Division</h4>
+			<div class="list-group">
+				<a class="list-group-item" id="navigate-division"><span class="glyphicon glyphicon-play"></span><span id="navigate-division-label">Start Scoring this Division</span></a>
 			</div>
 		</div>
 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.previous = this.dom.find( '#navigate-prev-round' );
-		this.button.next     = this.dom.find( '#navigate-next-round' );
+		this.button.score = this.dom.find( '#navigate-division' );
+		this.display.all  = this.dom.find( '.navigate-division' );
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.buttons = ( update ) => {
+		this.refresh.button = ( update ) => {
 		}
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
@@ -28,7 +27,7 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		.heard( 'ring' )
 			.command( 'update' )  
 				.respond( update => { 
-					this.refresh.status( update, 'Showing Score' );       
+					this.refresh.button( update, 'Showing Score' );       
 				})
 		.heard( 'division' )
 			.command( 'update' )
@@ -37,9 +36,11 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
 		this.event.listen( 'division-show', ( type, source, message ) => {
-			this.state.division.show = message.divid;
-			this.refresh.division.header();
-			this.refresh.athlete.list();
+			if( message.divid == message.current ) {
+				this.display.all.hide();
+			} else {
+				this.display.all.show();
+			}
 		});
 	}
 }

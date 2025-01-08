@@ -82,15 +82,7 @@
 							</div>
 						</div>
 						<div class="action-menu col-lg-3">
-							<div class="navigate-division">
-								<h4>Division</h4>
-								<div class="list-group">
-									<a class="list-group-item" id="navigate-division"><span class="glyphicon glyphicon-play"></span><span id="navigate-division-label">Start Scoring this Division</span></a>
-								</div>
-							</div>
 							<div id="judge-scores">
-							</div>
-							<div id="timer">
 							</div>
 							<div id="controls">
 							</div>
@@ -128,7 +120,7 @@
 					list : new FreeScore.Widget.SEAthleteList( app, 'athletes' )
 				},
 				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
-//				autopilot : new FreeScore.Widget.SEAutopilot( app, 'autopilot' )
+				autopilot : new FreeScore.Widget.SEAutopilot( app, 'controls' )
 			};
 
 			app.event.listen( 'division-show', ( type, source, message ) => {

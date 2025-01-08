@@ -126,7 +126,6 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 				// ------------------------------------------------------------
 					// See if the table structure is the same as before, if so, skip
 					let n = division.judges;
-					console.log( 'REFRESH JUDGE TABLE', n, division ); // MW
 					if( this.state.judges == n ) { return; }
 
 					let dom  = {};
@@ -245,7 +244,18 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 			.command( 'update' )  
 				.respond( update => { 
 					this.refresh.judge.status( update );
-				})
+				});
+
+		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
+		this.event.listen( 'division-show', ( type, source, message ) => {
+			if( message.divid == message.current ) {
+				this.dom.hide();
+			} else {
+				this.dom.show();
+			}
+
+		});
+
 	}
 
 	get judge() { return this._judge; }

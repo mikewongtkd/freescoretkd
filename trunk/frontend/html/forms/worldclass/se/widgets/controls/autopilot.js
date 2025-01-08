@@ -3,7 +3,7 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		super( app, dom );
 
 		// ===== ADD THE DOM
-		this.dom.html( `
+		this.dom.append( `
 
 		<div class="autopilot">
 			<h4>Autopilot</h4>
