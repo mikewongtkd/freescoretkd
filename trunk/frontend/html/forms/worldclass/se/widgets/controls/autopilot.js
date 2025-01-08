@@ -28,7 +28,7 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		}
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.app.on.heard( 'autopilot' )
+		this.network.on.heard( 'autopilot' )
 		.command( 'scoreboard' )  .respond( update => { this.refresh.status( update, 'Showing Score' );       })
 		.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
 		.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })

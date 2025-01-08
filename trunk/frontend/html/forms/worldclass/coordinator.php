@@ -32,6 +32,7 @@
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/websocket.js"></script>
 		<script src="../../include/js/sound.js"></script>
+		<script src="../../include/js/event.js"></script>
 		<script src="../../include/js/app.js"></script>
 		<script src="../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../include/js/forms/worldclass/score.class.js"></script>

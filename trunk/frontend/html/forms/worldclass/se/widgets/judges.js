@@ -126,11 +126,12 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 				// ------------------------------------------------------------
 					// See if the table structure is the same as before, if so, skip
 					let n = division.judges;
+					console.log( 'REFRESH JUDGE TABLE', n, division ); // MW
 					if( this.state.judges == n ) { return; }
 
 					let dom  = {};
 					let rows = [ 'status', 'accuracy', 'presentation', 'sum', 'clear' ];
-					rows.forEach( row => dom[ row ] = this.dom.find( `tr.judge-row-${row}` )).first();
+					rows.forEach( row => dom[ row ] = this.dom.find( `tr.judge-row-${row}` ).first());
 					dom.allrows = this.dom.find( 'table tr' );
 					dom.allrows.empty();
 					let col = {
@@ -142,14 +143,14 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 							clear        : '<th>&nbsp;</th>',
 						},
 						score : {
-							status       : '<th class="acc">Score</th>',
+							status       : '<th>Score</th>',
 							accuracy     : '<th id="score-acc" class="acc"></th>',
 							presentation : '<th id="score-pre" class="pre"></th>',
 							sum          : '<th id="score-sum" class="sum"></th>',
 							clear        : '<th>&nbsp;</th>',
 						},
 						spread : {
-							status       : '<th class="acc">Spread</th>',
+							status       : '<th>Spread</th>',
 							accuracy     : '<th id="spread-acc" class="acc"></th>',
 							presentation : '<th id="spread-pre" class="pre"></th>',
 							sum          : '<th id="spread-sum" class="sum"></th>',
@@ -161,7 +162,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 						dom[ row ].append( col.label[ row ]); 
 					});
 					// Add Judges
-					for( i = 0; i < 7; i++ ) {
+					for( let i = 0; i < 7; i++ ) {
 						if( i >= n ) { break; }
 						this.judge[ i ] = {};
 						let id = null;
@@ -170,7 +171,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 						id = `j${i}-label`;
 						let name  = i == 0 ? 'R' : i;
 						let label = `<th id="${id}"><button class="btn btn-xs btn-default">${name}</button></th>`;
-						dom.label.append( label );
+						dom.status.append( label );
 						this.judge[ i ].status = $( `#${id} button` );
 
 						// Accuracy
@@ -194,7 +195,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 						// Clear
 						id = `j${i}-clr`;
 						let clear = `<td id="${id}" class="clear"><button class="btn btn-xs btn-danger"><span class="fas fa-times"></span></button></td>`;
-						dom.accuracy.append( sum );
+						dom.clear.append( clear );
 						this.judge[ i ].clear = $( `#${id} button` );
 					}
 					// Append Score & Spread Stats
@@ -215,7 +216,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.app.network.on
+		this.network.on
 			// ============================================================
 			.heard( 'division' )
 			// ============================================================

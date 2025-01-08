@@ -126,8 +126,8 @@
 				},
 				athlete : {
 					list : new FreeScore.Widget.SEAthleteList( app, 'athletes' )
-				}
-//				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
+				},
+				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
 //				autopilot : new FreeScore.Widget.SEAutopilot( app, 'autopilot' )
 			};
 
