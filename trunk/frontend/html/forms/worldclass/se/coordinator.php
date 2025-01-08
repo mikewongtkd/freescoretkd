@@ -35,8 +35,9 @@
 		<script src="../../../include/js/event.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
-		<script src="widgets/controls/autopilot.js"></script>
 		<script src="widgets/controls/header.js"></script>
+		<script src="widgets/controls/navigation.js"></script>
+		<script src="widgets/controls/autopilot.js"></script>
 		<script src="widgets/division-list.js"></script>
 		<script src="widgets/athlete-list.js"></script>
 		<script src="widgets/judges.js"></script>
@@ -101,7 +102,7 @@
 			let html       = FreeScore.html;
 			let app        = new FreeScore.App();
 
-			app.state = { current = {}, divisions = null };
+			app.state = { current : {}, divisions : null };
 
 			app.page = {
 				num : 1,
@@ -121,8 +122,9 @@
 				athlete : {
 					list : new FreeScore.Widget.SEAthleteList( app, 'athletes' )
 				},
-				judges    : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
-				autopilot : new FreeScore.Widget.SEAutopilot( app, 'controls' )
+				judges     : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
+				autopilot  : new FreeScore.Widget.SEAutopilot( app, 'controls' ),
+				navigation : new FreeScore.Widget.SENavigation( app, 'controls' )
 			};
 
 			app.event.listen( 'division-show', ( type, source, message ) => {

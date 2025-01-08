@@ -54,7 +54,11 @@ FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
 		let found = listeners.find( widget => widget.id == listener.id );
 		if( found ) { return; }
 
-		listeners.push( listener );
+		if( listener?.app ) {
+			listeners.push( listener ); // widgets get lower priority
+		} else {
+			listeners.unshift( listener ); // app gets highest priority
+		}
 	}
 	
 	unregister( type, listener ) {
