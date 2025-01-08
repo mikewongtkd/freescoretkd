@@ -3,7 +3,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 		super( app, dom );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.back      = this.dom.find( '#back-to-divisions' );
 		this.display.division = { header : $( '#division-header' ) };
 		this.display.athlete  = { list : this.dom };
 
@@ -101,7 +100,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				if( ! defined( divisions )) { return; }
 
 				this.state.divisions = divisions;
-				console.log( 'RING UPDATE', this.state ); // MW
 				if((! this.state.division.show) && this.app.page.num == 2 ) {
 					this.app.page.transition();
 				}
@@ -130,16 +128,9 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
 		this.event.listen( 'division-show', ( type, source, message ) => {
-			console.log( 'DIVISION SHOW', type, source, message ); // MW
 			this.state.division.show = message.divid;
 			this.refresh.division.header();
 			this.refresh.athlete.list();
 		});
-
-		// ===== INITIALIZE DISPLAY
-
-		// ===== ADD BUTTON BEHAVIORS
-		// Maybe this should go to controls
-		this.button.back.off( 'click' ).click( ev => { this.event.trigger( 'ring-show' ); });
 	}
 }

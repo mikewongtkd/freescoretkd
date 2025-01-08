@@ -35,7 +35,8 @@
 		<script src="../../../include/js/event.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
-		<script src="widgets/autopilot.js"></script>
+		<script src="widgets/controls/autopilot.js"></script>
+		<script src="widgets/controls/header.js"></script>
 		<script src="widgets/division-list.js"></script>
 		<script src="widgets/athlete-list.js"></script>
 		<script src="widgets/judges.js"></script>
