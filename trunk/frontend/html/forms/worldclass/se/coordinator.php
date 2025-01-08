@@ -101,6 +101,8 @@
 			let html       = FreeScore.html;
 			let app        = new FreeScore.App();
 
+			app.state = { current = {}, divisions = null };
+
 			app.page = {
 				num : 1,
 				count: 2,
@@ -124,7 +126,8 @@
 			};
 
 			app.event.listen( 'division-show', ( type, source, message ) => {
-				app.state.current = message.divid;
+				app.state.current.divid    = message.divid;
+				app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
 				app.sound.next.play();
 				app.page.transition();
 			});
@@ -168,8 +171,10 @@
 					.respond( update => {
 						if( ! defined( update?.ring )) { return; }
 						let divid = $.cookie( 'divid' );
-						app.state.divisions = ring?.divisions;
-						app.state.current   = divid ? divid : ring?.current;
+						app.state.divisions        = ring?.divisions;
+						app.state.current.divid    = divid ? divid : ring?.current;
+						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
+
 						if( defined( divid ) && divid != 'undefined' ) {
 							let division = update.ring.divisions.find( d => d.name == divid ); if( ! defined( division )) { return; }
 							let current  = update.ring.divisions.find( d => d.name == update.ring.current );

@@ -13,7 +13,8 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.status = this.dom.children( 'a.btn.status' );
+		this.button.status = this.dom.find( 'a.btn.status' );
+		this.display.all   = this.dom.find( '.autopilot' );
 
 		// ===== ADD STATE
 		this.state.autopilot = { timer : null };
@@ -33,5 +34,14 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
 		.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })
 		.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
+
+		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
+		this.event.listen( 'division-show', ( type, source, message ) => {
+			if( message.divid == message.current ) {
+				this.display.all.show();
+			} else {
+				this.display.all.hide();
+			}
+		});
 	}
 }
