@@ -161,9 +161,8 @@
 						app.state.current.divid    = divid;
 						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
 
-						if( defined( divid )) {
-							let message = { divid, current : divid };
-							console.log( 'MESSAGE', message ); // MW
+						if( defined( $.cookie( 'divid' ))) {
+							let message = { divid: $.cookie( 'divid' ), current : divid };
 							app.event.trigger( 'division-show', message );
 						}
 					});

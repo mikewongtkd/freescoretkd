@@ -21,7 +21,7 @@ FreeScore.Widget.SEHeader = class FSWidgetHeader extends FreeScore.Widget {
 			.respond(( type, source, message ) => {
 				let division = this.app.state.current.division;
 				division = new Division( division );
-				this.refresh.division.header( division );
+				this.refresh.header( division );
 			});
 
 		// ===== ADD BUTTON BEHAVIORS

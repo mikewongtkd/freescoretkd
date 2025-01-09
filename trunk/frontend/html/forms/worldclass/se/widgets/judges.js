@@ -65,6 +65,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					let scores = division.athletes?.[ current.athlete ]?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
 					let value  = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
 					let spread = { acc : [], pre : [], sum : []};
+					console.log( 'DIVISION', division ); // MW
 					scores.forEach(( score, jid ) => {
 						let acc   = value( score.accuracy );
 						let pre   = value( score.presentation );
