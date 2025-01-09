@@ -40,23 +40,20 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 					if( id == current && shown ) { 
 						button.addClass( "active" ); 
 						button.off( 'click' ).click(( ev ) => { 
-							let target = $( ev.target );
-							if( ! target.hasClass( 'list-group-item' )) { target = target.parent( '.list-group-item' ); }
-							this.sound.prev.play(); 
 							this.display.athlete.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
-							this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' ), current });
+							this.event.trigger( 'athlete-deselect' );
 						});
 
 					// ===== ATHLETE IN CURRENT DIVISION
 					} else if( shown ) {
 						if( id == division.next.athleteId() ) { button.addClass( "on-deck" ); } // Athlete on deck
 						button.off( 'click' ).click(( ev ) => { 
-							var clicked = $( ev.target );
-							if( ! clicked.is( 'a' )) { clicked = clicked.parents( 'a' ); }
+							var target = $( ev.target );
+							if( ! target.is( 'a' )) { target = target.parents( 'a' ); }
 							this.sound.next.play(); 
 							this.display.athlete.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
-							clicked.addClass( 'selected-athlete' ); 
-							this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' ), current });
+							target.addClass( 'selected-athlete' ); 
+							this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' )});
 						});
 
 					// ===== ATHLETE IN ANOTHER DIVISION

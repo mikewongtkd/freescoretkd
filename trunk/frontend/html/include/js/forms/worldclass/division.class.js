@@ -1,12 +1,30 @@
 
 module.exports = Division;
 function Division( division ) {
+	const display = {
+		round : {
+			name : {
+				ro256  : 'Round of 256',
+				ro128  : 'Round of 128',
+				ro64   : 'Round of 64',
+				ro32   : 'Round of 32',
+				ro16   : 'Round of 16',
+				prelim : 'Preliminary Round',
+				semfin : 'Semi-Finals Round',
+				finals : 'Finals Round',
+				ro8    : 'Quarter-Finals Round (Ro8)',
+				ro4    : 'Semi-Finals Round (Ro4)',
+				ro2    : 'Finals Round (Ro2)'
+			}
+		}
+	};
+
 	this.division = division;
 
 	// ===== DIVISION HEADER
 	this.name        = function() { return division.name;        }
 	this.description = function() { return division.description; }
-	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description + (this.is.flight() ? ' (Flight ' + division.flight.id.toUpperCase() + ')':''); }
+	this.summary     = function() { return division.name.toUpperCase().replace( ".", " " ) + ' ' + division.description; }
 	this.judges      = function( n ) { if( defined( n )) { division.judges = n; } return parseInt( division.judges ); }
 	this.flight      = function() { if( 'flight' in division ) { return division.flight; } else { return null; }}
 	this.forms       = function() { return division.forms;       }
@@ -64,8 +82,8 @@ function Division( division ) {
 			else              { return order[ round ]; }
 		},
 		round : {
-			display : { name : function() { return FreeScore.round.name[ division.round ]; }},
-			name : function() { return FreeScore.round.name[ division.round ].replace( /s$/, '' ) + " Round"; },
+			display : { name : () => { return display.round.name?.[ division.round ] + (this.is.flight() ? ' (Group ' + division.flight.id.toUpperCase() + ')':''); }},
+			name : function() { return display.round.name?.[ division.round ]; },
 		},
 		roundId : function() { return division.round; }
 	};

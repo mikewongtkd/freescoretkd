@@ -36,7 +36,7 @@ FreeScore.EventClient = class FSEventClient {
 		return this;
 	}
 
-	trigger( type, message, source = null ) { 
+	trigger( type, message = null, source = null ) { 
 		this.app.event.trigger( type, message, source ); 
 	}
 
@@ -89,7 +89,7 @@ FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
 		this.listeners[ type ].splice( found, 1 );
 	}
 
-	trigger( type, message, source = null ) {
+	trigger( type, message = null, source = null ) {
 		let listeners = this.listeners?.[ type ];
 		if( ! defined( listeners )) {
 			let name = source.constructor.name;

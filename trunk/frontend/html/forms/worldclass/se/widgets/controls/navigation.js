@@ -43,13 +43,19 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 			division : this.dom.find( '.navigate-division' ),
 			round    : this.dom.find( '.navigate-round' )
 		};
+		this.display.label    = {
+			division : this.dom.find( '#navigate-division-label' ),
+			athlete  : this.dom.find( '#navigate-athlete-label' )
+		};
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.nav = {
-			athlete : ( division ) => {
+			athlete : ( athlete ) => {
+				this.display.label.athlete.html( `Start Scoring for ${athlete.name}` );
 			},
 			division : divid => {
 				this.button.score.off( 'click' ).click( ev => { 
+					this.display.label.division.html( `Start Scoring Division ${divid.toUpperCase()}` );
 					this.sound.ok.play(); 
 					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'division', divid }} ); 
 					if( ring == 'staging' ) { 
@@ -101,7 +107,6 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 
 				let navigate_to_round = target => {
 					let round = target == 'next' ? rounds[ i + 1 ] : rounds[ i - 1 ];
-					console.log( 'NAVIGATE TO ROUND', target, round, rounds ); // MW
 					this.button[ target ].off( 'click' ).click( ev => {
 						this.sound?.[ target ]?.play();
 						this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }} ); 
@@ -152,17 +157,15 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 
 				if( message.divid == message.current ) {
 					this.display.nav.division.hide();
-					if( defined( division )) {
+					this.display.nav.athlete.hide();
 
-						this.refresh.nav.athlete( division );
-						this.display.nav.athlete.show();
+					if( defined( division )) {
 
 						this.refresh.nav.round( division );
 						this.display.nav.round.show();
 
 					} else {
 						alertify.error( `Division ${message.divid.toUpperCase()} not found in App division cache` );
-						this.display.nav.athlete.hide();
 						this.display.nav.round.hide();
 					}
 				} else {
@@ -175,7 +178,14 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 			})
 		.listen( 'athlete-select' )
 			.respond(( type, source, message ) => {
-			
+				let division = this.app.state.current.division;
+				let athlete  = division.athletes[ message.aid ];
+				this.refresh.nav.athlete( athlete );
+				this.display.nav.athlete.show();
+			})
+		.listen( 'athlete-deselect' )
+			.respond(( type, source, message ) => {
+				this.display.nav.athlete.hide();
 			});
 	}
 }

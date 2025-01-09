@@ -10,10 +10,14 @@ FreeScore.Widget.SEHeader = class FSWidgetHeader extends FreeScore.Widget {
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.button.back     = this.dom.find( 'a.btn' );
 		this.display.summary = this.dom.find( '#division-summary' );
+		this.display.round   = $( '#division-round' );
+		this.display.forms   = $( '#current-form' );
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.header = ( division ) => {
+		this.refresh.header = division => {
+			let round = division.round.id();
 			this.display.summary.html( division.summary() );
+			this.display.round.html( division.current.round.display.name());
 		}
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS

@@ -65,7 +65,6 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					let scores = division.athletes?.[ current.athlete ]?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
 					let value  = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
 					let spread = { acc : [], pre : [], sum : []};
-					console.log( 'DIVISION', division ); // MW
 					scores.forEach(( score, jid ) => {
 						let acc   = value( score.accuracy );
 						let pre   = value( score.presentation );
@@ -92,7 +91,23 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 							spread.acc.push( acc );
 							spread.pre.push( pre );
 						}
+
 						spread.sum.push( sum );
+					});
+
+					// Calculate score and spreads
+					[ 'acc', 'pre', 'sum' ].forEach( row => {
+						this.display.spread[ row ].html( (Math.max( ...spread[ row ]) - Math.min( ...spread[ row ])).toFixed( 1 ));
+						let sum   = (a, c) => a + c;
+						let value = {
+							spread : Math.max( ...spread[ row ]) - Math.min( ...spread[ row ]),
+							score : spread[ row ].reduce( sum ) /(n > 3 ? n - 2 : n )
+						};
+						if( row == 'sum' ) {
+							value.score = (spread.acc.reduce( sum ) + spread.pre.reduce( sum )) / (n > 3 ? n - 2 : n);
+						}
+						this.display.score[ row ].html( value.score.toFixed( 2 ));
+						this.display.spread[ row ].html( value.spread.toFixed( 1 ));
 					});
 				},
 				// ------------------------------------------------------------
@@ -183,13 +198,13 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 						// Presentation
 						id = `j${i}-pre`;
 						let pre = `<td id="${id}" class="pre"></td>`;
-						dom.accuracy.append( pre );
+						dom.presentation.append( pre );
 						this.judge[ i ].presentation = $( `#${id}` );
 
 						// Sum
 						id = `j${i}-sum`;
 						let sum = `<td id="${id}" class="sum"></td>`;
-						dom.accuracy.append( sum );
+						dom.sum.append( sum );
 						this.judge[ i ].sum = $( `#${id}` );
 
 						// Clear
@@ -202,6 +217,12 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					rows.forEach( row => {
 						dom[ row ].append( col.score[ row ]);
 						dom[ row ].append( col.spread[ row ]);
+					});
+					[ 'score', 'spread' ].forEach( col => {
+						this.display[ col ] = {};
+						[ 'acc', 'pre', 'sum' ].forEach( row => {
+							this.display[ col ][ row ] = $( `#${col}-${row}` );
+						});
 					});
 
 					this.state.judges = n;
@@ -238,6 +259,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					if( ! defined( division )) { return; }
 
 					this.refresh.judges( division );
+					this.refresh.judge.scores( division );
 				})
 			// ============================================================
 			.heard( 'users' )
