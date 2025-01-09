@@ -247,14 +247,15 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 				});
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
-		this.event.listen( 'division-show', ( type, source, message ) => {
-			if( message.divid == message.current ) {
-				this.dom.show();
-			} else {
-				this.dom.hide();
-			}
-
-		});
+		this.event
+			.listen( 'division-show' )
+				.respond(( type, source, message ) => {
+					if( message.divid == message.current ) {
+						this.dom.show();
+					} else {
+						this.dom.hide();
+					}
+				});
 
 	}
 

@@ -25,9 +25,9 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				// ===== POPULATE THE ATHLETE LIST
 				let round = division.current.roundId();
 				this.display.athlete.list.empty();
-				division.current.athletes( round ).forEach(( athlete ) => {
+				division.current.athletes( round ).forEach(( athlete, aid ) => {
 					let score     = athlete.score( round ); 
-					let button    = html.a.clone().addClass( "list-group-item" );
+					let button    = html.a.clone().addClass( "list-group-item" ).attr({ 'data-athlete-id' : aid });
 					let name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
 					let penalties = html.span.clone().addClass( "athlete-penalties" ).append( athlete.penalties( round, division.current.formId() ) /* iconize( athlete.penalties( round, n )) */ );
 					let total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
@@ -40,18 +40,12 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 					if( id == current && shown ) { 
 						button.addClass( "active" ); 
 						button.off( 'click' ).click(( ev ) => { 
-							app.sound.prev.play(); 
+							let target = $( ev.target );
+							if( ! target.hasClass( 'list-group-item' )) { target = target.parent( '.list-group-item' ); }
+							this.sound.prev.play(); 
 							this.display.athlete.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
-							$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
-							$( ".navigate-athlete" ).hide(); 
-							$( ".penalties" ).show();
-							$( ".decision" ).show();
-							refresh.score( score.score.forms[ k ], athlete.name(), true );
+							this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' ), current });
 						});
-						refresh.score( score.score.forms[ k ], athlete.name(), true );
-						$( '.penalties, .decision' ).show();
-						$( '.penalty-button' ).hide();
-						refresh.actions( division );
 
 					// ===== ATHLETE IN CURRENT DIVISION
 					} else if( shown ) {
@@ -59,14 +53,10 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 						button.off( 'click' ).click(( ev ) => { 
 							var clicked = $( ev.target );
 							if( ! clicked.is( 'a' )) { clicked = clicked.parents( 'a' ); }
-							app.sound.next.play(); 
-							$( '#athletes .list-group-item' ).removeClass( 'selected-athlete' ); 
+							this.sound.next.play(); 
+							this.display.athlete.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
 							clicked.addClass( 'selected-athlete' ); 
-							$( "#navigate-athlete-label" ).html( "Start scoring " + athlete.display.name()); 
-							$( "#navigate-athlete" ).attr({ 'athlete-id' : id });
-							$( ".navigate-athlete" ).show(); 
-							refresh.score( score.score.forms[ k ], athlete.name(), false );
-							$( '.penalties, .decision' ).hide();
+							this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' ), current });
 						});
 
 					// ===== ATHLETE IN ANOTHER DIVISION
@@ -79,15 +69,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 			}
 		}
-
-		// Maybe this should go to controls
-		this.refresh.division = {
-			header : () => {
-				let division = this.state.division.shown();
-				if( ! defined( division )) { return; }
-				this.display.division.header.html( division.summary() );
-			}
-		};
 
 		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
 		this.network.on
@@ -127,10 +108,11 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 			})
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
-		this.event.listen( 'division-show', ( type, source, message ) => {
-			this.state.division.show = message.divid;
-			this.refresh.division.header();
-			this.refresh.athlete.list();
-		});
+		this.event
+			.listen( 'division-show' )
+				.respond(( type, source, message ) => {
+					this.state.division.show = message.divid;
+					this.refresh.athlete.list();
+				});
 	}
 }

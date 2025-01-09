@@ -2,8 +2,10 @@ FreeScore.EventClient = class FSEventClient {
 	constructor( widget ) {
 		this._widget  = widget;
 		this._app     = widget?.app ? widget.app : widget;
+		this._context = [];
 		this._handler = {};
 	}
+
 	handle( type, source, message ) {
 		let caller   = this.widget?.app ? this.widget : this.app;
 		let callback = caller?.event?.handler?.[ type ];
@@ -19,14 +21,23 @@ FreeScore.EventClient = class FSEventClient {
 		this.app.event.unregister( type, this );
 	}
 
-	listen( type, callback ) {
-		let caller = this.widget?.app ? this.widget : this.app;
-		this.handler[ type ] = callback;
-		this.app.event.register( type, caller );
+	listen( type ) {
+		this._context.push( type ); // Add type to context
+		return this;
 	}
 
-	trigger( type, message ) { 
-		this.app.event.trigger( type, this, message ); 
+	respond( callback ) {
+		let caller = this.widget?.app ? this.widget : this.app;
+		this._context.forEach( type => {
+			this.handler[ type ] = callback;
+			this.app.event.register( type, caller );
+		});
+		this._context = []; // Clear context after assigning the callbacks
+		return this;
+	}
+
+	trigger( type, message, source = null ) { 
+		this.app.event.trigger( type, message, source ); 
 	}
 
 	get app()     { return this._app; }
@@ -51,6 +62,7 @@ FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
 		if( ! defined( listeners ))       { listeners = this.listeners[ type ] = []; }
 		if( ! Array.isArray( listeners )) { listeners = this.listeners[ type ] = []; }
 
+		// Avoid redundant registrations
 		let found = listeners.find( widget => widget.id == listener.id );
 		if( found ) { return; }
 
@@ -77,7 +89,7 @@ FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
 		this.listeners[ type ].splice( found, 1 );
 	}
 
-	trigger( type, source, message ) {
+	trigger( type, message, source = null ) {
 		let listeners = this.listeners?.[ type ];
 		if( ! defined( listeners )) {
 			let name = source.constructor.name;
@@ -90,6 +102,7 @@ FreeScore.EventServer = class FSEventServer extends FreeScore.EventClient {
 			console.log( `Listeners not defined as array for event ${type} from ${name}`, message );
 			return;
 		}
+		if( source === null ) { source = this.app; }
 
 		listeners.forEach( listener => {
 			listener.event.handle( type, source, message );

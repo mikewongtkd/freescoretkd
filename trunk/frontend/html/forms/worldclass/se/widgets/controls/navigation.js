@@ -12,6 +12,13 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 			</div>
 		</div>
 
+		<div class="navigate-athlete">
+			<h4>Athlete</h4>
+			<div class="list-group">
+				<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
+			</div>
+		</div>
+
 		<div class="navigate-round">
 			<h4>Round</h4>
 			<div class="btn-group btn-group-justified">
@@ -27,16 +34,20 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 		this.button.next      = this.dom.find( '#navigate-next-round' );
 		this.button.score     = this.dom.find( '#navigate-division' );
 		this.button.nav       = {
+			athlete  : this.dom.find( '.navigate-athlete a' ),
 			division : this.dom.find( '.navigate-division a' ),
 			round    : this.dom.find( '.navigate-round a' ),
 		};
 		this.display.nav      = {
+			athlete  : this.dom.find( '.navigate-athlete' ),
 			division : this.dom.find( '.navigate-division' ),
 			round    : this.dom.find( '.navigate-round' )
 		};
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.nav = {
+			athlete : ( division ) => {
+			},
 			division : divid => {
 				this.button.score.off( 'click' ).click( ev => { 
 					this.sound.ok.play(); 
@@ -69,12 +80,12 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 						return;
 					}
 				}
-				let i = rounds.findIndex( div => div.name == division?.round );
+				let i = rounds.findIndex( round => round == division?.round );
 				this.button.nav.round.removeClass( 'disabled' );
 
 				if( i == -1 ) {
 					this.button.nav.round.addClass( 'disabled' );
-					alertify.error( `Current round ${division?.round} not found` );
+					alertify.error( `Navigation Widget: Current round ${division?.round} not found` );
 					return;
 
 				} else if( i == 0 ) {
@@ -86,7 +97,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					this.button.next.off( 'click' );
 				}
 
-				function navigate_to_round( target ) {
+				let navigate_to_round = target => {
 					let round = target == 'next' ? rounds[ i + 1 ] : rounds[ i - 1 ];
 					this.sound?.[ target ]?.play();
 					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }} ); 
@@ -116,24 +127,37 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 				});
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
-		this.event.listen( 'division-show', ( type, source, message ) => {
-			let division = this.app.state.divisions?.find( div => div.name == message.divid );
+		this.event
+		.listen( 'division-show' )
+			.respond(( type, source, message ) => {
+				let division = this.app.state.divisions?.find( div => div.name == message.divid );
 
-			if( message.divid == message.current ) {
-				this.display.nav.division.hide();
-				if( defined( division )) {
-					this.refresh.nav.round( division );
-					this.display.nav.round.show();
+				if( message.divid == message.current ) {
+					this.display.nav.division.hide();
+					if( defined( division )) {
 
+						this.refresh.nav.athlete( division );
+						this.display.nav.athlete.show();
+
+						this.refresh.nav.round( division );
+						this.display.nav.round.show();
+
+					} else {
+						alertify.error( `Division ${message.divid.toUpperCase()} not found in App division cache` );
+						this.display.nav.athlete.hide();
+						this.display.nav.round.hide();
+					}
 				} else {
-					alertify.error( `Division ${message.divid.toUpperCase()} not found in App division cache` );
+					this.refresh.nav.division( message.divid );
+					this.display.nav.division.show();
+
+					this.display.nav.athlete.hide();
 					this.display.nav.round.hide();
 				}
-			} else {
-				this.refresh.nav.division( message.divid );
-				this.display.nav.division.show();
-				this.display.nav.round.hide();
-			}
-		});
+			})
+		.listen( 'athlete-select' )
+			.respond(( type, source, message ) => {
+			
+			});
 	}
 }

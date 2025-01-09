@@ -36,12 +36,13 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
-		this.event.listen( 'division-show', ( type, source, message ) => {
-			if( message.divid == message.current ) {
-				this.display.all.show();
-			} else {
-				this.display.all.hide();
-			}
-		});
+		this.event.listen( 'division-show' )
+			.respond(( type, source, message ) => {
+				if( message.divid == message.current ) {
+					this.display.all.show();
+				} else {
+					this.display.all.hide();
+				}
+			});
 	}
 }
