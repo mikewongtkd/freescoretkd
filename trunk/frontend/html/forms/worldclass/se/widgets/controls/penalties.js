@@ -8,7 +8,7 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 		<div class="penalties">
 			<h4>Penalties</h4>
 			<div class="list-group">
-				<button class="list-group-item penalty-button" id="give-penalty"><span class="far fa-hand-point-right"></span> Give a Penalty</button>
+				<button class="list-group-item penalty-button" id="give-penalty"><span class="fas fa-caret-down"></span> Expand Penalty Menu</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="out-of-bounds"><span class="fas fa-share-square"></span> Out-of-bounds</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="restart"      ><span class="fas fa-redo"></span> Restart Form</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="over-time"    ><span class="fas fa-clock"></span> Over Time</button>
@@ -36,25 +36,33 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 		this.refresh.accordion = {
 			hide: () => {
 				if( ! this.state.penalties.shown ) { return; }
-				this.button.penalize.html( '<span class="far fa-hand-point-right"></span> Give a Penalty' );
+				this.refresh.accordion.menu.max();
 				this.sound.prev.play();
 				this.display.accordion.hide();
 				this.state.penalties.shown = false;
 			},
+			menu : {
+				min : () => {
+					this.button.penalize.html( '<span class="fas fa-caret-up"></span> Minimize Penalty Menu' );
+				},
+				max : () => {
+					this.button.penalize.html( '<span class="fas fa-caret-down"></span> Expand Penalty Menu' );
+				}
+			},
 			show: () => {
 				if( this.state.penalties.shown ) { return; }
-				this.button.penalize.html( '<span class="fas caret-up"></span> Minimize Penalty Menu' );
+				this.refresh.accordion.menu.min();
 				this.sound.next.play();
 				this.display.accordion.show();
 				this.state.penalties.shown = true;
 			},
 			toggle: () => {
 				if( this.state.penalties.shown ) {
-					this.button.penalize.html( '<span class="far fa-hand-point-right"></span> Give a Penalty' );
+					this.refresh.accordion.menu.max();
 					this.sound.prev.play();
 					this.display.accordion.hide();
 				} else {
-					this.button.penalize.html( '<span class="fas fa-caret-up"></span> Minimize Penalty Menu' );
+					this.refresh.accordion.menu.min();
 					this.sound.next.play();
 					this.display.accordion.show();
 				}
@@ -63,7 +71,6 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 		};
 
 		this.refresh.buttons = division => {
-			console.log( 'PENALTIES WIDGET BUTTON REFRESH', division );
 			let athlete = division.current.athlete();
 			let current = division.current.athleteId();
 			let round   = division.current.roundId();
