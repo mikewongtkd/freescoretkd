@@ -8,12 +8,12 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 		<div class="penalties">
 			<h4>Penalties</h4>
 			<div class="list-group">
-				<button class="list-group-item penalty-button" id="give-penalty"><span class="fas fa-caret-down"></span> Expand Penalty Menu</button>
+				<button class="list-group-item penalty-button" id="give-penalty" style="border-radius: 4px;"><span class="fas fa-caret-down"></span> Expand Penalty Menu</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="out-of-bounds"><span class="fas fa-share-square"></span> Out-of-bounds</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="restart"      ><span class="fas fa-redo"></span> Restart Form</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="over-time"    ><span class="fas fa-clock"></span> Over Time</button>
 				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="misconduct"   ><span class="fas fa-comment-slash"></span> Misconduct</button>
-				<button class="list-group-item penalty-button" id="clear-penalty"><span class="fas fa-times-circle"></span> Clear Penalties</button>
+				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="clear-penalty"><span class="fas fa-times-circle"></span> Clear Penalties</button>
 			</div>
 		</div>
 
@@ -44,9 +44,11 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 			menu : {
 				min : () => {
 					this.button.penalize.html( '<span class="fas fa-caret-up"></span> Minimize Penalty Menu' );
+					this.button.penalize.css({ 'border-bottom-right-radius': '0', 'border-bottom-left-radius': '0' });
 				},
 				max : () => {
 					this.button.penalize.html( '<span class="fas fa-caret-down"></span> Expand Penalty Menu' );
+					this.button.penalize.css({ 'border-bottom-right-radius': '4px', 'border-bottom-left-radius': '4px' });
 				}
 			},
 			show: () => {
@@ -81,10 +83,10 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 			let aname = { bounds : 'an <b>Out of Bounds</b>', restart : 'a <b>Form Restart</b>', timelimit : 'an <b>Over Time</b>', misconduct : 'a <b>Misconduct</b>' };
 			[ 'bounds', 'restart', 'timelimit', 'misconduct' ].forEach( penalty => {
 				this.button?.[ penalty ]?.off( 'click' )?.click( ev => {
-					this.sound.error.play();
+					this.sound.ok.play();
 					athlete.penalize?.[ penalty ]( round, form );
 					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-					alertify.error( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
+					alertify.warning( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
 					this.refresh.accordion.hide();
 				});
 			});

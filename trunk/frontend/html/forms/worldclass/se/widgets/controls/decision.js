@@ -29,25 +29,28 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
 
-			this.button.penalize.off( 'click' ).click( ev => { this.refresh.accordion.toggle(); });
-
-			let aname = { bounds : 'an <b>Out of Bounds</b>', restart : 'a <b>Form Restart</b>', timelimit : 'an <b>Over Time</b>', misconduct : 'a <b>Misconduct</b>' };
-			[ 'bounds', 'restart', 'timelimit', 'misconduct' ].forEach( penalty => {
-				this.button?.[ penalty ]?.off( 'click' )?.click( ev => {
-					this.sound.error.play();
-					athlete.penalize?.[ penalty ]( round, form );
-					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-					alertify.error( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
-					this.refresh.accordion.hide();
+			let action = { withdraw : 'has <b>Withdrawn (WDR)</b>', disqualify : 'has been <b>Disqualified (DSQ)</b>' };
+			[ 'withdraw', 'disqualify' ].forEach( decision => {
+				this.button?.[ decision ]?.off( 'click' )?.click( ev => {
+					this.sound.next.play();
+					let dialog = {
+						title : `${decision.capitalize()} ${athlete.name()}?`,
+						message : `Click <b>OK</b> to ${decision} ${athlete.name()} or <b>Cancel</b> to do nothing.`,
+						ok : () => {
+							this.sound.ok.play();
+							this.network.send({ type: 'division', action: 'award punitive', decision, athlete_id: current });
+							alertify.error( `${athlete.name()} ${action?.[ decision ]}` );
+						},
+						cancel : () => { this.sound.prev.play(); }
+					};
+					alertify.confirm( dialog.title, dialog.message, dialog.ok, dialog.cancel );
 				});
 			});
 
 			this.button.clear.off( 'click' ).click( ev => {
 				this.sound.ok.play();
-				athlete.penalize.clear( round, form );
-				this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-				alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
-				this.refresh.accordion.hide();
+				this.network.send({ type: 'division', action: 'award punitive', decision: 'clear', athlete_id: current });
+				alertify.success( `${athlete.name()} has been <b>cleared of decisions</b>` );
 			});
 		}
 

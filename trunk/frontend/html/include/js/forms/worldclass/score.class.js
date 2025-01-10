@@ -29,7 +29,7 @@ function Score( score ) {
 			// ===== SHOW DECISION IF THERE IS A DECISION
 			if( defined( form.decision )) {
 				state.decision = true;
-				var decisions = [ { name: 'disqualify', code: 'DQ'}, { name: 'withdraw', code: 'WD' } ];
+				var decisions = [ { name: 'disqualify', code: 'DSQ'}, { name: 'withdraw', code: 'WDR' } ];
 				var decision  = decisions.reduce(( selected, decision ) => { if( ! selected && form.decision[ decision.name ] ) { return decision.code; } else { return selected }}, undefined );
 				if( defined( decision )) {
 					summary.push( '<span class="form' + j + 'of' + n + ' decision">' + decision + '</span>' );

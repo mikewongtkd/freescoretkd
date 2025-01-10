@@ -65,6 +65,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					let athlete  = division.athletes?.[ current.athlete ];
 					let scores   = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
 					let complete = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.complete;
+					let decision = athlete?.scores?.[ current.round ]?.forms?.some( form => form.decision );
 					let value    = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
 					let spread   = { acc : [], pre : [], sum : []};
 					scores.forEach(( score, jid ) => {
@@ -97,7 +98,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 						spread.sum.push( sum );
 					});
 
-					if( ! complete ) { 
+					if( ! complete || decision ) { 
 						[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ col ][ row ].empty(); }); });
 						return; 
 					}

@@ -30,13 +30,14 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.previous  = this.dom.find( '#navigate-prev-round' );
-		this.button.next      = this.dom.find( '#navigate-next-round' );
-		this.button.score     = this.dom.find( '#navigate-division' );
 		this.button.nav       = {
-			athlete  : this.dom.find( '.navigate-athlete a' ),
-			division : this.dom.find( '.navigate-division a' ),
-			round    : this.dom.find( '.navigate-round a' ),
+			athlete  : this.dom.find( '#navigate-athlete' ),
+			division : this.dom.find( '#navigate-division' ),
+			round    : {
+				all:  this.dom.find( '.navigate-round a' ),
+				next: this.dom.find( '#navigate-next-round' ),
+				prev: this.dom.find( '#navigate-prev-round' )
+			}
 		};
 		this.display.nav      = {
 			athlete  : this.dom.find( '.navigate-athlete' ),
@@ -52,9 +53,14 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 		this.refresh.nav = {
 			athlete : ( athlete ) => {
 				this.display.label.athlete.html( `Score ${athlete.name}` );
+				this.button.nav.athlete.off( 'click' ).click( ev => {
+					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'athlete', index: athlete.id }});
+					this.display.nav.athlete.hide();
+					this.sound.next.play();
+				});
 			},
 			division : divid => {
-				this.button.score.off( 'click' ).click( ev => { 
+				this.button.nav.division.off( 'click' ).click( ev => { 
 					this.sound.ok.play(); 
 					$.cookie( 'divid', divid, { expires: 1, path: '/' });
 					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'division', divid }} ); 
@@ -71,48 +77,48 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 				let order  = division?.order;
 
 				let i = rounds.findIndex( round => round == division?.round );
-				this.button.nav.round.removeClass( 'disabled' );
+				this.button.nav.round.all.removeClass( 'disabled' );
 
 				if( i == -1 ) {
-					this.button.nav.round.addClass( 'disabled' );
+					this.button.nav.round.all.addClass( 'disabled' );
 					alertify.error( `Navigation Widget: Current round ${division?.round} not found` );
 					return;
 				} 
 
 				if( i == 0 ) {
-					this.button.previous.addClass( 'disabled' );
-					this.button.previous.off( 'click' );
+					this.button.nav.round.prev.addClass( 'disabled' );
+					this.button.nav.round.prev.off( 'click' );
 
 				} 
 
 				if( i == (rounds.length - 1) || division?.flight ) {
-					this.button.next.addClass( 'disabled' );
-					this.button.next.off( 'click' );
+					this.button.nav.round.next.addClass( 'disabled' );
+					this.button.nav.round.next.off( 'click' );
 				}
 
-				if( ! this.button.previous.hasClass( 'disabled' )) { 
+				if( ! this.button.nav.round.prev.hasClass( 'disabled' )) { 
 					let round = rounds[ i - 1 ];
 					if( round in order ) {
-						this.button.previous.off( 'click' ).click( ev => {
+						this.button.nav.round.prev.off( 'click' ).click( ev => {
 							this.sound.prev.play();
 							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
 						});
 					} else {
-						this.button.previous.addClass( 'disabled' );
-						this.button.previous.off( 'click' );
+						this.button.nav.round.prev.addClass( 'disabled' );
+						this.button.nav.round.prev.off( 'click' );
 					}
 				}
 
-				if( ! this.button.next.hasClass( 'disabled' ))     { 
+				if( ! this.button.nav.round.next.hasClass( 'disabled' ))     { 
 					let round = rounds[ i + 1 ];
 					if( round in order ) {
-						this.button.next.off( 'click' ).click( ev => {
+						this.button.nav.round.next.off( 'click' ).click( ev => {
 							this.sound.next.play();
 							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
 						});
 					} else {
-						this.button.next.addClass( 'disabled' );
-						this.button.next.off( 'click' );
+						this.button.nav.round.next.addClass( 'disabled' );
+						this.button.nav.round.next.off( 'click' );
 					}
 				}
 			}
@@ -150,7 +156,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 
 						this.refresh.nav.round( division );
 
-						if( this.button.next.hasClass( 'disabled' ) && this.button.previous.hasClass( 'disabled' )) {
+						if( this.button.nav.round.next.hasClass( 'disabled' ) && this.button.nav.round.prev.hasClass( 'disabled' )) {
 							this.display.nav.round.hide();
 						} else {
 							this.display.nav.round.show();
