@@ -385,6 +385,9 @@ sub initialize {
 			}
 		}
 	}
+
+	# ===== INITIALIZE ROUND LIST
+	$self->{ rounds } = [ $self->rounds() ];
 }
 
 # ============================================================
@@ -560,7 +563,6 @@ sub read {
 				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
 				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
-				$self->{ rounds }{ $round } = 1; # At least one score for this round has been recorded; therefore this division has the given round
 
 				next unless( $major || $minor || $rhythm || $power || $ki );
 
@@ -1144,10 +1146,12 @@ sub athletes_in_round {
 	}
 
 	# ===== REQUEST FOR AN ATHLETE IN THE CURRENT ROUND
-	my $round    = $self->{ round };
-	my $i        = $self->method->find_athlete( $option );
+	my $i     = $self->method->find_athlete( $option );
+	my $order = $self->order();
 
-	return $self->order()->[ $i ];
+	die "No order specified for $self->{ round } $!" unless $order;
+
+	return $order->[ $i ];
 }
 
 # ============================================================

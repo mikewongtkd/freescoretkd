@@ -67,25 +67,8 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 			round : division => {
 				// ===== GET ROUNDS
 				let rounds = division?.rounds;
-				if( typeof rounds == 'object' ) { rounds = Object.keys( rounds ); }
+				let order  = division?.order;
 
-				// If rounds not defined, assume cutoff method with appropriate rounds
-				if( ! defined( rounds )) {
-					if( defined( division?.order )) {
-						rounds = new Set( Object.keys( division.order ));
-						if(      rounds.has( 'prelim' )) { rounds.add( 'semfin' ); rounds.add( 'finals' ); } 
-						else if( rounds.has( 'semfin' )) { rounds.add( 'finals' ); }
-						rounds = [ ...rounds ];
-
-					} else if( defined( division?.round )) {
-						rounds = [ division?.round ];
-
-					} else {
-						this.button.nav.round.addClass( 'disabled' );
-						alertify.error( `Round is not defined for division ${div?.name?.toUpperCase()}` );
-						return;
-					}
-				}
 				let i = rounds.findIndex( round => round == division?.round );
 				this.button.nav.round.removeClass( 'disabled' );
 
@@ -93,40 +76,43 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					this.button.nav.round.addClass( 'disabled' );
 					alertify.error( `Navigation Widget: Current round ${division?.round} not found` );
 					return;
-
 				} 
+
 				if( i == 0 ) {
 					this.button.previous.addClass( 'disabled' );
 					this.button.previous.off( 'click' );
 
 				} 
+
 				if( i == (rounds.length - 1) || division?.flight ) {
 					this.button.next.addClass( 'disabled' );
 					this.button.next.off( 'click' );
 				}
 
-				let navigate_to_round = target => {
-					let round = target == 'next' ? rounds[ i + 1 ] : rounds[ i - 1 ];
-					this.button[ target ].off( 'click' ).click( ev => {
-						this.sound?.[ target ]?.play();
-						this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }} ); 
-					});
-				}
-
 				if( ! this.button.previous.hasClass( 'disabled' )) { 
 					let round = rounds[ i - 1 ];
-					this.button.previous.off( 'click' ).click( ev => {
-						this.sound.prev.play();
-						this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
-					});
+					if( round in order ) {
+						this.button.previous.off( 'click' ).click( ev => {
+							this.sound.prev.play();
+							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
+						});
+					} else {
+						this.button.previous.addClass( 'disabled' );
+						this.button.previous.off( 'click' );
+					}
 				}
 
 				if( ! this.button.next.hasClass( 'disabled' ))     { 
 					let round = rounds[ i + 1 ];
-					this.button.previous.off( 'click' ).click( ev => {
-						this.sound.next.play();
-						this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
-					});
+					if( round in order ) {
+						this.button.next.off( 'click' ).click( ev => {
+							this.sound.next.play();
+							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
+						});
+					} else {
+						this.button.next.addClass( 'disabled' );
+						this.button.next.off( 'click' );
+					}
 				}
 			}
 		};
@@ -162,7 +148,12 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					if( defined( division )) {
 
 						this.refresh.nav.round( division );
-						this.display.nav.round.show();
+
+						if( this.button.next.hasClass( 'disabled' ) && this.button.previous.hasClass( 'disabled' )) {
+							this.display.nav.round.hide();
+						} else {
+							this.display.nav.round.show();
+						}
 
 					} else {
 						alertify.error( `Division ${message.divid.toUpperCase()} not found in App division cache` );
