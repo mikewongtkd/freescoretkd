@@ -100,7 +100,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					this.button.previous.off( 'click' );
 
 				} 
-				if( i == (rounds.length - 1)) {
+				if( i == (rounds.length - 1) || division?.flight ) {
 					this.button.next.addClass( 'disabled' );
 					this.button.next.off( 'click' );
 				}
