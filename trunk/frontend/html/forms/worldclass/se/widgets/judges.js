@@ -61,18 +61,20 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					let current = { athlete : division?.current, round : division?.round, form : division?.form };
 					if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
 
-					let n      = division.judges;
-					let scores = division.athletes?.[ current.athlete ]?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
-					let value  = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
-					let spread = { acc : [], pre : [], sum : []};
+					let n        = division.judges;
+					let athlete  = division.athletes?.[ current.athlete ];
+					let scores   = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
+					let complete = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.complete;
+					let value    = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
+					let spread   = { acc : [], pre : [], sum : []};
 					scores.forEach(( score, jid ) => {
 						let acc   = value( score.accuracy );
 						let pre   = value( score.presentation );
 						let sum   = acc + pre;
 						let judge = this.judge[ jid ];
 
-						// If the judge is not defined, clear the scores 
-						if( ! defined( this.judge?.[ jid ]?.accuracy ) || ! defined( this.judge?.[ jid ]?.presentation )) { 
+						// If the judge is not defined or the score is not complete, clear the score display
+						if( ! defined( judge?.accuracy ) || ! defined( judge?.presentation ) || ! score.complete ) { 
 							judge.accuracy.removeClass( 'ignore' ).empty();
 							judge.presentation.removeClass( 'ignore' ).empty();
 							judge.sum.removeClass( 'ignore' ).empty();
@@ -94,6 +96,11 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 
 						spread.sum.push( sum );
 					});
+
+					if( ! complete ) { 
+						[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ col ][ row ].empty(); }); });
+						return; 
+					}
 
 					// Calculate score and spreads
 					[ 'acc', 'pre', 'sum' ].forEach( row => {
