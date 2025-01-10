@@ -46,9 +46,6 @@ FreeScore.Widget.SEDivisionList = class FSWidgetSEDivisionList extends FreeScore
 					let division = ring.divisions.find(( d ) => { return d.name == divid; });
 					let current  = ring.current;
 
-					console.log( 'DIVISION SHOW MESSAGE:', { divid, current });
-
-					$.cookie( 'divid', divid, { expires: 1, path: '/' });
 					this.event.trigger( 'division-show', { divid, current });
 				});
 			}

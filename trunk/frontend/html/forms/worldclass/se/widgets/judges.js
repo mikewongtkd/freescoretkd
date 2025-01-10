@@ -40,7 +40,7 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 								app.sound.next.play();
 								let dialog = {
 									title : `Clear ${judge.name}'s score for ${athlete.name}`,
-									message : ``,
+									message : `Click <b>OK</b> to clear <b>${judge.name}</b>&rsquo;s score for <b>${athlete.name}</b> or <b>Cancel</b> to do nothing.`,
 									ok : () => {
 										let request = { type : 'division', action : 'clear judge score', judge : i };
 										app.network.send( request );
@@ -245,18 +245,18 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
 		this.network.on
-			// ============================================================
-			.heard( 'division' )
-			// ============================================================
+		// ============================================================
+		.heard( 'division' )
+		// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
 					let division = update.division;
 					this.refresh.judges( division );
 					this.refresh.judge.scores( division );
 				})
-			// ============================================================
-			.heard( 'ring' )
-			// ============================================================
+		// ============================================================
+		.heard( 'ring' )
+		// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
 					let ring = update.ring;
@@ -268,9 +268,9 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					this.refresh.judges( division );
 					this.refresh.judge.scores( division );
 				})
-			// ============================================================
-			.heard( 'users' )
-			// ============================================================
+		// ============================================================
+		.heard( 'users' )
+		// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
 					this.refresh.judge.status( update );

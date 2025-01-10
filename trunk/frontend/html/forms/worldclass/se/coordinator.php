@@ -35,8 +35,9 @@
 		<script src="../../../include/js/event.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
-		<script src="widgets/controls/navigation.js"></script>
 		<script src="widgets/controls/autopilot.js"></script>
+		<script src="widgets/controls/navigation.js"></script>
+		<script src="widgets/controls/penalties.js"></script>
 		<script src="widgets/division-list.js"></script>
 		<script src="widgets/header.js"></script>
 		<script src="widgets/athlete-list.js"></script>
@@ -102,16 +103,18 @@
 			let html       = FreeScore.html;
 			let app        = new FreeScore.App();
 
-			app.state = { current : {}, divisions : null };
+			app.state = { current : {}, divisions : null, loaded : false };
 
 			app.page = {
 				num : 1,
 				count: 2,
+				show: {
+					division: () => { if( app.page.num == 2 ) { return; } app.page.transition(); },
+					ring:     () => { if( app.page.num == 1 ) { return; } app.page.transition(); }
+				},
 				transition: ( ev ) => { app.page.num = PageTransitions.nextPage({ animation: app.page.animation( app.page.num )}); },
 				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
 			};
-
-			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			app.network.widget = {
 				divisions : {
@@ -127,31 +130,17 @@
 				},
 				judges     : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
 				autopilot  : new FreeScore.Widget.SEAutopilot( app, 'controls' ),
-				navigation : new FreeScore.Widget.SENavigation( app, 'controls' )
+				navigation : new FreeScore.Widget.SENavigation( app, 'controls' ),
+				penalties  : new FreeScore.Widget.SEPenalties( app, 'controls' )
 			};
 
-			app.event
-				.listen( 'division-show' )
-					.respond(( type, source, message ) => {
-						app.state.current.divid    = message.divid;
-						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
-						app.sound.next.play();
-						app.page.transition();
-					})
-				.listen( 'ring-show' )
-					.respond(( type, source, message ) => {
-						$.removeCookie( 'divid' );
-						let request = { type : 'ring', action : 'read' };
-						app.network.send( request );
-						app.sound.prev.play();
-						app.page.transition();
-					});
+			app.on.connect( '<?= $url ?>' ).read.ring();
 
+			// ===== NETWORK LISTENER/HANDLERS
 			app.network.on
-				// ============================================================
-				.heard( 'ring' )
-				// ============================================================
-				.command( 'read' )
+			// ============================================================
+			.heard( 'ring' )
+			// ============================================================
 				.command( 'update' )
 					.respond( update => {
 						if( ! defined( update?.ring )) { return; }
@@ -161,30 +150,32 @@
 						app.state.current.divid    = divid;
 						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
 
-						if( defined( $.cookie( 'divid' ))) {
-							let message = { divid: $.cookie( 'divid' ), current : divid };
+						if( defined( divid ) && ! app.state.loaded ) {
+							let message = { divid, current : divid };
 							app.event.trigger( 'division-show', message );
+							app.state.loaded = true;
 						}
 					});
 
-			var changeCurrentForm = function( i, form ) {
-				return function() {
-					app.sound.next.play();
-					var title   = `Start scoring ${ordinal(( parseInt( i ) +1))} form ${form}?`; 
-					var message = `Click <b class="text-danger">OK</b> to start scoring ${form} or <b class="text-warning">Cancel</b> to do nothing.`;
-					var ok      = () => {
-						app.network.send({ type : 'division', action : 'navigate', target : { destination: 'form', index: i }});
-						app.sound.ok.play();
-						alertify.success( `Scoring for ${form}` );
+			// ===== EVENT LISTENER/HANDLERS
+			app.event
+				.listen( 'division-show' )
+					.respond(( type, source, message ) => {
+						app.state.current.divid    = message.divid;
+						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
+						app.sound.next.play();
+						app.page.show.division();
+					})
+				.listen( 'ring-show' )
+					.respond(( type, source, message ) => {
+						$.removeCookie( 'divid' );
+						let request = { type : 'ring', action : 'read' };
+						app.network.send( request );
+						app.sound.prev.play();
+						app.page.show.ring();
+					});
 
-						return true;
-					}
-					var cancel  = () => { app.sound.prev.play(); return true; }
-					alertify.confirm( title, message, ok, cancel );
-				};
-			};
-
-			$( function() {
+			$(() => {
 				// ===== PREVENT LIST FILTER FORM FROM SUBMITTING ON ENTER
 				$( 'form' ).keydown(( ev ) => {
 					if( ev.keyCode == 13 ) {

@@ -37,6 +37,7 @@
 		<script src="../../include/js/freescore.js"></script>
 		<script src="../../include/js/websocket.js"></script>
 		<script src="../../include/js/sound.js"></script>
+		<script src="../../include/js/event.js"></script>
 		<script src="../../include/js/app.js"></script>
 		<script src="include/js/score.js"></script>
 		<script src="include/js/athlete.js"></script>

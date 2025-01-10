@@ -10,7 +10,7 @@ FreeScore.Widget = class FSWidget {
 		this._options = options;
 		this._sound   = app.sound;
 		this._state   = {};
-		this._rm      = new FreeScore.ResponseManager( this.app.network );
+		this._rm      = new FreeScore.ResponseManager( this, this.app.network );
 		this._event   = new FreeScore.EventClient( this );
 
 		this.network  = {

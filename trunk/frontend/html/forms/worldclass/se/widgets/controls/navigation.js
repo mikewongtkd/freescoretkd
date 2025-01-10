@@ -51,13 +51,14 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.nav = {
 			athlete : ( athlete ) => {
-				this.display.label.athlete.html( `Start Scoring for ${athlete.name}` );
+				this.display.label.athlete.html( `Score ${athlete.name}` );
 			},
 			division : divid => {
 				this.button.score.off( 'click' ).click( ev => { 
-					this.display.label.division.html( `Start Scoring Division ${divid.toUpperCase()}` );
 					this.sound.ok.play(); 
+					$.cookie( 'divid', divid, { expires: 1, path: '/' });
 					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'division', divid }} ); 
+					this.event.trigger( 'division-show', { divid, current: divid });
 					if( ring == 'staging' ) { 
 						alertify.success( "Transferred division from staging to ring. Starting to score division." ); 
 						setTimeout( function() { location.reload(); }, 3000 );

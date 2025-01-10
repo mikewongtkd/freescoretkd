@@ -1,9 +1,11 @@
 FreeScore.ResponseManager = class FSResponseManager {
-	constructor( websocket ) {
+	constructor( listener, websocket ) {
 		this.context   = { type : null, action : []};
 		this.table     = {}; // Dispatch table
+		this.listener  = listener;
 		this.websocket = websocket;
 		this._catch    = error => console.log( error );
+		this.debug     = true;
 	}
 
 	add( type, action = null, handler = null ) {
@@ -11,10 +13,6 @@ FreeScore.ResponseManager = class FSResponseManager {
 		if( action === null ) {
 			action = 'update';
 			handler = update => {
-				let request = update.request;
-				let type    = request.type;
-				let action  = request.action;
-
 				try {
 					this.dispatch( type, action, update );
 				} catch( error ) {
@@ -35,28 +33,18 @@ FreeScore.ResponseManager = class FSResponseManager {
 	}
 
 	dispatch( type, action, update ) {
-		// Ignore server pings if there's no handler
-		if( type == 'server' && action == 'ping' && ! this.table?.[ type ]?.[ action ]) { return; }
-
-		if( ! defined( this.table?.[ type ])) { 
-			if( alertify ) { 
-				if( update?.error ) { throw new Error( update.error ); }
-				// console.log( `No handler for response object ${type}` ); 
-				// alertify.error( `No handler for response object ${type}` ); 
-			} 
-			console.log( update ); 
-			return; 
-		}
-		if( ! (this.table?.[ type ]?.[ action ])) { 
-			if( alertify ) { 
-				if( update?.error ) { throw new Error( update.error ); }
-				// console.log( `No handler for response object ${type} action ${action}` ); 
-				// alertify.error( `No handler for response object ${type} action ${action}` ); 
-			} 
-			console.log( update ); 
+		// Ignore if there's no handler
+		if( ! defined( this.table?.[ type ]?.[ action ])) { 
+			if( this.debug && type != 'server' && action != 'ping' ) {
+				console.log( `[...${this.listener?.id?.substring( 32 )}] ${this.listener.constructor.name} is ignoring a ${type} ${action} network message` );
+			}
 			return; 
 		}
 
+		// Execute handler from the dispatch table
+		if( this.debug && type != 'server' && action != 'ping' ) {
+			console.log( `[...${this.listener?.id?.substring( 32 )}] ${this.listener.constructor.name} is processing a ${type} ${action} network message` );
+		}
 		this.table[ type ][ action ]( update );
 	}
 
@@ -84,10 +72,11 @@ FreeScore.ResponseManager = class FSResponseManager {
 };
 
 FreeScore.WebSocket = class FSWebSocket {
-	constructor() {
+	constructor( listener ) {
 		this.rm        = null;
 		this.url       = null;
 		this.ws        = null;
+		this.listener  = listener;
 		this.listeners = [];
 	}
 
@@ -101,14 +90,13 @@ FreeScore.WebSocket = class FSWebSocket {
 				let type   = update.type;
 				let action = update.action;
 
-				if( type != 'server' || action != 'ping' ) {
-					console.log( update );
+				if( this.debug && type != 'server' || action != 'ping' ) {
+					console.log( 'WEBSOCKET CONNECT', update );
 				}
-
-				this.listeners.forEach( listener => listener.rm.dispatch( type, action, update ));
 
 				try {
 					this.rm.dispatch( type, action, update );
+					this.listeners.forEach( listener => listener.rm.dispatch( type, action, update ));
 				} catch( error ) {
 					this.rm._catch( error );
 				}
@@ -119,7 +107,7 @@ FreeScore.WebSocket = class FSWebSocket {
 				this.ws.send( request.json );
 			}
 		};
-		this.rm = new FreeScore.ResponseManager( this );
+		this.rm = new FreeScore.ResponseManager( this.listener, this );
 		this.ws = new WebSocket( this.url );
 		this.ws.onopen    = this.network.open;
 		this.ws.onmessage = this.network.message;
@@ -139,7 +127,10 @@ FreeScore.WebSocket = class FSWebSocket {
 	}
 
 	handle( update ) {
-		this.rm.dispatch( update.type, update.action, update );
+		let type   = update?.type;
+		let action = update?.action;
+		this.rm.dispatch( type, action, update );
+		this.listeners.forEach( listener => listener.rm.dispatch( type, action, update ));
 	}
 
 	reconnect( url ) {

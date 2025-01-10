@@ -25,7 +25,7 @@ FreeScore.Widget.SEHeader = class FSWidgetHeader extends FreeScore.Widget {
 			});
 
 			this.display.forms.empty();
-			this.display.forms.append( forms );
+			this.display.forms.append( forms.join( '&nbsp;' ));
 			this.button.form = this.display.forms.find( '.navigate-form' );
 			this.button.form.each(( i, btn ) => {
 				let button = $( btn );

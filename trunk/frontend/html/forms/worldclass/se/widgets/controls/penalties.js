@@ -1,37 +1,128 @@
-FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget {
+FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 
 		// ===== ADD THE DOM
-		this.dom.html( `
+		this.dom.append( `
 
-		<div class="autopilot">
-			<h4>Autopilot</h4>
-			<a class="btn btn-block btn-default disabled status">Disengaged</a>
+		<div class="penalties">
+			<h4>Penalties</h4>
+			<div class="list-group">
+				<button class="list-group-item penalty-button" id="give-penalty"><span class="far fa-hand-point-right"></span> Give a Penalty</button>
+				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="out-of-bounds"><span class="fas fa-share-square"></span> Out-of-bounds</button>
+				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="restart"      ><span class="fas fa-redo"></span> Restart Form</button>
+				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="over-time"    ><span class="fas fa-clock"></span> Over Time</button>
+				<button class="list-group-item penalty-button show-toggle" style="display:none;" id="misconduct"   ><span class="fas fa-comment-slash"></span> Misconduct</button>
+				<button class="list-group-item penalty-button" id="clear-penalty"><span class="fas fa-times-circle"></span> Clear Penalties</button>
+			</div>
 		</div>
 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.status = this.dom.children( 'a.btn.status' );
+		this.button.penalize   = this.dom.find( '#give-penalty' );
+		this.button.clear      = this.dom.find( '#clear-penalty' );
+		this.button.bounds     = this.dom.find( '#out-of-bounds' );
+		this.button.restart    = this.dom.find( '#restart' );
+		this.button.timelimit  = this.dom.find( '#over-time' );
+		this.button.misconduct = this.dom.find( '#misconduct' );
+		this.display.all       = this.dom.find( '.penalties' );
+		this.display.accordion = this.dom.find( '.show-toggle' );
 
-		// ===== ADD STATE
-		this.state.autopilot = { timer : null };
+		// ===== WIDGET STATE
+		this.state.penalties = { shown : false };
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.status = ( update, message ) => {
-			let request  = update.request;
-			let delay    = (request.delay + 1) * 1000;
-			this.button.status.addClass( 'btn-success' ).removeClass( 'btn-default' ).html( message );
-			if( this.state.autopilot.timer ) { clearTimeout( this.state.autopilot.timer ); }
-			this.state.autopilot.timer = setTimeout( () => { this.button.status.addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
+		this.refresh.accordion = {
+			hide: () => {
+				if( ! this.state.penalties.shown ) { return; }
+				this.button.penalize.html( '<span class="far fa-hand-point-right"></span> Give a Penalty' );
+				this.sound.prev.play();
+				this.display.accordion.hide();
+				this.state.penalties.shown = false;
+			},
+			show: () => {
+				if( this.state.penalties.shown ) { return; }
+				this.button.penalize.html( '<span class="fas caret-up"></span> Minimize Penalty Menu' );
+				this.sound.next.play();
+				this.display.accordion.show();
+				this.state.penalties.shown = true;
+			},
+			toggle: () => {
+				if( this.state.penalties.shown ) {
+					this.button.penalize.html( '<span class="far fa-hand-point-right"></span> Give a Penalty' );
+					this.sound.prev.play();
+					this.display.accordion.hide();
+				} else {
+					this.button.penalize.html( '<span class="fas fa-caret-up"></span> Minimize Penalty Menu' );
+					this.sound.next.play();
+					this.display.accordion.show();
+				}
+				this.state.penalties.shown = ! this.state.penalties.shown;
+			}
+		};
+
+		this.refresh.buttons = division => {
+			console.log( 'PENALTIES WIDGET BUTTON REFRESH', division );
+			let athlete = division.current.athlete();
+			let current = division.current.athleteId();
+			let round   = division.current.roundId();
+			let form    = division.current.formId();
+
+			this.button.penalize.off( 'click' ).click( ev => { this.refresh.accordion.toggle(); });
+
+			let aname = { bounds : 'an <b>Out of Bounds</b>', restart : 'a <b>Form Restart</b>', timelimit : 'an <b>Over Time</b>', misconduct : 'a <b>Misconduct</b>' };
+			[ 'bounds', 'restart', 'timelimit', 'misconduct' ].forEach( penalty => {
+				this.button?.[ penalty ]?.off( 'click' )?.click( ev => {
+					this.sound.error.play();
+					athlete.penalize?.[ penalty ]( round, form );
+					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
+					alertify.error( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
+					this.refresh.accordion.hide();
+				});
+			});
+
+			this.button.clear.off( 'click' ).click( ev => {
+				this.sound.ok.play();
+				athlete.penalize.clear( round, form );
+				this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
+				alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
+				this.refresh.accordion.hide();
+			});
 		}
 
-		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.network.on.heard( 'autopilot' )
-		.command( 'scoreboard' )  .respond( update => { this.refresh.status( update, 'Showing Score' );       })
-		.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
-		.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })
-		.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
+		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
+		this.network.on
+		.heard( 'ring' )
+			.command( 'update' )  
+				.respond( update => {
+					let division = this.app.state.current.division;
+					if( ! defined( division )) { return; }
+
+					division = new Division( division );
+					this.refresh.buttons( division );
+				})
+		.heard( 'division' )
+			.command( 'update' )  
+				.respond( update => {
+					let division = update?.division;
+					if( ! defined( division )) { return; }
+
+					division = new Division( division );
+					this.refresh.buttons( division );
+				});
+
+		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
+		this.event
+			.listen( 'division-show' )
+				.respond(( type, source, message ) => {
+					if( message.divid == message.current ) {
+						this.display.all.show();
+					} else {
+						this.display.all.hide();
+					}
+				});
+
+
 	}
 }
