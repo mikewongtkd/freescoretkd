@@ -1,53 +1,66 @@
-FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
+FreeScore.Widget.SEAdmin = class FSWidgetAdmin extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<div class="decision">
-			<h4>Decision</h4>
+		<div class="administration">
+			<h4>Administration</h4>
 			<div class="list-group">
-				<button class="list-group-item decision-button" id="withdraw"><span class="fas fa-user-minus"></span> Withdraw</button>
-				<button class="list-group-item decision-button" id="disqualify"><span class="fas fa-user-times"></span> Disqualify</button>
-				<button class="list-group-item decision-button" id="clear-decision"><span class="fas fa-times-circle"></span> Clear Decisions</button>
+				<button class="list-group-item admin-button" id="admin-edit"><span class="fas fa-edit"></span> Edit Division</button>
+				<button class="list-group-item admin-button" id="admin-screen"><span class="fas fa-desktop"></span> External Screen</button>
+				<button class="list-group-item admin-button" id="admin-view"><span class="fas fa-list-ol"></span> Change View</button>
+				<button class="list-group-item admin-button" id="admin-results"><span class="fas fa-medal"></span> Show Results</button>
+				<button class="list-group-item admin-button" id="admin-history"><span class="fas fa-history"></span> Division History</button>
 			</div>
 		</div>
 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.withdraw   = this.dom.find( '#withdraw' );
-		this.button.disqualify = this.dom.find( '#disqualify' );
-		this.button.clear      = this.dom.find( '#clear-decision' );
-		this.display.all       = this.dom.find( '.decision' );
+		this.button.edit       = this.dom.find( '#admin-edit' );
+		this.button.history    = this.dom.find( '#admin-history' );
+		this.button.results    = this.dom.find( '#admin-results' );
+		this.button.screen     = this.dom.find( '#admin-screen' );
+		this.button.view       = this.dom.find( '#admin-view' );
+		this.display.all       = this.dom.find( '.administration' );
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.buttons = division => {
+			let divid   = division.name();
 			let athlete = division.current.athlete();
 			let current = division.current.athleteId();
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
+			let url = {
+				edit    : `division/editor.php?file=${tournament.db}/${ring.num}/${divid}`,
+				history : `history.php?ring=${ring.num}`,
+				results : `report/results.php?ring=${ring.num}&divid=${divid}`,
+				screen  : `index.php?ring=${ring.num}`
+			};
 
-			this.button.penalize.off( 'click' ).click( ev => { this.refresh.accordion.toggle(); });
-
-			let aname = { bounds : 'an <b>Out of Bounds</b>', restart : 'a <b>Form Restart</b>', timelimit : 'an <b>Over Time</b>', misconduct : 'a <b>Misconduct</b>' };
-			[ 'bounds', 'restart', 'timelimit', 'misconduct' ].forEach( penalty => {
-				this.button?.[ penalty ]?.off( 'click' )?.click( ev => {
-					this.sound.error.play();
-					athlete.penalize?.[ penalty ]( round, form );
-					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-					alertify.error( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
-					this.refresh.accordion.hide();
+			Object.keys( url ).forEach( admin => {
+				this.button?.[ admin ].off( 'click' ).click( ev => {
+					this.sound.next.play();
+					if( admin == 'edit' ) {
+						alertify.alert( 
+							`Edit Division ${divid.toUpperCase()}`, 
+							'Make sure that judges are not scoring before editing.', 
+							() => {
+								this.sound.ok.play();
+								window.open( url?.[ admin ], '_blank' );
+							});
+					} else {
+						this.sound.next.play();
+						window.open( url?.[ admin ], '_blank' );
+					}
 				});
 			});
 
-			this.button.clear.off( 'click' ).click( ev => {
+			this.button.view.off( 'click' ).click( ev => {
 				this.sound.ok.play();
-				athlete.penalize.clear( round, form );
-				this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-				alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
-				this.refresh.accordion.hide();
+				this.network.send({ type: 'division', action: 'display' });
 			});
 		}
 
@@ -71,18 +84,5 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 					division = new Division( division );
 					this.refresh.buttons( division );
 				});
-
-		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
-		this.event
-			.listen( 'division-show' )
-				.respond(( type, source, message ) => {
-					if( message.divid == message.current ) {
-						this.display.all.show();
-					} else {
-						this.display.all.hide();
-					}
-				});
-
-
 	}
 }

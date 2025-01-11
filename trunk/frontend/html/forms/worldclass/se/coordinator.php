@@ -39,6 +39,7 @@
 		<script src="widgets/controls/navigation.js"></script>
 		<script src="widgets/controls/penalties.js"></script>
 		<script src="widgets/controls/decision.js"></script>
+		<script src="widgets/controls/admin.js"></script>
 		<script src="widgets/division-list.js"></script>
 		<script src="widgets/header.js"></script>
 		<script src="widgets/athlete-list.js"></script>
@@ -133,7 +134,8 @@
 				autopilot  : new FreeScore.Widget.SEAutopilot( app, 'controls' ),
 				navigation : new FreeScore.Widget.SENavigation( app, 'controls' ),
 				penalties  : new FreeScore.Widget.SEPenalties( app, 'controls' ),
-				decision   : new FreeScore.Widget.SEDecision( app, 'controls' )
+				decision   : new FreeScore.Widget.SEDecision( app, 'controls' ),
+				admin      : new FreeScore.Widget.SEAdmin( app, 'controls' )
 			};
 
 			app.on.connect( '<?= $url ?>' ).read.ring();

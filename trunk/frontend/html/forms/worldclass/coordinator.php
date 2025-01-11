@@ -378,7 +378,7 @@
 						if( i == n ) { cur = '<a class="btn btn-sm btn-primary disabled">' + cur + '</a>'; } else { cur = '<a class="btn btn-sm btn-default navigate-form" data-navigate="' + i + '" data-form-name="' + cur + '">' + cur + '</a>' }
 						return acc + '&nbsp;' + cur; 
 					}, '');
-					$( '#division-round' ).html( division.current.round.display.name() + ' Round &ndash; ' + division.current.athletes().length + ' athlete' + ( division.current.athletes().length > 1 ? 's' : '' ));
+					$( '#division-round' ).html( `${division.current.round.display.name()} &ndash; ${division.current.athletes().length} athlete${division.current.athletes().length > 1 ? 's' : '' }` );
 					$( '#current-form' ).html( count );
 					$( '#current-form>.navigate-form' ).each(( i, btn ) => {
 						var button = $( btn );

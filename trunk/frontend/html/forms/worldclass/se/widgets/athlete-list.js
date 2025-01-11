@@ -27,9 +27,10 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				this.display.athlete.list.empty();
 				division.current.athletes( round ).forEach(( athlete, aid ) => {
 					let score     = athlete.score( round ); 
+					let form      = division.current.formId();
 					let button    = html.a.clone().addClass( "list-group-item" ).attr({ 'data-athlete-id' : aid });
 					let name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-					let penalties = html.span.clone().addClass( "athlete-penalties" ).append( athlete.penalties( round, division.current.formId() ) /* iconize( athlete.penalties( round, n )) */ );
+					let penalties = html.span.clone().addClass( "athlete-penalties" ).html( this.refresh.athlete.penalty.icons( athlete, round, form ));
 					let total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
 					let current   = parseInt( division.current.athleteId());
 					let k         = division.current.formId();
@@ -64,6 +65,23 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 					this.display.athlete.list.append( button );
 				});
 
+			},
+			penalty : {
+				icons : ( athlete, round, form ) => {
+					let penalties = athlete.penalties( round, form );
+					const iconmap = { bounds : 'share-square', restart : 'redo', timelimit : 'clock', misconduct : 'comment-slash' };
+					const signmap = { bounds : '-', restart : '-', timelimit : '-', misconduct : '&times;' };
+					return Object.keys( iconmap ).map( penalty => {
+						if( ! penalties?.[ penalty ] || ! parseFloat( penalties[ penalty ])) { return; }
+						let icon  = iconmap[ penalty ];
+						let value = penalties[ penalty ];
+						let sign  = signmap[ penalty ];
+						if( penalty == 'misconduct' && value >= 2 ) {
+							alertify.error( `${athlete.name()} has committed 2 misconduct violations and should be disqualified!` );
+						}
+						return `<span class="athlete-penalty"><span class="fas fa-${icon}"></span>&nbsp;${sign}${value}</span>`;
+					}).join( '&nbsp;' );
+				}
 			}
 		}
 
