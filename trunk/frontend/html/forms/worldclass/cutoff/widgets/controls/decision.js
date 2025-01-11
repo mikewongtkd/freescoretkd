@@ -1,0 +1,91 @@
+FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
+	constructor( app, dom ) {
+		super( app, dom );
+
+		// ===== ADD THE DOM
+		this.dom.append( `
+
+		<div class="decision">
+			<h4>Decision</h4>
+			<div class="list-group">
+				<button class="list-group-item decision-button" id="withdraw"><span class="fas fa-user-minus"></span> Withdraw</button>
+				<button class="list-group-item decision-button" id="disqualify"><span class="fas fa-user-times"></span> Disqualify</button>
+				<button class="list-group-item decision-button" id="clear-decision"><span class="fas fa-times-circle"></span> Clear Decisions</button>
+			</div>
+		</div>
+
+		` );
+
+		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
+		this.button.withdraw   = this.dom.find( '#withdraw' );
+		this.button.disqualify = this.dom.find( '#disqualify' );
+		this.button.clear      = this.dom.find( '#clear-decision' );
+		this.display.all       = this.dom.find( '.decision' );
+
+		// ===== ADD REFRESH BEHAVIOR
+		this.refresh.buttons = division => {
+			let athlete = division.current.athlete();
+			let current = division.current.athleteId();
+			let round   = division.current.roundId();
+			let form    = division.current.formId();
+
+			let action = { withdraw : 'has <b>Withdrawn (WDR)</b>', disqualify : 'has been <b>Disqualified (DSQ)</b>' };
+			[ 'withdraw', 'disqualify' ].forEach( decision => {
+				this.button?.[ decision ]?.off( 'click' )?.click( ev => {
+					this.sound.next.play();
+					let dialog = {
+						title : `${decision.capitalize()} ${athlete.name()}?`,
+						message : `Click <b>OK</b> to ${decision} ${athlete.name()} or <b>Cancel</b> to do nothing.`,
+						ok : () => {
+							this.sound.ok.play();
+							this.network.send({ type: 'division', action: 'award punitive', decision, athlete_id: current });
+							alertify.error( `${athlete.name()} ${action?.[ decision ]}` );
+						},
+						cancel : () => { this.sound.prev.play(); }
+					};
+					alertify.confirm( dialog.title, dialog.message, dialog.ok, dialog.cancel );
+				});
+			});
+
+			this.button.clear.off( 'click' ).click( ev => {
+				this.sound.ok.play();
+				this.network.send({ type: 'division', action: 'award punitive', decision: 'clear', athlete_id: current });
+				alertify.success( `${athlete.name()} has been <b>cleared of decisions</b>` );
+			});
+		}
+
+		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
+		this.network.on
+		.heard( 'ring' )
+			.command( 'update' )  
+				.respond( update => {
+					let division = this.app.state.current.division;
+					if( ! defined( division )) { return; }
+
+					division = new Division( division );
+					this.refresh.buttons( division );
+				})
+		.heard( 'division' )
+			.command( 'update' )  
+				.respond( update => {
+					let division = update?.division;
+					if( ! defined( division )) { return; }
+
+					division = new Division( division );
+					this.refresh.buttons( division );
+				});
+
+		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
+		this.event
+			.listen( 'division-show' )
+				.respond(( type, source, message ) => {
+					if( message.divid == message.current ) {
+						this.display.all.show();
+					} else {
+						this.display.all.hide();
+					}
+				});
+
+
+	}
+}
