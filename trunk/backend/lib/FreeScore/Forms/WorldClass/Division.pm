@@ -516,7 +516,6 @@ sub read {
 
 				# Assign round
 				$round = $_;
-
 			}
 		# ===== READ ATHLETE INFORMATION
 		} elsif( /^\w/ ) {
@@ -751,7 +750,7 @@ sub rounds {
 	my $nofilter = shift; # Undef to enable filter; 'nofilter' to disable filter
 	my @rounds   = ();
 	my $method   = exists $self->{ method } && $self->{ method } ? $self->{ method } : 'cutoff';
-	my @order    = @FreeScore::Forms::WorldClass::round_order;
+	my @order    = @FreeScore::Forms::WorldClass::Division::round_order;
 
 	# Combination methods
 	if( ref( $method ) eq 'HASH' ) {
