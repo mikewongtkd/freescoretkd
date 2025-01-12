@@ -157,77 +157,6 @@ sub from_json {
 }
 
 # ============================================================
-sub detect_ties {
-# ============================================================
-#** @method ()
-#   @brief Identifies ties in the current round.
-#*
-	my $self      = shift;
-	my $ties      = [];
-	my $round     = $self->{ round };
-	my $placement = $self->{ placement }{ $round };
-
-	# ===== DETECT TIES BY LOOKING AT PAIRS OF SCORES
-	my $i = 0;
-	my $k = int(@{$self->{ athletes }});
-	while( $i < $k ) {
-		my $a = $placement->[ $i ];
-		my $x = $self->{ athletes }[ $i ]{ scores }{ $round };
-
-		my $j = $i + 1;
-		while( $j < $k ) {
-			my $b = $placement->[ $j ];
-			my $y = $self->{ athletes }[ $j ]{ scores }{ $round };
-			if( exists $y->{ decision }{ withdraw } || exists $y->{ decision }{ disqualify } ) { $j++; next; } # Skip comparisons to withdrawn or disqualified athletes
-
-			my $comparison = FreeScore::Forms::WorldClass::Division::Round::_compare( $x, $y );
-
-			# ===== IF TIE DETECTED, GROW THE LIST OF TIED ATHLETES FOR THE GIVEN PLACEMENT
-			if( _is_tie( $comparison )) {
-				push @{ $ties->[ $i ]}, $j; 
-				$j++;
-
-			# ===== OTHERWISE LOOK AT NEXT PLACE
-			} else { last; }
-		}
-		$i = $j;
-	}
-
-	# ===== FILTER UNIMPORTANT TIES
-	$i = 0;
-	my $places   = $self->{ places };
-	my $medals   = $places->{ $round }[ $i ];
-	my $athletes = 0;
-	while( $i < $k && $medals ) {
-		if    ( ref( $ties->[ $i ])) { $athletes += int( @{ $ties->[ $i ]}); } 
-		elsif ( $athletes == 0     ) { $athletes  = 1; }
-
-		my $gave = $medals >= $athletes ? $athletes : $medals;
-
-		# ===== IF THERE ARE ENOUGH MEDALS, EACH ATHLETE GETS ONE MEDAL
-		# No need for a tie breaker
-		if( $medals >= $athletes ) {
-			$medals -= $athletes;
-			$athletes = 0;
-			$ties->[ $i ] = undef;
-
-		# ===== OTHERWISE GIVE AWAY ALL MEDALS; SOME ATHLETES WILL STILL NEED MEDALS
-		} else {
-			$athletes -= $medals;
-			$medals = 0;
-		}
-
-		$i += $gave;
-		$medals += $places->{ $round }[ $i ];
-	}
-
-	# ===== IGNORE ALL OTHER TIES
-	splice( @$ties, $i);
-
-	return $ties;
-}
-
-# ============================================================
 sub edit_athletes {
 # ============================================================
 	my $self  = shift;
@@ -387,7 +316,13 @@ sub initialize {
 	}
 
 	# ===== INITIALIZE ROUND LIST
+	# Do NOT use this cache; instead invoke $self->rounds() to get the list
+	# fresh (in case the division is edited; e.g. more athletes are added)
 	$self->{ rounds } = [ $self->rounds() ];
+
+	print STDERR "INIT STEP 1\n"; # MW
+	$self->method->initialize();
+	print STDERR "INIT STEP 2\n"; # MW
 }
 
 # ============================================================
@@ -406,9 +341,13 @@ sub method {
 	my $self   = shift;
 	my $round  = shift || $self->{ round };
 	my $method = exists $self->{ method } && $self->{ method } ? $self->{ method } : 'cutoff';
-	my $mcode  = 'cutoff';
+	my $mcode  = undef;
 
-	$mcode = $method->{ $round } if( ref $method eq 'HASH' && exists $method->{ $round });
+	if( ref $method eq 'HASH' && exists $method->{ $round }) {
+		$mcode = $method->{ $round } 
+	} else {
+		$mcode = $method;
+	}
 
 	return FreeScore::Forms::WorldClass::Method::factory( $mcode, $self, $round );
 }
@@ -477,7 +416,6 @@ sub read {
 
 	# ===== DEFAULTS
 	$self->{ state }   = 'score';
-	$self->{ places }  = _parse_places( 'prelim:half;semfin:8;finals:1,1,2' );
 
 	my $round    = 'autodetect_required';
 	my $order    = {}; # Athlete order by name (not by index!)
@@ -600,9 +538,13 @@ sub read {
 	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
 	close FILE;
 
+	print STDERR "READ STEP 1\n"; # MW
 	$self->initialize( $athletes, $order );
+	print STDERR "READ STEP 2\n"; # MW
 	$self->normalize();
+	print STDERR "READ STEP 3\n"; # MW
 	$self->update_status();
+	print STDERR "READ STEP 4\n"; # MW
 }
 
 # ============================================================
@@ -833,18 +775,8 @@ sub update_status {
 	# ===== SORT THE ATHLETES TO THEIR PLACES (1st, 2nd, etc.) AND DETECT TIES
 	# Update after every completed score to give real-time audience feedback
 	$self->place_athletes(); 
-	my $ties = $self->detect_ties();
-
-	# ===== ASSIGN THE TIED ATHLETES TO A TIEBREAKER ROUND
-	foreach my $tie (@$ties) {
-		next unless ref $tie;
-		foreach my $i (@$tie) {
-			$self->assign_tiebreaker( $i );
-		}
-	}
 
 	$method->advance_athletes();
-
 }
 
 # ============================================================
@@ -1229,7 +1161,7 @@ sub _parse_places {
 	my $value = shift;
 	my @rounds = map {
 		my ($round, $list) = split /:/;
-		my @places = grep { /^(?:\d+|half)$/ } split /,/, $list;
+		my @places = grep { /^(?:\d+)$/ } split /,/, $list;
 		($round => [ @places ]);
 	} split /;/, $value;
 	return { @rounds };

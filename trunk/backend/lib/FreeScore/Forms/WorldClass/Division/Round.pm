@@ -472,13 +472,16 @@ sub _compare {
 	return -1 if( $pb );
 
 	if( $a->{ adjusted }{ total } == $b->{ adjusted }{ total } && $a->{ adjusted }{ total } != 0 ) {
-		if( $a->{ adjusted }{ presentation } != $b->{ adjusted }{ presentation }) { 
-			$a->{ tb }[ 0 ] = $a->{ adjusted }{ presentation }; 
-			$b->{ tb }[ 0 ] = $b->{ adjusted }{ presentation }; 
-		} else {
-			if( $a->{ total } != $b->{ total } ) { 
-				$a->{ tb }[ 1 ] = $a->{ total };
-				$b->{ tb }[ 1 ] = $b->{ total };
+		$a->{ tb }[ 0 ] = $a->{ adjusted }{ presentation }; 
+		$b->{ tb }[ 0 ] = $b->{ adjusted }{ presentation }; 
+
+		if( $a->{ adjusted }{ presentation } == $b->{ adjusted }{ presentation }) { 
+			$a->{ tb }[ 1 ] = $a->{ total };
+			$b->{ tb }[ 1 ] = $b->{ total };
+
+			if( $a->{ total } == $b->{ total } ) { 
+				$a->{ tb }[ 2 ] = 'tiebreaker match required';
+				$b->{ tb }[ 2 ] = 'tiebreaker match required';
 			}
 		}
 	}

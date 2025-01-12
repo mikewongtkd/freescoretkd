@@ -2,6 +2,8 @@ package FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
 use FreeScore::Forms::WorldClass::Method::SingleElimination::Match;
 use List::Util qw( all any );
 use List::MoreUtils qw( first_index );
+use base qw( Clone );
+use Data::Structure::Util qw( unbless );
 
 # ============================================================
 sub new {
@@ -34,6 +36,17 @@ sub current {
 	my $current = first { $_->has( $athlete ) } @{$self->{ matches }};
 
 	return $current;
+}
+
+# ============================================================
+sub data {
+# ============================================================
+	my $self = shift;
+	print STDERR "MATCHES DATA STEP 1\n"; # MW
+	my $data = unbless( $self->clone());
+	print STDERR "MATCHES DATA STEP 2\n"; # MW
+
+	return $data;
 }
 
 # ============================================================

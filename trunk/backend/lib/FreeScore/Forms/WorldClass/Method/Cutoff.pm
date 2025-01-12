@@ -167,6 +167,27 @@ sub autopilot_steps {
 }
 
 # ============================================================
+sub detect_ties {
+# ============================================================
+	my $self      = shift;
+	my $a         = shift;
+	my $x         = shift;
+	my $b         = shift;
+	my $y         = shift;
+	my $ties = shift;
+
+	if( exists $x->{ tb } && int( @{$x->{ tb }}) == 3 ) {
+		my $key = join( ',', @{$x->{ tb }});
+		push @{ $ties->{ $key }}, $a unless grep { $_ == $a } @{ $ties->{ $key }};
+	}
+	if( exists $y->{ tb } && int( @{$y->{ tb }}) == 3 ) {
+		my $key = join( ',', @{$y->{ tb }});
+		push @{ $ties->{ $key }}, $b unless grep { $_ == $b } @{ $ties->{ $key }};
+	}
+}
+
+
+# ============================================================
 sub find_athlete {
 # ============================================================
 	my $self     = shift;
@@ -221,11 +242,12 @@ sub normalize {
 sub place_athletes {
 # ============================================================
 #** @method ()
-#   @brief Calculates placements for the current round. Auto-updates score averages.
+#   @brief Calculates rankings for the current round. Auto-updates score averages.
 #*
 	my $self      = shift;
 	my $div       = $self->{ division };
 	my $round     = $div->{ round };
+	my $ties      = {};
 	my $placement = [];
 
 	# ===== GET ALL THE ATHLETES FOR THE GIVEN ROUND
@@ -236,11 +258,15 @@ sub place_athletes {
 		my $x = $div->reinstantiate_round( $round, $a ); # a := first athlete index;  x := first athlete round scores
 		my $y = $div->reinstantiate_round( $round, $b ); # b := second athlete index; y := second athlete round score
 
-		$x->compare( $y );
+		my $comparison = $x->compare( $y );
+		$self->detect_ties( $a, $x, $b, $y, $ties );
+
+		$comparison;
 	} @athlete_indices;
+	
+	$self->record_ties( $ties, $placement );
 
 	# ===== ASSIGN PLACEMENTS
-	my $half = int( (int(@{ $div->{ athletes }}) + 1) /2 );
 	@$placement = grep { defined $div->{ athletes }[ $_ ]{ scores }{ $round };     } @$placement; # Athlete is assigned to round
 	@$placement = grep { $div->{ athletes }[ $_ ]{ scores }{ $round }->complete(); } @$placement; # Athlete's score is complete
 
@@ -268,6 +294,15 @@ sub record_score {
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$div->{ flight }{ state } = 'in-progress' if( $div->is_flight() && $div->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored
 	$div->reinstantiate_round( $round )->record_score( $form, $judge, $score );
+}
+
+# ============================================================
+sub record_ties {
+# ============================================================
+	my $self = shift;
+	my $ties = shift;
+
+
 }
 
 # ============================================================

@@ -2,6 +2,8 @@ package FreeScore::Forms::WorldClass::Method;
 use FreeScore::Forms::WorldClass::Method::Cutoff;
 use FreeScore::Forms::WorldClass::Method::SideBySide;
 use FreeScore::Forms::WorldClass::Method::SingleElimination;
+use base qw( Clone );
+use List::Util qw( first );
 
 # ============================================================
 sub new {
@@ -50,6 +52,10 @@ sub factory {
 }
 
 # ============================================================
+sub initialize {}
+# ============================================================
+
+# ============================================================
 sub matches {}
 # ============================================================
 
@@ -59,12 +65,14 @@ sub round {
 	my $self  = shift;
 	my $rcode = shift || $self->{ round };
 	my $class  = ref( $self );
-	my $rvar   = "\@$class::rounds";
+	my $rvar   = "\@$class\:\:rounds";
 	my @rounds = eval $rvar;
 
 	die "No round specified for $class round() $!" unless $rcode;
+	my $round  = first { $_->{ code } eq $rcode } @rounds;
 
-	return first { $_->{ code } eq $rcode } @rounds;
+	return $round if $round;
+	die "Round $rcode not found in $rvar\n";
 }
 
 # ============================================================

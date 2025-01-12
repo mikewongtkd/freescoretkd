@@ -3,9 +3,10 @@ use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
 use List::Util qw( all any );
-use List::MoreUtils qw( first_index part );
+use List::MoreUtils qw( first_index );
+use Data::Dumper;
 
-our @rounds = [
+our @rounds = (
 	{ code => 'ro256', name => 'Round of 256',  matches => 128, min => 129, max => 256 },
 	{ code => 'ro128', name => 'Round of 128',  matches => 64,  min => 65,  max => 128 },
 	{ code => 'ro64',  name => 'Round of 64',   matches => 32,  min => 33,  max => 64  },
@@ -14,7 +15,7 @@ our @rounds = [
 	{ code => 'ro8',   name => 'Quarterfinals', matches => 4,   min => 5,   max => 8   },
 	{ code => 'ro4',   name => 'Semifinals',    matches => 2,   min => 3,   max => 4   },
 	{ code => 'ro2',   name => 'Finals',        matches => 1,   min => 1,   max => 2   }
-];
+);
 
 # ============================================================
 sub advance_athletes {
@@ -176,31 +177,40 @@ sub bracket {
 	my $self   = shift;
 	my $div    = $self->{ division };
 	my $rcode  = shift || $div->{ round };
-	my @order  = @{$div->{ order }{ $round }};
+	my @order  = @{$div->{ order }{ $rcode }};
 	my $n      = int( @order ); # Number of athletes
 	my $k      = $#order;       # Index of last athlete
 	my $round  = $self->round( $rcode );
 
+	$div->{ matches } = {} unless exists $div->{ matches };
+	$div->{ matches }{ $rcode } = [] unless exists $div->{ matches }{ $rcode };
+
 	die "Database error: $n athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $n < $round->{ min } || $n > $round->{ max });
 
-	foreach my $mnum ( 0 .. $#{$round->{ matches }}) {
+	my $n = $round->{ matches } - 1;
+	foreach my $mnum ( 0 .. $n ) {
 		my $i = $mnum;
 		my $j = $round->{ max } - ($i + 1);
 
 		# Skip if there are more matches than remaining athletes
 		next if( $i > $j );
 
+		my $match = [];
+		push @{ $div->{ matches }{ $rcode }}, $match;
+
 		# Assign Chung athlete
 		my $chung = $order[ $i ];
-		$div->reinstantiate_round( $round, $chung )->match( $mnum );
+		push @$match, $chung;
 
 		# Do not assign Hong athlete if there is a bye
 		next if( $j > $k );
 
 		# Assign Hong athlete
 		my $hong = $order[ $j ];
-		$div->reinstantiate_round( $round, $hong )->match( $mnum );
+		push @$match, $hong;
 	}
+
+	return $div->{ matches }{ $rcode };
 }
 
 # ============================================================
@@ -271,13 +281,29 @@ sub find_athlete {
 }
 
 # ============================================================
+sub initialize {
+# ============================================================
+	my $self  = shift;
+	my $div   = $self->{ division };
+	my $round = $div->{ round };
+
+	print STDERR "METHOD INIT STEP 1\n"; # MW
+	my $json = new JSON::XS(); # MW
+	print STDERR $json->canonical->pretty->encode( $self->matches->data()); # MW
+	print STDERR "METHOD INIT STEP 2\n"; # MW
+
+	$div->{ matches } = {} unless exists $div->{ matches };
+	$div->{ matches }{ $round } = $self->matches->data();
+	print STDERR "METHOD INIT STEP 3\n"; # MW
+}
+
+# ============================================================
 sub matches {
 # ============================================================
-	my $self     = shift;
-	my $div      = $self->{ division };
-	my $round    = $div->{ round };
-	my $athletes = $div->order();
-	my $matches  = [ part { $div->reinstantiate_round( $round, $_ )->match() } grep { $_ >= 0 } @$athletes ];
+	my $self    = shift;
+	my $div     = $self->{ division };
+	my $round   = $div->{ round };
+	my $matches = $self->bracket( $round );
 
 	return new FreeScore::Forms::WorldClass::Method::SingleElimination::Matches( $matches, $self );
 }
