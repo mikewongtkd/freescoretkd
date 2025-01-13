@@ -4,6 +4,7 @@ use List::Util qw( all any );
 use List::MoreUtils qw( first_index );
 use base qw( Clone );
 use Data::Structure::Util qw( unbless );
+use Data::Dumper;
 
 # ============================================================
 sub new {
@@ -21,7 +22,10 @@ sub init {
 	my $method  = shift;
 	my $matches = shift;
 
-	@$matches = map { my $match = $matches->[ $_ ]; new FreeScore::Forms::WorldClass::Method::SingleElimination::Match( $match, $_ + 1, $self ) } ( 0 .. $#$matches);
+	$matches = [ map { 
+		my $match = $matches->[ $_ ]; 
+		new FreeScore::Forms::WorldClass::Method::SingleElimination::Match( $match, $_ + 1, $self ) 
+	} ( 0 .. $#$matches)];
 
 	$self->{ method }  = $method;
 	$self->{ matches } = $matches;
@@ -31,8 +35,8 @@ sub init {
 sub current {
 # ============================================================
 	my $self    = shift;
-	my $round   = $self->{ division }{ round };
-	my $athlete = $self->{ division }{ current };
+	my $round   = $self->{ method }{ division }{ round };
+	my $athlete = $self->{ method }{ division }{ current };
 	my $current = first { $_->has( $athlete ) } @{$self->{ matches }};
 
 	return $current;
@@ -42,11 +46,12 @@ sub current {
 sub data {
 # ============================================================
 	my $self = shift;
-	print STDERR "MATCHES DATA STEP 1\n"; # MW
 	my $data = unbless( $self->clone());
-	print STDERR "MATCHES DATA STEP 2\n"; # MW
+	foreach my $match (@{$data->{ matches }}) {
+		delete $match->{ method };
+	}
 
-	return $data;
+	return $data->{ matches };
 }
 
 # ============================================================

@@ -355,15 +355,6 @@ sub complete {
 }
 
 # ============================================================
-sub match {
-# ============================================================
-	my $self  = shift;
-	my $match = shift;
-	$self->{ match } = $match if defined $match && exists $self->{ match } && ! defined $self->{ match };
-	return exists $self->{ match } ? $self->{ match } : undef;
-}
-
-# ============================================================
 sub reinstantiate {
 # ============================================================
 	my $self   = shift;

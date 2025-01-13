@@ -320,9 +320,7 @@ sub initialize {
 	# fresh (in case the division is edited; e.g. more athletes are added)
 	$self->{ rounds } = [ $self->rounds() ];
 
-	print STDERR "INIT STEP 1\n"; # MW
 	$self->method->initialize();
-	print STDERR "INIT STEP 2\n"; # MW
 }
 
 # ============================================================
@@ -487,13 +485,6 @@ sub read {
 			my ($score_round, $form, $judge, @score_criteria) = split /\t/;
 			$form  =~ s/f//; $form  = int( $form )  - 1; die "Division Configuration Error: Invalid form index '$form' $!"   unless $form  >= 0;
 
-			# Match number for Single Elimination and Side-by-Side
-			my $match = undef;
-			if( $score_round =~ /m(\d+)$/ ) {
-				$match = int( $1 ) - 1;
-				$score_round =~ s/m\d+$//;
-			}
-
 			# Scores are ordered by judge number (ref, 1, 2, etc.)
 			if    ( $judge =~ /^[jr]/ ) {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
@@ -508,7 +499,6 @@ sub read {
 				my $judges = $self->{ judges };
 				my $ar     = $self->reinstantiate_round( $round, $athlete );
 				$ar->record_score( $form, $judge, $score );
-				$ar->match( $match );
 
 			# Penalties for out-of-bounds (0.3 per error), time limit (0.3 for under or over), or athlete/coach misconduct (prohibited acts, no penalty)
 			} elsif ( $judge =~ /^p/ ) {
@@ -519,7 +509,6 @@ sub read {
 				my $judges    = $self->{ judges };
 				my $ar        = $self->reinstantiate_round( $round, $athlete );
 				$ar->record_penalties( $form, $penalties );
-				$ar->match( $match );
 
 			# Status notes describe athlete withdraw or disqualification
 			} elsif ( $judge =~ /^s/ ) {
@@ -528,7 +517,6 @@ sub read {
 				my $judges    = $self->{ judges };
 				my $ar        = $self->reinstantiate_round( $round, $athlete );
 				$ar->record_decision( $form, $_ ) foreach @$decision;
-				$ar->match( $match );
 			}
 
 		} else {
@@ -538,13 +526,9 @@ sub read {
 	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
 	close FILE;
 
-	print STDERR "READ STEP 1\n"; # MW
 	$self->initialize( $athletes, $order );
-	print STDERR "READ STEP 2\n"; # MW
 	$self->normalize();
-	print STDERR "READ STEP 3\n"; # MW
 	$self->update_status();
-	print STDERR "READ STEP 4\n"; # MW
 }
 
 # ============================================================

@@ -287,14 +287,8 @@ sub initialize {
 	my $div   = $self->{ division };
 	my $round = $div->{ round };
 
-	print STDERR "METHOD INIT STEP 1\n"; # MW
-	my $json = new JSON::XS(); # MW
-	print STDERR $json->canonical->pretty->encode( $self->matches->data()); # MW
-	print STDERR "METHOD INIT STEP 2\n"; # MW
-
 	$div->{ matches } = {} unless exists $div->{ matches };
 	$div->{ matches }{ $round } = $self->matches->data();
-	print STDERR "METHOD INIT STEP 3\n"; # MW
 }
 
 # ============================================================
@@ -305,7 +299,7 @@ sub matches {
 	my $round   = $div->{ round };
 	my $matches = $self->bracket( $round );
 
-	return new FreeScore::Forms::WorldClass::Method::SingleElimination::Matches( $matches, $self );
+	return new FreeScore::Forms::WorldClass::Method::SingleElimination::Matches( $self, $matches );
 }
 
 # ============================================================
