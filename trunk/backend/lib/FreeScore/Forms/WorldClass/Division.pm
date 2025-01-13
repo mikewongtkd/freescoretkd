@@ -334,6 +334,24 @@ sub is_flight {
 }
 
 # ============================================================
+sub matches_string {
+# ============================================================
+	my $self    = shift;
+	my $matches = {};
+
+	foreach my $round ($self->rounds()) {
+		my $method = $self->method( $round );
+		next if $method eq 'cutoff';
+		$matches->{ $round } = $self->matches( $round );
+	}
+
+	return '' if( int( keys %$matches) == 0 );
+
+	my $json = new JSON::XS();
+	return $json->canonical->encode( $matches );
+}
+
+# ============================================================
 sub method {
 # ============================================================
 	my $self   = shift;
@@ -431,11 +449,11 @@ sub read {
 				my ($key, $value) = split /=/;
 				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );   }
 				elsif ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
-				elsif ( $key eq 'method'      ) { $self->{ $key } = _parse_methods( $value );   }
+				elsif ( $key eq 'matches'     ) { $self->{ $key } = _parse_json( $value );   }
+				elsif ( $key eq 'method'      ) { $self->{ $key } = _parse_json( $value );   }
 				elsif ( $key eq 'order'       ) { $self->{ $key } = _parse_order( $value );   }
 				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );    }
 				elsif ( $key eq 'placement'   ) { $self->{ $key } = _parse_placement( $value ); }
-				elsif ( $key eq 'tiebreakers' ) { $self->{ $key } = _parse_forms( $value );     }
 				else                            { $self->{ $key } = $value;                                                         }
 
 				$round = $self->{ round } if( defined $self->{ round } );
@@ -827,6 +845,7 @@ sub write {
 	print FILE "# judges=$self->{ judges }\n";
 	print FILE "# autopilot=$self->{ autopilot }\n" if exists( $self->{ autopilot }) && defined( $self->{ autopilot } );
 	print FILE "# method=" . $self->method_string() . "\n" if exists( $self->{ method }) && $self->{ method } ne 'cutoff';
+	print FILE "# matches=" . $self->matches_string() . "\n" if exists( $self->{ matches }) && $self->{ matches };
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
@@ -1116,20 +1135,17 @@ sub _parse_forms {
 }
 
 # ============================================================
-sub _parse_methods {
+sub _parse_json {
 # ============================================================
-#** @function ( methods_text )
-#   @brief Parses serialized methods text, which is simply a string or JSON
-#   @details For use with 'method' header
+#** @function ( json_text )
+#   @brief Parses serialized json text, which is simply a string or JSON
+#   @details For use with 'matches' and 'method' header
 #*
 	my $value = shift;
 
-	if( $value =~ /^\{/ ) {
+	if( $value =~ /^(?:\{|\[)/ ) {
 		my $json = new JSON::XS();
 		return $json->decode( $value );
-
-	} elsif( $value =~ /^\[/ ) {
-		die "Database error: Cannot specify method as an array $!";
 
 	} else {
 		return $value;
