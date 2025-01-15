@@ -37,9 +37,11 @@ sub current {
 	my $self    = shift;
 	my $round   = $self->{ method }{ division }{ round };
 	my $athlete = $self->{ method }{ division }{ current };
-	my $current = first { $_->has( $athlete ) } @{$self->{ matches }};
+	my $i       = first_index { $_->has( $athlete ) } @{$self->{ matches }};
 
-	return $current;
+	die "Matches: No match found with athlete ID $athlete in round $round\n" if( $i < 0 );
+
+	return $self->{ matches }[ $i ];
 }
 
 # ============================================================

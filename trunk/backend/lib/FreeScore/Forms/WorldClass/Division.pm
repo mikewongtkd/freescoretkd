@@ -342,7 +342,7 @@ sub matches_string {
 	foreach my $round ($self->rounds()) {
 		my $method = $self->method( $round );
 		next if $method eq 'cutoff';
-		$matches->{ $round } = $self->matches( $round );
+		$matches->{ $round } = $self->method( $round )->matches->data();
 	}
 
 	return '' if( int( keys %$matches) == 0 );
@@ -974,11 +974,13 @@ sub next_available_athlete {
 	my $available = undef;
 	my @athletes  = $self->athletes_in_round();
 	my $searched  = 0;
+
 	do {
 		$self->{ current } = $self->athletes_in_round( 'next' );
 		$available = ! $self->reinstantiate_round( $round )->complete();
 		$searched++;
 	} while( ! $available && $searched < int( @athletes ));
+
 	$self->{ state } = 'score';
 	$self->{ form }  = 0;
 }

@@ -174,16 +174,14 @@ sub bracket {
 #** @method ( round )
 #   @brief Brackets the athletes into matches for the given round
 #*
-	my $self   = shift;
-	my $div    = $self->{ division };
-	my $rcode  = shift || $div->{ round };
-	my @order  = @{$div->{ order }{ $rcode }};
-	my $n      = int( @order ); # Number of athletes
-	my $k      = $#order;       # Index of last athlete
-	my $round  = $self->round( $rcode );
-
-	$div->{ matches } = {} unless exists $div->{ matches };
-	$div->{ matches }{ $rcode } = [] unless exists $div->{ matches }{ $rcode };
+	my $self    = shift;
+	my $div     = $self->{ division };
+	my $rcode   = shift || $div->{ round };
+	my @order   = @{$div->{ order }{ $rcode }};
+	my $n       = int( @order ); # Number of athletes
+	my $k       = $#order;       # Index of last athlete
+	my $round   = $self->round( $rcode );
+	my $bracket = [];
 
 	die "Database error: $n athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $n < $round->{ min } || $n > $round->{ max });
 
@@ -196,7 +194,7 @@ sub bracket {
 		next if( $i > $j );
 
 		my $match = [];
-		push @{ $div->{ matches }{ $rcode }}, $match;
+		push @$bracket, $match;
 
 		# Assign Chung athlete
 		my $chung = $order[ $i ];
@@ -210,7 +208,7 @@ sub bracket {
 		push @$match, $hong;
 	}
 
-	return $div->{ matches }{ $rcode };
+	return $bracket;
 }
 
 # ============================================================
@@ -235,8 +233,8 @@ sub calculate_winners {
 sub find_athlete {
 # ============================================================
 	my $self     = shift;
-	my $div      = $self->{ division };
 	my $option   = shift;
+	my $div      = $self->{ division };
 	my $round    = $div->{ round };
 	my $athletes = $div->order();
 	my $matches  = $self->matches();
