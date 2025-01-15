@@ -179,8 +179,16 @@ function Division( division ) {
 				return complete;
 			},
 			prelim   : function() { return division.round == 'prelim'; },
+			ro256    : function() { return division.round == 'ro256'; },
+			ro128    : function() { return division.round == 'ro128'; },
+			ro64     : function() { return division.round == 'ro64'; },
+			ro32     : function() { return division.round == 'ro32'; },
 			semfin   : function() { return division.round == 'semfin'; },
+			ro16     : function() { return division.round == 'ro16'; },
 			finals   : function() { return division.round == 'finals'; },
+			ro8      : function() { return division.round == 'ro8'; },
+			ro4      : function() { return division.round == 'ro4'; },
+			ro2      : function() { return division.round == 'ro2'; },
 			first    : function() { var sorted = $.grep( FreeScore.round.order, function( round ) { return round in division.order; } ); return division.round == sorted[ 0 ]; }
 		},
 		list : function() { return Object.keys( division.forms ); },

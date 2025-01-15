@@ -50,6 +50,7 @@
 		<script src="include/js/freescore.js"></script>
 		<script src="include/js/websocket.js"></script>
 		<script src="include/js/sound.js"></script>
+		<script src="include/js/event.js"></script>
 		<script src="include/js/app.js"></script>
 		<script src="include/js/client.js"></script>
 		<script src="include/js/date.format.js"></script>
@@ -101,10 +102,10 @@ body { background-color: black; color: gold; }
 
 			app.network.on
 				// ========================================
-				.response( 'division' )
+				.heard( 'division' )
 				// ========================================
-				.handle( 'read' )
-				.by( update => {
+				.command( 'update' )
+				.respond( update => {
 					app.refresh.roles( update );
 					app.refresh.rings( tournament );
 					app.refresh.actions();
