@@ -16,7 +16,7 @@
 <html>
 	<head>
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="css/coordinator.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />

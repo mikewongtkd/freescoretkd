@@ -8,14 +8,15 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 		<div class="navigate-division">
 			<h4>Division</h4>
 			<div class="list-group">
-				<a class="list-group-item" id="navigate-division"><span class="glyphicon glyphicon-play"></span><span id="navigate-division-label">Start Scoring this Division</span></a>
+				<a class="list-group-item" id="navigate-division"><span class="fas fa-play"></span><span id="navigate-division-label">Start Scoring this Division</span></a>
 			</div>
 		</div>
 
 		<div class="navigate-athlete">
 			<h4>Athlete</h4>
 			<div class="list-group">
-				<a class="list-group-item" id="navigate-athlete"><span class="glyphicon glyphicon-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
+				<a class="list-group-item" id="navigate-athlete"><span class="fas fa-play"></span><span id="navigate-athlete-label">Start Scoring this Athlete</span></a>
+				<a class="list-group-item" id="deselect-athlete"><span class="fas fa-mouse-pointer"></span>Cancel</a>
 			</div>
 		</div>
 
@@ -39,6 +40,9 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 				prev: this.dom.find( '#navigate-prev-round' )
 			}
 		};
+		this.button.deselect = {
+			athlete  : this.dom.find( '#deselect-athlete' )
+		};
 		this.display.nav      = {
 			athlete  : this.dom.find( '.navigate-athlete' ),
 			division : this.dom.find( '.navigate-division' ),
@@ -56,7 +60,11 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 				this.button.nav.athlete.off( 'click' ).click( ev => {
 					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'athlete', index: athlete.id }});
 					this.display.nav.athlete.hide();
-					this.sound.next.play();
+					this.sound.ok.play();
+				});
+				this.button.deselect.athlete.off( 'click' ).click( ev => {
+					this.sound.prev.play();
+					this.event.trigger( 'athlete-deselect' );
 				});
 			},
 			division : divid => {

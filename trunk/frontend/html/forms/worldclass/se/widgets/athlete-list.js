@@ -4,7 +4,7 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.division = { header : $( '#division-header' ) };
-		this.display.athlete  = { list : this.dom };
+		this.display.match    = { list : this.dom };
 
 		// ===== ADD STATE
 		this.state.division  = { show : null };
@@ -18,54 +18,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.athlete = {
-			list : () => {
-				let division = this.state.division.shown();
-				if( ! defined( division )) { return; }
-
-				// ===== POPULATE THE ATHLETE LIST
-				let round = division.current.roundId();
-				this.display.athlete.list.empty();
-				division.current.athletes( round ).forEach(( athlete, aid ) => {
-					let score     = athlete.score( round ); 
-					let form      = division.current.formId();
-					let button    = html.a.clone().addClass( "list-group-item" ).attr({ 'data-athlete-id' : aid });
-					let name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-					let penalties = html.span.clone().addClass( "athlete-penalties" ).html( this.refresh.athlete.penalty.icons( athlete, round, form ));
-					let total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
-					let current   = parseInt( division.current.athleteId());
-					let k         = division.current.formId();
-					let id        = athlete.id();
-					let shown     = division.name() == this.state.division.show;
-
-					// ===== CURRENT ATHLETE
-					if( id == current && shown ) { 
-						button.addClass( "active" ); 
-						button.off( 'click' ).click(( ev ) => { 
-							this.display.athlete.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
-							this.event.trigger( 'athlete-deselect' );
-						});
-
-					// ===== ATHLETE IN CURRENT DIVISION
-					} else if( shown ) {
-						if( id == division.next.athleteId() ) { button.addClass( "on-deck" ); } // Athlete on deck
-						button.off( 'click' ).click(( ev ) => { 
-							var target = $( ev.target );
-							if( ! target.is( 'a' )) { target = target.parents( 'a' ); }
-							this.sound.next.play(); 
-							this.display.athlete.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
-							target.addClass( 'selected-athlete' ); 
-							this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' )});
-						});
-
-					// ===== ATHLETE IN ANOTHER DIVISION
-					} else {
-						button.off( 'click' );
-					}
-					button.append( name, penalties, total );
-					this.display.athlete.list.append( button );
-				});
-
-			},
 			penalty : {
 				icons : ( athlete, round, form ) => {
 					let penalties = athlete.penalties( round, form );
@@ -83,7 +35,64 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 					}).join( '&nbsp;' );
 				}
 			}
-		}
+		};
+		this.refresh.match = {
+			list : () => {
+				let division = this.state.division.shown();
+				if( ! defined( division )) { return; }
+
+				// ===== POPULATE THE ATHLETE LIST
+				let round = division.current.roundId();
+				let start = division.prev.rounds()?.map( r => division.matches( r )?.length )?.reduce(( a, c ) => a += c, 0 );
+				this.display.match.list.empty();
+				division.matches( round ).forEach( match => {
+					this.display.match.list.append( `<div class="list-group-item match-number">Match ${match.number + start}</div>` );
+					match.order.forEach( aid => {
+						let athlete   = new Athlete( division.data().athletes[ aid ]);
+						let score     = athlete.score( round ); 
+						let form      = division.current.formId();
+						let button    = html.a.clone().addClass( "list-group-item" ).attr({ 'data-athlete-id' : aid });
+						let name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
+						let penalties = html.span.clone().addClass( "athlete-penalties" ).html( this.refresh.athlete.penalty.icons( athlete, round, form ));
+						let total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
+						let current   = parseInt( division.current.athleteId());
+						let k         = division.current.formId();
+						let id        = athlete.id();
+						let shown     = division.name() == this.state.division.show;
+
+						if(      match.chung == id ) { button.addClass( 'chung' ); }
+						else if( match.hong  == id ) { button.addClass( 'hong' ); }
+
+						// ===== CURRENT ATHLETE
+						if( id == current && shown ) { 
+							button.addClass( "active" ); 
+							button.off( 'click' ).click(( ev ) => { 
+								this.sound.prev.play();
+								this.event.trigger( 'athlete-deselect' );
+							});
+
+						// ===== ATHLETE IN CURRENT DIVISION
+						} else if( shown ) {
+							if( id == division.next.athleteId() ) { button.addClass( "on-deck" ); } // Athlete on deck
+							button.off( 'click' ).click(( ev ) => { 
+								var target = $( ev.target );
+								if( ! target.is( 'a' )) { target = target.parents( 'a' ); }
+								this.sound.next.play(); 
+								this.display.match.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
+								target.addClass( 'selected-athlete' ); 
+								this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' )});
+							});
+
+						// ===== ATHLETE IN ANOTHER DIVISION
+						} else {
+							button.off( 'click' );
+						}
+						button.append( name, penalties, total );
+						this.display.match.list.append( button );
+					});
+				});
+			}
+		};
 
 		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
 		this.network.on
@@ -99,7 +108,7 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				if((! this.state.division.show) && this.app.page.num == 2 ) {
 					this.app.page.transition();
 				}
-				this.refresh.athlete.list();       
+				this.refresh.match.list();       
 			})
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
@@ -119,15 +128,19 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				// Refresh the athlete list if this is the division being shown;
 				// otherwise simply update in the background.
 				if( division.name != this.state.division.show ) { return; }
-				this.refresh.athlete.list();
+				this.refresh.match.list();
 			})
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
 		this.event
+			.listen( 'athlete-deselect' )
+				.respond(( type, source, message ) => {
+					this.display.match.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
+				})
 			.listen( 'division-show' )
 				.respond(( type, source, message ) => {
 					this.state.division.show = message.divid;
-					this.refresh.athlete.list();
+					this.refresh.match.list();
 				});
 	}
 }

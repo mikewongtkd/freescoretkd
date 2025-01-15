@@ -39,18 +39,18 @@ function Division( division ) {
 		json : function() { return JSON.stringify( division ); },
 	};
 
-	var _current = this.current = {
+	let _current = this.current = {
 		athlete : function() {
-			var i = parseInt( division.current );
+			let i = parseInt( division.current );
 			return new Athlete( division.athletes[ i ] );
 		},
 		athletes : function( round ) {
-			var athletes = [];
+			let athletes = [];
 			round = defined( round ) ? round : division.round;
 			if( ! defined( division.order[ round ] )) { return athletes; }
 
-			for( var i = 0; i < division.order[ round ].length; i++ ) {
-				var j = division.order[ round ][ i ];
+			for( let i = 0; i < division.order[ round ].length; i++ ) {
+				let j = division.order[ round ][ i ];
 				athletes.push( new Athlete( division.athletes[ j ] ));
 			}
 
@@ -59,11 +59,11 @@ function Division( division ) {
 		athleteId : function() { return parseInt( division.current ); },
 		form : {
 			description : function() {
-				var round       = division.round;
-				var form        = division.form;
-				var forms       = division.forms[ round ];
-				var name        = division.forms[ round ][ form ];
-				var description = forms.length > 1 ? ordinal( parseInt( form ) + 1 ) + ' form ' + name : name;
+				let round       = division.round;
+				let form        = division.form;
+				let forms       = division.forms[ round ];
+				let name        = division.forms[ round ][ form ];
+				let description = forms.length > 1 ? ordinal( parseInt( form ) + 1 ) + ' form ' + name : name;
 				return description;
 			},
 			is : {
@@ -75,9 +75,16 @@ function Division( division ) {
 			},
 		},
 		formId    : function() { return parseInt( division.form ); },
+		match: ( round = null ) => {
+			let current = division.current;
+			let matches = this.matches( round );
+			let match   = matches.find( match => match?.order?.includes( current ));
+
+			return match;
+		},
 		order : function( i ) {
-			var round = division.round;
-			var order = division.order;
+			let round = division.round;
+			let order = division.order;
 			if( defined( i )) { return order[ round ][ i ]; }
 			else              { return order[ round ]; }
 		},
@@ -88,36 +95,42 @@ function Division( division ) {
 		roundId : function() { return division.round; }
 	};
 
-	var _next = this.next = {
+	let _next = this.next = {
 		athleteId: function() {
-			var round = division.round
-			var order = division.order[ round ];
-			var i     = division.current;
-			var j     = order.findIndex( function( athleteId ) { return athleteId == i; });
+			let round = division.round
+			let order = division.order[ round ];
+			let i     = division.current;
+			let j     = order.findIndex( function( athleteId ) { return athleteId == i; });
 			return order[ j + 1 ];
 		},
 		round: function() {
-			var round = division.round;
-			var next  = { 'prelim' : 'semfin', 'semfin' : 'finals', 'finals' : undefined };
+			let round = division.round;
+			let next  = { 'prelim' : 'semfin', 'semfin' : 'finals', 'finals' : undefined };
 			return next[ round ];
 		}
 	};
 
 	// ============================================================
-	var _form = this.form = {
+	let _form = this.form = {
 	// ============================================================
 
 		count: function( round ) {
 			round = defined( round ) ? round : division.round;
-			var forms = division.forms[ round ];
+			let forms = division.forms[ round ];
 			if( defined( forms )) { return forms.length; }
 			else { return 0; }
 		},
 		list : function( round = null ) {
 			round = defined( round ) ? round : division.round;
-			var forms = division.forms[ round ];
+			let forms = division.forms[ round ];
 			return forms;
 		}
+	};
+
+	this.matches = ( round = null ) => {
+		round = round === null ? division.round : round;
+		if( ! defined( division?.matches?.[ round ])) { return []; }
+		return division.matches[ round ];
 	};
 
 	this.pending = function( round = null ) { 
@@ -131,25 +144,39 @@ function Division( division ) {
 		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	}
 
-	var _prev = this.prev = {
+	let _prev = this.prev = {
 		round: function() {
-			var round = division.round;
-			var next  = { 'prelim' : undefined, 'semfin' : 'prelim', 'finals' : 'semfin' };
+			let round = division.round;
+			let next  = { 'prelim' : undefined, 'semfin' : 'prelim', 'finals' : 'semfin' };
 			return next[ round ];
+		},
+
+		rounds: () => {
+			let current  = division.round;
+			let previous = [];
+			let rounds   = this.rounds();
+			let skip     = false;
+			rounds.forEach( round => {
+				if( round == current ) { skip = true; }
+				if( skip ) { return; }
+				previous.push( round );
+			});
+
+			return previous;
 		}
 	};
 
 	// ============================================================
-	var _is = this.is = {
+	let _is = this.is = {
 	// ============================================================
 		complete : () => {
 			if( this.is.flight() && (division.flight.state == 'complete' || division.flight.state == 'merged')) { return true; }
 
-			var rounds     = this.rounds();
-			var complete   = true;
+			let rounds     = this.rounds();
+			let complete   = true;
 			rounds.forEach(( round ) => {
-				var athletes   = this.current.athletes( round );
-				var arePending = function( athlete ) { var score = athlete.score( round ); return ! score.is.complete(); };
+				let athletes   = this.current.athletes( round );
+				let arePending = function( athlete ) { let score = athlete.score( round ); return ! score.is.complete(); };
 				complete = complete && ! athletes.some( arePending );
 			});
 
@@ -161,19 +188,20 @@ function Division( division ) {
 	};
 
 	// ============================================================
-	var _round = this.round = {
+	let _round = this.round = {
 	// ============================================================
 
 		count : function() { return Object.keys( division.forms ).length; },
 		id : () => { return division.round; },
 		is : {
 			complete : function( round ) {
-				var athletes = _current.athletes();
-				var round    = defined( round ) ? round : division.round;
-				var complete = true;
-				for( var i = 0; i < athletes.length; i++ ) {
-					var athlete = athletes[ i ];
-					var score   = athlete.score( round );
+				round = defined( round ) ? round : division.round;
+
+				let athletes = _current.athletes();
+				let complete = true;
+				for( let i = 0; i < athletes.length; i++ ) {
+					let athlete = athletes[ i ];
+					let score   = athlete.score( round );
 					complete &= score.is.complete();
 				}
 				return complete;
@@ -189,16 +217,17 @@ function Division( division ) {
 			ro8      : function() { return division.round == 'ro8'; },
 			ro4      : function() { return division.round == 'ro4'; },
 			ro2      : function() { return division.round == 'ro2'; },
-			first    : function() { var sorted = $.grep( FreeScore.round.order, function( round ) { return round in division.order; } ); return division.round == sorted[ 0 ]; }
+			first    : function() { let rounds = this.rounds(); return division.round == rounds[ 0 ]; },
+			last     : function() { let rounds = this.rounds(); return division.round == rounds[ rounds.length - 1 ]; }
 		},
 		list : function() { return Object.keys( division.forms ); },
 		matches : function( round ) { return division.round == round; },
 		name : function() { return FreeScore.round.name[ division.round ]; },
 	};
 
-	this.rounds = function() { return $.grep( FreeScore.round.order, function( round ) { return round in division.order; }); };
+	this.rounds = () => FreeScore.round.order.filter( round => defined( division?.order?.[ round ]))
 
-	var _state = this.state = {
+	let _state = this.state = {
 		is : {
 			score   : function() { return division.state == 'score'; },
 			display : function() { return division.state == 'display'; },

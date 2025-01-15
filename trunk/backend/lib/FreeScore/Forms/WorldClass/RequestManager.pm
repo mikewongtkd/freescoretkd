@@ -114,17 +114,11 @@ sub handle_division_award_punitive {
 	print STDERR $message if $DEBUG;
 
 	try {
-		print STDERR "RM AWARD PUNITIVE STEP 1\n"; # MW
 		$version->checkout( $division);
-		print STDERR "RM AWARD PUNITIVE STEP 2\n"; # MW
 		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
-		print STDERR "RM AWARD PUNITIVE STEP 3\n"; # MW
 		$division->next_available_athlete() unless $request->{ decision } eq 'clear';
-		print STDERR "RM AWARD PUNITIVE STEP 4\n"; # MW
 		$division->write();
-		print STDERR "RM AWARD PUNITIVE STEP 5\n"; # MW
 		$version->commit( $division, $message );
-		print STDERR "RM AWARD PUNITIVE STEP 6\n"; # MW
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
