@@ -50,7 +50,7 @@ sub data {
 	my $self = shift;
 	my $data = unbless( $self->clone());
 	foreach my $match (@{$data->{ matches }}) {
-		delete $match->{ method };
+		delete $match->{ matches }; # Break self-referential circles
 	}
 
 	return $data->{ matches };

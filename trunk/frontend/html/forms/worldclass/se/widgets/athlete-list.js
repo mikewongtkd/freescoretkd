@@ -46,7 +46,10 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				let start = division.prev.rounds()?.map( r => division.matches( r )?.length )?.reduce(( a, c ) => a += c, 0 );
 				this.display.match.list.empty();
 				division.matches( round ).forEach( match => {
-					this.display.match.list.append( `<div class="list-group-item match-number">Match ${match.number + start}</div>` );
+					let mid  = `${round}-${match.number}`;
+					let mnum = parseInt( match.number ) + parseInt( start );
+					this.display.match[ mid ] = $( `<div class="list-group-item match-number">Match ${mnum}</div>` );
+					this.display.match.list.append( this.display.match[ mid ]);
 					match.order.forEach( aid => {
 						let athlete   = new Athlete( division.data().athletes[ aid ]);
 						let score     = athlete.score( round ); 
@@ -60,6 +63,7 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 						let id        = athlete.id();
 						let shown     = division.name() == this.state.division.show;
 
+						if( match.order.includes( current )) { this.display.match[ mid ].addClass( 'active' ); } else { this.display.match[ mid ].removeClass( 'active' ); }
 						if(      match.chung == id ) { button.addClass( 'chung' ); }
 						else if( match.hong  == id ) { button.addClass( 'hong' ); }
 
@@ -73,7 +77,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 						// ===== ATHLETE IN CURRENT DIVISION
 						} else if( shown ) {
-							if( id == division.next.athleteId() ) { button.addClass( "on-deck" ); } // Athlete on deck
 							button.off( 'click' ).click(( ev ) => { 
 								var target = $( ev.target );
 								if( ! target.is( 'a' )) { target = target.parents( 'a' ); }

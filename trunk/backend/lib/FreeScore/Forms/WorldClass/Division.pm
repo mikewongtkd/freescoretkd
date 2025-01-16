@@ -342,7 +342,8 @@ sub matches_string {
 	foreach my $round ($self->rounds()) {
 		my $method = $self->method( $round );
 		next if $method eq 'cutoff';
-		$matches->{ $round } = $self->method( $round )->matches->data();
+		next unless exists $self->{ order }{ $round };
+		$matches->{ $round } = $self->method( $round )->matches( $round )->data();
 	}
 
 	return '' if( int( keys %$matches) == 0 );

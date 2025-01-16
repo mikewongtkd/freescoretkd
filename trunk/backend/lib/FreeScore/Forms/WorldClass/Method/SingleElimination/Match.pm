@@ -18,13 +18,13 @@ sub init {
 	my $self     = shift;
 	my $athletes = shift;
 	my $number   = shift;
-	my $method   = shift;
+	my $matches  = shift;
 
-	$self->{ order }  = $athletes;
-	$self->{ chung  } = $athletes->[ 0 ];
-	$self->{ hong  }  = $athletes->[ 1 ];
-	$self->{ number } = $number;
-	$self->{ method } = $method;
+	$self->{ order }   = $athletes;
+	$self->{ chung  }  = $athletes->[ 0 ];
+	$self->{ hong  }   = $athletes->[ 1 ];
+	$self->{ number }  = $number;
+	$self->{ matches } = $matches;
 }
 
 # ============================================================
@@ -133,7 +133,7 @@ sub valid {
 sub winner {
 # ============================================================
 	my $self   = shift;
-	my $method = $self->{ method };
+	my $method = $self->{ matches }{ method };
 	my $order  = $self->{ order };
 	my $round  = $method->round();
 	my $rcode  = $round->{ code };
@@ -151,9 +151,9 @@ sub winner {
 		$x->compare( $y );
 	} @$order;
 
-	if( $div->reinstantiate_round( $rcode, $winner )->any_punitative_decision()) {
+	if( $div->reinstantiate_round( $rcode, $winner )->any_punitive_decision()) {
 		return -1 if $loser < 0;
-		return -1 if( $div->reinstantiate_round( $rcode, $loser )->any_punitative_decision());
+		return -1 if( $div->reinstantiate_round( $rcode, $loser )->any_punitive_decision());
 
 		return $loser if( $loser >= 0 );
 	}

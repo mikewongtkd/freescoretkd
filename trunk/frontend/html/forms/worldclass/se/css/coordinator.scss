@@ -105,6 +105,13 @@ html, body {
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
       text-align: center;
+
+      &.active {
+        background-color: gold;
+        border-color: orange;
+        color: black;
+        font-weight: bold;
+      }
     }
 
 	.list-group-item {
@@ -228,9 +235,9 @@ a.active {
 }
 
 .on-deck .athlete-name:before {
-    text-align: right;
+    text-align: center;
 	content: 'Next';
-	color: #aaa;
+	color: #333;
 }
 
 .selected-athlete {
