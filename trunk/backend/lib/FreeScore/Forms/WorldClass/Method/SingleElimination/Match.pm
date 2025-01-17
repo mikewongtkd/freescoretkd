@@ -1,6 +1,7 @@
 package FreeScore::Forms::WorldClass::Method::SingleElimination::Match;
 use List::Util qw( all any );
 use FreeScore::Forms::WorldClass::Division::Round;
+use Data::Dumper;
 
 # ============================================================
 sub new {
@@ -52,7 +53,8 @@ sub complete {
 	my $order    = $self->{ order };
 	my $round    = $self->method->round();
 	my $div      = $self->method->division();
-	my $complete = all { $div->reinstantiate_round( $round, $_ )->complete(); } @$order;
+	my $rcode    = $round->{ code };
+	my $complete = all { $div->reinstantiate_round( $rcode, $_ )->complete(); } @$order;
 	return $complete;
 }
 

@@ -6,6 +6,7 @@ use List::Util qw( any );
 use List::MoreUtils qw( first_index );
 use Data::Dumper;
 
+our $DEBUG  = 1;
 our @rounds = (
 	{ code => 'ro256', name => 'Round of 256',  matches => 128, min => 129, max => 256 },
 	{ code => 'ro128', name => 'Round of 128',  matches => 64,  min => 65,  max => 128 },
@@ -80,7 +81,8 @@ sub autopilot_steps {
 	my $progress = shift;
 	my $group    = shift;
 	my $div      = $self->{ division };
-	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
+	#	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
+	my $pause    = { score => 2, leaderboard => 2, brief => 1 }; # MW FOR DEBUGGING PURPOSES
 	my $round    = $div->{ round };
 	my $order    = $div->{ order }{ $round };
 	my $forms    = $div->{ forms }{ $round };
@@ -102,6 +104,11 @@ sub autopilot_steps {
 
 	$last->{ chung }{ form } = $last->{ form } && $just_performed->{ chung };
 	$last->{ hong }{ form }  = $last->{ form } && $just_performed->{ hong };
+
+	print STDERR "SE AUTOPILOT last:\n"; # MW
+	print STDERR Dumper $last; # MW
+	print STDERR "SE AUTOPILOT just_performed\n"; # MW
+	print STDERR Dumper $just_performed; # MW
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -140,11 +147,13 @@ sub autopilot_steps {
 					chung => ! $last->{ form } && $just_performed->{ hong },
 					hong  => $just_performed->{ chung },
 					next  => {
-						round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
+						round   =>  $matches->current->complete() && ! $last->{ round },
 						match   =>  $last->{ hong }{ form } && ! $last->{ match },
 						form    =>  $first->{ hong }
 					}
 				};
+				print STDERR "SE AUTOPILOT go:\n"; # MW
+				print STDERR Dumper $go; # MW
 
 				# ===== ATHLETE NAVIGATION
 				if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current->chung() ); }

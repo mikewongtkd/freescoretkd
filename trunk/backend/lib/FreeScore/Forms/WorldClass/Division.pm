@@ -613,8 +613,10 @@ sub reinstantiate_round {
 	my $i          = shift || $self->{ current }; # Athlete index or reference to Athlete
 	my $athlete    = ref $i ? $i : $self->{ athletes }[ $i ];
 	my $judges     = $self->{ judges };
-	my @compulsory = @{ $self->{ forms }{ $round }};
+	my @compulsory = exists $self->{ forms }{ $round } && $self->{ forms }{ $round } ? @{ $self->{ forms }{ $round }} : ();
 	my $forms      = int( @compulsory );
+
+	die "No forms defined for $round $!" unless $forms;
 
 	return $athlete->{ scores }{ $round } = FreeScore::Forms::WorldClass::Division::Round::reinstantiate( $athlete->{ scores }{ $round }, $forms, $judges );
 }
