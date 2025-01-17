@@ -36,6 +36,22 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				}
 			}
 		};
+		this.refresh.division = {
+			cache : update => {
+				let division = update?.division;
+				if( ! defined( division )) { return; }
+				
+				// Update the cache
+				let found = this.state.divisions.findIndex( div => div.name == division.name );
+				if( found < 0 ) { 
+					// Not in the cache -> add the division to the cache
+					this.state.divisions.push( division ); 
+				} else {
+					// In the cache -> replace the existing entry
+					this.state.divisions.splice( found, 1, division );
+				}
+			}
+		};
 		this.refresh.match = {
 			list : () => {
 				let division = this.state.division.shown();
@@ -97,10 +113,8 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 			}
 		};
 
-		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
-		this.network.on
-		.heard( 'ring' )
-			.command( 'update' ).respond( update => { 
+		this.refresh.ring = {
+			cache : update => {
 				let ring = update?.ring;
 				if( ! defined( ring )) { return; }
 
@@ -108,6 +122,15 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				if( ! defined( divisions )) { return; }
 
 				this.state.divisions = divisions;
+			}
+		};
+
+		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
+		this.network.on
+		.heard( 'ring' )
+			.command( 'update' ).respond( update => { 
+				this.refresh.ring.cache( update );
+
 				if((! this.state.division.show) && this.app.page.num == 2 ) {
 					this.app.page.transition();
 				}
@@ -115,24 +138,27 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 			})
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
+				this.refresh.division.cache( update );
 				let division = update?.division;
-				if( ! defined( division )) { return; }
-				
-				// Update the cache
-				let found = this.state.divisions.findIndex( div => div.name == division.name );
-				if( found < 0 ) { 
-					// Not in the cache -> add the division to the cache
-					this.state.divisions.push( division ); 
-				} else {
-					// In the cache -> replace the existing entry
-					this.state.divisions.splice( found, 1, division );
-				}
 
 				// Refresh the athlete list if this is the division being shown;
 				// otherwise simply update in the background.
-				if( division.name != this.state.division.show ) { return; }
+				if( division?.name != this.state.division.show ) { return; }
 				this.refresh.match.list();
 			})
+		.heard( 'autopilot' )
+			.command( 'update' ).respond( update => {
+				let action = update?.request?.action;
+				if( action != 'next' ) { return; }
+
+				this.refresh.division.cache( update );
+				let division = update?.division;
+
+				// Refresh the athlete list if this is the division being shown;
+				// otherwise simply update in the background.
+				if( division?.name != this.state.division.show ) { return; }
+				this.refresh.match.list();
+			});
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
 		this.event

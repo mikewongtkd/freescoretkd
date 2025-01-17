@@ -30,13 +30,16 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
 		this.network.on
-		.heard( 'division' )
-			.command( 'update' )      .respond( update => { if( update?.division?.autopilot == 'on' ) { this.refresh.status( update, 'Engaged' ); }})
 		.heard( 'autopilot' )
-			.command( 'scoreboard' )  .respond( update => { this.refresh.status( update, 'Showing Score' );       })
-			.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
-			.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })
-			.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
+			.command( 'update' )
+				.respond( update => { 
+					let action = update?.request?.action;
+					switch( action ) {
+						case 'scoreboard'  : this.refresh.status( update, 'Showing Score'       ); break;
+						case 'leaderboard' : this.refresh.status( update, 'Showing Leaderboard' ); break;
+						case 'next'        : this.refresh.status( update, 'Advancing'           ); break;
+					}
+				});
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
 		this.event.listen( 'division-show' )

@@ -87,7 +87,6 @@ sub autopilot_steps {
 	my $j        = first_index { $_ == $div->{ current } } @$order;
 	my $matches  = $self->matches();
 
-	print STDERR "SE AUTOPILOT STEPS: STEP 1\nlast:\n"; # MW
 	my $last = {
 		match   => $matches->current->is_last(),
 		athlete => $div->{ current } == $matches->current->last_athlete(),
@@ -95,88 +94,81 @@ sub autopilot_steps {
 		round   => ($div->{ round } eq 'ro2'),
 		cycle   => (!(($j + 1) % 2)),
 	};
-	print STDERR Dumper $last; # MW
 
-	print STDERR "SE AUTOPILOT STEPS: STEP 2\n"; # MW
-	print STDERR "current athlete: $div->{ current }\n"; # MW
-	print STDERR "chung athlete: " . $matches->current->chung() . "\n"; # MW
-	print STDERR "hong athlete: " . $matches->current->hong() . "\n"; # MW
-	print STDERR "just_performed:\n"; # MW
 	my $just_performed = {
 		chung => $matches->current->chung() == $div->{ current },
 		hong  => $matches->current->hong()  == $div->{ current }
 	};
-	print STDERR Dumper $just_performed; # MW
 
-	print STDERR "SE AUTOPILOT STEPS: STEP 3\nlast:\n"; # MW
 	$last->{ chung }{ form } = $last->{ form } && $just_performed->{ chung };
 	$last->{ hong }{ form }  = $last->{ form } && $just_performed->{ hong };
 
-	print STDERR Dumper $last;
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
-	my $show = {
-		score => sub { # Display the athlete's score for 9 seconds
-			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
-			$request->{ action } = 'match';
-			$rm->broadcast_updated_division( $request, $progress, $group );
+	my $step = {
+		show => {
+			score => sub { # Display the athlete's score for 9 seconds
+				my $delay = shift;
+				Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
+				$request = { type => 'autopilot', action => 'scoreboard', delay => $pause->{ score }};
+				$rm->broadcast_updated_division( $request, $progress, $group );
 
+			},
+			leaderboard => sub { 
+				my $delay = shift;
+
+				die "Disengaging autopilot\n" unless $div->autopilot();
+
+				print STDERR "Showing leaderboard.\n" if $DEBUG;
+				$div->display() unless $div->is_display(); 
+				$div->write(); 
+				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
+				$request = { type => 'autopilot', action => 'leaderboard', delay => $pause->{ leaderboard }};
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			},
 		},
-		leaderboard => sub { 
-			my $delay = shift;
+		go => {
+			next => sub { # Advance to the next form/athlete/match/round
+				my $delay = shift;
 
-			die "Disengaging autopilot\n" unless $div->autopilot();
+				die "Disengaging autopilot\n" unless $div->autopilot();
+				print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
-			print STDERR "Showing leaderboard.\n" if $DEBUG;
-			$div->display() unless $div->is_display(); 
-			$div->write(); 
-			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
-			$request->{ action } = 'leaderboard';
-			$rm->broadcast_updated_division( $request, $progress, $group );
-		},
-		next => sub { # Advance to the next form/athlete/match/round
-			my $delay = shift;
+				# Go to X => after Y
+				my $go = {
+					chung => ! $last->{ form } && $just_performed->{ hong },
+					hong  => $just_performed->{ chung },
+					next  => {
+						round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
+						match   =>  $last->{ hong }{ form } && ! $last->{ match },
+						form    =>  $first->{ hong }
+					}
+				};
 
-			die "Disengaging autopilot\n" unless $div->autopilot();
-			print STDERR "Advancing the division to next item.\n" if $DEBUG;
+				# ===== ATHLETE NAVIGATION
+				if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current->chung() ); }
+				elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current->hong() ); }
 
-			# Go to X => after Y
-			my $go = {
-				chung => ! $last->{ form } && $just_performed->{ hong },
-				hong  => $just_performed->{ chung },
-				next  => {
-					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
-					match   =>  $last->{ hong }{ form } && ! $last->{ match },
-					form    =>  $first->{ hong }
-				}
-			};
+				# ===== FORM/MATCH/ROUND NAVIGATION
+				if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first->first_athlete(); $div->first_form(); }
+				elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next->first_athlete() ); $div->first_form(); }
+				elsif ( $go->{ next }{ form })  { $div->next_form(); }
+				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
+				$div->write();
 
-			# ===== ATHLETE NAVIGATION
-			if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current->chung() ); }
-			elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current->hong() ); }
-
-			# ===== FORM/MATCH/ROUND NAVIGATION
-			if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first->first_athlete(); $div->first_form(); }
-			elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next->first_athlete() ); $div->first_form(); }
-			elsif ( $go->{ next }{ form })  { $div->next_form(); }
-			$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
-			$div->write();
-
-			$request->{ action } = 'next';
-			$rm->broadcast_updated_division( $request, $progress, $group );
+				$request = { type => 'autopilot', action => 'next', delay => $pause->{ brief }};
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			}
 		}
 	};
 
-	print STDERR "SE AUTOPILOT STEPS: STEP 4\n"; # MW
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 	push @steps, $step->{ go }{ next };
 
-	print STDERR "SE AUTOPILOT STEPS: STEP 5\n"; # MW
 	return @steps;
 }
 
