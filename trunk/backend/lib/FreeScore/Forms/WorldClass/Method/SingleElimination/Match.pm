@@ -37,6 +37,18 @@ sub chung {
 }
 
 # ============================================================
+sub complete {
+# ============================================================
+	my $self     = shift;
+	my $method   = $self->{ matches }{ method };
+	my $order    = $self->{ order };
+	my $round    = $method->round();
+	my $rcode    = $round->{ code };
+	my $div      = $method->division();
+	my $complete = all { $div->reinstantiate_round( $rcode, $_ )->complete(); } @$order;
+}
+
+# ============================================================
 sub contested {
 # ============================================================
 	my $self  = shift;
@@ -111,9 +123,12 @@ sub uncontested_winner {
 # ============================================================
 	my $self  = shift;
 	my $order = $self->{ order };
-	return undef unless $self->uncontested();
+	return undef if $self->contested();
 
+	# If there's only one athlete in the match then that athlete wins
 	return $order->[ 0 ] if( int( @$order ) == 1 && all { $_ >= 0 } @$order);
+
+	# If there's two athletes but one was previously DSQ'd or WDR'n then the other wins
 	if( int( @$order ) == 2 ) {
 		return $order->[ 0 ] if( $order->[ 1 ] < 0 );
 		return $order->[ 1 ] if( $order->[ 0 ] < 0 );
@@ -139,25 +154,48 @@ sub winner {
 	my $rcode  = $round->{ code };
 	my $div    = $method->division();
 
+	# If all four athletes from the previous two matches are DSQ'd or WDR'n
+	return -1 if all { $_ < 0 } @$order;
+
+	print STDERR "MATCH WINNER STEP 1\n"; # MW
 	if( $self->uncontested()) {
 		print STDERR "Match is uncontested \n";
-		return $self->uncontested_winner();
+
+		my $winner = $self->uncontested_winner();
+		if( $winner ) {
+			$self->{ winner } = $winner;
+			return $winner;
+
+		} else {
+			return -1;
+		}
 	}
 
+	print STDERR "MATCH WINNER STEP 2\n"; # MW
 	my ($winner, $loser) = sort {
 		my $x = $div->reinstantiate_round( $rcode, $a );
 		my $y = $div->reinstantiate_round( $rcode, $b );
 
 		$x->compare( $y );
 	} @$order;
+	print STDERR "MATCH WINNER winner: $winner, loser: $loser\n"; # MW
 
-	if( $div->reinstantiate_round( $rcode, $winner )->any_punitive_decision()) {
+	my $punitive = {
+		winner => $winner < 0 ? 0 : $div->reinstantiate_round( $rcode, $winner )->any_punitive_decision(),
+		loser  => $loser  < 0 ? 0 : $div->reinstantiate_round( $rcode, $loser )->any_punitive_decision()
+	};
+	print STDERR "MATCH WINNER winner punitive: '$punitive->{ winner }', loser punitive: '$punitive->{ loser }'\n"; # MW
+	if( $punitive->{ winner }) {
 		return -1 if $loser < 0;
-		return -1 if( $div->reinstantiate_round( $rcode, $loser )->any_punitive_decision());
+		return -1 if( $punitive->{ loser });
 
-		return $loser if( $loser >= 0 );
+		# Loser wins if the winner is DSQ'd or WDR'n
+		$self->{ winner } = $loser;
+		return $loser;
 	}
+	print STDERR "MATCH WINNER STEP 3\n"; # MW
 
+	$self->{ winner } = $winner;
 	return $winner;
 }
 

@@ -276,7 +276,8 @@ a.active .athlete-name:before {
   text-align: center;
   content: "➡";
   color: gold;
-  font-size: 20pt;
+  font-size: 18pt;
+  line-height: 10pt;
 }
 a.active.chung {
   background-color: #337ab7 !important;

@@ -81,6 +81,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 			},
 			round : division => {
 				// ===== GET ROUNDS
+				let div    = new Division( division );
 				let rounds = division?.rounds;
 				let order  = division?.order;
 
@@ -119,7 +120,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 
 				if( ! this.button.nav.round.next.hasClass( 'disabled' ))     { 
 					let round = rounds[ i + 1 ];
-					if( round in order ) {
+					if( round in order && div.round.is.complete( round )) {
 						this.button.nav.round.next.off( 'click' ).click( ev => {
 							this.sound.next.play();
 							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});

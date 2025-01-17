@@ -791,14 +791,12 @@ sub round_complete {
 	my $order = $self->{ order }{ $round };
 	return 0 unless( defined $order && int(@$order) > 0 );
 
-	my @athletes     = $self->athletes_in_round( $round );
-	my $complete     = 1;
+	my @athletes = $self->athletes_in_round( $round );
 
 	return 0 unless @athletes;
 
-	foreach my $i (@athletes) {
-		$complete = $self->reinstantiate_round( $round, $i )->complete();
-	}
+	my $complete = all { $self->reinstantiate_round( $round, $_ )->complete() } @athletes;
+
 	return $complete;
 }
 

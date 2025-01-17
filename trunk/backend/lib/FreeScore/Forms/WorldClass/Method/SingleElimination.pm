@@ -2,7 +2,7 @@ package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
-use List::Util qw( all any );
+use List::Util qw( any );
 use List::MoreUtils qw( first_index );
 use Data::Dumper;
 
@@ -220,11 +220,7 @@ sub calculate_winners {
 
 	my $athletes = $div->{ order }{ $round };
 	my $matches  = $self->matches();
-	my @winners  = ();
-
-	foreach my $match ($matches->list()) {
-		push @winners, $match->winner();
-	}
+	my @winners  = map { $_->winner() } $matches->list();
 
 	return @winners;
 }
@@ -257,12 +253,16 @@ sub find_athlete {
 		if( $option =~ /^next$/i ) {
 			my $current = $matches->current();
 
-			if( $current->contested() && $current->first_athlete() == $div->{ current }) { 
-				return $current->last_athlete();
+			# Note assymetric behavior: 
+			# - athlete -> next means next available athlete
+			# - athlete -> prev means previous athlete, regardless of match status
+			if( $current->contested() && ! $current->complete()) {
+				if    ( $current->first_athlete() == $div->{ current }) { return $current->last_athlete();  } 
+				elsif ( $current->last_athlete()  == $div->{ current }) { return $current->first_athlete(); }
 			} else {
 				my $next = $matches->next();
 				return $next->first_athlete() if $next;
-				die "No next match $!";
+				warn "No next match $!";
 			}
 		} else {
 			my $current = $matches->current();
@@ -272,7 +272,7 @@ sub find_athlete {
 			} else {
 				my $prev = $matches->prev();
 				return $prev->last_athlete() if $prev;
-				die "No previous match $!";
+				warn "No previous match $!";
 			}
 		}
 	}
@@ -344,7 +344,7 @@ sub place_athletes {
 	foreach my $rcode (@rounds) {
 		my $order = exists $div->{ order }{ $rcode } && int( @{$div->{ order }{ $rcode }}) ? $div->{ order }{ $rcode } : undef;
 		next unless $order;
-		next if all { ! $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
+		next if any { ! $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
 
 		my @winners = $self->calculate_winners( $rcode, 'annotate' );
 
