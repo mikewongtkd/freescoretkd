@@ -112,13 +112,12 @@ sub match_with_athlete {
 sub next {
 # ============================================================
 	my $self    = shift;
-	my $current = first_index { $_->has( $athlete ) } @{$self->{ matches }};
-	my $i       = $current;
+	my $current = $self->current();
+	my $i       = $current->{ number } - 1;
 	my $k       = $#{$self->{ matches }};
-	my $checked = 0;
 
-	while( $checked < $k ) {
-		$i = $i < $k ? $i + 1 : 0;
+	while( $i < $k ) {
+		$i++;
 		my $next = $self->{ matches }[ $i ];
 		return $next if $next->valid();
 		$checked++;
@@ -131,15 +130,14 @@ sub next {
 sub prev {
 # ============================================================
 	my $self    = shift;
-	my $current = first_index { $_->has( $athlete ) } @{$self->{ matches }};
-	my $i       = $current;
+	my $current = $self->current();
+	my $i       = $current->{ number } - 1;
 	my $k       = $#{$self->{ matches }};
-	my $checked = 0;
 
-	while( $checked < $k ) {
-		$i = $i > 0 ? $i - 1 : $k;
+	while( $i > 0 ) {
+		$i--;
 		my $prev = $self->{ matches }[ $i ];
-		return $prev if $prev->valid();
+		return $prev;
 		$checked++;
 	}
 

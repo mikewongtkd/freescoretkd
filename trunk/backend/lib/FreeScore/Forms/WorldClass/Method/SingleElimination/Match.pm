@@ -53,6 +53,7 @@ sub complete {
 	my $round    = $self->method->round();
 	my $div      = $self->method->division();
 	my $complete = all { $div->reinstantiate_round( $round, $_ )->complete(); } @$order;
+	return $complete;
 }
 
 # ============================================================

@@ -145,19 +145,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				// otherwise simply update in the background.
 				if( division?.name != this.state.division.show ) { return; }
 				this.refresh.match.list();
-			})
-		.heard( 'autopilot' )
-			.command( 'update' ).respond( update => {
-				let action = update?.request?.action;
-				if( action != 'next' ) { return; }
-
-				this.refresh.division.cache( update );
-				let division = update?.division;
-
-				// Refresh the athlete list if this is the division being shown;
-				// otherwise simply update in the background.
-				if( division?.name != this.state.division.show ) { return; }
-				this.refresh.match.list();
 			});
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS

@@ -161,11 +161,15 @@
 						}
 					})
 			// ============================================================
-			.heard( 'division' )
+			.heard( 'autopilot' )
 			// ============================================================
 				.command( 'update' )
 					.respond( update => {
-						
+						let action = update?.request?.action;
+						if( action != 'next' ) { return; }
+						let request = { type: 'division', action: 'read' };
+						app.network.send( request );
+
 					});
 
 			// ===== EVENT LISTENER/HANDLERS
