@@ -36,7 +36,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		// Ignore if there's no handler
 		if( ! defined( this.table?.[ type ]?.[ action ])) { 
 			if( this.debug && type != 'server' && action != 'ping' ) {
-				console.log( `[...${this.listener?.id?.substring( 32 )}] ${this.listener.constructor.name} is ignoring a ${type} ${action} network message` );
+				console.log( `[...${this.listener?.id?.substring( 32 )}] ${this.listener.constructor.name} is ignoring a ${type} ${action} network message`, update );
 			}
 			return; 
 		}

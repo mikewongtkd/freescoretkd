@@ -37,15 +37,22 @@ sub chung {
 }
 
 # ============================================================
+sub compare {
+# ============================================================
+	my $self   = shift;
+	my $other  = shift;
+
+	return $other->method->round() cmp $self->method->round() || $self->{ number } <=> $other->{ number };
+}
+
+# ============================================================
 sub complete {
 # ============================================================
 	my $self     = shift;
-	my $method   = $self->{ matches }{ method };
 	my $order    = $self->{ order };
-	my $round    = $method->round();
-	my $rcode    = $round->{ code };
-	my $div      = $method->division();
-	my $complete = all { $div->reinstantiate_round( $rcode, $_ )->complete(); } @$order;
+	my $round    = $self->method->round();
+	my $div      = $self->method->division();
+	my $complete = all { $div->reinstantiate_round( $round, $_ )->complete(); } @$order;
 }
 
 # ============================================================
@@ -57,6 +64,13 @@ sub contested {
 	return 0 if int( @$order ) <= 1;
 
 	return 1;
+}
+
+# ============================================================
+sub division {
+# ============================================================
+	my $self = shift;
+	my $div  = $self->method->division();
 }
 
 # ============================================================
@@ -112,6 +126,24 @@ sub last_athlete {
 }
 
 # ============================================================
+sub method {
+# ============================================================
+	my $self   = shift;
+	my $method = $self->{ matches }{ method };
+	return $method;
+}
+
+# ============================================================
+sub round {
+# ============================================================
+	my $self  = shift;
+	my $round = $self->method->round();
+	my $rcode = $round->{ code };
+
+	return $rcode;
+}
+
+# ============================================================
 sub uncontested {
 # ============================================================
 	my $self = shift;
@@ -148,11 +180,9 @@ sub valid {
 sub winner {
 # ============================================================
 	my $self   = shift;
-	my $method = $self->{ matches }{ method };
 	my $order  = $self->{ order };
-	my $round  = $method->round();
-	my $rcode  = $round->{ code };
-	my $div    = $method->division();
+	my $round  = $self->method->round();
+	my $div    = $self->method->division();
 
 	# If all four athletes from the previous two matches are DSQ'd or WDR'n
 	return -1 if all { $_ < 0 } @$order;
@@ -173,16 +203,16 @@ sub winner {
 
 	print STDERR "MATCH WINNER STEP 2\n"; # MW
 	my ($winner, $loser) = sort {
-		my $x = $div->reinstantiate_round( $rcode, $a );
-		my $y = $div->reinstantiate_round( $rcode, $b );
+		my $x = $div->reinstantiate_round( $round, $a );
+		my $y = $div->reinstantiate_round( $round, $b );
 
 		$x->compare( $y );
 	} @$order;
 	print STDERR "MATCH WINNER winner: $winner, loser: $loser\n"; # MW
 
 	my $punitive = {
-		winner => $winner < 0 ? 0 : $div->reinstantiate_round( $rcode, $winner )->any_punitive_decision(),
-		loser  => $loser  < 0 ? 0 : $div->reinstantiate_round( $rcode, $loser )->any_punitive_decision()
+		winner => $winner < 0 ? 0 : $div->reinstantiate_round( $round, $winner )->any_punitive_decision(),
+		loser  => $loser  < 0 ? 0 : $div->reinstantiate_round( $round, $loser )->any_punitive_decision()
 	};
 	print STDERR "MATCH WINNER winner punitive: '$punitive->{ winner }', loser punitive: '$punitive->{ loser }'\n"; # MW
 	if( $punitive->{ winner }) {

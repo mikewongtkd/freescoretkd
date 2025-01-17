@@ -1,7 +1,7 @@
 <?php 
 	include( "../../../include/php/config.php" ); 
 	$t = json_decode( $tournament );
-	$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 'staging';
+	$ringnum = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 'staging';
 ?>
 <html>
 	<head>
@@ -43,8 +43,8 @@
 			var sound      = {};
 			var division   = undefined;
 			var tournament = <?= $tournament ?>;
-			var ring       = { num: '<?= $ring ?>' };
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ring ) ?>` );
+			var ring       = { num: '<?= $ringnum ?>' };
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
 
 			ws.onopen = () => {
 				var request  = { data : { type : 'division', action : 'read' }};
@@ -79,7 +79,7 @@
 
 			$( "input[type=radio][name='ring']"   ).change(( e ) => { 
 				ring.num = $( e.target ).val(); 
-				window.location = "?ring=<?= $ring ?>";
+				window.location = `?ring=${ring.num}`;
 			});
 
 			var rand = ( x ) => { return Math.floor( Math.random() * x ); };

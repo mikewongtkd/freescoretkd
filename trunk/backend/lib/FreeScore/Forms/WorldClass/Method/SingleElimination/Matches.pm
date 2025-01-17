@@ -72,7 +72,7 @@ sub is_last {
 	my $self = shift;
 	my $current = $self->current();
 	my $last    = $self->last();
-	return int( @$current ) == int( @$last ) && join( ',', @$current ) eq join( ',', @$last );
+	return $current->compare( $last ) == 0;
 }
 
 # ============================================================

@@ -159,6 +159,13 @@
 							app.event.trigger( 'division-show', message );
 							app.state.loaded = true;
 						}
+					})
+			// ============================================================
+			.heard( 'division' )
+			// ============================================================
+				.command( 'update' )
+					.respond( update => {
+						
 					});
 
 			// ===== EVENT LISTENER/HANDLERS
