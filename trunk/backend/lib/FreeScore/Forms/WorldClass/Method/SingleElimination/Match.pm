@@ -112,6 +112,16 @@ sub hong {
 	return undef if $self->empty();
 	return undef if int( @$order ) == 1;
 	return undef unless exists $self->{ hong } && defined $self->{ hong };
+	return $self->{ hong };
+}
+
+# ============================================================
+sub is_last {
+# ============================================================
+	my $self = shift;
+	my $last = $self->{ matches }->last();
+
+	return $self->compare( $last ) == 0;
 }
 
 # ============================================================

@@ -22,18 +22,21 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.status = ( update, message ) => {
 			let request  = update.request;
-			let delay    = (request.delay + 1) * 1000;
+			let delay    = isNaN( request?.delay ) ? 5000 : (request.delay + 1) * 1000;
 			this.button.status.addClass( 'btn-success' ).removeClass( 'btn-default' ).html( message );
 			if( this.state.autopilot.timer ) { clearTimeout( this.state.autopilot.timer ); }
 			this.state.autopilot.timer = setTimeout( () => { this.button.status.addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
 		}
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.network.on.heard( 'autopilot' )
-		.command( 'scoreboard' )  .respond( update => { this.refresh.status( update, 'Showing Score' );       })
-		.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
-		.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })
-		.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
+		this.network.on
+		.heard( 'division' )
+			.command( 'update' )      .respond( update => { if( update?.division?.autopilot == 'on' ) { this.refresh.status( update, 'Engaged' ); }})
+		.heard( 'autopilot' )
+			.command( 'scoreboard' )  .respond( update => { this.refresh.status( update, 'Showing Score' );       })
+			.command( 'draw' )        .respond( update => { this.refresh.status( update, 'Drawing Poomsae' );     }) 
+			.command( 'leaderboard' ) .respond( update => { this.refresh.status( update, 'Showing Leaderboard' ); })
+			.command( 'next' )        .respond( update => { this.refresh.status( update, 'Advancing' );           });
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
 		this.event.listen( 'division-show' )

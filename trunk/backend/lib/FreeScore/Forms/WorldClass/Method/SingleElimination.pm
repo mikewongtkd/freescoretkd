@@ -87,22 +87,32 @@ sub autopilot_steps {
 	my $j        = first_index { $_ == $div->{ current } } @$order;
 	my $matches  = $self->matches();
 
+	print STDERR "SE AUTOPILOT STEPS: STEP 1\nlast:\n"; # MW
 	my $last = {
-		match   => $matches->is_last(),
-		athlete => $div->{ current } == $matches->last->last_athlete(),
+		match   => $matches->current->is_last(),
+		athlete => $div->{ current } == $matches->current->last_athlete(),
 		form    => ($div->{ form }   == int( @$forms ) - 1),
 		round   => ($div->{ round } eq 'ro2'),
 		cycle   => (!(($j + 1) % 2)),
 	};
+	print STDERR Dumper $last; # MW
 
-	my $has_gone = {
+	print STDERR "SE AUTOPILOT STEPS: STEP 2\n"; # MW
+	print STDERR "current athlete: $div->{ current }\n"; # MW
+	print STDERR "chung athlete: " . $matches->current->chung() . "\n"; # MW
+	print STDERR "hong athlete: " . $matches->current->hong() . "\n"; # MW
+	print STDERR "just_performed:\n"; # MW
+	my $just_performed = {
 		chung => $matches->current->chung() == $div->{ current },
 		hong  => $matches->current->hong()  == $div->{ current }
 	};
+	print STDERR Dumper $just_performed; # MW
 
-	$last->{ chung }{ form } = $last->{ form } && $has_gone->{ chung };
-	$last->{ hong }{ form }  = $last->{ form } && $has_gone->{ hong };
+	print STDERR "SE AUTOPILOT STEPS: STEP 3\nlast:\n"; # MW
+	$last->{ chung }{ form } = $last->{ form } && $just_performed->{ chung };
+	$last->{ hong }{ form }  = $last->{ form } && $just_performed->{ hong };
 
+	print STDERR Dumper $last;
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
@@ -134,8 +144,8 @@ sub autopilot_steps {
 
 			# Go to X => after Y
 			my $go = {
-				chung => $has_gone->{ hong } && ! $last->{ form },
-				hong  => $has_gone->{ chung },
+				chung => ! $last->{ form } && $just_performed->{ hong },
+				hong  => $just_performed->{ chung },
 				next  => {
 					round   =>  $last->{ form } && $last->{ match } && ! $last->{ round },
 					match   =>  $last->{ hong }{ form } && ! $last->{ match },
@@ -159,12 +169,14 @@ sub autopilot_steps {
 		}
 	};
 
+	print STDERR "SE AUTOPILOT STEPS: STEP 4\n"; # MW
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
 	push @steps, $step->{ go }{ next };
 
+	print STDERR "SE AUTOPILOT STEPS: STEP 5\n"; # MW
 	return @steps;
 }
 
