@@ -163,7 +163,7 @@ sub edit_athletes {
 	my $edits = shift;
 	my $round = shift || $self->{ round };
 
-	my $order       = $self->{ order }{ $round };
+	my $order       = $self->order();
 	my $reorder     = [];
 	
 	for my $i ( 0 .. $#$edits ) {
@@ -187,7 +187,7 @@ sub edit_athletes {
 	# Create a placeholder athlete if no athlete has a valid name
 	if( all { $_->{ name } =~ /^\s*$/; } @$edits ) { $self->{ athletes } = [{ name => 'First Athlete', info => {} }]; }
 
-	$self->{ order }{ $round } = $reorder;
+	$self->order( $round, $reorder );
 	$self->normalize();
 }
 
@@ -342,7 +342,7 @@ sub matches_string {
 	foreach my $round ($self->rounds()) {
 		my $method = $self->method( $round );
 		next if $method eq 'cutoff';
-		next unless exists $self->{ order }{ $round };
+		next unless $self->round_defined( $round );
 		$matches->{ $round } = $self->method( $round )->matches( $round )->data();
 	}
 
@@ -610,7 +610,7 @@ sub reinstantiate_round {
 # ============================================================
 	my $self       = shift;
 	my $round      = shift;
-	my $i          = shift || $self->{ current }; # Athlete index or reference to Athlete
+	my $i          = shift; $i = defined $i ? $i : $self->{ current }; # Athlete index or reference to Athlete
 	my $athlete    = ref $i ? $i : $self->{ athletes }[ $i ];
 	my $judges     = $self->{ judges };
 	my @compulsory = exists $self->{ forms }{ $round } && $self->{ forms }{ $round } ? @{ $self->{ forms }{ $round }} : ();
@@ -670,7 +670,7 @@ sub reorder {
 	my $index     = $reorder->{ index };
 	my $round     = $reorder->{ round };
 	my $move      = $reorder->{ move };
-	my $order     = $self->{ order }{ $round };
+	my $order     = $self->order( $round );
 	my $i         = first_index { $_ == $index; } @$order;
 
 	return if( $i < 0 );
@@ -687,6 +687,33 @@ sub reorder {
 		splice( @$order, $i, 1 );
 		push @$order, $index;
 	}
+}
+
+# ============================================================
+sub round_complete {
+# ============================================================
+	my $self  = shift;
+	my $round = shift || $self->{ round };
+
+	my $order = $self->order( $round );
+	return 0 unless( defined $order && int(@$order) > 0 );
+
+	my @athletes = $self->athletes_in_round( $round );
+
+	return 0 unless @athletes;
+
+	my $complete = all { $self->reinstantiate_round( $round, $_ )->complete() } @athletes;
+
+	return $complete;
+}
+
+# ============================================================
+sub round_defined {
+# ============================================================
+	my $self  = shift;
+	my $round = shift;
+
+	return exists $self->{ order }{ $round } && defined $self->{ order }{ $round } && ref $self->{ order }{ $round } eq 'ARRAY' && int( @{$self->{ order }{ $round }}) > 0;
 }
 
 # ============================================================
@@ -716,7 +743,7 @@ sub rounds {
 
 	# Get the first round and all rounds thereafter
 	unless( defined $nofilter ) {
-		my $i = first_index { exists $self->{ order }{ $_ }} @rounds;
+		my $i = first_index { $self->round_defined( $_ ) } @rounds;
 		die "Database error: No first round defined for $method$!" unless int( @rounds ) && $i >= 0;
 		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 	}
@@ -785,24 +812,6 @@ sub update_status {
 }
 
 # ============================================================
-sub round_complete {
-# ============================================================
-	my $self  = shift;
-	my $round = shift || $self->{ round };
-
-	my $order = $self->{ order }{ $round };
-	return 0 unless( defined $order && int(@$order) > 0 );
-
-	my @athletes = $self->athletes_in_round( $round );
-
-	return 0 unless @athletes;
-
-	my $complete = all { $self->reinstantiate_round( $round, $_ )->complete() } @athletes;
-
-	return $complete;
-}
-
-# ============================================================
 sub write {
 # ============================================================
 #** @method ()
@@ -852,7 +861,7 @@ sub write {
 	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
 	print FILE "# flight=$flight\n" if $self->is_flight();
 	foreach my $round ($self->rounds()) {
-		my $order = $self->{ order }{ $round };
+		my $order = $self->order( $round );
 		next unless defined $order && int( @$order );
 		print FILE "# ------------------------------------------------------------\n";
 		print FILE "# $round\n";
@@ -1006,12 +1015,25 @@ sub next_form {
 # ============================================================
 sub order {
 # ============================================================
-#** @method () [ round ]
+#** @method () [ round, value ]
+#   @brief Returns the order for the given round, assigning the optional value if provided
+#*
+	my $self  = shift;
+
+	return [ grep { defined $_ } @{ $self->order_with_byes( @_ )}];
+}
+
+# ============================================================
+sub order_with_byes {
+# ============================================================
+#** @method () [ round, value ]
 #   @brief Returns the order for the given round
 #*
 	my $self  = shift;
 	my $round = shift || $self->{ round };
+	my $value = shift;
 	
+	$self->{ order }{ $round } = $value if( $value );
 	return undef unless exists  $self->{ order }{ $round };
 	return undef unless defined $self->{ order }{ $round };
 	return undef unless ref $self->{ order }{ $round } eq 'ARRAY';
@@ -1019,6 +1041,7 @@ sub order {
 
 	return $self->{ order }{ $round };
 }
+
 
 # ============================================================
 sub previous_athlete {

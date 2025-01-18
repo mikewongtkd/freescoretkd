@@ -37,13 +37,17 @@ sub advance_athletes {
 
 	# ===== ADVANCE WINNING ATHLETES TO THE NEXT ROUND IF CURRENT ROUND IS COMPLETE
 	# Skip if the athletes have already been advanced to the current round
-	my $already_done = exists $div->{ order }{ $next } && ref $div->{ order }{ $next } eq 'ARRAY' && int( @{$div->{ order }{ $next }}) > 0;
+	my $already_done = $div->round_defined( $next );
 
 	return if ! $div->round_complete( $round );
 	return if $already_done;
 
+	print STDERR "SE ADVANCE ATHLETES STEP 1\n"; # MW
 	my @winners = $self->calculate_winners( $round );
+	print STDERR "round: $round -> $next\nwinners:\n"; # MW
+	print STDERR Dumper @winners;
 
+	print STDERR "SE ADVANCE ATHLETES STEP 2\n"; # MW
 	$div->assign( $_, $next ) foreach @winners;
 }
 
@@ -55,10 +59,10 @@ sub assign {
 #*
 	my $self       = shift;
 	my $i          = shift;
-	my $round      = $self->{ round };
 	my $div        = $self->{ division };
+	my $round      = shift || $self->{ round };
 	my $judges     = $div->{ judges };
-	my $athlete    = $div->{ athletes }[ $i ];
+	my $athlete    = defined $i ? $div->{ athletes }[ $i ] : { name => 'BYE' };
 
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $div->{ forms }{ $round };
 	my @compulsory = @{ $div->{ forms }{ $round }};
@@ -66,9 +70,9 @@ sub assign {
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
 
 	# Do nothing if athlete is already assigned to the round
-	return if( any { $_ == $i } @{ $div->{ order }{ $round }});
+	return if( defined $i && any { $_ == $i } @{ $div->{ order }{ $round }});
 
-	$div->reinstantiate_round( $round, $i );
+	$div->reinstantiate_round( $round, $i ) if defined $i;
 	push @{ $div->{ order }{ $round }}, $i;
 }
 
@@ -84,7 +88,7 @@ sub autopilot_steps {
 	#	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
 	my $pause    = { score => 2, leaderboard => 2, brief => 1 }; # MW FOR DEBUGGING PURPOSES
 	my $round    = $div->{ round };
-	my $order    = $div->{ order }{ $round };
+	my $order    = $div->order( $round );
 	my $forms    = $div->{ forms }{ $round };
 	my $j        = first_index { $_ == $div->{ current } } @$order;
 	my $matches  = $self->matches();
@@ -104,11 +108,6 @@ sub autopilot_steps {
 
 	$last->{ chung }{ form } = $last->{ form } && $just_performed->{ chung };
 	$last->{ hong }{ form }  = $last->{ form } && $just_performed->{ hong };
-
-	print STDERR "SE AUTOPILOT last:\n"; # MW
-	print STDERR Dumper $last; # MW
-	print STDERR "SE AUTOPILOT just_performed\n"; # MW
-	print STDERR Dumper $just_performed; # MW
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -152,15 +151,13 @@ sub autopilot_steps {
 						form    =>  $first->{ hong }
 					}
 				};
-				print STDERR "SE AUTOPILOT go:\n"; # MW
-				print STDERR Dumper $go; # MW
 
 				# ===== ATHLETE NAVIGATION
 				if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current->chung() ); }
 				elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current->hong() ); }
 
 				# ===== FORM/MATCH/ROUND NAVIGATION
-				if    ( $go->{ next }{ round }) { $div->next_round(); $div->matches->first->first_athlete(); $div->first_form(); }
+				if    ( $go->{ next }{ round }) { $div->next_round(); $self->matches->first->first_athlete(); $div->first_form(); }
 				elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next->first_athlete() ); $div->first_form(); }
 				elsif ( $go->{ next }{ form })  { $div->next_form(); }
 				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
@@ -190,7 +187,7 @@ sub bracket {
 	my $self    = shift;
 	my $div     = $self->{ division };
 	my $rcode   = shift || $div->{ round };
-	my @order   = @{$div->{ order }{ $rcode }};
+	my @order   = @{$div->order_with_byes( $rcode )};
 	my $n       = int( @order ); # Number of athletes
 	my $k       = $#order;       # Index of last athlete
 	my $round   = $self->round( $rcode );
@@ -230,8 +227,6 @@ sub calculate_winners {
 	my $self     = shift;
 	my $div      = $self->{ division };
 	my $round    = shift || $div->{ round };
-
-	my $athletes = $div->{ order }{ $round };
 	my $matches  = $self->matches();
 	my @winners  = map { $_->winner() } $matches->list();
 
@@ -329,10 +324,8 @@ sub normalize {
 
 	# ===== NORMALIZE THE SCORING MATRIX
 	my $forms  = int( @{ $div->{ forms }{ $round }});
-	if( exists $div->{ order } && exists $div->{ order }{ $round }) {
-		foreach my $i (@{ $div->{ order }{ $round }}) {
-			$div->reinstantiate_round( $round, $i );
-		}
+	if( $div->round_defined( $round )) {
+		$div->reinstantiate_round( $round, $_ ) foreach @{$div->order( $round )};
 	}
 
 	$div->{ current } = $div->athletes_in_round( 'first' ) unless defined $div->{ current };
@@ -355,14 +348,14 @@ sub place_athletes {
 
 	# ===== TALLY THE WINS FROM ALL PREVIOUS SINGLE ELIMINATION ROUNDS
 	foreach my $rcode (@rounds) {
-		my $order = exists $div->{ order }{ $rcode } && int( @{$div->{ order }{ $rcode }}) ? $div->{ order }{ $rcode } : undef;
+		my $order = $div->round_defined( $rcode ) ? $div->order( $rcode ) : undef;
 		next unless $order;
 		next if any { ! $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
 
-		my @winners = $self->calculate_winners( $rcode, 'annotate' );
+		my @winners = $self->calculate_winners( $rcode );
 
 		foreach my $winner (@winners) {
-			next if $winner < 0;
+			next unless defined $winner;
 			$wins->{ $winner }++;
 		}
 	}
@@ -371,8 +364,8 @@ sub place_athletes {
 
 	# ===== CALCULATE PENDING
 	# Updates the leaderboard to indicate the next player
-	my $pending = [ @{$div->{ order }{ $round }} ];
-	@$pending   = grep { my $scores = $div->reinstantiate_round( $round, $_ ); ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
+	my $pending = [ @{$div->order( $round )} ];
+	@$pending   = grep { ! $div->reinstantiate_round( $round, $_ )->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$div->{ pending }{ $round } = $pending;
 }

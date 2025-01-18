@@ -321,7 +321,7 @@ sub any_punitive_decision {
 	my $self = shift;
 
 	foreach my $form (@{ $self->{ forms }}) { 
-		$self->form_complete( $form ); 
+		$self->form_complete( $form ); # Update form status
 		if( $self->form_has_punitive_decision( $form )) {
 			$self->{ complete } = 1;
 			return 1;
