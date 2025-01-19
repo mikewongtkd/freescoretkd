@@ -44,7 +44,7 @@ sub advance_athletes {
 
 	print STDERR "SE ADVANCE ATHLETES STEP 1\n"; # MW
 	my @winners = $self->calculate_winners( $round );
-	print STDERR "round: $round -> $next\nwinners:\n"; # MW
+	print STDERR "SE ADVANCE ATHLETES round: $round -> $next\nwinners:\n"; # MW
 	print STDERR Dumper @winners;
 
 	print STDERR "SE ADVANCE ATHLETES STEP 2\n"; # MW
@@ -192,6 +192,10 @@ sub bracket {
 	my $k       = $#order;       # Index of last athlete
 	my $round   = $self->round( $rcode );
 	my $bracket = [];
+
+	print STDERR "SE BRACKET: STEP 1\n"; # MW 
+	print STDERR "order:\n"; # MW 
+	print STDERR Dumper @order; # MW
 
 	die "Database error: $n athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $n < $round->{ min } || $n > $round->{ max });
 

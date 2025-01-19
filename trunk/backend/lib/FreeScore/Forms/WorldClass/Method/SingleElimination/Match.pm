@@ -1,6 +1,7 @@
 package FreeScore::Forms::WorldClass::Method::SingleElimination::Match;
 use List::Util qw( all any none );
 use FreeScore::Forms::WorldClass::Division::Round;
+use base qw( Clone );
 use Data::Dumper;
 
 # ============================================================
@@ -62,7 +63,7 @@ sub contested {
 # ============================================================
 	my $self  = shift;
 	my $order = $self->{ order };
-	return 0 if any { defined $_ } @$order;
+	return 1 if any { defined $_ } @$order;
 	return 0 if int( @$order ) <= 1;
 
 	return 1;
@@ -218,9 +219,16 @@ sub winner {
 	my $rcode = $self->method->rcode();
 	my $div   = $self->method->division();
 
+	print STDERR "============================================================\n"; # MW
+	print STDERR "MATCH $self->{ number }\n"; # MW
+	my $clone = $self->clone(); # MW
+	delete $clone->{ matches }; # MW
+	print STDERR Dumper $clone; # MW
+	print STDERR "MATCH WINNER: STEP 1\n"; # MW
 	# If no-one advanced from the previous two matches
 	return $self->declare_winner( 'none' ) if none { defined $_ } @$order;
 
+	print STDERR "MATCH WINNER: STEP 2\n"; # MW
 	if( $self->uncontested()) {
 		my $winner = $self->uncontested_winner();
 		if( $winner ) {
@@ -231,6 +239,7 @@ sub winner {
 		}
 	}
 
+	print STDERR "MATCH WINNER: STEP 3\n"; # MW
 	my ($winner, $loser) = sort {
 		my $x = $div->reinstantiate_round( $rcode, $a );
 		my $y = $div->reinstantiate_round( $rcode, $b );
@@ -238,10 +247,14 @@ sub winner {
 		$x->compare( $y );
 	} @$order;
 
+	print STDERR "winner: '$winner', loser: '$loser'\n"; # MW
+	print STDERR "MATCH WINNER: STEP 4\n"; # MW
 	my $punitive = {
 		winner => defined $winner ? $div->reinstantiate_round( $rcode, $winner )->any_punitive_decision() : 0,
 		loser  => defined $loser  ? $div->reinstantiate_round( $rcode, $loser )->any_punitive_decision()  : 0
 	};
+
+	print STDERR "MATCH WINNER: STEP 5\n"; # MW
 	if( $punitive->{ winner }) {
 		return $self->declare_winner( 'none' ) unless defined $loser;
 		return $self->declare_winner( 'none' ) if $punitive->{ loser };
@@ -250,6 +263,7 @@ sub winner {
 		return $self->declare_winner( $loser );
 	}
 
+	print STDERR "MATCH WINNER: STEP 6\n"; # MW
 	return $self->declare_winner( $winner );
 }
 

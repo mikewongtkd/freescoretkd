@@ -47,13 +47,12 @@ sub current {
 # ============================================================
 sub data {
 # ============================================================
-	my $self = shift;
-	my $data = unbless( $self->clone());
-	foreach my $match (@{$data->{ matches }}) {
-		delete $match->{ matches }; # Break self-referential circles
-	}
+	my $self    = shift;
+	my $clone   = unbless( $self->clone());
+	my $matches = $clone->{ matches };
+	delete $_->{ matches } foreach (@$matches); # Break self-referential circles
 
-	return $data->{ matches };
+	return $matches;
 }
 
 # ============================================================

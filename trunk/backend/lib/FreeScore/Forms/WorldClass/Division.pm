@@ -1019,8 +1019,11 @@ sub order {
 #   @brief Returns the order for the given round, assigning the optional value if provided
 #*
 	my $self  = shift;
+	my $order = $self->order_with_byes( @_ );
 
-	return [ grep { defined $_ } @{ $self->order_with_byes( @_ )}];
+	return undef unless defined $order;
+
+	return [ grep { defined $_ } @$order ];
 }
 
 # ============================================================
