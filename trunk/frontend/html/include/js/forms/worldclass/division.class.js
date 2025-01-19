@@ -221,7 +221,6 @@ function Division( division ) {
 			last     : function() { let rounds = this.rounds(); return division.round == rounds[ rounds.length - 1 ]; }
 		},
 		list : function() { return Object.keys( division.forms ); },
-		matches : function( round ) { return division.round == round; },
 		name : function() { return FreeScore.round.name[ division.round ]; },
 	};
 

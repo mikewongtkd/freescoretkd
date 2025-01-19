@@ -77,6 +77,16 @@ sub declare_winner {
 	my $rcode  = $self->method->rcode();
 	my $div    = $self->method->division();
 
+	if( $winner eq 'none' ) { # MW
+		print STDERR "----------------------------------------\n"; # MW
+		print STDERR uc( $rcode ) . " Match $self->{ number } -> No winner\n"; # MW
+		print STDERR "----------------------------------------\n"; # MW
+	} else { # MW
+		my $athlete = $div->{ athletes }[ $winner ]; # MW
+		print STDERR "----------------------------------------\n"; # MW
+		print STDERR uc( $rcode ) . " Match $self->{ number } -> [$winner] $athlete->{ name }\n"; # MW
+		print STDERR "----------------------------------------\n"; # MW
+	} # MW
 	$self->{ winner } = $winner = $winner eq 'none' ? undef : $winner;
 
 	$div->{ matches }{ $rcode } = $self->matches->data() unless exists( $div->{ matches }{ $rcode });
@@ -244,8 +254,12 @@ sub winner {
 		my $x = $div->reinstantiate_round( $rcode, $a );
 		my $y = $div->reinstantiate_round( $rcode, $b );
 
+		print STDERR Dumper "CHUNG ($a) $div->{ athletes }[ $a ]{ name }:", $x->{ adjusted }, $x->{ total }; # MW
+		print STDERR Dumper "HONG ($b) $div->{ athletes }[ $b ]{ name }:", $y->{ adjusted }, $y->{ total }; # MW
+		print STDERR "Comparison: '" . $x->compare( $y ) . "'\n"; # MW
+
 		$x->compare( $y );
-	} @$order;
+	} ($self->{ chung }, $self->{ hong });
 
 	print STDERR "winner: '$winner', loser: '$loser'\n"; # MW
 	print STDERR "MATCH WINNER: STEP 4\n"; # MW

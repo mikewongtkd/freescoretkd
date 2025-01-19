@@ -2,7 +2,7 @@ package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
-use List::Util qw( any );
+use List::Util qw( all any );
 use List::MoreUtils qw( first_index );
 use Data::Dumper;
 
@@ -34,20 +34,19 @@ sub advance_athletes {
 
 	# ===== SKIP IF THERE IS NO NEXT ROUND
 	return unless defined $next;
+	return if ! $div->round_complete( $round );
 
 	# ===== ADVANCE WINNING ATHLETES TO THE NEXT ROUND IF CURRENT ROUND IS COMPLETE
-	# Skip if the athletes have already been advanced to the current round
+	# Skip if the athletes have already been advanced to the next round
 	my $already_done = $div->round_defined( $next );
-
-	return if ! $div->round_complete( $round );
 	return if $already_done;
 
-	print STDERR "SE ADVANCE ATHLETES STEP 1\n"; # MW
+	print STDERR "SE ADVANCE ATHLETES STEP 1 ($round -> $next)\n"; # MW
 	my @winners = $self->calculate_winners( $round );
-	print STDERR "SE ADVANCE ATHLETES round: $round -> $next\nwinners:\n"; # MW
+	print STDERR "SE ADVANCE ATHLETES - winners:\n"; # MW
 	print STDERR Dumper @winners;
 
-	print STDERR "SE ADVANCE ATHLETES STEP 2\n"; # MW
+	print STDERR "SE ADVANCE ATHLETES STEP 2 ($round -> $next)\n"; # MW
 	$div->assign( $_, $next ) foreach @winners;
 }
 
@@ -184,22 +183,18 @@ sub bracket {
 #** @method ( round )
 #   @brief Brackets the athletes into matches for the given round
 #*
-	my $self    = shift;
-	my $div     = $self->{ division };
-	my $rcode   = shift || $div->{ round };
-	my @order   = @{$div->order_with_byes( $rcode )};
-	my $n       = int( @order ); # Number of athletes
-	my $k       = $#order;       # Index of last athlete
-	my $round   = $self->round( $rcode );
-	my $bracket = [];
+	my $self     = shift;
+	my $div      = $self->{ division };
+	my $rcode    = shift || $div->{ round };
+	my @order    = @{$div->order_with_byes( $rcode )};
+	my $athletes = int( @order ); # Number of athletes
+	my $k        = $#order;       # Index of last athlete
+	my $round    = $self->round( $rcode );
+	my $bracket  = [];
 
-	print STDERR "SE BRACKET: STEP 1\n"; # MW 
-	print STDERR "order:\n"; # MW 
-	print STDERR Dumper @order; # MW
+	die "Database error: $athletes athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $athletes < $round->{ min } || $athletes > $round->{ max });
 
-	die "Database error: $n athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $n < $round->{ min } || $n > $round->{ max });
-
-	my $n = $round->{ matches } - 1;
+	my $n = $round->{ matches } - 1; # Index of last match
 	foreach my $mnum ( 0 .. $n ) {
 		my $i = $mnum;
 		my $j = $round->{ max } - ($i + 1);
@@ -214,11 +209,8 @@ sub bracket {
 		my $chung = $order[ $i ];
 		push @$match, $chung;
 
-		# Do not assign Hong athlete if there is a bye
-		next if( $j > $k );
-
 		# Assign Hong athlete
-		my $hong = $order[ $j ];
+		my $hong = $j <= $k ? $order[ $j ] : undef;
 		push @$match, $hong;
 	}
 
@@ -295,7 +287,7 @@ sub initialize {
 # ============================================================
 	my $self  = shift;
 	my $div   = $self->{ division };
-	my $round = $div->{ round };
+	my $round = $self->{ round }; # Note: Method objects and $div->{ round } are independent, $self->{ round } is dependent
 
 	$div->{ matches } = {} unless exists $div->{ matches };
 	$div->{ matches }{ $round } = $self->matches->data();
@@ -306,7 +298,7 @@ sub matches {
 # ============================================================
 	my $self    = shift;
 	my $div     = $self->{ division };
-	my $round   = $div->{ round };
+	my $round   = $self->{ round };
 	my $matches = $self->bracket( $round );
 
 	return new FreeScore::Forms::WorldClass::Method::SingleElimination::Matches( $self, $matches );
@@ -354,7 +346,7 @@ sub place_athletes {
 	foreach my $rcode (@rounds) {
 		my $order = $div->round_defined( $rcode ) ? $div->order( $rcode ) : undef;
 		next unless $order;
-		next if any { ! $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
+		next unless all { $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
 
 		my @winners = $self->calculate_winners( $rcode );
 

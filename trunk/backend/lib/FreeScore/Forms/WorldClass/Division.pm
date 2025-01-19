@@ -343,7 +343,7 @@ sub matches_string {
 		my $method = $self->method( $round );
 		next if $method eq 'cutoff';
 		next unless $self->round_defined( $round );
-		$matches->{ $round } = $self->method( $round )->matches( $round )->data();
+		$matches->{ $round } = $self->method( $round )->matches()->data();
 	}
 
 	return '' if( int( keys %$matches) == 0 );

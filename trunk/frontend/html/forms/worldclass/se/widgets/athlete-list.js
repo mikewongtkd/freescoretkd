@@ -18,6 +18,66 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.athlete = {
+			bye : ( division, round, match, aid ) => {
+				let button    = html.a.clone().addClass( "list-group-item" );
+				let name      = html.span.clone().addClass( "athlete-name" ).append( '<i>BYE</i>' );
+				let penalties = html.span.clone().addClass( "athlete-penalties" ).html();
+				let total     = html.span.clone().addClass( "athlete-score" ).append();
+				let current   = parseInt( division.current.athleteId());
+				let k         = division.current.formId();
+				let shown     = division.name() == this.state.division.show;
+
+				if(      match.chung == aid ) { button.addClass( 'chung' ); }
+				else if( match.hong  == aid ) { button.addClass( 'hong' ); }
+
+				button.off( 'click' );
+				button.append( name, penalties, total );
+				this.display.match.list.append( button );
+			},
+			entry : ( division, round, match, aid ) => {
+				let athlete   = new Athlete( division.data().athletes[ aid ]);
+				let score     = athlete.score( round ); 
+				let form      = division.current.formId();
+				let button    = html.a.clone().addClass( "list-group-item" ).attr({ 'data-athlete-id' : aid });
+				let name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
+				let penalties = html.span.clone().addClass( "athlete-penalties" ).html( this.refresh.athlete.penalty.icons( athlete, round, form ));
+				let total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
+				let current   = parseInt( division.current.athleteId());
+				let k         = division.current.formId();
+				let id        = athlete.id();
+				let shown     = division.name() == this.state.division.show;
+				let mid       = `${round}-${match.number}`;
+
+				if( match.order.includes( current )) { this.display.match[ mid ].addClass( 'active' ); } else { this.display.match[ mid ].removeClass( 'active' ); }
+				if(      match.chung == id ) { button.addClass( 'chung' ); }
+				else if( match.hong  == id ) { button.addClass( 'hong' ); }
+
+				// ===== CURRENT ATHLETE
+				if( id == current && shown ) { 
+					button.addClass( "active" ); 
+					button.off( 'click' ).click(( ev ) => { 
+						this.sound.prev.play();
+						this.event.trigger( 'athlete-deselect' );
+					});
+
+				// ===== ATHLETE IN CURRENT DIVISION
+				} else if( shown ) {
+					button.off( 'click' ).click(( ev ) => { 
+						var target = $( ev.target );
+						if( ! target.is( 'a' )) { target = target.parents( 'a' ); }
+						this.sound.next.play(); 
+						this.display.match.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
+						target.addClass( 'selected-athlete' ); 
+						this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' )});
+					});
+
+				// ===== ATHLETE IN ANOTHER DIVISION
+				} else {
+					button.off( 'click' );
+				}
+				button.append( name, penalties, total );
+				this.display.match.list.append( button );
+			},
 			penalty : {
 				icons : ( athlete, round, form ) => {
 					let penalties = athlete.penalties( round, form );
@@ -59,6 +119,7 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 				// ===== POPULATE THE ATHLETE LIST
 				let round = division.current.roundId();
+				console.log( 'PREVIOUS ROUNDS:', division.prev.rounds().map( r => { console.log( r ); return division.matches( r ).length; })); // MW
 				let start = division.prev.rounds()?.map( r => division.matches( r )?.length )?.reduce(( a, c ) => a += c, 0 );
 				this.display.match.list.empty();
 				division.matches( round ).forEach( match => {
@@ -66,48 +127,12 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 					let mnum = parseInt( match.number ) + parseInt( start );
 					this.display.match[ mid ] = $( `<div class="list-group-item match-number">Match ${mnum}</div>` );
 					this.display.match.list.append( this.display.match[ mid ]);
-					match.order.forEach( aid => {
-						let athlete   = new Athlete( division.data().athletes[ aid ]);
-						let score     = athlete.score( round ); 
-						let form      = division.current.formId();
-						let button    = html.a.clone().addClass( "list-group-item" ).attr({ 'data-athlete-id' : aid });
-						let name      = html.span.clone().addClass( "athlete-name" ).append( athlete.name() );
-						let penalties = html.span.clone().addClass( "athlete-penalties" ).html( this.refresh.athlete.penalty.icons( athlete, round, form ));
-						let total     = html.span.clone().addClass( "athlete-score" ).append( score.summary() );
-						let current   = parseInt( division.current.athleteId());
-						let k         = division.current.formId();
-						let id        = athlete.id();
-						let shown     = division.name() == this.state.division.show;
-
-						if( match.order.includes( current )) { this.display.match[ mid ].addClass( 'active' ); } else { this.display.match[ mid ].removeClass( 'active' ); }
-						if(      match.chung == id ) { button.addClass( 'chung' ); }
-						else if( match.hong  == id ) { button.addClass( 'hong' ); }
-
-						// ===== CURRENT ATHLETE
-						if( id == current && shown ) { 
-							button.addClass( "active" ); 
-							button.off( 'click' ).click(( ev ) => { 
-								this.sound.prev.play();
-								this.event.trigger( 'athlete-deselect' );
-							});
-
-						// ===== ATHLETE IN CURRENT DIVISION
-						} else if( shown ) {
-							button.off( 'click' ).click(( ev ) => { 
-								var target = $( ev.target );
-								if( ! target.is( 'a' )) { target = target.parents( 'a' ); }
-								this.sound.next.play(); 
-								this.display.match.list.find( '.list-group-item' ).removeClass( 'selected-athlete' ); 
-								target.addClass( 'selected-athlete' ); 
-								this.event.trigger( 'athlete-select', { aid : target.attr( 'data-athlete-id' )});
-							});
-
-						// ===== ATHLETE IN ANOTHER DIVISION
+					[ match.chung, match.hong ].forEach( aid => {
+						if( defined( aid )) {
+							this.refresh.athlete.entry( division, round, match, aid );
 						} else {
-							button.off( 'click' );
+							this.refresh.athlete.bye( division, round, match, aid );
 						}
-						button.append( name, penalties, total );
-						this.display.match.list.append( button );
 					});
 				});
 			}

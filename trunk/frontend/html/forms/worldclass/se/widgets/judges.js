@@ -60,9 +60,10 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 				// ------------------------------------------------------------
 					let current = { athlete : division?.current, round : division?.round, form : division?.form };
 					if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
+					let athlete  = division.athletes?.[ current.athlete ];
+					if( ! defined( athlete )) { return; }
 
 					let n        = division.judges;
-					let athlete  = division.athletes?.[ current.athlete ];
 					let scores   = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
 					let complete = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.complete;
 					let decision = athlete?.scores?.[ current.round ]?.forms?.some( form => form.decision );

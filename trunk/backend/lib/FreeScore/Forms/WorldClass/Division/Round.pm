@@ -458,7 +458,7 @@ sub _compare {
 	my $pa = $a->any_punitive_decision();
 	my $pb = $b->any_punitive_decision();
 
-	return  0 if( $pa && $pb || ((! $pa) && (! $pb)));
+	return  0 if( $pa && $pb );
 	return  1 if( $pa );
 	return -1 if( $pb );
 
@@ -477,10 +477,13 @@ sub _compare {
 		}
 	}
 
-	return
-		$b->{ adjusted }{ total }        <=> $a->{ adjusted }{ total }        ||
-		$b->{ adjusted }{ presentation } <=> $a->{ adjusted }{ presentation } ||
-		$b->{ total }                    <=> $a->{ total };
+	my $criteria = {
+		adjusted_total => $b->{ adjusted }{ total }        <=> $a->{ adjusted }{ total },
+		presentation   => $b->{ adjusted }{ presentation } <=> $a->{ adjusted }{ presentation },
+		total          => $b->{ total }                    <=> $a->{ total }
+	};
+
+	return $criteria->{ adjusted_total } || $criteria->{ presentation } || $criteria->{ total };
 }
 
 # ============================================================
