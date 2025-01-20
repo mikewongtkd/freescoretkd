@@ -47,8 +47,10 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				let id        = athlete.id();
 				let shown     = division.name() == this.state.division.show;
 				let mid       = `${round}-${match.number}`;
+				console.log( 'Match ID', mid, match, current ); // MW
 
-				if( match.order.includes( current )) { this.display.match[ mid ].addClass( 'active' ); } else { this.display.match[ mid ].removeClass( 'active' ); }
+				let active = match.order.filter( x => defined( x )).map( x => parseInt( x )).includes( current );
+				if( active ) { this.display.match[ mid ].addClass( 'active' ); } else { this.display.match[ mid ].removeClass( 'active' ); }
 				if(      match.chung == id ) { button.addClass( 'chung' ); }
 				else if( match.hong  == id ) { button.addClass( 'hong' ); }
 
@@ -119,13 +121,12 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 
 				// ===== POPULATE THE ATHLETE LIST
 				let round = division.current.roundId();
-				console.log( 'PREVIOUS ROUNDS:', division.prev.rounds().map( r => { console.log( r ); return division.matches( r ).length; })); // MW
 				let start = division.prev.rounds()?.map( r => division.matches( r )?.length )?.reduce(( a, c ) => a += c, 0 );
 				this.display.match.list.empty();
 				division.matches( round ).forEach( match => {
 					let mid  = `${round}-${match.number}`;
 					let mnum = parseInt( match.number ) + parseInt( start );
-					this.display.match[ mid ] = $( `<div class="list-group-item match-number">Match ${mnum}</div>` );
+					this.display.match[ mid ] = $( `<div class="list-group-item match-number ${mid}">Match ${mnum}</div>` );
 					this.display.match.list.append( this.display.match[ mid ]);
 					[ match.chung, match.hong ].forEach( aid => {
 						if( defined( aid )) {

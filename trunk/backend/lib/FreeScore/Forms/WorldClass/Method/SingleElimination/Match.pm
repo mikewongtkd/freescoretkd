@@ -1,5 +1,6 @@
 package FreeScore::Forms::WorldClass::Method::SingleElimination::Match;
 use List::Util qw( all any none );
+use List::MoreUtils qw( first_index );
 use FreeScore::Forms::WorldClass::Division::Round;
 use base qw( Clone );
 use Data::Dumper;
@@ -77,12 +78,6 @@ sub declare_winner {
 	my $rcode  = $self->method->rcode();
 	my $div    = $self->method->division();
 
-	if( $winner eq 'none' || ! defined $winner ) { # MW
-		print STDERR uc( $rcode ) . " Match $self->{ number } -> No winner\n"; # MW
-	} else { # MW
-		my $athlete = $div->{ athletes }[ $winner ]; # MW
-		print STDERR uc( $rcode ) . " Match $self->{ number } -> [$winner] $athlete->{ name }\n"; # MW
-	} # MW
 	$self->{ winner } = $winner = $winner eq 'none' || ! defined $winner ? undef : $winner;
 
 	return $winner;
@@ -110,11 +105,12 @@ sub empty {
 sub first_athlete {
 # ============================================================
 	my $self  = shift;
-	my $order = $self->{ order };
+	my $div   = $self->method->division();
 	return undef if $self->empty();
-	return undef if int( @$order ) == 1 && ! defined $order->[ 0 ];
-	return $order->[ 0 ] if defined $order->[ 0 ];
-	return $order->[ 1 ];
+
+	my ($first) = grep { defined $_ } ($self->{ chung }, $self->{ hong });
+	print STDERR "MATCH - FIRST ATHLETE - Chung: $self->{ chung }, Hong: $self->{ hong }, First: $first\n"; # MW
+	return $first;
 }
 
 # ============================================================
@@ -150,11 +146,12 @@ sub is_last {
 sub last_athlete {
 # ============================================================
 	my $self  = shift;
-	my $order = $self->{ order };
+	my $div   = $self->method->division();
 	return undef if $self->empty();
-	return undef if int( @$order ) == 1 && ! defined $order->[ 0 ];
-	return $order->[ 1 ] if defined $order->[ 1 ];
-	return $order->[ 0 ];
+
+	my ($last) = grep { defined $_ } ($self->{ hong }, $self->{ chung });
+
+	return $last;
 }
 
 # ============================================================

@@ -53,12 +53,20 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 								alertify.confirm( dialog.title, dialog.message, dialog.ok, dialog.cancel );
 							});
 						}
+					},
+
+					scores : () => {
+						[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ col ][ row ].empty(); }); });
+						Object.values( this.judge ).forEach( judge => { 
+							[ 'accuracy', 'presentation', 'sum' ].forEach( field => { judge[ field ].removeClass( 'ignore' ).empty(); });
+						});
 					}
 				},
 				// ------------------------------------------------------------
 				scores : division => {
 				// ------------------------------------------------------------
 					let current = { athlete : division?.current, round : division?.round, form : division?.form };
+					this.refresh.judge.clear.scores();
 					if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
 					let athlete  = division.athletes?.[ current.athlete ];
 					if( ! defined( athlete )) { return; }

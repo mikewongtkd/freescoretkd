@@ -194,16 +194,16 @@ sub find_athlete {
 	my $div      = $self->{ division };
 	my $option   = shift;
 	my $athletes = $div->order();
+	my $last     = $#$athletes;
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
 			return 0;
 		} else {
-			return -1;
+			return $last;
 		}
 	} elsif( $option =~ /^(?:next|prev)/ ) {
 		my $i    = first_index { $_ == $div->{ current } } @$athletes;
-		my $last = $#$athletes;
 		if( $option =~ /^next$/ ) {
 			if( $i == $last ) { return 0; } # Wrap around to first
 			return $athletes->[ $i + 1 ];

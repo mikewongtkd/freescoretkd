@@ -88,18 +88,21 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 				let i = rounds.findIndex( round => round == division?.round );
 				this.button.nav.round.all.removeClass( 'disabled' );
 
+				// Not found
 				if( i == -1 ) {
 					this.button.nav.round.all.addClass( 'disabled' );
 					alertify.error( `Navigation Widget: Current round ${division?.round} not found` );
 					return;
 				} 
 
+				// First round
 				if( i == 0 ) {
 					this.button.nav.round.prev.addClass( 'disabled' );
 					this.button.nav.round.prev.off( 'click' );
 
 				} 
 
+				// Last round
 				if( i == (rounds.length - 1) || division?.flight ) {
 					this.button.nav.round.next.addClass( 'disabled' );
 					this.button.nav.round.next.off( 'click' );
@@ -120,7 +123,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 
 				if( ! this.button.nav.round.next.hasClass( 'disabled' ))     { 
 					let round = rounds[ i + 1 ];
-					if( round in order && div.round.is.complete( round )) {
+					if( round in order && div.round.is.complete( division.round )) {
 						this.button.nav.round.next.off( 'click' ).click( ev => {
 							this.sound.next.play();
 							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});

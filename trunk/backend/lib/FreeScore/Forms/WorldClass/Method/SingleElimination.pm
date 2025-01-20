@@ -42,12 +42,8 @@ sub advance_athletes {
 	my $already_done = $div->round_defined( $next );
 	return if $already_done;
 
-	print STDERR "SE ADVANCE ATHLETES STEP 1 ($round -> $next)\n"; # MW
 	my @winners = $self->calculate_winners();
-	print STDERR "SE ADVANCE ATHLETES - winners:\n"; # MW
-	print STDERR Dumper @winners;
 
-	print STDERR "SE ADVANCE ATHLETES STEP 2 ($round -> $next)\n"; # MW
 	$div->assign( $_, $next ) foreach @winners;
 }
 
@@ -62,17 +58,18 @@ sub assign {
 	my $div        = $self->{ division };
 	my $round      = shift || $self->{ round };
 	my $judges     = $div->{ judges };
-	my $athlete    = defined $i ? $div->{ athletes }[ $i ] : { name => 'BYE' };
 
+	my $athlete = defined $i ? $div->{ athletes }[ $i ] : { name => 'BYE' };
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $div->{ forms }{ $round };
-	my @compulsory = @{ $div->{ forms }{ $round }};
-	my $forms      = int( @compulsory );
+	my $forms   = int(@{ $div->{ forms }{ $round }});
 	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
 
-	# Do nothing if athlete is already assigned to the round
-	return if( defined $i && any { $_ == $i } @{ $div->{ order }{ $round }});
+	if( defined $i ) {
+		# Do nothing if athlete is already assigned to the round
+		return if any { $_ == $i } @{ $div->{ order }{ $round }};
+		$div->reinstantiate_round( $round, $i );
+	}
 
-	$div->reinstantiate_round( $round, $i ) if defined $i;
 	push @{ $div->{ order }{ $round }}, $i;
 }
 
@@ -157,9 +154,20 @@ sub autopilot_steps {
 				elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current->hong() ); }
 
 				# ===== FORM/MATCH/ROUND NAVIGATION
-				if    ( $go->{ next }{ round }) { $div->next_round(); $self->matches->first->first_athlete(); $div->first_form(); }
-				elsif ( $go->{ next }{ match }) { $div->navigate( 'athlete', $matches->next->first_athlete() ); $div->first_form(); }
-				elsif ( $go->{ next }{ form })  { $div->next_form(); }
+				if    ( $go->{ next }{ round }) { 
+					$div->next_round(); # Advance the round
+					my $first = $div->method->matches->first->first_athlete(); # Get new method object for matches in the new round and get the first athlete of the first match
+					$div->navigate( 'athlete', $first ); # Advance to the first athlete in the first match of the new round
+					$div->first_form(); # Reset to the first form
+
+				} elsif ( $go->{ next }{ match }) { 
+					$div->navigate( 'athlete', $matches->next->first_athlete() ); # Same round, so we can use the cached matches object
+					$div->first_form();
+
+				} elsif ( $go->{ next }{ form }) { 
+					$div->next_form(); 
+				}
+
 				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 				$div->write();
 
@@ -181,17 +189,22 @@ sub autopilot_steps {
 # ============================================================
 sub bracket {
 # ============================================================
-#** @method ( round )
-#   @brief Brackets the athletes into matches for the given round
+#** @method ()
+#   @brief Brackets the athletes into matches
 #*
 	my $self     = shift;
+	my $rcode    = $self->{ round };
 	my $div      = $self->{ division };
-	my $rcode    = shift || $div->{ round };
 	my @order    = @{$div->order_with_byes( $rcode )};
 	my $athletes = int( @order ); # Number of athletes
 	my $k        = $#order;       # Index of last athlete
 	my $round    = $self->round( $rcode );
 	my $bracket  = [];
+
+	# Use cached bracket if bracket is already calculated
+	if( exists $div->{ matches }{ $rcode } && ref( $div->{ matches }{ $rcode }) eq 'ARRAY' ) {
+		return [ map {[ $_->{ chung }, $_->{ hong } ]} @{$div->{ matches }{ $rcode }}];
+	}
 
 	die "Database error: $athletes athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $athletes < $round->{ min } || $athletes > $round->{ max });
 
@@ -237,21 +250,22 @@ sub find_athlete {
 	my $option   = shift;
 	my $div      = $self->{ division };
 	my $round    = $div->{ round };
-	my $athletes = $div->order();
+	my $athletes = $div->order( $round );
 	my $matches  = $self->matches();
+	my $aid      = undef;
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
-			return $matches->first->first_athlete();
+			$aid = $matches->first->first_athlete();
 		} else {
-			return $matches->last->last_athlete();
+			$aid = $matches->last->last_athlete();
 		}
 
 	} elsif( $option =~ /^(?:chung|hong)/ ) {
 		if( $option =~ /^next$/ ) {
-			return $matches->current->chung();
+			$aid = $matches->current->chung();
 		} else {
-			return $matches->current->hong();
+			$aid = $matches->current->hong();
 		}
 
 	} elsif( $option =~ /^(?:next|prev)/i ) {
@@ -262,25 +276,28 @@ sub find_athlete {
 			# - athlete -> next means next available athlete
 			# - athlete -> prev means previous athlete, regardless of match status
 			if( $current->contested() && ! $current->complete()) {
-				if    ( $current->first_athlete() == $div->{ current }) { return $current->last_athlete();  } 
-				elsif ( $current->last_athlete()  == $div->{ current }) { return $current->first_athlete(); }
+				if    ( $current->first_athlete() == $div->{ current }) { $aid = $current->last_athlete();  } 
+				elsif ( $current->last_athlete()  == $div->{ current }) { $aid = $current->first_athlete(); }
 			} else {
 				my $next = $matches->next();
-				return $next->first_athlete() if $next;
+				$aid = $next->first_athlete() if $next;
 				warn "No next match $!";
 			}
 		} else {
 			my $current = $matches->current();
 
 			if( $current->contested() && $current->last_athlete() == $div->{ current }) { 
-				return $current->first_athlete();
+				$aid = $current->first_athlete();
 			} else {
 				my $prev = $matches->prev();
-				return $prev->last_athlete() if $prev;
+				$aid = $prev->last_athlete() if $prev;
 				warn "No previous match $!";
 			}
 		}
 	}
+	my $i = first_index { $_ == $aid } @$athletes;
+
+	return $i;
 }
 
 # ============================================================
@@ -299,8 +316,7 @@ sub matches {
 # ============================================================
 	my $self    = shift;
 	my $div     = $self->{ division };
-	my $round   = $self->{ round };
-	my $matches = $self->bracket( $round );
+	my $matches = $self->bracket();
 
 	return new FreeScore::Forms::WorldClass::Method::SingleElimination::Matches( $self, $matches );
 }
