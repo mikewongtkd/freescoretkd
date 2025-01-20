@@ -828,6 +828,7 @@ sub write {
 	$self->{ round } = 'prelim' if $self->is_flight();
 
 	my $judges = $self->{ judges };
+	my $json   = new JSON::XS();
 
 	# ===== COLLECT THE FORM NAMES TOGETHER PROPERLY
 	my @forms = ();
@@ -838,14 +839,7 @@ sub write {
 	}
 
 	# ===== PREPARE THE PLACEMENTS AND PENDING ATHLETES
-	$self->{ placement } = {} unless defined $self->{ placement };
-	my @places = ();
-	foreach my $round ($self->rounds()) {
-		my $placements = $self->{ placement }{ $round };
-		next unless defined $placements && int( @$placements );
-		next unless grep { /^\d+$/ } @$placements;
-		push @places, "$round:" . join( ",", grep { /^\d+$/ } @$placements );
-	}
+	$self->{ placement } = {} unless exists $self->{ placement } && defined $self->{ placement };
 	my $flight = '';
 	if( $self->is_flight()) { $flight = "id:$self->{ flight }{ id };group:" . join( ",", @{ $self->{ flight }{ group }}) . ";state:$self->{ flight }{ state }"; }
 
@@ -860,7 +854,7 @@ sub write {
 	print FILE "# matches=" . $self->matches_string() . "\n" if exists( $self->{ matches }) && $self->{ matches };
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
-	print FILE "# placement=" . join( ";", @places ) . "\n" if @places;
+	print FILE "# placement=" . $json->canonical->encode( $self->{ placement }) . "\n" if exists $self->{ placement } && ref $self->{ placement } eq 'HASH' && int( keys %{$self->{ placement }}) > 0;
 	print FILE "# flight=$flight\n" if $self->is_flight();
 	foreach my $round ($self->rounds()) {
 		my $order = $self->order( $round );
@@ -922,14 +916,20 @@ sub next_round {
 	my $self    = shift;
 	my $round   = $self->{ round };
 	my @rounds  = $self->rounds();
-	my $i       = first_index { $_ == $round } @rounds;
+	my $i       = first_index { $_ eq $round } @rounds;
 	my $first   = $rounds[ 0 ];
 	my $last    = $rounds[ -1 ];
 
 	return if( $self->is_flight() ); # Flights have only one round: prelim
 
+	print STDERR "DIVISION - NEXT ROUND - rounds:\n"; # MW
+	print STDERR Dumper @rounds;
+	print STDERR "DIVISION - NEXT ROUND - i (before): $i\n"; # MW
 	if( $round eq $last ) { $i = 0; }
 	else                  { $i++;   }
+	print STDERR "DIVISION - NEXT ROUND - i (after): $i\n"; # MW
+
+	print STDERR "DIVISION - NEXT ROUND - $round -> $rounds[ $i ]\n"; # MW
 
 	# ===== GO TO NEXT ROUND
 	$self->{ state } = 'score';
@@ -1204,7 +1204,10 @@ sub _parse_placement {
 #** @function ( placement_text )
 #   @brief Parses serialized placement text
 #*
-	my $value = shift;
+	my $value  = shift;
+	my $data   = _parse_json( $value );
+	return $data if( ref $data );
+
 	my @rounds = map {
 		my ($round, $list) = split /:/;
 		my @placements = grep { /^\d+$/ } split /,/, $list;

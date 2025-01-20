@@ -63,11 +63,7 @@ sub complete {
 sub contested {
 # ============================================================
 	my $self  = shift;
-	my $order = $self->{ order };
-	return 1 if any { defined $_ } @$order;
-	return 0 if int( @$order ) <= 1;
-
-	return 1;
+	return defined $self->{ chung } && defined $self->{ hong } ? 1 : 0;
 }
 
 # ============================================================
@@ -75,10 +71,15 @@ sub declare_winner {
 # ============================================================
 	my $self   = shift;
 	my $winner = shift;
-	my $rcode  = $self->method->rcode();
-	my $div    = $self->method->division();
 
 	$self->{ winner } = $winner = $winner eq 'none' || ! defined $winner ? undef : $winner;
+
+=pod
+	my $rcode  = uc $self->method->rcode(); # MW
+	print STDERR "----------------------------------------\n"; # MW
+	print STDERR "MATCH - DECLARE WINNER - $rcode Match $self->{ number } - $winner\n"; # MW
+	print STDERR "----------------------------------------\n"; # MW
+=cut
 
 	return $winner;
 }
@@ -109,7 +110,6 @@ sub first_athlete {
 	return undef if $self->empty();
 
 	my ($first) = grep { defined $_ } ($self->{ chung }, $self->{ hong });
-	print STDERR "MATCH - FIRST ATHLETE - Chung: $self->{ chung }, Hong: $self->{ hong }, First: $first\n"; # MW
 	return $first;
 }
 
@@ -180,32 +180,6 @@ sub round {
 }
 
 # ============================================================
-sub uncontested {
-# ============================================================
-	my $self = shift;
-	return ! $self->contested();
-}
-
-# ============================================================
-sub uncontested_winner {
-# ============================================================
-	my $self  = shift;
-	my $order = $self->{ order };
-	return undef if $self->contested();
-
-	# If there's only one athlete in the match then that athlete wins
-	return $order->[ 0 ] if int( @$order ) == 1 && defined $order->[ 0 ];
-
-	# If there's two athletes but one was previously DSQ'd or WDR'n then the other wins
-	if( int( @$order ) == 2 ) {
-		return $order->[ 0 ] if defined $order->[ 0 ];
-		return $order->[ 1 ] if defined $order->[ 1 ];
-	}
-
-	return undef;
-}
-
-# ============================================================
 sub valid {
 # ============================================================
 	my $self = shift;
@@ -223,14 +197,10 @@ sub winner {
 	# If no-one advanced from the previous two matches
 	return $self->declare_winner( 'none' ) if none { defined $_ } @$order;
 
-	if( $self->uncontested()) {
-		my $winner = $self->uncontested_winner();
-		if( defined( $winner )) {
-			return $self->declare_winner( $winner );
-
-		} else {
-			return $self->declare_winner( 'none' );
-		}
+	if( ! $self->contested()) {
+		return $self->declare_winner( $self->{ chung }) if defined $self->{ chung };
+		return $self->declare_winner( $self->{ hong })  if defined $self->{ hong };
+		return $self->declare_winner( 'none' );
 	}
 
 	my ($winner, $loser) = sort {

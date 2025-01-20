@@ -32,6 +32,13 @@ sub init {
 }
 
 # ============================================================
+sub complete {
+# ============================================================
+	my $self = shift;
+	return all { $_->complete() } $self->list();
+}
+
+# ============================================================
 sub current {
 # ============================================================
 	my $self    = shift;
@@ -119,7 +126,6 @@ sub next {
 		$i++;
 		my $next = $self->{ matches }[ $i ];
 		return $next if $next->valid();
-		$checked++;
 	}
 
 	return undef;
@@ -137,7 +143,6 @@ sub prev {
 		$i--;
 		my $prev = $self->{ matches }[ $i ];
 		return $prev;
-		$checked++;
 	}
 
 	return undef;

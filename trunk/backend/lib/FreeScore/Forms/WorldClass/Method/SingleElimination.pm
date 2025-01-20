@@ -2,7 +2,7 @@ package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
-use List::Util qw( all any );
+use List::Util qw( all any max uniq );
 use List::MoreUtils qw( first_index );
 use Data::Dumper;
 
@@ -94,17 +94,10 @@ sub autopilot_steps {
 		match   => $matches->current->is_last(),
 		athlete => $div->{ current } == $matches->current->last_athlete(),
 		form    => ($div->{ form }   == int( @$forms ) - 1),
-		round   => ($div->{ round } eq 'ro2'),
-		cycle   => (!(($j + 1) % 2)),
+		round   => ($round eq 'ro2'),
 	};
 
-	my $just_performed = {
-		chung => $matches->current->chung() == $div->{ current },
-		hong  => $matches->current->hong()  == $div->{ current }
-	};
-
-	$last->{ chung }{ form } = $last->{ form } && $just_performed->{ chung };
-	$last->{ hong }{ form }  = $last->{ form } && $just_performed->{ hong };
+	$last->{ cycle } = $last->{ form } && $last->{ athlete }; # After every match
 
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
@@ -140,18 +133,23 @@ sub autopilot_steps {
 
 				# Go to X => after Y
 				my $go = {
-					chung => ! $last->{ form } && $just_performed->{ hong },
-					hong  => $just_performed->{ chung },
+					chung => ! $last->{ form } && $last->{ athlete },
+					hong  => ! $last->{ athlete },
 					next  => {
-						round   =>  $matches->current->complete() && ! $last->{ round },
-						match   =>  $last->{ hong }{ form } && ! $last->{ match },
-						form    =>  $first->{ hong }
+						round   =>  $matches->complete() && ! $last->{ round },
+						match   =>  $matches->current->complete() && ! $last->{ match },
+						form    =>  ! $last->{ form } && $last->{ athlete }
 					}
 				};
 
+				print STDERR "SE AUTOPILOT\n"; # MW
+				print STDERR Dumper "last:", $last;
+				print STDERR Dumper "go:", $go;
+				print STDERR Dumper "First athlete of next match:", $matches->next() ? $matches->next->first_athlete() : 'No more matches';
+
 				# ===== ATHLETE NAVIGATION
-				if    ( $go->{ chung })         { $div->navigate( 'athlete', $matches->current->chung() ); }
-				elsif ( $go->{ hong })          { $div->navigate( 'athlete', $matches->current->hong() ); }
+				if    ( $go->{ chung }) { $div->navigate( 'athlete', $matches->current->chung() ); }
+				elsif ( $go->{ hong })  { $div->navigate( 'athlete', $matches->current->hong() ); }
 
 				# ===== FORM/MATCH/ROUND NAVIGATION
 				if    ( $go->{ next }{ round }) { 
@@ -180,7 +178,7 @@ sub autopilot_steps {
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
-	push @steps, $step->{ show }{ leaderboard } if( $last->{ form } && ( $last->{ cycle } || $last->{ athlete } )); # Display the leaderboard for 12 seconds every $cycle athlete, or last athlete
+	push @steps, $step->{ show }{ leaderboard } if( $last->{ cycle } ); # Display the leaderboard for 12 seconds after every match
 	push @steps, $step->{ go }{ next };
 
 	return @steps;
@@ -348,11 +346,11 @@ sub normalize {
 sub place_athletes {
 # ============================================================
 #** @method ()
-#   @brief Calculates placements for the current round. Auto-updates score averages.
+#   @brief Calculates placements for the current round.
 #*
 	my $self     = shift;
 	my $div      = $self->{ division };
-	my $round    = $div->{ round };
+	my $round    = $self->{ round };
 	my @previous = grep { /^ro/ } $div->rounds();
 	my $i        = first_index { $_ eq $round } @previous;
 	my $wins     = {};
@@ -365,13 +363,19 @@ sub place_athletes {
 		my $matches = $method->matches();
 
 		next unless $div->round_defined( $prev );
-		next unless all { $_->complete() } $matches->list();
+		next unless $matches->complete();
 
-		my @winners = $method->calculate_winners();
-		$wins->{ $_ }++ foreach grep { defined $_ } @winners;
+		my @winners = grep { defined $_ } $method->calculate_winners();
+		$wins->{ $_ }++ foreach @winners;
+	}
+	my $n          = max values %$wins;
+	my $placements = [];
+	foreach my $i ( reverse( 1 .. $n )) {
+		my $place = [ grep { $wins->{ $_ } == $i } keys %$wins ];
+		push @$placements, $place;
 	}
 
-	$div->{ placement }{ $round } = [ sort { $wins->{ $b } <=> $wins->{ $a } } keys %$wins ];
+	$div->{ placement }{ $round } = $placements;
 
 	# ===== CALCULATE PENDING
 	# Updates the leaderboard to indicate the next player
