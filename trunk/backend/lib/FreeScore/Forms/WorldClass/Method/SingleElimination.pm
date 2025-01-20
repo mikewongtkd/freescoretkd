@@ -26,15 +26,16 @@ sub advance_athletes {
 #*
 	my $self     = shift;
 	my $div      = $self->{ division };
-	my $round    = shift || $div->{ round };
+	my $round    = $self->{ round };
 	my @rounds   = $div->rounds();
 	my $i        = first_index { $_ eq $round } @rounds;
 	my $j        = $i < $#rounds ? $i + 1 : undef;
 	my $next     = defined $j ? $rounds[ $j ] : undef;
+	my $matches  = $self->matches();
 
-	# ===== SKIP IF THERE IS NO NEXT ROUND
+	# ===== SKIP IF THERE IS NO NEXT ROUND OR THE ROUND IS NOT COMPLETE
 	return unless defined $next;
-	return if ! $div->round_complete( $round );
+	return unless all { $_->complete() } $matches->list();
 
 	# ===== ADVANCE WINNING ATHLETES TO THE NEXT ROUND IF CURRENT ROUND IS COMPLETE
 	# Skip if the athletes have already been advanced to the next round
@@ -42,7 +43,7 @@ sub advance_athletes {
 	return if $already_done;
 
 	print STDERR "SE ADVANCE ATHLETES STEP 1 ($round -> $next)\n"; # MW
-	my @winners = $self->calculate_winners( $round );
+	my @winners = $self->calculate_winners();
 	print STDERR "SE ADVANCE ATHLETES - winners:\n"; # MW
 	print STDERR Dumper @winners;
 
@@ -222,9 +223,9 @@ sub calculate_winners {
 # ============================================================
 	my $self     = shift;
 	my $div      = $self->{ division };
-	my $round    = shift || $div->{ round };
 	my $matches  = $self->matches();
-	my @winners  = map { $_->winner() } $matches->list();
+	my @complete = grep { $_->complete() } $matches->list(); # List of completed matches
+	my @winners  = int( @complete ) > 0 ? map { $_->winner() } @complete : ();
 
 	return @winners;
 }
@@ -333,27 +334,25 @@ sub place_athletes {
 #** @method ()
 #   @brief Calculates placements for the current round. Auto-updates score averages.
 #*
-	my $self      = shift;
-	my $div       = $self->{ division };
-	my $round     = $div->{ round };
-	my @rounds    = grep { /^ro/ } $div->rounds();
-	my $i         = first_index { $_ eq $round } @rounds;
-	my $wins      = {};
+	my $self     = shift;
+	my $div      = $self->{ division };
+	my $round    = $div->{ round };
+	my @previous = grep { /^ro/ } $div->rounds();
+	my $i        = first_index { $_ eq $round } @previous;
+	my $wins     = {};
 
-	splice @rounds, $i + 1 unless $i < 0; # Remove all rounds past current round
+	splice @previous, $i unless $i < 0; # Remove all rounds past current round
 
 	# ===== TALLY THE WINS FROM ALL PREVIOUS SINGLE ELIMINATION ROUNDS
-	foreach my $rcode (@rounds) {
-		my $order = $div->round_defined( $rcode ) ? $div->order( $rcode ) : undef;
-		next unless $order;
-		next unless all { $div->reinstantiate_round( $rcode, $_ )->complete() } @$order;
+	foreach my $prev (@previous) {
+		my $method  = $div->method( $prev );
+		my $matches = $method->matches();
 
-		my @winners = $self->calculate_winners( $rcode );
+		next unless $div->round_defined( $prev );
+		next unless all { $_->complete() } $matches->list();
 
-		foreach my $winner (@winners) {
-			next unless defined $winner;
-			$wins->{ $winner }++;
-		}
+		my @winners = $method->calculate_winners();
+		$wins->{ $_ }++ foreach grep { defined $_ } @winners;
 	}
 
 	$div->{ placement }{ $round } = [ sort { $wins->{ $b } <=> $wins->{ $a } } keys %$wins ];

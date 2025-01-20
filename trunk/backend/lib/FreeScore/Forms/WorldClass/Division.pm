@@ -337,19 +337,21 @@ sub is_flight {
 sub matches_string {
 # ============================================================
 	my $self    = shift;
-	my $matches = {};
+	my $bracket = {};
 
 	foreach my $round ($self->rounds()) {
 		my $method = $self->method( $round );
 		next if $method eq 'cutoff';
 		next unless $self->round_defined( $round );
-		$matches->{ $round } = $self->method( $round )->matches()->data();
+		my $matches = $method->matches();
+		$_->winner() foreach grep { $_->complete() } $matches->list();
+		$bracket->{ $round } = $matches->data();
 	}
 
-	return '' if( int( keys %$matches) == 0 );
+	return '' if( int( keys %$bracket) == 0 );
 
 	my $json = new JSON::XS();
-	return $json->canonical->encode( $matches );
+	return $json->canonical->encode( $bracket );
 }
 
 # ============================================================
