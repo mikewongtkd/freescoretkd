@@ -34,7 +34,7 @@ FreeScore.Widget.SEAdmin = class FSWidgetAdmin extends FreeScore.Widget {
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
 			let url = {
-				edit    : `division/editor.php?file=${tournament.db}/${ring.num}/${divid}`,
+				edit    : `../division/editor.php?file=${tournament.db}/${ring.num}/${divid}`,
 				history : `history.php?ring=${ring.num}`,
 				results : `report/results.php?ring=${ring.num}&divid=${divid}`,
 				screen  : `index.php?ring=${ring.num}`

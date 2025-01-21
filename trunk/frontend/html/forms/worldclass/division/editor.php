@@ -1,5 +1,8 @@
 <?php
 	include "../../../include/php/config.php";
+	if( isset( $_GET[ 'file' ])) {
+		[ $db, $ring, $divid ] = explode( '/', $_GET[ 'file' ]);
+	}
 ?>
 <html>
 	<head>
@@ -167,11 +170,9 @@
 			}
 
 			// ===== SERVICE COMMUNICATION
-			var file       = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// ); file.shift(); // Tournament name
+			var [ db, ring, divid ] = String( "<?= $_GET[ 'file' ] ?>" ).split( /\// ); // Tournament name
 			var tournament = <?= $tournament ?>;
-			var ring       = file.shift();
-			var divId      = file.shift();
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring}/computer+operator` );
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ring ) ?>` );
 			var draws      = undefined;
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
@@ -234,8 +235,8 @@
 				ws.send( json );
 
 				// ===== LOAD DIVISION
-				if( divId != 'new' ) {
-					request = { type : 'division', action : 'read', divid : divId };
+				if( divid != 'new' ) {
+					request = { type : 'division', action : 'read', divid : divid };
 					json    = JSON.stringify( request );
 					ws.send( json );
 				}
