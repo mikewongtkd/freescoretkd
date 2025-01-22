@@ -23,9 +23,9 @@ sub init {
 	my $number   = shift;
 	my $matches  = shift;
 
-	$self->{ order }   = [ map { int( $_ ) } @$athletes ];
-	$self->{ chung  }  = int( $athletes->[ 0 ]);
-	$self->{ hong  }   = int( $athletes->[ 1 ]);
+	$self->{ order }   = [ map { defined $_ ? int( $_ ) : $_ } @$athletes ];
+	$self->{ chung  }  = defined $athletes->[ 0 ] ? int( $athletes->[ 0 ]) : $athletes->[ 0 ];
+	$self->{ hong  }   = defined $athletes->[ 1 ] ? int( $athletes->[ 1 ]) : $athletes->[ 1 ];
 	$self->{ number }  = int( $number );
 	$self->{ matches } = $matches;
 

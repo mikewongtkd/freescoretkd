@@ -282,6 +282,7 @@
 						if( ! defined( division )) { return; }
 
 						division   = new Division( division );
+						if( division.current.roundId().match( /^ro/ )) { window.location = 'se/coordinator.php?ring=<?= $rnum ?>'; }
 						refresh.athletes( division, true );
 						refresh.judges( update );
 						if( page.num == 1 ) { page.transition() };
@@ -300,6 +301,7 @@
 							let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
 							let isCurDiv = defined( current ) ? division.name == current.name : false;
 							division = new Division( division );
+							if( division.current.roundId().match( /^ro/ )) { window.location = 'se/coordinator.php?ring=<?= $rnum ?>'; }
 							refresh.athletes( division, isCurDiv );
 							refresh.judges( update );
 

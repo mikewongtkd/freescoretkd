@@ -153,6 +153,7 @@
 						app.state.divisions        = ring?.divisions;
 						app.state.current.divid    = divid;
 						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
+						if( ! app.state.current.division.round.match( /^ro/ )) { window.location = '../coordinator.php?ring=<?= $rnum ?>'; }
 
 						if( defined( divid ) && ! app.state.loaded ) {
 							let message = { divid, current : divid };
