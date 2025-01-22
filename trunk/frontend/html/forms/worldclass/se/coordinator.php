@@ -118,6 +118,25 @@
 				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
 			};
 
+			app.forwardIf = {
+				cutoff : () => {
+					let round = app.state.current.division?.round;
+					let forms = app.state.current.division?.forms;
+
+					if( ! round?.match( /^ro/ )) { 
+						window.location = '../coordinator.php?ring=<?= $rnum ?>'; 
+					}
+				},
+				sbs : () => {
+					let round = app.state.current.division?.round;
+					let forms = app.state.current.division?.forms;
+
+					if( forms?.[ round ]?.some( form => form.match( /^draw/i ))) {
+						window.location = '../sbs/coordinator.php?ring=<?= $rnum ?>'; 
+					}
+				}
+			};
+
 			app.network.widget = {
 				divisions : {
 					ready     : new FreeScore.Widget.SEDivisionList( app, 'ready'     ),
@@ -153,7 +172,9 @@
 						app.state.divisions        = ring?.divisions;
 						app.state.current.divid    = divid;
 						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
-						if( ! app.state.current.division.round.match( /^ro/ )) { window.location = '../coordinator.php?ring=<?= $rnum ?>'; }
+
+						app.forwardIf.cutoff();
+						app.forwardIf.sbs();
 
 						if( defined( divid ) && ! app.state.loaded ) {
 							let message = { divid, current : divid };

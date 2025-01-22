@@ -70,6 +70,9 @@ function Division( division ) {
 				firstForm : function() { return division.form == 0; },
 				lastForm  : function() { return division.form == (division.forms[ division.round ].length - 1); }
 			},
+			list : () => {
+				return division.forms[ division.round ];
+			},
 			name : function() {
 				return division.forms[ division.round ][ division.form ];
 			},

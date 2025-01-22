@@ -241,6 +241,25 @@
 
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
+			app.forwardIf = {
+				se : division => {
+					let round = division.current.roundId();
+					let forms = division.current.form.list();
+
+					if( round?.match( /^ro/ ) && ! forms.some( form => form?.match( /^draw/i ))) { 
+						window.location = 'se/coordinator.php?ring=<?= $rnum ?>'; 
+					}
+				},
+				sbs : division => {
+					let round = division.current.roundId();
+					let forms = division.current.form.list();
+
+					if( round?.match( /^ro/ ) && forms.some( form => form?.match( /^draw/i ))) { 
+						window.location = '/sbs/coordinator.php?ring=<?= $rnum ?>'; 
+					}
+				}
+			};
+
 			app.network.on
 				// ============================================================
 				.heard( 'autopilot' )
@@ -282,7 +301,10 @@
 						if( ! defined( division )) { return; }
 
 						division   = new Division( division );
-						if( division.current.roundId().match( /^ro/ )) { window.location = 'se/coordinator.php?ring=<?= $rnum ?>'; }
+
+						app.forwardIf.se( division );
+						app.forwardIf.sbs( division );
+
 						refresh.athletes( division, true );
 						refresh.judges( update );
 						if( page.num == 1 ) { page.transition() };
@@ -301,7 +323,10 @@
 							let current  = update.ring.divisions.find(( d ) => { return d.name == update.ring.current; });
 							let isCurDiv = defined( current ) ? division.name == current.name : false;
 							division = new Division( division );
-							if( division.current.roundId().match( /^ro/ )) { window.location = 'se/coordinator.php?ring=<?= $rnum ?>'; }
+
+							app.forwardIf.se( division );
+							app.forwardIf.sbs( division );
+
 							refresh.athletes( division, isCurDiv );
 							refresh.judges( update );
 
