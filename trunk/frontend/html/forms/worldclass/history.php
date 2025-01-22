@@ -74,7 +74,7 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $i ) ?>` );
 			var network    = { reconnect: 0 }
 
 			ws.onerror = network.error = function() {

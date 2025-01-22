@@ -22,13 +22,11 @@ sub init {
 	my $method  = shift;
 	my $matches = shift;
 
-	$matches = [ map { 
+	$self->{ method }  = $method;
+	$self->{ matches } = [ map { 
 		my $match = $matches->[ $_ ]; 
 		new FreeScore::Forms::WorldClass::Method::SingleElimination::Match( $match, $_ + 1, $self ) 
 	} ( 0 .. $#$matches)];
-
-	$self->{ method }  = $method;
-	$self->{ matches } = $matches;
 }
 
 # ============================================================

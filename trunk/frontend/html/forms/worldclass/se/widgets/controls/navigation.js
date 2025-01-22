@@ -113,7 +113,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					if( round in order ) {
 						this.button.nav.round.prev.off( 'click' ).click( ev => {
 							this.sound.prev.play();
-							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
+							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round: 'prev' }});
 						});
 					} else {
 						this.button.nav.round.prev.addClass( 'disabled' );
@@ -126,12 +126,18 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					if( round in order && div.round.is.complete( division.round )) {
 						this.button.nav.round.next.off( 'click' ).click( ev => {
 							this.sound.next.play();
-							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round }});
+							this.network.send({ type: 'division', action: 'navigate', target: { destination: 'round', round: 'next'  }});
 						});
 					} else {
 						this.button.nav.round.next.addClass( 'disabled' );
 						this.button.nav.round.next.off( 'click' );
 					}
+				}
+
+				if( this.button.nav.round.next.hasClass( 'disabled' ) && this.button.nav.round.prev.hasClass( 'disabled' )) {
+					this.display.nav.round.hide();
+				} else {
+					this.display.nav.round.show();
 				}
 			}
 		};
@@ -165,14 +171,7 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 					this.display.nav.athlete.hide();
 
 					if( defined( division )) {
-
 						this.refresh.nav.round( division );
-
-						if( this.button.nav.round.next.hasClass( 'disabled' ) && this.button.nav.round.prev.hasClass( 'disabled' )) {
-							this.display.nav.round.hide();
-						} else {
-							this.display.nav.round.show();
-						}
 
 					} else {
 						alertify.error( `Division ${message.divid.toUpperCase()} not found in App division cache` );
@@ -192,10 +191,12 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 				let athlete  = division.athletes[ message.aid ];
 				this.refresh.nav.athlete( athlete );
 				this.display.nav.athlete.show();
+				this.display.nav.round.hide();
 			})
 		.listen( 'athlete-deselect' )
 			.respond(( type, source, message ) => {
 				this.display.nav.athlete.hide();
+				this.display.nav.round.show();
 			});
 	}
 }

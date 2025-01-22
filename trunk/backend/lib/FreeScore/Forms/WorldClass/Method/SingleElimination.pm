@@ -142,11 +142,6 @@ sub autopilot_steps {
 					}
 				};
 
-				print STDERR "SE AUTOPILOT\n"; # MW
-				print STDERR Dumper "last:", $last;
-				print STDERR Dumper "go:", $go;
-				print STDERR Dumper "First athlete of next match:", $matches->next() ? $matches->next->first_athlete() : 'No more matches';
-
 				# ===== ATHLETE NAVIGATION
 				if    ( $go->{ chung }) { $div->navigate( 'athlete', $matches->current->chung() ); }
 				elsif ( $go->{ hong })  { $div->navigate( 'athlete', $matches->current->hong() ); }
@@ -350,12 +345,11 @@ sub place_athletes {
 #*
 	my $self     = shift;
 	my $div      = $self->{ division };
-	my $round    = $self->{ round };
 	my @previous = grep { /^ro/ } $div->rounds();
-	my $i        = first_index { $_ eq $round } @previous;
-	my $wins     = {};
+	my $i        = first_index { $_ eq $self->{ round }} @previous;
+	my $wins     = { map { ( $_ => 0 ) } @{$div->order( $previous[ 0 ])} };
 
-	splice @previous, $i unless $i < 0; # Remove all rounds past current round
+	splice @previous, $i + 1 unless $i < 0; # Remove all rounds past current round
 
 	# ===== TALLY THE WINS FROM ALL PREVIOUS SINGLE ELIMINATION ROUNDS
 	foreach my $prev (@previous) {
@@ -367,18 +361,21 @@ sub place_athletes {
 
 		my @winners = grep { defined $_ } $method->calculate_winners();
 		$wins->{ $_ }++ foreach @winners;
-	}
-	my $n          = max values %$wins;
-	my $placements = [];
-	foreach my $i ( reverse( 1 .. $n )) {
-		my $place = [ grep { $wins->{ $_ } == $i } keys %$wins ];
-		push @$placements, $place;
-	}
 
-	$div->{ placement }{ $round } = $placements;
+		my $n          = max values %$wins;
+		my $placements = [];
+		my $athletes   = $div->{ athletes };
+		foreach my $i ( reverse( 0 .. $n )) {
+			my $place = [ sort { $athletes->[ $a ]{ name } cmp $athletes->[ $b ]{ name } } map { int( $_ ) } grep { $wins->{ $_ } == $i } keys %$wins ];
+			push @$placements, $place;
+		}
+
+		$div->{ placement }{ $prev } = $placements;
+	}
 
 	# ===== CALCULATE PENDING
 	# Updates the leaderboard to indicate the next player
+	my $round   = $self->{ round };
 	my $pending = [ @{$div->order( $round )} ];
 	@$pending   = grep { ! $div->reinstantiate_round( $round, $_ )->complete(); } @$pending; # Athlete's score is NOT complete
 

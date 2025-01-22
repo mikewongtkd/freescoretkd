@@ -175,7 +175,6 @@ html, body {
 	position: relative;
 	width: 20%;
 	text-align: right;
-	color: white;
 
 	.penalty {
 		width: 33.3%;
@@ -193,9 +192,6 @@ html, body {
 	.form2of2 { top: 10px; left: 0; }
 	.form1of1, .sum { font-size: 18pt; line-height: 14pt; }
 	.decision     { font-weight: bold; }
-	.accuracy     { color: #600; }
-	.presentation { color: #006; }
-	.total        { color: #666; }
 }
 
 .tab-pane {

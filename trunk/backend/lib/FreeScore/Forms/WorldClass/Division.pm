@@ -922,18 +922,16 @@ sub next_round {
 
 	return if( $self->is_flight() ); # Flights have only one round: prelim
 
-	print STDERR "DIVISION - NEXT ROUND - rounds:\n"; # MW
-	print STDERR Dumper @rounds;
-	print STDERR "DIVISION - NEXT ROUND - i (before): $i\n"; # MW
 	if( $round eq $last ) { $i = 0; }
 	else                  { $i++;   }
-	print STDERR "DIVISION - NEXT ROUND - i (after): $i\n"; # MW
-
-	print STDERR "DIVISION - NEXT ROUND - $round -> $rounds[ $i ]\n"; # MW
+	my $next = $rounds[ $i ];
 
 	# ===== GO TO NEXT ROUND
 	$self->{ state } = 'score';
-	$self->{ round } = $rounds[ $i ];
+	$self->{ round } = $next;
+
+	# ===== GO TO THE FIRST FORM IN THAT ROUND
+	$self->{ form } = 0;
 
 	# ===== GO TO THE FIRST ATHLETE IN THAT ROUND
 	$self->{ current } = $self->athletes_in_round( 'first' );
@@ -948,18 +946,23 @@ sub previous_round {
 	my $self    = shift;
 	my $round   = $self->{ round };
 	my @rounds  = $self->rounds();
-	my $i       = first_index { $_ == $round } @rounds;
+	my $i       = first_index { $_ eq $round } @rounds;
 	my $first   = $rounds[ 0 ];
 	my $last    = $rounds[ -1 ];
 
 	if( $round eq $first ) { $i = $last; } # first round wraps around to finals
 	else                   { $i--;       }
+	my $prev = $rounds[ $i ];
 
 	# ===== GO TO PREVIOUS ROUND
-	$self->{ round } = $rounds[ $i ];
+	$self->{ state } = 'score';
+	$self->{ round } = $prev;
 
-	# ===== GO TO THE FIRST ATHLETE IN THAT ROUND
-	$self->{ current } = $self->athletes_in_round( 'first' );
+	# ===== GO TO THE LAST FORM IN THAT ROUND
+	$self->{ form } = $#{$self->{ forms }{ $prev }};
+
+	# ===== GO TO THE LAST ATHLETE IN THAT ROUND
+	$self->{ current } = $self->athletes_in_round( 'last' );
 }
 
 # ============================================================

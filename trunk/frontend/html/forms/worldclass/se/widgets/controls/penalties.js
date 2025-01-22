@@ -110,6 +110,7 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 
 					division = new Division( division );
 					this.refresh.buttons( division );
+					this.display.all.show();
 				})
 		.heard( 'division' )
 			.command( 'update' )  
@@ -119,6 +120,7 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 
 					division = new Division( division );
 					this.refresh.buttons( division );
+					this.display.all.show();
 				});
 
 		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
@@ -130,8 +132,15 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 					} else {
 						this.display.all.hide();
 					}
+				})
+			.listen( 'athlete-select' )
+				.respond(( type, source, message ) => {
+					this.display.all.hide();
+				})
+			.listen( 'athlete-deselect' )
+				.respond(( type, source, message ) => {
+					this.display.all.show();
 				});
-
 
 	}
 }

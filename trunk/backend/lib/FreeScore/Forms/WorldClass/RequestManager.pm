@@ -394,8 +394,16 @@ sub handle_division_navigate {
 			$division->write();
 			$self->broadcast_updated_ring( $request, $progress, $group );
 		}
-		elsif( $object =~ /^(?:athlete|round|form)$/i ) { 
+		elsif( $object =~ /^(?:athlete|form)$/i ) { 
 			$division->navigate( $object, $i ); 
+			$division->autopilot( 'off' );
+			$division->write();
+			$self->broadcast_updated_division( $request, $progress, $group );
+		}
+		elsif( $object =~ /^round$/i ) { 
+			if   ( $i eq 'next' ) { $division->next_round(); } 
+			elsif( $i eq 'prev' ) { $division->previous_round(); } 
+			else                  { $division->navigate( $object, $i ); }
 			$division->autopilot( 'off' );
 			$division->write();
 			$self->broadcast_updated_division( $request, $progress, $group );

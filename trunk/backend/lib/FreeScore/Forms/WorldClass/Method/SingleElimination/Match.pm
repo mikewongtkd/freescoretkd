@@ -23,11 +23,16 @@ sub init {
 	my $number   = shift;
 	my $matches  = shift;
 
-	$self->{ order }   = $athletes;
-	$self->{ chung  }  = $athletes->[ 0 ];
-	$self->{ hong  }   = $athletes->[ 1 ];
-	$self->{ number }  = $number;
+	$self->{ order }   = [ map { int( $_ ) } @$athletes ];
+	$self->{ chung  }  = int( $athletes->[ 0 ]);
+	$self->{ hong  }   = int( $athletes->[ 1 ]);
+	$self->{ number }  = int( $number );
 	$self->{ matches } = $matches;
+
+	my $div      = $self->method->division();
+	my $rcode    = $self->method->rcode();
+
+	$self->winner() if( $self->complete());
 }
 
 # ============================================================
@@ -72,7 +77,7 @@ sub declare_winner {
 	my $self   = shift;
 	my $winner = shift;
 
-	$self->{ winner } = $winner = $winner eq 'none' || ! defined $winner ? undef : $winner;
+	$self->{ winner } = $winner = $winner eq 'none' || ! defined $winner ? undef : int( $winner );
 
 =pod
 	my $rcode  = uc $self->method->rcode(); # MW

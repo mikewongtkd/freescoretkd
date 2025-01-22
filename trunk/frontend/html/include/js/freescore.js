@@ -45,7 +45,7 @@ var FreeScore = {
 	},
 	round : {
 		order : [ 'prelim', 'ro256', 'ro128', 'ro64', 'ro32', 'semfin', 'ro16', 'finals', 'ro8', 'ro4', 'ro2' ],
-		name  : { 'prelim' : 'Preliminary Round', 'ro256' : 'Round of 256', 'ro128' : 'Round of 128', 'ro64' : 'Round of 64', 'ro32' : 'Round of 32', 'semfin' : 'Semi-Finals Round', 'ro16' : 'Round of 16', 'finals' : 'Finals Round', 'ro8' : 'Quarterfinals Round (Ro8)', 'ro4' : 'Semifinals Round (Ro4)', 'ro2' : 'Finals Round (Ro2)' },
+		name  : { 'prelim' : 'Preliminary Round', 'ro256' : 'Round of 256', 'ro128' : 'Round of 128', 'ro64' : 'Round of 64', 'ro32' : 'Round of 32', 'semfin' : 'Semi-Finals Round', 'ro16' : 'Round of 16', 'finals' : 'Finals Round', 'ro8' : 'Quarter-Finals Round (Ro8)', 'ro4' : 'Semi-Finals Round (Ro4)', 'ro2' : 'Finals Round (Ro2)' },
 	},
 	rulesUSAT2020 : { 
 		// 2020 Rules, updated 2/06/2020

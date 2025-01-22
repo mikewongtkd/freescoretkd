@@ -20,6 +20,10 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.button.status = this.dom.children( 'a.btn.status' );
 
+		// ===== ADD STATE
+		this.state.division = null;
+		this.state.judges   = 0;
+
 		// ===== ADD REFRESH BEHAVIOR
 		// .judge.clear.score( division ) - Updates the "clear score" button behavior
 		// .judge.scores( division )      - Updates the judges scores and spread
@@ -29,8 +33,11 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 			judge : { 
 				clear : {
 					// ------------------------------------------------------------
-					score : division => {
+					score : () => {
 					// ------------------------------------------------------------
+						let division = this.state.division;
+						if( ! defined( division )) { return; }
+
 						// Get Athlete
 						let athlete = division.athletes[ division.current ];
 
@@ -63,10 +70,13 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					}
 				},
 				// ------------------------------------------------------------
-				scores : division => {
+				scores : ( aid = null ) => {
 				// ------------------------------------------------------------
-					let current = { athlete : division?.current, round : division?.round, form : division?.form };
 					this.refresh.judge.clear.scores();
+					let division = this.state.division;
+					if( ! defined( division )) { return; }
+
+					let current = { athlete : aid === null ? division?.current : aid, round : division?.round, form : division?.form };
 					if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
 					let athlete  = division.athletes?.[ current.athlete ];
 					if( ! defined( athlete )) { return; }
@@ -155,8 +165,11 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					}
 				},
 				// ------------------------------------------------------------
-				table : division => {
+				table : () => {
 				// ------------------------------------------------------------
+					let division = this.state.division;
+					if( ! defined( division )) { return; }
+
 					// See if the table structure is the same as before, if so, skip
 					let n = division.judges;
 					if( this.state.judges == n ) { return; }
@@ -246,8 +259,11 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 				}
 			},
 			// ------------------------------------------------------------
-			judges : division => {
+			judges : () => {
 			// ------------------------------------------------------------
+				let division = this.state.division;
+				if( ! defined( division )) { return; }
+
 				this.refresh.judge.table( division );
 				this.refresh.judge.clear.score( division );
 			}
@@ -261,8 +277,10 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 			.command( 'update' )  
 				.respond( update => { 
 					let division = update.division;
-					this.refresh.judges( division );
-					this.refresh.judge.scores( division );
+					this.state.division = division;
+
+					this.refresh.judges();
+					this.refresh.judge.scores();
 				})
 		// ============================================================
 		.heard( 'ring' )
@@ -274,9 +292,10 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 
 					let division = ring.divisions.find( div => div.name == ring.current );
 					if( ! defined( division )) { return; }
+					this.state.division = division;
 
-					this.refresh.judges( division );
-					this.refresh.judge.scores( division );
+					this.refresh.judges();
+					this.refresh.judge.scores();
 				})
 		// ============================================================
 		.heard( 'users' )
@@ -295,6 +314,11 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 					} else {
 						this.dom.hide();
 					}
+				})
+			.listen( 'athlete-select' )
+			.listen( 'athlete-deselect' )
+				.respond(( type, source, message ) => {
+					this.refresh.judge.scores( message?.aid );
 				});
 
 	}
