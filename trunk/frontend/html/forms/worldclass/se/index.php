@@ -9,7 +9,8 @@
 	}
 	include( '../../../session.php' );
 
-	$url = $config->websocket( 'worldclass', $rnum, 'computer+operator' );
+	$url  = $config->websocket( 'worldclass', $rnum, 'computer+operator' );
+	$flip = isset( $_GET[ 'flip' ]) ? 'class="chung-left"' : 'class="chung-right"';
 ?>
 <html>
 	<head>
@@ -44,7 +45,7 @@
 			<!-- MATCH DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
-				<div id="match-display">
+				<div id="match-display" <?= $flip ?>>
 				</div>
 			</div>
 
@@ -52,7 +53,7 @@
 			<!-- SCORE DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
-				<div id="score-display">
+				<div id="score-display" <?= $flip ?>>
 				</div>
 			</div>
 
@@ -60,7 +61,7 @@
 			<!-- RESULTS DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-3">
-				<div id="results-display">
+			<div id="results-display" <?= $flip ?>>
 				</div>
 			</div>
 
@@ -68,7 +69,7 @@
 			<!-- BRACKET DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-4">
-				<div id="bracket-display">
+				<div id="bracket-display" <?= $flip ?>>
 				</div>
 			</div>
 
@@ -76,7 +77,7 @@
 			<!-- LEADERBOARD DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-5">
-				<div id="leaderboard-display">
+				<div id="leaderboard-display" <?= $flip ?>>
 				</div>
 			</div>
 		</div>

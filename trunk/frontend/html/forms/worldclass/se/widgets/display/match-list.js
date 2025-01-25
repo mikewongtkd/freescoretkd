@@ -66,7 +66,9 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 							dom.win.empty().hide();
 						} else {
 							let athlete = division.athletes().find( athlete => athlete.id() == aid );
-							dom.name.html( athlete.display.name( 16 ));
+							let length  = round == 'ro2' ? 32 : 16;
+							let wrap    = round == 'ro2' && athlete.display.name().length > 18;
+							dom.name.html( athlete.display.name( length )).css({ 'line-height' : wrap ? '1.2em' : '', 'top' : wrap ? '6px' : '' });
 							if( athlete.info( 'noc' )) {
 								let flag = ioc.flag( athlete.info( 'noc' ));
 								if( flag ) {
