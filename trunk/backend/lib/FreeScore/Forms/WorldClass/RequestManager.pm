@@ -243,8 +243,7 @@ sub handle_division_display {
 
 	try {
 		$division->autopilot( 'off' );
-		if( $division->is_display() ) { $division->score();   } 
-		else                          { $division->display(); }
+		$division->method->change_display();
 		$division->write();
 
 		$self->broadcast_updated_division( $request, $progress, $group );

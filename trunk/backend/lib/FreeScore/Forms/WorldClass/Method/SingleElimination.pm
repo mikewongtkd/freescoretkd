@@ -238,6 +238,21 @@ sub calculate_winners {
 }
 
 # ============================================================
+sub change_display {
+# ============================================================
+	my $self   = shift;
+	my $div    = $self->division();
+	my $states = [ qw( matches score results brackets leaderboard )];
+	my $i      = first_index { $_ eq $div->{ state } } @$states;
+
+	if   ( $i >= $#$states ) { $i = 0; }
+	elsif( $i < 0 )          { die "Invalid state '$div->{ state }' $!"; }
+	else                     { $i++; }
+
+	$div->{ state } = $states->[ $i ];
+}
+
+# ============================================================
 sub find_athlete {
 # ============================================================
 	my $self     = shift;
