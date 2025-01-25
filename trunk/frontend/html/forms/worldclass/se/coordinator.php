@@ -137,7 +137,10 @@
 				}
 			};
 
-			app.network.widget = {
+			// ============================================================
+			// APP COMPOSITION
+			// ============================================================
+			app.widget = {
 				divisions : {
 					ready     : new FreeScore.Widget.SEDivisionList( app, 'ready'     ),
 					completed : new FreeScore.Widget.SEDivisionList( app, 'completed' ),

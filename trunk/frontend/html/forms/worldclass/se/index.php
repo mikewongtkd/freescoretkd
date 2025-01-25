@@ -14,7 +14,7 @@
 <html>
 	<head>
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../../include/css/forms/worldclass/coordinator.css" rel="stylesheet" />
+		<link href="css/display.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -30,11 +30,13 @@
 		<script src="../../../include/js/event.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
+		<script src="../../../include/js/ioc.js"></script>
+		<script src="widgets/display/match-list.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/division.class.js"></script>
-		<title>World Class Ring <?= $rnum ?> Operations</title>
+		<title>Recognized Poomsae Ring <?= $rnum ?> Display</title>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -47,25 +49,33 @@
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- POOMSAE DRAW DISPLAY -->
+			<!-- SCORE DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
-				<div id="poomsae-draw-display">
+				<div id="score-display">
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- SCORE DISPLAY -->
+			<!-- RESULTS DISPLAY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-3">
-				<div id="score-display">
+				<div id="results-display">
+				</div>
+			</div>
+
+			<!-- ============================================================ -->
+			<!-- BRACKET DISPLAY -->
+			<!-- ============================================================ -->
+			<div class="pt-page pt-page-4">
+				<div id="bracket-display">
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
 			<!-- LEADERBOARD DISPLAY -->
 			<!-- ============================================================ -->
-			<div class="pt-page pt-page-4">
+			<div class="pt-page pt-page-5">
 				<div id="leaderboard-display">
 				</div>
 			</div>
@@ -82,56 +92,51 @@
 
 			app.on.connect( '<?= $url ?>' ).read.division();
 
+			app.page = {
+				animation : {
+					default: 4, // Move to bottom / From top
+					match: 41, // Push buttom / From top
+					score: 8, // Fade from top
+					results: 34, // Flip top
+					bracket: 52, // Move to bottom / Unfold top
+					leaderboard: 61, // Cube to bottom
+				},
+				num: 1,
+				count: 3,
+				for : {
+					match: 1,
+					score: 2,
+					leaderboard: 3
+				},
+				show : {
+					match :       () => { app.page.transition( 'match' ); },
+					score :       () => { app.page.transition( 'score' ); },
+					leaderboard : () => { app.page.transition( 'leaderboard' ); }
+				},
+				transition: target => { 
+					let animation = app.page.animation?.[ target ] ? app.page.animation[ target ] : app.page.animation.default;
+					let showPage  = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.match;
+					PageTransitions.nextPage({ animation, showPage }); 
+				}
+			};
+
+			// ============================================================
+			// APP COMPOSITION
+			// ============================================================
+			app.widget = {
+				match : {
+					display : new FreeScore.Widget.SEMatchList( app, 'match-display' )
+				}
+			};
+
 			app.network.on
-				// ============================================================
-				.heard( 'autopilot' )
-				// ============================================================
-				.command( 'leaderboard' )
-					.respond( update => {
-						let request = update.request;
-						let delay   = (request.delay + 1) * 1000;
-						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Leaderboard' );
-						if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
-						app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-
-					})
-				.command( 'next' )
-					.respond( update => {
-						let request = update.request;
-						let delay   = (request.delay + 1) * 1000;
-						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Next Athlete' );
-						if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
-						app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-					})
-				.command( 'scoreboard' )
-					.respond( update => {
-						let request  = update.request;
-						let delay    = (request.delay + 1) * 1000;
-						let division = new Division( update.division );
-						refresh.athletes( division, true );
-						$( '.autopilot .status' ).addClass( 'btn-success' ).removeClass( 'btn-default' ).html( 'Showing Score' );
-						if( app.state.autopilot.timer ) { clearTimeout( app.state.autopilot.timer ); }
-						app.state.autopilot.timer = setTimeout( () => { $( '.autopilot .status' ).addClass( 'btn-default' ).removeClass( 'btn-success' ).html( 'Disengaged' ); }, delay );
-					})
-
 				// ============================================================
 				.heard( 'division' )
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {
-					})
-				// ============================================================
-				.heard( 'ring' )
-				// ============================================================
-				.command( 'update' )
-					.respond( update => {
 					});
 
-			var page = {
-				num : 1,
-				transition: ( ev ) => { page.num = PageTransitions.nextPage({ animation: page.animation( page.num )}); },
-				animation:  ( pn ) => { return pn; } // Left-right movement is animation #1 and #2 coinciding with page numbers
-			};
 		</script>
 	</body>
 </html>

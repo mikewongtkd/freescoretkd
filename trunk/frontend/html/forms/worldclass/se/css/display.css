@@ -1,0 +1,289 @@
+body {
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  /* W3C */
+  font-family: FjallaOne;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+#match-display .header {
+  height: 100px;
+  color: #999;
+}
+#match-display .header h1 {
+  text-align: center;
+  font-size: 4em;
+}
+#match-display .header h1 .divid {
+  color: white;
+}
+#match-display .header h1 .description {
+  color: #ccc;
+}
+#match-display .header h2 {
+  text-align: center;
+  color: gold;
+  font-size: 3em;
+}
+#match-display .match {
+  position: relative;
+  margin-left: 10%;
+  margin-right: 10%;
+  width: 80%;
+  color: white;
+}
+#match-display .match.ro8, #match-display .match.ro16, #match-display .match.ro32, #match-display .match.ro64, #match-display .match.ro128, #match-display .match.ro256 {
+  height: 10%;
+  margin-top: 3.5%;
+  margin-bottom: 3.5%;
+}
+#match-display .match.ro8 .match-number, #match-display .match.ro16 .match-number, #match-display .match.ro32 .match-number, #match-display .match.ro64 .match-number, #match-display .match.ro128 .match-number, #match-display .match.ro256 .match-number {
+  top: 0;
+}
+#match-display .match.ro8 .match-chung, #match-display .match.ro8 .match-hong, #match-display .match.ro16 .match-chung, #match-display .match.ro16 .match-hong, #match-display .match.ro32 .match-chung, #match-display .match.ro32 .match-hong, #match-display .match.ro64 .match-chung, #match-display .match.ro64 .match-hong, #match-display .match.ro128 .match-chung, #match-display .match.ro128 .match-hong, #match-display .match.ro256 .match-chung, #match-display .match.ro256 .match-hong {
+  height: 100px;
+}
+#match-display .match.ro4 {
+  top: 10%;
+  height: 15%;
+  margin-top: 10%;
+  margin-bottom: 5%;
+}
+#match-display .match.ro4 .match-number {
+  top: 12.5px;
+}
+#match-display .match.ro4 .match-chung, #match-display .match.ro4 .match-hong {
+  padding-top: 10px;
+  height: 125px;
+}
+#match-display .match.ro4 .match-chung .noc, #match-display .match.ro4 .match-hong .noc {
+  top: 12.5px;
+}
+#match-display .match.ro2 {
+  height: 20%;
+  margin-top: 15%;
+}
+#match-display .match.ro2 .match-number {
+  top: 25px;
+}
+#match-display .match.ro2 .match-chung, #match-display .match.ro2 .match-hong {
+  padding-top: 22.5px;
+  height: 150px;
+}
+#match-display .match.ro2 .match-chung .noc, #match-display .match.ro2 .match-hong .noc {
+  top: 25px;
+}
+#match-display .match .win {
+  position: absolute;
+  background-color: gold;
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  top: 20px;
+}
+#match-display .match .noc {
+  position: absolute;
+}
+#match-display .match .noc img {
+  width: 80px;
+}
+#match-display .match .name {
+  position: absolute;
+  width: 100%;
+  font-size: 4em;
+  line-height: 1.75em;
+}
+#match-display .match .match-chung, #match-display .match .match-hong {
+  width: 50%;
+  position: absolute;
+}
+#match-display .match.active .match-chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+  color: white;
+  border: 4px solid gold;
+}
+#match-display .match.active .match-chung .name {
+  line-height: 1.75em;
+}
+#match-display .match.active .match-chung .noc {
+  opacity: 100%;
+}
+#match-display .match.active .match-chung .win {
+  background-color: gold;
+  top: 16px;
+}
+#match-display .match .match-chung {
+  left: 0;
+  text-align: left;
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+  background: #000124;
+  color: #333;
+}
+#match-display .match .match-chung .name {
+  padding-left: 80px;
+  line-height: 1.9em;
+}
+#match-display .match .match-chung .win {
+  left: 10px;
+  background-color: #653;
+}
+#match-display .match .match-chung .noc {
+  right: 100px;
+  top: 8px;
+  opacity: 20%;
+}
+#match-display .match.active .match-hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+  color: white;
+  border: 4px solid gold;
+}
+#match-display .match.active .match-hong .name {
+  line-height: 1.75em;
+}
+#match-display .match.active .match-hong .noc {
+  opacity: 100%;
+}
+#match-display .match.active .match-hong .win {
+  background-color: gold;
+  top: 16px;
+}
+#match-display .match .match-hong {
+  right: 0;
+  text-align: right;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  background: #240000;
+  color: #333;
+}
+#match-display .match .match-hong .name {
+  padding-right: 80px;
+  line-height: 1.9em;
+}
+#match-display .match .match-hong .win {
+  right: 10px;
+  background-color: #653;
+}
+#match-display .match .match-hong .noc {
+  left: 100px;
+  top: 8px;
+  opacity: 20%;
+}
+#match-display .match.active .match-number {
+  background: gold;
+  color: black;
+}
+#match-display .match .match-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+  background: #333;
+  color: black;
+  font-size: 1.2em;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#match-display .match .match-number .number {
+  position: relative;
+  font-size: 3.2em;
+}
+
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear;
+}
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear;
+}
+
+@-webkit-keyframes enterDownBounce {
+  0% {
+    -webkit-transform: translateY(-600px);
+    opacity: 0.25;
+  }
+  50% {
+    -webkit-transform: translateY(0px);
+  }
+  70% {
+    -webkit-transform: translateY(-50px);
+  }
+  100% {
+    -webkit-transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@-webkit-keyframes leaveUpBounce {
+  0% {
+    -webkit-transform: translateY(0px);
+    opacity: 1;
+  }
+  10% {
+    -webkit-transform: translateY(50px);
+    opacity: 1;
+  }
+  25% {
+    -webkit-transform: translateY(0px);
+  }
+  100% {
+    -webkit-transform: translateY(-900px);
+    opacity: 0;
+  }
+}
+
+/*# sourceMappingURL=display.css.map */

@@ -82,8 +82,8 @@ sub autopilot_steps {
 	my $progress = shift;
 	my $group    = shift;
 	my $div      = $self->{ division };
-	#	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
-	my $pause    = { score => 2, leaderboard => 2, brief => 1 }; # MW FOR DEBUGGING PURPOSES
+	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
+	# my $pause    = { score => 2, leaderboard => 2, brief => 1 }; # MW FOR DEBUGGING PURPOSES
 	my $round    = $div->{ round };
 	my $order    = $div->order( $round );
 	my $forms    = $div->{ forms }{ $round };
@@ -164,6 +164,7 @@ sub autopilot_steps {
 				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 				$div->write();
 
+				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
 				$request = { type => 'autopilot', action => 'next', delay => $pause->{ brief }};
 				$rm->broadcast_updated_division( $request, $progress, $group );
 			}

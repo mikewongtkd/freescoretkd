@@ -32,6 +32,7 @@ sub init {
 	my $div      = $self->method->division();
 	my $rcode    = $self->method->rcode();
 
+	$div->calculate_totals();
 	$self->winner() if( $self->complete());
 }
 
@@ -80,6 +81,7 @@ sub declare_winner {
 	$self->{ winner } = $winner = $winner eq 'none' || ! defined $winner ? undef : int( $winner );
 
 =pod
+	print STDERR Dumper caller; # MW
 	my $rcode  = uc $self->method->rcode(); # MW
 	print STDERR "----------------------------------------\n"; # MW
 	print STDERR "MATCH - DECLARE WINNER - $rcode Match $self->{ number } - $winner\n"; # MW

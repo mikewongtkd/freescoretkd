@@ -81,6 +81,35 @@
 
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
+			app.page = {
+				animation : {
+					default: 4, // Slide top
+					match: 5, // Fade left
+					draw: 8, // Fade top
+					score: 6, // Fade right
+					leaderboard: 7, // Fade bottom
+				},
+				num: 1,
+				count: 3,
+				for : {
+					match: 1,
+					draw:  2,
+					score: 3,
+					leaderboard: 4
+				},
+				show : {
+					match :       () => { app.page.transition( 'match' ); },
+					draw :        () => { app.page.transition( 'draw' ); },
+					score :       () => { app.page.transition( 'score' ); },
+					leaderboard : () => { app.page.transition( 'leaderboard' ); }
+				},
+				transition: target => { 
+					let animation = defined( app.page.animation?.[ target ]) ? app.page.animation[ target ] : app.page.animation.default;
+					let showPage  = defined( app.page.for?.[ target ]) ? app.page.for[ target ] : app.page.for.match;
+					PageTransitions.nextPage({ animation, showPage }); 
+				}
+			};
+
 			app.network.on
 				// ============================================================
 				.response( 'autopilot' )

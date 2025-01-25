@@ -3,7 +3,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 		super( app, dom );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.division = { header : $( '#division-header' ) };
 		this.display.match    = { list : this.dom };
 
 		// ===== ADD STATE
@@ -47,7 +46,6 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				let id        = athlete.id();
 				let shown     = division.name() == this.state.division.show;
 				let mid       = `${round}-${match.number}`;
-				console.log( 'Match ID', mid, match, current ); // MW
 
 				let active = match.order.filter( x => defined( x )).map( x => parseInt( x )).includes( current );
 				if( active ) { this.display.match[ mid ].addClass( 'active' ); } else { this.display.match[ mid ].removeClass( 'active' ); }

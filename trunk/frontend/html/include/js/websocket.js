@@ -5,7 +5,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.listener  = listener;
 		this.websocket = websocket;
 		this._catch    = error => console.log( error );
-		this.debug     = true;
+		this.debug     = false;
 	}
 
 	add( type, action = null, handler = null ) {

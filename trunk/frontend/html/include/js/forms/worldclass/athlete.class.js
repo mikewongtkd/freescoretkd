@@ -12,8 +12,7 @@ function Athlete( athlete ) {
 	};
 
 	this.display = {
-		name : function() {
-			var max_length = 32;
+		name : function( max_length = 32 ) {
 			if( athlete.name.length <= max_length ) { return athlete.name; }
 			var names = athlete.name.split( /\s+/ );
 			if( names.length == 1 ) { return athlete.name.substr( 0, max_length ); }
