@@ -63,15 +63,20 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let start  = 0;
 				let prev   = null;
 				let first  = rounds[ 0 ];
+				let bounds = { left: (width + height)/2, top: 0, right: (rounds.length -1) * (width + (3 * height)), bottom: (rounds.length -1) * (width + (3 * height))};
 
 				this.display.bracket.graph.empty();
-				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${(width + height)/2} 0 ${(rounds.length - 1) * (width + (3 * height))} ${(rounds.length - 1) * (width + (3 * height))}` );
+				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${bounds.left} ${bounds.top} ${bounds.right} ${bounds.bottom}` );
 
 				rounds.forEach(( round, i ) => { 
-					let matches = reorder( division.matches( round ));
-					let yoffset = ((4 - matches.length) / 2) * height * 3;
+					let matches = reorder( division.matches( round )); // Need to create placeholders for matches that have not yet been initialized (ro4 -> 2 matches, ro2 -> 1 match)
+					let yoffset = (((4 - matches.length) / 2) * height * 3) / 2;
 					this.state.bracket[ round ] = {};
 					matches.forEach(( match, j ) => {
+
+						if     ( matches.length == 1 ) { yoffset *= 2; }
+						else if( j % 2 )               { yoffset *= 3; }
+
 						let state = match.order.includes( division.current.athleteId()) ? true : false;
 						let x = (i * ((height * 3) + width));
 						let y = (j * (height * 3 )) + yoffset;
@@ -90,7 +95,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 							cmatch.source = { chung: x, hong: y };
 
 							if( a.winner == a.chung ) {
-								this.draw.path( `M${x.anchor.destination.chung.join( ',' )} h${height/2} v${(3*height)/2} h${height/2}` );
+								this.draw.path( `M${x.anchor.destination.chung.join( ',' )} h${height/2} v${(3*height)/2} h${height/2}` ).stroke({ color: '#ccc', width: 4, linecap: 'round', linejoin: 'round' });
 							}
 
 						}
@@ -112,39 +117,55 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					number: { true: 'black', false: 'black' },
 					winner: { true: 'gold',  false: '#660' }
 				};
+				let svg    = { chung : { bg: null, name: null, win: null }, hong : { bg: null, name: null, win: null }, match : { bg: null, label: null, number: null }};
 
-				this.draw.path( `M0,${radius} q0,-${radius} ${radius},-${radius} h${(2*height)-radius} v${(2*height)} h-${(2*height)-radius} q-${radius},0 -${radius},-${radius} v-${(2*(height-radius))}` ).x( x ).y( y ).fill( fill.match[ state ]);
-				this.draw.path( `M0,0 h${width-radius} q${radius},0 ${radius},${radius} v${height - radius} h-${width} z` ).x( x + 2 * height ).y( y ).fill( fill.chung[ state ]);
-				this.draw.path( `M0,0 h${width} v${height-radius} q0,${radius} -${radius},${radius} h-${width-radius} z` ).x( x + 2 * height ).y( y + height ).fill( fill.hong[ state ]);
+				svg.match.bg = this.draw.path( `M0,${radius} q0,-${radius} ${radius},-${radius} h${(2*height)-radius} v${(2*height)} h-${(2*height)-radius} q-${radius},0 -${radius},-${radius} v-${(2*(height-radius))}` ).x( x ).y( y ).fill( fill.match[ state ]);
+				svg.chung.bg = this.draw.path( `M0,0 h${width-radius} q${radius},0 ${radius},${radius} v${height - radius} h-${width} z` ).x( x + 2 * height ).y( y ).fill( fill.chung[ state ]);
+				svg.hong.bg  = this.draw.path( `M0,0 h${width} v${height-radius} q0,${radius} -${radius},${radius} h-${width-radius} z` ).x( x + 2 * height ).y( y + height ).fill( fill.hong[ state ]);
 
-				let chung = match?.chung ? division.athlete( match.chung ) : { bye: true, display: { name: max_length => 'BYE' }};
-				let hong  = match?.hong  ? division.athlete( match.hong )  : { bye: true, display: { name: max_length => 'BYE' }};
+				let chung = defined( match?.chung ) ? division.athlete( match.chung ) : { bye: true, display: { name: max_length => 'BYE' }};
+				let hong  = defined( match?.hong )  ? division.athlete( match.hong )  : { bye: true, display: { name: max_length => 'BYE' }};
 
-				this.draw.plain( 'Match' ).font({ size: '14pt' }).fill( fill.number[ state ]).x( x + (5 * height)/8 ).y( y + (3 * height)/16 );
-				this.draw.plain( start + match.number ).font({ size: '36pt' }).fill( fill.number[ state ]).x( x + (3 * height)/4 ).y( y + (11 * height)/16 );
+				if( chung?.bye && hong?.bye ) { chung.display.name = hong.display.name = max_length => ''; }
 
-				this.draw.plain( chung.display.name( 16 )).font({ size: '24pt' }).fill( fill.name[ state ]).x( x + 3 * height ).y( y + height/8 );
-				this.draw.plain( hong.display.name( 16 )).font({ size: '24pt' }).fill( fill.name[ state ]).x( x + 3 * height ).y( y + (9 * height)/8 );
+				svg.match.label  = this.draw.plain( 'Match' ).font({ size: '14pt' }).fill( fill.number[ state ]).x( x + (5 * height)/8 ).y( y + (3 * height)/16 );
+				svg.match.number = this.draw.plain( start + match.number ).font({ size: '36pt' }).fill( fill.number[ state ]).x( x + (3 * height)/4 ).y( y + (11 * height)/16 );
+
+				svg.chung.name = this.draw.plain( chung.display.name( 16 )).font({ size: '24pt' }).fill( fill.name[ state ]).x( x + 3 * height ).y( y + height/8 );
+				svg.hong.name  = this.draw.plain( hong.display.name( 16 )).font({ size: '24pt' }).fill( fill.name[ state ]).x( x + 3 * height ).y( y + (9 * height)/8 );
 
 				[ 'chung', 'hong' ].forEach( contestant => {
 					if( match[ contestant ] != match.winner ) { return; }
-					console.log( 'WINNER', contestant, match[ contestant ], match.winner ); // MW
 					if( contestant == 'chung' ) {
-						this.draw.circle( height / 2 ).x( x + (9 * height)/4 ).y( y + height/4 ).fill( fill.winner[ state ] );
+						svg.chung.win = this.draw.circle( height / 2 ).x( x + (9 * height)/4 ).y( y + height/4 ).fill( fill.winner[ state ] );
 					} else {
-						this.draw.circle( height / 2 ).x( x + (9 * height)/4 ).y( y + (5 * height/4)).fill( fill.winner[ state ] );
+						svg.hong.win  = this.draw.circle( height / 2 ).x( x + (9 * height)/4 ).y( y + (5 * height/4)).fill( fill.winner[ state ] );
 					}
 				});
 
 
-				return { anchor : { ul: [ x, y ], center: [ x + (((2 * height) + width) / 2), y + height ], lr: [ x + (2 * height) + width, y + (2 * height)], source : { chung : [ x, y + height/2], hong : [ x, y + (3 * height)/2 ]}, destination: { chung: [ x + (2*height) + width, y + height/2 ], hong: [ x + (2*height) + width, y + (3*height)/2 ]}}};
+				return { id: crypto.randomUUID(), svg, anchor : { ul: [ x, y ], center: [ x + (((2 * height) + width) / 2), y + height ], lr: [ x + (2 * height) + width, y + (2 * height)], source : { chung : [ x, y + height/2], hong : [ x, y + (3 * height)/2 ]}, destination: { chung: [ x + (2*height) + width, y + height/2 ], hong: [ x + (2*height) + width, y + (3*height)/2 ]}}};
 			},
 			zoom : division => {
+				let radius  = this.state.render.radius;
+				let height  = this.state.render.height;
+				let width   = this.state.render.width;
 				let match   = division.current.match();
 				let round   = division.current.roundId();
-				let current = this.state.bracket[ round ][ match.number ];
+				let rounds  = division.rounds();
+				let mnum    = match?.number;
+				let current = this.state.bracket[ round ][ mnum ];
+				let target  = current.target;
+				let other   = target.source.chung.id == current.id ? target.source.hong : target.source.chung;
+				let bounds  = {};
 
-				this.draw.animate( 5000, 3000 ).viewbox
+				// Zoom in
+				bounds = { left: current.anchor.ul[ 0 ] - 100, top : Math.min( ... [ current.anchor.ul[ 1 ], other.anchor.ul[ 1 ]]), right: target.anchor.lr[ 0 ] + 200, bottom: Math.max( ... [ current.anchor.lr[ 1 ], other.anchor.lr[ 1 ]]) + 100 };
+				this.draw.animate( 3000, 1000 ).viewbox( bounds.left, bounds.top, bounds.right, bounds.bottom );
+
+				// Zoom back out
+				bounds = { left: (width + height)/2, top: 0, right: (rounds.length -1) * (width + (3 * height)), bottom: (rounds.length -1) * (width + (3 * height))};
+				this.draw.animate( 2000, 5000 ).viewbox( `${bounds.left} ${bounds.top} ${bounds.right} ${bounds.bottom}` );
 			}
 		};
 

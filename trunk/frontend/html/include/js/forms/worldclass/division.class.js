@@ -93,10 +93,11 @@ function Division( division ) {
 			let hong  = defined( match.hong ) && defined( division.athletes?.[ match.hong ]) ? new Athlete( division.athletes[ match.hong ] ) : undefined;
 			return hong;
 		},
-		match: ( round = null ) => {
-			let current = division.current;
+		match: () => {
+			let round   = division.round;
+			let current = parseInt( division.current );
 			let matches = this.matches( round );
-			let match   = matches.find( match => match?.order?.includes( current ));
+			let match   = matches.find( match => match?.order?.map( x => parseInt( x ))?.includes( current ));
 
 			return match;
 		},
