@@ -18,7 +18,6 @@
 		<link href="css/display.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
-		<link href="../../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
 		<link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
@@ -34,6 +33,7 @@
 		<script src="../../../include/js/widget.js"></script>
 		<script src="../../../include/js/ioc.js"></script>
 		<script src="widgets/display/match-list.js"></script>
+		<script src="widgets/display/bracket.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -70,7 +70,7 @@
 			<!-- DISPLAY BRACKET -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-4">
-				<div id="display-bracket" <?= $flip ?>>
+				<div id="display-bracket">
 				</div>
 			</div>
 
@@ -82,7 +82,6 @@
 				</div>
 			</div>
 		</div>
-		<script src="../../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
@@ -95,16 +94,7 @@
 			app.on.connect( '<?= $url ?>' ).read.division();
 
 			app.page = {
-				animation : {
-					default: 4, // Move to bottom / From top
-					matches: 41, // Push buttom / From top
-					score: 8, // Fade from top
-					results: 34, // Flip top
-					bracket: 52, // Move to bottom / Unfold top
-					leaderboard: 61, // Cube to bottom
-				},
 				num: 1,
-				count: 3,
 				for : {
 					matches: 1,
 					score: 2,
@@ -120,9 +110,9 @@
 					leaderboard: () => { app.page.transition( 'leaderboard' ); }
 				},
 				transition: target => { 
-					let animation = app.page.animation?.[ target ] ? app.page.animation[ target ] : app.page.animation.default;
-					let showPage  = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.match;
-					PageTransitions.nextPage({ animation, showPage }); 
+					let page = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.score;
+					$( '.pt-page' ).hide();
+					$( `.pt-page-${page}` ).show();
 				}
 			};
 
@@ -130,8 +120,11 @@
 			// APP COMPOSITION
 			// ============================================================
 			app.widget = {
+				bracket : {
+					display : new FreeScore.Widget.SEBracket( app, 'display-bracket' )
+				},
 				match : {
-					display : new FreeScore.Widget.SEMatchList( app, 'match-display' )
+					display : new FreeScore.Widget.SEMatchList( app, 'display-matches' )
 				}
 			};
 

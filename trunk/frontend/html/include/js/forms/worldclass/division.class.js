@@ -34,6 +34,11 @@ function Division( division ) {
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };
 	this.athletes    = function() { return division.athletes.map( function( athlete ) { return new Athlete( athlete ); }); };
+	this.athlete     = i => { 
+		i = defined( i ) ? i : division.current;
+		let athlete = new Athlete( division.athletes[ i ]);
+		return athlete;
+	}
 
 	this.as = {
 		json : function() { return JSON.stringify( division ); },

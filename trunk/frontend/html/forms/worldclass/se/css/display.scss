@@ -4,11 +4,22 @@ body {
   background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
   background: linear-gradient(to bottom, #45484d 0%,#000000 100%); /* W3C */
   font-family: FjallaOne;
+  overflow: hidden;
 }
 
 @import '../../../../include/css/fonts';
+@import 'header';
 @import 'matches';
 
+#display-bracket {
+  $height: 100px;
+  $border: 4px;
+  $noc: 80px;
+  $win: 60px;
+  svg {
+    margin-top: 5%;
+  }
+}
 
 .enter-down-bounce {
   -webkit-animation: enterDownBounce 1s linear;

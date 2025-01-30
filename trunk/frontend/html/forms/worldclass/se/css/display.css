@@ -5,6 +5,7 @@ body {
   background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
   /* W3C */
   font-family: FjallaOne;
+  overflow: hidden;
 }
 
 @font-face {
@@ -55,77 +56,78 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-#match-display .header {
-  height: 100px;
+#display-matches .header, #display-bracket .header {
+  width: 100%;
   color: #999;
 }
-#match-display .header h1 {
+#display-matches .header h1, #display-bracket .header h1 {
   text-align: center;
   font-size: 4em;
 }
-#match-display .header h1 .divid {
+#display-matches .header h1 .divid, #display-bracket .header h1 .divid {
   color: white;
 }
-#match-display .header h1 .description {
+#display-matches .header h1 .description, #display-bracket .header h1 .description {
   color: #ccc;
 }
-#match-display .header h2 {
+#display-matches .header h2, #display-bracket .header h2 {
   text-align: center;
   color: gold;
   font-size: 3em;
 }
-#match-display.chung-right .match {
+
+#display-matches.chung-right .match {
   position: relative;
   margin-left: 10%;
   margin-right: 10%;
   width: 80%;
   color: white;
 }
-#match-display.chung-right .match.ro8, #match-display.chung-right .match.ro16, #match-display.chung-right .match.ro32, #match-display.chung-right .match.ro64, #match-display.chung-right .match.ro128, #match-display.chung-right .match.ro256 {
+#display-matches.chung-right .match.ro8, #display-matches.chung-right .match.ro16, #display-matches.chung-right .match.ro32, #display-matches.chung-right .match.ro64, #display-matches.chung-right .match.ro128, #display-matches.chung-right .match.ro256 {
   height: 10%;
   margin-top: 3.5%;
   margin-bottom: 3.5%;
 }
-#match-display.chung-right .match.ro8 .match-number, #match-display.chung-right .match.ro16 .match-number, #match-display.chung-right .match.ro32 .match-number, #match-display.chung-right .match.ro64 .match-number, #match-display.chung-right .match.ro128 .match-number, #match-display.chung-right .match.ro256 .match-number {
+#display-matches.chung-right .match.ro8 .match-number, #display-matches.chung-right .match.ro16 .match-number, #display-matches.chung-right .match.ro32 .match-number, #display-matches.chung-right .match.ro64 .match-number, #display-matches.chung-right .match.ro128 .match-number, #display-matches.chung-right .match.ro256 .match-number {
   top: 0;
 }
-#match-display.chung-right .match.ro8 .match-chung, #match-display.chung-right .match.ro8 .match-hong, #match-display.chung-right .match.ro16 .match-chung, #match-display.chung-right .match.ro16 .match-hong, #match-display.chung-right .match.ro32 .match-chung, #match-display.chung-right .match.ro32 .match-hong, #match-display.chung-right .match.ro64 .match-chung, #match-display.chung-right .match.ro64 .match-hong, #match-display.chung-right .match.ro128 .match-chung, #match-display.chung-right .match.ro128 .match-hong, #match-display.chung-right .match.ro256 .match-chung, #match-display.chung-right .match.ro256 .match-hong {
+#display-matches.chung-right .match.ro8 .match-chung, #display-matches.chung-right .match.ro8 .match-hong, #display-matches.chung-right .match.ro16 .match-chung, #display-matches.chung-right .match.ro16 .match-hong, #display-matches.chung-right .match.ro32 .match-chung, #display-matches.chung-right .match.ro32 .match-hong, #display-matches.chung-right .match.ro64 .match-chung, #display-matches.chung-right .match.ro64 .match-hong, #display-matches.chung-right .match.ro128 .match-chung, #display-matches.chung-right .match.ro128 .match-hong, #display-matches.chung-right .match.ro256 .match-chung, #display-matches.chung-right .match.ro256 .match-hong {
   height: 100px;
 }
-#match-display.chung-right .match.ro4 {
+#display-matches.chung-right .match.ro4 {
   top: 10%;
   height: 15%;
   margin-top: 10%;
   margin-bottom: 5%;
 }
-#match-display.chung-right .match.ro4 .match-number {
+#display-matches.chung-right .match.ro4 .match-number {
   top: 12.5px;
 }
-#match-display.chung-right .match.ro4 .match-chung, #match-display.chung-right .match.ro4 .match-hong {
+#display-matches.chung-right .match.ro4 .match-chung, #display-matches.chung-right .match.ro4 .match-hong {
   padding-top: 10px;
   height: 125px;
 }
-#match-display.chung-right .match.ro4 .match-chung .noc, #match-display.chung-right .match.ro4 .match-hong .noc {
+#display-matches.chung-right .match.ro4 .match-chung .noc, #display-matches.chung-right .match.ro4 .match-hong .noc {
   top: 14px;
 }
-#match-display.chung-right .match.ro4 .match-chung .win, #match-display.chung-right .match.ro4 .match-hong .win {
+#display-matches.chung-right .match.ro4 .match-chung .win, #display-matches.chung-right .match.ro4 .match-hong .win {
   top: 32.5px;
 }
-#match-display.chung-right .match.ro2 {
+#display-matches.chung-right .match.ro2 {
   height: 20%;
   margin-top: 15%;
 }
-#match-display.chung-right .match.ro2 .match-number {
+#display-matches.chung-right .match.ro2 .match-number {
   top: 25px;
 }
-#match-display.chung-right .match.ro2 .match-chung, #match-display.chung-right .match.ro2 .match-hong {
+#display-matches.chung-right .match.ro2 .match-chung, #display-matches.chung-right .match.ro2 .match-hong {
   padding-top: 22.5px;
   height: 150px;
 }
-#match-display.chung-right .match.ro2 .match-chung .noc, #match-display.chung-right .match.ro2 .match-hong .noc {
+#display-matches.chung-right .match.ro2 .match-chung .noc, #display-matches.chung-right .match.ro2 .match-hong .noc {
   top: 25px;
 }
-#match-display.chung-right .match .win {
+#display-matches.chung-right .match .win {
   position: absolute;
   background-color: gold;
   width: 60px;
@@ -133,40 +135,40 @@ body {
   border-radius: 30px;
   top: 20px;
 }
-#match-display.chung-right .match .noc {
+#display-matches.chung-right .match .noc {
   position: absolute;
 }
-#match-display.chung-right .match .noc img {
+#display-matches.chung-right .match .noc img {
   width: 80px;
 }
-#match-display.chung-right .match .name {
+#display-matches.chung-right .match .name {
   position: absolute;
   width: 100%;
   font-size: 4em;
   line-height: 1.75em;
   max-width: 520px;
 }
-#match-display.chung-right .match .match-chung, #match-display.chung-right .match .match-hong {
+#display-matches.chung-right .match .match-chung, #display-matches.chung-right .match .match-hong {
   width: 50%;
   position: absolute;
 }
-#match-display.chung-right .match.active .match-chung {
+#display-matches.chung-right .match.active .match-chung {
   background: #000124;
   background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
   color: white;
   border: 4px solid gold;
 }
-#match-display.chung-right .match.active .match-chung .name {
+#display-matches.chung-right .match.active .match-chung .name {
   line-height: 1.75em;
 }
-#match-display.chung-right .match.active .match-chung .noc {
+#display-matches.chung-right .match.active .match-chung .noc {
   opacity: 100%;
 }
-#match-display.chung-right .match.active .match-chung .win {
+#display-matches.chung-right .match.active .match-chung .win {
   background-color: gold;
   top: 16px;
 }
-#match-display.chung-right .match .match-chung {
+#display-matches.chung-right .match .match-chung {
   right: 0;
   text-align: right;
   border-top-right-radius: 50px;
@@ -174,37 +176,37 @@ body {
   background: #000124;
   color: #333;
 }
-#match-display.chung-right .match .match-chung .name {
+#display-matches.chung-right .match .match-chung .name {
   padding-right: 80px;
   line-height: 1.9em;
   right: 0;
 }
-#match-display.chung-right .match .match-chung .win {
+#display-matches.chung-right .match .match-chung .win {
   right: 10px;
   background-color: #653;
 }
-#match-display.chung-right .match .match-chung .noc {
+#display-matches.chung-right .match .match-chung .noc {
   left: 100px;
   top: 8px;
   opacity: 20%;
 }
-#match-display.chung-right .match.active .match-hong {
+#display-matches.chung-right .match.active .match-hong {
   background: #240000;
   background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
   color: white;
   border: 4px solid gold;
 }
-#match-display.chung-right .match.active .match-hong .name {
+#display-matches.chung-right .match.active .match-hong .name {
   line-height: 1.75em;
 }
-#match-display.chung-right .match.active .match-hong .noc {
+#display-matches.chung-right .match.active .match-hong .noc {
   opacity: 100%;
 }
-#match-display.chung-right .match.active .match-hong .win {
+#display-matches.chung-right .match.active .match-hong .win {
   background-color: gold;
   top: 16px;
 }
-#match-display.chung-right .match .match-hong {
+#display-matches.chung-right .match .match-hong {
   left: 0;
   text-align: left;
   border-top-left-radius: 50px;
@@ -212,25 +214,25 @@ body {
   background: #240000;
   color: #333;
 }
-#match-display.chung-right .match .match-hong .name {
+#display-matches.chung-right .match .match-hong .name {
   padding-left: 80px;
   line-height: 1.9em;
   left: 0;
 }
-#match-display.chung-right .match .match-hong .win {
+#display-matches.chung-right .match .match-hong .win {
   left: 10px;
   background-color: #653;
 }
-#match-display.chung-right .match .match-hong .noc {
+#display-matches.chung-right .match .match-hong .noc {
   right: 100px;
   top: 8px;
   opacity: 20%;
 }
-#match-display.chung-right .match.active .match-number {
+#display-matches.chung-right .match.active .match-number {
   background: gold;
   color: black;
 }
-#match-display.chung-right .match .match-number {
+#display-matches.chung-right .match .match-number {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,65 +247,65 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
-#match-display.chung-right .match .match-number .number {
+#display-matches.chung-right .match .match-number .number {
   position: relative;
   font-size: 3.2em;
 }
-#match-display.chung-right .match.ro4.active .win {
+#display-matches.chung-right .match.ro4.active .win {
   top: 27px;
 }
-#match-display.chung-left .match {
+#display-matches.chung-left .match {
   position: relative;
   margin-left: 10%;
   margin-right: 10%;
   width: 80%;
   color: white;
 }
-#match-display.chung-left .match.ro8, #match-display.chung-left .match.ro16, #match-display.chung-left .match.ro32, #match-display.chung-left .match.ro64, #match-display.chung-left .match.ro128, #match-display.chung-left .match.ro256 {
+#display-matches.chung-left .match.ro8, #display-matches.chung-left .match.ro16, #display-matches.chung-left .match.ro32, #display-matches.chung-left .match.ro64, #display-matches.chung-left .match.ro128, #display-matches.chung-left .match.ro256 {
   height: 10%;
   margin-top: 3.5%;
   margin-bottom: 3.5%;
 }
-#match-display.chung-left .match.ro8 .match-number, #match-display.chung-left .match.ro16 .match-number, #match-display.chung-left .match.ro32 .match-number, #match-display.chung-left .match.ro64 .match-number, #match-display.chung-left .match.ro128 .match-number, #match-display.chung-left .match.ro256 .match-number {
+#display-matches.chung-left .match.ro8 .match-number, #display-matches.chung-left .match.ro16 .match-number, #display-matches.chung-left .match.ro32 .match-number, #display-matches.chung-left .match.ro64 .match-number, #display-matches.chung-left .match.ro128 .match-number, #display-matches.chung-left .match.ro256 .match-number {
   top: 0;
 }
-#match-display.chung-left .match.ro8 .match-chung, #match-display.chung-left .match.ro8 .match-hong, #match-display.chung-left .match.ro16 .match-chung, #match-display.chung-left .match.ro16 .match-hong, #match-display.chung-left .match.ro32 .match-chung, #match-display.chung-left .match.ro32 .match-hong, #match-display.chung-left .match.ro64 .match-chung, #match-display.chung-left .match.ro64 .match-hong, #match-display.chung-left .match.ro128 .match-chung, #match-display.chung-left .match.ro128 .match-hong, #match-display.chung-left .match.ro256 .match-chung, #match-display.chung-left .match.ro256 .match-hong {
+#display-matches.chung-left .match.ro8 .match-chung, #display-matches.chung-left .match.ro8 .match-hong, #display-matches.chung-left .match.ro16 .match-chung, #display-matches.chung-left .match.ro16 .match-hong, #display-matches.chung-left .match.ro32 .match-chung, #display-matches.chung-left .match.ro32 .match-hong, #display-matches.chung-left .match.ro64 .match-chung, #display-matches.chung-left .match.ro64 .match-hong, #display-matches.chung-left .match.ro128 .match-chung, #display-matches.chung-left .match.ro128 .match-hong, #display-matches.chung-left .match.ro256 .match-chung, #display-matches.chung-left .match.ro256 .match-hong {
   height: 100px;
 }
-#match-display.chung-left .match.ro4 {
+#display-matches.chung-left .match.ro4 {
   top: 10%;
   height: 15%;
   margin-top: 10%;
   margin-bottom: 5%;
 }
-#match-display.chung-left .match.ro4 .match-number {
+#display-matches.chung-left .match.ro4 .match-number {
   top: 12.5px;
 }
-#match-display.chung-left .match.ro4 .match-chung, #match-display.chung-left .match.ro4 .match-hong {
+#display-matches.chung-left .match.ro4 .match-chung, #display-matches.chung-left .match.ro4 .match-hong {
   padding-top: 10px;
   height: 125px;
 }
-#match-display.chung-left .match.ro4 .match-chung .noc, #match-display.chung-left .match.ro4 .match-hong .noc {
+#display-matches.chung-left .match.ro4 .match-chung .noc, #display-matches.chung-left .match.ro4 .match-hong .noc {
   top: 14px;
 }
-#match-display.chung-left .match.ro4 .match-chung .win, #match-display.chung-left .match.ro4 .match-hong .win {
+#display-matches.chung-left .match.ro4 .match-chung .win, #display-matches.chung-left .match.ro4 .match-hong .win {
   top: 32.5px;
 }
-#match-display.chung-left .match.ro2 {
+#display-matches.chung-left .match.ro2 {
   height: 20%;
   margin-top: 15%;
 }
-#match-display.chung-left .match.ro2 .match-number {
+#display-matches.chung-left .match.ro2 .match-number {
   top: 25px;
 }
-#match-display.chung-left .match.ro2 .match-chung, #match-display.chung-left .match.ro2 .match-hong {
+#display-matches.chung-left .match.ro2 .match-chung, #display-matches.chung-left .match.ro2 .match-hong {
   padding-top: 22.5px;
   height: 150px;
 }
-#match-display.chung-left .match.ro2 .match-chung .noc, #match-display.chung-left .match.ro2 .match-hong .noc {
+#display-matches.chung-left .match.ro2 .match-chung .noc, #display-matches.chung-left .match.ro2 .match-hong .noc {
   top: 25px;
 }
-#match-display.chung-left .match .win {
+#display-matches.chung-left .match .win {
   position: absolute;
   background-color: gold;
   width: 60px;
@@ -311,40 +313,40 @@ body {
   border-radius: 30px;
   top: 20px;
 }
-#match-display.chung-left .match .noc {
+#display-matches.chung-left .match .noc {
   position: absolute;
 }
-#match-display.chung-left .match .noc img {
+#display-matches.chung-left .match .noc img {
   width: 80px;
 }
-#match-display.chung-left .match .name {
+#display-matches.chung-left .match .name {
   position: absolute;
   width: 100%;
   font-size: 4em;
   line-height: 1.75em;
   max-width: 520px;
 }
-#match-display.chung-left .match .match-chung, #match-display.chung-left .match .match-hong {
+#display-matches.chung-left .match .match-chung, #display-matches.chung-left .match .match-hong {
   width: 50%;
   position: absolute;
 }
-#match-display.chung-left .match.active .match-chung {
+#display-matches.chung-left .match.active .match-chung {
   background: #000124;
   background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
   color: white;
   border: 4px solid gold;
 }
-#match-display.chung-left .match.active .match-chung .name {
+#display-matches.chung-left .match.active .match-chung .name {
   line-height: 1.75em;
 }
-#match-display.chung-left .match.active .match-chung .noc {
+#display-matches.chung-left .match.active .match-chung .noc {
   opacity: 100%;
 }
-#match-display.chung-left .match.active .match-chung .win {
+#display-matches.chung-left .match.active .match-chung .win {
   background-color: gold;
   top: 16px;
 }
-#match-display.chung-left .match .match-chung {
+#display-matches.chung-left .match .match-chung {
   left: 0;
   text-align: left;
   border-top-left-radius: 50px;
@@ -352,37 +354,37 @@ body {
   background: #000124;
   color: #333;
 }
-#match-display.chung-left .match .match-chung .name {
+#display-matches.chung-left .match .match-chung .name {
   padding-left: 80px;
   line-height: 1.9em;
   left: 0;
 }
-#match-display.chung-left .match .match-chung .win {
+#display-matches.chung-left .match .match-chung .win {
   left: 10px;
   background-color: #653;
 }
-#match-display.chung-left .match .match-chung .noc {
+#display-matches.chung-left .match .match-chung .noc {
   right: 100px;
   top: 8px;
   opacity: 20%;
 }
-#match-display.chung-left .match.active .match-hong {
+#display-matches.chung-left .match.active .match-hong {
   background: #240000;
   background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
   color: white;
   border: 4px solid gold;
 }
-#match-display.chung-left .match.active .match-hong .name {
+#display-matches.chung-left .match.active .match-hong .name {
   line-height: 1.75em;
 }
-#match-display.chung-left .match.active .match-hong .noc {
+#display-matches.chung-left .match.active .match-hong .noc {
   opacity: 100%;
 }
-#match-display.chung-left .match.active .match-hong .win {
+#display-matches.chung-left .match.active .match-hong .win {
   background-color: gold;
   top: 16px;
 }
-#match-display.chung-left .match .match-hong {
+#display-matches.chung-left .match .match-hong {
   right: 0;
   text-align: right;
   border-top-right-radius: 50px;
@@ -390,25 +392,25 @@ body {
   background: #240000;
   color: #333;
 }
-#match-display.chung-left .match .match-hong .name {
+#display-matches.chung-left .match .match-hong .name {
   padding-right: 80px;
   line-height: 1.9em;
   right: 0;
 }
-#match-display.chung-left .match .match-hong .win {
+#display-matches.chung-left .match .match-hong .win {
   right: 10px;
   background-color: #653;
 }
-#match-display.chung-left .match .match-hong .noc {
+#display-matches.chung-left .match .match-hong .noc {
   left: 100px;
   top: 8px;
   opacity: 20%;
 }
-#match-display.chung-left .match.active .match-number {
+#display-matches.chung-left .match.active .match-number {
   background: gold;
   color: black;
 }
-#match-display.chung-left .match .match-number {
+#display-matches.chung-left .match .match-number {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -423,12 +425,16 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
-#match-display.chung-left .match .match-number .number {
+#display-matches.chung-left .match .match-number .number {
   position: relative;
   font-size: 3.2em;
 }
-#match-display.chung-left .match.ro4.active .win {
+#display-matches.chung-left .match.ro4.active .win {
   top: 27px;
+}
+
+#display-bracket svg {
+  margin-top: 5%;
 }
 
 .enter-down-bounce {

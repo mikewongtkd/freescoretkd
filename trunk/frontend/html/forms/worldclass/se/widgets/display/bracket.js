@@ -1,0 +1,162 @@
+FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
+	constructor( app, dom ) {
+		super( app, dom );
+
+		this.dom.append( '<div class="header"></div><div class="bracket-graph"></div>' );
+
+		this.svg  = SVG();
+		this.draw = null;
+
+		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
+		this.display.header   = this.dom.find( '.header' );
+		this.display.bracket  = { graph : this.dom.find( '.bracket-graph' ) };
+
+		// ===== ADD STATE INFORMATION
+		this.state.render = { radius: 40, height: 50, width: 350 };
+		this.state.bracket = {};
+
+		// ===== ADD REFRESH BEHAVIOR
+
+		// ------------------------------------------------------------
+		let reorder = matches => {
+		// ------------------------------------------------------------
+		// Helper function to reorder matches in bracket order rather
+		// than sequential order
+		//
+			let order  = [];
+			let middle = true;
+			let copy   = matches.slice();
+			while( copy.length > 0 ) {
+				let a = copy.shift();
+				let b = copy.pop();
+				if( middle == true ) {
+					order.splice( order.length / 2, 0, a, b );
+					middle = false;
+				} else {
+					order.splice( (order.length / 2) + 1, 0, a, b );
+					middle = true;
+				}
+			}
+
+			order = order.filter( x => defined( x ));
+			return order;
+		};
+
+		this.refresh.header = division => {
+			this.display.header.empty();
+			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2>${division.current.round.display.name()}</h2>` );
+		};
+
+		this.refresh.bracket = {
+			graph : division => {
+				let radius = this.state.render.radius;
+				let height = this.state.render.height;
+				let width  = this.state.render.width;
+
+				if( ! defined( division )) { 
+					this.display.header.empty(); 
+					this.display.match.list.empty(); 
+					return; 
+				}
+
+				let rounds = division.rounds();
+				let start  = 0;
+				let prev   = null;
+				let first  = rounds[ 0 ];
+
+				this.display.bracket.graph.empty();
+				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${(width + height)/2} 0 ${(rounds.length - 1) * (width + (3 * height))} ${(rounds.length - 1) * (width + (3 * height))}` );
+
+				rounds.forEach(( round, i ) => { 
+					let matches = reorder( division.matches( round ));
+					let yoffset = ((4 - matches.length) / 2) * height * 3;
+					this.state.bracket[ round ] = {};
+					matches.forEach(( match, j ) => {
+						let state = match.order.includes( division.current.athleteId()) ? true : false;
+						let x = (i * ((height * 3) + width));
+						let y = (j * (height * 3 )) + yoffset;
+
+						// Cache important points for current match
+						let cmatch = this.state.bracket[ round ][ match.number ] = this.refresh.bracket.match( division, match, x, y, start, state );
+
+						if( prev ) {
+							let pmatches = reorder( division.matches( prev ));
+							let a        = pmatches.shift();
+							let b        = pmatches.shift();
+							let x        = this.state.bracket[ prev ][ a.number ];
+							let y        = this.state.bracket[ prev ][ b.number ];
+							x.target     = cmatch;
+							y.target     = cmatch;
+							cmatch.source = { chung: x, hong: y };
+
+							if( a.winner == a.chung ) {
+								this.draw.path( `M${x.anchor.destination.chung.join( ',' )} h${height/2} v${(3*height)/2} h${height/2}` );
+							}
+
+						}
+					});
+					start += matches.length;
+					prev = round;
+				});
+
+			},
+			match : ( division, match, x, y, start, state = 'default' ) => {
+				let radius = this.state.render.radius;
+				let height = this.state.render.height;
+				let width  = this.state.render.width;
+				let fill   = {
+					match:  { true: 'gold',  false: '#666' },
+					chung:  { true: '#03f',  false: '#013' },
+					hong:   { true: '#f30',  false: '#310' },
+					name:   { true: 'white', false: '#666' },
+					number: { true: 'black', false: 'black' },
+					winner: { true: 'gold',  false: '#660' }
+				};
+
+				this.draw.path( `M0,${radius} q0,-${radius} ${radius},-${radius} h${(2*height)-radius} v${(2*height)} h-${(2*height)-radius} q-${radius},0 -${radius},-${radius} v-${(2*(height-radius))}` ).x( x ).y( y ).fill( fill.match[ state ]);
+				this.draw.path( `M0,0 h${width-radius} q${radius},0 ${radius},${radius} v${height - radius} h-${width} z` ).x( x + 2 * height ).y( y ).fill( fill.chung[ state ]);
+				this.draw.path( `M0,0 h${width} v${height-radius} q0,${radius} -${radius},${radius} h-${width-radius} z` ).x( x + 2 * height ).y( y + height ).fill( fill.hong[ state ]);
+
+				let chung = match?.chung ? division.athlete( match.chung ) : { bye: true, display: { name: max_length => 'BYE' }};
+				let hong  = match?.hong  ? division.athlete( match.hong )  : { bye: true, display: { name: max_length => 'BYE' }};
+
+				this.draw.plain( 'Match' ).font({ size: '14pt' }).fill( fill.number[ state ]).x( x + (5 * height)/8 ).y( y + (3 * height)/16 );
+				this.draw.plain( start + match.number ).font({ size: '36pt' }).fill( fill.number[ state ]).x( x + (3 * height)/4 ).y( y + (11 * height)/16 );
+
+				this.draw.plain( chung.display.name( 16 )).font({ size: '24pt' }).fill( fill.name[ state ]).x( x + 3 * height ).y( y + height/8 );
+				this.draw.plain( hong.display.name( 16 )).font({ size: '24pt' }).fill( fill.name[ state ]).x( x + 3 * height ).y( y + (9 * height)/8 );
+
+				[ 'chung', 'hong' ].forEach( contestant => {
+					if( match[ contestant ] != match.winner ) { return; }
+					console.log( 'WINNER', contestant, match[ contestant ], match.winner ); // MW
+					if( contestant == 'chung' ) {
+						this.draw.circle( height / 2 ).x( x + (9 * height)/4 ).y( y + height/4 ).fill( fill.winner[ state ] );
+					} else {
+						this.draw.circle( height / 2 ).x( x + (9 * height)/4 ).y( y + (5 * height/4)).fill( fill.winner[ state ] );
+					}
+				});
+
+
+				return { anchor : { ul: [ x, y ], center: [ x + (((2 * height) + width) / 2), y + height ], lr: [ x + (2 * height) + width, y + (2 * height)], source : { chung : [ x, y + height/2], hong : [ x, y + (3 * height)/2 ]}, destination: { chung: [ x + (2*height) + width, y + height/2 ], hong: [ x + (2*height) + width, y + (3*height)/2 ]}}};
+			},
+			zoom : division => {
+				let match   = division.current.match();
+				let round   = division.current.roundId();
+				let current = this.state.bracket[ round ][ match.number ];
+
+				this.draw.animate( 5000, 3000 ).viewbox
+			}
+		};
+
+		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
+		this.network.on
+		.heard( 'division' )
+			.command( 'update' ).respond( update => {
+				let division = update?.division ? new Division( update.division ) : null;
+
+				this.refresh.header( division );
+				this.refresh.bracket.graph( division );
+				this.refresh.bracket.zoom( division );
+			});
+	}
+}
