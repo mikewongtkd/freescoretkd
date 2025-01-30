@@ -57,6 +57,11 @@ function Division( division ) {
 			return athletes;
 		},
 		athleteId : function() { return parseInt( division.current ); },
+		chung : () => {
+			let match = this.current.match();
+			let chung = defined( match.chung ) && defined( division.athletes?.[ match.chung ]) ? new Athlete( division.athletes[ match.chung ] ) : undefined;
+			return chung;
+		},
 		form : {
 			description : function() {
 				let round       = division.round;
@@ -78,6 +83,11 @@ function Division( division ) {
 			},
 		},
 		formId    : function() { return parseInt( division.form ); },
+		hong : () => {
+			let match = this.current.match();
+			let hong  = defined( match.hong ) && defined( division.athletes?.[ match.hong ]) ? new Athlete( division.athletes[ match.hong ] ) : undefined;
+			return hong;
+		},
 		match: ( round = null ) => {
 			let current = division.current;
 			let matches = this.matches( round );
@@ -231,8 +241,11 @@ function Division( division ) {
 
 	let _state = this.state = {
 		is : {
-			score   : function() { return division.state == 'score'; },
-			display : function() { return division.state == 'display'; },
+			display:     () => { return division.state == 'display'; },
+			leaderboard: () => { return division.state == 'leaderboard'; },
+			match:       () => { return division.state == 'match'; },
+			results:     () => { return division.state == 'results'; },
+			score:       () => { return division.state == 'score'; },
 		}
 	};
 
