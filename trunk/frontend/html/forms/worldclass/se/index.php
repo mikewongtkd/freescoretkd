@@ -25,6 +25,7 @@
 		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
+		<script src="../../../include/svg/js/svg.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
 		<script src="../../../include/js/websocket.js"></script>
 		<script src="../../../include/js/sound.js"></script>
@@ -42,42 +43,42 @@
 	<body>
 		<div id="pt-main" class="pt-perspective">
 			<!-- ============================================================ -->
-			<!-- MATCH DISPLAY -->
+			<!-- DISPLAY MATCHES -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
-				<div id="match-display" <?= $flip ?>>
+				<div id="display-matches" <?= $flip ?>>
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- SCORE DISPLAY -->
+			<!-- DISPLAY SCORE -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
-				<div id="score-display" <?= $flip ?>>
+				<div id="display-score" <?= $flip ?>>
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- RESULTS DISPLAY -->
+			<!-- DISPLAY RESULTS -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-3">
-			<div id="results-display" <?= $flip ?>>
+			<div id="display-results" <?= $flip ?>>
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- BRACKET DISPLAY -->
+			<!-- DISPLAY BRACKET -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-4">
-				<div id="bracket-display" <?= $flip ?>>
+				<div id="display-bracket" <?= $flip ?>>
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- LEADERBOARD DISPLAY -->
+			<!-- DISPLAY LEADERBOARD -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-5">
-				<div id="leaderboard-display" <?= $flip ?>>
+				<div id="display-leaderboard" <?= $flip ?>>
 				</div>
 			</div>
 		</div>
@@ -96,7 +97,7 @@
 			app.page = {
 				animation : {
 					default: 4, // Move to bottom / From top
-					match: 41, // Push buttom / From top
+					matches: 41, // Push buttom / From top
 					score: 8, // Fade from top
 					results: 34, // Flip top
 					bracket: 52, // Move to bottom / Unfold top
@@ -105,14 +106,18 @@
 				num: 1,
 				count: 3,
 				for : {
-					match: 1,
+					matches: 1,
 					score: 2,
-					leaderboard: 3
+					results: 3,
+					bracket: 4,
+					leaderboard: 5
 				},
 				show : {
-					match :       () => { app.page.transition( 'match' ); },
-					score :       () => { app.page.transition( 'score' ); },
-					leaderboard : () => { app.page.transition( 'leaderboard' ); }
+					matches:     () => { app.page.transition( 'matches' ); },
+					score:       () => { app.page.transition( 'score' ); },
+					results:     () => { app.page.transition( 'results' ); },
+					bracket:     () => { app.page.transition( 'bracket' ); },
+					leaderboard: () => { app.page.transition( 'leaderboard' ); }
 				},
 				transition: target => { 
 					let animation = app.page.animation?.[ target ] ? app.page.animation[ target ] : app.page.animation.default;
@@ -136,6 +141,15 @@
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {
+						let division = update?.division;
+						if( ! defined( division )) { return; }
+
+						let state = division.state;
+						if( ! defined( app.page.show?.[ state ])) { 
+							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
+							state = 'score'; 
+						}
+						app.page.show[ state ]();
 					});
 
 		</script>

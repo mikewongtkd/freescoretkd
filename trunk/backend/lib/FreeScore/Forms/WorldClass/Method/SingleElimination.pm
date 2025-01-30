@@ -242,11 +242,11 @@ sub change_display {
 # ============================================================
 	my $self   = shift;
 	my $div    = $self->division();
-	my $states = [ qw( matches score results brackets leaderboard )];
+	my $states = [ qw( matches score results bracket leaderboard )];
 	my $i      = first_index { $_ eq $div->{ state } } @$states;
 
 	if   ( $i >= $#$states ) { $i = 0; }
-	elsif( $i < 0 )          { die "Invalid state '$div->{ state }' $!"; }
+	elsif( $i < 0 )          { warn "Invalid state '$div->{ state }'; defaulting to 'score' $!"; $i = 1; }
 	else                     { $i++; }
 
 	$div->{ state } = $states->[ $i ];
