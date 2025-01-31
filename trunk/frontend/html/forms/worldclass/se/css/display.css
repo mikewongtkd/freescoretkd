@@ -1,8 +1,8 @@
 body {
   background: black;
-  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  background: -webkit-linear-gradient(to bottom, #35383d 0%, #000000 100%);
   /* W3C */
-  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
   /* W3C */
   font-family: FjallaOne;
   overflow: hidden;

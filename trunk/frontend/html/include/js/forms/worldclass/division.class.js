@@ -247,6 +247,7 @@ function Division( division ) {
 
 	let _state = this.state = {
 		is : {
+			bracket:     () => { return division.state == 'bracket'; },
 			display:     () => { return division.state == 'display'; },
 			leaderboard: () => { return division.state == 'leaderboard'; },
 			match:       () => { return division.state == 'match'; },

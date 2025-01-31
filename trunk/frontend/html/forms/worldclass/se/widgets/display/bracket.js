@@ -55,7 +55,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 
 				if( ! defined( division )) { 
 					this.display.header.empty(); 
-					this.display.match.list.empty(); 
+					this.display.bracket.graph.empty(); 
 					return; 
 				}
 
@@ -66,6 +66,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let bounds = { left: (width + height)/2, top: 0, right: (rounds.length -1) * (width + (3 * height)), bottom: (rounds.length -1) * (width + (3 * height))};
 
 				this.display.bracket.graph.empty();
+				if( this.draw ) { this.draw.clear(); }
 				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${bounds.left} ${bounds.top} ${bounds.right} ${bounds.bottom}` );
 
 				rounds.forEach(( round, i ) => { 
@@ -140,9 +141,9 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let width  = this.state.render.width;
 				let fill   = {
 					match:  { true: 'gold',  false: '#666' },
-					chung:  { true: '#03f',  false: '#013' },
-					hong:   { true: '#f30',  false: '#310' },
-					name:   { true: 'white', false: '#666' },
+					chung:  { true: '#03f',  false: '#014' },
+					hong:   { true: '#f30',  false: '#410' },
+					name:   { true: 'white', false: '#888' },
 					number: { true: 'black', false: 'black' },
 					winner: { true: 'gold',  false: '#660' }
 				};
@@ -215,7 +216,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 
 				this.refresh.header( division );
 				this.refresh.bracket.graph( division );
-				this.refresh.bracket.zoom( division );
+				if( division.state.is.bracket()) { this.refresh.bracket.zoom( division ); }
 			});
 	}
 }

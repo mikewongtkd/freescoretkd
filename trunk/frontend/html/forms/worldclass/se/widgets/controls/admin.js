@@ -81,6 +81,10 @@ FreeScore.Widget.SEAdmin = class FSWidgetAdmin extends FreeScore.Widget {
 					let division = update?.division;
 					if( ! defined( division )) { return; }
 
+					if( update.request.action == 'display' ) {
+						alertify.success( `Now displaying ${division.state.capitalize()}` );
+					}
+
 					division = new Division( division );
 					this.refresh.buttons( division );
 				});
