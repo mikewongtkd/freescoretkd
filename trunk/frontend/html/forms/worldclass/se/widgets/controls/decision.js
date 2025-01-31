@@ -10,6 +10,7 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			<div class="list-group">
 				<button class="list-group-item decision-button" id="withdraw"><span class="fas fa-user-minus"></span> Withdraw</button>
 				<button class="list-group-item decision-button" id="disqualify"><span class="fas fa-user-times"></span> Disqualify</button>
+				<button class="list-group-item decision-button" id="winner"><span class="fas fa-trophy"></span> Winner</button>
 				<button class="list-group-item decision-button" id="clear-decision"><span class="fas fa-times-circle"></span> Clear Decisions</button>
 			</div>
 		</div>
@@ -19,6 +20,7 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.button.withdraw   = this.dom.find( '#withdraw' );
 		this.button.disqualify = this.dom.find( '#disqualify' );
+		this.button.winner     = this.dom.find( '#winner' );
 		this.button.clear      = this.dom.find( '#clear-decision' );
 		this.display.all       = this.dom.find( '.decision' );
 
@@ -28,6 +30,21 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let current = division.current.athleteId();
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
+			let match   = division.current.match();
+			console.log( 'DECISION MATCH', match ); // MW
+
+			if([ match.chung, match.hong ].some( athlete => ! defined( athlete ))) {
+				this.button.winner.show();
+				let n     = division.judges();
+				let score = { major: 0.0, minor: 4.0, power: 0.5, rhythm: 0.5, ki: 0.5 };
+				for( let judge = 0; judge < n; judge++ ) {
+					this.network.send({ type: 'division', action: 'score', score, judge, cookie: { judge }});
+				}
+				this.sound.ok.play();
+				alertify.success( `${athlete.name()} has been awarded the win for being uncontested` );
+			} else {
+				this.button.winner.hide();
+			}
 
 			let action = { withdraw : 'has <b>Withdrawn (WDR)</b>', disqualify : 'has been <b>Disqualified (DSQ)</b>' };
 			[ 'withdraw', 'disqualify' ].forEach( decision => {

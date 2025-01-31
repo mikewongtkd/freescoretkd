@@ -22,6 +22,11 @@ class Form {
 		};
 
 		this.decision = {
+			awarded : () => { 
+				if( defined( form?.decision?.disqualify )) { return { name: 'disqualify', code: 'DSQ' }; }
+				if( defined( form?.decision?.withdraw )) { return { name: 'withdraw', code: 'WDR' }; }
+				return false;
+			},
 			is : {
 				withdraw   : function() { if( defined( form.decision )) { return form.decision.withdraw;   } else { return false; } },
 				disqualify : function() { if( defined( form.decision )) { return form.decision.disqualify; } else { return false; } },
@@ -71,8 +76,20 @@ class Form {
 					return parseFloat( presentation.toFixed( 1 ));
 				},
 				data : function() { return judgeScore; },
+				ignore : {
+					accuracy : () => [ 'minacc', 'maxacc' ].some( drop => judgeScore?.[ drop ]),
+					presentation : () => [ 'minpre', 'maxpre' ].some( drop => judgeScore?.[ drop ]),
+				},
 				is: {
-					complete : function() { return judgeScore.complete; },
+					complete : function() { return judgeScore?.complete; },
+					min : {
+						acc: () => judgeScore?.minacc,
+						pre: () => judgeScore?.minpre
+					},
+					max : {
+						acc: () => judgeScore?.maxacc,
+						pre: () => judgeScore?.maxpre
+					}
 				}
 			}
 		};

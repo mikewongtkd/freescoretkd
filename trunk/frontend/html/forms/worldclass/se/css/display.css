@@ -433,10 +433,6 @@ body {
   top: 27px;
 }
 
-#display-bracket svg {
-  margin-top: 5%;
-}
-
 .enter-down-bounce {
   -webkit-animation: enterDownBounce 1s linear;
 }

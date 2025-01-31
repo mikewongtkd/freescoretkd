@@ -25,15 +25,13 @@ function Score( score ) {
 		var state   = { decision: false, scored: false };
 		var n       = score.forms.length;
 		score.forms.forEach(( form, i ) => { 
+			let f = new Form( form );
 			j = i + 1; 
 			// ===== SHOW DECISION IF THERE IS A DECISION
-			if( defined( form.decision )) {
+			let decision = f.decision.awarded();
+			if( decision ) {
 				state.decision = true;
-				var decisions = [ { name: 'disqualify', code: 'DSQ'}, { name: 'withdraw', code: 'WDR' } ];
-				var decision  = decisions.reduce(( selected, decision ) => { if( ! selected && form.decision[ decision.name ] ) { return decision.code; } else { return selected }}, undefined );
-				if( defined( decision )) {
-					summary.push( '<span class="form' + j + 'of' + n + ' decision">' + decision + '</span>' );
-				}
+				summary.push( `<span class="form${j}of${n} decision">${decision.code}</span>` );
 
 			// ===== SHOW SCORE IF THERE IS A COMPLETED SCORE
 			} else if( defined( form.adjusted )) {

@@ -2,7 +2,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 
-		this.dom.append( '<div class="header"></div><div class="bracket-graph"></div>' );
+		this.dom.append( '<div class="header"></div><div class="bracket-graph" style="padding-top: 5%"></div>' );
 
 		this.svg  = SVG();
 		this.draw = null;

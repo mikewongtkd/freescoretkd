@@ -1,9 +1,9 @@
-FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widget {
+FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 		const contestants = [ 'chung', 'hong' ];
 
-		this.dom.append( '<div class="score chung"></div><div class="score hong"></div>' );
+		this.dom.append( '<div class="header"></div><div class="score chung"></div><div class="score hong"></div>' );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.chung = { score : this.dom.find( '.chung.score' ) };
@@ -15,7 +15,7 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh = {
 			athlete : {
-				display : ( division, contestant ) => {
+				display : ( division, contestant ) => { // Convention: contestant = 'chung' | 'hong'
 					let divid = division.name();
 					if( divid == this.state.division.name ) { return; }
 
@@ -60,12 +60,45 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 							
 					});
 
-					let complete = {
-						chung: ! defined( chung ) || chung.score( round ).is.complete(),
-						hong:  ! defined( hong )  || hong.score( round ).is.complete()
-					};
+					let i = division.current.formId();
+					let form = { chung : {}, hong : {} };
 
-					if( complete.chung && complete.hong ) {
+					let athletes = { chung, hong };
+					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
+						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i );
+						form[ contestant ].complete = form[ contestant ].score.is.complete();
+					});
+
+					if( form.chung.complete && form.hong.complete ) {
+						// ===== UPDATE JUDGE SCORE ENTRIES
+						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
+							if( ! defined( athlete )) { return; }
+							let tdcs = this.display[ contestant ].score;
+							tdcs.judge.forEach(( display, i ) => {
+								let judge = form[ contestant ].score.judge( i );
+								display.empty();
+								if( judge.is.complete()) { 
+									let ignore = {
+										acc : judge.score.ignore.accuracy() ? 'ignore' : '',
+										pre : judge.score.ignore.presentation() ? 'ignore' : ''
+									};
+									display.html( `<div class="accuracy score ${ignore.acc}">${judge.score.accuracy()}</div><div class="presentation score ${ignore.pre}">${judge.score.presentation}</div>` ); 
+								}
+							});
+						});
+
+						// ===== UPDATE MAIN SCOREBOARD
+
+					} else {
+						// ===== MARK JUDGE SCORE ENTRIES AS HAVING BEEN RECEIVED OR PENDING
+						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
+							let tdcs = this.display[ contestant ].score;
+							tdcs.judge.forEach(( display, i ) => {
+								let judge = form[ contestant ].score.judge( i );
+								display.empty();
+								if( judge.is.complete()) { display.html( '<div class="score received">&check;</div>' ); }
+							});
+						});
 					}
 				}
 			},
