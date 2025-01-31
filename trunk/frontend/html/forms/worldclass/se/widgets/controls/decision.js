@@ -31,7 +31,6 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
 			let match   = division.current.match();
-			console.log( 'DECISION MATCH', match ); // MW
 
 			if([ match.chung, match.hong ].some( athlete => ! defined( athlete ))) {
 				this.button.winner.show();

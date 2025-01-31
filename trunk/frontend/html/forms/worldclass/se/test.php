@@ -40,20 +40,20 @@
 
 		</div>
 		<script>
-			var sound      = {};
-			var division   = undefined;
-			var tournament = <?= $tournament ?>;
-			var ring       = { num: '<?= $ringnum ?>' };
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
+			let sound      = {};
+			let division   = undefined;
+			let tournament = <?= $tournament ?>;
+			let ring       = { num: '<?= $ringnum ?>' };
+			let ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
 
 			ws.onopen = () => {
-				var request  = { data : { type : 'division', action : 'read' }};
+				let request  = { data : { type : 'division', action : 'read' }};
 				request.json = JSON.stringify( request.data );
 				ws.send( request.json );
 			};
 
 			ws.onmessage = ( response ) => {
-				var update = JSON.parse( response.data );
+				let update = JSON.parse( response.data );
 				console.log( update );
 
 				if( defined( update.error )) {
@@ -66,7 +66,7 @@
 				if( ! defined( division )) { return; }
 
 				if( update.action == 'update' && update.type == 'division' ) {
-					var athlete = division.current.athlete()
+					let athlete = division.current.athlete()
 					$( '#send-scores, #send-one-score, #clear-scores' ).removeClass( 'disabled' );
 					$( '#athlete' ).html( athlete.display.name() );
 				}
@@ -82,17 +82,17 @@
 				window.location = `?ring=${ring.num}`;
 			});
 
-			var rand = ( x ) => { return Math.floor( Math.random() * x ); };
-			var create_scores = ( j ) => {
-				var skills = [ 4, 5, 5, 5, 5, 6, 6, 7 ];
-				var skill  = skills[ rand( 8 ) ];
-				var scores = [];
+			let rand = ( x ) => { return Math.floor( Math.random() * x ); };
+			let create_scores = ( j ) => {
+				let skills = [ 4, 5, 5, 5, 5, 6, 6, 7 ];
+				let skill  = skills[ rand( 8 ) ];
+				let scores = [];
 
 				for( i = 0; i < j; i++ ) {
-					var score  = { major: 0.0, minor: 0.0, power: 0.0, rhythm: 0.0, ki: 0.0 };
-					[ 'power', 'rhythm', 'ki' ].forEach(( p ) => { score[ p ] = (( 2 * skill) + parseInt( rand( 3 )))/10; });
-					var minor = rand( 12 ) - skill;
-					var major = rand( 8  ) - skill;
+					let score  = { major: 0.0, minor: 0.0, power: 0.0, rhythm: 0.0, ki: 0.0 };
+					[ 'power', 'rhythm', 'ki' ].forEach(( p ) => { score[ p ] = (Math.floor( 2.5 * skill) + parseInt( rand( 3 )))/10; });
+					let minor = rand( 12 ) - skill;
+					let major = rand( 8  ) - skill;
 					score.minor = minor > 0 ? (rand( 2 * minor ) + 3)/10 : (3 + rand( 3 ))/10;
 					score.major = major > 0 ? (rand( major ) * 3    )/10 : 0;
 

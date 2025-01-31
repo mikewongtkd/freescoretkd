@@ -4,7 +4,7 @@ class Form {
 		this.award = {
 			penalty: function( category ) {
 				// Initialize penalties
-				if( ! defined( form ) || ! defined( form.penalty )) { form.penalty = { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 }; }
+				if( ! defined( form?.penalty )) { form.penalty = { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 }; }
 				[ 'bounds', 'timelimit', 'restart', 'misconduct' ].forEach(( category, i ) => { form.penalty[ category ] = defined( form.penalty[ category ]) ? form.penalty[ category ] : 0; });
 
 				// Award the penalty
@@ -24,21 +24,24 @@ class Form {
 		this.decision = {
 			awarded : () => { 
 				if( defined( form?.decision?.disqualify )) { return { name: 'disqualify', code: 'DSQ' }; }
-				if( defined( form?.decision?.withdraw )) { return { name: 'withdraw', code: 'WDR' }; }
+				if( defined( form?.decision?.withdraw ))   { return { name: 'withdraw',   code: 'WDR' }; }
 				return false;
 			},
 			is : {
-				withdraw   : function() { if( defined( form.decision )) { return form.decision.withdraw;   } else { return false; } },
-				disqualify : function() { if( defined( form.decision )) { return form.decision.disqualify; } else { return false; } },
+				withdraw   : () => defined( form?.decision?.withdraw ) ? form.decision.withdraw : false,
+				disqualify : () => defined( form?.decision?.withdraw ) ? form.decision.disqualify : false
 			}
 		};
 
 		this.is = {
-			complete : function() { return form.complete; },
-			scored : function() { 
-				let deductions   = parseFloat( form.major ) + parseFloat( form.minor );
-				let presentation = parseFloat( form.power ) + parseFloat( form.rhythm ) + parseFloat( form.ki );
-				return (deductions >= 0.0 || presentation > 0.0);
+			complete : () => form?.complete,
+			scored : () => { 
+				if( [ 'major', 'minor', 'power', 'rhythm', 'ki' ].some( key => isNaN( parseFloat( form?.[ key ])))) { return false; }
+
+				let sum          = ( object, keys ) => array.map( key => parseFloat( object[ key ])).reduce(( acc, cur ) => acc + cur, 0.0 );
+				let accuracy     = sum( form, [ 'major', 'minor' ]);
+				let presentation = sum( form, [ 'power', 'rhythm', 'ki' ]);
+				return (accuracy >= 0.0 || presentation > 0.0);
 			}
 		};
 	}
@@ -47,19 +50,7 @@ class Form {
 		return this.form?.adjusted?.accuracy ? this.form.adjusted.accuracy : 0;
 	}
 
-	adjusted() { return this.form.adjusted; }
-
-	average() {
-		if( score.forms.length == 0 ) { return 0.0; }
-		let average = 0.0;
-		for( let i = 0; i < score.forms.length; i++ ) {
-			let form = _form( i );
-			average += form.accuracy() + form.presentation();
-		}
-		average = parseFloat( average.toFixed( 1 ));
-		average /= parseFloat( score.forms.length );
-		return parseFloat( average.toFixed( 2 ));
-	}
+	adjusted() { return this.form?.adjusted; }
 
 	judge( j ) {
 		let form = this.form;
@@ -97,7 +88,7 @@ class Form {
 
 	penalty() {
 		let form = this.form;
-		if( ! defined( form ) || ! defined( this.form.penalty )) { return { data : () => null, from : key => 0, total : () => 0 }; }
+		if( ! defined( form?.penalty )) { return { data: () => null, from: key => 0, total: () => 0 }; }
 		return {
 			data : function() { return form.penalty; },
 			from : function( key ) {

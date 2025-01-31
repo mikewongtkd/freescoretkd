@@ -56,21 +56,21 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-#display-matches .header, #display-bracket .header {
+#display-matches .header, #display-score .header, #display-bracket .header {
   width: 100%;
   color: #999;
 }
-#display-matches .header h1, #display-bracket .header h1 {
+#display-matches .header h1, #display-score .header h1, #display-bracket .header h1 {
   text-align: center;
   font-size: 4em;
 }
-#display-matches .header h1 .divid, #display-bracket .header h1 .divid {
+#display-matches .header h1 .divid, #display-score .header h1 .divid, #display-bracket .header h1 .divid {
   color: white;
 }
-#display-matches .header h1 .description, #display-bracket .header h1 .description {
+#display-matches .header h1 .description, #display-score .header h1 .description, #display-bracket .header h1 .description {
   color: #ccc;
 }
-#display-matches .header h2, #display-bracket .header h2 {
+#display-matches .header h2, #display-score .header h2, #display-bracket .header h2 {
   text-align: center;
   color: gold;
   font-size: 3em;
@@ -431,6 +431,181 @@ body {
 }
 #display-matches.chung-left .match.ro4.active .win {
   top: 27px;
+}
+
+#display-score {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#display-score .contestant {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  color: white;
+  text-align: center;
+}
+#display-score .contestant .athlete {
+  position: relative;
+}
+#display-score .contestant .athlete .name {
+  display: inline-block;
+  font-size: 72pt;
+}
+#display-score .contestant .athlete .noc {
+  display: inline-block;
+  width: 160px;
+  vertical-align: top;
+}
+#display-score .contestant .athlete .noc img {
+  width: 120px;
+}
+#display-score .contestant .score {
+  position: relative;
+  height: 85%;
+  width: 100%;
+}
+#display-score .contestant .score .judges {
+  position: absolute;
+  height: 75%;
+}
+#display-score .contestant .score .judges .court-size-3 {
+  height: 33.333%;
+  font-size: 72pt;
+  line-height: 128pt;
+}
+#display-score .contestant .score .judges .court-size-5 {
+  height: 20%;
+  font-size: 56pt;
+  line-height: 96pt;
+}
+#display-score .contestant .score .judges .court-size-7 {
+  height: 14.285%;
+  font-size: 32pt;
+  line-height: 56pt;
+}
+#display-score .contestant .score .judges .judge {
+  position: relative;
+  width: 240px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+#display-score .contestant .score .judges .judge .accuracy, #display-score .contestant .score .judges .judge .presentation {
+  width: 50%;
+  text-align: center;
+}
+#display-score .contestant .score .judges .judge .accuracy.ignore, #display-score .contestant .score .judges .judge .presentation.ignore {
+  opacity: 0.75;
+  text-decoration: line-through;
+}
+#display-score .contestant .score .judges .judge .accuracy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #f99;
+}
+#display-score .contestant .score .judges .judge .accuracy.ignore {
+  color: #c66;
+}
+#display-score .contestant .score .judges .judge .presentation {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  color: #99f;
+}
+#display-score .contestant .score .judges .judge .presentation.ignore {
+  color: #66c;
+}
+#display-score .contestant .score .total {
+  position: absolute;
+  height: 75%;
+  width: calc(100% - 280px);
+  top: 0;
+}
+#display-score .contestant .score .total.chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+}
+#display-score .contestant .score .total.hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+}
+#display-score.chung-right .contestant.chung {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .athlete, #display-score.chung-right .contestant.chung .judges {
+  margin-right: 40px;
+}
+#display-score.chung-right .contestant.chung .judges {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .judges .judge:first-child {
+  border-radius: 0 24px 0 0;
+}
+#display-score.chung-right .contestant.chung .judges .judge:last-child {
+  border-radius: 0 0 24px 0;
+}
+#display-score.chung-right .contestant.chung .total {
+  right: 280px;
+  border-radius: 24px 0 0 24px;
+}
+#display-score.chung-right .contestant.hong {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .athlete, #display-score.chung-right .contestant.hong .judges {
+  margin-left: 40px;
+}
+#display-score.chung-right .contestant.hong .judges {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .judges .judge:first-child {
+  border-radius: 24px 0 0 0;
+}
+#display-score.chung-right .contestant.hong .judges .judge:last-child {
+  border-radius: 0 0 0 24px;
+}
+#display-score.chung-right .contestant.hong .total {
+  left: 280px;
+  border-radius: 0 24px 24px 0;
+}
+#display-score.chung-left .contestant.chung {
+  left: 0;
+}
+#display-score.chung-left .contestant.chung .athlete, #display-score.chung-left .contestant.chung .judges {
+  margin-left: 40px;
+}
+#display-score.chung-left .contestant.chung .judges {
+  right: 0;
+}
+#display-score.chung-left .contestant.chung .judges .judge:first-child {
+  border-radius: 0 24px 0 0;
+}
+#display-score.chung-left .contestant.chung .judges .judge:last-child {
+  border-radius: 0 0 24px 0;
+}
+#display-score.chung-left .contestant.chung .total {
+  right: 280px;
+  border-radius: 24px 0 0 24px;
+}
+#display-score.chung-left .contestant.hong {
+  right: 0;
+}
+#display-score.chung-left .contestant.hong .athlete, #display-score.chung-left .contestant.hong .judges {
+  margin-right: 40px;
+}
+#display-score.chung-left .contestant.hong .judges {
+  left: 0;
+}
+#display-score.chung-left .contestant.hong .judges .judge:first-child {
+  border-radius: 24px 0 0 0;
+}
+#display-score.chung-left .contestant.hong .judges .judge:last-child {
+  border-radius: 0 0 0 24px;
+}
+#display-score.chung-left .contestant.hong .total {
+  left: 280px;
+  border-radius: 0 24px 24px 0;
 }
 
 .enter-down-bounce {

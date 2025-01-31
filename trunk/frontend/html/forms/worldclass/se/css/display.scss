@@ -11,6 +11,185 @@ body {
 @import 'header';
 @import 'matches';
 
+#display-score {
+  $margin: 40px;
+  $noc: 120px;
+  $judges: 2 * $noc;
+  $total: $judges + $margin;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .contestant {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    color: white;
+
+    text-align: center;
+
+    .athlete {
+      position: relative;
+      .name {
+        display: inline-block;
+        font-size: 72pt;
+      }
+
+      .noc {
+        display: inline-block;
+        width: $noc + 40px;
+        vertical-align: top;
+        img { width: $noc; }
+      }
+    }
+
+    .score {
+      position: relative;
+      height: 85%;
+      width: 100%;
+      .judges {
+        position: absolute;
+        height: 75%;
+        .court-size-3 { height: 33.333%; font-size: 72pt; line-height: 128pt; }
+        .court-size-5 { height: 20.000%; font-size: 56pt; line-height: 96pt; }
+        .court-size-7 { height: 14.285%; font-size: 32pt; line-height: 56pt; }
+        .judge {
+          position: relative;
+          width: $judges;
+          background: black;
+          background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+          background: linear-gradient(to top, #45484d 0%,#000000 100%);
+
+          .accuracy, .presentation {
+            width: 50%;
+            text-align: center;
+
+            &.ignore {
+              opacity: 0.75;
+              text-decoration: line-through;
+            }
+          }
+          .accuracy {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #f99;
+
+            &.ignore {
+              color: #c66;
+            }
+          }
+          .presentation {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            color: #99f;
+
+            &.ignore {
+              color: #66c;
+            }
+          }
+        }
+      }
+      .total {
+        position: absolute;
+        height: 75%;
+        width: calc( 100% - $total );
+        top: 0;
+
+        &.chung {
+          background: rgb(0,1,36);
+          background: linear-gradient(0deg, rgba(0,1,36,1) 0%, rgba(0,0,255,1) 85%, rgba(9,9,205,1) 100%);
+        }
+        &.hong {
+          background: rgb(36,0,0);
+          background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(255,0,0,1) 85%, rgba(205,9,9,1) 100%);
+        }
+      }
+    }
+  }
+
+  &.chung-right {
+    .contestant {
+      &.chung { 
+        right: 0; 
+
+        .athlete, .judges { margin-right: $margin; }
+
+        .judges {
+          right: 0;
+
+          .judge {
+            &:first-child { border-radius: 0 24px 0 0; }
+            &:last-child  { border-radius: 0 0 24px 0; }
+          }
+        }
+        .total { 
+          right: $total; 
+          border-radius: 24px 0 0 24px;
+        }
+     }
+      &.hong  { 
+        left: 0; 
+
+        .athlete, .judges { margin-left: $margin; }
+
+        .judges {
+          left: 0;
+          .judge {
+           &:first-child { border-radius: 24px 0 0 0; }
+           &:last-child  { border-radius: 0 0 0 24px; }
+          }
+        }
+        .total { 
+          left: $total; 
+          border-radius: 0 24px 24px 0;
+        }
+      }
+    }
+  }
+  &.chung-left {
+    .contestant {
+      &.chung { 
+        left: 0; 
+
+        .athlete, .judges { margin-left: $margin; }
+
+        .judges {
+          right: 0;
+
+          .judge {
+            &:first-child { border-radius: 0 24px 0 0; }
+            &:last-child  { border-radius: 0 0 24px 0; }
+          }
+        }
+        .total { 
+          right: $total; 
+          border-radius: 24px 0 0 24px;
+        }
+      }
+      &.hong  { 
+        right: 0; 
+
+        .athlete, .judges { margin-right: $margin; }
+
+        .judges {
+          left: 0;
+          .judge {
+           &:first-child { border-radius: 24px 0 0 0; }
+           &:last-child  { border-radius: 0 0 0 24px; }
+          }
+        }
+        .total { 
+          left: $total; 
+          border-radius: 0 24px 24px 0;
+        }
+      }
+    }
+  }
+}
+
 .enter-down-bounce {
   -webkit-animation: enterDownBounce 1s linear;
 }

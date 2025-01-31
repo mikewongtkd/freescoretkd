@@ -1,56 +1,56 @@
-module.exports = Score;
+class Score {
+	constructor( score = { adjusted: { accuracy: 0, presentation: 0, total: 0 }, complete: false, forms: [], total: 0 } ) {
+		this.score = score;
 
-function Score( score ) {
-	this.score = score;
+		this.is = {
+			complete : () => { return score?.complete ? score.complete : false; }
+		};
 
-	this.is = {
-		complete : function() { if( ! defined( score )) { return false; } return score.complete; }
-	};
+		this.forms = {
+			count : () => score?.forms?.length,
+			list  : () => score?.forms
+		};
 
-	this.forms = {
-		count : function() { return score.forms.length; },
-		list  : function() { return score.forms; }
-	};
+		this.notes = () => score?.notes;
+		this.total = () => score?.total;
+		this.adjusted = {
+			presentation : () => score?.adjusted?.presentation,
+			total        : () => score?.adjusted?.total
+		};
 
-	this.notes = function() { return score.notes; };
-	this.total = function() { return score.total; };
-	this.adjusted = {
-		presentation : function() { return score.adjusted.presentation; },
-		total        : function() { return score.adjusted.total; }
-	};
+		this.summary = () => {
+			let summary = [];
+			let total   = 0.0;
+			let is      = { decided: false, scored: false };
+			let n       = score.forms.length;
+			score.forms.forEach(( form, i ) => { 
+				let f = new Form( form );
+				let j = i + 1; 
+				// ===== SHOW DECISION IF THERE IS A DECISION
+				let decision = f.decision.awarded();
+				if( decision ) {
+					is.decided = true;
+					summary.push( `<span class="form${j}of${n} decision">${decision.code}</span>` );
 
-	this.summary = function() {
-		var summary = [];
-		var total   = 0.0;
-		var state   = { decision: false, scored: false };
-		var n       = score.forms.length;
-		score.forms.forEach(( form, i ) => { 
-			let f = new Form( form );
-			j = i + 1; 
-			// ===== SHOW DECISION IF THERE IS A DECISION
-			let decision = f.decision.awarded();
-			if( decision ) {
-				state.decision = true;
-				summary.push( `<span class="form${j}of${n} decision">${decision.code}</span>` );
-
-			// ===== SHOW SCORE IF THERE IS A COMPLETED SCORE
-			} else if( defined( form.adjusted )) {
-				state.scored = true;
-				total += parseFloat( form.adjusted.total );
-				summary.push( '<span class="form' + j + 'of' + n + ' total score">' + parseFloat( form.adjusted.total ).toFixed( 2 ) + '</span>' ); 
+				// ===== SHOW SCORE IF THERE IS A COMPLETED SCORE
+				} else if( defined( form?.adjusted )) {
+					is.scored = true;
+					let subtotal = isNaN( parseFloat( form.adjusted?.total )) ? 0 : parseFloat( form.adjusted.total );
+					total += subtotal;
+					summary.push( `<span class="form${j}of${n} total score">${subtotal == 0 ? '&ndash;' : subtotal.toFixed( 2 )}</span>` ); 
+				}
+			});
+			if( is.scored && ! is.decided && n > 1 ) {
+				summary.push( `<span class="sum total score">${total.toFixed( 2 )}</span>` ); 
 			}
-		});
-		if( state.scored && ! state.decision && n > 1 ) {
-			summary.push( '<span class="sum total score">' + total.toFixed( 2 ) + '</span>' ); 
-		}
-		return summary.join( "&nbsp;" );
-	};
+			return summary.join( "&nbsp;" );
+		};
 
-	if( defined( score )) {
-		_form = this.form = function( i ) {
-			let form = score.forms[ i ];
+		this.form = i => {
+			let form = score?.forms?.[ i ];
 			if( ! defined( form )) { return undefined; }
 			return new Form( form );
 		};
 	}
 };
+module.exports = Score;
