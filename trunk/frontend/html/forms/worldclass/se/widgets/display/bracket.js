@@ -44,7 +44,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 
 		this.refresh.header = division => {
 			this.display.header.empty();
-			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2>${division.current.round.display.name()}</h2>` );
+			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1>` );
 		};
 
 		this.refresh.bracket = {
@@ -75,15 +75,16 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					let pmatches = [];
 
 					if( prev ) { pmatches = reorder( division.matches( prev )); }
-					this.state.bracket[ round ] = {};
-					matches.forEach(( match, j ) => {
+					this.state.bracket[ round ] = { svg: {}};
+					this.state.bracket[ round ].svg.label  = this.draw.plain( FreeScore.round.name?.[ round ] ).font({ size: '28pt' }).fill( round == division.current.roundId() ? 'gold' : '#ccc' ).x( (i * ((height * 3) + width)) ).y( 0 );
 
+					matches.forEach(( match, j ) => {
 						if     ( matches.length == 1 ) { yoffset *= 2; }
 						else if( j % 2 )               { yoffset *= 3; }
 
 						let active = round == division.current.roundId() && match.order.includes( division.current.athleteId()) ? true : false;
 						let x = (i * ((height * 3) + width));
-						let y = (j * (height * 3 )) + yoffset;
+						let y = (j * (height * 3 )) + yoffset + (3 * height) / 2;
 
 						// Cache important points for current match
 						let cmatch = this.state.bracket[ round ][ match.number ] = this.refresh.bracket.match( division, match, x, y, start, active );
@@ -185,19 +186,18 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let rounds  = division.rounds();
 				let mnum    = match?.number;
 				let current = this.state.bracket[ round ][ mnum ];
-				let dest    = current.destination;
-				let other   = dest.source.chung.id == current.id ? dest.source.hong : dest.source.chung;
+				let dest    = current?.destination;
+				let other   = defined( dest ) ? (dest.source.chung.id == current.id ? dest.source.hong : dest.source.chung) : current;
 				let bounds  = {};
 
 				dest   = defined( dest ) ? dest : current;
-				other  = defined( other ) ? other : current;
 
 				// Zoom in
 				bounds = { left: current.anchor.ul[ 0 ], top : Math.min( current.anchor.ul[ 1 ], other.anchor.ul[ 1 ]), right: Math.max( current.anchor.lr[ 0 ], dest.anchor.lr[ 0 ]), bottom: Math.max( current.anchor.lr[ 1 ], other.anchor.lr[ 1 ])};
 				bounds.right  = height + bounds.right - bounds.left;
 				bounds.bottom = height + bounds.bottom - bounds.top;
 				bounds.left   -= height/2;
-				bounds.top    += height;
+				bounds.top    += height/2;
 				this.draw.animate( 3000, 1000 ).viewbox( bounds.left, bounds.top, bounds.right, bounds.bottom ).size( '100%', '100%' );
 				console.log( 'ZOOM IN BOUNDS', bounds ); // MW
 
