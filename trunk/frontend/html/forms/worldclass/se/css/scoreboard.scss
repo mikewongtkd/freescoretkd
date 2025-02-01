@@ -1,0 +1,370 @@
+#display-score {
+  $margin: 40px;
+  $noc: 120px;
+  $judges: 2 * $noc + $margin;
+  $total: $judges + $margin;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .active {
+    .athlete {
+      .name {
+        color: gold;
+      }
+    }
+  }
+
+  .waiting {
+    .athlete {
+      .name {
+        opacity: 25%;
+      }
+    }
+    .report {
+      opacity: 25%;
+    }
+  }
+
+  .win {
+    .athlete {
+      .name {
+        color: gold;
+      }
+    }
+    .report {
+      .total {
+        color: gold;
+      }
+    }
+  }
+
+  .contestant {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    color: white;
+
+    text-align: center;
+
+    .athlete {
+      position: relative;
+      .name {
+        display: inline-block;
+        font-size: 72pt;
+      }
+
+      .noc {
+        display: inline-block;
+        width: $noc + 40px;
+        vertical-align: top;
+        img { width: $noc; }
+      }
+    }
+
+    .score {
+      position: relative;
+      height: 85%;
+      width: 100%;
+      .accuracy-label, .presentation-label {
+        position: absolute;
+        top: 0;
+        width: 40%;
+        text-align: center;
+        font-size: 14pt;
+      }
+      .labels {
+        position: absolute;
+        width: $judges;
+
+        .accuracy-label { color: #c66; opacity: 0.75; }
+        .presentation-label { color: #66c; opacity: 0.75; }
+      }
+
+      .judges {
+        position: absolute;
+        height: 75%;
+
+        .court-size-3 { height: 33.333%; font-size: 72pt; line-height: 128pt; }
+        .court-size-5 { height: 20.000%; font-size: 56pt; line-height: 96pt; }
+        .court-size-7 { height: 14.285%; font-size: 32pt; line-height: 56pt; }
+        .judge {
+          position: relative;
+          width: $judges;
+          background: black;
+          background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+          background: linear-gradient(to top, #45484d 0%,#000000 100%);
+
+          .jid {
+            position: absolute;
+            width: 20%;
+            font-size: 24pt;
+            color: #999;
+          }
+          .accuracy, .presentation {
+            width: 40%;
+            text-align: center;
+
+            &.ignore {
+              opacity: 0.75;
+              text-decoration: line-through;
+            }
+          }
+          .accuracy {
+            position: absolute;
+            top: 0;
+            color: #f99;
+
+            &.ignore {
+              color: #c66;
+            }
+          }
+          .presentation {
+            position: absolute;
+            top: 0;
+            color: #99f;
+
+            &.ignore {
+              color: #66c;
+            }
+          }
+          .received {
+            color: lime;
+          }
+        }
+      }
+
+      .report {
+        position: absolute;
+        height: 75%;
+        width: calc( 100% - $total );
+        top: 0;
+        text-align: center;
+
+        .total {
+          height: 60%;
+          font-size: 212pt;
+          line-height: 280pt;
+        }
+
+        .penalties {
+          height: 20%;
+
+          .win-dot {
+            display: inline-block;
+            margin-left: 12px;
+            margin-right: 12px;
+            width: $judges / 3;
+            height: $judges / 3;
+            background: gold;
+            border-radius: $judges / 6;
+          }
+
+          .penalty {
+            display: inline-block;
+            padding-left: 12px;
+            padding-right: 12px;
+
+            .penalty-icon, .penalty-value {
+              font-size: 24pt;
+            }
+            .penalty-name {
+              font-size: 12pt;
+            }
+          }
+        }
+
+        .subtotals {
+          height: 20%;
+          position: relative;
+          background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+          background: linear-gradient(to top, #45484d 0%,#000000 100%);
+          border: 4px solid gold;
+          margin-left: auto;
+          margin-right: auto;
+
+          height: $judges / 3;
+          width: 5/4 * $judges;
+          border-radius: $judges / 8;
+
+          .labels { 
+            width: 90%;
+            margin-left: 5%;
+            margin-right: 5%;
+            .accuracy-label, .presentation-label {
+              width: 50%;
+            }
+          }
+          .accuracy, .presentation {
+            position: absolute;
+            top: 15%;
+            font-size: 42pt;
+            width: 45%;
+            margin-left: 5%;
+            margin-right: 5%;
+          }
+          .accuracy {
+            color: #f99;
+          }
+
+          .presentation {
+            color: #99f;
+          }
+        }
+
+        &.chung {
+          background: rgb(0,1,36);
+          background: linear-gradient(0deg, rgba(0,1,36,1) 0%, rgba(0,0,255,1) 85%, rgba(9,9,205,1) 100%);
+        }
+        &.hong {
+          background: rgb(36,0,0);
+          background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(255,0,0,1) 85%, rgba(205,9,9,1) 100%);
+        }
+      }
+    }
+  }
+
+  &.chung-right {
+    .contestant {
+      &.chung { 
+        right: 0; 
+
+        .athlete, .judges { margin-right: $margin; }
+
+        .labels {
+          margin-right: $margin;
+          right: 0;
+
+          .accuracy-label { right: 20% }
+          .presentation-label { left: 0% }
+        }
+
+        .judges {
+          right: 0;
+
+          .judge {
+            &:first-child { border-radius: 0 24px 0 0; }
+            &:last-child  { border-radius: 0 0 24px 0; }
+            .jid { right: 0; }
+            .accuracy { right: 20%; }
+            .presentation { left: 0; }
+          }
+        }
+        .report { 
+          right: $total; 
+          border-radius: 24px 0 0 24px;
+
+          .accuracy { right: 0; }
+          .presentation { left: 0; }
+
+          .labels {
+            .accuracy-label { right: 0; }
+            .presentation-label { left: 0; }
+          }
+        }
+     }
+      &.hong  { 
+        left: 0; 
+
+        .athlete, .judges { margin-left: $margin; }
+
+        .labels {
+          margin-left: $margin;
+          left: 0;
+
+          .accuracy-label { left: 20% }
+          .presentation-label { right: 0% }
+        }
+
+        .judges {
+          left: 0;
+
+          .judge {
+            &:first-child { border-radius: 24px 0 0 0; }
+            &:last-child  { border-radius: 0 0 0 24px; }
+            .jid { left: 0; }
+            .accuracy { left: 20%; }
+            .presentation { right: 0; }
+          }
+        }
+        .report { 
+          left: $total; 
+          border-radius: 0 24px 24px 0;
+
+          .accuracy { left: 0; }
+          .presentation { right: 0; }
+
+          .labels {
+            .accuracy-label { left: 0; }
+            .presentation-label { right: 0; }
+          }
+        }
+      }
+    }
+  }
+  &.chung-left {
+    .contestant {
+      &.chung { 
+        left: 0; 
+
+        .athlete, .judges { margin-left: $margin; }
+
+        .labels {
+          left: 0;
+          margin-left: $margin;
+
+          .accuracy-label { left: 20% }
+          .presentation-label { right: 0% }
+        }
+
+        .judges {
+          left: 0;
+
+          .judge {
+            &:first-child { border-radius: 24px 0 0 0; }
+            &:last-child  { border-radius: 0 0 0 24px; }
+            .jid { left: 0; }
+            .accuracy { left: 20%; }
+            .presentation { right: 0; }
+          }
+        }
+        .report { 
+          left: $total; 
+          border-radius: 0 24px 24px 0;
+        }
+      }
+      &.hong  { 
+        right: 0; 
+
+        .athlete, .judges { margin-right: $margin; }
+
+        .labels {
+          right: 0;
+          margin-right: $margin;
+
+          .accuracy-label { right: 20% }
+          .presentation-label { left: 0% }
+        }
+
+        .judges {
+          right: 0;
+
+          .judge {
+            &:first-child { border-radius: 0 24px 0 0; }
+            &:last-child  { border-radius: 0 0 24px 0; }
+            .jid { right: 0; }
+            .accuracy { right: 20%; }
+            .presentation { left: 0; }
+          }
+        }
+        .report { 
+          right: $total; 
+          border-radius: 24px 0 0 24px;
+        }
+      }
+    }
+  }
+}
+
+
