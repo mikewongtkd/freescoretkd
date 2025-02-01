@@ -6,7 +6,7 @@ use base qw( Clone );
 use Data::Structure::Util qw( unbless );
 use Data::Dumper;
 
-our $DEBUG = 'winner';
+our $DEBUG = '';
 
 # ============================================================
 sub new {

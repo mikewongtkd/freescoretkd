@@ -143,7 +143,22 @@
 							state = 'score'; 
 						}
 						app.page.show[ state ]();
-					});
+					})
+				// ============================================================
+				.heard( 'autopilot' )
+				// ============================================================
+				.command( 'update' )
+					.respond( update => {
+						let division = update?.division;
+						if( ! defined( division )) { return; }
+
+						let state = division.state;
+						if( ! defined( app.page.show?.[ state ])) { 
+							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
+							state = 'score'; 
+						}
+						app.page.show[ state ]();
+					})
 		</script>
 	</body>
 </html>
