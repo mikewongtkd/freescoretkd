@@ -14,7 +14,7 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.header = division => {
 			this.display.header.empty();
-			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2>${division.current.round.display.name()}</h2>` );
+			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description"><span class="round-name">${division.description()}</span></h1><h2>${division.current.round.display.name()}</span></h2>` );
 		};
 		this.refresh.match = {
 			list : division => {

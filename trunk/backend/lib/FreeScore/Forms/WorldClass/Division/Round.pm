@@ -452,6 +452,7 @@ sub _compare {
 	my $a = shift;
 	my $b = shift;
 
+	# print STDERR "ROUND - COMPARE - STEP 1\n"; # MW
 	if( ! defined $a && ! defined $b ) { return 0; }
 	if( ! defined $a ) { return  1; }
 	if( ! defined $b ) { return -1; }
@@ -459,10 +460,12 @@ sub _compare {
 	my $pa = $a->any_punitive_decision();
 	my $pb = $b->any_punitive_decision();
 
+	# print STDERR "ROUND - COMPARE - STEP 2\n"; # MW
 	return  0 if( $pa && $pb );
 	return  1 if( $pa );
 	return -1 if( $pb );
 
+	# print STDERR "ROUND - COMPARE - STEP 3\n"; # MW
 	if( $a->{ adjusted }{ total } == $b->{ adjusted }{ total } && $a->{ adjusted }{ total } != 0 ) {
 		$a->{ tb }[ 0 ] = $a->{ adjusted }{ presentation }; 
 		$b->{ tb }[ 0 ] = $b->{ adjusted }{ presentation }; 
@@ -477,12 +480,20 @@ sub _compare {
 			}
 		}
 	}
+	# print STDERR "ROUND - COMPARE - tiebreakers a vs. b\n"; # MW
+	# print STDERR Dumper $a->{ tb }, $b->{ tb }; # MW
+
+	# print STDERR "ROUND - COMPARE - SCORES a vs. b\n"; # MW
+	# print STDERR Dumper $a->{ adjusted }, $b->{ adjusted }; # MW
 
 	my $criteria = {
-		adjusted_total => $b->{ adjusted }{ total }        <=> $a->{ adjusted }{ total },
-		presentation   => $b->{ adjusted }{ presentation } <=> $a->{ adjusted }{ presentation },
-		total          => $b->{ total }                    <=> $a->{ total }
+		adjusted_total => (0.0 + $b->{ adjusted }{ total })        <=> (0.0 + $a->{ adjusted }{ total }),
+		presentation   => (0.0 + $b->{ adjusted }{ presentation }) <=> (0.0 + $a->{ adjusted }{ presentation }),
+		total          => (0.0 + $b->{ total })                    <=> (0.0 + $a->{ total })
 	};
+	# print STDERR "ROUND - COMPARE - criteria\n"; # MW
+	# print STDERR Dumper $criteria; # MW
+	# print STDERR "ROUND - COMPARE - RESULT: " . ($criteria->{ adjusted_total } || $criteria->{ presentation } || $criteria->{ total }) . "\n"; # MW
 
 	return $criteria->{ adjusted_total } || $criteria->{ presentation } || $criteria->{ total };
 }

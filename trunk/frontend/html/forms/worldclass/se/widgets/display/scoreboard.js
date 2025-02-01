@@ -80,11 +80,13 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 					let round = div.current.roundId();
 					let match = { chung, hong, data: div.current.match() };
 
+					// ===== RESET DISPLAY AND SHOW ATHLETE INFO
 					contestants.forEach( contestant => {
 						let tdc = this.display[ contestant ];
 						tdc.name.empty();
 						tdc.noc.empty();
 						tdc.judge.forEach( judge => judge.empty());
+						tdc.side.removeClass( 'win active waiting' );
 
 						let athlete = match[ contestant ];
 						if( ! defined( athlete )) {
@@ -93,7 +95,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						}
 
 						let flag = ioc.flag( athlete.info( 'noc' ));
-						tdc.name.html( athlete.display.name( 18 ));
+						tdc.name.html( athlete.display.name( 16 ));
 						tdc.noc.html( `<img src="${flag}">` ).show();
 							
 					});
@@ -129,7 +131,6 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 							let tdc = this.display[ contestant ];
 
-							tdc.side.removeClass( 'win' );
 							[ 'total', 'penalties', 'accuracy', 'presentation' ].forEach( field => tdc[ field ].empty());
 
 							let fcs          = form[ contestant ].score;
@@ -146,12 +147,24 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							tdc.presentation.html( presentation );
 
 							if( div.form.count() == 1 && match.data.winner == athlete.id()) {
+								let other = contestant == 'chung' ? 'hong' : 'chung';
+								let tdo   = this.display[ other ];
 								tdc.side.addClass( 'win' );
-								tdc.penalties.append( '<div class="win-dot">&nbsp;</div>' );
+								tdc.penalties.append( '<div class="win-dot"></div>' );
+								tdo.side.addClass( 'waiting' );
 							}
 						});
 
 					} else {
+						// ===== SHOW CURRENT AND WAITING ATHLETES
+						if( div.current.athleteId() == match.data.chung ) {
+							this.display[ 'chung' ].side.addClass( 'active' );
+							this.display[ 'hong' ].side.addClass( 'waiting' );
+						} else if( div.current.athleteId() == match.data.hong ) {
+							this.display[ 'hong' ].side.addClass( 'active' );
+							this.display[ 'chung' ].side.addClass( 'waiting' );
+						}
+
 						// ===== MARK JUDGE SCORE ENTRIES AS HAVING BEEN RECEIVED OR PENDING
 						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 							let tdc = this.display[ contestant ];
@@ -166,8 +179,14 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 				}
 			},
 			header: division => {
+				let match = division.current.match();
+				let start = division.prev.rounds().map( round => division.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
+				let mnum  = parseInt( match.number ) + start;
+				let fnum  = division.form.count() > 1 ? `(${ordinal( parseInt( division.current.formId()) + 1 )} Form)` : '';
+				let fname = division.current.form.name();
+
 				this.display.header.empty();
-				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2>${division.current.round.display.name()}</h2>` );
+				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum}</span> &ndash; <span class="form-name">${fname} ${fnum}</span></h2>` );
 			}
 		};
 

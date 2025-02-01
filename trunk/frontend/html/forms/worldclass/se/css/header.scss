@@ -18,8 +18,12 @@
 
     h2 {
       text-align: center;
-      color: gold;
+      color: #666;
       font-size: 3em;
+
+      .round-name { color: gold; }
+      .match-number { color: lime; }
+      .form-name { color: cyan; }
     }
   }
 }

@@ -18,6 +18,8 @@ our @rounds = (
 	{ code => 'ro2',   name => 'Finals',        matches => 1,   min => 1,   max => 2   }
 );
 
+our @states = ( qw( scores results bracket leaderboard matches ));
+
 # ============================================================
 sub advance_athletes {
 # ============================================================
@@ -82,7 +84,7 @@ sub autopilot_steps {
 	my $progress = shift;
 	my $group    = shift;
 	my $div      = $self->{ division };
-	my $pause    = { score => 9, leaderboard => 12, brief => 1 };
+	my $pause    = { matches => 7, score => 7, results => 7, bracket => 12, leaderboard => 12, brief => 1 };
 	# my $pause    = { score => 2, leaderboard => 2, brief => 1 }; # MW FOR DEBUGGING PURPOSES
 	my $round    = $div->{ round };
 	my $order    = $div->order( $round );
@@ -97,8 +99,6 @@ sub autopilot_steps {
 		round   => ($round eq 'ro2'),
 	};
 
-	$last->{ cycle } = $last->{ form } && $last->{ athlete }; # After every match
-
 	# ===== AUTOPILOT BEHAVIOR
 	# Autopilot behavior comprises the two afforementioned actions in
 	# serial, with delays between.
@@ -106,23 +106,52 @@ sub autopilot_steps {
 		show => {
 			score => sub { # Display the athlete's score for 9 seconds
 				my $delay = shift;
+				die "Disengaging autopilot\n" unless $div->autopilot();
+				print STDERR "Showing score.\n" if $DEBUG;
+				unless( $div->state() eq 'score' ) {
+					$div->state( 'score' );
+					$div->write(); 
+				}
 				Mojo::IOLoop->timer( $pause->{ score } => $delay->begin );
 				$request = { type => 'autopilot', action => 'scoreboard', delay => $pause->{ score }};
 				$rm->broadcast_updated_division( $request, $progress, $group );
 
 			},
+			bracket => sub { 
+				my $delay = shift;
+				die "Disengaging autopilot\n" unless $div->autopilot();
+				print STDERR "Showing division bracket.\n" if $DEBUG;
+				unless( $div->state() eq 'bracket' ) {
+					$div->state( 'bracket' );
+					$div->write(); 
+				}
+				Mojo::IOLoop->timer( $pause->{ bracket } => $delay->begin );
+				$request = { type => 'autopilot', action => 'bracket', delay => $pause->{ leaderboard }};
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			},
 			leaderboard => sub { 
 				my $delay = shift;
-
 				die "Disengaging autopilot\n" unless $div->autopilot();
-
 				print STDERR "Showing leaderboard.\n" if $DEBUG;
-				$div->display() unless $div->is_display(); 
-				$div->write(); 
+				unless( $div->state() eq 'leaderboard' ) {
+					$div->state( 'leaderboard' );
+					$div->write(); 
+				}
 				Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin );
 				$request = { type => 'autopilot', action => 'leaderboard', delay => $pause->{ leaderboard }};
 				$rm->broadcast_updated_division( $request, $progress, $group );
 			},
+			matches => sub {
+				my $delay = shift;
+				die "Disengaging autopilot\n" unless $div->autopilot();
+				print STDERR "Showing matches.\n" if $DEBUG;
+				unless( $div->state() eq 'matches' ) { $div->state( 'matches' ); }
+				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
+				$div->write(); 
+				Mojo::IOLoop->timer( $pause->{ matches } => $delay->begin );
+				$request = { type => 'autopilot', action => 'matches', delay => $pause->{ score }};
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			}
 		},
 		go => {
 			next => sub { # Advance to the next form/athlete/match/round
@@ -161,7 +190,6 @@ sub autopilot_steps {
 					$div->next_form(); 
 				}
 
-				$div->autopilot( 'off' ); # Finished. Disengage autopilot for now.
 				$div->write();
 
 				Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin );
@@ -174,8 +202,11 @@ sub autopilot_steps {
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
-	push @steps, $step->{ show }{ leaderboard } if( $last->{ cycle } ); # Display the leaderboard for 12 seconds after every match
+	push @steps, $step->{ show }{ results } if((int( @$forms ) > 1) && $matches->current->complete());
+	push @steps, $step->{ show }{ bracket } if( $matches->current->complete() && ! $last->{ round }); # Display the bracket whenever it's not the last match of the division
+	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() ); # Display the leaderboard when the last match of the division is completed
 	push @steps, $step->{ go }{ next };
+	push @steps, $step->{ show }{ match } unless( $matches->current->started());
 
 	return @steps;
 }

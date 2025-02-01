@@ -21,6 +21,25 @@ body {
   width: 100%;
   height: 100%;
 
+  .active {
+    .athlete {
+      .name {
+        color: gold;
+      }
+    }
+  }
+
+  .waiting {
+    .athlete {
+      .name {
+        opacity: 25%;
+      }
+    }
+    .report {
+      opacity: 25%;
+    }
+  }
+
   .win {
     .athlete {
       .name {
@@ -147,6 +166,8 @@ body {
 
           .win-dot {
             display: inline-block;
+            margin-left: 12px;
+            margin-right: 12px;
             width: $judges / 3;
             height: $judges / 3;
             background: gold;

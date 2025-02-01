@@ -13,6 +13,8 @@ our @rounds = (
 	{ code => 'ro2',   name => 'Finals',        matches => 1,   min => 1,   max => 2   }
 );
 
+our @states = ( qw( draw scores results bracket leaderboard matches ));
+
 # ============================================================
 sub autopilot_steps {
 # ============================================================

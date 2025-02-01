@@ -72,8 +72,17 @@ body {
 }
 #display-matches .header h2, #display-score .header h2, #display-bracket .header h2 {
   text-align: center;
-  color: gold;
+  color: #666;
   font-size: 3em;
+}
+#display-matches .header h2 .round-name, #display-score .header h2 .round-name, #display-bracket .header h2 .round-name {
+  color: gold;
+}
+#display-matches .header h2 .match-number, #display-score .header h2 .match-number, #display-bracket .header h2 .match-number {
+  color: lime;
+}
+#display-matches .header h2 .form-name, #display-score .header h2 .form-name, #display-bracket .header h2 .form-name {
+  color: cyan;
 }
 
 #display-matches.chung-right .match {
@@ -438,6 +447,15 @@ body {
   width: 100%;
   height: 100%;
 }
+#display-score .active .athlete .name {
+  color: gold;
+}
+#display-score .waiting .athlete .name {
+  opacity: 25%;
+}
+#display-score .waiting .report {
+  opacity: 25%;
+}
 #display-score .win .athlete .name {
   color: gold;
 }
@@ -566,6 +584,8 @@ body {
 }
 #display-score .contestant .score .report .penalties .win-dot {
   display: inline-block;
+  margin-left: 12px;
+  margin-right: 12px;
   width: 93.3333333333px;
   height: 93.3333333333px;
   background: gold;

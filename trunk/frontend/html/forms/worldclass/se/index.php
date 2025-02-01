@@ -44,17 +44,9 @@
 	<body>
 		<div id="pt-main" class="pt-perspective">
 			<!-- ============================================================ -->
-			<!-- DISPLAY MATCHES -->
-			<!-- ============================================================ -->
-			<div class="pt-page pt-page-1">
-				<div id="display-matches" <?= $flip ?>>
-				</div>
-			</div>
-
-			<!-- ============================================================ -->
 			<!-- DISPLAY SCORE -->
 			<!-- ============================================================ -->
-			<div class="pt-page pt-page-2">
+			<div class="pt-page pt-page-1">
 				<div id="display-score" <?= $flip ?>>
 				</div>
 			</div>
@@ -62,7 +54,7 @@
 			<!-- ============================================================ -->
 			<!-- DISPLAY RESULTS -->
 			<!-- ============================================================ -->
-			<div class="pt-page pt-page-3">
+			<div class="pt-page pt-page-2">
 			<div id="display-results" <?= $flip ?>>
 				</div>
 			</div>
@@ -70,7 +62,7 @@
 			<!-- ============================================================ -->
 			<!-- DISPLAY BRACKET -->
 			<!-- ============================================================ -->
-			<div class="pt-page pt-page-4">
+			<div class="pt-page pt-page-3">
 				<div id="display-bracket">
 				</div>
 			</div>
@@ -78,8 +70,16 @@
 			<!-- ============================================================ -->
 			<!-- DISPLAY LEADERBOARD -->
 			<!-- ============================================================ -->
-			<div class="pt-page pt-page-5">
+			<div class="pt-page pt-page-4">
 				<div id="display-leaderboard" <?= $flip ?>>
+				</div>
+			</div>
+
+			<!-- ============================================================ -->
+			<!-- DISPLAY MATCHES -->
+			<!-- ============================================================ -->
+			<div class="pt-page pt-page-5">
+				<div id="display-matches" <?= $flip ?>>
 				</div>
 			</div>
 		</div>
@@ -97,21 +97,23 @@
 			app.page = {
 				num: 1,
 				for : {
-					matches: 1,
-					score: 2,
-					results: 3,
-					bracket: 4,
-					leaderboard: 5
+					score: 1,
+					results: 2,
+					bracket: 3,
+					leaderboard: 4,
+					matches: 5
 				},
 				show : {
-					matches:     () => { app.page.transition( 'matches' ); },
 					score:       () => { app.page.transition( 'score' ); },
 					results:     () => { app.page.transition( 'results' ); },
 					bracket:     () => { app.page.transition( 'bracket' ); },
-					leaderboard: () => { app.page.transition( 'leaderboard' ); }
+					leaderboard: () => { app.page.transition( 'leaderboard' ); },
+					matches:     () => { app.page.transition( 'matches' ); }
 				},
 				transition: target => { 
 					let page = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.score;
+					if( app.page.num == page ) { return; }
+					app.page.num = page;
 					$( '.pt-page' ).hide();
 					$( `.pt-page-${page}` ).show();
 				}
@@ -142,7 +144,6 @@
 						}
 						app.page.show[ state ]();
 					});
-
 		</script>
 	</body>
 </html>

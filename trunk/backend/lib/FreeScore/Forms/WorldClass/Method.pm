@@ -112,6 +112,22 @@ sub rounds {
 }
 
 # ============================================================
+sub state {
+# ============================================================
+	my $self    = shift;
+	my $state   = lc shift;
+	my $div     = $self->{ division };
+	my $class   = ref( $self );
+	my $svar    = "\@$class\:\:states";
+	my @states  = eval $svar;
+	my $method  = (split /::/, $class)[ -1 ];
+	my $allowed = join( ', ', @states );
+
+	die "Unknown state '$state' for method $method (allowed: $allowed) $!" unless( grep { $state eq $_ } @states);
+	$div->{ state } = $state;
+}
+
+# ============================================================
 sub _annotate {
 # ============================================================
 # Determines if a tie-breaking criteria is needed and adds them

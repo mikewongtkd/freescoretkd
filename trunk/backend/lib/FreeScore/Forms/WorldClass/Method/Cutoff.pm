@@ -12,6 +12,8 @@ our @rounds = [
 	{ code => 'finals', name => 'Finals',      min => 1, max => 8  }
 ];
 
+our @states = (qw( score display ));
+
 # ============================================================
 sub advance_athletes {
 # ============================================================
