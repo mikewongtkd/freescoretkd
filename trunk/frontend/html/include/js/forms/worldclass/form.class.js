@@ -60,11 +60,11 @@ class Form {
 				accuracy : function() {
 					let deductions = parseFloat( judgeScore.major ) + parseFloat( judgeScore.minor );
 					let accuracy   = deductions > 4.0 ? 0.0 : 4.0 - deductions;
-					return parseFloat( accuracy.toFixed( 1 ));
+					return parseFloat( accuracy ).toFixed( 1 );
 				},
 				presentation : function() {
 					let presentation = parseFloat( judgeScore.power ) + parseFloat( judgeScore.rhythm ) + parseFloat( judgeScore.ki );
-					return parseFloat( presentation.toFixed( 1 ));
+					return parseFloat( presentation ).toFixed( 1 );
 				},
 				data : function() { return judgeScore; },
 				ignore : {

@@ -13,6 +13,9 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 		// ===== ADD STATE
 		this.state.division = null;
 
+		// ===== HELPER FUNCTION
+		let precision = ( value, precision = 2, fallback = '' ) => isNaN( parseFloat( value )) ? fallback : parseFloat( value ).toFixed( precision );
+
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh = {
 			athlete : {
@@ -31,8 +34,14 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 					tdcs.append( athlete );
 					noc.hide();
 
-					let score = tdc.score = $( `<div class="${contestant} score"></div>` );
-					let total = tdc.total = $( `<div class="${contestant} total"></div>` );
+					let score        = tdc.score        = $( `<div class="${contestant} score"></div>` );
+					let report       = tdc.report       = $( `<div class="${contestant} report"></div>` );
+					let total        = tdc.total        = $( `<div class="total"></div>` );
+					let penalties    = tdc.penalties    = $( `<div class="penalties"></div>` );
+					let subtotals    = tdc.subtotals    = $( '<div class="subtotals"><div class="labels"><div class="accuracy-label">A</div><div class="presentation-label">P</div></div></div>' );
+					let accuracy     = tdc.accuracy     = $( `<div class="accuracy mean"></div>` );
+					let presentation = tdc.presentation = $( `<div class="presentation mean"></div>` );
+					let labels       = tdc.labels       = $( '<div class="labels"><div class="accuracy-label">A</div><div class="presentation-label">P</div></div>' );
 					tdcs.append( score );
 
 					tdc.judge = [];
@@ -43,16 +52,33 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						tdc.judge[ i ] = $( `<div class="court-size-${n} judge ${judge}"></div>` );
 						judges.append( tdc.judge[ i ]);
 					}
+					subtotals.append( accuracy, presentation );
+					report.append( total, penalties, subtotals );
 					score.append( judges );
-					score.append( total );
+					score.append( report );
+					score.append( labels );
 
 					this.state.division = division;
+				},
+				penalties : form => {
+					let map  = { icon: { bounds: 'share-square', restart: 'redo', timelimit: 'clock', misconduct: 'comment-slash' }, name: { bounds: 'Out-of-bounds', restart: 'Restart', timelimit: 'Over time', misconduct: 'Misconduct' }};
+					let data = form.penalty().data();
+					return Object.keys( data ).sort(( a, b ) => a.localeCompare( b )).map( penalty => {
+						let value = precision( data[ penalty ], 1, 0 );
+						let icon  = map.icon[ penalty ];
+						let name  = map.name[ penalty ];
+						if( value == 0 ) { return; }
+						if( penalty == 'misconduct' ) {
+							return `<div class="penalty"><span class="penalty-icon fas fa-${icon}"></span><span class="penalty-value">&times;${parseInt( value )}</span><br><span class="penalty-name">${name}</span></div>`;
+						} else {
+							return `<div class="penalty"><span class="penalty-icon fas fa-${icon}"></span><span class="penalty-value">-${value}</span><br><span class="penalty-name">${name}</span></div>`;
+						}
+					}).join( '' );
 				},
 				scores : ( chung, hong ) => {
 					let div   = this.state.division;
 					let round = div.current.roundId();
-					let match = { chung, hong };
-
+					let match = { chung, hong, data: div.current.match() };
 
 					contestants.forEach( contestant => {
 						let tdc = this.display[ contestant ];
@@ -74,7 +100,6 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 
 					let i = div.current.formId();
 					let form = { chung : {}, hong : {} };
-
 					let athletes = { chung, hong };
 					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Score();
@@ -86,6 +111,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 							if( ! defined( athlete )) { return; }
 							let tdc = this.display[ contestant ];
+							tdc.labels.show();
 							tdc.judge.forEach(( display, i ) => {
 								let judge = form[ contestant ].score.judge( i );
 								display.empty();
@@ -94,21 +120,46 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 										acc : judge.score.ignore.accuracy() ? 'ignore' : '',
 										pre : judge.score.ignore.presentation() ? 'ignore' : ''
 									};
-									display.html( `<div class="accuracy score ${ignore.acc}">${judge.score.accuracy()}</div><div class="presentation score ${ignore.pre}">${judge.score.presentation()}</div>` ); 
+									display.html( `<div class="jid">${ i == 0 ? 'R' : 'J' + (i+1)}</div><div class="accuracy score ${ignore.acc}">${judge.score.accuracy()}</div><div class="presentation score ${ignore.pre}">${judge.score.presentation()}</div>` ); 
 								}
 							});
 						});
 
-						// ===== UPDATE MAIN SCOREBOARD
+						// ===== UPDATE SCORE REPORT (COLORED AREA)
+						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
+							let tdc = this.display[ contestant ];
+
+							tdc.side.removeClass( 'win' );
+							[ 'total', 'penalties', 'accuracy', 'presentation' ].forEach( field => tdc[ field ].empty());
+
+							let fcs          = form[ contestant ].score;
+							let total        = precision( fcs.adjusted().total, 2, '&ndash;' );
+							let penalties    = this.refresh.athlete.penalties( fcs );
+							let accuracy     = precision( fcs.accuracy());
+							let presentation = precision( fcs.presentation());
+							let decision     = fcs.decision.awarded();
+							if( decision ) { total = decision.code; }
+
+							tdc.total.html( total );
+							tdc.penalties.html( penalties );
+							tdc.accuracy.html( accuracy );
+							tdc.presentation.html( presentation );
+
+							if( div.form.count() == 1 && match.data.winner == athlete.id()) {
+								tdc.side.addClass( 'win' );
+								tdc.penalties.append( '<div class="win-dot">&nbsp;</div>' );
+							}
+						});
 
 					} else {
 						// ===== MARK JUDGE SCORE ENTRIES AS HAVING BEEN RECEIVED OR PENDING
 						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 							let tdc = this.display[ contestant ];
+							tdc.labels.hide();
 							tdc.judge.forEach(( display, i ) => {
 								let judge = form[ contestant ].score.judge( i );
 								display.empty();
-								if( judge.is.complete()) { display.html( '<div class="score received">&check;</div>' ); }
+								if( judge.score.is.complete()) { display.html( `<div class="jid">${ i == 0 ? 'R' : 'J' + (i+1)}</div><div class="score received">&check;</div>` ); }
 							});
 						});
 					}
