@@ -38,7 +38,8 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 					let report       = tdc.report       = $( `<div class="${contestant} report"></div>` );
 					let total        = tdc.total        = $( `<div class="total"></div>` );
 					let penalties    = tdc.penalties    = $( `<div class="penalties"></div>` );
-					let subtotals    = tdc.subtotals    = $( '<div class="subtotals"><div class="labels"><div class="accuracy-label">A</div><div class="presentation-label">P</div></div></div>' );
+					let subtotals    = tdc.subtotals    = $( '<div class="subtotals"></div>' );
+					let sublabels    = tdc.sublabels    = $( '<div class="labels"><div class="accuracy-label">A</div><div class="presentation-label">P</div></div>' );
 					let accuracy     = tdc.accuracy     = $( `<div class="accuracy mean"></div>` );
 					let presentation = tdc.presentation = $( `<div class="presentation mean"></div>` );
 					let labels       = tdc.labels       = $( '<div class="labels"><div class="accuracy-label">A</div><div class="presentation-label">P</div></div>' );
@@ -52,7 +53,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						tdc.judge[ i ] = $( `<div class="court-size-${n} judge ${judge}"></div>` );
 						judges.append( tdc.judge[ i ]);
 					}
-					subtotals.append( accuracy, presentation );
+					subtotals.append( sublabels, accuracy, presentation );
 					report.append( total, penalties, subtotals );
 					score.append( judges );
 					score.append( report );
@@ -141,6 +142,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							let decision     = fcs.decision.awarded();
 							if( decision ) { total = decision.code; }
 
+							tdc.sublabels.show();
 							tdc.total.html( total );
 							tdc.penalties.html( penalties );
 							tdc.accuracy.html( accuracy );
@@ -169,6 +171,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 							let tdc = this.display[ contestant ];
 							tdc.labels.hide();
+							tdc.sublabels.hide();
 							tdc.judge.forEach(( display, i ) => {
 								let judge = form[ contestant ].score.judge( i );
 								display.empty();
