@@ -85,7 +85,6 @@ sub autopilot_steps {
 	my $group    = shift;
 	my $div      = $self->{ division };
 	my $pause    = { matches => 7, score => 7, results => 7, bracket => 12, leaderboard => 12, brief => 1 };
-	# my $pause    = { score => 2, leaderboard => 2, brief => 1 }; # MW FOR DEBUGGING PURPOSES
 	my $round    = $div->{ round };
 	my $order    = $div->order( $round );
 	my $forms    = $div->{ forms }{ $round };
@@ -401,13 +400,13 @@ sub place_athletes {
 
 	# ===== TALLY THE WINS FROM ALL PREVIOUS SINGLE ELIMINATION ROUNDS
 	foreach my $prev (@previous) {
-		my $method  = $div->method( $prev );
-		my $matches = $method->matches();
+		my $pmethod = $div->method( $prev ); # Get the previous method object for the corresponding previous round
+		my $matches = $pmethod->matches(); # Retrieve the matches for the previous round
 
 		next unless $div->round_defined( $prev );
 		next unless $matches->complete();
 
-		my @winners = grep { defined $_ } $method->calculate_winners();
+		my @winners = grep { defined $_ } $pmethod->calculate_winners(); # Calculate the winners for the previous round (using the method object for that round)
 		$wins->{ $_ }++ foreach @winners;
 
 		my $n          = max values %$wins;

@@ -29,7 +29,7 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 				let start = division.prev.rounds()?.map( r => division.matches( r )?.length )?.reduce(( a, c ) => a += c, 0 );
 				this.display.match.list.empty();
 				let matches = division.matches( round );
-				let current = matches.find( match => [ match.chung, match.hong ].includes( division.current.athleteId()));
+				let current = division.current.match();
 
 				// Paginate by up to every 4 matches
 				let page = {

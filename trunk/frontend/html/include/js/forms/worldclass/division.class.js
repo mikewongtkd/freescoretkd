@@ -15,6 +15,16 @@ function Division( division ) {
 				ro8    : 'Quarter-Finals Round (Ro8)',
 				ro4    : 'Semi-Finals Round (Ro4)',
 				ro2    : 'Finals Round (Ro2)'
+			},
+			matches : {
+				ro256  : 128,
+				ro128  : 64,
+				ro64   : 32,
+				ro32   : 16,
+				ro16   : 8,
+				ro8    : 4,
+				ro4    : 2,
+				ro2    : 1
 			}
 		}
 	};
@@ -42,6 +52,20 @@ function Division( division ) {
 
 	this.as = {
 		json : function() { return JSON.stringify( division ); },
+	};
+
+	let _bracket = this.bracket = {
+		matches : ( round = null ) => {
+			let matches = this.matches( round );
+			if( matches.length != 0 ) { return matches; }
+			if( ! round in display.round.matches ) { return []; }
+			let n = display.round.matches[ round ];
+			matches = [];
+			for( let i = 0; i < n; i++ ) {
+				matches.push({chung: null, hong: null, number: i + 1, order: [ null, null ]})
+			}
+			return matches;
+		}
 	};
 
 	let _current = this.current = {
@@ -159,7 +183,6 @@ function Division( division ) {
 
 	this.placement = function( round = null ) {
 		round = defined( round ) ? round : division.round;
-		console.log( 'DIVISION PLACEMENT: ', division.placement );
 		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
 	}
 
@@ -243,7 +266,7 @@ function Division( division ) {
 		name : function() { return FreeScore.round.name[ division.round ]; },
 	};
 
-	this.rounds = () => FreeScore.round.order.filter( round => defined( division?.order?.[ round ]))
+	this.rounds = () => FreeScore.round.order.filter( round => defined( division?.order?.[ round ]) || division?.rounds?.includes( round ));
 
 	let _state = this.state = {
 		is : {
