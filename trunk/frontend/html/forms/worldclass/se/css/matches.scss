@@ -61,10 +61,12 @@
       }
       .name {
         position: absolute;
-        width: 100%;
         font-size: 4em;
         line-height: 1.75em;
         max-width: 520px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
       .match-chung, .match-hong {
         width: 50%;

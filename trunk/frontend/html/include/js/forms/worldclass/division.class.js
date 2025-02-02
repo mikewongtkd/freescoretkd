@@ -264,6 +264,7 @@ function Division( division ) {
 		},
 		list : function() { return Object.keys( division.forms ); },
 		name : function() { return FreeScore.round.name[ division.round ]; },
+		order : round => { return division.order?.[ round ]; }
 	};
 
 	this.rounds = () => FreeScore.round.order.filter( round => defined( division?.order?.[ round ]) || division?.rounds?.includes( round ));

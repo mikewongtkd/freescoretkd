@@ -44,7 +44,6 @@ table .tb2 { width: 10%; }
 			var display = {
 				results : {
 					table : division => {
-						console.log( division.name.toUpperCase(), division );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
 						let tables  = [];
 						let n       = division.athletes.length;
@@ -89,37 +88,38 @@ table .tb2 { width: 10%; }
 						// ============================================================
 						// SINGLE ELIMINATION
 						// ============================================================
-						if( rounds.find( round => round.code == 'ro2' )) {
-							let table = $( '<table class="table table-striped" />' );
-							let thead = $( '<thead />' );
-							let tbody = $( '<tbody />' );
-							if( division.name.match( pairteam )) {
-								thead.append( '<tr><th class="place">Place</th><th class="name">Names</th><th class="usatid">USAT IDs</th><th class="score">Matches Won</th><th>Top Round</th></tr>' );
-							} else {
-								thead.append( '<tr><th class="place">Place</th><th class="name">Name</th><th class="usatid">USAT ID</th><th class="score">Matches Won</th><th>Top Round</th></tr>' );
+						if( rounds.find( round => round.code.match( /^ro/ ))) {
+							if( division.order?.ro2 ) {
+								let table = $( '<table class="table table-striped" />' );
+								let thead = $( '<thead />' );
+								let tbody = $( '<tbody />' );
+								let s     = division.name.match( pairteam ) ? 's' : '';
+								thead.append( `<tr><th class="place">Place</th><th class="name">Name${s}</th><th class="usatid">USAT ID${s}</th><th class="score">Matches Won</th><th>Top Round</th></tr>` );
+								table.append( thead, tbody );
+								tables.push( `<h4>Single Elimination Summary</h4><p>Tallying wins over the Quarter-Finals (Ro8), Semi-Finals (Ro4), and Finals (Ro2) Rounds</p>`, table );
+
+								let placements = 'ro2' in division.placement ? division.placement[ 'ro2' ] : [];
+								let places     = placements.map( i => division.athletes[ i ]);
+								let maxwins    = places.length;
+								let trmap      = { 1: 'Finals', 2: 'Finals', 3: 'Semi-Finals', 5: 'Quarter-Finals', 9: 'Round of 16', 17: 'Round of 32', 33: 'Round of 64', 65: 'Round of 128', 129: 'Round of 256' };
+
+								placements.forEach(( athletes, i ) => {
+									let place = placements.filter(( p, j ) => ( j < i )).reduce(( acc, cur ) => acc + cur.length, 0 ) + 1;
+									athletes.forEach( j => {
+										let athlete  = division.athletes[ j ];
+										let name     = athlete.name;
+										let usatid   = athlete?.info?.usatid ? athlete.info.usatid.replace( /,/g, ', ' ) : '';
+										let wins     = maxwins - (i + 1);
+										let topround = trmap[ place ];
+										tbody.append( `<tr><td>${ordinal( place )}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${wins}</td><td>${topround}</td></tr>` );
+									})
+								});
 							}
-							table.append( thead, tbody );
-							tables.push( `<h4>Single Elimination Summary</h4><p>Tallying wins over the Quarter-Finals (Ro8), Semi-Finals (Ro4), and Finals (Ro2) Rounds</p>`, table );
-
-							let placements = 'ro2' in division.placement ? division.placement[ 'ro2' ] : [];
-							let places     = placements.map( i => division.athletes[ i ]);
-							let maxwins    = places.length;
-							let trmap      = { 1: 'Finals', 2: 'Finals', 3: 'Semi-Finals', 5: 'Quarter-Finals', 9: 'Round of 16', 17: 'Round of 32', 33: 'Round of 64', 65: 'Round of 128', 129: 'Round of 256' };
-
-							placements.forEach(( athletes, i ) => {
-								let place = placements.filter(( p, j ) => ( j < i )).reduce(( acc, cur ) => acc + cur.length, 0 ) + 1;
-								athletes.forEach( j => {
-									let athlete  = division.athletes[ j ];
-									let name     = athlete.name;
-									let usatid   = athlete?.info?.usatid ? athlete.info.usatid.replace( /,/g, ', ' ) : '';
-									let wins     = maxwins - (i + 1);
-									let topround = trmap[ place ];
-									tbody.append( `<tr><td>${ordinal( place )}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${wins}</td><td>${topround}</td></tr>` );
-								})
-							});
 
 							let start = 0;
 							rounds.filter( round => round.code.match( /^ro/ )).forEach( round => {
+								if( ! division.order?.[ round.code ]) { return; }
+							
 								let table = $( '<table class="table" />' );
 								let thead = $( '<thead />' );
 								let tbody = $( '<tbody />' );
@@ -140,6 +140,7 @@ table .tb2 { width: 10%; }
 
 								let matches = division.matches[ round.code ];
 								let draws   = division?.draws;
+								if( ! defined( matches )) { return; }
 
 								matches.forEach(( match, i ) => {
 									let num = match.number + start;
@@ -166,7 +167,9 @@ table .tb2 { width: 10%; }
 										let decision = scores?.adjusted?.decision;
 										if( decision ) { score = decision; } 
 										else           { score = parseFloat( scores.adjusted.total ).toFixed( 2 ); }
-										if( j == match.winner ) {
+										if( ! defined( match.winner )) {
+											tbody.append( `<tr>${matchnum}<td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">&ndash;</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );
+										} else if( j == match.winner ) {
 											tbody.append( `<tr>${matchnum}<td class="name"><b>${name}</b></td><td class="usatid">${usatid}</td><td class="score"><b>${score}</b></td><td class="tb1"><b>${tb1}</b></td><td class="tb1"><b>${tb2}</b></td></tr>` );
 										} else {
 											tbody.append( `<tr>${matchnum}<td class="name"><s>${name}</s></td><td class="usatid">${usatid}</td><td class="score"><s>${score}</s></td><td class="tb1"><s>${tb1}</s></td><td class="tb1"><s>${tb2}</s></td></tr>` );

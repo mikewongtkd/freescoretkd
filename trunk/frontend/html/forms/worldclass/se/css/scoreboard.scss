@@ -53,6 +53,9 @@
       .name {
         display: inline-block;
         font-size: 72pt;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
 
       .noc {

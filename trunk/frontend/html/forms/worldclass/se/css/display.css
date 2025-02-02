@@ -152,10 +152,12 @@ body {
 }
 #display-matches.chung-right .match .name {
   position: absolute;
-  width: 100%;
   font-size: 4em;
   line-height: 1.75em;
   max-width: 520px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 #display-matches.chung-right .match .match-chung, #display-matches.chung-right .match .match-hong {
   width: 50%;
@@ -475,6 +477,9 @@ body {
 #display-score .contestant .athlete .name {
   display: inline-block;
   font-size: 72pt;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 #display-score .contestant .athlete .noc {
   display: inline-block;

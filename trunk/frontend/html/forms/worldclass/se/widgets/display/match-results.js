@@ -1,92 +1,102 @@
-FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widget {
+FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
+		const contestants = [ 'chung', 'hong' ];
 
-		this.dom.append( '<div class="header"></div><div class="match-list"></div>' );
+		this.dom.append( '<div class="header"></div><div class="chung contestant"></div><div class="hong contestant"></div>' );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.header   = this.dom.find( '.header' );
-		this.display.match    = { list : this.dom.find( '.match-list' ) };
+		this.display.header = this.dom.find( '.header' );
+		this.display.chung  = { side : this.dom.find( '.chung.contestant' ) };
+		this.display.hong   = { side : this.dom.find( '.hong.contestant' ) };
 
 		// ===== ADD STATE
-		this.state.division  = { show : null };
+		this.state.division = null;
+
+		// ===== HELPER FUNCTION
+		let precision = ( value, precision = 2, fallback = '' ) => isNaN( parseFloat( value )) ? fallback : parseFloat( value ).toFixed( precision );
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.header = division => {
-			this.display.header.empty();
-			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description"><span class="round-name">${division.description()}</span></h1><h2>${division.current.round.display.name()}</span></h2>` );
-		};
-		this.refresh.match = {
-			list : division => {
-				if( ! defined( division )) { 
-					this.display.header.empty(); 
-					this.display.match.list.empty(); 
-					return; 
-				}
+		this.refresh = {
+			athlete : {
+				display : ( division, contestant ) => { // Convention: contestant = 'chung' | 'hong'
+					let divid = division.name();
+					if( divid == this.state.division?.name ) { return; }
 
-				// ===== POPULATE THE ATHLETE LIST
-				let round = division.current.roundId();
-				let start = division.prev.rounds()?.map( r => division.matches( r )?.length )?.reduce(( a, c ) => a += c, 0 );
-				this.display.match.list.empty();
-				let matches = division.matches( round );
-				let current = matches.find( match => [ match.chung, match.hong ].includes( division.current.athleteId()));
+					let tdc  = this.display[ contestant ];
+					let tdcs = tdc.side;
 
-				// Paginate by up to every 4 matches
-				let page = {
-					start: Math.floor(( current.number - 1 )/ 4 ) * 4,
-					stop: matches.length < 4 ? start + matches.length : start + 4
-				};
-				matches.slice( page.start, page.stop ).forEach( match => {
-					let active  = match.number == current.number ? ' active' : '';
-					let mid     = `${round}-${match.number}`;
-					let mnum    = parseInt( match.number ) + parseInt( start );
-					let tdmm    = this.display.match[ mid ];
-					if( ! defined( tdmm )) {
-						tdmm = this.display.match[ mid ] = {};
-					}
-					tdmm.all = $( `<div class="match ${round}${active}" data-match-id="${mid}">
-							<div class="match-chung"><div class="win"></div><div class="noc"></div><div class="name"></div></div>
-							<div class="match-hong"><div class="win"></div><div class="noc"></div><div class="name"></div></div>
-							<div class="match-number ${mid}"><div class="number">${mnum}</div></div>
-						</div>` );
-					this.display.match.list.append( tdmm.all );
-					tdmm.chung = { all: tdmm.all.find( '.match-chung' )};
-					tdmm.hong  = { all: tdmm.all.find( '.match-hong' )};
-					[ 'chung', 'hong' ].forEach( contestant => {
-						[ 'win', 'noc', 'name' ].forEach( field => {
-							tdmm[ contestant ][ field ] = tdmm[ contestant ].all.find( `.${field}` );
-						});
-					});
-					[ 'chung', 'hong' ].forEach( contestant => {
-						let aid = match[ contestant ];
-						let dom = tdmm[ contestant ];
-						if( ! defined( aid )) {
-							dom.name.html( '<i>BYE</i>' );
-							dom.noc.empty().hide();
-							dom.win.empty().hide();
-						} else {
-							let athlete = division.athletes().find( athlete => athlete.id() == aid );
-							let length  = round == 'ro2' ? 32 : 16;
-							let wrap    = round == 'ro2' && athlete.display.name().length > 18;
-							dom.name.html( athlete.display.name( length )).css({ 'line-height' : wrap ? '1.2em' : '', 'top' : wrap ? '6px' : '' });
-							if( athlete.info( 'noc' )) {
-								let flag = ioc.flag( athlete.info( 'noc' ));
-								if( flag ) {
-									dom.noc.html( `<img src="${flag}">` ).show();
-								} else {
-									dom.noc.empty().hide();
-								}
-							} else {
-								dom.noc.empty().hide();
-							}
-							if( match?.winner == aid ) {
-								dom.win.html( '&nbsp;' ).show();
-							} else {
-								dom.win.empty().hide();
-							}
+					tdcs.empty();
+					let noc     = tdc.noc     = $( '<div class="noc"></div>' );
+					let name    = tdc.name    = $( '<div class="name"></div>' );
+					let athlete = tdc.athlete = $( `<div class="${contestant} athlete"></div>` );
+					athlete.append( noc, name );
+					tdcs.append( athlete );
+					noc.hide();
+
+					let score        = tdc.score        = $( `<div class="${contestant} score"></div>` );
+					let report       = tdc.report       = $( `<div class="${contestant} report"></div>` );
+					let form1        = tdc.form1        = $( `<div class="form-1"></div>` );
+					let form2        = tdc.form2        = $( `<div class="form-2"></div>` );
+					let total        = tdc.total        = $( `<div class="total"></div>` );
+
+					tdcs.append( score );
+
+					report.append( total );
+
+					score.append( form1 );
+					score.append( form2 );
+					score.append( report );
+
+					this.state.division = division;
+				},
+				scores : ( chung, hong ) => {
+					let div   = this.state.division;
+					let round = div.current.roundId();
+					let match = { chung, hong, data: div.current.match() };
+
+					// ===== RESET DISPLAY AND SHOW ATHLETE INFO
+					contestants.forEach( contestant => {
+						let tdc = this.display[ contestant ];
+						tdc.name.empty();
+						tdc.noc.empty();
+						tdc.judge.forEach( judge => judge.empty());
+						tdc.side.removeClass( 'win active waiting' );
+
+						let athlete = match[ contestant ];
+						if( ! defined( athlete )) {
+							tdc.name.html( '<i>BYE</i>' );
+							return;
 						}
+
+						let flag = ioc.flag( athlete.info( 'noc' ));
+						tdc.name.html( athlete.display.name( 16 ));
+						if( flag ) {
+							tdc.noc.html( `<img src="${flag}">` ).show();
+						} else {
+							tdc.noc.hide();
+						}
+							
 					});
-				});
+
+					let i = div.current.formId();
+					let form = { chung : {}, hong : {} };
+					let athletes = { chung, hong };
+					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
+						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Score();
+						form[ contestant ].complete = form[ contestant ].score.is.complete();
+					});
+				}
+			},
+			header: division => {
+				let match = division.current.match();
+				let start = division.prev.rounds().map( round => division.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
+				let mnum  = parseInt( match.number ) + start;
+				let fnum  = division.form.count() > 1 ? `(${ordinal( parseInt( division.current.formId()) + 1 )} Form)` : '';
+				let fname = division.current.form.name();
+
+				this.display.header.empty();
+				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum} Results</span></h2>` );
 			}
 		};
 
@@ -95,9 +105,12 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
 				let division = update?.division ? new Division( update.division ) : null;
+				let chung    = division.current.chung();
+				let hong     = division.current.hong();
 
+				contestants.forEach( contestant => this.refresh.athlete.display( division, contestant ));
 				this.refresh.header( division );
-				this.refresh.match.list( division );
+				this.refresh.athlete.scores( chung, hong );
 			});
 	}
 }

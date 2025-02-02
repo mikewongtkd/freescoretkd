@@ -87,14 +87,40 @@
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
-			var tournament = <?= $tournament ?>;
-			var ring       = { num: <?= $rnum ?> };
-			var html       = FreeScore.html;
-			var app        = new FreeScore.App();
+			let tournament = <?= $tournament ?>;
+			let ring       = { num: <?= $rnum ?> };
+			let html       = FreeScore.html;
+			let app        = new FreeScore.App();
 
+			// ===== NETWORK CONNECT
 			app.on.connect( '<?= $url ?>' ).read.division();
 
+			// ===== PAN & ZOOM FUNCTION
+			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
+			app.display.panzoom = delta => {
+				app.state.display.x    += delta.x;
+				app.state.display.y    += delta.y;
+				app.state.display.zoom += delta.z;
+				console.log( 'PAN-ZOOM', app.state.display );
+				$( '#pt-main' ).css({ transform: `scale( ${app.state.display.zoom.toFixed( 2 )}) translate( ${Math.round( app.state.display.x * 100 )}%, ${Math.round( app.state.display.y * 100)}% )`, 'transform-origin': '0 0' });
+				alertify.dismissAll();
+				if( delta.z != 0 ) { alertify.notify( `Zoom: ${Math.round( app.state.display.zoom * 100 )}%` ); }
+				else               { alertify.notify( `Pan: X: ${Math.round( app.state.display.x * 100 )}%, Y: ${Math.round( app.state.display.y * 100 )}%` ); }
+			}
+			$( 'body' ).keydown( ev => { 
+				switch( ev.key ) {
+					case '=':          app.display.panzoom({ x:  0.00, y:  0.00, z:  0.05 }); break;
+					case '-':          app.display.panzoom({ x:  0.00, y:  0.00, z: -0.05 }); break;
+					case 'ArrowUp':    app.display.panzoom({ x:  0.00, y: -0.05, z:  0.00 }); break;
+					case 'ArrowDown':  app.display.panzoom({ x:  0.00, y:  0.05, z:  0.00 }); break;
+					case 'ArrowLeft':  app.display.panzoom({ x: -0.05, y:  0.00, z:  0.00 }); break;
+					case 'ArrowRight': app.display.panzoom({ x:  0.05, y:  0.00, z:  0.00 }); break;
+				}
+			});
+
+			// ===== PAGES
 			app.page = {
+				count: 5,
 				num: 1,
 				for : {
 					score: 1,
@@ -111,11 +137,10 @@
 					matches:     () => { app.page.transition( 'matches' ); }
 				},
 				transition: target => { 
-					let page = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.score;
-					if( app.page.num == page ) { return; }
-					app.page.num = page;
+					let pnum = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.score;
+					app.page.num = pnum;
 					$( '.pt-page' ).hide();
-					$( `.pt-page-${page}` ).show();
+					$( `.pt-page-${pnum}` ).show();
 				}
 			};
 
@@ -142,7 +167,7 @@
 							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 							state = 'score'; 
 						}
-						app.page.show[ state ]();
+						app.page.transition( state );
 					})
 				// ============================================================
 				.heard( 'autopilot' )
@@ -157,7 +182,7 @@
 							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 							state = 'score'; 
 						}
-						app.page.show[ state ]();
+						app.page.transition( state );
 					})
 		</script>
 	</body>
