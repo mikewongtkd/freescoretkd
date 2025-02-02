@@ -1687,6 +1687,8 @@ let ioc = {
       return `/images/flags/${entry.two.toLowerCase()}.png`;
    },
    lookup : text => {
+      if( text === undefined || text === null ) { return undefined; }
+
       let uc = text.toUpperCase();
       if( uc in ioc.data.country ) { return ioc.data.country[ uc ]; }
 

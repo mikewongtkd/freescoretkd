@@ -97,7 +97,11 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 
 						let flag = ioc.flag( athlete.info( 'noc' ));
 						tdc.name.html( athlete.display.name( 16 ));
-						tdc.noc.html( `<img src="${flag}">` ).show();
+						if( flag ) {
+							tdc.noc.html( `<img src="${flag}">` ).show();
+						} else {
+							tdc.noc.hide();
+						}
 							
 					});
 

@@ -88,8 +88,8 @@ sub complete {
 	my $self = shift;
 
 	my $complete = { accuracy => 0, presentation => 0 };
-	$complete->{ accuracy }     = all { defined $_ && $_ >= 0.0              } @{ $self }{ qw( major minor )};
-	$complete->{ presentation } = all { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki )};
+	$complete->{ accuracy }     = all { defined $_ && int( $_ ) >= 0.0                     } @{ $self }{ qw( major minor )};
+	$complete->{ presentation } = all { defined $_ && int( $_ ) >= 0.5 && int( $_ ) <= 2.0 } @{ $self }{ qw( rhythm power ki )};
 	$self->{ complete } = $complete->{ accuracy } && $complete->{ presentation };
 	return $self->{ complete };
 }
@@ -99,8 +99,8 @@ sub started {
 # ============================================================
 	my $self = shift;
 	my $started = { accuracy => 0, presentation => 0 };
-	$started->{ accuracy }     = any { defined $_ && $_ >  0.0              } @{ $self }{ qw( major minor )};
-	$started->{ presentation } = any { defined $_ && $_ >= 0.5 && $_ <= 2.0 } @{ $self }{ qw( rhythm power ki )};
+	$started->{ accuracy }     = any { defined $_ && int( $_ ) >  0.0                     } @{ $self }{ qw( major minor )};
+	$started->{ presentation } = any { defined $_ && int( $_ ) >= 0.5 && int( $_ ) <= 2.0 } @{ $self }{ qw( rhythm power ki )};
 	$self->{ started } = $started->{ accuracy } || $started->{ presentation };
 	return $self->{ started };
 }

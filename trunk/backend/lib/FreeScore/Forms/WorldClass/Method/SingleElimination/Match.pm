@@ -91,8 +91,7 @@ sub declare_winner {
 	my $self   = shift;
 	my $winner = shift;
 
-	$self->{ winner } = $winner = $winner eq 'none' || ! defined $winner ? undef : int( $winner );
-
+	$self->{ winner } = $winner = ($winner eq 'none' || ! defined $winner) ? undef : int( $winner );
 
 	if( $DEBUG eq 'declare_winner' ) {
 		print STDERR "MATCH - DECLARE WINNER - Call Stack\n";

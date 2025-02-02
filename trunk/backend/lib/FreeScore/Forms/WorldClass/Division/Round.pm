@@ -350,8 +350,12 @@ sub complete {
 
 	return 1 if $self->any_punitive_decision();
 
+	# ===== A ROUND CANNOT HAVE 0 FORMS
+	my $forms = exists $self->{ forms } && ref($self->{ forms }) eq 'ARRAY' ? $self->{ forms } : [];
+	return 0 if int( @$forms ) == 0;
+
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
-	$self->{ complete } = all { $_->{ complete }; } @{ $self->{ forms }};
+	$self->{ complete } = all { $self->form_complete( $_ )} @$forms;
 	return $self->{ complete };
 }
 

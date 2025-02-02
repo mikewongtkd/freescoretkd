@@ -63,11 +63,12 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let start  = 0;
 				let prev   = null;
 				let first  = rounds[ 0 ];
-				let bounds = { left: (width + height)/2, top: 0, right: (rounds.length -1) * (width + (3 * height)), bottom: (rounds.length -1) * (width + (3 * height))};
+				let layers = rounds.length > 1 ? rounds.length - 1 : 1;
+				let bounds = { left: (width + height)/2, top: 0, width: layers * (width + (3 * height)), height: layers * (width + (3 * height))};
 
 				this.display.bracket.graph.empty();
 				if( this.draw ) { this.draw.clear(); }
-				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${bounds.left} ${bounds.top} ${bounds.right} ${bounds.bottom}` );
+				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${bounds.left} ${bounds.top} ${bounds.width} ${bounds.height}` );
 
 				rounds.forEach(( round, i ) => { 
 					let matches  = reorder( division.matches( round )); // Need to create placeholders for matches that have not yet been initialized (ro4 -> 2 matches, ro2 -> 1 match)
@@ -194,16 +195,17 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 
 				// Zoom in
 				bounds = { left: current.anchor.ul[ 0 ], top : Math.min( current.anchor.ul[ 1 ], other.anchor.ul[ 1 ]), right: Math.max( current.anchor.lr[ 0 ], dest.anchor.lr[ 0 ]), bottom: Math.max( current.anchor.lr[ 1 ], other.anchor.lr[ 1 ])};
-				bounds.right  = height + bounds.right - bounds.left;
-				bounds.bottom = height + bounds.bottom - bounds.top;
+				bounds.width  = height + bounds.right - bounds.left;
+				bounds.height = height + bounds.bottom - bounds.top;
 				bounds.left   -= height/2;
 				bounds.top    += height/2;
-				this.draw.animate( 3000, 1000 ).viewbox( bounds.left, bounds.top, bounds.right, bounds.bottom ).size( '100%', '100%' );
+				this.draw.animate( 3000, 1000 ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height ).size( '100%', '100%' );
 				console.log( 'ZOOM IN BOUNDS', bounds ); // MW
 
 				// Zoom back out
-				bounds = { left: (width + height)/2, top: 0, right: (rounds.length -1) * (width + (3 * height)), bottom: (rounds.length -1) * (width + (3 * height))};
-				this.draw.animate( 2000, 5000 ).viewbox( `${bounds.left} ${bounds.top} ${bounds.right} ${bounds.bottom}` );
+				let layers = rounds.length > 1 ? rounds.length - 1 : 1;
+				bounds = { left: (width + height)/2, top: 0, width: layers * (width + (3 * height)), height: layers * (width + (3 * height))};
+				this.draw.animate( 2000, 5000 ).viewbox( `${bounds.left} ${bounds.top} ${bounds.width} ${bounds.height}` );
 				console.log( 'ZOOM OUT BOUNDS', bounds ); // MW
 			}
 		};

@@ -262,6 +262,7 @@ sub calculate_winners {
 	my $self     = shift;
 	my $div      = $self->{ division };
 	my $matches  = $self->matches();
+	delete $_->{ winner } foreach $matches->list(); # Clear cache
 	my @complete = grep { $_->complete() } $matches->list(); # List of completed matches
 	my @winners  = int( @complete ) > 0 ? map { $_->winner() } @complete : ();
 
