@@ -16,7 +16,6 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 		this.state.bracket = {};
 
 		// ===== ADD REFRESH BEHAVIOR
-
 		// ------------------------------------------------------------
 		let reorder = matches => {
 		// ------------------------------------------------------------
@@ -69,13 +68,12 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 
 				this.display.bracket.graph.empty();
 				if( this.draw ) { this.draw.clear(); }
-				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( `${bounds.left} ${bounds.top} ${bounds.width} ${bounds.height}` );
+				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height );
 
 				rounds.forEach(( round, i ) => { 
 					let matches  = reorder( division.bracket.matches( round ));
 					let yoffset  = (((4 - matches.length) / 2) * height * 3) / 2;
 					let pmatches = [];
-					console.log( 'BRACKET BUILDING', round, matches.length, matches ); // MW
 
 					if( prev ) { pmatches = reorder( division.matches( prev )); }
 					this.state.bracket[ round ] = { svg: {}};
@@ -142,6 +140,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					prev = round;
 				});
 
+				$( 'svg:not( #display-bracket svg )' ).remove(); // Kludge fix to remove extra SVG elements (I don't know why they're being created)
 			},
 			match : ( division, match, x, y, start, active = 'default' ) => {
 				let radius = this.state.render.radius;
@@ -199,7 +198,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let other   = defined( dest ) ? (dest.source.chung.id == current.id ? dest.source.hong : dest.source.chung) : current;
 				let bounds  = {};
 
-				dest   = defined( dest ) ? dest : current;
+				dest = defined( dest ) ? dest : current;
 
 				// Zoom in
 				bounds = { left: current.anchor.ul[ 0 ], top : Math.min( current.anchor.ul[ 1 ], other.anchor.ul[ 1 ]), right: Math.max( current.anchor.lr[ 0 ], dest.anchor.lr[ 0 ]), bottom: Math.max( current.anchor.lr[ 1 ], other.anchor.lr[ 1 ])};
@@ -207,15 +206,22 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				bounds.height = height + bounds.bottom - bounds.top;
 				bounds.left   -= height/2;
 				bounds.top    += height/2;
-				this.draw.animate( 3000, 1000 ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height ).size( '100%', '100%' );
-				console.log( 'ZOOM IN BOUNDS', bounds ); // MW
+				bounds.x = bounds.left;
+				bounds.y = bounds.top;
+				let zoom = {};
+				zoom.in = [ bounds.x, bounds.y, bounds.width, bounds.height ];
+
 
 				// Zoom back out
 				let columns = rounds.length > 1 ? rounds.length - 1 : 1;
 				let rows    = rounds.map( round => division.matches( round ).length ).reduce(( acc, cur ) => cur > acc ? cur : acc, 0 );
-				bounds = { left: (width + height)/2, top: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
-				this.draw.animate( 2000, 5000 ).viewbox( `${bounds.left} ${bounds.top} ${bounds.width} ${bounds.height}` );
-				console.log( 'ZOOM OUT BOUNDS', bounds ); // MW
+				bounds = { x: (width + height)/2, y: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
+				zoom.out = [ bounds.x, bounds.y, bounds.width, bounds.height ];
+
+				let animating = this.state.animation && this.state.animation.process() != 1;
+				if( ! animating ) {
+					this.state.animation = this.draw.animate( 2000, 3000 ).viewbox( zoom.in ).animate( 2000, 3000 ).viewbox( zoom.out );
+				}
 			}
 		};
 
