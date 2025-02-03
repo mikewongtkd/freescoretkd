@@ -33,6 +33,7 @@
 		<script src="../../../include/js/widget.js"></script>
 		<script src="../../../include/js/ioc.js"></script>
 		<script src="widgets/display/match-list.js"></script>
+		<script src="widgets/display/match-results.js"></script>
 		<script src="widgets/display/bracket.js"></script>
 		<script src="widgets/display/scoreboard.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
@@ -101,7 +102,7 @@
 				app.state.display.x    += delta.x;
 				app.state.display.y    += delta.y;
 				app.state.display.zoom += delta.z;
-				console.log( 'PAN-ZOOM', app.state.display );
+				[ 'x', 'y', 'zoom' ].forEach( pz => app.state.display[ pz ] = parseFloat( app.state.display[ pz ].toFixed( 2 )));
 				$( '#pt-main' ).css({ transform: `scale( ${app.state.display.zoom.toFixed( 2 )}) translate( ${Math.round( app.state.display.x * 100 )}%, ${Math.round( app.state.display.y * 100)}% )`, 'transform-origin': '0 0' });
 				alertify.dismissAll();
 				if( delta.z != 0 ) { alertify.notify( `Zoom: ${Math.round( app.state.display.zoom * 100 )}%` ); }
@@ -150,6 +151,7 @@
 			app.widget = {
 				bracket:    { display : new FreeScore.Widget.SEBracket( app, 'display-bracket' ) },
 				match:      { display : new FreeScore.Widget.SEMatchList( app, 'display-matches' ) },
+				results:    { display : new FreeScore.Widget.SEMatchResults( app, 'display-results' ) },
 				scoreboard: { display : new FreeScore.Widget.SEScoreboard( app, 'display-score' ) }
 			};
 

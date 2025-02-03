@@ -1,5 +1,5 @@
 class Form {
-	constructor( form ) {
+	constructor( form = { major: 0, minor: 0, power: 0, rhythm: 0, ki: 0, penalty: { bounds: 0.0, restart: 0.0, timelimit: 0.0, misconduct: 0 }}) {
 		this.form = form;
 		this.award = {
 			penalty: function( category ) {

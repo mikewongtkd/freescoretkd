@@ -109,7 +109,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 					let form = { chung : {}, hong : {} };
 					let athletes = { chung, hong };
 					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
-						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Score();
+						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Form();
 						form[ contestant ].complete = form[ contestant ].score.is.complete();
 					});
 

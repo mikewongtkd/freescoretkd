@@ -1,0 +1,184 @@
+#display-results {
+  $margin: 40px;
+  $noc: 120px;
+  $judges: 2 * $noc + $margin;
+  $total: $judges + $margin;
+  $round: 96px;
+  $windot: 120px;
+
+  .form-name {
+    position: absolute;
+    left: 50%;
+    width: 25%;
+    height: 7/8 * $noc;
+    font-size: 56pt;
+    line-height: 76pt;
+    border: solid 4px #ccc;
+    border-radius: $noc / 3;
+    margin-top: 1/8 * $noc;
+    transform: translateX( -50% );
+    text-align: center;
+    background: black;
+    background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+    background: linear-gradient(to top, #45484d 0%,#000000 100%);
+
+    &.form-1 { color: lime; }
+    &.form-2 { color: cyan; }
+  }
+
+  .contestant {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    color: white;
+
+    &.winner {
+      .athlete {
+        .name {
+          color: gold;
+        }
+      }
+      .report {
+        .total {
+          color: gold;
+        }
+      }
+    }
+
+    text-align: center;
+
+    .athlete {
+      position: relative;
+      .name {
+        display: inline-block;
+        font-size: 72pt;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .noc {
+        display: inline-block;
+        width: $noc + 40px;
+        vertical-align: top;
+        img { width: $noc; }
+      }
+    }
+
+    .score {
+      .report {
+        position: absolute;
+        height: 30%;
+        width: 90%;
+        top: 15%;
+        text-align: center;
+
+        .total {
+          font-size: 144pt;
+        }
+
+        .win-dot {
+          position: absolute;
+          top: 50%;
+          width: $windot;
+          height: $windot;
+          background: gold;
+          border-radius: $windot / 2;
+          transform: translateY( -50% );
+        }
+          
+        &.chung {
+          background: rgb(0,1,36);
+          background: linear-gradient(0deg, rgba(0,1,36,1) 0%, rgba(0,0,255,1) 85%, rgba(9,9,205,1) 100%);
+        }
+        &.hong {
+          background: rgb(36,0,0);
+          background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(255,0,0,1) 85%, rgba(205,9,9,1) 100%);
+        }
+      }
+
+      .form-1, .form-2 {
+        position: absolute;
+        width: 90%;
+        height: 25%;
+        text-align: center;
+        font-size: 72pt;
+      }
+
+      .form-1 {
+        top: 50%;
+        color: lime;
+      }
+
+      .form-2 {
+        top: 65%;
+        color: cyan;
+      }
+    }
+  }
+
+  &.chung-right {
+    .contestant {
+      &.chung { 
+        right: 0; 
+        border-left: 2px solid white;
+
+        .athlete { margin-right: $margin; }
+
+        .report { 
+          right: 10%;
+          border-radius: 0 $round $round 0;
+
+          .win-dot { left: $windot / 3; }
+        }
+        .form-1, .form-2 { right: 10%; }
+     }
+      &.hong  { 
+        left: 0; 
+        border-right: 2px solid white;
+
+        .athlete { margin-left: $margin; }
+
+        .report { 
+          left: 10%;
+          border-radius: $round 0 0 $round;
+
+          .win-dot { right: $windot / 3; }
+        }
+        .form-1, .form-2 { left: 10%; }
+      }
+    }
+  }
+  &.chung-left {
+    .contestant {
+      &.chung { 
+        left: 0; 
+        border-right: 2px solid white;
+
+        .athlete { margin-left: $margin; }
+
+        .report { 
+          left: $total; 
+          border-radius: 0 $round $round 0;
+
+          .win-dot { right: $windot / 3; }
+        }
+        .form-1, .form-2 { left: 10%; }
+      }
+      &.hong  { 
+        right: 0; 
+        border-left: 2px solid white;
+
+        .athlete { margin-right: $margin; }
+
+        .report { 
+          right: $total; 
+          border-radius: $round 0 0 $round;
+
+          .win-dot { left: $windot / 3; }
+        }
+        .form-1, .form-2 { right: 10%; }
+      }
+    }
+  }
+}

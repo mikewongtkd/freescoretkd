@@ -34,19 +34,19 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 					tdcs.append( athlete );
 					noc.hide();
 
-					let score        = tdc.score        = $( `<div class="${contestant} score"></div>` );
-					let report       = tdc.report       = $( `<div class="${contestant} report"></div>` );
-					let form1        = tdc.form1        = $( `<div class="form-1"></div>` );
-					let form2        = tdc.form2        = $( `<div class="form-2"></div>` );
-					let total        = tdc.total        = $( `<div class="total"></div>` );
+					let score        = tdc.score  = $( `<div class="${contestant} score"></div>` );
+					let report       = tdc.report = $( `<div class="${contestant} report"></div>` );
+					let form1        = tdc.form1  = $( `<div class="form-1"></div>` );
+					let form2        = tdc.form2  = $( `<div class="form-2"></div>` );
+					let total        = tdc.total  = $( `<div class="total"></div>` );
 
 					tdcs.append( score );
 
 					report.append( total );
 
+					score.append( report );
 					score.append( form1 );
 					score.append( form2 );
-					score.append( report );
 
 					this.state.division = division;
 				},
@@ -60,8 +60,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 						let tdc = this.display[ contestant ];
 						tdc.name.empty();
 						tdc.noc.empty();
-						tdc.judge.forEach( judge => judge.empty());
-						tdc.side.removeClass( 'win active waiting' );
+						tdc.side.removeClass( 'winner' );
 
 						let athlete = match[ contestant ];
 						if( ! defined( athlete )) {
@@ -80,11 +79,30 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 					});
 
 					let i = div.current.formId();
-					let form = { chung : {}, hong : {} };
 					let athletes = { chung, hong };
 					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
-						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Score();
-						form[ contestant ].complete = form[ contestant ].score.is.complete();
+						let tdc   = this.display[ contestant ];
+						let score = defined( athlete ) ? athlete.score( round ) : new Score();
+						if( ! score.is.complete()) { return; }
+
+						let total = precision( score.adjusted.total() );
+						tdc.total.html( total );
+
+						if( athlete.id() == match.data?.winner ) {
+							let windot = $( '<div class="win-dot"></div>' );
+							tdc.report.append( windot );
+							tdc.side.addClass( 'winner' );
+						}
+
+						let form1 = precision( score.form( 0 )?.adjusted()?.total );
+						tdc.form1.html( form1 );
+						this.display.form[ 0 ].css({ top: tdc.form1.offset()?.top });
+
+						if( score.forms.count() > 1 ) {
+							let form2 = precision( score.form( 1 )?.adjusted()?.total );
+							tdc.form2.html( form2 );
+							this.display.form[ 1 ].css({ top: tdc.form2.offset()?.top });
+						}
 					});
 				}
 			},
@@ -93,10 +111,16 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 				let start = division.prev.rounds().map( round => division.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
 				let mnum  = parseInt( match.number ) + start;
 				let fnum  = division.form.count() > 1 ? `(${ordinal( parseInt( division.current.formId()) + 1 )} Form)` : '';
-				let fname = division.current.form.name();
+				let forms = division.current.form.list();
 
 				this.display.header.empty();
 				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum} Results</span></h2>` );
+				this.display.form = [];
+
+				forms.forEach(( form, i ) => {
+					this.display.form[ i ] = $( `<div class="form-name form-${i + 1}">${form}</div>` );
+					this.dom.append( this.display.form[ i ]);
+				});
 			}
 		};
 

@@ -56,32 +56,32 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-#display-matches .header, #display-score .header, #display-bracket .header {
+#display-score .header, #display-bracket .header, #display-results .header, #display-matches .header {
   width: 100%;
   color: #999;
 }
-#display-matches .header h1, #display-score .header h1, #display-bracket .header h1 {
+#display-score .header h1, #display-bracket .header h1, #display-results .header h1, #display-matches .header h1 {
   text-align: center;
   font-size: 4em;
 }
-#display-matches .header h1 .divid, #display-score .header h1 .divid, #display-bracket .header h1 .divid {
+#display-score .header h1 .divid, #display-bracket .header h1 .divid, #display-results .header h1 .divid, #display-matches .header h1 .divid {
   color: white;
 }
-#display-matches .header h1 .description, #display-score .header h1 .description, #display-bracket .header h1 .description {
+#display-score .header h1 .description, #display-bracket .header h1 .description, #display-results .header h1 .description, #display-matches .header h1 .description {
   color: #ccc;
 }
-#display-matches .header h2, #display-score .header h2, #display-bracket .header h2 {
+#display-score .header h2, #display-bracket .header h2, #display-results .header h2, #display-matches .header h2 {
   text-align: center;
   color: #666;
   font-size: 3em;
 }
-#display-matches .header h2 .round-name, #display-score .header h2 .round-name, #display-bracket .header h2 .round-name {
+#display-score .header h2 .round-name, #display-bracket .header h2 .round-name, #display-results .header h2 .round-name, #display-matches .header h2 .round-name {
   color: gold;
 }
-#display-matches .header h2 .match-number, #display-score .header h2 .match-number, #display-bracket .header h2 .match-number {
+#display-score .header h2 .match-number, #display-bracket .header h2 .match-number, #display-results .header h2 .match-number, #display-matches .header h2 .match-number {
   color: lime;
 }
-#display-matches .header h2 .form-name, #display-score .header h2 .form-name, #display-bracket .header h2 .form-name {
+#display-score .header h2 .form-name, #display-bracket .header h2 .form-name, #display-results .header h2 .form-name, #display-matches .header h2 .form-name {
   color: cyan;
 }
 
@@ -824,6 +824,170 @@ body {
 #display-score.chung-left .contestant.hong .report {
   right: 320px;
   border-radius: 24px 0 0 24px;
+}
+
+#display-results .form-name {
+  position: absolute;
+  left: 50%;
+  width: 25%;
+  height: 105px;
+  font-size: 56pt;
+  line-height: 76pt;
+  border: solid 4px #ccc;
+  border-radius: 40px;
+  margin-top: 15px;
+  transform: translateX(-50%);
+  text-align: center;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+#display-results .form-name.form-1 {
+  color: lime;
+}
+#display-results .form-name.form-2 {
+  color: cyan;
+}
+#display-results .contestant {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  color: white;
+  text-align: center;
+}
+#display-results .contestant.winner .athlete .name {
+  color: gold;
+}
+#display-results .contestant.winner .report .total {
+  color: gold;
+}
+#display-results .contestant .athlete {
+  position: relative;
+}
+#display-results .contestant .athlete .name {
+  display: inline-block;
+  font-size: 72pt;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#display-results .contestant .athlete .noc {
+  display: inline-block;
+  width: 160px;
+  vertical-align: top;
+}
+#display-results .contestant .athlete .noc img {
+  width: 120px;
+}
+#display-results .contestant .score .report {
+  position: absolute;
+  height: 30%;
+  width: 90%;
+  top: 15%;
+  text-align: center;
+}
+#display-results .contestant .score .report .total {
+  font-size: 144pt;
+}
+#display-results .contestant .score .report .win-dot {
+  position: absolute;
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  background: gold;
+  border-radius: 60px;
+  transform: translateY(-50%);
+}
+#display-results .contestant .score .report.chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+}
+#display-results .contestant .score .report.hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+}
+#display-results .contestant .score .form-1, #display-results .contestant .score .form-2 {
+  position: absolute;
+  width: 90%;
+  height: 25%;
+  text-align: center;
+  font-size: 72pt;
+}
+#display-results .contestant .score .form-1 {
+  top: 50%;
+  color: lime;
+}
+#display-results .contestant .score .form-2 {
+  top: 65%;
+  color: cyan;
+}
+#display-results.chung-right .contestant.chung {
+  right: 0;
+  border-left: 2px solid white;
+}
+#display-results.chung-right .contestant.chung .athlete {
+  margin-right: 40px;
+}
+#display-results.chung-right .contestant.chung .report {
+  right: 10%;
+  border-radius: 0 96px 96px 0;
+}
+#display-results.chung-right .contestant.chung .report .win-dot {
+  left: 40px;
+}
+#display-results.chung-right .contestant.chung .form-1, #display-results.chung-right .contestant.chung .form-2 {
+  right: 10%;
+}
+#display-results.chung-right .contestant.hong {
+  left: 0;
+  border-right: 2px solid white;
+}
+#display-results.chung-right .contestant.hong .athlete {
+  margin-left: 40px;
+}
+#display-results.chung-right .contestant.hong .report {
+  left: 10%;
+  border-radius: 96px 0 0 96px;
+}
+#display-results.chung-right .contestant.hong .report .win-dot {
+  right: 40px;
+}
+#display-results.chung-right .contestant.hong .form-1, #display-results.chung-right .contestant.hong .form-2 {
+  left: 10%;
+}
+#display-results.chung-left .contestant.chung {
+  left: 0;
+  border-right: 2px solid white;
+}
+#display-results.chung-left .contestant.chung .athlete {
+  margin-left: 40px;
+}
+#display-results.chung-left .contestant.chung .report {
+  left: 320px;
+  border-radius: 0 96px 96px 0;
+}
+#display-results.chung-left .contestant.chung .report .win-dot {
+  right: 40px;
+}
+#display-results.chung-left .contestant.chung .form-1, #display-results.chung-left .contestant.chung .form-2 {
+  left: 10%;
+}
+#display-results.chung-left .contestant.hong {
+  right: 0;
+  border-left: 2px solid white;
+}
+#display-results.chung-left .contestant.hong .athlete {
+  margin-right: 40px;
+}
+#display-results.chung-left .contestant.hong .report {
+  right: 320px;
+  border-radius: 96px 0 0 96px;
+}
+#display-results.chung-left .contestant.hong .report .win-dot {
+  left: 40px;
+}
+#display-results.chung-left .contestant.hong .form-1, #display-results.chung-left .contestant.hong .form-2 {
+  right: 10%;
 }
 
 .enter-down-bounce {
