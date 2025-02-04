@@ -32,9 +32,10 @@
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
 		<script src="../../../include/js/ioc.js"></script>
+		<script src="widgets/display/bracket.js"></script>
+		<script src="widgets/display/leaderboard.js"></script>
 		<script src="widgets/display/match-list.js"></script>
 		<script src="widgets/display/match-results.js"></script>
-		<script src="widgets/display/bracket.js"></script>
 		<script src="widgets/display/scoreboard.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
@@ -149,10 +150,11 @@
 			// APP COMPOSITION
 			// ============================================================
 			app.widget = {
-				bracket:    { display : new FreeScore.Widget.SEBracket( app, 'display-bracket' ) },
-				match:      { display : new FreeScore.Widget.SEMatchList( app, 'display-matches' ) },
-				results:    { display : new FreeScore.Widget.SEMatchResults( app, 'display-results' ) },
-				scoreboard: { display : new FreeScore.Widget.SEScoreboard( app, 'display-score' ) }
+				bracket:     { display : new FreeScore.Widget.SEBracket( app, 'display-bracket' ) },
+				leaderboard: { display : new FreeScore.Widget.SELeaderboard( app, 'display-leaderboard' ) },
+				match:       { display : new FreeScore.Widget.SEMatchList( app, 'display-matches' ) },
+				results:     { display : new FreeScore.Widget.SEMatchResults( app, 'display-results' ) },
+				scoreboard:  { display : new FreeScore.Widget.SEScoreboard( app, 'display-score' ) }
 			};
 
 			app.network.on

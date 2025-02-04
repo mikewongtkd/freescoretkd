@@ -155,6 +155,8 @@ body {
   font-size: 4em;
   line-height: 1.75em;
   max-width: 520px;
+}
+#display-matches.chung-right .match .name:not(.ro2 .name) {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

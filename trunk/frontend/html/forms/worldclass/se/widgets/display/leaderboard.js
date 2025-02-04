@@ -1,4 +1,4 @@
-FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widget {
+FreeScore.Widget.SELeaderboard = class FSWidgetSELeaderboard extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 
