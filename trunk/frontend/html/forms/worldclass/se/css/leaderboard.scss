@@ -1,0 +1,53 @@
+#display-leaderboard {
+  table {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    color: white;
+    font-size: 36pt;
+
+    thead {
+      font-weight: bold;
+    }
+
+    .place, .score, .top-round {
+      text-align: center;
+    }
+
+    .place {
+      &.place-1st { color: gold; }
+      &.place-2nd { color: silver; }
+      &.place-3rd { color: #cd7f32; }
+      &.place-5th { color: #666; }
+    }
+
+    .place {
+      position: relative;
+
+      .shine {
+        position: absolute;
+        color: #ccc;
+        width: 100%;
+        height: 100%;
+        left: 0;
+      }
+
+      .medal {
+        mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/350% 100%;
+        animation: shimmer 2.5s infinite;
+      }
+
+      @keyframes shimmer {
+        100% {
+          mask-position: left;
+        }
+      }
+    }
+
+    .place     { width: 10%; color: gold; }
+    .name      { width: 40%; color: lime; }
+    .score     { width: 20%; color: cyan; }
+    .top-round { width: 30%; color: magenta; }
+  }
+}
+

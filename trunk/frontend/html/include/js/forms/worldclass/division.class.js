@@ -183,7 +183,14 @@ function Division( division ) {
 
 	this.placement = function( round = null ) {
 		round = defined( round ) ? round : division.round;
-		return division.placement[ round ].map( function( i ) { return new Athlete( division.athletes[ i ] ); } );
+		return division?.placement?.[ round ]?.map( i => { 
+			if( Number.isInteger( i )) {
+				return new Athlete( division.athletes[ i ] ); 
+
+			} else if( Array.isArray( i )) {
+				return i.map( j => new Athlete( division.athletes[ j ]));
+			}
+		});
 	}
 
 	let _prev = this.prev = {

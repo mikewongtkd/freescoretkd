@@ -56,32 +56,32 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-#display-score .header, #display-bracket .header, #display-results .header, #display-matches .header {
+#display-score .header, #display-bracket .header, #display-results .header, #display-matches .header, #display-leaderboard .header {
   width: 100%;
   color: #999;
 }
-#display-score .header h1, #display-bracket .header h1, #display-results .header h1, #display-matches .header h1 {
+#display-score .header h1, #display-bracket .header h1, #display-results .header h1, #display-matches .header h1, #display-leaderboard .header h1 {
   text-align: center;
   font-size: 4em;
 }
-#display-score .header h1 .divid, #display-bracket .header h1 .divid, #display-results .header h1 .divid, #display-matches .header h1 .divid {
+#display-score .header h1 .divid, #display-bracket .header h1 .divid, #display-results .header h1 .divid, #display-matches .header h1 .divid, #display-leaderboard .header h1 .divid {
   color: white;
 }
-#display-score .header h1 .description, #display-bracket .header h1 .description, #display-results .header h1 .description, #display-matches .header h1 .description {
+#display-score .header h1 .description, #display-bracket .header h1 .description, #display-results .header h1 .description, #display-matches .header h1 .description, #display-leaderboard .header h1 .description {
   color: #ccc;
 }
-#display-score .header h2, #display-bracket .header h2, #display-results .header h2, #display-matches .header h2 {
+#display-score .header h2, #display-bracket .header h2, #display-results .header h2, #display-matches .header h2, #display-leaderboard .header h2 {
   text-align: center;
   color: #666;
   font-size: 3em;
 }
-#display-score .header h2 .round-name, #display-bracket .header h2 .round-name, #display-results .header h2 .round-name, #display-matches .header h2 .round-name {
+#display-score .header h2 .round-name, #display-bracket .header h2 .round-name, #display-results .header h2 .round-name, #display-matches .header h2 .round-name, #display-leaderboard .header h2 .round-name {
   color: gold;
 }
-#display-score .header h2 .match-number, #display-bracket .header h2 .match-number, #display-results .header h2 .match-number, #display-matches .header h2 .match-number {
+#display-score .header h2 .match-number, #display-bracket .header h2 .match-number, #display-results .header h2 .match-number, #display-matches .header h2 .match-number, #display-leaderboard .header h2 .match-number {
   color: lime;
 }
-#display-score .header h2 .form-name, #display-bracket .header h2 .form-name, #display-results .header h2 .form-name, #display-matches .header h2 .form-name {
+#display-score .header h2 .form-name, #display-bracket .header h2 .form-name, #display-results .header h2 .form-name, #display-matches .header h2 .form-name, #display-leaderboard .header h2 .form-name {
   color: cyan;
 }
 
@@ -990,6 +990,67 @@ body {
 }
 #display-results.chung-left .contestant.hong .form-1, #display-results.chung-left .contestant.hong .form-2 {
   right: 10%;
+}
+
+#display-leaderboard table {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
+  font-size: 36pt;
+}
+#display-leaderboard table thead {
+  font-weight: bold;
+}
+#display-leaderboard table .place, #display-leaderboard table .score, #display-leaderboard table .top-round {
+  text-align: center;
+}
+#display-leaderboard table .place.place-1st {
+  color: gold;
+}
+#display-leaderboard table .place.place-2nd {
+  color: silver;
+}
+#display-leaderboard table .place.place-3rd {
+  color: #cd7f32;
+}
+#display-leaderboard table .place.place-5th {
+  color: #666;
+}
+#display-leaderboard table .place {
+  position: relative;
+}
+#display-leaderboard table .place .shine {
+  position: absolute;
+  color: #ccc;
+  width: 100%;
+  height: 100%;
+  left: 0;
+}
+#display-leaderboard table .place .medal {
+  mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/350% 100%;
+  animation: shimmer 2.5s infinite;
+}
+@keyframes shimmer {
+  100% {
+    mask-position: left;
+  }
+}
+#display-leaderboard table .place {
+  width: 10%;
+  color: gold;
+}
+#display-leaderboard table .name {
+  width: 40%;
+  color: lime;
+}
+#display-leaderboard table .score {
+  width: 20%;
+  color: cyan;
+}
+#display-leaderboard table .top-round {
+  width: 30%;
+  color: magenta;
 }
 
 .enter-down-bounce {
