@@ -103,6 +103,13 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 							tdc.form2.html( form2 );
 							this.display.form[ 1 ].css({ top: tdc.form2.offset()?.top });
 						}
+
+						$( window ).off( 'resize' ).on( 'resize', ev => {
+							this.display.form[ 0 ].css({ top: tdc.form1.offset()?.top });
+							if( score.forms.count() > 1 ) {
+								this.display.form[ 1 ].css({ top: tdc.form2.offset()?.top });
+							}
+						});
 					});
 				}
 			},
