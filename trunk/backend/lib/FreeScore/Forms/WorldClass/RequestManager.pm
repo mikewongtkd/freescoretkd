@@ -37,6 +37,7 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		clear_judge_score  => \&handle_division_clear_judge_score,
 		display            => \&handle_division_display,
+		draw               => \&handle_division_draw,
 		edit_athletes      => \&handle_division_edit_athletes,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
@@ -251,6 +252,34 @@ sub handle_division_display {
 		$client->send( { json => { error => "$_" }});
 	}
 }
+
+# ============================================================
+sub handle_division_draw {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $draw     = $request->{ draw };
+	my $round    = uc $draw->{ round };
+	my $mnum     = $draw->{ match };
+	my $forms    = join( ', ', @{$draw->{ forms }});
+
+	print STDERR "Recording poomsae draws $forms for $round Match $mnum\n" if $DEBUG;
+
+	try {
+		$division->autopilot( 'off' );
+		$division->record_draw( $draw );
+		$division->write();
+
+		$self->broadcast_updated_division( $request, $progress, $group );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
 # ============================================================
 sub handle_division_edit_athletes {
 # ============================================================

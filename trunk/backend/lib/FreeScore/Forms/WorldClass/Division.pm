@@ -450,14 +450,15 @@ sub read {
 			if( /=/ ) {
 				s/^#\s+//;
 				my ($key, $value) = split /=/;
-				if    ( $key eq 'flight'      ) { $self->{ $key } = _parse_flights( $value );   }
-				elsif ( $key eq 'forms'       ) { $self->{ $key } = _parse_forms( $value );     }
-				elsif ( $key eq 'matches'     ) { $self->{ $key } = _parse_json( $value );   }
-				elsif ( $key eq 'method'      ) { $self->{ $key } = _parse_json( $value );   }
-				elsif ( $key eq 'order'       ) { $self->{ $key } = _parse_order( $value );   }
-				elsif ( $key eq 'places'      ) { $self->{ $key } = _parse_places( $value );    }
-				elsif ( $key eq 'placement'   ) { $self->{ $key } = _parse_placement( $value ); }
-				else                            { $self->{ $key } = $value;                                                         }
+				if    ( $key eq 'draws'     ) { $self->{ $key } = _parse_json( $value );      }
+				elsif ( $key eq 'flight'    ) { $self->{ $key } = _parse_flights( $value );   }
+				elsif ( $key eq 'forms'     ) { $self->{ $key } = _parse_forms( $value );     }
+				elsif ( $key eq 'matches'   ) { $self->{ $key } = _parse_json( $value );      }
+				elsif ( $key eq 'method'    ) { $self->{ $key } = _parse_json( $value );      }
+				elsif ( $key eq 'order'     ) { $self->{ $key } = _parse_order( $value );     }
+				elsif ( $key eq 'places'    ) { $self->{ $key } = _parse_places( $value );    }
+				elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
+				else                          { $self->{ $key } = $value;                     }
 
 				$round = $self->{ round } if( defined $self->{ round } );
 
@@ -550,6 +551,21 @@ sub read {
 	$self->initialize( $athletes, $order );
 	$self->normalize();
 	$self->update_status();
+}
+
+# ============================================================
+sub record_draw {
+# ============================================================
+#** @method ( draw_object )
+#   @brief Records the form draw for a given match
+#*
+	my $self   = shift;
+	my $draw   = shift;
+	my $round  = $draw->{ round };
+	my $mnum   = $draw->{ match };
+	my $forms  = $draw->{ forms };
+
+	$self->{ draw }{ $round }{ $mnum } = $forms;
 }
 
 # ============================================================
@@ -866,6 +882,7 @@ sub write {
 	print FILE "# matches=" . $self->matches_string() . "\n" if exists( $self->{ matches }) && $self->{ matches };
 	print FILE "# description=$self->{ description }\n";
 	print FILE "# forms=" . join( ";", @forms ) . "\n" if @forms;
+	print FILE "# draws=" . $json->canonical->encode( $self->{ draws }) . "\n" if exists $self->{ draws } && ref $self->{ draws } eq 'HASH' && int( keys %{$self->{ draws }}) > 0;
 	print FILE "# placement=" . $json->canonical->encode( $self->{ placement }) . "\n" if exists $self->{ placement } && ref $self->{ placement } eq 'HASH' && int( keys %{$self->{ placement }}) > 0;
 	print FILE "# flight=$flight\n" if $self->is_flight();
 	foreach my $round ($self->rounds()) {
