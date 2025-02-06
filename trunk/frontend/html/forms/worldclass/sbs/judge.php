@@ -1,6 +1,7 @@
 <?php 
 	include( "../../../include/php/config.php" ); 
 	$rnum  = intval( isset( $_GET[ 'ring' ] ) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ]);
+	$jnum  = intval( isset( $_GET[ 'judge' ] ) ? $_GET[ 'judge' ] : $_COOKIE[ 'judge' ]);
 	if( $rnum == 'staging' || in_array( $rnum, $config->rings())) { 
 		setcookie( 'ring', $rnum, 0, '/' ); 
 		$cookie_set = true;
@@ -9,8 +10,7 @@
 	}
 	include( '../../../session.php' );
 
-	$url  = $config->websocket( 'worldclass', $rnum, 'computer+operator' );
-	$flip = isset( $_GET[ 'flip' ]) ? 'class="chung-left"' : 'class="chung-right"';
+	$url  = $config->websocket( 'worldclass', $rnum, $jnum );
 ?>
 <html>
 	<head>
@@ -46,50 +46,26 @@
 	<body>
 		<div id="pt-main" class="pt-perspective">
 			<!-- ============================================================ -->
-			<!-- DISPLAY POOMSAE DRAW -->
+			<!-- SCORE ACCURACY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
-				<div id="display-draw">
+				<div id="score-accuracy">
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- DISPLAY SCORE -->
+			<!-- SCORE PRESENTATION -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
-				<div id="display-score" <?= $flip ?>>
+				<div id="score-presentation">
 				</div>
 			</div>
 
 			<!-- ============================================================ -->
-			<!-- DISPLAY RESULTS -->
+			<!-- DISPLAY DIVISION -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-3">
-			<div id="display-results" <?= $flip ?>>
-				</div>
-			</div>
-
-			<!-- ============================================================ -->
-			<!-- DISPLAY BRACKET -->
-			<!-- ============================================================ -->
-			<div class="pt-page pt-page-4">
-				<div id="display-bracket">
-				</div>
-			</div>
-
-			<!-- ============================================================ -->
-			<!-- DISPLAY LEADERBOARD -->
-			<!-- ============================================================ -->
-			<div class="pt-page pt-page-5">
-				<div id="display-leaderboard" <?= $flip ?>>
-				</div>
-			</div>
-
-			<!-- ============================================================ -->
-			<!-- DISPLAY MATCHES -->
-			<!-- ============================================================ -->
-			<div class="pt-page pt-page-6">
-				<div id="display-matches" <?= $flip ?>>
+			<div id="display-division">
 				</div>
 			</div>
 		</div>
@@ -105,48 +81,19 @@
 			// ===== NETWORK CONNECT
 			app.on.connect( '<?= $url ?>' ).read.division();
 
-			// ===== PAN & ZOOM FUNCTION
-			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
-			app.display.panzoom = delta => {
-				app.state.display.x    += delta.x;
-				app.state.display.y    += delta.y;
-				app.state.display.zoom += delta.z;
-				[ 'x', 'y', 'zoom' ].forEach( pz => app.state.display[ pz ] = parseFloat( app.state.display[ pz ].toFixed( 2 )));
-				$( '#pt-main' ).css({ transform: `scale( ${app.state.display.zoom.toFixed( 2 )}) translate( ${Math.round( app.state.display.x * 100 )}%, ${Math.round( app.state.display.y * 100)}% )`, 'transform-origin': '0 0' });
-				alertify.dismissAll();
-				if( delta.z != 0 ) { alertify.notify( `Zoom: ${Math.round( app.state.display.zoom * 100 )}%` ); }
-				else               { alertify.notify( `Pan: X: ${Math.round( app.state.display.x * 100 )}%, Y: ${Math.round( app.state.display.y * 100 )}%` ); }
-			}
-			$( 'body' ).keydown( ev => { 
-				switch( ev.key ) {
-					case '=':          app.display.panzoom({ x:  0.00, y:  0.00, z:  0.05 }); break;
-					case '-':          app.display.panzoom({ x:  0.00, y:  0.00, z: -0.05 }); break;
-					case 'ArrowUp':    app.display.panzoom({ x:  0.00, y: -0.05, z:  0.00 }); break;
-					case 'ArrowDown':  app.display.panzoom({ x:  0.00, y:  0.05, z:  0.00 }); break;
-					case 'ArrowLeft':  app.display.panzoom({ x: -0.05, y:  0.00, z:  0.00 }); break;
-					case 'ArrowRight': app.display.panzoom({ x:  0.05, y:  0.00, z:  0.00 }); break;
-				}
-			});
-
 			// ===== PAGES
 			app.page = {
-				count: 6,
+				count: 3,
 				num: 1,
 				for : {
-					draw: 1,
-					score: 2,
-					results: 3,
-					bracket: 4,
-					leaderboard: 5,
-					matches: 6
+					accuracy: 1,
+					presentation: 2,
+					division: 3
 				},
 				show : {
-					draw:        () => { app.page.transition( 'draw' ); },
-					score:       () => { app.page.transition( 'score' ); },
-					results:     () => { app.page.transition( 'results' ); },
-					bracket:     () => { app.page.transition( 'bracket' ); },
-					leaderboard: () => { app.page.transition( 'leaderboard' ); },
-					matches:     () => { app.page.transition( 'matches' ); }
+					accuracy:     () => { app.page.transition( 'accuracy' ); },
+					presentation: () => { app.page.transition( 'presentation' ); },
+					division:     () => { app.page.transition( 'division' ); }
 				},
 				transition: target => { 
 					let pnum = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.score;
@@ -160,12 +107,6 @@
 			// APP COMPOSITION
 			// ============================================================
 			app.widget = {
-				bracket:     { display : new FreeScore.Widget.SEBracket( app, 'display-bracket' ) },
-				draw:        { display : new FreeScore.Widget.SEPoomsaeDraw( app, 'display-draw' ) },
-				leaderboard: { display : new FreeScore.Widget.SELeaderboard( app, 'display-leaderboard' ) },
-				match:       { display : new FreeScore.Widget.SEMatchList( app, 'display-matches' ) },
-				results:     { display : new FreeScore.Widget.SEMatchResults( app, 'display-results' ) },
-				scoreboard:  { display : new FreeScore.Widget.SEScoreboard( app, 'display-score' ) }
 			};
 
 			app.network.on
@@ -183,22 +124,7 @@
 							state = 'score'; 
 						}
 						app.page.transition( state );
-					})
-				// ============================================================
-				.heard( 'autopilot' )
-				// ============================================================
-				.command( 'update' )
-					.respond( update => {
-						let division = update?.division;
-						if( ! defined( division )) { return; }
-
-						let state = division.state;
-						if( ! defined( app.page.show?.[ state ])) { 
-							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
-							state = 'score'; 
-						}
-						app.page.transition( state );
-					})
+					});
 		</script>
 	</body>
 </html>

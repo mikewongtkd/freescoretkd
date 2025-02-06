@@ -14,35 +14,7 @@ body {
 @import '../../se/css/scoreboard';
 @import '../../se/css/results';
 @import '../../se/css/leaderboard';
-
-#display-draw {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-
-  .poomsae.draw {
-    width: 100%;
-    height: 100%;
-    color: white;
-
-    .name {
-      margin-top: 5%;
-      margin-left: 5%;
-      margin-right: 5%;
-      width: 90%;
-      text-align: center;
-      font-size: 246pt;
-      &.drawn {
-        color: gold;
-        border-radius: 96pt;
-        border: 8px solid white;
-      }
-    }
-  }
-}
+@import 'poomsae-draw';
 
 .enter-down-bounce {
   -webkit-animation: enterDownBounce 1s linear;

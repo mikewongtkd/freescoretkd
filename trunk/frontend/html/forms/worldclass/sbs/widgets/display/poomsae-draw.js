@@ -89,7 +89,6 @@ FreeScore.Widget.SEPoomsaeDraw = class FSWidgetSEPoomsaeDraw extends FreeScore.W
 				}
 
 				// Remove previously drawn poomsae (no repeats)
-				console.log( 'FILTERING', pool, draw ); // MW
 				pool = pool.filter( form => ! draw.includes( form ));
 
 				this.display.poomsae.draw.empty();
@@ -101,7 +100,7 @@ FreeScore.Widget.SEPoomsaeDraw = class FSWidgetSEPoomsaeDraw extends FreeScore.W
 				let tdpn = this.display.poomsae.name = $( `<div class="poomsae name"></div>` );
 				this.display.poomsae.draw.append( tdpn );
 				this.state.animation.timer = setInterval(() => {
-					if( this.state.draw.count > 6 ) {
+					if( this.state.draw.count > 7 ) {
 						this.state.draw.complete = true;
 						clearInterval( this.state.animation.timer );
 
@@ -112,7 +111,6 @@ FreeScore.Widget.SEPoomsaeDraw = class FSWidgetSEPoomsaeDraw extends FreeScore.W
 					} else {
 						let i = Math.floor( Math.random() * pool.length );
 						form = pool[ i ];
-						console.log( 'DRAW', this.state.draw.count, i, form, pool ); // MW
 					}
 					tdpn.fadeOut( 300, () => tdpn.html( form ).fadeIn( 300 ));
 					this.state.draw.count++;

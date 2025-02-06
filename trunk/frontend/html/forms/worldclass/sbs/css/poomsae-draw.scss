@@ -1,0 +1,23 @@
+#display-draw {
+  overflow: hidden;
+
+  .poomsae.draw {
+    width: 100%;
+    height: 100%;
+    color: white;
+
+    .name {
+      margin-top: 5%;
+      margin-left: 5%;
+      margin-right: 5%;
+      width: 90%;
+      text-align: center;
+      font-size: 246pt;
+      &.drawn {
+        color: gold;
+        border-radius: 96pt;
+        border: 8px solid white;
+      }
+    }
+  }
+}
