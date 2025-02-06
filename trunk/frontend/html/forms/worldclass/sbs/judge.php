@@ -32,7 +32,6 @@
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
 		<script src="../../../include/js/ioc.js"></script>
-		<script src="widgets/display/poomsae-draw.js"></script>
 		<script src="../se/widgets/display/bracket.js"></script>
 		<script src="../se/widgets/display/leaderboard.js"></script>
 		<script src="../se/widgets/display/match-list.js"></script>

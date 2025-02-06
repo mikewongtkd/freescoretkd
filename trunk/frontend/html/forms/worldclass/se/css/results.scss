@@ -10,12 +10,12 @@
     position: absolute;
     left: 50%;
     width: 25%;
-    height: 7/8 * $noc;
+    height: calc( 7/8 * $noc );
     font-size: 56pt;
     line-height: 76pt;
     border: solid 4px #ccc;
-    border-radius: $noc / 3;
-    margin-top: 1/8 * $noc;
+    border-radius: calc( $noc / 3 );
+    margin-top: calc( 1/8 * $noc );
     transform: translateX( -50% );
     text-align: center;
     background: black;
@@ -83,7 +83,7 @@
           width: $windot;
           height: $windot;
           background: gold;
-          border-radius: $windot / 2;
+          border-radius: calc( $windot / 2 );
           transform: translateY( -50% );
         }
           
@@ -129,7 +129,7 @@
           right: 10%;
           border-radius: 0 $round $round 0;
 
-          .win-dot { left: $windot / 3; }
+          .win-dot { left: calc( $windot / 3 ); }
         }
         .form-1, .form-2 { right: 10%; }
      }
@@ -143,7 +143,7 @@
           left: 10%;
           border-radius: $round 0 0 $round;
 
-          .win-dot { right: $windot / 3; }
+          .win-dot { right: calc( $windot / 3 ); }
         }
         .form-1, .form-2 { left: 10%; }
       }
@@ -161,7 +161,7 @@
           left: $total; 
           border-radius: 0 $round $round 0;
 
-          .win-dot { right: $windot / 3; }
+          .win-dot { right: calc( $windot / 3 ); }
         }
         .form-1, .form-2 { left: 10%; }
       }
@@ -175,7 +175,7 @@
           right: $total; 
           border-radius: $round 0 0 $round;
 
-          .win-dot { left: $windot / 3; }
+          .win-dot { left: calc( $windot / 3 ); }
         }
         .form-1, .form-2 { right: 10%; }
       }

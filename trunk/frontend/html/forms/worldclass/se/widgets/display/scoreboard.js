@@ -187,7 +187,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 			},
 			header: division => {
 				let match = division.current.match();
-				let start = division.prev.rounds().map( round => division.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
+				let start = division.current.matchStart();
 				let mnum  = parseInt( match.number ) + start;
 				let fnum  = division.form.count() > 1 ? `(${ordinal( parseInt( division.current.formId()) + 1 )} Form)` : '';
 				let fname = division.current.form.name();

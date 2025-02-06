@@ -125,6 +125,11 @@ function Division( division ) {
 
 			return match;
 		},
+		matchStart: () => {
+			let prev  = this.prev.rounds().filter( round => round.match( /^ro/i ));
+			let start = prev.map( round => this.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
+			return start;
+		},
 		order : function( i ) {
 			let round = division.round;
 			let order = division.order;
@@ -162,6 +167,14 @@ function Division( division ) {
 			let forms = division.forms[ round ];
 			if( defined( forms )) { return forms.length; }
 			else { return 0; }
+		},
+		draw : ( round = null ) => {
+			round = defined( round ) ? round : division.round;
+			let match = this.current.match();
+			let draws = division.draw?.[ round ]?.[ match.number ];
+
+			draws = defined( draws ) ? draws : [];
+			return draws;
 		},
 		list : function( round = null ) {
 			round = defined( round ) ? round : division.round;

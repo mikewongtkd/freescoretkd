@@ -43,7 +43,6 @@ FreeScore.Widget.SELeaderboard = class FSWidgetSELeaderboard extends FreeScore.W
 					let name     = athlete.display.name();
 					let wins     = maxwins - (i + 1);
 					let topround = trmap[ place ];
-					// tbody.append( `<tr><td class="place place-${ordinal( place )}"><span class="shine">${ordinal( place )}</span><span class="medal">${ordinal( place )}</span></td><td>${name}</td><td class="score">${wins}</td><td class="top-round">${topround}</td></tr>` );
 					tbody.append( `<tr><td class="place place-${ordinal( place )}"><span class="medal">${ordinal( place )}</span></td><td>${name}</td><td class="score">${wins}</td><td class="top-round">${topround}</td></tr>` );
 				});
 			});

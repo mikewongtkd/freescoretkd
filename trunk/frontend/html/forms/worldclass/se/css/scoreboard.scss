@@ -158,10 +158,10 @@
             display: inline-block;
             margin-left: 12px;
             margin-right: 12px;
-            width: $judges / 3;
-            height: $judges / 3;
+            width: calc( $judges / 3 );
+            height: calc( $judges / 3 );
             background: gold;
-            border-radius: $judges / 6;
+            border-radius: calc( $judges / 6 );
           }
 
           .penalty {
@@ -187,9 +187,9 @@
           margin-left: auto;
           margin-right: auto;
 
-          height: $judges / 3;
-          width: 5/4 * $judges;
-          border-radius: $judges / 8;
+          height: calc( $judges / 3 );
+          width: calc( 5/4 * $judges );
+          border-radius: calc( $judges / 8 );
 
           .labels { 
             width: 90%;
