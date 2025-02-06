@@ -104,8 +104,11 @@ FreeScore.Widget.SEPoomsaeDraw = class FSWidgetSEPoomsaeDraw extends FreeScore.W
 						this.state.draw.complete = true;
 						clearInterval( this.state.animation.timer );
 
+						let request = { type: 'division', action: 'draw', draw: { form }};
+						app.network.send( request );
+
 					} else if( this.state.draw.count > 5 ) {
-						this.state.draw.form     = form;
+						this.state.draw.form = form;
 						tdpn.addClass( 'drawn' );
 
 					} else {
@@ -123,6 +126,14 @@ FreeScore.Widget.SEPoomsaeDraw = class FSWidgetSEPoomsaeDraw extends FreeScore.W
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
 				let division = update?.division ? new Division( update.division ) : null;
+
+				if( ! defined( division )) { 
+					this.display.header.empty();
+					this.display.poomsae.draw.empty();
+					return; 
+				}
+
+				if( update.request.action == 'draw' ) { return; }
 
 				this.refresh.header( division );
 				this.refresh.poomsae.draw( division );

@@ -263,15 +263,18 @@ sub handle_division_draw {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $draw     = $request->{ draw };
-	my $round    = uc $draw->{ round };
-	my $mnum     = $draw->{ match };
-	my $forms    = join( ', ', @{$draw->{ forms }});
+	my $round    = uc $division->{ round };
+	my $match    = $division->method->matches->current();
+	my $mnum     = $match->{ number };
+	my $i        = $division->{ form };
+	my $form     = $draw->{ form };
+	my $ordinal  = $i == 0 ? '1st' : '2nd';
 
-	print STDERR "Recording poomsae draws $forms for $round Match $mnum\n" if $DEBUG;
+	print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
-		$division->record_draw( $draw );
+		$division->record_draw( $form );
 		$division->write();
 
 		$self->broadcast_updated_division( $request, $progress, $group );

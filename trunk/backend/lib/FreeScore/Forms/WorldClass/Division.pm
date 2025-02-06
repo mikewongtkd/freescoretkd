@@ -560,12 +560,17 @@ sub record_draw {
 #   @brief Records the form draw for a given match
 #*
 	my $self   = shift;
-	my $draw   = shift;
-	my $round  = $draw->{ round };
-	my $mnum   = $draw->{ match };
-	my $forms  = $draw->{ forms };
+	my $form   = shift;
+	my $round  = $self->{ round };
+	my $match  = $self->method->matches->current();
+	my $mnum   = $match->{ number };
+	my $i      = $self->{ form };
 
-	$self->{ draw }{ $round }{ $mnum } = $forms;
+	$self->{ draws } = {} unless exists $self->{ draws };
+	$self->{ draws }{ $round } = {} unless exists $self->{ draws }{ $round };
+	$self->{ draws }{ $round }{ $mnum } = [] unless exists $self->{ draws }{ $round }{ $mnum };
+
+	$self->{ draws }{ $round }{ $mnum }[ $i ] = $form;
 }
 
 # ============================================================
