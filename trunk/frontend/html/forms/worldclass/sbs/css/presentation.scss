@@ -1,0 +1,231 @@
+#score-presentation {
+  touch-action: manipulation;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  .presentation {
+    position: absolute;
+    top: 0;
+
+    .inputs {
+      position: absolute;
+      top: 20%;
+      height: 75%;
+      width: 40%;
+      border-radius: 36px;
+      border: 4px solid white;
+      background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+      z-index: 1;
+
+      .power, .rhythm, .energy {
+        position: absolute;
+        top: 0;
+        width: 33.333%;
+        height: 100%;
+
+        label {
+          position: absolute;
+          display: block;
+          color: gold;
+          top: 5%;
+          left: 50%;
+          transform: translateX( -50% );
+        }
+
+        .display {
+          position: absolute;
+          border-radius: 4px;
+          top: 12%;
+          left: 50%;
+          height: 5%;
+          width: 50%;
+          transform: translateX( -50% );
+          background: white;
+          border: 2px solid #ccc;
+          color: black;
+          text-align: center;
+          font-size: 18pt;
+          line-height: 18pt;
+
+        }
+
+        .btn-nudge-up, .btn-nudge-down {
+          position: absolute;
+          height: 5%;
+          width: 50%;
+          border-radius: 4px;
+          border: 2px solid #999;
+          background: #ccc;
+          padding: 0;
+          font-size: 14pt;
+          line-height: 6pt;
+          color: black;
+          left: 50%;
+          transform: translateX( -50% );
+        }
+
+        .btn-nudge-up {
+          top: 20%;
+        }
+
+        .slider {
+          position: absolute;
+          top: 30%;
+          left: 50%;
+          transform: translateX( -50% );
+        }
+
+        .btn-nudge-down {
+          top: 85%;
+        }
+      }
+    }
+
+    .score {
+      position: absolute;
+      top: 20%;
+      width: 40%;
+      height: 30%;
+      border-radius: 36px;
+      border: 4px solid white;
+      background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+
+      .total, .subtotal {
+        text-align: center;
+        color: white;
+
+        label {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX( -50% );
+          color: gold;
+          font-size: 10pt;
+        }
+      }
+
+      .total {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 56.25%;
+        border-bottom: 4px solid white;
+        font-size: 48pt;
+      }
+
+      .subtotal {
+        position: absolute;
+        width: 50.5%;
+        height: 43.75%;
+        top: 56.25%;
+        font-size: 44pt;
+      }
+    }
+
+    .athlete {
+      position: absolute;
+      top: 60%;
+      width: 40%;
+      text-align: center;
+
+      .name {
+        width: 100%;
+        color: white;
+        font-size: 18pt;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-bottom: 5%;
+      }
+
+      img {
+        width: 30%;
+      }
+    }
+
+    &.chung, &.hong {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+    }
+
+    &.chung {
+
+      background: rgb(36,0,0);
+      background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(0,4,36,1) 0%, rgba(22,12,120,1) 85%, rgba(15,11,89,1) 100%);
+    }
+    &.hong {
+      background: rgb(36,0,0);
+      background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(120,12,12,1) 85%, rgba(89,11,11,1) 100%);
+    }
+  }
+  &.chung-right {
+    .chung { 
+      right: 0; 
+      .inputs { 
+        right: 5%; 
+        .power  { right:  0.000%; }
+        .rhythm { right: 33.333%; }
+        .energy { right: 66.667%; }
+      }
+      .score { 
+        left: 10%; 
+        .accuracy { right: 0; border-left: 3px solid white; }
+        .presentation { left: 0; border-right: 3px solid white; }
+      }
+      .athlete { left: 10%; }
+    }
+    .hong  { 
+      left:  0; 
+      .inputs { 
+        left: 5%; 
+        .power  { left:  0.000%; }
+        .rhythm { left: 33.333%; }
+        .energy { left: 66.667%; }
+      }
+      .score { 
+        right: 10%; 
+        .accuracy { left: 0; border-right: 3px solid white; }
+        .presentation { right: 0; border-left: 3px solid white; }
+      }
+      .athlete { right: 10%; }
+    }
+  }
+  &.chung-left {
+    .chung { 
+      left:  0; 
+      .inputs { 
+        left: 5%; 
+        .power  { left:  0.000%; }
+        .rhythm { left: 33.333%; }
+        .energy { left: 66.667%; }
+      }
+      .score { 
+        right: 10%; 
+        .accuracy { left: 0; border-right: 3px solid white; }
+        .presentation { right: 0; border-left: 3px solid white; }
+      }
+      .athlete { right: 10%; }
+    }
+    .hong  { 
+      right: 0; 
+      .inputs { 
+        right: 5%; 
+        .power  { right:  0.000%; }
+        .rhythm { right: 33.333%; }
+        .energy { right: 66.667%; }
+      }
+      .score { 
+        left: 10%; 
+        .accuracy { right: 0; border-left: 3px solid white; }
+        .presentation { left: 0; border-right: 3px solid white; }
+      }
+      .athlete { left: 10%; }
+    }
+  }
+}
+
+

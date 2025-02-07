@@ -18,11 +18,13 @@
 		<link href="css/judge.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
+		<link href="../../../include/bootstrap/add-ons/bootstrap-slider.min.css" rel="stylesheet" />
 		<link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="../../../include/bootstrap/add-ons/bootstrap-slider.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/svg/js/svg.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
@@ -33,6 +35,7 @@
 		<script src="../../../include/js/widget.js"></script>
 		<script src="../../../include/js/ioc.js"></script>
 		<script src="widgets/judge/accuracy.js"></script>
+		<script src="widgets/judge/presentation.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -150,7 +153,8 @@
 			// APP COMPOSITION
 			// ============================================================
 			app.widget = {
-				accuracy: new FreeScore.Widget.SBSJudgeAccuracy( app, 'score-accuracy' )
+				accuracy:     new FreeScore.Widget.SBSJudgeAccuracy( app, 'score-accuracy' ),
+				presentation: new FreeScore.Widget.SBSJudgePresentation( app, 'score-presentation' )
 			};
 
 			// ============================================================
@@ -222,6 +226,7 @@
 					})
 				.listen( 'next' )
 					.respond(( type, source, message ) => {
+						console.log( 'NEXT EVENT', message ); // MW
 						let destination = message.to;
 						if( destination in app.page.show ) {
 							app.state.current.page = destination;
