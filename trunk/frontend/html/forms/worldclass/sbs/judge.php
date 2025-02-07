@@ -15,7 +15,7 @@
 <html>
 	<head>
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="css/display.css" rel="stylesheet" />
+		<link href="css/judge.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
@@ -32,11 +32,7 @@
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
 		<script src="../../../include/js/ioc.js"></script>
-		<script src="../se/widgets/display/bracket.js"></script>
-		<script src="../se/widgets/display/leaderboard.js"></script>
-		<script src="../se/widgets/display/match-list.js"></script>
-		<script src="../se/widgets/display/match-results.js"></script>
-		<script src="../se/widgets/display/scoreboard.js"></script>
+		<script src="widgets/judge/accuracy.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -49,7 +45,11 @@
 			<!-- SCORE ACCURACY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
-				<div id="score-accuracy">
+				<div id="score-accuracy" class="chung-right">
+					<div class="header"></div>
+					<div class="common"></div>
+					<div class="chung accuracy"></div>
+					<div class="hong accuracy"></div>
 				</div>
 			</div>
 
@@ -57,7 +57,11 @@
 			<!-- SCORE PRESENTATION -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-2">
-				<div id="score-presentation">
+				<div id="score-presentation" class="chung-right">
+					<div class="header"></div>
+					<div class="common"></div>
+					<div class="chung presentation"></div>
+					<div class="hong presentation"></div>
 				</div>
 			</div>
 
@@ -65,13 +69,16 @@
 			<!-- DISPLAY DIVISION -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-3">
-			<div id="display-division">
+				<div id="display-division">
+					<div class="header"></div>
+					<div class="division"></div>
 				</div>
 			</div>
 		</div>
 		<script>
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
+			$.cookie.json = true;
 
 			let tournament = <?= $tournament ?>;
 			let ring       = { num: <?= $rnum ?> };
@@ -80,6 +87,37 @@
 
 			// ===== NETWORK CONNECT
 			app.on.connect( '<?= $url ?>' ).read.division();
+
+			// ===== STATE
+			app.state.current = { ring: <?= $rnum ?>, jid: <?= $jnum ?>, divid: null, round: null, match: null, form: null, page: 'accuracy', score: null };
+
+			app.state.athlete = {
+				chung: null,
+				hong:  null
+			};
+
+			app.state.score = { 
+				chung: { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 },
+				hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 }
+			};
+
+			app.state.reset = () => { 
+				$.removeCookie( 'judge-app' ); 
+				app.state.current = { ring: <?= $rnum ?>, jid: <?= $jnum ?>, divid: null, round: null, match: null, form: null, page: 'accuracy', score: null }; 
+				app.state.score   = {
+					chung: { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 },
+					hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 }
+				};
+			}
+			app.state.restore = () => { 
+				if( ! defined( $.cookie( 'judge-app' ))) { app.state.reset(); return; }
+				app.state.current = $.cookie( 'judge-app' ); 
+				app.state.score   = app.state.current.score;
+			};
+			app.state.save = () => { 
+				app.state.current.score = app.state.score;
+				$.cookie( 'judge-app', app.state.current, { expries: 1 }); 
+			};
 
 			// ===== PAGES
 			app.page = {
@@ -104,11 +142,20 @@
 			};
 
 			// ============================================================
+			// RESTORE FROM COOKIE ON LOAD
+			// ============================================================
+			app.state.restore();
+
+			// ============================================================
 			// APP COMPOSITION
 			// ============================================================
 			app.widget = {
+				accuracy: new FreeScore.Widget.SBSJudgeAccuracy( app, 'score-accuracy' )
 			};
 
+			// ============================================================
+			// NETWORK
+			// ============================================================
 			app.network.on
 				// ============================================================
 				.heard( 'division' )
@@ -118,12 +165,68 @@
 						let division = update?.division;
 						if( ! defined( division )) { return; }
 
-						let state = division.state;
-						if( ! defined( app.page.show?.[ state ])) { 
-							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
-							state = 'score'; 
+						division = new Division( division );
+						let match = division.current.match();
+						if( ! defined( match )) { return; }
+
+						let current   = app.state.current;
+						let different = {
+							ring:  current.ring  != <?= $rnum ?>,
+							judge: current.jid   != <?= $jnum ?>,
+							divid: current.divid != division.name(),
+							round: current.round != division.current.roundId(),
+							match: current.match != match.number,
+							form:  current.form  != division.current.formId()
+						};
+
+						if( different.divid || different.round || different.match || different.form ) {
+							app.state.reset();
+							current.divid = division.name();
+							current.round = division.current.roundId();
+							current.match = match.number;
+							current.form  = division.current.formId();
+							app.state.save();
 						}
-						app.page.transition( state );
+
+						app.state.score.chung.index = match.chung;
+						app.state.score.hong.index  = match.hong;
+
+						app.state.athlete.chung = defined( match.chung ) ? division.athlete( match.chung ) : null;
+						app.state.athlete.hong  = defined( match.hong )  ? division.athlete( match.hong )  : null;
+
+						if( current.page in app.page.show ) { app.page.show[ current.page ](); }
+						else {
+							alertify.error( `${current.page} is not a valid page; defaulting to 'accuracy'` );
+							app.page.show.accuracy();
+						}
+					});
+
+			// ============================================================
+			// EVENTS
+			// ============================================================
+			app.event
+				.listen( 'score' )
+					.respond(( type, source, message ) => {
+						app.state.current.score = message.score;
+						app.state.save();
+					})
+				.listen( 'back' )
+					.respond(( type, source, message ) => {
+						let destination = message.from;
+						if( destination in app.page.show ) {
+							app.state.current.page = destination;
+							app.page.show[ destination ];
+							app.state.save();
+						}
+					})
+				.listen( 'next' )
+					.respond(( type, source, message ) => {
+						let destination = message.to;
+						if( destination in app.page.show ) {
+							app.state.current.page = destination;
+							app.page.show[ destination ];
+							app.state.save();
+						}
 					});
 		</script>
 	</body>

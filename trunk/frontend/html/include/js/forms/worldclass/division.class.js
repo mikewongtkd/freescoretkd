@@ -105,7 +105,7 @@ function Division( division ) {
 				lastForm  : function() { return division.form == (division.forms[ division.round ].length - 1); }
 			},
 			list : () => {
-				return division.forms[ division.round ];
+				return this.form.list( division.round );
 			},
 			name : function() {
 				return division.forms[ division.round ][ division.form ];
@@ -176,10 +176,25 @@ function Division( division ) {
 			draws = defined( draws ) ? draws : [];
 			return draws;
 		},
-		list : function( round = null ) {
+		list : ( round = null ) => {
 			round = defined( round ) ? round : division.round;
-			let forms = division.forms[ round ];
-			return forms;
+
+			let match = this.current.match();
+			let mnum  = match.number;
+			let forms = division?.forms?.[ round ];
+
+			if( ! defined( forms )) { console.log( `Error, no forms defined for ${round}` ); return; }
+
+			if( division?.draws?.[ round ]) {
+				// Draws have been made
+				if( division.draws[ round ]?.[ mnum ]) { return division.draws[ round ][ mnum ]; }
+
+				// Draws have not been made
+				let draws = [];
+				for( let i = 0; i < forms.length; i++ ) { draws.push( 'TBD' ); }
+				return draws;
+			}
+			return division.forms[ round ];
 		}
 	};
 

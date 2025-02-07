@@ -566,6 +566,8 @@ sub record_draw {
 	my $mnum   = $match->{ number };
 	my $i      = $self->{ form };
 
+	# $division->{ forms }{ $round } should be 'draw', or something like 'draw-cadet', 'draw-u30'
+
 	$self->{ draws } = {} unless exists $self->{ draws };
 	$self->{ draws }{ $round } = {} unless exists $self->{ draws }{ $round };
 	$self->{ draws }{ $round }{ $mnum } = [] unless exists $self->{ draws }{ $round }{ $mnum };
