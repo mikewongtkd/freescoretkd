@@ -19,7 +19,7 @@
       background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
       z-index: 1;
 
-      .power, .rhythm, .energy {
+      .power, .rhythm, .ki {
         position: absolute;
         top: 0;
         width: 33.333%;
@@ -29,7 +29,7 @@
           position: absolute;
           display: block;
           color: gold;
-          top: 5%;
+          top: 2.5%;
           left: 50%;
           transform: translateX( -50% );
         }
@@ -37,48 +37,48 @@
         .display {
           position: absolute;
           border-radius: 4px;
-          top: 12%;
+          top: 10%;
           left: 50%;
-          height: 5%;
-          width: 50%;
+          height: 10%;
+          width: 80%;
           transform: translateX( -50% );
           background: white;
           border: 2px solid #ccc;
           color: black;
           text-align: center;
-          font-size: 18pt;
-          line-height: 18pt;
+          font-size: 28pt;
+          line-height: 28pt;
 
         }
 
         .btn-nudge-up, .btn-nudge-down {
           position: absolute;
-          height: 5%;
+          height: 8%;
           width: 50%;
           border-radius: 4px;
           border: 2px solid #999;
           background: #ccc;
           padding: 0;
-          font-size: 14pt;
-          line-height: 6pt;
+          font-size: 18pt;
+          line-height: 24pt;
           color: black;
           left: 50%;
           transform: translateX( -50% );
         }
 
         .btn-nudge-up {
-          top: 20%;
+          top: 22.5%;
         }
 
         .slider {
           position: absolute;
-          top: 30%;
+          top: 35%;
           left: 50%;
           transform: translateX( -50% );
         }
 
         .btn-nudge-down {
-          top: 85%;
+          top: 87.5%;
         }
       }
     }
@@ -169,7 +169,7 @@
         right: 5%; 
         .power  { right:  0.000%; }
         .rhythm { right: 33.333%; }
-        .energy { right: 66.667%; }
+        .ki     { right: 66.667%; }
       }
       .score { 
         left: 10%; 
@@ -184,7 +184,7 @@
         left: 5%; 
         .power  { left:  0.000%; }
         .rhythm { left: 33.333%; }
-        .energy { left: 66.667%; }
+        .ki     { left: 66.667%; }
       }
       .score { 
         right: 10%; 
@@ -201,7 +201,7 @@
         left: 5%; 
         .power  { left:  0.000%; }
         .rhythm { left: 33.333%; }
-        .energy { left: 66.667%; }
+        .ki     { left: 66.667%; }
       }
       .score { 
         right: 10%; 
@@ -216,7 +216,7 @@
         right: 5%; 
         .power  { right:  0.000%; }
         .rhythm { right: 33.333%; }
-        .energy { right: 66.667%; }
+        .ki     { right: 66.667%; }
       }
       .score { 
         left: 10%; 

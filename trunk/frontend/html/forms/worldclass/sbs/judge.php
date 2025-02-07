@@ -92,7 +92,7 @@
 			app.on.connect( '<?= $url ?>' ).read.division();
 
 			// ===== STATE
-			app.state.current = { ring: <?= $rnum ?>, jid: <?= $jnum ?>, divid: null, round: null, match: null, form: null, page: 'accuracy', score: null };
+			app.state.current = { ring: <?= $rnum ?>, judge: <?= $jnum ?>, divid: null, round: null, match: null, form: null, page: 'accuracy', score: null };
 
 			app.state.athlete = {
 				chung: null,
@@ -100,16 +100,16 @@
 			};
 
 			app.state.score = { 
-				chung: { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 },
-				hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 }
+				chung: { index: null, major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 },
+				hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 }
 			};
 
 			app.state.reset = () => { 
 				$.removeCookie( 'judge-app' ); 
-				app.state.current = { ring: <?= $rnum ?>, jid: <?= $jnum ?>, divid: null, round: null, match: null, form: null, page: 'accuracy', score: null }; 
+				app.state.current = { ring: <?= $rnum ?>, judge: <?= $jnum ?>, divid: null, round: null, match: null, form: null, page: 'accuracy', score: null }; 
 				app.state.score   = {
-					chung: { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 },
-					hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, energy: 0 }
+					chung: { index: null, major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 },
+					hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 }
 				};
 			}
 			app.state.restore = () => { 
@@ -119,6 +119,7 @@
 			};
 			app.state.save = () => { 
 				app.state.current.score = app.state.score;
+				app.state.current.page  = Object.keys( app.page.for ).find( page => app.page.for[ page ] == app.page.num );
 				$.cookie( 'judge-app', app.state.current, { expires: 1 }); 
 			};
 
@@ -141,6 +142,7 @@
 					app.page.num = pnum;
 					$( '.pt-page' ).hide();
 					$( `.pt-page-${pnum}` ).show();
+					setTimeout(() => { app.widget?.[ target ]?._refresh.score(); }, 50 );
 				}
 			};
 
@@ -176,7 +178,7 @@
 						let current   = app.state.current;
 						let different = {
 							ring:  current.ring  != <?= $rnum ?>,
-							judge: current.jid   != <?= $jnum ?>,
+							judge: current.judge != <?= $jnum ?>,
 							divid: current.divid != division.name(),
 							round: current.round != division.current.roundId(),
 							match: current.match != match.number,
@@ -203,35 +205,6 @@
 						else {
 							alertify.error( `${current.page} is not a valid page; defaulting to 'accuracy'` );
 							app.page.show.accuracy();
-						}
-					});
-
-			// ============================================================
-			// EVENTS
-			// ============================================================
-			app.event
-				.listen( 'score' )
-					.respond(( type, source, message ) => {
-						app.state.current.score = message.score;
-						app.state.save();
-					})
-				.listen( 'back' )
-					.respond(( type, source, message ) => {
-						let destination = message.from;
-						if( destination in app.page.show ) {
-							app.state.current.page = destination;
-							app.page.show[ destination ];
-							app.state.save();
-						}
-					})
-				.listen( 'next' )
-					.respond(( type, source, message ) => {
-						console.log( 'NEXT EVENT', message ); // MW
-						let destination = message.to;
-						if( destination in app.page.show ) {
-							app.state.current.page = destination;
-							app.page.show[ destination ];
-							app.state.save();
 						}
 					});
 		</script>

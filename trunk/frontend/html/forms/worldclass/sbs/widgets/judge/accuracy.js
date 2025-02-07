@@ -1,7 +1,7 @@
 FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
-		const cat = { acc: [ 'minor', 'major' ], pre: [ 'power', 'rhythm', 'energy' ]};
+		const cat = { acc: [ 'minor', 'major' ], pre: [ 'power', 'rhythm', 'ki' ]};
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.header = this.dom.find( '.header' );
@@ -131,7 +131,8 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 			});
 
 			this.button.common.next.off( 'click' ).click( ev => {
-				this.event.trigger( 'next', { from: 'accuracy', to: 'presentation' });
+				this.app.page.show.presentation();
+				this.app.state.save();
 			});
 		};
 		this.refresh.score = () => {
@@ -166,6 +167,8 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 
 				if( ! defined( division )) { this.reset(); return; }
 				division = new Division( division );
+
+				if( update.request.action == 'score' ) { return; }
 
 				this.refresh.common( division );
 				this.refresh.match( division );
