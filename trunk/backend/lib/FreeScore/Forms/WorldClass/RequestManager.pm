@@ -538,7 +538,18 @@ sub handle_division_score {
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
-	my $message  = "  $jname score for $athlete->{ name }\n";
+	my $message  = '';
+
+	print STDERR Dumper 'HANDLE DIVISION SCORE - request', $request; # MW
+
+	if( exists $request->{ score }{ chung } || exists $request->{ score }{ hong }) {
+		my @athletes = grep { defined $_ } map { $request->{ score }{ $_ }{ index } } grep { exists $request->{ score }{ $_ }} qw( chung hong );
+		my $names = join( ' and ', map { $division->{ athletes }[ $_ ]{ name } } @athletes );
+		$message = "  $jname score for $names\n";
+
+	} else {
+		$message = "  $jname score for $athlete->{ name }\n";
+	}
 
 	print STDERR $message if $DEBUG;
 

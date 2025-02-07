@@ -171,7 +171,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				let start   = division.current.matchStart();
 				current.score = score;
 				let send    = () => {
-					let request = { type: 'division', action: 'score', score: current };
+					let request = { type: 'division', action: 'score', score: { divid: current.divid, match: current.match, form: current.form, chung: current.score.chung, hong: current.score.hong }};
 					this.network.send( request );
 					alertify.message( `Sending scores for Match ${current.match + start}` );
 				};

@@ -89,11 +89,21 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 							let acc   = this.app.state.score[ contestant ];
 							let score = cat.acc.map( category => acc[ category ]).reduce(( acc, cur ) => acc + cur, 0 );
 							if( action == 'add' ) {
-								if( score + value < 4.0 ) { acc[ deduction ] += value; }
+								if( (score + value) < 4.0 ) { acc[ deduction ] += value; }
 								else { acc[ deduction ] = deduction == 'minor' ? 4.0 - acc.major : 4.0 - acc.minor; }
 							} else {
-								if( score - value > 0.0 ) { acc[ deduction ] -= value; }
-								else { acc.major = 0.0; acc.minor = 0.0; }
+								if( acc[ deduction ] >= value ) {
+									acc[ deduction ] -= value;
+
+								} else if( (score - value) > 0.0 ) { 
+									let remainder = value - acc[ deduction ];
+									acc[ deduction ] = 0;
+									deduction == 'minor' ? acc.major -= remainder : acc.minor -= remainder;
+
+								} else { 
+									acc.major = 0.0; 
+									acc.minor = 0.0; 
+								}
 							}
 							acc[ deduction ] = parseFloat( acc[ deduction ].toFixed( 1 ));
 							this.refresh.score();

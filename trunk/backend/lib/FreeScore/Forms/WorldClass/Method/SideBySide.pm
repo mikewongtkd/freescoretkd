@@ -1,6 +1,8 @@
 package FreeScore::Forms::WorldClass::Method::SideBySide;
 use base qw( FreeScore::Forms::WorldClass::Method::SingleElimination );
 use List::Util qw( first );
+use List::MoreUtils qw( first_index );
+use Data::Dumper;
 
 our @rounds = (
 	{ code => 'ro256', name => 'Round of 256',  matches => 128, min => 129, max => 256 },
@@ -168,17 +170,20 @@ sub record_score {
 
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
 
+	print STDERR "SBS - RECORD SCORE - score\n"; # MW
+	print STDERR Dumper $scores;
+
 	# Score both athletes
-	foreach my $athlete ( $chung, $hong ) {
-		my $i = $athlete->{ index };
+	foreach my $score ( $chung, $hong ) {
+		my $i = $score->{ index };
 		next unless defined $i;
 
 		my $name   = $div->{ athletes }[ $i ]{ name };
 		my $ar     = $div->reinstantiate_round( $round, $i );
-		my $target = $ar->match();
-		my $error  = sprintf( "Database error: Score for %s given for %s Match %d but athlete is bracketed to Match %d", $name, uc $round, $match + 1, $target + 1 );
-		die $error unless $match == $target;
-		$ar->record_score( $form, $judge, $athlete->{ score });
+		my $target = $self->matches->current();
+		my $error  = sprintf( "Database error: Score for %s given for %s Match %d but athlete is bracketed to Match %d", $name, uc $round, $match, $target->{ number });
+		die $error unless $match == $target->{ number };
+		$ar->record_score( $form, $judge, $score );
 	}
 }
 
