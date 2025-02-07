@@ -1,6 +1,7 @@
 FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
+		const cat = { acc: [ 'minor', 'major' ], pre: [ 'power', 'rhythm', 'energy' ]};
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.header = this.dom.find( '.header' );
@@ -35,9 +36,10 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 				tdc.side.append( info.all );
 				if( defined( athlete )) {
 					info.name.html( athlete.display.name( 16 ));
-					if( athlete.info( 'noc' )) {
-						let flag = ioc.flag( athlete.info( 'noc' ));
-						info.noc.html( flag );
+					let noc = athlete.info( 'noc' );
+					if( defined( noc )) {
+						let flag = ioc.flag( noc );
+						info.noc.html( `<img src="${flag}">` );
 						info.noc.show();
 					} else {
 						info.noc.hide();
@@ -74,10 +76,31 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 						minor: $( '<a class="btn btn-minor remove">+0.1</a>' )
 					}
 				};
-
+				
 				button.panel.append( button.remove.major, button.add.major, button.add.minor, button.remove.minor );
 				tbc.score = button;
 				tdc.side.append( button.panel );
+
+				// ===== DEDUCTION BUTTON BEHAVIOR
+				[ 'add', 'remove' ].forEach( action => {
+					[ 'major', 'minor' ].forEach( deduction => {
+						tbc.score[ action ][ deduction ].off( 'click' ).click( ev => {
+							let value = deduction == 'minor' ? 0.1 : 0.3;
+							let acc   = this.app.state.score[ contestant ];
+							let score = cat.acc.map( category => acc[ category ]).reduce(( acc, cur ) => acc + cur, 0 );
+							if( action == 'add' ) {
+								if( score + value < 4.0 ) { acc[ deduction ] += value; }
+								else { acc[ deduction ] = deduction == 'minor' ? 4.0 - acc.major : 4.0 - acc.minor; }
+							} else {
+								if( score - value > 0.0 ) { acc[ deduction ] -= value; }
+								else { acc.major = 0.0; acc.minor = 0.0; }
+							}
+							acc[ deduction ] = parseFloat( acc[ deduction ].toFixed( 1 ));
+							this.refresh.score();
+							this.app.state.save();
+						});
+					});
+				});
 			});
 		},
 		this.refresh.common = division => {
@@ -111,6 +134,22 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 				this.event.trigger( 'next', { from: 'accuracy', to: 'presentation' });
 			});
 		};
+		this.refresh.score = () => {
+			let sum = (score, categories) => parseFloat( categories.map( category => score[ category ]).reduce(( acc, cur ) => acc + cur, 0 ).toFixed( 1 ));
+			[ 'chung', 'hong' ].forEach( contestant => {
+				let tdc      = this.display[ contestant ];
+				let score    = this.app.state.score[ contestant ];
+				let subtotal = {
+					accuracy: 4.0 - sum( score, cat.acc ),
+					presentation: cat.pre.some( category => score[ category ] < 0.5 ) ? '&ndash;' : sum( score, cat.pre )
+				};
+				let total = isNaN( subtotal.presentation ) ? '&ndash;' : ( subtotal.accuracy + subtotal.presentation).toFixed( 1 );
+				[ 'accuracy', 'presentation' ].forEach( category => subtotal[ category ] = isNaN( subtotal[ category ]) ? subtotal[ category ] : subtotal[ category ].toFixed( 1 ));
+				tdc.score.total.html( `<label>Total</label>${total}` );
+				tdc.score.subtotal.accuracy.html( `<label>Accuracy</label>${subtotal.accuracy}` );
+				tdc.score.subtotal.presentation.html( `<label>Presentation</label>${subtotal.presentation}` );
+			});
+		};
 
 		this.reset = () => {
 			this.display.header.empty();
@@ -130,6 +169,7 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 
 				this.refresh.common( division );
 				this.refresh.match( division );
+				this.refresh.score();
 			});
 	}
 }

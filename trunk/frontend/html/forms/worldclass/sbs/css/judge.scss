@@ -9,6 +9,7 @@ body {
 @import 'common';
 
 #score-accuracy {
+  touch-action: manipulation;
   position: absolute;
   top: 0;
   width: 100%;
@@ -26,41 +27,109 @@ body {
       border-radius: 36px;
       border: 4px solid white;
       background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
-      text-align: center;
+      z-index: 1;
 
       .btn-major, .btn-minor {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        left: 10%;
+        right: 10%;
         width: 80%;
         border-radius: 16px;
         color: black;
-        margin-top: 16%;
 
         &.add {
           font-size: 36pt;
         }
 
         &.remove {
-          height: 40px;
+          height: 10%;
           font-size: 18pt;
-          line-height: 16pt;
         }
       }
 
       .btn-major{
         &.add {
-          height: 80px;
-          line-height: 46pt;
+          top: 22%;
+          height: 20%;
         }
         &.remove {
+          top: 6%;
         }
       }
 
       .btn-minor {
         &.add {
-          height: 120px;
-          line-height: 76pt;
+          top: 48%;
+          height: 30%;
         }
         &.remove {
+          top: 84%;
         }
+      }
+    }
+
+    .score {
+      position: absolute;
+      top: 20%;
+      width: 40%;
+      height: 30%;
+      border-radius: 36px;
+      border: 4px solid white;
+      background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+
+      .total, .subtotal {
+        text-align: center;
+        color: white;
+
+        label {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX( -50% );
+          color: gold;
+          font-size: 10pt;
+        }
+      }
+
+      .total {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 56.25%;
+        border-bottom: 4px solid white;
+        font-size: 48pt;
+      }
+
+      .subtotal {
+        position: absolute;
+        width: 50.5%;
+        height: 43.75%;
+        top: 56.25%;
+        font-size: 44pt;
+      }
+    }
+
+    .athlete {
+      position: absolute;
+      top: 60%;
+      width: 40%;
+      text-align: center;
+
+      .name {
+        width: 100%;
+        color: white;
+        font-size: 18pt;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-bottom: 5%;
+      }
+
+      img {
+        width: 30%;
       }
     }
 
@@ -108,20 +177,44 @@ body {
     .chung { 
       right: 0; 
       .buttons { right: 5%; }
+      .score { 
+        left: 10%; 
+        .accuracy { right: 0; border-left: 3px solid white; }
+        .presentation { left: 0; border-right: 3px solid white; }
+      }
+      .athlete { left: 10%; }
     }
     .hong  { 
       left:  0; 
       .buttons { left: 5%; }
+      .score { 
+        right: 10%; 
+        .accuracy { left: 0; border-right: 3px solid white; }
+        .presentation { right: 0; border-left: 3px solid white; }
+      }
+      .athlete { right: 10%; }
     }
   }
   &.chung-left {
     .chung { 
       left:  0; 
       .buttons { left: 5%; }
+      .score { 
+        right: 10%; 
+        .accuracy { left: 0; border-right: 3px solid white; }
+        .presentation { right: 0; border-left: 3px solid white; }
+      }
+      .athlete { right: 10%; }
     }
     .hong  { 
       right: 0; 
       .buttons { right: 5%; }
+      .score { 
+        left: 10%; 
+        .accuracy { right: 0; border-left: 3px solid white; }
+        .presentation { left: 0; border-right: 3px solid white; }
+      }
+      .athlete { left: 10%; }
     }
   }
 }

@@ -5,8 +5,9 @@ function Athlete( athlete ) {
 	this.name  = function() { return athlete.name; }
 	this.id    = function() { return athlete.id; }
 	this.score = function( round ) { return new Score( athlete.scores[ round ] ); };
-	this.info  = function( key ) {
+	this.info  = function( key = null ) {
 		if( ! defined( athlete.info )) { return undefined; }
+		if( ! defined( key )) { return athlete.info; }
 		if( key in athlete.info ) { return athlete.info[ key ]; }
 		return undefined;
 	};

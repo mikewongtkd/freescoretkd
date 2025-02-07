@@ -116,7 +116,7 @@
 			};
 			app.state.save = () => { 
 				app.state.current.score = app.state.score;
-				$.cookie( 'judge-app', app.state.current, { expries: 1 }); 
+				$.cookie( 'judge-app', app.state.current, { expires: 1 }); 
 			};
 
 			// ===== PAGES
@@ -181,6 +181,7 @@
 
 						if( different.divid || different.round || different.match || different.form ) {
 							app.state.reset();
+							let current = app.state.current;
 							current.divid = division.name();
 							current.round = division.current.roundId();
 							current.match = match.number;

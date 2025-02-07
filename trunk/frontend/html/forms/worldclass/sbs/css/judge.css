@@ -71,7 +71,7 @@ body {
   width: 60px;
   height: 60px;
   border-radius: 30px;
-  border: 4px solid white;
+  border: 4px solid gold;
   background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
   font-size: 26pt;
   line-height: 40pt;
@@ -102,6 +102,7 @@ body {
 }
 
 #score-accuracy {
+  touch-action: manipulation;
   position: absolute;
   top: 0;
   width: 100%;
@@ -119,29 +120,93 @@ body {
   border-radius: 36px;
   border: 4px solid white;
   background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
-  text-align: center;
+  z-index: 1;
 }
 #score-accuracy .accuracy .buttons .btn-major, #score-accuracy .accuracy .buttons .btn-minor {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  left: 10%;
+  right: 10%;
   width: 80%;
   border-radius: 16px;
   color: black;
-  margin-top: 16%;
 }
 #score-accuracy .accuracy .buttons .btn-major.add, #score-accuracy .accuracy .buttons .btn-minor.add {
   font-size: 36pt;
 }
 #score-accuracy .accuracy .buttons .btn-major.remove, #score-accuracy .accuracy .buttons .btn-minor.remove {
-  height: 40px;
+  height: 10%;
   font-size: 18pt;
-  line-height: 16pt;
 }
 #score-accuracy .accuracy .buttons .btn-major.add {
-  height: 80px;
-  line-height: 46pt;
+  top: 22%;
+  height: 20%;
+}
+#score-accuracy .accuracy .buttons .btn-major.remove {
+  top: 6%;
 }
 #score-accuracy .accuracy .buttons .btn-minor.add {
-  height: 120px;
-  line-height: 76pt;
+  top: 48%;
+  height: 30%;
+}
+#score-accuracy .accuracy .buttons .btn-minor.remove {
+  top: 84%;
+}
+#score-accuracy .accuracy .score {
+  position: absolute;
+  top: 20%;
+  width: 40%;
+  height: 30%;
+  border-radius: 36px;
+  border: 4px solid white;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+}
+#score-accuracy .accuracy .score .total, #score-accuracy .accuracy .score .subtotal {
+  text-align: center;
+  color: white;
+}
+#score-accuracy .accuracy .score .total label, #score-accuracy .accuracy .score .subtotal label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: gold;
+  font-size: 10pt;
+}
+#score-accuracy .accuracy .score .total {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 56.25%;
+  border-bottom: 4px solid white;
+  font-size: 48pt;
+}
+#score-accuracy .accuracy .score .subtotal {
+  position: absolute;
+  width: 50.5%;
+  height: 43.75%;
+  top: 56.25%;
+  font-size: 44pt;
+}
+#score-accuracy .accuracy .athlete {
+  position: absolute;
+  top: 60%;
+  width: 40%;
+  text-align: center;
+}
+#score-accuracy .accuracy .athlete .name {
+  width: 100%;
+  color: white;
+  font-size: 18pt;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-bottom: 5%;
+}
+#score-accuracy .accuracy .athlete img {
+  width: 30%;
 }
 #score-accuracy .accuracy.chung, #score-accuracy .accuracy.hong {
   position: absolute;
@@ -181,11 +246,39 @@ body {
 #score-accuracy.chung-right .chung .buttons {
   right: 5%;
 }
+#score-accuracy.chung-right .chung .score {
+  left: 10%;
+}
+#score-accuracy.chung-right .chung .score .accuracy {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-right .chung .score .presentation {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-right .chung .athlete {
+  left: 10%;
+}
 #score-accuracy.chung-right .hong {
   left: 0;
 }
 #score-accuracy.chung-right .hong .buttons {
   left: 5%;
+}
+#score-accuracy.chung-right .hong .score {
+  right: 10%;
+}
+#score-accuracy.chung-right .hong .score .accuracy {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-right .hong .score .presentation {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-right .hong .athlete {
+  right: 10%;
 }
 #score-accuracy.chung-left .chung {
   left: 0;
@@ -193,11 +286,39 @@ body {
 #score-accuracy.chung-left .chung .buttons {
   left: 5%;
 }
+#score-accuracy.chung-left .chung .score {
+  right: 10%;
+}
+#score-accuracy.chung-left .chung .score .accuracy {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-left .chung .score .presentation {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-left .chung .athlete {
+  right: 10%;
+}
 #score-accuracy.chung-left .hong {
   right: 0;
 }
 #score-accuracy.chung-left .hong .buttons {
   right: 5%;
+}
+#score-accuracy.chung-left .hong .score {
+  left: 10%;
+}
+#score-accuracy.chung-left .hong .score .accuracy {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-left .hong .score .presentation {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-left .hong .athlete {
+  left: 10%;
 }
 
 @font-face {
