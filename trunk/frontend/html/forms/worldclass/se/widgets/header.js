@@ -21,7 +21,8 @@ FreeScore.Widget.SEHeader = class FSWidgetHeader extends FreeScore.Widget {
 			this.display.summary.html( division.summary() );
 			this.display.round.html( `<b class="text-muted">Single Elimination</b> &ndash; ${division.current.round.display.name()} &ndash; ${n} Athlete${n > 1 ? 's' : ''}` );
 
-			let forms = division.form.list().map(( form, i ) => { 
+			let forms = division.current.form.list().map(( form, i ) => { 
+				form = defined( form ) ? form : 'Draw';
 				return i == current ? `<a class="btn btn-sm btn-primary disabled" data-form-id="${i}">${form}</a>` : form = `<a class="btn btn-sm btn-default navigate-form" data-form-id="${i}" data-navigate="${i}" data-form-name="${form}">${form}</a>`;
 			});
 

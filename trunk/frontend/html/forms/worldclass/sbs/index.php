@@ -162,7 +162,7 @@
 			// ============================================================
 			app.widget = {
 				bracket:     { display : new FreeScore.Widget.SEBracket( app, 'display-bracket' ) },
-				draw:        { display : new FreeScore.Widget.SEPoomsaeDraw( app, 'display-draw' ) },
+				draw:        { display : new FreeScore.Widget.SBSPoomsaeDraw( app, 'display-draw' ) },
 				leaderboard: { display : new FreeScore.Widget.SELeaderboard( app, 'display-leaderboard' ) },
 				match:       { display : new FreeScore.Widget.SEMatchList( app, 'display-matches' ) },
 				results:     { display : new FreeScore.Widget.SEMatchResults( app, 'display-results' ) },

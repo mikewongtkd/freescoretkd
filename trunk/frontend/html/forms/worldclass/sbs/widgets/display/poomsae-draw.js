@@ -1,4 +1,4 @@
-FreeScore.Widget.SEPoomsaeDraw = class FSWidgetSEPoomsaeDraw extends FreeScore.Widget {
+FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 
