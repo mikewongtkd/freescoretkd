@@ -34,11 +34,11 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 					tdcs.append( athlete );
 					noc.hide();
 
-					let score        = tdc.score  = $( `<div class="${contestant} score"></div>` );
-					let report       = tdc.report = $( `<div class="${contestant} report"></div>` );
-					let form1        = tdc.form1  = $( `<div class="form-1"></div>` );
-					let form2        = tdc.form2  = $( `<div class="form-2"></div>` );
-					let total        = tdc.total  = $( `<div class="total"></div>` );
+					let score  = tdc.score  = $( `<div class="${contestant} score"></div>` );
+					let report = tdc.report = $( `<div class="${contestant} report"></div>` );
+					let form1  = tdc.form1  = $( `<div class="form-1"></div>` );
+					let form2  = tdc.form2  = $( `<div class="form-2"></div>` );
+					let total  = tdc.total  = $( `<div class="total"></div>` );
 
 					tdcs.append( score );
 
@@ -71,7 +71,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 						let flag = ioc.flag( athlete.info( 'noc' ));
 						tdc.name.html( athlete.display.name( 16 ));
 						if( flag ) {
-							tdc.noc.html( `<img src="${flag}">` ).show();
+						tdc.noc.html( `<img src="${flag}">` ).show();
 						} else {
 							tdc.noc.hide();
 						}
@@ -123,6 +123,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 				this.display.header.empty();
 				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum} Results</span></h2>` );
 				this.display.form = [];
+				this.dom.find( '.form-name' ).remove();
 
 				forms.forEach(( form, i ) => {
 					this.display.form[ i ] = $( `<div class="form-name form-${i + 1}">${form}</div>` );

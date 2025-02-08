@@ -67,7 +67,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let bounds  = { left: (width + height)/2, top: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
 
 				this.display.bracket.graph.empty();
-				if( this.draw ) { 
+				if( defined( this.draw )) { 
 					this.draw.clear(); 
 				} else {
 					this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height );
