@@ -153,6 +153,21 @@ sub autopilot_steps {
 }
 
 # ============================================================
+sub change_display {
+# ============================================================
+	my $self   = shift;
+	my $div    = $self->division();
+	my $i      = first_index { $_ eq $div->{ state } } @FreeScore::Forms::WorldClass::Method::SideBySide::states;
+
+	if   ( $i >= $#$states ) { $i = 0; }
+	elsif( $i < 0 )          { warn "Invalid state '$div->{ state }'; defaulting to 'score' $!"; $i = 1; }
+	else                     { $i++; }
+
+	$div->{ state } = $states->[ $i ];
+}
+
+
+# ============================================================
 sub record_score {
 # ============================================================
 #** @method ( judge_index, score_object )

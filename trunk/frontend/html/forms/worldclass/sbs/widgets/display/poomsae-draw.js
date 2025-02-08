@@ -104,7 +104,7 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 						this.state.draw.complete = true;
 						clearInterval( this.state.animation.timer );
 
-						let request = { type: 'division', action: 'draw', draw: { form }};
+						let request = { type: 'division', action: 'draw', draw: { form, complete: true }};
 						app.network.send( request );
 
 					} else if( this.state.draw.count > 5 ) {

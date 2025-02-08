@@ -268,14 +268,17 @@ sub handle_division_draw {
 	my $mnum     = $match->{ number };
 	my $i        = $division->{ form };
 	my $form     = $draw->{ form };
+	my $complete = $draw->{ complete };
 	my $ordinal  = $i == 0 ? '1st' : '2nd';
 
 	print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
-		$division->record_draw( $form );
-		$division->write();
+		if( $complete ) {
+			$division->record_draw( $form );
+			$division->write();
+		}
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
