@@ -16,7 +16,12 @@
 		<script src="./include/alertify/alertify.min.js"></script>
 		<script src="./include/js/freescore.js"></script>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width; initial-scale=1; viewport-fit=cover">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="theme-color" content="#000000">
+		<link rel="manifest" href="./manifest.json">
+
 		<style type="text/css">
 			@font-face {
 			  font-family: Nimbus;
