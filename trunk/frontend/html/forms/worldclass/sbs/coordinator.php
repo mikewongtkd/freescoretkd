@@ -16,7 +16,7 @@
 <html>
 	<head>
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-		<link href="css/coordinator.css" rel="stylesheet" />
+		<link href="../se/css/coordinator.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
@@ -35,15 +35,15 @@
 		<script src="../../../include/js/event.js"></script>
 		<script src="../../../include/js/app.js"></script>
 		<script src="../../../include/js/widget.js"></script>
-		<script src="widgets/controls/autopilot.js"></script>
-		<script src="widgets/controls/navigation.js"></script>
-		<script src="widgets/controls/penalties.js"></script>
-		<script src="widgets/controls/decision.js"></script>
-		<script src="widgets/controls/admin.js"></script>
-		<script src="widgets/division-list.js"></script>
-		<script src="widgets/header.js"></script>
-		<script src="widgets/athlete-list.js"></script>
-		<script src="widgets/judges.js"></script>
+		<script src="../se/widgets/controls/autopilot.js"></script>
+		<script src="../se/widgets/controls/navigation.js"></script>
+		<script src="../se/widgets/controls/penalties.js"></script>
+		<script src="../se/widgets/controls/decision.js"></script>
+		<script src="../se/widgets/controls/admin.js"></script>
+		<script src="../se/widgets/division-list.js"></script>
+		<script src="../se/widgets/header.js"></script>
+		<script src="../se/widgets/athlete-list.js"></script>
+		<script src="../se/widgets/judges.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -127,12 +127,12 @@
 						window.location = '../coordinator.php?ring=<?= $rnum ?>'; 
 					}
 				},
-				sbs : () => {
+				se : () => {
 					let round = app.state.current.division?.round;
 					let forms = app.state.current.division?.forms;
 
-					if( forms?.[ round ]?.some( form => form.match( /^draw/i ))) {
-						window.location = '../sbs/coordinator.php?ring=<?= $rnum ?>'; 
+					if( ! forms?.[ round ]?.some( form => form.match( /^draw/i ))) {
+						window.location = '../se/coordinator.php?ring=<?= $rnum ?>'; 
 					}
 				}
 			};
@@ -177,7 +177,7 @@
 						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
 
 						app.forwardIf.cutoff();
-						app.forwardIf.sbs();
+						app.forwardIf.se();
 
 						if( defined( divid ) && ! app.state.loaded ) {
 							let message = { divid, current : divid };
