@@ -141,7 +141,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 
 			this.display.header.html( `<div class="div-summary"><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></div><div class="match-summary"><span class="round-name">${division.current.round.name()}</span> &ndash; <span class="match-number">Match ${match.number + start}</span> &ndash; <span class="form-name">${form}</span></div>` );
 
-			let jname = this.app.state.current.jid == 0 ? 'R' : `J${this.app.state.current.jid}`;
+			let jname = this.app.state.current.judge == 0 ? 'R' : `J${this.app.state.current.judge}`;
 			let flip  = this.button.common.flip = $( `<a class="btn flip btn-flip"><span class="fas fa-exchange-alt"></span></a>` );
 			let back  = this.button.common.back = $( `<a class="btn back btn-back">Back <span class="fas fa-arrow-left"></span></a>` );
 			let send  = this.button.common.send = $( `<a class="btn send btn-send">Send <span class="fas fa-check-circle"></span></a>` );
@@ -210,9 +210,9 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				};
 				let total = isNaN( subtotal.presentation ) ? '&ndash;' : ( subtotal.accuracy + subtotal.presentation).toFixed( 1 );
 				[ 'accuracy', 'presentation' ].forEach( category => subtotal[ category ] = isNaN( subtotal[ category ]) ? subtotal[ category ] : subtotal[ category ].toFixed( 1 ));
-				tdc.score.total.html( `<label>Total</label>${total}` );
-				tdc.score.subtotal.accuracy.html( `<label>Accuracy</label>${subtotal.accuracy}` );
-				tdc.score.subtotal.presentation.html( `<label>Presentation</label>${subtotal.presentation}` );
+				tdc.score?.total?.html( `<label>Total</label>${total}` );
+				tdc.score?.subtotal?.accuracy?.html( `<label>Accuracy</label>${subtotal.accuracy}` );
+				tdc.score?.subtotal?.presentation?.html( `<label>Presentation</label>${subtotal.presentation}` );
 			});
 		};
 

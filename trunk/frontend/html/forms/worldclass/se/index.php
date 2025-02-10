@@ -157,6 +157,23 @@
 				scoreboard:  { display : new FreeScore.Widget.SEScoreboard( app, 'display-score' ) }
 			};
 
+			app.forwardIf = {
+				cutoff : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'cutoff' ) { window.location = '../index.php?ring=<?= $rnum ?>'; }
+				},
+				sbs : division => {
+					let round = division.current.roundId();
+					let forms = division.current.form.list();
+
+					if( round?.match( /^ro/ ) && forms.some( form => form?.match( /^draw/i ))) { 
+						window.location = '../sbs/index.php?ring=<?= $rnum ?>'; 
+					}
+				}
+			};
+
 			app.network.on
 				// ============================================================
 				.heard( 'division' )
@@ -166,7 +183,12 @@
 						let division = update?.division;
 						if( ! defined( division )) { return; }
 
-						let state = division.state;
+						division = new Division( division );
+
+						app.forwardIf.cutoff( division );
+						app.forwardIf.sbs( division );
+
+						let state = division.current.state();
 						if( ! defined( app.page.show?.[ state ])) { 
 							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 							state = 'score'; 
@@ -181,7 +203,7 @@
 						let division = update?.division;
 						if( ! defined( division )) { return; }
 
-						let state = division.state;
+						let state = division.current.state();
 						if( ! defined( app.page.show?.[ state ])) { 
 							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 							state = 'score'; 

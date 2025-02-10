@@ -271,7 +271,11 @@ sub handle_division_draw {
 	my $complete = $draw->{ complete };
 	my $ordinal  = $i == 0 ? '1st' : '2nd';
 
-	print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
+	if( $complete ) {
+		print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
+	} else {
+		print STDERR "Teasing poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
+	}
 
 	try {
 		$division->autopilot( 'off' );

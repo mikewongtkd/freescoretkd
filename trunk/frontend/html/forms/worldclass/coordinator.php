@@ -255,7 +255,7 @@
 					let forms = division.current.form.list();
 
 					if( round?.match( /^ro/ ) && forms.some( form => form?.match( /^draw/i ))) { 
-						window.location = '/sbs/coordinator.php?ring=<?= $rnum ?>'; 
+						window.location = 'sbs/coordinator.php?ring=<?= $rnum ?>'; 
 					}
 				}
 			};

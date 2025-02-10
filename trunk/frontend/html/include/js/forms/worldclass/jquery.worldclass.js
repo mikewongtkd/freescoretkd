@@ -63,6 +63,24 @@ $.widget( "freescore.worldclass", {
 			if( defined( update.ring     )) { division = new Division( update.ring.divisions.find((d) => { return d.name == update.ring.current; })); }
 			else                            { return; }
 
+			let forwardIf = {
+				se : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'se' ) { window.location = `se/index.php?ring=${ring}`; }
+				},
+				sbs : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'sbs' ) { window.location = `sbs/index.php?ring=${ring}`; }
+				}
+			};
+
+			forwardIf.se( division );
+			forwardIf.sbs( division );
+
 			// Ignore the update if the digest is the same as previous (i.e. the update contains no changes)
 			if( defined( o.digest ) && response.digest == o.digest ) { return; } else { o.digest = response.digest; }
 

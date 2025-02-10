@@ -120,20 +120,16 @@
 
 			app.forwardIf = {
 				cutoff : () => {
-					let round = app.state.current.division?.round;
-					let forms = app.state.current.division?.forms;
+					let method = division.current.method();
+					let ring   = division.ring();
 
-					if( ! round?.match( /^ro/ )) { 
-						window.location = '../coordinator.php?ring=<?= $rnum ?>'; 
-					}
+					if( method == 'cutoff' ) { window.location = '../coordinator.php?ring=${ring}'; }
 				},
 				sbs : () => {
-					let round = app.state.current.division?.round;
-					let forms = app.state.current.division?.forms;
+					let method = division.current.method();
+					let ring   = division.ring();
 
-					if( forms?.[ round ]?.some( form => form.match( /^draw/i ))) {
-						window.location = '../sbs/coordinator.php?ring=<?= $rnum ?>'; 
-					}
+					if( method == 'sbs' ) { window.location = '../sbs/coordinator.php?ring=<?= $rnum ?>'; }
 				}
 			};
 

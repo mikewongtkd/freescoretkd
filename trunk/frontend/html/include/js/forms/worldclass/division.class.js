@@ -130,6 +130,17 @@ function Division( division ) {
 			let start = prev.map( round => this.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
 			return start;
 		},
+		method: () => {
+			let round  = division.round;
+			let method = division?.method;
+			if( ! defined( method )) { return 'cutoff'; }
+			if( typeof method === 'string' ) { return method; }
+			if( typeof method === 'object' ) {
+				if( round in method ) { return method[ round ]; }
+				return 'cutoff';
+			}
+			return 'cutoff';
+		},
 		order : function( i ) {
 			let round = division.round;
 			let order = division.order;
@@ -140,7 +151,8 @@ function Division( division ) {
 			display : { name : () => { return display.round.name?.[ division.round ] + (this.is.flight() ? ' (Group ' + division.flight.id.toUpperCase() + ')':''); }},
 			name : function() { return display.round.name?.[ division.round ]; },
 		},
-		roundId : function() { return division.round; }
+		roundId : function() { return division.round; },
+		state: () => division.state
 	};
 
 	let _next = this.next = {

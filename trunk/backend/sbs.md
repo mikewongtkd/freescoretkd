@@ -4,27 +4,29 @@
 - Side-by-Side
 - Single Elimination
 
-Idea: Allow methods to be defined by the headers
+Methods are defined in the headers and can appear in one of two forms:
+
+1. Single method for all rounds in the division.
+
+    # method=sbs
+
+2. Multiple methods, defined on a round-by-round basis.
 
     # method={"prelim":"cutoff","semfin":"cutoff","r08":"sbs","ro4":"sbs","ro2":"sbs"}
-    # rounds=["prelim","semfin","ro8","ro4","ro2"]
 
 Typical choices:
 
 - Cutoff (default)
 - Side-By-Side
-- Combination (Cutoff/Side-By-Side)
-- Combination (Single Elimination/Side-By-Side)
+- Cutoff for all rounds prior to Ro8, and Side-By-Side thereafter
+- Single Elimination for all rounds prior to Ro8, and Side-By-Side thereafter
 
-Also allow methods to be defined by the round headers (default is `cutoff`:
 
-    # ============================================================
-    # semfin
-    # ============================================================
+However, any combination should be allowed. 
 
-    # ============================================================
-    # ro8:sbs
-    # ============================================================
+Note: the above use cases outline the priorties for testing; other combinations
+might not work and won't be tested until these common cases are thoroughly
+tested.
 
 ## Methods
 

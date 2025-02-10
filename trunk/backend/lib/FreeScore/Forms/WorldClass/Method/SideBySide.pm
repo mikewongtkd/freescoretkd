@@ -157,7 +157,8 @@ sub change_display {
 # ============================================================
 	my $self   = shift;
 	my $div    = $self->division();
-	my $i      = first_index { $_ eq $div->{ state } } @FreeScore::Forms::WorldClass::Method::SideBySide::states;
+	my $states = [ @FreeScore::Forms::WorldClass::Method::SideBySide::states ];
+	my $i      = first_index { $_ eq $div->{ state } } @$states;
 
 	if   ( $i >= $#$states ) { $i = 0; }
 	elsif( $i < 0 )          { warn "Invalid state '$div->{ state }'; defaulting to 'score' $!"; $i = 1; }

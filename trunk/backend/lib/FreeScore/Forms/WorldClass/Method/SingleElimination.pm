@@ -230,7 +230,7 @@ sub bracket {
 		return [ map {[ $_->{ chung }, $_->{ hong } ]} @{$div->{ matches }{ $rcode }}];
 	}
 
-	die "Database error: $athletes athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $athletes < $round->{ min } || $athletes > $round->{ max });
+	die "Database error: $div->{ name } $athletes athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $athletes < $round->{ min } || $athletes > $round->{ max });
 
 	my $n = $round->{ matches } - 1; # Index of last match
 	foreach my $mnum ( 0 .. $n ) {

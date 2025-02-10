@@ -1,6 +1,7 @@
 FreeScore.App = class FSApp {
 	constructor() {
-		this._id      = self.crypto.randomUUID();
+		// this._id      = self.crypto.randomUUID();
+		this._id      = Math.floor( Math.random() * 1_000_000_000 );
 		this._button  = {};
 		this._display = {};
 		this._input   = {};
