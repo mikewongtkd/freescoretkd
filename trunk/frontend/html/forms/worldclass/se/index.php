@@ -162,15 +162,13 @@
 					let method = division.current.method();
 					let ring   = division.ring();
 
-					if( method == 'cutoff' ) { window.location = '../index.php?ring=<?= $rnum ?>'; }
+					if( method == 'cutoff' ) { window.location = `../index.php?ring=${ring}`; }
 				},
 				sbs : division => {
-					let round = division.current.roundId();
-					let forms = division.current.form.list();
+					let method = division.current.method();
+					let ring   = division.ring();
 
-					if( round?.match( /^ro/ ) && forms.some( form => form?.match( /^draw/i ))) { 
-						window.location = '../sbs/index.php?ring=<?= $rnum ?>'; 
-					}
+					if( method == 'sbs' ) { window.location = `../sbs/index.php?ring=${ring}`; }
 				}
 			};
 

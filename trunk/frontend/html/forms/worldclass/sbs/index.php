@@ -169,6 +169,21 @@
 				scoreboard:  { display : new FreeScore.Widget.SEScoreboard( app, 'display-score' ) }
 			};
 
+			app.forwardIf = {
+				cutoff : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'cutoff' ) { window.location = `../index.php?ring=${ring}`; }
+				},
+				sbs : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'se' ) { window.location = `../se/index.php?ring=${ring}`; }
+				}
+			};
+
 			app.network.on
 				// ============================================================
 				.heard( 'division' )

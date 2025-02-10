@@ -162,6 +162,21 @@
 
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
+			app.forwardIf = {
+				cutoff : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'cutoff' ) { window.location = `../index.php?ring=${ring}`; }
+				},
+				se : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'se' ) { window.location = `../sbs/index.php?ring=${ring}`; }
+				}
+			};
+
 			// ===== NETWORK LISTENER/HANDLERS
 			app.network.on
 			// ============================================================

@@ -123,13 +123,13 @@
 					let method = division.current.method();
 					let ring   = division.ring();
 
-					if( method == 'cutoff' ) { window.location = '../coordinator.php?ring=${ring}'; }
+					if( method == 'cutoff' ) { window.location = `../coordinator.php?ring=${ring}`; }
 				},
 				sbs : () => {
 					let method = division.current.method();
 					let ring   = division.ring();
 
-					if( method == 'sbs' ) { window.location = '../sbs/coordinator.php?ring=<?= $rnum ?>'; }
+					if( method == 'sbs' ) { window.location = `../sbs/coordinator.php?ring=${ring}`; }
 				}
 			};
 
