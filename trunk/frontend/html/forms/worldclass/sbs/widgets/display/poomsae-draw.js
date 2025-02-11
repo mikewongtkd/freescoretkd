@@ -28,11 +28,10 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 			let match = division.current.match();
 			let start = division.current.matchStart();
 			let mnum  = parseInt( match.number ) + start;
-			let fnum  = division.form.count() > 1 ? `${ordinal( parseInt( division.current.formId()) + 1 )} Form` : '';
-
+			let fnum  = division.form.count() > 1 ? `&ndash; <span class="form-name">${ordinal( parseInt( division.current.formId()) + 1 )} Form</span>` : '';
 			
 			this.display.header.empty();
-			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum}</span> &ndash; <span class="form-name">${fnum}</span></h2>` );
+			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum}</span> ${fnum}</h2>` );
 		};
 		this.refresh.poomsae = { 
 			draw : division => {
@@ -60,7 +59,7 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 
 				if( defined( form )) {
 					let tdpn = this.display.poomsae.name = $( `<div class="drawn poomsae name">${form}</div>` );
-					this.display.poomsae.draw.append( tdpn );
+					this.display.poomsae.draw.empty().append( tdpn );
 					return;
 				}
 
@@ -91,14 +90,13 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 				// Remove previously drawn poomsae (no repeats)
 				pool = pool.filter( form => ! draw.includes( form ));
 
-				this.display.poomsae.draw.empty();
 				if( this.state.animation.timer ) { clearInterval( this.state.animation.timer ); }
 				this.state.draw.count    = 0;
 				this.state.draw.form     = null;
 				this.state.draw.complete = false;
 
 				let tdpn = this.display.poomsae.name = $( `<div class="poomsae name"></div>` );
-				this.display.poomsae.draw.append( tdpn );
+				this.display.poomsae.draw.empty().append( tdpn );
 				this.state.animation.timer = setInterval(() => {
 					if( this.state.draw.count > 7 ) {
 						this.state.draw.complete = true;
