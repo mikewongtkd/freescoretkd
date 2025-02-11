@@ -169,21 +169,22 @@ post '/:tournament/:ring/:divid' => sub {
 	my $data       = $json->decode( $self->req->body());
 	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
 	my $division   = $progress->find( $divid );
-
-	my $path  = sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $FreeScore::Feats::Breaking::SUBDIR, $ring );
+	my $path  = sprintf( "%s/%s/%s/%s", $FreeScore::PATH, $tournament, $FreeScore::Feats::Breaking::SUBDIR, $ring );
 	$division = new FreeScore::Feats::Breaking::Division( $path, $divid, $ring ) unless( $division );
-
 	try {
 		if( $division->exists() && ! exists $data->{ overwrite } ) {
 			$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 			$self->render( json => { division => $divid, status => 'exists' } );
 			return;
 		}
-		foreach my $key (keys %{ $data->{ header }}) { 
-			$data->{ header }{ $key } = $json->decode( $data->{ header }{ $key } ) if( $key eq 'brackets' );
-			$division->{ $key } = $data->{ header }{ $key }; 
+		foreach my $key (keys %{ $data }) {
+			if ($key eq 'athletes') {
+				next;
+			}
+			$data->{ $key } = $json->decode( $data->{ $key } ) if( $key eq 'brackets' );
+			$division->{ $key } = $data->{ $key };
 		}
-		delete $division->{ mode } if( ! exists $data->{ header }{ mode } );
+		delete $division->{ mode } if( ! exists $data->{ mode } );
 		my $athletes = [];
 		foreach my $i ( 0 .. $#{ $data->{ athletes }} ) {
 			my $athlete = { name => $data->{ athletes }[ $i ], index => $i, info => undef, scores => [] };

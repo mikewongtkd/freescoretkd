@@ -146,7 +146,7 @@
 
 				if( defined( ws )) { ws.close(); }
 
-				ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + target );
+				ws = new WebSocket( `<?= $config->websocket( 'freestyle' ) ?>/${tournament.db}/${target}` );
 
 				ws.onerror = network.error = function() {
 					setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
