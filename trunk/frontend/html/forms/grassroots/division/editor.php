@@ -187,7 +187,7 @@ foreach ($setting as $key => $value) {
 
 			$( '#save-division' ).off( 'click' ).click( function( ev ) {
 				var tournament = <?= $tournament ?>;
-				var host       = '<?= $host ?>';
+				var host       = '<?= $config->data['host'] ?>';
 				$( '#user-message' ).html( "Saving " + describe( division ) );
 				division.athletes = athletes.list().split( /\n/ ).reduce(( acc, cur ) => { if( cur ) { acc.push( cur ); }; return acc; }, [] );
 				

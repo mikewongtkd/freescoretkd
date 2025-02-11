@@ -103,7 +103,7 @@
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
-			var host       = '<?= $host ?>';
+			var host       = '<?= $config->data[ 'host' ] ?>';
 			var tournament = <?= $tournament ?>;
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
@@ -381,7 +381,7 @@
 						administration : {
 							display    : () => { sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
 							edit       : () => { sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/forms-grassroots/' + ring + '/div.' + divid + '.txt', '_blank' )},
-							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/freescore/forms/grassroots/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
+							print      : () => { sound.next.play(); page.print   = window.open( '/cgi-bin/forms/grassroots/results?ring=' + ringid + '&divid=' + divid, '_blank' )},
 						}
 					};
 

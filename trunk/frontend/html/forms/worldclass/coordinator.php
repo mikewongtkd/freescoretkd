@@ -582,7 +582,7 @@
 							view       : () => { app.sound.next.play(); app.network.send({ type: 'division', action: 'display' });},
 							display    : () => { app.sound.next.play(); page.display = window.open( 'index.php?ring=' + ring, '_blank' )},
 							edit       : () => { app.sound.next.play(); page.editor  = window.open( 'division/editor.php?file=' + tournament.db + '/' + ring + '/' + divid, '_blank' )},
-							results    : () => { app.sound.next.play(); page.results = window.open( `/cgi-bin/freescore/forms/worldclass/report/results.php?ring=${ring}&divid=${divid}`, '_blank' )},
+							results    : () => { app.sound.next.play(); page.results = window.open( `/cgi-bin/forms/worldclass/results?ring=${ring}&divid=${divid}`, '_blank' )},
 							history    : () => { app.sound.next.play(); page.results = window.open( 'history.php?ring=' + ring, '_blank' )},
 						}
 					};

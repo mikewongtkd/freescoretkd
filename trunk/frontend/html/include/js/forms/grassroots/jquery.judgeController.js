@@ -146,7 +146,7 @@ $.widget( "freescore.judgeController", {
 			}
 		};
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + o.tournament.db );
+		e.source = new EventSource( '/cgi-bin/forms/grassroots/update?tournament=' + o.tournament.db );
 		e.source.addEventListener( 'message', refresh, false );
 	}
 });

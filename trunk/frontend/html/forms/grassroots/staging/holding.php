@@ -160,7 +160,7 @@ handle.schedule.read = ( update ) => {
 					.click(( ev ) => {
 						div.sendToRing();
 
-						window.open( `http://<?= $host ?>/cgi-bin/freescore/forms/grassroots/results?divid=${div.id}` ); // MW cgi-bin/freescore <- may not work on Raspberry Pi
+						window.open( `http://<?= $host ?>/cgi-bin/forms/grassroots/results?divid=${div.id}` ); // MW cgi-bin/freescore <- may not work on Raspberry Pi
 						
 						let schedule = JSON.stringify( registration ).replace( /"_/g, '"' );
 						request = { data : { type : 'schedule', action : 'stage', schedule: schedule, division: div.id, to: div.ring }}; // 'ring' keyword is fixed to staging

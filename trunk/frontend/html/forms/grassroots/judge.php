@@ -31,7 +31,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> } );
+			$( '#judgeController' ).judgeController( { server : '<?= $config->data['host'] ?>', tournament : <?= $tournament ?> } );
 		</script>
 	</body>
 </html>
