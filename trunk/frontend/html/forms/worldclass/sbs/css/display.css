@@ -170,8 +170,8 @@ body {
   background-color: gold;
   width: 60px;
   height: 60px;
-  border-radius: calc( $win / 2 );
-  top: calc(($height - $win)/ 2 );
+  border-radius: 30px;
+  top: 20px;
 }
 #display-matches.chung-right .match .noc {
   position: absolute;
@@ -208,13 +208,13 @@ body {
 }
 #display-matches.chung-right .match.active .match-chung .win {
   background-color: gold;
-  top: calc(($height - ($win + 2 * $border ))/ 2);
+  top: 16px;
 }
 #display-matches.chung-right .match .match-chung {
   right: 0;
   text-align: right;
-  border-top-right-radius: calc( $height / 2 );
-  border-bottom-right-radius: calc( $height / 2 );
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
   background: #000124;
   color: #333;
 }
@@ -246,13 +246,13 @@ body {
 }
 #display-matches.chung-right .match.active .match-hong .win {
   background-color: gold;
-  top: calc(($height - ($win + 2 * $border ))/ 2 );
+  top: 16px;
 }
 #display-matches.chung-right .match .match-hong {
   left: 0;
   text-align: left;
-  border-top-left-radius: calc( $height / 2 );
-  border-bottom-left-radius: calc( $height / 2 );
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
   background: #240000;
   color: #333;
 }
@@ -281,7 +281,7 @@ body {
   position: absolute;
   height: 100px;
   width: 100px;
-  border-radius: calc( $height/2 );
+  border-radius: 50px;
   background: #333;
   color: black;
   font-size: 1.2em;
@@ -352,8 +352,8 @@ body {
   background-color: gold;
   width: 60px;
   height: 60px;
-  border-radius: calc( $win / 2 );
-  top: calc(($height - $win)/ 2 );
+  border-radius: 30px;
+  top: 20px;
 }
 #display-matches.chung-left .match .noc {
   position: absolute;
@@ -386,13 +386,13 @@ body {
 }
 #display-matches.chung-left .match.active .match-chung .win {
   background-color: gold;
-  top: calc(($height - ($win + 2 * $border ))/ 2);
+  top: 16px;
 }
 #display-matches.chung-left .match .match-chung {
   left: 0;
   text-align: left;
-  border-top-left-radius: calc( $height / 2 );
-  border-bottom-left-radius: calc( $height / 2 );
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
   background: #000124;
   color: #333;
 }
@@ -424,13 +424,13 @@ body {
 }
 #display-matches.chung-left .match.active .match-hong .win {
   background-color: gold;
-  top: calc( ($height - ($win + 2 * $border ))/ 2 );
+  top: 16px;
 }
 #display-matches.chung-left .match .match-hong {
   right: 0;
   text-align: right;
-  border-top-right-radius: calc( $height / 2 );
-  border-bottom-right-radius: calc( $height / 2 );
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
   background: #240000;
   color: #333;
 }
@@ -459,7 +459,7 @@ body {
   position: absolute;
   height: 100px;
   width: 100px;
-  border-radius: calc( $height/2 );
+  border-radius: 50px;
   background: #333;
   color: black;
   font-size: 1.2em;
@@ -606,7 +606,7 @@ body {
 #display-score .contestant .score .report {
   position: absolute;
   height: 75%;
-  width: calc( 100% - $total );
+  width: calc(100% - 320px);
   top: 0;
   text-align: center;
 }
@@ -622,10 +622,10 @@ body {
   display: inline-block;
   margin-left: 12px;
   margin-right: 12px;
-  width: calc( $judges / 3 );
-  height: calc( $judges / 3 );
+  width: 93.3333333333px;
+  height: 93.3333333333px;
   background: gold;
-  border-radius: calc( $judges / 6 );
+  border-radius: 46.6666666667px;
 }
 #display-score .contestant .score .report .penalties .penalty {
   display: inline-block;
@@ -646,9 +646,9 @@ body {
   border: 4px solid gold;
   margin-left: auto;
   margin-right: auto;
-  height: calc( $judges / 3 );
-  width: calc( 5/4 * $judges );
-  border-radius: calc( $judges / 8 );
+  height: 93.3333333333px;
+  width: 350px;
+  border-radius: 35px;
 }
 #display-score .contestant .score .report .subtotals .labels {
   width: 90%;
@@ -861,12 +861,12 @@ body {
   position: absolute;
   left: 50%;
   width: 25%;
-  height: calc( 7/8 * $noc );
+  height: 105px;
   font-size: 56pt;
   line-height: 76pt;
   border: solid 4px #ccc;
-  border-radius: calc( $noc / 3 );
-  margin-top: calc( 1/8 * $noc );
+  border-radius: 40px;
+  margin-top: 15px;
   transform: translateX(-50%);
   text-align: center;
   background: black;
@@ -926,7 +926,7 @@ body {
   width: 120px;
   height: 120px;
   background: gold;
-  border-radius: calc( $windot / 2 );
+  border-radius: 60px;
   transform: translateY(-50%);
 }
 #display-results .contestant .score .report.chung {
@@ -964,7 +964,7 @@ body {
   border-radius: 0 96px 96px 0;
 }
 #display-results.chung-right .contestant.chung .report .win-dot {
-  left: calc( $windot / 3 );
+  left: 40px;
 }
 #display-results.chung-right .contestant.chung .form-1, #display-results.chung-right .contestant.chung .form-2 {
   right: 10%;
@@ -981,7 +981,7 @@ body {
   border-radius: 96px 0 0 96px;
 }
 #display-results.chung-right .contestant.hong .report .win-dot {
-  right: calc( $windot / 3 );
+  right: 40px;
 }
 #display-results.chung-right .contestant.hong .form-1, #display-results.chung-right .contestant.hong .form-2 {
   left: 10%;
@@ -998,7 +998,7 @@ body {
   border-radius: 0 96px 96px 0;
 }
 #display-results.chung-left .contestant.chung .report .win-dot {
-  right: calc( $windot / 3 );
+  right: 40px;
 }
 #display-results.chung-left .contestant.chung .form-1, #display-results.chung-left .contestant.chung .form-2 {
   left: 10%;
@@ -1015,7 +1015,7 @@ body {
   border-radius: 96px 0 0 96px;
 }
 #display-results.chung-left .contestant.hong .report .win-dot {
-  left: calc( $windot / 3 );
+  left: 40px;
 }
 #display-results.chung-left .contestant.hong .form-1, #display-results.chung-left .contestant.hong .form-2 {
   right: 10%;

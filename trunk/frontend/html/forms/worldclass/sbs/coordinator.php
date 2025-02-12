@@ -163,16 +163,20 @@
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			app.forwardIf = {
-				cutoff : division => {
-					let method = division.current.method();
-					let ring   = division.ring();
+				cutoff : () => {
+					let division = new Division( app.state.current.division );
+					let method   = division?.current?.method();
+					let ring     = division?.ring();
 
+					if( ! defined( division )) { return; }
 					if( method == 'cutoff' ) { window.location = `../index.php?ring=${ring}`; }
 				},
-				se : division => {
-					let method = division.current.method();
-					let ring   = division.ring();
+				se : () => {
+					let division = new Division( app.state.current.division );
+					let method   = division?.current?.method();
+					let ring     = division?.ring();
 
+					if( ! defined( division )) { return; }
 					if( method == 'se' ) { window.location = `../sbs/index.php?ring=${ring}`; }
 				}
 			};

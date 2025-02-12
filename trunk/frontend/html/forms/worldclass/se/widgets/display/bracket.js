@@ -221,7 +221,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				bounds = { x: (width + height)/2, y: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
 				zoom.out = [ bounds.x, bounds.y, bounds.width, bounds.height ];
 
-				let animating = this.state.animation && this.state.animation.process() != 1;
+				let animating = this.state.animation && defined( this.state.animation?.process()) && this.state.animation.process() != 1;
 				if( ! animating ) {
 					this.state.animation = this.draw.animate( 2000, 3000 ).viewbox( zoom.in ).animate( 2000, 3000 ).viewbox( zoom.out );
 				}

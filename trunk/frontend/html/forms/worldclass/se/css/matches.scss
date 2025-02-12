@@ -1,3 +1,5 @@
+@use "sass:math";
+
 #display-matches {
   $height: 100px;
   $border: 4px;
@@ -51,8 +53,8 @@
         background-color: gold;
         width: $win;
         height: $win;
-        border-radius: calc( $win / 2 );
-        top: calc(($height - $win)/ 2 );
+        border-radius: math.div( $win, 2 );
+        top: math.div(($height - $win), 2 );
       }
 
       .noc {
@@ -83,14 +85,14 @@
 
         .name { line-height: 1.75em; }
         .noc  { opacity: 100%; }
-        .win  { background-color: gold; top: calc(($height - ($win + 2 * $border ))/ 2); }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2); }
       }
 
       .match-chung {
         right: 0;
         text-align: right;
-        border-top-right-radius: calc( $height / 2 );
-        border-bottom-right-radius: calc( $height / 2 );
+        border-top-right-radius: math.div( $height, 2 );
+        border-bottom-right-radius: math.div( $height, 2 );
 
         background: rgb(0,1,36);
         color: #333;
@@ -108,14 +110,14 @@
 
         .name { line-height: 1.75em; }
         .noc { opacity: 100%; }
-        .win  { background-color: gold; top: calc(($height - ($win + 2 * $border ))/ 2 ); }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2 ); }
       }
 
       .match-hong {
         left: 0;
         text-align: left;
-        border-top-left-radius: calc( $height / 2 );
-        border-bottom-left-radius: calc( $height / 2 );
+        border-top-left-radius: math.div( $height, 2 );
+        border-bottom-left-radius: math.div( $height, 2 );
 
         background: rgb(36,0,0);
         color: #333;
@@ -136,7 +138,7 @@
         position: absolute;
         height: $height;
         width: $height;
-        border-radius: calc( $height/2 );
+        border-radius: math.div( $height, 2 );
         background: #333;
         color: black;
         font-size: 1.2em;
@@ -200,8 +202,8 @@
         background-color: gold;
         width: $win;
         height: $win;
-        border-radius: calc( $win / 2 );
-        top: calc(($height - $win)/ 2 );
+        border-radius: math.div( $win, 2 );
+        top: math.div(($height - $win), 2 );
       }
 
       .noc {
@@ -228,14 +230,14 @@
 
         .name { line-height: 1.75em; }
         .noc  { opacity: 100%; }
-        .win  { background-color: gold; top: calc(($height - ($win + 2 * $border ))/ 2); }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2); }
       }
 
       .match-chung {
         left: 0;
         text-align: left;
-        border-top-left-radius: calc( $height / 2 );
-        border-bottom-left-radius: calc( $height / 2 );
+        border-top-left-radius: math.div( $height, 2 );
+        border-bottom-left-radius: math.div( $height, 2 );
 
         background: rgb(0,1,36);
         color: #333;
@@ -253,14 +255,14 @@
 
         .name { line-height: 1.75em; }
         .noc { opacity: 100%; }
-        .win  { background-color: gold; top: calc( ($height - ($win + 2 * $border ))/ 2 ); }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2 ); }
       }
 
       .match-hong {
         right: 0;
         text-align: right;
-        border-top-right-radius: calc( $height / 2 );
-        border-bottom-right-radius: calc( $height / 2 );
+        border-top-right-radius: math.div( $height, 2 );
+        border-bottom-right-radius: math.div( $height, 2 );
 
         background: rgb(36,0,0);
         color: #333;
@@ -281,7 +283,7 @@
         position: absolute;
         height: $height;
         width: $height;
-        border-radius: calc( $height/2 );
+        border-radius: math.div( $height, 2 );
         background: #333;
         color: black;
         font-size: 1.2em;

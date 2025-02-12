@@ -120,15 +120,19 @@
 
 			app.forwardIf = {
 				cutoff : () => {
-					let method = division.current.method();
-					let ring   = division.ring();
+					let division = new Division( app.state.current.division );
+					let method   = division?.current?.method();
+					let ring     = division?.ring();
 
+					if( ! defined( division )) { return; }
 					if( method == 'cutoff' ) { window.location = `../coordinator.php?ring=${ring}`; }
 				},
 				sbs : () => {
-					let method = division.current.method();
-					let ring   = division.ring();
+					let division = new Division( app.state.current.division );
+					let method   = division?.current?.method();
+					let ring     = division?.ring();
 
+					if( ! defined( division )) { return; }
 					if( method == 'sbs' ) { window.location = `../sbs/coordinator.php?ring=${ring}`; }
 				}
 			};
