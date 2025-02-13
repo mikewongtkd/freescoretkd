@@ -56,7 +56,16 @@ FreeScore.Widget.SENavigation = class FSWidgetNavigation extends FreeScore.Widge
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.nav = {
 			athlete : ( athlete ) => {
-				this.display.label.athlete.html( `Score ${athlete.name}` );
+				let division = new Division( this.app.state.current.division );
+				let method   = division.current.method();
+				if( method == 'sbs' ) {
+					let matches = division.matches();
+					let match   = matches.find( match => match.order.includes( athlete.id ));
+					let start   = division.current.matchStart();
+					this.display.label.athlete.html( `Score Match ${match.number + start}` );
+				} else {
+					this.display.label.athlete.html( `Score ${athlete.name}` );
+				}
 				this.button.nav.athlete.off( 'click' ).click( ev => {
 					this.network.send({ type: 'division', action: 'navigate', target: { destination: 'athlete', index: athlete.id }});
 					this.display.nav.athlete.hide();

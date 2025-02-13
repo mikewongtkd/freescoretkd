@@ -265,19 +265,20 @@ html, body {
   padding: 20px;
 }
 
+a.active:not(.sbs) .athlete-name:before {
+  text-align: center;
+  content: "➡";
+  color: gold;
+  font-size: 18pt;
+  line-height: 10pt;
+}
+
 a.active h4 {
   font-weight: bold;
   color: gold;
 }
 a.active b {
   color: gold;
-}
-a.active .athlete-name:before {
-  text-align: center;
-  content: "➡";
-  color: gold;
-  font-size: 18pt;
-  line-height: 10pt;
 }
 a.active.chung {
   background-color: #337ab7 !important;
