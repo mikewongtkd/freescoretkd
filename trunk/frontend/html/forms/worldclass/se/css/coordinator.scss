@@ -82,6 +82,19 @@ html, body {
 				padding: 0 8px 2px 8px;
 			}
 		}
+
+        tr.chung td {
+          background-color: #d9edf7;
+          border-color: #bce8f1;
+          color: #31708f;
+        }
+
+        tr.hong td {
+          background-color: #f2dede;
+          border-color: #ebccd1;
+          color: #a94442;
+        }
+
 		.acc { color: #d9534f; }
 		.pre { color: #337ab7; }
 		.sum { color: #333; }
@@ -287,6 +300,10 @@ a.active {
 			border-color: #d43f3a;
 		    color: white;
 		}
+        #winner {
+          background-color: #5cb85c;
+          border-color: #4cae4c;
+        }
 	}
 	.penalties {
 		.list-group-item {

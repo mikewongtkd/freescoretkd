@@ -8,14 +8,24 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 		<div class="decision">
 			<h4>Decision</h4>
 			<div class="list-group">
+				<button class="list-group-item decision-button" id="winner"><span class="fas fa-trophy"></span> Winner</button>
+			</div>
+			<div class="list-group">
 				<button class="list-group-item decision-button" id="withdraw"><span class="fas fa-user-minus"></span> Withdraw</button>
 				<button class="list-group-item decision-button" id="disqualify"><span class="fas fa-user-times"></span> Disqualify</button>
-				<button class="list-group-item decision-button" id="winner"><span class="fas fa-trophy"></span> Winner</button>
 				<button class="list-group-item decision-button" id="clear-decision"><span class="fas fa-times-circle"></span> Clear Decisions</button>
 			</div>
 		</div>
 
 		` );
+
+		// ===== RECORD WIDGET STATE
+		this.state.notified = [];
+		this.state.notify = message => {
+			if( this.state.notified.includes( message )) { return; }
+			alertify.notify( message );
+			this.state.notified.push( message );
+		}
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.button.withdraw   = this.dom.find( '#withdraw' );
@@ -31,18 +41,40 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
 			let match   = division.current.match();
+			let start   = division.current.matchStart();
+			let mnumber = match.number + start;
 
 			if([ match.chung, match.hong ].some( athlete => ! defined( athlete ))) {
-				this.button.winner.show();
-				let n     = division.judges();
-				let score = { major: 0.0, minor: 4.0, power: 0.5, rhythm: 0.5, ki: 0.5 };
-				for( let judge = 0; judge < n; judge++ ) {
-					this.network.send({ type: 'division', action: 'score', score, judge, cookie: { judge }});
-				}
-				this.sound.ok.play();
-				alertify.success( `${athlete.name()} has been awarded the win for being uncontested` );
+				this.button.winner.parent().show();
+				this.state.notify( `Match ${mnumber} is uncontested. Press the <i>Winner</i> decision button to award the win to ${athlete.name()}.` );
+
+				this.button.winner.off( 'click' ).click( ev => {
+					let n          = division.judges();
+					let score      = { major: 0.0, minor: 4.0, power: 0.5, rhythm: 0.5, ki: 0.5 };
+					let request    = { type: 'division', action: 'score', score: {}, cookie: {}};
+					for( let judge = 0; judge < n; judge++ ) {
+						request.cookie.judge = request.judge = judge;
+						if( division.current.method() == 'sbs' ) {
+							let id         = athlete.id();
+							let contestant = id == match.chung ? 'chung' : 'hong';
+							let mnum       = match.number;
+
+							score.index = id;
+							request.score.match = mnum;
+							request.score[ contestant ] = score;
+
+							this.network.send( request );
+
+						} else {
+							request.score = score;
+							this.network.send( request );
+						}
+					}
+					this.sound.ok.play();
+					alertify.success( `${athlete.name()} has been awarded the win for being uncontested` );
+				});
 			} else {
-				this.button.winner.hide();
+				this.button.winner.parent().hide();
 			}
 
 			let action = { withdraw : 'has <b>Withdrawn (WDR)</b>', disqualify : 'has been <b>Disqualified (DSQ)</b>' };

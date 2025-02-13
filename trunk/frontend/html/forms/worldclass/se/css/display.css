@@ -475,6 +475,8 @@ body {
 }
 #display-score .contestant .athlete {
   position: relative;
+  white-space: nowrap;
+  overflow: hidden;
 }
 #display-score .contestant .athlete .name {
   display: inline-block;
@@ -482,6 +484,8 @@ body {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  max-width: calc(100% - 160px);
+  width: calc(100% - 160px);
 }
 #display-score .contestant .athlete .noc {
   display: inline-block;

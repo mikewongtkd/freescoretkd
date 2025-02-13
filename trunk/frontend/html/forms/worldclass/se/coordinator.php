@@ -40,10 +40,10 @@
 		<script src="widgets/controls/penalties.js"></script>
 		<script src="widgets/controls/decision.js"></script>
 		<script src="widgets/controls/admin.js"></script>
-		<script src="widgets/division-list.js"></script>
-		<script src="widgets/header.js"></script>
-		<script src="widgets/athlete-list.js"></script>
-		<script src="widgets/judges.js"></script>
+		<script src="widgets/controls/division-list.js"></script>
+		<script src="widgets/controls/header.js"></script>
+		<script src="widgets/controls/athlete-list.js"></script>
+		<script src="widgets/controls/judges.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>

@@ -174,6 +174,11 @@ sub record_score {
 #** @method ( judge_index, score_object )
 #   @brief Records the scores for Side-By-Side
 #*
+# score : { 
+#   match: int, 
+#   chung: { index: int, major: float, minor: float, power: float, rhythm: float, ki: float }, 
+#   hong : { index: int, major: float, minor: float, power: float, rhythm: float, ki: float }
+# }
 	my $self   = shift;
 	my $judge  = shift;
 	my $scores = shift;

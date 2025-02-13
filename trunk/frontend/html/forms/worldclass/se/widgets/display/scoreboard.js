@@ -157,18 +157,24 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 								let tdo   = this.display[ other ];
 								tdc.side.addClass( 'win' );
 								tdc.penalties.append( '<div class="win-dot"></div>' );
-								tdo.side.addClass( 'waiting' );
+								if( div.current.method() == 'se' ) { tdo.side.addClass( 'waiting' ); }
 							}
 						});
 
 					} else {
 						// ===== SHOW CURRENT AND WAITING ATHLETES
-						if( div.current.athleteId() == match.data.chung ) {
-							this.display[ 'chung' ].side.addClass( 'active' );
-							this.display[ 'hong' ].side.addClass( 'waiting' );
-						} else if( div.current.athleteId() == match.data.hong ) {
-							this.display[ 'hong' ].side.addClass( 'active' );
-							this.display[ 'chung' ].side.addClass( 'waiting' );
+						if( div.current.method() == 'se' ) {
+							if( div.current.athleteId() == match.data.chung ) {
+								this.display[ 'chung' ].side.addClass( 'active' );
+								this.display[ 'hong' ].side.addClass( 'waiting' );
+							} else if( div.current.athleteId() == match.data.hong ) {
+								this.display[ 'hong' ].side.addClass( 'active' );
+								this.display[ 'chung' ].side.addClass( 'waiting' );
+							}
+						} else if( div.current.method() == 'sbs' ) {
+							// Grey-out byes
+							if( ! defined( match.data.chung )) { this.display[ 'chung' ].side.addClass( 'waiting' ); }
+							if( ! defined( match.data.hong  )) { this.display[ 'hong'  ].side.addClass( 'waiting' ); }
 						}
 
 						// ===== MARK JUDGE SCORE ENTRIES AS HAVING BEEN RECEIVED OR PENDING

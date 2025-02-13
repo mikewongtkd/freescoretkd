@@ -40,10 +40,10 @@
 		<script src="../se/widgets/controls/penalties.js"></script>
 		<script src="../se/widgets/controls/decision.js"></script>
 		<script src="../se/widgets/controls/admin.js"></script>
-		<script src="../se/widgets/division-list.js"></script>
-		<script src="../se/widgets/header.js"></script>
-		<script src="../se/widgets/athlete-list.js"></script>
-		<script src="../se/widgets/judges.js"></script>
+		<script src="../se/widgets/controls/division-list.js"></script>
+		<script src="../se/widgets/controls/header.js"></script>
+		<script src="../se/widgets/controls/athlete-list.js"></script>
+		<script src="widgets/controls/judges.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -152,7 +152,7 @@
 					},
 					header : new FreeScore.Widget.SEHeader( app, 'division-header' )
 				},
-				judges     : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
+				judges     : new FreeScore.Widget.SBSJudges( app, 'judge-scores' ),
 				autopilot  : new FreeScore.Widget.SEAutopilot( app, 'controls' ),
 				navigation : new FreeScore.Widget.SENavigation( app, 'controls' ),
 				penalties  : new FreeScore.Widget.SEPenalties( app, 'controls' ),

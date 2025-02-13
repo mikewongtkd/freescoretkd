@@ -1,6 +1,7 @@
 #display-score {
   $margin: 40px;
   $noc: 120px;
+  $nocdiv: $noc + $margin;
   $judges: 2 * $noc + $margin;
   $total: $judges + $margin;
 
@@ -50,17 +51,22 @@
 
     .athlete {
       position: relative;
+      white-space: nowrap;
+      overflow: hidden;
+
       .name {
         display: inline-block;
         font-size: 72pt;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
+        max-width: calc( 100% - $nocdiv);
+        width: calc( 100% - $nocdiv);
       }
 
       .noc {
         display: inline-block;
-        width: $noc + 40px;
+        width: $nocdiv;
         vertical-align: top;
         img { width: $noc; }
       }
