@@ -191,9 +191,6 @@ sub record_score {
 
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
 
-	print STDERR "SBS - RECORD SCORE - score\n"; # MW
-	print STDERR Dumper $scores;
-
 	# Score both athletes
 	foreach my $score ( $chung, $hong ) {
 		my $i = $score->{ index };

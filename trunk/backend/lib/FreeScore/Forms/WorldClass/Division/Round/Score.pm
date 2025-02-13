@@ -88,8 +88,8 @@ sub complete {
 	my $self = shift;
 
 	my $complete = { accuracy => 0, presentation => 0 };
-	$complete->{ accuracy }     = all { defined $_ && int( $_ ) >= 0.0                     } @{ $self }{ qw( major minor )};
-	$complete->{ presentation } = all { defined $_ && int( $_ ) >= 0.5 && int( $_ ) <= 2.0 } @{ $self }{ qw( rhythm power ki )};
+	$complete->{ accuracy }     = all { defined $_ && _float( $_ ) >= 0.0                        } @{ $self }{ qw( major minor )};
+	$complete->{ presentation } = all { defined $_ && _float( $_ ) >= 0.5 && _float( $_ ) <= 2.0 } @{ $self }{ qw( rhythm power ki )};
 	$self->{ complete } = $complete->{ accuracy } && $complete->{ presentation };
 	return $self->{ complete };
 }
@@ -103,5 +103,14 @@ sub started {
 	$started->{ presentation } = any { defined $_ && int( $_ ) >= 0.5 && int( $_ ) <= 2.0 } @{ $self }{ qw( rhythm power ki )};
 	$self->{ started } = $started->{ accuracy } || $started->{ presentation };
 	return $self->{ started };
+}
+
+# ============================================================
+sub _float {
+# ============================================================
+	my $value = shift;
+	$value *= 10;
+	$value = int( $value );
+	return 0.0 + sprintf( '%.1f', $value / 10 );
 }
 1;

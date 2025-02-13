@@ -119,13 +119,14 @@ sub autopilot {
 # ============================================================
 sub clear_score {
 # ============================================================
-#** @method ( judge_index, score_object )
+#** @method ( judge_index, [athlete_index] )
 #   @brief Clears the score for the given judge
 #*
 	my $self    = shift;
 	my $judge   = shift;
+	my $i       = shift;
 
-	my $athlete = $self->{ athletes }[ $self->{ current } ];
+	my $athlete = defined( $i ) ? $self->{ athletes }[ $i ] : $self->{ athletes }[ $self->{ current } ];
 	my $round   = $self->{ round };
 	my $form    = $self->{ form };
 	my $forms   = int( @{ $self->{ forms }{ $round }});

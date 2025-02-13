@@ -211,7 +211,7 @@ sub handle_division_clear_judge_score {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
+	my $i        = exists( $request->{ index }) ? $request->{ index } : $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
 	my $message  = "Clearing $jname score for $athlete->{ name }\n";
@@ -546,8 +546,6 @@ sub handle_division_score {
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
 	my $message  = '';
-
-	print STDERR Dumper 'HANDLE DIVISION SCORE - request', $request; # MW
 
 	if( exists $request->{ score }{ chung } || exists $request->{ score }{ hong }) {
 		my @athletes = grep { defined $_ } map { $request->{ score }{ $_ }{ index } } grep { exists $request->{ score }{ $_ }} qw( chung hong );

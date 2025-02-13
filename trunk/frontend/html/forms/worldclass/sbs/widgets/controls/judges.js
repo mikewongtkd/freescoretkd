@@ -40,22 +40,28 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 					// ------------------------------------------------------------
 						let division = this.state.division;
 						if( ! defined( division )) { return; }
+						division = new Division( division );
 
-						// Get Athlete
-						let athlete = division.athletes[ division.current ];
-
+						// Get Match
+						let match = division.current.match();
+						let start = division.current.matchStart();
+						let mnum  = match.number + start;
+						
 						for( let i = 0 ; i < this.state.judges; i++ ) {
 							let judge = { id: i, name : i == 0 ? 'Referee' : `Judge ${i}` };
 							this.judge[ i ].clear.off( 'click' ).click( ev => {
 								app.sound.next.play();
+								let names = contestants.filter( contestant => defined( match[ contestant ])).map( contestant => division.athlete( match[ contestant ]).name()).join( ' and ' );
 								let dialog = {
-									title : `Clear ${judge.name}'s score for ${athlete.name}`,
-									message : `Click <b>OK</b> to clear <b>${judge.name}</b>&rsquo;s score for <b>${athlete.name}</b> or <b>Cancel</b> to do nothing.`,
+									title : `Clear ${judge.name}'s score for Match ${mnum}`,
+									message : `Click <b>OK</b> to clear <b>${judge.name}</b>&rsquo;s score for <b>${names}</b> in Match ${mnum} or <b>Cancel</b> to do nothing.`,
 									ok : () => {
-										let request = { type : 'division', action : 'clear judge score', judge : i };
-										app.network.send( request );
+										contestants.filter( contestant => defined( match[ contestant ])).forEach( contestant => {
+											let request = { type : 'division', action : 'clear judge score', judge : i, index: match[ contestant ]};
+											app.network.send( request );
+										});
 										app.sound.ok.play();
-										alertify.success( `${judge.name}'s score cleared for ${athlete.name}` );
+										alertify.success( `${judge.name}'s score cleared for ${names} in Match ${mnum}` );
 										return true;
 									},
 									cancel : () => { app.sound.prev.play(); return true; }
@@ -65,10 +71,19 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 						}
 					},
 
+					// ------------------------------------------------------------
 					scores : () => {
-						[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ col ][ row ].empty(); }); });
-						Object.values( this.judge ).forEach( judge => { 
-							[ 'accuracy', 'presentation', 'sum' ].forEach( field => { judge[ field ].removeClass( 'ignore' ).empty(); });
+					// ------------------------------------------------------------
+						let division = this.state.division;
+						if( ! defined( division )) { return; }
+						division = new Division( division );
+
+						let match = division.current.match();
+						contestants.forEach( contestant => {
+							[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ contestant ][ col ][ row ].empty(); }); });
+							Object.values( this.judge ).forEach( judge => { 
+								[ 'accuracy', 'presentation', 'sum' ].forEach( field => { judge[ contestant ][ field ].removeClass( 'ignore' ).empty(); });
+							});
 						});
 					}
 				},
@@ -78,66 +93,77 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 					this.refresh.judge.clear.scores();
 					let division = this.state.division;
 					if( ! defined( division )) { return; }
+					let div = new Division( division );
 
-					let current = { athlete : aid === null ? division?.current : aid, round : division?.round, form : division?.form };
-					if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
-					let athlete  = division.athletes?.[ current.athlete ];
-					if( ! defined( athlete )) { return; }
+					let match = aid === null ? div.current.match() : div.matches().find( match => [ match.chung, match.hong ].includes( aid ));
+					if( ! defined( match )) { return; }
 
-					let n        = division.judges;
-					let scores   = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
-					let complete = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.complete;
-					let decision = athlete?.scores?.[ current.round ]?.forms?.some( form => form.decision );
-					let value    = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
-					let spread   = { acc : [], pre : [], sum : []};
-					scores.forEach(( score, jid ) => {
-						let acc   = value( score.accuracy );
-						let pre   = value( score.presentation );
-						let sum   = acc + pre;
-						let judge = this.judge[ jid ];
+					contestants.filter( contestant => defined( match[ contestant ])).forEach( contestant => {
+						aid = match[ contestant ];
 
-						// If the judge is not defined or the score is not complete, clear the score display
-						if( ! defined( judge?.accuracy ) || ! defined( judge?.presentation ) || ! score.complete ) { 
-							judge.accuracy.removeClass( 'ignore' ).empty();
-							judge.presentation.removeClass( 'ignore' ).empty();
-							judge.sum.removeClass( 'ignore' ).empty();
+						let current = { athlete : aid, round : division?.round, form : division?.form };
+						if( ! defined( current.athlete ) || ! defined( current.round ) || ! defined( current.form )) { return; }
+						let athlete  = division.athletes?.[ current.athlete ];
+						if( ! defined( athlete )) { return; }
+
+						let n        = division.judges;
+						let scores   = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.judge;
+						let complete = athlete?.scores?.[ current.round ]?.forms?.[ current.form ]?.complete;
+						let decision = athlete?.scores?.[ current.round ]?.forms?.some( form => form.decision );
+						let value    = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
+						let spread   = { acc : [], pre : [], sum : []};
+						console.log( 'SCORES', contestant, scores ); // MW
+						scores.forEach(( score, jid ) => {
+							let acc   = value( score.accuracy );
+							let pre   = value( score.presentation );
+							let sum   = acc + pre;
+							let judge = this.judge[ jid ][ contestant ];
+							console.log( 'JUDGE', judge ); // MW
+
+							// If the judge is not defined or the score is not complete, clear the score display
+							if( ! defined( judge?.accuracy ) || ! defined( judge?.presentation ) || ! score.complete ) { 
+								judge.accuracy.removeClass( 'ignore' ).empty();
+								judge.presentation.removeClass( 'ignore' ).empty();
+								judge.sum.removeClass( 'ignore' ).empty();
+								return; 
+							}
+
+							// Update the scores otherwise
+							console.log( 'DISPLAYS', judge.accuracy, judge.presentation, judge.sum ); // MW
+							judge.accuracy.html( acc.toFixed( 1 )).removeClass( 'ignore' );
+							judge.presentation.html( pre.toFixed( 1 )).removeClass( 'ignore' );
+							judge.sum.html( sum.toFixed( 1 ));
+
+							if( n > 3 ) {
+								if( score?.minacc || score?.maxacc ) { judge.accuracy.addClass( 'ignore' );     } else { spread.acc.push( acc ); }
+								if( score?.minpre || score?.maxpre ) { judge.presentation.addClass( 'ignore' ); } else { spread.pre.push( pre ); }
+							} else {
+								spread.acc.push( acc );
+								spread.pre.push( pre );
+							}
+
+							spread.sum.push( sum );
+						});
+
+						if( ! complete || decision ) { 
+							[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ contestant ][ col ][ row ].empty(); }); });
 							return; 
 						}
 
-						// Update the scores otherwise
-						judge.accuracy.html( acc.toFixed( 1 )).removeClass( 'ignore' );
-						judge.presentation.html( pre.toFixed( 1 )).removeClass( 'ignore' );
-						judge.sum.html( sum.toFixed( 1 ));
-
-						if( n > 3 ) {
-							if( score?.minacc || score?.maxacc ) { judge.accuracy.addClass( 'ignore' );     } else { spread.acc.push( acc ); }
-							if( score?.minpre || score?.maxpre ) { judge.presentation.addClass( 'ignore' ); } else { spread.pre.push( pre ); }
-						} else {
-							spread.acc.push( acc );
-							spread.pre.push( pre );
-						}
-
-						spread.sum.push( sum );
-					});
-
-					if( ! complete || decision ) { 
-						[ 'score', 'spread' ].forEach( col => { [ 'acc', 'pre', 'sum' ].forEach( row => { this.display[ col ][ row ].empty(); }); });
-						return; 
-					}
-
-					// Calculate score and spreads
-					[ 'acc', 'pre', 'sum' ].forEach( row => {
-						this.display.spread[ row ].html( (Math.max( ...spread[ row ]) - Math.min( ...spread[ row ])).toFixed( 1 ));
-						let sum   = (a, c) => a + c;
-						let value = {
-							spread : Math.max( ...spread[ row ]) - Math.min( ...spread[ row ]),
-							score : spread[ row ].reduce( sum ) /(n > 3 ? n - 2 : n )
-						};
-						if( row == 'sum' ) {
-							value.score = (spread.acc.reduce( sum ) + spread.pre.reduce( sum )) / (n > 3 ? n - 2 : n);
-						}
-						this.display.score[ row ].html( value.score.toFixed( 2 ));
-						this.display.spread[ row ].html( value.spread.toFixed( 1 ));
+						// Calculate score and spreads
+						[ 'acc', 'pre', 'sum' ].forEach( row => {
+							this.display.spread[ row ].html( (Math.max( ...spread[ row ]) - Math.min( ...spread[ row ])).toFixed( 1 ));
+							let sum   = (a, c) => a + c;
+							let value = {
+								spread : Math.max( ...spread[ row ]) - Math.min( ...spread[ row ]),
+								score : spread[ row ].reduce( sum ) /(n > 3 ? n - 2 : n )
+							};
+							if( row == 'sum' ) {
+								value.score = (spread.acc.reduce( sum ) + spread.pre.reduce( sum )) / (n > 3 ? n - 2 : n);
+							}
+							this.display.score[ row ].html( value.score.toFixed( 2 ));
+							this.display.spread[ row ].html( value.spread.toFixed( 1 ));
+						});
 					});
 				},
 				// ------------------------------------------------------------
@@ -264,7 +290,6 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 							contestants.forEach( contestant => {
 								let cell = col.label[ contestant ]?.[ row ];
 								if( ! defined( cell )) { return; }
-								console.log( 'DOM ROW', contestant, dom, row, dom[ contestant ][ row ]); // MW
 								dom[ contestant ][ row ].append( cell ); 
 							});
 						}
@@ -360,7 +385,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 					this.state.division = division;
 
 					this.refresh.judges();
-					// this.refresh.judge.scores();
+					this.refresh.judge.scores();
 				})
 		// ============================================================
 		.heard( 'ring' )
@@ -375,7 +400,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 					this.state.division = division;
 
 					this.refresh.judges();
-					// this.refresh.judge.scores();
+					this.refresh.judge.scores();
 				})
 		// ============================================================
 		.heard( 'users' )
@@ -398,7 +423,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 			.listen( 'athlete-select' )
 			.listen( 'athlete-deselect' )
 				.respond(( type, source, message ) => {
-					// this.refresh.judge.scores( message?.aid );
+					this.refresh.judge.scores( message?.aid );
 				});
 
 	}
