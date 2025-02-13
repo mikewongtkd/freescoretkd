@@ -343,6 +343,11 @@ a.active .athlete-score .total {
   border-color: #2e6da4;
   color: white;
 }
+.action-menu .draw .btn-draw {
+  background-color: #5bc0de;
+  border-color: #46b8da;
+  color: white;
+}
 .action-menu .administration p {
   margin: 0 8px 0 8px;
   font-size: 9pt;

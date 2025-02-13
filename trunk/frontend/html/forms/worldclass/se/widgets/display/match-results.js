@@ -115,8 +115,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 			},
 			header: division => {
 				let match = division.current.match();
-				let start = division.prev.rounds().map( round => division.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
-				let mnum  = parseInt( match.number ) + start;
+				let mnum  = division.current.matchNumber();
 				let fnum  = division.form.count() > 1 ? `(${ordinal( parseInt( division.current.formId()) + 1 )} Form)` : '';
 				let forms = division.current.form.list();
 

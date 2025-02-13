@@ -125,6 +125,12 @@ function Division( division ) {
 
 			return match;
 		},
+		matchNumber: () => {
+			let match = this.current.match();
+			let start = this.current.matchStart();
+			if( ! defined( match )) { return; }
+			return parseInt( match.number ) + parseInt( start );
+		},
 		matchStart: () => {
 			let prev  = this.prev.rounds().filter( round => round.match( /^ro/i ));
 			let start = prev.map( round => this.matches( round ).length ).reduce(( acc, cur ) => acc + cur, 0 );
@@ -197,14 +203,16 @@ function Division( division ) {
 
 			if( ! defined( forms )) { console.log( `Error, no forms defined for ${round}` ); return; }
 
-			if( division?.draws?.[ round ]) {
-				// Draws have been made
-				if( division.draws[ round ]?.[ mnum ]) { return division.draws[ round ][ mnum ]; }
+			if( forms.some( form => form.match( /^draw/i ))) {
+				if( division?.draws?.[ round ]) {
+					// Draws have been made
+					if( division.draws[ round ]?.[ mnum ]) { return division.draws[ round ][ mnum ]; }
 
-				// Draws have not been made
-				let draws = [];
-				for( let i = 0; i < forms.length; i++ ) { draws.push( 'TBD' ); }
-				return draws;
+					// Draws have not been made
+					let draws = [];
+					for( let i = 0; i < forms.length; i++ ) { draws.push( null ); }
+					return draws;
+				}
 			}
 			return division.forms[ round ];
 		}

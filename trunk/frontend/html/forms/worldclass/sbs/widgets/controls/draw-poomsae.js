@@ -17,10 +17,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 		<div class="draw">
 			<h4>Draw Poomsae</h4>
-			<div class="well well-sm" style="text-align: center;"></div>
-			<button class="btn btn-draw">Draw Poomsae</button>
-			<div class="modal fade" tabindex="-1" role="dialog" style="display: none;">
-				<div class="modal-dialog" role="document">
+			<div class="well well-sm" style="text-align: center;">Draw Poomsae Required</div>
+			<button class="btn btn-block btn-draw">Draw Poomsae</button>
+			<div class="modal modal-draw fade" tabindex="-1" role="dialog" style="display: none;">
+				<div class="modal-dialog modal-lg" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -28,21 +28,22 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						</div>
 						<div class="modal-body">
 							<p class="modal-message"></p>
-							<label>Age Group:</label>
-							<div class="btn-group" data-toggle="buttons">
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="cadet">Cadet (12-14)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="junior">Junior (15-17)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="u30">U30 (18-30)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="u40">U40 (31-40)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="u50">U50 (41-50)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="u60">U60 (51-60)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="u65">U65 (61-65)</label>
-								<label class="btn btn-primary"><input type="radio" name="age-group" value="o65">O65 (66+)</label>
+							<label>Select an Age Group</label>
+							<div style="text-align: center;">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-info"><input type="radio" name="age-group" value="cadet">Cadet (12-14)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="junior">Junior (15-17)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="u30">U30 (18-30)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="u40">U40 (31-40)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="u50">U50 (41-50)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="u60">U60 (51-60)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="u65">U65 (61-65)</label>
+									<label class="btn btn-info"><input type="radio" name="age-group" value="o65">O65 (66+)</label>
+								</div>
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-primary">OK</button>
+							<button type="button" class="btn btn-primary disabled">OK</button>
 						</div>
 					</div>
 				</div>
@@ -57,19 +58,20 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 		this.state.draw     = { count: 0, complete: false, form: null };
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.draw = this.dom.find( '.well' );
+		this.display.draw = this.dom.find( '.draw .well' );
 		this.display.all  = this.dom.find( '.draw' );
 		this.button.draw  = this.dom.find( '.btn-draw' );
 		this.display.age  = { modal: { 
-			hide: () => { this.dom.find( '.draw .modal' ).hide(); }, 
-			show: () => { this.dom.find( '.draw .modal' ).fadeIn(); }, 
-			title: this.dom.find( '.draw .modal .modal-title' ), 
-			message: this.dom.find( '.draw .modal .modal-message' ), 
+			all: $( '.modal-draw' ),
+			hide: () => { $( '.modal-draw' ).modal( 'hide' ); }, 
+			show: () => { $( '.modal-draw' ).modal( 'show' ); }, 
+			title: $( '.modal-draw .modal-title' ), 
+			message: $( '.modal-draw .modal-message' ), 
 		}};
 
 		this.button.age  = { modal: {
-			buttons: this.dom.find( '.draw .modal input[name="age-group"]' ),
-			ok: this.dom.find( '.draw .modal .btn-primary' )
+			group: $( '.modal-draw .btn-info' ),
+			ok: $( '.modal-draw .btn-primary' )
 		}};
 
 		// ===== ADD REFRESH BEHAVIOR
@@ -115,16 +117,47 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					this.state.draw.count++;
 				}, 1200 );
 			},
+			// ============================================================
 			modal: division => {
+			// ============================================================
+				let inDraw = this.dom.find( '.modal-draw' ).length > 0;
+				if( inDraw ) {
+					let modal = this.display.age.modal.all.detach();
+					$( 'body' ).append( modal );
+				}
 				let modal = {
-					title: `No age information found for ${division.name().toUpperCase()}`,
-					message: `No age information found for ${division.summary()}. Please select an age group for this division.`
+					title: 'Cannot Draw Poomsae: No Age Group Found',
+					message: `<p>No age group found for <b>${division.summary()}</b>.</p>An age group is required to draw poomsae. Please select an age group for this division.`
 				};
 				this.display.age.modal.title.html( modal.title );
 				this.display.age.modal.message.html( modal.message );
+
+				// ----------------------------------------
+				// MODAL BUTTON BEHAVIOR
+				// ----------------------------------------
+				this.button.age.modal.group.off( 'click' ).click( ev => {
+					let target = $( ev.target );
+					let input  = target.children( 'input' );
+					this.state.age = input.val();
+					$.cookie( 'poomsae-draw-age', this.state.age );
+					this.button.age.modal.ok.removeClass( 'disabled' );
+				});
+
+				this.button.age.modal.ok.off( 'click' ).click( ev => {
+					if( this.button.age.modal.ok.hasClass( 'disabled' )) {
+						alertify.notify( 'Please select an age group.' );
+					} else {
+						alertify.success( `Age group <b>${this.state.age.capitalize()}</b> selected.` );
+						this.sound.ok.play();
+						this.display.age.modal.hide();
+					}
+				});
+
 				this.display.age.modal.show();
 			},
+			// ============================================================
 			poomsae: division => {
+			// ============================================================
 				if( ! defined( division )) { 
 					this.display.all.hide();
 					this.display.draw.empty(); 
@@ -135,8 +168,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 				let form  = null;
 				let forms = division.current.form.list();
-				let n     = division.form.count();
 				let draw  = division.form.draw();
+				let n     = division.form.count();
 				let fid   = division.current.formId();
 
 				// Form has been previously manually drawn
@@ -156,6 +189,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					return;
 				}
 
+				let mnum  = division.current.matchNumber();
+				alertify.notify( `Poomsae draw for Match ${mnum} required. Click on <i>Draw Poomsae</i> to proceed.` );
 				this.display.all.show();
 				this.button.draw.removeClass( 'disabled' );
 
@@ -172,7 +207,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 				// See if the draw information specifies age
 				} else {
-					let found = forms[ fid ].match( /^draw-(\w+)$/ );
+					let found = forms[ fid ]?.match( /^draw-(\w+)$/ );
 					if(  found ) {
 						age = match[ 1 ];
 						this.state.age = age;
@@ -180,7 +215,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 					// Maybe the division description can tell us the age?
 					} else {
-						age = [ '\bcadet', '\bjunior', '\bu30\b', '\bu40\b', '\bu50\b', '\bu60\b', '\bu65\b', '\bo65\b' ].find( age => { 
+						age = [ 'cadet', 'junior', 'u30', 'u40', 'u50', 'u60', 'u65', 'o65' ].find( age => { 
 							let re = new RegExp( age, 'i' );
 							return division.description().match( re ); 
 						});
@@ -190,21 +225,21 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						}
 					}
 				}
-
 				if( ! defined( age )) {
+					this.refresh.draw.modal( division );
 				}
 			}
 		}
 
 		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
 		this.network.on
-		.heard( 'division' )
+		.heard( 'ring' )
 			.command( 'update' ).respond( update => {
-				let division = update?.division ? new Division( update.division ) : null;
+				let division = update?.ring?.current ? update?.ring?.divisions.find( division => division.name == update.ring.current ) : null;
+				division = defined( division ) ? new Division( division ) : null;
 
 				if( ! defined( division )) { 
-					this.display.header.empty();
-					this.display.poomsae.draw.empty();
+					this.display.all.hide();
 					return; 
 				}
 
@@ -219,7 +254,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					}
 				}
 
-				this.refresh.poomsae.draw( division );
+				this.refresh.draw.poomsae( division );
 			});
 	}
 }

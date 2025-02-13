@@ -41,12 +41,11 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
 			let match   = division.current.match();
-			let start   = division.current.matchStart();
-			let mnumber = match.number + start;
+			let mnum    = division.current.matchNumber();
 
 			if([ match.chung, match.hong ].some( athlete => ! defined( athlete ))) {
 				this.button.winner.parent().show();
-				this.state.notify( `Match ${mnumber} is uncontested. Press the <i>Winner</i> decision button to award the win to ${athlete.name()}.` );
+				this.state.notify( `Match ${mnum} is uncontested. Press the <i>Winner</i> decision button to award the win to ${athlete.name()}.` );
 
 				this.button.winner.off( 'click' ).click( ev => {
 					let n          = division.judges();

@@ -44,8 +44,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 
 						// Get Match
 						let match = division.current.match();
-						let start = division.current.matchStart();
-						let mnum  = match.number + start;
+						let mnum  = division.current.matchNumber();
 						
 						for( let i = 0 ; i < this.state.judges; i++ ) {
 							let judge = { id: i, name : i == 0 ? 'Referee' : `Judge ${i}` };
