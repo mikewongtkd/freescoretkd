@@ -2,17 +2,6 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 	constructor( app, dom ) {
 		super( app, dom );
 
-		const designated = {
-			cadet: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
-			junior: [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
-			u30: [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			u40: [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			u50: [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
-			u60: [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			u65: [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			o65: [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
-		};
-
 		this.dom.append( '<div class="header"></div><div class="poomsae draw"></div>' );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
@@ -21,7 +10,6 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 
 		// ===== ADD STATE
 		this.state.animation = { timer: null };
-		this.state.draw = { count: 0, complete: false, form: null };
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.header = division => {
@@ -54,7 +42,6 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 				// Form has been previously drawn
 				} else if( defined( draw[ fid ])) {
 					form = draw[ fid ];
-
 				}
 
 				if( defined( form )) {

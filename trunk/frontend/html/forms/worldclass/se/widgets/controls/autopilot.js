@@ -47,7 +47,6 @@ FreeScore.Widget.SEAutopilot = class FSWidgetAutopilot extends FreeScore.Widget 
 			this.state.autopilot.message = message;
 			let request = update.request;
 			let delay   = isNaN( request?.delay ) ? 3500 : (parseFloat( request.delay ) + 0.5) * 1000;
-			console.log( 'AUTOPILOT REFRESH', update.request, delay ); // MW
 			this.timer.start( delay );
 		}
 

@@ -112,13 +112,11 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 						let decision = athlete?.scores?.[ current.round ]?.forms?.some( form => form.decision );
 						let value    = x => { let val = parseFloat( x ); if( isNaN( val )) { return 0.0; } else { return val; }};
 						let spread   = { acc : [], pre : [], sum : []};
-						console.log( 'SCORES', contestant, scores ); // MW
 						scores.forEach(( score, jid ) => {
 							let acc   = value( score.accuracy );
 							let pre   = value( score.presentation );
 							let sum   = acc + pre;
 							let judge = this.judge[ jid ][ contestant ];
-							console.log( 'JUDGE', judge ); // MW
 
 							// If the judge is not defined or the score is not complete, clear the score display
 							if( ! defined( judge?.accuracy ) || ! defined( judge?.presentation ) || ! score.complete ) { 
@@ -129,7 +127,6 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 							}
 
 							// Update the scores otherwise
-							console.log( 'DISPLAYS', judge.accuracy, judge.presentation, judge.sum ); // MW
 							judge.accuracy.html( acc.toFixed( 1 )).removeClass( 'ignore' );
 							judge.presentation.html( pre.toFixed( 1 )).removeClass( 'ignore' );
 							judge.sum.html( sum.toFixed( 1 ));
@@ -152,7 +149,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 
 						// Calculate score and spreads
 						[ 'acc', 'pre', 'sum' ].forEach( row => {
-							this.display.spread[ row ].html( (Math.max( ...spread[ row ]) - Math.min( ...spread[ row ])).toFixed( 1 ));
+							this.display[ contestant ].spread[ row ].html( (Math.max( ...spread[ row ]) - Math.min( ...spread[ row ])).toFixed( 1 ));
 							let sum   = (a, c) => a + c;
 							let value = {
 								spread : Math.max( ...spread[ row ]) - Math.min( ...spread[ row ]),
@@ -161,8 +158,8 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 							if( row == 'sum' ) {
 								value.score = (spread.acc.reduce( sum ) + spread.pre.reduce( sum )) / (n > 3 ? n - 2 : n);
 							}
-							this.display.score[ row ].html( value.score.toFixed( 2 ));
-							this.display.spread[ row ].html( value.spread.toFixed( 1 ));
+							this.display[ contestant ].score[ row ].html( value.score.toFixed( 2 ));
+							this.display[ contestant ].spread[ row ].html( value.spread.toFixed( 1 ));
 						});
 					});
 				},
