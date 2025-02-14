@@ -48,18 +48,64 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 		};
 
 		this.refresh.bracket = {
-			graph : division => {
+			edge: ( prev, pmatches, cmatch, active ) => {
+				let color = { true: 'white', false: '#666' };
+				let i     = cmatch.number;
+				let j     = (i - 1) * 2;
+				let a     = pmatches[ j ];
+				let b     = pmatches[ j + 1 ]
+				let x     = a?.number ? this.state.bracket[ prev ][ a.number ] : null;
+				let y     = b?.number ? this.state.bracket[ prev ][ b.number ] : null;
+
+				// Skip drawing edges for place-holder brackets
+				if( x === null || y === null ) { return; }
+
+				x.destination = cmatch;
+				y.destination = cmatch;
+				cmatch.source = { chung: x, hong: y };
+
+				// Forward athlete to Chung in current match
+				if( defined( a.winner ) && a.winner == a.chung ) {
+					let start = x.anchor.destination.chung;
+					let stop  = cmatch.anchor.source.chung;
+					let hline = (stop[ 0 ] - start[ 0 ])/2;
+					let vline = stop[ 1 ] - start[ 1 ];
+					this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
+
+				} else if( defined( a.winner ) && a.winner == a.hong ) {
+					let start = x.anchor.destination.hong;
+					let stop  = cmatch.anchor.source.chung;
+					let hline = (stop[ 0 ] - start[ 0 ])/2;
+					let vline = stop[ 1 ] - start[ 1 ];
+					this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
+				}
+
+				// Forward athlete to Hong in current match
+				if( defined( b.winner ) && b.winner == b.chung ) {
+					let start = y.anchor.destination.chung;
+					let stop  = cmatch.anchor.source.hong;
+					let hline = (stop[ 0 ] - start[ 0 ])/2;
+					let vline = stop[ 1 ] - start[ 1 ];
+					this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
+
+				} else if( defined( b.winner ) && b.winner == b.hong ) {
+					let start = y.anchor.destination.hong;
+					let stop  = cmatch.anchor.source.hong;
+					let hline = (stop[ 0 ] - start[ 0 ])/2;
+					let vline = stop[ 1 ] - start[ 1 ];
+					this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
+				}
+			},
+			graph: division => {
 				let radius = this.state.render.radius;
 				let height = this.state.render.height;
 				let width  = this.state.render.width;
 
-				console.log( 'REFRESH BRACKET GRAPH - STEP 1' ); // MW
 				if( ! defined( division )) { 
 					this.display.header.empty(); 
 					this.display.bracket.graph.empty(); 
 					return; 
 				}
-				console.log( 'REFRESH BRACKET GRAPH - division', division ); // MW
 
 				let rounds  = division.rounds();
 				let start   = 0;
@@ -72,10 +118,8 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				this.display.bracket.graph.empty();
 				if( defined( this.draw )) { this.draw.clear(); }
 				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height );
-				console.log( 'REFRESH BRACKET GRAPH - STEP 2' ); // MW
 
 				rounds.forEach(( round, i ) => { 
-					console.log( 'REFRESH BRACKET GRAPH - round', round ); // MW
 					let matches  = reorder( division.bracket.matches( round ));
 					let yoffset  = (((4 - matches.length) / 2) * height * 3) / 2;
 					let pmatches = [];
@@ -85,7 +129,6 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					this.state.bracket[ round ].svg.label  = this.draw.plain( FreeScore.round.name?.[ round ] ).font({ size: '28pt' }).fill( round == division.current.roundId() ? 'gold' : '#ccc' ).x( (i * ((height * 3) + width)) ).y( 0 );
 
 					matches.forEach(( match, j ) => {
-						console.log( 'REFRESH BRACKET GRAPH - match', match ); // MW
 						if     ( matches.length == 1 ) { yoffset *= 2; }
 						else if( j % 2 )               { yoffset *= 3; }
 
@@ -94,52 +137,10 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 						let y = (j * (height * 3 )) + yoffset + (3 * height) / 2;
 
 						// Cache important points for current match
-						let cmatch = this.state.bracket[ round ][ match.number ] = this.refresh.bracket.match( division, match, x, y, start, active );
+						let cmatch = this.state.bracket[ round ][ match.number ] = this.refresh.bracket.match( division, match, x, y, start, prev, pmatches, active );
 
-						// Draw the edges to the previous matches
-						if( prev ) {
-							let color    = { true: 'white', false: '#666' };
-							let a         = pmatches.shift();
-							let b         = pmatches.shift();
-							let x         = a?.number ? this.state.bracket[ prev ][ a.number ] : null;
-							let y         = b?.number ? this.state.bracket[ prev ][ b.number ] : null;
-
-							// Skip drawing edges for place-holder brackets
-							if( x === null || y === null ) { return; }
-
-							x.destination = cmatch;
-							y.destination = cmatch;
-							cmatch.source = { chung: x, hong: y };
-
-							if( a.winner == a.chung ) {
-								let start = x.anchor.destination.chung;
-								let stop  = cmatch.anchor.source.chung;
-								let hline = (stop[ 0 ] - start[ 0 ])/2;
-								let vline = stop[ 1 ] - start[ 1 ];
-								this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
-
-							} else if( a.winner == a.hong ) {
-								let start = x.anchor.destination.hong;
-								let stop  = cmatch.anchor.source.chung;
-								let hline = (stop[ 0 ] - start[ 0 ])/2;
-								let vline = stop[ 1 ] - start[ 1 ];
-								this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
-							}
-
-							if( b.winner == b.chung ) {
-								let start = y.anchor.destination.chung;
-								let stop  = cmatch.anchor.source.hong;
-								let hline = (stop[ 0 ] - start[ 0 ])/2;
-								let vline = stop[ 1 ] - start[ 1 ];
-								this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
-
-							} else if( b.winner == b.hong ) {
-								let start = y.anchor.destination.hong;
-								let stop  = cmatch.anchor.source.hong;
-								let hline = (stop[ 0 ] - start[ 0 ])/2;
-								let vline = stop[ 1 ] - start[ 1 ];
-								this.draw.path( `M${start.join( ',' )} h${hline} v${vline} h${hline}` ).stroke({ color: color[ active ], width: 4, linecap: 'round', linejoin: 'round' }).fill( 'none' );
-							}
+						if( prev ) { 
+							this.refresh.bracket.edge( prev, pmatches, cmatch, active ); 
 						}
 					});
 					start += matches.length;
@@ -148,7 +149,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 
 				$( 'svg:not( #display-bracket svg )' ).remove(); // Kludge fix to remove extra SVG elements (I don't know why they're being created)
 			},
-			match : ( division, match, x, y, start, active = 'default' ) => {
+			match : ( division, match, x, y, start, prev, pmatches, active = 'default' ) => {
 				let radius = this.state.render.radius;
 				let height = this.state.render.height;
 				let width  = this.state.render.width;
@@ -169,7 +170,17 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let chung = defined( match?.chung ) ? division.athlete( match.chung ) : { bye: true, display: { name: max_length => 'BYE' }};
 				let hong  = defined( match?.hong )  ? division.athlete( match.hong )  : { bye: true, display: { name: max_length => 'BYE' }};
 
-				if( chung?.bye && hong?.bye ) { chung.display.name = hong.display.name = max_length => ''; }
+				if( chung?.bye && hong?.bye ) { 
+					chung.display.name = hong.display.name = max_length => ''; 
+					if( prev ) {
+						let i = match.number;
+						let j = (i - 1) * 2;
+						let a = pmatches[ j ];
+						let b = pmatches[ j + 1 ];
+						if( defined( a?.winner )) { chung = division.athlete( a.winner ); }
+						if( defined( b?.winner )) { hong  = division.athlete( b.winner ); }
+					}
+				}
 
 				svg.match.label  = this.draw.plain( 'Match' ).font({ size: '14pt' }).fill( fill.number[ active ]).x( x + (5 * height)/8 ).y( y + (3 * height)/16 );
 				svg.match.number = this.draw.plain( start + match.number ).font({ size: '36pt' }).fill( fill.number[ active ]).x( x + (3 * height)/4 ).y( y + (11 * height)/16 );
@@ -188,8 +199,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					}
 				});
 
-
-				return { id: crypto.randomUUID(), active, svg, anchor : { ul: [ x, y ], center: [ x + (((2 * height) + width) / 2), y + height ], lr: [ x + (2 * height) + width, y + (2 * height)], source : { chung : [ x, y + height/2], hong : [ x, y + (3 * height)/2 ]}, destination: { chung: [ x + (2*height) + width, y + height/2 ], hong: [ x + (2*height) + width, y + (3*height)/2 ]}}};
+				return { id: UUID.v4(), number: match.number, active, svg, anchor : { ul: [ x, y ], center: [ x + (((2 * height) + width) / 2), y + height ], lr: [ x + (2 * height) + width, y + (2 * height)], source : { chung : [ x, y + height/2], hong : [ x, y + (3 * height)/2 ]}, destination: { chung: [ x + (2*height) + width, y + height/2 ], hong: [ x + (2*height) + width, y + (3*height)/2 ]}}};
 			},
 			zoom : division => {
 				let radius  = this.state.render.radius;
@@ -235,7 +245,22 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 		this.network.on
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
+				let page     = this.app.page;
 				let division = update?.division ? new Division( update.division ) : null;
+				if( ! defined( division )) { return; }
+				if( !( update?.request?.action == 'display' || update?.request?.action == 'read' )) { return; }
+				if( page.num != page.for.bracket ) { return; }
+				division.calculate.match.winners(); // Kludge until server can correctly cache the status updates properly
+
+				this.refresh.header( division );
+				this.refresh.bracket.graph( division );
+				if( division.state.is.bracket()) { this.refresh.bracket.zoom( division ); }
+			})
+		.heard( 'autopilot' )
+			.command( 'update' ).respond( update => {
+				let division = update?.division ? new Division( update.division ) : null;
+
+				if( ! defined( division )) { return; }
 
 				this.refresh.header( division );
 				this.refresh.bracket.graph( division );

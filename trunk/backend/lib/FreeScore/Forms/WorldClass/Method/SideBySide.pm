@@ -162,16 +162,31 @@ sub change_display {
 	my $states   = [ @FreeScore::Forms::WorldClass::Method::SideBySide::states ];
 	my $i        = first_index { $_ eq $state } @$states;
 	my $next     = $i >= 0 ? $states->[ $i + 1 ] : $states->[ 0 ];
-	my $ro2      = $div->{ round } eq 'ro2';
+	my $round    = $div->{ round };
+	my $ro2      = $round eq 'ro2';
 	my $order    = $div->order( 'ro2' );
 	my $complete = int( @$order ) > 0 && all { $div->reinstantiate_round( 'ro2', $_ )->complete() } @$order;
+	my $forms    = int( @{$div->{ forms }{ $round }});
 
 	if( $i > $#$states || $i < 0 ) { 
 		warn "Invalid state '$state'; defaulting to 'score' $!" if( $state ne 'draw' );
-		$i = 0; # Score
+		$div->{ state } = 'score';
+		return;
 
+	# ===== SHOW LEADERBOARD ONLY WHEN DIVISION IS COMPLETE
+	# Otherwise the bracket shows the state of the division sufficiently
 	} elsif( $next eq 'leaderboard' && !( $ro2 && $complete )) {
-		$i = 4; # Matches
+		$div->{ state } = 'matches';
+		return;
+
+	# ===== SHOW THE RESULTS ONLY WHEN THERE ARE TWO FORMS
+	# Otherwise the scoreboard shows the state of the match sufficiently
+	} elsif( $next eq 'results' && $forms == 1 ) {
+		$div->{ state } = 'bracket';
+		return;
+
+	} elsif( $i == $#$states ) {
+		$i = 0;
 
 	} else { 
 		$i++; 

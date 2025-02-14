@@ -6,7 +6,7 @@ use base qw( Clone );
 use Data::Structure::Util qw( unbless );
 use Data::Dumper;
 
-our $DEBUG = '';
+our $DEBUG = [ qw( declare_winner winner )];
 
 # ============================================================
 sub new {
@@ -93,7 +93,7 @@ sub declare_winner {
 
 	$self->{ winner } = $winner = ($winner eq 'none' || ! defined $winner) ? undef : int( $winner );
 
-	if( $DEBUG eq 'declare_winner' ) {
+	if( grep { $_ eq 'declare_winner' } @$DEBUG ) {
 		print STDERR "MATCH - DECLARE WINNER - Call Stack\n";
 		print STDERR Dumper caller;
 		my $rcode  = uc $self->method->rcode();
@@ -225,8 +225,9 @@ sub winner {
 	my $order = $self->{ order };
 	my $rcode = $self->method->rcode();
 	my $div   = $self->method->division();
+	my $debug = grep { $_ eq 'winner' } @$DEBUG;
 
-	if( $DEBUG eq 'winner' ) {
+	if( $debug ) {
 		print STDERR "============================================================\n"; # MW
 		print STDERR "MATCH - WINNER - match:\n"; # MW
 		print STDERR Dumper $self->data(); # MW
@@ -236,7 +237,7 @@ sub winner {
 	# If no-one advanced from the previous two matches
 	return $self->declare_winner( 'none' ) if none { defined $_ } @$order;
 
-	print STDERR "MATCH - WINNER - Is this match contested? " . ( $self->contested() ? "Yes.\n" : "No.\n") if $DEBUG eq 'winner'; # MW
+	print STDERR "MATCH - WINNER - Is this match contested? " . ( $self->contested() ? "Yes.\n" : "No.\n") if $debug; # MW
 	if( ! $self->contested()) {
 		return $self->declare_winner( $self->{ chung }) if defined $self->{ chung };
 		return $self->declare_winner( $self->{ hong })  if defined $self->{ hong };
@@ -244,23 +245,23 @@ sub winner {
 	}
 	return undef unless( all { $div->reinstantiate_round( $rcode, $_ )->complete() } ($self->{ chung }, $self->{ hong }));
 
-	print STDERR "MATCH - WINNER - Sorting.\n" if $DEBUG eq 'winner'; # MW
+	print STDERR "MATCH - WINNER - Sorting.\n" if $debug; # MW
 	my ($winner, $loser) = sort {
 		my $x = $div->reinstantiate_round( $rcode, $a );
 		my $y = $div->reinstantiate_round( $rcode, $b );
 
-		print STDERR Dumper $a, $x->{ adjusted }, $b, $y->{ adjusted }, $x->compare( $y ) if $DEBUG eq 'winner'; # MW
+		print STDERR Dumper $a, $x->{ adjusted }, $b, $y->{ adjusted }, $x->compare( $y ) if $debug; # MW
 		$x->compare( $y );
 	} ($self->{ chung }, $self->{ hong });
-	print STDERR "MATCH - WINNER - winner = $winner, loser = $loser.\n\n" if $DEBUG eq 'winner'; # MW
+	print STDERR "MATCH - WINNER - winner = $winner, loser = $loser.\n\n" if $debug; # MW
 
 	my $punitive = {
 		winner => defined $winner ? $div->reinstantiate_round( $rcode, $winner )->any_punitive_decision() : 0,
 		loser  => defined $loser  ? $div->reinstantiate_round( $rcode, $loser )->any_punitive_decision()  : 0
 	};
 
-	print STDERR "MATCH - WINNER - punitive decisions?\n" if $DEBUG eq 'winner'; # MW
-	print STDERR Dumper $punitive if $DEBUG eq 'winner'; # MW
+	print STDERR "MATCH - WINNER - punitive decisions?\n" if $debug; # MW
+	print STDERR Dumper $punitive if $debug; # MW
 
 	if( $punitive->{ winner }) {
 		return $self->declare_winner( 'none' ) unless defined $loser; # Winner DSQ/WDR in this round, loser DSQ/WDR in previous round
@@ -269,7 +270,7 @@ sub winner {
 		return $self->declare_winner( $loser ); # Loser wins if the winner is DSQ'd or WDR'n
 	}
 
-	print STDERR "MATCH - WINNER - FINAL VERDICT - winner = $winner, loser = $loser.\n\n" if $DEBUG eq 'winner'; # MW
+	print STDERR "MATCH - WINNER - FINAL VERDICT - winner = $winner, loser = $loser.\n\n" if $debug; # MW
 	return $self->declare_winner( $winner );
 }
 

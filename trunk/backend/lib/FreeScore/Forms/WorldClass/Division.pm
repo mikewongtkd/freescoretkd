@@ -837,7 +837,6 @@ sub update_status {
 #*
 	my $self   = shift;
 	my $method = $self->method();
-	my $round  = $self->{ round };
 
 	# ===== CALCULATE SCORE MEANS FOR ALL ROUNDS
 	$self->calculate_totals();

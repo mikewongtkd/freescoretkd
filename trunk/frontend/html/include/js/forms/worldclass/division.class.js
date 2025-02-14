@@ -68,6 +68,46 @@ function Division( division ) {
 		}
 	};
 
+	this.calculate = {
+		match: {
+			winners: () => {
+				Object.entries( division.matches ).forEach(([ round, matches ]) => {
+					matches.forEach( match => {
+						if( defined( match.winner )) { return; } // Server already posted results, skip
+						let n = match.order.filter( aid => defined( aid )).length;
+						if( n == 1 ) {
+							if( defined( match.chung )) { match.winner = match.chung; return; }
+							if( defined( match.hong  )) { match.winner = match.hong;  return; }
+
+						} else if( n == 2 ) {
+							let chung = {
+								id:    match.chung,
+								score: this.athlete( match.chung ).score( round )
+							};
+
+							let hong = {
+								id:    match.hong,
+								score: this.athlete( match.hong ).score( round )
+							}
+
+							// Win criteria
+							if     ( chung.score.adjusted.total()        > hong.score.adjusted.total())         { match.winner = chung.id; }
+							else if( hong.score.adjusted.total()         > chung.score.adjusted.total())        { match.winner = hong.id;  }
+
+							// TB1
+							else if( chung.score.adjusted.presentation() > hong.score.adjusted.presentation())  { match.winner = chung.id; }
+							else if( hong.score.adjusted.presentation()  > chung.score.adjusted.presentation()) { match.winner = hong.id;  }
+
+							// TB2
+							else if( chung.score.total()                 > hong.score.total())                  { match.winner = chung.id; }
+							else if( hong.score.total()                  > chung.score.total())                 { match.winner = hong.id;  }
+						}
+					});
+				});
+			}
+		}
+	};
+
 	let _current = this.current = {
 		athlete : function() {
 			let i = parseInt( division.current );

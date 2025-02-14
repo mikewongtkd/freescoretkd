@@ -95,7 +95,7 @@
 
 				if( update.action == 'update' && update.type == 'division' ) {
 					let match    = division.current.match();
-					let athletes = match.order.map( i => division.athlete( i ).display.name( 16 )).join( ' and ' );
+					let athletes = match.order.filter( i => defined( i )).map( i => division.athlete( i ).display.name( 16 )).join( ' and ' );
 					$( '#send-scores, #send-one-score, #clear-scores' ).removeClass( 'disabled' );
 					$( '#athlete' ).html( athletes );
 				}
