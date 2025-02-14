@@ -1,6 +1,6 @@
 package FreeScore::Forms::WorldClass::Method::SideBySide;
 use base qw( FreeScore::Forms::WorldClass::Method::SingleElimination );
-use List::Util qw( first );
+use List::Util qw( all first );
 use List::MoreUtils qw( first_index );
 use Data::Dumper;
 
@@ -37,7 +37,7 @@ sub autopilot_steps {
 	my $last = {
 		match   => $matches->current->is_last(),
 		athlete => $div->{ current } == $matches->current->last_athlete(),
-		form    => ($div->{ form }   == int( @$forms ) - 1),
+		form    => ($div->{ form }   == $#$forms),
 		round   => ($round eq 'ro2'),
 	};
 
@@ -156,15 +156,22 @@ sub autopilot_steps {
 # ============================================================
 sub change_display {
 # ============================================================
-	my $self   = shift;
-	my $div    = $self->division();
-	my $state  = $div->{ state };
-	my $states = [ @FreeScore::Forms::WorldClass::Method::SideBySide::states ];
-	my $i      = first_index { $_ eq $state } @$states;
+	my $self     = shift;
+	my $div      = $self->division();
+	my $state    = $div->{ state };
+	my $states   = [ @FreeScore::Forms::WorldClass::Method::SideBySide::states ];
+	my $i        = first_index { $_ eq $state } @$states;
+	my $next     = $i >= 0 ? $states->[ $i + 1 ] : $states->[ 0 ];
+	my $ro2      = $div->{ round } eq 'ro2';
+	my $order    = $div->order( 'ro2' );
+	my $complete = int( @$order ) > 0 && all { $div->reinstantiate_round( 'ro2', $_ )->complete() } @$order;
 
-	if( $i >= $#$states || $i < 0 ) { 
+	if( $i > $#$states || $i < 0 ) { 
 		warn "Invalid state '$state'; defaulting to 'score' $!" if( $state ne 'draw' );
-		$i = 0; 
+		$i = 0; # Score
+
+	} elsif( $next eq 'leaderboard' && !( $ro2 && $complete )) {
+		$i = 4; # Matches
 
 	} else { 
 		$i++; 
