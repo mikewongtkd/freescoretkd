@@ -81,6 +81,8 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 					let round = div.current.roundId();
 					let match = { chung, hong, data: div.current.match() };
 
+					div.calculate.match.winners();
+
 					// ===== RESET DISPLAY AND SHOW ATHLETE INFO
 					contestants.forEach( contestant => {
 						let tdc = this.display[ contestant ];
@@ -157,7 +159,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 								let tdo   = this.display[ other ];
 								tdc.side.addClass( 'win' );
 								tdc.penalties.append( '<div class="win-dot"></div>' );
-								if( div.current.method() == 'se' ) { tdo.side.addClass( 'waiting' ); }
+								tdo.side.addClass( 'waiting' );
 							}
 						});
 
@@ -209,8 +211,9 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
 				let division = update?.division ? new Division( update.division ) : null;
-				let chung    = division.current.chung();
-				let hong     = division.current.hong();
+
+				let chung = division.current.chung();
+				let hong  = division.current.hong();
 
 				contestants.forEach( contestant => this.refresh.athlete.display( division, contestant ));
 				this.refresh.header( division );

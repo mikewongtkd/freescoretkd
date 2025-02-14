@@ -95,6 +95,8 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
 				let division = update?.division ? new Division( update.division ) : null;
+				if( ! defined( division )) { return; }
+				division.calculate.match.winners(); // Kludge until I can resolve server-side cache issues
 
 				this.refresh.header( division );
 				this.refresh.match.list( division );

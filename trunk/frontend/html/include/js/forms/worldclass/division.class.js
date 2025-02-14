@@ -90,6 +90,8 @@ function Division( division ) {
 								score: this.athlete( match.hong ).score( round )
 							}
 
+							if(( ! chung.score.is.complete()) || (! hong.score.is.complete())) { return; }
+
 							// Win criteria
 							if     ( chung.score.adjusted.total()        > hong.score.adjusted.total())         { match.winner = chung.id; }
 							else if( hong.score.adjusted.total()         > chung.score.adjusted.total())        { match.winner = hong.id;  }

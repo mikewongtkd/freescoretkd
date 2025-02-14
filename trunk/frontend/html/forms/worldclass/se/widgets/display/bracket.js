@@ -261,6 +261,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let division = update?.division ? new Division( update.division ) : null;
 
 				if( ! defined( division )) { return; }
+				division.calculate.match.winners(); // Kludge until server can correctly cache the status updates properly
 
 				this.refresh.header( division );
 				this.refresh.bracket.graph( division );
