@@ -282,6 +282,10 @@ sub handle_division_draw {
 		if( $complete ) {
 			$division->record_draw( $form );
 			$division->write();
+
+		} else {
+			$division->{ state } = 'draw';
+			$division->write();
 		}
 
 		$self->broadcast_updated_division( $request, $progress, $group );
@@ -435,6 +439,7 @@ sub handle_division_navigate {
 		elsif( $object =~ /^(?:athlete|form)$/i ) { 
 			$division->navigate( $object, $i ); 
 			$division->autopilot( 'off' );
+			$division->{ state } = 'matches' if( $object eq 'athlete' && $division->method->code() eq 'sbs' );
 			$division->write();
 			$self->broadcast_updated_division( $request, $progress, $group );
 		}

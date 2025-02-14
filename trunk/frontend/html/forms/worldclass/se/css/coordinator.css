@@ -121,12 +121,12 @@ html, body {
 #judge-scores table td .btn-xs, #judge-scores table th .btn-xs {
   padding: 0 8px 2px 8px;
 }
-#judge-scores table tr.chung td {
+#judge-scores table tr.chung td, #judge-scores table tr.chung th {
   background-color: #d9edf7;
   border-color: #bce8f1;
   color: #31708f;
 }
-#judge-scores table tr.hong td {
+#judge-scores table tr.hong td, #judge-scores table tr.hong th {
   background-color: #f2dede;
   border-color: #ebccd1;
   color: #a94442;

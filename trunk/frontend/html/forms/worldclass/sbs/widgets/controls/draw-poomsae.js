@@ -53,15 +53,16 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 		` );
 
 		// ===== ADD STATE
-		this.state.division = null;
-		this.state.age = null;
-		this.state.draw     = { count: 0, complete: false, form: null };
+		this.state.division  = null;
+		this.state.age       = null;
+		this.state.animation = { timer: null };
+		this.state.draw      = { count: 0, complete: false, form: null };
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.draw = this.dom.find( '.draw .well' );
-		this.display.all  = this.dom.find( '.draw' );
-		this.button.draw  = this.dom.find( '.btn-draw' );
-		this.display.age  = { modal: { 
+		this.display.draw    = this.dom.find( '.draw .well' );
+		this.display.all     = this.dom.find( '.draw' );
+		this.button.draw     = this.dom.find( '.btn-draw' );
+		this.display.age     = { modal: { 
 			all: $( '.modal-draw' ),
 			hide: () => { $( '.modal-draw' ).modal( 'hide' ); }, 
 			show: () => { $( '.modal-draw' ).modal( 'show' ); }, 
@@ -76,10 +77,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.draw = {
-			button: () => {
+			button: division => {
+
+				this.button.draw.removeClass( 'disabled' );
 				let age = this.state.age;
-				if( ! defined( age )) {
-				}
 
 				let pool = designated?.[ age ];
 				if( ! defined( pool )) {
@@ -88,34 +89,64 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				}
 
 				// Remove previously drawn poomsae (no repeats)
-				pool = pool.filter( form => ! draw.includes( form ));
+				this.button.draw.off( 'click' ).click( ev => {
 
-				if( this.state.animation.timer ) { clearInterval( this.state.animation.timer ); }
-				this.state.draw.count    = 0;
-				this.state.draw.form     = null;
-				this.state.draw.complete = false;
+					// If already drawing, ignore button
+					if( this.state.animation.timer ) { this.sound.error.play(); return; }
+					this.button.draw.addClass( 'disable' );
 
-				let tdpn = this.display.poomsae.name = $( `<div class="poomsae name"></div>` );
-				this.display.poomsae.draw.empty().append( tdpn );
-				this.state.animation.timer = setInterval(() => {
-					if( this.state.draw.count > 7 ) {
-						this.state.draw.complete = true;
-						clearInterval( this.state.animation.timer );
+					let tdd = this.display.draw;
+					tdd.html( 'Drawing Poomsae...' );
+					this.sound.next.play();
 
-						let request = { type: 'division', action: 'draw', draw: { form, complete: true }};
-						app.network.send( request );
+					let draw = division.form.draw();
+					pool = pool.filter( form => ! draw.includes( form ));
 
-					} else if( this.state.draw.count > 5 ) {
-						this.state.draw.form = form;
-						tdpn.addClass( 'drawn' );
+					// ===== INITIALIZE DRAW BEHAVIOR
+					this.state.draw.count    = 0;
+					this.state.draw.form     = null;
+					this.state.draw.complete = false;
 
-					} else {
-						let i = Math.floor( Math.random() * pool.length );
-						form = pool[ i ];
-					}
-					tdpn.fadeOut( 300, () => tdpn.html( form ).fadeIn( 300 ));
-					this.state.draw.count++;
-				}, 1200 );
+					// ===== PERFORM THE DRAW
+					this.state.animation.timer = setInterval(() => {
+						let form  = this.state.draw.form;
+						let count = this.state.draw.count;
+
+						// GO TO SCORING
+						if( count > 10 ) {
+							clearInterval( this.state.animation.timer );
+							this.state.animation.timer = null;
+
+							let request = { type: 'division', action: 'display' };
+							this.network.send( request );
+
+						// SHOW FINAL SELECTED FORM
+						} else if( count > 3 ) {
+							tdd.html( `<b>${form}</b> ${11 - this.state.draw.count}s` );
+							this.state.draw.form = form;
+							this.state.draw.complete = true;
+
+							if( count == 4 ) {
+								let request = { type: 'division', action: 'draw', draw: { form, complete: true }};
+								this.network.send( request );
+								this.sound.ok.play(); 
+							}
+
+						// RANDOM DRAW FORM
+						} else {
+							// Random draw, ensuring the draw is different from the previous draw
+							let diff = pool.filter( form => form != this.state.draw.form );
+							let i    = Math.floor( Math.random() * diff.length );
+							this.state.draw.form = form = diff[ i ];
+							tdd.html( form );
+
+							let request = { type: 'division', action: 'draw', draw: { form, complete: false }};
+							this.network.send( request );
+							this.sound.next.play();
+						}
+						this.state.draw.count++;
+					}, 1000 );
+				});
 			},
 			// ============================================================
 			modal: division => {
@@ -150,6 +181,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						alertify.success( `Age group <b>${this.state.age.capitalize()}</b> selected.` );
 						this.sound.ok.play();
 						this.display.age.modal.hide();
+						this.refresh.draw.button( division );
 					}
 				});
 
@@ -165,6 +197,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					return; 
 				}
 				this.display.age.modal.hide();
+				this.display.draw.empty().html( 'Draw Poomsae Required' );
 
 				let form  = null;
 				let forms = division.current.form.list();
@@ -225,8 +258,11 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						}
 					}
 				}
-				if( ! defined( age )) {
-					this.refresh.draw.modal( division );
+				if( ! defined( age )) { 
+					this.refresh.draw.modal( division ); 
+
+				} else {
+					this.refresh.draw.button( division );
 				}
 			}
 		}
@@ -254,6 +290,22 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					}
 				}
 
+				this.refresh.draw.poomsae( division );
+			})
+		.heard( 'division' )
+			.command( 'update' ).respond( update => {
+				let division = update?.division ? new Division( update.division ) : null;
+
+				if( ! defined( division )) { 
+					this.display.header.empty();
+					this.display.poomsae.draw.empty();
+					return; 
+				}
+
+				// Ignore Draw Requests (which are sent by this app)
+				if( update.request.action == 'draw' ) { return; }
+
+				// Refresh for all other requests
 				this.refresh.draw.poomsae( division );
 			});
 	}

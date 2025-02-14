@@ -150,4 +150,6 @@ sub _annotate {
 	}
 }
 
+sub code { return ''; };
+
 1;

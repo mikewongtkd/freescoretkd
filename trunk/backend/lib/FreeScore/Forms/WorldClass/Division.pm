@@ -383,7 +383,7 @@ sub method_string {
 		return $json->canonical->encode( $method );
 	} else {
 		my $method = $self->method();
-		return $method->string();
+		return $method->code();
 	}
 }
 

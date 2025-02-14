@@ -15,7 +15,7 @@ our @rounds = (
 	{ code => 'ro2',   name => 'Finals',        matches => 1,   min => 1,   max => 2   }
 );
 
-our @states = ( qw( draw scores results bracket leaderboard matches ));
+our @states = ( qw( score results bracket leaderboard matches ));
 
 # ============================================================
 sub autopilot_steps {
@@ -157,12 +157,17 @@ sub change_display {
 # ============================================================
 	my $self   = shift;
 	my $div    = $self->division();
+	my $state  = $div->{ state };
 	my $states = [ @FreeScore::Forms::WorldClass::Method::SideBySide::states ];
-	my $i      = first_index { $_ eq $div->{ state } } @$states;
+	my $i      = first_index { $_ eq $state } @$states;
 
-	if   ( $i >= $#$states ) { $i = 0; }
-	elsif( $i < 0 )          { warn "Invalid state '$div->{ state }'; defaulting to 'score' $!"; $i = 1; }
-	else                     { $i++; }
+	if( $i >= $#$states || $i < 0 ) { 
+		warn "Invalid state '$state'; defaulting to 'score' $!" if( $state ne 'draw' );
+		$i = 0; 
+
+	} else { 
+		$i++; 
+	}
 
 	$div->{ state } = $states->[ $i ];
 }
@@ -206,6 +211,6 @@ sub record_score {
 }
 
 # ============================================================
-sub string { return 'sbs'; }
+sub code { return 'sbs'; }
 # ============================================================
 
