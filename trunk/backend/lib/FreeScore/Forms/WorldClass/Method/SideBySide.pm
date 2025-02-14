@@ -32,6 +32,7 @@ sub autopilot_steps {
 	my $forms    = $div->{ forms }{ $round };
 	my $j        = first_index { $_ == $div->{ current } } @$order;
 	my $matches  = $self->matches();
+	my $DEBUG    = 1; # MW
 
 	my $last = {
 		match   => $matches->current->is_last(),
@@ -147,7 +148,7 @@ sub autopilot_steps {
 	push @steps, $step->{ show }{ bracket } if( $matches->current->complete() && ! $last->{ round }); # Display the bracket whenever it's not the last match of the division
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() ); # Display the leaderboard when the last match of the division is completed
 	push @steps, $step->{ go }{ next };
-	push @steps, $step->{ show }{ match } unless( $matches->current->started());
+	push @steps, $step->{ show }{ matches } unless( $matches->current->started());
 
 	return @steps;
 }

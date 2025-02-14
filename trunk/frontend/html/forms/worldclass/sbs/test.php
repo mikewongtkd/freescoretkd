@@ -36,15 +36,35 @@
 			</div>
 
 			<div id="athlete"></div>
-			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="send-one-score" class="btn btn-success disabled" style="margin-left: 40px;">Send One Score</a><a id="clear-scores" class="btn btn-danger disabled" style="margin-left: 40px;">Clear Scores</a></div>
+			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="clear-scores" class="btn btn-danger disabled" style="margin-left: 40px;">Clear Scores</a></div>
 
 		</div>
 		<script>
-			let sound      = {};
-			let division   = undefined;
-			let tournament = <?= $tournament ?>;
-			let ring       = { num: '<?= $ringnum ?>' };
-			let ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
+			$.cookie.json = true;
+			let sound         = {};
+			let state         = { current: { divid: null }, skill: {}};
+			let division      = undefined;
+			let tournament    = <?= $tournament ?>;
+			let ring          = { num: '<?= $ringnum ?>' };
+			let ws            = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
+			const skills      = [ 4, 5, 5, 5, 5, 6, 6, 7 ];
+			const contestants = [ 'chung', 'hong' ];
+
+			function rand( x ) { return Math.floor( Math.random() * x ); };
+			function create_score( skill ) {
+
+				let score  = { major: 0.0, minor: 0.0, power: 0.0, rhythm: 0.0, ki: 0.0 };
+				[ 'power', 'rhythm', 'ki' ].forEach(( p ) => { score[ p ] = (Math.floor( 2.5 * skill) + parseInt( rand( 3 )))/10; });
+				let minor = rand( 12 ) - skill;
+				let major = rand( 8  ) - skill;
+				score.minor = minor > 0 ? (rand( 2 * minor ) + 3)/10 : (3 + rand( 3 ))/10;
+				score.major = major > 0 ? (rand( major ) * 3    )/10 : 0;
+
+				return score;
+			}
+
+
+			if( $.cookie( 'test' )) { state = $.cookie( 'test' ); }
 
 			ws.onopen = () => {
 				let request  = { data : { type : 'division', action : 'read' }};
@@ -65,6 +85,14 @@
 				division = new Division( update.division );
 				if( ! defined( division )) { return; }
 
+				// ASSIGN EACH PLAYER A SKILL LEVEL
+				if( state.current.divid != division.name() ) {
+					$.removeCookie( 'test' );
+					state.current.divid = division.name();
+					division.athletes().forEach( athlete => state.skill[ athlete.id() ] = skills[ rand( skills.length )]);
+					$.cookie( 'test', state );
+				}
+
 				if( update.action == 'update' && update.type == 'division' ) {
 					let match    = division.current.match();
 					let athletes = match.order.map( i => division.athlete( i ).display.name( 16 )).join( ' and ' );
@@ -79,90 +107,49 @@
 			sound.prev  = new Howl({ urls: [ "../../../sounds/prev.mp3",     "../../../sounds/prev.ogg"   ]});
 
 			$( "input[type=radio][name='ring']"   ).change(( e ) => { 
+				$.removeCookie( 'test' );
 				ring.num = $( e.target ).val(); 
 				window.location = `?ring=${ring.num}`;
 			});
 
 
-			const skills       = [ 4, 5, 5, 5, 5, 6, 6, 7 ];
-			let   rand         = ( x ) => { return Math.floor( Math.random() * x ); };
-			let   create_score = ( skill ) => {
-
-				let score  = { major: 0.0, minor: 0.0, power: 0.0, rhythm: 0.0, ki: 0.0 };
-				[ 'power', 'rhythm', 'ki' ].forEach(( p ) => { score[ p ] = (Math.floor( 2.5 * skill) + parseInt( rand( 3 )))/10; });
-				let minor = rand( 12 ) - skill;
-				let major = rand( 8  ) - skill;
-				score.minor = minor > 0 ? (rand( 2 * minor ) + 3)/10 : (3 + rand( 3 ))/10;
-				score.major = major > 0 ? (rand( major ) * 3    )/10 : 0;
-
-				return score;
-			}
-
 			$( '#send-scores' ).off( 'click' ).click(() => {
 				let request  = undefined;
 				let n        = division.judges();
 				let match    = division.current.match();
-				let athletes = { chung: match.chung, hong: match.hong };
-				let level    = { chung: skills[ rand( skills.length )], hong: skills[ rand( skills.length )]};
-				let score    = {};
+				let athletes = {};
 				let scores   = [];
 
+				contestants.forEach( contestant => {
+					if( isNaN( match[ contestant ])) { return; }
+					athletes[ contestant ] = division.athlete( match[ contestant ]);
+				});
+
 				for( let j = 0; j < n; j++ ) {
-					Object.entries( athletes ).forEach(([ contestant, i ]) => {
-						if( ! defined( i )) { return; }
-						score[ contestant ]       = create_score( level[ contestant ]);
-						score[ contestant ].index = i;
-						score.match = match.number;
+					let score = {};
+					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
+						let aid = athlete.id();
+						score[ contestant ] = create_score( state.skill[ aid ]);
+						score[ contestant ].index = aid;
 					});
 					scores.push( score );
 				}
 
-				athletes.chung = division.athlete( match.chung );
-				athletes.hong  = division.athlete( match.hong );
-
 				sound.ok.play();
 				for( i = 0; i < n; i++ ) {
 					let send = ( i, scores ) => { return () => {
-						$.cookie( 'judge', i );
 						alertify.notify( `Score for ${athletes.chung.display.name()} and ${athletes.hong.display.name()} sent for ${( i == 0 ? 'Referee' : 'Judge ' + i )}` );
-						score        = scores[ i ];
-						request      = { data : { type : 'division', action : 'score', score, judge: i, cookie : { judge: i }}};
+						request = { data : { type : 'division', action : 'score', score: { match: match.number }, judge: i, cookie : { judge: i }}};
+						contestants.forEach( contestant => {
+							score = scores[ i ];
+							request.data.score[ contestant ] = score[ contestant ];
+						});
 						request.json = JSON.stringify( request.data );
 						ws.send( request.json );
 						console.log( request.data );
 					}};
 					setTimeout( send( i, scores ), (((i + rand( 5 )) * 500) + rand( 250 )));
 				}
-			});
-
-			$( '#send-one-score' ).off( 'click' ).click(() => {
-				let request  = undefined;
-				let j        = division.judges();
-				let match    = division.current.match();
-				let score    = {};
-				let athletes = { chung: match.chung, hong: match.hong };
-
-				Object.entries( athletes ).forEach(([ contestant, i ]) => {
-					if( ! defined( i )) { return; }
-					let skill  = skills[ rand( skills.length ) ];
-					score[ contestant ]       = create_score( skill );
-					score[ contestant ].index = i;
-				});
-				athletes.chung = division.athlete( match.chung );
-				athletes.hong  = division.athlete( match.hong );
-
-				let i = rand( j );
-
-				sound.ok.play();
-				let send = ( i, score ) => { return () => {
-					$.cookie( 'judge', i );
-					alertify.notify( `Score for ${athletes.chung.display.name()} and ${athletes.hong.display.name()} sent for ${( i == 0 ? 'Referee' : 'Judge ' + i )}` );
-					request      = { data : { type : 'division', action : 'score', score, judge: i, cookie : { judge: i }}};
-					request.json = JSON.stringify( request.data );
-					ws.send( request.json );
-					console.log( request.data );
-				}};
-				send( i, scores[ i ] )();
 			});
 
 			$( '#clear-scores' ).off( 'click' ).click(() => {
