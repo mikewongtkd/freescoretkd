@@ -12,6 +12,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 		this.display.bracket  = { graph : this.dom.find( '.bracket-graph' ) };
 
 		// ===== ADD STATE INFORMATION
+		this.state.animation = null;
 		this.state.render = { radius: 40, height: 50, width: 350 };
 		this.state.bracket = {};
 
@@ -52,11 +53,13 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let height = this.state.render.height;
 				let width  = this.state.render.width;
 
+				console.log( 'REFRESH BRACKET GRAPH - STEP 1' ); // MW
 				if( ! defined( division )) { 
 					this.display.header.empty(); 
 					this.display.bracket.graph.empty(); 
 					return; 
 				}
+				console.log( 'REFRESH BRACKET GRAPH - division', division ); // MW
 
 				let rounds  = division.rounds();
 				let start   = 0;
@@ -67,13 +70,12 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let bounds  = { left: (width + height)/2, top: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
 
 				this.display.bracket.graph.empty();
-				if( defined( this.draw )) { 
-					this.draw.clear(); 
-				} else {
-					this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height );
-				}
+				if( defined( this.draw )) { this.draw.clear(); }
+				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height );
+				console.log( 'REFRESH BRACKET GRAPH - STEP 2' ); // MW
 
 				rounds.forEach(( round, i ) => { 
+					console.log( 'REFRESH BRACKET GRAPH - round', round ); // MW
 					let matches  = reorder( division.bracket.matches( round ));
 					let yoffset  = (((4 - matches.length) / 2) * height * 3) / 2;
 					let pmatches = [];
@@ -83,6 +85,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					this.state.bracket[ round ].svg.label  = this.draw.plain( FreeScore.round.name?.[ round ] ).font({ size: '28pt' }).fill( round == division.current.roundId() ? 'gold' : '#ccc' ).x( (i * ((height * 3) + width)) ).y( 0 );
 
 					matches.forEach(( match, j ) => {
+						console.log( 'REFRESH BRACKET GRAPH - match', match ); // MW
 						if     ( matches.length == 1 ) { yoffset *= 2; }
 						else if( j % 2 )               { yoffset *= 3; }
 
@@ -221,7 +224,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				bounds = { x: (width + height)/2, y: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
 				zoom.out = [ bounds.x, bounds.y, bounds.width, bounds.height ];
 
-				let animating = this.state.animation && defined( this.state.animation?.process()) && this.state.animation.process() != 1;
+				let animating = defined( this.state.animation ) && this.state.animation.progress() != 1;
 				if( ! animating ) {
 					this.state.animation = this.draw.animate( 2000, 3000 ).viewbox( zoom.in ).animate( 2000, 3000 ).viewbox( zoom.out );
 				}
