@@ -32,7 +32,7 @@ sub init {
 
 	$self->{ id }         = $id;
 	$self->{ tournament } = $tournament;
-	$self->{ ring }       = $ring;
+	$self->{ ring }       = $ring eq 'staging' ? $ring : int( $ring );
 	$self->{ sessid }     = $sessid;
 	$self->{ role }       = $role;
 	$self->{ device }     = $connection;

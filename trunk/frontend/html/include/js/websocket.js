@@ -5,7 +5,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.listener  = listener;
 		this.websocket = websocket;
 		this._catch    = error => console.log( error );
-		this.debug     = false;
+		this.debug     = 1; // 0 to disable, 1 for basic information, 2 for more detailed information
 	}
 
 	add( type, action = null, handler = null ) {
@@ -86,12 +86,31 @@ FreeScore.WebSocket = class FSWebSocket {
 				this.network.send( request );
 			},
 			message: response => { 
-				let update = JSON.parse( response.data );
-				let type   = update.type;
-				let action = update.action;
+				let update  = JSON.parse( response.data );
+				let type    = update.type;
+				let action  = update.action;
+				let request = update?.request;
 
-				if( this.debug && type != 'server' || action != 'ping' ) {
-					console.log( 'WEBSOCKET CONNECT', update );
+				if( this.rm.debug > 0 && ! (type == 'server' && action == 'ping' )) {
+					console.log( 'NETWORK MESSAGE', update );
+				}
+
+				// ------------------------------------------------------------
+				// ENSURE THAT THE MESSAGE IS FOR THE GIVEN RING
+				// ------------------------------------------------------------
+				// Only the staging ring listens to all broadcasts
+				let ring = { listener: this.listener?.ring, broadcast: null };
+				ring.broadcast = [ update?.request?.ring, update?.ring?.name, update?.ring ].find( ring => {
+					let is = {
+						defined: typeof ring == 'undefined' || ring === null,
+						staging: typeof ring == 'string' && ring == 'staging',
+						ringnum: Number.isInteger( ring )
+					};
+					return is.defined && (is.staging || is.ringnum);
+				});
+				if(( typeof ring.listener == 'undefined' || ring.listener === null ) && ring.listener != ring.broadcast && ring.listener != 'staging' ) {
+					if( this.rm?.debug > 1 ) { console.log( `Ignoring message for ring ${ring.broadcast}`, update ); }
+					return;
 				}
 
 				try {

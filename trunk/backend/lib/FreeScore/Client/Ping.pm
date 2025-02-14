@@ -155,7 +155,7 @@ sub start {
 		my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		$self->{ pings }{ $now } = 1;
 
-		my $ping = { type => 'server', action => 'ping', server => { timestamp => $now }};
+		my $ping = { type => 'server', action => 'ping', ring => $client->ring(), server => { timestamp => $now }};
 		$ws->send({ json => $ping });
 	});
 }

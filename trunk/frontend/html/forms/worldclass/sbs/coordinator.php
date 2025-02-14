@@ -30,6 +30,7 @@
 		<script src="../../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
+		<script src="../../../include/js/uuid.js"></script>
 		<script src="../../../include/js/websocket.js"></script>
 		<script src="../../../include/js/sound.js"></script>
 		<script src="../../../include/js/event.js"></script>
@@ -104,7 +105,7 @@
 			let tournament = <?= $tournament ?>;
 			let ring       = { num: <?= $rnum ?> };
 			let html       = FreeScore.html;
-			let app        = new FreeScore.App();
+			let app        = new FreeScore.App( ring.num );
 
 			app.state = { current : {}, divisions : null, loaded : false };
 

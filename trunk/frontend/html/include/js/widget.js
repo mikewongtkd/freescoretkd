@@ -1,6 +1,6 @@
 FreeScore.Widget = class FSWidget {
 	constructor( app, dom, options = null ) {
-		this._id      = self.crypto.randomUUID();
+		this._id      = UUID.v4();
 		this._refresh = {};
 		this._app     = app;
 		this._button  = {};

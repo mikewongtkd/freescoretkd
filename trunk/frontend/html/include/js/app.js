@@ -1,7 +1,7 @@
 FreeScore.App = class FSApp {
-	constructor() {
-		// this._id      = self.crypto.randomUUID();
-		this._id      = Math.floor( Math.random() * 1_000_000_000 );
+	constructor( ring = null ) {
+		this._id      = UUID.v4();
+		this._ring    = ring;
 		this._button  = {};
 		this._display = {};
 		this._input   = {};
@@ -23,11 +23,11 @@ FreeScore.App = class FSApp {
 
 		// Server Ping behavior
 		this.ping = {};
-		this.ping.off = () => { this.network.rm?.heard( 'server' ).command( 'ping' ).respond(() => { this.network.send({ type : 'server', action : 'stop ping' }); }); }
+		this.ping.off = () => { this.network.rm?.heard( 'server' ).command( 'ping' ).respond(() => { this.network.send({ type : 'server', action : 'stop ping', ring }); }); }
 		this.ping.on  = () => {
 			this.network.rm.add( 'server', 'ping', ping => {
 				let timestamp = (new Date).toISOString();
-				let pong = { type : 'client', action : 'pong', server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
+				let pong = { type : 'client', action : 'pong', ring, server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
 				this.network.send( pong );
 			});
 		};
@@ -48,6 +48,7 @@ FreeScore.App = class FSApp {
 	get network() { return this._network; }
 	get page()    { return this._page; }
 	get refresh() { return this._refresh; }
+	get ring()    { return this._ring; }
 	get sound()   { return this._sound; }
 	get state()   { return this._state; }
 	get widget()  { return this._widget; }
