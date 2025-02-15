@@ -254,27 +254,29 @@ function Division( division ) {
 		list : ( round = null ) => {
 			round = defined( round ) ? round : division.round;
 
-			let match = this.current.match();
-			let mnum  = match.number;
-			let forms = division?.forms?.[ round ];
+			if( [ 'se', 'sbs' ].includes( this.current.method())) {
+				let match = this.current.match();
+				let mnum  = match.number;
+				let forms = division?.forms?.[ round ];
 
-			if( ! defined( forms )) { console.log( `Error, no forms defined for ${round}` ); return; }
+				if( ! defined( forms )) { console.log( `Error, no forms defined for ${round}` ); return; }
 
-			if( forms.some( form => form.match( /^draw/i ))) {
-				if( division?.draws?.[ round ]) {
-					let n = forms.length;
-					// Draws have been made
-					if( division.draws[ round ]?.[ mnum ]) { 
-						let draws = division.draws[ round ][ mnum ];
-						n -= draws.length;
-						[ ... Array( n ).keys() ].forEach( i => draws.push( null ));
+				if( forms.some( form => form.match( /^draw/i ))) {
+					if( division?.draws?.[ round ]) {
+						let n = forms.length;
+						// Draws have been made
+						if( division.draws[ round ]?.[ mnum ]) { 
+							let draws = division.draws[ round ][ mnum ];
+							n -= draws.length;
+							[ ... Array( n ).keys() ].forEach( i => draws.push( null ));
+							return draws;
+						}
+
+						// Draws have not been made
+						let draws = [];
+						for( let i = 0; i < forms.length; i++ ) { draws.push( null ); }
 						return draws;
 					}
-
-					// Draws have not been made
-					let draws = [];
-					for( let i = 0; i < forms.length; i++ ) { draws.push( null ); }
-					return draws;
 				}
 			}
 			return division.forms[ round ];
