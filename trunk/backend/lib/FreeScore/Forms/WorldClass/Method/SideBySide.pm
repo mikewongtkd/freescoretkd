@@ -36,7 +36,6 @@ sub autopilot_steps {
 
 	my $last = {
 		match   => $matches->current->is_last(),
-		athlete => $div->{ current } == $matches->current->last_athlete(),
 		form    => ($div->{ form }   == $#$forms),
 		round   => ($round eq 'ro2'),
 	};
@@ -59,6 +58,18 @@ sub autopilot_steps {
 				$rm->broadcast_updated_division( $request, $progress, $group );
 
 			},
+			results => sub { 
+				my $delay = shift;
+				die "Disengaging autopilot\n" unless $div->autopilot();
+				print STDERR "Showing match results.\n" if $DEBUG;
+				unless( $div->state() eq 'results' ) {
+					$div->state( 'results' );
+					$div->write(); 
+				}
+				Mojo::IOLoop->timer( $pause->{ results } => $delay->begin );
+				$request = { type => 'autopilot', action => 'results', delay => $pause->{ results }};
+				$rm->broadcast_updated_division( $request, $progress, $group );
+			},
 			bracket => sub { 
 				my $delay = shift;
 				die "Disengaging autopilot\n" unless $div->autopilot();
@@ -68,7 +79,7 @@ sub autopilot_steps {
 					$div->write(); 
 				}
 				Mojo::IOLoop->timer( $pause->{ bracket } => $delay->begin );
-				$request = { type => 'autopilot', action => 'bracket', delay => $pause->{ leaderboard }};
+				$request = { type => 'autopilot', action => 'bracket', delay => $pause->{ bracket }};
 				$rm->broadcast_updated_division( $request, $progress, $group );
 			},
 			leaderboard => sub { 
@@ -102,20 +113,18 @@ sub autopilot_steps {
 				die "Disengaging autopilot\n" unless $div->autopilot();
 				print STDERR "Advancing the division to next item.\n" if $DEBUG;
 
-				# Go to X => after Y
+				# ----------------------------------------
+				# Go to next X => after Y
+				# ----------------------------------------
+				# $matches are all the matches in the current round
+				# $matches->current is the current match
 				my $go = {
-					chung => ! $last->{ form } && $last->{ athlete },
-					hong  => ! $last->{ athlete },
 					next  => {
 						round   =>  $matches->complete() && ! $last->{ round },
 						match   =>  $matches->current->complete() && ! $last->{ match },
-						form    =>  ! $last->{ form } && $last->{ athlete }
+						form    =>  ! $last->{ form }
 					}
 				};
-
-				# ===== ATHLETE NAVIGATION
-				if    ( $go->{ chung }) { $div->navigate( 'athlete', $matches->current->chung() ); }
-				elsif ( $go->{ hong })  { $div->navigate( 'athlete', $matches->current->hong() ); }
 
 				# ===== FORM/MATCH/ROUND NAVIGATION
 				if    ( $go->{ next }{ round }) { 
@@ -142,13 +151,16 @@ sub autopilot_steps {
 	};
 
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
+	print STDERR "SBS AUTOPILOT - MATCH COMPLETE: " . ( $matches->current->complete() ? 'Yes' : 'No') . "\n"; # MW
+	print STDERR "SBS AUTOPILOT - LAST ROUND: " . ( $last->{ round } ? 'Yes' : 'No') . "\n"; # MW
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
 	push @steps, $step->{ show }{ results } if((int( @$forms ) > 1) && $matches->current->complete());
 	push @steps, $step->{ show }{ bracket } if( $matches->current->complete() && ! $last->{ round }); # Display the bracket whenever it's not the last match of the division
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() ); # Display the leaderboard when the last match of the division is completed
-	push @steps, $step->{ go }{ next };
-	push @steps, $step->{ show }{ matches } unless( $matches->current->started());
+	push @steps, $step->{ go }{ next } unless( $last->{ round } && $last->{ form });
+	push @steps, $step->{ show }{ matches } unless( $last->{ round } && $last->{ form });
+	print STDERR "SBS AUTOPILOT - " . int( @steps ) . " STEPS\n"; # MW
 
 	return @steps;
 }

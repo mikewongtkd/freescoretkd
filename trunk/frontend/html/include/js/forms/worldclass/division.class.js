@@ -84,7 +84,8 @@ function Division( division ) {
 								return true;
 							});
 
-							match.winner = winner;
+							let score = this.athlete( match[ winner ]).score( round );
+							if( score.is.complete() && ! score.decision.awarded()) { match.winner = match[ winner ]; }
 
 						} else if( n == 2 ) {
 							let chung = {
@@ -242,9 +243,12 @@ function Division( division ) {
 		draw : ( round = null ) => {
 			round = defined( round ) ? round : division.round;
 			let match = this.current.match();
+			let n     = division.forms[ round ].length;
 			let draws = division.draw?.[ round ]?.[ match.number ];
 
 			draws = defined( draws ) ? draws : [];
+			n = n - draws.length;
+			[ ... Array( n ).keys() ].forEach( i => draws.push( null ));
 			return draws;
 		},
 		list : ( round = null ) => {
@@ -258,8 +262,14 @@ function Division( division ) {
 
 			if( forms.some( form => form.match( /^draw/i ))) {
 				if( division?.draws?.[ round ]) {
+					let n = forms.length;
 					// Draws have been made
-					if( division.draws[ round ]?.[ mnum ]) { return division.draws[ round ][ mnum ]; }
+					if( division.draws[ round ]?.[ mnum ]) { 
+						let draws = division.draws[ round ][ mnum ];
+						n -= draws.length;
+						[ ... Array( n ).keys() ].forEach( i => draws.push( null ));
+						return draws;
+					}
 
 					// Draws have not been made
 					let draws = [];

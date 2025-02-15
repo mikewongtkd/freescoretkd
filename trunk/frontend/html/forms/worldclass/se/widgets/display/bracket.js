@@ -113,7 +113,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let first   = rounds[ 0 ];
 				let columns = rounds.length > 1 ? rounds.length - 1 : 1;
 				let rows    = rounds.map( round => division.matches( round ).length ).reduce(( acc, cur ) => cur > acc ? cur : acc, 0 );
-				let bounds  = { left: (width + height)/2, top: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
+				let bounds  = this.state.viewport = { left: (width + height)/2, top: 0, width: (columns * (width + (3 * height))) + height, height: (rows * (4 * height)) + height };
 
 				this.display.bracket.graph.empty();
 				if( defined( this.draw )) { this.draw.clear(); }
@@ -231,8 +231,8 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				// Zoom back out
 				let columns = rounds.length > 1 ? rounds.length - 1 : 1;
 				let rows    = rounds.map( round => division.matches( round ).length ).reduce(( acc, cur ) => cur > acc ? cur : acc, 0 );
-				bounds = { x: (width + height)/2, y: 0, width: columns * (width + (3 * height)), height: rows * (4 * height)};
-				zoom.out = [ bounds.x, bounds.y, bounds.width, bounds.height ];
+				bounds = this.state.viewport;
+				zoom.out = [ bounds.left, bounds.top, bounds.width, bounds.height ];
 
 				let animating = defined( this.state.animation ) && this.state.animation.progress() != 1;
 				if( ! animating ) {

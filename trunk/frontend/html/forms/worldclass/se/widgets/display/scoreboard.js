@@ -129,7 +129,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 										acc : judge.score.ignore.accuracy() ? 'ignore' : '',
 										pre : judge.score.ignore.presentation() ? 'ignore' : ''
 									};
-									display.html( `<div class="jid">${ i == 0 ? 'R' : 'J' + (i+1)}</div><div class="accuracy score ${ignore.acc}">${judge.score.accuracy()}</div><div class="presentation score ${ignore.pre}">${judge.score.presentation()}</div>` ); 
+									display.html( `<div class="jid">${ i == 0 ? 'R' : 'J' + (i)}</div><div class="accuracy score ${ignore.acc}">${judge.score.accuracy()}</div><div class="presentation score ${ignore.pre}">${judge.score.presentation()}</div>` ); 
 								}
 							});
 						});

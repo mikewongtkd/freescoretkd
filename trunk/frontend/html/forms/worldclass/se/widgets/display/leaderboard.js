@@ -17,11 +17,7 @@ FreeScore.Widget.SELeaderboard = class FSWidgetSELeaderboard extends FreeScore.W
 			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1>` );
 		};
 		this.refresh.leaderboard = division => {
-			if( ! defined( division )) { 
-				this.display.header.empty(); 
-				this.display.leaderboard.all.empty(); 
-				return; 
-			}
+			this.display.leaderboard.all.empty(); 
 			let tdl   = this.display.leaderboard;
 			let table = tdl.table = $( '<table class="table" />' );
 			let thead = tdl.thead = $( '<thead />' );
@@ -55,6 +51,7 @@ FreeScore.Widget.SELeaderboard = class FSWidgetSELeaderboard extends FreeScore.W
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
 				let division = update?.division ? new Division( update.division ) : null;
+				if( ! defined( division )) { return; }
 
 				this.refresh.header( division );
 				this.refresh.leaderboard( division );
