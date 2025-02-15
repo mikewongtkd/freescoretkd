@@ -154,6 +154,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							tdc.accuracy.html( accuracy );
 							tdc.presentation.html( presentation );
 
+							// SHOW WIN DOT IF THERE'S ONLY ONE FORM
 							if( div.form.count() == 1 && match.data.winner == athlete.id()) {
 								let other = contestant == 'chung' ? 'hong' : 'chung';
 								let tdo   = this.display[ other ];

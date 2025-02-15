@@ -18,7 +18,7 @@ use Data::Dumper;
 use Clone qw( clone );
 use EV;
 
-our $json     = new JSON::XS();
+our $json     = (new JSON::XS())->boolean_values( 0, 1 );
 our $client   = {};
 our $config   = new FreeScore::Config();
 our $registry = new FreeScore::Client::Registry();

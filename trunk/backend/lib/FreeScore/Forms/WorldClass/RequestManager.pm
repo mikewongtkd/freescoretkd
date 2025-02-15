@@ -274,12 +274,13 @@ sub handle_division_draw {
 	if( $complete ) {
 		print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
 	} else {
-		print STDERR "Teasing poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
+		print STDERR "Teasing poomsae draw: $form\n" if $DEBUG;
 	}
 
 	try {
 		$division->autopilot( 'off' );
 		if( $complete ) {
+			$division->{ state } = 'draw';
 			$division->record_draw( $form );
 			$division->write();
 

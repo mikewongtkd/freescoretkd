@@ -6,6 +6,12 @@ class Score {
 			complete : () => { return score?.complete ? score.complete : false; }
 		};
 
+		this.decision = {
+			awarded: () => {
+				return score.forms.map( form => new Form( form )).find( form => form.decision.awarded());
+			}
+		};
+
 		this.forms = {
 			count : () => score?.forms?.length,
 			list  : () => score?.forms

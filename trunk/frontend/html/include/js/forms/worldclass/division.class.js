@@ -76,8 +76,15 @@ function Division( division ) {
 						if( defined( match.winner )) { return; } // Server already posted results, skip
 						let n = match.order.filter( aid => defined( aid )).length;
 						if( n == 1 ) {
-							if( defined( match.chung )) { match.winner = match.chung; return; }
-							if( defined( match.hong  )) { match.winner = match.hong;  return; }
+							let winner = [ 'chung', 'hong' ].find( contestant => {
+								if( ! defined( match[ contestant ])) { return; }
+								let aid   = match[ contestant ];
+								let score = this.athlete( aid ).score( round );
+								if( score.decision.awarded()) { return; }
+								return true;
+							});
+
+							match.winner = winner;
 
 						} else if( n == 2 ) {
 							let chung = {
@@ -92,8 +99,12 @@ function Division( division ) {
 
 							if(( ! chung.score.is.complete()) || (! hong.score.is.complete())) { return; }
 
+							// Disqualification or Withdrawal
+							if     ( chung.score.decision.awarded()   && ! hong.score.decision.awarded())       { match.winner = hong.id;  }
+							else if( hong.score.decision.awarded()    && ! chung.score.decision.awarded())      { match.winner = chung.id;  }
+	
 							// Win criteria
-							if     ( chung.score.adjusted.total()        > hong.score.adjusted.total())         { match.winner = chung.id; }
+							else if( chung.score.adjusted.total()        > hong.score.adjusted.total())         { match.winner = chung.id; }
 							else if( hong.score.adjusted.total()         > chung.score.adjusted.total())        { match.winner = hong.id;  }
 
 							// TB1
