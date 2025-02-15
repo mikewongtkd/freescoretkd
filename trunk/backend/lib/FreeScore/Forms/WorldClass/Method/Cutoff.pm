@@ -57,10 +57,11 @@ sub advance_athletes {
 		my $k        = $n > 8 ? 7 : ($n - 1);
 		my @athletes = @{ $div->{ placement }{ $round }};
 		my @eligible = $div->eligible_athletes( $round, @athletes );
-		@winners     = reverse (@eligible[ 0 .. $k ]);
+
+		@winners = (@eligible[ 0 .. $k ]);
+		@winners = reverse @winners if $next eq 'finals';
 	}
 	$div->assign( $_, $next ) foreach @winners;
-	$method->bracket( $next );
 }
 
 # ============================================================

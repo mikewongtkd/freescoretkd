@@ -32,7 +32,7 @@ sub autopilot_steps {
 	my $forms    = $div->{ forms }{ $round };
 	my $j        = first_index { $_ == $div->{ current } } @$order;
 	my $matches  = $self->matches();
-	my $DEBUG    = 1; # MW
+	my $DEBUG    = 0;
 
 	my $last = {
 		match   => $matches->current->is_last(),
@@ -151,8 +151,6 @@ sub autopilot_steps {
 	};
 
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
-	print STDERR "SBS AUTOPILOT - MATCH COMPLETE: " . ( $matches->current->complete() ? 'Yes' : 'No') . "\n"; # MW
-	print STDERR "SBS AUTOPILOT - LAST ROUND: " . ( $last->{ round } ? 'Yes' : 'No') . "\n"; # MW
 	my @steps = ();
 	push @steps, $step->{ show }{ score };
 	push @steps, $step->{ show }{ results } if((int( @$forms ) > 1) && $matches->current->complete());
@@ -160,7 +158,6 @@ sub autopilot_steps {
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() ); # Display the leaderboard when the last match of the division is completed
 	push @steps, $step->{ go }{ next } unless( $last->{ round } && $last->{ form });
 	push @steps, $step->{ show }{ matches } unless( $last->{ round } && $last->{ form });
-	print STDERR "SBS AUTOPILOT - " . int( @steps ) . " STEPS\n"; # MW
 
 	return @steps;
 }
