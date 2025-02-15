@@ -86,6 +86,7 @@ body {
 }
 
 #display-score .header, #display-bracket .header, #display-results .header, #display-matches .header, #display-leaderboard .header {
+  top: 0;
   width: 100%;
   color: #999;
 }
@@ -861,7 +862,17 @@ body {
   border-radius: 24px 0 0 24px;
 }
 
-#display-results .form-name {
+#display-results {
+  width: 100%;
+  height: 100%;
+}
+#display-results .common {
+  position: absolute;
+  top: 180px;
+  height: calc(100% - 180px);
+  width: 100%;
+}
+#display-results .common .form-name {
   position: absolute;
   left: 50%;
   width: 25%;
@@ -877,10 +888,12 @@ body {
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
 }
-#display-results .form-name.form-1 {
+#display-results .common .form-name.form-1 {
+  top: 57.5%;
   color: lime;
 }
-#display-results .form-name.form-2 {
+#display-results .common .form-name.form-2 {
+  top: 75%;
   color: cyan;
 }
 #display-results .contestant {

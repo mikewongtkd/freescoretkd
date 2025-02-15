@@ -3,12 +3,13 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 		super( app, dom );
 		const contestants = [ 'chung', 'hong' ];
 
-		this.dom.append( '<div class="header"></div><div class="chung contestant"></div><div class="hong contestant"></div>' );
+		this.dom.append( '<div class="header"></div><div class="chung contestant"></div><div class="hong contestant"></div><div class="common"></div>' );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.header = this.dom.find( '.header' );
-		this.display.chung  = { side : this.dom.find( '.chung.contestant' ) };
-		this.display.hong   = { side : this.dom.find( '.hong.contestant' ) };
+		this.display.common = this.dom.find( '.common' );
+		this.display.chung  = { side: this.dom.find( '.chung.contestant' ) };
+		this.display.hong   = { side: this.dom.find( '.hong.contestant' ) };
 
 		// ===== ADD STATE
 		this.state.division = null;
@@ -96,20 +97,11 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 
 						let form1 = precision( score.form( 0 )?.adjusted()?.total );
 						tdc.form1.html( form1 );
-						this.display.form[ 0 ].css({ top: tdc.form1.offset()?.top });
 
 						if( score.forms.count() > 1 ) {
 							let form2 = precision( score.form( 1 )?.adjusted()?.total );
 							tdc.form2.html( form2 );
-							this.display.form[ 1 ].css({ top: tdc.form2.offset()?.top });
 						}
-
-						$( window ).off( 'resize' ).on( 'resize', ev => {
-							this.display.form[ 0 ].css({ top: tdc.form1.offset()?.top });
-							if( score.forms.count() > 1 ) {
-								this.display.form[ 1 ].css({ top: tdc.form2.offset()?.top });
-							}
-						});
 					});
 				}
 			},
@@ -124,9 +116,10 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 				this.display.form = [];
 				this.dom.find( '.form-name' ).remove();
 
+
 				forms.forEach(( form, i ) => {
 					this.display.form[ i ] = $( `<div class="form-name form-${i + 1}">${form}</div>` );
-					this.dom.append( this.display.form[ i ]);
+					this.display.common.append( this.display.form[ i ]);
 				});
 			}
 		};

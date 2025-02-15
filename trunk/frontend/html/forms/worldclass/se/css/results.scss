@@ -1,4 +1,7 @@
 #display-results {
+  width: 100%;
+  height: 100%;
+  $header_height: 180px;
   $margin: 40px;
   $noc: 120px;
   $judges: 2 * $noc + $margin;
@@ -6,24 +9,31 @@
   $round: 96px;
   $windot: 120px;
 
-  .form-name {
+  .common {
     position: absolute;
-    left: 50%;
-    width: 25%;
-    height: calc( 7/8 * $noc );
-    font-size: 56pt;
-    line-height: 76pt;
-    border: solid 4px #ccc;
-    border-radius: calc( $noc / 3 );
-    margin-top: calc( 1/8 * $noc );
-    transform: translateX( -50% );
-    text-align: center;
-    background: black;
-    background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
-    background: linear-gradient(to top, #45484d 0%,#000000 100%);
+    top: $header_height;
+    height: calc( 100% - $header_height);
+    width: 100%;
 
-    &.form-1 { color: lime; }
-    &.form-2 { color: cyan; }
+    .form-name {
+      position: absolute;
+      left: 50%;
+      width: 25%;
+      height: calc( 7/8 * $noc );
+      font-size: 56pt;
+      line-height: 76pt;
+      border: solid 4px #ccc;
+      border-radius: calc( $noc / 3 );
+      margin-top: calc( 1/8 * $noc );
+      transform: translateX( -50% );
+      text-align: center;
+      background: black;
+      background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+      background: linear-gradient(to top, #45484d 0%,#000000 100%);
+
+      &.form-1 { top: 57.5%; color: lime; }
+      &.form-2 { top: 75%; color: cyan; }
+    }
   }
 
   .contestant {

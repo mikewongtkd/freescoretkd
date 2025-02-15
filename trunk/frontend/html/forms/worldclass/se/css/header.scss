@@ -1,6 +1,7 @@
 #display-score, #display-bracket, #display-results, #display-matches, #display-leaderboard {
-  $header_height: 100px;
+  $header_height: 130px;
   .header {
+    top: 0;
     width: 100%;
     color: #999;
 
