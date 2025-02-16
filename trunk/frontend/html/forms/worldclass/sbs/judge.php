@@ -23,6 +23,7 @@
 		<script src="../../../include/jquery/js/jquery.js"></script>
 		<script src="../../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../../include/jquery/js/jquery.cookie.js"></script>
+		<script src="../../include/jquery/js/jquery.nodoubletapzoom.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/bootstrap/add-ons/bootstrap-slider.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
@@ -160,6 +161,21 @@
 				presentation: new FreeScore.Widget.SBSJudgePresentation( app, 'score-presentation' )
 			};
 
+			app.forwardIf = {
+				cutoff: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'cutoff' ) { window.location = `../judge.php?ring=<?= $rnum ?>&judge=<?= $jnum ?>`; }
+				},
+				se: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'se' ) { window.location = `../judge.php?ring=<?= $rnum ?>&judge=<?= $jnum ?>`; }
+				}
+			};
+
 			// ============================================================
 			// NETWORK
 			// ============================================================
@@ -173,6 +189,9 @@
 						if( ! defined( division )) { return; }
 
 						division = new Division( division );
+						app.forwardIf.cutoff( division );
+						app.forwardIf.se( division );
+
 						let match = division.current.match();
 						if( ! defined( match )) { return; }
 
@@ -208,6 +227,8 @@
 							app.page.show.accuracy();
 						}
 					});
+
+			$(() => { $( 'body' ).nodoubletapzoom(); });
 		</script>
 	</body>
 </html>

@@ -1,11 +1,11 @@
 $.widget( "freescore.judgeController", {
 	options: { autoShow: true },
 	_create: function() {
-		let o      = this.options;
-		let e      = this.options.elements = {};
-		let widget = this.element;
-		let html   = e.html  = FreeScore.html;
-		let sound  = e.sound    = {};
+		let o         = this.options;
+		let e         = this.options.elements = {};
+		let widget    = this.element;
+		let html      = e.html  = FreeScore.html;
+		let sound     = e.sound    = {};
 
 		widget.nodoubletapzoom();
 
@@ -194,6 +194,16 @@ $.widget( "freescore.judgeController", {
 			console.log( update );
 			let digest   = update.digest; if( defined( o.current.digest ) && digest == o.current.digest ) { return; }
 			let division = new Division( update.division );
+			let forwardIf = {
+				sbs: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}`; }
+				}
+			};
+
+			forwardIf.sbs( division );
 
 			if( ! defined( division.form.list())) { return; }
 
