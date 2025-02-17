@@ -429,15 +429,15 @@ body {
   font-size: 36pt;
   position: absolute;
   left: 1.5%;
-  width: 2%;
+  width: 4%;
   font-weight: bold;
   overflow: hidden;
 }
 .worldclass .leaderboard .division .placement .athlete .name {
   color: yellow;
   position: absolute;
-  left: 4%;
-  width: 56%;
+  left: 6%;
+  width: 54%;
   font-weight: bold;
   text-overflow: ellipse;
   overflow: hidden;

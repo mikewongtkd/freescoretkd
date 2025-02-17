@@ -751,10 +751,13 @@ sub rounds {
 	my @rounds   = ();
 	my $method   = exists $self->{ method } && $self->{ method } ? $self->{ method } : 'cutoff';
 	my @order    = @FreeScore::Forms::WorldClass::Division::round_order;
+	my $string   = '';
 
 	# Combination methods
 	if( ref( $method ) eq 'HASH' ) {
 		@rounds = grep { exists $self->{ method }{ $_ } } @order;
+		my $json = new JSON::XS();
+		$methstr = $json->canonical->encode( $method );
 
 	} else {
 		# Cutoff
@@ -762,18 +765,18 @@ sub rounds {
 			@rounds = qw( prelim semfin finals );
 
 		# Single Elimination (SE) or Side-by-Side (SBS)
-		} elsif( $method eq 'se' || $self->{ method } eq 'sbs' ) {
+		} elsif( $method eq 'se' || $method eq 'sbs' ) {
 			@rounds = qw( ro256 ro128 ro64 ro32 ro16 ro8 ro4 ro2 );
 		}
+		$string = $method;
 	}
 
 	# Get the first round and all rounds thereafter
 	unless( defined $nofilter ) {
 		my $i = first_index { $self->round_defined( $_ ) } @rounds;
-		die "Database error: No first round defined for $method$!" unless int( @rounds ) && $i >= 0;
+		die "Database error: No first round defined for $string$!" unless int( @rounds ) && $i >= 0;
 		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 	}
-
 
 	# Convert to objects if so requested
 	@rounds = map { $self->method( $_ )->round( $_ ) } @rounds if $mode =~ /^object/i;
@@ -1121,7 +1124,6 @@ sub calculate_totals {
 # ============================================================
 	my $self = shift;
 
-	print STDERR "DIVISION - CALCULATE TOTALS - START\n"; # MW
 	foreach my $round (keys %{ $self->{ forms }}) {
 		my $order = $self->order( $round );
 		next unless $order;
@@ -1132,7 +1134,6 @@ sub calculate_totals {
 			$scores->calculate_totals( $self->{ judges } );
 		}
 	}
-	print STDERR "DIVISION - CALCULATE TOTALS - COMPLETE\n"; # MW
 }
 
 # ============================================================
