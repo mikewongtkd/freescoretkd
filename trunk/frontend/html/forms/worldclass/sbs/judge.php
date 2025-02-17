@@ -107,7 +107,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default btn-cancel">Restore to Defaults</button>
-						<button type="button" class="btn btn-primary btn-ok">Save Changes</button>
+						<button type="button" class="btn btn-primary btn-ok">OK</button>
 					</div>
 				</div>
 			</div>
@@ -173,7 +173,7 @@
 				let display = app.display.config.current;
 				let acc     = $( '#score-accuracy' );
 				let widgets = $( '#score-accuracy, #score-presentation' );
-				if( display.flip && acc.hasClass( 'chung-right' )) {
+				if( display.flip ) {
 					widgets.each(( i, el ) => { $( el ).removeClass( 'chung-right' ); $( el ).addClass( 'chung-left' ); });
 				} else {
 					widgets.each(( i, el ) => { $( el ).removeClass( 'chung-left' ); $( el ).addClass( 'chung-right' ); });

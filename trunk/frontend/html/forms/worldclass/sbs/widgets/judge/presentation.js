@@ -142,24 +142,17 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 			this.display.header.html( `<div class="div-summary"><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></div><div class="match-summary"><span class="round-name">${division.current.round.name()}</span> &ndash; <span class="match-number">Match ${match.number + start}</span> &ndash; <span class="form-name">${form}</span></div>` );
 
 			let jname = this.app.state.current.judge == 0 ? 'R' : `J${this.app.state.current.judge}`;
-			let flip  = this.button.common.flip = $( `<a class="btn flip btn-flip"><span class="fas fa-exchange-alt"></span></a>` );
+			let config = this.button.common.config = $( `<a class="btn config btn-config"><span class="fas fa-cog"></span></a>` );
 			let back  = this.button.common.back = $( `<a class="btn back btn-back">Back <span class="fas fa-arrow-left"></span></a>` );
 			let send  = this.button.common.send = $( `<a class="btn send btn-send">Send <span class="fas fa-check-circle"></span></a>` );
 			let jid   = this.display.common.jid = $( `<div class="jid">${jname}</div>` );
 
-			this.display.common.elements.append( flip, back, send, jid );
+			this.display.common.elements.append( config, back, send, jid );
 
 			// ===== ADD BUTTON BEHAVIOR
-			this.button.common.flip.off( 'click' ).click( ev => {
-				if( this.dom.hasClass( 'chung-right' )) {
-					this.dom.removeClass( 'chung-right' );
-					this.dom.addClass( 'chung-left' );
-				} else {
-					this.dom.removeClass( 'chung-left' );
-					this.dom.addClass( 'chung-right' );
-				}
+			this.button.common.config.off( 'click' ).click( ev => {
+				this.app.modal.display.config.show();
 			});
-
 			this.button.common.back.off( 'click' ).click( ev => {
 				this.app.page.show.accuracy();
 				this.app.state.save();
