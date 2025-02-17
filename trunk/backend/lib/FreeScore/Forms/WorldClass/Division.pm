@@ -757,7 +757,7 @@ sub rounds {
 	if( ref( $method ) eq 'HASH' ) {
 		@rounds = grep { exists $self->{ method }{ $_ } } @order;
 		my $json = new JSON::XS();
-		$methstr = $json->canonical->encode( $method );
+		$string = $json->canonical->encode( $method );
 
 	} else {
 		# Cutoff

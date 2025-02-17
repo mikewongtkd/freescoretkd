@@ -5,6 +5,7 @@ FreeScore.App = class FSApp {
 		this._button  = {};
 		this._display = {};
 		this._input   = {};
+		this._modal   = {};
 		this._network = new FreeScore.WebSocket( this );
 		this._refresh = {};
 		this._sound   = new FreeScore.Sound();
@@ -45,6 +46,7 @@ FreeScore.App = class FSApp {
 	get event()   { return this._event; }
 	get id()      { return this._id; }
 	get input()   { return this._input; }
+	get modal()   { return this._modal; }
 	get network() { return this._network; }
 	get page()    { return this._page; }
 	get refresh() { return this._refresh; }

@@ -50,7 +50,7 @@ body {
   height: 100%;
   z-index: 1;
 }
-#score-accuracy .common .flip, #score-presentation .common .flip, #display-division .common .flip {
+#score-accuracy .common .config, #score-presentation .common .config, #display-division .common .config {
   position: absolute;
   top: 20%;
   left: 50%;
@@ -588,6 +588,18 @@ body {
 }
 #score-presentation.chung-left .hong .athlete {
   left: 10%;
+}
+
+.display-config.modal .display-config-group {
+  width: 100%;
+  margin-top: 1em;
+}
+.display-config.modal .display-config-group button {
+  width: 60px;
+}
+.display-config.modal label {
+  display: inline-block;
+  width: 160px;
 }
 
 @font-face {

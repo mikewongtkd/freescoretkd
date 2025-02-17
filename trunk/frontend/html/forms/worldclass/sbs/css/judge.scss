@@ -10,6 +10,22 @@ body {
 @import 'accuracy';
 @import 'presentation';
 
+.display-config.modal {
+  .display-config-group {
+    width: 100%;
+    margin-top: 1em;
+
+    button {
+      width: 60px;
+    }
+  }
+
+  label {
+    display: inline-block;
+    width: 160px;
+  }
+}
+
 @import '../../../../include/css/fonts';
 @import 'header';
 

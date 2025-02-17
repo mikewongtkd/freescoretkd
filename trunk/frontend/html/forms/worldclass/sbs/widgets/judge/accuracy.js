@@ -8,6 +8,7 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 		this.display.chung  = { side: this.dom.find( '.chung.accuracy' )};
 		this.display.hong   = { side: this.dom.find( '.hong.accuracy' )};
 		this.display.common = { elements: this.dom.find( '.common' )};
+		this.display.items  = { header: [], body: []};
 		this.button.common  = {};
 		this.button.chung   = {};
 		this.button.hong    = {};
@@ -81,6 +82,13 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 				tbc.score = button;
 				tdc.side.append( button.panel );
 
+				// ===== DISPLAY ITEMS WITH ADJUSTABLE FONTS
+				this.display.items.body = [ 
+					info.name,
+					score.total, score.subtotal, 
+					button.add.major, button.add.minor, button.remove.major, button.remove.minor
+				];
+
 				// ===== DEDUCTION BUTTON BEHAVIOR
 				[ 'add', 'remove' ].forEach( action => {
 					[ 'major', 'minor' ].forEach( deduction => {
@@ -122,24 +130,19 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 
 			this.display.header.html( `<div class="div-summary"><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></div><div class="match-summary"><span class="round-name">${division.current.round.name()}</span> &ndash; <span class="match-number">Match ${match.number + start}</span> &ndash; <span class="form-name">${form}</span></div>` );
 
-			let jname = this.app.state.current.judge == 0 ? 'R' : `J${this.app.state.current.judge}`;
-			let flip  = this.button.common.flip = $( `<a class="btn flip btn-flip"><span class="fas fa-exchange-alt"></span></a>` );
-			let next  = this.button.common.next = $( `<a class="btn next btn-next">Next <span class="fas fa-arrow-right"></span></a>` );
-			let jid   = this.display.common.jid = $( `<div class="jid">${jname}</div>` );
+			let jname  = this.app.state.current.judge == 0 ? 'R' : `J${this.app.state.current.judge}`;
+			let config = this.button.common.config = $( `<a class="btn config btn-config"><span class="fas fa-cog"></span></a>` );
+			let next   = this.button.common.next = $( `<a class="btn next btn-next">Next <span class="fas fa-arrow-right"></span></a>` );
+			let jid    = this.display.common.jid = $( `<div class="jid">${jname}</div>` );
 
-			this.display.common.elements.append( flip, next, jid );
+			this.display.common.elements.append( config, next, jid );
+
+			this.display.items.header = [ this.display.header ];
 
 			// ===== ADD BUTTON BEHAVIOR
-			this.button.common.flip.off( 'click' ).click( ev => {
-				if( this.dom.hasClass( 'chung-right' )) {
-					this.dom.removeClass( 'chung-right' );
-					this.dom.addClass( 'chung-left' );
-				} else {
-					this.dom.removeClass( 'chung-left' );
-					this.dom.addClass( 'chung-right' );
-				}
+			this.button.common.config.off( 'click' ).click( ev => {
+				this.app.modal.display.config.show();
 			});
-
 			this.button.common.next.off( 'click' ).click( ev => {
 				this.app.page.show.presentation();
 				this.app.state.save();
