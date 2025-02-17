@@ -170,7 +170,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					let target = $( ev.target );
 					let input  = target.children( 'input' );
 					this.state.age = input.val();
-					$.cookie( 'poomsae-draw-age', this.state.age );
+					this.cookie.save( this.state.age );
 					this.button.age.modal.ok.removeClass( 'disabled' );
 				});
 
@@ -235,8 +235,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					age = this.state.age;
 
 				// Check cookie
-				} else if( $.cookie( 'poomsae-draw-age' )) {
-					age = this.state.age = $.cookie( 'poomsae-draw-age' );
+				} else if( this.cookie.value()) {
+					age = this.state.age = this.cookie.value();
 
 				// See if the draw information specifies age
 				} else {
@@ -244,7 +244,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					if(  found ) {
 						age = match[ 1 ];
 						this.state.age = age;
-						$.cookie( 'poomsae-draw-age', age );
+						this.cookie.save( age );
 
 					// Maybe the division description can tell us the age?
 					} else {
@@ -254,7 +254,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						});
 						if( defined( age )) {
 							this.state.age = age;
-							$.cookie( 'poomsae-draw-age', age );
+							this.cookie.save( age );
 						}
 					}
 				}
@@ -282,10 +282,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				// Reset the age selection
 				if( defined( this.state.division ) && this.state.division.name != division.name ) {
 					if( this.state.division.name == division.name ) {
-						this.state.age = $.cookie( 'poomsae-draw-age' );
+						this.state.age = this.cookie.value();
 
 					} else {
-						$.removeCookie( 'poomsae-draw-age' );
+						this.cookie.remove();
 						this.state.age = null;
 					}
 				}

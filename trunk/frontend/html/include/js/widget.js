@@ -13,6 +13,23 @@ FreeScore.Widget = class FSWidget {
 		this._rm      = new FreeScore.ResponseManager( this, this.app.network );
 		this._event   = new FreeScore.EventClient( this );
 
+		this._cookie  = { 
+			name: this.constructor.name, 
+			value: () => {
+				return $.cookie( this.cookie.name );
+			},
+			remove: () => {
+				$.removeCookie( this.cookie.name );
+			},
+			save: ( data = null ) => {
+				$.cookie.json = true;
+				if( data === null ) {
+					$.cookie( this.cookie.name, clone );
+				} else {
+					$.cookie( this.cookie.name, data );
+				}
+			}
+		};
 		this.network  = {
 			on : {
 				heard : type => { return this.rm.heard( type ); }
@@ -30,8 +47,22 @@ FreeScore.Widget = class FSWidget {
 		return this._app.network.rm.heard( type );
 	}
 
+	restore() {
+		this.state = $.cookie( this.cookie );
+	}
+
+	save( data = null ) {
+		$.cookie.json = true;
+		if( data === null ) {
+			$.cookie( this.cookie, this.state );
+		} else {
+			$.cookie( this.cookie, data );
+		}
+	}
+
 	get app()     { return this._app; }
 	get button()  { return this._button; }
+	get cookie()  { return this._cookie; }
 	get display() { return this._display; }
 	get dom()     { return this._dom; }
 	get event()   { return this._event; }

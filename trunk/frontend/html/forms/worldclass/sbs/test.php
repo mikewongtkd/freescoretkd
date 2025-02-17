@@ -63,6 +63,20 @@
 				return score;
 			}
 
+			let forwardIf = {
+				cutoff: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'cutoff' ) { window.location = `../test/client.php?ring=${ring}`; }
+				},
+				se: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'se' ) { window.location = `../test/client.php?ring=${ring}`; }
+				}
+			};
 
 			if( $.cookie( 'test' )) { state = $.cookie( 'test' ); }
 
@@ -84,6 +98,9 @@
 
 				division = new Division( update.division );
 				if( ! defined( division )) { return; }
+
+				forwardIf.cutoff( division );
+				forwardIf.se( division );
 
 				// ASSIGN EACH PLAYER A SKILL LEVEL
 				if( state.current.divid != division.name() ) {

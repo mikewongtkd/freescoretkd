@@ -122,20 +122,20 @@
 
 			app.forwardIf = {
 				cutoff : () => {
-					let round = app.state.current.division?.round;
-					let forms = app.state.current.division?.forms;
+					let division = new Division( app.state.current.division );
+					let method   = division?.current?.method();
+					let ring     = division?.ring();
 
-					if( ! round?.match( /^ro/ )) { 
-						window.location = '../coordinator.php?ring=<?= $rnum ?>'; 
-					}
+					if( ! defined( division )) { return; }
+					if( method == 'cutoff' ) { window.location = `../coordinator.php?ring=${ring}`; }
 				},
 				se : () => {
-					let round = app.state.current.division?.round;
-					let forms = app.state.current.division?.forms;
+					let division = new Division( app.state.current.division );
+					let method   = division?.current?.method();
+					let ring     = division?.ring();
 
-					if( ! forms?.[ round ]?.some( form => form.match( /^draw/i ))) {
-						window.location = '../se/coordinator.php?ring=<?= $rnum ?>'; 
-					}
+					if( ! defined( division )) { return; }
+					if( method == 'se' ) { window.location = `../sbs/coordinator.php?ring=${ring}`; }
 				}
 			};
 
@@ -164,25 +164,6 @@
 			};
 
 			app.on.connect( '<?= $url ?>' ).read.ring();
-
-			app.forwardIf = {
-				cutoff : () => {
-					let division = new Division( app.state.current.division );
-					let method   = division?.current?.method();
-					let ring     = division?.ring();
-
-					if( ! defined( division )) { return; }
-					if( method == 'cutoff' ) { window.location = `../index.php?ring=${ring}`; }
-				},
-				se : () => {
-					let division = new Division( app.state.current.division );
-					let method   = division?.current?.method();
-					let ring     = division?.ring();
-
-					if( ! defined( division )) { return; }
-					if( method == 'se' ) { window.location = `../sbs/index.php?ring=${ring}`; }
-				}
-			};
 
 			// ===== NETWORK LISTENER/HANDLERS
 			app.network.on

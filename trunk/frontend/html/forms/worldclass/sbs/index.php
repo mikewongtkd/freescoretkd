@@ -192,7 +192,11 @@
 				.command( 'update' )
 					.respond( update => {
 						let division = update?.division;
+						let div      = new Division( division );
 						if( ! defined( division )) { return; }
+
+						app.forwardIf.cutoff( div );
+						app.forwardIf.sbs( div );
 
 						let state = division.state;
 						if( ! defined( app.page.show?.[ state ])) { 
@@ -207,7 +211,11 @@
 				.command( 'update' )
 					.respond( update => {
 						let division = update?.division;
+						let div      = new Division( division );
 						if( ! defined( division )) { return; }
+
+						app.forwardIf.cutoff( div );
+						app.forwardIf.sbs( div );
 
 						let state = division.state;
 						if( ! defined( app.page.show?.[ state ])) { 

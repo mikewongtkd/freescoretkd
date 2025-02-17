@@ -45,6 +45,14 @@
 			var tournament = <?= $tournament ?>;
 			var ring       = { num: '<?= $ringnum ?>' };
 			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
+			let forwardIf  = {
+				sbs: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'sbs' ) { window.location = `../sbs/test.php?${ring}`; }
+				}
+			};
 
 			ws.onopen = () => {
 				var request  = { data : { type : 'division', action : 'read' }};
@@ -64,6 +72,8 @@
 
 				division = new Division( update.division );
 				if( ! defined( division )) { return; }
+
+				forwardIf.sbs( division );
 
 				if( update.action == 'update' && update.type == 'division' ) {
 					var athlete = division.current.athlete()

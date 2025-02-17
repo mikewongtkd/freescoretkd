@@ -30,6 +30,7 @@
 		<script src="../../include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
+		<script src="../../include/js/uuid.js"></script>
 		<script src="../../include/js/websocket.js"></script>
 		<script src="../../include/js/sound.js"></script>
 		<script src="../../include/js/event.js"></script>

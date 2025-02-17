@@ -102,6 +102,21 @@
 				return scores;
 			}
 
+			let forwardIf = {
+				cutoff: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'cutoff' ) { window.location = `../test/client.php?ring=${ring}`; }
+				},
+				se: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'sbs' ) { window.location = `../sbs/test.php?ring=${ring}`; }
+				}
+			};
+
 			$( '#send-scores' ).off( 'click' ).click(() => {
 				let request = undefined;
 				let j       = division.judges();

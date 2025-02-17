@@ -342,9 +342,9 @@ sub matches_string {
 
 	foreach my $round ($self->rounds()) {
 		my $method = $self->method( $round );
-		next if $method eq 'cutoff';
 		next unless $self->round_defined( $round );
-		my $matches = $method->matches();
+		my $matches = $method->matches(); # Cutoff method has no matches (i.e. matches() returns undef)
+		next unless $matches; 
 		$_->winner() foreach grep { $_->complete() } $matches->list();
 		$bracket->{ $round } = $matches->data();
 	}
@@ -1121,6 +1121,7 @@ sub calculate_totals {
 # ============================================================
 	my $self = shift;
 
+	print STDERR "DIVISION - CALCULATE TOTALS - START\n"; # MW
 	foreach my $round (keys %{ $self->{ forms }}) {
 		my $order = $self->order( $round );
 		next unless $order;
@@ -1131,6 +1132,7 @@ sub calculate_totals {
 			$scores->calculate_totals( $self->{ judges } );
 		}
 	}
+	print STDERR "DIVISION - CALCULATE TOTALS - COMPLETE\n"; # MW
 }
 
 # ============================================================
