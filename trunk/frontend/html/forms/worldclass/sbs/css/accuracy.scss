@@ -61,74 +61,7 @@
       }
     }
 
-    .score {
-      position: absolute;
-      top: 20%;
-      width: 40%;
-      height: 30%;
-      border-radius: 36px;
-      border: 4px solid white;
-      background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
-
-      .total, .subtotal {
-        text-align: center;
-        color: white;
-
-        label {
-          position: absolute;
-          top: 0;
-          left: 50%;
-          transform: translateX( -50% );
-          color: gold;
-          font-size: 10pt;
-        }
-      }
-
-      .total {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        height: 56.25%;
-        border-bottom: 4px solid white;
-        font-size: 48pt;
-      }
-
-      .subtotal {
-        position: absolute;
-        width: 50.5%;
-        height: 43.75%;
-        top: 56.25%;
-        font-size: 44pt;
-      }
-    }
-
-    .athlete {
-      position: absolute;
-      top: 60%;
-      width: 40%;
-      text-align: center;
-
-      .name {
-        width: 100%;
-        color: white;
-        font-size: 18pt;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        margin-bottom: 5%;
-      }
-
-      img {
-        width: 30%;
-      }
-    }
-
-    &.chung, &.hong {
-      position: absolute;
-      top: 0;
-      width: 50%;
-      height: 100%;
-    }
+@import 'score-athlete';
 
     &.chung {
 
