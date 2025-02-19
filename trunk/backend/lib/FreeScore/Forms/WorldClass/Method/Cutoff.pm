@@ -30,7 +30,6 @@ sub advance_athletes {
 	my $previous = defined $i_p ? $rounds[ $i_p ] : undef;
 	my $next     = defined $i_n ? $rounds[ $i_n ] : undef;
 
-	print STDERR "CUTOFF METHOD - ADVANCE ATHLETES - START\n"; # MW
 	# ===== DO NOTHING IF THERE ARE NO FURTHER ROUNDS
 	if( ! defined $next ) { return; }
 
@@ -63,7 +62,6 @@ sub advance_athletes {
 		@winners = reverse @winners if $next eq 'finals';
 	}
 	$div->assign( $_, $next ) foreach @winners;
-	print STDERR "CUTOFF METHOD - ADVANCE ATHLETES - COMPLETE\n"; # MW
 }
 
 # ============================================================
@@ -264,7 +262,6 @@ sub place_athletes {
 	my $ties      = {};
 	my $placement = [];
 
-	print STDERR "CUTOFF METHOD - PLACE ATHLETES - START\n"; # MW
 	# ===== GET ALL THE ATHLETES FOR THE GIVEN ROUND
 	my @athlete_indices = @{$div->{ order }{ $round }};
 
@@ -293,7 +290,6 @@ sub place_athletes {
 	@$pending   = grep { my $scores = $div->{ athletes }[ $_ ]{ scores }{ $round }; ! defined $scores || ! $scores->complete(); } @$pending; # Athlete's score is NOT complete
 
 	$div->{ pending }{ $round } = $pending;
-	print STDERR "CUTOFF METHOD - PLACE ATHLETES - COMPLETE\n"; # MW
 }
 
 # ============================================================
@@ -307,11 +303,9 @@ sub record_score {
 	my $round   = $div->{ round };
 	my $form    = $div->{ form };
 
-	print STDERR "CUTOFF METHOD - RECORD SCORE - START\n"; # MW
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$div->{ flight }{ state } = 'in-progress' if( $div->is_flight() && $div->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored
 	$div->reinstantiate_round( $round )->record_score( $form, $judge, $score );
-	print STDERR "CUTOFF METHOD - RECORD SCORE - COMPLETE\n"; # MW
 }
 
 # ============================================================

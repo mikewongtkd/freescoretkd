@@ -9,10 +9,12 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 		this.display.poomsae = { draw: this.dom.find( '.poomsae.draw' )};
 
 		// ===== ADD REFRESH BEHAVIOR
+		this.refresh.all = division => {
+			this.refresh.header( division );
+		};
 		this.refresh.header = division => {
 			let match = division.current.match();
-			let start = division.current.matchStart();
-			let mnum  = parseInt( match.number ) + start;
+			let mnum  = division.current.matchNumber();
 			let fnum  = division.form.count() > 1 ? `&ndash; <span class="form-name">${ordinal( parseInt( division.current.formId()) + 1 )} Form</span>` : '';
 			
 			this.display.header.empty();

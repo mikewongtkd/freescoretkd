@@ -71,6 +71,7 @@ function Division( division ) {
 	this.calculate = {
 		match: {
 			winners: () => {
+				if( ! defined( division.matches )) { return; }
 				Object.entries( division.matches ).forEach(([ round, matches ]) => {
 					matches.forEach( match => {
 						if( defined( match.winner )) { return; } // Server already posted results, skip

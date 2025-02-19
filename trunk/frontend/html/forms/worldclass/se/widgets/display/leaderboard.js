@@ -12,6 +12,10 @@ FreeScore.Widget.SELeaderboard = class FSWidgetSELeaderboard extends FreeScore.W
 		this.state.division  = null;
 
 		// ===== ADD REFRESH BEHAVIOR
+		this.refresh.all = division => {
+			this.refresh.header( division );
+			this.refresh.leaderboard( division );
+		};
 		this.refresh.header = division => {
 			this.display.header.empty();
 			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1>` );
@@ -53,8 +57,7 @@ FreeScore.Widget.SELeaderboard = class FSWidgetSELeaderboard extends FreeScore.W
 				let division = update?.division ? new Division( update.division ) : null;
 				if( ! defined( division )) { return; }
 
-				this.refresh.header( division );
-				this.refresh.leaderboard( division );
+				this.refresh.all( division );
 			});
 	}
 }

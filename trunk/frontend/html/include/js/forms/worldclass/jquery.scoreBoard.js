@@ -178,7 +178,6 @@ $.widget( "freescore.scoreboard", {
 		if( current.forms.length > 1 ) { round.ticker.append( e.html.li.clone() .html( round.name + ' ' + form.ordinal + '<b> ' + form.name + '</b>' )); } 
 		else                           { round.ticker.append( e.html.li.clone() .html( round.name + ' Round <b>' + form.name + '</b>' )); }
 
-		if( ! defined( current.athlete        )) { return; }
 		var form = current.athlete.score( current.round ).form( current.form );
 
 		// ===== UPDATE THE JUDGE SCORES

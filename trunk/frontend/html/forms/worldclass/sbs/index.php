@@ -105,7 +105,7 @@
 			let app        = new FreeScore.App( ring.num );
 
 			// ===== NETWORK CONNECT
-			app.on.connect( '<?= $url ?>' ).read.division();
+			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			// ===== PAN & ZOOM FUNCTION
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
@@ -173,37 +173,64 @@
 			app.forwardIf = {
 				cutoff : division => {
 					let method = division.current.method();
-					let ring   = division.ring();
-
-					if( method == 'cutoff' ) { window.location = `../index.php?ring=${ring}`; }
+					if( method == 'cutoff' ) { window.location = `../index.php?ring=<?= $rnum ?>`; }
 				},
-				sbs : division => {
+				se : division => {
 					let method = division.current.method();
-					let ring   = division.ring();
-
-					if( method == 'se' ) { window.location = `../se/index.php?ring=${ring}`; }
+					if( method == 'se' ) { window.location = `../se/index.php?ring=<?= $rnum ?>`; }
 				}
 			};
 
+			app.refresh.page = division => {
+				console.log( 'APP REFRESH PAGE', division.name(), app.state.current ); // MW
+				if( division.name() != app.state.current ) { return; }
+
+				console.log( division.name() ); // MW
+
+				app.forwardIf.cutoff( division );
+				app.forwardIf.se( division );
+
+				let state = division.current.state();
+				console.log( state ); // MW
+				if( ! defined( app.page.show?.[ state ])) { 
+					alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
+					state = 'score'; 
+				}
+				app.page.transition( state );
+			};
+
 			app.network.on
+				// ============================================================
+				.heard( 'ring' )
+				// ============================================================
+				.command( 'update' )
+					.respond( update => {
+						let ring = update?.ring;
+						if( ! defined( ring )) { return; }
+						if( ! defined( ring?.current )) { return; }
+
+						app.state.current = ring.current;
+
+						let division = ring?.divisions?.find( division => division?.name == ring.current );
+						if( ! defined( division )) { return; }
+
+						division = new Division( division );
+						app.refresh.page( division );
+
+						// ACTIVATE SUB WIDGETS
+						Object.entries( app.widget ).forEach(([ name, widget ]) => widget.display.refresh.all( division ));
+					})
 				// ============================================================
 				.heard( 'division' )
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {
+						console.log( 'DIVISION UPDATE' ); // MW
 						let division = update?.division;
-						let div      = new Division( division );
 						if( ! defined( division )) { return; }
 
-						app.forwardIf.cutoff( div );
-						app.forwardIf.sbs( div );
-
-						let state = division.state;
-						if( ! defined( app.page.show?.[ state ])) { 
-							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
-							state = 'score'; 
-						}
-						app.page.transition( state );
+						division = new Division( division );
+						app.refresh.page( division );
 					})
 				// ============================================================
 				.heard( 'autopilot' )
@@ -211,18 +238,10 @@
 				.command( 'update' )
 					.respond( update => {
 						let division = update?.division;
-						let div      = new Division( division );
 						if( ! defined( division )) { return; }
 
-						app.forwardIf.cutoff( div );
-						app.forwardIf.sbs( div );
-
-						let state = division.state;
-						if( ! defined( app.page.show?.[ state ])) { 
-							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
-							state = 'score'; 
-						}
-						app.page.transition( state );
+						division = new Division( division );
+						app.refresh.page( division );
 					})
 		</script>
 	</body>

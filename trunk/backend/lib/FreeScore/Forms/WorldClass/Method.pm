@@ -92,6 +92,15 @@ sub round {
 # ============================================================
 sub rounds {
 # ============================================================
+#** @method ( mode )
+#   @brief Returns all rounds possible for the given method
+#   mode is one of:
+#   - object: Returns a round object which has the following fields (also valid modes):
+#   - code (default): Returns the round codes (e.g. ro8, ro2, etc.)
+#   - name: Returns the round name (e.g. Round of 8)
+#   - min|max: Returns the min or max # of athletes per round
+#   - matches: Returns the max number of matches in the round
+#*
 	my $self   = shift;
 	my $mode   = shift || 'code';
 	my $class  = ref( $self );

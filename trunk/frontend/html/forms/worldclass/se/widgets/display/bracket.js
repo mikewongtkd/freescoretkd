@@ -42,6 +42,13 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 			return order;
 		};
 
+		this.refresh.all = division => {
+			this.refresh.header( division );
+			this.refresh.bracket.graph( division );
+
+			if( division.state.is.bracket()) { this.refresh.bracket.zoom( division ); }
+		};
+
 		this.refresh.header = division => {
 			this.display.header.empty();
 			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1>` );
@@ -107,7 +114,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					return; 
 				}
 
-				let rounds  = division.rounds();
+				let rounds  = division.rounds().filter( round => round.match( /^ro/i ));
 				let start   = 0;
 				let prev    = null;
 				let first   = rounds[ 0 ];
@@ -252,9 +259,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				if( page.num != page.for.bracket ) { return; }
 				division.calculate.match.winners(); // Kludge until server can correctly cache the status updates properly
 
-				this.refresh.header( division );
-				this.refresh.bracket.graph( division );
-				if( division.state.is.bracket()) { this.refresh.bracket.zoom( division ); }
+				this.refresh.all( division );
 			})
 		.heard( 'autopilot' )
 			.command( 'update' ).respond( update => {
@@ -263,9 +268,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				if( ! defined( division )) { return; }
 				division.calculate.match.winners(); // Kludge until server can correctly cache the status updates properly
 
-				this.refresh.header( division );
-				this.refresh.bracket.graph( division );
-				if( division.state.is.bracket()) { this.refresh.bracket.zoom( division ); }
+				this.refresh.all( division );
 			});
 	}
 }
