@@ -197,9 +197,11 @@ $.widget( "freescore.judgeController", {
 			let forwardIf = {
 				sbs: division => {
 					let method = division.current.method();
-					let ring   = division.ring();
-
 					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}`; }
+				},
+				se: division => {
+					let method = division.current.method();
+					if( method == 'se' ) { window.location = `se/judge.php?ring=${o.ring}&judge=${o.num}`; }
 				}
 			};
 

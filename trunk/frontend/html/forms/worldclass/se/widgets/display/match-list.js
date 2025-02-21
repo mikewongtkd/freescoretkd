@@ -12,6 +12,10 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 		this.state.division  = { show : null };
 
 		// ===== ADD REFRESH BEHAVIOR
+		this.refresh.all = division => {
+			this.refresh.header( division );
+			this.refresh.match.list( division );
+		};
 		this.refresh.header = division => {
 			this.display.header.empty();
 			this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span></h2>` );
@@ -98,8 +102,7 @@ FreeScore.Widget.SEMatchList = class FSWidgetSEMatchList extends FreeScore.Widge
 				if( ! defined( division )) { return; }
 				division.calculate.match.winners(); // Kludge until I can resolve server-side cache issues
 
-				this.refresh.header( division );
-				this.refresh.match.list( division );
+				this.refresh.all( division );
 			});
 	}
 }

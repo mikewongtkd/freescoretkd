@@ -19,6 +19,14 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh = {
+			all: division => {
+				let chung    = division.current.chung();
+				let hong     = division.current.hong();
+
+				contestants.forEach( contestant => this.refresh.athlete.display( division, contestant ));
+				this.refresh.header( division );
+				this.refresh.athlete.scores( chung, hong );
+			},
 			athlete : {
 				display : ( division, contestant ) => { // Convention: contestant = 'chung' | 'hong'
 					let divid = division.name();
@@ -129,12 +137,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
 				let division = update?.division ? new Division( update.division ) : null;
-				let chung    = division.current.chung();
-				let hong     = division.current.hong();
-
-				contestants.forEach( contestant => this.refresh.athlete.display( division, contestant ));
-				this.refresh.header( division );
-				this.refresh.athlete.scores( chung, hong );
+				this.refresh.all( division );
 			});
 	}
 }

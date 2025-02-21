@@ -736,15 +736,22 @@ sub round_complete {
 # ============================================================
 sub round_defined {
 # ============================================================
+#** @method ( round )
+#	@brief Returns true if the round: (1) exists; (2) is defined; (3) is an array; and (4) has 1 or more athletes
+#*
 	my $self  = shift;
 	my $round = shift;
+	my $order = $self->{ order };
 
-	return exists $self->{ order }{ $round } && defined $self->{ order }{ $round } && ref $self->{ order }{ $round } eq 'ARRAY' && int( @{$self->{ order }{ $round }}) > 0;
+	return exists $order->{ $round } && defined $order->{ $round } && ref( $order->{ $round }) eq 'ARRAY' && int( @{$order->{ $round }}) > 0;
 }
 
 # ============================================================
 sub rounds {
 # ============================================================
+#** @method [ mode, nofilter ]
+#   @brief Returns all available rounds for the division
+#*
 	my $self     = shift;
 	my $mode     = shift; # Undef for round codes, 'object' for round objects
 	my $nofilter = shift; # Undef to enable filter; 'nofilter' to disable filter
@@ -755,7 +762,7 @@ sub rounds {
 
 	# Combination methods
 	if( ref( $method ) eq 'HASH' ) {
-		@rounds = grep { exists $self->{ method }{ $_ } } @order;
+		@rounds = grep { exists $method->{ $_ } } @order;
 		my $json = new JSON::XS();
 		$string = $json->canonical->encode( $method );
 
