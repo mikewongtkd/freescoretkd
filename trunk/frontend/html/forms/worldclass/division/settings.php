@@ -1,13 +1,15 @@
 <?php
 	$default_n = isset( $_COOKIE[ 'judges' ]) ? $_COOKIE[ 'judges' ] : 5;
 	function judge_checked( $i ) {
-		$checked = $_COOKIE[ 'judges' ] == $i;
+		if( isset( $_COOKIE[ 'judges' ])) { $checked = $_COOKIE[ 'judges' ] == $i } 
+		else                              { $checked = false; }
 		$default = (! isset( $_COOKIE[ 'judges' ])) && ($i == 5);
 		if( $checked || $default ) { return ' checked'; }
 		return '';
 	}
 	function judge_active( $i ) {
-		$active  = $_COOKIE[ 'judges' ] == $i;
+		if( isset( $_COOKIE[ 'judges' ])) { $active = $_COOKIE[ 'judges' ] == $i; }
+		else                              { $active = false; }
 		$default = (! isset( $_COOKIE[ 'judges' ])) && ($i == 5);
 		if( $active || $default ) { return ' active'; }
 		return '';
