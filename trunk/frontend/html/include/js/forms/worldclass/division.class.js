@@ -245,7 +245,7 @@ function Division( division ) {
 			round = defined( round ) ? round : division.round;
 			let match = this.current.match();
 			let n     = division.forms[ round ].length;
-			let draws = division.draw?.[ round ]?.[ match.number ];
+			let draws = division.draws?.[ round ]?.[ match.number ];
 
 			draws = defined( draws ) ? draws : [];
 			n = n - draws.length;
