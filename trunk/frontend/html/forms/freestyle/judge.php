@@ -488,7 +488,7 @@
 			// ============================================================
 			// COMMUNICATION WITH SERVICE
 			// ============================================================
-      var ws       = new WebSocket( `<?= $config->websocket( 'freestyle' ) ?>/${tournament.db}/${ring.num}` );
+      var ws       = new WebSocket( '<?= $config->websocket( 'freestyle', $ring ) ?>' );
 			var previous = { athlete: { name: undefined }};
 
 			ws.onopen = function() {

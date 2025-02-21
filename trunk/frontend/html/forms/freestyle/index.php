@@ -64,7 +64,7 @@
 			var ring       = { num: <?= $i ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( `<?= $config->websocket( 'freestyle' ) ?>/${tournament.db}/${ring.num}` );
+			var ws         = new WebSocket( `<?= $config->websocket( 'freestyle', $i ) ?>` );
 			var zoom       = { scale: 1.0 };
 
 			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };
