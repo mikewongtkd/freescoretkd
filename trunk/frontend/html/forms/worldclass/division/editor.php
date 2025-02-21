@@ -1,5 +1,7 @@
 <?php
 	include "../../../include/php/config.php";
+	$ring = 'staging';
+	if( isset( $_GET[ 'ring' ])) { $ring = $_GET[ 'ring' ]; }
 	if( isset( $_GET[ 'file' ])) {
 		[ $db, $ring, $divid ] = explode( '/', $_GET[ 'file' ]);
 	}

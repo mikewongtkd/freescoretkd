@@ -182,16 +182,12 @@
 			};
 
 			app.refresh.page = division => {
-				console.log( 'APP REFRESH PAGE', division.name(), app.state.current ); // MW
 				if( division.name() != app.state.current ) { return; }
-
-				console.log( division.name() ); // MW
 
 				app.forwardIf.cutoff( division );
 				app.forwardIf.se( division );
 
 				let state = division.current.state();
-				console.log( state ); // MW
 				if( ! defined( app.page.show?.[ state ])) { 
 					alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 					state = 'score'; 
@@ -225,7 +221,6 @@
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {
-						console.log( 'DIVISION UPDATE' ); // MW
 						let division = update?.division;
 						if( ! defined( division )) { return; }
 

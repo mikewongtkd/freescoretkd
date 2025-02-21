@@ -150,7 +150,7 @@
 
 				if( defined( ws )) { ws.close(); }
 
-				ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${target}/computer+operator` );
+				ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>` );
 
 				ws.onerror = network.error = function() {
 					setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds

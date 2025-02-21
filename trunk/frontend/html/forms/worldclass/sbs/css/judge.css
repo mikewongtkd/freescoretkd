@@ -226,14 +226,6 @@ body {
   background: #240000;
   background: linear-gradient(0deg, #240000 0%, #000424 0%, #160c78 85%, #0f0b59 100%);
 }
-#score-accuracy .accuracy.hong {
-  background: #240000;
-  background: linear-gradient(0deg, #240000 0%, #780c0c 85%, #590b0b 100%);
-}
-#score-accuracy .accuracy.chung {
-  background: #240000;
-  background: linear-gradient(0deg, #240000 0%, #000424 0%, #160c78 85%, #0f0b59 100%);
-}
 #score-accuracy .accuracy.chung .btn-major {
   background: linear-gradient(0deg, #00005d 0%, #000186 50%, #0006d7 51%, #0005b9 100%);
   border: 4px solid navy;
@@ -488,14 +480,6 @@ body {
   top: 0;
   width: 50%;
   height: 100%;
-}
-#score-presentation .presentation.chung {
-  background: #240000;
-  background: linear-gradient(0deg, #240000 0%, #000424 0%, #160c78 85%, #0f0b59 100%);
-}
-#score-presentation .presentation.hong {
-  background: #240000;
-  background: linear-gradient(0deg, #240000 0%, #780c0c 85%, #590b0b 100%);
 }
 #score-presentation .presentation.chung {
   background: #240000;
