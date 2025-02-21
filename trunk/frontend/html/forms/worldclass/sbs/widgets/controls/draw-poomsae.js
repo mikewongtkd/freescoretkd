@@ -135,9 +135,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						// RANDOM DRAW FORM
 						} else {
 							// Random draw, ensuring the draw is different from the previous draw
-							let diff = pool.filter( form => form != this.state.draw.form );
-							let i    = Math.floor( Math.random() * diff.length );
-							this.state.draw.form = form = diff[ i ];
+							console.log( 'PREVIOUS DRAW', form ); // MW
+							let filtered = pool.filter( form => form != this.state.draw.form );
+							let i        = Math.floor( Math.random() * filtered.length );
+							this.state.draw.form = form = filtered[ i ];
 							tdd.html( form );
 
 							let request = { type: 'division', action: 'draw', draw: { form, complete: false }};
