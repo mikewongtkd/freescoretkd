@@ -82,7 +82,7 @@ table .usatid { width: 30%; text-align: right; }
 							tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
 						});
 
-						results.append( summary, round.display, division.forms[ round.code ].join( ', ' ), table );
+						results.append( summary, round.display, division.forms[ round.code ]?.join( ', ' ), table );
 						$( '#report-tabular' ).append( results );
 					}
 				}

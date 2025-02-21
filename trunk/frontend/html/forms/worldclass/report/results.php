@@ -49,7 +49,7 @@ table .tb2 { width: 10%; }
 						let n       = division.athletes.length;
 						let rounds  = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
 
-						if( ! rounds.map( round => round.code ).includes( 'ro2' )) { return; }
+						if( ! rounds?.map( round => round.code )?.includes( 'ro2' )) { return; }
 						
 						rounds.filter( round => ! round.code.match( /^ro/ )).forEach( round => {
 							let table = $( '<table class="table table-striped" />' );
@@ -98,7 +98,7 @@ table .tb2 { width: 10%; }
 								table.append( thead, tbody );
 								tables.push( `<h4>Single Elimination Summary</h4><p>Tallying wins over the Quarter-Finals (Ro8), Semi-Finals (Ro4), and Finals (Ro2) Rounds</p>`, table );
 
-								let placements = 'ro2' in division.placement ? division.placement[ 'ro2' ] : [];
+								let placements = defined( division?.placement ) && ('ro2' in division.placement) ? division.placement[ 'ro2' ] : [];
 								let maxwins    = placements.length;
 								let trmap      = { 1: 'Finals', 2: 'Finals', 3: 'Semi-Finals', 5: 'Quarter-Finals', 9: 'Round of 16', 17: 'Round of 32', 33: 'Round of 64', 65: 'Round of 128', 129: 'Round of 256' };
 
