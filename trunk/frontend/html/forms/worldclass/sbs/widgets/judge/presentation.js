@@ -141,11 +141,11 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 
 			this.display.header.html( `<div class="div-summary"><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></div><div class="match-summary"><span class="round-name">${division.current.round.name()}</span> &ndash; <span class="match-number">Match ${match.number + start}</span> &ndash; <span class="form-name">${form}</span></div>` );
 
-			let jname = this.app.state.current.judge == 0 ? 'R' : `J${this.app.state.current.judge}`;
+			let jname  = this.app.state.current.judge == 0 ? 'R' : `J${this.app.state.current.judge}`;
 			let config = this.button.common.config = $( `<a class="btn config btn-config"><span class="fas fa-cog"></span></a>` );
-			let back  = this.button.common.back = $( `<a class="btn back btn-back">Back <span class="fas fa-arrow-left"></span></a>` );
-			let send  = this.button.common.send = $( `<a class="btn send btn-send">Send <span class="fas fa-check-circle"></span></a>` );
-			let jid   = this.display.common.jid = $( `<div class="jid">${jname}</div>` );
+			let back   = this.button.common.back = $( `<a class="btn back btn-back">Back <span class="fas fa-arrow-left"></span></a>` );
+			let send   = this.button.common.send = $( `<a class="btn send btn-send">Send <span class="fas fa-check-circle"></span></a>` );
+			let jid    = this.display.common.jid = $( `<div class="jid">${jname}</div>` );
 
 			this.display.common.elements.append( config, back, send, jid );
 
@@ -161,12 +161,13 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 			this.button.common.send.off( 'click' ).click( ev => {
 				let current = this.app.state.current;
 				let score   = this.app.state.score;
+		    let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
 				let start   = division.current.matchStart();
 				current.score = score;
 				let send    = () => {
 					let request = { type: 'division', action: 'score', score: { divid: current.divid, match: current.match, form: current.form, chung: current.score.chung, hong: current.score.hong }};
 					this.network.send( request );
-					alertify.message( `Sending scores for Match ${current.match + start}` );
+					alertify.message( `Sending ${jname} scores for Match ${current.match + start}` );
 				};
 
 				// Check for incomplete score
@@ -228,7 +229,8 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				if( update.request.action == 'score' ) {
 					let current = this.app.state.current;
 					let start   = division.current.matchStart();
-					if( update.request.score.judge == current.judge ) { alertify.success( `Score for Match ${current.match + start} successfully sent` ); return; }
+			    let jname   = this.app.state.current.judge == 0 ? 'Referee' : `Judge ${this.app.state.current.judge}`;
+					if( update.request.score.judge == current.judge ) { alertify.success( `${jname} score for Match ${current.match + start} received` ); return; }
 					else { return; }
 				}
 
