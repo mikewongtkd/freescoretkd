@@ -83,7 +83,7 @@
 			<!-- DISPLAY LEADERBOARD -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-5">
-				<div id="display-leaderboard" <?= $flip ?>>
+				<div id="display-leaderboard">
 				</div>
 			</div>
 
@@ -109,6 +109,16 @@
 
 			// ===== PAN & ZOOM FUNCTION
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
+      app.display.flip = () => {
+        const flippable = $( '#display-score, #display-results, #display-matches' );
+        if( $( '#display-score' ).hasClass( 'chung-right' )) {
+          flippable.removeClass( 'chung-right' ).addClass( 'chung-left' );
+          alertify.notify( 'Display flipped: chung now on left' );
+        } else {
+          flippable.removeClass( 'chung-left' ).addClass( 'chung-right' );
+          alertify.notify( 'Display flipped: chung now on right' );
+        }
+      };
 			app.display.panzoom = delta => {
 				app.state.display.x    += delta.x;
 				app.state.display.y    += delta.y;
@@ -121,6 +131,7 @@
 			}
 			$( 'body' ).keydown( ev => { 
 				switch( ev.key ) {
+					case 'f':          app.display.flip(); break;
 					case '=':          app.display.panzoom({ x:  0.00, y:  0.00, z:  0.05 }); break;
 					case '-':          app.display.panzoom({ x:  0.00, y:  0.00, z: -0.05 }); break;
 					case 'ArrowUp':    app.display.panzoom({ x:  0.00, y: -0.05, z:  0.00 }); break;
