@@ -280,14 +280,12 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				}
 
 				// Reset the age selection
-				if( defined( this.state.division ) && this.state.division.name != division.name ) {
-					if( this.state.division.name == division.name ) {
-						this.state.age = this.cookie.value();
+				if( defined( this.state.division ) && this.state.division.name == division.name ) {
+					this.state.age = this.cookie.value();
 
-					} else {
-						this.cookie.remove();
-						this.state.age = null;
-					}
+				} else {
+					this.cookie.remove();
+					this.state.age = null;
 				}
 
 				this.refresh.draw.poomsae( division );
