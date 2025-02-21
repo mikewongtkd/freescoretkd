@@ -167,7 +167,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				let send    = () => {
 					let request = { type: 'division', action: 'score', score: { divid: current.divid, match: current.match, form: current.form, chung: current.score.chung, hong: current.score.hong }};
 					this.network.send( request );
-					alertify.message( `Sending ${jname} scores for Match ${current.match + start}` );
+					alertify.message( `Sending ${jname} scores for Match ${current.match + start} to server.` );
 				};
 
 				// Check for incomplete score
@@ -230,7 +230,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					let current = this.app.state.current;
 					let start   = division.current.matchStart();
 			    let jname   = this.app.state.current.judge == 0 ? 'Referee' : `Judge ${this.app.state.current.judge}`;
-					if( update.request.score.judge == current.judge ) { alertify.success( `${jname} score for Match ${current.match + start} received` ); return; }
+					if( update.request.score.judge == current.judge ) { alertify.success( `Server received ${jname} score for Match ${current.match + start}.` ); return; }
 					else { return; }
 				}
 
