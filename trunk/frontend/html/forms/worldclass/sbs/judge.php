@@ -84,7 +84,7 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title">Display Configuration</h4>
+						<h4 class="modal-title">Display Configuration and Reset</h4>
 					</div>
 					<div class="modal-body">
 						<div class="display-config-group">
@@ -104,6 +104,13 @@
 								<button type="button" class="btn zoom btn-zoom-in"><span class="fas fa-search-plus"></span></button>
 							</div>
 						</div>
+						<div class="display-config-group">
+							<label>Resets</label>
+							<div class="btn-group">
+								<button type="button" class="btn reload btn-reload"><span class="fas fa-sync"></span></button>
+								<button type="button" class="btn reboot btn-reboot"><span class="fas fa-power-off"></span></button>
+							</div>
+            </div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default btn-cancel">Restore to Defaults</button>
@@ -184,6 +191,8 @@
 			app.button.flip   = $( '.display-config .btn-flip' );
 			app.button.zoom   = $( '.display-config .btn.zoom' );
 			app.button.pan    = $( '.display-config .btn.pan' );
+			app.button.reload = $( '.display-config .btn.reload' );
+			app.button.reboot = $( '.display-config .btn.reboot' );
 			app.button.ok     = $( '.display-config .btn-ok' );
 			app.button.cancel = $( '.display-config .btn-cancel' );
 
@@ -215,6 +224,12 @@
 					app.display.panzoom({ x: 0, y: 0, z: -0.05 });
 				}
 			});
+
+      app.button.reload.off( 'click' ).click( ev => { window.location.reload(); });
+      app.button.reboot.off( 'click' ).click( ev => { 
+        app.state.reset();
+        window.location.reload(); 
+      });
 
 			app.button.ok.off( 'click' ).click( ev => {
 				app.display.config.save();
