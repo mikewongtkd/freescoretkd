@@ -105,9 +105,9 @@
 							</div>
 						</div>
 						<div class="display-config-group">
-							<label>Resets</label>
+							<label>Reset</label>
 							<div class="btn-group">
-								<button type="button" class="btn reload btn-reload"><span class="fas fa-sync"></span></button>
+								<button type="button" class="btn reload btn-reload"><span class="fas fa-wifi"></span></button>
 								<button type="button" class="btn reboot btn-reboot"><span class="fas fa-power-off"></span></button>
 							</div>
             </div>
@@ -365,6 +365,9 @@
 							current.match = match.number;
 							current.form  = division.current.formId();
 							app.state.save();
+
+              let jname = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
+              alertify.success( `${jname} ready to score for Match ${division.current.matchNumber()}` );
 						}
 
 						app.state.score.chung.index = match.chung;
