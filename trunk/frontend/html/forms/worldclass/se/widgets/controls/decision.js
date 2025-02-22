@@ -49,28 +49,9 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 
 				this.button.winner.off( 'click' ).click( ev => {
 					let n          = division.judges();
-					let score      = { major: 0.0, minor: 4.0, power: 0.5, rhythm: 0.5, ki: 0.5 };
-					let request    = { type: 'division', action: 'score', score: {}, cookie: {}};
-					for( let judge = 0; judge < n; judge++ ) {
-						request.cookie.judge = request.judge = judge;
-						if( division.current.method() == 'sbs' ) {
-							let id         = athlete.id();
-							let contestant = id == match.chung ? 'chung' : 'hong';
-							let mnum       = match.number;
-
-							score.index = id;
-							request.score.match = mnum;
-							request.score[ contestant ] = score;
-
-							this.network.send( request );
-
-						} else {
-							request.score = score;
-							this.network.send( request );
-						}
-					}
+					let request    = { type: 'division', action: 'award min score' };
 					this.sound.ok.play();
-					alertify.success( `${athlete.name()} has been awarded the win for being uncontested` );
+					alertify.success( `${athlete.name()} has been awarded a minimum score` );
 				});
 			} else {
 				this.button.winner.parent().hide();
