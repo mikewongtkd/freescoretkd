@@ -33,7 +33,7 @@ sub init {
 		athlete_delete     => \&handle_division_athlete_delete,
 		athlete_next       => \&handle_division_athlete_next,
 		athlete_prev       => \&handle_division_athlete_prev,
-		award_min_score    => \&handle_division_award_win_score,
+		award_min_score    => \&handle_division_award_min_score,
 		award_penalty      => \&handle_division_award_penalty,
 		award_punitive     => \&handle_division_award_punitive,
 		clear_judge_score  => \&handle_division_clear_judge_score,
@@ -144,12 +144,21 @@ sub handle_division_award_min_score {
 	my $n        = $division->{ judges };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $message  = "Award minimum score to $athlete->{ name }\n";
+  my $method   = $division->method();
 
 	print STDERR $message if $DEBUG;
 
 	try {
 		$version->checkout( $division);
-		my $score = { major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 };
+    my $score = undef;
+    if( $method->code() eq 'sbs' ) {
+	    my $match      = $method->matches->current();
+      my $contestant = $match->{ chung } == $i ? 'chung' : 'hong';
+      my $mnum       = $match->{ number };
+		  $score = { match => $mnum, $contestant => { index => $i, major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 }};
+    } else {
+		  $score = { major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 };
+    }
 		my $form  = $division->{ form };
 		foreach( my $k; $k < $forms; $k++ ) {
 			$division->{ form } = $k;

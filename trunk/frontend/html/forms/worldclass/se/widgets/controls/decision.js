@@ -48,8 +48,7 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 				this.state.notify( `Match ${mnum} is uncontested. Press the <i>Winner</i> decision button to award the win to ${athlete.name()}.` );
 
 				this.button.winner.off( 'click' ).click( ev => {
-					let n          = division.judges();
-					let request    = { type: 'division', action: 'award min score' };
+					this.network.send({ type: 'division', action: 'award min score' });
 					this.sound.ok.play();
 					alertify.success( `${athlete.name()} has been awarded a minimum score` );
 				});
