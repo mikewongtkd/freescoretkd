@@ -105,7 +105,7 @@
 							</div>
 						</div>
 						<div class="display-config-group">
-							<label>Reset</label>
+							<label>Reconnect or Reboot</label>
 							<div class="btn-group">
 								<button type="button" class="btn reload btn-reload"><span class="fas fa-wifi"></span></button>
 								<button type="button" class="btn reboot btn-reboot"><span class="fas fa-power-off"></span></button>
