@@ -173,11 +173,15 @@
 				.command( 'update' )
 					.respond( update => {
 						if( ! defined( update?.ring )) { return; }
-						let ring  = update.ring;
-						let divid = $.cookie( 'divid' ) ? $.cookie( 'divid' ) : (ring?.current ? ring.current : ring?.divisions?.[ 0 ]?.name);
-						app.state.divisions        = ring?.divisions;
+						let ring      = update.ring;
+						let divid     = $.cookie( 'divid' ) ? $.cookie( 'divid' ) : (ring?.current ? ring.current : ring?.divisions?.[ 0 ]?.name); divid = divid.replaceAll( '"', '' );
+            let divisions = ring?.divisions;
+            let division  = divisions?.find( div => div.name == divid );
+            if( ! defined( division )) { return; }
+
+						app.state.divisions        = divisions;
 						app.state.current.divid    = divid;
-						app.state.current.division = app.state.divisions?.find( div => div.name == app.state.current.divid );
+						app.state.current.division = division;
 
 						app.forwardIf.cutoff();
 						app.forwardIf.se();

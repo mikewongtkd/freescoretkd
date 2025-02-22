@@ -22,8 +22,8 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.match = division => {
 			let match    = division.current.match();
-			let chung    = match.chung ? division.athlete( match.chung ) : null;
-			let hong     = match.hong  ? division.athlete( match.hong )  : null;
+			let chung    = defined( match.chung ) ? division.athlete( match.chung ) : null;
+			let hong     = defined( match.hong )  ? division.athlete( match.hong )  : null;
 			let athletes = { chung, hong };
 
 			Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
