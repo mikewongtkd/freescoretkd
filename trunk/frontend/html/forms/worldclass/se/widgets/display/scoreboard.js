@@ -196,7 +196,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							tdc.judge.forEach(( display, i ) => {
 								let judge = form[ contestant ].score.judge( i );
 								display.empty();
-								if( judge.score.is.complete()) { display.html( `<div class="jid">${ i == 0 ? 'R' : 'J' + (i+1)}</div><div class="score received">&check;</div>` ); }
+								if( judge.score.is.complete()) { display.html( `<div class="jid">${ i == 0 ? 'R' : `J${i}` }</div><div class="score received">&check;</div>` ); }
 							});
 						});
 					}

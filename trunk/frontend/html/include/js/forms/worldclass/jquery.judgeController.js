@@ -83,7 +83,7 @@ $.widget( "freescore.judgeController", {
 
 			e.send .off( 'click' ) .click( function() {
 				alertify.notify( "Sending score... please wait" );
-				let request  = { data : { type : 'division', action : 'score', score : score }};
+				let request  = { data : { type : 'division', action : 'score', score : score, judge: o.num, cookie: { judge: o.num } }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
 				e.send.attr({ 'sent': 'true' });
