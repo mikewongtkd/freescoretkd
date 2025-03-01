@@ -88,10 +88,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					return;
 				}
         let draw = division.form.draw();
-        console.log( 'DESIGNATED POOMSAE POOL (BEFORE FILTERING)', pool ); // MW
-        console.log( 'DRAWS', draw ); // MW
         pool = pool.filter( form => ! draw.includes( form ));
-        console.log( 'DESIGNATED POOMSAE POOL (AFTER FILTERING)', pool ); // MW
 
 				// Remove previously drawn poomsae (no repeats)
 				this.button.draw.off( 'click' ).click( ev => {
@@ -263,7 +260,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					this.refresh.draw.modal( division ); 
 
 				} else {
-          console.log( 'REFRESH DRAW POOMSAE - REFRESH DRAW BUTTON', division ); // MW
 					this.refresh.draw.button( division );
 				}
 			}

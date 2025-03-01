@@ -126,6 +126,8 @@
 					let method   = division?.current?.method();
 					let ring     = division?.ring();
 
+					console.log( `Forward ${division.name().toUpperCase()}` ); // MW
+
 					if( ! defined( division )) { return; }
 					if( method == 'cutoff' ) { window.location = `../coordinator.php?ring=${ring}`; }
 				},
@@ -133,6 +135,8 @@
 					let division = new Division( app.state.current.division );
 					let method   = division?.current?.method();
 					let ring     = division?.ring();
+
+					console.log( `Forward ${division.name().toUpperCase()}` ); // MW
 
 					if( ! defined( division )) { return; }
 					if( method == 'se' ) { window.location = `../sbs/coordinator.php?ring=${ring}`; }
@@ -175,9 +179,9 @@
 						if( ! defined( update?.ring )) { return; }
 						let ring      = update.ring;
 						let divid     = $.cookie( 'divid' ) ? $.cookie( 'divid' ) : (ring?.current ? ring.current : ring?.divisions?.[ 0 ]?.name); divid = divid.replaceAll( '"', '' );
-            let divisions = ring?.divisions;
-            let division  = divisions?.find( div => div.name == divid );
-            if( ! defined( division )) { return; }
+						let divisions = ring?.divisions;
+						let division  = divisions?.find( div => div.name == divid );
+						if( ! defined( division )) { return; }
 
 						app.state.divisions        = divisions;
 						app.state.current.divid    = divid;
