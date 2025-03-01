@@ -13,6 +13,7 @@ FreeScore.Widget.SBSPoomsaeDraw = class FSWidgetSBSPoomsaeDraw extends FreeScore
 			this.refresh.header( division );
 		};
 		this.refresh.header = division => {
+			if( ! defined( division )) { return; }
 			let match = division.current.match();
 			let mnum  = division.current.matchNumber();
 			let fnum  = division.form.count() > 1 ? `&ndash; <span class="form-name">${ordinal( parseInt( division.current.formId()) + 1 )} Form</span>` : '';

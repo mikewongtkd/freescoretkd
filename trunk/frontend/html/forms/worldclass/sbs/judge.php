@@ -317,14 +317,16 @@
 				cutoff: division => {
 					let method = division.current.method();
 					let ring   = division.ring();
-					console.log( division.name().toUpperCase()); // MW
+
+					console.log( `Forwarding: ${division.name().toUpperCase()}` ); // MW
 
 					if( method == 'cutoff' ) { window.location = `../judge.php?ring=<?= $rnum ?>&judge=<?= $jnum ?>`; }
 				},
 				se: division => {
 					let method = division.current.method();
 					let ring   = division.ring();
-					console.log( division.name().toUpperCase()); // MW
+
+					console.log( `Forwarding: ${division.name().toUpperCase()}` ); // MW
 
 					if( method == 'se' ) { window.location = `../judge.php?ring=<?= $rnum ?>&judge=<?= $jnum ?>`; }
 				}
