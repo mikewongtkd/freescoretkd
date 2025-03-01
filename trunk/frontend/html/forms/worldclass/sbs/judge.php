@@ -341,8 +341,10 @@
 						if( ! defined( division )) { return; }
 
 						division = new Division( division );
-						app.forwardIf.cutoff( division );
-						app.forwardIf.se( division );
+						if( update.request?.type == 'division' && update.request?.action == 'read' ) { 
+							app.forwardIf.cutoff( division );
+							app.forwardIf.se( division );
+						}
 
 						let match = division.current.match();
 						if( ! defined( match )) { return; }
