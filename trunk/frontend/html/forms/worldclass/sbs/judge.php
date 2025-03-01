@@ -339,13 +339,11 @@
 					.respond( update => {
 						let division = update?.division;
 						if( ! defined( division )) { return; }
-            if( update?.request?.type == 'users' ) { return; }
+						if( update?.request?.type == 'users' ) { return; }
 
 						division = new Division( division );
-						if( update.request?.type != 'users' ) { 
-							app.forwardIf.cutoff( division );
-							app.forwardIf.se( division );
-						}
+						app.forwardIf.cutoff( division );
+						app.forwardIf.se( division );
 
 						let match = division.current.match();
 						if( ! defined( match )) { return; }
