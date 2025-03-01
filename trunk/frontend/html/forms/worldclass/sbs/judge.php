@@ -342,7 +342,7 @@
             if( update?.request?.type == 'users' ) { return; }
 
 						division = new Division( division );
-						if( update.request?.type == 'division' && update.request?.action == 'read' ) { 
+						if( update.request?.type != 'users' ) { 
 							app.forwardIf.cutoff( division );
 							app.forwardIf.se( division );
 						}
