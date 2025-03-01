@@ -7,7 +7,7 @@ class Client {
 		this._jid    = null;
 
 		if( this.client.role.match( /judge/i )) {
-			let match  = this.client.role( /judge(\d+)/i );
+			let match  = this.client.role.match( /judge(\d+)/i );
 			let jid    = parseInt( match[ 1 ]);
 			this._jid  = jid;
 			this._name = jid == 0 ? 'Referee' : `Judge ${jid}`;

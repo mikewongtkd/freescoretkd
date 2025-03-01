@@ -339,6 +339,7 @@
 					.respond( update => {
 						let division = update?.division;
 						if( ! defined( division )) { return; }
+            if( update?.request?.type == 'users' ) { return; }
 
 						division = new Division( division );
 						if( update.request?.type == 'division' && update.request?.action == 'read' ) { 
