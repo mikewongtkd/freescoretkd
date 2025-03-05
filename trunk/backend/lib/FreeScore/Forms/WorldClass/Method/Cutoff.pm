@@ -295,6 +295,11 @@ sub place_athletes {
 # ============================================================
 sub record_score {
 # ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Records the scores for Side-By-Side
+#*
+# score { index: int, major: float, minor: float, power: float, rhythm: float, ki: float } 
+# 
 	my $self    = shift;
 	my $judge   = shift;
 	my $score   = shift;

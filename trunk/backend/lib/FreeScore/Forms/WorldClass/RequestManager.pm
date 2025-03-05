@@ -39,6 +39,7 @@ sub init {
 		clear_judge_score  => \&handle_division_clear_judge_score,
 		display            => \&handle_division_display,
 		draw               => \&handle_division_draw,
+		draw_select_age    => \&handle_division_draw_select_age,
 		edit_athletes      => \&handle_division_edit_athletes,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
@@ -150,15 +151,15 @@ sub handle_division_award_min_score {
 
 	try {
 		$version->checkout( $division);
-    my $score = undef;
-    if( $method->code() eq 'sbs' ) {
-	    my $match      = $method->matches->current();
-      my $contestant = $match->{ chung } == $i ? 'chung' : 'hong';
-      my $mnum       = $match->{ number };
-		  $score = { match => $mnum, $contestant => { index => $i, major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 }};
-    } else {
-		  $score = { major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 };
-    }
+		my $score = undef;
+		if( $method->code() eq 'sbs' ) {
+			my $match      = $method->matches->current();
+			my $contestant = $match->{ chung } == $i ? 'chung' : 'hong';
+			my $mnum       = $match->{ number };
+			$score = { match => $mnum, $contestant => { index => $i, major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 }};
+		} else {
+			$score = { major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 };
+		}
 		my $form  = $division->{ form };
 		foreach( my $k; $k < $forms; $k++ ) {
 			$division->{ form } = $k;
@@ -167,6 +168,11 @@ sub handle_division_award_min_score {
 		$division->{ form } = $form;
 		$division->write();
 		$version->commit( $division, $message );
+
+		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
+		my $autopilot = $self->autopilot( $request, $progress, $group ) if $complete;
+		die $autopilot->{ error } if exists $autopilot->{ error };
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
@@ -335,6 +341,34 @@ sub handle_division_draw {
 			$division->{ state } = 'draw';
 			$division->write();
 		}
+
+		$self->broadcast_updated_division( $request, $progress, $group );
+	} catch {
+		$client->send( { json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_division_draw_select_age {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $client   = $self->{ _client };
+	my $division = $progress->current();
+	my $age      = $request->{ age };
+	my $divid    = uc $division->{ name };
+	my $round    = $division->{ round };
+
+	print STDERR "Recording poomsae draw age selection: $age for $divid\n" if $DEBUG;
+
+	try {
+		$division->autopilot( 'off' );
+		my $forms = $division->{ forms }{ $round };
+		my $n     = int( @$forms );
+		$forms->[ $_ ] = "draw-$age" foreach ( 0 .. $n );
+		$division->write();
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
@@ -597,7 +631,7 @@ sub handle_division_score {
 	my $version  = new FreeScore::RCS();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = $request->{ cookie }{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
+	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
 	my $message  = '';
 
 	if( exists $request->{ score }{ chung } || exists $request->{ score }{ hong }) {
@@ -614,7 +648,7 @@ sub handle_division_score {
 	try {
 		my $score = clone( $request->{ score } );
 		$version->checkout( $division );
-		$division->record_score( $request->{ cookie }{ judge }, $score );
+		$division->record_score( $request->{ judge }, $score );
 		$division->write();
 		$version->commit( $division, $message );
 

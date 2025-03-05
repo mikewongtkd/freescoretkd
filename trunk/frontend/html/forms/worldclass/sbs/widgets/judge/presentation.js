@@ -37,7 +37,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				};
 
 				info.all.append( info.name, info.noc );
-				tdc.side.append( info.all );
+				tdc.side.empty().append( info.all );
 				if( defined( athlete )) {
 					info.name.html( athlete.display.name( 16 ));
 					let noc = athlete.info( 'noc' );
@@ -165,7 +165,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				let start   = division.current.matchStart();
 				current.score = score;
 				let send    = () => {
-					let request = { type: 'division', action: 'score', score: { divid: current.divid, match: current.match, form: current.form, judge: current.judge, chung: current.score.chung, hong: current.score.hong}, cookie: { judge: current.judge }};
+					let request = { type: 'division', action: 'score', score: { divid: current.divid, match: current.match, form: current.form, judge: current.judge, chung: current.score.chung, hong: current.score.hong}};
 					this.network.send( request );
 					alertify.message( `Sending ${jname} scores for Match ${current.match + start} to server.` );
 				};

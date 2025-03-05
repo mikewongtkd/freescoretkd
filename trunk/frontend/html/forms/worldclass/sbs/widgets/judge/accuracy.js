@@ -34,7 +34,7 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 				};
 
 				info.all.append( info.name, info.noc );
-				tdc.side.append( info.all );
+				tdc.side.empty().append( info.all );
 				if( defined( athlete )) {
 					info.name.html( athlete.display.name( 16 ));
 					let noc = athlete.info( 'noc' );

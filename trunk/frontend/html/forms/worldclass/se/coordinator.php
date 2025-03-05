@@ -45,6 +45,7 @@
 		<script src="widgets/controls/header.js"></script>
 		<script src="widgets/controls/athlete-list.js"></script>
 		<script src="widgets/controls/judges.js"></script>
+		<script src="../sbs/widgets/controls/draw-poomsae.js"></script>
 		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
@@ -156,6 +157,7 @@
 				judges     : new FreeScore.Widget.SEJudges( app, 'judge-scores' ),
 				autopilot  : new FreeScore.Widget.SEAutopilot( app, 'controls' ),
 				navigation : new FreeScore.Widget.SENavigation( app, 'controls' ),
+				draw       : new FreeScore.Widget.SBSDrawPoomsae( app, 'controls' ), // For Teams, when using SBS method but mats are too small so they must go one-by-one
 				penalties  : new FreeScore.Widget.SEPenalties( app, 'controls' ),
 				decision   : new FreeScore.Widget.SEDecision( app, 'controls' ),
 				admin      : new FreeScore.Widget.SEAdmin( app, 'controls' )

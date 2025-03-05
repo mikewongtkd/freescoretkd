@@ -74,6 +74,7 @@ $.widget( "freescore.judgeController", {
 
 			// ===== UPDATE SEND BUTTON
 			let score = {
+				judge  : o.num,
 				major  : (e.major  .deductions( 'option', 'count' ) * e.major .deductions( 'option', 'value' )) .toFixed( 1 ),
 				minor  : (e.minor  .deductions( 'option', 'count' ) * e.minor .deductions( 'option', 'value' )) .toFixed( 1 ),
 				rhythm : parseFloat( e.rhythm .presentationWidget( 'value' )).toFixed( 1 ),
@@ -83,7 +84,7 @@ $.widget( "freescore.judgeController", {
 
 			e.send .off( 'click' ) .click( function() {
 				alertify.notify( "Sending score... please wait" );
-				let request  = { data : { type : 'division', action : 'score', score : score, judge: o.num, cookie: { judge: o.num } }};
+				let request  = { data : { type : 'division', action : 'score', score }};
 				request.json = JSON.stringify( request.data );
 				e.ws.send( request.json );
 				e.send.attr({ 'sent': 'true' });
@@ -196,12 +197,20 @@ $.widget( "freescore.judgeController", {
 			let division = new Division( update.division );
 			let forwardIf = {
 				sbs: division => {
+					let divid  = division.name();
 					let method = division.current.method();
-					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}`; }
+					let params = new URLSearchParams( window.location.search );
+
+					if( divid != params.get( 'forward' )) { return; } // Prevent infinite looping
+					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}&forward=${divid}`; }
 				},
 				se: division => {
+					let divid  = division.name();
 					let method = division.current.method();
-					if( method == 'se' ) { window.location = `se/judge.php?ring=${o.ring}&judge=${o.num}`; }
+					let params = new URLSearchParams( window.location.search );
+					if( divid != params.get( 'forward' )) { return; } // Prevent infinite looping
+
+					if( method == 'se' ) { window.location = `se/judge.php?ring=${o.ring}&judge=${o.num}&forward=${divid}`; }
 				}
 			};
 

@@ -2,6 +2,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 	constructor( app, dom ) {
 		super( app, dom );
 		const designated = {
+			youth: [ 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo' ], // Not WT
 			cadet: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
 			junior: [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
 			u30: [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
@@ -77,25 +78,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.draw = {
-			button: division => {
-
-				this.button.draw.removeClass( 'disabled' );
-				let age = this.state.age;
-
-				let pool = designated?.[ age ];
-				if( ! defined( pool )) {
-					alertify.error( `No designated poomsae defined for age ${age}` );
-					return;
-				}
-        let draw = division.form.draw();
-        console.log( 'DESIGNATED POOMSAE POOL (BEFORE FILTERING)', pool ); // MW
-        console.log( 'DRAWS', draw ); // MW
-        pool = pool.filter( form => ! draw.includes( form ));
-        console.log( 'DESIGNATED POOMSAE POOL (AFTER FILTERING)', pool ); // MW
-
-				// Remove previously drawn poomsae (no repeats)
-				this.button.draw.off( 'click' ).click( ev => {
-
+			behavior: pool => {
+				return (ev = null) => {
 					// If already drawing, ignore button
 					if( this.state.animation.timer ) { this.sound.error.play(); return; }
 					this.button.draw.addClass( 'disable' );
@@ -137,7 +121,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						// RANDOM DRAW FORM
 						} else {
 							// Random draw, ensuring the draw is different from the previous draw
-							let i        = Math.floor( Math.random() * pool.length );
+							let i = Math.floor( Math.random() * pool.length );
 							this.state.draw.form = form = pool[ i ];
 							tdd.html( form );
 
@@ -147,7 +131,37 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						}
 						this.state.draw.count++;
 					}, 1000 );
-				});
+				};
+			},
+			button: division => {
+
+				this.button.draw.removeClass( 'disabled' );
+				let age = this.state.age;
+
+				let pool = designated?.[ age ];
+				if( ! defined( pool )) {
+					alertify.error( `No designated poomsae defined for age ${age}` );
+					return;
+				}
+
+				// Remove previously drawn poomsae (no repeats)
+				let draw = division.form.draw();
+				pool = pool.filter( form => ! draw.includes( form ));
+
+				if( this.state.draw.complete ) {
+					this.button.draw.off( 'click' ).click( ev => {
+						alertify.confirm( 
+							'Re-draw form?', 
+							'Once published, the form draw should not be changed unless there is a very good reason. Are you certain you want to re-draw the form?',
+							() => {
+								let redraw = this.refresh.draw.behavior( pool );
+								redraw();
+							}
+						);
+					}
+				} else {
+					this.button.draw.off( 'click' ).click( this.refresh.draw.behavior( pool ));
+				}
 			},
 			// ============================================================
 			modal: division => {
@@ -179,6 +193,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					if( this.button.age.modal.ok.hasClass( 'disabled' )) {
 						alertify.notify( 'Please select an age group.' );
 					} else {
+						let request = { type: 'division', action: 'draw select age', age: this.stage.age };
+						this.network.send( request );
 						alertify.success( `Age group <b>${this.state.age.capitalize()}</b> selected.` );
 						this.sound.ok.play();
 						this.display.age.modal.hide();
@@ -218,7 +234,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				} else if( defined( draw[ fid ])) {
 					form = draw[ fid ];
 					this.display.draw.empty().html( form );
-					this.button.draw.addClass( 'disabled' );
+					this.button.draw.html( 'Re-draw Form' );
+					this.state.draw.complete = true;
 					this.display.all.show();
 					return;
 				}
@@ -249,7 +266,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 					// Maybe the division description can tell us the age?
 					} else {
-						age = [ 'cadet', 'junior', 'u30', 'u40', 'u50', 'u60', 'u65', 'o65' ].find( age => { 
+						age = Object.keys( designated ).find( age => { 
 							let re = new RegExp( age, 'i' );
 							return division.description().match( re ); 
 						});
@@ -263,11 +280,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					this.refresh.draw.modal( division ); 
 
 				} else {
-          console.log( 'REFRESH DRAW POOMSAE - REFRESH DRAW BUTTON', division ); // MW
 					this.refresh.draw.button( division );
 				}
 			}
-		}
+		};
 
 		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
 		this.network.on

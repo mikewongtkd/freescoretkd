@@ -213,6 +213,7 @@ sub record_score {
 #*
 # score : { 
 #   match: int, 
+#   judge: int,
 #   chung: { index: int, major: float, minor: float, power: float, rhythm: float, ki: float }, 
 #   hong : { index: int, major: float, minor: float, power: float, rhythm: float, ki: float }
 # }

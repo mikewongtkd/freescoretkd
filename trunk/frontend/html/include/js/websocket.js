@@ -4,6 +4,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.table     = {}; // Dispatch table
 		this.listener  = listener;
 		this.websocket = websocket;
+		this.log       = {};
 		this._catch    = error => console.log( error );
 		this.debug     = 1; // 0 to disable, 1 for basic information, 2 for more detailed information
 	}
@@ -40,6 +41,11 @@ FreeScore.ResponseManager = class FSResponseManager {
 			}
 			return; 
 		}
+
+		// Record the message
+		if( ! defined( this.log?.[ type ])) { this.log[ type ] = {}; }
+		if( ! defined( this.log?.[ type ]?.[ action ])) { this.log[ type ][ action ] = {}; }
+		if( update?.request && ! defined( this.log?.[ type ]?.[ action ])) { this.log[ type ][ action ][ 
 
 		// Execute handler from the dispatch table
 		if( this.debug > 1 && type != 'server' && action != 'ping' ) {
@@ -102,7 +108,7 @@ FreeScore.WebSocket = class FSWebSocket {
 				let ring = { listener: this.listener?.ring, broadcast: null };
 				ring.broadcast = [ update?.request?.ring, update?.ring?.name, update?.ring ].find( ring => {
 					let is = {
-						defined: typeof ring == 'undefined' || ring === null,
+						defined: typeof ring != 'undefined' && ring !== null,
 						staging: typeof ring == 'string' && ring == 'staging',
 						ringnum: Number.isInteger( ring )
 					};

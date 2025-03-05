@@ -339,7 +339,7 @@
 					.respond( update => {
 						let division = update?.division;
 						if( ! defined( division )) { return; }
-            if( update?.request?.type == 'users' ) { return; }
+						if( update?.request?.type == 'users' ) { return; }
 
 						division = new Division( division );
 						app.forwardIf.cutoff( division );
@@ -360,6 +360,8 @@
 
 						if( different.divid || different.round || different.match || different.form ) {
 							app.state.reset();
+							app.page.show.accuracy();
+
 							let current = app.state.current;
 							current.divid = division.name();
 							current.round = division.current.roundId();
@@ -367,8 +369,8 @@
 							current.form  = division.current.formId();
 							app.state.save();
 
-              let jname = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
-              alertify.success( `${jname} ready to score for Match ${division.current.matchNumber()}` );
+							let jname = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
+							alertify.success( `${jname} ready to score for Match ${division.current.matchNumber()}` );
 						}
 
 						app.state.score.chung.index = match.chung;
