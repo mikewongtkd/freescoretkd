@@ -78,8 +78,27 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.draw = {
+<<<<<<< HEAD
 			behavior: pool => {
 				return (ev = null) => {
+=======
+			button: division => {
+
+				this.button.draw.removeClass( 'disabled' );
+				let age = this.state.age;
+
+				let pool = designated?.[ age ];
+				if( ! defined( pool )) {
+					alertify.error( `No designated poomsae defined for age ${age}` );
+					return;
+				}
+        let draw = division.form.draw();
+        pool = pool.filter( form => ! draw.includes( form ));
+
+				// Remove previously drawn poomsae (no repeats)
+				this.button.draw.off( 'click' ).click( ev => {
+
+>>>>>>> 6090b63cb1e69536c4b064ebf8ab7ecf64d6f14a
 					// If already drawing, ignore button
 					if( this.state.animation.timer ) { this.sound.error.play(); return; }
 					this.button.draw.addClass( 'disable' );
