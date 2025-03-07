@@ -5,6 +5,7 @@ use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Date::Manip;
 use JSON::XS;
+our $DEBUG = 1;
 
 # ============================================================
 sub new {

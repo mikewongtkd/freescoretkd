@@ -44,8 +44,8 @@ FreeScore.ResponseManager = class FSResponseManager {
 
 		// Record the message
 		if( ! defined( this.log?.[ type ])) { this.log[ type ] = {}; }
-		if( ! defined( this.log?.[ type ]?.[ action ])) { this.log[ type ][ action ] = {}; }
-		if( update?.request && ! defined( this.log?.[ type ]?.[ action ])) { this.log[ type ][ action ][ 
+		if( ! defined( this.log?.[ type ]?.[ action ])) { this.log[ type ][ action ] = []; }
+		if( update?.request && ! defined( this.log?.[ type ]?.[ action ])) { this.log[ type ][ action ].push( update.request ); }
 
 		// Execute handler from the dispatch table
 		if( this.debug > 1 && type != 'server' && action != 'ping' ) {

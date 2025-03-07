@@ -574,7 +574,7 @@
 						let jname = "judge" + i;
 						let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default', 'bye' : 'btn-default' }; 
 						let any = 'btn-success btn-warning btn-danger btn-default';
-						update.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
+						update?.users.filter( user => user.role.match( /^judge/i )).forEach( user => {
 							let role = user.role;
 							role = role.replace( /udge/, '' );
 							let health = user.health;

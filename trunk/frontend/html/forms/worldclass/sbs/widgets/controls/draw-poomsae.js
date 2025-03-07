@@ -158,7 +158,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 								redraw();
 							}
 						);
-					}
+					});
 				} else {
 					this.button.draw.off( 'click' ).click( this.refresh.draw.behavior( pool ));
 				}

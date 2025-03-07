@@ -17,9 +17,8 @@ sub new {
 sub init {
 # ============================================================
 	my $self       = shift;
-	my $websocket  = shift;
-	my $tournament = $websocket->param( 'tournament' );
-	my $ring       = $websocket->param( 'ring' );
+	my $tournament = shift;
+	my $ring       = shift;
 
 	local $_ = $ring;
 	if( /^ring\d{2}$/i ) {
@@ -87,7 +86,7 @@ sub judges {
 sub id {
 # ============================================================
 	my $self = shift;
-	return $self->{ id };
+	return $self->{ gid };
 }
 
 # ============================================================
