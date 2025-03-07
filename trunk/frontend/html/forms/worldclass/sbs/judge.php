@@ -263,12 +263,14 @@
 					hong:  { index: null, major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 }
 				};
 			}
+
 			app.state.restore = () => { 
 				if( ! defined( $.cookie( app.state.cookie ))) { app.state.reset(); return; }
 				app.state.current = $.cookie( app.state.cookie ); 
 				app.state.score   = app.state.current.score;
 				app.page.transition( app.state.current.page );
 			};
+
 			app.state.save = () => { 
 				app.state.current.score = app.state.score;
 				app.state.current.page  = Object.keys( app.page.for ).find( page => app.page.for[ page ] == app.page.num );
@@ -302,8 +304,8 @@
 			// RESTORE FROM COOKIE ON LOAD
 			// ============================================================
 			app.state.restore();
-			app.display.config.restore();
-			app.display.config.apply();
+			app.display.config.restore(); // Load display state from cookie (pan/zoom)
+			app.display.config.apply();   // Apply display state
 
 			// ============================================================
 			// APP COMPOSITION
@@ -346,9 +348,6 @@
 						if( update?.request?.type == 'users' ) { return; }
 
 						division = new Division( division );
-						app.forwardIf.cutoff( division );
-						app.forwardIf.se( division );
-
 						let match = division.current.match();
 						if( ! defined( match )) { return; }
 
@@ -361,6 +360,11 @@
 							match: current.match != match.number,
 							form:  current.form  != division.current.formId()
 						};
+
+						if( different.divid ) {
+							app.forwardIf.cutoff( division );
+							app.forwardIf.se( division );
+						}
 
 						if( different.divid || different.round || different.match || different.form ) {
 							app.state.reset();

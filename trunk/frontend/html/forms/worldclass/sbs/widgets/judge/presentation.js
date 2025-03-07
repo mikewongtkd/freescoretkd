@@ -36,7 +36,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					noc: $( '<div class="noc"></div>' )
 				};
 
-				info.all.append( info.name, info.noc );
+				info.all.empty().append( info.name, info.noc );
 				tdc.side.empty().append( info.all );
 				if( defined( athlete )) {
 					info.name.html( athlete.display.name( 16 ));
@@ -80,6 +80,13 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				button.panel.append( button.power, button.rhythm, button.ki );
 				tbc.score = button;
 				tdc.side.append( button.panel );
+				let current   = this.app.state.current;
+				let different = {
+					divid: current.divid != division.name(),
+					round: current.round != division.current.roundId(),
+					match: current.match != match.number,
+					form:  current.form  != division.current.formId()
+				};
 
 				// ===== INITIALIZE SUBWIDGETS
 				cat.pre.forEach( cat => {
@@ -93,13 +100,12 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					slider.getValue = () => slider.slider( 'getValue' );
 					slider.setValue = value => slider.slider( 'setValue', value );
 
-					let value = this.app.state.score[ contestant ][ cat ];
+					let value = (different.divid || different.round || different.match || different.form) ? 0 : this.app.state.score[ contestant ][ cat ];
 					if( value > 0 ) {
 						slider.setValue( value );
 						display.html( value );
 						setTimeout( () => { this.refresh.score(); }, 250 );
 					}
-
 				});
 
 				// ===== PRESENTATION UI BEHAVIOR
@@ -161,7 +167,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 			this.button.common.send.off( 'click' ).click( ev => {
 				let current = this.app.state.current;
 				let score   = this.app.state.score;
-		    let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
+				let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
 				let start   = division.current.matchStart();
 				current.score = score;
 				let send    = () => {
@@ -226,13 +232,13 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				if( ! defined( division )) { this.reset(); return; }
 				division = new Division( division );
 
-        if( update.request.type == 'users' ) { return; }
-        if( defined( update.request?.from?.role) && update.request.from.role != this.app.state.current.judge ) { return; }
+				if( update.request.type == 'users' ) { return; }
+				if( defined( update.request?.from?.role) && update.request.from.role != this.app.state.current.judge ) { return; }
 
 				if( update.request.action == 'score' ) {
 					let current = this.app.state.current;
 					let start   = division.current.matchStart();
-			    let jname   = this.app.state.current.judge == 0 ? 'Referee' : `Judge ${this.app.state.current.judge}`;
+					let jname   = this.app.state.current.judge == 0 ? 'Referee' : `Judge ${this.app.state.current.judge}`;
 					if( update.request.score.judge == current.judge ) { alertify.success( `Server received ${jname} score for Match ${current.match + start}.` ); return; }
 					else { return; }
 				}

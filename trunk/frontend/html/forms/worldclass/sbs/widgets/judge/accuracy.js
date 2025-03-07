@@ -33,7 +33,7 @@ FreeScore.Widget.SBSJudgeAccuracy = class FSWidgetSBSJudgeAccuracy extends FreeS
 					noc: $( '<div class="noc"></div>' )
 				};
 
-				info.all.append( info.name, info.noc );
+				info.all.empty().append( info.name, info.noc );
 				tdc.side.empty().append( info.all );
 				if( defined( athlete )) {
 					info.name.html( athlete.display.name( 16 ));
