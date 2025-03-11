@@ -233,7 +233,6 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				division = new Division( division );
 
 				if( update.request.type == 'users' ) { return; }
-				if( defined( update.request?.from?.role) && update.request.from.role != this.app.state.current.judge ) { return; }
 
 				if( update.request.action == 'score' ) {
 					let current = this.app.state.current;

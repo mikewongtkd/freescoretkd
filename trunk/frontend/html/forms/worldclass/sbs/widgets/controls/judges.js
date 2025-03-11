@@ -24,6 +24,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 		this.button.status = this.dom.children( 'a.btn.status' );
 
 		// ===== ADD STATE
+		this.state.users    = [];
 		this.state.division = null;
 		this.state.judges   = 0;
 
@@ -165,24 +166,28 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 				// ------------------------------------------------------------
 				status : update => {
 				// ------------------------------------------------------------
-					let user  = update?.user;
+					let users = update?.users;
 					let color = { strong : 'btn-success', good : 'btn-success', weak : 'btn-warning', bad : 'btn-danger', dead : 'btn-default', 'n/a' : 'btn-default', 'bye' : 'btn-default' }; 
 					const all = 'btn-success btn-warning btn-danger btn-default';
 
 					// User not defined
-					if( ! defined( user )) { return; }
+					if( ! defined( users )) { return; }
 
-					contestants.forEach( contestant => {
-						// Judge not initialized or judge status button not initialized
-						if( ! this.judge?.[ jid ]?.[ contestant ]?.status ) { return; }
-
-						let found = user?.role?.match( /^judge(\d+)/ );
+					users.forEach( user => {
+						let found = user?.role?.match( /^(?:judge)?(\d+)/ );
 						if( ! found ) { return; }
 
-						let jid   = found[ 1 ];
-						let jstat = this.judge[ jid ][ contestant ].status;
+						let jid   = parseInt( found[ 1 ]);
+						let jname = jid ? `Judge ${jid}` : 'Referee';
+						console.log( jname, this.judge[ jid ], user ); // MW
+						
+						// Judge not initialized or judge status button not initialized
+						if( ! this.judge?.[ jid ]?.status ) { return; }
 
-						if( user?.action == 'disconnect' && user?.role?.match( /^judge/ )) {
+
+						let jstat = this.judge[ jid ].status;
+
+						if( user?.action == 'disconnect' && user?.role?.match( /^(?:judge)?/ )) {
 							jstat.removeClass( all );
 							jstat.addClass( color.bye );
 							return;
@@ -381,6 +386,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 					this.state.division = division;
 
 					this.refresh.judges();
+					this.refresh.judge.status( update );
 					this.refresh.judge.scores();
 				})
 		// ============================================================
@@ -396,6 +402,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 					this.state.division = division;
 
 					this.refresh.judges();
+					this.refresh.judge.status( update );
 					this.refresh.judge.scores();
 				})
 		// ============================================================

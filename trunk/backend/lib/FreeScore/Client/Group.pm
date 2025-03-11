@@ -17,18 +17,18 @@ sub new {
 sub init {
 # ============================================================
 	my $self       = shift;
-	my $tournament = shift;
-	my $ring       = shift;
+	my $tournament = shift || 'test';
+	my $ring       = shift || 'staging';
 
 	local $_ = $ring;
-	if( /^ring\d{2}$/i ) {
-		$self->{ gid } = lc "$tournament-$ring";
+	if( /^staging/i ) {
+		$self->{ id } = lc "$tournament-staging";
+
+	elsif( /^ring\d+$/i ) {
+		$self->{ id } = lc "$tournament-$ring";
 
 	} elsif( /^\d+$/ ) {
-		$self->{ gid } = sprintf( "%s-ring%02d", lc $tournament, $ring );
-
-	} elsif( /^staging$/i ) {
-		$self->{ gid } = lc "$tournament-staging";
+		$self->{ id } = sprintf( "%s-ring%02d", lc $tournament, $ring );
 
 	} else {
 		die "Invalid ring '$ring' for tournament $tournament $!";
@@ -66,9 +66,7 @@ sub clients {
 	my $filter  = shift;
 	my @clients = sort { $a->role() cmp $b->role() || $a->cid() cmp $b->cid() } values %{ $self->{ client }};
 
-	if( $filter ) {
-		@clients = grep { $_->role() =~ /^$filter/ } @clients;
-	}
+	@clients = grep { $_->role() =~ /^$filter/ } @clients if $filter;
 
 	return @clients;
 }
@@ -86,7 +84,7 @@ sub judges {
 sub id {
 # ============================================================
 	my $self = shift;
-	return $self->{ gid };
+	return $self->{ id };
 }
 
 # ============================================================

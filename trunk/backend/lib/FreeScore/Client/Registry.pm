@@ -25,13 +25,11 @@ sub add {
 # ============================================================
 	my $self       = shift;
 	my $websocket  = shift;
-  my $tournament = shift;
-  my $ring       = shift;
+	my $tournament = shift;
+	my $ring       = shift;
 	my $client     = new FreeScore::Client( $websocket );
 	my $group      = new FreeScore::Client::Group( $tournament, $ring );
 	my $gid        = $group->id();
-
-  print STDERR "Adding client to group '$gid'\n"; # MW
 
 	$self->{ tournament } = exists $self->{ tournament } ? $self->{ tournament } : $client->tournament();
 
@@ -61,9 +59,7 @@ sub clients {
 	my $filter  = shift;
 	my @clients = sort { $a->description() cmp $b->description() } values %{ $self->{ client }};
 
-	if( $filter ) {
-		@clients = grep { $_->role() =~ /^$filter/ } @clients;
-	}
+	@clients = grep { $_->role() =~ /^$filter/ } @clients if $filter;
 
 	return @clients;
 }

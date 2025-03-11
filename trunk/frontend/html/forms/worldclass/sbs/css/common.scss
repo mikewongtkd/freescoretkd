@@ -54,7 +54,7 @@
       height: 34px;
       font-size: 14pt;
       color: white;
-      border-radius: calc( $width / 8 );
+      border-radius: $width / 8;
       border: 2px solid white;
       text-align: center;
     }
@@ -67,7 +67,7 @@
       transform: translateX( -50% ) translateY( -50% );
       width: $size;
       height: $size;
-      border-radius: calc( $size / 2 );
+      border-radius: $size / 2;
       border: 4px solid gold;
       background: linear-gradient(to bottom, #35383d 0%,#000000 100%);
       font-size: 26pt;
