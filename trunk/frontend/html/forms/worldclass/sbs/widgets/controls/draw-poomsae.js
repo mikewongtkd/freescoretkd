@@ -148,7 +148,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				let draw = division.form.draw();
 				pool = pool.filter( form => ! draw.includes( form ));
 
-				if( this.state.draw.complete ) {
+				console.log( 'DRAW', draw, division.current.formId() ); // MW
+				let i = division.current.formId();
+
+				if( defined( draw[ i ])) {
 					this.button.draw.off( 'click' ).click( ev => {
 						alertify.confirm( 
 							'Re-draw form?', 
