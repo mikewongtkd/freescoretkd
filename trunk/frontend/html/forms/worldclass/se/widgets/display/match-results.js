@@ -126,7 +126,8 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 
 
 				forms.forEach(( form, i ) => {
-					this.display.form[ i ] = $( `<div class="form-name form-${i + 1}">${form}</div>` );
+					let fname = defined( form ) ? form : '&ndash;';
+					this.display.form[ i ] = $( `<div class="form-name form-${i + 1}">${fname}</div>` );
 					this.display.common.append( this.display.form[ i ]);
 				});
 			}

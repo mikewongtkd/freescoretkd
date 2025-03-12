@@ -7,6 +7,12 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 		this.svg  = SVG();
 		this.draw = null;
 
+		const this.zoom = {
+			out : {
+				ro8: {left: 200, top: 0, width: 1050, height: 850}
+			}
+		};
+
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.header   = this.dom.find( '.header' );
 		this.display.bracket  = { graph : this.dom.find( '.bracket-graph' ) };
@@ -121,6 +127,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let columns = rounds.length > 1 ? rounds.length - 1 : 1;
 				let rows    = rounds.map( round => division.matches( round ).length ).reduce(( acc, cur ) => cur > acc ? cur : acc, 0 );
 				let bounds  = this.state.viewport = { left: (width + height)/2, top: 0, width: (columns * (width + (3 * height))) + height, height: (rows * (4 * height)) + height };
+				console.log( 'ZOOM OUT', bounds ); // MW
 
 				this.display.bracket.graph.empty();
 				if( defined( this.draw )) { this.draw.clear(); }
@@ -240,6 +247,7 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let rows    = rounds.map( round => division.matches( round ).length ).reduce(( acc, cur ) => cur > acc ? cur : acc, 0 );
 				bounds = this.state.viewport;
 				zoom.out = [ bounds.left, bounds.top, bounds.width, bounds.height ];
+				console.log( 'ZOOM IN/OUT', zoom ); // MW
 
 				let animating = defined( this.state.animation ) && this.state.animation.progress() != 1;
 				if( ! animating ) {

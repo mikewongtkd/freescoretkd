@@ -208,7 +208,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 				let fnum  = division.form.count() > 1 ? `(${ordinal( parseInt( division.current.formId()) + 1 )} Form)` : '';
 				let forms = division.current.form.list();
 				let fid   = division.current.formId();
-				let fname = forms[ fid ];
+				let fname = defined( forms[ fid ]) ? forms[ fid ] : 'Draw Required';
 
 				this.display.header.empty();
 				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum}</span> &ndash; <span class="form-name">${fname} ${fnum}</span></h2>` );
