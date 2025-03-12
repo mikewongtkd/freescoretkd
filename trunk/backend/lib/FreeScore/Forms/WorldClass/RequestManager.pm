@@ -170,6 +170,7 @@ sub handle_division_award_min_score {
 		$version->commit( $division, $message );
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
+		my $complete = $match->complete();
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $group ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
