@@ -348,6 +348,10 @@
 						if( update?.request?.type == 'users' ) { return; }
 
 						division = new Division( division );
+
+						app.forwardIf.cutoff( division );
+						app.forwardIf.se( division );
+
 						let match = division.current.match();
 						if( ! defined( match )) { return; }
 
@@ -360,9 +364,6 @@
 							match: current.match != match.number,
 							form:  current.form  != division.current.formId()
 						};
-
-						app.forwardIf.cutoff( division );
-						app.forwardIf.se( division );
 
 						if( different.divid || different.round || different.match || different.form ) {
 							app.state.reset();
