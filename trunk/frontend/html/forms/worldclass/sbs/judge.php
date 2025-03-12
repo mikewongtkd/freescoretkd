@@ -361,10 +361,8 @@
 							form:  current.form  != division.current.formId()
 						};
 
-						if( different.divid ) {
-							app.forwardIf.cutoff( division );
-							app.forwardIf.se( division );
-						}
+						app.forwardIf.cutoff( division );
+						app.forwardIf.se( division );
 
 						if( different.divid || different.round || different.match || different.form ) {
 							app.state.reset();
