@@ -179,7 +179,6 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 
 						let jid   = parseInt( found[ 1 ]);
 						let jname = jid ? `Judge ${jid}` : 'Referee';
-						console.log( jname, this.judge[ jid ], user ); // MW
 						
 						// Judge not initialized or judge status button not initialized
 						if( ! this.judge?.[ jid ]?.status ) { return; }

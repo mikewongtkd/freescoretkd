@@ -124,7 +124,10 @@ sub pong {
 	elsif( $health eq 'bad '   ) { $self->fastest(); }
 	elsif( $health eq 'dead'   ) { $self->stop();    }
 
+	my $changed = $health eq $self->{ health } ? 0 : 1;
 	$self->{ health } = $health;
+
+	return $changed;
 }
 
 # ============================================================
@@ -155,7 +158,7 @@ sub start {
 		my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		$self->{ pings }{ $now } = 1;
 
-		my $ping = { type => 'server', action => 'ping', ring => $client->ring(), server => { timestamp => $now }};
+		my $ping = { type => 'server', action => 'ping', ring => $client->ring(), cid => $client->cid(), gid => $client->gid(), role => $client->role(), server => { timestamp => $now }};
 		$ws->send({ json => $ping });
 	});
 }

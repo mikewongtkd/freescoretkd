@@ -153,7 +153,11 @@ sub handle_client_pong {
 	my $ping      = $request->{ server }{ ping };
 	my $pong      = $request->{ client }{ pong };
 
-	$client->ping->pong( $ping->{ timestamp }, $pong->{ timestamp });
+	return unless $client->ping->pong( $ping->{ timestamp }, $pong->{ timestamp });
+
+	my $status    = $client->status();
+	my $request   = { type => 'users', action => 'update', ring => $ring, status => $status };
+	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
 # ============================================================

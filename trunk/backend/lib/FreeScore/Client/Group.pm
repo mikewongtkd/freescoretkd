@@ -24,7 +24,7 @@ sub init {
 	if( /^staging/i ) {
 		$self->{ id } = lc "$tournament-staging";
 
-	elsif( /^ring\d+$/i ) {
+	} elsif( /^ring\d+$/i ) {
 		$self->{ id } = lc "$tournament-$ring";
 
 	} elsif( /^\d+$/ ) {
