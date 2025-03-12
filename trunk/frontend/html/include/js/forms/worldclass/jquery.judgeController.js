@@ -197,24 +197,19 @@ $.widget( "freescore.judgeController", {
 			let division = new Division( update.division );
 			let forwardIf = {
 				sbs: division => {
-					let divid  = division.name();
 					let method = division.current.method();
-					let params = new URLSearchParams( window.location.search );
 
-					if( divid != params.get( 'forward' )) { return; } // Prevent infinite looping
-					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}&forward=${divid}`; }
+					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}`; }
 				},
 				se: division => {
-					let divid  = division.name();
 					let method = division.current.method();
-					let params = new URLSearchParams( window.location.search );
-					if( divid != params.get( 'forward' )) { return; } // Prevent infinite looping
 
-					if( method == 'se' ) { window.location = `se/judge.php?ring=${o.ring}&judge=${o.num}&forward=${divid}`; }
+					if( method == 'se' ) { window.location = `se/judge.php?ring=${o.ring}&judge=${o.num}`; }
 				}
 			};
 
 			forwardIf.sbs( division );
+			forwardIf.se( division );
 
 			if( ! defined( division.form.list())) { return; }
 
