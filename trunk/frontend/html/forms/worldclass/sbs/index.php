@@ -157,7 +157,7 @@
 					draw:        () => { app.page.transition( 'draw' ); },
 					score:       () => { app.page.transition( 'score' ); },
 					results:     () => { app.page.transition( 'results' ); },
-					bracket:     () => { app.page.transition( 'bracket' ); },
+					bracket:     () => { app.page.transition( 'bracket' ); window.location.refresh(); /* reset viewport kludge */ },
 					leaderboard: () => { app.page.transition( 'leaderboard' ); },
 					matches:     () => { app.page.transition( 'matches' ); }
 				},
