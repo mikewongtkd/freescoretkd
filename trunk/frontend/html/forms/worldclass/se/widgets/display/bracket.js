@@ -248,20 +248,23 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				let current = this.state.bracket[ round ][ mnum ];
 				let dest    = current?.destination;
 				let other   = defined( dest ) ? (dest.source.chung.id == current.id ? dest.source.hong : dest.source.chung) : current;
-				let bounds  = {};
 
 				dest = defined( dest ) ? dest : current;
 
 				// Zoom in
-				bounds = { left: current.anchor.ul[ 0 ], top : Math.min( current.anchor.ul[ 1 ], other.anchor.ul[ 1 ]), right: Math.max( current.anchor.lr[ 0 ], dest.anchor.lr[ 0 ]), bottom: Math.max( current.anchor.lr[ 1 ], other.anchor.lr[ 1 ])};
-				bounds.width  = height + bounds.right - bounds.left;
-				bounds.height = height + bounds.bottom - bounds.top;
-				bounds.left   -= height/2;
-				bounds.top    += height/2;
-				bounds.x = bounds.left;
-				bounds.y = bounds.top;
+				let bounds = {
+					default: { x: null, y: null, width: null, height: null },
+					current: current?.svg?.group?.bbox() ? current.svg.group.bbox() : bounds.default,
+					other: other?.svg?.group?.bbox() ? other.svg.group.bbox() : bounds.default,
+					dest: dest?.svg?.group?.bbox() ? dest.svg.group.bbox() : bounds.default,
+				};
+				console.log( 'BOUNDS', bounds ); // MW
+				bounds.left   = bounds.current.x; 
+				bounds.top    = Math.min( ... [ bounds.current.y, bounds.other.y ].filter( x => x != null )); 
+				bounds.width  = (bounds.dest.width + bounds.dest.x) - bounds.current.x;
+				bounds.height = Math.max( ... [ bounds.current.y, bounds.other.y ].filter( x => x != null )) + bounds.current.height - bounds.top;
 				let zoom = {};
-				zoom.in = { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height };
+				zoom.in = { left: bounds.left, top: bounds.top, width: bounds.width, height: bounds.height };
 
 
 				// Zoom back out
