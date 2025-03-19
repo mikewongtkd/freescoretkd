@@ -302,7 +302,7 @@ var show = {
 
 				for( var age of ages ) {
 					if( ! age in settings.age.groups || ! settings.age.groups[ age ] ) { continue; }
-					var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
+					var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31-40": "Under 40", "31-50" : "Under 50", "41-50" : "Under 50", "51-60": "Under 60", "61+" : "Over 60", "61-65" : "Under 65", "66+" : "Over 65" };
 					var label = age in text ? text[ age ] : age;
 					var row   = [ html.th.clone().text( label ) ];
 					for( var round of rounds ) {
