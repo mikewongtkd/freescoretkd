@@ -179,6 +179,32 @@ sub change_display {
 }
 
 # ============================================================
+sub clear_score {
+# ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Records the scores for Side-By-Side
+#*
+# score { index: int, major: float, minor: float, power: float, rhythm: float, ki: float } 
+# 
+	my $self    = shift;
+	my $judge   = shift;
+	my $i       = shift;
+	my $div     = $self->{ division };
+	my $round   = $div->{ round };
+	my $form    = $div->{ form };
+
+	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
+	if( $div->is_flight()) {
+		my $started = 0;
+		foreach $athlete (@{ $div->{ athletes }}) {
+			$started ||= $div->reinstantiate_round( $round, $athlete )->started();
+		}
+		$div->{ flight }{ state } = 'ready' if( ! $started );
+	}
+	$div->reinstantiate_round( $round, $i )->clear_score( $form, $judge );
+}
+
+# ============================================================
 sub detect_ties {
 # ============================================================
 	my $self      = shift;

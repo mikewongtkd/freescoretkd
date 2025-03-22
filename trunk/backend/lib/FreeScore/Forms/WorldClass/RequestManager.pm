@@ -266,15 +266,22 @@ sub handle_division_clear_judge_score {
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
 	my $i        = exists( $request->{ index }) ? $request->{ index } : $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
 	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
-	my $message  = "Clearing $jname score for $athlete->{ name }\n";
+	my $message  = '';
+
+	if( ref $i ) {
+		my $athletes = join( ' and ', map { $division->{ athletes }[ $_ ]{ name } } @$i );
+		$message = "Clearing $jname score for $athletes\n";
+	} else {
+		my $athlete = $division->{ athletes }[ $i ];
+		$message = "Clearing $jname score for $athlete->{ name }\n";
+	}
 
 	print STDERR $message if $DEBUG;
 
 	try {
 		$version->checkout( $division );
-		$division->clear_score( $request->{ judge } );
+		$division->clear_score( $request->{ judge }, $i );
 		$division->write();
 		$version->commit( $division, $message );
 

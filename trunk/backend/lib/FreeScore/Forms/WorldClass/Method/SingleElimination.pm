@@ -284,6 +284,25 @@ sub change_display {
 }
 
 # ============================================================
+sub clear_score {
+# ============================================================
+#** @method ( judge_index, score_object )
+#   @brief Records the scores for Side-By-Side
+#*
+# score { index: int, major: float, minor: float, power: float, rhythm: float, ki: float } 
+# 
+	my $self    = shift;
+	my $judge   = shift;
+	my $i       = shift;
+	my $div     = $self->{ division };
+	my $round   = $div->{ round };
+	my $form    = $div->{ form };
+
+	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
+	$div->reinstantiate_round( $round, $i )->clear_score( $form, $judge );
+}
+
+# ============================================================
 sub find_athlete {
 # ============================================================
 	my $self     = shift;

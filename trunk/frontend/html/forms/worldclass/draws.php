@@ -460,11 +460,13 @@ var show = {
 				var label = { age: age in text ? text[ age ] : age };
 				var td    = html.td.clone().html( label.age );
 
+				console.log( 'AGE', age, settings.age.groups ); // MW
+
 				row.append( td );
 
 				for( var gender of genders ) {
 					for( var round of rounds ) {
-						var forms = [].fill( '', 0, settings.count[ round ] );
+						var forms = [].fill( '', 0, settings.count[ round ]);
 						if( defined( draw ) && gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
 							var n = Math.min( draw[ gender ][ age ][ round ].length, settings.count[ round ]);
 							for( var i = 0; i < n; i++ ) { forms[ i ] = draw[ gender ][ age ][ round ][ i ]; }

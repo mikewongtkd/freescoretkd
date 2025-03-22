@@ -125,24 +125,10 @@ sub clear_score {
 	my $self    = shift;
 	my $judge   = shift;
 	my $i       = shift;
+	my $method  = $self->method();
 
-	my $athlete = defined( $i ) ? $self->{ athletes }[ $i ] : $self->{ athletes }[ $self->{ current } ];
-	my $round   = $self->{ round };
-	my $form    = $self->{ form };
-	my $forms   = int( @{ $self->{ forms }{ $round }});
-	my $judges  = $self->{ judges };
-
-	$self->{ state } = 'score'; # Return to the scoring state when any judge scores
-	if( $self->is_flight()) {
-		my $started = 0;
-		foreach $athlete (@{ $self->{ athletes }}) {
-			$started ||= $self->reinstantiate_round( $round, $athlete )->started();
-		}
-		$self->{ flight }{ state } = 'ready' if( ! $started );
-	}
-	$self->reinstantiate_round( $round )->clear_score( $form, $judge );
+	$method->clear_score( $judge, $i );
 }
-
 
 # ============================================================
 sub from_json {
