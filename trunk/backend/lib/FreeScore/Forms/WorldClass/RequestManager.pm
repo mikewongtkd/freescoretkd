@@ -272,6 +272,7 @@ sub handle_division_clear_judge_score {
 	if( ref $i ) {
 		my $athletes = join( ' and ', map { $division->{ athletes }[ $_ ]{ name } } @$i );
 		$message = "Clearing $jname score for $athletes\n";
+
 	} else {
 		my $athlete = $division->{ athletes }[ $i ];
 		$message = "Clearing $jname score for $athlete->{ name }\n";

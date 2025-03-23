@@ -596,7 +596,7 @@ sub record_penalties {
 sub record_decision {
 # ============================================================
 #** @method ( punitive_declaration_text, athlete_index )
-#   @brief Records the given punitive decision
+#   @brief Records the given punitive decision (or clear all punitive decisions )
 #*
 	my $self      = shift;
 	my $decision  = shift;
@@ -607,14 +607,7 @@ sub record_decision {
 	my $form      = $self->{ form };
 
 	$self->reinstantiate_round( $round, $i )->record_decision( $form, $decision );
-	if( $self->is_flight()) {
-		my $started = 0;
-		foreach $athlete (@{ $self->{ athletes }}) {
-			$started ||= $self->reinstantiate_round( $round, $i )->started();
-		}
-		if( $started ) { $self->{ flight }{ state } = 'in-progress'; } 
-		else           { $self->{ flight }{ state } = 'ready';       }
-	}
+	$self->{ flight }{ state } = $self->round_started( 'prelim' ) ? 'in-progress' : 'ready' if( $self->is_flight());
 }
 
 # ============================================================
@@ -730,6 +723,14 @@ sub round_defined {
 	my $order = $self->{ order };
 
 	return exists $order->{ $round } && defined $order->{ $round } && ref( $order->{ $round }) eq 'ARRAY' && int( @{$order->{ $round }}) > 0;
+}
+
+# ============================================================
+sub round_started {
+# ============================================================
+	my $self  = shift;
+	my $round = shift || $self->{ round };
+	return any { $self->reinstantiate_round( $round, $_ )->started() } @{ $self->{ athletes }};
 }
 
 # ============================================================

@@ -194,13 +194,7 @@ sub clear_score {
 	my $form    = $div->{ form };
 
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
-	if( $div->is_flight()) {
-		my $started = 0;
-		foreach $athlete (@{ $div->{ athletes }}) {
-			$started ||= $div->reinstantiate_round( $round, $athlete )->started();
-		}
-		$div->{ flight }{ state } = 'ready' if( ! $started );
-	}
+	$div->{ flight }{ state } = 'ready' if( $div->is_flight() && ! $div->round_started( 'prelim' )); # Restore flight status to 'ready' (typically from 'in-progress')
 	$div->reinstantiate_round( $round, $i )->clear_score( $form, $judge );
 }
 

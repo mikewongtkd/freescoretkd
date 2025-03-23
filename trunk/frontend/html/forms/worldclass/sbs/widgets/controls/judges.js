@@ -46,19 +46,18 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 						// Get Match
 						let match = division.current.match();
 						let mnum  = division.current.matchNumber();
+						let aids  = contestants.filter( contestant => defined( match[ contestant ])).map( contestant => match[ contestant ]); // Athlete IDs
 						
 						for( let i = 0 ; i < this.state.judges; i++ ) {
 							let judge = { id: i, name : i == 0 ? 'Referee' : `Judge ${i}` };
 							this.judge[ i ].clear.off( 'click' ).click( ev => {
 								app.sound.next.play();
-								let names = contestants.filter( contestant => defined( match[ contestant ])).map( contestant => division.athlete( match[ contestant ]).name()).join( ' and ' );
+								let names = aids.map( i => division.athlete( i ).name()).join( ' and ' );
 								let dialog = {
 									title : `Clear ${judge.name}'s score for Match ${mnum}`,
 									message : `Click <b>OK</b> to clear <b>${judge.name}</b>&rsquo;s score for <b>${names}</b> in Match ${mnum} or <b>Cancel</b> to do nothing.`,
 									ok : () => {
-
-										let athletes = contestants.filter( contestant => defined( match[ contestant ])).map( contestant => match[ contestant ] );
-										let request  = { type : 'division', action : 'clear judge score', judge : i, index: athletes };
+										let request  = { type : 'division', action : 'clear judge score', judge : i, index: aids };
 										app.network.send( request );
 										app.sound.ok.play();
 

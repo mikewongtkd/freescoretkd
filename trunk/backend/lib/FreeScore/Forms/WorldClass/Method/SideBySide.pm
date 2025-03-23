@@ -212,17 +212,15 @@ sub clear_score {
 #*
 # score { index: int, major: float, minor: float, power: float, rhythm: float, ki: float } 
 # 
-	my $self     = shift;
-	my $judge    = shift;
-	my $athletes = shift;
-	my $div      = $self->{ division };
-	my $round    = $div->{ round };
-	my $form     = $div->{ form };
+	my $self  = shift;
+	my $judge = shift;
+	my $aids  = shift; # Athlete IDs
+	my $div   = $self->{ division };
+	my $round = $div->{ round };
+	my $form  = $div->{ form };
 
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
-	foreach my $i (@$athletes) {
-		$div->reinstantiate_round( $round, $i )->clear_score( $form, $judge );
-	}
+	$div->reinstantiate_round( $round, $_ )->clear_score( $form, $judge ) foreach @$aids;
 }
 
 # ============================================================
