@@ -63,12 +63,6 @@
 		});
 <?php endif; ?>
 
-$(() => {
-	setTimeout(() => {
-		$( 'input[name="password"]' ).click();
-	}, 500 );
-});
-
 var sound = {
 	send      : new Howl({ urls: [ "./sounds/upload.mp3",   "./sounds/upload.ogg"   ]}),
 	confirmed : new Howl({ urls: [ "./sounds/received.mp3", "./sounds/received.ogg" ]}),
