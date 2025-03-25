@@ -33,22 +33,26 @@
 		<div class="container">
 			<div class="page-header">
 				<h1>Welcome</h1>
-				<p class="text-primary">Please choose a ring and enter a password to login</p>
 <?php if( is_null( $config->password())): ?>
+				<p class="text-primary">Please choose a ring and enter a password to login</p>
 				<div class="btn-group rings">
 <?php foreach( $config->rings() as $ring ): $ringid = sprintf( 'ring%02d', $ring ); ?>
 					<button class="btn btn-ring" data-ring="<?= $ringid ?>">Ring <?= $ring ?></button>
 <?php endforeach; ?>
 				</div>
+<?php else: ?>
+				<p class="text-primary">Please enter a password to login</p>
 <?php endif; ?>
 			</div>
 			<form method="POST" action="include/php/session/login.php">
-				<input name="ring" type="hidden"><br>
-				<input name="password" type="number" class="form-control" pattern="[0-9]{4}" maxlength="4" width="4" style="font-size: 36pt; width: 160px;"><br>
-				<button class="btn btn-primary btn-login">Login</button>
-				<button class="btn btn-warning btn-clear">Clear</button><br>
+				<div style="position: absolute; left: 50%; transform: translateX( -50% ); text-align: center;">
+					<input name="ring" type="hidden">
+					<input name="password" type="number" class="form-control" pattern="[0-9]{4}" maxlength="4" width="4" style="font-size: 36pt; width: 160px;"><br>
+					<button class="btn btn-primary btn-login">Login</button>
+					<button class="btn btn-warning btn-clear">Clear</button>
+				</div>
 			</form>
-			<footer class="page-footer">
+			<footer style="position: absolute; bottom: 0; left: 50%; transform: translateX( -50% );">
 				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved. </p>
 			</footer>
 		</div>
@@ -58,6 +62,10 @@
 			alertify.error( '<?= $message ?>' );
 		});
 <?php endif; ?>
+
+$(() => {
+	$( 'input[name="password"]' ).focus();
+});
 
 var sound = {
 	send      : new Howl({ urls: [ "./sounds/upload.mp3",   "./sounds/upload.ogg"   ]}),
