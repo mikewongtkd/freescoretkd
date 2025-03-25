@@ -64,7 +64,9 @@
 <?php endif; ?>
 
 $(() => {
-	$( 'input[name="password"]' ).focus();
+	setTimeout(() => {
+		$( 'input[name="password"]' ).focus();
+	}, 500 );
 });
 
 var sound = {
