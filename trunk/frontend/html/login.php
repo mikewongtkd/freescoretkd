@@ -65,7 +65,7 @@
 
 $(() => {
 	setTimeout(() => {
-		$( 'input[name="password"]' ).focus();
+		$( 'input[name="password"]' ).click();
 	}, 500 );
 });
 
