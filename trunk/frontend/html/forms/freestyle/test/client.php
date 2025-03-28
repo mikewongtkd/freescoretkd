@@ -1,5 +1,6 @@
 <?php 
 	include( "../../../include/php/config.php" ); 
+  $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 1;
 	$t = json_decode( $tournament );
 ?>
 <html>
@@ -28,9 +29,9 @@
 	</head>
 	<body>
 		<div class="container">
-			<div id="ring" class="btn-group" data-toggle="buttons">
-				<?php foreach( $t->rings as $ring ): ?>
-					<label class="btn btn-primary"><input type="radio" name="ring" value="<?= $ring ?>">Ring <?= $ring ?></label>
+			<div id="ring" class="btn-group">
+				<?php foreach( $t->rings as $rnum ): ?>
+					<a class="btn btn-primary<?= $rnum == $ring ? ' active' : '' ?>" href="?ring=<?= $rnum ?>">Ring <?= $rnum ?></a>
 				<?php endforeach; ?>
 			</div>
 
@@ -51,10 +52,10 @@
 			sound.next  = new Howl({ urls: [ "../../../sounds/next.mp3",     "../../../sounds/next.ogg"   ]});
 			sound.prev  = new Howl({ urls: [ "../../../sounds/prev.mp3",     "../../../sounds/prev.ogg"   ]});
 
-			$( "input[type=radio][name='ring']"   ).change(( e ) => { 
-				ring.num = $( e.target ).val(); 
+      $(() => {
+				ring.num = <?= $ring ?>;
 				if( defined( ws )) { ws.close(); }
-				ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + ring.num );
+				ws = new WebSocket( '<?= $config->websocket( 'freestyle', $ring ) ?>' );
 
 				ws.onopen = () => {
 					var request  = { data : { type : 'division', action : 'read' }};
