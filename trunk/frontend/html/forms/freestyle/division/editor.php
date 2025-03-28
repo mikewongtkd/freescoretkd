@@ -180,7 +180,7 @@
 			var ringnum    = ring.match( /^ring(\d+)/ ); ring = ringnum ? parseInt( ringnum[ 1 ] ) : ring;
 			var filename   = file.shift(); 
 			var divId      = filename.match( /^div\.(\w+)\.txt$/ ); divId = divId ? divId[ 1 ] : 'new';
-      var ws         = new WebSocket( `<?= $config->websocket( 'freestyle' ) ?>/${tournament}/${ring}` );
+      var ws         = new WebSocket( '<?= $config->websocket( 'freestyle', $ring ) ?>' );
 			var save       = { enable : function() {
 				var button = $( '#save-button' );
 				button.removeClass( 'disabled' );
