@@ -70,6 +70,7 @@ $.widget( "freescore.register", {
 		register.network.receive = function( response ) {
 		// ------------------------------------------------------------
 			var update = JSON.parse( response.data );
+      console.log( update ); // MW
 
 			if( update.type == 'division' ) {
 				if( update.action == 'judges' ) { 
@@ -234,9 +235,10 @@ $.widget( "freescore.register", {
 		register.judges.show = function() {
 		// ------------------------------------------------------------
 			register.roles.view .hide();
-			var judges = o.judges;
+			// var judges = o.judges;
+      var judges = [{num: 0, id: 0, role:"judge"},{num: 0, id: 0, role:"judge"},{num: 0, id: 0, role:"judge"},{num: 0, id: 0, role:"judge"},{num: 0, id: 0, role:"judge"}]; // MW HACK
 			
-			if( judges.length == 0 ) {
+			if( judges?.length == 0 ) {
 				bootbox.dialog({
 					title:   "Database Error!",
 					message: "No division started. Please select a division using the <code>Computer Operator</code> interface and start scoring.",
