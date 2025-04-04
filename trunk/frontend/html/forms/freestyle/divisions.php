@@ -5,7 +5,8 @@
 	setcookie( 'ring',  '', $an_hour_ago, '/' );
 	include( "../../include/php/config.php" ); 
 
-	$t = json_decode( $tournament );
+  $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 1;
+	$t    = json_decode( $tournament );
 ?>
 <html>
 	<head>
@@ -146,7 +147,7 @@
 
 				if( defined( ws )) { ws.close(); }
 
-				ws = new WebSocket( 'ws://<?= $host ?>:3082/freestyle/' + tournament.db + '/' + target );
+				ws = new WebSocket( '<?= $config->websocket( 'freestyle', $ring ) ?>' );
 
 				ws.onerror = network.error = function() {
 					setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
