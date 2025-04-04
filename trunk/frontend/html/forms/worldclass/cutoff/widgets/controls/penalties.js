@@ -85,7 +85,7 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 				this.button?.[ penalty ]?.off( 'click' )?.click( ev => {
 					this.sound.ok.play();
 					athlete.penalize?.[ penalty ]( round, form );
-					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
+					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form )});
 					alertify.warning( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
 					this.refresh.accordion.hide();
 				});
@@ -94,7 +94,7 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 			this.button.clear.off( 'click' ).click( ev => {
 				this.sound.ok.play();
 				athlete.penalize.clear( round, form );
-				this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
+				this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form )});
 				alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
 				this.refresh.accordion.hide();
 			});

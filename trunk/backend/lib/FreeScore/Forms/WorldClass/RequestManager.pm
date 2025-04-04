@@ -9,7 +9,7 @@ use FreeScore::Forms::WorldClass::Schedule;
 use JSON::XS;
 use Digest::SHA1 qw( sha1_hex );
 use List::Util (qw( first shuffle ));
-use List::MoreUtils (qw( first_index ));
+use List::MoreUtils (qw( first_index part ));
 use Data::Dumper;
 use Data::Structure::Util qw( unbless );
 use Clone qw( clone );
@@ -30,7 +30,6 @@ sub init {
 	$self->{ _json }       = new JSON::XS();
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
-		athlete_delete     => \&handle_division_athlete_delete,
 		athlete_next       => \&handle_division_athlete_next,
 		athlete_prev       => \&handle_division_athlete_prev,
 		award_min_score    => \&handle_division_award_min_score,
@@ -38,9 +37,7 @@ sub init {
 		award_punitive     => \&handle_division_award_punitive,
 		clear_judge_score  => \&handle_division_clear_judge_score,
 		display            => \&handle_division_display,
-		draw               => \&handle_division_draw,
-		draw_select_age    => \&handle_division_draw_select_age,
-		edit_athletes      => \&handle_division_edit_athletes,
+		draw_sbs_poomsae   => \&handle_division_draw_sbs_poomsae,
 		form_next          => \&handle_division_form_next,
 		form_prev          => \&handle_division_form_prev,
 		history            => \&handle_division_history,
@@ -95,7 +92,7 @@ sub handle_division_award_penalty {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -109,7 +106,7 @@ sub handle_division_award_punitive {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $request->{ athlete_id };
+	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $decision = $request->{ decision };
 	my $message  = "Award punitive decision $decision penalty to $athlete->{ name }\n";
@@ -125,7 +122,7 @@ sub handle_division_award_punitive {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -177,35 +174,7 @@ sub handle_division_award_min_score {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_athlete_delete {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $group    = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
-	my $athlete  = $division->{ athletes }[ $i ];
-	my $message  = "Deleting $athlete->{ name } from division\n";
-
-	print STDERR $message if $DEBUG;
-
-	try {
-		$version->checkout( $division );
-		$division->remove_athlete( $request->{ athlete_id } );
-		$division->write();
-		$version->commit( $division, $message );
-
-		$self->broadcast_updated_division( $request, $progress, $group );
-	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -228,7 +197,7 @@ sub handle_division_athlete_next {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -251,7 +220,7 @@ sub handle_division_athlete_prev {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -288,7 +257,7 @@ sub handle_division_clear_judge_score {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -311,12 +280,12 @@ sub handle_division_display {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
 # ============================================================
-sub handle_division_draw {
+sub handle_division_draw_sbs_poomsae {
 # ============================================================
 	my $self     = shift;
 	my $request  = shift;
@@ -324,86 +293,62 @@ sub handle_division_draw {
 	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
-	my $draw     = $request->{ draw };
-	my $round    = uc $division->{ round };
-	my $match    = $division->method->matches->current();
-	my $mnum     = $match->{ number };
-	my $i        = $division->{ form };
-	my $form     = $draw->{ form };
-	my $complete = $draw->{ complete };
-	my $ordinal  = $i == 0 ? '1st' : '2nd';
+	my $age      = exists $request->{ age } ? $request->{ age } : '';
 
-	if( $complete ) {
-		print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
+	if( $age ) {
+		my $division = $progress->current();
+		my $age      = $request->{ age };
+		my $divid    = uc $division->{ name };
+		my $round    = $division->{ round };
+
+		print STDERR "Recording poomsae draw age selection: $age for $divid\n" if $DEBUG;
+
+		try {
+			$division->autopilot( 'off' );
+			my $forms = $division->{ forms }{ $round };
+			my $n     = int( @$forms );
+			$forms->[ $_ ] = "draw-$age" foreach ( 0 .. $n );
+			$division->write();
+
+			$self->broadcast_updated_division( $request, $progress, $group );
+		} catch {
+			$client->send({ json => { error => "$_" }});
+		}
+		return;
+
 	} else {
-		print STDERR "Teasing poomsae draw: $form\n" if $DEBUG;
-	}
+		my $draw     = $request->{ draw };
+		my $round    = uc $division->{ round };
+		my $match    = $division->method->matches->current();
+		my $mnum     = $match->{ number };
+		my $i        = $division->{ form };
+		my $form     = $draw->{ form };
+		my $complete = $draw->{ complete };
+		my $ordinal  = $i == 0 ? '1st' : '2nd';
 
-	try {
-		$division->autopilot( 'off' );
 		if( $complete ) {
-			$division->{ state } = 'draw';
-			$division->record_draw( $form );
-			$division->write();
-
+			print STDERR "Recording poomsae draw: $form for $round Match $mnum ($ordinal form)\n" if $DEBUG;
 		} else {
-			$division->{ state } = 'draw';
-			$division->write();
+			print STDERR "Teasing poomsae draw: $form\n" if $DEBUG;
 		}
 
-		$self->broadcast_updated_division( $request, $progress, $group );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
+		try {
+			$division->autopilot( 'off' );
+			if( $complete ) {
+				$division->{ state } = 'draw';
+				$division->record_draw( $form );
+				$division->write();
 
-# ============================================================
-sub handle_division_draw_select_age {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $group    = shift;
-	my $client   = $self->{ _client };
-	my $division = $progress->current();
-	my $age      = $request->{ age };
-	my $divid    = uc $division->{ name };
-	my $round    = $division->{ round };
+			} else {
+				$division->{ state } = 'draw';
+				$division->write();
+			}
 
-	print STDERR "Recording poomsae draw age selection: $age for $divid\n" if $DEBUG;
-
-	try {
-		$division->autopilot( 'off' );
-		my $forms = $division->{ forms }{ $round };
-		my $n     = int( @$forms );
-		$forms->[ $_ ] = "draw-$age" foreach ( 0 .. $n );
-		$division->write();
-
-		$self->broadcast_updated_division( $request, $progress, $group );
-	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_edit_athletes {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $group    = shift;
-	my $client   = $self->{ _client };
-
-	print STDERR "Editing division athletes.\n" if $DEBUG;
-
-	try {
-		my $division = $progress->find( $request->{ divid } ) or die "Can't find division " . uc( $request->{ divid }) . " $!";
-		$division->edit_athletes( $request->{ athletes }, $request->{ round } );
-		$division->write();
-
-		$self->broadcast_updated_division( $request, $progress, $group );
-	} catch {
-		$client->send( { json => { error => "$_" }});
+			$self->broadcast_updated_division( $request, $progress, $group );
+		} catch {
+			$client->send({ json => { error => "$_" }});
+		}
+		return;
 	}
 }
 
@@ -425,7 +370,7 @@ sub handle_division_form_next {
 		$division->write();
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -447,7 +392,7 @@ sub handle_division_form_prev {
 		$division->write();
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -469,7 +414,7 @@ sub handle_division_history {
 		$division->{ history } = [ @history ];
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -496,12 +441,14 @@ sub handle_division_judge_query {
 		$judges[ $jid ] = { cid => $judge->cid(), jid => $judge->jid(), name => $name };
 	}
 
-	$client->send( { json => { type => 'division', action => 'judges', judges => $judges }} );
+	$client->send({ json => { type => 'division', action => 'judges', judges => $judges }} );
 }
 
 # ============================================================
 sub handle_division_navigate {
 # ============================================================
+# https://docs.google.com/document/d/1RkKmQsCJfSCzEvgCIdEA16GM7DnCN-m0x9WPxcnKHLA/edit?pli=1&tab=t.0#heading=h.eje0eniw444s
+#
 	my $self     = shift;
 	my $request  = shift;
 	my $progress = shift;
@@ -543,7 +490,7 @@ sub handle_division_navigate {
 			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -580,7 +527,7 @@ sub handle_division_restore {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -602,7 +549,7 @@ sub handle_division_round_next {
 		$division->write();
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -624,7 +571,7 @@ sub handle_division_round_prev {
 		$division->write();
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -640,7 +587,9 @@ sub handle_division_score {
 	my $version  = new FreeScore::RCS();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
+	my $score    = $request->{ score };
+	my $judge    = $score->{ judge };
+	my $jname    = $judge == 0 ? 'Referee' : "Judge $judge";
 	my $message  = '';
 
 	if( exists $request->{ score }{ chung } || exists $request->{ score }{ hong }) {
@@ -657,7 +606,7 @@ sub handle_division_score {
 	try {
 		my $score = clone( $request->{ score } );
 		$version->checkout( $division );
-		$division->record_score( $request->{ judge }, $score );
+		$division->record_score( $judge, $score );
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -673,7 +622,7 @@ sub handle_division_score {
 
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -691,7 +640,7 @@ sub handle_division_write {
 	print STDERR "Writing division data.\n" if $DEBUG;
 
 	# ===== DIVISION HEADER WHITE LIST
-	my $valid = { map { ( $_ => 1 ) } qw( athletes description flight forms judges name ring round ) };
+	my $valid = { map { ( $_ => 1 ) } qw( name state current form round judges method matches description forms draws placement flight ring athletes ) };
 
 	try {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );
@@ -703,7 +652,7 @@ sub handle_division_write {
 		my $unblessed = unbless( $message ); 
 
 		if( -e $division->{ file } && ! exists $request->{ overwrite } ) {
-			$client->send( { json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
+			$client->send({ json => {  type => 'division', action => 'write error', error => "File '$division->{ file }' exists.", division => $unblessed }});
 
 		} else {
 			$division->normalize();
@@ -711,13 +660,13 @@ sub handle_division_write {
 			$division->write();
 
 			# ===== NOTIFY THE CLIENT OF SUCCESSFUL WRITE
-			$client->send( { json => {  type => 'division', action => 'write ok', division => $unblessed }});
+			$client->send({ json => {  type => 'division', action => 'write ok', division => $unblessed }});
 
 			# ===== BROADCAST THE UPDATE
 			$self->broadcast_updated_ring( $request, $progress, $group );
 		}
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -737,7 +686,7 @@ sub handle_ring_division_delete {
 		$progress->write();
 		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -757,7 +706,7 @@ sub handle_ring_division_merge {
 		$progress->write();
 		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -777,7 +726,7 @@ sub handle_ring_division_next {
 		$progress->write();
 		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -797,7 +746,7 @@ sub handle_ring_division_prev {
 		$progress->write();
 		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -819,7 +768,7 @@ sub handle_ring_division_split {
 		$progress->write();
 		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -856,7 +805,7 @@ sub handle_ring_transfer {
 
 		$self->broadcast_updated_ring( $request, $progress, $group );
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -874,9 +823,30 @@ sub handle_tournament_draws_delete {
 	try {
 		$progress->delete_draws();
 
-		$self->broadcast_updated_ring( $request, $progress, $group );
+		$client->send({ json => { request => $request, draws => { deleted => 1 }}});
 	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+# ============================================================
+sub handle_tournament_draws_write {
+# ============================================================
+	my $self     = shift;
+	my $request  = shift;
+	my $progress = shift;
+	my $group    = shift;
+	my $client   = $self->{ _client };
+	my $draws    = $request->{ draws };
+
+	print STDERR "Writing draws to database.\n" if $DEBUG;
+
+	try {
+		$progress->write_draws( $draws );
+
+		$client->send({ json => { request => $request, draws => { written => 1 }}});
+	} catch {
+		$client->send({ json => { error => "$_" }});
 	}
 }
 
@@ -899,28 +869,7 @@ sub handle_tournament_read {
 	try {
 		$client->send({ json => { type => $request->{ type }, action => $request->{ action }, request => $copy, divisions => $divisions }});
 	} catch {
-		$client->send( { json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_tournament_draws_write {
-# ============================================================
-	my $self     = shift;
-	my $request  = shift;
-	my $progress = shift;
-	my $group    = shift;
-	my $client   = $self->{ _client };
-	my $draws    = $request->{ draws };
-
-	print STDERR "Writing draws to database.\n" if $DEBUG;
-
-	try {
-		$progress->write_draws( $draws );
-
-		$self->broadcast_updated_ring( $request, $progress, $group );
-	} catch {
-		$client->send( { json => { error => "$_" }});
+		$client->send({ json => { error => "$_" }});
 	}
 }
 

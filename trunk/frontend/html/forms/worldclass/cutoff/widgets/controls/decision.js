@@ -38,7 +38,7 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 						message : `Click <b>OK</b> to ${decision} ${athlete.name()} or <b>Cancel</b> to do nothing.`,
 						ok : () => {
 							this.sound.ok.play();
-							this.network.send({ type: 'division', action: 'award punitive', decision, athlete_id: current });
+							this.network.send({ type: 'division', action: 'award punitive', decision });
 							alertify.error( `${athlete.name()} ${action?.[ decision ]}` );
 						},
 						cancel : () => { this.sound.prev.play(); }
@@ -49,7 +49,7 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 
 			this.button.clear.off( 'click' ).click( ev => {
 				this.sound.ok.play();
-				this.network.send({ type: 'division', action: 'award punitive', decision: 'clear', athlete_id: current });
+				this.network.send({ type: 'division', action: 'award punitive', decision: 'clear' });
 				alertify.success( `${athlete.name()} has been <b>cleared of decisions</b>` );
 			});
 		}

@@ -305,13 +305,13 @@ sub clear_score {
 # ============================================================
 sub find_athlete {
 # ============================================================
-	my $self     = shift;
-	my $option   = shift;
-	my $div      = $self->{ division };
-	my $round    = $div->{ round };
-	my $athletes = $div->order( $round );
-	my $matches  = $self->matches();
-	my $aid      = undef;
+	my $self    = shift;
+	my $option  = shift;
+	my $div     = $self->{ division };
+	my $round   = $div->{ round };
+	my $order   = $div->order( $round );
+	my $matches = $self->matches();
+	my $aid     = undef;
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
@@ -354,7 +354,7 @@ sub find_athlete {
 			}
 		}
 	}
-	my $i = first_index { $_ == $aid } @$athletes;
+	my $i = first_index { $_ == $aid } @$order;
 
 	return $i;
 }

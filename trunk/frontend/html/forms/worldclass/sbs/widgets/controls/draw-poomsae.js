@@ -113,7 +113,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 							this.state.draw.complete = true;
 
 							if( count == 4 ) {
-								let request = { type: 'division', action: 'draw', draw: { form, complete: true }};
+								let request = { type: 'division', action: 'draw sbs poomsae', draw: { form, complete: true }};
 								this.network.send( request );
 								this.sound.ok.play(); 
 							}
@@ -125,7 +125,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 							this.state.draw.form = form = pool[ i ];
 							tdd.html( form );
 
-							let request = { type: 'division', action: 'draw', draw: { form, complete: false }};
+							let request = { type: 'division', action: 'draw sbs poomsae', draw: { form, complete: false }};
 							this.network.send( request );
 							this.sound.next.play();
 						}
@@ -196,7 +196,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					if( this.button.age.modal.ok.hasClass( 'disabled' )) {
 						alertify.notify( 'Please select an age group.' );
 					} else {
-						let request = { type: 'division', action: 'draw select age', age: this.stage.age };
+						let request = { type: 'division', action: 'draw sbs poomsae', age: this.stage.age };
 						this.network.send( request );
 						alertify.success( `Age group <b>${this.state.age.capitalize()}</b> selected.` );
 						this.sound.ok.play();

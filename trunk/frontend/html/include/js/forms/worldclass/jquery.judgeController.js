@@ -312,7 +312,7 @@ $.widget( "freescore.judgeController", {
 			}
 			
 			// ===== RESET DEFAULTS FOR A DIFFERENT ATHLETE, FORM, ROUND, OR DIVISION
-			if( different.division || different.round || different.athlete || different.form ) {
+			if( update.request.action != 'score' && ( different.division || different.round || different.athlete || different.form )) {
 				e.sound.next.play();
 				let athlete = division.current.athlete();
 				let judge   = o.num == 0 ? 'Referee' : 'Judge ' + o.num;

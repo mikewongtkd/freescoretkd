@@ -223,25 +223,28 @@ sub detect_ties {
 sub find_athlete {
 # ============================================================
 	my $self     = shift;
-	my $div      = $self->{ division };
 	my $option   = shift;
-	my $athletes = $div->order();
-	my $last     = $#$athletes;
+	my $div      = $self->{ division };
+	my $order    = $div->order();
+	my $n        = $#$order;
+	my $first    = 0;
+	my $last     = -1;
 
 	if( $option =~ /^(?:first|last)$/ ) {
 		if( $option =~ /^first$/ ) {
-			return 0;
+			return $first;
 		} else {
 			return $last;
 		}
 	} elsif( $option =~ /^(?:next|prev)/ ) {
-		my $i    = first_index { $_ == $div->{ current } } @$athletes;
+		my $i = first_index { $_ == $div->{ current } } @$order;
 		if( $option =~ /^next$/ ) {
-			if( $i == $last ) { return 0; } # Wrap around to first
-			return $athletes->[ $i + 1 ];
+			if( $i == $n ) { return $first; } # Wrap around to first
+			return $i + 1;
+
 		} else {
 			if( $i == 0 ) { return $last; } # Wrap around to last
-			return $athletes->[ $i - 1 ];
+			return $i - 1;
 		}
 	}
 }
