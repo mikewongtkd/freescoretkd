@@ -7,6 +7,7 @@ FreeScore.App = class FSApp {
 		this._input   = {};
 		this._modal   = {};
 		this._network = new FreeScore.WebSocket( this );
+		this._comms   = new FreeScore.CommsProtocol( this );
 		this._refresh = {};
 		this._sound   = new FreeScore.Sound();
 		this._state   = {};
