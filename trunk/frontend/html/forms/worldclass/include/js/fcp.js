@@ -2,6 +2,10 @@
 FreeScore.CommsProtocol.WorldClass = class FSCommsProtocolPWorldClass extends FreeScore.CommsProtocol {
 	constructor( app ) {
 		super( app );
+
+		// ==============================
+		// REQUESTS
+		// ==============================
 		this._request.div = {};
 		this._request.div.nav = {
 			athlete: {
@@ -37,21 +41,6 @@ FreeScore.CommsProtocol.WorldClass = class FSCommsProtocolPWorldClass extends Fr
 			}
 		};
 
-		this.validate.penalties = penalties => {
-			const valid = [ 'bounds', 'restart', 'timelimit', 'misconduct' ];
-			if( typeof penalties !== 'object' ) {
-				console.log( 'FCP Validate Penalties: penalty is not an object', penalties );
-				return false;
-			}
-			let ok = Object.keys( penalties ).reduce(( acc, cur ) => acc && valid.includes( cur ), true );
-			return ok;
-		};
-
-		this.validate.decisions = decision => {
-			const valid = [ 'disqualify', 'withdraw' ];
-			return valid.includes( decision );
-		}
-
 		this._request.div.drawSBSPoomsae = ( option ) => { 
 			if( typeof option === 'string' ) {
 				this.send( 'division', 'draw sbs poomsae', { age: option });
@@ -66,5 +55,26 @@ FreeScore.CommsProtocol.WorldClass = class FSCommsProtocolPWorldClass extends Fr
 		this._request.div.read    = () => { this.send( 'division', 'read' ); };
 		this._request.div.restore = ( version ) => { this.send( 'division', 'restore', { version }); };
 		this._request.div.write   = ( division ) => { this.send( 'division', 'restore', { division }); };
+
+		// ==============================
+		// REQUEST VALIDATION
+		// ==============================
+		this.validate.penalties = penalties => {
+			const valid = [ 'bounds', 'restart', 'timelimit', 'misconduct' ];
+			if( typeof penalties !== 'object' ) {
+				console.log( 'FCP Validate Penalties: penalty is not an object', penalties );
+				return false;
+			}
+			let ok = Object.keys( penalties ).reduce(( acc, cur ) => acc && valid.includes( cur ), true );
+			return ok;
+		};
+
+		this.validate.decisions = decision => {
+			const valid = [ 'disqualify', 'withdraw' ];
+			return valid.includes( decision );
+		};
+
+		this.validate.score = score => {
+		};
 	}
 }
