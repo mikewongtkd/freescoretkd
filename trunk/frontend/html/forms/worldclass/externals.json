@@ -1,0 +1,67 @@
+{
+	"bootstrap": {
+		"css"     : [ "/include/bootstrap/css/bootstrap.min.css" ],
+		"js"      : [ "/include/bootstrap/js/bootstrap.min.js" ]
+	},
+	"alertify": {
+		"css"     : [ "/include/alertify/css/alertify.min.css", "/include/alertify/css/themes/bootstrap.min.css" ],
+		"js"      : [ "/include/alertify/alertify.min.js" ],
+		"requires": [ "bootstrap" ]
+	},
+	"jquery": {
+		"js"      : [ "/include/jquery/js/jquery.js" ]
+	},
+	"howler": {
+		"js"      : [ "/include/jquery/js/jquery.howler.min.js" ],
+		"requires": [ "jquery" }
+	},
+	"cookie": {
+		"js"      : [ "/include/jquery/js/jquery.cookie.min.js" ],
+		"requires": [ "jquery" ]
+	},
+	"freescore": {
+		"js"      : [ "/include/js/freescore.js" ]
+	},
+	"fsuuid": {
+		"js"      : [ "/include/js/uuid.js" ]
+	},
+	"fswebsocket": {
+		"js"      : [ "/include/js/websocket.js" ],
+		"requires": [ "freescore" ]
+	},
+	"fssound": {
+		"js"      : [ "/include/js/websocket.js" ],
+		"requires": [ "howler", "freescore" ]
+	},
+	"fsevent": {
+		"js"      : [ "/include/js/event.js" ],
+		"requires": [ "freescore" ]
+	},
+	"fsapp": {
+		"js"      : [ "/include/js/event.js" ],
+		"requires": [ "fsevent" ]
+	},
+	"fswidget": {
+		"js"      : [ "/include/js/widget.js" ],
+		"requires": [ "fsapp" ]
+	},
+	"fsioc": {
+		"js"      : [ "/include/js/ioc.js" ]
+	},
+	"fswcform" : {
+		"js"      : [ "/include/js/forms/worldclass/form.class.js" ],
+		"requires": [ "freescore" ]
+	},
+	"fswcscore" : {
+		"js"      : [ "/include/js/forms/worldclass/score.class.js" ],
+		"requires": [ "freescore" ]
+	},
+	"fswcathlete" : {
+		"js"      : [ "/include/js/forms/worldclass/athlete.class.js" ],
+		"requires": [ "freescore" ]
+	},
+	"fswcdivision" : {
+		"js"      : [ "/include/js/forms/worldclass/division.class.js" ],
+		"requires": [ "freescore" ]
+	}
+}

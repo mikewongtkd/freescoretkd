@@ -610,7 +610,7 @@ $( '.pt-page-2 .accept' ).off( 'click' ).click(() => {
 		settings.timestamp = moment().format( 'lll' ); // Mark timestamp for when updated draws are accepted
 	}
 	draws.settings = settings;
-	var request  = { data : { type : 'tournament', action : 'draws write', draws: draws }};
+	var request  = { data : { type : 'tournament', action : 'draws write', draws }};
 	request.json = JSON.stringify( request.data );
 	delete draws.settings;
 	ws.send( request.json );

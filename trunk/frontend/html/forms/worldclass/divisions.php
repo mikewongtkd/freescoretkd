@@ -359,7 +359,7 @@
 								if( division.is.flight() && division.flight().state == 'complete' ) { action.merge.enable(); } else { action.merge.disable(); }
 								action.button.merge.off( 'click' ).click(() => {
 									var request;
-									request      = { data : { type : 'ring', action : 'division merge', name: divid }};
+									request      = { data : { type : 'ring', action : 'division merge', divid }};
 									request.json = JSON.stringify( request.data );
 									ws.send( request.json );
 									action.merge.disable();
