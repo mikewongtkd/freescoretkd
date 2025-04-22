@@ -26,8 +26,9 @@ sub init {
 	my $ring       = $websocket->param( 'ring' );
 	my $role       = $websocket->param( 'role' );
 	my $sessid     = $websocket->cookie( 'freescore-session' );
-	my $id         = sha1_hex( $connection );
+	my $id         = $role eq 'display' || $role eq 'admin' ? sha1_hex( $connection ) : sha1_hex( $sessid );
 
+	$role = lc $role;
 	$role =~ s/\+/ /g;
 
 	$self->{ id }         = $id;

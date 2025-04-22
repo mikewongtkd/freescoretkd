@@ -353,8 +353,6 @@
 
 						let current   = app.state.current;
 						let different = {
-							ring:  current.ring  != <?= $rnum ?>,
-							judge: current.judge != <?= $jnum ?>,
 							divid: current.divid != division.name(),
 							round: current.round != division.current.roundId(),
 							match: current.match != match.number,

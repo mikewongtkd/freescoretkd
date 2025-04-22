@@ -77,4 +77,57 @@ FreeScore.CommsProtocol.WorldClass = class FSCommsProtocolPWorldClass extends Fr
 		this.validate.score = score => {
 		};
 	}
+
+	response( update ) {
+		let response = new FreeScore.CommsProtocol.WorldClass.Response( update );
+		return response.update === null ? null : response;
+	}
+}
+
+FreeScore.CommsProtocol.WorldClass.Response = class FSCommsProtocolPWorldClassResponse {
+	constructor( update ) {
+		if( typeof update == 'string' ) {
+			this.update = JSON.parse( update )
+
+		} else if( typeof update == 'object' ) {
+			this.update = update;
+
+		} else {
+			this.update = null;
+		}
+
+		this.for = {
+			divisionRequest: () => () {
+				return this.update?.request?.type == 'division';
+			},
+			navigationRequest: () => {
+				let action   = this.update?.request?.action;
+				let navigate = action == 'navigate' || action.match( /^(?:athlete|form|round|division)[\s_](?:next|prev)$/ );
+				return navigate;
+			}
+			ringRequest: () => () {
+				return this.update?.request?.type == 'ring';
+			},
+			scoringRequest: () => {
+			},
+			tournamentRequest: () => {
+				return this.update?.request?.type == 'tournament';
+			},
+			usersRequest: () => {
+				return this.update?.request?.type == 'users';
+			}
+		};
+
+		this.current = {
+			division: () => {
+				if( this.for.usersRequest()) {
+					return null;
+
+				} else if( this.for.divisionRequest()) {
+					return new Division( this.update?.division );
+
+				} else if( this.for.ringRequest()) { 
+			}
+		}
+	}
 }

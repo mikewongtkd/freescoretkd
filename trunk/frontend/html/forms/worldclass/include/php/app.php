@@ -6,8 +6,8 @@ class App {
 	public $url;
 	public $title;
 
-	public function __construct( $role = 'computer+operator' ) {
-		$this->get_parameters([ "role" => $role ]);
+	public function __construct( $ring = null, $role = null ) {
+		$this->get_parameters([ "ring" => $ring, "role" => $role ]);
 		$this->cwd       = preg_replace( '/var/www/html/', '', getcwd() );
 		$this->url       = $config->websocket( 'worldclass', $this->ring, $role );
 		$this->externals = json_decode( file_get_contents( 'externals.json' ));
@@ -26,7 +26,7 @@ class App {
 			"flip"  => [ "values" => [ 0, 1 ]],
 			"judge" => [ "values" => [ range( 0, 6 )]],
 			"ring"  => [ "values" => [ range( 1, 30 ), "staging" ]],
-			"role"  => [ "values" => [ range( 0, 6 ), "admin", "computer+operator", "display", "judge" ]]
+			"role"  => [ "values" => [ "admin", "computer+operator", "display", "judge", "judge0", "judge1", "judge2", "judge3", "judge4", "judge5", "judge6" ]]
 		];
 
 		$this->parameter = [];
@@ -54,11 +54,24 @@ class App {
 			"css" => [],
 			"js"  => []
 		];
+		$nocache = bin2hex( random_bytes( 16 ));
 		foreach( $this->externals as $name => $external ) {
-			foreach( $external->css as $css ) { array_push( $html[ "css" ], "<link href=\"{$css}\" rel=\"stylesheet\" />\n" ); }
-			foreach( $external->js  as $js )  { array_push( $html[ "js" ], "<script src=\"{$js}\"></script>\n" ); }
+			foreach( $external->css as $css ) { 
+				if( isset( $external->cache ) && $external->cache === false ) {
+					array_push( $html[ "css" ], "<link href=\"{$css}?{$nocache}\" rel=\"stylesheet\" />\n" ); 
+				} else {
+					array_push( $html[ "css" ], "<link href=\"{$css}\" rel=\"stylesheet\" />\n" ); 
+				}
+			}
+			foreach( $external->js  as $js )  { 
+				if( isset( $external->cache ) && $external->cache === false ) {
+					array_push( $html[ "js" ], "<script src=\"{$js}?{$nocache}\"></script>\n" ); 
+				} else {
+					array_push( $html[ "js" ], "<script src=\"{$js}\"></script>\n" ); 
+				}
+			}
 		}
-		return "<html>\n\t<head>\n" . $this->title() . implode( "", $html[ "css" ]) . implode( "", $html[ "js" ]) . "\t</head>\n\t<body>\n";
+		return "<html>\n\t<head>\n" . $this->title() . implode( "", $html[ "css" ]) . implode( "", $html[ "js" ]) . "\t</head>\n";
 	}
 
 	public function remove_external( $name ) {

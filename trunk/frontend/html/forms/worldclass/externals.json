@@ -20,48 +20,70 @@
 		"requires": [ "jquery" ]
 	},
 	"freescore": {
-		"js"      : [ "/include/js/freescore.js" ]
+		"js"      : [ "/include/js/freescore.js" ],
+		"cache"   : false
 	},
 	"fsuuid": {
-		"js"      : [ "/include/js/uuid.js" ]
+		"js"      : [ "/include/js/uuid.js" ],
+		"cache"   : false
 	},
 	"fswebsocket": {
 		"js"      : [ "/include/js/websocket.js" ],
+		"cache"   : false,
 		"requires": [ "freescore" ]
+	},
+	"fscomms": {
+		"js"      : [ "/include/js/fcp.js" ],
+		"cache"   : false,
+		"requires": [ "fswebsocket" ]
 	},
 	"fssound": {
 		"js"      : [ "/include/js/websocket.js" ],
+		"cache"   : false,
 		"requires": [ "howler", "freescore" ]
 	},
 	"fsevent": {
 		"js"      : [ "/include/js/event.js" ],
+		"cache"   : false,
 		"requires": [ "freescore" ]
 	},
 	"fsapp": {
 		"js"      : [ "/include/js/event.js" ],
+		"cache"   : false,
 		"requires": [ "fsevent" ]
 	},
 	"fswidget": {
 		"js"      : [ "/include/js/widget.js" ],
+		"cache"   : false,
 		"requires": [ "fsapp" ]
 	},
 	"fsioc": {
-		"js"      : [ "/include/js/ioc.js" ]
+		"js"      : [ "/include/js/ioc.js" ],
+		"cache"   : false
+	},
+	"fswccomms" : {
+		"js"      : [ "/forms/worldclass/include/js/fcp.js" ],
+		"cache"   : false,
+		"requires": [ "fscomms" ]
 	},
 	"fswcform" : {
 		"js"      : [ "/include/js/forms/worldclass/form.class.js" ],
+		"cache"   : false,
 		"requires": [ "freescore" ]
 	},
 	"fswcscore" : {
 		"js"      : [ "/include/js/forms/worldclass/score.class.js" ],
+		"cache"   : false,
 		"requires": [ "freescore" ]
 	},
 	"fswcathlete" : {
 		"js"      : [ "/include/js/forms/worldclass/athlete.class.js" ],
+		"cache"   : false,
 		"requires": [ "freescore" ]
 	},
 	"fswcdivision" : {
 		"js"      : [ "/include/js/forms/worldclass/division.class.js" ],
+		"cache"   : false,
 		"requires": [ "freescore" ]
 	}
 }
