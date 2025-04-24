@@ -23,26 +23,26 @@ FreeScore.App = class FSApp {
 		// Event Handler
 		this._event = new FreeScore.EventServer( this );
 
-		// Server Ping behavior
+		// Response behavior to Server Ping
 		this.ping = {};
-		this.ping.off = () => { this.network.rm?.heard( 'server' ).command( 'ping' ).respond(() => { this.network.send({ type : 'server', action : 'stop ping', ring }); }); }
+		this.ping.off = () => { this.comms.receive( 'user' ).command( 'ping' ).respond(() => { this.comms.request.user.stopPing(); }
 		this.ping.on  = () => {
-			this.network.rm.add( 'server', 'ping', ping => {
+			this.comms.receive( 'user' ).command( 'ping' ).respond( ping => {
 				let timestamp = (new Date).toISOString();
-				let pong = { type : 'client', action : 'pong', ring, server : { ping : { timestamp : ping.server.timestamp }}, client : { pong : { timestamp }}};
-				this.network.send( pong );
+				this.comms.request.user.pong( ping.server.timestamp, timestamp );
 			});
 		};
 
 		// On Connect actions
 		this.read = {
-			division :   () => { this._network.connect({ type : 'division',   action : 'read' }); this.ping.on(); },
-			ring :       () => { this._network.connect({ type : 'ring',       action : 'read' }); this.ping.on(); },
-			tournament : () => { this._network.connect({ type : 'tournament', action : 'read' }); this.ping.on(); }
+			division :   () => { this.comms.onConnect( 'division',   'read' ); this.ping.on(); },
+			ring :       () => { this.comms.onConnect( 'ring',       'read' ); this.ping.on(); },
+			tournament : () => { this.comms.onConnect( 'tournament', 'read' ); this.ping.on(); }
 		};
 	}
 
 	get button()  { return this._button; }
+	get comms()   { return this._comms; }
 	get display() { return this._display; }
 	get event()   { return this._event; }
 	get id()      { return this._id; }

@@ -9,6 +9,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.debug     = 1; // 0 to disable, 1 for basic information, 2 for more detailed information
 	}
 
+	// Add a single response handler for a given type an action
 	add( type, action = null, handler = null ) {
 		this.heard( type );
 		if( action === null ) {
@@ -69,6 +70,7 @@ FreeScore.ResponseManager = class FSResponseManager {
 		return this;
 	}
 	
+	// Add a response handler for a given type and one or more actions
 	respond( handler ) {
 		this.context.action.forEach( action => this.add( this.context.type, action, handler ));
 		this.context.action = [];

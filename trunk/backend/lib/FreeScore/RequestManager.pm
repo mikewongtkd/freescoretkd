@@ -20,11 +20,9 @@ sub new {
 sub init_client_server {
 # ============================================================
 	$self = shift;
-	$self->{ client } = {
-		pong          => \&handle_client_pong
-	};
-	$self->{ server } = {
-		stop_ping     => \&handle_server_stop_ping
+	$self->{ user } = {
+		pong          => \&handle_user_pong
+		stop_ping     => \&handle_user_stop_ping
 	};
 }
 
@@ -106,7 +104,7 @@ sub broadcast_updated_users {
 
 	foreach my $client ($group->clients()) {
 		my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		my $response  = { type => 'users', action => 'update', digest => $digest, time => $now, request => $request, users => $status };
+		my $response  = { type => 'user', action => 'update', digest => $digest, time => $now, request => $request, users => $status };
 		my $cstatus   = $client->status();
 		printf STDERR "    %-17s  %s  %s\n", $cstatus->{ role }, $cstatus->{ cid }, $cstatus->{ health } if $DEBUG;
 		$client->send( { json => $response });
@@ -122,7 +120,7 @@ sub client_health_check {
 
 	return unless $ring ne 'staging' && $group->changed();
 
-	my $request = { type => 'users', action => 'update', ring => $ring };
+	my $request = { type => 'user', action => 'update', ring => $ring };
 	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
@@ -142,7 +140,7 @@ sub handle {
 }
 
 # ============================================================
-sub handle_client_pong {
+sub handle_user_pong {
 # ============================================================
 	my $self      = shift;
 	my $request   = shift;
@@ -156,12 +154,12 @@ sub handle_client_pong {
 	return unless $client->ping->pong( $ping->{ timestamp }, $pong->{ timestamp });
 
 	my $status    = $client->status();
-	my $request   = { type => 'users', action => 'update', ring => $ring, status => $status };
+	my $request   = { type => 'user', action => 'update', ring => $ring, status => $status };
 	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
 # ============================================================
-sub handle_server_stop_ping {
+sub handle_user_stop_ping {
 # ============================================================
  	my $self      = shift;
 	my $request   = shift;
@@ -174,7 +172,7 @@ sub handle_server_stop_ping {
 
 	$client->ping->quit();
 
-	my $request = { type => 'users', action => 'update', ring => $ring };
+	my $request = { type => 'user', action => 'update', ring => $ring };
 	$self->broadcast_updated_users( $request, $progress, $group );
 }
 
