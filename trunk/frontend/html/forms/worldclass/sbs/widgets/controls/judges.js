@@ -57,8 +57,7 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 									title : `Clear ${judge.name}'s score for Match ${mnum}`,
 									message : `Click <b>OK</b> to clear <b>${judge.name}</b>&rsquo;s score for <b>${names}</b> in Match ${mnum} or <b>Cancel</b> to do nothing.`,
 									ok : () => {
-										let request  = { type : 'division', action : 'clear judge score', judge : i, index: aids };
-										app.network.send( request );
+										app.comms.request.div.clearJudgeScore( i, aids );
 										app.sound.ok.play();
 
 										alertify.success( `${judge.name}'s score cleared for ${names} in Match ${mnum}` );
@@ -375,21 +374,27 @@ FreeScore.Widget.SBSJudges = class FSWidgetJudges extends FreeScore.Widget {
 		};
 
 		// ===== ADD LISTENER/RESPONSE HANDLERS
-		this.network.on
+		this.comms
 		// ============================================================
-		.heard( 'division' )
+		.receive( 'division' )
 		// ============================================================
 			.command( 'update' )  
 				.respond( update => { 
+					let response = new FreeScore.CommsProtocol.WorldClass.Response( update );
 					let division = update.division;
 					this.state.division = division;
 
-					this.refresh.judges();
 					this.refresh.judge.status( update );
-					this.refresh.judge.scores();
+
+					if( response.isFor.navigationRequest() ) {
+						this.refresh.judges();
+
+					} else if( response.isFor.scoringRequest()) {
+						this.refresh.judge.scores();
+					}
 				})
 		// ============================================================
-		.heard( 'ring' )
+		.receive( 'ring' )
 		// ============================================================
 			.command( 'update' )  
 				.respond( update => { 

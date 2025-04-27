@@ -71,14 +71,14 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 		catch { $client->send( { json => { error => "Error while processing request: $_\n", request => $request }}); };
 
 		# ===== HEALTH CHECK ON ALL CLIENTS
-		$manager->client_health_check( $ring, $client->group());
+		$manager->handle_user_status( $ring, $client->group());
 	});
 
 	# ----------------------------------------
 	# Handle websocket close
 	# ----------------------------------------
 	$self->on( finish => sub {
-		my $request = { type => 'users', action => 'update', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
+		my $request = { type => 'user', action => 'update', user => { sessid => $client->sessid(), id => $client->id(), role => $client->role() }};
 		$registry->remove( $client );
 		$manager->broadcast_updated_users( $request, $progress, $client->group());
 		$client->ping->quit();

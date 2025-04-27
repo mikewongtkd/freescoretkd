@@ -69,6 +69,10 @@ FreeScore.ResponseManager = class FSResponseManager {
 		this.context.action = [];
 		return this;
 	}
+
+	receive( type ) {
+		return this.heard( type );
+	}
 	
 	// Add a response handler for a given type and one or more actions
 	respond( handler ) {

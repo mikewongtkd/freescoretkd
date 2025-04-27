@@ -22,25 +22,24 @@ FreeScore.CommsProtocol.WorldClass = class FSCommsProtocolPWorldClass extends Fr
 			}
 		};
 
-		this._request.div.rec = {
-			award: { 
-				minScore: () => { this.send( 'division', 'award min score' ); },
-				penalty: ( penalties ) => { 
-					if( ! this.validate.penalties( penalties )) { return; }
-					this.send( 'division', 'award penalty', { penalties }); 
-				},
-				punitive: ( decision ) => { 
-					if( ! this.validate.decision( decision )) { return; }
-					this.send( 'division', 'award punitive', { decision }); 
-				}
+		this._request.div.award = {
+			minScore: () => { this.send( 'division', 'award min score' ); },
+			penalty: ( penalties ) => { 
+				if( ! this.validate.penalties( penalties )) { return; }
+				this.send( 'division', 'award penalty', { penalties }); 
 			},
-			clearJudgeScore: ( judge ) => { this.send( 'division', 'clear judge score', { judge }); },
-			display: () => { this.send( 'division', 'display' ); },
-			score: ( score ) => { 
-				this.send( 'division', 'score', { score }); 
+			punitive: ( decision ) => { 
+				if( ! this.validate.decision( decision )) { return; }
+				this.send( 'division', 'award punitive', { decision }); 
 			}
 		};
-
+		this._request.div.clearJudgeScore: ( judge, index = null ) => { 
+			let request = { judge };
+			if( index ) { request.index = index; }
+			this.send( 'division', 'clear judge score', request ); 
+		},
+		this._request.div.display: () => { this.send( 'division', 'display' ); },
+		this._request.div.score: ( score ) => { this.send( 'division', 'score', { score }); };
 		this._request.div.drawSBSPoomsae = ( option ) => { 
 			if( typeof option === 'string' ) {
 				this.send( 'division', 'draw sbs poomsae', { age: option });
@@ -96,7 +95,7 @@ FreeScore.CommsProtocol.WorldClass.Response = class FSCommsProtocolPWorldClassRe
 			this.update = null;
 		}
 
-		this.for = {
+		this.isFor = {
 			divisionRequest: () => () {
 				return this.update?.request?.type == 'division';
 			},
@@ -109,24 +108,38 @@ FreeScore.CommsProtocol.WorldClass.Response = class FSCommsProtocolPWorldClassRe
 				return this.update?.request?.type == 'ring';
 			},
 			scoringRequest: () => {
+				let type = this.update?.request?.type;
+				if( ! defined( type )) { return false; }
+				if( typeof type != 'string' ) { return false; }
+				return type?.matches( /^(?:score|clear judge score|award penalty|award punitive|award min score)$/ );
 			},
 			tournamentRequest: () => {
 				return this.update?.request?.type == 'tournament';
 			},
-			usersRequest: () => {
-				return this.update?.request?.type == 'users';
+			userRequest: () => {
+				return this.update?.request?.type == 'user';
 			}
 		};
 
 		this.current = {
-			division: () => {
-				if( this.for.usersRequest()) {
+			division: {
+				data: () => {
+					if( this.for.divisionRequest()) {
+						return this.update?.division;
+
+					} else if( this.for.ringRequest()) { 
+						let ring     = this.update.ring;
+						let divid    = ring.current;
+						let division = ring.divisions.find( div => div.name == divid );
+						return defined( division ) ? division : null;
+					}
+
 					return null;
-
-				} else if( this.for.divisionRequest()) {
-					return new Division( this.update?.division );
-
-				} else if( this.for.ringRequest()) { 
+				},
+				instance: () => {
+					let division = this.current.division.data();
+					return defined( division ) ? new Division( division ) : null;
+				}
 			}
 		}
 	}

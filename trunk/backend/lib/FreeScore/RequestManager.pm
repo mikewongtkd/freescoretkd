@@ -21,7 +21,8 @@ sub init_client_server {
 # ============================================================
 	$self = shift;
 	$self->{ user } = {
-		pong          => \&handle_user_pong
+		pong          => \&handle_user_pong,
+		status        => \&handle_user_status,
 		stop_ping     => \&handle_user_stop_ping
 	};
 }
@@ -112,7 +113,7 @@ sub broadcast_updated_users {
 }
 
 # ============================================================
-sub client_health_check {
+sub handle_user_status {
 # ============================================================
 	my $self  = shift;
 	my $ring  = shift;

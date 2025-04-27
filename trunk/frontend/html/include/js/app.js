@@ -35,9 +35,9 @@ FreeScore.App = class FSApp {
 
 		// On Connect actions
 		this.read = {
-			division :   () => { this.comms.onConnect( 'division',   'read' ); this.ping.on(); },
-			ring :       () => { this.comms.onConnect( 'ring',       'read' ); this.ping.on(); },
-			tournament : () => { this.comms.onConnect( 'tournament', 'read' ); this.ping.on(); }
+			division :   () => { this.comms.read.division();   this.ping.on(); },
+			ring :       () => { this.comms.read.ring();       this.ping.on(); },
+			tournament : () => { this.comms.read.tournament(); this.ping.on(); }
 		};
 	}
 

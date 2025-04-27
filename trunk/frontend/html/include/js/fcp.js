@@ -17,12 +17,14 @@ FreeScore.CommsProtocol = class FSCommsProtocol {
 				this.send( 'user', 'stop ping', request );
 			}
 		};
-	}
 
-	onConnect( type, action, request = {}) {
-		request.type   = type;
-		request.action = action;
-		this.app.network.send( request );
+		// Read Commands (may be redundant to requests; this is OK, as the
+		// following are intended only to be used on initial connection.)
+		this.read = {
+			division:   () => { this.send( 'division',   'read' ); },
+			ring:       () => { this.send( 'ring',       'read' ); },
+			tournament: () => { this.send( 'tournament', 'read' ); }
+		}
 	}
 
 	receive( type ) {
