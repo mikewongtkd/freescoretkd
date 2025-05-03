@@ -125,6 +125,14 @@
 			app.page = {
 				count: 5,
 				num: 1,
+				display: division => {
+					let state = division.current.state();
+					if( ! defined( app.page.show?.[ state ])) { 
+						alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
+						state = 'score'; 
+					}
+					app.page.transition( state );
+				},
 				for : {
 					score: 1,
 					results: 2,
@@ -187,12 +195,7 @@
 						app.forwardIf.cutoff( division );
 						app.forwardIf.sbs( division );
 
-						let state = division.current.state();
-						if( ! defined( app.page.show?.[ state ])) { 
-							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
-							state = 'score'; 
-						}
-						app.page.transition( state );
+						app.page.display( division );
 					})
 				// ============================================================
 				.heard( 'autopilot' )
@@ -202,12 +205,12 @@
 						let division = update?.division;
 						if( ! defined( division )) { return; }
 
-						let state = division.current.state();
-						if( ! defined( app.page.show?.[ state ])) { 
-							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
-							state = 'score'; 
-						}
-						app.page.transition( state );
+						division = new Division( division );
+
+						app.forwardIf.cutoff( division );
+						app.forwardIf.sbs( division );
+
+						app.page.display( division );
 					})
 		</script>
 	</body>
