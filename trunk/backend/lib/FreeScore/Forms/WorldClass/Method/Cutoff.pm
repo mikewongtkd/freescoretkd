@@ -5,6 +5,7 @@ use FreeScore::Forms::WorldClass::Division::Round;
 use List::Util qw( any first shuffle );
 use List::MoreUtils qw( first_index );
 use Mojo::IOLoop;
+use Data::Dumper;
 
 our @rounds = [
 	{ code => 'prelim', name => 'Preliminary', min => 20 },
@@ -327,6 +328,8 @@ sub record_score {
 	my $athlete = $div->{ athletes }[ $div->{ current } ];
 	my $round   = $div->{ round };
 	my $form    = $div->{ form };
+
+  print STDERR Dumper 'JUDGE', $judge, 'SCORE', $score; # MW
 
 	$div->{ state } = 'score'; # Return to the scoring state when any judge scores
 	$div->{ flight }{ state } = 'in-progress' if( $div->is_flight() && $div->{ flight }{ state } eq 'ready' ); # Change flight status to in-progress once a judge has scored

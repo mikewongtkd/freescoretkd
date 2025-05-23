@@ -640,7 +640,8 @@ sub handle_division_score {
 	my $version  = new FreeScore::RCS();
 	my $i        = $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
-	my $jname    = $request->{ judge } == 0 ? 'Referee' : 'Judge ' . $request->{ judge };
+  my $judge = exists $request->{ judge } ? $request->{ judge } : $request->{ score }{ judge };
+	my $jname    = $judge == 0 ? 'Referee' : 'Judge ' . $judge;
 	my $message  = '';
 
 	if( exists $request->{ score }{ chung } || exists $request->{ score }{ hong }) {
@@ -652,12 +653,19 @@ sub handle_division_score {
 		$message = "  $jname score for $athlete->{ name }\n";
 	}
 
+  print STDERR "HELLO\n"; # MW
 	print STDERR $message if $DEBUG;
+  print STDERR Dumper $request; # MW
+
+  my $judge = exists $request->{ judge } ? $request->{ judge } : $request->{ score }{ judge };
 
 	try {
 		my $score = clone( $request->{ score } );
+  print STDERR "SCORE 1\n"; # MW
 		$version->checkout( $division );
-		$division->record_score( $request->{ judge }, $score );
+  print STDERR "SCORE 2\n"; # MW
+		$division->record_score( $judge, $score );
+  print STDERR "SCORE 3\n"; # MW
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -666,11 +674,14 @@ sub handle_division_score {
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
+  print STDERR "SCORE 4\n"; # MW
+
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $group ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
+  print STDERR "SCORE 5\n"; # MW
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});

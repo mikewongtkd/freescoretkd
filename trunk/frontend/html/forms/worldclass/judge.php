@@ -4,6 +4,10 @@
 	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'judge' ] )) { header( 'Location: ../../register.php?service=worldclass&role=judge' ); exit(); }
 	$rnum = intval( $_COOKIE[ 'ring' ]);
 	$jid  = intval( $_COOKIE[ 'judge' ]);
+  $anticache = '';
+  for( $i=0; $i<100; $i++ ) {
+     $anticache .= chr(rand(65, 90));
+  }
 ?>
 <html>
 	<head>
@@ -33,16 +37,17 @@
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/alertify/alertify.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>
-		<script src="../../include/js/forms/worldclass/form.class.js"></script>
-		<script src="../../include/js/forms/worldclass/score.class.js"></script>
-		<script src="../../include/js/forms/worldclass/athlete.class.js"></script>
-		<script src="../../include/js/forms/worldclass/division.class.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.deductions.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.matposition.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.presentationButtons.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.presentationBar.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.judgeNotes.js"></script>
-		<script src="../../include/js/forms/worldclass/jquery.judgeController.js"></script>
+		<script src="../../include/js/forms/worldclass/form.class.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/score.class.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/athlete.class.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/division.class.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/jquery.deductions.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/jquery.matposition.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/jquery.presentationButtons.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/jquery.presentationBar.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/jquery.judgeNotes.js?<?= $anticache ?>"></script>
+		<script src="../../include/js/forms/worldclass/jquery.judgeController.js?<?= $anticache ?>"></script>
+
 	</head>
 	<body>
 		<div id="judgeController"></div>

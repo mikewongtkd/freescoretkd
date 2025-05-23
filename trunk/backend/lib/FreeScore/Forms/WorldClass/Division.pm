@@ -573,6 +573,8 @@ sub record_score {
 	my $score  = shift;
 	my $method = $self->method();
 
+  print STDERR Dumper $judge, $score; # MW
+
 	$method->record_score( $judge, $score );
 }
 
