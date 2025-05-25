@@ -2,7 +2,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 	constructor( app, dom ) {
 		super( app, dom );
 		const designated = {
-			youth: [ 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo' ], // Not WT
+			youth: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
 			cadet: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
 			junior: [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
 			u30: [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
@@ -195,7 +195,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					if( this.button.age.modal.ok.hasClass( 'disabled' )) {
 						alertify.notify( 'Please select an age group.' );
 					} else {
-						let request = { type: 'division', action: 'draw select age', age: this.stage.age };
+						let request = { type: 'division', action: 'draw select age', age: this.state.age };
 						this.network.send( request );
 						alertify.success( `Age group <b>${this.state.age.capitalize()}</b> selected.` );
 						this.sound.ok.play();
@@ -262,7 +262,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				} else {
 					let found = forms[ fid ]?.match( /^draw-(\w+)$/ );
 					if(  found ) {
-						age = match[ 1 ];
+						age = found[ 1 ];
 						this.state.age = age;
 						this.cookie.save( age );
 

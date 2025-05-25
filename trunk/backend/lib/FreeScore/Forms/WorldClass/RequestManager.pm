@@ -375,7 +375,7 @@ sub handle_division_draw_select_age {
 	try {
 		$division->autopilot( 'off' );
 		my $forms = $division->{ forms }{ $round };
-		my $n     = int( @$forms );
+		my $n     = int( @$forms ) - 1;
 		$forms->[ $_ ] = "draw-$age" foreach ( 0 .. $n );
 		$division->write();
 
