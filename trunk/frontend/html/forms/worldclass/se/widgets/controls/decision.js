@@ -40,6 +40,7 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let current = division.current.athleteId();
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
+      let method  = division.current.method();
 			let match   = division.current.match();
 			let mnum    = division.current.matchNumber();
 
@@ -60,24 +61,46 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			[ 'withdraw', 'disqualify' ].forEach( decision => {
 				this.button?.[ decision ]?.off( 'click' )?.click( ev => {
 					this.sound.next.play();
-					let dialog = {
-						title : `${decision.capitalize()} ${athlete.name()}?`,
-						message : `Click <b>OK</b> to ${decision} ${athlete.name()} or <b>Cancel</b> to do nothing.`,
-						ok : () => {
-							this.sound.ok.play();
-							this.network.send({ type: 'division', action: 'award punitive', decision, athlete_id: current });
-							alertify.error( `${athlete.name()} ${action?.[ decision ]}` );
-						},
-						cancel : () => { this.sound.prev.play(); }
-					};
-					alertify.confirm( dialog.title, dialog.message, dialog.ok, dialog.cancel );
+          if( method == 'cutoff' || method == 'se' ) {
+            let dialog = {
+              title : `${decision.capitalize()} ${athlete.name()}?`,
+              message : `Click <b>OK</b> to ${decision} ${athlete.name()} or <b>Cancel</b> to do nothing.`,
+              ok : () => {
+                this.sound.ok.play();
+                this.network.send({ type: 'division', action: 'award punitive', decision, athlete_id: current });
+                alertify.error( `${athlete.name()} ${action?.[ decision ]}` );
+              },
+              cancel : () => { this.sound.prev.play(); }
+            };
+					  alertify.confirm( dialog.title, dialog.message, dialog.ok, dialog.cancel );
+
+          } else if( method == 'sbs' ) {
+            let callback = aid => { 
+              this.sound.ok.play();
+              this.network.send({ type: 'division', action: 'award punitive', decision, athlete_id: aid });
+              let athlete = division.athlete( aid );
+              alertify.error( `${athlete.name()} ${action?.[ decision ]}` );
+            };
+            this.app.modal.selectContestant.refresh( division, decision, '', callback );
+          }
 				});
 			});
 
 			this.button.clear.off( 'click' ).click( ev => {
-				this.sound.ok.play();
-				this.network.send({ type: 'division', action: 'award punitive', decision: 'clear', athlete_id: current });
-				alertify.success( `${athlete.name()} has been <b>cleared of decisions</b>` );
+        if( method == 'cutoff' || method == 'se' ) {
+          this.sound.ok.play();
+          this.network.send({ type: 'division', action: 'award punitive', decision: 'clear', athlete_id: current });
+          alertify.success( `${athlete.name()} has been <b>cleared of decisions</b>` );
+
+        } else if( method == 'sbs' ) {
+          let callback = aid => { 
+            this.sound.ok.play();
+            this.network.send({ type: 'division', action: 'award punitive', decision: 'clear', athlete_id: aid });
+            let athlete = division.athlete( aid );
+            alertify.success( `${athlete.name()} has been <b>cleared of decisions</b>` );
+          };
+          this.app.modal.selectContestant.refresh( division, 'clear decisions for', '', callback );
+        }
 			});
 		}
 

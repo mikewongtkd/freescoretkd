@@ -77,26 +77,52 @@ FreeScore.Widget.SEPenalties = class FSWidgetPenalties extends FreeScore.Widget 
 			let current = division.current.athleteId();
 			let round   = division.current.roundId();
 			let form    = division.current.formId();
+      let method  = division.current.method();
 
 			this.button.penalize.off( 'click' ).click( ev => { this.refresh.accordion.toggle(); });
 
 			let aname = { bounds : 'an <b>Out of Bounds</b>', restart : 'a <b>Form Restart</b>', timelimit : 'an <b>Over Time</b>', misconduct : 'a <b>Misconduct</b>' };
 			[ 'bounds', 'restart', 'timelimit', 'misconduct' ].forEach( penalty => {
 				this.button?.[ penalty ]?.off( 'click' )?.click( ev => {
-					this.sound.ok.play();
-					athlete.penalize?.[ penalty ]( round, form );
-					this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-					alertify.warning( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
-					this.refresh.accordion.hide();
+          if( method == 'cutoff' || method == 'se' ) {
+            this.sound.ok.play();
+            athlete.penalize?.[ penalty ]( round, form );
+            this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
+            alertify.warning( `${athlete.name()} is given ${aname?.[ penalty ]} penalty` );
+            this.refresh.accordion.hide();
+
+          } else if( method == 'sbs' ) {
+            let callback = aid => {
+              let athlete = division.athlete( aid );
+              this.sound.ok.play();
+              athlete.penalize?.[ penalty ]( round, form );
+              this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: aid });
+              alertify.error( `${athlete.name()} has been given ${aname?.[ penalty ]} penalty.` );
+              this.refresh.accordion.hide();
+            };
+            this.app.modal.selectContestant.refresh( division, 'give', `${aname?.[ penalty ]} penalty`, callback );
+          }
 				});
 			});
 
 			this.button.clear.off( 'click' ).click( ev => {
-				this.sound.ok.play();
-				athlete.penalize.clear( round, form );
-				this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
-				alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
-				this.refresh.accordion.hide();
+        if( method == 'cutoff' || method == 'se' ) {
+          this.sound.ok.play();
+          athlete.penalize.clear( round, form );
+          this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: current });
+          alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
+          this.refresh.accordion.hide();
+        } else if( method == 'sbs' ) {
+          let callback = aid => {
+            let athlete = division.athlete( aid );
+            this.sound.ok.play();
+            athlete.penalize.clear( round, form );
+            this.network.send({ type: 'division', action: 'award penalty', penalties: athlete.penalties( round, form ), athlete_id: aid });
+            alertify.success( `${athlete.name()} has been <b>cleared of all penalties</b>` );
+            this.refresh.accordion.hide();
+          };
+          this.app.modal.selectContestant.refresh( division, 'clear', `of all penalties`, callback );
+        }
 			});
 		}
 

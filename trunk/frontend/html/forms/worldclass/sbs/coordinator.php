@@ -237,5 +237,6 @@
 				});
 			});
 		</script>
+<?php include_once( 'dialogs/select-contestant.php' ); ?>
 	</body>
 </html>
