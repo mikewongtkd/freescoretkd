@@ -237,5 +237,6 @@
 				});
 			});
 		</script>
+<?php include_once( 'dialogs/select-coordinator.php' ); ?>
 	</body>
 </html>
