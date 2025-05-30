@@ -34,7 +34,7 @@ FreeScore.Widget.SEAthleteList = class FSWidgetSEAthleteList extends FreeScore.W
 				this.display.match.list.append( button );
 			},
 			entry : ( division, round, match, aid ) => {
-				let athlete   = new Athlete( division.data().athletes[ aid ]);
+				let athlete   = division.athlete( aid );
 				let score     = athlete.score( round ); 
 				let form      = division.current.formId();
 				let mid       = `${round}-${match.number}`;
