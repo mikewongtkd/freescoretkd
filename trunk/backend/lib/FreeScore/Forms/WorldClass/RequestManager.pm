@@ -105,8 +105,9 @@ sub handle_division_award_punitive {
 	my $group    = shift;
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
+	my $method   = $division->method->code();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
+	my $i        = exists( $request->{ athlete_id }) ? $request->{ athlete_id } : $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $decision = $request->{ decision };
 	my $message  = "Award punitive decision $decision penalty to $athlete->{ name }\n";
@@ -115,8 +116,8 @@ sub handle_division_award_punitive {
 
 	try {
 		$version->checkout( $division);
-		$division->record_decision( $request->{ decision }, $request->{ athlete_id });
-		$division->next_available_athlete() unless $request->{ decision } eq 'clear';
+		$division->record_decision( $request->{ decision }, $i );
+		$division->next_available_athlete() unless (($request->{ decision } eq 'clear') || ($method eq 'sbs'));
 		$division->write();
 		$version->commit( $division, $message );
 
