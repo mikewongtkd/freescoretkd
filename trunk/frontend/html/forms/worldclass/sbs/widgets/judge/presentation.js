@@ -238,8 +238,14 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					let current = this.app.state.current;
 					let start   = division.current.matchStart();
 					let jname   = this.app.state.current.judge == 0 ? 'Referee' : `Judge ${this.app.state.current.judge}`;
-					if( update.request.judge == current.judge ) { alertify.success( `Server received ${jname} score for Match ${current.match + start}.` ); return; }
-					else { return; }
+					if( update.request.judge == current.judge ) { 
+						alertify.success( `Server received ${jname} score for Match ${current.match + start}.` ); 
+						this.app.state.reset();
+						this.app.page.show.accuracy();
+						return; 
+					} else { 
+						return; 
+					}
 				}
 
 				this.refresh.common( division );
