@@ -25,30 +25,38 @@ class Score {
 		};
 
 		this.summary = () => {
-			let summary = [];
-			let total   = 0.0;
-			let is      = { decided: false, scored: false };
-			let n       = score.forms.length;
+			let summary  = [];
+			let total    = 0.0;
+			let is       = { decided: false, scored: false };
+			let n        = score.forms.length;
+			let decision = false;
 			score.forms.forEach(( form, i ) => { 
 				let f = new Form( form );
 				let j = i + 1; 
 				// ===== SHOW DECISION IF THERE IS A DECISION
-				let decision = f.decision.awarded();
+				if( decision ) { return; } // If a decision has been previously detected, there's no need to append subsequent scores or decisions
+				decision = f.decision.awarded();
 				if( decision ) {
 					is.decided = true;
-					summary.push( `<span class="form${j}of${n} decision">${decision.code}</span>` );
+					if( i > 0 ) {
+						summary.push( `<span class="form${j}of${n} decision">${decision.code}</span>` );
+					}
 
 				// ===== SHOW SCORE IF THERE IS A COMPLETED SCORE
 				} else if( defined( form?.adjusted )) {
-					is.scored = true;
 					let subtotal = isNaN( parseFloat( form.adjusted?.total )) ? 0 : parseFloat( form.adjusted.total );
+					is.scored = subtotal == 0 ? false : true;
 					total += subtotal;
 					summary.push( `<span class="form${j}of${n} total score">${subtotal == 0 ? '&ndash;' : subtotal.toFixed( 2 )}</span>` ); 
 				}
 			});
 			if( is.scored && ! is.decided && n > 1 ) {
 				summary.push( `<span class="sum total score">${total.toFixed( 2 )}</span>` ); 
+
+			} else if( is.decided ) {
+				summary.push( `<span class="sum total score">${decision.code}</span>` ); 
 			}
+
 			return summary.join( "&nbsp;" );
 		};
 

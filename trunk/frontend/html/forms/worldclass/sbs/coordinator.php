@@ -139,7 +139,7 @@
 					console.log( `Forward ${division.name().toUpperCase()}` ); // MW
 
 					if( ! defined( division )) { return; }
-					if( method == 'se' ) { window.location = `../sbs/coordinator.php?ring=${ring}`; }
+					if( method == 'se' ) { window.location = `../se/coordinator.php?ring=${ring}`; }
 				}
 			};
 
@@ -237,5 +237,6 @@
 				});
 			});
 		</script>
+<?php include_once( 'dialogs/select-coordinator.php' ); ?>
 	</body>
 </html>
