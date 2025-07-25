@@ -109,16 +109,16 @@
 
 			// ===== PAN & ZOOM FUNCTION
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
-      app.display.flip = () => {
-        const flippable = $( '#display-score, #display-results, #display-matches' );
-        if( $( '#display-score' ).hasClass( 'chung-right' )) {
-          flippable.removeClass( 'chung-right' ).addClass( 'chung-left' );
-          alertify.notify( 'Display flipped: chung now on left' );
-        } else {
-          flippable.removeClass( 'chung-left' ).addClass( 'chung-right' );
-          alertify.notify( 'Display flipped: chung now on right' );
-        }
-      };
+			app.display.flip = () => {
+				const flippable = $( '#display-score, #display-results, #display-matches' );
+				if( $( '#display-score' ).hasClass( 'chung-right' )) {
+					flippable.removeClass( 'chung-right' ).addClass( 'chung-left' );
+					alertify.notify( 'Display flipped: chung now on left' );
+				} else {
+					flippable.removeClass( 'chung-left' ).addClass( 'chung-right' );
+					alertify.notify( 'Display flipped: chung now on right' );
+				}
+			};
 			app.display.panzoom = delta => {
 				app.state.display.x    += delta.x;
 				app.state.display.y    += delta.y;
@@ -206,9 +206,9 @@
 				app.page.transition( state );
 			};
 
-			app.network.on
+			app.comms
 				// ============================================================
-				.heard( 'ring' )
+				.receive( 'ring' )
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {
@@ -228,7 +228,7 @@
 						Object.entries( app.widget ).forEach(([ name, widget ]) => widget.display.refresh.all( division ));
 					})
 				// ============================================================
-				.heard( 'division' )
+				.receive( 'division' )
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {
@@ -239,7 +239,7 @@
 						app.refresh.page( division );
 					})
 				// ============================================================
-				.heard( 'autopilot' )
+				.receive( 'autopilot' )
 				// ============================================================
 				.command( 'update' )
 					.respond( update => {

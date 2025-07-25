@@ -328,25 +328,23 @@ sub find_athlete {
 		}
 
 	} elsif( $option =~ /^(?:next|prev)/i ) {
+		my $match = $matches->current();
 		if( $option =~ /^next$/i ) {
-			my $current = $matches->current();
 
 			# Note assymetric behavior: 
 			# - athlete -> next means next available athlete
 			# - athlete -> prev means previous athlete, regardless of match status
-			if( $current->contested() && ! $current->complete()) {
-				if    ( $current->first_athlete() == $div->{ current }) { $aid = $current->last_athlete();  } 
-				elsif ( $current->last_athlete()  == $div->{ current }) { $aid = $current->first_athlete(); }
+			if( $match->contested() && ! $match->complete()) {
+				if    ( $match->first_athlete() == $div->{ current }) { $aid = $match->last_athlete();  } 
+				elsif ( $match->last_athlete()  == $div->{ current }) { $aid = $match->first_athlete(); }
 			} else {
 				my $next = $matches->next();
 				$aid = $next->first_athlete() if $next;
 				warn "No next match $!";
 			}
 		} else {
-			my $current = $matches->current();
-
-			if( $current->contested() && $current->last_athlete() == $div->{ current }) { 
-				$aid = $current->first_athlete();
+			if( $match->contested() && $match->last_athlete() == $div->{ current }) { 
+				$aid = $match->first_athlete();
 			} else {
 				my $prev = $matches->prev();
 				$aid = $prev->last_athlete() if $prev;

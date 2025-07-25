@@ -101,11 +101,11 @@ body {
   border: 4px solid green;
 }
 
-.chung-right .common .flip {
+.chung-left .common .flip {
   background: linear-gradient(90deg, #240000 0%, #001cff 0%, #160c78 50%, #760c0c 51%, red 100%);
 }
 
-.chung-left .common .flip {
+.chung-right .common .flip {
   background: linear-gradient(-90deg, #240000 0%, #001cff 0%, #160c78 50%, #760c0c 51%, red 100%);
 }
 

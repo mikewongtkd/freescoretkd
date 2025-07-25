@@ -106,7 +106,7 @@ sub handle_division_award_punitive {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
+	my $i        = exists $request->{ athlete_id } ? $request->{ athlete_id } : $division->{ current };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $decision = $request->{ decision };
 	my $message  = "Award punitive decision $decision penalty to $athlete->{ name }\n";

@@ -48,7 +48,7 @@
 		"requires": [ "freescore" ]
 	},
 	"fsapp": {
-		"js"      : [ "/include/js/event.js" ],
+		"js"      : [ "/include/js/app.js" ],
 		"cache"   : false,
 		"requires": [ "fsevent" ]
 	},
@@ -65,6 +65,11 @@
 		"js"      : [ "/forms/worldclass/include/js/fcp.js" ],
 		"cache"   : false,
 		"requires": [ "fscomms" ]
+	},
+	"fswcapp" : {
+		"js"      : [ "/forms/worldclass/include/js/app.js" ],
+		"cache"   : false,
+		"requires": [ "fsapp" ]
 	},
 	"fswcform" : {
 		"js"      : [ "/include/js/forms/worldclass/form.class.js" ],

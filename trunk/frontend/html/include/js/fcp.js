@@ -25,10 +25,12 @@ FreeScore.CommsProtocol = class FSCommsProtocol {
 			ring:       () => { this.send( 'ring',       'read' ); },
 			tournament: () => { this.send( 'tournament', 'read' ); }
 		}
-	}
 
-	receive( type ) {
-		return this.app.network.rm?.heard( type );
+		this.when = {
+			receiving: ( type ) => {
+				return this.app.network.rm?.heard( type );
+			}
+		};
 	}
 
 	send( type, action, request = {}) {
