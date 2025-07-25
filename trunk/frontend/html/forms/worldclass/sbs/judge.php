@@ -50,7 +50,7 @@
 			<!-- SCORE ACCURACY -->
 			<!-- ============================================================ -->
 			<div class="pt-page pt-page-1">
-				<div id="score-accuracy" class="chung-right">
+				<div id="score-accuracy" class="chung-left">
 					<div class="header"></div>
 					<div class="common"></div>
 					<div class="chung accuracy"></div>
@@ -181,9 +181,9 @@
 				let acc     = $( '#score-accuracy' );
 				let widgets = $( '#score-accuracy, #score-presentation' );
 				if( display.flip ) {
-					widgets.each(( i, el ) => { $( el ).removeClass( 'chung-right' ); $( el ).addClass( 'chung-left' ); });
-				} else {
 					widgets.each(( i, el ) => { $( el ).removeClass( 'chung-left' ); $( el ).addClass( 'chung-right' ); });
+				} else {
+					widgets.each(( i, el ) => { $( el ).removeClass( 'chung-right' ); $( el ).addClass( 'chung-left' ); });
 				}
 			}
 
