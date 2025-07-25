@@ -120,6 +120,8 @@
 			</div>
 		</div>
 		<script>
+			$(() => { $( 'body' ).nodoubletapzoom(); });
+
 			alertify.defaults.theme.ok     = "btn btn-danger";
 			alertify.defaults.theme.cancel = "btn btn-warning";
 			$.cookie.json = true;
@@ -292,8 +294,9 @@
 					division:     () => { app.page.transition( 'division' ); }
 				},
 				transition: target => { 
-					let pnum = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.score;
+					let pnum = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.accuracy;
 					app.page.num = pnum;
+					app.state.current.page = target;
 					$( '.pt-page' ).hide();
 					$( `.pt-page-${pnum}` ).show();
 					setTimeout(() => { app.widget?.[ target ]?._refresh.score(); }, 50 );
@@ -374,6 +377,13 @@
 
 							let jname = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
 							alertify.success( `${jname} ready to score for Match ${division.current.matchNumber()}` );
+
+						} else {
+							if( current.page in app.page.show ) { app.page.show[ current.page ](); }
+							else {
+								alertify.error( `${current.page} is not a valid page; defaulting to 'accuracy'` );
+								app.page.show.accuracy();
+							}
 						}
 
 						app.state.score.chung.index = match.chung;
@@ -382,14 +392,8 @@
 						app.state.athlete.chung = defined( match.chung ) ? division.athlete( match.chung ) : null;
 						app.state.athlete.hong  = defined( match.hong )  ? division.athlete( match.hong )  : null;
 
-						if( current.page in app.page.show ) { app.page.show[ current.page ](); }
-						else {
-							alertify.error( `${current.page} is not a valid page; defaulting to 'accuracy'` );
-							app.page.show.accuracy();
-						}
 					});
 
-			$(() => { $( 'body' ).nodoubletapzoom(); });
 		</script>
 	</body>
 </html>
