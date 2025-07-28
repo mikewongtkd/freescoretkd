@@ -208,7 +208,8 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 							() => {
 								let redraw = this.refresh.draw.behavior( pool );
 								redraw();
-							}
+							},
+              () => {}
 						);
 					});
 				} else {
@@ -360,8 +361,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					return; 
 				}
 
-        console.log( 'REFRESH DRAW POOMSAE' ); // MW
-
 				this.display.age.modal.hide();
 				this.display.draw.empty().html( 'Draw Poomsae Required' );
 				this.button.draw.html( 'Draw Poomsae' );
@@ -373,13 +372,10 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				let n     = division.form.count();
 				let fid   = division.current.formId();
 
-        console.log( 'REFRESH DRAW POOMSAE', forms, draw, fid ); // MW
-
 				// Form has been previously manually drawn
-				if( defined( draw[ fid ]) && ! draw[ fid ].match( /^draw/i )) {
+				if( defined( draw[ fid ]) && forms && ! forms[ fid ].match( /^draw/i )) {
 					form = draw[ fid ];
 					this.display.draw.empty().html( form );
-					return;
 
 				// Form has been previously systematically drawn
 				} else if( defined( draw[ fid ])) {
@@ -388,13 +384,14 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					this.button.draw.html( 'Re-draw Poomsae' );
 					this.state.draw.complete = true;
 					this.display.all.show();
-					return;
-				}
 
-				let mnum  = division.current.matchNumber();
-				alertify.notify( `Poomsae draw for Match ${mnum} required. Click on <i>Draw Poomsae</i> to proceed.` );
-				this.display.all.show();
-				this.button.draw.removeClass( 'disabled' );
+        // Form has not been drawn
+				} else {
+          let mnum  = division.current.matchNumber();
+          alertify.notify( `Poomsae draw for Match ${mnum} required. Click on <i>Draw Poomsae</i> to proceed.` );
+          this.display.all.show();
+          this.button.draw.removeClass( 'disabled' );
+        }
 
 				// Draw form
 				let age = undefined;
@@ -409,7 +406,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 				// See if the draw information specifies age
 				} else {
-					let found = draw[ fid ]?.match( /^draw-([\w\-]+)$/ );
+					let found = forms ? forms[ fid ]?.match( /^draw-([\w\-]+)$/ ) : null;
 					if(  found ) {
 						age = found[ 1 ];
 						this.state.age = age;
