@@ -1,64 +1,53 @@
-@charset "UTF-8";
 @font-face {
-  font-family: "Lato";
+  font-family: 'Lato';
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal;
-}
+  font-style: normal; }
 @font-face {
-  font-family: "Lato";
+  font-family: 'Lato';
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic;
-}
+  font-style: italic; }
 @font-face {
-  font-family: "Lato";
+  font-family: 'Lato';
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal;
-}
+  font-style: normal; }
 @font-face {
-  font-family: "Lato";
+  font-family: 'Lato';
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic;
-}
+  font-style: italic; }
 @font-face {
-  font-family: "Biolinum";
+  font-family: 'Biolinum';
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal;
-}
+  font-style: normal; }
 @font-face {
-  font-family: "Barlow";
+  font-family: 'Barlow';
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal;
-}
+  font-style: normal; }
 @font-face {
-  font-family: "FjallaOne";
+  font-family: 'FjallaOne';
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal;
-}
+  font-style: normal; }
 @font-face {
-  font-family: "Glyphicons Halflings";
+  font-family: 'Glyphicons Halflings';
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal;
-}
+  font-style: normal; }
 html, body {
   height: 100%;
   overflow-x: hidden;
-  font-family: Optima, Biolinum, Lato;
-}
+  font-family: Optima, Biolinum, Lato; }
 
 .pt-perspective {
   position: relative;
   width: 100%;
   height: 100%;
-  perspective: 1200px;
-}
+  perspective: 1200px; }
 
 .pt-page {
   width: 100%;
@@ -71,18 +60,15 @@ html, body {
   overflow-y: auto;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
-  transform-style: preserve-3d;
-}
+  transform-style: preserve-3d; }
 
 .pt-page-current,
 .no-js .pt-page {
   visibility: visible;
-  z-index: 1;
-}
+  z-index: 1; }
 
 .pt-page-ontop {
-  z-index: 999;
-}
+  z-index: 999; }
 
 .page-header {
   position: relative;
@@ -95,286 +81,226 @@ html, body {
   font-size: 24pt;
   line-height: 24pt;
   font-weight: bold;
-  border-radius: 4px;
-}
-.page-header label[for=judges] {
-  font-size: 16px;
-  color: #ccc;
-  text-align: top;
-}
-.page-header #division-header {
-  margin-left: 20px;
-}
+  border-radius: 4px; }
+  .page-header label[for=judges] {
+    font-size: 16px;
+    color: #ccc;
+    text-align: top; }
+  .page-header #division-header {
+    margin-left: 20px; }
 
 .judges button.disabled {
   background-color: #eee;
-  color: #aaa;
-}
+  color: #aaa; }
 
 #judge-scores table {
-  width: 100%;
-}
-#judge-scores table td, #judge-scores table th {
-  font-size: 10pt;
-  text-align: center;
-}
-#judge-scores table td .btn-xs, #judge-scores table th .btn-xs {
-  padding: 0 8px 2px 8px;
-}
-#judge-scores table tr.chung td, #judge-scores table tr.chung th {
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-  color: #31708f;
-}
-#judge-scores table tr.hong td, #judge-scores table tr.hong th {
-  background-color: #f2dede;
-  border-color: #ebccd1;
-  color: #a94442;
-}
-#judge-scores table .acc {
-  color: #d9534f;
-}
-#judge-scores table .pre {
-  color: #337ab7;
-}
-#judge-scores table .sum {
-  color: #333;
-}
-#judge-scores table .ignore {
-  text-decoration: line-through;
-  opacity: 0.2;
-}
+  width: 100%; }
+  #judge-scores table td, #judge-scores table th {
+    font-size: 10pt;
+    text-align: center; }
+    #judge-scores table td .btn-xs, #judge-scores table th .btn-xs {
+      padding: 0 8px 2px 8px; }
+  #judge-scores table tr.chung td, #judge-scores table tr.chung th {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f; }
+  #judge-scores table tr.hong td, #judge-scores table tr.hong th {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442; }
+  #judge-scores table .acc {
+    color: #d9534f; }
+  #judge-scores table .pre {
+    color: #337ab7; }
+  #judge-scores table .sum {
+    color: #333; }
+  #judge-scores table .ignore {
+    text-decoration: line-through;
+    opacity: 0.2; }
 
 #back-to-divisions {
-  margin-top: -3px;
-}
+  margin-top: -3px; }
 
 #athletes {
   height: 600px;
-  overflow-y: auto;
-}
-#athletes .match-number {
-  width: 120px;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  text-align: center;
-}
-#athletes .match-number.active {
-  background-color: gold;
-  border-color: orange;
-  color: black;
-  font-weight: bold;
-}
-#athletes .list-group-item {
-  padding-top: 10px;
-  padding-bottom: 6px;
-}
-#athletes .list-group-item.chung {
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-  color: #31708f;
-  border-top-right-radius: 12px;
-}
-#athletes .list-group-item.hong {
-  background-color: #f2dede;
-  border-color: #ebccd1;
-  color: #a94442;
-  margin-bottom: 20px;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-}
+  overflow-y: auto; }
+  #athletes .match-number {
+    width: 120px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    text-align: center; }
+    #athletes .match-number.active {
+      background-color: gold;
+      border-color: orange;
+      color: black;
+      font-weight: bold; }
+  #athletes .list-group-item {
+    padding-top: 10px;
+    padding-bottom: 6px; }
+    #athletes .list-group-item.chung {
+      background-color: #d9edf7;
+      border-color: #bce8f1;
+      color: #31708f;
+      border-top-right-radius: 12px; }
+    #athletes .list-group-item.hong {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
+      margin-bottom: 20px;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px; }
 
 #division-round {
   font-size: 18pt;
   margin-top: 0;
-  margin-bottom: 8px;
-}
+  margin-bottom: 8px; }
 
 #current-form {
   position: absolute;
   top: 8px;
   right: 15px;
   font-size: 12pt;
-  margin-bottom: 8px;
-}
-#current-form .current {
-  border: 1px solid #337ab7;
-  border-radius: 8px;
-  background-color: #337ab7;
-  color: white;
-  padding: 2px 6px 4px 6px;
-}
+  margin-bottom: 8px; }
+  #current-form .current {
+    border: 1px solid #337ab7;
+    border-radius: 8px;
+    background-color: #337ab7;
+    color: white;
+    padding: 2px 6px 4px 6px; }
 
 .athlete-name {
   position: relative;
   display: inline-block;
   width: 65%;
   font-size: 14pt;
-  line-height: 14pt;
-}
-.athlete-name:before {
-  font-size: 10pt;
-  display: inline-block;
-  width: 60px;
-  content: "";
-}
+  line-height: 14pt; }
+  .athlete-name:before {
+    font-size: 10pt;
+    display: inline-block;
+    width: 60px;
+    content: ""; }
 
 .decision-punitive-header {
   background-color: #d9534f !important;
-  color: white !important;
-}
+  color: white !important; }
 
 .athlete-penalties {
   display: inline-block;
   position: relative;
   width: 20%;
-  text-align: right;
-}
-.athlete-penalties .penalty {
-  width: 33.3%;
-}
+  text-align: right; }
+  .athlete-penalties .penalty {
+    width: 33.3%; }
 
 .athlete-score {
   display: inline-block;
   position: relative;
   width: 12%;
   margin-left: 3%;
-  text-align: right;
-}
-.athlete-score .form1of2, .athlete-score .form2of2 {
-  position: absolute;
-  font-size: 10pt;
-}
-.athlete-score .form1of2 {
-  top: -8px;
-  left: 0;
-}
-.athlete-score .form2of2 {
-  top: 10px;
-  left: 0;
-}
-.athlete-score .form1of1, .athlete-score .sum {
-  font-size: 18pt;
-  line-height: 14pt;
-}
-.athlete-score .decision {
-  font-weight: bold;
-}
+  text-align: right; }
+  .athlete-score .form1of2, .athlete-score .form2of2 {
+    position: absolute;
+    font-size: 10pt; }
+  .athlete-score .form1of2 {
+    top: -8px;
+    left: 0; }
+  .athlete-score .form2of2 {
+    top: 10px;
+    left: 0; }
+  .athlete-score .form1of1, .athlete-score .sum {
+    font-size: 18pt;
+    line-height: 14pt; }
+  .athlete-score .decision {
+    font-weight: bold; }
 
 .tab-pane {
-  padding: 20px;
-}
+  padding: 20px; }
 
 a.active:not(.sbs) .athlete-name:before {
   text-align: center;
-  content: "➡";
+  content: '\27a1';
   color: gold;
   font-size: 18pt;
-  line-height: 10pt;
-}
+  line-height: 10pt; }
 
 a.active h4 {
   font-weight: bold;
-  color: gold;
-}
+  color: gold; }
 a.active b {
-  color: gold;
-}
+  color: gold; }
 a.active.chung {
   background-color: #337ab7 !important;
   border-color: #2e6da4 !important;
-  color: white !important;
-}
+  color: white !important; }
 a.active.hong {
   background-color: #d9534f !important;
   border-color: #d43f3a !important;
   color: white !important;
-  margin-bottom: 12px;
-}
+  margin-bottom: 12px; }
 a.active .athlete-score .accuracy {
-  color: #fcc;
-}
+  color: #fcc; }
 a.active .athlete-score .presentation {
-  color: #ccf;
-}
+  color: #ccf; }
 a.active .athlete-score .total {
-  color: #fff;
-}
+  color: #fff; }
 
 .on-deck .athlete-name:before {
   text-align: center;
-  content: "Next";
-  color: #333;
-}
+  content: 'Next';
+  color: #333; }
 
 .selected-athlete .athlete-name:before {
-  color: #666;
-}
+  color: #666; }
 .selected-athlete.chung {
   background-color: #337ab7 !important;
   border-color: #2e6da4 !important;
-  color: gold !important;
-}
-.selected-athlete.chung .athlete-score .total {
-  color: gold !important;
-}
+  color: gold !important; }
+  .selected-athlete.chung .athlete-score .total {
+    color: gold !important; }
 .selected-athlete.hong {
   background-color: #d9534f !important;
   border-color: #d43f3a !important;
-  color: gold !important;
-}
-.selected-athlete.hong .athlete-score .total {
-  color: gold !important;
-}
+  color: gold !important; }
+  .selected-athlete.hong .athlete-score .total {
+    color: gold !important; }
 
 .row {
   margin-left: -15px;
-  width: calc(100% + 30px);
-}
-.row h4 {
-  margin-left: 8px;
-}
+  width: calc( 100% + 30px ); }
+  .row h4 {
+    margin-left: 8px; }
 
 .action-menu .list-group-item span {
-  margin-right: 12px;
-}
+  margin-right: 12px; }
 .action-menu .navigate-division .list-group-item, .action-menu .navigate-athlete .list-group-item {
   background-color: #337ab7;
   border-color: #2e6da4;
-  color: white;
-}
-.action-menu .draw .btn-draw {
+  color: white; }
+.action-menu .draw .btn-draw, .action-menu .draw .btn-pool {
   background-color: #5bc0de;
   border-color: #46b8da;
-  color: white;
-}
+  color: white; }
 .action-menu .administration p {
   margin: 0 8px 0 8px;
-  font-size: 9pt;
-}
+  font-size: 9pt; }
 .action-menu .administration .list-group-item {
   background-color: #5bc0de;
   border-color: #46b8da;
-  color: white;
-}
+  color: white; }
 .action-menu .decision .list-group-item {
   background-color: #d9534f;
   border-color: #d43f3a;
-  color: white;
-}
+  color: white; }
 .action-menu .decision #winner {
   background-color: #5cb85c;
-  border-color: #4cae4c;
-}
+  border-color: #4cae4c; }
 .action-menu .penalties .list-group-item {
   background-color: #f0ad4e;
   border-color: #eea236;
-  color: white;
-}
-.action-menu .penalties .list-group-item.disabled {
-  background-color: #995c00;
-  border-color: #804d00;
-  color: #cc7a00;
-}
+  color: white; }
+  .action-menu .penalties .list-group-item.disabled {
+    background-color: #995c00;
+    border-color: #804d00;
+    color: #cc7a00; }
 
 /*# sourceMappingURL=coordinator.css.map */

@@ -15,7 +15,8 @@
       font-size: 246pt;
       &.drawn {
         color: gold;
-		background: linear-gradient( -60deg, #FFF 5%, gold 10%, gold 90%, #FFF 95%);       background-size: 200% auto; background-clip: text;
+        background: linear-gradient( -60deg, #FFF 5%, gold 10%, gold 90%, #FFF 95%);
+        background-size: 200% auto; background-clip: text;
         border-radius: 96pt;
         border: 8px solid gold;
         background-clip: text;

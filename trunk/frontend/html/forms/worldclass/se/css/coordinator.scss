@@ -287,12 +287,12 @@ a.active {
 		}
 	}
 	.draw {
-		.btn-draw {
+		.btn-draw, .btn-pool {
 			background-color: #5bc0de;
 			border-color: #46b8da;
 			color: white;
 		}
-    }
+	}
 	.administration {
 		p { 
 			margin: 0 8px 0 8px; 
@@ -310,10 +310,10 @@ a.active {
 			border-color: #d43f3a;
 		    color: white;
 		}
-        #winner {
-          background-color: #5cb85c;
-          border-color: #4cae4c;
-        }
+		#winner {
+			background-color: #5cb85c;
+			border-color: #4cae4c;
+		}
 	}
 	.penalties {
 		.list-group-item {

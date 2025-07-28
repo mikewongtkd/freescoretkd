@@ -2,15 +2,21 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 	constructor( app, dom ) {
 		super( app, dom );
 		const designated = {
-			youth: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			cadet: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
+			yellow: [ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
+			green:  [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
+			blue:   [ 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6' ], // Not WT
+			red:    [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8' ], // Not WT
+			dragon: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+			tiger:  [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+			youth:  [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+			cadet:  [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
 			junior: [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
-			u30: [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			u40: [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			u50: [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
-			u60: [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			u65: [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			o65: [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
+			u30:    [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
+			u40:    [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
+			u50:    [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
+			u60:    [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+			u65:    [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+			o65:    [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
 		};
 
 		// ===== ADD THE DOM
@@ -20,6 +26,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 			<h4>Draw Poomsae</h4>
 			<div class="well well-sm" style="text-align: center;">Draw Poomsae Required</div>
 			<button class="btn btn-block btn-draw">Draw Poomsae</button>
+			<button class="btn btn-block btn-pool">Edit Poomsae Pool</button>
 			<div class="modal modal-draw fade" tabindex="-1" role="dialog" style="display: none;">
 				<div class="modal-dialog modal-lg" role="document">
 					<div class="modal-content">
@@ -29,22 +36,64 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						</div>
 						<div class="modal-body">
 							<p class="modal-message"></p>
-							<label>Select an Age Group</label>
-							<div style="text-align: center;">
-								<div class="btn-group" data-toggle="buttons">
-									<label class="btn btn-info"><input type="radio" name="age-group" value="cadet">Cadet (12-14)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="junior">Junior (15-17)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="u30">U30 (18-30)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="u40">U40 (31-40)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="u50">U50 (41-50)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="u60">U60 (51-60)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="u65">U65 (61-65)</label>
-									<label class="btn btn-info"><input type="radio" name="age-group" value="o65">O65 (66+)</label>
+              <div class="form-group">
+								<label>Select an Age Group</label>
+								<select class="form-control" name="age-group">
+									<option value="">Select One...</option>
+									<option disabled><hr></hr></option>
+									<optgroup label="Color Belt Poomsae Pool">
+										<option value="yellow">Yellow Belt (all ages)</option>
+										<option value="green">Green Belt (all ages)</option>
+										<option value="blue">Blue Belt (all ages)</option>
+										<option value="red">Red Belt (all ages)</option>
+									</optgroup>
+									<option disabled><hr></hr></option>
+									<optgroup label="Black Belt Poomsae Pool">
+										<option value="dragon">Dragon (6-7)</option>
+										<option value="tiger">Tiger (8-9)</option>
+										<option value="youth">Youth (10-11)</option>
+										<option value="cadet">Cadet (12-14)</option>
+										<option value="junior">Junior (15-17)</option>
+										<option value="u30">U30 (18-30)</option>
+										<option value="u40">U40 (31-40)</option>
+										<option value="u50">U50 (41-50)</option>
+										<option value="u60">U60 (51-60)</option>
+										<option value="u65">U65 (61-65)</option>
+										<option value="o65">O65 (66+)</option>
+									</optgroup>
+									<option disabled><hr></hr></option>
+									<optgroup label="Custom Pool">
+										<option value="custom">Custom</option>
+									</optgroup>
+								</select>
+							</div>
+							<div class="form-group">
+								<p><label>Customize the Draw Pool</label></p>
+								<div class="btn-group">
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00001" data-poomsae="Taegeuk 1">T1</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00002" data-poomsae="Taegeuk 2">T2</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00004" data-poomsae="Taegeuk 3">T3</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00008" data-poomsae="Taegeuk 4">T4</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00016" data-poomsae="Taegeuk 5">T5</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00032" data-poomsae="Taegeuk 6">T6</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00064" data-poomsae="Taegeuk 7">T7</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00128" data-poomsae="Taegeuk 8">T8</button>
+								</div>
+								<div class="btn-group">
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00256" data-poomsae="Koryo">KR</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="00512" data-poomsae="Keumgang">KG</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="01024" data-poomsae="Taeback">TB</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="02048" data-poomsae="Pyongwon">PW</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="04096" data-poomsae="Shipjin">SJ</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="08192" data-poomsae="Jitae">JT</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="16384" data-poomsae="Chonkwon">CK</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="32768" data-poomsae="Hansu">HS</button>
+									<button type="button" class="btn btn-default btn-poomsae" data-encoding="wt25" data-value="65536" data-poomsae="Ilyeo" disabled>IY</button>
 								</div>
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-primary disabled">OK</button>
+							<button type="button" class="btn btn-primary btn-ok disabled">OK</button>
 						</div>
 					</div>
 				</div>
@@ -63,6 +112,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 		this.display.draw    = this.dom.find( '.draw .well' );
 		this.display.all     = this.dom.find( '.draw' );
 		this.button.draw     = this.dom.find( '.btn-draw' );
+		this.button.pool     = this.dom.find( '.btn-pool' );
 		this.display.age     = { modal: { 
 			all: $( '.modal-draw' ),
 			hide: () => { $( '.modal-draw' ).modal( 'hide' ); }, 
@@ -71,10 +121,13 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 			message: $( '.modal-draw .modal-message' ), 
 		}};
 
-		this.button.age  = { modal: {
-			group: $( '.modal-draw .btn-info' ),
-			ok: $( '.modal-draw .btn-primary' )
-		}};
+		this.button.modal = {
+			draw : {
+				select: $( '.modal-draw select[name="age-group"]' ),
+				custom: $( '.modal-draw .btn-poomsae' ),
+			},
+			ok: $( '.modal-draw .btn-ok' )
+		};
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.draw = {
@@ -136,9 +189,9 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 			button: division => {
 
 				this.button.draw.removeClass( 'disabled' );
-				let age = this.state.age;
+				let age  = this.state.age;
+        let pool = age && designated?.[ age ] ? designated[ age ] : this.state?.pool;
 
-				let pool = designated?.[ age ];
 				if( ! defined( pool )) {
 					alertify.error( `No designated poomsae defined for age ${age}` );
 					return;
@@ -174,30 +227,130 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					$( 'body' ).append( modal );
 				}
 				let modal = {
-					title: 'Cannot Draw Poomsae: No Age Group Found',
-					message: `<p>No age group found for <b>${division.summary()}</b>.</p>An age group is required to draw poomsae. Please select an age group for this division.`
+					title: 'Choose an Age Group or Customize the Draw Pool',
+					message: `<p>No age group found for <b>${division.summary()}</b>.</p>An age group or a custom draw pool are required to draw poomsae. Please select an age group or choose a customized draw pool for this division.`
 				};
 				this.display.age.modal.title.html( modal.title );
 				this.display.age.modal.message.html( modal.message );
 
+				let refresh = {
+					custom : {
+						pool: pool => {
+							this.button.modal.draw.custom.removeClass( 'btn-primary active' ).addClass( 'btn-default' );
+							pool.forEach( poomsae => {
+								let button = this.button.modal.draw.custom.parent().find( `[data-poomsae="${poomsae}"]` );
+								button.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
+							});
+						}
+					},
+					pool : {
+						decoding: key => {
+							let [ method, hex ] = key.split( '-', 2 );
+							this.button.modal.draw.custom.toArray().forEach( el => {
+								let button = $( el );
+								let value  = button.attr( 'data-value' );
+								let active = (hex & value) / value ? true : false;
+								if( active ) {
+									button.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
+								} else {
+									button.addClass( 'btn-default' ).removeClass( 'btn-primary active' );
+								}
+							});
+						},
+						encoding: () => {
+							// Encodes the selected poomsae as a bit string and converts to hex
+							let sum = this.button.modal.draw.custom.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-value' )).reduce(( acc, cur ) => acc + parseInt( cur ), 0 );
+							let hex = sum.toString( 16 ).padStart( 5, '0' );
+							return `wt25-0x${hex}`;
+						}
+					},
+					select : pool => {
+						let ages = Object.keys( designated );
+						const have = new Set( pool );
+						let age = ages.find( age => {
+							const want = new Set( designated[ age ]);
+							return (have.difference( want ))?.size == 0 && (want.difference( have ))?.size == 0;
+						});
+
+						if( defined( age )) {
+							this.button.modal.draw.select.val( age );
+							this.state.age = age;
+							delete this.state.pool;
+
+						} else {
+							this.button.modal.draw.select.val( 'custom' );
+							this.state.pool = pool;
+							this.state.age  = refresh.pool.encoding();
+						}
+
+						this.cookie.save( this.state.age ); // Cache to cookie; after 'OK' is clicked, write to database
+						this.button.modal.ok.removeClass( 'disabled' );
+					}
+				};
+
 				// ----------------------------------------
-				// MODAL BUTTON BEHAVIOR
+				// MODAL BEHAVIOR
 				// ----------------------------------------
-				this.button.age.modal.group.off( 'click' ).click( ev => {
+				// Initialize values based on division data
+				let pool = division.form.pool();
+				if( pool ) {
+					console.log( 'POOL', pool ); // MW
+					let key = pool[ 0 ].replace( /^draw\-/, '' );
+					console.log( 'POOL', pool, key ); // MW
+					if( key in designated ) {
+						pool = designated[ key ];
+						this.button.modal.draw.select.val( key );
+					} else {
+						refresh.pool.decoding( key );
+						pool = this.button.modal.draw.custom.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
+						this.button.modal.draw.select.val( 'custom' );
+					}
+				}
+
+				// ----------------------------------------
+				this.button.modal.draw.select.change( ev => {
+				// ----------------------------------------
+				// Age group dropdown menu
+				// ----------------------------------------
 					let target = $( ev.target );
-					let input  = target.children( 'input' );
-					this.state.age = input.val();
-					this.cookie.save( this.state.age );
-					this.button.age.modal.ok.removeClass( 'disabled' );
+					let age    = target.val();
+					if( age in designated ) {
+						this.state.age = age;
+						this.cookie.save( this.state.age );
+						refresh.custom.pool( designated[ age ]);
+						this.button.modal.ok.removeClass( 'disabled' );
+					}
 				});
 
-				this.button.age.modal.ok.off( 'click' ).click( ev => {
-					if( this.button.age.modal.ok.hasClass( 'disabled' )) {
-						alertify.notify( 'Please select an age group.' );
+				// ----------------------------------------
+				this.button.modal.draw.custom.off( 'click' ).click( ev => {
+				// ----------------------------------------
+				// Draw pool customization buttons
+				// ----------------------------------------
+					let target = $( ev.target );
+					if( target.hasClass( 'active' )) {
+						target.removeClass( 'btn-primary active' ).addClass( 'btn-default' );
 					} else {
+						target.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
+					}
+					let pool = this.button.modal.draw.custom.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
+					refresh.select( pool );
+				});
+
+				// ----------------------------------------
+				this.button.modal.ok.off( 'click' ).click( ev => {
+				// ----------------------------------------
+				// OK Button
+				// ----------------------------------------
+					if( this.button.modal.ok.hasClass( 'disabled' )) {
+						alertify.notify( 'Please select an age group.' );
+
+					} else {
+						// Write age to database
 						let request = { type: 'division', action: 'draw select age', age: this.state.age };
+						let group   = this.state.age in designated ? `Poomsae pool for <b>${this.state.age.capitalize()}</b>` : '<b>Custom</b> poomsae pool';
 						this.network.send( request );
-						alertify.success( `Age group <b>${this.state.age.capitalize()}</b> selected.` );
+						alertify.success( `${group} selected.` );
 						this.sound.ok.play();
 						this.display.age.modal.hide();
 						this.refresh.draw.button( division );
@@ -215,28 +368,33 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					this.button.draw.addClass( 'disabled' );
 					return; 
 				}
+
+        console.log( 'REFRESH DRAW POOMSAE' ); // MW
+
 				this.display.age.modal.hide();
 				this.display.draw.empty().html( 'Draw Poomsae Required' );
+				this.button.draw.html( 'Draw Poomsae' );
+				this.button.pool.off( 'click' ).click( ev => { this.refresh.draw.modal( division ); });
 
 				let form  = null;
-				let forms = division.current.form.list();
+				let forms = division.form.pool();
 				let draw  = division.form.draw();
 				let n     = division.form.count();
 				let fid   = division.current.formId();
 
+        console.log( 'REFRESH DRAW POOMSAE', forms, draw, fid ); // MW
+
 				// Form has been previously manually drawn
-				if( defined( forms[ fid ]) && ! forms[ fid ].match( /^draw/i )) {
-					form = forms[ fid ];
+				if( defined( draw[ fid ]) && ! draw[ fid ].match( /^draw/i )) {
+					form = draw[ fid ];
 					this.display.draw.empty().html( form );
-					this.button.draw.addClass( 'disabled' );
-					this.display.all.hide();
 					return;
 
 				// Form has been previously systematically drawn
 				} else if( defined( draw[ fid ])) {
 					form = draw[ fid ];
 					this.display.draw.empty().html( form );
-					this.button.draw.html( 'Re-draw Form' );
+					this.button.draw.html( 'Re-draw Poomsae' );
 					this.state.draw.complete = true;
 					this.display.all.show();
 					return;
@@ -260,11 +418,25 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 				// See if the draw information specifies age
 				} else {
-					let found = forms[ fid ]?.match( /^draw-(\w+)$/ );
+					let found = draw[ fid ]?.match( /^draw-([\w\-]+)$/ );
 					if(  found ) {
 						age = found[ 1 ];
 						this.state.age = age;
 						this.cookie.save( age );
+
+            // Parse the WT 2025 encoding
+            if( age.match( /^wt25\-/ )) {
+              let [encoding, hex] = age.split( '-', 2 );
+              let selected = parseInt( hex, 16 );
+              this.state.pool = [];
+							this.button.modal.draw.custom.toArray().forEach( el => {
+								let button  = $( el );
+								let value   = button.attr( 'data-value' );
+								let poomsae = button.attr( 'data-poomsae' );
+								let active  = (selected & value) / value ? true : false;
+								if( active ) { this.state.pool.push( poomsae ); }
+              });
+            }
 
 					// Maybe the division description can tell us the age?
 					} else {
@@ -275,7 +447,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						if( defined( age )) {
 							this.state.age = age;
 							this.cookie.save( age );
-						}
+            }
 					}
 				}
 				if( ! defined( age )) { 

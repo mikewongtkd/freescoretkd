@@ -281,7 +281,12 @@ function Division( division ) {
 				}
 			}
 			return division.forms[ round ];
-		}
+		},
+    pool : ( round = null ) => {
+			round = defined( round ) ? round : division.round;
+			if( ! [ 'se', 'sbs' ].includes( this.current.method())) { return null; }
+			return division.forms[ round ];
+    }
 	};
 
 	this.matches = ( round = null ) => {
