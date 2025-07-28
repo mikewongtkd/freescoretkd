@@ -32,12 +32,11 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Modal title</h4>
+							<h4 class="modal-title">Update the Draw Pool</h4>
 						</div>
 						<div class="modal-body">
-							<p class="modal-message"></p>
               <div class="form-group">
-								<label>Select an Age Group</label>
+								<label>Select a Draw Pool</label>
 								<select class="form-control" name="age-group">
 									<option value="">Select One...</option>
 									<option disabled><hr></hr></option>
@@ -116,9 +115,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 		this.display.age     = { modal: { 
 			all: $( '.modal-draw' ),
 			hide: () => { $( '.modal-draw' ).modal( 'hide' ); }, 
-			show: () => { $( '.modal-draw' ).modal( 'show' ); }, 
-			title: $( '.modal-draw .modal-title' ), 
-			message: $( '.modal-draw .modal-message' ), 
+			show: () => { $( '.modal-draw' ).modal( 'show' ); }
 		}};
 
 		this.button.modal = {
@@ -226,12 +223,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					let modal = this.display.age.modal.all.detach();
 					$( 'body' ).append( modal );
 				}
-				let modal = {
-					title: 'Choose an Age Group or Customize the Draw Pool',
-					message: `<p>No age group found for <b>${division.summary()}</b>.</p>An age group or a custom draw pool are required to draw poomsae. Please select an age group or choose a customized draw pool for this division.`
-				};
-				this.display.age.modal.title.html( modal.title );
-				this.display.age.modal.message.html( modal.message );
 
 				let refresh = {
 					custom : {
