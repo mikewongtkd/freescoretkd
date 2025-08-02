@@ -200,16 +200,10 @@ $.widget( "freescore.judgeController", {
 					let method = division.current.method();
 
 					if( method == 'sbs' ) { window.location = `sbs/judge.php?ring=${o.ring}&judge=${o.num}`; }
-				},
-				se: division => {
-					let method = division.current.method();
-
-					if( method == 'se' ) { window.location = `se/judge.php?ring=${o.ring}&judge=${o.num}`; }
 				}
 			};
 
 			forwardIf.sbs( division );
-			forwardIf.se( division );
 
 			if( ! defined( division.form.list())) { return; }
 
@@ -322,7 +316,7 @@ $.widget( "freescore.judgeController", {
 				// ===== UPDATE DIVISION INFO
 				e.description .empty().html( division.description());
 				e.round       .empty().html( division.round.name() );
-				e.form        .empty().html( division.form.list().map(( form, i ) => { return i == division.current.formId() ? `<span class="current">${form}</span>` : `<span>${form}</span>` }).join( ', ' ));
+				e.form        .empty().html( division.form.list().map(( form, i ) => { form = form === null || form?.match( /^draw/i ) ? 'Draw Pending' : form; return i == division.current.formId() ? `<span class="current">${form}</span>` : `<span>${form}</span>` }).join( ', ' ));
 
 				// ===== UPDATE ATHLETE NAME
 				e.athlete .empty().append( html.span.clone() .addClass( "athlete" ) .html( athlete.name()));

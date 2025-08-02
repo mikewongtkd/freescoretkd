@@ -149,9 +149,8 @@ function Division( division ) {
 		form : {
 			description : function() {
 				let round       = division.round;
-				let form        = division.form;
 				let forms       = division.forms[ round ];
-				let name        = division.forms[ round ][ form ];
+				let name        = this.current.form.name();
 				let description = forms.length > 1 ? ordinal( parseInt( form ) + 1 ) + ' form ' + name : name;
 				return description;
 			},
@@ -162,8 +161,18 @@ function Division( division ) {
 			list : () => {
 				return this.form.list( division.round );
 			},
-			name : function() {
-				return division.forms[ division.round ][ division.form ];
+			name : () => {
+				let name = division?.forms?.[ division.round ]?.[ division.form ];
+				if( defined( name ) && name.match( /^draw/i )) {
+					let match = this.current.match();
+					name = division?.draws?.[ division.round ]?.[ match.number ]?.[ division.form ];
+					if( ! defined( name )) {
+						name = 'Draw Pending';
+					}
+				} else {
+					name = 'Form Unspecified';
+				}
+				return name;
 			},
 		},
 		formId    : function() { return parseInt( division.form ); },
