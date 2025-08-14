@@ -770,7 +770,7 @@ sub rounds {
 	# Get the first round and all rounds thereafter
 	unless( defined $nofilter ) {
 		my $i = first_index { $self->round_defined( $_ ) } @rounds;
-		die "Database error: No first round defined for $string$!" unless int( @rounds ) && $i >= 0;
+		die "Database error ($self->{ name }): No first round defined for $string$!" unless int( @rounds ) && $i >= 0;
 		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
 	}
 
