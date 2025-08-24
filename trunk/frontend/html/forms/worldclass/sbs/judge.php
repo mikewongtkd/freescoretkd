@@ -92,16 +92,20 @@
 							<button type="button" class="btn flip btn-flip"><span class="fas fa-exchange-alt"></span></button>
 						</div>
 						<div class="display-config-group">
-							<label>Pan and Zoom</label>
+							<label>Pan</label>
 							<div class="btn-group">
 								<button type="button" class="btn pan btn-pan-up"><span class="fas fa-arrow-up"></span></button>
 								<button type="button" class="btn pan btn-pan-down"><span class="fas fa-arrow-down"></span></button>
 								<button type="button" class="btn pan btn-pan-left"><span class="fas fa-arrow-left"></span></button>
 								<button type="button" class="btn pan btn-pan-right"><span class="fas fa-arrow-right"></span></button>
 							</div>
+						</div>
+						<div class="display-config-group">
+							<label>Zoom</label>
 							<div class="btn-group">
 								<button type="button" class="btn zoom btn-zoom-out"><span class="fas fa-search-minus"></span></button>
 								<button type="button" class="btn zoom btn-zoom-in"><span class="fas fa-search-plus"></span></button>
+								<button type="button" class="btn zoom btn-full-screen"><span class="fas fa-expand"></span></button>
 							</div>
 						</div>
 						<div class="display-config-group">
@@ -222,8 +226,10 @@
 				let display = app.display.config.current;
 				if( target.hasClass( 'btn-zoom-in' )) {
 					app.display.panzoom({ x: 0, y: 0, z: +0.05 });
-				} else {
+				} else if( target.hasClass( 'btn.zoom-out' )) {
 					app.display.panzoom({ x: 0, y: 0, z: -0.05 });
+				} else {
+					document.documentElement.requestFullscreen();
 				}
 			});
 
