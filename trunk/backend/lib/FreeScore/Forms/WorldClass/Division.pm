@@ -535,6 +535,11 @@ sub read {
 	if( $athlete->{ name } ) { push @{ $order->{ $round }}, $athlete->{ name }; } # Store the last athlete.
 	close FILE;
 
+	foreach my $required (qw( state current form round judges description forms )) {
+		next unless exists $self->{ $required };
+		die "Database Read Error: missing required field '$required' in '$self->{ file }'\n";
+	}
+
 	$self->initialize( $athletes, $order );
 	$self->normalize();
 	$self->update_status();

@@ -1,6 +1,7 @@
 {
 	"host" : "localhost",
 	"port" : 8073,
+	"protocol" : "http",
 	"password" : {
 		"ring01" : "1234",
 		"ring02" : "1234",
