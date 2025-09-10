@@ -1,7 +1,7 @@
 <?php 
 	$an_hour_ago = time() - 3600;
 	setcookie( 'judge', '', $an_hour_ago, '/' );
-	setcookie( 'role',  'division manager', 0, '/' );
+	setcookie( 'role',  'admin', 0, '/' );
 	setcookie( 'ring',  '', $an_hour_ago, '/' );
 	include( "../../include/php/config.php" ); 
 
@@ -54,7 +54,7 @@
 						$num = $i;
 						if( $num < 10 ) { $num = '0' . $num; }
 				?>
-				<div id="ring<?= $num ?>" class="tab-pane fade in">
+				<div id="ring<?= $num ?>" data-ring=<?= $num ?> class="tab-pane fade in">
 					<div class="row">
 						<div class="col-sm-10">
 							<form role="form">
@@ -82,7 +82,7 @@
 				</div>
 				
 				<?php endforeach; ?>
-				<div id="staging" class="tab-pane fade in">
+				<div id="staging" data-ring="staging" class="tab-pane fade in">
 					<div class="row">
 						<div class="col-sm-10">
 							<form role="form">
@@ -145,26 +145,31 @@
 					return;
 				}
 
-
 				if( target != 'staging' ) { target = parseInt( target ); }
 
 				if( defined( ws )) { ws.close(); }
 
-				ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>` );
+				let url = '<?= $config->websocket( 'worldclass' ) ?>';
+				if( target != 'staging' ) { url = url.replace( 'staging', target ); }
+				ws = new WebSocket( url );
 
 				ws.onerror = network.error = function() {
 					setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds
 				};
 
 				ws.onopen = network.connect = function() {
-					var request;
-					request      = { data : { type : 'ring', action : 'read' }};
+					let request  = { data : { type : 'ring', action : 'read' }};
 					request.json = JSON.stringify( request.data );
 					ws.send( request.json );
 				};
 
 				ws.onmessage = network.message = function( response ) {
-					var update = JSON.parse( response.data );
+					let update = JSON.parse( response.data );
+
+					if( update.error ) {
+						alertify.error( update.error );
+						return;
+					}
 
 					console.log( update );
 					if( update.type == 'ring' && update.action == 'update' ) {

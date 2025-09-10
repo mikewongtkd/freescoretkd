@@ -10,6 +10,8 @@
 	$setting    = [];
 	$athletes   = [];
 	$division   = [ 'name' => '', 'description' => '' ];
+  $contents   = '';
+  $list       = '';
 
 	if( file_exists( $file )) {
 		$contents = join( "\n", file( $file ));
