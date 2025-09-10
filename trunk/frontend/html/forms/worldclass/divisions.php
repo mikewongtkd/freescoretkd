@@ -287,7 +287,7 @@
 
 			var refresh = {
 				rings : function( update ) {
-					var ring = { num: update.ring.name, divisions : update.ring.divisions };
+					var ring = { num: update.ring.name, divisions : update.ring.divisions, current: update.ring.current };
 					if( ring.num == 'staging' ) { ring.name = 'staging'; ring.num = undefined; }
 					else {
 						if( ring.num < 10 ) { ring.name = 'ring0' + ring.num; } else { ring.name = 'ring' + ring.num; }
@@ -320,7 +320,12 @@
 						var button   = html.a.clone().addClass( "list-group-item" );
 						var summary  = html.span.clone().html( division.summary() ).addClass( 'division-summary' );
 						var count    = html.span.clone().html( division.athletes().length ).addClass( "badge" );
+						var state    = html.span.clone().addClass( 'label pull-right' ).css({ 'margin-top' : '2.5px', 'margin-right' : '8px' });
 						var athletes = html.p.clone().append( division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'athletes hidden' );
+
+						if( division.is.complete() )              { state.addClass( 'label-success' ).html( 'Done' ); }
+						else if( ring.current == division.name()) { state.addClass( 'label-primary' ).html( 'In Progress' ); }
+						else                                      { state.addClass( 'label-info' ).html( 'Ready' ); }
 
 						// Don't display staging (unless you mean it)
 						if( division.ring() == 'staging' && ring.name != 'staging' ) { return; } 
@@ -329,7 +334,7 @@
 						if( division.is.flight() && division.flight().state == 'merged' ) { return; }
 
 						button.empty();
-						button.append( summary, count, athletes );
+						button.append( summary, count, state, athletes );
 						button.attr({ divid: division.name() });
 						button.off( 'click' ).click(( ev ) => {
 							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
