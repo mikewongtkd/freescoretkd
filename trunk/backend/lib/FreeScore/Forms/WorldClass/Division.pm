@@ -536,7 +536,7 @@ sub read {
 	close FILE;
 
 	foreach my $required (qw( state current form round judges description forms )) {
-		next unless exists $self->{ $required };
+		next if exists $self->{ $required };
 		die "Database Read Error: missing required field '$required' in '$self->{ file }'\n";
 	}
 

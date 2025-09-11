@@ -35,7 +35,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 							<h4 class="modal-title">Update the Draw Pool</h4>
 						</div>
 						<div class="modal-body">
-              <div class="form-group">
+							<div class="form-group">
 								<label>Select a Draw Pool</label>
 								<select class="form-control" name="age-group">
 									<option value="">Select One...</option>
