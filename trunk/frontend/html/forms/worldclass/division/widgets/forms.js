@@ -1,4 +1,4 @@
-FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore.Widget {
+FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
 		const designated = {
@@ -23,10 +23,13 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 		this.dom.append( `
 
 		<div class="draw">
-			<h4>Draw Poomsae</h4>
-			<div class="well well-sm" style="text-align: center;">Draw Poomsae Required</div>
-			<button class="btn btn-block btn-draw">Draw Poomsae</button>
-			<button class="btn btn-block btn-pool">Edit Poomsae Pool</button>
+			<h4>Poomsae Pool</h4>
+			<div class="input-group">
+				<input type="text" class="form-control" readonly>
+				<span class="input-group-btn">
+					<button class="btn btn-pool"><span class="fas fa-pencil"></span></button>
+				</span>
+			</div>
 			<div class="modal modal-draw fade" tabindex="-1" role="dialog" style="display: none;">
 				<div class="modal-dialog modal-lg" role="document">
 					<div class="modal-content">
@@ -128,94 +131,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.draw = {
-			behavior: pool => {
-				return (ev = null) => {
-					// If already drawing, ignore button
-					if( this.state.animation.timer ) { this.sound.error.play(); return; }
-					this.button.draw.addClass( 'disable' );
-
-					let tdd = this.display.draw;
-					tdd.html( 'Drawing Poomsae...' );
-					this.sound.next.play();
-
-					// ===== INITIALIZE DRAW BEHAVIOR
-					this.state.draw.count    = 0;
-					this.state.draw.form     = null;
-					this.state.draw.complete = false;
-
-					// ===== PERFORM THE DRAW
-					this.state.animation.timer = setInterval(() => {
-						let form  = this.state.draw.form;
-						let count = this.state.draw.count;
-
-						// GO TO SCORING
-						if( count > 10 ) {
-							clearInterval( this.state.animation.timer );
-							this.state.animation.timer = null;
-
-							let request = { type: 'division', action: 'display' };
-							this.network.send( request );
-
-						// SHOW FINAL SELECTED FORM
-						} else if( count > 3 ) {
-							tdd.html( `<b>${form}</b> ${11 - this.state.draw.count}s` );
-							this.state.draw.form = form;
-							this.state.draw.complete = true;
-
-							if( count == 4 ) {
-								let request = { type: 'division', action: 'draw', draw: { form, complete: true }};
-								this.network.send( request );
-								this.sound.ok.play(); 
-							}
-
-						// RANDOM DRAW FORM
-						} else {
-							// Random draw, ensuring the draw is different from the previous draw
-							let i = Math.floor( Math.random() * pool.length );
-							this.state.draw.form = form = pool[ i ];
-							tdd.html( form );
-
-							let request = { type: 'division', action: 'draw', draw: { form, complete: false }};
-							this.network.send( request );
-							this.sound.next.play();
-						}
-						this.state.draw.count++;
-					}, 1000 );
-				};
-			},
-			button: division => {
-
-				this.button.draw.removeClass( 'disabled' );
-				let age  = this.state.age;
-				let pool = age && designated?.[ age ] ? designated[ age ] : this.state?.pool;
-
-				if( ! defined( pool )) {
-					alertify.error( `No designated poomsae defined for age ${age}` );
-					return;
-				}
-
-				// Remove previously drawn poomsae (no repeats)
-				let draw = division.form.draw();
-				pool = pool.filter( form => ! draw.includes( form ));
-
-				let i = division.current.formId();
-
-				if( defined( draw[ i ])) {
-					this.button.draw.off( 'click' ).click( ev => {
-						alertify.confirm( 
-							'Re-draw form?', 
-							'Once published, the form draw should not be changed unless there is a very good reason. Are you certain you want to re-draw the form?',
-							() => {
-								let redraw = this.refresh.draw.behavior( pool );
-								redraw();
-							},
-							() => {}
-						);
-					});
-				} else {
-					this.button.draw.off( 'click' ).click( this.refresh.draw.behavior( pool ));
-				}
-			},
 			// ============================================================
 			modal: division => {
 			// ============================================================
@@ -286,9 +201,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				// Initialize values based on division data
 				let pool = division.form.pool();
 				if( pool ) {
-					console.log( 'POOL', pool ); // MW
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
-					console.log( 'POOL', pool, key ); // MW
 					if( key in designated ) {
 						pool = designated[ key ];
 						this.button.modal.draw.select.val( key );
@@ -345,7 +258,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 						alertify.success( `${group} selected.` );
 						this.sound.ok.play();
 						this.display.age.modal.hide();
-						this.refresh.draw.button( division );
 					}
 				});
 
@@ -363,7 +275,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 				this.display.age.modal.hide();
 				this.display.draw.empty().html( 'Draw Poomsae Required' );
-				this.button.draw.html( 'Draw Poomsae' );
 				this.button.pool.off( 'click' ).click( ev => { this.refresh.draw.modal( division ); });
 
 				let form  = null;
@@ -440,9 +351,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				}
 				if( ! defined( age )) { 
 					this.refresh.draw.modal( division ); 
-
-				} else {
-					this.refresh.draw.button( division );
 				}
 			}
 		};
@@ -467,8 +375,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 					this.cookie.remove();
 					this.state.age = null;
 				}
-
-				this.refresh.draw.poomsae( division );
 			})
 		.heard( 'division' )
 			.command( 'update' ).respond( update => {
@@ -482,9 +388,6 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 
 				// Ignore Draw Requests (which are sent by this app)
 				if( update.request.action == 'draw' ) { return; }
-
-				// Refresh for all other requests
-				this.refresh.draw.poomsae( division );
 			});
 	}
 }

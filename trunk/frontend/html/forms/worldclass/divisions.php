@@ -68,7 +68,7 @@
 						<div class="col-sm-2">
 							<h4>Division</h4>
 							<div class="btn-group-vertical btn-block">
-								<a class="btn btn-success" href="division/editor.php?file=test/<?= $i ?>/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
+								<a class="btn btn-success" href="division/editor.php?ring=<?= $i ?>&divid=new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-split" style="display:none;"><span class="glyphicon glyphicon-resize-full"></span> Split into Flights</a>
 								<a class="btn btn-default disabled" id="ring<?= $num ?>-div-merge" style="display: none;" ><span class="glyphicon glyphicon-resize-small"></span> Merge Flights</a>
@@ -96,7 +96,7 @@
 						<div class="col-sm-2">
 							<h4>Division</h4>
 							<div class="btn-group-vertical btn-block">
-								<a class="btn btn-success" href="division/editor.php?file=test/staging/new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
+								<a class="btn btn-success" href="division/editor.php?ring=staging&divid=new" target="_blank"><span class="glyphicon glyphicon-file"></span> New</a>
 								<a class="btn btn-default disabled" id="staging-div-edit" target="_blank"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
 								<a class="btn btn-default disabled" id="staging-div-split" style="display:none;"><span class="glyphicon glyphicon-resize-full"></span> Split into Flights</a>
 								<a class="btn btn-default disabled" id="staging-div-merge" style="display: none;" ><span class="glyphicon glyphicon-resize-small"></span> Merge Flights</a>
@@ -301,7 +301,7 @@
 
 					// ===== DISABLE DIVISION-SPECIFIC ACTION BUTTONS UNTIL A DIVISION IS SELECTED
 					var action     = { button: { edit: $( '#' + ring.name + '-div-edit' ), split: $( '#' + ring.name + '-div-split' ), merge: $( '#' + ring.name + '-div-merge' ), restage: $( '#' + ring.name + '-div-restage' ), send: $( '#staging-div-send' ), delete: $( '#' + ring.name + '-div-delete' ) }};
-					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, enable: ( ring, divid ) => { action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' ); if( ! defined( ring )) { ring = 'staging'; } action.button.edit.attr({ 'href': 'division/editor.php?file=test/' + ring + '/' + divid }); }};
+					action.edit    = { disable: () => { action.button.edit.removeClass( 'btn-info' ).addClass( 'disabled' ); action.button.edit.attr({ 'href': '#' }); }, enable: ( ring, divid ) => { action.button.edit.addClass( 'btn-info' ).removeClass( 'disabled' ); if( ! defined( ring )) { ring = 'staging'; } action.button.edit.attr({ 'href': `division/editor.php?ring=${ring}&divid=${divid}` }); }};
 					action.merge   = { disable: () => { action.button.merge.removeClass( 'btn-primary' ).addClass( 'disabled' ).hide(); }, enable: () => { action.button.merge.addClass( 'btn-primary' ).removeClass( 'disabled' ).show(); }};
 					action.split   = { disable: () => { action.button.split.removeClass( 'btn-primary' ).addClass( 'disabled' ).hide(); }, enable: () => { action.button.split.addClass( 'btn-primary' ).removeClass( 'disabled' ).show(); }};
 					action.restage = { disable: () => { action.button.restage.removeClass( 'btn-warning' ).addClass( 'disabled' ); action.button.restage.off( 'click' ); } };
@@ -317,10 +317,10 @@
 					ring.divisions.sort(( a, b ) => { return a.name < b.name ? -1 : a.name > b.name; });
 					ring.divisions.forEach(( d ) => {
 						var division = new Division( d ); 
-						var button   = html.a.clone().addClass( "list-group-item" );
+						var button   = html.a.clone().addClass( 'list-group-item' );
 						var summary  = html.span.clone().html( division.summary() ).addClass( 'division-summary' );
-						var count    = html.span.clone().html( division.athletes().length ).addClass( "badge" );
-						var state    = html.span.clone().addClass( 'label pull-right' ).css({ 'margin-top' : '2.5px', 'margin-right' : '8px' });
+						var count    = html.span.clone().html( division.athletes().length ).addClass( 'badge' ).css({ width: '32px' });
+						var state    = html.span.clone().addClass( 'label pull-right' ).css({ 'margin-top' : '2.5px', 'margin-right' : '8px', width: '80px' });
 						var athletes = html.p.clone().append( division.athletes().map(( a ) => { return a.name(); }).join( ', ' )).addClass( 'athletes hidden' );
 
 						if( division.is.complete() )              { state.addClass( 'label-success' ).html( 'Done' ); }
