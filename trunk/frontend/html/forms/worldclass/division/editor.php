@@ -48,7 +48,7 @@
 				prev      : new Howl({ urls: [ "../../../sounds/prev.mp3",     "../../../sounds/prev.ogg"   ]}),
 			};
 
-			var division    = { athletes : [], flight: false, judges : 5, summary : function() { var summary = this.name.toUpperCase() + ' ' + this.description; if( this.flight ) { summary += ` [Flight ${JSON.parse(this.flight).id.toUpperCase()}]`; } return summary; }};
+			var division    = { athletes : [], method : 'cutoff', flight: false, judges : 5, summary : function() { var summary = this.name.toUpperCase() + ' ' + this.description; if( this.flight ) { summary += ` [Flight ${JSON.parse(this.flight).id.toUpperCase()}]`; } return summary; }};
 			var init        = {};
 			var settings    = {};
 			var description = {};
@@ -191,7 +191,7 @@
 				});
 			}, disable : function() {
 				var button = $( '#save-button' );
-				button.off( 'click' ).click( function() {  // MW
+				button.off( 'click' ).click( () => {
 					var english = { not_enough_athletes: 'Not enough athletes. Please add more athletes.', duplicate_athletes: 'Duplicate athletes. Each athlete name must be unique.', not_enough_forms: 'Not enough forms. Please assign more forms to this division.' };
 					var faults  = '<ul>' + Object.keys( warnings ).filter( i => i != 'clear' && warnings[ i ] ).map( i => `<li>${english[ i ]}</li>` ).join( '' ) + '</ul>';
 

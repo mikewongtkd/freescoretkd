@@ -1,36 +1,27 @@
-<?php
-	$default_n = isset( $_COOKIE[ 'judges' ]) ? $_COOKIE[ 'judges' ] : 5;
-	function judge_checked( $i ) {
-		if( isset( $_COOKIE[ 'judges' ])) { $checked = $_COOKIE[ 'judges' ] == $i; } 
-		else                              { $checked = false; }
-		$default = (! isset( $_COOKIE[ 'judges' ])) && ($i == 5);
-		if( $checked || $default ) { return ' checked'; }
-		return '';
-	}
-	function judge_active( $i ) {
-		if( isset( $_COOKIE[ 'judges' ])) { $active = $_COOKIE[ 'judges' ] == $i; }
-		else                              { $active = false; }
-		$default = (! isset( $_COOKIE[ 'judges' ])) && ($i == 5);
-		if( $active || $default ) { return ' active'; }
-		return '';
-	}
-?>
 <div class="panel panel-primary division-header">
 	<div class="panel-heading">
 		<div class="panel-title" data-toggle="collapse" class="collapsed" href="#settings" id="settings-title"><span class="title">Settings</span></div>
 	</div>
 	<div class="division-setting collapse" id="settings">
 		<div class="settings-content row">
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<label for="division-name">Division File Name</label><br>
 				<input type="text" id="division-name" class="form-control">
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<label for="number-of-judges">Judges in Ring</label><br>
 				<div class="btn-group" data-toggle="buttons" id="number-of-judges">
-					<label class="btn btn-default<?= judge_active( 3 ); ?>"><input type="radio" name="judges" value="3"<?= judge_checked( 3 ); ?>>3 Judges</label>
-					<label class="btn btn-default<?= judge_active( 5 ); ?>"><input type="radio" name="judges" value="5"<?= judge_checked( 5 ); ?>>5 Judges</label>
-					<label class="btn btn-default<?= judge_active( 7 ); ?>"><input type="radio" name="judges" value="7"<?= judge_checked( 7 ); ?>>7 Judges</label>
+					<label class="btn btn-default"><input type="radio" name="judges" value="3">3</label>
+					<label class="btn btn-default"><input type="radio" name="judges" value="5">5</label>
+					<label class="btn btn-default"><input type="radio" name="judges" value="7">7</label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<label for="method">Competition Method</label><br>
+				<div class="btn-group" data-toggle="buttons" id="method">
+					<label class="btn btn-default"><input type="radio" name="method">Cutoff</label>
+					<label class="btn btn-default"><input type="radio" name="method">Single Elimination</label>
+					<label class="btn btn-default"><input type="radio" name="method">Side-by-Side</label>
 				</div>
 			</div>
 			<div class="col-md-4">
@@ -41,10 +32,6 @@
 					<label class="btn btn-default       "><input type="radio" name="round" value="semfin"        >Semi-Finals</label>
 					<label class="btn btn-default"       ><input type="radio" name="round" value="finals"        >Finals</label>
 				</div>
-			</div>
-			<div class="col-md-2">
-				<label>Allow any form</label><br>
-				<input type="checkbox" id="allow-any-form">
 			</div>
 		</div>
 		<input type="hidden" id="flight"></input>
@@ -70,36 +57,75 @@
 			if( n < 20 ) { settings.round.select.semfin(); } else 
 			             { settings.round.select.prelim(); }
 		},
-		flight : function() {
+		flight : () => {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).show();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
 			$( '.finals-header, .finals-form, .finals-list' ).hide();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).hide();
+			$( '.r04-header, .ro4-form, .ro4-list' ).hide();
+			$( '.r02-header, .r02-form, .r02-list' ).hide();
 			division.round = 'prelim';
 		},
-		prelim : function() {
+		prelim : () => {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).show();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).show();
 			$( '.finals-header, .finals-form, .finals-list' ).show();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).hide();
+			$( '.r04-header, .ro4-form, .ro4-list' ).hide();
+			$( '.r02-header, .r02-form, .r02-list' ).hide();
 			division.round = 'prelim';
 		},
-		semfin : function() {
+		semfin : () => {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).show();
 			$( '.finals-header, .finals-form, .finals-list' ).show();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).hide();
+			$( '.r04-header, .ro4-form, .ro4-list' ).hide();
+			$( '.r02-header, .r02-form, .r02-list' ).hide();
 			division.round = 'semfin';
 		},
-		finals : function() {
+		finals : () => {
 			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
 			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
 			$( '.finals-header, .finals-form, .finals-list' ).show();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).hide();
+			$( '.r04-header, .ro4-form, .ro4-list' ).hide();
+			$( '.r02-header, .r02-form, .r02-list' ).hide();
 			division.round = 'finals';
 		},
+		ro8 : () => {
+			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
+			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
+			$( '.finals-header, .finals-form, .finals-list' ).hide();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).show();
+			$( '.r04-header, .ro4-form, .ro4-list' ).show();
+			$( '.r02-header, .r02-form, .r02-list' ).show();
+			division.round = 'ro8';
+		},
+		ro4 : () => {
+			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
+			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
+			$( '.finals-header, .finals-form, .finals-list' ).hide();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).hide();
+			$( '.r04-header, .ro4-form, .ro4-list' ).show();
+			$( '.r02-header, .r02-form, .r02-list' ).show();
+			division.round = 'ro4';
+		},
+		ro2 : () => {
+			$( '.prelim-header, .prelim-form, .prelim-list' ).hide();
+			$( '.semfin-header, .semfin-form, .semfin-list' ).hide();
+			$( '.finals-header, .finals-form, .finals-list' ).hide();
+			$( '.ro8-header, .ro8-form, .ro8-list' ).hide();
+			$( '.r04-header, .ro4-form, .ro4-list' ).hide();
+			$( '.r02-header, .r02-form, .r02-list' ).show();
+			division.round = 'ro2';
+		},
 	}},
-		update: function( judges ) {
+		update: judges => {
 			var divname = $( '#division-name' ).val() ? $( '#division-name' ).val() : $( '#division-name' ).attr( 'placeholder' );
 			divname  = defined( divname ) ? divname : '';
 			divname  = divname.toUpperCase();
-			judges   = defined( judges ) ? judges : $( '#number-of-judges' ).find( 'label.active' ).text();
+			judges   = defined( judges ) ? judges : $( '#number-of-judges' ).find( 'label.active' ).text() + ' Judges';
 			var list = [];
 			if( divname ) { list.push( divname ); }
 			list.push( judges );
@@ -111,7 +137,6 @@
 	// ============================================================
 	$( settings.round.select.autodetect );
 
-	$( '#allow-any-form' ).on( 'switchChange.bootstrapSwitch', function( ev, state ) { selected.update(); });
 	$( '#division-name' ).change( function() { description.update(); settings.update(); } );
 
 	// ============================================================
@@ -123,7 +148,7 @@
 			var judges = $( j );
 			var button = judges.parent();
 			var k      = division.judges();
-			var n      = <?= $default_n ?>;
+			var n      = $.cookie( 'judges', judges );
 
 			if( judges.val() == n && k != n ) {
 				alertify.confirm(
