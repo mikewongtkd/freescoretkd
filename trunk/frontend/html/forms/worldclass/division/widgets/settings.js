@@ -7,6 +7,13 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 
 		<div class="settings">
 			<h4>Division Settings</h4>
+			<div class="panel panel-default">
+				Judges: 3, 5, 7<br>
+				Event: Individual, Pair, Team<br>
+				Method: Cutoff, Single Elimination, Side-by-Side<br>
+				Gender: Female, Male, Mixed, Non-Binary<br>
+				Age: [by event]<br>
+			</div>
 		</div>
 
 		` );

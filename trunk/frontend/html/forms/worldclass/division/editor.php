@@ -12,11 +12,12 @@
 	if( isset( $_GET[ 'file' ])) {
 		[ $db, $rnum, $divid ] = explode( '/', $_GET[ 'file' ]);
 	}
-	$url  = $config->websocket( 'worldclass', $rnum, 'computer+operator' );
+	$url   = $config->websocket( 'worldclass', $rnum, 'computer+operator' );
+	$title = $divid == 'new' ? 'Creating New Division' : "Editing " . strtoupper( $divid );
 ?>
 <html>
 	<head>
-	<title>New Division</title>
+		<title><?= $title ?></title>
 		<link href="../../../include/jquery/css/smoothness/jquery-ui.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 		<link href="../../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />

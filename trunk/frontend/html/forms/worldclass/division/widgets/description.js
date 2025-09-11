@@ -5,67 +5,58 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<div class="description">
-			<h4>Description</h4>
-			<div class="well well-sm" style="text-align: center;">Autopilot is on Standby</div>
+		<label for="description">Description</label>
+		<div class="description input-group">
+			<span class="input-group-addon divid" style="width: 8em; font-weight: bold; text-align: left;">New Division</span>
+			<input type="text" class="form-control description-text" readonly>
+			<span class="input-group-btn">
+				<button class="btn btn-default btn-edit" type="button"><span class="fas fa-pen" style="line-height: 1.42857143;"></span></span>
+			</span>
 		</div>
 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.status   = this.dom.find( '.well' );
-		this.display.all      = this.dom.find( '.description' );
+		this.display.divid       = this.dom.find( '.divid' );
+		this.display.description = this.dom.find( '.description-text' );
 
-		// ===== ADD STATE
-		this.state.autopilot = { timer : null, start: null, stop: null, countdown: null, message: null };
+		// ===== BUTTONS
+		this.button.edit = this.dom.find( '.btn-edit' );
 
-		// ===== ADD REFRESH BEHAVIOR
-		this.timer = {
-			reset : () => {
-				if( this.state.autopilot.timer ) { clearInterval( this.state.autopilot.timer ); }
-				this.state.autopilot.duration = null;
-				this.state.autopilot.start    = null;
-				this.state.autopilot.stop     = null;
-				this.state.autopilot.message  = null;
-				this.display.status.html( 'Autopilot is on Standby' ); 
-			},
-			start : delay => {
-				let ap = this.state.autopilot;
-				ap.duration = delay;
-				ap.start    = (new Date()).getTime();
-				ap.timer    = setInterval( () => { 
-					ap.stop = (new Date()).getTime();
-					let elapsed  = Math.abs( ap.stop - ap.start );
-					let duration = defined( ap.duration ) && ap.duration > 0 ? ap.duration : 1000;
-					this.display.status.html( `${this.state.autopilot.message} ${Math.floor(( duration - elapsed )/ 1000 )}s` );
-					if( elapsed > duration ) { this.timer.reset(); }
-				}, 200 );
-			}
-		};
-		this.refresh.status = ( update, message ) => {
-			this.timer.reset();
-			this.state.autopilot.message = message;
-			let request = update.request;
-			let delay   = isNaN( request?.delay ) ? 3500 : (parseFloat( request.delay ) + 0.5) * 1000;
-			this.timer.start( delay );
+		// ===== BUTTON BEHAVIOR
+		this.button.edit.off( 'click' ).click(() => {
+			let divid       = this.app.state.division.name ? this.app.state.division.name.toUpperCase() : 'this new division';
+			let description = this.app.state.division.description;
+			
+			alertify.prompt( 
+				`Describe ${divid}`,
+				`Provide a description for ${divid}`,
+				description,
+				( ev, value ) => { this.app.state.division.description = value; this.display.description.val( value ); },
+				() => {}
+			);
+		});
+
+		// ===== REFRESH BEHAVIOR
+		this.refresh = () => {
+			let division    = this.app.state.division;
+			let divid       = division.name?.toUpperCase();
+			let description = division.description;
+
+			this.display.divid.html( divid );
+			this.display.description.val( description );
+			
 		}
 
-		// ===== ADD LISTENER/RESPONSE HANDLERS
+		// ===== LISTENER/RESPONSE HANDLERS
 		this.network.on
-		.heard( 'autopilot' )
+		.heard( 'division' )
 			.command( 'update' )
 				.respond( update => { 
-					let action = update?.request?.action;
-					switch( action ) {
-						case 'scoreboard'  : this.refresh.status( update, 'Showing Score'       ); break;
-						case 'results'     : this.refresh.status( update, 'Showing Match Results' ); break;
-						case 'leaderboard' : this.refresh.status( update, 'Showing Leaderboard' ); break;
-						case 'bracket'     : this.refresh.status( update, 'Showing Bracket' ); break;
-						case 'next'        : this.refresh.status( update, 'Advancing'           ); break;
-					}
+					this.refresh();
 				});
 
-		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
+		// ===== EVENT LISTENER/RESPONSE HANDLERS
 		this.event.listen( 'division-show' )
 			.respond(( type, source, message ) => {
 				if( message.divid == message.current ) {

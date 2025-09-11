@@ -22,12 +22,12 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<div class="draw">
-			<h4>Poomsae Pool</h4>
+		<div class="draw" style="margin-bottom: 1em;">
+			<label for="poomsae-text">Designated Poomsae</label>
 			<div class="input-group">
-				<input type="text" class="form-control" readonly>
+				<input type="text" class="form-control poomsae-text" readonly>
 				<span class="input-group-btn">
-					<button class="btn btn-pool"><span class="fas fa-pencil"></span></button>
+					<button class="btn btn-default btn-pool" type="button"><span class="fas fa-pen" style="line-height: 1.42857143;"></span></button>
 				</span>
 			</div>
 			<div class="modal modal-draw fade" tabindex="-1" role="dialog" style="display: none;">
