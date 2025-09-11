@@ -22,15 +22,12 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		this.display.doc      = this.display.editor.getDoc();
 		this.display.editor.setSize( '100%', '360px' );
 
-		// ===== ADD STATE
-		this.state.athletes = [];
-
-		// ===== ADD BUTTONS
+		// ===== BUTTONS
 		this.button.cancel    = this.dom.find( '#btn-cancel' );
 		this.button.save      = this.dom.find( '#btn-save' );
 		this.button.randomize = this.dom.find( '#btn-randomize' );
 
-		// ===== ADD BUTTON BEHAVIOR
+		// ===== BUTTON BEHAVIOR
 		this.button.cancel.off( 'click' ).click(() => { 
 			this.app.sound.prev.play();
 			setTimeout(() => { window.close(); }, 500 );
@@ -50,29 +47,39 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			});
 		};
 		
-		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.athletes = division => {
-			let list = division.athletes();
-			let text = list.map( athlete => athlete.name()).join( "\n" );
+		// ===== REFRESH BEHAVIOR
+		this.refresh.athletes = () => {
+			let list = this.app.state.division.athletes;
+			let text = list.map( athlete => athlete?.name).join( "\n" );
 			this.display.doc.setValue( text );
 		}
 
-		// ===== ADD LISTENER/RESPONSE HANDLERS
+		// ===== LISTENER/RESPONSE HANDLERS
+		this.display.doc.on( 'change', () => {
+			let lines    = this.display.doc.getValue().trim().split( "\n" );
+			let athletes = lines.map( line => { 
+				let athlete  = {};
+				let values   = line.split( "\t" );
+				athlete.name = values.shift().trim();
+				values.forEach( keypair => {
+					let [ key, value ] = keypair.split( '=' );
+					athlete[ key ] = value;
+				});
+				return athlete;
+			});
+			console.log( 'ATHLETES', athletes );
+			this.app.state.division.athletes = athletes;
+		});
+
 		this.network.on
-		.heard( 'autopilot' )
+		.heard( 'division' )
 			.command( 'update' )
 				.respond( update => { 
-					let action = update?.request?.action;
-					switch( action ) {
-						case 'scoreboard'  : this.refresh.status( update, 'Showing Score'       ); break;
-						case 'results'     : this.refresh.status( update, 'Showing Match Results' ); break;
-						case 'leaderboard' : this.refresh.status( update, 'Showing Leaderboard' ); break;
-						case 'bracket'     : this.refresh.status( update, 'Showing Bracket' ); break;
-						case 'next'        : this.refresh.status( update, 'Advancing'           ); break;
-					}
+					this.refresh.athletes();
 				});
 
-		// ===== ADD EVENT LISTENER/RESPONSE HANDLERS
+
+		// ===== EVENT LISTENER/RESPONSE HANDLERS
 		this.event.listen( 'division-show' )
 			.respond(( type, source, message ) => {
 				if( message.divid == message.current ) {

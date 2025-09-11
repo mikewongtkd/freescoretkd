@@ -76,7 +76,7 @@
 			let app        = new FreeScore.App( ring.num );
 
 			// ===== NETWORK CONNECT
-			app.on.connect( '<?= $url ?>' ).read.ring();
+			app.on.connect( '<?= $url ?>' ).read.division( '<?= $divid ?>' );
 
 			// ============================================================
 			// APP COMPOSITION
@@ -129,6 +129,7 @@
 						if( ! defined( division )) { return; }
 
 						division = new Division( division );
+						app.state.division = division.data();
 					})
 
 		</script>
