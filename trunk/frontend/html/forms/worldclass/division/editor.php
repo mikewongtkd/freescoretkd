@@ -131,6 +131,11 @@
 
 						division = new Division( division );
 						app.state.division = division.data();
+
+						app.widget.description.display.refresh.all();
+						app.widget.settings.display.refresh.all();
+						app.widget.forms.display.refresh.all();
+						app.widget.athletes.display.refresh.all();
 					})
 
 		</script>

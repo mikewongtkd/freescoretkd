@@ -38,7 +38,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 		});
 
 		// ===== REFRESH BEHAVIOR
-		this.refresh = () => {
+		this.refresh.all = () => {
 			let division    = this.app.state.division;
 			let divid       = division.name?.toUpperCase();
 			let description = division.description;
@@ -47,23 +47,5 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			this.display.description.val( description );
 			
 		}
-
-		// ===== LISTENER/RESPONSE HANDLERS
-		this.network.on
-		.heard( 'division' )
-			.command( 'update' )
-				.respond( update => { 
-					this.refresh();
-				});
-
-		// ===== EVENT LISTENER/RESPONSE HANDLERS
-		this.event.listen( 'division-show' )
-			.respond(( type, source, message ) => {
-				if( message.divid == message.current ) {
-					this.display.all.show();
-				} else {
-					this.display.all.hide();
-				}
-			});
 	}
 }

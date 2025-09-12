@@ -130,6 +130,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 		};
 
 		// ===== ADD REFRESH BEHAVIOR
+		this.refresh.all = () => {}
 		this.refresh.draw = {
 			// ============================================================
 			modal: division => {

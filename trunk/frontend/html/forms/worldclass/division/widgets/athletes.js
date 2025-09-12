@@ -48,7 +48,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		};
 		
 		// ===== REFRESH BEHAVIOR
-		this.refresh.athletes = () => {
+		this.refresh.all = () => {
 			let list = this.app.state.division.athletes;
 			let text = list.map( athlete => athlete?.name).join( "\n" );
 			this.display.doc.setValue( text );
@@ -70,23 +70,5 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			console.log( 'ATHLETES', athletes );
 			this.app.state.division.athletes = athletes;
 		});
-
-		this.network.on
-		.heard( 'division' )
-			.command( 'update' )
-				.respond( update => { 
-					this.refresh.athletes();
-				});
-
-
-		// ===== EVENT LISTENER/RESPONSE HANDLERS
-		this.event.listen( 'division-show' )
-			.respond(( type, source, message ) => {
-				if( message.divid == message.current ) {
-					this.display.all.show();
-				} else {
-					this.display.all.hide();
-				}
-			});
 	}
 }
