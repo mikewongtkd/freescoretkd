@@ -151,7 +151,7 @@ table .tb2 { width: 10%; }
 										let matchnum = k == 0 ? `<td rowspan=2 class="matchnum">${num}${forms}</td>` : '';
 
 										if( ! defined( j )) {
-											tbody.append( `<tr>${matchnum}<td class="name"><i>BYE</i></td><td class="usatid">&ndash;</td><td class="score">&ndash;</td><td class="tb1">&ndash;</td><td class="tb1">&ndash;</td></tr>` );
+											tbody.append( `<tr>${matchnum}<td class="name"><i>BYE</i></td><td class="usatid">&ndash;</td><td class="score">&ndash;</td><td class="tb1">&nbsp;</td><td class="tb1">&nbsp;</td></tr>` );
 											return;
 										}
 

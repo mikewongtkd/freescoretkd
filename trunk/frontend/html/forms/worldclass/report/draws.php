@@ -11,6 +11,10 @@
 		<script src="../../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
+		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/division.class.js"></script>
 		<style>
 table .order { width: 5%; text-align: center; }
 table .name { width: 65%; }
@@ -49,13 +53,10 @@ table .usatid { width: 30%; text-align: right; }
 				},
 				results : {
 					table : division => {
+						let div     = new Division( division );
 						let results = $( '<div class="results"></div>' );
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
-						let round   = { display: '<h4>Final Round</h4>', code : 'finals' };
-						let n       = division.athletes.length;
-
-						if( n >   8 ) { round = { display : '<h4>Semi-Final Round</h4>', code : 'semfin' }; }
-						if( n >= 20 ) { round = { display : '<h4>Preliminary Round</h4>', code : 'prelim' } }
+						let round   = { display: `<h4>${div.current.round.display.name()}</h4>`, code : div.current.round.name() };
 
 						if( 'flight' in division ) {
 							round = { display : '<h4>Preliminary Round</h4>', code : 'prelim' };
