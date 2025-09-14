@@ -74,6 +74,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						<label for="rank-select">Rank</label>
 						<select class="form-control" id="rank-select">
 							<option value="black">Black</option>
+							<option value="white">White</option>
 							<option value="yellow">Yellow</option>
 							<option value="green">Green</option>
 							<option value="blue">Blue</option>
@@ -101,10 +102,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		this.display.age      = this.dom.find( '#age-select' );
 		this.display.rank     = this.dom.find( '#rank-select' );
 
-		// ===== ADD STATE
-		this.state = { judges: 5, event: 'individual', method: 'cutoff', gender: null, age: null, rank: 'black' };
+		// ===== STATE
+		this.state = { judges: 5, event: 'individual', method: 'cutoff', gender: null, age: null, rank: 'black', divid: null };
 
-		// ===== ADD REFRESH BEHAVIOR
+		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			this.refresh.judges();
 			this.refresh.event();
@@ -219,5 +220,16 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				}
 			});
 		};
+
+		// ----------------------------------------
+		this.refresh.divid = () => {
+		// ----------------------------------------
+		};
+
+		// ===== CHANGE BEHAVIOR
+		this.display.judges.on( 'change', ev => {
+			let target = $( ev.target );
+			
+		});
 	}
 }

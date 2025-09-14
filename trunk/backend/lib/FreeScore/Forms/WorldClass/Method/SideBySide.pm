@@ -152,10 +152,11 @@ sub autopilot_steps {
 
 	# ===== SELECTIVELY CHOOSE AUTOPILOT BEHAVIOR STEPS
 	my @steps = ();
-	push @steps, $step->{ show }{ score };
+	my $bye = exists $request->{ bye } && $request->{ bye }; # If there's a BYE, show only the match result and the updated bracket
+	push @steps, $step->{ show }{ score } unless $bye;
 	push @steps, $step->{ show }{ results } if((int( @$forms ) > 1) && $matches->current->complete());
-	push @steps, $step->{ show }{ bracket } if( $matches->current->complete() && ! $last->{ round }); # Display the bracket whenever it's not the last match of the division
-	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() ); # Display the leaderboard when the last match of the division is completed
+	push @steps, $step->{ show }{ bracket } if( $matches->current->complete() && ! ($last->{ round } || $bye));   # Display the bracket whenever it's not the last match of the division or an automatic win
+	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() && ! $bye); # Display the leaderboard when the last match of the division is completed
 	push @steps, $step->{ go }{ next } unless( $last->{ round } && $last->{ form });
 	push @steps, $step->{ show }{ matches } unless( $last->{ round } && $last->{ form });
 

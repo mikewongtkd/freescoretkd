@@ -145,7 +145,7 @@ sub handle_division_award_min_score {
 	my $n        = $division->{ judges };
 	my $athlete  = $division->{ athletes }[ $i ];
 	my $message  = "Award minimum score to $athlete->{ name }\n";
-  my $method   = $division->method();
+	my $method   = $division->method();
 
 	print STDERR $message if $DEBUG;
 
@@ -160,8 +160,8 @@ sub handle_division_award_min_score {
 		} else {
 			$score = { major => 0.0, minor => 4.0, power => 0.5, rhythm => 0.5, ki => 0.5 };
 		}
-		my $form  = $division->{ form };
-		foreach( my $k; $k < $forms; $k++ ) {
+		my $form = $division->{ form };
+		foreach( my $k = 0; $k < $forms; $k++ ) {
 			$division->{ form } = $k;
 			foreach( my $j = 0; $j < $n; $j++ ) { $division->record_score( $j, $score ); }
 		}
@@ -171,6 +171,7 @@ sub handle_division_award_min_score {
 
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		my $complete = $method->matches->current->complete(); # Get the latest copy of the match
+		$request->{ bye } = 1;
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $group ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
@@ -653,19 +654,14 @@ sub handle_division_score {
 		$message = "  $jname score for $athlete->{ name }\n";
 	}
 
-  print STDERR "HELLO\n"; # MW
 	print STDERR $message if $DEBUG;
-  print STDERR Dumper $request; # MW
 
   my $judge = exists $request->{ judge } ? $request->{ judge } : $request->{ score }{ judge };
 
 	try {
 		my $score = clone( $request->{ score } );
-  print STDERR "SCORE 1\n"; # MW
 		$version->checkout( $division );
-  print STDERR "SCORE 2\n"; # MW
 		$division->record_score( $judge, $score );
-  print STDERR "SCORE 3\n"; # MW
 		$division->write();
 		$version->commit( $division, $message );
 
@@ -674,14 +670,11 @@ sub handle_division_score {
 		my $form     = $athlete->{ scores }{ $round }{ forms }[ $division->{ form } ];
 		my $complete = $athlete->{ scores }{ $round }->form_complete( $division->{ form } );
 
-  print STDERR "SCORE 4\n"; # MW
-
 		# ====== INITIATE AUTOPILOT FROM THE SERVER-SIDE
 		print STDERR "Checking to see if we should engage autopilot: " . ($complete ? "Yes.\n" : "Not yet.\n") if $DEBUG;
 		my $autopilot = $self->autopilot( $request, $progress, $group ) if $complete;
 		die $autopilot->{ error } if exists $autopilot->{ error };
 
-  print STDERR "SCORE 5\n"; # MW
 		$self->broadcast_updated_division( $request, $progress, $group );
 	} catch {
 		$client->send( { json => { error => "$_" }});
