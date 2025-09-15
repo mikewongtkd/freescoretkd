@@ -9,9 +9,9 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				</div>
 				<textarea id="athletes" class="panel-body"></textarea>
 				<div class="panel-footer">
-					<button type="button" id="cancel-button" class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
-					<button type="button" id="save-button" class="btn btn-success pull-right"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
-					<button type="button" id="randomize-button" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
+					<button type="button" id="btn-cancel"    class="btn btn-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> Cancel and Exit</button>
+					<button type="button" id="btn-save"      class="btn btn-success pull-right"><span class="glyphicon glyphicon-save"></span> Save and Exit</button>
+					<button type="button" id="btn-randomize" class="btn btn-primary pull-right disabled" style="margin-right: 30px;"><span class="fas fa-random"></span> Randomize Order</button>
 					<div class="clearfix"></div>
 				</div>
 			</div>
@@ -33,6 +33,14 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			setTimeout(() => { window.close(); }, 500 );
 		});
 
+		this.button.randomize.enable = () => {
+		};
+
+		this.button.randomize.disable = () => {
+			this.button.randomize.addClass( 'disabled' );
+			this.button.randomize.off( 'click' );
+		};
+
 		this.button.save.enable = () => {
 			this.button.save.removeClass( 'disabled' );
 		};
@@ -40,6 +48,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		this.button.save.disable = () => {
 			this.button.save.addClass( 'disabled' );
 			this.button.save.off( 'click' ).click(() => {
+				this.app.state.validate();
 				this.app.state.errors.forEach( error => { 
 					alertify.error( error ); 
 				});
@@ -67,8 +76,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				});
 				return athlete;
 			});
-			console.log( 'ATHLETES', athletes );
 			this.app.state.division.athletes = athletes;
 		});
 	}
-}
+};

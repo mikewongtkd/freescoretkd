@@ -48,7 +48,7 @@
 			if( ! isset( $_POST[ 'password' ])) { Session::error( 'Please provide a password', $referrer ); }
 			$password = $_POST[ 'password' ];
 			if( $password == '' ) { Session::error( 'Please provide a valid password', $referrer ); }
-      $password = intval( $password );
+			$password = intval( $password );
 
 			// Get ring
 			if     ( isset( $_GET[ 'ring' ]))  { $ring = $_GET[ 'ring' ];  }
@@ -56,7 +56,7 @@
 
 			$correct = $config->password( $ring );
 			if( $correct == '' ) { Session::error( 'Configuration error: invalid password set in configuration' ); }
-      $correct = intval( $correct );
+			$correct = intval( $correct );
 			if( $password != $correct ) { Session::error( 'Password does not match our records' ); }
 
 			$_SESSION[ 'is_auth' ] = 1;

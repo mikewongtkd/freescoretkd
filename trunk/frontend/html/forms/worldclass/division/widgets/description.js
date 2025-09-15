@@ -40,7 +40,6 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 				`Provide a description for ${divid}`,
 				description,
 				( ev, value ) => { 
-					this.state.previous = this.app.state.division.description;
 					this.button.undo.enable();
 
 					this.app.state.division.description = value; 
@@ -56,7 +55,6 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			this.button.undo.off( 'click' ).click(() => {
 				this.app.state.division.description = this.state.previous; 
 				this.display.description.html( this.state.previous ); 
-				this.state.previous = null;
 
 				this.button.undo.disable();
 				this.state.manual.override = false;
@@ -74,16 +72,41 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			let divid       = division.name?.toUpperCase();
 			let description = division.description;
 
+			this.state.previous = division.description;
 			this.display.divid.html( divid );
 			this.display.description.html( description );
 		}
 
-		this.refresh.with = { settings : () => {
+		this.refresh.with = { settings : settings => {
 			// Rank Age Gender Event
 			const display = {
 				rank: { 'white' : 'White Belt', 'yellow' : 'Yellow Belt', 'green' : 'Green Belt', 'blue' : 'Blue Belt', 'red' : 'Red Belt', 'black1' : 'Black Belt 1st Dan', 'black2' : 'Black Belt 2nd Dan', 'black3' : 'Black Belt 3rd Dan', 'black4' : 'Black Belt 4th Dan', 'black5' : 'Black Belt 5th Dan', 'black6' : 'Black Belt 6th Dan', 'black7' : 'Black Belt 7th Dan' },
 				age: { 
+					'4-5' : 'U5',
+					'6-7' : 'U7',
+					'8-9' : 'U9',
+					'10-11' : 'Youth',
+					'12-14' : 'Cadet',
+					'15-17' : 'Junior',
+					'18-30' : 'U30',
+					'31-40' : 'U40',
+					'31-50' : 'U50',
+					'41-50' : 'U50',
+					'51-60' : 'U60',
+					'61+'   : 'O60',
+					'61-65' : 'U65',
+					'66+'   : 'O65'
+				},
+				gender: {
+					'f' : "Women's",
+					'm' : "Men's"
+				},
+				event: {
+					'individual' : 'Individual',
+					'pair' : 'Pair',
+					'team' : 'Team'
 				}
+
 			}
 
 			let divid       = settings.divid;
@@ -91,18 +114,29 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 
 			if( this.state.manual.override ) { return; }
 
-			if( settings.rank != 'black' ) {
-				if( display.rank?.[ settings.rank ]) { descriptors.push( display.rank[ settings.rank ]); }
+			if( display.gender?.[ settings.gender ]) {
+				descriptors.push( display.gender[ settings.gender ]);
 			}
 
-			if( display?.[ rank ]) { descriptors.push( display[ rank ]); }
+			if( settings.rank != 'black' && display.rank?.[ settings.rank ]) {
+				descriptors.push( display.rank[ settings.rank ]);
+			}
 
-			this.state.previous = this.app.state.description;
+			if( display.age?.[ settings.age ]) {
+				descriptors.push( display.age[ settings.age ]);
+			}
+
+			if( display.event?.[ settings.event ]) {
+				descriptors.push( display.event[ settings.event ]);
+			}
+
+			descriptors.push( 'Sport Poomsae' );
+
 			this.button.undo.enable();
 
 			let description = descriptors.join( ' ' );
 			this.app.state.description = description;
-			this.display.divid.html( divid );
+			this.display.divid.html( divid.toUpperCase() );
 			this.display.description.html( description );
 		}};
 	}

@@ -35,9 +35,23 @@ FreeScore.App = class FSApp {
 
 		// On Connect actions
 		this.read = {
-			division :   () => { this._network.connect({ type : 'division',   action : 'read' }); this.ping.on(); },
-			ring :       () => { this._network.connect({ type : 'ring',       action : 'read' }); this.ping.on(); },
-			tournament : () => { this._network.connect({ type : 'tournament', action : 'read' }); this.ping.on(); }
+			division : ( divid = null ) => { 
+				let message = { type : 'division', action : 'read' }; 
+				if( divid !== null ) { message.divid = divid };
+				this._network.connect( message ); 
+				this.ping.on(); 
+			},
+			ring : ( ring = null ) => { 
+				let message = { type : 'ring', action : 'read' };
+				if( ring !== null ) { message.ring = divid };
+				this._network.connect( message ); 
+				this.ping.on(); 
+			},
+			tournament : ()=> { 
+				let message = { type : 'tournament', action : 'read' };
+				this._network.connect( message ); 
+				this.ping.on(); 
+			}
 		};
 	}
 
