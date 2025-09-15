@@ -5,14 +5,16 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<label for="description">Description</label>
-		<div class="description input-group">
-			<span class="input-group-addon divid" style="width: 8em; font-weight: bold; text-align: left;">New Division</span>
-			<input type="text" class="form-control description-text" readonly>
-			<span class="input-group-btn">
-				<button class="btn btn-default btn-undo disabled" type="button"><span class="fas fa-undo" style="line-height: 1.42857143;"></span></span>
-				<button class="btn btn-default btn-edit" type="button"><span class="fas fa-pen" style="line-height: 1.42857143;"></span></span>
-			</span>
+		<div class="row">
+			<div class="col-sm-10">
+				<h1>Editing <span class="divid">New</span> <span class="description-text">Division</span></h1>
+			</div>
+			<div class="col-sm-2 text-right">
+				<div class="input-group-btn">
+					<button class="btn btn-default btn-undo disabled" type="button"><span class="fas fa-undo" style="line-height: 1.42857143;"></span></span>
+					<button class="btn btn-default btn-edit" type="button"><span class="fas fa-pen" style="line-height: 1.42857143;"></span></span>
+				</div>
+			</div>
 		</div>
 
 		` );
@@ -42,7 +44,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 					this.button.undo.enable();
 
 					this.app.state.division.description = value; 
-					this.display.description.val( value ); 
+					this.display.description.html( value ); 
 					this.state.manual.override = true;
 				},
 				() => {}
@@ -53,7 +55,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			this.button.undo.removeClass( 'disabled' );
 			this.button.undo.off( 'click' ).click(() => {
 				this.app.state.division.description = this.state.previous; 
-				this.display.description.val( this.state.previous ); 
+				this.display.description.html( this.state.previous ); 
 				this.state.previous = null;
 
 				this.button.undo.disable();
@@ -73,7 +75,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			let description = division.description;
 
 			this.display.divid.html( divid );
-			this.display.description.val( description );
+			this.display.description.html( description );
 		}
 
 		this.refresh.with = { settings : () => {
@@ -101,7 +103,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			let description = descriptors.join( ' ' );
 			this.app.state.description = description;
 			this.display.divid.html( divid );
-			this.display.description.val( description );
+			this.display.description.html( description );
 		}};
 	}
 }

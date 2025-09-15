@@ -32,9 +32,9 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 					<div class="form-group">
 						<label for="method-select">Method</label>
 						<select class="form-control" id="method-select">
-							<option value="cutoff">Cutoff</option>
-							<option value="se">Single Elimination</option>
-							<option value="sbs">Side-by-Side</option>
+							<option data-applies"individual,pair,team" value="cutoff">Cutoff</option>
+							<option data-applies"individual,pair,team" value="se">Single Elimination</option>
+							<option data-applies"individual" value="sbs">Side-by-Side</option>
 						</select>
 					</div>
 				</div>
@@ -52,6 +52,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 					<div class="form-group">
 						<label for="age-select">Age</label>
 						<select class="form-control" id="age-select">
+							<option value="null"  data-aliases=""                    data-applies="individual,pair,team" >Unknown</option>
 							<option value="4-5"   data-aliases="u5"                  data-applies="individual"           >U5 (4-5)</option>
 							<option value="6-7"   data-aliases="u7,tiger"            data-applies="individual"           >Tiger (6-7)</option>
 							<option value="8-9"   data-aliases="u9,dragon"           data-applies="individual"           >Dragon (8-9)</option>
@@ -183,8 +184,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let age = null;
 			this.display.age.find( 'option' ).each(( i, html ) => {
 				let option  = $( html );
+				if( option.val() == 'null' ) { return; }
+
 				let choices = [ option.val() ].concat( option.attr( 'data-aliases' ).split( /,\s?/ ));
-				let regex   = `(?:${choices.join('|')})`;
+				let regex   = `\\b(?:${choices.join('|')})`;
 				regex = regex.replace( /\-/, '\\-' );
 				regex = regex.replace( /\+/, '\\+' );
 				regex = new RegExp( regex, 'i' );
@@ -229,7 +232,35 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ===== CHANGE BEHAVIOR
 		this.display.judges.on( 'change', ev => {
 			let target = $( ev.target );
-			
+			let judges = target.val();
+			this.app.state.division.judges = judges;
+		});
+
+		this.display.event.on( 'change', ev => {
+			let target  = $( ev.target );
+			let evname  = target.val();
+			let methods = this.display.method.find( 'option' ).hide().toArray();
+			let ages    = this.display.age.find( 'option' ).hide().toArray();
+
+			methods.forEach( option => {
+				let method = $(option);
+				let applies = method.attr( 'data-applies' ).split( /,/ );
+				if( applies.includes( evname )) {
+					method.show();
+				} else {
+					method.hide();
+				}
+			});
+
+			ages.forEach( option => {
+				let age = $(option);
+				let applies = age.attr( 'data-applies' ).split( /,/ );
+				if( applies.includes( evname )) {
+					age.show();
+				} else {
+					age.hide();
+				}
+			});
 		});
 	}
 }

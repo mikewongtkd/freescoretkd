@@ -60,7 +60,6 @@
 	</head>
 	<body>
 		<div class="container">
-			<div class="page-header"><h1>Division Editor</h1></div>
 			<div id="display-description"></div>
 			<div id="display-settings"></div>
 			<div id="display-forms"></div>
