@@ -34,7 +34,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						<select class="form-control" id="method-select">
 							<option data-applies="individual,pair,team" value="cutoff">Cutoff</option>
 							<option data-applies="individual,pair,team" value="se"    >Single Elimination</option>
-							<option data-applies="individual"           value="sbs"   >Side-by-Side</option>
+							<option data-applies="individual,pair,team" value="sbs"   >Side-by-Side</option>
 						</select>
 					</div>
 				</div>
@@ -269,9 +269,9 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			}
 
 			let divid = null;
-			if( divnum <  10  ) { divid = `wc00${divnum}`; } else
-			if( divnum <  100 ) { divid = `wc0${divnum}`; } else
-			if( divnum >= 100 ) { divid = `wc${divnum}`; }
+			if( divnum <  10  ) { divid = `p00${divnum}`; } else
+			if( divnum <  100 ) { divid = `p0${divnum}`; } else
+			if( divnum >= 100 ) { divid = `p${divnum}`; }
 
 			this.state.divid = this.app.state.division.name = divid;
 			this.app.widget.description.display.refresh.with.settings( this.state );

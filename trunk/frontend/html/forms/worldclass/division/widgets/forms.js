@@ -1,41 +1,28 @@
 FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
+	static ranks  = [ 'yellow', 'green', 'blue', 'red' ];
+	static agemap = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
+	static designated = {
+		'yellow':[ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
+		'green': [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
+		'blue':  [ 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6' ], // Not WT
+		'red':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8' ], // Not WT
+		'6-7':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+		'8-9':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+		'10-11': [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+		'12-14': [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
+		'15-17': [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
+		'18-30': [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
+		'31-40': [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
+		'31-50': [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
+		'41-50': [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
+		'51-60': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+		'61+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+		'61-65': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+		'66+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
+	};
+
 	constructor( app, dom ) {
 		super( app, dom );
-		const ranks  = [ 'yellow', 'green', 'blue', 'red' ];
-		const agemap = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
-		const designated = {
-			'yellow':[ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
-			'green': [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
-			'blue':  [ 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6' ], // Not WT
-			'red':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8' ], // Not WT
-			'6-7':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			'8-9':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			'10-11': [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			'12-14': [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
-			'15-17': [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
-			'18-30': [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			'31-40': [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			'31-50': [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
-			'41-50': [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
-			'51-60': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			'61+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			'61-65': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			'66+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
-		};
-		function findAge( key ) {
-			let ages = Object.values( agemap );
-			if( ages.includes( key )) {
-				let i = ages.indexOf( key );
-				return Object.keys( agemap )[ i ];
-
-			} else if( ranks.includes( key )) {
-				return key;
-
-			} else {
-				return null;
-			}
-		}
-
 		// ===== ADD THE DOM
 		this.dom.append( `
 
@@ -234,17 +221,28 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					// pools for a given age and then sets the age to the
 					// correct designation or encodes the custom pool
 					// ------------------------------------------------------------
-						let ages = Object.keys( designated );
+						let ages = Object.keys( FSWidgetDEForms.designated );
 						const have = new Set( pool );
-						let age = ages.find( age => {
-							const want = new Set( designated[ age ]);
+						let age = ages.filter( age => {
+							const want = new Set( FSWidgetDEForms.designated[ age ]);
 							return (have.difference( want ))?.size == 0 && (want.difference( have ))?.size == 0;
 						});
 
-						console.log( 'AGE', age, agemap[ age ]); // MW
+						// Select same age group as in settings (if possible)
+						if( age.length == 1 ) { 
+							age = age[ 0 ]; 
 
+						} else if( age.length >  1 ) {
+							let settings = { age: this.app.widget.settings.display.state.age };
+							age = age.find( age => age == settings.age );
+
+						} else { 
+							age = null; 
+						}
+
+						// Select preset age pool or custom age pool
 						if( defined( age )) {
-							this.select.modal.draw.val( agemap[ age ]);
+							this.select.modal.draw.val( age );
 							this.state.age = age;
 							delete this.state.pool;
 
@@ -266,10 +264,9 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				let pool = division.form.pool();
 				if( pool ) {
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
-					let age = findAge( key );
+					let age = this.age( key );
 					if( age ) {
-						console.log( 'KEY', key, age, designated[ age ]); // MW
-						pool = designated[ age ];
+						pool = FSWidgetDEForms.designated[ age ];
 						this.select.modal.draw.val( age );
 
 					} else {
@@ -291,10 +288,10 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				// ----------------------------------------
 					let target = $( ev.target );
 					let age    = target.val();
-					if( age in designated ) {
+					if( age in FSWidgetDEForms.designated ) {
 						this.state.age = age;
 						this.cookie.save( this.state.age );
-						refresh.pool.selection( designated[ age ]);
+						refresh.pool.selection( FSWidgetDEForms.designated[ age ]);
 						this.button.modal.ok.removeClass( 'disabled' );
 					}
 				});
@@ -328,10 +325,10 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 					} else {
 						// Write age to database
-						let age     = Object.keys( agemap ).includes( this.state.age ) ? agemap[ this.state.age ] : this.state.age;
-						let belt    = ranks.includes( this.state.age ) ? ' belt' : ''
+						let age     = Object.keys( FSWidgetDEForms.agemap ).includes( this.state.age ) ? FSWidgetDEForms.agemap[ this.state.age ] : this.state.age;
+						let belt    = FSWidgetDEForms.ranks.includes( this.state.age ) ? ' belt' : ''
 						let request = { type: 'division', action: 'draw select age', age, divid: this.app.state.division.name };
-						let group   = this.state.age in designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
+						let group   = this.state.age in FSWidgetDEForms.designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
 						this.network.send( request );
 						alertify.success( `${group} selected.` );
 						this.sound.ok.play();
@@ -342,5 +339,22 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				this.display.age.modal.show();
 			}
 		};
+	}
+
+	age( age = null ) {
+		if( ! defined( age )) { age = this.state.age; }
+		let ages = Object.values( FSWidgetDEForms.agemap );
+		if( ages.includes( age )) {
+			let i      = ages.indexOf( age );
+			let ranges = Object.keys( FSWidgetDEForms.agemap );
+			console.log( 'AGE', age, this.state.age, ranges[ i ]); // MW
+			return ranges[ i ];
+
+		} else if( FSWidgetDEForms.ranks.includes( age )) {
+			return age;
+
+		} else {
+			return null;
+		}
 	}
 }

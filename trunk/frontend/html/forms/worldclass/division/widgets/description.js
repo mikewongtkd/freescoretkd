@@ -122,15 +122,15 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 				descriptors.push( display.rank[ settings.rank ]);
 			}
 
-			if( display.age?.[ settings.age ]) {
-				descriptors.push( display.age[ settings.age ]);
-			}
-
 			if( display.event?.[ settings.event ]) {
 				descriptors.push( display.event[ settings.event ]);
 			}
 
-			descriptors.push( 'Sport Poomsae' );
+			descriptors.push( 'Recognized Poomsae' );
+
+			if( display.age?.[ settings.age ]) {
+				descriptors.push( display.age[ settings.age ]);
+			}
 
 			this.button.undo.enable();
 
