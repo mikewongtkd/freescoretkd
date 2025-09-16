@@ -23,13 +23,8 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 		this.dom.append( `
 
 		<div class="draw" style="margin-bottom: 1em;">
-			<label for="poomsae-text">Designated Poomsae</label>
-			<div class="input-group">
-				<input type="text" class="form-control poomsae-text" readonly>
-				<span class="input-group-btn">
-					<button class="btn btn-default btn-pool" type="button"><span class="fas fa-pen" style="line-height: 1.42857143;"></span></button>
-				</span>
-			</div>
+			<label for="poomsae-display">Designated Poomsae</label> <div class="btn-group"><button class="btn btn-xs border-0 btn-pool" type="button" style="background-color: transparent;"><span class="fas fa-pen"></span></button></div>
+			<table class="table table-bordered table-condensed poomsae-display"></table>
 			<div class="modal modal-draw fade" tabindex="-1" role="dialog" style="display: none;">
 				<div class="modal-dialog modal-lg" role="document">
 					<div class="modal-content">
@@ -104,14 +99,13 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 		` );
 
-		// ===== ADD STATE
-		this.state.division  = null;
+		// ===== STATE
 		this.state.age       = null;
 		this.state.animation = { timer: null };
 		this.state.draw      = { count: 0, complete: false, form: null };
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.draw    = this.dom.find( '.draw .well' );
+		this.display.draw    = this.dom.find( '.draw table.poomsae-display' );
 		this.display.all     = this.dom.find( '.draw' );
 		this.button.draw     = this.dom.find( '.btn-draw' );
 		this.button.pool     = this.dom.find( '.btn-pool' );
@@ -121,40 +115,71 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 			show: () => { $( '.modal-draw' ).modal( 'show' ); }
 		}};
 
+		// ===== BUTTONS
 		this.button.modal = {
-			draw : {
-				select: $( '.modal-draw select[name="age-group"]' ),
-				custom: $( '.modal-draw .btn-poomsae' ),
-			},
-			ok: $( '.modal-draw .btn-ok' )
+			ok: $( '.modal-draw .btn-ok' ),
+			poomsae : $( '.modal-draw .btn-poomsae' )
 		};
 
-		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.all = () => {}
+		this.select.modal = {
+			draw : $( '.modal-draw select[name="age-group"]' )
+		}
+
+		// ===== REFRESH BEHAVIOR
+		this.refresh.all = () => {
+			this.refresh.draw.display();
+			this.button.pool.off( 'click' ).click( ev => { this.refresh.draw.modal(); });
+		};
+
 		this.refresh.draw = {
 			// ============================================================
-			modal: division => {
+			display: () => {
 			// ============================================================
-				let inDraw = this.dom.find( '.modal-draw' ).length > 0;
+			// Refresh the draw display table
+			// ------------------------------------------------------------
+				this.display.draw.empty();
+				let thead  = FreeScore.html.thead;
+				let tbody  = FreeScore.html.tbody;
+				let rounds = FreeScore.round.order.filter( round => round in this.app.state.division.forms );
+				let tr     = FreeScore.html.tr;
+
+				this.display.draw.append( thead, tbody );
+				thead.append( '<tr class="active">' + rounds.map( round => `<th style="text-align: center;">${FreeScore.round.name[ round ]}</th>` ).join() + '</tr>' );
+				tbody.append( tr );
+				
+				rounds.forEach( round => {
+					let list = this.app.state.division.forms[ round ].map( form => {
+						if( form.match( /^draw/i )) {
+							let [ draw, age ] = form.split( /\-/ );
+							if( age.match( /^wt25/i )) {
+								return `${draw.capitalize()} (Customized Pool)`;
+							} else if( age ) {
+								return `${draw.capitalize()} (${age.capitalize()} Pool)`;
+							} else {
+								return draw.capitalize();
+							}
+						} else {
+							return form;
+						}
+					}).join( ', ' );
+					tr.append(`<td style="text-align: center;">${list}</td>` );
+				});
+			},
+			// ============================================================
+			modal: () => {
+			// ============================================================
+				let division = new Division( this.app.state.division );
+				let inDraw   = this.dom.find( '.modal-draw' ).length > 0;
 				if( inDraw ) {
-					let modal = this.display.age.modal.all.detach();
+					let modal = this.modal = this.dom.find( '.modal-draw' );
 					$( 'body' ).append( modal );
 				}
 
 				let refresh = {
-					custom : {
-						pool: pool => {
-							this.button.modal.draw.custom.removeClass( 'btn-primary active' ).addClass( 'btn-default' );
-							pool.forEach( poomsae => {
-								let button = this.button.modal.draw.custom.parent().find( `[data-poomsae="${poomsae}"]` );
-								button.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
-							});
-						}
-					},
 					pool : {
 						decoding: key => {
 							let [ method, hex ] = key.split( '-', 2 );
-							this.button.modal.draw.custom.toArray().forEach( el => {
+							this.button.modal.poomsae.toArray().forEach( el => {
 								let button = $( el );
 								let value  = button.attr( 'data-value' );
 								let active = (hex & value) / value ? true : false;
@@ -167,12 +192,29 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 						},
 						encoding: () => {
 							// Encodes the selected poomsae as a bit string and converts to hex
-							let sum = this.button.modal.draw.custom.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-value' )).reduce(( acc, cur ) => acc + parseInt( cur ), 0 );
+							let sum = this.button.modal.poomsae.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-value' )).reduce(( acc, cur ) => acc + parseInt( cur ), 0 );
 							let hex = sum.toString( 16 ).padStart( 5, '0' );
 							return `wt25-0x${hex}`;
+						},
+						// ========================================
+						selection: () => {
+						// ========================================
+						// For each poomsae in the pool, activates the selected poomsae
+						// ----------------------------------------
+							this.button.modal.poomsae.removeClass( 'btn-primary active' ).addClass( 'btn-default' );
+							pool.forEach( poomsae => {
+								let button = this.button.modal.poomsae.parent().find( `[data-poomsae="${poomsae}"]` );
+								button.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
+							});
 						}
 					},
+					// ============================================================
 					select : pool => {
+					// ============================================================
+					// Compares the customized pool to any of the designated
+					// pools for a given age and then sets the age to the
+					// correct designation or encodes the custom pool
+					// ------------------------------------------------------------
 						let ages = Object.keys( designated );
 						const have = new Set( pool );
 						let age = ages.find( age => {
@@ -181,12 +223,12 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 						});
 
 						if( defined( age )) {
-							this.button.modal.draw.select.val( age );
+							this.select.modal.draw.val( age );
 							this.state.age = age;
 							delete this.state.pool;
 
 						} else {
-							this.button.modal.draw.select.val( 'custom' );
+							this.select.modal.draw.val( 'custom' );
 							this.state.pool = pool;
 							this.state.age  = refresh.pool.encoding();
 						}
@@ -205,16 +247,21 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
 					if( key in designated ) {
 						pool = designated[ key ];
-						this.button.modal.draw.select.val( key );
+						this.select.modal.draw.val( key );
 					} else {
 						refresh.pool.decoding( key );
-						pool = this.button.modal.draw.custom.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
-						this.button.modal.draw.select.val( 'custom' );
+						pool = this.button.modal.poomsae.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
+						this.select.modal.draw.val( 'custom' );
 					}
+					refresh.pool.selection();
 				}
 
 				// ----------------------------------------
-				this.button.modal.draw.select.change( ev => {
+				// MODAL SELECT BEHAVIOR
+				// ----------------------------------------
+
+				// ----------------------------------------
+				this.select.modal.draw.change( ev => {
 				// ----------------------------------------
 				// Age group dropdown menu
 				// ----------------------------------------
@@ -223,13 +270,17 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					if( age in designated ) {
 						this.state.age = age;
 						this.cookie.save( this.state.age );
-						refresh.custom.pool( designated[ age ]);
+						refresh.pool.selection( designated[ age ]);
 						this.button.modal.ok.removeClass( 'disabled' );
 					}
 				});
 
 				// ----------------------------------------
-				this.button.modal.draw.custom.off( 'click' ).click( ev => {
+				// MODAL BUTTON BEHAVIOR
+				// ----------------------------------------
+
+				// ----------------------------------------
+				this.button.modal.poomsae.off( 'click' ).click( ev => {
 				// ----------------------------------------
 				// Draw pool customization buttons
 				// ----------------------------------------
@@ -239,7 +290,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					} else {
 						target.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
 					}
-					let pool = this.button.modal.draw.custom.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
+					let pool = this.button.modal.poomsae.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
 					refresh.select( pool );
 				});
 
@@ -263,132 +314,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				});
 
 				this.display.age.modal.show();
-			},
-			// ============================================================
-			poomsae: division => {
-			// ============================================================
-				if( ! defined( division )) { 
-					this.display.all.hide();
-					this.display.draw.empty(); 
-					this.button.draw.addClass( 'disabled' );
-					return; 
-				}
-
-				this.display.age.modal.hide();
-				this.display.draw.empty().html( 'Draw Poomsae Required' );
-				this.button.pool.off( 'click' ).click( ev => { this.refresh.draw.modal( division ); });
-
-				let form  = null;
-				let forms = division.form.pool();
-				let draw  = division.form.draw();
-				let n     = division.form.count();
-				let fid   = division.current.formId();
-
-				// Form has been previously manually drawn
-				if( defined( draw[ fid ]) && forms && ! forms[ fid ].match( /^draw/i )) {
-					form = draw[ fid ];
-					this.display.draw.empty().html( form );
-
-				// Form has been previously systematically drawn
-				} else if( defined( draw[ fid ])) {
-					form = draw[ fid ];
-					this.display.draw.empty().html( form );
-					this.button.draw.html( 'Re-draw Poomsae' );
-					this.state.draw.complete = true;
-					this.display.all.show();
-
-				// Form has not been drawn
-				} else {
-					let mnum  = division.current.matchNumber();
-					alertify.notify( `Poomsae draw for Match ${mnum} required. Click on <i>Draw Poomsae</i> to proceed.` );
-					this.display.all.show();
-					this.button.draw.removeClass( 'disabled' );
-				}
-
-				// Draw form
-				let age = undefined;
-
-				// Check cache
-				if( defined( this.state.age )) {
-					age = this.state.age;
-
-				// Check cookie
-				} else if( this.cookie.value()) {
-					age = this.state.age = this.cookie.value();
-
-				// See if the draw information specifies age
-				} else {
-					let found = forms ? forms[ fid ]?.match( /^draw-([\w\-]+)$/ ) : null;
-					if(  found ) {
-						age = found[ 1 ];
-						this.state.age = age;
-						this.cookie.save( age );
-
-						// Parse the WT 2025 encoding
-						if( age.match( /^wt25\-/ )) {
-							let [encoding, hex] = age.split( '-', 2 );
-							let selected = parseInt( hex, 16 );
-							this.state.pool = [];
-							this.button.modal.draw.custom.toArray().forEach( el => {
-								let button  = $( el );
-								let value   = button.attr( 'data-value' );
-								let poomsae = button.attr( 'data-poomsae' );
-								let active  = (selected & value) / value ? true : false;
-								if( active ) { this.state.pool.push( poomsae ); }
-							});
-						}
-
-					// Maybe the division description can tell us the age?
-					} else {
-						age = Object.keys( designated ).find( age => { 
-							let re = new RegExp( age, 'i' );
-							return division.description().match( re ); 
-						});
-						if( defined( age )) {
-							this.state.age = age;
-							this.cookie.save( age );
-						}
-					}
-				}
-				if( ! defined( age )) { 
-					this.refresh.draw.modal( division ); 
-				}
 			}
 		};
-
-		// ===== ADD NETWORK LISTENER/RESPONSE HANDLERS
-		this.network.on
-		.heard( 'ring' )
-			.command( 'update' ).respond( update => {
-				let division = update?.ring?.current ? update?.ring?.divisions.find( division => division.name == update.ring.current ) : null;
-				division = defined( division ) ? new Division( division ) : null;
-
-				if( ! defined( division )) { 
-					this.display.all.hide();
-					return; 
-				}
-
-				// Reset the age selection
-				if( defined( this.state.division ) && this.state.division.name == division.name ) {
-					this.state.age = this.cookie.value();
-
-				} else {
-					this.cookie.remove();
-					this.state.age = null;
-				}
-			})
-		.heard( 'division' )
-			.command( 'update' ).respond( update => {
-				let division = update?.division ? new Division( update.division ) : null;
-
-				if( ! defined( division )) { 
-					this.display.header.empty();
-					this.display.poomsae.draw.empty();
-					return; 
-				}
-
-				// Ignore Draw Requests (which are sent by this app)
-				if( update.request.action == 'draw' ) { return; }
-			});
 	}
 }

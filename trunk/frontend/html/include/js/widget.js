@@ -8,6 +8,7 @@ FreeScore.Widget = class FSWidget {
 		this._dom     = dom.match( /^#/ ) ? $( dom ) : $( `#${dom}` );
 		this._input   = {};
 		this._options = options;
+		this._select  = {};
 		this._sound   = app.sound;
 		this._state   = {};
 		this._rm      = new FreeScore.ResponseManager( this, this.app.network );
@@ -70,6 +71,7 @@ FreeScore.Widget = class FSWidget {
 	get input()   { return this._input; }
 	get refresh() { return this._refresh; }
 	get rm()      { return this._rm; }
+	get select()  { return this._select; }
 	get sound()   { return this._sound; }
 	get state()   { return this._state; }
 

@@ -6,10 +6,10 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 		this.dom.append( `
 
 		<div class="row">
-			<div class="col-sm-10">
-				<h1>Editing <span class="divid">New</span> <span class="description-text">Division</span></h1>
+			<div class="col-sm-11">
+				<h1><span class="divid">New</span> <span class="description-text">Division</span></h1>
 			</div>
-			<div class="col-sm-2 text-right">
+			<div class="col-sm-1 text-right" style="padding-top: 2em;">
 				<div class="input-group-btn">
 					<button class="btn btn-default btn-undo disabled" type="button"><span class="fas fa-undo" style="line-height: 1.42857143;"></span></span>
 					<button class="btn btn-default btn-edit" type="button"><span class="fas fa-pen" style="line-height: 1.42857143;"></span></span>

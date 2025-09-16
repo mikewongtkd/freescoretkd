@@ -13,7 +13,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						<label for="judges-select">Judges</label>
 						<select class="form-control" id="judges-select">
 							<option value="3">3 Judges</option>
-							<option value="5">5 Judges</option>
+							<option value="5" selected>5 Judges</option>
 							<option value="7">7 Judges</option>
 						</select>
 					</div>
@@ -119,10 +119,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		this.refresh.judges = () => {
 		// ----------------------------------------
-			let judges = this.app.state.division?.judges;
-			if( ! defined( judges )) { return; }
-
-			this.state.judges = judges;
+			let judges = this.app.state.division?.judges ? this.app.state.division.judges : this.state.judges;
 			this.display.judges.val( judges );
 		}
 
@@ -253,8 +250,9 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		this.refresh.description = () => {
 		// ----------------------------------------
 			let evname  = this.state.event;
-			let gender  = this.state.gender;
-			let age     = this.state.age;
+			let judges  = this.state.judges ? this.state.judges : 5;
+			let gender  = this.state.gender ? this.state.gender : 'f';
+			let age     = this.state.age ? this.state.age : '4-5';
 			let ages    = this.display.age.find( 'option' ).toArray().map( option => $( option )).filter( option => { let events = option.attr( 'data-applies' ) ? option.attr( 'data-applies' ).split( /,\s?/ ) : []; return events.includes( evname ); }).map( option => option.val() );
 			let i       = ages.indexOf( age );
 			let rank    = this.state.rank;

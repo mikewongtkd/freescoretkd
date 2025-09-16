@@ -76,7 +76,11 @@
 			let app        = new FreeScore.App( ring.num );
 
 			// ===== NETWORK CONNECT
+<?php if( $divid == 'new' ): ?>
+			app.on.connect( '<?= $url ?>' ).read.ring();
+<?php else: ?>
 			app.on.connect( '<?= $url ?>' ).read.division( '<?= $divid ?>' );
+<?php endif; ?>
 
 			// ============================================================
 			// APP COMPOSITION
@@ -92,7 +96,7 @@
 			// APP STATE
 			// ============================================================
 			app.state.fields   = { required: [ 'name', 'state', 'current', 'form', 'round', 'method', 'description', 'athletes' ]};
-			app.state.division = { name: undefined, state: 'score', current: 0, form: 0, round: undefined, method: 'cutoff', description: undefined, athletes: []};
+			app.state.division = { name: undefined, state: 'score', current: 0, form: 0, round: undefined, method: 'cutoff', description: undefined, forms: null, athletes: []};
 			app.state.errors   = [];
 			app.state.validate = () => {
 				let errors = app.state.errors = [];
