@@ -130,7 +130,7 @@
 				.command( 'update' )
 					.respond( update => {
 						let division = update?.division;
-						if( ! defined( division )) { return; }
+						if( ! defined( division ) || division.name != '<?= $divid ?>') { return; }
 
 						division = new Division( division );
 						app.state.division = division.data();

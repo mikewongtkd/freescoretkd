@@ -1,23 +1,40 @@
 FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
+		const ranks  = [ 'yellow', 'green', 'blue', 'red' ];
+		const agemap = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
 		const designated = {
-			yellow: [ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
-			green:  [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
-			blue:   [ 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6' ], // Not WT
-			red:    [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8' ], // Not WT
-			dragon: [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			tiger:  [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			youth:  [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
-			cadet:  [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
-			junior: [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
-			u30:    [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			u40:    [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
-			u50:    [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
-			u60:    [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			u65:    [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-			o65:    [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
+			'yellow':[ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
+			'green': [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
+			'blue':  [ 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6' ], // Not WT
+			'red':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8' ], // Not WT
+			'6-7':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+			'8-9':   [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+			'10-11': [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang' ], // Not WT
+			'12-14': [ 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback' ],
+			'15-17': [ 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon' ],
+			'18-30': [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
+			'31-40': [ 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae' ],
+			'31-50': [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
+			'41-50': [ 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon' ],
+			'51-60': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+			'61+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+			'61-65': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+			'66+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
 		};
+		function findAge( key ) {
+			let ages = Object.values( agemap );
+			if( ages.includes( key )) {
+				let i = ages.indexOf( key );
+				return Object.keys( agemap )[ i ];
+
+			} else if( ranks.includes( key )) {
+				return key;
+
+			} else {
+				return null;
+			}
+		}
 
 		// ===== ADD THE DOM
 		this.dom.append( `
@@ -38,29 +55,31 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 								<select class="form-control" name="age-group">
 									<option value="">Select One...</option>
 									<option disabled><hr></hr></option>
-									<optgroup label="Color Belt Poomsae Pool">
-										<option value="yellow">Yellow Belt (all ages)</option>
-										<option value="green">Green Belt (all ages)</option>
-										<option value="blue">Blue Belt (all ages)</option>
-										<option value="red">Red Belt (all ages)</option>
+									<optgroup data-applies="individual" label="Color Belt Poomsae Pool">
+										<option data-applies="individual" value="yellow">Yellow Belt (all ages)</option>
+										<option data-applies="individual" value="green">Green Belt (all ages)</option>
+										<option data-applies="individual" value="blue">Blue Belt (all ages)</option>
+										<option data-applies="individual" value="red">Red Belt (all ages)</option>
 									</optgroup>
-									<option disabled><hr></hr></option>
-									<optgroup label="Black Belt Poomsae Pool">
-										<option value="dragon">Dragon (6-7)</option>
-										<option value="tiger">Tiger (8-9)</option>
-										<option value="youth">Youth (10-11)</option>
-										<option value="cadet">Cadet (12-14)</option>
-										<option value="junior">Junior (15-17)</option>
-										<option value="u30">U30 (18-30)</option>
-										<option value="u40">U40 (31-40)</option>
-										<option value="u50">U50 (41-50)</option>
-										<option value="u60">U60 (51-60)</option>
-										<option value="u65">U65 (61-65)</option>
-										<option value="o65">O65 (66+)</option>
+									<option data-applies="individual" disabled><hr></hr></option>
+									<optgroup data-applies="individual,pair,team" label="Black Belt Poomsae Pool">
+										<option data-applies="individual"           value="6-7">Dragon (6-7)</option>
+										<option data-applies="individual"           value="8-9">Tiger (8-9)</option>
+										<option data-applies="individual,pair,team" value="10-11">Youth (10-11)</option>
+										<option data-applies="individual,pair,team" value="12-14">Cadet (12-14)</option>
+										<option data-applies="individual,pair,team" value="15-17">Junior (15-17)</option>
+										<option data-applies="individual,pair,team" value="18-30">U30 (18-30)</option>
+										<option data-applies="individual"           value="31-40">U40 (31-40)</option>
+										<option data-applies="pair,team"            value="31-50">U50 (31-50)</option>
+										<option data-applies="individual"           value="41-50">U50 (41-50)</option>
+										<option data-applies="individual,pair,team" value="51-60">U60 (51-60)</option>
+										<option data-applies="pair,team"            value="61+">O60 (61+)</option>
+										<option data-applies="individual"           value="61-65">U65 (61-65)</option>
+										<option data-applies="individual"           value="66+">O65 (66+)</option>
 									</optgroup>
-									<option disabled><hr></hr></option>
-									<optgroup label="Custom Pool">
-										<option value="custom">Custom</option>
+									<option data-applies="individual,pair,team" disabled><hr></hr></option>
+									<optgroup data-applies="individual,pair,team" label="Custom Pool">
+										<option data-applies="individual,pair,team" value="custom">Custom</option>
 									</optgroup>
 								</select>
 							</div>
@@ -137,12 +156,12 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 			// ============================================================
 			// Refresh the draw display table
 			// ------------------------------------------------------------
-				this.display.draw.empty();
-				let thead  = FreeScore.html.thead;
-				let tbody  = FreeScore.html.tbody;
+				let thead  = FreeScore.html.thead.clone();
+				let tbody  = FreeScore.html.tbody.clone();
+				let tr     = FreeScore.html.tr.clone();
 				let rounds = FreeScore.round.order.filter( round => round in this.app.state.division.forms );
-				let tr     = FreeScore.html.tr;
 
+				this.display.draw.empty();
 				this.display.draw.append( thead, tbody );
 				thead.append( '<tr class="active">' + rounds.map( round => `<th style="text-align: center;">${FreeScore.round.name[ round ]}</th>` ).join() + '</tr>' );
 				tbody.append( tr );
@@ -197,12 +216,12 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 							return `wt25-0x${hex}`;
 						},
 						// ========================================
-						selection: () => {
+						selection: pool => {
 						// ========================================
-						// For each poomsae in the pool, activates the selected poomsae
+						// For each poomsae in the pool, lights up the poomsae button
 						// ----------------------------------------
 							this.button.modal.poomsae.removeClass( 'btn-primary active' ).addClass( 'btn-default' );
-							pool.forEach( poomsae => {
+							pool?.forEach( poomsae => {
 								let button = this.button.modal.poomsae.parent().find( `[data-poomsae="${poomsae}"]` );
 								button.removeClass( 'btn-default' ).addClass( 'btn-primary active' );
 							});
@@ -222,8 +241,10 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 							return (have.difference( want ))?.size == 0 && (want.difference( have ))?.size == 0;
 						});
 
+						console.log( 'AGE', age, agemap[ age ]); // MW
+
 						if( defined( age )) {
-							this.select.modal.draw.val( age );
+							this.select.modal.draw.val( agemap[ age ]);
 							this.state.age = age;
 							delete this.state.pool;
 
@@ -245,15 +266,18 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				let pool = division.form.pool();
 				if( pool ) {
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
-					if( key in designated ) {
-						pool = designated[ key ];
-						this.select.modal.draw.val( key );
+					let age = findAge( key );
+					if( age ) {
+						console.log( 'KEY', key, age, designated[ age ]); // MW
+						pool = designated[ age ];
+						this.select.modal.draw.val( age );
+
 					} else {
 						refresh.pool.decoding( key );
 						pool = this.button.modal.poomsae.parent().find( '.active' ).toArray().map( el => $( el ).attr( 'data-poomsae' ));
 						this.select.modal.draw.val( 'custom' );
 					}
-					refresh.pool.selection();
+					refresh.pool.selection( pool );
 				}
 
 				// ----------------------------------------
@@ -304,8 +328,10 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 					} else {
 						// Write age to database
-						let request = { type: 'division', action: 'draw select age', age: this.state.age };
-						let group   = this.state.age in designated ? `Poomsae pool for <b>${this.state.age.capitalize()}</b>` : '<b>Custom</b> poomsae pool';
+						let age     = Object.keys( agemap ).includes( this.state.age ) ? agemap[ this.state.age ] : this.state.age;
+						let belt    = ranks.includes( this.state.age ) ? ' belt' : ''
+						let request = { type: 'division', action: 'draw select age', age, divid: this.app.state.division.name };
+						let group   = this.state.age in designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
 						this.network.send( request );
 						alertify.success( `${group} selected.` );
 						this.sound.ok.play();

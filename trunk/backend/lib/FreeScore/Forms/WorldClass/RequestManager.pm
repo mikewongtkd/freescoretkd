@@ -366,18 +366,23 @@ sub handle_division_draw_select_age {
 	my $progress = shift;
 	my $group    = shift;
 	my $client   = $self->{ _client };
-	my $division = $progress->current();
+	my $curdiv   = $progress->current();
+	my $divid    = exists $request->{ divid } ? $request->{ divid } : $curdiv->{ name };
+	my $division = $progress->find( $divid );
 	my $age      = $request->{ age };
-	my $divid    = uc $division->{ name };
 	my $round    = $division->{ round };
+
+	$divid = uc $division->{ name };
 
 	print STDERR "Recording poomsae draw age selection: $age for $divid\n" if $DEBUG;
 
 	try {
 		$division->autopilot( 'off' );
-		my $forms = $division->{ forms }{ $round };
-		my $n     = int( @$forms ) - 1;
-		$forms->[ $_ ] = "draw-$age" foreach ( 0 .. $n );
+		foreach my $round ($division->rounds) {
+			my $forms = $division->{ forms }{ $round };
+			my $n     = int( @$forms ) - 1;
+			$forms->[ $_ ] = "draw-$age" foreach ( 0 .. $n );
+		}
 		$division->write();
 
 		$self->broadcast_updated_division( $request, $progress, $group );
