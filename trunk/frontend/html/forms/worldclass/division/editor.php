@@ -50,12 +50,16 @@
 		<script src="./widgets/description.js"></script>
 		<script src="./widgets/settings.js"></script>
 		<script src="./widgets/forms.js"></script>
+		<script src="./widgets/draws.js"></script>
 		<script src="./widgets/athletes.js"></script>
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/division.class.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 		<style>
+.CodeMirror .cm-tab {
+	width: 5em;
+}
 		</style>
 	</head>
 	<body>
@@ -63,6 +67,7 @@
 			<div id="display-description"></div>
 			<div id="display-settings"></div>
 			<div id="display-forms"></div>
+			<div id="display-draws"></div>
 			<div id="display-athletes"></div>
 		</div>
 
@@ -89,6 +94,7 @@
 				description: { display : new FreeScore.Widget.DEDescription( app, 'display-description' ) },
 				settings:    { display : new FreeScore.Widget.DESettings( app, 'display-settings' ) },
 				forms:       { display : new FreeScore.Widget.DEForms( app, 'display-forms' ) },
+				draws:       { display : new FreeScore.Widget.DEDraws( app, 'display-draws' ) },
 				athletes:    { display : new FreeScore.Widget.DEAthletes( app, 'display-athletes' ) }
 			};
 
@@ -138,6 +144,7 @@
 						app.widget.description.display.refresh.all();
 						app.widget.settings.display.refresh.all();
 						app.widget.forms.display.refresh.all();
+						app.widget.draws.display.refresh.all();
 						app.widget.athletes.display.refresh.all();
 					})
 

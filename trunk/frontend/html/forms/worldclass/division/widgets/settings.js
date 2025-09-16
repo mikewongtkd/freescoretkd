@@ -151,8 +151,17 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let method = this.app.state.division?.method;
 			if( defined( method )) { 
 				this.state.method = method;
+				if( method == 'sbs' ) {
+					this.app.widget.draws.display.dom.show();
+					this.app.widget.forms.display.dom.hide();
+				} else {
+					this.app.widget.draws.display.dom.hide();
+					this.app.widget.forms.display.dom.show();
+				}
 			} else {
 				this.state.method = method = 'cutoff';
+				this.app.widget.draws.display.dom.hide();
+				this.app.widget.forms.display.dom.show();
 			}
 			this.display.method.val( method );
 		};
@@ -355,6 +364,14 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let target = $( ev.target );
 			let method = target.val();
 			this.state.method = method;
+
+			if( method == 'sbs' ) {
+				this.app.widget.draws.display.dom.show();
+				this.app.widget.forms.display.dom.hide();
+			} else {
+				this.app.widget.draws.display.dom.hide();
+				this.app.widget.forms.display.dom.show();
+			}
 
 			this.refresh.description();
 		});

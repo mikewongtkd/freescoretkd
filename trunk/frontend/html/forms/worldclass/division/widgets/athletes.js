@@ -59,8 +59,32 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			let list = this.app.state.division.athletes;
-			let text = list.map( athlete => athlete?.name).join( "\n" );
+			let text = list.map( athlete => {
+				let info = athlete?.info;
+				if( defined( info )) {
+					info = Object.keys( info ).map( key => `${key}=${info[ key ]}` ).join( "\t" );
+					if( info ) { info = `\t${info}`; }
+				}
+				return `${athlete?.name}${info}`;
+			}).join( "\n" );
 			this.display.doc.setValue( text );
+			this.refresh.tabs();
+		}
+		this.refresh.tabs = () => {
+		// Make info columns align nicely
+			setTimeout(() => {
+				const tabstops = [ 360, 540, 720, 900, 1080 ];
+				$( '.CodeMirror-code pre' ).each(( i, line ) => {
+					line = $( line );
+					line.find( '.cm-tab' ).each(( j, tab ) => {
+						tab = $( tab );
+						let tabstop  = tabstops[ j ];
+						let position = tab.position();
+						let width    = tabstop - position.left;
+						tab.css({ width: `${width}px` });
+					});
+				});
+			}, 50 );
 		}
 
 		// ===== LISTENER/RESPONSE HANDLERS
@@ -69,11 +93,13 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			let athletes = lines.map( line => { 
 				let athlete  = {};
 				let values   = line.split( "\t" );
+				let info     = {};
 				athlete.name = values.shift().trim();
 				values.forEach( keypair => {
 					let [ key, value ] = keypair.split( '=' );
-					athlete[ key ] = value;
+					info[ key ] = value;
 				});
+				if( Object.keys( info ).length > 0 ) { athlete.info = info; }
 				return athlete;
 			});
 			this.app.state.division.athletes = athletes;
@@ -109,6 +135,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			});
 			this.app.widget.forms.display.refresh.all();
 
+			this.refresh.tabs();
 		});
 	}
 };
