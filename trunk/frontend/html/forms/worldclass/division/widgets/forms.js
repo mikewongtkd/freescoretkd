@@ -1,5 +1,5 @@
 FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
-	static complete   = [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
+	static full_list  = [ 'None', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 	static ranks      = [ 'yellow', 'green', 'blue', 'red' ];
 	static agemap     = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
 	static rounds     = [ 'prelim', 'semfin', 'finals' ];
@@ -57,15 +57,30 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				let tbody  = FreeScore.html.tbody.clone();
 				let tr     = FreeScore.html.tr.clone();
 				let rounds = FSWidgetDEForms.rounds.filter( round => round in this.app.state.division.forms );
+				if( rounds.length == 0 ) { rounds = [ 'finals' ]; }
 
 				this.display.forms.empty();
 				this.display.forms.append( thead, tbody );
 				thead.append( '<tr class="active">' + rounds.map( round => `<th style="text-align: center;">${FreeScore.round.name[ round ]}</th>` ).join() + '</tr>' );
 				tbody.append( tr );
-				
+
 				rounds.forEach( round => {
-					let list = this.app.state.division.forms[ round ].join( ', ' );
-					tr.append(`<td style="text-align: center;">${list}</td>` );
+					let td    = $( '<td style="text-align: center;"><div class="row"><div class="col-sm-6 form-0"></div><div class="col-sm-6 form-1"></div></div></td>' );
+					let forms = this.app.state.division?.forms?.[ round ];
+					for( let i = 0; i < 2; i++ ) {
+						let name   = `${round}-${i}`;
+						let select = FreeScore.html.select.clone().attr({ 'data-round': round, 'data-form': i, 'name': name }).addClass( 'form-control' );
+						let form   = forms?.[ i ] && FSWidgetDEForms.full_list.includes( forms[ i ]) ? forms[ i ] : 'None';
+						let label  = FreeScore.html.label.clone().attr({ 'for': name }).html( `${i == 0 ? '1st' : '2nd'} Form` );
+						FSWidgetDEForms.full_list.forEach( form => {
+							let option = FreeScore.html.option.clone().val( form ).html( form );
+							select.append( option );
+						});
+						select.val( forms );
+						td.find( `.form-${i}` ).append( label, select );
+					}
+
+					tr.append( td );
 				});
 			}
 		};

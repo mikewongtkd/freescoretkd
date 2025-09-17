@@ -131,6 +131,17 @@
 
 			app.network.on
 				// ============================================================
+				.heard( 'ring' )
+				// ============================================================
+				.command( 'update' )
+					.respond( update => {
+						if( '<?= $divid ?>' == 'new' ) {
+							app.widget.draws.display.dom.hide();
+							app.widget.settings.display.refresh.all();
+							app.widget.forms.display.refresh.all();
+						}
+					})
+				// ============================================================
 				.heard( 'division' )
 				// ============================================================
 				.command( 'update' )
