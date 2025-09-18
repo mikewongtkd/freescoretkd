@@ -1,5 +1,5 @@
 FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
-	static full_list  = [ 'None', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
+	static full_list  = [ 'None', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu', 'Choice' ];
 	static ranks      = [ 'yellow', 'green', 'blue', 'red' ];
 	static agemap     = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
 	static rounds     = [ 'prelim', 'semfin', 'finals' ];
@@ -105,10 +105,19 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 						let select = FreeScore.html.select.clone().attr({ 'data-round': round, 'data-form': i, 'name': name }).addClass( 'form-control' );
 						let form   = forms?.[ i ] && FSWidgetDEForms.full_list.includes( forms[ i ]) ? forms[ i ] : 'None';
 						let label  = FreeScore.html.label.clone().attr({ 'for': name }).html( `${i == 0 ? '1st' : '2nd'} Form` );
+						let rank   = this.app.widget.settings.display.state.rank;
+						let age    = this.app.widget.settings.display.state.age;
+						let list   = [];
+
+						if( rank && Object.keys( designated ).includes( rank )) {
+						} else if( age && Object.keys( designated ).includes( age )) {
+						}
+
 						FSWidgetDEForms.full_list.forEach( form => {
 							let option = FreeScore.html.option.clone().val( form ).html( form );
 							select.append( option );
 						});
+
 						select.val( forms );
 						td.find( `.cell-${round}-${i}` ).append( label, select );
 						selects.push( select );
