@@ -355,6 +355,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				}
 			});
 
+			this.app.widget.athletes.display.refresh.rounds();
 			this.refresh.description();
 		});
 
@@ -363,7 +364,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 			let target = $( ev.target );
 			let method = target.val();
-			this.state.method = method;
+			this.app.state.division.method = this.state.method = method;
 
 			if( method == 'sbs' ) {
 				this.app.widget.draws.display.dom.show();
@@ -373,6 +374,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				this.app.widget.forms.display.dom.show();
 			}
 
+			this.app.widget.athletes.display.refresh.rounds();
 			this.refresh.description();
 		});
 
@@ -403,6 +405,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let rank   = target.val();
 			this.state.rank = rank;
 
+			this.app.widget.athletes.display.refresh.rounds();
 			this.refresh.description();
 		});
 	}

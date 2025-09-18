@@ -28,6 +28,7 @@ var FreeScore = {
 		li       : $( "<li />" ), 
 		ol       : $( "<ol />" ), 
 		option   : $( "<option />" ), 
+		optgroup : $( "<optgroup />" ), 
 		p        : $( "<p />" ), 
 		radio    : $( "<input type=\"radio\" />" ), 
 		search   : $( "<input type=\"search\" />" ), 

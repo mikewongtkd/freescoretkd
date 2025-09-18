@@ -1,8 +1,9 @@
 FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
-	static full_list  = [ 'None', 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu', 'Choice' ];
+	static full_list  = [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4', 'Taegeuk 5', 'Taegeuk 6', 'Taegeuk 7', 'Taegeuk 8', 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ];
 	static ranks      = [ 'yellow', 'green', 'blue', 'red' ];
 	static agemap     = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
 	static rounds     = [ 'prelim', 'semfin', 'finals' ];
+	static order      = [{ round: 'prelim', form: 0}, { round : 'prelim', form: 1 }, { round: 'semfin', form: 0 }, { round: 'semfin', form: 1 }, { round: 'finals', form: 0 }, { round: 'finals', form: 1 }];
 	static designated = {
 		'yellow':[ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
 		'green': [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
@@ -36,96 +37,81 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 		` );
 
 		// ===== STATE
-		this.state.round     = {};
+		this.state.select = {};
+		this.state.rounds = [];
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.forms   = this.dom.find( '.forms table.poomsae-display' );
-		this.display.all     = this.dom.find( '.forms' );
+		this.display.forms = this.dom.find( '.forms table.poomsae-display' );
+		this.display.all   = this.dom.find( '.forms' );
 
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			this.refresh.forms.display();
 		};
 
-		this.refresh.select = {
-			enable: ( td, select, round, i, forms ) => {
-				return () => {
-					select.removeClass( 'disabled' ).prop( 'disabled', false );
-					select.off( 'change' ).on( 'change', ev => {
-						let value  = select.val();
-						let second = td.find( `select[name="${round}-1"]` );
-						if( i == 0 ) {
-							if( value == 'None' ) {
-								this.refresh.select.disable( td, second, round, 1, forms );
-								if( forms?.[ round ]?.[ 1 ]) { forms[ round ].pop(); }
-								if( forms?.[ round ]?.[ 0 ]) { forms[ round ].shift(); }
-							} else {
-								this.refresh.select.enable( td, second, round, 1, forms );
-							}
-						}
-						if( value != 'None' ) {
-							forms[ round ][ i ] = value;
-						}
-					});
-				};
-			},
-			disable: ( td, select, round, i, forms ) => {
-				return () => {
-					select.addClass( 'disabled' ).prop( 'disabled', true );
-					select.off( 'change' );
-				};
-			}
-		};
-
-		this.refresh.forms = {
-			// ============================================================
-			display: () => {
-			// ============================================================
-			// Refresh the designated poomsae display table
-			// ------------------------------------------------------------
-				let thead  = FreeScore.html.thead.clone();
-				let tbody  = FreeScore.html.tbody.clone();
-				let tr     = FreeScore.html.tr.clone();
-				let rounds = this.app.state.division.forms ? FSWidgetDEForms.rounds.filter( round => round in this.app.state.division.forms ) : [];
-				let forms  = this.app.state.division.forms ? this.app.state.division.forms : this.app.state.division.forms = {};
-				if( rounds.length == 0 ) { rounds = [ 'finals' ]; }
-
-				this.display.forms.empty();
-				this.display.forms.append( thead, tbody );
-				thead.append( '<tr class="active">' + rounds.map( round => `<th style="text-align: center;">${FreeScore.round.name[ round ]}</th>` ).join() + '</tr>' );
-				tbody.append( tr );
-
-				rounds.forEach( round => {
-					let td      = $( `<td style="text-align: center;"><div class="row"><div class="col-sm-6 cell-${round}-0"></div><div class="col-sm-6 cell-${round}-1"></div></div></td>` );
-					let selects = [];
+		this.refresh.form = {
+			select: {
+				dom: ( forms, round, i ) => {
 
 					// Initialize the DOM
-					for( let i = 0; i < 2; i++ ) {
-						let name   = `${round}-${i}`;
-						let select = FreeScore.html.select.clone().attr({ 'data-round': round, 'data-form': i, 'name': name }).addClass( 'form-control' );
-						let form   = forms?.[ i ] && FSWidgetDEForms.full_list.includes( forms[ i ]) ? forms[ i ] : 'None';
-						let label  = FreeScore.html.label.clone().attr({ 'for': name }).html( `${i == 0 ? '1st' : '2nd'} Form` );
-						let rank   = this.app.widget.settings.display.state.rank;
-						let age    = this.app.widget.settings.display.state.age;
-						let list   = [];
+					let select   = this.state.select?.[ round ]?.[ i ] ? this.state.select[ round ][ i ] : FreeScore.html.select.clone().attr({ 'data-round': round, 'data-form': i, 'name': `${round}-${i}` }).addClass( 'form-control' );
+					let form     = forms?.[ round ]?.[ i ] && FSWidgetDEForms.full_list.includes( forms[ round ][ i ]) ? forms[ round ][ i ] : 'None';
+					let rank     = this.app.widget.settings.display.state.rank;
+					let age      = this.app.widget.settings.display.state.age;
+					let poolname = null;
 
-						if( rank && Object.keys( designated ).includes( rank )) {
-						} else if( age && Object.keys( designated ).includes( age )) {
-						}
+					select.empty();
 
-						FSWidgetDEForms.full_list.forEach( form => {
-							let option = FreeScore.html.option.clone().val( form ).html( form );
-							select.append( option );
-						});
+					// Create optgroups
+					let list     = [];
+					let selected = FSWidgetDEForms.order.map( selected => forms?.[ selected.round ]?.[ selected.form ] ? forms[ selected.round ][ selected.form ] : 'None' ).filter( form => form != 'None' && form != 'Choice' )
 
-						select.val( forms );
-						td.find( `.cell-${round}-${i}` ).append( label, select );
-						selects.push( select );
+					if( rank && Object.keys( FSWidgetDEForms.designated ).includes( rank )) {
+						list = FSWidgetDEForms.designated[ rank ].filter( form => ! selected.includes( form ));
+						poolname = `${rank.capitalize()} Belts`;
+
+					} else if( age && Object.keys( FSWidgetDEForms.designated ).includes( age )) {
+						list = FSWidgetDEForms.designated[ age ].filter( form => ! selected.includes( form ));
+						poolname = age;
 					}
+					let other  = FSWidgetDEForms.full_list.filter( form => ! (selected.includes( form ) || list.includes( form ) || form == select.val()));
+					let groups = [
+						{ label: 'Special Options', list: [ 'None', 'Choice' ] },
+						{ label: `Compulsory Poomsae for ${poolname}`, list },
+						{ label: 'Already Selected', list: selected },
+						{ label: 'Other Poomsae', list: other }
+					];
+					console.log( 'ROUND', round, 'FORM', i, 'SELECTION', select.val(), groups ); // MW
 
+					groups.forEach( group => {
+						if( group.list.length == 0 ) { return; }
+						let optgroup = FreeScore.html.optgroup.clone().attr({ label: group.label });
+						group.list.forEach( form => {
+							let option = FreeScore.html.option.clone().val( form ).html( form );
+							optgroup.append( option );
+						});
+						select.append( optgroup );
+					});
+
+					select.val( form );
+					if( ! this.state.select[ round ]) { this.state.select[ round ] = []; }
+					this.state.select[ round ][ i ] = select;
+					return select;
+
+				},
+				behavior: ( forms, round ) => {
 					// Prepare DOM behavior
-					let first  = selects[ 0 ];
-					let second = selects[ 1 ];
+					let first  = this.state.select[ round ][ 0 ];
+					let second = this.state.select[ round ][ 1 ];
+					let assign = target => {
+						let round = target.attr( 'data-round' );
+						let i     = target.attr( 'data-form' );
+						let form  = target.val();
+						if( ! this.app.state.division.forms )         { this.app.state.division.forms = {}; }
+						if( ! this.app.state.division.forms[ round ]) { this.app.state.division.forms[ round ] = []; }
+						if( ! this.state.select[ round ])             { this.state.select[ round ] = []; }
+						this.app.state.division.forms[ round ][ i ] = form;
+					};
 
 					second.enable = () => {
 						second.removeClass( 'disabled' ).prop( 'disabled', false );
@@ -140,17 +126,67 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					};
 
 					first.off( 'change' ).on( 'change', ev => {
+						let target = $( ev.target );
 						if( first.val() == 'None' ) { second.disable(); } else { second.enable(); }
+						assign( target );
+						console.log( 'ROUNDS', this.state.rounds );
+						this.state.rounds.forEach( round => {
+							for( let i = 0; i < 2; i++ ) {
+								this.refresh.form.select.dom( forms, round, i );
+							}
+						});
+					});
+
+					second.off( 'change' ).on( 'change', ev => {
+						let target = $( ev.target );
+						assign( target );
+						this.state.rounds.forEach( round => {
+							for( let i = 0; i < 2; i++ ) {
+								this.refresh.form.select.dom( forms, round, i );
+							}
+						});
 					});
 
 					// Enact DOM behavior
 					if( first.val() == 'None' ) { second.disable(); } else { second.enable(); }
+				}
+			}
+		};
+
+		this.refresh.forms = {
+			// ============================================================
+			display: () => {
+			// ============================================================
+			// Refresh the designated poomsae display table
+			// ------------------------------------------------------------
+				let thead  = FreeScore.html.thead.clone();
+				let tbody  = FreeScore.html.tbody.clone();
+				let tr     = FreeScore.html.tr.clone();
+				let rounds = this.state.rounds = this.app.state.division.forms ? FSWidgetDEForms.rounds.filter( round => round in this.app.state.division.forms ) : [];
+				let forms  = this.app.state.division.forms ? this.app.state.division.forms : this.app.state.division.forms = {};
+				if( rounds.length == 0 ) { rounds = [ 'finals' ]; }
+
+				this.display.forms.empty();
+				this.display.forms.append( thead, tbody );
+				thead.append( '<tr class="active">' + rounds.map( round => `<th style="text-align: center;">${FreeScore.round.name[ round ]}</th>` ).join() + '</tr>' );
+				tbody.append( tr );
+
+				rounds.forEach( round => { 
+					let td = $( `<td style="text-align: center;"><div class="row"><div class="col-sm-6 form-cell cell-${round}-0"></div><div class="col-sm-6 form-cell cell-${round}-1"></div></div></td>` );
+					td.find( '.form-cell' ).empty();
+					for( let i = 0; i < 2; i++ ) {
+						let label  = FreeScore.html.label.clone().attr({ 'for': `${round}-${i}` }).html( `${i == 0 ? '1st' : '2nd'} Form` );
+						let select = this.refresh.form.select.dom( forms, round, i );
+						td.find( `.cell-${round}-${i}` ).append( label, select );
+					}
+					this.refresh.form.select.behavior( forms, round );
 					tr.append( td );
 				});
 			}
 		};
 	}
 
+	// Helper function used elsewhere in editor app
 	age( age = null ) {
 		if( ! defined( age )) { age = this.state.age; }
 		let ages = Object.values( FSWidgetDEForms.agemap );

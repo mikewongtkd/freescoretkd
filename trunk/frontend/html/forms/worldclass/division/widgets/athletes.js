@@ -57,7 +57,10 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		};
 		
 		// ===== REFRESH BEHAVIOR
+
+		// ----------------------------------------
 		this.refresh.all = () => {
+		// ----------------------------------------
 			let list = this.app.state.division.athletes;
 			let text = list.map( athlete => {
 				let info = athlete?.info;
@@ -69,8 +72,11 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			}).join( "\n" );
 			this.display.doc.setValue( text );
 			this.refresh.tabs();
-		}
+		};
+
+		// ----------------------------------------
 		this.refresh.tabs = () => {
+		// ----------------------------------------
 		// Make info columns align nicely
 			setTimeout(() => {
 				const tabstops = [ 360, 540, 720, 900, 1080 ];
@@ -85,7 +91,50 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 					});
 				});
 			}, 50 );
-		}
+		};
+
+		// ----------------------------------------
+		this.refresh.rounds = () => {
+		// ----------------------------------------
+		// Called by Settings widget as well as internally
+		// Updates Forms widget
+			let method   = this.app.state.division.method;
+			let rounds   = [];
+			let athletes = this.app.state.division.athletes;
+			let n        = athletes.length;
+			let form     = 'Choice';
+
+			// Cutoff (which is also the default)
+			if( method == 'cutoff' || ! defined( method )) {
+				if( n <= 8  ) { rounds = [ 'finals' ];                     } else
+				if( n <= 20 ) { rounds = [ 'semfin', 'finals' ];           } else
+				              { rounds = [ 'prelim', 'semfin', 'finals' ]; }
+
+			this.app.widget.forms.display.state.rounds = rounds;
+
+			// Single Elimination or Side-by-Side
+			} else {
+				let d = n <= 1 ? 1 : Math.ceil( Math.log( n )/Math.log( 2 ));
+				for( let i = d; i >= 1; i-- ) { rounds.push( `ro${2**i}` ); }
+				if( method == 'sbs' ) {
+					let age = this.app.widget.forms.display.age( this.app.widget.settings.display.age );
+					form = `draw-${age}`
+				}
+			}
+
+			// Init round and forms
+			this.app.state.division.round = rounds[ 0 ];
+			let forms = this.app.state.division.forms = this.app.state.division.forms ? this.app.state.division.forms : {};
+			rounds.forEach( round => {
+				if( round in forms ) { return; }
+				forms[ round ] = [ 'Choice' ];
+			});
+
+			console.log( 'ROUNDS', rounds, 'FORMS', forms ); // MW
+
+			this.app.widget.forms.display.refresh.all();
+
+		};
 
 		// ===== LISTENER/RESPONSE HANDLERS
 		this.display.doc.on( 'change', () => {
@@ -103,38 +152,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				return athlete;
 			});
 			this.app.state.division.athletes = athletes;
-
-			let method = this.app.state.division.method;
-			let rounds = [ 'prelim', 'semfin', 'finals' ];
-			let n      = athletes.length;
-			let form   = 'Choice';
-
-			// Cutoff (which is also the default)
-			if( method == 'cutoff' || ! defined( method )) {
-				if( n <= 8  ) { rounds = [ 'finals' ];                     } else
-				if( n <= 20 ) { rounds = [ 'semfin', 'finals' ];           } else
-				              { rounds = [ 'prelim', 'semfin', 'finals' ]; }
-
-			// Single Elimination or Side-by-Side
-			} else {
-				let d = n <= 1 ? 1 : Math.ceil( Math.log( n )/Math.log( 2 ));
-				rounds = [];
-				for( let i = d; i > 1; i-- ) { rounds.push( `ro${i**2}` ); }
-				if( method == 'sbs' ) {
-					let age = this.app.widget.forms.display.age( this.app.widget.settings.display.age );
-					form = `draw-${age}`
-				}
-			}
-
-			// Init round and forms
-			this.app.state.division.round = rounds[ 0 ];
-			let forms = this.app.state.division.forms = this.app.state.division.forms ? this.app.state.division.forms : {};
-			rounds.forEach( round => {
-				if( round in forms ) { return; }
-				forms[ round ] = [ 'Choice' ];
-			});
-			this.app.widget.forms.display.refresh.all();
-
+			this.refresh.rounds();
 			this.refresh.tabs();
 		});
 	}
