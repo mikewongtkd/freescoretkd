@@ -34,6 +34,18 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		});
 
 		this.button.randomize.enable = () => {
+			this.button.randomize.removeClass( 'disabled' );
+			this.button.randomize.off( 'click' ).click( ev => {
+				let list = this.app.state.division.athletes;
+				list.sort(() => Math.random() - 0.5 ); // Shuffle
+				list.sort(( a, b ) => {
+					let x = isNaN( parseFloat( a?.info?.seed )) ? 0 : parseFloat( a.info.seed );
+					let y = isNaN( parseFloat( b?.info?.seed )) ? 0 : parseFloat( b.info.seed );
+					console.log( x, y, y - x );
+					return y - x;
+				}); // Sort: note athletes with equivalent seed values will have already been shuffled and remain shuffled
+				this.refresh.all();
+			});
 		};
 
 		this.button.randomize.disable = () => {
@@ -67,8 +79,9 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				if( defined( info )) {
 					info = Object.keys( info ).map( key => `${key}=${info[ key ]}` ).join( "\t" );
 					if( info ) { info = `\t${info}`; }
+					return `${athlete?.name}${info}`;
 				}
-				return `${athlete?.name}${info}`;
+				return athlete?.name
 			}).join( "\n" );
 			this.display.doc.setValue( text );
 			this.refresh.tabs();
@@ -117,7 +130,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				let d = n <= 1 ? 1 : Math.ceil( Math.log( n )/Math.log( 2 ));
 				for( let i = d; i >= 1; i-- ) { rounds.push( `ro${2**i}` ); }
 				if( method == 'sbs' ) {
-					let age = this.app.widget.forms.display.age( this.app.widget.settings.display.age );
+					let age = this.app.widget.forms.display.age( this.app.state.settings.age );
 					form = `draw-${age}`
 				}
 			}
@@ -129,8 +142,6 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				if( round in forms ) { return; }
 				forms[ round ] = [ 'Choice' ];
 			});
-
-			console.log( 'ROUNDS', rounds, 'FORMS', forms ); // MW
 
 			this.app.widget.forms.display.refresh.all();
 
@@ -152,6 +163,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 				return athlete;
 			});
 			this.app.state.division.athletes = athletes;
+			if( athletes.length > 1 ) { this.button.randomize.enable(); } else { this.button.randomize.disable(); }
 			this.refresh.rounds();
 			this.refresh.tabs();
 		});

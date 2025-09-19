@@ -103,6 +103,7 @@
 			// ============================================================
 			app.state.fields   = { required: [ 'name', 'state', 'current', 'form', 'round', 'method', 'description', 'athletes' ]};
 			app.state.division = { name: undefined, state: 'score', current: 0, form: 0, round: undefined, method: 'cutoff', description: undefined, forms: null, athletes: []};
+			app.state.settings = { divid: null, event: null, rounds: [], gender: null, age: null, rank: null, group: null };
 			app.state.errors   = [];
 			app.state.validate = () => {
 				let errors = app.state.errors = [];
@@ -128,6 +129,47 @@
 					}
 				}
 			};
+
+			// ============================================================
+			// REFRESH BEHAVIOR
+			// ============================================================
+			app.refresh.rounds = () => {
+				let method   = app.state.division.method;
+				let rounds   = [];
+				let athletes = app.state.division.athletes;
+				let n        = athletes.length;
+				let form     = 'Choice';
+
+				// Cutoff (which is also the default)
+				if( method == 'cutoff' || ! defined( method )) {
+					if( n <= 8  ) { rounds = [ 'finals' ];                     } else
+					if( n <= 20 ) { rounds = [ 'semfin', 'finals' ];           } else
+								  { rounds = [ 'prelim', 'semfin', 'finals' ]; }
+
+				// Single Elimination or Side-by-Side
+				} else {
+					let d = n <= 1 ? 1 : Math.ceil( Math.log( n )/Math.log( 2 ));
+					for( let i = d; i >= 1; i-- ) { rounds.push( `ro${2**i}` ); }
+				}
+
+				// Init round and forms
+				app.state.division.round  = rounds[ 0 ];
+				app.state.settings.rounds = rounds;
+				let forms = app.state.division.forms = (app.state.division?.forms ? app.state.division.forms : {});
+				rounds.forEach( round => {
+					if( round in forms ) { return; }
+					if( method == 'cutoff' ) {
+						forms[ round ] = [ 'Choice' ];
+					} else {
+						let age  = app.widget.forms.display.age( app.state.settings.age );
+						let form = age ? `draw-${age}` : 'draw';
+						forms[ round ] = [ form ];
+					}
+				});
+
+				app.widget.forms.display.refresh.all();	
+				app.widget.draws.display.refresh.all();	
+			}
 
 			app.network.on
 				// ============================================================

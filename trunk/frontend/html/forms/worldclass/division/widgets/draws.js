@@ -107,11 +107,6 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 
 		` );
 
-		// ===== STATE
-		this.state.age       = null;
-		this.state.animation = { timer: null };
-		this.state.draw      = { count: 0, complete: false, form: null };
-
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.draw    = this.dom.find( '.draw table.poomsae-display' );
 		this.display.all     = this.dom.find( '.draw' );
@@ -159,10 +154,12 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 					let list = this.app.state.division.forms[ round ].map( form => {
 						if( form.match( /^draw/i )) {
 							let [ draw, age ] = form.split( /\-/ );
-							if( age.match( /^wt25/i )) {
-								return `${draw.capitalize()} (Customized Pool)`;
-							} else if( age ) {
-								return `${draw.capitalize()} (${age.capitalize()} Pool)`;
+							if( age ) {
+								if( age.match( /^wt25/i )) {
+									return `${draw.capitalize()} (Customized Pool)`;
+								} else {
+									return `${draw.capitalize()} (${age.capitalize()} Pool)`;
+								}
 							} else {
 								return draw.capitalize();
 							}
@@ -223,10 +220,10 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 					// pools for a given age and then sets the age to the
 					// correct designation or encodes the custom pool
 					// ------------------------------------------------------------
-						let ages = Object.keys( FSWidgetDEForms.designated );
+						let ages = Object.keys( FSWidgetDEDraws.designated );
 						const have = new Set( pool );
 						let age = ages.filter( age => {
-							const want = new Set( FSWidgetDEForms.designated[ age ]);
+							const want = new Set( FSWidgetDEDraws.designated[ age ]);
 							return (have.difference( want ))?.size == 0 && (want.difference( have ))?.size == 0;
 						});
 
@@ -235,7 +232,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 							age = age[ 0 ]; 
 
 						} else if( age.length >  1 ) {
-							let settings = { age: this.app.widget.settings.display.state.age };
+							let settings = { age: this.app.state.settings.age };
 							age = age.find( age => age == settings.age );
 
 						} else { 
@@ -245,16 +242,13 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 						// Select preset age pool or custom age pool
 						if( defined( age )) {
 							this.select.modal.draw.val( age );
-							this.state.age = age;
-							delete this.state.pool;
+							this.app.state.settings.age = age;
 
 						} else {
 							this.select.modal.draw.val( 'custom' );
-							this.state.pool = pool;
-							this.state.age  = refresh.pool.encoding();
+							this.app.state.settings.age  = refresh.pool.encoding();
 						}
 
-						this.cookie.save( this.state.age ); // Cache to cookie; after 'OK' is clicked, write to database
 						this.button.modal.ok.removeClass( 'disabled' );
 					}
 				};
@@ -268,7 +262,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
 					let age = this.age( key );
 					if( age ) {
-						pool = FSWidgetDEForms.designated[ age ];
+						pool = FSWidgetDEDraws.designated[ age ];
 						this.select.modal.draw.val( age );
 
 					} else {
@@ -290,10 +284,9 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				// ----------------------------------------
 					let target = $( ev.target );
 					let age    = target.val();
-					if( age in FSWidgetDEForms.designated ) {
-						this.state.age = age;
-						this.cookie.save( this.state.age );
-						refresh.pool.selection( FSWidgetDEForms.designated[ age ]);
+					if( age in FSWidgetDEDraws.designated ) {
+						this.app.state.settings.age = age;
+						refresh.pool.selection( FSWidgetDEDraws.designated[ age ]);
 						this.button.modal.ok.removeClass( 'disabled' );
 					}
 				});
@@ -327,10 +320,10 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 
 					} else {
 						// Write age to database
-						let age     = Object.keys( FSWidgetDEForms.agemap ).includes( this.state.age ) ? FSWidgetDEForms.agemap[ this.state.age ] : this.state.age;
-						let belt    = FSWidgetDEForms.ranks.includes( this.state.age ) ? ' belt' : ''
+						let age     = Object.keys( FSWidgetDEDraws.agemap ).includes( this.app.state.settings.age ) ? FSWidgetDEDraws.agemap[ this.app.state.settings.age ] : this.app.state.settings.age;
+						let belt    = FSWidgetDEDraws.ranks.includes( this.app.state.settings.age ) ? ' belt' : ''
 						let request = { type: 'division', action: 'draw select age', age, divid: this.app.state.division.name };
-						let group   = this.state.age in FSWidgetDEForms.designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
+						let group   = this.app.state.settings.age in FSWidgetDEDraws.designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
 						this.network.send( request );
 						alertify.success( `${group} selected.` );
 						this.sound.ok.play();
@@ -344,14 +337,14 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 	}
 
 	age( age = null ) {
-		if( ! defined( age )) { age = this.state.age; }
-		let ages = Object.values( FSWidgetDEForms.agemap );
+		if( ! defined( age )) { age = this.app.state.settings.age; }
+		let ages = Object.values( FSWidgetDEDraws.agemap );
 		if( ages.includes( age )) {
 			let i      = ages.indexOf( age );
-			let ranges = Object.keys( FSWidgetDEForms.agemap );
+			let ranges = Object.keys( FSWidgetDEDraws.agemap );
 			return ranges[ i ];
 
-		} else if( FSWidgetDEForms.ranks.includes( age )) {
+		} else if( FSWidgetDEDraws.ranks.includes( age )) {
 			return age;
 
 		} else {

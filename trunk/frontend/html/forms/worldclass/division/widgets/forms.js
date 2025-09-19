@@ -38,7 +38,6 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 		// ===== STATE
 		this.state.select = {};
-		this.state.rounds = [];
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.forms = this.dom.find( '.forms table.poomsae-display' );
@@ -55,9 +54,9 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 					// Initialize the DOM
 					let select   = this.state.select?.[ round ]?.[ i ] ? this.state.select[ round ][ i ] : FreeScore.html.select.clone().attr({ 'data-round': round, 'data-form': i, 'name': `${round}-${i}` }).addClass( 'form-control' );
-					let form     = forms?.[ round ]?.[ i ] && FSWidgetDEForms.full_list.includes( forms[ round ][ i ]) ? forms[ round ][ i ] : 'None';
-					let rank     = this.app.widget.settings.display.state.rank;
-					let age      = this.app.widget.settings.display.state.age;
+					let form     = forms?.[ round ]?.[ i ] && ([ 'None', 'Choice' ].includes( forms[ round ][ i ]) || FSWidgetDEForms.full_list.includes( forms[ round ][ i ])) ? forms[ round ][ i ] : 'None';
+					let rank     = this.app.state.settings.rank;
+					let age      = this.app.state.settings.age;
 					let poolname = null;
 
 					select.empty();
@@ -81,7 +80,6 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 						{ label: 'Already Selected', list: selected },
 						{ label: 'Other Poomsae', list: other }
 					];
-					console.log( 'ROUND', round, 'FORM', i, 'SELECTION', select.val(), groups ); // MW
 
 					groups.forEach( group => {
 						if( group.list.length == 0 ) { return; }
@@ -111,6 +109,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 						if( ! this.app.state.division.forms[ round ]) { this.app.state.division.forms[ round ] = []; }
 						if( ! this.state.select[ round ])             { this.state.select[ round ] = []; }
 						this.app.state.division.forms[ round ][ i ] = form;
+						return form;
 					};
 
 					second.enable = () => {
@@ -128,9 +127,8 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					first.off( 'change' ).on( 'change', ev => {
 						let target = $( ev.target );
 						if( first.val() == 'None' ) { second.disable(); } else { second.enable(); }
-						assign( target );
-						console.log( 'ROUNDS', this.state.rounds );
-						this.state.rounds.forEach( round => {
+						let form = assign( target );
+						this.app.state.settings.rounds.forEach( round => {
 							for( let i = 0; i < 2; i++ ) {
 								this.refresh.form.select.dom( forms, round, i );
 							}
@@ -139,8 +137,8 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 					second.off( 'change' ).on( 'change', ev => {
 						let target = $( ev.target );
-						assign( target );
-						this.state.rounds.forEach( round => {
+						let form   = assign( target );
+						this.app.state.settings.rounds.forEach( round => {
 							for( let i = 0; i < 2; i++ ) {
 								this.refresh.form.select.dom( forms, round, i );
 							}
@@ -162,7 +160,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				let thead  = FreeScore.html.thead.clone();
 				let tbody  = FreeScore.html.tbody.clone();
 				let tr     = FreeScore.html.tr.clone();
-				let rounds = this.state.rounds = this.app.state.division.forms ? FSWidgetDEForms.rounds.filter( round => round in this.app.state.division.forms ) : [];
+				let rounds = this.app.state.settings.rounds = this.app.state.division.forms ? FSWidgetDEForms.rounds.filter( round => round in this.app.state.division.forms ) : [];
 				let forms  = this.app.state.division.forms ? this.app.state.division.forms : this.app.state.division.forms = {};
 				if( rounds.length == 0 ) { rounds = [ 'finals' ]; }
 
