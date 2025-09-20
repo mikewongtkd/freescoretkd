@@ -18,7 +18,8 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 		'51-60': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
 		'61+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
 		'61-65': [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
-		'66+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ]
+		'66+':   [ 'Koryo', 'Keumgang', 'Taeback', 'Pyongwon', 'Shipjin', 'Jitae', 'Chonkwon', 'Hansu' ],
+		'none':  []
 	};
 
 	constructor( app, dom ) {
@@ -28,7 +29,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 
 		<div class="draw" style="margin-bottom: 1em;">
 			<div>
-				<h4 style="display: inline-block;">Poomsae Draw Pools</h4> <div class="btn-group"><button class="btn btn-xs border-0 btn-pool" type="button" style="background-color: transparent;"><span class="fas fa-pen"></span></button></div>
+				<h4>Poomsae Draw Pools</h4>
 			</div>
 			<table class="table table-bordered table-condensed poomsae-display"></table>
 			<div class="modal modal-draw fade" tabindex="-1" role="dialog" style="display: none;">
@@ -67,8 +68,9 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 										<option data-applies="individual"           value="66+">O65 (66+)</option>
 									</optgroup>
 									<option data-applies="individual,pair,team" disabled><hr></hr></option>
-									<optgroup data-applies="individual,pair,team" label="Custom Pool">
+									<optgroup data-applies="individual,pair,team" label="Special Pool">
 										<option data-applies="individual,pair,team" value="custom">Custom</option>
+										<option data-applies="individual,pair,team" value="none">None</option>
 									</optgroup>
 								</select>
 							</div>
@@ -110,9 +112,8 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.draw    = this.dom.find( '.draw table.poomsae-display' );
 		this.display.all     = this.dom.find( '.draw' );
-		this.button.draw     = this.dom.find( '.btn-draw' );
-		this.button.pool     = this.dom.find( '.btn-pool' );
-		this.display.age     = { modal: { 
+		this.button.pool     = null;
+		this.display.modal   = {
 			all: $( '.modal-draw' ),
 			hide: () => { $( '.modal-draw' ).modal( 'hide' ); }, 
 			show: () => { $( '.modal-draw' ).modal( 'show' ); }
@@ -131,7 +132,13 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			this.refresh.draw.display();
-			this.button.pool.off( 'click' ).click( ev => { this.refresh.draw.modal(); });
+			this.button.pool = this.display.draw.find( '.btn-pool' );
+			this.button.pool.off( 'click' ).click( ev => { 
+				let target = $( ev.target );
+				let round  = target.attr( 'data-round' );
+				let i      = parseInt( target.attr( 'data-form' ));
+				this.refresh.draw.modal( round, i ); 
+			});
 		};
 
 		this.refresh.draw = {
@@ -151,14 +158,14 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				tbody.append( tr );
 				
 				rounds.forEach( round => {
-					let list = this.app.state.division.forms[ round ].map( form => {
+					let list = this.app.state.division.forms[ round ].map(( form, i ) => {
 						if( form.match( /^draw/i )) {
 							let [ draw, age ] = form.split( /\-/ );
 							if( age ) {
 								if( age.match( /^wt25/i )) {
-									return `${draw.capitalize()} (Customized Pool)`;
+									return `${draw.capitalize()} (Customized Pool)<button class="btn btn-xs border-0 btn-pool" data-round="${round}" data-form="${i}" type="button" style="background-color: transparent;"><span class="fas fa-pen"></span></button>`;
 								} else {
-									return `${draw.capitalize()} (${age.capitalize()} Pool)`;
+									return `${draw.capitalize()} (${age.capitalize()} Pool)<button class="btn btn-xs border-0 btn-pool" data-round="${round}" data-form="${i}" type="button" style="background-color: transparent;"><span class="fas fa-pen"></span></button>`;
 								}
 							} else {
 								return draw.capitalize();
@@ -171,7 +178,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				});
 			},
 			// ============================================================
-			modal: () => {
+			modal: ( round, i ) => {
 			// ============================================================
 				let division = new Division( this.app.state.division );
 				let inDraw   = this.dom.find( '.modal-draw' ).length > 0;
@@ -257,6 +264,11 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				// MODAL BEHAVIOR
 				// ----------------------------------------
 				// Initialize values based on division data
+				this.button.modal.ok.attr({ 'data-round': round, 'data-form': i });
+
+				let title = this.display.modal.all.find( '.modal-title' );
+				title.html( `Update the Draw Pool for the ${ordinal( i + 1 )} Form in ${FreeScore.round.name[ round ]}` );
+
 				let pool = division.form.pool();
 				if( pool ) {
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
@@ -315,23 +327,26 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				// ----------------------------------------
 				// OK Button
 				// ----------------------------------------
+					let round = this.button.modal.ok.attr( 'data-round' );
+					let i     = this.button.modal.ok.attr( 'data-form' );
 					if( this.button.modal.ok.hasClass( 'disabled' )) {
 						alertify.notify( 'Please select an age group.' );
 
 					} else {
 						// Write age to database
-						let age     = Object.keys( FSWidgetDEDraws.agemap ).includes( this.app.state.settings.age ) ? FSWidgetDEDraws.agemap[ this.app.state.settings.age ] : this.app.state.settings.age;
-						let belt    = FSWidgetDEDraws.ranks.includes( this.app.state.settings.age ) ? ' belt' : ''
-						let request = { type: 'division', action: 'draw select age', age, divid: this.app.state.division.name };
-						let group   = this.app.state.settings.age in FSWidgetDEDraws.designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
-						this.network.send( request );
+						let age   = Object.keys( FSWidgetDEDraws.agemap ).includes( this.app.state.settings.age ) ? FSWidgetDEDraws.agemap[ this.app.state.settings.age ] : this.app.state.settings.age;
+						let belt  = FSWidgetDEDraws.ranks.includes( this.app.state.settings.age ) ? ' belt' : ''
+						let group = '';
+
+						if( this.app.state.settings.age in FSWidgetDEDraws.designated ) {
+						let group = this.app.state.settings.age in FSWidgetDEDraws.designated ? `Poomsae pool for <b>${age.capitalize()}${belt}</b>` : '<b>Custom</b> poomsae pool';
+						
 						alertify.success( `${group} selected.` );
-						this.sound.ok.play();
-						this.display.age.modal.hide();
+						this.display.modal.hide();
 					}
 				});
 
-				this.display.age.modal.show();
+				this.display.modal.show();
 			}
 		};
 	}
