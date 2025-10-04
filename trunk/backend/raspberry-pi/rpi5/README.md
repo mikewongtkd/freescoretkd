@@ -1,6 +1,6 @@
 # Raspberry Pi 5
 
-2025 September 9
+2025 October 3
 
 The following instructions are a guide to create a FreeScoreWifi unit using Raspberry Pi 5 using the latest installation of Raspberry Pi OS (formerly known as Raspbian)
 
@@ -11,12 +11,12 @@ The following instructions are a guide to create a FreeScoreWifi unit using Rasp
 
 	sudo su -
 	apt-get update
-	apt-get upgrade
 	
 ## Developer Tools and Network Services
 
-	apt-get install -y vim-gtk3 dnsmasq ifupdown
-
+	apt-get install -y vim-gtk3 dnsmasq ifupdown openssh-server
+    systemctl enable ssh
+    systemctl start ssh
 
 ## Apache and PHP 5
 
@@ -28,6 +28,27 @@ FreeScore requires a webserver and PHP 5 interpreter. They can be installed by i
 	systemctl restart apache2	
 
 Also confirm that `conf-enabled/serve-cgi-bin.conf` is configured correctly (especially that the CGI directory has a trailing slash `/`.
+
+## Clone the FreeScore Repository
+
+To get the latest code for FreeScore, clone from the GitHub repository and checkout the current active branch `se-rand-draw`
+
+    git clone https://github.com/mikewongtkd/freescoretkd.git freescore
+    git checkout se-rand-draw
+    chmod a+rx /home
+    chmod a+rx freescore
+
+### GitHub Access For Authorized Developers
+
+    mkdir ~/.ssh
+
+Copy the authorized developer's key `<authdevkey>` to `~/.ssh` and add the key to
+your SSH identity for full git repository access.
+
+    chmod 0400 ~/.ssh/<authdevkey>
+    eval `ssh-agent -s`
+    ssh-add -D
+    ssh-add ~/.ssh/<authdevkey>
 	
 ## Perl
 
@@ -69,11 +90,12 @@ This will install all the Perl libraries and the GD graphics library dependency.
 This will install the FreeScore web services to be configured to start on boot.
 
 	sudo su -
-	cd ~pi/freescore
-	cp ../rpi2/etc/init.d/* /etc/init.d
+	cd ~pi/freescore/trunk/backend
+	cp rpi2/etc/init.d/* /etc/init.d
 	update-rc.d worldclass defaults 97 03
 	update-rc.d freestyle defaults 97 03
 	update-rc.d grassroots defaults 97 03
+	update-rc.d breaking defaults 97 03
 	update-rc.d fswifi defaults 97 03
     sudo mkdir /var/log/freescore
 	

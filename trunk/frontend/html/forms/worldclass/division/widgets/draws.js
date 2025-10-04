@@ -360,7 +360,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 
 					} else {
 						// Write age to database
-						let key   = Object.keys( FSWidgetDEDraws.agemap ).includes( key ) ? FSWidgetDEDraws.agemap[ key ] : key;
+						key       = key in FSWidgetDEDraws.agemap ? FSWidgetDEDraws.agemap[ key ] : key;
 						let belt  = FSWidgetDEDraws.ranks.includes( key ) ? ' belt' : ''
 						let group = '';
 						let label = $( `.${round}-${i}-display` );

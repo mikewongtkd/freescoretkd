@@ -7,6 +7,7 @@ use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all any none first min shuffle reduce );
 use List::MoreUtils qw( first_index );
 use Math::Round qw( round );
+use POSIX qw( ceil );
 use JSON::XS;
 use Try::Tiny;
 use Data::Dumper;
@@ -775,8 +776,28 @@ sub rounds {
 	# Get the first round and all rounds thereafter
 	unless( defined $nofilter ) {
 		my $i = first_index { $self->round_defined( $_ ) } @rounds;
-		die "Database error ($self->{ name }): No first round defined for $string$!" unless int( @rounds ) && $i >= 0;
-		@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
+
+		# First round not defined or detected; auto-assign by rules
+		if( $i < 0 ) {
+			my $n = int( @{$self->{ athletes }});
+			if( $method eq 'cutoff' ) {
+				if   ( $n >= 20 ) { $i = 0; } # prelim
+				elsif( $n > 8 )   { $i = 1; } # semfin
+				else              { $i = 2; } # finals
+
+			} elsif( $method eq 'se' || $method eq 'sbs' ) {
+				my $d   = ceil( log( $n ) / log( 2 )); $d = $d <= 1 ? 1 : $d;
+				my $num = 2 ** $d;
+				$i      = first_index { $_ eq "ro$num" } @rounds;
+			}
+			print STDERR "Division $self->{ name }: Autodetecting first round for $n athletes using $method. Starting $rounds[ $i ].\n"; # MW
+		}
+
+		if( int( @rounds ) > 0 ) {
+			@rounds = map { $rounds[ $_ ] } ( $i .. $#rounds );
+		} else {
+			die "Database error ($self->{ name }): No first round defined for $string $!" unless $i >= 0;
+		}
 	}
 
 	# Convert to objects if so requested

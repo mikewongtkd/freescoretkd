@@ -133,6 +133,13 @@
 			// ============================================================
 			// REFRESH BEHAVIOR
 			// ============================================================
+			app.refresh.all = () => {
+				app.widget.description.display.refresh.all();
+				app.widget.settings.display.refresh.all();
+				app.widget.forms.display.refresh.all();
+				app.widget.draws.display.refresh.all();
+				app.widget.athletes.display.refresh.all();
+			};
 			app.refresh.rounds = () => {
 				let method   = app.state.division.method;
 				let rounds   = [];
@@ -193,13 +200,20 @@
 
 						division = new Division( division );
 						app.state.division = division.data();
+						app.refresh.all();
 
-						app.widget.description.display.refresh.all();
-						app.widget.settings.display.refresh.all();
-						app.widget.forms.display.refresh.all();
-						app.widget.draws.display.refresh.all();
-						app.widget.athletes.display.refresh.all();
-					})
+				})
+				.command( 'write ok' )
+					.respond( update => {
+						let division = update?.division;
+						if( ! defined( division ) || division.name != '<?= $divid ?>') { return; }
+
+						division = new Division( division );
+						alertify.success( `Division ${division.summary()} saved.` );
+						setTimeout( () => { window.close(); }, 750 );
+						app.state.division = division.data();
+						app.refresh.all();
+				})
 
 		</script>
 

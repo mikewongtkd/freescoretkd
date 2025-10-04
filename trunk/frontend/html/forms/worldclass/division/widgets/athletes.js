@@ -55,6 +55,12 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 
 		this.button.save.enable = () => {
 			this.button.save.removeClass( 'disabled' );
+			this.button.save.off( 'click' ).click( ev => {
+				let division = new Division( this.app.state.division );
+				let message = { type: 'division', action: 'write', division: division.data(), overwrite: true };
+				this.app.network.send( message );
+				alertify.message( `Saving division ${division.name().toUpperCase()} ${division.description()}...` );
+			});
 		};
 
 		this.button.save.disable = () => {
@@ -166,6 +172,7 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 			if( athletes.length > 1 ) { this.button.randomize.enable(); } else { this.button.randomize.disable(); }
 			this.refresh.rounds();
 			this.refresh.tabs();
+			this.button.save.enable(); // MW
 		});
 	}
 };
