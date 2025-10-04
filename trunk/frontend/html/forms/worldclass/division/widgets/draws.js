@@ -132,13 +132,19 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			this.refresh.draw.display();
-			this.button.pool = this.display.draw.find( '.btn-pool' );
-			this.button.pool.off( 'click' ).click( ev => { 
-				let target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parent( 'button' );
-				let round  = target.attr( 'data-round' );
-				let i      = parseInt( target.attr( 'data-form' ));
-				this.refresh.draw.modal( round, i ); 
-			});
+			this.refresh.button.pool();
+		};
+
+		this.refresh.button = {
+			pool: () => {
+				this.button.pool = this.display.draw.find( '.btn-pool' );
+				this.button.pool.off( 'click' ).click( ev => { 
+					let target = $( ev.target ).hasClass( 'btn' ) ? $( ev.target ) : $( ev.target ).parent( 'button' );
+					let round  = target.attr( 'data-round' );
+					let i      = parseInt( target.attr( 'data-form' ));
+					this.refresh.draw.modal( round, i ); 
+				});
+			}
 		};
 
 		this.refresh.draw = {
@@ -162,9 +168,8 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 					let forms = this.app.state.division.forms[ round ];
 					for( let i = 0; i < 2; i++ ) {
 						let form  = forms[ i ];
-						let label = FreeScore.html.span.clone().addClass( `${round}-${form}-display` );
-						let edit  = `<button class="btn btn-xs btn-default btn-pool" data-round="${round}" data-form="${i}" type="button" style="margin-left: 1em;"><span class="fas fa-pen"></span></button>`;
-						label.append( this.refresh.draw.label( round, i, form ), edit );
+						let label = FreeScore.html.span.clone().addClass( `${round}-${i}-display` );
+						label.append( this.refresh.draw.label( round, i, form ));
 						cols.push( label );
 					}
 
@@ -178,24 +183,30 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 			// ============================================================
 			// Display the draw pool, e.g. Draw (Youth Pool)
 			// ------------------------------------------------------------
+				console.log( 'REFRESH LABEL', 'ROUND', round, 'FORM IDX', i, 'FORM', form ); // MW
+				let edit  = `<button class="btn btn-xs btn-default btn-pool" data-round="${round}" data-form="${i}" type="button" style="margin-left: 1em;"><span class="fas fa-pen"></span></button>`;
+
 				if( ! defined( form )) { 
-					return 'None';
+					return [ 'Unspecified', edit ];
+
+				} else if( form == 'none' ) {
+					return [ 'None', edit ];
 
 				} else if( form.match( /^draw/i )) {
 					let [ draw, age ] = form.split( /\-/ );
 					if( age ) {
 						if( age.match( /^wt25/i )) {
-							return `${draw.capitalize()} (Customized Pool)`;
+							return [ `${draw.capitalize()} (Customized Pool)`, edit ];
 						} else {
-							return `${draw.capitalize()} (${age.capitalize()} Pool)`;
+							return [ `${draw.capitalize()} (${age.capitalize()} Pool)`, edit ];
 						}
 
-					// Draw
+					// Draw for unspecified age group
 					} else {
-						return draw.capitalize();
+						return [ draw.capitalize(), edit ];
 					}
 				} else {
-					return form;
+					return [ form, edit ];
 				}
 			},
 
@@ -362,11 +373,12 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 						// Write age to database
 						key       = key in FSWidgetDEDraws.agemap ? FSWidgetDEDraws.agemap[ key ] : key;
 						let belt  = FSWidgetDEDraws.ranks.includes( key ) ? ' belt' : ''
+						let age   = this.age( key );
 						let group = '';
 						let label = $( `.${round}-${i}-display` );
 						let nth   = ordinal( i + 1 );
 
-						if( key in FSWidgetDEDraws.designated ) {
+						if( age && age in FSWidgetDEDraws.designated ) {
 							if( key == 'none' ) {
 								group = `No draw for ${nth} form in ${Round}`;
 
@@ -374,7 +386,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 								group = `Using the <b>${key.capitalize()}${belt}</b> poomsae pool for the ${nth} form in ${Round}`
 							}
 						} else {
-							group = `${key} <b>Custom</b> poomsae pool for ${nth} form in ${Round}`;
+							group = `<b>Custom</b> poomsae pool for ${nth} form in ${Round}`;
 						}
 						
 						let form = key;
@@ -389,8 +401,12 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 						} else {
 							form = this.app.state.division.forms[ round ][ i ] = `draw-${form}`;
 						}
+
+						console.log( 'MODAL OK', 'ROUND', round, 'FORM IDX', i, 'KEY', key, 'AGE', age, 'FORM', form, 'LABEL', label ); // MW
+
 						label.empty()
-						label.append( this.refresh.draw.label( round, i, key ));
+						label.append( this.refresh.draw.label( round, i, form ));
+						this.refresh.button.pool();
 						alertify.success( `${group} selected.` );
 						this.display.modal.hide();
 					}
