@@ -700,7 +700,7 @@ sub handle_division_write {
 	print STDERR "Writing division data.\n" if $DEBUG;
 
 	# ===== DIVISION HEADER WHITE LIST
-	my $valid = { map { ( $_ => 1 ) } qw( athletes description flight forms judges matches method name order ring round ) };
+	my $valid = { map { ( $_ => 1 ) } qw( athletes description flight forms judges matches method name order ring round tags ) };
 
 	try {
 		my $division = FreeScore::Forms::WorldClass::Division->from_json( $request->{ division } );

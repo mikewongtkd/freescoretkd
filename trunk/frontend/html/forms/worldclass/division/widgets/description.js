@@ -99,7 +99,9 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 				},
 				gender: {
 					'f' : "Women's",
-					'm' : "Men's"
+					'm' : "Men's",
+					'c' : "Mixed",
+					'null' : ''
 				},
 				event: {
 					'individual' : 'Individual',
@@ -126,16 +128,16 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 				descriptors.push( display.event[ settings.event ]);
 			}
 
-			descriptors.push( 'Recognized Poomsae' );
-
 			if( display.age?.[ settings.age ]) {
 				descriptors.push( display.age[ settings.age ]);
 			}
 
+			descriptors.push( 'Recognized Poomsae' );
+
 			this.button.undo.enable();
 
 			let description = descriptors.join( ' ' );
-			this.app.state.description = description;
+			this.app.state.division.description = description;
 			this.display.divid.html( divid.toUpperCase() );
 			this.display.description.html( description );
 		}};

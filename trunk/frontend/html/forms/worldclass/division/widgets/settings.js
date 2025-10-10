@@ -10,6 +10,12 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			<div class="row">
 				<div class="col-sm-1">
 					<div class="form-group">
+						<label for="divcode-text">Prefix</label>
+						<input type="text" class="form-control" id="divcode-text" value="P"></input>
+					</div>
+				</div>
+				<div class="col-sm-1">
+					<div class="form-group">
 						<label for="judges-select">Judges</label>
 						<select class="form-control" id="judges-select">
 							<option value="3">3</option>
@@ -38,12 +44,12 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-1">
 					<div class="form-group">
 						<label for="gender-select">Gender</label>
 						<select class="form-control" id="gender-select">
-							<option data-applies="individual,team"      value="f">Female</option>
-							<option data-applies="individual,team"      value="m">Male</option>
+							<option data-applies="individual,team"      value="f">F</option>
+							<option data-applies="individual,team"      value="m">M</option>
 							<option data-applies="pair"                 value="c">Mixed</option>
 							<option data-applies="individual,pair,team" value="null">Not Specified</option>
 						</select>
@@ -113,6 +119,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
+		this.display.divcode  = this.dom.find( '#divcode-text' );
 		this.display.judges   = this.dom.find( '#judges-select' );
 		this.display.event    = this.dom.find( '#event-select' );
 		this.display.method   = this.dom.find( '#method-select' );
@@ -120,16 +127,26 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		this.display.age      = this.dom.find( '#age-select' );
 		this.display.rank     = this.dom.find( '#rank-select' );
 
-		// ===== STATE
-		this.state = { judges: 5, event: 'individual', method: 'cutoff', gender: null, age: 'null', rank: 'black', divid: null };
-
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
+			this.refresh.divcode();
 			this.refresh.judges();
 			this.refresh.event();
 			this.refresh.method();
 			this.refresh.gender();
 			this.refresh.age();
+			this.refresh.description();
+		}
+
+		// ----------------------------------------
+		this.refresh.divcode = () => {
+		// ----------------------------------------
+			let settings = this.app.state.settings;
+			let name     = this.app.state.division?.name ? this.app.state.division.name : this.app.state.settings.divcode;
+			let match    = name?.match?.( /^([A-Za-z]+)/ );
+			let divcode  = match ? match[ 0 ] : 'p';
+			settings.divcode = divcode = divcode?.toLowerCase();
+			this.display.divcode.val( divcode.toUpperCase() );
 		}
 
 		// ----------------------------------------
@@ -185,6 +202,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		this.refresh.gender = () => {
 		// ----------------------------------------
+			let settings    = this.app.state.settings;
 			let description = this.app.state.division?.description;
 			if( ! defined( description )) {
 				let gender = this.app.state.settings.gender === null ? 'null' : this.app.state.settings.gender;
@@ -194,13 +212,13 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 
 			let gender = null;
 			if( description.match( /\b(?:male|men)/i )) {
-				gender = this.app.state.settings.gender = 'm';
+				gender = settings.gender = 'm';
 
 			} else if( description.match( /\b(?:female|women)/i )) {
-				gender = this.app.state.settings.gender = 'f';
+				gender = settings.gender = 'f';
 
 			} else {
-				gender = this.app.state.settings.gender = 'c';
+				gender = settings.gender = 'c';
 			}
 
 			this.display.gender.val( gender );
@@ -211,7 +229,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		// Depends on this.refresh.event()
 			let description = this.app.state.division?.description;
-			let ev          = this.app.state.division.event;
+			let ev          = this.app.state.settings.event;
 			if( ! defined( description )) {
 				let age = this.app.state.settings.age === null ? 'null' : this.app.state.settings.age;
 				this.display.age.val( age );
@@ -230,14 +248,15 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				regex = regex.replace( /\-/, '\\-' );
 				regex = regex.replace( /\+/, '\\+' );
 				regex = new RegExp( regex, 'i' );
-
 				
-				if( description.match( regex ) && events.includes( ev )) {
-					this.app.state.settings.age = age.val();
-					this.display.age.val( age.val());
-					found = true;
-					return false;
-				}
+				// Skip if not a match
+				if( ! description.match( regex ) || ! events.includes( ev )) { return; }
+
+				// Mark match as found and break from the loop
+				this.app.state.settings.age = age.val();
+				this.display.age.val( age.val());
+				found = true;
+				return false;
 			});
 
 			// Default to unknown
@@ -283,12 +302,13 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		this.refresh.description = () => {
 		// ----------------------------------------
 			let settings = this.app.state.settings;
-			let evname   = settings.event;
-			let gender   = settings.gender ? settings.gender : 'f';
-			let age      = settings.age ? settings.age : '4-5';
+			let divcode  = settings.divcode ? settings.divcode : this.display.divcode.val();
+			let evname   = settings.event ? settings.event : this.display.event.val();
+			let gender   = settings.gender ? settings.gender : this.display.gender.val();
+			let age      = settings.age ? settings.age : this.display.age.val();
 			let ages     = this.display.age.find( 'option' ).toArray().map( option => $( option )).filter( option => { let events = option.attr( 'data-applies' ) ? option.attr( 'data-applies' ).split( /,\s?/ ) : []; return events.includes( evname ); }).map( option => option.val() );
 			let i        = ages.indexOf( age );
-			let rank     = settings.rank;
+			let rank     = settings.rank ? settings.rank : this.display.rank.val();
 
 			let divnum  = i * 3;
 			if( evname == 'pair' ) { divnum += 40; } else if( evname == 'team' ) { divnum += 70; }
@@ -302,9 +322,9 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			}
 
 			let divid = null;
-			if( divnum <  10  ) { divid = `p00${divnum}`; } else
-			if( divnum <  100 ) { divid = `p0${divnum}`; } else
-			if( divnum >= 100 ) { divid = `p${divnum}`; }
+			if( divnum <  10  ) { divid = `${divcode.toLowerCase()}00${divnum}`; } else
+			if( divnum <  100 ) { divid = `${divcode.toLowerCase()}0${divnum}`; } else
+			if( divnum >= 100 ) { divid = `${divcode.toLowerCase()}${divnum}`; }
 
 			settings.divid = this.app.state.division.name = divid;
 			this.app.widget.description.display.refresh.with.settings( settings );
@@ -313,24 +333,36 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ===== CHANGE BEHAVIOR
 
 		// ----------------------------------------
+		this.display.divcode.on( 'change', ev => {
+		// ----------------------------------------
+			let settings = this.app.state.settings;
+			let target   = $( ev.target );
+			let divcode  = target.val().toLowerCase();
+			settings.divcode = divcode;
+			this.refresh.description();
+		});
+
+		// ----------------------------------------
 		this.display.judges.on( 'change', ev => {
 		// ----------------------------------------
-			let target = $( ev.target );
-			let judges = target.val();
-			this.app.state.division.judges = judges;
+			let settings = this.app.state.settings;
+			let target   = $( ev.target );
+			let judges   = target.val();
+			this.app.state.division.judges = settings.judges = judges;
 			this.refresh.description();
 		});
 
 		// ----------------------------------------
 		this.display.event.on( 'change', ev => {
 		// ----------------------------------------
-			let target  = $( ev.target );
-			let evname  = target.val();
-			let methods = this.display.method.find( 'option' ).toArray();
-			let genders = this.display.gender.find( 'option' ).toArray();
-			let ages    = this.display.age.find( 'option' ).toArray();
+			let settings = this.app.state.settings;
+			let target   = $( ev.target );
+			let evname   = target.val();
+			let methods  = this.display.method.find( 'option' ).toArray();
+			let genders  = this.display.gender.find( 'option' ).toArray();
+			let ages     = this.display.age.find( 'option' ).toArray();
 
-			this.state.event = evname;
+			settings.event = evname;
 
 			methods.forEach( option => {
 				let method = $(option);
@@ -340,7 +372,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				} else {
 					if( this.display.method.val() == method.val() ) {
 						this.display.method.val( 'cutoff' );
-						this.state.method = this.app.state.division.method = 'cutoff';
+						settings.method = this.app.state.division.method = 'cutoff';
 					}
 					method.hide();
 				}
@@ -355,10 +387,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 					if( this.display.gender.val() == gender.val() ) {
 						if( evname == 'pair' ) {
 							this.display.gender.val( 'c' );
-							this.state.gender = 'c';
+							settings.gender = 'c';
 						} else {
 							this.display.gender.val( 'null' );
-							this.state.gender = null;
+							settings.gender = null;
 						}
 					}
 					gender.hide();
@@ -373,7 +405,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				} else {
 					if( this.display.age.val() == age.val() ) {
 						this.display.age.val( 'null' );
-						this.state.age = null;
+						settings.age = null;
 					}
 					age.hide();
 				}
@@ -386,9 +418,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		this.display.method.on( 'change', ev => {
 		// ----------------------------------------
-			let target = $( ev.target );
-			let method = target.val();
-			this.app.state.division.method = this.state.method = method;
+			let settings = this.app.state.settings;
+			let target   = $( ev.target );
+			let method   = target.val();
+			this.app.state.division.method = settings.method = method;
 
 			if( method == 'sbs' ) {
 				this.app.widget.draws.display.dom.show();
@@ -405,9 +438,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		this.display.gender.on( 'change', ev => {
 		// ----------------------------------------
+			let settings = this.app.state.settings;
 			let target = $( ev.target );
 			let gender = target.val();
-			this.state.gender = gender;
+			settings.gender = gender;
 
 			this.refresh.description();
 		});
@@ -415,9 +449,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		this.display.age.on( 'change', ev => {
 		// ----------------------------------------
-			let target = $( ev.target );
-			let age    = target.val();
-			this.state.age = age;
+			let settings = this.app.state.settings;
+			let target   = $( ev.target );
+			let age      = target.val();
+			settings.age = age;
 
 			this.refresh.description();
 		});
@@ -425,9 +460,10 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 		this.display.rank.on( 'change', ev => {
 		// ----------------------------------------
-			let target = $( ev.target );
-			let rank   = target.val();
-			this.state.rank = rank;
+			let settings  = this.app.state.settings;
+			let target    = $( ev.target );
+			let rank      = target.val();
+			settings.rank = rank;
 
 			this.app.refresh.rounds();
 			this.refresh.description();

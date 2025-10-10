@@ -446,6 +446,7 @@ sub read {
 				elsif ( $key eq 'order'     ) { $self->{ $key } = _parse_order( $value );     }
 				elsif ( $key eq 'places'    ) { $self->{ $key } = _parse_places( $value );    }
 				elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
+				elsif ( $key eq 'tags'      ) { $self->{ $key } = _parse_json( $value );      }
 				else                          { $self->{ $key } = $value;                     }
 
 				$round = $self->{ round } if( defined $self->{ round } );
@@ -917,6 +918,7 @@ sub write {
 	print FILE "# draws=" . $json->canonical->encode( $self->{ draws }) . "\n" if exists $self->{ draws } && ref $self->{ draws } eq 'HASH' && int( keys %{$self->{ draws }}) > 0;
 	print FILE "# placement=" . $json->canonical->encode( $self->{ placement }) . "\n" if exists $self->{ placement } && ref $self->{ placement } eq 'HASH' && int( keys %{$self->{ placement }}) > 0;
 	print FILE "# flight=$flight\n" if $self->is_flight();
+	print FILE "# tags=" . $json->canonical->encode( $self->{ tags }) . "\n" if exists $self->{ tags } && defined $self->{ tags };
 	foreach my $round ($self->rounds()) {
 		my $order = $self->order( $round );
 		next unless defined $order && int( @$order );
