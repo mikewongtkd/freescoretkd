@@ -168,24 +168,29 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 				let current = this.app.state.current;
 				let score   = this.app.state.score;
 				let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
+				let match   = division.current.match();
 				let start   = division.current.matchStart();
 				current.score = score;
 				let send    = () => {
-					let request = { type: 'division', action: 'score', judge: current.judge, score: { divid: current.divid, match: current.match, form: current.form, chung: current.score.chung, hong: current.score.hong}};
+					let request = { type: 'division', action: 'score', judge: current.judge, score: { divid: current.divid, match: current.match, form: current.form }};
+					if( match.chung !== null ) { request.score.chung = current.score.chung; }
+					if( match.hong  !== null ) { request.score.hong  = current.score.hong; }
 					this.network.send( request );
 					alertify.message( `Sending ${jname} scores for Match ${current.match + start} to server.` );
 				};
 
 				// Check for incomplete score
 				let incomplete = contestants.find( contestant => cat.pre.some( category => score[ contestant ][ category ] < 0.5 ));
-				if( defined( incomplete )) {
+				console.log( 'INCOMPLETE', incomplete ); // MW
+				console.log( 'MATCH', match ); // MW
+				if( defined( incomplete ) && match?.[ incomplete ] !== null ) {
 					alertify.error( `Please complete scoring presentation for ${incomplete.capitalize()} contestant.` );
 					return;
 				}
 
 				// Check for perfect score
 				let perfect = contestants.find( contestant => cat.acc.every( category => score[ contestant ][ category ] == 0.0 ));
-				if( defined( perfect )) {
+				if( defined( perfect ) && match?.[ perfect ] !== null ) {
 					alertify.confirm( 
 						`${perfect.capitalize()} has 4.0 Accuracy`, 
 						`${perfect.capitalize()} contestant has perfect 4.0 accuracy. Is this intended?`, 
