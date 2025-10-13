@@ -9,7 +9,6 @@
 				<p class="modal-message">Choose a contestant to penalize.</p>
 				<button type="button" class="btn btn-primary select-chung">Chung</button>
 				<button type="button" class="btn btn-danger select-hong">Hong</button>
-				<button type="button" class="btn btn-warning select-both">Both</button>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default btn-close">Cancel</button>
@@ -28,8 +27,7 @@ dialog.message = dialog.find( '.modal-message' );
 dialog.button	= {
 	select : {
 		chung: dialog.find( 'button.select-chung' ),
-		hong: dialog.find( 'button.select-hong' ),
-		both: dialog.find( 'button.select-both' )
+		hong: dialog.find( 'button.select-hong' )
 	},
 	close: dialog.find( 'button.close,.btn-close' ),
 	ok: dialog.find( '.btn-ok' )
@@ -48,7 +46,7 @@ dialog.refresh = ( division, action, penalty, callback ) => {
 	// ===== BUTTON BEHAVIOR
 	[ 'chung', 'hong' ].forEach( contestant => {
 		let button	= dialog.button.select[ contestant ];
-		let athlete = match?.[ contestant ] ? division.athlete( match[ contestant ]) : null;
+		let athlete = defined( match?.[ contestant ]) ? division.athlete( match[ contestant ]) : null;
 
 		button.off( 'click' );
 
@@ -68,22 +66,6 @@ dialog.refresh = ( division, action, penalty, callback ) => {
 			});
 		}
 	});
-	let button = dialog.button.select.both;
-	button.off( 'click' );
-	if([ 'chung', 'hong' ].every( contestant => match?.[ contestant ])) { 
-			let chung = division.athlete( match.chung );
-			let hong  = division.athlete( match.hong );
-			button.show();
-			button.click( ev => {
-				app.sound.next.play();
-				dialog.title.html( `${action.capitalize()} <b>${chung.name()}</b> and <b>${hong.name()}</b> ${penalty}` );
-				dialog.message.html( `Click <b>OK</b> below to ${action} <b>${chung.name()}</b> and <b>${hong.name()} ${penalty} or click <b>Cancel</b> to do nothing.` );
-				let selected = { match, contestant: 'both', athlete: [ match.chung, match.hung ]};
-				dialog.button.ok.attr({ 'data-selected' : JSON.stringify( selected )});
-			});
-	} else {
-			button.hide(); 
-	}
 
 	dialog.button.ok.off( 'click' ).click( ev => {
 		let selected = dialog.button.ok.attr( 'data-selected' );

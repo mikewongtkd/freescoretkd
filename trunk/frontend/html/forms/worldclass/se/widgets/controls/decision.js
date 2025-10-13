@@ -28,23 +28,31 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 		}
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.button.withdraw	 = this.dom.find( '#withdraw' );
+		this.button.withdraw   = this.dom.find( '#withdraw' );
 		this.button.disqualify = this.dom.find( '#disqualify' );
-		this.button.winner		 = this.dom.find( '#winner' );
-		this.button.clear			 = this.dom.find( '#clear-decision' );
-		this.display.all			 = this.dom.find( '.decision' );
+		this.button.winner     = this.dom.find( '#winner' );
+		this.button.clear      = this.dom.find( '#clear-decision' );
+		this.display.all       = this.dom.find( '.decision' );
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.buttons = division => {
-			let athlete = division.current.athlete();
-			let current = division.current.athleteId();
-			let round	 = division.current.roundId();
-			let form		= division.current.formId();
-			let method	= division.current.method();
-			let match	 = division.current.match();
-			let mnum		= division.current.matchNumber();
+			let athlete  = division.current.athlete();
+			let current  = division.current.athleteId();
+			let round    = division.current.roundId();
+			let form     = division.current.formId();
+			let method   = division.current.method();
+			let match    = division.current.match();
+			let mnum     = division.current.matchNumber();
+			let bye      = [ match.chung, match.hong ].some( aid => ! defined( aid ));
+			let decision = [ match.chung, match.hong ].some( aid => { 
+				let athlete  = defined( aid ) ? division.athlete( aid ) : null;
+				let score    = athlete.score( round );
+				let form     = score.decision.awarded(); // Finds the form for which a decision is awarded or returns null
+				let decision = form?.decision?.awarded?.();
+				return defined( decision );
+			});
 
-			if([ match.chung, match.hong ].some( athlete => ! defined( athlete ))) {
+			if( bye || decision ) {
 				this.button.winner.parent().show();
 				this.state.notify( `Match ${mnum} is uncontested. Press the <i>Winner</i> decision button to award the win to ${athlete.name()}.` );
 
