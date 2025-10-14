@@ -72,6 +72,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 				penalties : form => {
 					let map  = { icon: { bounds: 'share-square', restart: 'redo', timelimit: 'clock', misconduct: 'comment-slash' }, name: { bounds: 'Out-of-bounds', restart: 'Restart', timelimit: 'Over time', misconduct: 'Misconduct' }};
 					let data = form.penalty().data();
+					if( data === null ) { return; }
 					return Object.keys( data ).sort(( a, b ) => a.localeCompare( b )).map( penalty => {
 						let value = precision( data[ penalty ], 1, 0 );
 						let icon  = map.icon[ penalty ];
@@ -120,19 +121,23 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 					let athletes = { chung, hong };
 					Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Form();
-						form[ contestant ].complete = form[ contestant ].score.is.complete();
+						form[ contestant ].complete = form[ contestant ]?.score?.is?.complete?.() || form[ contestant ]?.score?.decision?.awarded?.();
 					});
+					match.is = { contested : [ 'chung', 'hong' ].some( contestant => ! defined( form[ contestant ]?.score?.decision?.awarded?.()) && ! defined( match[ contestant ]))};
+					match.contested = { by : [ 'chung', 'hong' ].find( contestant => defined( match[ contestant ]) && ! form[ contestant ].score?.decision?.awarded?.())};
 
 					if( form.chung.complete && form.hong.complete ) {
+
 						// ===== UPDATE JUDGE SCORE ENTRIES
 						Object.entries( athletes ).forEach(([ contestant, athlete ]) => {
 							if( ! defined( athlete )) { return; }
-							let tdc = this.display[ contestant ];
+							let tdc         = this.display[ contestant ];
+
 							tdc.labels.show();
 							tdc.judge.forEach(( display, i ) => {
 								let judge = form[ contestant ].score.judge( i );
 								display.empty();
-								if( judge.score.is.complete()) { 
+								if( judge.score.is.complete() && match.is.contested ) { 
 									let ignore = {
 										acc : judge.score.ignore.accuracy() ? 'ignore' : '',
 										pre : judge.score.ignore.presentation() ? 'ignore' : ''
@@ -154,7 +159,14 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							let accuracy     = precision( fcs.accuracy());
 							let presentation = precision( fcs.presentation());
 							let decision     = fcs.decision.awarded();
-							if( decision ) { total = decision.code; }
+							let uncontested  = (! match.is.contested) && match.contested.by == contestant;
+							if( decision ) { 
+								total = decision.code; 
+								accuracy = presentation = '&ndash;';
+							} else if( uncontested ) { 
+								total = 'WIN'; 
+								accuracy = presentation = '&ndash;';
+							}
 
 							tdc.sublabels.show();
 							tdc.total.html( total );
