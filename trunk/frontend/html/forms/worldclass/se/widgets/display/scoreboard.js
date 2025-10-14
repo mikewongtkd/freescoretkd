@@ -137,7 +137,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							tdc.judge.forEach(( display, i ) => {
 								let judge = form[ contestant ].score.judge( i );
 								display.empty();
-								if( judge.score.is.complete() && match.is.contested ) { 
+								if( judge.score.is.complete() && (match.is.contested || div.athletes().length <= 2 )) { 
 									let ignore = {
 										acc : judge.score.ignore.accuracy() ? 'ignore' : '',
 										pre : judge.score.ignore.presentation() ? 'ignore' : ''
@@ -163,7 +163,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							if( decision ) { 
 								total = decision.code; 
 								accuracy = presentation = '&ndash;';
-							} else if( uncontested ) { 
+							} else if( uncontested && div.athletes().length > 2 ) { 
 								total = 'WIN'; 
 								accuracy = presentation = '&ndash;';
 							}
@@ -221,6 +221,8 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 				let forms = division.current.form.list();
 				let fid   = division.current.formId();
 				let fname = defined( forms[ fid ]) ? forms[ fid ] : 'Draw Required';
+
+				if( fname.match( /^draw/ )) { fname = 'Draw Required'; }
 
 				this.display.header.empty();
 				this.display.header.html( `<h1><span class="divid">${division.name().toUpperCase()}</span> &ndash; <span class="description">${division.description()}</span></h1><h2><span class="round-name">${division.current.round.display.name()}</span> &ndash; <span class="match-number">Match ${mnum}</span> &ndash; <span class="form-name">${fname} ${fnum}</span></h2>` );

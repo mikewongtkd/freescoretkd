@@ -43,7 +43,7 @@ function Division( division ) {
 
 	// ===== DIVISION ATHLETE DATA
 	this.data        = function() { return division; };
-	this.athletes    = function() { return division.athletes.map( function( athlete ) { return new Athlete( athlete ); }); };
+	this.athletes    = function() { return division.athletes.map( aid => new Athlete( aid )); };
 	this.athlete     = i => { 
 		i = defined( i ) ? i : division.current;
 		let athlete = new Athlete( division.athletes[ i ]);
