@@ -60,9 +60,18 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 					this.state.division = division;
 				},
 				scores : ( chung, hong ) => {
-					let div   = this.state.division;
-					let round = div.current.roundId();
-					let match = { chung, hong, data: div.current.match() };
+					let div          = this.state.division;
+					let round        = div.current.roundId();
+					let match        = { chung, hong, data: div.current.match() };
+					let is_competing = (div, match, contestant) => {
+						if( match[ contestant ] === null ) { return false; }
+						let athlete  = match[ contestant ];
+						let decision = athlete.score( round )?.decision?.awarded?.() ? true : false;
+						return ! decision;
+					};
+
+					match.is = { contested : [ 'chung', 'hong' ].every( contestant => is_competing( div, match, contestant ))};
+					match.contested = { by : [ 'chung', 'hong' ].find( contestant => is_competing( div, match, contestant ))};
 
 					// ===== RESET DISPLAY AND SHOW ATHLETE INFO
 					contestants.forEach( contestant => {
@@ -94,21 +103,33 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 						let score = defined( athlete ) ? athlete.score( round ) : new Score();
 						if( ! score.is.complete()) { return; }
 
-						let total = precision( score.adjusted.total() );
-						tdc.total.html( total );
+						let punitive = score.decision.awarded();
+						let decision = punitive?.decision?.awarded?.();
 
-						if( athlete.id() == match.data?.winner ) {
-							let windot = $( '<div class="win-dot"></div>' );
-							tdc.report.append( windot );
-							tdc.side.addClass( 'winner' );
-						}
+						if( defined( decision )) {
+							tdc.total.html( decision.code.toUpperCase() );
 
-						let form1 = precision( score.form( 0 )?.adjusted()?.total );
-						tdc.form1.html( form1 );
+						} else {
+							let total = precision( score.adjusted.total() );
+							if( match.is.contested ) {
+								tdc.total.html( total );
 
-						if( score.forms.count() > 1 ) {
-							let form2 = precision( score.form( 1 )?.adjusted()?.total );
-							tdc.form2.html( form2 );
+								let form1 = precision( score.form( 0 )?.adjusted()?.total );
+								tdc.form1.html( form1 );
+
+								if( score.forms.count() > 1 ) {
+									let form2 = precision( score.form( 1 )?.adjusted()?.total );
+									tdc.form2.html( form2 );
+								}
+							} else {
+								tdc.total.html( 'WIN' );
+							}
+
+							if( athlete.id() == match.data?.winner ) {
+								let windot = $( '<div class="win-dot"></div>' );
+								tdc.report.append( windot );
+								tdc.side.addClass( 'winner' );
+							}
 						}
 					});
 				}
@@ -126,7 +147,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 
 
 				forms.forEach(( form, i ) => {
-					let fname = defined( form ) ? form : '&ndash;';
+					let fname = defined( form ) && ! form.match( /^draw/ ) ? form : '&ndash;';
 					this.display.form[ i ] = $( `<div class="form-name form-${i + 1}">${fname}</div>` );
 					this.display.common.append( this.display.form[ i ]);
 				});

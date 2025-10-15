@@ -40,6 +40,19 @@ sub init {
 }
 
 # ============================================================
+sub any_punitive_decision {
+# ============================================================
+	my $self  = shift;
+	my $div   = $self->method->division();
+	my $rcode = $self->method->rcode();
+	foreach my $contestant (qw( chung hong )) {
+		next unless exists $self->{ $contestant } && defined $self->{ $contestant };
+		if( $div->reinstantiate_round( $rcode, $_ )->any_punitive_decision()) { return 1; }
+	}
+	return 0;
+}
+
+# ============================================================
 sub chung {
 # ============================================================
 	my $self = shift;

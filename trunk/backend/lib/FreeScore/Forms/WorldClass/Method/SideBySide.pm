@@ -122,7 +122,7 @@ sub autopilot_steps {
 					next  => {
 						round   =>  $matches->complete() && ! $last->{ round },
 						match   =>  $matches->current->complete() && ! $last->{ match },
-						form    =>  ! $last->{ form }
+						form    =>  ! $last->{ form } && ! $matches->current->any_punitive_decision()
 					}
 				};
 

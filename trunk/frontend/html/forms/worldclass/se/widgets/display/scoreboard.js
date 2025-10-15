@@ -123,8 +123,13 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 						form[ contestant ].score    = defined( athlete ) ? athlete.score( round ).form( i ) : new Form();
 						form[ contestant ].complete = form[ contestant ]?.score?.is?.complete?.() || form[ contestant ]?.score?.decision?.awarded?.();
 					});
-					match.is = { contested : [ 'chung', 'hong' ].some( contestant => ! defined( form[ contestant ]?.score?.decision?.awarded?.()) && ! defined( match[ contestant ]))};
-					match.contested = { by : [ 'chung', 'hong' ].find( contestant => defined( match[ contestant ]) && ! form[ contestant ].score?.decision?.awarded?.())};
+					let is_competing = (match, form, contestant) => {
+						let decision = form[ contestant ]?.score?.decision?.awarded?.() ? true : false;
+						let bye      = ! defined( match[ contestant ]);
+						return !( bye || decision );
+					};
+					match.is = { contested : [ 'chung', 'hong' ].every( contestant => is_competing( match, form, contestant ))};
+					match.contested = { by : [ 'chung', 'hong' ].find( contestant => is_competing( match, form, contestant ))};
 
 					if( form.chung.complete && form.hong.complete ) {
 
@@ -163,7 +168,7 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 							if( decision ) { 
 								total = decision.code; 
 								accuracy = presentation = '&ndash;';
-							} else if( uncontested && div.athletes().length > 2 ) { 
+							} else if( uncontested && div.athletes().length > 2 && fcs.adjusted().total < 1.6 ) { 
 								total = 'WIN'; 
 								accuracy = presentation = '&ndash;';
 							}

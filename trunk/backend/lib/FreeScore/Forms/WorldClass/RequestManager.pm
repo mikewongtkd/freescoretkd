@@ -139,7 +139,7 @@ sub handle_division_award_min_score {
 	my $client   = $self->{ _client };
 	my $division = $progress->current();
 	my $version  = new FreeScore::RCS();
-	my $i        = $division->{ current };
+	my $i        = exists $request->{ athlete_id } ? $request->{ athlete_id } : $division->{ current };
 	my $round    = $division->{ round };
 	my $forms    = int( @{$division->{ forms }{ $round }});
 	my $n        = $division->{ judges };

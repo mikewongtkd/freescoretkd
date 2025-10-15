@@ -8,6 +8,7 @@ class Score {
 
 		this.decision = {
 			awarded: () => {
+			// Returns the form for which a decision has been awarded. If no decisions were awarded, then score.decision.awarded() returns undefined
 				return score.forms.map( form => new Form( form )).find( form => form.decision.awarded());
 			}
 		};

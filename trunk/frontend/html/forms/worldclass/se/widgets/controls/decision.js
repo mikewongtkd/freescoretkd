@@ -34,6 +34,14 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 		this.button.clear      = this.dom.find( '#clear-decision' );
 		this.display.all       = this.dom.find( '.decision' );
 
+		let find_decision = ( division, round, aid ) => {
+			let athlete  = defined( aid ) ? division.athlete( aid ) : null;
+			let score    = athlete.score( round );
+			let form     = score.decision.awarded(); // Finds the form for which a decision is awarded or returns null
+			let decision = form?.decision?.awarded?.();
+			return decision;
+		};
+
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.buttons = division => {
 			let athlete  = division.current.athlete();
@@ -44,20 +52,21 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 			let match    = division.current.match();
 			let mnum     = division.current.matchNumber();
 			let bye      = [ match.chung, match.hong ].some( aid => ! defined( aid ));
-			let decision = [ match.chung, match.hong ].some( aid => { 
-				let athlete  = defined( aid ) ? division.athlete( aid ) : null;
-				let score    = athlete.score( round );
-				let form     = score.decision.awarded(); // Finds the form for which a decision is awarded or returns null
-				let decision = form?.decision?.awarded?.();
-				return defined( decision );
-			});
+			let decision = [ match.chung, match.hong ].some( aid => defined( find_decision( division, round, aid )));
 
 			if( bye || decision ) {
+				let aid = [ match.chung, match.hong ].find( aid => {
+					if( ! defined( aid )) { return false; }
+					let decision = find_decision( division, round, aid );
+					if( defined( decision )) { return false; }
+					return true;
+				});
+				let athlete = division.athlete( aid );
 				this.button.winner.parent().show();
 				this.state.notify( `Match ${mnum} is uncontested. Press the <i>Winner</i> decision button to award the win to ${athlete.name()}.` );
 
 				this.button.winner.off( 'click' ).click( ev => {
-					this.network.send({ type: 'division', action: 'award min score' });
+					this.network.send({ type: 'division', action: 'award min score', athlete_id: aid });
 					this.sound.ok.play();
 					alertify.success( `${athlete.name()} has been awarded a minimum score` );
 				});
