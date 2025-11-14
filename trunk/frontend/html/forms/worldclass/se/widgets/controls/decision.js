@@ -36,7 +36,9 @@ FreeScore.Widget.SEDecision = class FSWidgetDecision extends FreeScore.Widget {
 
 		let find_decision = ( division, round, aid ) => {
 			let athlete  = defined( aid ) ? division.athlete( aid ) : null;
-			let score    = athlete.score( round );
+			let score    = athlete?.score( round );
+			if( ! score ) { return null; }
+
 			let form     = score.decision.awarded(); // Finds the form for which a decision is awarded or returns null
 			let decision = form?.decision?.awarded?.();
 			return decision;

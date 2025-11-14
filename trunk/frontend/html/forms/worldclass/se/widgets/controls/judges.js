@@ -128,10 +128,10 @@ FreeScore.Widget.SEJudges = class FSWidgetJudges extends FreeScore.Widget {
 						let sum   = (a, c) => a + c;
 						let value = {
 							spread : Math.max( ...spread[ row ]) - Math.min( ...spread[ row ]),
-							score : spread[ row ].reduce( sum ) /(n > 3 ? n - 2 : n )
+							score : spread[ row ].reduce( sum, 0 ) /(n > 3 ? n - 2 : n )
 						};
 						if( row == 'sum' ) {
-							value.score = (spread.acc.reduce( sum ) + spread.pre.reduce( sum )) / (n > 3 ? n - 2 : n);
+							value.score = (spread.acc.reduce( sum, 0 ) + spread.pre.reduce( sum, 0 )) / (n > 3 ? n - 2 : n);
 						}
 						this.display.score[ row ].html( value.score.toFixed( 2 ));
 						this.display.spread[ row ].html( value.spread.toFixed( 1 ));
