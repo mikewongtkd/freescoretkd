@@ -8,13 +8,13 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		<div class="settings">
 			<h4>Division Settings</h4>
 			<div class="row">
-				<div class="col-sm-1">
+				<div class="col-sm-2">
 					<div class="form-group">
 						<label for="divcode-text">Prefix</label>
 						<input type="text" class="form-control" id="divcode-text" value="P"></input>
 					</div>
 				</div>
-				<div class="col-sm-1">
+				<div class="col-sm-2">
 					<div class="form-group">
 						<label for="judges-select">Judges</label>
 						<select class="form-control" id="judges-select">
@@ -24,7 +24,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-4">
 					<div class="form-group">
 						<label for="age-select">Event</label>
 						<select class="form-control" id="event-select">
@@ -34,7 +34,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-4">
 					<div class="form-group">
 						<label for="method-select">Method</label>
 						<select class="form-control" id="method-select">
@@ -44,7 +44,9 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-1">
+			<div class="row">
+			</div>
+				<div class="col-sm-2">
 					<div class="form-group">
 						<label for="gender-select">Gender</label>
 						<select class="form-control" id="gender-select">
@@ -55,13 +57,13 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-4">
 					<div class="form-group">
 						<label for="age-select">Age</label>
 						<select class="form-control" id="age-select">
 							<option value="4-5"   data-aliases="u5"                  data-applies="individual"           >U5 (4-5)</option>
-							<option value="6-7"   data-aliases="u7,dragon"           data-applies="individual"           >Tiger (6-7)</option>
-							<option value="8-9"   data-aliases="u9,tiger"            data-applies="individual"           >Dragon (8-9)</option>
+							<option value="6-7"   data-aliases="u7,dragon"           data-applies="individual"           >U7 (6-7)</option>
+							<option value="8-9"   data-aliases="u9,tiger"            data-applies="individual"           >U9 (8-9)</option>
 							<option value="10-11" data-aliases="u11,youth"           data-applies="individual,pair,team" >Youth (10-11)</option>
 							<option value="12-14" data-aliases="u14,cadet"           data-applies="individual,pair,team" >Cadet (12-14)</option>
 							<option value="15-17" data-aliases="u17,junior"          data-applies="individual,pair,team" >Junior (15-17)</option>
@@ -77,7 +79,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-4">
 					<div class="form-group">
 						<label for="rank-select">Rank</label>
 						<select class="form-control" id="rank-select">
@@ -97,7 +99,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-1">
+				<div class="col-sm-2">
 					<div class="form-group">
 						<label for="group-select">Group</label>
 						<select class="form-control" id="group-select">

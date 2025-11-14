@@ -203,11 +203,32 @@
 						app.refresh.all();
 
 				})
+				.command( 'write error' )
+					.respond( update => {
+						let division = update?.division;
+						if( ! defined( division ) || division.name != app.state.division.name ) { return; }
+
+						app.sound.error.play();
+						division = new Division( division );
+						alertify.confirm( 
+							`${division.name().toUpperCase()} file exists. Overwrite?`, 
+							`The file for ${division.name().toUpperCase()} exists. Click [OK] to overwrite, [Cancel] to leave the existing file unchanged.`,
+							() => {
+								division = new Division( app.state.division );
+
+								let message = { type: 'division', action: 'write', division: division.data(), overwrite: true };
+								app.network.send( message );
+								alertify.message( `Saving division ${division.name().toUpperCase()} ${division.description()}...` );
+							},
+							() => {}
+						);
+					})
 				.command( 'write ok' )
 					.respond( update => {
 						let division = update?.division;
-						if( ! defined( division ) || division.name != '<?= $divid ?>') { return; }
+						if( ! defined( division ) || division.name != app.state.division.name ) { return; }
 
+						app.sound.ok.play();
 						division = new Division( division );
 						alertify.success( `Division ${division.summary()} saved.` );
 						setTimeout( () => { window.close(); }, 750 );

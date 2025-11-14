@@ -56,8 +56,10 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 		this.button.save.enable = () => {
 			this.button.save.removeClass( 'disabled' );
 			this.button.save.off( 'click' ).click( ev => {
+				this.app.sound.next.play();
+
 				let division = new Division( this.app.state.division );
-				let message = { type: 'division', action: 'write', division: division.data(), overwrite: true };
+				let message = { type: 'division', action: 'write', division: division.data() };
 				this.app.network.send( message );
 				alertify.message( `Saving division ${division.name().toUpperCase()} ${division.description()}...` );
 			});
@@ -133,16 +135,21 @@ FreeScore.Widget.DEAthletes = class FSWidgetDEAthletes extends FreeScore.Widget 
 
 			// Single Elimination or Side-by-Side
 			} else {
+				rounds = [];
 				let d = n <= 1 ? 1 : Math.ceil( Math.log( n )/Math.log( 2 ));
 				for( let i = d; i >= 1; i-- ) { rounds.push( `ro${2**i}` ); }
 				if( method == 'sbs' ) {
 					let age = this.app.widget.forms.display.age( this.app.state.settings.age );
-					form = `draw-${age}`
+					if( age ) {
+						form = `draw-${age}`
+					} else {
+						form = `draw`
+					}
 				}
 			}
 
 			// Init round and forms
-			this.app.state.division.round = rounds[ 0 ];
+			let start = this.app.state.division.round = rounds[ 0 ];
 			let forms = this.app.state.division.forms = this.app.state.division.forms ? this.app.state.division.forms : {};
 			rounds.forEach( round => {
 				if( round in forms ) { return; }

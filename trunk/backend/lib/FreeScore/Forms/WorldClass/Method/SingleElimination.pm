@@ -2,9 +2,10 @@ package FreeScore::Forms::WorldClass::Method::SingleElimination;
 use base qw( FreeScore::Forms::WorldClass::Method );
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Method::SingleElimination::Matches;
+use JSON::XS;
 use List::Util qw( all any max uniq );
 use List::MoreUtils qw( first_index );
-use Data::Dumper;
+use POSIX qw( ceil );
 
 our $DEBUG  = 1;
 our @rounds = (
@@ -228,6 +229,21 @@ sub bracket {
 	# Use cached bracket if bracket is already calculated
 	if( exists $div->{ matches }{ $rcode } && ref( $div->{ matches }{ $rcode }) eq 'ARRAY' ) {
 		return [ map {[ $_->{ chung }, $_->{ hong } ]} @{$div->{ matches }{ $rcode }}];
+	}
+
+	# Initialize order if not already initialized (e.g. division editor)
+	if( int( @order ) == 0 ) {
+		my $json = new JSON::XS(); # MW
+		printf STDERR "%s athletes:\n%s\n %s order: %s\n", uc $div->{ name }, $json->canonical->pretty->encode( $div->{ athletes }), uc $div->{ name }, $json->canonical->encode( $div->{ order }); # MW
+		my $n     = int( @{$div->{ athletes }});
+		my $d     = ceil( log( $n ) / log( 2 )); $d = $d == 0 ? 1 : $d;
+		my $first = sprintf( "ro%d", 2 ** $d );
+		if( ! exists $div->{ order }{ $first }) {
+			$div->assign( $_, $first ) foreach ( 0 .. $n - 1 );
+			@order = @{$div->order_with_byes( $first )};
+			$athletes = int( @order );
+			printf STDERR "%s order after initialization (%d athletes for %s)\n%s\n", uc $div->{ name }, $n, $first, $json->canonical->encode( $div->{ order }); # MW
+		}
 	}
 
 	die "Database error: $div->{ name } $athletes athletes unsuitable for round '$rcode' (required range: $round->{ min } to $round->{ max } athletes) $!" if( $athletes < $round->{ min } || $athletes > $round->{ max });
