@@ -389,9 +389,9 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				} else {
 					let mnum  = division.current.matchNumber();
 					let divid = division.name();
-					if( this.app.state.draw.notified != `${divid}-${mnum}` ) {
+					if( this.app.state.draw.notified != `${divid}-${mnum}-${fid}` ) {
 						alertify.notify( `Poomsae draw for Match ${mnum} required. Click on <i>Draw Poomsae</i> to proceed.` );
-						this.app.state.draw.notified = `${divid}-${mnum}`;
+						this.app.state.draw.notified = `${divid}-${mnum}-${fid}`;
 					}
 					this.display.all.show();
 					this.button.draw.removeClass( 'disabled' );
