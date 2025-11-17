@@ -107,7 +107,7 @@
 			let html       = FreeScore.html;
 			let app        = new FreeScore.App( ring.num );
 
-			app.state = { current : {}, divisions : null, loaded : false };
+			app.state = { current : {}, draw : { notified : null }, divisions : null, loaded : false };
 
 			app.page = {
 				num : 1,

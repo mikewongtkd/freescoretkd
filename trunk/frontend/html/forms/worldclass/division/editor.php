@@ -76,7 +76,7 @@
 			alertify.defaults.theme.cancel = "btn btn-warning";
 
 			let tournament = <?= $tournament ?>;
-			let ring       = { num: <?= $rnum ?> };
+			let ring       = { num: <?= $rnum == 'staging' ? "'staging'" : $rnum ?> };
 			let html       = FreeScore.html;
 			let app        = new FreeScore.App( ring.num );
 

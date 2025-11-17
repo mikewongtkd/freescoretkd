@@ -98,10 +98,18 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 					'66+'   : 'O65'
 				},
 				gender: {
-					'f' : "Women's",
-					'm' : "Men's",
-					'c' : "Mixed",
-					'null' : ''
+					biological: {
+						'f' : "Female",
+						'm' : "Male",
+						'c' : "Mixed",
+						'null' : ''
+					},
+					socialogical: {
+						'f' : "Women's",
+						'm' : "Men's",
+						'c' : "Mixed",
+						'null' : ''
+					}
 				},
 				event: {
 					'individual' : 'Individual',
@@ -112,6 +120,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			}
 
 			let divid       = settings.divid;
+			let order       = '<gender:socialogical> <rank:dan-implied> <event:individual-explicit> <age> Recognized Poomsae';
 			let descriptors = [];
 
 			if( this.state.manual.override ) { return; }

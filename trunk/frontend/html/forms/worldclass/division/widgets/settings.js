@@ -62,8 +62,8 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						<label for="age-select">Age</label>
 						<select class="form-control" id="age-select">
 							<option value="4-5"   data-aliases="u5"                  data-applies="individual"           >U5 (4-5)</option>
-							<option value="6-7"   data-aliases="u7,dragon"           data-applies="individual"           >U7 (6-7)</option>
-							<option value="8-9"   data-aliases="u9,tiger"            data-applies="individual"           >U9 (8-9)</option>
+							<option value="6-7"   data-aliases="u7,dragon"           data-applies="individual"           >U7/Dragon (6-7)</option>
+							<option value="8-9"   data-aliases="u9,tiger"            data-applies="individual"           >U9/Tiger (8-9)</option>
 							<option value="10-11" data-aliases="u11,youth"           data-applies="individual,pair,team" >Youth (10-11)</option>
 							<option value="12-14" data-aliases="u14,cadet"           data-applies="individual,pair,team" >Cadet (12-14)</option>
 							<option value="15-17" data-aliases="u17,junior"          data-applies="individual,pair,team" >Junior (15-17)</option>
