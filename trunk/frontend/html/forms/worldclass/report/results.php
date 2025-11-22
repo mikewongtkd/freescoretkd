@@ -2,7 +2,8 @@
 	include( __DIR__ . './../../../session.php' );
 	include( __DIR__ . '/../../../include/php/config.php' ); 
 
-	$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
+	$divid = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
+	$ring  = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
 	if( ! isset( $ring )) { $ring = 'staging'; }
 ?>
 <html>
@@ -49,6 +50,8 @@ table .tb2 { width: 10%; }
 			var display = {
 				results : {
 					table : division => {
+						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
+						if( <?= $ring  == 'staging' ? 'false' : "division.ring != {$ring}" ?> ) { return; }
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
 						let tables  = [];
 						let n       = division.athletes.length;
