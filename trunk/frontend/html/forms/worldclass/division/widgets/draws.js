@@ -43,7 +43,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 							<div class="form-group">
 								<label>Select a Draw Pool by Rank or Age</label>
 								<select class="form-control" name="age-group">
-									<option value="">Select One...</option>
+									<option value="" disabled>Select One...</option>
 									<option disabled><hr></hr></option>
 									<optgroup data-applies="individual" label="Color Belt Poomsae Pool">
 										<option data-applies="individual" value="yellow">Yellow Belt (all ages)</option>
@@ -100,7 +100,7 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-primary btn-ok disabled">OK</button>
+							<button type="button" class="btn btn-primary btn-ok ">OK</button>
 						</div>
 					</div>
 				</div>
@@ -225,7 +225,6 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 							let key = this.select.modal.draw.val();
 							if( key in FSWidgetDEDraws.designated ) {
 								refresh.pool.selection( FSWidgetDEDraws.designated[ key ]);
-								this.button.modal.ok.removeClass( 'disabled' );
 								if( Object.keys( FSWidgetDEDraws.agemap ).includes( key )) { key = FSWidgetDEDraws.agemap[ key ]; }
 
 							} else if( key == 'custom' ) {
@@ -311,8 +310,6 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 							this.select.modal.draw.val( 'custom' );
 							this.button.modal.ok.attr({ 'data-form-key': refresh.key.encoding() });
 						}
-
-						this.button.modal.ok.removeClass( 'disabled' );
 					}
 				};
 

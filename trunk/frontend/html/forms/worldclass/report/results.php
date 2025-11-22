@@ -3,6 +3,7 @@
 	include( __DIR__ . '/../../../include/php/config.php' ); 
 
 	$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
+	if( ! isset( $ring )) { $ring = 'staging'; }
 ?>
 <html>
 	<head>
@@ -15,6 +16,10 @@
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
 		<style>
+h3 { page-break-after: avoid; }
+h4 { page-break-before: avoid; page-break-after: avoid; }
+p { page-break-before: avoid; page-break-after: avoid; }
+table { page-break-inside: avoid; }
 table .place { width: 5%; text-align: center; }
 table .matchnum { width: 5%; text-align: center; vertical-align: middle !important; border: 1px solid #ddd;
 table .name { width: 35%; }

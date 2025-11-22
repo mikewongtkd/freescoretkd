@@ -128,6 +128,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		this.display.gender   = this.dom.find( '#gender-select' );
 		this.display.age      = this.dom.find( '#age-select' );
 		this.display.rank     = this.dom.find( '#rank-select' );
+		this.display.group    = this.dom.find( '#group-select' );
 
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
@@ -137,6 +138,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			this.refresh.method();
 			this.refresh.gender();
 			this.refresh.age();
+			this.refresh.group();
 			this.refresh.description();
 		}
 
@@ -311,6 +313,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let ages     = this.display.age.find( 'option' ).toArray().map( option => $( option )).filter( option => { let events = option.attr( 'data-applies' ) ? option.attr( 'data-applies' ).split( /,\s?/ ) : []; return events.includes( evname ); }).map( option => option.val() );
 			let i        = ages.indexOf( age );
 			let rank     = settings.rank ? settings.rank : this.display.rank.val();
+			let group    = settings.group ? settings.group : this.display.group.val(); group = group ? group : '';
 
 			let divnum  = i * 3;
 			if( evname == 'pair' ) { divnum += 40; } else if( evname == 'team' ) { divnum += 70; }
@@ -324,13 +327,24 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			}
 
 			let divid = null;
-			if( divnum <  10  ) { divid = `${divcode.toLowerCase()}00${divnum}`; } else
-			if( divnum <  100 ) { divid = `${divcode.toLowerCase()}0${divnum}`; } else
-			if( divnum >= 100 ) { divid = `${divcode.toLowerCase()}${divnum}`; }
+			if( divnum <  10  ) { divid = `${divcode.toLowerCase()}00${divnum}${group}`; } else
+			if( divnum <  100 ) { divid = `${divcode.toLowerCase()}0${divnum}${group}`; } else
+			if( divnum >= 100 ) { divid = `${divcode.toLowerCase()}${divnum}${group}`; }
 
 			settings.divid = this.app.state.division.name = divid;
 			this.app.widget.description.display.refresh.with.settings( settings );
 		};
+
+		// ----------------------------------------
+		this.refresh.group = () => {
+		// ----------------------------------------
+			let divid = this.app.state.division.name;
+			let match = divid.match( /([A-Za-z]+)$/ );
+			if( ! match ) { return; }
+
+			let group = match[ 1 ].toLowerCase();
+			this.display.group.val( group );
+		}
 
 		// ===== CHANGE BEHAVIOR
 
@@ -466,6 +480,18 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let target    = $( ev.target );
 			let rank      = target.val();
 			settings.rank = rank;
+
+			this.app.refresh.rounds();
+			this.refresh.description();
+		});
+
+		// ----------------------------------------
+		this.display.group.on( 'change', ev => {
+		// ----------------------------------------
+			let settings   = this.app.state.settings;
+			let target     = $( ev.target );
+			let group      = target.val();
+			settings.group = group;
 
 			this.app.refresh.rounds();
 			this.refresh.description();
