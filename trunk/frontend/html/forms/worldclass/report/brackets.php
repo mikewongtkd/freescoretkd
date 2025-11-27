@@ -143,16 +143,16 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 						// SINGLE ELIMINATION BRACKET TREE
 						// ============================================================
 						if( rounds.find( round => round.code.match( /^ro/ ))) {
-							let start = 0;
-							let table = $( '<table width="100%" style="margin-top: 2em; margin-bottom: 2em;" />' );
-							let thead = $( '<thead />' );
-							let tbody = $( '<tbody />' );
-							let first = rounds.find( round => round.code.match( /^ro/ ) && division.order?.[ round.code ]);
-							let size  = parseInt( first?.code?.replace( /^ro/, '' ));
-							let depth = Math.ceil( Math.log( size ) / Math.log( 2 ));
-							let rows  = (size * 2) - 1;
-							let cols  = depth + 1;
-							let tr    = $( '<tr />' );
+							let header = $( '<h4 style="margin-top: 2em;">Bracket</h4>' );
+							let table  = $( '<table width="100%" />' );
+							let thead  = $( '<thead />' );
+							let tbody  = $( '<tbody />' );
+							let first  = rounds.find( round => round.code.match( /^ro/ ) && division.order?.[ round.code ]);
+							let size   = parseInt( first?.code?.replace( /^ro/, '' ));
+							let depth  = Math.ceil( Math.log( size ) / Math.log( 2 ));
+							let rows   = (size * 2) - 1;
+							let cols   = depth + 1;
+							let tr     = $( '<tr />' );
 
 							for( let i = 0; i < cols; i++ ) {
 								if( i < cols - 1 ) {
@@ -185,7 +185,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 							let line = '1px solid #999';
 							display.bracket.tree( division, table, cols, rows );
 
-							tables.push( table );
+							tables.push( header, table );
 						}
 
 						// ============================================================
@@ -194,6 +194,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 						rounds.forEach( round => {
 							if( ! division.order?.[ round.code ]) { return; }
 
+							let header = $( '<h4 style="margin-top: 2em;">Participation/Call List</h4>' );
 							let table = $( '<table width="100%" />' );
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
@@ -216,7 +217,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 								let usatid   = athlete?.info?.usatid ? athlete.info.usatid : '';
 								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
 							});
-							tables.push( table );
+							tables.push( header, table );
 						});
 
 						// Placement table
