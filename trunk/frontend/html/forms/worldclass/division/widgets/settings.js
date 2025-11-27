@@ -313,7 +313,8 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let ages     = this.display.age.find( 'option' ).toArray().map( option => $( option )).filter( option => { let events = option.attr( 'data-applies' ) ? option.attr( 'data-applies' ).split( /,\s?/ ) : []; return events.includes( evname ); }).map( option => option.val() );
 			let i        = ages.indexOf( age );
 			let rank     = settings.rank ? settings.rank : this.display.rank.val();
-			let group    = settings.group ? settings.group : this.display.group.val(); group = group ? group : '';
+			let group    = settings.group ? settings.group : this.display.group.val(); 
+			group = (group == 'null' || ! defined( group )) ? '' : group;
 
 			let divnum  = i * 3;
 			if( evname == 'pair' ) { divnum += 40; } else if( evname == 'team' ) { divnum += 70; }
