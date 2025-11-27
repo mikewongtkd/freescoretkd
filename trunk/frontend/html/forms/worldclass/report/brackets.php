@@ -24,13 +24,23 @@
 
 .division { page-break-before: avoid; page-break-inside: avoid; page-break-after: always; }
 table { page-break-inside: avoid; }
-table .order { width: 5%; text-align: center; }
-table .name { width: 60%; }
-table .usatid { width: 30%; }
-table .matchnum { width: 5%; text-align: center; vertical-align: middle !important; border: 1px solid #ddd;
-table td.cell4 { width: 25%;   height: 2em; }
-table td.cell3 { width: 33.3%; height: 2em; }
-table td.cell2 { width: 50%;   height: 2em; }
+table .order { width: 5%; text-align: center; padding: 4px; }
+table .name { width: 60%; padding: 4px; }
+table .usatid { width: 35%; padding: 4px; }
+table .cell4 { font-size: 9pt; width: 25%;   }
+table .cell3 { font-size: 9pt; width: 33.3%; }
+table .cell2 { font-size: 9pt; width: 50%;   }
+.matchnum {
+	font-size: 6pt; 
+	position: absolute; 
+	top: 50%; 
+	right: 0.5em; 
+	transform: translateX( 60% ) translateY( -5% ); 
+	border: 1px solid #999; 
+	background-color: white !important; 
+	padding: 2px 4px 2px 4px; 
+	border-radius: 8px; 
+}
 .forms { font-size: 7pt; }
 		</style>
 	</head>
@@ -76,16 +86,21 @@ table td.cell2 { width: 50%;   height: 2em; }
 						// ===== DRAW THE LINES
 						for( let j = 0; j < rows; j++ ) {
 							for( let i = 0; i < cols - 1; i++ ) {
+
+								// Bottom lines
 								let mod    = 2 ** (i + 1);
 								let offset = (2 ** i) - 1;
-								// Bottom lines
-								if( j % mod == offset ) { display.bracket.line( division, table, 'bottom', i, j ); }
+								let draw   = j % mod == offset;
 
+								if( draw ) { display.bracket.line( division, table, 'bottom', i, j ); }
+
+								// Vertical lines
 								mod = 2 ** (i + 2);
 								let min = 2 ** i;
 								let max = min * 3;
-								// Vertical lines
-								if( j % mod >= min && j % mod < max ) { display.bracket.line( division, table, 'left', i + 1, j ); }
+								draw = j % mod >= min && j % mod < max;
+
+								if( draw ) { display.bracket.line( division, table, 'left', i + 1, j ); }
 							}
 							let mod    = 2 ** (cols - 1);
 							let offset = mod - 1;
@@ -106,7 +121,7 @@ table td.cell2 { width: 50%;   height: 2em; }
 						for( let mnum = 1; mnum < n; mnum++ ) {
 							let [ i, j ] = mcoord[ mnum - 1 ];
 							let id       = `#${division.name}-${i}-${j}`;
-							table.find( id ).html( `<div style="position: absolute; top: 50%; right: 0.5em;">${mnum}</div>` ).css({ 'position' : 'relative' });
+							table.find( id ).html( `<div class="matchnum">Match ${mnum}</div>` ).css({ 'position' : 'relative' });
 							let match  = mnum <= matches.length ? matches[ mnum - 1 ] : null;
 							if( match ) {
 								display.bracket.athlete( div, match.chung, table, i, j - 1 );
@@ -129,7 +144,7 @@ table td.cell2 { width: 50%;   height: 2em; }
 						// ============================================================
 						if( rounds.find( round => round.code.match( /^ro/ ))) {
 							let start = 0;
-							let table = $( '<table class="table-borderless" width="100%" style="margin-top: 2em; margin-bottom: 2em;" />' );
+							let table = $( '<table width="100%" style="margin-top: 2em; margin-bottom: 2em;" />' );
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
 							let first = rounds.find( round => round.code.match( /^ro/ ) && division.order?.[ round.code ]);
@@ -179,7 +194,7 @@ table td.cell2 { width: 50%;   height: 2em; }
 						rounds.forEach( round => {
 							if( ! division.order?.[ round.code ]) { return; }
 
-							let table = $( '<table class="table table-striped" />' );
+							let table = $( '<table width="100%" />' );
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
 							if( division.description.match( pairteam )) {
@@ -220,7 +235,10 @@ table td.cell2 { width: 50%;   height: 2em; }
 						table.append( thead, tbody );
 						tables.push( table );
 
-						$( '#report-tabular' ).append( '<div class="division">', summary, tables, '</div>' );
+						let container = $( '<div class="division" />' );
+						container.append( summary, tables );
+
+						$( '#report-tabular' ).append( container );
 					}
 				}
 			};
