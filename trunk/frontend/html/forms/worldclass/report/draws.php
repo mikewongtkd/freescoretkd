@@ -66,10 +66,8 @@ table .usatid { width: 30%; text-align: right; }
 						let thead = $( '<thead />' );
 						let tbody = $( '<tbody />' );
 						if( division.name.match( /^p[pt]/ )) {
-							// thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
 							thead.append( '<tr><th class="order">Num</th><th class="name">Names</th><th class="usatid">&nbsp;</th></tr>' );
 						} else {
-							// thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
 							thead.append( '<tr><th class="order">Num</th><th class="name">Name</th><th class="usatid">&nbsp;</th></tr>' );
 						}
 						table.append( thead, tbody );
