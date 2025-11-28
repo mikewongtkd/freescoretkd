@@ -180,9 +180,6 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 
 							table.append( thead, tbody );
 
-							let draw = {
-							};
-							let line = '1px solid #999';
 							display.bracket.tree( division, table, cols, rows );
 
 							tables.push( header, table );

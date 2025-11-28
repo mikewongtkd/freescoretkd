@@ -16,18 +16,36 @@
 		<script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../../include/alertify/alertify.min.js"></script>
 		<script src="../../../include/js/freescore.js"></script>
+		<script src="../../../include/js/forms/worldclass/form.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
+		<script src="../../../include/js/forms/worldclass/division.class.js"></script>
 		<style>
 h3 { page-break-after: avoid; }
 h4 { page-break-before: avoid; page-break-after: avoid; }
 p { page-break-before: avoid; page-break-after: avoid; }
 table { page-break-inside: avoid; }
 table .place { width: 5%; text-align: center; }
-table .matchnum { width: 5%; text-align: center; vertical-align: middle !important; border: 1px solid #ddd;
+table .matchnum { width: 5%; text-align: center; vertical-align: middle !important; border: 1px solid #ddd; }
 table .name { width: 35%; }
 table .usatid { width: 30%; }
 table .score { width: 10%; }
 table .tb1 { width: 10%; }
 table .tb2 { width: 10%; }
+table .cell4 { font-size: 9pt; width: 25%;   }
+table .cell3 { font-size: 9pt; width: 33.3%; }
+table .cell2 { font-size: 9pt; width: 50%;   }
+.tree-match-num {
+	font-size: 6pt; 
+	position: absolute; 
+	top: 50%; 
+	right: 0.5em; 
+	transform: translateX( 60% ) translateY( -5% ); 
+	border: 1px solid #999; 
+	background-color: white !important; 
+	padding: 2px 4px 2px 4px; 
+	border-radius: 8px; 
+}
 .forms { font-size: 7pt; }
 		</style>
 	</head>
@@ -48,6 +66,97 @@ table .tb2 { width: 10%; }
 			};
 
 			var display = {
+				bracket : {
+					athlete: ( division, name, table, col, row ) => {
+						let id = `#${division.name()}-${col}-${row}`;
+						table.find( id ).html( name ).css( 'padding-left', '2em' );
+					},
+					athletes: ( division, match, table, col, row ) => {
+						console.log( division.name(), 'MATCH', match, col, row ); // MW
+						let offset = 2 ** col;
+						if( match.chung === null && match.hong === null ) {
+
+						} else if( match.chung === null ) {
+							let hong  = division.athlete( match.hong );
+							let name  = match?.winner === undefined ? hong.name() : match.winner == match.hong ? `<b>${hong.name()}</b>` : `<s>${hong.name()}</s>`;
+							display.bracket.athlete( division, '</i>BYE</i>', table, col, row - offset);
+							display.bracket.athlete( division, name, table, col, row + offset);
+
+						} else if( match.hong === null ) {
+							let chung = division.athlete( match.chung );
+							let name  = match?.winner === undefined ? chung.name() : match.winner == match.chung ? `<b>${chung.name()}</b>` : `<s>${chung.name()}</s>`;
+							display.bracket.athlete( division, name, table, col, row - offset);
+							display.bracket.athlete( division, '</i>BYE</i>', table, col, row + offset);
+
+						} else {
+							let chung = division.athlete( match.chung );
+							let hong  = division.athlete( match.hong );
+							chung = match?.winner === undefined ? chung.name() : match.winner == match.chung ? `<b>${chung.name()}</b>` : `<s>${chung.name()}</s>`;
+							hong  = match?.winner === undefined ? hong.name()  : match.winner == match.hong  ? `<b>${hong.name()}</b>`  : `<s>${hong.name()}</s>`;
+							display.bracket.athlete( division, chung, table, col, row - offset);
+							display.bracket.athlete( division, hong,  table, col, row + offset);
+						}
+					},
+					line: ( division, table, line, col, row ) => {
+						let color  = '1px solid #999';
+						let id     = `#${division.name}-${col}-${row}`;
+						table.find( id ).css( `border-${line}`, color );
+					},
+					tree: ( division, table, cols, rows ) => {
+						let depth = (cols - 1);
+						let n     = 2 ** depth;
+						let div   = new Division( division );
+
+						// ===== DRAW THE LINES
+						for( let j = 0; j < rows; j++ ) {
+							for( let i = 0; i < cols - 1; i++ ) {
+
+								// Bottom lines
+								let mod    = 2 ** (i + 1);
+								let offset = (2 ** i) - 1;
+								let draw   = j % mod == offset;
+
+								if( draw ) { display.bracket.line( division, table, 'bottom', i, j ); }
+
+								// Vertical lines
+								mod = 2 ** (i + 2);
+								let min = 2 ** i;
+								let max = min * 3;
+								draw = j % mod >= min && j % mod < max;
+
+								if( draw ) { display.bracket.line( division, table, 'left', i + 1, j ); }
+							}
+							let mod    = 2 ** (cols - 1);
+							let offset = mod - 1;
+
+							// First place line
+							if( j % mod == offset ) { display.bracket.line( division, table, 'bottom', (cols - 1), j ); }
+						}
+
+						// ===== DRAW THE MATCHES
+						let mcoords = {
+							ro8 : [[ 0, 1 ], [ 0, 9 ], [ 0, 13 ], [ 0, 5 ], [ 1, 3 ], [ 1, 11 ], [ 2, 7 ]],
+							ro4 : [[ 0, 1 ], [ 0, 5 ], [ 1, 3 ]],
+							ro2 : [[ 0, 1 ]]
+						};
+						let start   = division.rounds.find( round => round.match( /^ro/i ));
+						let matches = division.rounds.reduce(( matches, round ) => matches.concat( div.bracket.matches( round )), []);
+						for( let mnum = 1; mnum <= matches.length; mnum++ ) {
+							let match    = mnum <= matches.length ? matches[ mnum - 1 ] : null;
+							let [ i, j ] = mcoords[ start ][ mnum - 1 ];
+							let id       = `#${division.name}-${i}-${j}`;
+							table.find( id ).html( `<div class="tree-match-num">Match ${mnum}</div>` ).css({ 'position' : 'relative' });
+							if( match ) {
+								display.bracket.athletes( div, match, table, i, j);
+								if( mnum == matches.length && defined( match.winner )) {
+									let [ i, j ] = mcoords[ start ][ mnum - 1 ];
+									let athlete  = div.athlete( match.winner );
+									display.bracket.athlete( div, `<b>${athlete.name()}</b>`, table, i + 1, j );
+								}
+							}
+						}
+					}
+				},
 				results : {
 					table : division => {
 						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
@@ -95,6 +204,47 @@ table .tb2 { width: 10%; }
 						// SINGLE ELIMINATION
 						// ============================================================
 						if( rounds.find( round => round.code.match( /^ro/ ))) {
+							let header = $( '<h4 style="margin-top: 2em;">Bracket</h4>' );
+							let table  = $( '<table width="100%" />' );
+							let thead  = $( '<thead />' );
+							let tbody  = $( '<tbody />' );
+							let first  = rounds.find( round => round.code.match( /^ro/ ) && division.order?.[ round.code ]);
+							let size   = parseInt( first?.code?.replace( /^ro/, '' ));
+							let depth  = Math.ceil( Math.log( size ) / Math.log( 2 ));
+							let rows   = (size * 2) - 1;
+							let cols   = depth + 1;
+							let tr     = $( '<tr />' );
+
+							for( let i = 0; i < cols; i++ ) {
+								if( i < cols - 1 ) {
+									let round = rounds[ i ];
+									let id    = `${division.name}-${round.code}`;
+									let th    = $( `<th class="cell${cols}" id="${id}" style="padding-bottom: 2em;">${round.name}</th>` );
+									tr.append( th );
+								} else {
+									let id = `${division.name}-1st-place`;
+									let th = $( `<th class="cell${cols}" id="${id}" style="padding-bottom: 2em;">First Place</th>` );
+									tr.append( th );
+								}
+							}
+							thead.append( tr );
+
+							for( let j = 0; j < rows; j++ ) {
+								let tr = $( '<tr />' );
+								for( let i = 0; i < cols; i++ ) {
+									let id = `${division.name}-${i}-${j}`;
+									let td = $( `<td class="cell${cols}" id="${id}">&nbsp;</td>` );
+									tr.append( td );
+								}
+								tbody.append( tr );
+							}
+
+							table.append( thead, tbody );
+
+							display.bracket.tree( division, table, cols, rows );
+
+							tables.push( header, table );
+
 							if( division.order?.ro2 ) {
 								let table = $( '<table class="table table-striped" />' );
 								let thead = $( '<thead />' );
