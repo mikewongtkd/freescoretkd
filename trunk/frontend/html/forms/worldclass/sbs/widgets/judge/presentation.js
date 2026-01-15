@@ -18,6 +18,14 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 
 		// ===== ADD STATE
 		this.state.division  = { show : null };
+		this.state.reconnect = { attempt: 0, interval: null };
+		this.state.reconnect.cancel = () => { 
+			if( this.state.reconnect.interval !== null ) {
+				clearInterval( this.state.reconnect.interval );
+			}
+			this.state.reconnect.attempt  = 0; 
+			this.state.reconnect.interval = null; 
+		};
 
 		// ===== ADD REFRESH BEHAVIOR
 		this.refresh.match = division => {
@@ -181,8 +189,6 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 
 				// Check for incomplete score
 				let incomplete = contestants.find( contestant => cat.pre.some( category => score[ contestant ][ category ] < 0.5 ));
-				console.log( 'INCOMPLETE', incomplete ); // MW
-				console.log( 'MATCH', match ); // MW
 				if( defined( incomplete ) && match?.[ incomplete ] !== null ) {
 					alertify.error( `Please complete scoring presentation for ${incomplete.capitalize()} contestant.` );
 					return;
@@ -202,6 +208,26 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 
 				// All checks passed
 				send();
+
+				// In case of send failure: queue up reconnect and resend actions
+				if( this.state.reconnect.interval !== null ) { clearInterval( this.state.reconnect.interval ); }
+				this.state.reconnect.interval = setInterval(() => {
+					if( this.state.reconnect.attempt >= 3 ) {
+						alertify.error( `Failed to connect to server. Raise your hand and call for &quot;Referee&quot; to request help from a FreeScore technician.` );
+						this.state.reconnect.cancel();
+						return;
+					}
+					this.state.reconnect.attempt++; 
+
+					alertify.message( `Re-sending ${jname} scores (attempt ${this.state.reconnect.attempt} out of 3).`, 0 );
+					let request = { type: 'division', action: 'score', judge: current.judge, score: { divid: current.divid, match: current.match, form: current.form }};
+					if( match.chung !== null ) { request.score.chung = current.score.chung; }
+					if( match.hong  !== null ) { request.score.hong  = current.score.hong; }
+					this.network.send( request );
+					this.app.on.reconnect().send( request );
+
+
+				}, 8000 );
 			});
 		};
 		this.refresh.score = () => {
@@ -243,8 +269,9 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					let current = this.app.state.current;
 					let start   = division.current.matchStart();
 					let jname   = this.app.state.current.judge == 0 ? 'Referee' : `Judge ${this.app.state.current.judge}`;
-					if( update.request.judge == current.judge ) { alertify.success( `Server received ${jname} score for Match ${current.match + start}.` ); return; }
-					else { return; }
+					if( update.request.judge != current.judge ) { return; }
+					this.state.reconnect.cancel(); // Cancel queued contingent reconnect/resend actions
+					alertify.success( `Server received ${jname} score for Match ${current.match + start}.` ); 
 				}
 
 				this.refresh.common( division );

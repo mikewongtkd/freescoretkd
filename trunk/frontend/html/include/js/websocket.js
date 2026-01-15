@@ -132,15 +132,20 @@ FreeScore.WebSocket = class FSWebSocket {
 				this.ws.send( request.json );
 			}
 		};
-		this.rm = new FreeScore.ResponseManager( this.listener, this );
+		if( this.rm === null ) {
+			this.rm = new FreeScore.ResponseManager( this.listener, this );
+			this.on           = {
+				heard : type => {
+					return this.rm.heard( type );
+				}
+			};
+		}
+		if( this.ws !== null ) {
+			this.ws.close();
+		}
 		this.ws = new WebSocket( this.url );
 		this.ws.onopen    = this.network.open;
 		this.ws.onmessage = this.network.message;
-		this.on           = {
-			heard : type => {
-				return this.rm.heard( type );
-			}
-		};
 	}
 
 	catch( callback ) {
@@ -148,7 +153,7 @@ FreeScore.WebSocket = class FSWebSocket {
 	}
 
 	close() {
-		this.ws.close();
+		if( this.ws !== null ) { this.ws.close(); }
 	}
 
 	handle( update ) {
@@ -158,9 +163,9 @@ FreeScore.WebSocket = class FSWebSocket {
 		this.listeners.forEach( listener => listener.rm.dispatch( type, action, update ));
 	}
 
-	reconnect( url ) {
+	reconnect( url = null ) {
 		this.close();
-		this.url = url;
+		if( url !== null ) { this.url = url; }
 		this.ws = new WebSocket( this.url );
 		this.ws.onopen    = this.network.open;
 		this.ws.onmessage = this.network.message;

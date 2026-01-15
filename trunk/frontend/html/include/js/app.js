@@ -16,6 +16,9 @@ FreeScore.App = class FSApp {
 			connect : url => {
 				this._network.set( url );
 				return this;
+			},
+			reconnect : () => {
+				return this;
 			}
 		};
 
@@ -36,23 +39,28 @@ FreeScore.App = class FSApp {
 		// On Connect actions
 		this.read = {
 			division : ( divid = null ) => { 
-				let message = { type : 'division', action : 'read' }; 
-				if( divid !== null ) { message.divid = divid };
-				this._network.connect( message ); 
+				let request = { type : 'division', action : 'read' }; 
+				if( divid !== null ) { request.divid = divid };
+				this._network.connect( request ); 
 				this.ping.on(); 
 			},
 			ring : ( ring = null ) => { 
-				let message = { type : 'ring', action : 'read' };
-				if( ring !== null ) { message.ring = divid };
-				this._network.connect( message ); 
+				let request = { type : 'ring', action : 'read' };
+				if( ring !== null ) { request.ring = divid };
+				this._network.connect( request ); 
 				this.ping.on(); 
 			},
 			tournament : ()=> { 
-				let message = { type : 'tournament', action : 'read' };
-				this._network.connect( message ); 
+				let request = { type : 'tournament', action : 'read' };
+				this._network.connect( request ); 
 				this.ping.on(); 
 			}
 		};
+
+		this.send = request => {
+			this._network.connect( request );
+			this.ping.on();
+		}
 	}
 
 	get button()  { return this._button; }
