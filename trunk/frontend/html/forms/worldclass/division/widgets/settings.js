@@ -10,8 +10,14 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			<div class="row">
 				<div class="col-sm-2">
 					<div class="form-group">
-						<label for="divcode-text">Prefix</label>
+						<label for="divcode-text">Division ID Prefix</label>
 						<input type="text" class="form-control" id="divcode-text" value="P"></input>
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="form-group">
+						<label for="divnum-text">Division ID Number</label>
+						<input type="text" class="form-control" id="divnum-text" value="P"></input>
 					</div>
 				</div>
 				<div class="col-sm-2">
@@ -24,7 +30,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-4">
+				<div class="col-sm-3">
 					<div class="form-group">
 						<label for="age-select">Event</label>
 						<select class="form-control" id="event-select">
@@ -34,7 +40,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 						</select>
 					</div>
 				</div>
-				<div class="col-sm-4">
+				<div class="col-sm-3">
 					<div class="form-group">
 						<label for="method-select">Method</label>
 						<select class="form-control" id="method-select">
@@ -122,6 +128,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.divcode  = this.dom.find( '#divcode-text' );
+		this.display.divnum   = this.dom.find( '#divnum-text' );
 		this.display.judges   = this.dom.find( '#judges-select' );
 		this.display.event    = this.dom.find( '#event-select' );
 		this.display.method   = this.dom.find( '#method-select' );
@@ -133,6 +140,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			this.refresh.divcode();
+			this.refresh.divnum();
 			this.refresh.judges();
 			this.refresh.event();
 			this.refresh.method();
@@ -151,6 +159,19 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let divcode  = match ? match[ 0 ] : 'p';
 			settings.divcode = divcode = divcode?.toLowerCase();
 			this.display.divcode.val( divcode.toUpperCase() );
+		}
+
+		// ----------------------------------------
+		this.refresh.divnum = () => {
+		// ----------------------------------------
+			let settings = this.app.state.settings;
+			let name     = this.app.state.division?.name ? this.app.state.division.name : this.app.state.settings.divnum;
+			let match    = name?.match?.( /(\d+)(?:\w+)?/ );
+			let divnum   = match ? match[ 0 ] : null;
+			settings.divnum = divnum;
+
+			let display = divnum === null ? 'Autodetect' : divnum;
+			this.display.divnum.val( display );
 		}
 
 		// ----------------------------------------
@@ -307,6 +328,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		// ----------------------------------------
 			let settings = this.app.state.settings;
 			let divcode  = settings.divcode ? settings.divcode : this.display.divcode.val();
+			let divnum   = settings.divnum  ? settings.divnum : this.display.divnum.val();
 			let evname   = settings.event ? settings.event : this.display.event.val();
 			let gender   = settings.gender ? settings.gender : this.display.gender.val();
 			let age      = settings.age ? settings.age : this.display.age.val();
@@ -316,21 +338,30 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let group    = settings.group ? settings.group : this.display.group.val(); 
 			group = (group == 'null' || ! defined( group )) ? '' : group;
 
-			let divnum  = i * 3;
-			if( evname == 'pair' ) { divnum += 40; } else if( evname == 'team' ) { divnum += 70; }
-			if( gender == 'f' ) { divnum += 1; } else if( gender == 'm' ) { divnum += 2; }
-			switch( rank ) {
-				case 'white'  : divnum += 500; break;
-				case 'yellow' : divnum += 400; break;
-				case 'green'  : divnum += 300; break;
-				case 'blue'   : divnum += 200; break;
-				case 'red'    : divnum += 100; break;
+			if( settings.divnum === null ) { // Autodetect divnum if not editing an existing division and user hasn't specified a divnum
+				divnum  = i * 3;
+				if( evname == 'pair' ) { divnum += 40; } else if( evname == 'team' ) { divnum += 70; }
+				if( gender == 'f' ) { divnum += 1; } else if( gender == 'm' ) { divnum += 2; }
+				switch( rank ) {
+					case 'white'  : divnum += 500; break;
+					case 'yellow' : divnum += 400; break;
+					case 'green'  : divnum += 300; break;
+					case 'blue'   : divnum += 200; break;
+					case 'red'    : divnum += 100; break;
+				}
+
+				divnum = String( divnum );
+				divnum = divnum.padStart( 3, '0' );
+
+				if( i == 12 && !(gender == 'f' || gender == 'm')) {
+					this.display.divnum.val( 'Autodetect' );
+					divnum = '000'
+				} else {
+					this.display.divnum.val( divnum );
+				}
 			}
 
-			let divid = null;
-			if( divnum <  10  ) { divid = `${divcode.toLowerCase()}00${divnum}${group}`; } else
-			if( divnum <  100 ) { divid = `${divcode.toLowerCase()}0${divnum}${group}`; } else
-			if( divnum >= 100 ) { divid = `${divcode.toLowerCase()}${divnum}${group}`; }
+			let divid = `${divcode.toLowerCase()}${divnum}${group}`;
 
 			settings.divid = this.app.state.division.name = divid;
 			this.app.widget.description.display.refresh.with.settings( settings );
@@ -340,7 +371,7 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 		this.refresh.group = () => {
 		// ----------------------------------------
 			let divid = this.app.state.division.name;
-			let match = divid.match( /([A-Za-z]+)$/ );
+			let match = divid?.match( /([A-Za-z]+)$/ );
 			if( ! match ) { return; }
 
 			let group = match[ 1 ].toLowerCase();
@@ -356,6 +387,16 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let target   = $( ev.target );
 			let divcode  = target.val().toLowerCase();
 			settings.divcode = divcode;
+			this.refresh.description();
+		});
+
+		// ----------------------------------------
+		this.display.divnum.on( 'change', ev => {
+		// ----------------------------------------
+			let settings = this.app.state.settings;
+			let target   = $( ev.target );
+			let divnum   = target.val().toLowerCase();
+			settings.divnum  = divnum;
 			this.refresh.description();
 		});
 

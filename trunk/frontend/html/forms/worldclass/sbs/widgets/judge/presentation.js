@@ -219,15 +219,14 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					}
 					this.state.reconnect.attempt++; 
 
-					alertify.message( `Re-sending ${jname} scores (attempt ${this.state.reconnect.attempt} out of 3).`, 0 );
+					alertify.message( `Re-sending ${jname} scores (attempt ${this.state.reconnect.attempt} out of 3).` );
 					let request = { type: 'division', action: 'score', judge: current.judge, score: { divid: current.divid, match: current.match, form: current.form }};
 					if( match.chung !== null ) { request.score.chung = current.score.chung; }
 					if( match.hong  !== null ) { request.score.hong  = current.score.hong; }
-					this.network.send( request );
 					this.app.on.reconnect().send( request );
 
 
-				}, 8000 );
+				}, 6500 );
 			});
 		};
 		this.refresh.score = () => {

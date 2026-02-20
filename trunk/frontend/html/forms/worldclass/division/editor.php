@@ -103,7 +103,7 @@
 			// ============================================================
 			app.state.fields   = { required: [ 'name', 'state', 'current', 'form', 'round', 'method', 'description', 'athletes' ]};
 			app.state.division = { name: undefined, state: 'score', current: 0, form: 0, round: undefined, method: 'cutoff', description: undefined, forms: null, athletes: []};
-			app.state.settings = { divid: null, event: 'individual', method: 'cutoff', rounds: [], gender: null, age: null, rank: null, divcode: null, divid: null, group: null };
+			app.state.settings = { divid: null, event: 'individual', method: 'cutoff', rounds: [], gender: null, age: null, rank: null, divcode: null, divnum: null, divid: null, group: null };
 			app.state.errors   = [];
 			app.state.validate = () => {
 				let errors = app.state.errors = [];
