@@ -76,10 +76,10 @@
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="12-14"   checked>12-14</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="15-17"   checked>15-17</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="18-30"   checked>&leq;30</label>
-										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="31+"     checked>&gt; 30<sup>*</sup></label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="31-40"   checked>&leq; 40</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="41-50"   checked>&leq; 50</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="51-60"   checked>&leq; 60</label>
+										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="61+"     checked>&gt; 60<sup>*</sup></label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="61-65"   checked>&leq; 65</label>
 										<label class="btn btn-default active"><input type="checkbox" name="age-group[]" class="age-group text-light" value="66+"     checked>&gt; 65</label>
 									</div>

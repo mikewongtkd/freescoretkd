@@ -99,7 +99,6 @@ $( '.list-group a' ).click( function( ev ) {
 	setTimeout( function() { window.location = href }, 300 );
 });
 
-var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
 var draws      = undefined;
 var settings   = { age: { groups: {}}, count: { prelim: 1, semfin: 1, finals: 2 }, events: {}, gender: false, method: 'cutoff', timestamp: moment().format( 'lll' ), checksum: undefined };
@@ -114,13 +113,13 @@ var load = ( settings ) => {
 	if( settings.gender ) { $( '#gender-draw' ).bootstrapToggle( 'on' ); } else { $( '#gender-draw' ).bootstrapToggle( 'off' ); }
 
 	// Count
-	Object.keys( settings.count ).forEach(( round ) => {
+	Object.keys( settings.count ).forEach( round => {
 		var toggle = ( state ) => { $( `#${round}-count` ).bootstrapToggle( state ); }
 		if( settings.count[ round ] == 1 ) { toggle( 'off' ); } else { toggle( 'on' ); }
 	});
 
 	// Events
-	Object.keys( settings.events ).forEach(( ev ) => {
+	Object.keys( settings.events ).forEach( ev => {
 		var checked = settings.events[ ev ];
 		var button  = $( `input.events[value="${ev}"]` );
 		var label   = button.parents( 'label' );
@@ -129,7 +128,7 @@ var load = ( settings ) => {
 	});
 
 	// Age Groups
-	Object.keys( settings.age.groups ).forEach(( age ) => {
+	Object.keys( settings.age.groups ).forEach( age => {
 		var checked = settings.age.groups[ age ];
 		var button  = $( `input.age-group[value="${age}"]` );
 		var label   = button.parents( 'label' );
@@ -303,7 +302,7 @@ var show = {
 
 				for( var age of ages ) {
 					if( ! age in settings.age.groups || ! settings.age.groups[ age ] ) { continue; }
-					var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
+					var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31-40": "Under 40", "31-50" : "Under 50", "41-50" : "Under 50", "51-60": "Under 60", "61+" : "Over 60", "61-65" : "Under 65", "66+" : "Over 65" };
 					var label = age in text ? text[ age ] : age;
 					var row   = [ html.th.clone().text( label ) ];
 					for( var round of rounds ) {
@@ -457,15 +456,17 @@ var show = {
 
 			for( var age of ages ) {
 				if( ! age in settings.age.groups || ! settings.age.groups[ age ] ) { continue; }
-				var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31+": "Over 30", "31-40": "Under 40", "41-50" : "Under 50", "51-60": "Under 60", "61-65" : "Under 65", "66+" : "Over 65" };
+				var text  = { "12-14" : "Cadet", "15-17" : "Junior", "18-30": "Under 30", "31-40": "Under 40", "31-50" : "Under 50", "41-50" : "Under 50", "51-60": "Under 60", "61+" : "Over 60", "61-65" : "Under 65", "66+" : "Over 65" };
 				var label = { age: age in text ? text[ age ] : age };
 				var td    = html.td.clone().html( label.age );
+
+				console.log( 'AGE', age, settings.age.groups ); // MW
 
 				row.append( td );
 
 				for( var gender of genders ) {
 					for( var round of rounds ) {
-						var forms = [].fill( '', 0, settings.count[ round ] );
+						var forms = [].fill( '', 0, settings.count[ round ]);
 						if( defined( draw ) && gender in draw && age in draw[ gender ] && round in draw[ gender ][ age ]) {
 							var n = Math.min( draw[ gender ][ age ][ round ].length, settings.count[ round ]);
 							for( var i = 0; i < n; i++ ) { forms[ i ] = draw[ gender ][ age ][ round ][ i ]; }
@@ -548,7 +549,7 @@ $( 'input[type="checkbox"].age-group' ).change(( ev ) => {
 });
 
 // ===== BUTTON BEHAVIOR
-$( '#instant-draw' ).off( 'click' ).click(( el ) => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition( 2 ); });
+$( '#instant-draw' ).off( 'click' ).click( el => { el.preventDefault(); sound.next.play(); draw(); show.table(); page.transition( 2 ); });
 
 $( '#back-to-draws' ).off( 'click' ).click(( ev ) => { 
 	// ===== SWITCH THE PAGE
@@ -587,7 +588,7 @@ $( '.pt-page-1 .delete' ).off( 'click' ).click(() => {
 		() => {
 			var request;
 
-			request = { data : { type : 'ring', action : 'draws delete' }};
+			request = { data : { type : 'tournament', action : 'draws delete' }};
 			request.json = JSON.stringify( request.data );
 			ws.send( request.json );
 		},
@@ -609,7 +610,7 @@ $( '.pt-page-2 .accept' ).off( 'click' ).click(() => {
 		settings.timestamp = moment().format( 'lll' ); // Mark timestamp for when updated draws are accepted
 	}
 	draws.settings = settings;
-	var request  = { data : { type : 'ring', action : 'draws write', draws: draws }};
+	var request  = { data : { type : 'tournament', action : 'draws write', draws: draws }};
 	request.json = JSON.stringify( request.data );
 	delete draws.settings;
 	ws.send( request.json );
@@ -621,7 +622,7 @@ $( '.pt-page-3 .print' ).off( 'click' ).click(() => { alertify.dismissAll(); win
 $( '.pt-page-3 .accept' ).off( 'click' ).click(() => { window.location = '../../index.php'; });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator/${sha1.hex( Date.now())}` );
+var ws = new WebSocket( '<?= $config->websocket( 'worldclass', 'staging', 'computer+operator' ) ?>' );
 
 ws.onopen = function() {
 	var request;

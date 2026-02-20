@@ -1,0 +1,303 @@
+@use "sass:math";
+
+#display-matches {
+  $height: 100px;
+  $border: 4px;
+  $noc: 80px;
+  $win: 60px;
+
+  &.chung-right {
+    .match {
+      position: relative;
+      margin-left: 10%;
+      margin-right: 10%;
+      width: 80%;
+      color: white;
+
+      &.ro8, &.ro16, &.ro32, &.ro64, &.ro128, &.ro256 {
+        height: 10%;
+        margin-top: 3.5%;
+        margin-bottom: 3.5%;
+
+        .match-number { top: 0; }
+        .match-chung, .match-hong {
+          height: $height;
+        }
+      }
+      &.ro4 {
+        top: 10%;
+        height: 15%;
+        margin-top: 10%;
+        margin-bottom: 5%;
+        .match-number { top: 12.5px; }
+        .match-chung, .match-hong {
+          padding-top: 10px;
+          height: 1.25 * $height;
+          .noc { top: 14px; }
+          .win { top: 32.5px; }
+        }
+      }
+      &.ro2 {
+        height: 20%;
+        margin-top: 15%;
+        .match-number { top: 25px; }
+        .match-chung, .match-hong {
+          padding-top: 22.5px;
+          height: 1.5 * $height;
+          .noc { top: 25px; }
+        }
+      }
+
+      .win {
+        position: absolute;
+        background-color: gold;
+        width: $win;
+        height: $win;
+        border-radius: math.div( $win, 2 );
+        top: math.div(($height - $win), 2 );
+      }
+
+      .noc {
+        position: absolute;
+        img { width: $noc; }
+      }
+      .name {
+        position: absolute;
+        font-size: 4em;
+        line-height: 1.75em;
+        max-width: 520px;
+        &:not( .ro2 .name ) {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+      }
+      .match-chung, .match-hong {
+        width: 50%;
+        position: absolute;
+      }
+
+      &.active .match-chung {
+        background: rgb(0,1,36);
+        background: linear-gradient(0deg, rgba(0,1,36,1) 0%, rgba(0,0,255,1) 85%, rgba(9,9,205,1) 100%);
+        color: white;
+        border: $border solid gold;
+
+        .name { line-height: 1.75em; }
+        .noc  { opacity: 100%; }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2); }
+      }
+
+      .match-chung {
+        right: 0;
+        text-align: right;
+        border-top-right-radius: math.div( $height, 2 );
+        border-bottom-right-radius: math.div( $height, 2 );
+
+        background: rgb(0,1,36);
+        color: #333;
+
+        .name { padding-right: 80px; line-height: 1.9em; right: 0; }
+        .win  { right: 10px; background-color: #653; }
+        .noc  { left: 100px; top: 2 * $border; opacity: 20%; }
+      }
+
+      &.active .match-hong {
+        background: rgb(36,0,0);
+        background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(255,0,0,1) 85%, rgba(205,9,9,1) 100%);
+        color: white;
+        border: 4px solid gold;
+
+        .name { line-height: 1.75em; }
+        .noc { opacity: 100%; }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2 ); }
+      }
+
+      .match-hong {
+        left: 0;
+        text-align: left;
+        border-top-left-radius: math.div( $height, 2 );
+        border-bottom-left-radius: math.div( $height, 2 );
+
+        background: rgb(36,0,0);
+        color: #333;
+        
+        .name { padding-left: 80px; line-height: 1.9em; left: 0; }
+        .win  { left: 10px; background-color: #653; }
+        .noc  { right: 100px; top: 2 * $border; opacity: 20%; }
+      }
+      &.active .match-number {
+        background: gold;
+        color: black;
+      }
+
+      .match-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        height: $height;
+        width: $height;
+        border-radius: math.div( $height, 2 );
+        background: #333;
+        color: black;
+        font-size: 1.2em;
+        text-align: center;
+        left: 50%;
+        transform: translateX( -50% );
+
+        .number {
+          position: relative;
+          font-size: 3.2em;
+        }
+      }
+      &.ro4.active .win { top: 27px; }
+    }
+  }
+
+  &.chung-left {
+    .match {
+      position: relative;
+      margin-left: 10%;
+      margin-right: 10%;
+      width: 80%;
+      color: white;
+
+      &.ro8, &.ro16, &.ro32, &.ro64, &.ro128, &.ro256 {
+        height: 10%;
+        margin-top: 3.5%;
+        margin-bottom: 3.5%;
+
+        .match-number { top: 0; }
+        .match-chung, .match-hong {
+          height: $height;
+        }
+      }
+      &.ro4 {
+        top: 10%;
+        height: 15%;
+        margin-top: 10%;
+        margin-bottom: 5%;
+        .match-number { top: 12.5px; }
+        .match-chung, .match-hong {
+          padding-top: 10px;
+          height: 1.25 * $height;
+          .noc { top: 14px; }
+          .win { top: 32.5px; }
+        }
+      }
+      &.ro2 {
+        height: 20%;
+        margin-top: 15%;
+        .match-number { top: 25px; }
+        .match-chung, .match-hong {
+          padding-top: 22.5px;
+          height: 1.5 * $height;
+          .noc { top: 25px; }
+        }
+      }
+
+      .win {
+        position: absolute;
+        background-color: gold;
+        width: $win;
+        height: $win;
+        border-radius: math.div( $win, 2 );
+        top: math.div(($height - $win), 2 );
+      }
+
+      .noc {
+        position: absolute;
+        img { width: $noc; }
+      }
+      .name {
+        position: absolute;
+        width: 100%;
+        font-size: 4em;
+        line-height: 1.75em;
+        max-width: 520px;
+      }
+      .match-chung, .match-hong {
+        width: 50%;
+        position: absolute;
+      }
+
+      &.active .match-chung {
+        background: rgb(0,1,36);
+        background: linear-gradient(0deg, rgba(0,1,36,1) 0%, rgba(0,0,255,1) 85%, rgba(9,9,205,1) 100%);
+        color: white;
+        border: $border solid gold;
+
+        .name { line-height: 1.75em; }
+        .noc  { opacity: 100%; }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2); }
+      }
+
+      .match-chung {
+        left: 0;
+        text-align: left;
+        border-top-left-radius: math.div( $height, 2 );
+        border-bottom-left-radius: math.div( $height, 2 );
+
+        background: rgb(0,1,36);
+        color: #333;
+
+        .name { padding-left: 80px; line-height: 1.9em; left: 0; }
+        .win  { left: 10px; background-color: #653; }
+        .noc  { right: 100px; top: 2 * $border; opacity: 20%; }
+      }
+
+      &.active .match-hong {
+        background: rgb(36,0,0);
+        background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(255,0,0,1) 85%, rgba(205,9,9,1) 100%);
+        color: white;
+        border: 4px solid gold;
+
+        .name { line-height: 1.75em; }
+        .noc { opacity: 100%; }
+        .win  { background-color: gold; top: math.div(($height - ($win + 2 * $border )), 2 ); }
+      }
+
+      .match-hong {
+        right: 0;
+        text-align: right;
+        border-top-right-radius: math.div( $height, 2 );
+        border-bottom-right-radius: math.div( $height, 2 );
+
+        background: rgb(36,0,0);
+        color: #333;
+        
+        .name { padding-right: 80px; line-height: 1.9em; right: 0; }
+        .win  { right: 10px; background-color: #653; }
+        .noc  { left: 100px; top: 2 * $border; opacity: 20%; }
+      }
+      &.active .match-number {
+        background: gold;
+        color: black;
+      }
+
+      .match-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        height: $height;
+        width: $height;
+        border-radius: math.div( $height, 2 );
+        background: #333;
+        color: black;
+        font-size: 1.2em;
+        text-align: center;
+        left: 50%;
+        transform: translateX( -50% );
+
+        .number {
+          position: relative;
+          font-size: 3.2em;
+        }
+      }
+      &.ro4.active .win { top: 27px; }
+    }
+  }
+}
+

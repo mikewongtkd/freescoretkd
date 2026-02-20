@@ -59,7 +59,9 @@ body {
 			left: 10px;
 			padding: 0 8px 0 8px;
 			text-align: center;
+			overflow-x: hidden;
 			overflow-y: auto;
+			font-size: 10pt;
 
 			.label {
 				position: relative;
@@ -76,18 +78,15 @@ body {
 			}
 
 			.description {
-				font-size: 12pt;
 				color: lime;
 			}
 			.round {
 				margin-top: 4px;
-				font-size: 12pt;
 				color: skyblue;
 			}
 			.form {
 				color: #999;
-				font-size: 12pt;
-				.current { color: yellow; }
+				.current { color: yellow; text-decoration: underline; }
 			}
 		}
 
@@ -133,8 +132,8 @@ body {
 				list-style-type: none;
 				padding: 0;
 				margin: 0;
-				width: 240px;
-				left: 72px;
+				width: 340px;
+				left: 22px;
 				.details {
 					color: #ccc;
 					font-size: 14pt;
@@ -149,9 +148,9 @@ body {
 			& > .accuracy, & > .presentation {
 				position: absolute;
 				width: 194px;
-				height: 208px;
-				font-size: 72pt;
-				line-height: 72pt;
+				height: 168px;
+				font-size: 48pt;
+				line-height: 48pt;
 				padding-top: 48px;
 				text-align: center;
 				top: 0;
@@ -163,7 +162,7 @@ body {
 				background: -webkit-linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
 				background: linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
 				color: white;
-				span { font-size: 18pt; line-height: 18pt; }
+				span { font-size: 14pt; line-height: 14pt; }
 				left: 0;
 			}
 
@@ -172,27 +171,27 @@ body {
 				background: white;
 				background: -webkit-linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
 				background: linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
-				span { font-size: 18pt; line-height: 18pt; }
+				span { font-size: 14pt; line-height: 14pt; }
 				left: 194px;
 			}
 
 			& > .total {
-				color: white;
-				font-size: 24pt; 
-				line-height: 24pt;
-				background: #333;
-				background: -webkit-linear-gradient(to bottom, #aebcbf 0%,#4e5754 50%,#3a3e3a 51%,#3a3839 100%);
-				background: linear-gradient(to bottom, #aebcbf 0%,#4e5754 50%,#3a3e3a 51%,#3a3839 100%);
+				color: skyblue;
+				font-size: 32pt; 
+				line-height: 32pt;
+				background: rgb( 2, 0, 36 );
+				background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(7,7,85,1) 50%, rgba(0,67,144,1) 100%);
 				position: absolute;
-				top: 168px;
-				left: 154px;
-				width: 80px;
+				top: 132px;
+				left: 134px;
+				width: 120px;
 				border-radius: 12pt;
+				border: 3px solid rgba(2,0,36,1);
 				text-align: center;
 
 				.total-label {
-					font-size: 12pt; 
-					line-height: 12pt;
+					font-size: 14pt; 
+					line-height: 14pt;
 					color: #ccc;
 				}
 			}

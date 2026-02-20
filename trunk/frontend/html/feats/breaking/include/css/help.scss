@@ -1,0 +1,25 @@
+#page-help {
+	color: white;
+	font-size: 0.75em;
+
+	h1 { font-size: 1.4em; color: yellow; }
+
+	td, th {
+		font-size: 1em;
+	}
+	td { color: white; }
+	th { color: cyan; }
+
+	h4 { color: cyan; }
+
+	.caution {
+		margin-left: 2em;
+		margin-right: 2em;
+		margin-bottom: 1em;
+		color: red;
+		font-weight: bold;
+	}
+	
+	padding-bottom: 10%;
+}
+

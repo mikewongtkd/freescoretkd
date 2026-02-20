@@ -1,0 +1,14 @@
+[Unit]
+Description=FreeScore Grassroots Poomsae Scoring Service
+
+[Documentation]
+Documentation=https://github.com/mikewongtkd/freescoretkd
+
+[Service]
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/grassroots
+WorkingDirectory=/usr/local/freescore
+Type=forking
+PIDFile=/run/freescore/grassroots.pid
+
+[Install]
+WantedBy=multi-user.target

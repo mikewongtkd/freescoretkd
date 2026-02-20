@@ -1,0 +1,316 @@
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  background: #45484d;
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  font-family: Optima, Biolinum, Lato;
+}
+
+.scoreboard, .leaderboard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #45484d;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  font-size: 2em;
+  width: 1192px;
+  height: 632px;
+  margin: 20px;
+  border: 4px solid white;
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+}
+
+.scoreboard .division-summary {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 1192px;
+  text-align: center;
+  color: grey;
+}
+.scoreboard .athlete-info {
+  position: absolute;
+  top: 58px;
+  left: 20px;
+  width: 1192px;
+  height: 120px;
+}
+.scoreboard .athlete-info .athlete-noc {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 80px;
+  width: 180px;
+}
+.scoreboard .athlete-info .athlete-noc img {
+  height: 80px;
+  width: 80px;
+}
+.scoreboard .athlete-info .athlete-name {
+  position: absolute;
+  top: 0;
+  left: 180px;
+  height: 80px;
+  width: 832px;
+  font-size: 2.5em;
+  line-height: 1em;
+  text-align: center;
+  color: yellow;
+}
+.scoreboard .athlete-info .athlete-boards {
+  position: absolute;
+  top: 80px;
+  left: 496px;
+  height: 80px;
+  width: 300px;
+  text-align: center;
+}
+.scoreboard .timer-display {
+  position: absolute;
+  top: 58px;
+  right: 20px;
+  height: 80px;
+  width: 180px;
+}
+.scoreboard .timer-display .time {
+  font-size: 1.8em;
+  color: lime;
+}
+.scoreboard .timer-display .time.overtime {
+  color: red;
+}
+.scoreboard .timer-display .fas {
+  transform: translateY(-50%);
+  font-size: 0.66em;
+  color: grey;
+}
+.scoreboard .judge-scores {
+  position: absolute;
+  top: 192px;
+  left: 0;
+}
+.scoreboard .judge-scores .score {
+  width: 540px;
+  text-align: center;
+  color: #999;
+  font-size: 2em;
+  line-height: 1.2em;
+}
+.scoreboard .judge-scores .score:last-child label {
+  border-radius: 0 0 0 12px;
+}
+.scoreboard .judge-scores .score.judges3 {
+  height: 120px;
+  font-size: 2.5em;
+  line-height: 1.5em;
+}
+.scoreboard .judge-scores .score.judges5 {
+  height: 80px;
+  font-size: 2em;
+  line-height: 1em;
+}
+.scoreboard .judge-scores .score label {
+  display: block;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+.scoreboard .judge-scores .score label, .scoreboard .judge-scores .score .tech, .scoreboard .judge-scores .score .pres, .scoreboard .judge-scores .score .received {
+  position: absolute;
+  width: 180px;
+  text-align: center;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+.scoreboard .judge-scores .score label.judges3, .scoreboard .judge-scores .score .tech.judges3, .scoreboard .judge-scores .score .pres.judges3, .scoreboard .judge-scores .score .received.judges3 {
+  height: 120px;
+}
+.scoreboard .judge-scores .score label.judges5, .scoreboard .judge-scores .score .tech.judges5, .scoreboard .judge-scores .score .pres.judges5, .scoreboard .judge-scores .score .received.judges5 {
+  height: 80px;
+}
+.scoreboard .judge-scores .score .tech {
+  left: 182px;
+  width: 180px;
+  color: #f99;
+}
+.scoreboard .judge-scores .score .tech.ignore {
+  color: #c66;
+  opacity: 0.75;
+  text-decoration: line-through;
+}
+.scoreboard .judge-scores .score .pres {
+  left: 364px;
+  width: 180px;
+  color: #99f;
+}
+.scoreboard .judge-scores .score .pres.ignore {
+  color: #66c;
+  opacity: 0.75;
+  text-decoration: line-through;
+}
+.scoreboard .judge-scores .score .received {
+  left: 182px;
+  width: 362px;
+  color: #0c0;
+}
+.scoreboard .score-display {
+  position: absolute;
+  top: 192px;
+  left: 564px;
+  width: 588px;
+  height: 400px;
+  border: 4px solid white;
+  padding: 20px;
+  border-radius: 12px;
+  background: #45484d;
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+}
+.scoreboard .score-display .subtotal, .scoreboard .score-display .deductions {
+  position: absolute;
+  top: 0;
+  font-size: 0.5em;
+  height: 40px;
+  text-align: center;
+}
+.scoreboard .score-display .subtotal span, .scoreboard .score-display .deductions span {
+  display: block;
+  font-size: 2.5em;
+}
+.scoreboard .score-display .subtotal {
+  left: 0;
+  width: 196px;
+}
+.scoreboard .score-display .subtotal span {
+  color: gold;
+}
+.scoreboard .score-display .deductions {
+  position: absolute;
+  width: 588px;
+}
+.scoreboard .score-display .deductions .tech, .scoreboard .score-display .deductions .proc {
+  position: absolute;
+  width: 196px;
+}
+.scoreboard .score-display .deductions .tech span, .scoreboard .score-display .deductions .proc span {
+  display: block;
+}
+.scoreboard .score-display .deductions .tech {
+  left: 196px;
+}
+.scoreboard .score-display .deductions .tech span {
+  color: cyan;
+}
+.scoreboard .score-display .deductions .proc {
+  left: 392px;
+}
+.scoreboard .score-display .deductions .proc span {
+  color: magenta;
+}
+.scoreboard .score-display .total {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  width: 588px;
+  height: 320px;
+  text-align: center;
+}
+.scoreboard .score-display .total span {
+  display: block;
+  color: lime;
+  font-size: 9em;
+  line-height: 1em;
+  width: 588px;
+}
+
+.leaderboard .leaderboard-rankings {
+  overflow-y: auto;
+}
+.leaderboard .leaderboard-rankings .placement {
+  font-size: 1.5em;
+  width: 1192px;
+}
+.leaderboard .leaderboard-rankings .placement .place, .leaderboard .leaderboard-rankings .placement .name, .leaderboard .leaderboard-rankings .placement .score, .leaderboard .leaderboard-rankings .placement .tb1, .leaderboard .leaderboard-rankings .placement .tb2 {
+  display: inline-block;
+}
+.leaderboard .leaderboard-rankings .placement .place {
+  width: 89.4px;
+  color: lime;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement .name {
+  width: 655.6px;
+  color: yellow;
+}
+.leaderboard .leaderboard-rankings .placement .score {
+  width: 149px;
+  color: gold;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement .tb1 {
+  width: 149px;
+  color: magenta;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement .tb2 {
+  width: 149px;
+  color: cyan;
+  text-align: center;
+}
+.leaderboard .leaderboard-rankings .placement.current {
+  background: #020024;
+  background: linear-gradient(0deg, #020024 0%, #090979 50%, #006ae4 100%);
+}
+
+/*# sourceMappingURL=display.css.map */

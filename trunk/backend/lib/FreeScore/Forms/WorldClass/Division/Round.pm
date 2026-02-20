@@ -2,10 +2,7 @@ package FreeScore::Forms::WorldClass::Division::Round;
 use JSON::XS;
 use List::Util qw( all any none sum );
 use FreeScore;
-use FreeScore::Forms::WorldClass::Division::Round::Pool;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
-use Data::Structure::Util qw( unbless );
-use Date::Manip;
 use Data::Dumper;
 use Carp;
 
@@ -16,43 +13,45 @@ use Carp;
 #   - accuracy
 #   - presentation
 #   - total
+#   - decision
 # - complete
 # - forms
 #   - [ form index ]
-#     - adjusted
-#       - accuracy
-#       - presentation
-#       - total
 #     - complete
 #     - decision
 #       - withdraw
 #       - disqualify
-#       - bye
+#     - judge
+#       - [ judge index ]
+#         - Score Object
+#     - adjusted
+#       - accuracy
+#       - presentation
+#       - total
 #     - original
 #       - accuracy
 #       - presentation
 #       - total
 #     - penalties
 #     - started
-#   - judge
-#     - [ judge index ]
-#       - Score Object
-# - pool
+# - match
 # - started
 # - tiebreakers
 #   (same substructure as forms)
 # - total
 
-our @PENALTIES = qw( bounds other timelimit restart );
+our @PENALTIES = qw( bounds timelimit restart );
 our @GAMJEOMS  = qw( misconduct );
 our @TIME      = qw( time );
 
 # ============================================================
 sub new {
 # ============================================================
+# A round is an has an array of one or more forms.
+# ------------------------------------------------------------
 	my ($class) = map { ref || $_ } shift;
 	my $data    = shift || {};
-	my $self    = bless $data, $class;
+	my $self    = bless $data, $class; 
 	$self->init( @_ );
 	return $self;
 }
@@ -96,25 +95,6 @@ sub clear_score {
 }
 
 # ============================================================
-sub pool_judge_ready {
-# ============================================================
-# A judge has indicated they are ready to score
-# ------------------------------------------------------------
-	my $self    = shift;
-	my $size    = shift;
-	my $form    = shift;
-	my $judge   = shift;
-
-	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
-	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-	$pool->size( $size );
-	$pool->want( $k );
-
-	my $result = $pool->ready( $form, $judge );
-	return $result;
-}
-
-# ============================================================
 sub record_score {
 # ============================================================
 # Records a given score. Will overwrite if the same judge has
@@ -135,7 +115,7 @@ sub record_score {
 # ============================================================
 sub record_penalties {
 # ============================================================
-# Records penalties. Will overwrite.
+# Records penalties. Will overwrite. 
 #------------------------------------------------------------
  	my $self    = shift;
 	my $form    = shift;
@@ -147,45 +127,9 @@ sub record_penalties {
 }
 
 # ============================================================
-sub record_pool_score {
-# ============================================================
-# Records a score from a judge pool.
-#------------------------------------------------------------
- 	my $self  = shift;
-	my $size  = shift;
-	my $form  = shift;
-	my $score = shift;
-
-	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
-	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-	$pool->size( $size );
-	$pool->want( $k );
-
-	my $votes = $pool->record_score( $form, $score );
-
-	return { status => 'in-progress', votes => $votes } unless $votes->{ have }{ valid } == $size;
-	my $result = $pool->resolve( $form, $self, 0 );
-
-	return $result;
-}
-
-# ============================================================
-sub record_completion_time {
-# ============================================================
-# Records penalties. Will overwrite.
-#------------------------------------------------------------
- 	my $self = shift;
-	my $form = shift;
-	my $time = shift;
-
-	$self->{ forms }[ $form ]{ complete } = $time;
-}
-
-# ============================================================
 sub record_decision {
 # ============================================================
-# Records decision notes. Will overwrite. Also converts pool
-# punitive DSQ votes to 'OK'
+# Records decision notes. Will overwrite. 
 #------------------------------------------------------------
  	my $self     = shift;
 	my $i        = shift;
@@ -193,45 +137,15 @@ sub record_decision {
 
 	my $form = $self->{ forms }[ $i ];
 	if( $decision eq 'clear' ) {
-		foreach my $form (@{ $self->{ forms }}) {
-			delete $form->{ decision }{ $_ } foreach (qw( disqualify withdraw ));
-			unless( exists( $form->{ decision }{ bye }) && defined( $form->{ decision }{ bye })) {
-				$form->{ complete } = 0;
-				$form->{ started }  = 0;
-			}
-		}
+		delete $form->{ decision }{ $_ } foreach (keys %{ $form->{ decision }});
+		$form->{ complete } = 0;
+		$form->{ started }  = 0;
 		$self->{ complete } = 0 if( none { $self->form_complete( $_ )} @{$self->{ forms }} );
-
-		return unless( exists $self->{ pool });
-		foreach my $score (values %{$self->{ pool }{ forms }[ $i ]{ scores }}) {
-			next unless( exists $score->{ video } && exists $score->{ video }{ feedback });
-			next unless $score->{ video }{ feedback } eq 'dsq';
-			$score->{ video }{ feedback } = 'ok';
-		}
 
 	} else {
 		$form->{ decision }{ $decision } = 1;
-		$form->{ complete }              = _now();
+		$form->{ complete }              = 1;
 	}
-}
-
-# ============================================================
-sub resolve_pool {
-# ============================================================
-# Timeout-forced resolution of the current pool
-# ------------------------------------------------------------
-	my $self  = shift;
-	my $size  = shift;
-	my $form  = shift;
-
-	my $k    = int( @{ $self->{ forms }[ $form ]{ judge }});
-	my $pool = $self->{ pool } = new FreeScore::Forms::WorldClass::Division::Round::Pool( $self->{ pool });
-	$pool->size( $size );
-	$pool->want( $k );
-
-	my $result = $pool->resolve( $form, $self, 1 );
-	return undef if( $result->{ have }{ responses } == 0 ); # Bad data or literally EVERYONE has dropped
-	return $result;
 }
 
 # ============================================================
@@ -246,33 +160,26 @@ sub add_tiebreaker {
 }
 
 # ============================================================
-sub calculate_means {
+sub calculate_totals {
 # ============================================================
 	my $self   = shift;
 	my $judges = shift;
-	my $means  = [];
+	my $totals = [];
 
 	$self->started();
 	$self->complete();
+	my $dcode = { disqualify => 'DSQ', withdraw => 'WDR' };
 	foreach my $form (@{$self->{ forms }}) {
 		next unless $form->{ complete };
 		next unless exists $form->{ judge };
 
 		# ===== SKIP CALCULATIONS FOR WITHDRAWN OR DISQUALIFIED ATHLETES
-		my $punitive_decision = $self->form_has_punitive_decision( $form );
-		if( $punitive_decision ) {
-			$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", 0.0 );
-			$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", 0.0 );
-			$self->{ total }                    = 0.0 + sprintf( "%.2f", 0.0 );
-			last;
-		}
-
-		# ===== SKIP CALCULATIONS FOR ATHLETES WITH BYES
-		my $winning_decision = $self->form_has_winning_decision( $form );
-		if( $winning_decision ) {
-			$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.2f", 0.0 );
-			$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.2f", 0.0 );
-			$self->{ total }                    = 0.0 + sprintf( "%.2f", 0.0 );
+		my $decision = $self->form_has_punitive_decision( $form );
+		if( $decision ) {
+			$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.3f", 0.0 );
+			$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.3f", 0.0 );
+			$self->{ total }                    = 0.0 + sprintf( "%.3f", 0.0 );
+			$self->{ adjusted }{ decision }     = $dcode->{ $decision };
 			last;
 		}
 
@@ -284,8 +191,8 @@ sub calculate_means {
 			my $score        = $form->{ judge }[ $i ];
 			my $accuracy     = $score->{ accuracy };
 			my $presentation = $score->{ presentation };
-			die "Round Object Error: Accuracy not calculated!"     if ! defined $accuracy     && ! $punitive_decision;
-			die "Round Object Error: Presentation not calculated!" if ! defined $presentation && ! $punitive_decision;
+			die "Round Object Error: Accuracy not calculated!"  if ! defined $accuracy     && ! $punitive_decision;
+			die "Round Object Error: Precision not calculated!" if ! defined $presentation && ! $punitive_decision;
 			$stats->{ minacc } = $form->{ judge }[ $stats->{ minacc } ]{ accuracy     } > $accuracy     ? $i : $stats->{ minacc };
 			$stats->{ maxacc } = $form->{ judge }[ $stats->{ maxacc } ]{ accuracy     } < $accuracy     ? $i : $stats->{ maxacc };
 			$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation } > $presentation ? $i : $stats->{ minpre };
@@ -312,15 +219,14 @@ sub calculate_means {
 		$stats->{ minpre } = $form->{ judge }[ $stats->{ minpre } ]{ presentation };
 		$stats->{ maxpre } = $form->{ judge }[ $stats->{ maxpre } ]{ presentation };
 
-		my @mean = (
-			accuracy     => 0.0 + sprintf( "%.2f", $stats->{ sumacc }),
-			presentation => 0.0 + sprintf( "%.2f", $stats->{ sumpre })
+		my @subtotals = (
+			accuracy     => sprintf( "%.3f", $stats->{ sumacc }),
+			presentation => sprintf( "%.3f", $stats->{ sumpre })
 		);
-		my $adjusted = { @mean };
-		my $allscore = { @mean };
+		my $adjusted = { @subtotals };
+		my $original = { @subtotals };
 
-		# ===== CALCULATE ADJUSTED MEANS
-		# For 5 or more judges, drop the highs & lows and take the mean
+		# ===== CALCULATE ADJUSTED TOTALS
 		if( $judges >= 5 ) {
 			$adjusted->{ accuracy }     -= ($stats->{ minacc } + $stats->{ maxacc });
 			$adjusted->{ presentation } -= ($stats->{ minpre } + $stats->{ maxpre });
@@ -330,51 +236,43 @@ sub calculate_means {
 
 			$adjusted->{ accuracy }     = $adjusted->{ accuracy }     < 0 ? 0 : $adjusted->{ accuracy };
 			$adjusted->{ presentation } = $adjusted->{ presentation } < 0 ? 0 : $adjusted->{ presentation };
+			
+			$adjusted->{ accuracy }     = sprintf( "%.3f", $adjusted->{ accuracy } );
+			$adjusted->{ presentation } = sprintf( "%.3f", $adjusted->{ presentation } );
 
-		# For fewer than 5 judges, take the mean (no outlier filtering)
 		} else {
-			$adjusted = { map { $_ => $adjusted->{ $_ }/$judges } keys %$adjusted };
+			$adjusted = { map { ( $_ => sprintf( "%.3f", ($adjusted->{ $_ }/$judges))) } keys %$adjusted };
 		}
-
-		# ===== ROUND TO TWO DECIMAL PRECISION
-		$adjusted->{ accuracy }     = 0.0 + sprintf( "%.2f", $adjusted->{ accuracy });
-		$adjusted->{ presentation } = 0.0 + sprintf( "%.2f", $adjusted->{ presentation });
 
 		# ===== CALCULATE PENALTIES
 		my $penalties = sum @{$form->{ penalty }}{ ( @PENALTIES ) };
 
-		# ===== CALCULATE ALL-SCORE MEANS
-		$allscore = { map { $_ => $allscore->{ $_ }/$judges } keys %$allscore };
+		# ===== CALCULATE TOTALS AND APPLY PENALTIES
+		$original = { map { ( $_ => 0.0 + sprintf( "%.3f", ($original->{ $_ }/$judges))) } keys %$original };
 
 		$adjusted->{ total } = $adjusted->{ accuracy } + $adjusted->{ presentation } - $penalties;
-		$allscore->{ total } = $allscore->{ accuracy } + $allscore->{ presentation } - $penalties;
-
-		if( $adjusted->{ total } < 1.5 ) { $adjusted->{ total } = 1.5; }
-		if( $allscore->{ total } < 1.5 ) { $allscore->{ total } = 1.5; }
+		$original->{ total } = $original->{ accuracy } + $original->{ presentation } - $penalties;
 
 		$form->{ adjusted } = $adjusted;
-		$form->{ allscore } = $allscore;
+		$form->{ original } = $original;
 
-		push @$means, { adjusted => $adjusted, allscore => $allscore };
-	}
-	# ===== CALCULATE TIEBREAKER SCORES (NOT YET IMPLEMENTED)
-	foreach my $form (@{$self->{ tiebreakers }}) {
+		push @$totals, { adjusted => $adjusted, original => $original };
 	}
 
 	# ===== CACHE CALCULATIONS
-	$self->{ adjusted } = { total => 0, accuracy => 0, presentation => 0 };
-	$self->{ allscore } = { total => 0 };
+	$self->{ adjusted } = { accuracy => 0.0, presentation => 0.0, total => 0.0 };
+	$self->{ total }    = 0.0;
 
-	foreach my $mean (@$means) {
-		$self->{ adjusted }{ total }        += $mean->{ adjusted }{ total };
-		$self->{ adjusted }{ accuracy }     += $mean->{ adjusted }{ accuracy };
-		$self->{ adjusted }{ presentation } += $mean->{ adjusted }{ presentation };
-		$self->{ allscore }{ total }        += $mean->{ allscore }{ total };
+	foreach my $total (@$totals) {
+		$self->{ adjusted }{ total }        += $total->{ adjusted }{ total };
+		$self->{ adjusted }{ accuracy }     += $total->{ adjusted }{ accuracy };
+		$self->{ adjusted }{ presentation } += $total->{ adjusted }{ presentation };
+		$self->{ total }                    += $total->{ original }{ total };
 	};
 
-	$self->{ adjusted }{ total }        = 0.0 + $self->{ adjusted }{ total };
-	$self->{ adjusted }{ presentation } = 0.0 + $self->{ adjusted }{ presentation };
-	$self->{ allscore }{ total }        = 0.0 + $self->{ allscore }{ total };
+	$self->{ adjusted }{ total }        = 0.0 + sprintf( "%.3f", $self->{ adjusted }{ total } );
+	$self->{ adjusted }{ presentation } = 0.0 + sprintf( "%.3f", $self->{ adjusted }{ presentation } );
+	$self->{ total }                    = 0.0 + sprintf( "%.3f", $self->{ total } );
 
 	return $self;
 }
@@ -388,31 +286,13 @@ sub form_complete {
 	my $i    = shift; # Index or reference to the form
 	my $form = ref $i ? $i : $self->{ forms }[ $i ];
 
-	# Form is complete if there is a punitive decision
-	$form->{ complete } = _now() if( ! $form->{ complete } && $self->form_has_punitive_decision( $i ));
-
-	# Return previously resolved cached value
-	return $form->{ complete } if $form->{ complete };
+	return 1 if $form->{ complete };                     # Return previously resolved cached value
+	return 1 if $self->form_has_punitive_decision( $i ); # Form is complete if there is a punitive decision
 
 	# ===== FORM IS COMPLETE IF ALL JUDGES HAVE REGISTERED A VALID SCORE
 	return 0 unless exists $form->{ judge };
-	my $complete = all { $_->complete() } ( @{ $form->{ judge }} );
-	$form->{ complete } = _now() if( $complete && ! $form->{ complete });
+	$form->{ complete } ||= all { $_->complete() } ( @{ $form->{ judge }} );
 	return $form->{ complete };
-}
-
-# ============================================================
-sub form_has_winning_decision {
-# ============================================================
-	my $self = shift;
-	my $i    = shift; # Index or reference to the form
-	my $form = ref $i ? $i : $self->{ forms }[ $i ];
-
-	if( exists $form->{ decision } && $form->{ decision }{ bye }) {
-		$form->{ adjusted }{ total }        = 0.0;
-		$form->{ adjusted }{ presentation } = 0.0;
-		return 1;
-	}
 }
 
 # ============================================================
@@ -422,20 +302,16 @@ sub form_has_punitive_decision {
 	my $i    = shift; # Index or reference to the form
 	my $form = ref $i ? $i : $self->{ forms }[ $i ];
 
-	if( exists $form->{ decision } && ($form->{ decision }{ withdraw } || $form->{ decision }{ disqualify })) {
+	return 0 unless exists $form->{ decision };
+	my $fd = $form->{ decision };
+
+	foreach my $decision (qw( withdraw disqualify )) {
+		next unless exists $fd->{ $decision } && defined $fd->{ $decision };
+
 		$form->{ adjusted }{ total }        = 0.0;
 		$form->{ adjusted }{ presentation } = 0.0;
-		return 1;
-	}
-}
 
-# ============================================================
-sub any_disqualification {
-# ============================================================
-	my $self = shift;
-
-	foreach my $form (@{ $self->{ forms }}) {
-		return 1 if( exists $form->{ decision }{ disqualify } && $form->{ decision }{ disqualify } );
+		return $decision;
 	}
 	return 0;
 }
@@ -445,8 +321,8 @@ sub any_punitive_decision {
 # ============================================================
 	my $self = shift;
 
-	foreach my $form (@{ $self->{ forms }}) {
-		$self->form_complete( $form );
+	foreach my $form (@{ $self->{ forms }}) { 
+		$self->form_complete( $form ); # Update form status
 		if( $self->form_has_punitive_decision( $form )) {
 			$self->{ complete } = 1;
 			return 1;
@@ -456,18 +332,12 @@ sub any_punitive_decision {
 }
 
 # ============================================================
-sub any_winning_decision {
+sub compare {
 # ============================================================
-	my $self = shift;
+	my $self  = shift;
+	my $other = shift;
 
-	foreach my $form (@{ $self->{ forms }}) {
-		$self->form_complete( $form );
-		if( $self->form_has_winning_decision( $form )) {
-			$self->{ complete } = 1;
-			return 1;
-		}
-	}
-	return 0;
+	return FreeScore::Forms::WorldClass::Division::Round::_compare( $self, $other );
 }
 
 # ============================================================
@@ -480,8 +350,12 @@ sub complete {
 
 	return 1 if $self->any_punitive_decision();
 
+	# ===== A ROUND CANNOT HAVE 0 FORMS
+	my $forms = exists $self->{ forms } && ref($self->{ forms }) eq 'ARRAY' ? $self->{ forms } : [];
+	return 0 if int( @$forms ) == 0;
+
 	# ===== A ROUND IS COMPLETE WHEN ALL COMPULSORY FORMS ARE COMPLETED
-	$self->{ complete } = all { $_->{ complete } } @{ $self->{ forms }};
+	$self->{ complete } = all { $self->form_complete( $_ )} @$forms;
 	return $self->{ complete };
 }
 
@@ -506,8 +380,8 @@ sub reinstantiate {
 	my $sub = eval { $self->can( "record_score" ) };
 	my $ref = ref $self;
 	if( ! $sub ) {
-		if( $ref eq 'HASH' ) { bless $self, "FreeScore::Forms::WorldClass::Division::Round"; }
-		else                 { die "Round Object Error: Attempting to instantiate a round object that is not a hash ($ref) $!"; }
+		if( $ref eq 'HASH' ) { bless $self, "FreeScore::Forms::WorldClass::Division::Round"; } 
+		else                 { die "Round Object Error: Attempting to instantiate an round object that is not an hash ($ref) $!"; }
 	}
 	for( my $i = 0; $i < $forms; $i++ ) {
 		for( my $j = 0; $j < $judges; $j++ ) {
@@ -542,8 +416,11 @@ sub string {
 	my $round  = shift;
 	my $forms  = shift;
 	my $judges = shift;
+	my $match  = exists $self->{ match } && $self->{ match } ? sprintf( "m%d", ($self->{ match } + 1)) : undef;
 	my @string = ();
 
+	$round .= $match if $match;
+	
 	for( my $i = 0; $i < $forms; $i++ ) {
 		my $form    = $self->{ forms }[ $i ];
 		my $form_id = 'f' . ($i + 1);
@@ -552,13 +429,13 @@ sub string {
 		if( exists $form->{ decision } ) {
 			foreach my $key (sort keys %{ $form->{ decision }}) {
 				my $value = $form->{ decision }{ $key };
-				push @string, join( "\t", ('', $round, $form_id, 's', "$key=$value" )) . "\n";
+				push @string, "\t" . join( "\t", $round, $form_id, 's', "$key=$value" ) . "\n";
 			}
 		}
 
-		# ===== RECORD PENALTIES AND TIME (OVER)
+		# ===== RECORD PENALTIES AND TIME
 		if( exists $form->{ penalty } && keys %{ $form->{ penalty }} && any { $_ } values %{ $form->{ penalty }}) {
-			push @string, join( "\t", ('', $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )})) . "\n";
+			push @string, "\t" . join( "\t", $round, $form_id, 'p', @{$form->{ penalty }}{ ( @PENALTIES, @GAMJEOMS, @TIME )} ) . "\n";
 		}
 
 		# ===== RECORD SCORES
@@ -567,14 +444,8 @@ sub string {
 			my $score    = $form->{ judge }[ $j ];
 			my $judge_id = ($j == 0 ? 'r' : "j$j");
 
-			push @string, join( "\t", ('', $round, $form_id, $judge_id, $score->string())) . "\n";
+			push @string, "\t" . join( "\t", $round, $form_id, $judge_id, $score->string() ) . "\n";
 		}
-
-		# ===== RECORD COMPLETION TIME
-		push @string, join( "\t", ('', $round, $form_id, 't', $form->{ complete })) . "\n" if $form->{ complete };
-
-		# ===== RECORD POOL SCORES FOR ONLINE TOURNAMENTS
-		push @string, $self->{ pool }->string( $round, $i ) if( exists $self->{ pool } && defined $self->{ pool });
 	}
 	return join "", @string;
 }
@@ -585,49 +456,50 @@ sub _compare {
 	my $a = shift;
 	my $b = shift;
 
+	# print STDERR "ROUND - COMPARE - STEP 1\n"; # MW
 	if( ! defined $a && ! defined $b ) { return 0; }
 	if( ! defined $a ) { return  1; }
 	if( ! defined $b ) { return -1; }
 
-	my $at   = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ total });
-	my $aap  = 0.0 + sprintf( "%.3f", $a->{ adjusted }{ presentation });
-	my $aat  = 0.0 + sprintf( "%.3f", $a->{ allscore }{ total });
-	my $apun = _rank_punitive( $a );
-	my $bt   = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ total });
-	my $bap  = 0.0 + sprintf( "%.3f", $b->{ adjusted }{ presentation });
-	my $bat  = 0.0 + sprintf( "%.3f", $b->{ allscore }{ total });
-	my $bpun = _rank_punitive( $b );
+	my $pa = $a->any_punitive_decision();
+	my $pb = $b->any_punitive_decision();
 
-	return
-		$bt   <=> $at   ||
-		$bap  <=> $aap  ||
-		$bat  <=> $aat  ||
-		$apun <=> $bpun;
-}
+	# print STDERR "ROUND - COMPARE - STEP 2\n"; # MW
+	return  0 if( $pa && $pb );
+	return  1 if( $pa );
+	return -1 if( $pb );
 
-# ============================================================
-sub _now {
-# ============================================================
-	my $date = new Date::Manip::Date( 'now GMT' ); # The time right now, using the GMT timezone
-	# return $date->printf( "%Y-%m-%dT%H:%M:%SZ" ); # ISO8601 UTC format
-	return 1;
-}
+	# print STDERR "ROUND - COMPARE - STEP 3\n"; # MW
+	if( $a->{ adjusted }{ total } == $b->{ adjusted }{ total } && $a->{ adjusted }{ total } != 0 ) {
+		$a->{ tb }[ 0 ] = $a->{ adjusted }{ presentation }; 
+		$b->{ tb }[ 0 ] = $b->{ adjusted }{ presentation }; 
 
-# ============================================================
-sub _rank_punitive {
-# ============================================================
-	my $score    = shift;
-	my $decision = undef;
+		if( $a->{ adjusted }{ presentation } == $b->{ adjusted }{ presentation }) { 
+			$a->{ tb }[ 1 ] = $a->{ total };
+			$b->{ tb }[ 1 ] = $b->{ total };
 
-	foreach my $form (@{ $score->{ forms }}) {
-		next unless( exists $form->{ decision });
-		$decision = $form->{ decision };
-		last;
+			if( $a->{ total } == $b->{ total } ) { 
+				$a->{ tb }[ 2 ] = 'tiebreaker match required';
+				$b->{ tb }[ 2 ] = 'tiebreaker match required';
+			}
+		}
 	}
+	# print STDERR "ROUND - COMPARE - tiebreakers a vs. b\n"; # MW
+	# print STDERR Dumper $a->{ tb }, $b->{ tb }; # MW
 
-	return 0 unless defined $decision;
-	return 1 if exists $decision->{ withdraw }   && defined $decision->{ withdraw };
-	return 2 if exists $decision->{ disqualify } && defined $decision->{ disqualify };
+	# print STDERR "ROUND - COMPARE - SCORES a vs. b\n"; # MW
+	# print STDERR Dumper $a->{ adjusted }, $b->{ adjusted }; # MW
+
+	my $criteria = {
+		adjusted_total => (0.0 + $b->{ adjusted }{ total })        <=> (0.0 + $a->{ adjusted }{ total }),
+		presentation   => (0.0 + $b->{ adjusted }{ presentation }) <=> (0.0 + $a->{ adjusted }{ presentation }),
+		total          => (0.0 + $b->{ total })                    <=> (0.0 + $a->{ total })
+	};
+	# print STDERR "ROUND - COMPARE - criteria\n"; # MW
+	# print STDERR Dumper $criteria; # MW
+	# print STDERR "ROUND - COMPARE - RESULT: " . ($criteria->{ adjusted_total } || $criteria->{ presentation } || $criteria->{ total }) . "\n"; # MW
+
+	return $criteria->{ adjusted_total } || $criteria->{ presentation } || $criteria->{ total };
 }
 
 # ============================================================

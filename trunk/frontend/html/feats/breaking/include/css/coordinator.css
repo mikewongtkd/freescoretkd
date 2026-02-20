@@ -1,0 +1,271 @@
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@media print {
+  .action-menu, #back-to-divisions {
+    display: none !important;
+  }
+}
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  font-family: Optima, Biolinum, Lato;
+}
+
+.pt-perspective {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px;
+}
+
+.pt-page {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
+}
+
+.pt-page-current,
+.no-js .pt-page {
+  visibility: visible;
+  z-index: 1;
+}
+
+.pt-page-ontop {
+  z-index: 999;
+}
+
+.page-header {
+  position: relative;
+  height: 48px;
+  width: 100%;
+  margin: 10px 0 16px 0;
+  padding: 8px 14px 8px 14px;
+  background-color: black;
+  color: gold;
+  font-size: 24pt;
+  line-height: 24pt;
+  font-weight: bold;
+  border-radius: 4px;
+}
+.page-header .ping-display {
+  float: right;
+  font-size: 12pt;
+  line-height: 12pt;
+  color: red;
+  margin-top: 8px;
+}
+
+#back-to-divisions {
+  margin-top: -3px;
+}
+
+#athletes {
+  height: 600px;
+  overflow-y: auto;
+}
+#athletes .list-group-item {
+  padding-top: 10px;
+  padding-bottom: 6px;
+}
+
+.athlete-name {
+  position: relative;
+  display: inline-block;
+  width: 70%;
+  font-size: 14pt;
+  line-height: 14pt;
+}
+.athlete-name:before {
+  font-size: 10pt;
+  display: inline-block;
+  width: 60px;
+  content: "";
+}
+
+.decision-punitive-header {
+  background-color: #d9534f !important;
+  color: white !important;
+}
+
+.athlete-boards, .athlete-score {
+  display: inline-block;
+  position: relative;
+  width: 12.5%;
+  font-size: 14pt;
+  line-height: 14pt;
+  margin-left: 2.5%;
+  text-align: right;
+  color: white;
+}
+
+.active h4 {
+  font-weight: bold;
+  color: gold;
+}
+.active b {
+  color: gold;
+}
+.active .athlete-name:before {
+  content: "Current";
+  color: gold;
+}
+
+.on-deck .athlete-name:before {
+  content: "On Deck";
+  color: #aaa;
+}
+
+.selected-athlete {
+  background-color: gold;
+}
+.selected-athlete:hover {
+  background-color: yellow;
+}
+.selected-athlete .athlete-name:before {
+  color: #666;
+}
+
+.row {
+  margin-left: -15px;
+  width: calc(100% + 30px);
+}
+.row h4 {
+  margin-left: 8px;
+}
+
+#judge-scores .label {
+  font-size: 1em;
+}
+#judge-scores .tech.label {
+  color: blue;
+}
+#judge-scores .pres.label {
+  color: red;
+}
+#judge-scores .sum.label {
+  color: black;
+}
+#judge-scores table {
+  width: 100%;
+}
+#judge-scores td, #judge-scores th {
+  text-align: center;
+}
+#judge-scores .deductions {
+  text-align: left;
+  padding-left: 8px;
+}
+#judge-scores .dropped {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.action-menu .fas {
+  width: 12px;
+  text-align: center;
+}
+.action-menu .list-group-item span {
+  margin-right: 12px;
+}
+.action-menu .navigate-division .list-group-item, .action-menu .navigate-athlete .list-group-item {
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: white;
+}
+.action-menu .timer #time {
+  height: 32px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.75em;
+  background-color: black;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+.action-menu .timer #time.overtime {
+  color: red;
+}
+.action-menu .timer .btn-group {
+  width: 100%;
+}
+.action-menu .timer .btn-group .btn {
+  width: 50%;
+}
+.action-menu .timer .btn-group #time-stop {
+  border-radius: 4px 0 0 4px;
+}
+.action-menu .administration p {
+  margin: 0 8px 0 8px;
+  font-size: 9pt;
+}
+.action-menu .administration .list-group-item {
+  background-color: #5bc0de;
+  border-color: #46b8da;
+  color: white;
+}
+.action-menu .decision .list-group-item {
+  background-color: #d9534f;
+  border-color: #d43f3a;
+  color: white;
+}
+.action-menu .penalties .list-group-item {
+  background-color: #f0ad4e;
+  border-color: #eea236;
+  color: white;
+}
+
+/*# sourceMappingURL=coordinator.css.map */

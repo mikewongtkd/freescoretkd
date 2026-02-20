@@ -19,7 +19,6 @@
 		<link href="../../include/alertify/css/alertify.min.css" rel="stylesheet" />
 		<link href="../../include/alertify/css/themes/default.min.css" rel="stylesheet" />
 		<link href="../../include/page-transitions/css/animations.css" rel="stylesheet" type="text/css" />
-		<script src="../../include/opt/js-sha1/sha1.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
@@ -122,7 +121,7 @@
 			var ring       = { num: <?= $ring ?> };
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( `ws://<?= $host ?>:3082/freestyle/${tournament.db}/${ring.num}/computer+operator/${sha1.hex(Date.now())}` );
+      var ws         = new WebSocket( `<?= $config->websocket( 'freestyle', $ring, 'computer+operator' ) ?>` );
 			var timer      = new Timer();
 
 			timer.addEventListener( 'secondTenthsUpdated', function( e ) {
@@ -228,20 +227,25 @@
 							var rows     = [ 'tec', 'pre', 'sum' ];
 							console.log( scores, adjusted );
 							for( var k = 0; k < n; k++ ) {
-								var score  = scores[ k ];
-								var points = {
-									tec : Object.values( score.technical ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
-									pre : Object.values( score.presentation ).reduce(( a, b ) => { return a + b; }).toFixed( 2 ),
-								};
+								if( ! scores ) { continue; }
+								let score  = scores[ k ];
+								let points = { display : score => {
+									if( score === null || score === undefined ) { return '-'; }
+									return Object.values( score ).reduce(( a, b ) => parseFloat( a ) + parseFloat( b ), 0.0 ).toFixed( 2 );
+								}};
+								points.tec = points.display( score ? score.technical : {} );
+								points.pre = points.display( score ? score.presentation : {} );
 								points.sum = (parseFloat( points.tec ) + parseFloat( points.pre )).toFixed( 2 );
 								rows.forEach(( key ) => { $( `#j${k}-${key}` ).text( points[ key ] ).removeClass( 'ignore' ); });
-								if( k == max.presentation || k == min.presentation ) { $( `#j${k}-pre` ).addClass( 'ignore' ); }
-								if( k == max.technical    || k == min.technical    ) { $( `#j${k}-tec` ).addClass( 'ignore' ); }
+								if( max && min ) {
+									if( k == max.presentation || k == min.presentation ) { $( `#j${k}-pre` ).addClass( 'ignore' ); }
+									if( k == max.technical    || k == min.technical    ) { $( `#j${k}-tec` ).addClass( 'ignore' ); }
+								}
 							}
 							var points = {
-								tec: adjusted.technical.toFixed( 2 ),
-								pre: adjusted.presentation.toFixed( 2 ),
-								sum: adjusted.total.toFixed( 2 ),
+								tec: adjusted.technical ? adjusted.technical.toFixed( 2 ) : '',
+								pre: adjusted.presentation ? adjusted.presentation.toFixed( 2 ) : '',
+								sum: adjusted.total ? adjusted.total.toFixed( 2 ) : '',
 							};
 							rows.forEach(( key ) => { $( `#score-${key}` ).text( points[ key ] ); });
 							// Report range here. // MW
@@ -373,7 +377,8 @@
 				},
 				ring: function( ring ) {
 					$( '#ring' ).empty();
-					ring.divisions.forEach(( d ) => {
+					console.log( 'DIVISIONS', ring.divisions );
+					ring.divisions.forEach( d => {
 						var division    = new Division( d );
 						var button      = html.a.clone().addClass( "list-group-item" );
 						var title       = html.h4.clone().html( division.summary() );
@@ -387,10 +392,11 @@
 							var clicked  = $( ev.target ); if( ! clicked.is( 'a' ) ) { clicked = clicked.parent(); }
 							var divid    = clicked.attr( 'divid' );
 							var division = ring.divisions.find(( d ) => { return d.name == divid; });
+							division = new Division( division );
 
 							$.cookie( 'divid', divid, { expires: 1, path: '/' });
-							refresh.athletes( new Division( division ), division.name == ring.current );
-							refresh.judges( division, curDiv );
+							refresh.athletes( division , division.name() == ring.current );
+							refresh.judges( division );
 							sound.next.play();
 							page.transition();
 						});

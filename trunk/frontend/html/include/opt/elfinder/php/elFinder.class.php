@@ -1539,7 +1539,7 @@ class elFinder {
 					$url = trim($matches[1]);
 					$hash = isset($matches[2])? trim($matches[2]) : '';
 					if (!preg_match('/^https?:\//',$url)) { // no scheme
-						if ($url{0} != '/') { // Relative path
+						if ($url[0] != '/') { // Relative path
 							// to Absolute path
 							$url = substr($url_path,0,strrpos($url_path,'/')).'/'.$url;
 						}

@@ -1,58 +1,180 @@
 <?php
-	function get_ring_number( $n ) {
-		if( ! preg_match( '/ring/', $n )) { return null; }
-		$n = preg_replace( '/ring/', '', $n );
-		return intval( $n );
-	}
+	class Config {
+		public $data;
 
-	function read_config() {
-		$locations = [ '/home/ubuntu/freescore/trunk/frontend/html/include/php/config.json', '/var/www/html/freescore/include/php/config.json', '/var/www/html/include/php/config.json', '/var/www/include/php/config.json', '/var/www/freescore/include/php/config.json' ];
-		foreach( $locations as $i => $file ) {
-			if( ! file_exists( $file )) { continue; }
-			$string = file_get_contents( $file );
-			$config = json_decode( $string, true );
-			return $config;
+		public function __construct() {
+			$paths = [ '/usr/local/freescore', '/usr/freescore', '/home/ubuntu/freescore', '/freescore', '/home/root/freescore' ];
+			foreach( $paths as $path ) {
+				$file = "{$path}/config.json";
+				if( ! file_exists( $file )) { continue; }
+
+				$text = file_get_contents( $file );
+				$data = json_decode( $text, true );
+
+				if( array_key_exists( 'service', $data )) {
+					foreach( $data[ 'service' ] as $name => &$service ) {
+						$service[ 'name' ] = $name;
+					}
+				}
+
+				$this->data = $data;
+
+				return;
+			}
+
+			$this->data = null;
+			die( "No configuration file found" );
+		}
+
+		public function host() {
+			$config = $this->data;
+			if( ! array_key_exists( 'host', $config )) { return 'http://freescore.net'; } # Default
+			$http = 'http://';
+			$host = $config[ 'host' ];
+			$port = '';
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i',   $config[ 'protocol' ])) { $http = 'https://'; } else { $http = 'http://'; } # Default
+			if( ! array_key_exists( 'port', $config ) || $config[ 'port' ] == 80 ) { $port = ''; } else { $port = ":{$config[ 'port' ]}"; }
+
+			$url = "{$http}{$host}{$port}";
+			return $url;
+		}
+
+		public function password( $ring = null ) {
+			$config = $this->data;
+			if( ! array_key_exists( 'password', $config )) { return false; }
+
+			if( ! is_array( $config[ 'password' ])) { return $config[ 'password' ]; }
+			if( is_null( $ring )) { return null; }
+			if( is_int( $ring )) { $ring = sprintf( "ring%02d", $ring ); }
+			if( ! preg_match( '/^(?:ring\d+|staging)/', $ring )) { return null; }
+			if( ! array_key_exists( $ring, $config[ 'password' ])) { return null; }
+
+			return $config[ 'password' ][ $ring ];
+		}
+
+		public function rings() {
+			$config     = $this->data;
+			$services   = $config[ 'service' ];
+			$tournament = $config[ 'tournament' ];
+
+			$rings = [];
+			foreach( $services as $name => $service ) {
+				$path = "/usr/local/freescore/data/{$tournament[ 'db' ]}/{$service[ 'path' ]}";
+				if( ! file_exists( $path )) { continue; }
+				$rings[ $name ] = array_values( preg_grep( '/^(?:ring\d{2}|staging)$/', scandir( $path )));
+			}
+
+			$rings = array_unique( array_merge( ... array_values( $rings )));
+			$rings = array_values( array_filter( array_map( 'Config::get_ring_number', $rings )));
+			sort( $rings );
+			return $rings;
+		}
+
+		public function secured() {
+			$config = $this->data;
+			if( array_key_exists( 'password', $config )) { return true; }
+			return false;
+		}
+
+		public function service( $service ) {
+			$config = $this->data;
+			if( ! array_key_exists( 'service', $config )) { return false; }
+			if( ! array_key_exists( $service, $config[ 'service' ])) { return false; }
+
+			return $config[ 'service' ][ $service ];
+		}
+
+		public function services() {
+			$config = $this->data;
+			if( ! array_key_exists( 'service', $config )) { return []; }
+			return array_keys( $config[ 'service' ]);
+		}
+
+		public function service_test( $service ) {
+			$config = $this->data;
+			$http   = 'http://'; # Default
+			$port   = '';
+			$path   = '';
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
+				$http = 'https://'; 
+				$port = '';
+				$path = "/{$service}/status";
+
+			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
+				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
+				$path = "/status";
+				
+			}
+			$host = $config[ 'host' ];
+
+			$url = "{$http}{$host}{$port}{$path}";
+			return $url;
+		}
+
+		public function tournament() {
+			$rings      = $this->rings();
+			$config     = $this->data;
+			$tournament = $config[ 'tournament' ];
+			$tournament[ 'rings' ] = $rings;
+			$tournament = json_encode( $tournament );
+
+			return $tournament;
+		}
+
+		public function webservice( $service ) {
+			$config = $this->data;
+			$http   = 'http://'; # Default
+			$port   = '';
+			$path   = '';
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
+				$http = 'https://'; 
+				$port = '';
+				$path = "/{$service}/webservice";
+
+			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
+				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
+				$path = '';
+				
+			}
+			$host = $config[ 'host' ];
+
+			$url = "{$http}{$host}{$port}{$path}";
+			return $url;
+		}
+
+		public function websocket( $service, $ring = 'staging', $role = 'observer' ) {
+			$config = $this->data;
+			$ws     = 'ws://'; # Default
+			$port   = '';
+			$path   = '';
+			if( array_key_exists( 'protocol', $config ) && preg_match( '/^https/i', $config[ 'protocol' ])) { 
+				$ws   = 'wss://'; 
+				$port = '';
+				$path = "/{$service}/request";
+
+			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
+				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
+				$path = "/{$service}";
+				
+			}
+			$host = $config[ 'host' ];
+			$db   = $config[ 'tournament' ][ 'db' ];
+      if( $service == 'freestyle' ) {
+			  $url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}";
+      } else {
+  			$url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
+      }
+			return $url;
+		}
+
+		public static function get_ring_number( $n ) {
+			if( ! preg_match( '/ring/', $n )) { return null; }
+			$n = preg_replace( '/ring/', '', $n );
+			return intval( $n );
 		}
 	}
 
-	function init_event( $event ) {
-		mkdir( $event, 0777, true )           or die( "Can't create directory '$event'" );
-		mkdir( "$event/ring01", 0777, true )  or die( "Can't create directory '$event/ring01'" );
-		mkdir( "$event/staging", 0777, true ) or die( "Can't create directory '$event/staging'" );
-	}
-
-	function read_rings( $tournament ) {
-		$grassroots = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-grassroots';
-		$worldclass = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-worldclass';
-		$para       = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-para';
-		$freestyle  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/forms-freestyle';
-		$vsparring  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/virtual-sparring';
-		$speedkick  = '/usr/local/freescore/data/' . $tournament[ 'db' ] . '/speed-kicking';
-
-		if( ! file_exists( $grassroots )) { init_event( $grassroots ); }
-		if( ! file_exists( $worldclass )) { init_event( $worldclass ); }
-		if( ! file_exists( $para       )) { init_event( $para       ); }
-		if( ! file_exists( $freestyle  )) { init_event( $freestyle  ); }
-		if( ! file_exists( $vsparring  )) { init_event( $vsparring  ); }
-		if( ! file_exists( $speedkick  )) { init_event( $speedkick  ); }
-
-		$rings = [];
-		$rings[ 'grassroots' ] = preg_grep( '/ring|staging/', scandir( $grassroots ));
-		$rings[ 'worldclass' ] = preg_grep( '/ring|staging/', scandir( $worldclass ));
-		$rings[ 'para' ]       = preg_grep( '/ring|staging/', scandir( $para       ));
-		$rings[ 'freestyle' ]  = preg_grep( '/ring|staging/', scandir( $freestyle  ));
-		$rings[ 'vsparring' ]  = preg_grep( '/ring|staging/', scandir( $vsparring  ));
-		$rings[ 'speedkick' ]  = preg_grep( '/ring|staging/', scandir( $speedkick  ));
-		$rings = array_values( array_filter( array_map( 'get_ring_number', array_unique( array_merge( $rings[ 'grassroots' ], $rings[ 'worldclass' ], $rings[ 'para' ], $rings[ 'freestyle' ], $rings[ 'vsparring' ], $rings[ 'speedkick' ] )))));
-		asort( $rings );
-		$tournament[ 'rings' ] = $rings;
-		$tournament = json_encode( $tournament );
-
-		return $tournament;
-	}
-
-	$config     = read_config();
-	$host       = $config[ 'host' ] . (isset( $config[ 'port' ]) ? ":{$config[ 'port' ]}" : '');
-	$tournament = read_rings( $config[ 'tournament' ]);
-
+	$config     = new Config();
+	$host       = $config->host();
+	$tournament = $config->tournament();
 ?>

@@ -1,112 +1,113 @@
 <?php
-	include_once( __DIR__ . '/include/php/config.php' );
+	include_once( "./include/php/version.php" );
+	include_once( "./include/php/config.php" );
+	include_once( "session.php" );
 
-	# ============================================================
-	# PASSWORDS
-	# ============================================================
-	# The password file is in the root directory for the tournament
-	# data (e.g. backend/data/test/passwd.json)
-	#
-	# The password can be set per tournament, per ring, per role,
-	# and even for individual judges.
-	# 
-	# The algorithm matches the broadest applicable password first,
-	# so if there is a tournament-wide password, that password will
-	# work regardless of the ring, role, and judge number.
-	#
-	# For lowest security, simply delete the passwd.json file and
-	# no passwords will be needed.
-	#
-	# For highest security, set the passwords for each individual
-	# role, and specifically for each judge. 
-	#
-	# A reasonable middle-of-the road approach would have ring-level
-	# passwords and reset the passwords every day of the tournament.
-	# ------------------------------------------------------------
+	$referrer = isset( $_GET[ 'referrer' ]) ? base64_decode( rawurldecode( $_GET[ 'referrer' ])) : false;
+	$message  = isset( $_GET[ 'message' ]) ? base64_decode( rawurldecode( $_GET[ 'message' ])) : false;
 
-	function read_passwd_file( $file ) {
-		$string = file_get_contents( $file ) or die( "Can't read password file '$file'" );
-		$passwd = json_decode( $string, true );
-		return $passwd;
-	}
-
-	function authenticate() {
-		$_SESSION[ 'auth' ] = true;
-		echo( "Authenticated" );
-		exit();
-	}
-
-	function logout() {
-		$_SESSION[ 'auth' ] = false;
-		echo( "Logged Out" );
-		exit();
-	}
-
-	function get_arg( $key ) {
-		$arg = null;
-		if( isset( $_COOKIE[ $key ])) { $arg = $_COOKIE[ $key ]; }
-		if( isset( $_GET[ $key ]))    { $arg = $_GET[ $key ]; } # overrides cookies
-		if( $key == 'ring' && $arg != 'staging' ) {
-			$arg = sprintf( "ring%02d", $arg );
-		}
-		if( $key == 'judge' ) {
-			if( $arg = 0 ) { $arg = 'r'; }
-			else { $arg = 'j' . (intval( $arg ) + 1); }
-		}
-		return $arg;
-	}
-
-	function match_password( $passwd, $given ) {
-		if( ! is_array( $passwd ))                     { return false; }
-		if( ! array_key_exists( 'password', $passwd )) { return false; }
-		return( $passwd[ 'password' ] == $given );
-	}
-
-	function validate( $given, $passwd, $keys = [] ) {
-		if( ! is_string( $given )) { return false; }
-		if( ! $given )             { return false; }
-		if( is_string( $passwd ))  { return false; }
-		if( ! is_array( $passwd )) { return false; }
-
-		# Tournament-level global password
-		if( match_password( $passwd, $given )) { return true; }
-
-		$ref = $passwd;
-		foreach ($keys as &$key) {
-			if( ! is_array( $ref ))               { return false; }
-			if( ! array_key_exists( $ref, $key )) { return false; }
-			$ref = $ref[ $key ];
-			if( match_password( $ref, $given ))   { return true; }
-		}
-
-		return false;
-	}
-
-	$passwd_file = '/usr/local/freescore/data/' . json_decode( $tournament )->db . '/passwd.json';
-
-	# ===== NO PASSWORD FILE
-	if( ! file_exists( $passwd_file )) { authenticate(); }
-
-	# ===== LOGOUT REQUEST
-	if( isset( $_GET[ 'logout' ]))     { logout(); }
-
-	$passwd = read_passwd_file( $passwd_file );
-	$ring   = get_arg( 'ring' );
-	$role   = get_arg( 'role' );
-	$judge  = get_arg( 'judge' );
-
-	if( isset( $_POST[ 'passcode' ])) { 
-		$given  = $_POST[ 'passcode' ];
-		$valid  = null;
-
-		# ===== HANDLE LOGIN REQUEST
-		$keys = [];
-		if( $ring )  { array_push( $keys, $ring ); }
-		if( $role )  { array_push( $keys, $role ); }
-		if( $judge ) { array_push( $keys, $judge ); }
-
-		$valid = get_pass( $valid, $passwd, $keys );
-
-		if( $valid && $given == $valid ) { authenticate(); }
+	// No password needed? Go straight to the desired page
+	if( ! $config->secured()) { 
+		$_SESSION[ 'is_auth' ] = 1;
+		if( $referrer ) { Session::redirect( $referrer ); } 
+		else            { Session::redirect( 'index.php' ); }
 	}
 ?>
+<html>
+	<head>
+		<title>FreeScore TKD v<?=$freescore[ 'version' ] ?></title>
+		<link href="./include/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="./include/bootstrap/css/freescore-theme.min.css" rel="stylesheet" />
+		<link href="./include/alertify/css/alertify.min.css" rel="stylesheet" />
+		<link href="./include/alertify/css/themes/bootstrap.min.css" rel="stylesheet" />
+		<link href="./include/css/password.css" rel="stylesheet" />
+		<script src="./include/jquery/js/jquery.js"></script>
+		<script src="./include/jquery/js/jquery.howler.min.js"></script>
+		<script src="./include/bootstrap/js/bootstrap.min.js"></script>
+		<script src="./include/alertify/alertify.min.js"></script>
+		<script src="./include/js/freescore.js"></script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>Welcome</h1>
+<?php if( is_null( $config->password())): ?>
+				<p class="text-primary">Please choose a ring and enter a password to login</p>
+				<div class="btn-group rings">
+<?php foreach( $config->rings() as $ring ): $ringid = sprintf( 'ring%02d', $ring ); ?>
+					<button class="btn btn-ring" data-ring="<?= $ringid ?>">Ring <?= $ring ?></button>
+<?php endforeach; ?>
+				</div>
+<?php else: ?>
+				<p class="text-primary">Please enter a password to login</p>
+<?php endif; ?>
+			</div>
+			<form method="POST" action="include/php/session/login.php">
+				<div style="position: absolute; left: 50%; transform: translateX( -50% ); text-align: center;">
+					<input name="ring" type="hidden">
+					<input name="password" type="number" class="form-control" pattern="[0-9]{4}" maxlength="4" width="4" style="font-size: 36pt; width: 160px;"><br>
+					<button class="btn btn-primary btn-login">Login</button>
+					<button class="btn btn-warning btn-clear">Clear</button>
+				</div>
+			</form>
+			<footer style="position: absolute; bottom: 0; left: 50%; transform: translateX( -50% );">
+				<p class="text-muted">&copy; <?= $freescore[ 'copyright' ] ?> Mike Wong All Rights Reserved. </p>
+			</footer>
+		</div>
+		<script>
+<?php if( $message !== false ): ?>
+		$(() => {
+			alertify.error( '<?= $message ?>' );
+		});
+<?php endif; ?>
+
+var sound = {
+	send      : new Howl({ urls: [ "./sounds/upload.mp3",   "./sounds/upload.ogg"   ]}),
+	confirmed : new Howl({ urls: [ "./sounds/received.mp3", "./sounds/received.ogg" ]}),
+	next      : new Howl({ urls: [ "./sounds/next.mp3",     "./sounds/next.ogg"     ]}),
+	prev      : new Howl({ urls: [ "./sounds/prev.mp3",     "./sounds/prev.ogg"     ]}),
+	error     : new Howl({ urls: [ "./sounds/quack.mp3",    "./sounds/quack.ogg"   ]}),
+};
+
+var state  = { cursor : 0, ring : null, password : null };
+var handle = {
+	button : {
+		ring : {
+			click: ev => {
+				sound.next.play();
+				let target = $( ev.target );
+				$( '.btn-ring' ).removeClass( 'btn-primary' );
+				target.addClass( 'btn-primary' );
+				state.ring = target.attr( 'data-ring' );
+			},
+		},
+		clear : {
+			click: ev => {
+				sound.prev.play();
+				$( 'input[name="password"]' ).val( '' );
+			},
+		},
+		login : {
+			click: ev => {
+				ev.preventDefault();
+				sound.send.play();
+				$( 'input[name="ring"]' ).val( state.ring );
+
+				setTimeout(() => {
+					$( 'form' ).submit();
+				}, 1500 );
+			},
+			disable : () => { $( '.btn-login' ).addClass( 'disabled' ).off( 'click' ); },
+			enable  : () => { $( '.btn-login' ).removeClass( 'disabled' ).off( 'click' ).click( handle.button.login.click ); }
+		}
+	}
+};
+
+$( '.btn-ring' ).off( 'click' ).click( handle.button.ring.click );
+$( '.btn-clear' ).off( 'click' ).click( handle.button.clear.click );
+$( '.btn-login' ).off( 'click' ).click( handle.button.login.click );
+		</script>
+	</body>
+</html>

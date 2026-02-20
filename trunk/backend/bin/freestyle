@@ -2,6 +2,7 @@
 
 use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
+use Mojo::IOLoop::Delay;
 use Try::Tiny;
 use FreeScore;
 use FreeScore::Config;
@@ -16,6 +17,7 @@ use Clone qw( clone );
 use EV;
 
 our $json   = new JSON::XS();
+our $config = new FreeScore::Config();
 our $client = {};
 our $judge  = {};
 our $host   = FreeScore::Config::host();
@@ -81,7 +83,7 @@ websocket '/freestyle/:tournament/:ring/:role/:id' => sub {
 # ============================================================
 get '/status' => sub {
 	my $self = shift;
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( text => 'OK' );
 };
 
@@ -91,7 +93,7 @@ get '/status' => sub {
 any '*command' => sub {
 	my $self = shift;
 	my $command = $self->param( 'command' );
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( json => { error => "FreeScore FreeStyle Service Error: Unknown command: $command" });
 };
 

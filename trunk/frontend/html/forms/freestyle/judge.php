@@ -1,9 +1,7 @@
 <?php 
 	include( "../../include/php/config.php" ); 
-	include( "../../session.php" ); 
 	$judge = $_GET[ 'judge' ] ? $_GET[ 'judge' ] : ($_COOKIE[ 'judge' ] ? $_COOKIE[ 'judge' ] : 0);
 	$ring  = $_GET[ 'ring' ]  ? $_GET[ 'ring' ]  : ($_COOKIE[ 'ring' ]  ? $_COOKIE[ 'ring' ]  : 1);
-	$id    = session_id();
 ?>
 <html>
 	<head>
@@ -33,8 +31,9 @@
 		<div class="container">
 			<div class="menu">
 				<ul id="tabs" class="nav nav-pills nav-stacked" role="tablist">
+					<li style="padding: 14px;"><?= $judge == 0 ? "Referee" : "Judge {$judge}" ?></li>
 					<li class="active" ><a href="#mft1"         id="mft1-tab"         role="tab" data-toggle="tab" >Jumping Side Kick</a><li>
-					<li                ><a href="#mft2"         id="mft2-tab"         role="tab" data-toggle="tab" >Jumping Front Kicks</a><li>
+					<li                ><a href="#mft2"         id="mft2-tab"         role="tab" data-toggle="tab" >Multiple Kicks in the Air</a><li>
 					<li                ><a href="#mft3"         id="mft3-tab"         role="tab" data-toggle="tab" >Jumping Spin Kick</a><li>
 					<li                ><a href="#mft4"         id="mft4-tab"         role="tab" data-toggle="tab" >Consecutive Kicks</a><li>
 					<li                ><a href="#mft5"         id="mft5-tab"         role="tab" data-toggle="tab" >Acrobatic Kicks</a><li>
@@ -85,8 +84,8 @@
 
 				<div id="mft2" role="tabpanel" class="tab-pane fade">
 					<img class="mft-icon" src="../../images/icons/freestyle/jumping-front-kick.png" width=150>
-					<h1>Jumping Front Kicks</h1>
-					<p>Number of front kicks in a jump</p>
+					<h1>Multiple Kicks in the Air</h1>
+					<p>Number and types of kicks in a jump</p>
 					<table>
 						<tr>
 							<td>
@@ -489,7 +488,7 @@
 			// ============================================================
 			// COMMUNICATION WITH SERVICE
 			// ============================================================
-			var ws       = new WebSocket( `ws://<?= $host ?>:3082/freestyle/${tournament.db}/${ring.num}/judge/<?= $id ?>` );
+      var ws       = new WebSocket( '<?= $config->websocket( 'freestyle', $ring ) ?>' );
 			var previous = { athlete: { name: undefined }};
 
 			ws.onopen = function() {

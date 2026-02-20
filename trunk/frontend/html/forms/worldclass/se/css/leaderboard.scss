@@ -1,0 +1,60 @@
+#display-leaderboard {
+  table {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    color: white;
+    font-size: 36pt;
+
+    thead {
+      font-weight: bold;
+    }
+
+    td {
+      border-top: 1px solid #333;
+    }
+
+    .place, .score, .top-round {
+      text-align: center;
+    }
+
+    .place {
+      position: relative;
+
+      .shine {
+        position: absolute;
+        color: #ccc;
+        width: 100%;
+        height: 100%;
+        left: 0;
+      }
+
+      &.place-1st .medal { background: linear-gradient( -60deg, #FFF 5%, gold 30%, gold 70%, #FFF 95%);       background-size: 200% auto; background-clip: text; }
+      &.place-2nd .medal { background: linear-gradient( -60deg, #FFF 5%, silver 30%, silver 70%, #FFF 95%);   background-size: 200% auto; background-clip: text; }
+      &.place-3rd .medal { background: linear-gradient( -60deg, #FFF 5%, #cd7f32 30%, #cd7f32 70%, #FFF 95%); background-size: 200% auto; background-clip: text; }
+      &.place-5th .medal { background: linear-gradient( -60deg, #FFF 5%, #666 30%, #666 70%, #FFF 95%);       background-size: 200% auto; background-clip: text; }
+
+      .medal {
+        color: #000;
+        background-clip: text;
+        text-fill-color: transparent;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        
+        animation: shine 5s linear infinite;
+        @keyframes shine {
+          to {
+            background-position: 200% center;
+          }
+        }
+      }
+
+    }
+
+    .place     { width: 10%; color: gold; }
+    .name      { width: 40%; color: lime; }
+    .score     { width: 20%; color: cyan; }
+    .top-round { width: 30%; color: magenta; }
+  }
+}
+

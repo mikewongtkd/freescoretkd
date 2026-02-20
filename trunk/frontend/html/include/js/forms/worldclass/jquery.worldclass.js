@@ -27,7 +27,7 @@ $.widget( "freescore.worldclass", {
 	_init: function( ) {
 		var e       = this.options.elements;
 		var o       = this.options;
-		var ws      = e.ws = new WebSocket( `ws://${o.server}:3088/worldclass/${o.tournament.db}/${o.ring}/display` );
+		var ws      = e.ws = new WebSocket( `${o.server}` );
 		var network = { reconnect: 0 };
 
 		e.leaderboard.leaderboard();
@@ -62,6 +62,24 @@ $.widget( "freescore.worldclass", {
 			if( defined( update.division )) { division = new Division( update.division ); } else
 			if( defined( update.ring     )) { division = new Division( update.ring.divisions.find((d) => { return d.name == update.ring.current; })); }
 			else                            { return; }
+
+			let forwardIf = {
+				se : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'se' ) { window.location = `se/index.php?ring=${ring}`; }
+				},
+				sbs : division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'sbs' ) { window.location = `sbs/index.php?ring=${ring}`; }
+				}
+			};
+
+			forwardIf.se( division );
+			forwardIf.sbs( division );
 
 			// Ignore the update if the digest is the same as previous (i.e. the update contains no changes)
 			if( defined( o.digest ) && response.digest == o.digest ) { return; } else { o.digest = response.digest; }
@@ -108,7 +126,7 @@ $.widget( "freescore.worldclass", {
 			if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
 				if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 				network.reconnect++;
-				ws = new WebSocket( `ws://${o.server}:3088/worldclass/${o.tournament.db}/${o.ring}/display` ); 
+				ws = new WebSocket( `${o.server}` ); 
 				
 				ws.onerror   = network.error;
 				ws.onmessage = network.message;

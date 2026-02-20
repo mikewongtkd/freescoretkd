@@ -1,0 +1,183 @@
+#score-presentation {
+  touch-action: manipulation;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  .presentation {
+    position: absolute;
+    top: 0;
+
+    .inputs {
+      position: absolute;
+      top: 20%;
+      height: 75%;
+      width: 40%;
+      border-radius: 36px;
+      border: 4px solid white;
+      background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+      z-index: 1;
+
+      .power, .rhythm, .ki {
+        position: absolute;
+        top: 0;
+        width: 33.333%;
+        height: 100%;
+
+        label {
+          position: absolute;
+          display: block;
+          color: gold;
+          top: 2.5%;
+          left: 50%;
+          transform: translateX( -50% );
+        }
+
+        .display {
+          position: absolute;
+          border-radius: 4px;
+          top: 10%;
+          left: 50%;
+          height: 10%;
+          width: 80%;
+          transform: translateX( -50% );
+          background: white;
+          border: 2px solid #ccc;
+          color: black;
+          text-align: center;
+          font-size: 28pt;
+          line-height: 28pt;
+
+        }
+
+        .btn-nudge-up, .btn-nudge-down {
+          position: absolute;
+          height: 8%;
+          width: 50%;
+          border-radius: 4px;
+          border: 2px solid #999;
+          background: #ccc;
+          padding: 0;
+          font-size: 18pt;
+          line-height: 24pt;
+          color: black;
+          left: 50%;
+          transform: translateX( -50% );
+        }
+
+        .btn-nudge-up {
+          top: 22.5%;
+        }
+
+        .slider {
+          position: absolute;
+          top: 35%;
+          left: 50%;
+          transform: translateX( -50% );
+        }
+
+        .btn-nudge-down {
+          top: 87.5%;
+        }
+        
+        .slider .slider-handle.custom {
+          border-radius: 0;
+          background-color: #0478b2;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+          position: absolute;
+          top: 0;
+          left: -10px;
+          width: 40px;
+          height: 12px;
+          background-color: #0480BE;
+          border-radius: 4px;
+          border: 0px solid transparent;
+
+          &:before {
+            content: '';
+          }
+        }
+      }
+    }
+
+@import 'score-athlete';
+
+    &.chung {
+
+      background: rgb(36,0,0);
+      background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(0,4,36,1) 0%, rgba(22,12,120,1) 85%, rgba(15,11,89,1) 100%);
+    }
+    &.hong {
+      background: rgb(36,0,0);
+      background: linear-gradient(0deg, rgba(36,0,0,1) 0%, rgba(120,12,12,1) 85%, rgba(89,11,11,1) 100%);
+    }
+
+  }
+  &.chung-right {
+    .chung { 
+      right: 0; 
+      .inputs { 
+        right: 5%; 
+        .power  { right:  0.000%; }
+        .rhythm { right: 33.333%; }
+        .ki     { right: 66.667%; }
+      }
+      .score { 
+        left: 10%; 
+        .accuracy { right: 0; border-left: 3px solid white; }
+        .presentation { left: 0; border-right: 3px solid white; }
+      }
+      .athlete { left: 10%; }
+    }
+    .hong  { 
+      left:  0; 
+      .inputs { 
+        left: 5%; 
+        .power  { left:  0.000%; }
+        .rhythm { left: 33.333%; }
+        .ki     { left: 66.667%; }
+      }
+      .score { 
+        right: 10%; 
+        .accuracy { left: 0; border-right: 3px solid white; }
+        .presentation { right: 0; border-left: 3px solid white; }
+      }
+      .athlete { right: 10%; }
+    }
+  }
+  &.chung-left {
+    .chung { 
+      left:  0; 
+      .inputs { 
+        left: 5%; 
+        .power  { left:  0.000%; }
+        .rhythm { left: 33.333%; }
+        .ki     { left: 66.667%; }
+      }
+      .score { 
+        right: 10%; 
+        .accuracy { left: 0; border-right: 3px solid white; }
+        .presentation { right: 0; border-left: 3px solid white; }
+      }
+      .athlete { right: 10%; }
+    }
+    .hong  { 
+      right: 0; 
+      .inputs { 
+        right: 5%; 
+        .power  { right:  0.000%; }
+        .rhythm { right: 33.333%; }
+        .ki     { right: 66.667%; }
+      }
+      .score { 
+        left: 10%; 
+        .accuracy { right: 0; border-left: 3px solid white; }
+        .presentation { left: 0; border-right: 3px solid white; }
+      }
+      .athlete { left: 10%; }
+    }
+  }
+}
+
+

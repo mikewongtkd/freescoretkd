@@ -25,6 +25,7 @@ cpanm install \
 	Math::Round \
 	Math::Utils \
 	Mojolicious \
+	Mojo::IOLoop::Delay \
 	PHP::Session \
 	Scalar::Util \
 	Statistics::Descriptive \

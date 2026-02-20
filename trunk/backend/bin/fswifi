@@ -2,6 +2,7 @@
 
 use lib qw( /usr/local/freescore/lib );
 use Mojolicious::Lite;
+use Mojo::IOLoop::Delay;
 use Try::Tiny;
 use FreeScore;
 use FreeScore::Config;
@@ -18,7 +19,7 @@ use EV;
 our $json   = new JSON::XS();
 our $client = {};
 our $judge  = {};
-our $config = FreeScore::Config::read_config();
+our $config = new FreeScore::Config();
 our $DEBUG  = 0;
 
 # ------------------------------------------------------------
@@ -81,8 +82,7 @@ websocket '/setup/:database' => sub {
 # ============================================================
 get '/status' => sub {
 	my $self = shift;
-	my $host = FreeScore::Config::host();
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( text => 'OK' );
 };
 
@@ -93,7 +93,7 @@ any '*command' => sub {
 	my $self = shift;
 	my $host = FreeScore::Config::host();
 	my $command = $self->param( 'command' );
-	$self->res->headers->header( 'Access-Control-Allow-Origin' => $host );
+	$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
 	$self->render( json => { error => "FreeScore Setup Service Error: Unknown command: $command" });
 };
 

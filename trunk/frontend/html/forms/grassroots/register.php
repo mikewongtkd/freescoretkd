@@ -1,6 +1,6 @@
 <?php 
-	$referer = $_GET[ 'referer' ];
-	include( "../../include/php/config.php" ); 
+	include_once( "../../include/php/config.php" ); 
+	$referer = array_key_exists( 'referer', $_GET ) ? $_GET[ 'referer' ] : null;
 ?>
 <html>
 	<head>
@@ -19,7 +19,7 @@
 	<body>
 		<div id="setup"></div>
 		<script type="text/javascript">
-			$( '#setup' ).register({ server : '<?= $host ?>', tournament : <?= $tournament ?>, 'event' : 'grassroots' });
+			$( '#setup' ).register({ server : '<?= $config->webservice( 'grassroots' ) ?>', tournament : <?= $tournament ?>, 'event' : 'grassroots' });
 		</script>
 	</body>
 </html>

@@ -1,0 +1,14 @@
+[Unit]
+Description=FreeScore Configuration Service
+
+[Documentation]
+Documentation=https://github.com/mikewongtkd/freescoretkd
+
+[Service]
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/fswifi
+WorkingDirectory=/usr/local/freescore
+Type=forking
+PIDFile=/run/freescore/fswifi.pid
+
+[Install]
+WantedBy=multi-user.target

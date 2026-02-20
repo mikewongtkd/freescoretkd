@@ -1,0 +1,14 @@
+[Unit]
+Description=FreeScore Freestyle Poomsae Scoring Service
+
+[Documentation]
+Documentation=https://github.com/mikewongtkd/freescoretkd
+
+[Service]
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/freestyle
+WorkingDirectory=/usr/local/freescore
+Type=forking
+PIDFile=/run/freescore/freestyle.pid
+
+[Install]
+WantedBy=multi-user.target

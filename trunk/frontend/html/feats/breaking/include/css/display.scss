@@ -1,0 +1,256 @@
+@import 'fonts';
+$bd-margin: 20px;
+$bd-padding: 20px;
+$bd-border: 4px;
+$bd-border-radius: 16px;
+$bd-margin-border-padding: ($bd-margin + $bd-padding + $bd-border) * 2;
+$bd-width-final: 1280px;
+$bd-height-final: 720px;
+
+$bd-width: $bd-width-final - $bd-margin-border-padding;
+$bd-height: $bd-height-final - $bd-margin-border-padding;
+
+body {
+	background: #45484d;
+	background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+	background: linear-gradient(to bottom, #45484d 0%, #000000 100%); 
+	font-family: $text-font-stack;
+}
+
+.scoreboard, .leaderboard {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #45484d;
+	background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+	background: linear-gradient(to top, #45484d 0%, #000000 100%); 
+	font-size: 2em;
+	width: $bd-width;
+	height: $bd-height;
+	margin: $bd-margin;
+	border: $bd-border solid white;
+	border-radius: $bd-border-radius;
+	padding: $bd-padding;
+	color: white;
+
+}
+
+.scoreboard {
+	.division-summary {
+		position: absolute;
+		top: $bd-padding;
+		left: $bd-padding;
+		width: $bd-width;
+		text-align: center;
+		color: grey;
+	}
+
+	.athlete-info {
+		position: absolute;
+		top: $bd-padding + 38px;
+		left: $bd-padding;
+		width: $bd-width;
+		height: 120px;
+
+		.athlete-noc {
+			position: absolute;
+			top: 0;
+			left: 0;
+			height: 80px;
+			width: 180px;
+
+			img {
+				height: 80px;
+				width: 80px;
+			}
+		}
+
+		.athlete-name {
+			position: absolute;
+			top: 0;
+			left: 180px;
+			height: 80px;
+			width: $bd-width - 360px;
+			font-size: 2.5em;
+			line-height: 1em;
+			text-align: center;
+			color: yellow;
+		}
+
+		.athlete-boards {
+			position: absolute;
+			top: 80px;
+			left: ($bd-width - 200px) / 2;
+			height: 80px;
+			width: 300px;
+			text-align: center;
+		}
+	}
+
+	.timer-display {
+		position: absolute;
+		top: $bd-padding + 38px;
+		right: $bd-padding;
+		height: 80px;
+		width: 180px;
+		.time {
+			font-size: 1.8em;
+			color: lime;
+
+			&.overtime {
+				color: red;
+			}
+		}
+
+		.fas { 
+			transform: translateY( -50% );
+			font-size: 0.66em; 
+			color: grey; 
+		}
+	}
+
+	$judge-score-width: 180px;
+	.judge-scores {
+		position: absolute;
+		top: 192px;
+		left: 0;
+		
+		.score {
+			width: $judge-score-width * 3;
+			text-align: center;
+			color: #999;
+			font-size: 2em;
+			line-height: 1.2em;
+
+			&:last-child {
+				label {
+					border-radius: 0 0 0 $bd-border-radius - 4px;
+				}
+			}
+
+			&.judges3 { height: 120px; font-size: 2.5em; line-height: 1.5em; }
+			&.judges5 { height:  80px; font-size: 2em; line-height: 1em;    }
+
+			label { 
+				display: block; 
+				background: black;
+				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+				background: linear-gradient(to top, #45484d 0%,#000000 100%);
+			}
+			label, .tech, .pres, .received {
+				position: absolute;
+				width: $judge-score-width;
+				text-align: center;
+				background: black;
+				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+				background: linear-gradient(to top, #45484d 0%,#000000 100%);
+				&.judges3 { height: 120px; }
+				&.judges5 { height:  80px; }
+			}
+
+			.tech { 
+				left: $judge-score-width + 2px;
+				width: $judge-score-width;
+				color: #f99; 
+				&.ignore { color: #c66; opacity: 0.75; text-decoration: line-through; }
+			}
+			.pres {
+				left: (2 * $judge-score-width) + 4px;
+				width: $judge-score-width;
+				color: #99f;
+				&.ignore { color: #66c; opacity: 0.75; text-decoration: line-through; }
+			}
+			.received { 
+				left: $judge-score-width + 2px;
+				width: (2 * $judge-score-width) + 2px;
+				color: #0c0; 
+			}
+		}
+	}
+
+	$sd-left: ($judge-score-width * 3) + 24px;
+	$sd-padding: 20px;
+	$sd-width: $bd-width - ($sd-left + 2 * $sd-padding);
+	$sd-height: $bd-height - (192px + 2 * $sd-padding);
+	.score-display {
+		position: absolute;
+		top: 192px;
+		left: $sd-left;
+		width: $sd-width;
+		height: $sd-height;
+		border: 4px solid white;
+		padding: $sd-padding;
+		border-radius: $bd-border-radius - 4px;
+		background: #45484d;
+		background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+		background: linear-gradient(to bottom, #45484d 0%, #000000 100%); 
+
+		.subtotal, .deductions {
+			position: absolute;
+			top: 0;
+			font-size: 0.5em;
+			height: $sd-height / 10;
+			text-align: center;
+			span {
+				display: block;
+				font-size: 2.5em;
+			}
+		}
+
+		.subtotal {
+			left: 0;
+			width: $sd-width/3;
+			span { color: gold; }
+		}
+
+		.deductions {
+			position: absolute;
+			width: $sd-width;
+			.tech, .proc {
+				position: absolute;
+				width: $sd-width/3;
+				span { display: block; }
+			}
+			.tech {
+				left: ($sd-width/3);
+				span { color: cyan; }
+			}
+			.proc {
+				left: 2 * ($sd-width/3);
+				span { color: magenta; }
+			}
+		}
+
+		.total {
+			position: absolute;
+			top: 0.2 * $sd-height;
+			left: $sd-padding;
+			width: $sd-width;
+			height: 0.8 * $sd-height;
+			text-align: center;
+			span { display: block; color : lime; font-size: 9em; line-height: 1em; width: $sd-width; }
+		}
+	}
+}
+
+.leaderboard {
+	.leaderboard-rankings {
+		overflow-y: auto;
+		.placement {
+			font-size: 1.5em;
+			width: $bd-width;
+
+			.place, .name, .score, .tb1, .tb2 { display: inline-block; }
+			.place { width: $bd-width * 0.075; color: lime; text-align: center; }
+			.name  { width: $bd-width * 0.550; color: yellow; }
+			.score { width: $bd-width * 0.125; color: gold; text-align: center; }
+			.tb1   { width: $bd-width * 0.125; color: magenta; text-align: center; }
+			.tb2   { width: $bd-width * 0.125; color: cyan; text-align: center; }
+
+			&.current {
+				background: rgb(2,0,36);
+				background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 50%, rgba(0,106,228,1) 100%);
+			}
+		}
+	}
+}

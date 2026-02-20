@@ -43,14 +43,14 @@ $.widget( "freescore.leaderboard", {
 		var form_mean_score = function( form, label ) {
 			var div = html.div.clone() .addClass( label );
 			if( ! defined( form ) || ! form.is.complete() ) { return ''; }
-			if( form.decision.is.withdraw()   ) { div.html( 'WD' ); return div; }
-			if( form.decision.is.disqualify() ) { div.html( 'DQ' ); return div; }
+			if( form.decision.is.withdraw()   ) { div.html( 'WDR' ); return div; }
+			if( form.decision.is.disqualify() ) { div.html( 'DSQ' ); return div; }
 			div.html( form.adjusted().total.toFixed( 2 ));
 
 			return div;
 		};
 
-		var update_placements = function( k, callback ) {
+		var update_placements = function( k, max, callback = null ) {
 
 			// ===== ADD HEADER
 			var divforms = o.division.form.list();
@@ -69,26 +69,29 @@ $.widget( "freescore.leaderboard", {
 
 			// ===== ADD ATHLETES
 			var round = o.division.current.roundId();
-			for( var i = 0; i < k; i++ ) {
-				var athlete  = placement[ i ];
-				var score    = athlete.score( round );
-				var notes    = defined( score.notes() ) ? score.notes() : '';
-				var number   = i+1;
-				var name     = athlete.display.name();
-				var namespan = html.span.clone() .html( name );
-				var total    = parseFloat( score.adjusted.total()).toFixed( 2 );
+			for( let i = 0; i < k; i++ ) {
+				let athlete    = placement[ i ];
+				let score      = athlete.score( round );
+				let tiebreaker = score?.tb ? score.tb.map( x => `<span class="tiebreaker">${x}</span>` ).join( '' ) : '';
+				let number     = i+1;
+				let name       = athlete.display.name();
+				let namespan   = html.span.clone() .html( name );
+				let total      = score?.adjusted?.decision ? score.adjusted.decision : parseFloat( score.adjusted.total()).toFixed( 2 );
+				let n          = score.forms.count() - 1;
+				let current    = athlete.id() == o.division.current.athleteId() ? ' current' : '';
+				let cutoff     = i == max - 1 ? ' cutoff' : '';
 
-				var entry = {
-					panel : html.div.clone() .addClass( "athlete results" ),
+				let entry = {
+					panel : html.div.clone() .addClass( `athlete results${current}${cutoff}` ),
 					number: html.div.clone() .addClass( "number" ) .append( number ),
 					name  : html.div.clone() .addClass( "name" ) .append( namespan ),
 					form1 : form_mean_score( score.form( 0 ), 'form1' ),
 					form2 : form_mean_score( score.form( 1 ), 'form2' ),
-					score : html.div.clone() .addClass( "score" ) .html( total + "<span class=\"notes\">" + notes + "</span>" ),
+					score : html.div.clone() .addClass( "score" ) .html( `${total}${tiebreaker}` ),
 					medal : html.div.clone() .addClass( "medal" ),
 				};
 
-				if( defined( callback )) { callback( i, entry.name, entry.medal ); }
+				if( defined( callback ) && i < max ) { callback( i, entry.name, entry.medal ); }
 
 				entry.panel.append( entry.number, entry.name, entry.form1, entry.form2, entry.score, entry.medal );
 				e.placement.append( entry.panel );
@@ -96,9 +99,9 @@ $.widget( "freescore.leaderboard", {
 		};
 		e.placement.empty();
 		e.placement.append( "<h2>" + o.division.current.round.name() + " Standings</h2>" );
-		var k    = placement.length;
+		let k    = placement.length;
 		if( o.division.round.is.finals() ) { 
-			k = k > 4 ? 4 : k; 
+			let max = k > 4 ? 4 : k; 
 
 			var show_medals = function( i, name, medal ) {
 				var j          = i + 1;
@@ -106,13 +109,14 @@ $.widget( "freescore.leaderboard", {
 				medal .append( html.img.clone() .attr( "src", "../../images/medals/rank" + j + ".png" ) .attr( "align", "right" ));
 			}
 
-			update_placements( k, show_medals );
+			update_placements( k, max, show_medals );
 
 		} else {
 			var half = Math.round( o.division.athletes().length / 2 );
-			if     ( o.division.round.is.prelim() ) { k = k > half ? half : k; }
-			else if( o.division.round.is.semfin() ) { k = k > 8 ? 8 : k; }
-			update_placements( k );
+			let max  = k;
+			if     ( o.division.round.is.prelim() ) { max = k > half ? half : k; }
+			else if( o.division.round.is.semfin() ) { max = k > 8    ? 8    : k; }
+			update_placements( k, max );
 
 			// ===== SCROLL DOWN ONCE
 			var duration  = 9000;

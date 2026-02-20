@@ -2,10 +2,10 @@
 
 all: all-start
 
-all-start: setup-start grassroots-start worldclass-start para-start freestyle-start sparring-start
-
 dep-list:
 	grep -hire '^use' lib bin | awk '{ print $$2; }' | sed 's/;$$//' | sed 's/()$$//' | grep -v '^FreeScore' | grep -ve base -ve lib -ve strict | sort | uniq
+
+all-start: setup-start grassroots-start worldclass-start freestyle-start sparring-start breaking-start
 
 worldclass-start:
 	sudo hypnotoad -f ./bin/worldclass &
@@ -25,26 +25,32 @@ sparring-start:
 setup-start:
 	sudo hypnotoad -f ./bin/fswifi &
 
+breaking-start:
+	sudo hypnotoad -f ./bin/breaking &
+
 worldclass-stop:
-	pkill -f 'hypnotoad -f ./bin/worldclass'
+	sudo pkill -f 'hypnotoad -f ./bin/worldclass'
 
 para-stop:
 	pkill -f 'hypnotoad -f ./bin/para'
 
 grassroots-stop:
-	pkill -f 'hypnotoad -f ./bin/grassroots'
+	sudo pkill -f 'hypnotoad -f ./bin/grassroots'
 
 freestyle-stop:
-	pkill -f 'hypnotoad -f ./bin/freestyle'
+	sudo pkill -f 'hypnotoad -f ./bin/freestyle'
 
 sparring-stop:
-	pkill -f 'hypnotoad -f ./bin/sparring'
+	sudo pkill -f 'hypnotoad -f ./bin/sparring'
 
 setup-stop:
-	pkill -f 'hypnotoad -f ./bin/fswifi'
-
-all-stop: setup-stop grassroots-stop worldclass-stop para-stop freestyle-stop sparring-stop
+	sudo pkill -f 'hypnotoad -f ./bin/fswifi'
 
 start: all-start
 
 stop: all-stop
+
+breaking-stop:
+	sudo pkill -f 'hypnotoad -f ./bin/breaking'
+
+all-stop: setup-stop grassroots-stop worldclass-stop freestyle-stop sparring-stop breaking-stop

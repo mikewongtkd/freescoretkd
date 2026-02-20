@@ -1,0 +1,32 @@
+
+body {
+  background: black;
+  background: linear-gradient(to bottom, #35383d 0%,#000000 100%);
+  font-family: BioLinum;
+  overflow: hidden;
+}
+
+@import 'common';
+@import 'accuracy';
+@import 'presentation';
+
+.display-config.modal {
+  .display-config-group {
+    width: 100%;
+    margin-top: 1em;
+
+    button {
+      width: 60px;
+    }
+  }
+
+  label {
+    display: inline-block;
+    width: 160px;
+  }
+}
+
+@import '../../../../include/css/fonts';
+@import 'header';
+
+

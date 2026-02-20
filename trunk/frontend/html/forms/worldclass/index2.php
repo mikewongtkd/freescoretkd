@@ -52,11 +52,10 @@
 		</div>
 		<script src="../../include/page-transitions/js/pagetransitions.js"></script>
 		<script>
-			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
 			var ring       = { num: <?= $i ?> };
 			var html       = FreeScore.html;
-			var ws         = new WebSocket( 'ws://<?= $host ?>:3088/worldclass/' + tournament.db + '/' + ring.num );
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}` );
 			var network    = { reconnect: 0 }
 
 			ws.onerror = network.error = function() {
@@ -81,7 +80,7 @@
 				if( network.reconnect < 10 ) { // Give 10 attempts to reconnect
 					if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 					network.reconnect++;
-					ws = new WebSocket( 'ws://' + host + ':3088/worldclass/' + tournament.db + '/' + ring.num ); 
+					ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}` );
 					
 					ws.onerror   = network.error;
 					ws.onmessage = network.message;

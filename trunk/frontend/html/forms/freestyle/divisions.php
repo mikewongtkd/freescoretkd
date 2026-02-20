@@ -5,7 +5,8 @@
 	setcookie( 'ring',  '', $an_hour_ago, '/' );
 	include( "../../include/php/config.php" ); 
 
-	$t = json_decode( $tournament );
+  $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 1;
+	$t    = json_decode( $tournament );
 ?>
 <html>
 	<head>
@@ -19,7 +20,6 @@
 		<link href="../../include/opt/elfinder/css/theme.css" rel="stylesheet" />
 		<link href="../../include/css/forms/freestyle/divisions.css" rel="stylesheet" />
 		<link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
-		<script src="../../include/opt/js-sha1/sha1.min.js"></script>
 		<script src="../../include/jquery/js/jquery.js"></script>
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
@@ -147,7 +147,7 @@
 
 				if( defined( ws )) { ws.close(); }
 
-				ws = new WebSocket( `ws://<?= $host ?>:3082/freestyle/${tournament.db}/${target}/computer+operator/${sha1.hex(Date.now())}` );
+				ws = new WebSocket( '<?= $config->websocket( 'freestyle', $ring ) ?>' );
 
 				ws.onerror = network.error = function() {
 					setTimeout( function() { location.reload(); }, 15000 ); // Attempt to reconnect every 15 seconds

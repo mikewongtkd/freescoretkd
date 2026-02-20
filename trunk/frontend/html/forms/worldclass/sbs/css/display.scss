@@ -1,0 +1,40 @@
+
+body {
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #35383d 0%,#000000 100%); /* W3C */
+  background: linear-gradient(to bottom, #35383d 0%,#000000 100%); /* W3C */
+  font-family: FjallaOne;
+  overflow: hidden;
+}
+
+@import '../../../../include/css/fonts';
+@import 'header';
+@import '../../se/css/header';
+@import '../../se/css/matches';
+@import '../../se/css/scoreboard';
+@import '../../se/css/results';
+@import '../../se/css/leaderboard';
+@import 'poomsae-draw';
+
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear;
+}
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear;
+}
+
+@-webkit-keyframes enterDownBounce {
+  0%   { -webkit-transform: translateY( -600px ); opacity: 0.25; }
+  50%  { -webkit-transform: translateY( 0px ); }
+  70%  { -webkit-transform: translateY( -50px ); }
+  100% { -webkit-transform: translateY( 0px ); opacity: 1; }
+}
+
+@-webkit-keyframes leaveUpBounce {
+  0%   { -webkit-transform: translateY( 0px ); opacity: 1; }
+  10%  { -webkit-transform: translateY( 50px ); opacity: 1; }
+  25%  { -webkit-transform: translateY( 0px ); }
+  100% { -webkit-transform: translateY( -900px ); opacity: 0; }
+}
+

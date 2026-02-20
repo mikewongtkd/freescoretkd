@@ -1,0 +1,147 @@
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+  font-family: Optima, Biolinum, Lato;
+}
+
+.results {
+  page-break-after: always;
+}
+
+.division-description {
+  font-size: 1.5em;
+  margin-top: 20px;
+}
+
+table.placements {
+  width: 920px;
+}
+table.placements thead th.place {
+  width: 7.5%;
+  text-align: left;
+}
+table.placements thead th.usatid {
+  width: 15%;
+  text-align: left;
+}
+table.placements thead th.name {
+  width: 40%;
+  text-align: left;
+}
+table.placements thead th.score {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements thead th.tb1 {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements thead th.tb2 {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements tbody td.place {
+  width: 7.5%;
+  text-align: left;
+}
+table.placements tbody td.usatid {
+  width: 15%;
+  text-align: left;
+}
+table.placements tbody td.name {
+  width: 40%;
+  text-align: left;
+}
+table.placements tbody td.score {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements tbody td.tb1 {
+  width: 12.5%;
+  text-align: left;
+}
+table.placements tbody td.tb2 {
+  width: 12.5%;
+  text-align: left;
+}
+
+table.draws {
+  width: 920px;
+}
+table.draws thead th.order {
+  width: 7.5%;
+  text-align: left;
+}
+table.draws thead th.name {
+  width: 77.5%;
+  text-align: left;
+}
+table.draws thead th.usatid {
+  width: 15%;
+  text-align: right;
+}
+table.draws tbody td.order {
+  width: 7.5%;
+  text-align: left;
+}
+table.draws tbody td.name {
+  width: 77.5%;
+  text-align: left;
+}
+table.draws tbody td.usatid {
+  width: 15%;
+  text-align: right;
+}
+
+#copy-to-clipboard {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+/*# sourceMappingURL=report.css.map */

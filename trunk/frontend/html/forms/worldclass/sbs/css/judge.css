@@ -1,0 +1,698 @@
+body {
+  background: black;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  font-family: BioLinum;
+  overflow: hidden;
+}
+
+#pt-main {
+  width: 1024px;
+  height: 600px;
+}
+
+#score-accuracy .header, #score-presentation .header, #display-division .header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80%;
+  height: 10%;
+  margin-left: 10%;
+  margin-right: 10%;
+  text-align: center;
+  z-index: 1;
+  border-bottom-left-radius: 36px;
+  border-bottom-right-radius: 36px;
+  border: 4px solid white;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  font-size: 16pt;
+  line-height: 18pt;
+  color: #999;
+}
+#score-accuracy .header .div-summary .divid, #score-presentation .header .div-summary .divid, #display-division .header .div-summary .divid {
+  color: white;
+}
+#score-accuracy .header .div-summary .description, #score-presentation .header .div-summary .description, #display-division .header .div-summary .description {
+  color: #ccc;
+}
+#score-accuracy .header .match-summary .round-name, #score-presentation .header .match-summary .round-name, #display-division .header .match-summary .round-name {
+  color: gold;
+}
+#score-accuracy .header .match-summary .match-number, #score-presentation .header .match-summary .match-number, #display-division .header .match-summary .match-number {
+  color: lime;
+}
+#score-accuracy .header .match-summary .form-name, #score-presentation .header .match-summary .form-name, #display-division .header .match-summary .form-name {
+  color: cyan;
+}
+#score-accuracy .common, #score-presentation .common, #display-division .common {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+#score-accuracy .common .config, #score-presentation .common .config, #display-division .common .config {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 34px;
+  font-size: 14pt;
+  color: white;
+  border-radius: 10px;
+  border: 2px solid white;
+  text-align: center;
+}
+#score-accuracy .common .jid, #score-presentation .common .jid, #display-division .common .jid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  border: 4px solid gold;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  font-size: 26pt;
+  line-height: 40pt;
+  text-align: center;
+  color: gold;
+}
+#score-accuracy .common .next, #score-accuracy .common .back, #score-accuracy .common .send, #score-presentation .common .next, #score-presentation .common .back, #score-presentation .common .send, #display-division .common .next, #display-division .common .back, #display-division .common .send {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 40px;
+  font-size: 16pt;
+  line-height: 14pt;
+  color: black;
+  border-radius: 16px;
+}
+#score-accuracy .common .back, #score-presentation .common .back, #display-division .common .back {
+  bottom: 25%;
+  width: 20%;
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  border: 4px solid orange;
+}
+#score-accuracy .common .next, #score-accuracy .common .send, #score-presentation .common .next, #score-presentation .common .send, #display-division .common .next, #display-division .common .send {
+  bottom: 15%;
+  width: 40%;
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  border: 4px solid green;
+}
+
+.chung-right .common .flip {
+  background: linear-gradient(90deg, #240000 0%, #001cff 0%, #160c78 50%, #760c0c 51%, red 100%);
+}
+
+.chung-left .common .flip {
+  background: linear-gradient(-90deg, #240000 0%, #001cff 0%, #160c78 50%, #760c0c 51%, red 100%);
+}
+
+#score-accuracy {
+  touch-action: manipulation;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+#score-accuracy .accuracy {
+  position: absolute;
+  top: 0;
+}
+#score-accuracy .accuracy .buttons {
+  position: absolute;
+  top: 20%;
+  height: 75%;
+  width: 40%;
+  border-radius: 36px;
+  border: 4px solid white;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  z-index: 1;
+}
+#score-accuracy .accuracy .buttons .btn-major, #score-accuracy .accuracy .buttons .btn-minor {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  left: 10%;
+  right: 10%;
+  width: 80%;
+  border-radius: 16px;
+  color: black;
+}
+#score-accuracy .accuracy .buttons .btn-major.add, #score-accuracy .accuracy .buttons .btn-minor.add {
+  font-size: 36pt;
+}
+#score-accuracy .accuracy .buttons .btn-major.remove, #score-accuracy .accuracy .buttons .btn-minor.remove {
+  height: 10%;
+  font-size: 18pt;
+}
+#score-accuracy .accuracy .buttons .btn-major.add {
+  top: 22%;
+  height: 20%;
+}
+#score-accuracy .accuracy .buttons .btn-major.remove {
+  top: 6%;
+}
+#score-accuracy .accuracy .buttons .btn-minor.add {
+  top: 48%;
+  height: 30%;
+}
+#score-accuracy .accuracy .buttons .btn-minor.remove {
+  top: 84%;
+}
+#score-accuracy .accuracy .score {
+  position: absolute;
+  top: 20%;
+  width: 40%;
+  height: 30%;
+  border-radius: 36px;
+  border: 4px solid white;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+}
+#score-accuracy .accuracy .score .total, #score-accuracy .accuracy .score .subtotal {
+  text-align: center;
+  color: white;
+}
+#score-accuracy .accuracy .score .total label, #score-accuracy .accuracy .score .subtotal label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: gold;
+  font-size: 10pt;
+}
+#score-accuracy .accuracy .score .total {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 56.25%;
+  border-bottom: 4px solid white;
+  font-size: 48pt;
+}
+#score-accuracy .accuracy .score .subtotal {
+  position: absolute;
+  width: 50.5%;
+  height: 43.75%;
+  top: 56.25%;
+  font-size: 44pt;
+}
+#score-accuracy .accuracy .athlete {
+  position: absolute;
+  top: 60%;
+  width: 40%;
+  text-align: center;
+}
+#score-accuracy .accuracy .athlete .name {
+  width: 100%;
+  color: white;
+  font-size: 18pt;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-bottom: 5%;
+}
+#score-accuracy .accuracy .athlete img {
+  width: 30%;
+}
+#score-accuracy .accuracy.chung, #score-accuracy .accuracy.hong {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+}
+#score-accuracy .accuracy.chung {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, #000424 0%, #160c78 85%, #0f0b59 100%);
+}
+#score-accuracy .accuracy.chung .btn-major {
+  background: linear-gradient(0deg, #00005d 0%, #000186 50%, #0006d7 51%, #0005b9 100%);
+  border: 4px solid navy;
+  color: white;
+}
+#score-accuracy .accuracy.chung .btn-minor {
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  border: 4px solid blue;
+}
+#score-accuracy .accuracy.hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, #780c0c 85%, #590b0b 100%);
+}
+#score-accuracy .accuracy.hong .btn-major {
+  background: linear-gradient(0deg, #5d0000 0%, #860000 50%, #d70000 51%, #b90000 100%);
+  border: 4px solid darkred;
+  color: white;
+}
+#score-accuracy .accuracy.hong .btn-minor {
+  background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  border: 4px solid red;
+}
+#score-accuracy.chung-right .chung {
+  right: 0;
+}
+#score-accuracy.chung-right .chung .buttons {
+  right: 5%;
+}
+#score-accuracy.chung-right .chung .score {
+  left: 10%;
+}
+#score-accuracy.chung-right .chung .score .accuracy {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-right .chung .score .presentation {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-right .chung .athlete {
+  left: 10%;
+}
+#score-accuracy.chung-right .hong {
+  left: 0;
+}
+#score-accuracy.chung-right .hong .buttons {
+  left: 5%;
+}
+#score-accuracy.chung-right .hong .score {
+  right: 10%;
+}
+#score-accuracy.chung-right .hong .score .accuracy {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-right .hong .score .presentation {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-right .hong .athlete {
+  right: 10%;
+}
+#score-accuracy.chung-left .chung {
+  left: 0;
+}
+#score-accuracy.chung-left .chung .buttons {
+  left: 5%;
+}
+#score-accuracy.chung-left .chung .score {
+  right: 10%;
+}
+#score-accuracy.chung-left .chung .score .accuracy {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-left .chung .score .presentation {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-left .chung .athlete {
+  right: 10%;
+}
+#score-accuracy.chung-left .hong {
+  right: 0;
+}
+#score-accuracy.chung-left .hong .buttons {
+  right: 5%;
+}
+#score-accuracy.chung-left .hong .score {
+  left: 10%;
+}
+#score-accuracy.chung-left .hong .score .accuracy {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-accuracy.chung-left .hong .score .presentation {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-accuracy.chung-left .hong .athlete {
+  left: 10%;
+}
+
+#score-presentation {
+  touch-action: manipulation;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+#score-presentation .presentation {
+  position: absolute;
+  top: 0;
+}
+#score-presentation .presentation .inputs {
+  position: absolute;
+  top: 20%;
+  height: 75%;
+  width: 40%;
+  border-radius: 36px;
+  border: 4px solid white;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  z-index: 1;
+}
+#score-presentation .presentation .inputs .power, #score-presentation .presentation .inputs .rhythm, #score-presentation .presentation .inputs .ki {
+  position: absolute;
+  top: 0;
+  width: 33.333%;
+  height: 100%;
+}
+#score-presentation .presentation .inputs .power label, #score-presentation .presentation .inputs .rhythm label, #score-presentation .presentation .inputs .ki label {
+  position: absolute;
+  display: block;
+  color: gold;
+  top: 2.5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#score-presentation .presentation .inputs .power .display, #score-presentation .presentation .inputs .rhythm .display, #score-presentation .presentation .inputs .ki .display {
+  position: absolute;
+  border-radius: 4px;
+  top: 10%;
+  left: 50%;
+  height: 10%;
+  width: 80%;
+  transform: translateX(-50%);
+  background: white;
+  border: 2px solid #ccc;
+  color: black;
+  text-align: center;
+  font-size: 28pt;
+  line-height: 28pt;
+}
+#score-presentation .presentation .inputs .power .btn-nudge-up, #score-presentation .presentation .inputs .power .btn-nudge-down, #score-presentation .presentation .inputs .rhythm .btn-nudge-up, #score-presentation .presentation .inputs .rhythm .btn-nudge-down, #score-presentation .presentation .inputs .ki .btn-nudge-up, #score-presentation .presentation .inputs .ki .btn-nudge-down {
+  position: absolute;
+  height: 8%;
+  width: 50%;
+  border-radius: 4px;
+  border: 2px solid #999;
+  background: #ccc;
+  padding: 0;
+  font-size: 18pt;
+  line-height: 24pt;
+  color: black;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#score-presentation .presentation .inputs .power .btn-nudge-up, #score-presentation .presentation .inputs .rhythm .btn-nudge-up, #score-presentation .presentation .inputs .ki .btn-nudge-up {
+  top: 22.5%;
+}
+#score-presentation .presentation .inputs .power .slider, #score-presentation .presentation .inputs .rhythm .slider, #score-presentation .presentation .inputs .ki .slider {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#score-presentation .presentation .inputs .power .btn-nudge-down, #score-presentation .presentation .inputs .rhythm .btn-nudge-down, #score-presentation .presentation .inputs .ki .btn-nudge-down {
+  top: 87.5%;
+}
+#score-presentation .presentation .inputs .power .slider .slider-handle.custom, #score-presentation .presentation .inputs .rhythm .slider .slider-handle.custom, #score-presentation .presentation .inputs .ki .slider .slider-handle.custom {
+  border-radius: 0;
+  background-color: #0478b2;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 40px;
+  height: 12px;
+  background-color: #0480BE;
+  border-radius: 4px;
+  border: 0px solid transparent;
+}
+#score-presentation .presentation .inputs .power .slider .slider-handle.custom:before, #score-presentation .presentation .inputs .rhythm .slider .slider-handle.custom:before, #score-presentation .presentation .inputs .ki .slider .slider-handle.custom:before {
+  content: "";
+}
+#score-presentation .presentation .score {
+  position: absolute;
+  top: 20%;
+  width: 40%;
+  height: 30%;
+  border-radius: 36px;
+  border: 4px solid white;
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+}
+#score-presentation .presentation .score .total, #score-presentation .presentation .score .subtotal {
+  text-align: center;
+  color: white;
+}
+#score-presentation .presentation .score .total label, #score-presentation .presentation .score .subtotal label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: gold;
+  font-size: 10pt;
+}
+#score-presentation .presentation .score .total {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 56.25%;
+  border-bottom: 4px solid white;
+  font-size: 48pt;
+}
+#score-presentation .presentation .score .subtotal {
+  position: absolute;
+  width: 50.5%;
+  height: 43.75%;
+  top: 56.25%;
+  font-size: 44pt;
+}
+#score-presentation .presentation .athlete {
+  position: absolute;
+  top: 60%;
+  width: 40%;
+  text-align: center;
+}
+#score-presentation .presentation .athlete .name {
+  width: 100%;
+  color: white;
+  font-size: 18pt;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-bottom: 5%;
+}
+#score-presentation .presentation .athlete img {
+  width: 30%;
+}
+#score-presentation .presentation.chung, #score-presentation .presentation.hong {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+}
+#score-presentation .presentation.chung {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, #000424 0%, #160c78 85%, #0f0b59 100%);
+}
+#score-presentation .presentation.hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, #780c0c 85%, #590b0b 100%);
+}
+#score-presentation.chung-right .chung {
+  right: 0;
+}
+#score-presentation.chung-right .chung .inputs {
+  right: 5%;
+}
+#score-presentation.chung-right .chung .inputs .power {
+  right: 0%;
+}
+#score-presentation.chung-right .chung .inputs .rhythm {
+  right: 33.333%;
+}
+#score-presentation.chung-right .chung .inputs .ki {
+  right: 66.667%;
+}
+#score-presentation.chung-right .chung .score {
+  left: 10%;
+}
+#score-presentation.chung-right .chung .score .accuracy {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-presentation.chung-right .chung .score .presentation {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-presentation.chung-right .chung .athlete {
+  left: 10%;
+}
+#score-presentation.chung-right .hong {
+  left: 0;
+}
+#score-presentation.chung-right .hong .inputs {
+  left: 5%;
+}
+#score-presentation.chung-right .hong .inputs .power {
+  left: 0%;
+}
+#score-presentation.chung-right .hong .inputs .rhythm {
+  left: 33.333%;
+}
+#score-presentation.chung-right .hong .inputs .ki {
+  left: 66.667%;
+}
+#score-presentation.chung-right .hong .score {
+  right: 10%;
+}
+#score-presentation.chung-right .hong .score .accuracy {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-presentation.chung-right .hong .score .presentation {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-presentation.chung-right .hong .athlete {
+  right: 10%;
+}
+#score-presentation.chung-left .chung {
+  left: 0;
+}
+#score-presentation.chung-left .chung .inputs {
+  left: 5%;
+}
+#score-presentation.chung-left .chung .inputs .power {
+  left: 0%;
+}
+#score-presentation.chung-left .chung .inputs .rhythm {
+  left: 33.333%;
+}
+#score-presentation.chung-left .chung .inputs .ki {
+  left: 66.667%;
+}
+#score-presentation.chung-left .chung .score {
+  right: 10%;
+}
+#score-presentation.chung-left .chung .score .accuracy {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-presentation.chung-left .chung .score .presentation {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-presentation.chung-left .chung .athlete {
+  right: 10%;
+}
+#score-presentation.chung-left .hong {
+  right: 0;
+}
+#score-presentation.chung-left .hong .inputs {
+  right: 5%;
+}
+#score-presentation.chung-left .hong .inputs .power {
+  right: 0%;
+}
+#score-presentation.chung-left .hong .inputs .rhythm {
+  right: 33.333%;
+}
+#score-presentation.chung-left .hong .inputs .ki {
+  right: 66.667%;
+}
+#score-presentation.chung-left .hong .score {
+  left: 10%;
+}
+#score-presentation.chung-left .hong .score .accuracy {
+  right: 0;
+  border-left: 3px solid white;
+}
+#score-presentation.chung-left .hong .score .presentation {
+  left: 0;
+  border-right: 3px solid white;
+}
+#score-presentation.chung-left .hong .athlete {
+  left: 10%;
+}
+
+.display-config.modal .display-config-group {
+  width: 100%;
+  margin-top: 1em;
+}
+.display-config.modal .display-config-group button {
+  width: 60px;
+}
+.display-config.modal label {
+  display: inline-block;
+  width: 160px;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+#display-draw .header {
+  width: 100%;
+  color: #999;
+}
+#display-draw .header h1 {
+  text-align: center;
+  font-size: 4em;
+}
+#display-draw .header h1 .divid {
+  color: white;
+}
+#display-draw .header h1 .description {
+  color: #ccc;
+}
+#display-draw .header h2 {
+  text-align: center;
+  color: #666;
+  font-size: 3em;
+}
+#display-draw .header h2 .round-name {
+  color: gold;
+}
+#display-draw .header h2 .match-number {
+  color: lime;
+}
+#display-draw .header h2 .form-name {
+  color: cyan;
+}
+
+/*# sourceMappingURL=judge.css.map */

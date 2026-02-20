@@ -1,56 +1,5 @@
 @import '../../fonts';
 
-.presentationBar {
-	position: relative;
-	font-family: $text-font-stack;
-	width: 396px;
-	height: 64px;
-	margin: 0 0 0 20px;
-
-	.pb-label {
-		top: 0;
-		left: 24px;
-		position: absolute;
-		font-size: 12pt;
-		width: 400px;
-		color: #ccc;
-		line-height: 24pt;
-		margin-left: 20px;
-	}
-
-	.slider {
-		position: absolute;
-		top: 32px;
-		left: 30px;
-		width: 254px;
-	}
-
-	.value {
-		position: absolute;
-		top: 32px;
-		left: 320px;
-		font-size: 24pt;
-		color: white;
-		float: left;
-		width: 64px;
-		text-align: center;
-		line-height: 14pt;
-		vertical-align: top;
-	}
-
-	.nudge {
-		position: absolute;
-		height: 40px;
-		width: 40px;
-		margin: 0;
-		padding: 0;
-		top: 18px;
-		border-radius: 6px;
-	}
-	.plus  { left: -8px; }
-	.minus { left: 280px;   }
-}
-
 .presentationButtons {
 	position: relative;
 	font-family: Optima, Biolinum;

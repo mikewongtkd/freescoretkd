@@ -1,0 +1,21 @@
+{
+	"host" : "localhost",
+	"port" : 8073,
+	"protocol" : "http",
+	"password" : {
+		"ring01" : "1234",
+		"ring02" : "1234",
+		"ring03" : "5678"
+	},
+	"service" : {
+		"breaking"   : { "path" : "feats-breaking",   "port" : 3078 },
+		"freestyle"  : { "path" : "forms-freestyle",  "port" : 3082 },
+		"fswifi"     : { "path" : "",                 "port" : 3085 },
+		"grassroots" : { "path" : "forms-grassroots", "port" : 3080 },
+		"worldclass" : { "path" : "forms-worldclass", "port" : 3088 }
+	},
+	"tournament" : {
+		"name" : "FreeScore",
+		"db"   : "test"
+	}
+}

@@ -1,8 +1,8 @@
 .scoreboard {
 	font-family: $condensed-font-stack;
 	display: none;
-	width: 1000px;
-	height: 720px;
+	width: 1600px;
+	height: 900px;
 	border-radius: 24px;
 	border: 4px solid white;
 	margin-top: 20px;
@@ -11,59 +11,59 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 292px;
-		height: 712px;
+		width: 20%;
+		height: 100%;
 		margin: 0 0 20px 0;
 	}
 
 	.judges7 { 
-		.judge { font-size: 24pt; line-height: 24pt; }
+		.judge { font-size: 36pt; line-height: 36pt; }
 		.score { font-size: 48pt; line-height: 48pt; }
 	}
 
 	.judges5 { 
-		.judge { font-size: 24pt; line-height: 24pt; }
+		.judge { font-size: 36pt; line-height: 36pt; }
 		.score { font-size: 48pt; line-height: 48pt; }
 	}
 
 	.judges3 { 
-		.judge { font-size: 36pt; line-height: 36pt; }
+		.judge { font-size: 48pt; line-height: 36pt; }
 		.score { font-size: 64pt; line-height: 64pt; }
 	}
 
 	.judgeScore {
 		position: absolute;
 		text-align: center;
-		width: 292px;
-		height: 101.5px;
+		width: 100%;
+		height: 14.29%;
 		background: black;
 		background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
 		background: linear-gradient(to top, #45484d 0%,#000000 100%);
 
+		&:first-child { border-radius: 24px 0 0 0; }
+		&:last-child  { border-radius: 0 0 0 24px; }
+
 		.judge {
 			position: absolute;
-			top: 0;
-			left: 0;
-			padding: 30px 0 0 0;
+			top: 50%;
+			left: 5%;
 			color: #999;
-			margin: 0 auto 0 auto;
-			width: 40px;
-			height: 72px;
+			transform: translateY(-50%);
 		}
 		.ignore-judge { color: #333; }
 
 		.score {
 			position: absolute;
-			top: 10px;
-			left: 40px;
+			top: 0;
+			left: 25%;
 			color: #666;
 			margin: 0 auto 0 auto;
-			width: 260px;
-			height: 92px;
-			.accuracy     { color: #f99; }
-			.ignore-acc   { opacity: 0.75; position: relative; color: #c66; &::after{ opacity: 0.75; border-bottom: 8px solid #c66; content: ""; position: absolute; left: 0; top: 50%; right: 0; }}
-			.presentation { color: #99f; }
-			.ignore-pre   { opacity: 0.75; position: relative; color: #66c; &::after{ opacity: 0.75; border-bottom: 8px solid #66c; content: ""; position: absolute; left: 0; top: 50%; right: 0; }}
+			width: 75%;
+			height: 100%;
+			.accuracy     { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: #f99; }
+			.ignore-acc   { position: absolute; left: 0; top: 50%; transform: translateY(-50%); opacity: 0.75; color: #c66; text-decoration: line-through; }
+			.presentation { position: absolute; left: 50%; top: 50%; transform: translateY(-50%); color: #99f; }
+			.ignore-pre   { position: absolute; left: 50%; top: 50%; transform: translateY(-50%); opacity: 0.75; color: #66c; text-decoration: line-through; }
 			.received     { color: #0c0; }
 		}
 	}
@@ -76,10 +76,10 @@
 	.totalScores {
 		position: absolute;
 		top: 0;
-		left: 292px;
+		left: 20%;
 		text-align: center;
-		height: 712px;
-		width: 700px;
+		height: 100%;
+		width: 80%;
 		font-weight: bold;
 		color: white;
 		background: black;
@@ -96,10 +96,10 @@
 			left: 0;
 			color: yellow;
 			margin: 0;
-			height: 120px;
-			width: 694px;
-			font-size: 72pt;
-			line-height: 72pt;
+			height: 10%;
+			width: 100%;
+			font-size: 64pt;
+			line-height: 64pt;
 			text-align: center;
 			overflow: hidden;
 		}
@@ -109,24 +109,24 @@
 			top: 0;
 			left: 0;
 			padding: 16px 4px 4px 4px;
-			height: 128px;
-			width: 128px;
+			height: 10%;
+			width: 10%;
 		}
 
 		.round {
 			position: absolute;
-			top: 580px;
+			top: 76%;
 			left: 0;
 			margin: 0;
 			color: #999;
 			height: 40px;
-			font-size: 24pt;
-			width: 700px;
+			font-size: 48pt;
+			width: 100%;
 
 			ul {
 				list-style-type: none;
-				line-height: 30pt;
-				height: 40px;
+				line-height: 56pt;
+				height: 76px;
 
 				b { color: orange; }
 			}
@@ -134,57 +134,59 @@
 
 		.score {
 			position: absolute;
-			top: 80px;
+			top: 10%;
 			left: 0;
-			height: 500px;
-			width: 700px;
+			height: 100%;
+			width: 100%;
 
 			.accuracy     { 
 				position: absolute; 
-				top: 16px;
-				left: 16px;
-				width: 248px;
-				height: 80px;
+				top: 0;
+				height: 15%;
+				left: 25%;
+				width: 25%;
 				color: #600; 
-				font-size: 96pt;
-				line-height: 96pt;
+				font-size: 120pt;
+				line-height: 120pt;
 				color: #f99;
+				transform: translateX(-50%);
 			}
 			.presentation { 
 				position: absolute; 
-				top: 16px;
-				left: 438px;
-				width: 248px;
-				height: 80px;
+				top: 0;
+				height: 15%;
+				left: 75%;
+				width: 25%;
 				color: #006; 
-				font-size: 96pt;
-				line-height: 96pt;
+				font-size: 120pt;
+				line-height: 120pt;
 				color: #99f;
+				transform: translateX(-50%);
 			}
 			.total {
 				position: absolute;
-				top: 64px;
-				left: 0;
-				width: 700px;
-				height: 290px;
+				top: 10%;
+				left: 50%;
+				width: 100%;
 				color: lime;
-				font-size: 280pt;
+				font-size: 300pt;
+				transform: translateX(-50%);
 			}
 		}
 
 		.forms {
 			position: absolute;
-			top: 620px;
+			top: 85%;
 			left: 0;
-			width: 700px;
-			height: 80px;
+			width: 100%;
+			height: 15%;
 
 			.form {
 				position: absolute;
 				top: 0;
 				left: 0;
-				width: 152px;
-				height: 72px;
+				width: 15%;
+				height: 90%;
 				background: black;
 				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
 				background: linear-gradient(to top, #45484d 0%,#000000 100%);
@@ -193,44 +195,49 @@
 
 				.name {
 					color: #996;
-					font-size: 14pt;
+					font-size: 18pt;
+					line-height: 28pt;
 					position: absolute;
-					top: 64px;
-					left: 0;
-					width: 144px;
-					height: 20px;
-					text-align: center;
+					top: 0;
+					left: 50%;
+					width: 100%;
+					height: 35%;
+					transform: translateX(-50%);
 				}
 				.score {
 					color: yellow;
-					font-size: 48pt;
-					line-height: 48pt;
+					font-size: 56pt;
+					line-height: 56pt;
 					position: absolute;
-					top: 4px;
-					left: 0;
-					width: 144px;
-					height: 60px;
-					text-align: center;
+					top: 35%;
+					left: 50%;
+					width: 100%;
+					height: 65%;
+					transform: translateX(-50%);
 				}
+
+				&.form1 { left: 25%; transform: translateX(-50%); }
+				&.form2 { left: 50%; transform: translateX(-50%); }
+				&.mean  { left: 75%; transform: translateX(-50%); }
 			}
 		}
 
 		.penalty {
+			position: absolute;
 			color: white;
 			font-size: 24pt;
-			position: absolute;
-			width: 100px;
-			height: 41px;
+			width: 10%;
+			height: 5%;
 
 			.icon {
 				position: absolute;
-				left: 0px;
-				top: 0px;
+				left: 0;
+				top: 0;
 				background: darkorchid;
 				background-size: 28px;
 				border-radius: 21px;
-				width: 41px;
-				height: 41px;
+				width: 33.333%;
+				height: 100%;
 
 				.glyphicon {
 					position: absolute;
@@ -241,29 +248,35 @@
 			}
 			.value {
 				position: absolute;
-				left: 44px;
-				top: -2px;
-				height: 41px;
+				left: 33.333%;
+				top: 0;
+				height: 100%;
+				width: 50%;
+				text-align: right;
 			}
 		}
 		.bounds {
-			left: 254px;
-			top:  168px;
+			left: 45%;
+			top:  20%;
+			transform: translateX( -50% );
 		}
 
 		.timelimit {
-			left: 254px;
-			top:  120px;
+			left: 45%;
+			top:  12%;
+			transform: translateX( -50% );
 		}
 
 		.restart {
-			left: 354px;
-			top:  168px;
+			left: 55%;
+			top:  20%;
+			transform: translateX( -50% );
 		}
 
 		.misconduct {
-			left: 354px;
-			top:  120px;
+			left: 55%;
+			top:  12%;
+			transform: translateX( -50% );
 		}
 	}
 }

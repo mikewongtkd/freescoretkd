@@ -1,0 +1,14 @@
+[Unit]
+Description=FreeScore Creative Breaking Scoring Service
+
+[Documentation]
+Documentation=https://github.com/mikewongtkd/freescoretkd
+
+[Service]
+ExecStart=/usr/local/bin/hypnotoad /usr/local/freescore/bin/breaking
+WorkingDirectory=/usr/local/freescore
+Type=forking
+PIDFile=/run/freescore/breaking.pid
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,9 @@
 package FreeScore::Forms::WorldClass::Method;
-use List::MoreUtils qw( first_index );
+use FreeScore::Forms::WorldClass::Method::Cutoff;
+use FreeScore::Forms::WorldClass::Method::SideBySide;
+use FreeScore::Forms::WorldClass::Method::SingleElimination;
+use base qw( Clone );
+use List::Util qw( first );
 
 # ============================================================
 sub new {
@@ -11,66 +15,150 @@ sub new {
 }
 
 # ============================================================
-sub has_round {
+sub init {
 # ============================================================
 	my $self  = shift;
-	my $text  = shift;
-	my $regex = join( '|', @{$self->{ rounds }});
+	my $div   = shift;
+	my $round = shift;
 
-	my ($match) = $text =~ /\b($regex)\b/;
-
-	return $match ? $match : undef;
+	$self->{ division } = $div;
+	$self->{ round }    = $round if $round;
 }
 
 # ============================================================
-sub name {
+sub bracket {}
 # ============================================================
-	my $self = shift;
-	return $self->{ name };
+
+# ============================================================
+sub change_display {}
+# ============================================================
+
+# ============================================================
+sub division { my $self = shift; return $self->{ division }; }
+# ============================================================
+
+# ============================================================
+sub factory {
+# ============================================================
+	my $type  = shift;
+	my $div   = shift;
+	my $round = shift;
+
+	my $dispatch = {
+		cutoff => 'Cutoff',
+		sbs    => 'SideBySide',
+		se     => 'SingleElimination'
+	};
+
+	my $class = "FreeScore::Forms::WorldClass::Method::$dispatch->{ $type }";
+
+	return $class->new( $div, $round );
 }
 
 # ============================================================
-sub next_round {
+sub initialize {}
 # ============================================================
-#** @method ( $wrap )
-#   @brief Returns the next round ID
-#*
-	my $self    = shift;
-	my $wrap    = shift;
-	my $div     = $self->{ div };
-	my $current = $div->{ round };
-	my $i       = first_index { $_ eq $current } @{ $self->{ rounds }};
-	my $unknown = $i == -1;
-	my $last    = $i == $#{$self->{ rounds }};
-	my $next    = $i + 1;
-	my $first   = $wrap ? $self->{ rounds }[ 0 ] : undef;
 
-	return $last ? $first : $self->{ rounds }[ $next ];
+# ============================================================
+sub matches {}
+# ============================================================
+
+# ============================================================
+sub rcode {
+# ============================================================
+	my $self  = shift;
+	my $round = $self->round();
+	my $rcode = $round->{ code };
+
+	return $rcode;
 }
 
 # ============================================================
-sub previous_round {
+sub round {
 # ============================================================
-#** @method ( $wrap )
-#   @brief Returns the previous round ID
-#*
-	my $self    = shift;
-	my $div     = $self->{ div };
-	my $current = $div->{ round };
-	my $i       = first_index { $_ eq $current } @{ $self->{ rounds }};
-	my $unknown = $i == -1;
-	my $first   = $i == 0;
-	my $prev    = $i - 1;
-	my $last    = $wrap ? $self->{ rounds }[ -1 ] : undef;
+	my $self  = shift;
+	my $rcode = shift || $self->{ round };
+	my $class  = ref( $self );
+	my $rvar   = "\@$class\:\:rounds";
+	my @rounds = eval $rvar;
 
-	return $first ? $last : $self->{ rounds }[ $prev ];
+	die "No round specified for $class round() $!" unless $rcode;
+	my $round  = first { $_->{ code } eq $rcode } @rounds;
+
+	return $round if $round;
+	die "Round $rcode not found in $rvar\n";
 }
 
 # ============================================================
 sub rounds {
 # ============================================================
-	my $self = shift;
-	return @{ $self->{ rounds }};
+#** @method ( mode )
+#   @brief Returns all rounds possible for the given method
+#   mode is one of:
+#   - object: Returns a round object which has the following fields (also valid modes):
+#   - code (default): Returns the round codes (e.g. ro8, ro2, etc.)
+#   - name: Returns the round name (e.g. Round of 8)
+#   - min|max: Returns the min or max # of athletes per round
+#   - matches: Returns the max number of matches in the round
+#*
+	my $self   = shift;
+	my $mode   = shift || 'code';
+	my $class  = ref( $self );
+	my $rvar   = "\@$class::rounds";
+	my @rounds = eval $rvar;
+
+	if( $mode eq 'object' ) {
+		return @rounds;
+
+	} elsif( $mode =~ /^(?:code|name|min|max|matches)$/ ) {
+		return map { $_->{ $mode } } @rounds;
+
+	} else {
+		die "Unrecognized mode request '$mode' $!";
+	}
+
+	return @rounds;
 }
+
+# ============================================================
+sub state {
+# ============================================================
+	my $self    = shift;
+	my $state   = lc shift;
+	my $div     = $self->{ division };
+	my $class   = ref( $self );
+	my $svar    = "\@$class\:\:states";
+	my @states  = eval $svar;
+	my $method  = (split /::/, $class)[ -1 ];
+	my $allowed = join( ', ', @states );
+
+	die "Unknown state '$state' for method $method (allowed: $allowed) $!" unless( grep { $state eq $_ } @states);
+	$div->{ state } = $state;
+}
+
+# ============================================================
+sub _annotate {
+# ============================================================
+# Determines if a tie-breaking criteria is needed and adds them
+# to the list for display
+# ------------------------------------------------------------
+	my $x = shift;
+	my $y = shift;
+
+	my $dcode = { disqualify => 'DSQ', withdraw => 'WDR' };
+	if( $x->{ adjusted }{ total } == $y->{ adjusted }{ total } && $x->{ adjusted }{ total } != 0 ) {
+		if( $x->{ adjusted }{ presentation } != $y->{ adjusted }{ presentation }) { 
+			$x->{ tb }[ 0 ] = $x->{ adjusted }{ presentation }; 
+			$y->{ tb }[ 0 ] = $y->{ adjusted }{ presentation }; 
+		} else {
+			if( $x->{ original }{ total } != $y->{ original }{ total } ) { 
+				$x->{ tb }[ 1 ] = $x->{ original }{ total };
+				$y->{ tb }[ 1 ] = $y->{ original }{ total };
+			}
+		}
+	}
+}
+
+sub code { return ''; };
 
 1;

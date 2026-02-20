@@ -1,6 +1,7 @@
 <?php
-	include "./include/php/version.php";
-	include "./include/php/config.php";
+	include_once( "./include/php/version.php" );
+	include_once( "./include/php/config.php" );
+	include_once( "./include/php/session/authenticate.php" );
 ?>
 <html>
 	<head>
@@ -15,7 +16,12 @@
 		<script src="./include/alertify/alertify.min.js"></script>
 		<script src="./include/js/freescore.js"></script>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="viewport" content="width=device-width; initial-scale=1; viewport-fit=cover">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="theme-color" content="#000000">
+		<link rel="manifest" href="./manifest.json">
+
 		<style type="text/css">
 			@font-face {
 			  font-family: Nimbus;
@@ -46,21 +52,24 @@
 
 			<div id="devices">
 				<div class="register" id="judge">
-					<a class="btn btn-default worldclass" href="forms/worldclass/register.php?role=judge" ><img class="device" src="images/roles/tablet-worldclass.png" /><p>Sport Poomsae Referee Tablet</p></a>
-					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=judge"  ><img class="device" src="images/roles/tablet-freestyle.png"  /><p>Freestyle Referee Tablet</p></a>
-					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=judge" ><img class="device" src="images/roles/tablet-grassroots.png" /><p>Open Poomsae Referee Tablet</p></a>
+					<a class="btn btn-default worldclass" href="register.php?service=worldclass&role=judge" ><img class="device" src="images/roles/tablet-worldclass.png" /><p>Sport Poomsae Judge Tablet</p></a>
+					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=judge"  ><img class="device" src="images/roles/tablet-freestyle.png"  /><p>Freestyle Judge Tablet</p></a>
+					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=judge" ><img class="device" src="images/roles/tablet-grassroots.png" /><p>Open Poomsae Judge Tablet</p></a>
+					<a class="btn btn-default breaking"   href="register.php?service=breaking&role=judge"   ><img class="device" src="images/roles/tablet-breaking.png"   /><p>Creative Breaking Judge Tablet</p></a>
 				</div>
 
 				<div class="register" id="computer-operator">
-					<a class="btn btn-default worldclass" href="forms/worldclass/register.php?role=computer+operator" ><img class="device" src="images/roles/coordinator-worldclass.png" /><p>Sport Poomsae Ring Computer</p></a>
+					<a class="btn btn-default worldclass" href="register.php?service=worldclass&role=computer+operator" ><img class="device" src="images/roles/coordinator-worldclass.png" /><p>Sport Poomsae Ring Computer</p></a>
 					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=computer+operator"  ><img class="device" src="images/roles/coordinator-freestyle.png"  /><p>Freestyle Ring Computer</p></a>
 					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=computer+operator" ><img class="device" src="images/roles/coordinator-grassroots.png" /><p>Open Poomsae Ring Computer</p></a>
+					<a class="btn btn-default breaking"   href="register.php?service=breaking&role=computer+operator"   ><img class="device" src="images/roles/coordinator-breaking.png"   /><p>Creative Breaking Ring Computer</p></a>
 				</div>
 
 				<div class="register" id="divisions">
 					<a class="btn btn-default worldclass" href="forms/worldclass/divisions.php" ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Sport Poomsae Divisions</p></a>
 					<a class="btn btn-default freestyle"  href="forms/freestyle/divisions.php"  ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Freestyle Divisions</p></a>
 					<a class="btn btn-default grassroots" href="forms/grassroots/divisions.php" ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Open Poomsae Divisions</p></a>
+					<a class="btn btn-default breaking"   href="feats/breaking/divisions.php"   ><img class="device" src="images/roles/laptop-manage.png" /><p>Edit Creative Breaking Divisions</p></a>
 				</div>
 
 				<div class="register" id="tournament">
@@ -98,44 +107,50 @@ $( '.list-group a' ).click( function( ev ) {
 
 var host       = '<?= $host ?>';
 var tournament = <?= $tournament ?>;
-var services   = { setup: 3085, grassroots: 3080, worldclass: 3088, freestyle: 3082 };
+<?php
+	$services = [];
+	foreach( $config->services() as $service ) {
+		$services[ $service ] = $config->service_test( $service );
+	}
+	$services = json_encode( $services, JSON_UNESCAPED_SLASHES );
+?>
+var services   = <?= $services ?>
 
 // ------------------------------------------------------------
 function disable_service( service ) {
 // ------------------------------------------------------------
-	if( service == 'setup' ) {
-		for( var setup of [ 'setup', 'wifi' ]) {
-			var button = $( '#' + setup );
-			console.log( button );
+	if( service == 'fswifi' ) {
+		for( let setup of [ 'setup', 'wifi' ]) {
+			let button = $( `#${setup}` );
 			button.addClass( 'disabled' );
 			button.css({ opacity: 0.20 });
 		}
 	} else {
-		var div = '.' + service;
-		$( div + ' a' ).addClass( 'disabled' ); // Disable clicking
+		var div = `.${service}`;
+		$( `${div} a` ).addClass( 'disabled' ); // Disable clicking
 		$( div ).css({ opacity : 0.20 });
 	}
 }
 
 // ------------------------------------------------------------
-function test_service( service, port ) {
+function test_service( service, url ) {
 // ------------------------------------------------------------
-	var url = 'http://' + host + ':' + port + '/status';
 	$.ajax( {
 		type:        'GET',
 		crossDomain: true,
 		url:         url,
 		data:        {},
-		success:     function( response ) { 
-			if( defined( response.error )) {
+		success:     response => { 
+			if( response != 'OK' ) {
 				sound.error.play();
 				alertify.error( response.error );
-				if( service != 'setup' ) { disable_service( service ); }
+				if( service != 'fswifi' ) { disable_service( service ); }
 			}
 		},
-		error:       function( response ) { 
+		error:       response => { 
 			sound.error.play(); 
-			alertify.error( service.capitalize() + " service failed to start." ); 
+			if( service == 'fswifi' ) { alertify.error( "Setup service failed to start." ); } 
+			else                      { alertify.error( `${service.capitalize()} service failed to start.` ); }
 			disable_service( service );
 		},
 	});

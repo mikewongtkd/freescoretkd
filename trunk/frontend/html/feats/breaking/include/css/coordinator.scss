@@ -1,0 +1,221 @@
+@import 'fonts';
+
+@media print {
+	.action-menu, #back-to-divisions {
+		display: none !important;
+	}
+}
+
+html, body { 
+	height: 100%; 
+	overflow-x: hidden; 
+	font-family: $text-font-stack;
+}
+
+.pt-perspective {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	perspective: 1200px;
+}
+
+.pt-page {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	visibility: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
+	backface-visibility: hidden;
+	transform: translate3d(0, 0, 0);
+	transform-style: preserve-3d;
+}
+
+.pt-page-current,
+.no-js .pt-page {
+	visibility: visible;
+	z-index: 1;
+}
+
+.pt-page-ontop {
+	z-index: 999;
+}
+
+.page-header, {
+	position: relative;
+	height: 48px;
+	width: 100%;
+	margin: 10px 0 16px 0;
+	padding: 8px 14px 8px 14px;
+	background-color: black;
+	color: gold;
+	font-size: 24pt;
+	line-height: 24pt;
+	font-weight: bold;
+	border-radius: 4px;
+
+	.ping-display {
+		float: right;
+		font-size: 12pt;
+		line-height: 12pt;
+		color: red;
+		margin-top: 8px;
+	}
+}
+
+#back-to-divisions {
+	margin-top: -3px;
+}
+
+#athletes {
+	height: 600px;
+	overflow-y: auto;
+
+	.list-group-item {
+		padding-top: 10px;
+		padding-bottom: 6px;
+	}
+}
+
+.athlete-name {
+	position: relative;
+	display: inline-block;
+	width: 70%;
+	font-size: 14pt;
+	line-height: 14pt;
+	&:before {
+		font-size: 10pt;
+		display: inline-block;
+		width: 60px;
+		content: ''
+	}
+}
+
+.decision-punitive-header {
+	background-color: #d9534f !important;
+	color: white !important;
+}
+
+.athlete-boards, .athlete-score {
+	display: inline-block;
+	position: relative;
+	width: 12.5%;
+	font-size: 14pt;
+	line-height: 14pt;
+	margin-left: 2.5%;
+	text-align: right;
+	color: white;
+}
+
+.active {
+	h4 { 
+		font-weight: bold; 
+		color: gold; 
+	}
+	b  { color: gold; }
+	.athlete-name:before {
+		content: 'Current';
+		color: gold;
+	}
+}
+
+.on-deck .athlete-name:before {
+	content: 'On Deck';
+	color: #aaa;
+}
+
+.selected-athlete {
+	background-color: gold;
+	&:hover {
+		background-color: yellow;
+	}
+	.athlete-name:before {
+		color: #666;
+	}
+}
+
+.row {
+	margin-left: -15px;
+	width: calc( 100% + 30px );
+	h4 { margin-left: 8px; }
+}
+
+#judge-scores {
+	.label { font-size: 1em; }
+	.tech.label { color: blue; }
+	.pres.label { color: red; }
+	.sum.label  { color: black; }
+	table { width: 100%; }
+	td, th { 
+		text-align: center; 
+	}
+	.deductions { text-align: left; padding-left: 8px; }
+	.dropped { text-decoration: line-through; opacity: 0.5; }
+}
+
+.action-menu {
+	.fas {
+		width: 12px;
+		text-align: center;
+	}
+	.list-group-item {
+		span { margin-right: 12px; }
+	}
+	.navigate-division, .navigate-athlete {
+		.list-group-item {
+			background-color: #337ab7;
+			border-color: #2e6da4;
+			color: white;
+		}
+	}
+	.timer {
+		#time {
+			height: 32px;
+			width: 100%;
+			text-align: center;
+			font-size: 1.75em;
+			background-color: black;
+			color: white;
+			border-radius: 8px;
+			margin-bottom: 2px;
+
+			&.overtime {
+				color: red;
+			}
+		}
+		.btn-group {
+			width: 100%;
+			.btn { width: 50%; }
+			#time-stop {
+				border-radius: 4px 0 0 4px;
+			}
+		}
+	}
+	.administration {
+		p { 
+			margin: 0 8px 0 8px; 
+			font-size: 9pt; 
+		}
+		.list-group-item {
+			background-color: #5bc0de;
+			border-color: #46b8da;
+			color: white;
+		}
+	}
+	.decision {
+		.list-group-item {
+			background-color: #d9534f;
+			border-color: #d43f3a;
+		    color: white;
+		}
+	}
+	.penalties {
+		.list-group-item {
+			background-color: #f0ad4e;
+			border-color: #eea236;
+			color: white;
+		}
+	}
+}

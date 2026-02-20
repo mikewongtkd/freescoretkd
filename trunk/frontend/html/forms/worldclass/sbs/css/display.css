@@ -1,0 +1,1194 @@
+body {
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to bottom, #35383d 0%, #000000 100%);
+  /* W3C */
+  font-family: FjallaOne;
+  overflow: hidden;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+#display-draw .header {
+  width: 100%;
+  color: #999;
+}
+#display-draw .header h1 {
+  text-align: center;
+  font-size: 4em;
+}
+#display-draw .header h1 .divid {
+  color: white;
+}
+#display-draw .header h1 .description {
+  color: #ccc;
+}
+#display-draw .header h2 {
+  text-align: center;
+  color: #666;
+  font-size: 3em;
+}
+#display-draw .header h2 .round-name {
+  color: gold;
+}
+#display-draw .header h2 .match-number {
+  color: lime;
+}
+#display-draw .header h2 .form-name {
+  color: cyan;
+}
+
+#display-score .header, #display-bracket .header, #display-results .header, #display-matches .header, #display-leaderboard .header {
+  top: 0;
+  width: 100%;
+  color: #999;
+}
+#display-score .header h1, #display-bracket .header h1, #display-results .header h1, #display-matches .header h1, #display-leaderboard .header h1 {
+  text-align: center;
+  font-size: 4em;
+}
+#display-score .header h1 .divid, #display-bracket .header h1 .divid, #display-results .header h1 .divid, #display-matches .header h1 .divid, #display-leaderboard .header h1 .divid {
+  color: white;
+}
+#display-score .header h1 .description, #display-bracket .header h1 .description, #display-results .header h1 .description, #display-matches .header h1 .description, #display-leaderboard .header h1 .description {
+  color: #ccc;
+}
+#display-score .header h2, #display-bracket .header h2, #display-results .header h2, #display-matches .header h2, #display-leaderboard .header h2 {
+  text-align: center;
+  color: #666;
+  font-size: 3em;
+}
+#display-score .header h2 .round-name, #display-bracket .header h2 .round-name, #display-results .header h2 .round-name, #display-matches .header h2 .round-name, #display-leaderboard .header h2 .round-name {
+  color: gold;
+}
+#display-score .header h2 .match-number, #display-bracket .header h2 .match-number, #display-results .header h2 .match-number, #display-matches .header h2 .match-number, #display-leaderboard .header h2 .match-number {
+  color: lime;
+}
+#display-score .header h2 .form-name, #display-bracket .header h2 .form-name, #display-results .header h2 .form-name, #display-matches .header h2 .form-name, #display-leaderboard .header h2 .form-name {
+  color: cyan;
+}
+
+#display-matches.chung-right .match {
+  position: relative;
+  margin-left: 10%;
+  margin-right: 10%;
+  width: 80%;
+  color: white;
+}
+#display-matches.chung-right .match.ro8, #display-matches.chung-right .match.ro16, #display-matches.chung-right .match.ro32, #display-matches.chung-right .match.ro64, #display-matches.chung-right .match.ro128, #display-matches.chung-right .match.ro256 {
+  height: 10%;
+  margin-top: 3.5%;
+  margin-bottom: 3.5%;
+}
+#display-matches.chung-right .match.ro8 .match-number, #display-matches.chung-right .match.ro16 .match-number, #display-matches.chung-right .match.ro32 .match-number, #display-matches.chung-right .match.ro64 .match-number, #display-matches.chung-right .match.ro128 .match-number, #display-matches.chung-right .match.ro256 .match-number {
+  top: 0;
+}
+#display-matches.chung-right .match.ro8 .match-chung, #display-matches.chung-right .match.ro8 .match-hong, #display-matches.chung-right .match.ro16 .match-chung, #display-matches.chung-right .match.ro16 .match-hong, #display-matches.chung-right .match.ro32 .match-chung, #display-matches.chung-right .match.ro32 .match-hong, #display-matches.chung-right .match.ro64 .match-chung, #display-matches.chung-right .match.ro64 .match-hong, #display-matches.chung-right .match.ro128 .match-chung, #display-matches.chung-right .match.ro128 .match-hong, #display-matches.chung-right .match.ro256 .match-chung, #display-matches.chung-right .match.ro256 .match-hong {
+  height: 100px;
+}
+#display-matches.chung-right .match.ro4 {
+  top: 10%;
+  height: 15%;
+  margin-top: 10%;
+  margin-bottom: 5%;
+}
+#display-matches.chung-right .match.ro4 .match-number {
+  top: 12.5px;
+}
+#display-matches.chung-right .match.ro4 .match-chung, #display-matches.chung-right .match.ro4 .match-hong {
+  padding-top: 10px;
+  height: 125px;
+}
+#display-matches.chung-right .match.ro4 .match-chung .noc, #display-matches.chung-right .match.ro4 .match-hong .noc {
+  top: 14px;
+}
+#display-matches.chung-right .match.ro4 .match-chung .win, #display-matches.chung-right .match.ro4 .match-hong .win {
+  top: 32.5px;
+}
+#display-matches.chung-right .match.ro2 {
+  height: 20%;
+  margin-top: 15%;
+}
+#display-matches.chung-right .match.ro2 .match-number {
+  top: 25px;
+}
+#display-matches.chung-right .match.ro2 .match-chung, #display-matches.chung-right .match.ro2 .match-hong {
+  padding-top: 22.5px;
+  height: 150px;
+}
+#display-matches.chung-right .match.ro2 .match-chung .noc, #display-matches.chung-right .match.ro2 .match-hong .noc {
+  top: 25px;
+}
+#display-matches.chung-right .match .win {
+  position: absolute;
+  background-color: gold;
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  top: 20px;
+}
+#display-matches.chung-right .match .noc {
+  position: absolute;
+}
+#display-matches.chung-right .match .noc img {
+  width: 80px;
+}
+#display-matches.chung-right .match .name {
+  position: absolute;
+  font-size: 4em;
+  line-height: 1.75em;
+  max-width: 520px;
+}
+#display-matches.chung-right .match .name:not(.ro2 .name) {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#display-matches.chung-right .match .match-chung, #display-matches.chung-right .match .match-hong {
+  width: 50%;
+  position: absolute;
+}
+#display-matches.chung-right .match.active .match-chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+  color: white;
+  border: 4px solid gold;
+}
+#display-matches.chung-right .match.active .match-chung .name {
+  line-height: 1.75em;
+}
+#display-matches.chung-right .match.active .match-chung .noc {
+  opacity: 100%;
+}
+#display-matches.chung-right .match.active .match-chung .win {
+  background-color: gold;
+  top: 16px;
+}
+#display-matches.chung-right .match .match-chung {
+  right: 0;
+  text-align: right;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  background: #000124;
+  color: #333;
+}
+#display-matches.chung-right .match .match-chung .name {
+  padding-right: 80px;
+  line-height: 1.9em;
+  right: 0;
+}
+#display-matches.chung-right .match .match-chung .win {
+  right: 10px;
+  background-color: #653;
+}
+#display-matches.chung-right .match .match-chung .noc {
+  left: 100px;
+  top: 8px;
+  opacity: 20%;
+}
+#display-matches.chung-right .match.active .match-hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+  color: white;
+  border: 4px solid gold;
+}
+#display-matches.chung-right .match.active .match-hong .name {
+  line-height: 1.75em;
+}
+#display-matches.chung-right .match.active .match-hong .noc {
+  opacity: 100%;
+}
+#display-matches.chung-right .match.active .match-hong .win {
+  background-color: gold;
+  top: 16px;
+}
+#display-matches.chung-right .match .match-hong {
+  left: 0;
+  text-align: left;
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+  background: #240000;
+  color: #333;
+}
+#display-matches.chung-right .match .match-hong .name {
+  padding-left: 80px;
+  line-height: 1.9em;
+  left: 0;
+}
+#display-matches.chung-right .match .match-hong .win {
+  left: 10px;
+  background-color: #653;
+}
+#display-matches.chung-right .match .match-hong .noc {
+  right: 100px;
+  top: 8px;
+  opacity: 20%;
+}
+#display-matches.chung-right .match.active .match-number {
+  background: gold;
+  color: black;
+}
+#display-matches.chung-right .match .match-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+  background: #333;
+  color: black;
+  font-size: 1.2em;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#display-matches.chung-right .match .match-number .number {
+  position: relative;
+  font-size: 3.2em;
+}
+#display-matches.chung-right .match.ro4.active .win {
+  top: 27px;
+}
+#display-matches.chung-left .match {
+  position: relative;
+  margin-left: 10%;
+  margin-right: 10%;
+  width: 80%;
+  color: white;
+}
+#display-matches.chung-left .match.ro8, #display-matches.chung-left .match.ro16, #display-matches.chung-left .match.ro32, #display-matches.chung-left .match.ro64, #display-matches.chung-left .match.ro128, #display-matches.chung-left .match.ro256 {
+  height: 10%;
+  margin-top: 3.5%;
+  margin-bottom: 3.5%;
+}
+#display-matches.chung-left .match.ro8 .match-number, #display-matches.chung-left .match.ro16 .match-number, #display-matches.chung-left .match.ro32 .match-number, #display-matches.chung-left .match.ro64 .match-number, #display-matches.chung-left .match.ro128 .match-number, #display-matches.chung-left .match.ro256 .match-number {
+  top: 0;
+}
+#display-matches.chung-left .match.ro8 .match-chung, #display-matches.chung-left .match.ro8 .match-hong, #display-matches.chung-left .match.ro16 .match-chung, #display-matches.chung-left .match.ro16 .match-hong, #display-matches.chung-left .match.ro32 .match-chung, #display-matches.chung-left .match.ro32 .match-hong, #display-matches.chung-left .match.ro64 .match-chung, #display-matches.chung-left .match.ro64 .match-hong, #display-matches.chung-left .match.ro128 .match-chung, #display-matches.chung-left .match.ro128 .match-hong, #display-matches.chung-left .match.ro256 .match-chung, #display-matches.chung-left .match.ro256 .match-hong {
+  height: 100px;
+}
+#display-matches.chung-left .match.ro4 {
+  top: 10%;
+  height: 15%;
+  margin-top: 10%;
+  margin-bottom: 5%;
+}
+#display-matches.chung-left .match.ro4 .match-number {
+  top: 12.5px;
+}
+#display-matches.chung-left .match.ro4 .match-chung, #display-matches.chung-left .match.ro4 .match-hong {
+  padding-top: 10px;
+  height: 125px;
+}
+#display-matches.chung-left .match.ro4 .match-chung .noc, #display-matches.chung-left .match.ro4 .match-hong .noc {
+  top: 14px;
+}
+#display-matches.chung-left .match.ro4 .match-chung .win, #display-matches.chung-left .match.ro4 .match-hong .win {
+  top: 32.5px;
+}
+#display-matches.chung-left .match.ro2 {
+  height: 20%;
+  margin-top: 15%;
+}
+#display-matches.chung-left .match.ro2 .match-number {
+  top: 25px;
+}
+#display-matches.chung-left .match.ro2 .match-chung, #display-matches.chung-left .match.ro2 .match-hong {
+  padding-top: 22.5px;
+  height: 150px;
+}
+#display-matches.chung-left .match.ro2 .match-chung .noc, #display-matches.chung-left .match.ro2 .match-hong .noc {
+  top: 25px;
+}
+#display-matches.chung-left .match .win {
+  position: absolute;
+  background-color: gold;
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  top: 20px;
+}
+#display-matches.chung-left .match .noc {
+  position: absolute;
+}
+#display-matches.chung-left .match .noc img {
+  width: 80px;
+}
+#display-matches.chung-left .match .name {
+  position: absolute;
+  width: 100%;
+  font-size: 4em;
+  line-height: 1.75em;
+  max-width: 520px;
+}
+#display-matches.chung-left .match .match-chung, #display-matches.chung-left .match .match-hong {
+  width: 50%;
+  position: absolute;
+}
+#display-matches.chung-left .match.active .match-chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+  color: white;
+  border: 4px solid gold;
+}
+#display-matches.chung-left .match.active .match-chung .name {
+  line-height: 1.75em;
+}
+#display-matches.chung-left .match.active .match-chung .noc {
+  opacity: 100%;
+}
+#display-matches.chung-left .match.active .match-chung .win {
+  background-color: gold;
+  top: 16px;
+}
+#display-matches.chung-left .match .match-chung {
+  left: 0;
+  text-align: left;
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+  background: #000124;
+  color: #333;
+}
+#display-matches.chung-left .match .match-chung .name {
+  padding-left: 80px;
+  line-height: 1.9em;
+  left: 0;
+}
+#display-matches.chung-left .match .match-chung .win {
+  left: 10px;
+  background-color: #653;
+}
+#display-matches.chung-left .match .match-chung .noc {
+  right: 100px;
+  top: 8px;
+  opacity: 20%;
+}
+#display-matches.chung-left .match.active .match-hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+  color: white;
+  border: 4px solid gold;
+}
+#display-matches.chung-left .match.active .match-hong .name {
+  line-height: 1.75em;
+}
+#display-matches.chung-left .match.active .match-hong .noc {
+  opacity: 100%;
+}
+#display-matches.chung-left .match.active .match-hong .win {
+  background-color: gold;
+  top: 16px;
+}
+#display-matches.chung-left .match .match-hong {
+  right: 0;
+  text-align: right;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  background: #240000;
+  color: #333;
+}
+#display-matches.chung-left .match .match-hong .name {
+  padding-right: 80px;
+  line-height: 1.9em;
+  right: 0;
+}
+#display-matches.chung-left .match .match-hong .win {
+  right: 10px;
+  background-color: #653;
+}
+#display-matches.chung-left .match .match-hong .noc {
+  left: 100px;
+  top: 8px;
+  opacity: 20%;
+}
+#display-matches.chung-left .match.active .match-number {
+  background: gold;
+  color: black;
+}
+#display-matches.chung-left .match .match-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+  background: #333;
+  color: black;
+  font-size: 1.2em;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#display-matches.chung-left .match .match-number .number {
+  position: relative;
+  font-size: 3.2em;
+}
+#display-matches.chung-left .match.ro4.active .win {
+  top: 27px;
+}
+
+#display-score {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#display-score .active .athlete .name {
+  color: gold;
+}
+#display-score .waiting .athlete .name {
+  opacity: 25%;
+}
+#display-score .waiting .report {
+  opacity: 25%;
+}
+#display-score .win .athlete .name {
+  color: gold;
+}
+#display-score .win .report .total {
+  color: gold;
+}
+#display-score .contestant {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  color: white;
+  text-align: center;
+}
+#display-score .contestant .athlete {
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#display-score .contestant .athlete .name {
+  display: inline-block;
+  font-size: 72pt;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: calc(100% - 160px);
+  width: calc(100% - 160px);
+}
+#display-score .contestant .athlete .noc {
+  display: inline-block;
+  width: 160px;
+  vertical-align: top;
+}
+#display-score .contestant .athlete .noc img {
+  width: 120px;
+}
+#display-score .contestant .score {
+  position: relative;
+  height: 85%;
+  width: 100%;
+}
+#display-score .contestant .score .accuracy-label, #display-score .contestant .score .presentation-label {
+  position: absolute;
+  top: 0;
+  width: 40%;
+  text-align: center;
+  font-size: 14pt;
+}
+#display-score .contestant .score .labels {
+  position: absolute;
+  width: 280px;
+}
+#display-score .contestant .score .labels .accuracy-label {
+  color: #c66;
+  opacity: 0.75;
+}
+#display-score .contestant .score .labels .presentation-label {
+  color: #66c;
+  opacity: 0.75;
+}
+#display-score .contestant .score .judges {
+  position: absolute;
+  height: 75%;
+}
+#display-score .contestant .score .judges .court-size-3 {
+  height: 33.333%;
+  font-size: 72pt;
+  line-height: 128pt;
+}
+#display-score .contestant .score .judges .court-size-5 {
+  height: 20%;
+  font-size: 56pt;
+  line-height: 96pt;
+}
+#display-score .contestant .score .judges .court-size-7 {
+  height: 14.285%;
+  font-size: 32pt;
+  line-height: 56pt;
+}
+#display-score .contestant .score .judges .judge {
+  position: relative;
+  width: 280px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+#display-score .contestant .score .judges .judge .jid {
+  position: absolute;
+  width: 20%;
+  font-size: 24pt;
+  color: #999;
+}
+#display-score .contestant .score .judges .judge .accuracy, #display-score .contestant .score .judges .judge .presentation {
+  width: 40%;
+  text-align: center;
+}
+#display-score .contestant .score .judges .judge .accuracy.ignore, #display-score .contestant .score .judges .judge .presentation.ignore {
+  opacity: 0.75;
+  text-decoration: line-through;
+}
+#display-score .contestant .score .judges .judge .accuracy {
+  position: absolute;
+  top: 0;
+  color: #f99;
+}
+#display-score .contestant .score .judges .judge .accuracy.ignore {
+  color: #c66;
+}
+#display-score .contestant .score .judges .judge .presentation {
+  position: absolute;
+  top: 0;
+  color: #99f;
+}
+#display-score .contestant .score .judges .judge .presentation.ignore {
+  color: #66c;
+}
+#display-score .contestant .score .judges .judge .received {
+  color: lime;
+}
+#display-score .contestant .score .report {
+  position: absolute;
+  height: 75%;
+  width: calc(100% - 320px);
+  top: 0;
+  text-align: center;
+}
+#display-score .contestant .score .report .total {
+  height: 60%;
+  font-size: 212pt;
+  line-height: 280pt;
+}
+#display-score .contestant .score .report .penalties {
+  height: 20%;
+}
+#display-score .contestant .score .report .penalties .win-dot {
+  display: inline-block;
+  margin-left: 12px;
+  margin-right: 12px;
+  width: 93.3333333333px;
+  height: 93.3333333333px;
+  background: gold;
+  border-radius: 46.6666666667px;
+}
+#display-score .contestant .score .report .penalties .penalty {
+  display: inline-block;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+#display-score .contestant .score .report .penalties .penalty .penalty-icon, #display-score .contestant .score .report .penalties .penalty .penalty-value {
+  font-size: 24pt;
+}
+#display-score .contestant .score .report .penalties .penalty .penalty-name {
+  font-size: 12pt;
+}
+#display-score .contestant .score .report .subtotals {
+  height: 20%;
+  position: relative;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  border: 4px solid gold;
+  margin-left: auto;
+  margin-right: auto;
+  height: 93.3333333333px;
+  width: 350px;
+  border-radius: 35px;
+}
+#display-score .contestant .score .report .subtotals .labels {
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+#display-score .contestant .score .report .subtotals .labels .accuracy-label, #display-score .contestant .score .report .subtotals .labels .presentation-label {
+  width: 50%;
+}
+#display-score .contestant .score .report .subtotals .accuracy, #display-score .contestant .score .report .subtotals .presentation {
+  position: absolute;
+  top: 15%;
+  font-size: 42pt;
+  width: 45%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+#display-score .contestant .score .report .subtotals .accuracy {
+  color: #f99;
+}
+#display-score .contestant .score .report .subtotals .presentation {
+  color: #99f;
+}
+#display-score .contestant .score .report.chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+}
+#display-score .contestant .score .report.hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+}
+#display-score.chung-right .contestant.chung {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .athlete, #display-score.chung-right .contestant.chung .judges {
+  margin-right: 40px;
+}
+#display-score.chung-right .contestant.chung .labels {
+  margin-right: 40px;
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .labels .accuracy-label {
+  right: 20%;
+}
+#display-score.chung-right .contestant.chung .labels .presentation-label {
+  left: 0%;
+}
+#display-score.chung-right .contestant.chung .judges {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .judges .judge:first-child {
+  border-radius: 0 24px 0 0;
+}
+#display-score.chung-right .contestant.chung .judges .judge:last-child {
+  border-radius: 0 0 24px 0;
+}
+#display-score.chung-right .contestant.chung .judges .judge .jid {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .judges .judge .accuracy {
+  right: 20%;
+}
+#display-score.chung-right .contestant.chung .judges .judge .presentation {
+  left: 0;
+}
+#display-score.chung-right .contestant.chung .report {
+  right: 320px;
+  border-radius: 24px 0 0 24px;
+}
+#display-score.chung-right .contestant.chung .report .accuracy {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .report .presentation {
+  left: 0;
+}
+#display-score.chung-right .contestant.chung .report .labels .accuracy-label {
+  right: 0;
+}
+#display-score.chung-right .contestant.chung .report .labels .presentation-label {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .athlete, #display-score.chung-right .contestant.hong .judges {
+  margin-left: 40px;
+}
+#display-score.chung-right .contestant.hong .labels {
+  margin-left: 40px;
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .labels .accuracy-label {
+  left: 20%;
+}
+#display-score.chung-right .contestant.hong .labels .presentation-label {
+  right: 0%;
+}
+#display-score.chung-right .contestant.hong .judges {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .judges .judge:first-child {
+  border-radius: 24px 0 0 0;
+}
+#display-score.chung-right .contestant.hong .judges .judge:last-child {
+  border-radius: 0 0 0 24px;
+}
+#display-score.chung-right .contestant.hong .judges .judge .jid {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .judges .judge .accuracy {
+  left: 20%;
+}
+#display-score.chung-right .contestant.hong .judges .judge .presentation {
+  right: 0;
+}
+#display-score.chung-right .contestant.hong .report {
+  left: 320px;
+  border-radius: 0 24px 24px 0;
+}
+#display-score.chung-right .contestant.hong .report .accuracy {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .report .presentation {
+  right: 0;
+}
+#display-score.chung-right .contestant.hong .report .labels .accuracy-label {
+  left: 0;
+}
+#display-score.chung-right .contestant.hong .report .labels .presentation-label {
+  right: 0;
+}
+#display-score.chung-left .contestant.chung {
+  left: 0;
+}
+#display-score.chung-left .contestant.chung .athlete, #display-score.chung-left .contestant.chung .judges {
+  margin-left: 40px;
+}
+#display-score.chung-left .contestant.chung .labels {
+  left: 0;
+  margin-left: 40px;
+}
+#display-score.chung-left .contestant.chung .labels .accuracy-label {
+  left: 20%;
+}
+#display-score.chung-left .contestant.chung .labels .presentation-label {
+  right: 0%;
+}
+#display-score.chung-left .contestant.chung .judges {
+  left: 0;
+}
+#display-score.chung-left .contestant.chung .judges .judge:first-child {
+  border-radius: 24px 0 0 0;
+}
+#display-score.chung-left .contestant.chung .judges .judge:last-child {
+  border-radius: 0 0 0 24px;
+}
+#display-score.chung-left .contestant.chung .judges .judge .jid {
+  left: 0;
+}
+#display-score.chung-left .contestant.chung .judges .judge .accuracy {
+  left: 20%;
+}
+#display-score.chung-left .contestant.chung .judges .judge .presentation {
+  right: 0;
+}
+#display-score.chung-left .contestant.chung .report {
+  left: 320px;
+  border-radius: 0 24px 24px 0;
+}
+#display-score.chung-left .contestant.hong {
+  right: 0;
+}
+#display-score.chung-left .contestant.hong .athlete, #display-score.chung-left .contestant.hong .judges {
+  margin-right: 40px;
+}
+#display-score.chung-left .contestant.hong .labels {
+  right: 0;
+  margin-right: 40px;
+}
+#display-score.chung-left .contestant.hong .labels .accuracy-label {
+  right: 20%;
+}
+#display-score.chung-left .contestant.hong .labels .presentation-label {
+  left: 0%;
+}
+#display-score.chung-left .contestant.hong .judges {
+  right: 0;
+}
+#display-score.chung-left .contestant.hong .judges .judge:first-child {
+  border-radius: 0 24px 0 0;
+}
+#display-score.chung-left .contestant.hong .judges .judge:last-child {
+  border-radius: 0 0 24px 0;
+}
+#display-score.chung-left .contestant.hong .judges .judge .jid {
+  right: 0;
+}
+#display-score.chung-left .contestant.hong .judges .judge .accuracy {
+  right: 20%;
+}
+#display-score.chung-left .contestant.hong .judges .judge .presentation {
+  left: 0;
+}
+#display-score.chung-left .contestant.hong .report {
+  right: 320px;
+  border-radius: 24px 0 0 24px;
+}
+
+#display-results {
+  width: 100%;
+  height: 100%;
+}
+#display-results .common {
+  position: absolute;
+  top: 180px;
+  height: calc(100% - 180px);
+  width: 100%;
+}
+#display-results .common .form-name {
+  position: absolute;
+  left: 50%;
+  width: 25%;
+  height: 105px;
+  font-size: 56pt;
+  line-height: 76pt;
+  border: solid 4px #ccc;
+  border-radius: 40px;
+  margin-top: 15px;
+  transform: translateX(-50%);
+  text-align: center;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+}
+#display-results .common .form-name.form-1 {
+  top: 57.5%;
+  color: lime;
+}
+#display-results .common .form-name.form-2 {
+  top: 75%;
+  color: cyan;
+}
+#display-results .contestant {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  color: white;
+  text-align: center;
+}
+#display-results .contestant.winner .athlete .name {
+  color: gold;
+}
+#display-results .contestant.winner .report .total {
+  color: gold;
+}
+#display-results .contestant .athlete {
+  position: relative;
+}
+#display-results .contestant .athlete .name {
+  display: inline-block;
+  font-size: 72pt;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+#display-results .contestant .athlete .noc {
+  display: inline-block;
+  width: 160px;
+  vertical-align: top;
+}
+#display-results .contestant .athlete .noc img {
+  width: 120px;
+}
+#display-results .contestant .score .report {
+  position: absolute;
+  height: 30%;
+  width: 90%;
+  top: 15%;
+  text-align: center;
+}
+#display-results .contestant .score .report .total {
+  font-size: 144pt;
+}
+#display-results .contestant .score .report .win-dot {
+  position: absolute;
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  background: gold;
+  border-radius: 60px;
+  transform: translateY(-50%);
+}
+#display-results .contestant .score .report.chung {
+  background: #000124;
+  background: linear-gradient(0deg, #000124 0%, blue 85%, #0909cd 100%);
+}
+#display-results .contestant .score .report.hong {
+  background: #240000;
+  background: linear-gradient(0deg, #240000 0%, red 85%, #cd0909 100%);
+}
+#display-results .contestant .score .form-1, #display-results .contestant .score .form-2 {
+  position: absolute;
+  width: 90%;
+  height: 25%;
+  text-align: center;
+  font-size: 72pt;
+}
+#display-results .contestant .score .form-1 {
+  top: 50%;
+  color: lime;
+}
+#display-results .contestant .score .form-2 {
+  top: 65%;
+  color: cyan;
+}
+#display-results.chung-right .contestant.chung {
+  right: 0;
+  border-left: 2px solid white;
+}
+#display-results.chung-right .contestant.chung .athlete {
+  margin-right: 40px;
+}
+#display-results.chung-right .contestant.chung .report {
+  right: 10%;
+  border-radius: 0 96px 96px 0;
+}
+#display-results.chung-right .contestant.chung .report .win-dot {
+  left: 40px;
+}
+#display-results.chung-right .contestant.chung .form-1, #display-results.chung-right .contestant.chung .form-2 {
+  right: 10%;
+}
+#display-results.chung-right .contestant.hong {
+  left: 0;
+  border-right: 2px solid white;
+}
+#display-results.chung-right .contestant.hong .athlete {
+  margin-left: 40px;
+}
+#display-results.chung-right .contestant.hong .report {
+  left: 10%;
+  border-radius: 96px 0 0 96px;
+}
+#display-results.chung-right .contestant.hong .report .win-dot {
+  right: 40px;
+}
+#display-results.chung-right .contestant.hong .form-1, #display-results.chung-right .contestant.hong .form-2 {
+  left: 10%;
+}
+#display-results.chung-left .contestant.chung {
+  left: 0;
+  border-right: 2px solid white;
+}
+#display-results.chung-left .contestant.chung .athlete {
+  margin-left: 40px;
+}
+#display-results.chung-left .contestant.chung .report {
+  left: 320px;
+  border-radius: 0 96px 96px 0;
+}
+#display-results.chung-left .contestant.chung .report .win-dot {
+  right: 40px;
+}
+#display-results.chung-left .contestant.chung .form-1, #display-results.chung-left .contestant.chung .form-2 {
+  left: 10%;
+}
+#display-results.chung-left .contestant.hong {
+  right: 0;
+  border-left: 2px solid white;
+}
+#display-results.chung-left .contestant.hong .athlete {
+  margin-right: 40px;
+}
+#display-results.chung-left .contestant.hong .report {
+  right: 320px;
+  border-radius: 96px 0 0 96px;
+}
+#display-results.chung-left .contestant.hong .report .win-dot {
+  left: 40px;
+}
+#display-results.chung-left .contestant.hong .form-1, #display-results.chung-left .contestant.hong .form-2 {
+  right: 10%;
+}
+
+#display-leaderboard table {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
+  font-size: 36pt;
+}
+#display-leaderboard table thead {
+  font-weight: bold;
+}
+#display-leaderboard table td {
+  border-top: 1px solid #333;
+}
+#display-leaderboard table .place, #display-leaderboard table .score, #display-leaderboard table .top-round {
+  text-align: center;
+}
+#display-leaderboard table .place {
+  position: relative;
+}
+#display-leaderboard table .place .shine {
+  position: absolute;
+  color: #ccc;
+  width: 100%;
+  height: 100%;
+  left: 0;
+}
+#display-leaderboard table .place.place-1st .medal {
+  background: linear-gradient(-60deg, #FFF 5%, gold 30%, gold 70%, #FFF 95%);
+  background-size: 200% auto;
+  background-clip: text;
+}
+#display-leaderboard table .place.place-2nd .medal {
+  background: linear-gradient(-60deg, #FFF 5%, silver 30%, silver 70%, #FFF 95%);
+  background-size: 200% auto;
+  background-clip: text;
+}
+#display-leaderboard table .place.place-3rd .medal {
+  background: linear-gradient(-60deg, #FFF 5%, #cd7f32 30%, #cd7f32 70%, #FFF 95%);
+  background-size: 200% auto;
+  background-clip: text;
+}
+#display-leaderboard table .place.place-5th .medal {
+  background: linear-gradient(-60deg, #FFF 5%, #666 30%, #666 70%, #FFF 95%);
+  background-size: 200% auto;
+  background-clip: text;
+}
+#display-leaderboard table .place .medal {
+  color: #000;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 5s linear infinite;
+}
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+#display-leaderboard table .place {
+  width: 10%;
+  color: gold;
+}
+#display-leaderboard table .name {
+  width: 40%;
+  color: lime;
+}
+#display-leaderboard table .score {
+  width: 20%;
+  color: cyan;
+}
+#display-leaderboard table .top-round {
+  width: 30%;
+  color: magenta;
+}
+
+#display-draw {
+  overflow: hidden;
+}
+#display-draw .poomsae.draw {
+  width: 100%;
+  height: 100%;
+  color: white;
+}
+#display-draw .poomsae.draw .name {
+  margin-top: 5%;
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 90%;
+  text-align: center;
+  font-size: 246pt;
+}
+#display-draw .poomsae.draw .name.drawn {
+  color: gold;
+  background: linear-gradient(-60deg, #FFF 5%, gold 10%, gold 90%, #FFF 95%);
+  background-size: 200% auto;
+  background-clip: text;
+  border-radius: 96pt;
+  border: 8px solid gold;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 2s linear infinite;
+}
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.enter-down-bounce {
+  -webkit-animation: enterDownBounce 1s linear;
+}
+
+.leave-up-bounce {
+  -webkit-animation: leaveUpBounce 1s linear;
+}
+
+@-webkit-keyframes enterDownBounce {
+  0% {
+    -webkit-transform: translateY(-600px);
+    opacity: 0.25;
+  }
+  50% {
+    -webkit-transform: translateY(0px);
+  }
+  70% {
+    -webkit-transform: translateY(-50px);
+  }
+  100% {
+    -webkit-transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@-webkit-keyframes leaveUpBounce {
+  0% {
+    -webkit-transform: translateY(0px);
+    opacity: 1;
+  }
+  10% {
+    -webkit-transform: translateY(50px);
+    opacity: 1;
+  }
+  25% {
+    -webkit-transform: translateY(0px);
+  }
+  100% {
+    -webkit-transform: translateY(-900px);
+    opacity: 0;
+  }
+}
+
+/*# sourceMappingURL=display.css.map */

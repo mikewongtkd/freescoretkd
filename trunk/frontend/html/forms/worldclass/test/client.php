@@ -1,6 +1,7 @@
 <?php 
 	include( "../../../include/php/config.php" ); 
 	$t = json_decode( $tournament );
+	$ringnum = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 'staging';
 ?>
 <html>
 	<head>
@@ -35,7 +36,7 @@
 			</div>
 
 			<div id="athlete"></div>
-			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="send-one-score" class="btn btn-success disabled" style="margin-left: 40px;">Send One Score</a></div>
+			<div id="send"><a id="send-scores" class="btn btn-success disabled">Send scores</a><a id="send-one-score" class="btn btn-success disabled" style="margin-left: 40px;">Send One Score</a><a id="clear-scores" class="btn btn-danger disabled" style="margin-left: 40px;">Clear Scores</a></div>
 
 		</div>
 		<script>
@@ -43,8 +44,44 @@
 			var division   = undefined;
 			var host       = '<?= $host ?>';
 			var tournament = <?= $tournament ?>;
-			var ring       = { num: 1 };
-			var ws         = undefined;
+			var ring       = { num: '<?= $ringnum ?>' };
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', $ringnum ) ?>` );
+			let forwardIf  = {
+				sbs: division => {
+					let method = division.current.method();
+					let ring   = division.ring();
+
+					if( method == 'sbs' ) { window.location = `../sbs/test.php?${ring}`; }
+				}
+			};
+
+			ws.onopen = () => {
+				var request  = { data : { type : 'division', action : 'read' }};
+				request.json = JSON.stringify( request.data );
+				ws.send( request.json );
+			};
+
+			ws.onmessage = ( response ) => {
+				var update = JSON.parse( response.data );
+				console.log( update );
+
+				if( defined( update.error )) {
+					if( update.error.match( /Division not in ring/i )) { alertify.error( "No division in ring " + ring.num ); }
+				}
+
+				if( ! defined( update.division )) { return; }
+
+				division = new Division( update.division );
+				if( ! defined( division )) { return; }
+
+				forwardIf.sbs( division );
+
+				if( update.action == 'update' && update.type == 'division' ) {
+					var athlete = division.current.athlete()
+					$( '#send-scores, #send-one-score, #clear-scores' ).removeClass( 'disabled' );
+					$( '#athlete' ).html( athlete.display.name() );
+				}
+			};
 
 			sound.ok    = new Howl({ urls: [ "../../../sounds/upload.mp3",   "../../../sounds/upload.ogg" ]});
 			sound.error = new Howl({ urls: [ "../../../sounds/quack.mp3",    "../../../sounds/quack.ogg"  ]});
@@ -53,34 +90,7 @@
 
 			$( "input[type=radio][name='ring']"   ).change(( e ) => { 
 				ring.num = $( e.target ).val(); 
-				if( defined( ws )) { ws.close(); }
-				ws = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/${ring.num}/computer+operator` );
-
-				ws.onopen = () => {
-					var request  = { data : { type : 'division', action : 'read' }};
-					request.json = JSON.stringify( request.data );
-					ws.send( request.json );
-				};
-
-				ws.onmessage = ( response ) => {
-					var update = JSON.parse( response.data );
-					console.log( update );
-
-					if( defined( update.error )) {
-						if( update.error.match( /Division not in ring/i )) { alertify.error( "No division in ring " + ring.num ); }
-					}
-
-					if( ! defined( update.division )) { return; }
-
-					division = new Division( update.division );
-					if( ! defined( division )) { return; }
-
-					if( update.action == 'update' && update.type == 'division' ) {
-						var athlete = division.current.athlete()
-						$( '#send-scores, #send-one-score' ).removeClass( 'disabled' );
-						$( '#athlete' ).html( athlete.display.name() );
-					}
-				};
+				window.location = `?ring=${ring.num}`;
 			});
 
 			var rand = ( x ) => { return Math.floor( Math.random() * x ); };
@@ -104,14 +114,14 @@
 			}
 
 			$( '#send-scores' ).off( 'click' ).click(() => {
-				var request = undefined;
-				var j       = division.judges();
-				var scores  = create_scores( j );
-				var athlete = division.current.athlete();
+				let request = undefined;
+				let j       = division.judges();
+				let scores  = create_scores( j );
+				let athlete = division.current.athlete();
 
 				sound.ok.play();
 				for( i = 0; i < j; i++ ) {
-					var send = ( i, scores ) => { return () => {
+					let send = ( i, scores ) => { return () => {
 						$.cookie( 'judge', i );
 						alertify.notify( 'Score for ' + athlete.display.name() + ' sent for ' + ( i == 0 ? 'Referee' : 'Judge ' + i ));
 						score        = scores[ i ];
@@ -125,14 +135,14 @@
 			});
 
 			$( '#send-one-score' ).off( 'click' ).click(() => {
-				var request = undefined;
-				var j       = division.judges();
-				var scores  = create_scores( j );
-				var athlete = division.current.athlete();
-				var i       = rand( j );
+				let request = undefined;
+				let j       = division.judges();
+				let scores  = create_scores( j );
+				let athlete = division.current.athlete();
+				let i       = rand( j );
 
 				sound.ok.play();
-				var send = ( i, score ) => { return () => {
+				let send = ( i, score ) => { return () => {
 					$.cookie( 'judge', i );
 					alertify.notify( 'Score for ' + athlete.display.name() + ' sent for ' + ( i == 0 ? 'Referee' : 'Judge ' + i ));
 					request      = { data : { type : 'division', action : 'score', score: score, judge: i, cookie : { judge: i }}};
@@ -141,6 +151,19 @@
 					console.log( request.data );
 				}};
 				send( i, scores[ i ] )();
+			});
+
+			$( '#clear-scores' ).off( 'click' ).click(() => {
+				let j       = division.judges();
+				let athlete = division.current.athlete();
+
+				alertify.notify( `Clearing scores for ${athlete.display.name()}` );
+				for( i = 0; i < j; i++ ) {
+					let request  = { data : { type : 'division', action : 'clear judge score', judge: i }};
+					request.json = JSON.stringify( request.data );
+					ws.send( request.json );
+					console.log( request.data );
+				}
 			});
 
 		</script>

@@ -3,7 +3,7 @@
 include "../../../php/config.php";
 date_default_timezone_set( 'America/Los_Angeles' );
 $tournament = json_decode( $tournament, true );
-error_reporting( 0 ); // Set E_ALL for debuging
+error_reporting( 0 ); // Set E_ALL for debugging
 
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elFinderConnector.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elFinder.class.php';
