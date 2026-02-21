@@ -2,10 +2,11 @@
 	include( __DIR__ . './../../../session.php' );
 	include( __DIR__ . '/../../../include/php/config.php' ); 
 
-	$divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
-	$ring   = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
-	$usatid = isset( $_GET[ 'pacwest' ]) ? 'school' : 'usatid';
-	$USATID = isset( $_GET[ 'pacwest' ]) ? 'University' : 'USAT ID';
+	$divid   = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
+	$ring    = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
+	$usatid  = isset( $_GET[ 'pacwest' ]) ? 'school' : 'usatid';
+	$USATID  = isset( $_GET[ 'pacwest' ]) ? 'University' : 'USAT ID';
+	$USATIDS = isset( $_GET[ 'pacwest' ]) ? 'University' : 'USAT IDs';
 	if( ! isset( $ring )) { $ring = 'staging'; }
 ?>
 <html>
@@ -199,7 +200,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
 							if( division.description.match( pairteam )) {
-								thead.append( '<tr><th class="order"><th class="name">Names</th><th class="<?= $usatid ?>"><?= $USATID ?>s</th></tr>' );
+								thead.append( '<tr><th class="order"><th class="name">Names</th><th class="<?= $usatid ?>"><?= $USATIDS ?></th></tr>' );
 							} else {
 								thead.append( '<tr><th class="order"><th class="name">Name</th><th class="<?= $usatid ?>"><?= $USATID ?></th></tr>' );
 							}

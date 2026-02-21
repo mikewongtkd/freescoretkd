@@ -107,8 +107,9 @@
 			// ===== NETWORK CONNECT
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
-			// ===== PAN & ZOOM FUNCTION
+			// ===== PAN & ZOOM FUNCTION, DRAW TEXT SIZE
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
+			app.state.draw     = { size: 1.00, y: 0.00 };
 			app.display.flip = () => {
 				const flippable = $( '#display-score, #display-results, #display-matches' );
 				if( $( '#display-score' ).hasClass( 'chung-right' )) {
@@ -129,11 +130,24 @@
 				if( delta.z != 0 ) { alertify.notify( `Zoom: ${Math.round( app.state.display.zoom * 100 )}%` ); }
 				else               { alertify.notify( `Pan: X: ${Math.round( app.state.display.x * 100 )}%, Y: ${Math.round( app.state.display.y * 100 )}%` ); }
 			}
+			app.display.drawzoom = delta => {
+				if( delta == 0.00 ) {
+					app.state.draw.size = 1.00;
+					app.state.draw.y    = 0.00;
+				} else {
+					app.state.draw.size += delta;
+					app.state.draw.y    += delta;
+				}
+				$( '.poomsae.draw' ).css({ transform: `scale( ${ app.state.draw.size } ) translate( 0%, ${ app.state.draw.y * 100 }% )` });
+			}
 			$( 'body' ).keydown( ev => { 
 				switch( ev.key ) {
 					case 'f':          app.display.flip(); break;
 					case '=':          app.display.panzoom({ x:  0.00, y:  0.00, z:  0.05 }); break;
 					case '-':          app.display.panzoom({ x:  0.00, y:  0.00, z: -0.05 }); break;
+					case '[':          app.display.drawzoom( -0.05 ); break;
+					case ']':          app.display.drawzoom( +0.05 ); break;
+					case '\\':         app.display.drawzoom(  0.00 ); break;
 					case 'ArrowUp':    app.display.panzoom({ x:  0.00, y: -0.05, z:  0.00 }); break;
 					case 'ArrowDown':  app.display.panzoom({ x:  0.00, y:  0.05, z:  0.00 }); break;
 					case 'ArrowLeft':  app.display.panzoom({ x: -0.05, y:  0.00, z:  0.00 }); break;
