@@ -5,7 +5,7 @@
 	$divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
 	$ring   = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
 	$usatid = isset( $_GET[ 'pacwest' ]) ? 'school' : 'usatid';
-	$USATID = isset( $_GET[ 'pacwest' ]) ? 'School' : 'USAT ID';
+	$USATID = isset( $_GET[ 'pacwest' ]) ? 'University' : 'USAT ID';
 	if( ! isset( $ring )) { $ring = 'staging'; }
 ?>
 <html>
