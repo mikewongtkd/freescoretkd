@@ -108,6 +108,10 @@
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			// ===== PAN & ZOOM FUNCTION, DRAW TEXT SIZE
+			$(() => {
+				alertify.notify( 'Display commands:<br>f: flip<br>-: zoom out<br>+: zoom in<br>arrow keys: pan' );
+				alertify.notify( 'Poomsae Draw text commands:<br>[: zoom out<br>]: zoom in<br>]: reset to default' );
+			});
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
 			app.state.draw     = { size: 1.00, y: 0.00 };
 			app.display.flip = () => {
@@ -145,13 +149,13 @@
 					case 'f':          app.display.flip(); break;
 					case '=':          app.display.panzoom({ x:  0.00, y:  0.00, z:  0.05 }); break;
 					case '-':          app.display.panzoom({ x:  0.00, y:  0.00, z: -0.05 }); break;
-					case '[':          app.display.drawzoom( -0.05 ); break;
-					case ']':          app.display.drawzoom( +0.05 ); break;
-					case '\\':         app.display.drawzoom(  0.00 ); break;
 					case 'ArrowUp':    app.display.panzoom({ x:  0.00, y: -0.05, z:  0.00 }); break;
 					case 'ArrowDown':  app.display.panzoom({ x:  0.00, y:  0.05, z:  0.00 }); break;
 					case 'ArrowLeft':  app.display.panzoom({ x: -0.05, y:  0.00, z:  0.00 }); break;
 					case 'ArrowRight': app.display.panzoom({ x:  0.05, y:  0.00, z:  0.00 }); break;
+					case '[':          app.display.drawzoom( -0.05 ); break;
+					case ']':          app.display.drawzoom( +0.05 ); break;
+					case '\\':         app.display.drawzoom(  0.00 ); break;
 				}
 			});
 
