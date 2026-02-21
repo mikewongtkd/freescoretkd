@@ -2,8 +2,10 @@
 	include( __DIR__ . './../../../session.php' );
 	include( __DIR__ . '/../../../include/php/config.php' ); 
 
-	$divid = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
-	$ring  = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
+	$divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
+	$ring   = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
+	$usatid = isset( $_GET[ 'pacwest' ]) ? 'school' : 'usatid';
+	$USATID = isset( $_GET[ 'pacwest' ]) ? 'School' : 'USAT ID';
 	if( ! isset( $ring )) { $ring = 'staging'; }
 ?>
 <html>
@@ -26,7 +28,7 @@
 table { page-break-inside: avoid; }
 table .order { width: 5%; text-align: center; padding: 4px; }
 table .name { width: 60%; padding: 4px; }
-table .usatid { width: 35%; padding: 4px; }
+table .<?= $usatid ?> { width: 35%; padding: 4px; }
 table .cell4 { font-size: 9pt; width: 25%;   }
 table .cell3 { font-size: 9pt; width: 33.3%; }
 table .cell2 { font-size: 9pt; width: 50%;   }
@@ -197,9 +199,9 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
 							if( division.description.match( pairteam )) {
-								thead.append( '<tr><th class="order"><th class="name">Names</th><th class="usatid">USAT IDs</th></tr>' );
+								thead.append( '<tr><th class="order"><th class="name">Names</th><th class="<?= $usatid ?>"><?= $USATID ?>s</th></tr>' );
 							} else {
-								thead.append( '<tr><th class="order"><th class="name">Name</th><th class="usatid">USAT ID</th></tr>' );
+								thead.append( '<tr><th class="order"><th class="name">Name</th><th class="<?= $usatid ?>"><?= $USATID ?></th></tr>' );
 							}
 							table.append( thead, tbody );
 
@@ -212,8 +214,8 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 								let next     = k === null ? null : athletes[ k ];
 								let num      = `${i + 1}.`;
 								let name     = athlete.name;
-								let usatid   = athlete?.info?.usatid ? athlete.info.usatid : '';
-								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td></tr>` );
+								let <?= $usatid ?>   = athlete?.info?.<?= $usatid ?> ? athlete.info.<?= $usatid ?> : '';
+								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="<?= $usatid ?>">${<?= $usatid ?>}</td></tr>` );
 							});
 							tables.push( header, table );
 						});
