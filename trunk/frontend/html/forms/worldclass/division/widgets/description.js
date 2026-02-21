@@ -80,7 +80,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 		this.refresh.with = { settings : settings => {
 			// Rank Age Gender Event
 			const display = {
-				rank: { 'white' : 'White Belt', 'yellow' : 'Yellow Belt', 'green' : 'Green Belt', 'blue' : 'Blue Belt', 'red' : 'Red Belt', 'black1' : 'Black Belt 1st Dan', 'black2' : 'Black Belt 2nd Dan', 'black3' : 'Black Belt 3rd Dan', 'black4' : 'Black Belt 4th Dan', 'black5' : 'Black Belt 5th Dan', 'black6' : 'Black Belt 6th Dan', 'black7' : 'Black Belt 7th Dan' },
+				rank: { 'white' : 'White Belt', 'yellow' : 'Yellow Belt', 'green' : 'Green Belt', 'blue' : 'Blue Belt', 'red' : 'Red Belt', 'black' : 'Black Belt', 'black1' : 'Black Belt 1st Dan', 'black2' : 'Black Belt 2nd Dan', 'black3' : 'Black Belt 3rd Dan', 'black4' : 'Black Belt 4th Dan', 'black5' : 'Black Belt 5th Dan', 'black6' : 'Black Belt 6th Dan', 'black7' : 'Black Belt 7th Dan' },
 				age: { 
 					'4-5' : 'U5',
 					'6-7' : 'U7',
@@ -104,7 +104,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 						'c' : "Mixed",
 						'null' : ''
 					},
-					socialogical: {
+					sociological: {
 						'f' : "Women's",
 						'm' : "Men's",
 						'c' : "Mixed",
@@ -120,13 +120,13 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			}
 
 			let divid       = settings.divid;
-			let order       = '<gender:socialogical> <rank:dan-implied> <event:individual-explicit> <age> Recognized Poomsae';
+			let order       = '<gender:sociological> <rank:dan-implied> <event:individual-explicit> <age> Recognized Poomsae';
 			let descriptors = [];
 
 			if( this.state.manual.override ) { return; }
 
-			if( display.gender?.[ settings.gender ]) {
-				descriptors.push( display.gender[ settings.gender ]);
+			if( display.gender.sociological?.[ settings.gender ]) {
+				descriptors.push( display.gender.sociological[ settings.gender ]);
 			}
 
 			if( settings.rank != 'black' && display.rank?.[ settings.rank ]) {
