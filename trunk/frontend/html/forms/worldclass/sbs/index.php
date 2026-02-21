@@ -108,12 +108,12 @@
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			// ===== PAN & ZOOM FUNCTION, DRAW TEXT SIZE
-			$(() => {
-				alertify.notify( 'Display commands:<br>f: flip<br>-: zoom out<br>+: zoom in<br>arrow keys: pan' );
-				alertify.notify( 'Poomsae Draw text commands:<br>[: zoom out<br>]: zoom in<br>]: reset to default' );
-			});
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
 			app.state.draw     = { size: 1.00, y: 0.00 };
+			app.display.help = () => {
+				alertify.notify( 'Display commands:<br>?: help (this menu)<br>f: flip<br>-: zoom out<br>+: zoom in<br>arrow keys: pan' );
+				alertify.notify( 'Poomsae Draw text commands:<br>[: zoom out<br>]: zoom in<br>\\: reset to default' );
+			};
 			app.display.flip = () => {
 				const flippable = $( '#display-score, #display-results, #display-matches' );
 				if( $( '#display-score' ).hasClass( 'chung-right' )) {
@@ -156,9 +156,11 @@
 					case '[':          app.display.drawzoom( -0.05 ); break;
 					case ']':          app.display.drawzoom( +0.05 ); break;
 					case '\\':         app.display.drawzoom(  0.00 ); break;
+					case '/':          
+					case '?':          app.display.help(); break;
 				}
 			});
-
+			$(() => { app.display.help(); });
 			// ===== PAGES
 			app.page = {
 				count: 6,
