@@ -469,7 +469,6 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 				}
 			});
 
-			this.app.refresh.rounds();
 			this.refresh.description();
 		});
 
@@ -481,16 +480,8 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let method   = target.val();
 			this.app.state.division.method = settings.method = method;
 
-			if( method == 'sbs' ) {
-				this.app.widget.draws.display.dom.show();
-				this.app.widget.forms.display.dom.hide();
-			} else {
-				this.app.widget.draws.display.dom.hide();
-				this.app.widget.forms.display.dom.show();
-			}
-
 			this.app.refresh.rounds();
-			this.refresh.description();
+			this.refresh.method();
 		});
 
 		// ----------------------------------------
@@ -523,7 +514,6 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let rank      = target.val();
 			settings.rank = rank;
 
-			this.app.refresh.rounds();
 			this.refresh.description();
 		});
 
@@ -535,7 +525,6 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let group      = target.val();
 			settings.group = group;
 
-			this.app.refresh.rounds();
 			this.refresh.description();
 		});
 	}

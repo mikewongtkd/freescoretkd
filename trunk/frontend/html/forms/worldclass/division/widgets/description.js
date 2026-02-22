@@ -1,3 +1,106 @@
+class FSDescription {
+	constructor( settings ) {
+		this.settings = settings;
+		this.order    = [
+			new FSDescription.Gender( 'sociological' ),
+			new FSDescription.Rank( 'dan-implied' ),
+			new FSDescription.Event( 'individual-explicit' ),
+			new FSDescription.Age( 'named-range' ),
+			new FSDescription.String( 'Recognized Poomsae' )
+		];
+	}
+
+	static parse( description ) {
+		let gender      = new FSDescription.Descriptor.Gender();
+		let rank        = new FSDescription.Descriptor.Rank();
+		let ev          = new FSDescription.Descriptor.Event();
+		let age         = new FSDescription.Descriptor.Age();
+		let string      = new FSDescription.Descriptor.String();
+		let descriptors = [ gender, rank, ev, age, string ];
+		let tokens      = description.split( /\s+|(\W+)/ );
+		let order       = [];
+
+		while( tokens.length > 0 ) {
+			let descriptor = descriptors.find( descriptor => descriptor.match( tokens ));
+			if( descriptor ) {
+				order.push( descriptor );
+			}
+		}
+
+		return order;
+	}
+};
+
+FSDescription.Descriptor = class {
+	constructor( type = null ) {
+		this._type     = type;
+		this._field    = null;
+		this._patterns = {};
+		this._formats  = {};
+	}
+
+	factory( type ) {
+		return new FSDescription.Descriptor();
+	}
+
+	get field() {
+		return this._field;
+	}
+
+	match( tokens ) {
+		if( this._type === null ) {
+			Object.keys( this._patterns ).forEach( type => {
+				let patterns = this._patterns[ type ];
+				if( patterns.some( match => match( tokens ))) {
+					return this.factory( type );
+				}
+			});
+		}
+		let patterns = this._patterns?.[ this._type ];
+		if( ! patterns ) { return null; }
+
+		if( patterns.some( match => match( tokens ))) {
+			return this.factory( type );
+		}
+	}
+
+	render( value ) {
+		let format = this._formats?.[ this._type ];
+		if( ! format ) { return ''; }
+		return format( value );
+	}
+};
+
+FSDescription.Descriptor.Age = class extends FSDescription.Descriptor {
+	constructor( type = null ) {
+		super( type );
+		this._field    = 'age';
+		this._patterns = {
+			'named' : tokens => {
+			},
+			'range' : tokens => {
+			},
+			'under-over' : tokens => {
+			}
+		};
+
+		this._formats = {
+		};
+	}
+};
+
+FSDescription.Descriptor.Event = class extends FSDescription.Descriptor {
+};
+
+FSDescription.Descriptor.Gender = class extends FSDescription.Descriptor {
+};
+
+FSDescription.Descriptor.Rank = class extends FSDescription.Descriptor {
+};
+
+FSDescription.Descriptor.String = class extends FSDescription.Descriptor {
+};
+
 FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.Widget {
 	constructor( app, dom ) {
 		super( app, dom );
@@ -66,6 +169,66 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 			this.button.undo.off( 'click' );
 		};
 
+		// ===== PARSE BEHAVIOR
+		// LALR (Look ahead, left-to-right) parser
+		let lalr = ( tokens, grow = null ) => {
+			if( tokens.length == 0 ) { return [ null, null ]; }
+			let token = tokens.shift();
+			let next  = tokens.length > 0 ? tokens[ 0 ] : null;
+			if( grow !== null ) { return [ grow + token, next ]; }
+
+			return [ token, next ];
+		};
+
+		this.token = { parse: token => {
+			// Gender
+			if( token.match( /^(?:men|women|coed|mixed)(?:'s)?$/i )) {
+				return { field: 'gender', type: 'sociological' };
+
+			} else if( token.match( /^(?:male|female)$/i )) {
+				return { field: 'gender', type: 'biological' };
+
+			// Age
+			} else if( token.match( /^[uo]\d+$/i )) {
+				return { field: 'age', type: 'under/over' };
+
+			} else if( token.match( /^(?:under|over)$/i )) {
+				if( next && next.match( /^\d+$/ )) {
+					[ token, next ] = lalr( tokens, token );
+					return { field: 'age', type: 'under/over' };
+				}
+			
+			} else if( token.match( /^(?:dragon|tiger|youth|cadet|junior|senior)$/i )) {
+				return { field: 'age', type: 'named' };
+
+			} else if( token.match( /^\d+/ )) {
+				if( next && next == '-' ) {
+					[ token, next ] = lalr( tokens, token );
+
+					if( next && next.match( /^\d+/ )) {
+						[ token, next ] = lalr( tokens, token );
+						return { field: 'age', type: 'range' };
+					}
+
+				} else if( next && next == '+' ) {
+					[ token, next ] = lalr( tokens, token );
+					return { field: 'age', type: 'range' };
+				}
+			}
+		}};
+		this.parse = description => {
+			let tokens      = description.split( /\s+/ );
+			let descriptors = [];
+			let token       = null;
+			let next        = null;
+
+			while( tokens.length > 0 ) {
+				[ token, next ] = shiftPeekGrow( tokens );
+
+
+			}
+		};
+
 		// ===== REFRESH BEHAVIOR
 		this.refresh.all = () => {
 			let division    = this.app.state.division;
@@ -116,12 +279,11 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 					'pair' : 'Pair',
 					'team' : 'Team'
 				}
-
 			}
 
 			let divid       = settings.divid;
-			let order       = '<gender:sociological> <rank:dan-implied> <event:individual-explicit> <age> Recognized Poomsae';
 			let descriptors = [];
+			let description = '';
 
 			if( this.state.manual.override ) { return; }
 
@@ -145,7 +307,7 @@ FreeScore.Widget.DEDescription = class FSWidgetDEDescription extends FreeScore.W
 
 			this.button.undo.enable();
 
-			let description = descriptors.join( ' ' );
+			description = descriptors.join( ' ' );
 			this.app.state.division.description = description;
 			this.display.divid.html( divid.toUpperCase() );
 			this.display.description.html( description );

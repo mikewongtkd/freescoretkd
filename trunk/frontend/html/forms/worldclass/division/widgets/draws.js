@@ -1,6 +1,7 @@
 FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 	static ranks  = [ 'yellow', 'green', 'blue', 'red' ];
 	static agemap = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
+	static round      = { belongsTo: { sbs: round => round.match( /^ro/i )}};
 	static designated = {
 		'yellow':[ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
 		'green': [ 'Taegeuk 1', 'Taegeuk 2', 'Taegeuk 3', 'Taegeuk 4' ], // Not WT
@@ -156,7 +157,15 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				let thead  = FreeScore.html.thead.clone();
 				let tbody  = FreeScore.html.tbody.clone();
 				let tr     = FreeScore.html.tr.clone();
-				let rounds = FreeScore.round.order.filter( round => round in this.app.state.division.forms );
+				let method = this.app.state?.division?.method ? this.app.state.division.method : 'cutoff';
+				let forms  = this.app.state?.division?.forms ? this.app.state.division.forms : {};
+				let rounds = Object.keys( forms );
+
+				if( method != 'sbs' ) { return; } // Only SBS has random draw
+
+				// Filter rounds & ensure correct order
+				rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEDraws.round.belongsTo[ method ]( round )) : [ 'ro2' ];
+				rounds = FreeScore.round.order.filter( round => rounds.includes( round ));
 
 				this.display.draw.empty();
 				this.display.draw.append( thead, tbody );
@@ -165,9 +174,8 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				
 				rounds.forEach( round => {
 					let cols  = [];
-					let forms = this.app.state.division.forms[ round ];
 					for( let i = 0; i < 2; i++ ) {
-						let form  = forms[ i ];
+						let form  = forms[ round ][ i ];
 						let label = FreeScore.html.span.clone().addClass( `${round}-${i}-display` );
 						label.append( this.refresh.draw.label( round, i, form ));
 						cols.push( label );
@@ -414,8 +422,6 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 						} else {
 							form = this.app.state.division.forms[ round ][ i ] = `draw-${form}`;
 						}
-
-						console.log( 'MODAL OK', 'ROUND', round, 'FORM IDX', i, 'KEY', key, 'AGE', age, 'FORM', form, 'LABEL', label ); // MW
 
 						label.empty()
 						label.append( this.refresh.draw.label( round, i, form ));

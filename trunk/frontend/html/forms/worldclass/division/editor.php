@@ -145,7 +145,6 @@
 				let rounds   = [];
 				let athletes = app.state.division.athletes;
 				let n        = athletes.length;
-				let form     = 'Choice';
 
 				// Cutoff (which is also the default)
 				if( method == 'cutoff' || ! defined( method )) {
@@ -162,7 +161,9 @@
 				// Init round and forms
 				app.state.division.round  = rounds[ 0 ];
 				app.state.settings.rounds = rounds;
-				let forms = app.state.division.forms = (app.state.division?.forms ? app.state.division.forms : {});
+				console.log( 'APP REFRESH ROUNDS', method, n, JSON.stringify( app.state.division.forms ), rounds ); // MW
+				/*
+				let forms = app.state.division?.forms ? app.state.division.forms : {};
 				rounds.forEach( round => {
 					if( round in forms ) { return; }
 					if( method == 'cutoff' ) {
@@ -173,6 +174,7 @@
 						forms[ round ] = [ form ];
 					}
 				});
+				 */
 
 				app.widget.forms.display.refresh.all();	
 				app.widget.draws.display.refresh.all();	
