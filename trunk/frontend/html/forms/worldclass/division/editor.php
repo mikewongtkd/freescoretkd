@@ -161,19 +161,20 @@
 				// Init round and forms
 				app.state.division.round  = rounds[ 0 ];
 				app.state.settings.rounds = rounds;
-				/*
+
 				let forms = app.state.division?.forms ? app.state.division.forms : {};
 				rounds.forEach( round => {
 					if( round in forms ) { return; }
-					if( method == 'cutoff' ) {
-						forms[ round ] = [ 'Choice' ];
-					} else {
+					if( method == 'sbs' ) {
 						let age  = app.widget.forms.display.age( app.state.settings.age );
 						let form = age ? `draw-${age}` : 'draw';
 						forms[ round ] = [ form ];
+
+					} else {
+						forms[ round ] = [ 'Choice' ];
 					}
 				});
-				 */
+
 
 				app.widget.forms.display.refresh.all();	
 				app.widget.draws.display.refresh.all();	

@@ -108,8 +108,31 @@
 			app.on.connect( '<?= $url ?>' ).read.ring();
 
 			// ===== PAN & ZOOM FUNCTION, DRAW TEXT SIZE
-			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
-			app.state.draw     = { size: 1.00, y: 0.00 };
+			app.state.display   = { x: 0, y: 0, zoom: 1.0 };
+			app.state.draw      = { size: 1.00, y: 0.00 };
+			app.state.reconnect = { interval: null, attempt: 0 };
+
+			app.state.reconnect.cancel = () => {
+				if( app.state.reconnect.interval !== null ) {
+					clearInterval( app.state.reconnect.interval );
+				}
+				app.state.reconnect.attempt  = 0;
+				app.state.reconnect.interval = null;
+			};
+			app.state.reconnect.start = () => {
+				app.state.reconnect.cancel();
+				app.state.reconnect.interval = setInterval(() => {
+					console.log( 'Attempting reconnect' );
+					if( app.state.reconnect.attempt >= 5 ) {
+						window.location.reload();
+					}
+					app.state.reconnect.attempt++;
+
+					let request = { type: 'division', action: 'read' };
+					app.on.reconnect().send( request );
+				}, 60000 );
+			};
+
 			app.display.help = () => {
 				alertify.notify( 'Display commands:<br>?: help (this menu)<br>f: flip<br>-: zoom out<br>+: zoom in<br>arrow keys: pan' );
 				alertify.notify( 'Poomsae Draw text commands:<br>[: zoom out<br>]: zoom in<br>\\: reset to default' );
@@ -243,6 +266,7 @@
 
 						division = new Division( division );
 						app.refresh.page( division );
+						app.state.reconnect.start();
 
 						// ACTIVATE SUB WIDGETS
 						Object.entries( app.widget ).forEach(([ name, widget ]) => widget.display.refresh.all( division ));
@@ -257,6 +281,7 @@
 
 						division = new Division( division );
 						app.refresh.page( division );
+						app.state.reconnect.start();
 					})
 				// ============================================================
 				.heard( 'autopilot' )
@@ -268,6 +293,7 @@
 
 						division = new Division( division );
 						app.refresh.page( division );
+						app.state.reconnect.start();
 					})
 		</script>
 	</body>

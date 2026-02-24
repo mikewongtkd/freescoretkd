@@ -131,15 +131,12 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				// let bounds  = this.state.viewbox = this.zoom.out?.[ first ] ? this.zoom.out[ first ] : { left: 0, top: 0, width: (columns * (width + (3 * height))) + height, height: (rows * (4 * height)) + height };
 				// let bounds  = this.state.viewbox = { left: (width + height)/2, top: 0, width: (columns * (width + (3 * height))) + height, height: (rows * (4 * height)) + height };
 				let bounds = this.state.viewbox = this.zoom.out.default;
-				console.log( 'ZOOM OUT', bounds ); // MW
 
 				this.display.bracket.graph.empty();
-				console.log( 'VIEWBOX BEFORE', this?.draw?.viewbox()); // MW
 				if( defined( this.draw )) { this.draw.clear(); }
 				$( 'svg' ).remove();
 				this.draw = this.svg.addTo( '.bracket-graph' ).size( '100%', '100%' ).viewbox( bounds.left, bounds.top, bounds.width, bounds.height );
 				$( '.bracket-graph svg' ).attr({ viewBox : this.state.viewbox });
-				console.log( 'VIEWBOX AFTER', this?.draw?.viewbox()); // MW
 
 				rounds.forEach(( round, i ) => { 
 					let matches  = reorder( division.bracket.matches( round ));
@@ -227,8 +224,6 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				});
 				group.x( x ).y( y );
 
-				console.log( 'GROUP BBOX', group.bbox()); // MW
-
 				return { 
 					id: UUID.v4(), 
 					number: match.number, 
@@ -258,7 +253,6 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 					other: other?.svg?.group?.bbox() ? other.svg.group.bbox() : bounds.default,
 					dest: dest?.svg?.group?.bbox() ? dest.svg.group.bbox() : bounds.default,
 				};
-				console.log( 'BOUNDS', bounds ); // MW
 				bounds.left   = bounds.current.x; 
 				bounds.top    = Math.min( ... [ bounds.current.y, bounds.other.y ].filter( x => x != null )); 
 				bounds.width  = (bounds.dest.width + bounds.dest.x) - bounds.current.x;
@@ -273,7 +267,6 @@ FreeScore.Widget.SEBracket = class FSWidgetSEBracket extends FreeScore.Widget {
 				bounds = this.state.viewbox;
 				// zoom.out = { left: bounds.left, top: bounds.top, width: bounds.width, height: bounds.height };
 				zoom.out = this.zoom.out.default;
-				console.log( 'ZOOM IN/OUT', zoom ); // MW
 
 				let animating = defined( this.state.animation ) && this.state.animation.progress() != 1;
 				if( ! animating ) {
