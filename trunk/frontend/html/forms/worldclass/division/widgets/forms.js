@@ -167,7 +167,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 				if( method == 'cutoff' || ! defined( method )) {
 					rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo.cutoff( round )) : [ 'finals' ];
 				} else {
-					rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo[ method ]( round )) : [ 'ro2' ];
+					rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo.se( round )) : [ 'ro2' ];
 				}
 
 				// Ensure rounds are in proper order
@@ -194,7 +194,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 	// Helper function used elsewhere in editor app
 	age( age = null ) {
-		if( ! defined( age )) { age = this.state.age; }
+		if( ! defined( age )) { age = this.app.state.settings.age; }
 		let ages = Object.values( FSWidgetDEForms.agemap );
 		if( ages.includes( age )) {
 			let i      = ages.indexOf( age );

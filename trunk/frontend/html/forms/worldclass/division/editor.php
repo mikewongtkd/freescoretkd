@@ -161,7 +161,6 @@
 				// Init round and forms
 				app.state.division.round  = rounds[ 0 ];
 				app.state.settings.rounds = rounds;
-				console.log( 'APP REFRESH ROUNDS', method, n, JSON.stringify( app.state.division.forms ), rounds ); // MW
 				/*
 				let forms = app.state.division?.forms ? app.state.division.forms : {};
 				rounds.forEach( round => {
