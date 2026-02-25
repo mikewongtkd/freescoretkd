@@ -479,8 +479,16 @@ FreeScore.Widget.DESettings = class FSWidgetDESettings extends FreeScore.Widget 
 			let target   = $( ev.target );
 			let method   = target.val();
 			this.app.state.division.method = settings.method = method;
-
 			this.app.refresh.rounds();
+
+			if( method == 'sbs' ) {
+				this.app.state.division.forms = this.app.widget.draws.display.pool();
+				this.app.widget.draws.display.refresh.draw.display();
+			} else {
+				this.app.state.division.forms = this.app.widget.forms.display.designated();
+				this.app.widget.forms.display.refresh.forms.display();
+			}
+
 			this.refresh.method();
 		});
 

@@ -1,6 +1,6 @@
 FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
-	static ranks  = [ 'yellow', 'green', 'blue', 'red' ];
-	static agemap = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
+	static ranks      = [ 'yellow', 'green', 'blue', 'red' ];
+	static agemap     = { '6-7': 'dragon', '8-9': 'tiger', '10-11': 'youth', '12-14': 'cadet', '15-17': 'junior', '18-30': 'u30', '31-40': 'u40', '31-50': 'u50', '41-50': 'u50', '51-60': 'u60', '61+': 'o60', '61-65': 'u65', '66+': 'o65' };
 	static round      = { belongsTo: { sbs: round => round.match( /^ro/i )}};
 	static designated = {
 		'yellow':[ 'Taegeuk 1', 'Taegeuk 2' ], // Not WT
@@ -110,6 +110,9 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 
 		` );
 
+		// ===== STATE
+		this.state.forms = { sbs: {}}; // Cache; final version is in app.state.division.forms
+
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.draw    = this.dom.find( '.draw table.poomsae-display' );
 		this.display.all     = this.dom.find( '.draw' );
@@ -163,8 +166,11 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 
 				if( method != 'sbs' ) { return; } // Only SBS has random draw
 
+				// Assign cache
+				this.state.forms.sbs = forms;
+
 				// Filter rounds & ensure correct order
-				rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEDraws.round.belongsTo[ method ]( round )) : [ 'ro2' ];
+				rounds = this.app.state.division.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEDraws.round.belongsTo[ method ]( round )) : [ 'ro2' ];
 				rounds = FreeScore.round.order.filter( round => rounds.includes( round ));
 
 				this.display.draw.empty();
@@ -434,6 +440,23 @@ FreeScore.Widget.DEDraws = class FSWidgetDEDraws extends FreeScore.Widget {
 				this.display.modal.show();
 			}
 		};
+	}
+
+	pool() {
+		let method = this.app.state?.division?.method ? this.app.state.division.method : 'cutoff';
+		let rounds = this.app.state?.division?.rounds;
+		let forms  = this.state.forms[ method ];
+
+		if( method != 'sbs' ) { return null; }
+
+		// Initialize with a reasonable default if no value exists
+		let age = this.age();
+		rounds.forEach( round => {
+			if( forms[ round ]) { return; }
+			forms[ round ] = [ `draw-${age}` ];
+		});
+
+		return forms;
 	}
 
 	age( age = null ) {

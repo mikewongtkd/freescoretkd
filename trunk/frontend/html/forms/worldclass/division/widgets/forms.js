@@ -38,6 +38,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 		// ===== STATE
 		this.state.select = {};
+		this.state.forms  = { cutoff: {}, se: {} }; // Cache; final version is in app.state.division.forms
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.forms = this.dom.find( '.forms table.poomsae-display' );
@@ -105,9 +106,10 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 						let round = target.attr( 'data-round' );
 						let i     = target.attr( 'data-form' );
 						let form  = target.val();
-						if( this.app.state?.division?.forms?.[ round ]?.[ i ] ) {
-							this.app.state.division.forms[ round ][ i ] = form;
-						}
+						if( ! this.app.state.division ) { return; } // Division not loaded yet, wait until it's loaded
+						if( ! this.app.state.division.forms ) { this.app.state.division.forms = {}; }
+						if( ! this.app.state.division.forms[ round ] ) { this.app.state.division.forms[ round ] = []; }
+						this.app.state.division.forms[ round ][ i ] = form;
 						return form;
 					};
 
@@ -118,14 +120,13 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					second.disable = () => {
 						second.addClass( 'disabled' ).prop( 'disabled', true );
 						second.val( 'None' );
-						if( ! forms?.[ round ]) { forms[ round ] = []; }
 					};
 
 					first.off( 'change' ).on( 'change', ev => {
 						let target = $( ev.target );
 						if( first.val() == 'None' ) { second.disable(); } else { second.enable(); }
 						let form = assign( target );
-						this.app.state.settings.rounds.forEach( round => {
+						this.app.state.division.rounds.forEach( round => {
 							for( let i = 0; i < 2; i++ ) {
 								this.refresh.form.select.dom( forms, round, i );
 							}
@@ -135,7 +136,7 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 					second.off( 'change' ).on( 'change', ev => {
 						let target = $( ev.target );
 						let form   = assign( target );
-						this.app.state.settings.rounds.forEach( round => {
+						this.app.state.division.rounds.forEach( round => {
 							for( let i = 0; i < 2; i++ ) {
 								this.refresh.form.select.dom( forms, round, i );
 							}
@@ -163,11 +164,14 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 
 				if( method == 'sbs' ) { return; } // SBS uses random draw, not designated draws
 
+				// Assign cache
+				this.state.forms[ method ] = forms;
+
 				// Filter rounds
 				if( method == 'cutoff' || ! defined( method )) {
-					rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo.cutoff( round )) : [ 'finals' ];
+					rounds = this.app.state.division.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo.cutoff( round )) : [ 'finals' ];
 				} else {
-					rounds = this.app.state.settings.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo.se( round )) : [ 'ro2' ];
+					rounds = this.app.state.division.rounds = rounds.length > 0 ? rounds.filter( round => FSWidgetDEForms.round.belongsTo.se( round )) : [ 'ro2' ];
 				}
 
 				// Ensure rounds are in proper order
@@ -192,20 +196,19 @@ FreeScore.Widget.DEForms = class FSWidgetDEForms extends FreeScore.Widget {
 		};
 	}
 
-	// Helper function used elsewhere in editor app
-	age( age = null ) {
-		if( ! defined( age )) { age = this.app.state.settings.age; }
-		let ages = Object.values( FSWidgetDEForms.agemap );
-		if( ages.includes( age )) {
-			let i      = ages.indexOf( age );
-			let ranges = Object.keys( FSWidgetDEForms.agemap );
-			return ranges[ i ];
+	designated() {
+		let method = this.app.state?.division?.method ? this.app.state.division.method : 'cutoff';
+		let rounds = this.app.state.division.rounds;
+		let forms  = this.state.forms[ method ];
 
-		} else if( FSWidgetDEForms.ranks.includes( age )) {
-			return age;
+		if( method == 'sbs' ) { return null; }
 
-		} else {
-			return null;
-		}
+		// Initialize with a reasonable default if no value exists
+		rounds.forEach( round => {
+			if( forms[ round ]) { return; }
+			forms[ round ] = [ 'Choice' ];
+		});
+
+		return forms;
 	}
 }
