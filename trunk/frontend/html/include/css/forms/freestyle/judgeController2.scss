@@ -168,11 +168,12 @@ img.mandatory-foot-technique-icon {
 .performance-description {
 	width: 100%;
 	vertical-align: bottom;
-	.poor      { display: inline-block; text-align: left;   width: 15% }
-	.good      { display: inline-block; text-align: right;  width: 45% }
-	.very-good { display: inline-block; text-align: right;  width: 8% }
-	.excellent { display: inline-block; text-align: center; width: 12% }
-	.perfect   { display: inline-block; text-align: right;  width: 20% }
+	.poor,.zero { display: inline-block; text-align: center; width: 12% }
+	.good       { display: inline-block; text-align: center; width: 22% }
+	.very-good  { display: inline-block; text-align: center; width: 25% }
+	.excellent  { display: inline-block; text-align: center; width: 28% }
+	.perfect    { display: inline-block; text-align: center; width: 13% }
+	.bonus      { display: inline-block; text-align: center; width: 25% }
 }
 
 .subtotal {

@@ -53,14 +53,14 @@
 			<div id="devices">
 				<div class="register" id="judge">
 					<a class="btn btn-default worldclass" href="register.php?service=worldclass&role=judge" ><img class="device" src="images/roles/tablet-worldclass.png" /><p>Sport Poomsae Judge Tablet</p></a>
-					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=judge"  ><img class="device" src="images/roles/tablet-freestyle.png"  /><p>Freestyle Judge Tablet</p></a>
+					<a class="btn btn-default freestyle"  href="register.php?service=freestyle&role=judge"  ><img class="device" src="images/roles/tablet-freestyle.png"  /><p>Freestyle Judge Tablet</p></a>
 					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=judge" ><img class="device" src="images/roles/tablet-grassroots.png" /><p>Open Poomsae Judge Tablet</p></a>
 					<a class="btn btn-default breaking"   href="register.php?service=breaking&role=judge"   ><img class="device" src="images/roles/tablet-breaking.png"   /><p>Creative Breaking Judge Tablet</p></a>
 				</div>
 
 				<div class="register" id="computer-operator">
 					<a class="btn btn-default worldclass" href="register.php?service=worldclass&role=computer+operator" ><img class="device" src="images/roles/coordinator-worldclass.png" /><p>Sport Poomsae Ring Computer</p></a>
-					<a class="btn btn-default freestyle"  href="forms/freestyle/register.php?role=computer+operator"  ><img class="device" src="images/roles/coordinator-freestyle.png"  /><p>Freestyle Ring Computer</p></a>
+					<a class="btn btn-default freestyle"  href="register.php?service=freestyle&role=computer+operator"  ><img class="device" src="images/roles/coordinator-freestyle.png"  /><p>Freestyle Ring Computer</p></a>
 					<a class="btn btn-default grassroots" href="forms/grassroots/register.php?role=computer+operator" ><img class="device" src="images/roles/coordinator-grassroots.png" /><p>Open Poomsae Ring Computer</p></a>
 					<a class="btn btn-default breaking"   href="register.php?service=breaking&role=computer+operator"   ><img class="device" src="images/roles/coordinator-breaking.png"   /><p>Creative Breaking Ring Computer</p></a>
 				</div>

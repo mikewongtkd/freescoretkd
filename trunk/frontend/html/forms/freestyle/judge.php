@@ -52,11 +52,10 @@
 						<tr>
 							<td>
 								<div class="performance-description">
-									<div class="poor">Below belt</div>
-									<div class="good">Body</div>
-									<div class="very-good">Head</div>
-									<div class="excellent">Above head</div>
-									<div class="perfect"></div>
+									<div class="zero">Below belt</div>
+									<div class="bonus">Body &rarr; +0.1</div>
+									<div class="bonus">Head &rarr; +0.2</div>
+									<div class="bonus">Above head &rarr; +0.3</div>
 								</div>
 							</td>
 
@@ -90,11 +89,10 @@
 						<tr>
 							<td>
 								<div class="performance-description">
-									<div class="poor">&lt;3</div>
-									<div class="good">3 kicks</div>
-									<div class="very-good">4 kicks</div>
-									<div class="excellent">5 kicks</div>
-									<div class="perfect"></div>
+									<div class="zero">&lt;3</div>
+									<div class="bonus">3 kicks &rarr; +0.1</div>
+									<div class="bonus">4 kicks &rarr; +0.2</div>
+									<div class="bonus">5 kicks &rarr; +0.3</div>
 								</div>
 							</td>
 						</tr><tr>
@@ -126,11 +124,10 @@
 						<tr>
 							<td>
 								<div class="performance-description">
-									<div class="poor">&lt;360&deg;</div>
-									<div class="good">&gt;360&deg;</div>
-									<div class="very-good">&gt;540&deg;</div>
-									<div class="excellent">&gt;720&deg</div>
-									<div class="perfect"></div>
+									<div class="zero">&lt;360&deg;</div>
+									<div class="bonus">360&deg; &rarr; +0.1</div>
+									<div class="bonus">540&deg; &rarr; +0.2</div>
+									<div class="bonus">720&deg; &rarr; +0.3</div>
 								</div>
 							</td>
 						</tr><tr>
@@ -162,11 +159,10 @@
 						<tr>
 							<td>
 								<div class="performance-description">
-									<div class="poor">&lt;3 kicks</div>
-									<div class="good">Average</div>
-									<div class="very-good">Good</div>
-									<div class="excellent">Excellent</div>
-									<div class="perfect"></div>
+									<div class="poor">&lt;3 bounces</div>
+									<div class="bonus">Low &rarr; +0.1</div>
+									<div class="bonus">Mid &rarr; +0.2</div>
+									<div class="bonus">High &rarr; +0.3</div>
 								</div>
 							</td>
 						</tr><tr>
@@ -198,11 +194,10 @@
 						<tr>
 							<td>
 								<div class="performance-description">
-									<div class="poor" style="font-size: 9pt !important;">No TKD kick</div>
-									<div class="good">Average</div>
-									<div class="very-good">Good</div>
-									<div class="excellent">Excellent</div>
-									<div class="perfect"></div>
+									<div class="zero" style="font-size: 9pt !important;">No TKD kick</div>
+									<div class="bonus">Low &rarr; +0.1</div>
+									<div class="bonus">Mid &rarr; +0.2</div>
+									<div class="bonus">High &rarr; +0.3</div>
 								</div>
 							</td>
 						</tr><tr>
@@ -233,16 +228,6 @@
 					<p>Technique &amp; Practicality</p>
 					<table class="basic-movements">
 						<tr>
-							<td>
-								<div class="performance-description">
-									<div class="poor">Poor</div>
-									<div class="good">Average</div>
-									<div class="very-good">Good</div>
-									<div class="excellent">Excellent</div>
-									<div class="perfect"></div>
-								</div>
-							</td>
-						</tr><tr>
 							<td class="button-group">
 								<div id="basic-movements" class="btn-group" data-toggle="buttons">
 									<label class="btn btn-danger" ><input type="radio" name="basic-movements" value="0.0">0.0</label>
@@ -598,7 +583,7 @@
 				$( '.athlete' ).empty().append( 
 					html.div.clone().addClass( 'division' ).append( division.summary()),
 					html.div.clone().addClass( 'name'     ).append( athlete.display.name()),
-					html.div.clone().addClass( 'progress' ).append( division.current.progress() + ' in the ' + division.current.round() + ' Round' )
+					html.div.clone().addClass( 'progress' ).append( `${division.current.progress()} in the ${division.current.round()}` )
 				);
 
 				// Re-label the Send button as 'Send' instead of 'Resend'

@@ -204,11 +204,13 @@ table {
 .performance-description {
 	width: 100%;
 	vertical-align: bottom;
-	.poor      { display: inline-block; text-align: center; width: 12% }
-	.good      { display: inline-block; text-align: center; width: 22% }
-	.very-good { display: inline-block; text-align: center; width: 25% }
-	.excellent { display: inline-block; text-align: center; width: 28% }
-	.perfect   { display: inline-block; text-align: center; width: 13% }
+	.poor,.zero { display: inline-block; text-align: center; width: 12% }
+	.good       { display: inline-block; text-align: center; width: 22% }
+	.very-good  { display: inline-block; text-align: center; width: 25% }
+	.excellent  { display: inline-block; text-align: center; width: 28% }
+	.perfect    { display: inline-block; text-align: center; width: 13% }
+    .base       { display: inline-block; text-align: center; width: 37% }
+    .bonus      { display: inline-block; text-align: center; width: 17% }
 }
 
 .subtotal {

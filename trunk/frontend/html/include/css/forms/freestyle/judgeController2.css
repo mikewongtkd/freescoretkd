@@ -1,83 +1,99 @@
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Biolinum';
+  font-family: "Biolinum";
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Barlow';
+  font-family: "Barlow";
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'FjallaOne';
+  font-family: "FjallaOne";
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
   font-weight: normal;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
   font-weight: bold;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Lato';
+  font-family: "Lato";
   src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
   font-weight: bold;
-  font-style: italic; }
+  font-style: italic;
+}
 @font-face {
-  font-family: 'Biolinum';
+  font-family: "Biolinum";
   src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Barlow';
+  font-family: "Barlow";
   src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'FjallaOne';
+  font-family: "FjallaOne";
   src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 @font-face {
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
   font-weight: normal;
-  font-style: normal; }
+  font-style: normal;
+}
 .deductions {
   float: left;
   font-family: Optima, Biolinum, Lato;
@@ -90,112 +106,135 @@
   /* W3C */
   border-radius: 16pt;
   border: 4px solid #999;
-  margin: 0 6px 0 6px; }
-  .deductions .deduction-button-small, .deductions .deduction-button-large {
-    font-size: 18pt;
-    width: 168px;
-    border-radius: 12px;
-    margin: 12px auto 12px auto;
-    text-align: center; }
-  .deductions .deduction-button-small {
-    height: 48px;
-    line-height: 32pt; }
-  .deductions .deduction-button-large {
-    height: 168px;
-    line-height: 124pt; }
-  .deductions .disabled {
-    border: 4px solid #666;
-    background: #e2e2e2;
-    background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
-    color: black; }
-  .deductions .remove-minor {
-    border: 4px solid green;
-    background: #9dd53a;
-    background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-    background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
-    color: black; }
-  .deductions .add-minor {
-    border: 4px solid blue;
-    font-size: 36pt;
-    background: #6db3f2;
-    background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
-    background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
-    color: black; }
-  .deductions .remove-major {
-    border: 4px solid orange;
-    background: #ffb76b;
-    background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
-    color: black; }
-  .deductions .add-major {
-    border: 4px solid gold;
-    font-size: 36pt;
-    background: #fceabb;
-    background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
-    color: black; }
-  .deductions .deduction-label {
-    height: 32px;
-    margin: 12px auto 12px auto;
-    text-align: center;
-    font-size: 14pt;
-    color: #ccc; }
-  .deductions .view {
-    height: 40px;
-    margin: 12px auto 12px auto;
-    text-align: center;
-    font-size: 32pt;
-    line-height: 32pt;
-    color: white; }
+  margin: 0 6px 0 6px;
+}
+.deductions .deduction-button-small, .deductions .deduction-button-large {
+  font-size: 18pt;
+  width: 168px;
+  border-radius: 12px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+}
+.deductions .deduction-button-small {
+  height: 48px;
+  line-height: 32pt;
+}
+.deductions .deduction-button-large {
+  height: 168px;
+  line-height: 124pt;
+}
+.deductions .disabled {
+  border: 4px solid #666;
+  background: #e2e2e2;
+  background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+  background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+  color: black;
+}
+.deductions .remove-minor {
+  border: 4px solid green;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  color: black;
+}
+.deductions .add-minor {
+  border: 4px solid blue;
+  font-size: 36pt;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  color: black;
+}
+.deductions .remove-major {
+  border: 4px solid orange;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  color: black;
+}
+.deductions .add-major {
+  border: 4px solid gold;
+  font-size: 36pt;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  color: black;
+}
+.deductions .deduction-label {
+  height: 32px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+  font-size: 14pt;
+  color: #ccc;
+}
+.deductions .view {
+  height: 40px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+  font-size: 32pt;
+  line-height: 32pt;
+  color: white;
+}
 
 body {
   position: absolute;
   top: 0;
-  left: 0; }
+  left: 0;
+}
 
 .container {
   position: absolute;
   top: 0;
-  left: 0; }
+  left: 0;
+}
 
 .menu {
   position: absolute;
   left: 0;
   top: 40px;
-  width: 180px; }
+  width: 180px;
+}
 
 #stances {
   position: absolute;
   left: 50%;
   width: 200px;
-  margin-left: -120px; }
-  #stances .btn-xs {
-    font-size: 12pt;
-    margin-top: -8px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    width: 80px; }
-  #stances .mandatory-stances {
-    position: absolute;
-    top: 0;
-    font-size: 9pt;
-    width: 90px;
-    text-align: center; }
-    #stances .mandatory-stances img {
-      height: 120px;
-      opacity: 0.25; }
-  #stances .done {
-    color: lime; }
-    #stances .done img {
-      opacity: 1.0;
-      filter: sepia(100%) saturate(100000%) hue-rotate(40deg); }
-  #stances .hakdari-seogi {
-    left: 0; }
-  #stances .beom-seogi {
-    left: 80px; }
-  #stances .dwigubi {
-    left: 160px; }
+  margin-left: -120px;
+}
+#stances .btn-xs {
+  font-size: 12pt;
+  margin-top: -8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  width: 80px;
+}
+#stances .mandatory-stances {
+  position: absolute;
+  top: 0;
+  font-size: 9pt;
+  width: 90px;
+  text-align: center;
+}
+#stances .mandatory-stances img {
+  height: 120px;
+  opacity: 0.25;
+}
+#stances .done {
+  color: lime;
+}
+#stances .done img {
+  opacity: 1;
+  filter: sepia(100%) saturate(100000%) hue-rotate(40deg);
+}
+#stances .hakdari-seogi {
+  left: 0;
+}
+#stances .beom-seogi {
+  left: 80px;
+}
+#stances .dwigubi {
+  left: 160px;
+}
 
 table {
   position: absolute;
@@ -203,79 +242,97 @@ table {
   left: 0;
   background-color: transparent !important;
   margin-bottom: 20px;
-  width: 100%; }
-  table th {
-    font-weight: normal;
-    color: #ccc;
-    width: 100px;
-    padding-right: 8px; }
-  table td.button-group {
-    color: #999;
-    font-size: 9pt;
-    width: calc( 100% - 80px ); }
-  table td[colspan='2'] {
-    padding-top: 4px;
-    padding-left: 8px; }
+  width: 100%;
+}
+table th {
+  font-weight: normal;
+  color: #ccc;
+  width: 100px;
+  padding-right: 8px;
+}
+table td.button-group {
+  color: #999;
+  font-size: 9pt;
+  width: calc(100% - 80px);
+}
+table td[colspan="2"] {
+  padding-top: 4px;
+  padding-left: 8px;
+}
 
 #tabpanels {
   position: absolute;
   top: 0;
   left: 200px;
-  width: 700px; }
-  #tabpanels h1 {
-    font-size: 32pt; }
-  #tabpanels p {
-    color: #ccc;
-    font-size: 14pt; }
-  #tabpanels img.mft-icon {
-    position: absolute;
-    top: 0;
-    right: 0; }
-  #tabpanels .athlete {
-    position: absolute;
-    top: 240px;
-    left: 210px;
-    color: #999 !important;
-    border-radius: 8px;
-    border: solid gold 4px;
-    padding: 8px;
-    width: 250px;
-    height: 120px;
-    text-align: center;
-    overflow: hidden; }
-    #tabpanels .athlete .division {
-      color: gold; }
-    #tabpanels .athlete .name {
-      color: white;
-      font-size: 24pt; }
-    #tabpanels .athlete .progress {
-      color: #999;
-      background: transparent; }
+  width: 700px;
+}
+#tabpanels h1 {
+  font-size: 32pt;
+}
+#tabpanels p {
+  color: #ccc;
+  font-size: 14pt;
+}
+#tabpanels img.mft-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+#tabpanels .athlete {
+  position: absolute;
+  top: 240px;
+  left: 210px;
+  color: #999 !important;
+  border-radius: 8px;
+  border: solid gold 4px;
+  padding: 8px;
+  width: 250px;
+  height: 120px;
+  text-align: center;
+  overflow: hidden;
+}
+#tabpanels .athlete .division {
+  color: gold;
+}
+#tabpanels .athlete .name {
+  color: white;
+  font-size: 24pt;
+}
+#tabpanels .athlete .progress {
+  color: #999;
+  background: transparent;
+}
 
 #presentation {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%; }
+  width: 100%;
+}
 
 img.mandatory-foot-technique-icon {
-  margin-top: -20px; }
+  margin-top: -20px;
+}
 
 #controls {
   position: absolute;
   top: 0;
   left: 0;
-  width: calc( 100% - 30px ); }
+  width: calc(100% - 30px);
+}
 
 .deductions {
   position: absolute;
-  top: 80px; }
+  top: 80px;
+}
 
 .major-deductions {
-  left: 0; }
+  left: 0;
+}
 
 .minor-deductions {
-  right: 0; }
+  right: 0;
+}
 
 .next-button {
   position: absolute;
@@ -284,163 +341,213 @@ img.mandatory-foot-technique-icon {
   width: 250px;
   font-size: 24pt;
   padding-top: 2px;
-  padding-bottom: 0; }
+  padding-bottom: 0;
+}
 
 .alert-default, .btn-default {
   background-color: #777;
-  border-color: #666; }
+  border-color: #666;
+}
 
 .alert-default, .alert-success {
   color: white;
   font-size: 18pt;
-  line-height: 18pt; }
+  line-height: 18pt;
+}
 
 .btn-group[data-toggle=buttons] {
-  width: 100%; }
-  .btn-group[data-toggle=buttons] .btn {
-    width: 9%; }
+  width: 100%;
+}
+.btn-group[data-toggle=buttons] .btn {
+  width: 9%;
+}
 
 .performance-description {
   width: 100%;
-  vertical-align: bottom; }
-  .performance-description .poor {
-    display: inline-block;
-    text-align: left;
-    width: 15%; }
-  .performance-description .good {
-    display: inline-block;
-    text-align: right;
-    width: 45%; }
-  .performance-description .very-good {
-    display: inline-block;
-    text-align: right;
-    width: 8%; }
-  .performance-description .excellent {
-    display: inline-block;
-    text-align: center;
-    width: 12%; }
-  .performance-description .perfect {
-    display: inline-block;
-    text-align: right;
-    width: 20%; }
+  vertical-align: bottom;
+}
+.performance-description .poor, .performance-description .zero {
+  display: inline-block;
+  text-align: center;
+  width: 12%;
+}
+.performance-description .good {
+  display: inline-block;
+  text-align: center;
+  width: 22%;
+}
+.performance-description .very-good {
+  display: inline-block;
+  text-align: center;
+  width: 25%;
+}
+.performance-description .excellent {
+  display: inline-block;
+  text-align: center;
+  width: 28%;
+}
+.performance-description .perfect {
+  display: inline-block;
+  text-align: center;
+  width: 13%;
+}
+.performance-description .bonus {
+  display: inline-block;
+  text-align: center;
+  width: 25%;
+}
 
 .subtotal {
   font-size: 40pt;
-  line-height: 18pt; }
+  line-height: 18pt;
+}
 
 #technical-skills .subtotal {
-  color: #2a9fd6; }
+  color: #2a9fd6;
+}
 
 #presentation .subtotal {
-  color: #77b300; }
+  color: #77b300;
+}
 
 #deductions .subtotal {
-  color: #ba1f1f; }
+  color: #ba1f1f;
+}
 
 #total .subtotal {
-  color: white; }
+  color: white;
+}
 
 .technical-component, .presentation-component, .deduction-component, .total-component {
   position: absolute;
   height: 88px;
   width: 88px;
   border-radius: 12px;
-  border: 4px solid #999; }
-  .technical-component .component-label, .presentation-component .component-label, .deduction-component .component-label, .total-component .component-label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 40px;
-    width: 80px;
-    padding: 4px 8px 4px 8px;
-    border-radius: 8px 8px 0 0;
-    color: white;
-    font-size: 9pt;
-    text-align: center; }
-  .technical-component .component-score, .presentation-component .component-score, .deduction-component .component-score, .total-component .component-score {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    height: 40px;
-    width: 80px;
-    padding: 8px;
-    border-radius: 0 0 8px 8px;
-    background-color: #666;
-    color: #ccc;
-    font-size: 32pt;
-    line-height: 18pt;
-    text-align: center; }
+  border: 4px solid #999;
+}
+.technical-component .component-label, .presentation-component .component-label, .deduction-component .component-label, .total-component .component-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 40px;
+  width: 80px;
+  padding: 4px 8px 4px 8px;
+  border-radius: 8px 8px 0 0;
+  color: white;
+  font-size: 9pt;
+  text-align: center;
+}
+.technical-component .component-score, .presentation-component .component-score, .deduction-component .component-score, .total-component .component-score {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  height: 40px;
+  width: 80px;
+  padding: 8px;
+  border-radius: 0 0 8px 8px;
+  background-color: #666;
+  color: #ccc;
+  font-size: 32pt;
+  line-height: 18pt;
+  text-align: center;
+}
 
 .technical-scores {
   position: absolute;
-  top: 120px; }
-  .technical-scores #mft1-score {
-    left: 0; }
-  .technical-scores #mft2-score {
-    left: 100px; }
-  .technical-scores #mft3-score {
-    left: 200px; }
-  .technical-scores #mft4-score {
-    left: 300px; }
-  .technical-scores #mft5-score {
-    left: 400px; }
-  .technical-scores #basic-score {
-    left: 500px; }
-  .technical-scores .component-label {
-    background-color: #2a9fd6; }
+  top: 120px;
+}
+.technical-scores #mft1-score {
+  left: 0;
+}
+.technical-scores #mft2-score {
+  left: 100px;
+}
+.technical-scores #mft3-score {
+  left: 200px;
+}
+.technical-scores #mft4-score {
+  left: 300px;
+}
+.technical-scores #mft5-score {
+  left: 400px;
+}
+.technical-scores #basic-score {
+  left: 500px;
+}
+.technical-scores .component-label {
+  background-color: #2a9fd6;
+}
 
 .presentation-scores {
   position: absolute;
-  top: 220px; }
-  .presentation-scores #creativity-score {
-    left: 0; }
-  .presentation-scores #harmony-score {
-    left: 100px; }
-  .presentation-scores #energy-score {
-    left: 200px; }
-  .presentation-scores #choreography-score {
-    left: 300px; }
-  .presentation-scores .component-label {
-    background-color: #77b300; }
+  top: 220px;
+}
+.presentation-scores #creativity-score {
+  left: 0;
+}
+.presentation-scores #harmony-score {
+  left: 100px;
+}
+.presentation-scores #energy-score {
+  left: 200px;
+}
+.presentation-scores #choreography-score {
+  left: 300px;
+}
+.presentation-scores .component-label {
+  background-color: #77b300;
+}
 
 .deduction-scores {
   position: absolute;
-  top: 320px; }
-  .deduction-scores #major-score {
-    left: 0; }
-  .deduction-scores #minor-score {
-    left: 100px; }
-  .deduction-scores .deduction-component .component-label {
-    background-color: #ba1f1f; }
-  .deduction-scores .deduction-component .component-score {
-    font-size: 28pt; }
+  top: 320px;
+}
+.deduction-scores #major-score {
+  left: 0;
+}
+.deduction-scores #minor-score {
+  left: 100px;
+}
+.deduction-scores .deduction-component .component-label {
+  background-color: #ba1f1f;
+}
+.deduction-scores .deduction-component .component-score {
+  font-size: 28pt;
+}
 
 .total-scores {
   position: absolute;
-  top: 220px; }
-  .total-scores #total-score {
-    left: 400px; }
-  .total-scores .total-component {
-    height: 128px;
-    width: 188px; }
-    .total-scores .total-component .component-label {
-      width: 180px;
-      height: 60px;
-      background-color: black; }
-      .total-scores .total-component .component-label .score-label {
-        color: #f0ad4e;
-        font-size: 18pt; }
-      .total-scores .total-component .component-label .athlete-name {
-        color: white;
-        font-size: 9pt; }
-    .total-scores .total-component .component-score {
-      top: 60px;
-      width: 180px;
-      height: 60px;
-      font-size: 48pt;
-      line-height: 32pt;
-      background-color: #333;
-      color: lime; }
+  top: 220px;
+}
+.total-scores #total-score {
+  left: 400px;
+}
+.total-scores .total-component {
+  height: 128px;
+  width: 188px;
+}
+.total-scores .total-component .component-label {
+  width: 180px;
+  height: 60px;
+  background-color: black;
+}
+.total-scores .total-component .component-label .score-label {
+  color: #f0ad4e;
+  font-size: 18pt;
+}
+.total-scores .total-component .component-label .athlete-name {
+  color: white;
+  font-size: 9pt;
+}
+.total-scores .total-component .component-score {
+  top: 60px;
+  width: 180px;
+  height: 60px;
+  font-size: 48pt;
+  line-height: 32pt;
+  background-color: #333;
+  color: lime;
+}
 
 #send {
   position: absolute;
@@ -449,6 +556,7 @@ img.mandatory-foot-technique-icon {
   width: 250px;
   font-size: 24pt;
   padding-top: 2px;
-  padding-bottom: 0; }
+  padding-bottom: 0;
+}
 
 /*# sourceMappingURL=judgeController2.css.map */
