@@ -74,10 +74,10 @@ sub clients {
 # ============================================================
 sub judges {
 # ============================================================
-	my $self    = shift;
-	my @clients = grep { $_->role() =~ /^judge/i } sort { $a->role() cmp $b->role() || $a->cid() cmp $b->cid() } values %{ $self->{ client }};
+	my $self   = shift;
+	my @judges = grep { $_->role() =~ /^judge/i } sort { $a->jid() <=> $b->jid() } values %{ $self->{ client }};
 
-	return @clients;
+	return @judges;
 }
 
 # ============================================================
@@ -96,6 +96,15 @@ sub remove {
 
 	$cid = ref $client ? $client->id() : $client;
 	delete $self->{ client }{ $cid };
+}
+
+# ============================================================
+sub send {
+# ============================================================
+	my $self = shift;
+	foreach my $client ($self->clients) {
+		$client->send( @_ );
+	}
 }
 
 # ============================================================

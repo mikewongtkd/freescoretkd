@@ -80,7 +80,7 @@ sub jid {
 	my $role = $self->role();
 	return undef unless $role =~ /^judge/i;
 	my ($jid) = $role =~ /^judge(\d+)$/i;
-	return $jid;
+	return int( $jid );
 }
 
 # ============================================================

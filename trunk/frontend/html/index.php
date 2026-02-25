@@ -1,7 +1,7 @@
 <?php
-	include_once( "./include/php/version.php" );
-	include_once( "./include/php/config.php" );
-	include_once( "./include/php/session/authenticate.php" );
+	include_once( __DIR__ . "/include/php/version.php" );
+	include_once( __DIR__ . "/include/php/config.php" );
+	include_once( __DIR__ . "/include/php/session/authenticate.php" );
 ?>
 <html>
 	<head>

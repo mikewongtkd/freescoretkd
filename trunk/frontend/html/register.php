@@ -27,7 +27,7 @@
 	if( ! $service ) { $service = [ 'name' => 'worldclass', 'path' => 'forms-worldclass' ]; }
 	$service[ 'path' ] = preg_replace( '/-/', '/', $service[ 'path' ]);
 
-	$url = [];
+	$url = [ $config->websocket( $service[ 'name' ], 'staging', 'register' ) ];
 	for( $i = 1; $i <= $k; $i++ ) {
 		$url []= $config->websocket( $service[ 'name' ], $i, 'register' );
 	}
@@ -98,7 +98,7 @@ body { background-color: black; color: gold; }
 
 			[ 'ring', 'role', 'id', 'judge' ].forEach(( item ) => { Cookies.remove( item ); });
 
-			app.on.connect( '<?= $url[ $rnum - 1 ] ?>' ).read.division();
+			app.on.connect( '<?= $url[ $rnum == 'staging' ? 0 : $rnum ] ?>' ).read.division();
 			app.ping.off();
 
 			app.network.on

@@ -160,7 +160,7 @@
 			$host = $config[ 'host' ];
 			$db   = $config[ 'tournament' ][ 'db' ];
       if( $service == 'freestyle' ) {
-			  $url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}";
+			  $url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
       } else {
   			$url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
       }
