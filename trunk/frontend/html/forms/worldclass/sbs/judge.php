@@ -42,7 +42,7 @@
 		<script src="../../../include/js/forms/worldclass/score.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/athlete.class.js"></script>
 		<script src="../../../include/js/forms/worldclass/division.class.js"></script>
-		<title>Recognized Poomsae Ring <?= $rnum ?> Display</title>
+		<title>Recognized Poomsae Ring <?= $rnum ?> Judge Controller</title>
 	</head>
 	<body>
 		<div id="pt-main" class="pt-perspective">
@@ -233,11 +233,11 @@
 				}
 			});
 
-      app.button.reload.off( 'click' ).click( ev => { window.location.reload(); });
-      app.button.reboot.off( 'click' ).click( ev => { 
-        app.state.reset();
-        window.location.reload(); 
-      });
+			app.button.reload.off( 'click' ).click( ev => { window.location.reload(); });
+			app.button.reboot.off( 'click' ).click( ev => { 
+				app.state.reset();
+				window.location.reload(); 
+			});
 
 			app.button.ok.off( 'click' ).click( ev => {
 				app.display.config.save();

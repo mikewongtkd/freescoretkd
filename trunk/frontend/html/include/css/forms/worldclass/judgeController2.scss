@@ -1,0 +1,334 @@
+
+body {
+	background: black;
+	background: -webkit-linear-gradient(to bottom, #45484d 0%,#000000 100%);
+	background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
+}
+
+@import '../../fonts';
+@import 'deductions2';
+@import 'presentation2';
+@import 'judgeNotes2';
+
+.pt-page {
+  width: 808px;
+  height: 608px;
+  border-radius: 24pt;
+  border: 4px solid white;
+}
+
+.judge-controller {
+	font-family: $text-font-stack;
+	width: 808px;
+	height: 820px;
+	margin: 0 auto 0 auto;
+    position: relative;
+
+	.nav-button {
+		font-size: 14pt;
+		float: left;
+		height: 60px;
+		border-radius: 12pt;
+		text-align: center;
+		line-height: 60px;
+		margin: 0 10px 0 10px;
+		position: relative;
+	}
+
+	.pt-page-1 {
+		position: absolute;
+
+		.division-info {
+			position: absolute;
+			height: 124px;
+			width: 188px;
+			border: 4px solid #333;
+			border-radius: 12px;
+			background: black;
+			top: 20px;
+			left: 10px;
+			padding: 0 8px 0 8px;
+			text-align: center;
+			overflow-x: hidden;
+			overflow-y: auto;
+			font-size: 10pt;
+
+			.label {
+				position: relative;
+				left: -12px;
+				display: block;
+				padding: 4px;
+				width: 188px;
+				background: #333;
+				background: -webkit-linear-gradient(to bottom, #aebcbf 0%,#4e5754 50%,#3a3e3a 51%,#3a3839 100%);
+				background: linear-gradient(to bottom, #aebcbf 0%,#4e5754 50%,#3a3e3a 51%,#3a3839 100%);
+				border-radius: 12px 12px 0 0;
+				font-size: 10pt;
+				color: white;
+			}
+
+			.description {
+				color: lime;
+			}
+			.round {
+				margin-top: 4px;
+				color: skyblue;
+			}
+			.form {
+				color: #999;
+				.current { color: yellow; text-decoration: underline; }
+			}
+		}
+
+		.division-info {
+			position: absolute;
+			font-size: 14pt;
+			height: 32px;
+			width: 188px;
+			color: white;
+			border: 4px solid #93d;
+			border-radius: 12px;
+			background: #9560c9;
+			background: -webkit-linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
+			background: linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
+			text-align: center;
+			top: 160px;
+			left: 10px;
+		}
+
+		& > .view, & > .controller { width: 800px; top: 8px; }
+		& > .view                  { height: 232px; }
+		& > .controller            { height: 360px; }
+		.control-group             { position: relative; }
+
+		.score {
+			position: absolute;
+			width: 388px;
+			height: 216px;
+			border-radius: 24pt;
+			top: 0;
+			left: 208px;
+
+			& > .athlete {
+				position: absolute;
+				top: 8px;
+				height: 32px;
+				border-radius: 24pt;
+				background: black;
+				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+				background: linear-gradient(to top, #45484d 0%,#000000 100%);
+				line-height: 24pt;
+				text-align: center;
+				list-style-type: none;
+				padding: 0;
+				margin: 0;
+				width: 340px;
+				left: 22px;
+				.details {
+					color: #ccc;
+					font-size: 14pt;
+				}
+				.athlete {
+					color: #ddd;
+					font-size: 18pt;
+				}
+			}
+
+
+			& > .accuracy, & > .presentation {
+				position: absolute;
+				width: 194px;
+				height: 168px;
+				font-size: 48pt;
+				line-height: 48pt;
+				padding-top: 48px;
+				text-align: center;
+				top: 0;
+			}
+
+			& > .accuracy {
+				border-radius: 18pt 0 0 18pt;
+				background: black;
+				background: -webkit-linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
+				background: linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
+				color: white;
+				span { font-size: 14pt; line-height: 14pt; }
+				left: 0;
+			}
+
+			& > .presentation {
+				border-radius: 0 18pt 18pt 0;
+				background: white;
+				background: -webkit-linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
+				background: linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
+				span { font-size: 14pt; line-height: 14pt; }
+				left: 194px;
+			}
+
+			& > .total {
+				color: skyblue;
+				font-size: 32pt; 
+				line-height: 32pt;
+				background: rgb( 2, 0, 36 );
+				background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(7,7,85,1) 50%, rgba(0,67,144,1) 100%);
+				position: absolute;
+				top: 132px;
+				left: 134px;
+				width: 120px;
+				border-radius: 12pt;
+				border: 3px solid rgba(2,0,36,1);
+				text-align: center;
+
+				.total-label {
+					font-size: 14pt; 
+					line-height: 14pt;
+					color: #ccc;
+				}
+			}
+		}
+		
+		.controls {
+			float: left;
+			width: 400px;
+			height: 280px;
+			margin: auto;
+
+			& > .control-label {
+				font-size: 24pt;
+				color: #ccc;
+				margin: 0 0 12px 72px;
+			}
+
+			.send {
+				font-size: 18pt;
+				line-height: 28pt;
+				height: 48px;
+				width: 308px;
+				color: white;
+				border: 4px solid red;
+				border-radius: 12px;
+				background: red;
+				background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+				background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+				margin: 28px 46px 12px 46px;
+				text-align: center;
+
+				.ui-button-text { padding-top: 3px; }
+
+			}
+		}
+	}
+	.pt-page-2 {
+		position: absolute;
+
+		.return-to-score {
+			position: absolute;
+			font-size: 18pt;
+			line-height: 128pt;
+			height: 188px;
+			width:  188px;
+			color: white;
+			border: 4px solid #93d;
+			border-radius: 12px;
+			background: #9560c9;
+			background: -webkit-linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
+			background: linear-gradient(to bottom, #9560c9 0%,#8746bf 50%,#5d00a5 51%,#9736d8 100%);
+			text-align: center;
+			top: 400px;
+			left: 600px;
+		}
+
+		.navigate {
+			position: absolute;
+			line-height: 38pt;
+			height: 40px;
+			width:  188px;
+			text-align: center;
+			color: white;
+			left: 590px;
+
+		}
+
+		.next {
+			border-radius: 0 12px 12px 0;
+			left: 684px;
+			width: 94px
+		}
+
+		.prev {
+			border-radius: 12px 0 0 12px;
+			left: 590px;
+			width: 94px
+		}
+
+		.next, .prev { .ui-button-text { padding-top: 1px; }}
+
+		.navigate-label {
+			position: absolute;
+			left: 604px;
+			width: 166px;
+			text-align: center;
+		}
+
+		.athlete {
+			top: 36px;
+			border: 4px solid blue;
+			border-color: blue;
+			background: #6db3f2;
+			background: -webkit-linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+			background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%);
+		}
+		.athlete-label { top: 0; }
+
+		.form {
+			font-size: 18pt;
+			line-height: 18pt;
+			top: 112px;
+			border: 4px solid green;
+			background: #9dd53a;
+			background: -webkit-linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+			background: linear-gradient(to bottom, #9dd53a 0%,#a1d54f 50%,#80c217 51%,#7cbc0a 100%);
+
+			sup { font-size: 10pt; }
+
+			.ui-button-text {
+				padding-top: 3px;
+			}
+		}
+		.form-label { top: 76px; }
+
+		.round {
+			top: 188px;
+			border: 4px solid orange;
+			background: #ffb76b;
+			background: -webkit-linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+			background: linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%);
+
+		}
+		.round-label { top: 152px; }
+
+		.division {
+			top: 264px;
+			border: 4px solid red;
+			background: red;
+			background: -webkit-linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+			background: linear-gradient(to bottom, #f85032 0%,#f16f5c 50%,#f6290c 51%,#f02f17 71%,#e73827 100%);
+		}
+		.division-label { top: 228px; }
+
+		.display-mode {
+			height: 56px;
+			font-size: 14pt;
+			border: 4px solid gold;
+			background: #fceabb;
+			background: -webkit-linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+			background: linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%);
+			color: black;
+			top: 324px;
+
+			& > .ui-button-text {
+				margin-top: 4px;
+			}
+		}
+	}
+}

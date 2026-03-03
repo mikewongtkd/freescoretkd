@@ -1,0 +1,709 @@
+body {
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  background: linear-gradient(to bottom, #45484d 0%, #000000 100%);
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+.deductions {
+  position: absolute;
+  font-family: Optima, Biolinum, Lato;
+  width: 188px;
+  height: 354px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  /* W3C */
+  border-radius: 16pt;
+  border: 4px solid #999;
+  margin: 6px;
+}
+.deductions.major {
+  left: 0;
+  bottom: 0;
+}
+.deductions.minor {
+  right: 0;
+  bottom: 0;
+}
+.deductions .btn-deduction-remove, .deductions .btn-deduction-add {
+  font-size: 18pt;
+  width: 168px;
+  border-radius: 12px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+}
+.deductions .btn-deduction-remove {
+  height: 48px;
+  line-height: 32pt;
+}
+.deductions .btn-deduction-remove.minor {
+  border: 4px solid green;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  color: black;
+}
+.deductions .btn-deduction-remove.major {
+  border: 4px solid orange;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  color: black;
+}
+.deductions .btn-deduction-add {
+  height: 168px;
+  line-height: 124pt;
+}
+.deductions .btn-deduction-add.minor {
+  border: 4px solid blue;
+  font-size: 36pt;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+}
+.deductions .btn-deduction-add.major {
+  border: 4px solid gold;
+  font-size: 36pt;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  color: black;
+}
+.deductions .disabled {
+  border: 4px solid #666;
+  background: #e2e2e2;
+  background: -webkit-linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+  background: linear-gradient(to bottom, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fefefe 100%);
+  color: black;
+}
+.deductions .deduction-label {
+  height: 32px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+  font-size: 14pt;
+  color: #ccc;
+}
+.deductions .count {
+  height: 40px;
+  margin: 12px auto 12px auto;
+  text-align: center;
+  font-size: 32pt;
+  line-height: 32pt;
+  color: white;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Regular.ttf"), url("/freescore/include/fonts/Lato-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Italic.ttf"), url("/freescore/include/fonts/Lato-Italic.ttf");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-Bold.ttf"), url("/freescore/include/fonts/Lato-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("/include/fonts/Lato-BoldItalic.ttf"), url("/freescore/include/fonts/Lato-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Biolinum";
+  src: url("/include/fonts/LinBiolinum_Rah.ttf"), url("/freescore/include/fonts/LinBiolinum_Rah.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Barlow";
+  src: url("/include/fonts/BarlowCondensed-Bold.ttf"), url("/freescore/include/fonts/BarlowCondensed-Bold.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "FjallaOne";
+  src: url("/include/fonts/FjallaOne-Regular.ttf"), url("/freescore/include/fonts/FjallaOne-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Glyphicons Halflings";
+  src: url("/include/bootstrap/fonts/glyphicons-halflings-regular.ttf"), url("/freescore/include/bootstrap/fonts/glyphicons-halflings-regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+.presentation-control {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Optima, Biolinum;
+  width: 380px;
+  height: 64px;
+  color: #ccc;
+}
+.presentation-control.power {
+  bottom: 240px;
+}
+.presentation-control.rhythm {
+  bottom: 172px;
+}
+.presentation-control.ki {
+  bottom: 104px;
+}
+.presentation-control .pb-panel {
+  width: 100%;
+  height: 48px;
+  text-align: center;
+}
+.presentation-control .pb-panel .pb-label {
+  text-align: left;
+  font-size: 12pt;
+}
+.presentation-control .pb-panel .btn-group {
+  position: relative;
+}
+.presentation-control .pb-panel .btn-group .btn-xs {
+  font-size: 10pt;
+}
+.presentation-control .pb-panel .low {
+  left: 45px;
+}
+.presentation-control .pb-panel .high {
+  left: 45px;
+}
+.presentation-control label {
+  padding: 4px 15px 2px 15px;
+}
+.presentation-control label.range {
+  padding: 4px 2px 2px 2px;
+}
+
+.judgeNotes {
+  border: 4px solid #999;
+  border-radius: 24px;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  color: #999;
+  font-size: 18pt;
+  width: 580px;
+  height: 588px;
+  overflow: hidden;
+  margin: 6px 6px 18px 6px;
+}
+.judgeNotes .view {
+  width: 580px;
+  height: 588px;
+  overflow-y: auto;
+}
+.judgeNotes .view table {
+  border: 0;
+  border-spacing: 0;
+  border-collapse: collapse;
+  color: #999;
+  font-size: 18pt;
+  width: 100%;
+}
+.judgeNotes .view table th {
+  color: #999;
+  font-size: 12pt;
+  text-align: left;
+  padding: 0 8px 8px 8px;
+}
+.judgeNotes .view table td {
+  padding: 4px 8px 4px 8px;
+  font-size: 18pt;
+}
+.judgeNotes .view table .order {
+  width: 28px;
+  color: #666;
+}
+.judgeNotes .view table .name {
+  width: 278px;
+}
+.judgeNotes .view table .form0 {
+  width: 200px;
+  text-align: center;
+}
+.judgeNotes .view table .form0 .accuracy {
+  color: #f99;
+}
+.judgeNotes .view table .form0 .presentation {
+  color: #99f;
+}
+.judgeNotes .view table .form1 {
+  width: 86px;
+  text-align: center;
+}
+.judgeNotes .view table .form1 .accuracy {
+  color: #f99;
+}
+.judgeNotes .view table .form1 .presentation {
+  color: #99f;
+}
+.judgeNotes .view table .form2 {
+  width: 86px;
+  text-align: center;
+}
+.judgeNotes .view table .form2 .accuracy {
+  color: #f99;
+}
+.judgeNotes .view table .form2 .presentation {
+  color: #99f;
+}
+.judgeNotes .view table .average {
+  width: 86px;
+  text-align: center;
+}
+.judgeNotes .view table .current {
+  background: #606c88;
+  background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
+  background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
+  color: white;
+}
+.judgeNotes .view table .current .accuracy {
+  color: #fcc;
+}
+.judgeNotes .view table .current .presentation {
+  color: #ccf;
+}
+.judgeNotes .view table .current-form {
+  background: #cedce7;
+  background: -webkit-linear-gradient(top, #cedce7 0%, #596a72 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: linear-gradient(to bottom, #cedce7 0%, #596a72 100%);
+  /* W3C */
+  color: white;
+}
+.judgeNotes .view table .current-form .accuracy {
+  color: #fcc;
+}
+.judgeNotes .view table .current-form .presentation {
+  color: #ccf;
+}
+
+.pt-page {
+  width: 808px;
+  height: 608px;
+  border-radius: 24pt;
+  border: 4px solid white;
+}
+
+.judge-controller {
+  font-family: Optima, Biolinum, Lato;
+  width: 808px;
+  height: 820px;
+  margin: 0 auto 0 auto;
+  position: relative;
+}
+.judge-controller .nav-button {
+  font-size: 14pt;
+  float: left;
+  height: 60px;
+  border-radius: 12pt;
+  text-align: center;
+  line-height: 60px;
+  margin: 0 10px 0 10px;
+  position: relative;
+}
+.judge-controller .pt-page-1 {
+  position: absolute;
+}
+.judge-controller .pt-page-1 .division-info {
+  position: absolute;
+  height: 124px;
+  width: 188px;
+  border: 4px solid #333;
+  border-radius: 12px;
+  background: black;
+  top: 20px;
+  left: 10px;
+  padding: 0 8px 0 8px;
+  text-align: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-size: 10pt;
+}
+.judge-controller .pt-page-1 .division-info .label {
+  position: relative;
+  left: -12px;
+  display: block;
+  padding: 4px;
+  width: 188px;
+  background: #333;
+  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
+  background: linear-gradient(to bottom, #aebcbf 0%, #4e5754 50%, #3a3e3a 51%, #3a3839 100%);
+  border-radius: 12px 12px 0 0;
+  font-size: 10pt;
+  color: white;
+}
+.judge-controller .pt-page-1 .division-info .description {
+  color: lime;
+}
+.judge-controller .pt-page-1 .division-info .round {
+  margin-top: 4px;
+  color: skyblue;
+}
+.judge-controller .pt-page-1 .division-info .form {
+  color: #999;
+}
+.judge-controller .pt-page-1 .division-info .form .current {
+  color: yellow;
+  text-decoration: underline;
+}
+.judge-controller .pt-page-1 .division-info {
+  position: absolute;
+  font-size: 14pt;
+  height: 32px;
+  width: 188px;
+  color: white;
+  border: 4px solid #93d;
+  border-radius: 12px;
+  background: #9560c9;
+  background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  text-align: center;
+  top: 160px;
+  left: 10px;
+}
+.judge-controller .pt-page-1 > .view, .judge-controller .pt-page-1 > .controller {
+  width: 800px;
+  top: 8px;
+}
+.judge-controller .pt-page-1 > .view {
+  height: 232px;
+}
+.judge-controller .pt-page-1 > .controller {
+  height: 360px;
+}
+.judge-controller .pt-page-1 .control-group {
+  position: relative;
+}
+.judge-controller .pt-page-1 .score {
+  position: absolute;
+  width: 388px;
+  height: 216px;
+  border-radius: 24pt;
+  top: 0;
+  left: 208px;
+}
+.judge-controller .pt-page-1 .score > .athlete {
+  position: absolute;
+  top: 8px;
+  height: 32px;
+  border-radius: 24pt;
+  background: black;
+  background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
+  line-height: 24pt;
+  text-align: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 340px;
+  left: 22px;
+}
+.judge-controller .pt-page-1 .score > .athlete .details {
+  color: #ccc;
+  font-size: 14pt;
+}
+.judge-controller .pt-page-1 .score > .athlete .athlete {
+  color: #ddd;
+  font-size: 18pt;
+}
+.judge-controller .pt-page-1 .score > .accuracy, .judge-controller .pt-page-1 .score > .presentation {
+  position: absolute;
+  width: 194px;
+  height: 168px;
+  font-size: 48pt;
+  line-height: 48pt;
+  padding-top: 48px;
+  text-align: center;
+  top: 0;
+}
+.judge-controller .pt-page-1 .score > .accuracy {
+  border-radius: 18pt 0 0 18pt;
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+  background: linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
+  color: white;
+  left: 0;
+}
+.judge-controller .pt-page-1 .score > .accuracy span {
+  font-size: 14pt;
+  line-height: 14pt;
+}
+.judge-controller .pt-page-1 .score > .presentation {
+  border-radius: 0 18pt 18pt 0;
+  background: white;
+  background: -webkit-linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
+  background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
+  left: 194px;
+}
+.judge-controller .pt-page-1 .score > .presentation span {
+  font-size: 14pt;
+  line-height: 14pt;
+}
+.judge-controller .pt-page-1 .score > .total {
+  color: skyblue;
+  font-size: 32pt;
+  line-height: 32pt;
+  background: #020024;
+  background: linear-gradient(0deg, #020024 0%, #070755 50%, #004390 100%);
+  position: absolute;
+  top: 132px;
+  left: 134px;
+  width: 120px;
+  border-radius: 12pt;
+  border: 3px solid #020024;
+  text-align: center;
+}
+.judge-controller .pt-page-1 .score > .total .total-label {
+  font-size: 14pt;
+  line-height: 14pt;
+  color: #ccc;
+}
+.judge-controller .pt-page-1 .controls {
+  float: left;
+  width: 400px;
+  height: 280px;
+  margin: auto;
+}
+.judge-controller .pt-page-1 .controls > .control-label {
+  font-size: 24pt;
+  color: #ccc;
+  margin: 0 0 12px 72px;
+}
+.judge-controller .pt-page-1 .controls .send {
+  font-size: 18pt;
+  line-height: 28pt;
+  height: 48px;
+  width: 308px;
+  color: white;
+  border: 4px solid red;
+  border-radius: 12px;
+  background: red;
+  background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  margin: 28px 46px 12px 46px;
+  text-align: center;
+}
+.judge-controller .pt-page-1 .controls .send .ui-button-text {
+  padding-top: 3px;
+}
+.judge-controller .pt-page-2 {
+  position: absolute;
+}
+.judge-controller .pt-page-2 .return-to-score {
+  position: absolute;
+  font-size: 18pt;
+  line-height: 128pt;
+  height: 188px;
+  width: 188px;
+  color: white;
+  border: 4px solid #93d;
+  border-radius: 12px;
+  background: #9560c9;
+  background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
+  text-align: center;
+  top: 400px;
+  left: 600px;
+}
+.judge-controller .pt-page-2 .navigate {
+  position: absolute;
+  line-height: 38pt;
+  height: 40px;
+  width: 188px;
+  text-align: center;
+  color: white;
+  left: 590px;
+}
+.judge-controller .pt-page-2 .next {
+  border-radius: 0 12px 12px 0;
+  left: 684px;
+  width: 94px;
+}
+.judge-controller .pt-page-2 .prev {
+  border-radius: 12px 0 0 12px;
+  left: 590px;
+  width: 94px;
+}
+.judge-controller .pt-page-2 .next .ui-button-text, .judge-controller .pt-page-2 .prev .ui-button-text {
+  padding-top: 1px;
+}
+.judge-controller .pt-page-2 .navigate-label {
+  position: absolute;
+  left: 604px;
+  width: 166px;
+  text-align: center;
+}
+.judge-controller .pt-page-2 .athlete {
+  top: 36px;
+  border: 4px solid blue;
+  border-color: blue;
+  background: #6db3f2;
+  background: -webkit-linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+  background: linear-gradient(to bottom, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%);
+}
+.judge-controller .pt-page-2 .athlete-label {
+  top: 0;
+}
+.judge-controller .pt-page-2 .form {
+  font-size: 18pt;
+  line-height: 18pt;
+  top: 112px;
+  border: 4px solid green;
+  background: #9dd53a;
+  background: -webkit-linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+  background: linear-gradient(to bottom, #9dd53a 0%, #a1d54f 50%, #80c217 51%, #7cbc0a 100%);
+}
+.judge-controller .pt-page-2 .form sup {
+  font-size: 10pt;
+}
+.judge-controller .pt-page-2 .form .ui-button-text {
+  padding-top: 3px;
+}
+.judge-controller .pt-page-2 .form-label {
+  top: 76px;
+}
+.judge-controller .pt-page-2 .round {
+  top: 188px;
+  border: 4px solid orange;
+  background: #ffb76b;
+  background: -webkit-linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+  background: linear-gradient(to bottom, #ffb76b 0%, #ffa73d 50%, #ff7c00 51%, #ff7f04 100%);
+}
+.judge-controller .pt-page-2 .round-label {
+  top: 152px;
+}
+.judge-controller .pt-page-2 .division {
+  top: 264px;
+  border: 4px solid red;
+  background: red;
+  background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+  background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
+}
+.judge-controller .pt-page-2 .division-label {
+  top: 228px;
+}
+.judge-controller .pt-page-2 .display-mode {
+  height: 56px;
+  font-size: 14pt;
+  border: 4px solid gold;
+  background: #fceabb;
+  background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+  color: black;
+  top: 324px;
+}
+.judge-controller .pt-page-2 .display-mode > .ui-button-text {
+  margin-top: 4px;
+}
+
+/*# sourceMappingURL=judgeController2.css.map */
