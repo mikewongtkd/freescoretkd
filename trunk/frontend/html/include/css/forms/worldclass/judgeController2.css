@@ -387,18 +387,11 @@ body {
   color: #ccf;
 }
 
-.pt-page {
-  width: 808px;
-  height: 608px;
-  border-radius: 24pt;
-  border: 4px solid white;
-}
-
 .judge-controller {
   font-family: Optima, Biolinum, Lato;
   width: 808px;
   height: 820px;
-  margin: 0 auto 0 auto;
+  margin: 8px auto 8px auto;
   position: relative;
 }
 .judge-controller .nav-button {
@@ -411,8 +404,17 @@ body {
   margin: 0 10px 0 10px;
   position: relative;
 }
-.judge-controller .pt-page-1 {
+.judge-controller .pt-page {
   position: absolute;
+  width: 808px;
+  height: 608px;
+  border-radius: 24pt;
+  border: 4px solid white;
+  top: 0;
+  left: 0;
+  background: black;
+  background: -webkit-linear-gradient(to bottom, #45484d 0%, #000000 100%);
+  background: linear-gradient(to top, #45484d 0%, #000000 100%);
 }
 .judge-controller .pt-page-1 .division-info {
   position: absolute;
@@ -421,7 +423,7 @@ body {
   border: 4px solid #333;
   border-radius: 12px;
   background: black;
-  top: 20px;
+  top: 28px;
   left: 10px;
   padding: 0 8px 0 8px;
   text-align: center;
@@ -456,20 +458,31 @@ body {
   color: yellow;
   text-decoration: underline;
 }
-.judge-controller .pt-page-1 .division-info {
+.judge-controller .pt-page-1 .btn-division-list, .judge-controller .pt-page-1 .btn-configure-display {
   position: absolute;
   font-size: 14pt;
   height: 32px;
   width: 188px;
+  border-radius: 12px;
+}
+.judge-controller .pt-page-1 .btn-division-list {
   color: white;
   border: 4px solid #93d;
-  border-radius: 12px;
   background: #9560c9;
   background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
   background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
   text-align: center;
-  top: 160px;
+  top: 168px;
   left: 10px;
+}
+.judge-controller .pt-page-1 .btn-configure-display {
+  color: black;
+  border: 4px solid #8fe;
+  background: #82ffee;
+  background: linear-gradient(to bottom, #82ffee 0%, #29ffe2 50%, #00cfb3 51%, #29ffe2 100%);
+  text-align: center;
+  top: 168px;
+  right: 10px;
 }
 .judge-controller .pt-page-1 > .view, .judge-controller .pt-page-1 > .controller {
   width: 800px;
@@ -489,7 +502,7 @@ body {
   width: 388px;
   height: 216px;
   border-radius: 24pt;
-  top: 0;
+  top: 8px;
   left: 208px;
 }
 .judge-controller .pt-page-1 .score > .athlete {
@@ -551,35 +564,37 @@ body {
 }
 .judge-controller .pt-page-1 .score > .total {
   color: skyblue;
-  font-size: 32pt;
-  line-height: 32pt;
+  font-size: 56pt;
+  line-height: 60pt;
   background: #020024;
   background: linear-gradient(0deg, #020024 0%, #070755 50%, #004390 100%);
   position: absolute;
-  top: 132px;
-  left: 134px;
-  width: 120px;
+  top: 14px;
+  left: 400px;
+  width: 180px;
   border-radius: 12pt;
-  border: 3px solid #020024;
+  border: 4px solid #040048;
   text-align: center;
+  padding: 12px 0 12px 0;
 }
 .judge-controller .pt-page-1 .score > .total .total-label {
   font-size: 14pt;
   line-height: 14pt;
   color: #ccc;
 }
-.judge-controller .pt-page-1 .controls {
-  float: left;
-  width: 400px;
-  height: 280px;
-  margin: auto;
-}
-.judge-controller .pt-page-1 .controls > .control-label {
+.judge-controller .pt-page-1 .control-label {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 24pt;
   color: #ccc;
-  margin: 0 0 12px 72px;
 }
-.judge-controller .pt-page-1 .controls .send {
+.judge-controller .pt-page-1 .btn-send {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 18pt;
   line-height: 28pt;
   height: 48px;
@@ -590,11 +605,7 @@ body {
   background: red;
   background: -webkit-linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
   background: linear-gradient(to bottom, #f85032 0%, #f16f5c 50%, #f6290c 51%, #f02f17 71%, #e73827 100%);
-  margin: 28px 46px 12px 46px;
   text-align: center;
-}
-.judge-controller .pt-page-1 .controls .send .ui-button-text {
-  padding-top: 3px;
 }
 .judge-controller .pt-page-2 {
   position: absolute;
@@ -704,6 +715,10 @@ body {
 }
 .judge-controller .pt-page-2 .display-mode > .ui-button-text {
   margin-top: 4px;
+}
+
+.display-config .row {
+  margin-top: 12px;
 }
 
 /*# sourceMappingURL=judgeController2.css.map */

@@ -11,7 +11,6 @@ FreeScore.Widget.DivInfo = class FSWidgetDivInfo extends FreeScore.Widget {
 			<div class="round"></div>
 			<div class="form"></div>
 		</div>
-		<div class="btn-division-list">Division List</div>
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
@@ -19,13 +18,16 @@ FreeScore.Widget.DivInfo = class FSWidgetDivInfo extends FreeScore.Widget {
 		this.display.round       = this.dom.find( '.division-info .round' );
 		this.display.form        = this.dom.find( '.division-info .form' );
 		this.display.all         = this.dom.find( '.division-info' );
-		this.button.divisionList = this.dom.find( '.btn-division-list' );
 
-		this.display.reset       = division => { this.refresh.display( division ); };
+		this.display.reset       = ( division = null ) => { this.refresh.display( division ); };
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.display = division => {
-			let forms = division.current.form.list().map(( form, i ) => i == division.current.formId ? `<span class="current">${form}</span>` : `<span>${form}</span>` ).join( ', ' );
+		this.refresh.display = ( division = null ) => {
+			if( division === null ) {
+				division = new Division( this.app.state.division );
+			}
+
+			let forms = division.current.form.list().map(( form, i ) => i == division.current.formId() ? `<span class="current">${form}</span>` : `<span>${form}</span>` ).join( ', ' );
 			this.display.description.html( division.description());
 			this.display.round.html( division.current.round.name() );
 			this.display.form.html( forms );

@@ -19,10 +19,15 @@ FreeScore.Widget.Score = class FSWidgetDivInfo extends FreeScore.Widget {
 		this.display.athlete      = this.dom.find( '.score .athlete' );
 		this.display.total        = this.dom.find( '.score .total' );
 		this.display.all          = this.dom.find( '.score' );
-		this.display.reset        = division => { this.refresh.display( division ); };
+		this.display.reset        = ( division = null ) => { this.refresh.display( division ); };
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.display = division => {
+		this.refresh.display = ( division = null ) => {
+			if( division === null ) {
+				if( this.app.state.division == null ) { return; } // I got nothing. Time to nope out!
+				division = new Division( this.app.state.division );
+			}
+
 			let athlete      = division.current.athlete();
 			let name         = athlete.display.name();
 			let major        = this.app.state.score.major;
@@ -30,14 +35,14 @@ FreeScore.Widget.Score = class FSWidgetDivInfo extends FreeScore.Widget {
 			let power        = this.app.state.score.power;
 			let rhythm       = this.app.state.score.rhythm;
 			let ki           = this.app.state.score.ki;
-			let accuracy     = (major + minor).toFixed( 1 );
+			let accuracy     = (4.0 - (major + minor)).toFixed( 1 );
 			let presentation = (power < 0.5 || rhythm < 0.5 || ki < 0.5) ? '&ndash;' : (power + rhythm + ki).toFixed( 1 );
 			let total        = isNaN( parseFloat( presentation )) ? '&ndash;' : (parseFloat( accuracy ) + parseFloat( presentation )).toFixed( 1 );
 
 			this.display.athlete.html( `<span class="athlete">${name}</span>` );
 			this.display.accuracy.html( `${accuracy}<br><span>Accuracy</span>` );
 			this.display.presentation.html( `${presentation}<br><span>Presentation</span>` );
-			this.display.total.html( `${total}<span class="total-label">Total</span>` );
+			this.display.total.html( `${total}<br><span class="total-label">Total</span>` );
 		}
 	}
 }

@@ -37,7 +37,22 @@ FreeScore.Widget.Presentation = class FSWidgetPresentation extends FreeScore.Wid
 		this.display.low   = () => { this.display.buttonGroup([ 'middle', 0.9, 0.8, 0.7, 0.6, 0.5 ]); };
 		this.display.reset = ( division = null ) => { this.display.mid(); };
 
-		if( this.display.buttons.find( 'label' ).length == 0 ) { this.display.mid(); }
+		this.refresh.all = () => {
+			let score = this.app.state.score?.[ this.field.code ];
+			if( defined( score )) {
+				if( score == 0 ) { this.display.mid(); return; }
+				if( score > 1.5 )  { this.display.high(); } else 
+				if( score >= 1.0 ) { this.display.mid();  } else 
+				if( score >= 0.5 ) { this.display.low();  }
+				setTimeout(() => { $( `label[for="${this.field.code}-${score}"]` ).click(); }, 50 );
+			} else {
+				this.display.mid(); 
+			}
+		};
+
+		if( this.display.buttons.find( 'label' ).length == 0 ) { 
+			this.refresh.all();
+		}
 	}
 
 	makeButton( name ) {
@@ -52,6 +67,8 @@ FreeScore.Widget.Presentation = class FSWidgetPresentation extends FreeScore.Wid
 			if( name == 'lower' )  { this.display.low();  return; }
 
 			this.app.state.score[ this.field.code ] = value;
+			this.app.state.save();
+			this.app.widget.score.refresh.display();
 		});
 		return button;
 	}
