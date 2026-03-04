@@ -58,12 +58,12 @@ class Form {
 		return {
 			score : {
 				accuracy : function() {
-					let deductions = parseFloat( judgeScore.major ) + parseFloat( judgeScore.minor );
+					let deductions = [ 'major', 'minor' ].map( acc => parseFloat( judgeScore?.[ acc ])).map( value => isNaN( value ) ? 0.0 : value ).reduce(( acc, cur ) => acc + cur );
 					let accuracy   = deductions > 4.0 ? 0.0 : 4.0 - deductions;
 					return parseFloat( accuracy ).toFixed( 1 );
 				},
 				presentation : function() {
-					let presentation = parseFloat( judgeScore.power ) + parseFloat( judgeScore.rhythm ) + parseFloat( judgeScore.ki );
+					let presentation = [ 'power', 'rhythm', 'ki' ].map( pre => parseFloat( judgeScore?.[ pre ])).map( value => isNaN( value ) ? 0.0 : value ).reduce(( acc, cur ) => acc + cur );
 					return parseFloat( presentation ).toFixed( 1 );
 				},
 				data : function() { return judgeScore; },

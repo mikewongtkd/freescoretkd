@@ -283,7 +283,7 @@ body {
   padding: 4px 2px 2px 2px;
 }
 
-.judgeNotes {
+.pt-page-2 .judge-notes {
   border: 4px solid #999;
   border-radius: 24px;
   background: black;
@@ -293,15 +293,9 @@ body {
   font-size: 18pt;
   width: 580px;
   height: 588px;
-  overflow: hidden;
   margin: 6px 6px 18px 6px;
 }
-.judgeNotes .view {
-  width: 580px;
-  height: 588px;
-  overflow-y: auto;
-}
-.judgeNotes .view table {
+.pt-page-2 .judge-notes table {
   border: 0;
   border-spacing: 0;
   border-collapse: collapse;
@@ -309,82 +303,91 @@ body {
   font-size: 18pt;
   width: 100%;
 }
-.judgeNotes .view table th {
+.pt-page-2 .judge-notes table tbody {
+  overflow-y: auto;
+}
+.pt-page-2 .judge-notes table th {
   color: #999;
   font-size: 12pt;
   text-align: left;
   padding: 0 8px 8px 8px;
 }
-.judgeNotes .view table td {
+.pt-page-2 .judge-notes table td {
   padding: 4px 8px 4px 8px;
   font-size: 18pt;
 }
-.judgeNotes .view table .order {
+.pt-page-2 .judge-notes table .order {
   width: 28px;
   color: #666;
 }
-.judgeNotes .view table .name {
+.pt-page-2 .judge-notes table .name {
   width: 278px;
 }
-.judgeNotes .view table .form0 {
+.pt-page-2 .judge-notes table .form0 {
   width: 200px;
   text-align: center;
 }
-.judgeNotes .view table .form0 .accuracy {
+.pt-page-2 .judge-notes table .form0 .accuracy {
   color: #f99;
 }
-.judgeNotes .view table .form0 .presentation {
+.pt-page-2 .judge-notes table .form0 .presentation {
   color: #99f;
 }
-.judgeNotes .view table .form1 {
+.pt-page-2 .judge-notes table .form1 {
   width: 86px;
   text-align: center;
 }
-.judgeNotes .view table .form1 .accuracy {
+.pt-page-2 .judge-notes table .form1 .accuracy {
   color: #f99;
 }
-.judgeNotes .view table .form1 .presentation {
+.pt-page-2 .judge-notes table .form1 .presentation {
   color: #99f;
 }
-.judgeNotes .view table .form2 {
+.pt-page-2 .judge-notes table .form2 {
   width: 86px;
   text-align: center;
 }
-.judgeNotes .view table .form2 .accuracy {
+.pt-page-2 .judge-notes table .form2 .accuracy {
   color: #f99;
 }
-.judgeNotes .view table .form2 .presentation {
+.pt-page-2 .judge-notes table .form2 .presentation {
   color: #99f;
 }
-.judgeNotes .view table .average {
+.pt-page-2 .judge-notes table .average {
   width: 86px;
   text-align: center;
 }
-.judgeNotes .view table .current {
+.pt-page-2 .judge-notes table .current {
   background: #606c88;
   background: -webkit-linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
   background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
   color: white;
 }
-.judgeNotes .view table .current .accuracy {
+.pt-page-2 .judge-notes table .current .accuracy {
   color: #fcc;
 }
-.judgeNotes .view table .current .presentation {
+.pt-page-2 .judge-notes table .current .presentation {
   color: #ccf;
 }
-.judgeNotes .view table .current-form {
+.pt-page-2 .judge-notes table .current .decision {
+  color: #f00;
+}
+.pt-page-2 .judge-notes table .current-form {
   background: #cedce7;
   background: -webkit-linear-gradient(top, #cedce7 0%, #596a72 100%);
   /* Chrome10+,Safari5.1+ */
   background: linear-gradient(to bottom, #cedce7 0%, #596a72 100%);
   /* W3C */
-  color: white;
+  color: black;
 }
-.judgeNotes .view table .current-form .accuracy {
+.pt-page-2 .judge-notes table .current-form .accuracy {
   color: #fcc;
 }
-.judgeNotes .view table .current-form .presentation {
+.pt-page-2 .judge-notes table .current-form .presentation {
   color: #ccf;
+}
+.pt-page-2 .judge-notes table .current-form .decision {
+  color: #f00;
 }
 
 .judge-controller {

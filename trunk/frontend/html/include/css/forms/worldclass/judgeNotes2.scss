@@ -1,66 +1,67 @@
-.judgeNotes {
-	border: 4px solid #999;
-	border-radius: 24px;
-	background: black;
-	background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
-	background: linear-gradient(to top, #45484d 0%,#000000 100%);
-	color: #999;
-	font-size: 18pt;
-	width: 580px;
-	height: 588px;
-	overflow: hidden;
-	margin: 6px 6px 18px 6px;
+.pt-page-2 {
+  .judge-notes {
+    border: 4px solid #999;
+    border-radius: 24px;
+    background: black;
+    background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
+    background: linear-gradient(to top, #45484d 0%,#000000 100%);
+    color: #999;
+    font-size: 18pt;
+    width: 580px;
+    height: 588px;
+    margin: 6px 6px 18px 6px;
 
-	.view {
-		width: 580px;
-		height: 588px;
-		overflow-y: auto;
+    table {
+      border: 0;
+      border-spacing: 0;
+      border-collapse: collapse;
+      color: #999;
+      font-size: 18pt;
+      width: 100%;
 
-		table {
-			border: 0;
-			border-spacing: 0;
-			border-collapse: collapse;
-			color: #999;
-			font-size: 18pt;
-			width: 100%;
+      tbody {
+        overflow-y: auto;
+      }
 
-			th {
-				color: #999;
-				font-size: 12pt;
-				text-align: left;
-				padding: 0 8px 8px 8px;
-			}
+      th {
+        color: #999;
+        font-size: 12pt;
+        text-align: left;
+        padding: 0 8px 8px 8px;
+      }
 
-			td {
-				padding: 4px 8px 4px 8px;
-				font-size: 18pt;
-			}
+      td {
+        padding: 4px 8px 4px 8px;
+        font-size: 18pt;
+      }
 
-			.order        { width: 28px; color: #666; }
-			.name         { width: 278px; }
-			.form0        { width: 200px; text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
-			.form1        { width: 86px;  text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
-			.form2        { width: 86px;  text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
-			.average      { width: 86px;  text-align: center; }
+      .order        { width: 28px; color: #666; }
+      .name         { width: 278px; }
+      .form0        { width: 200px; text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
+      .form1        { width: 86px;  text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
+      .form2        { width: 86px;  text-align: center; .accuracy { color: #f99; } .presentation { color: #99f; }}
+      .average      { width: 86px;  text-align: center; }
 
-			.current {
-				background: #606c88;
-				background: -webkit-linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
-				background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
-				color: white;
-				.accuracy     { color: #fcc; }
-				.presentation { color: #ccf; }
-			}
+      .current {
+        background: #606c88;
+        background: -webkit-linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
+        background: linear-gradient(to bottom, #606c88 0%,#3f4c6b 100%);
+        color: white;
+        .accuracy     { color: #fcc; }
+        .presentation { color: #ccf; }
+        .decision     { color: #f00; }
+      }
 
-			.current-form {
-				background: #cedce7;
-				background: -webkit-linear-gradient(top, #cedce7 0%,#596a72 100%); /* Chrome10+,Safari5.1+ */
-				background: linear-gradient(to bottom, #cedce7 0%,#596a72 100%); /* W3C */
-				color: white;
-				.accuracy     { color: #fcc; }
-				.presentation { color: #ccf; }
-			}
-		}
-	}
+      .current-form {
+        background: #cedce7;
+        background: -webkit-linear-gradient(top, #cedce7 0%,#596a72 100%); /* Chrome10+,Safari5.1+ */
+        background: linear-gradient(to bottom, #cedce7 0%,#596a72 100%); /* W3C */
+        color: black;
+        .accuracy     { color: #fcc; }
+        .presentation { color: #ccf; }
+        .decision     { color: #f00; }
+      }
+    }
+  }
 }
 

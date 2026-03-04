@@ -5,7 +5,7 @@ FreeScore.Widget.DivList = class FSWidgetDivList extends FreeScore.Widget {
 		// ===== ADD THE DOM
 		this.dom.append( `
 
-		<div class="div-list">
+		<div class="judge-notes">
 			<table>
 				<thead>
 					<th class="order">#</th>
@@ -21,33 +21,51 @@ FreeScore.Widget.DivList = class FSWidgetDivList extends FreeScore.Widget {
 		` );
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
-		this.display.name   = this.dom.find( '.division-list th.name' );
-		this.display.form1  = this.dom.find( '.division-list th.form1' );
-		this.display.form2  = this.dom.find( '.division-list th.form2' );
-		this.display.tbody  = this.dom.find( '.division-list tbody' );
-		this.display.all    = this.dom.find( '.division-list' );
+		this.display.name   = this.dom.find( '.judge-notes th.name' );
+		this.display.form1  = this.dom.find( '.judge-notes th.form1' );
+		this.display.form2  = this.dom.find( '.judge-notes th.form2' );
+		this.display.tbody  = this.dom.find( '.judge-notes tbody' );
+		this.display.all    = this.dom.find( '.judge-notes' );
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.list = division => {
+		this.refresh.list = ( division = null ) => {
+			if( ! defined( division )) {
+				if( ! defined( this.app.state.division )) { return; }
+				division = new Division( this.app.state.division );
+			}
+			let cform = division.current.formId();
 			let forms = division.current.form.list();
-			this.display.description.html( division.description());
-			this.display.round.html( division.current.round() );
 			this.display.form1.html( forms[ 0 ]);
+			if( cform == 0 ) { this.display.form1.addClass( 'current-form' ); } else { this.display.form1.removeClass( 'current-form' ); }
 			if( forms.length == 2 ) {
-				this.display.form2.html( forms[ 1 ]).show();
+				this.display.form2 = this.dom.find( '.judge-notes th.form2' );
+				if( cform == 1 ) { this.display.form2.addClass( 'current-form' ); } else { this.display.form2.removeClass( 'current-form' ); }
+				if( this.display.form2.length == 0 ) {
+					let form2 = this.display.form2 = $( `<th class="form2">${forms[ 1 ]}</th>` );
+					this.display.form1.after( form2 );
+				} else {
+					this.display.form2.html( forms[ 1 ]);
+				}
 			} else {
-				this.display.form2.hide()
+				this.display.form2 = this.dom.find( '.judge-notes th.form2' );
+				if( this.display.form2.length > 0 ) {
+					this.display.form2.remove()
+				}
 			}
 			let tbody = this.display.tbody;
 			tbody.empty();
 			division.current.athletes().forEach(( athlete, i ) => {
-				let name  = athlete.display.name();
-				let score = athlete.score( division.current.roundId());
-				let jid   = this.app.state.jid;
-				let tr    = `<tr><td class="order">${i + 1}</td><td class="name">${name}</td>`;
-				let avg   = 0;
-				let count = 0;
-				score.forms.list().forEach(( form, j ) => {
+				let name    = athlete.display.name();
+				let score   = athlete.score( division.current.roundId());
+				let current = i == division.current.athleteId() ? ' current' : '';
+				let jid     = this.app.state.jid;
+				let tr      = $( '<tr />' );
+				let sum     = 0;
+				let count   = score.forms.count();
+				tr.append( `<td class="order ${current}">${i + 1}</td><td class="name ${current}">${name}</td>` );
+
+				for( let j = 0; j < count; j++ ) {
+					let form   = score.form( j );
 					let judge  = form.judge( jid );
 					let scored = judge.score.is.complete();
 					let dec    = form.decision.awarded();
@@ -55,16 +73,17 @@ FreeScore.Widget.DivList = class FSWidgetDivList extends FreeScore.Widget {
 					let pre    = judge.score.presentation();
 
 					if( dec ) {
-						tr.append( `<td class="form${j+1}"><span class="decision">${dec.code}</span></td>` );
+						tr.append( `<td class="form${j+1} ${current}"><span class="decision">${dec.code}</span></td>` );
 					} else if( scored ) {
-						tr.append( `<td class="form${j+1}"><span class="accuracy">${acc}</span>/<span class="presentation">${pre}</span></td>` );
-						avg += parseFloat( acc ) + parseFloat( pre );
-						count++;
+						tr.append( `<td class="form${j+1} ${current}"><span class="accuracy">${acc}</span>/<span class="presentation">${pre}</span></td>` );
+						sum += parseFloat( acc ) + parseFloat( pre );
 					} else {
-						tr.append( `<td class="form${j+1}"><span class="accuracy">&ndash;</span>/<span class="presentation">&ndash;</span></td>` );
+						tr.append( `<td class="form${j+1} ${current}"><span class="accuracy">&ndash;</span>/<span class="presentation">&ndash;</span></td>` );
 					}
-				});
-				tr.append( `<td class="average">${count > 0 ? (avg/count).toFixed( 2 ) : '&ndash;'}</td>` );
+				}
+				let mean = sum/count;
+				tr.append( `<td class="average ${current}">${sum > 0 ? mean.toFixed( 2 ) : '&ndash;'}</td>` );
+				tbody.append( tr );
 			});
 		}
 
