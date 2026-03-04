@@ -55,34 +55,49 @@ FreeScore.Widget.DivList = class FSWidgetDivList extends FreeScore.Widget {
 			let tbody = this.display.tbody;
 			tbody.empty();
 			division.current.athletes().forEach(( athlete, i ) => {
-				let name    = athlete.display.name();
-				let score   = athlete.score( division.current.roundId());
-				let current = i == division.current.athleteId() ? ' current' : '';
-				let jid     = this.app.state.jid;
-				let tr      = $( '<tr />' );
-				let sum     = 0;
-				let count   = score.forms.count();
+				let name     = athlete.display.name();
+				let score    = athlete.score( division.current.roundId());
+				let current  = i == division.current.athleteId() ? ' current' : '';
+				let jid      = this.app.state.jid;
+				let tr       = $( '<tr />' );
+				let sum      = 0;
+				let count    = 0;
 				tr.append( `<td class="order ${current}">${i + 1}</td><td class="name ${current}">${name}</td>` );
 
 				for( let j = 0; j < count; j++ ) {
-					let form   = score.form( j );
-					let judge  = form.judge( jid );
-					let scored = judge.score.is.complete();
-					let dec    = form.decision.awarded();
-					let acc    = judge.score.accuracy();
-					let pre    = judge.score.presentation();
+					let form     = score.form( j );
+					let judge    = form.judge( jid );
+					let complete = judge.score.is.complete();
+					let acc      = judge.score.accuracy();
+					let pre      = judge.score.presentation();
+					let decision = form.decision.awarded();
 
-					if( dec ) {
-						tr.append( `<td class="form${j+1} ${current}"><span class="decision">${dec.code}</span></td>` );
-					} else if( scored ) {
+					if( decision ) {
+						tr.append( `<td class="form${j+1} ${current}"><span class="decision">${decision.code}</span></td>` );
+
+					} else if( complete ) {
 						tr.append( `<td class="form${j+1} ${current}"><span class="accuracy">${acc}</span>/<span class="presentation">${pre}</span></td>` );
 						sum += parseFloat( acc ) + parseFloat( pre );
+						count++;
+
 					} else {
 						tr.append( `<td class="form${j+1} ${current}"><span class="accuracy">&ndash;</span>/<span class="presentation">&ndash;</span></td>` );
 					}
 				}
 				let mean = sum/count;
-				tr.append( `<td class="average ${current}">${sum > 0 ? mean.toFixed( 2 ) : '&ndash;'}</td>` );
+				let d    = score.decision.awarded();
+
+				if( defined( d )) {
+					let form     = score.form( d );
+					let decision = form.decision.awarded();
+					tr.append( `<td class="average ${current}">${decision.code}</td>` );
+
+				} else if( sum > 0 ) {
+					tr.append( `<td class="average ${current}">${mean.toFixed( 2 )}</td>` );
+
+				} else {
+					tr.append( `<td class="average ${current}">&ndash;</td>` );
+				}
 				tbody.append( tr );
 			});
 		}
