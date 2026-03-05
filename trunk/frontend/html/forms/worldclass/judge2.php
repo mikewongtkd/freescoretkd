@@ -189,6 +189,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
       app.button.config   = { display: $( '<div class="btn-configure-display">Settings</div>' ) };
       app.button.divList  = $( '<div class="btn-division-list">Division List</div>' );
       app.button.send     = $( '<div class="btn-send" role="button">Send</div>' );
+      app.button.scoring  = $( '<div class="btn-return-to-score" role="button">Return to Scoring</div>' );
       app.button.zoom     = $( '.display-config .btn.zoom' );
       app.button.pan      = $( '.display-config .btn.pan' );
       app.button.reload   = $( '.display-config .btn.reload' );
@@ -203,6 +204,59 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
 
       app.button.config.display.off( 'click' ).click( ev => {
         app.modal.display.config.show();
+      });
+
+      app.button.scoring.off( 'click' ).click( ev => {
+        app.page.show.scoring();
+      });
+
+      // ------------------------------------------------------------
+      app.button.send.off( 'click' ).click( ev => {
+      // ------------------------------------------------------------
+        let current   = app.state.current;
+        let reconnect = app.state.reconnect;
+        let score     = app.state.score;
+        let send      = () => {
+          alertify.notify( "Sending score" );
+          let request = { type : 'division', action : 'score', judge: current.judge, score };
+          app.network.send( request );
+
+          if( reconnect.interval !== null ) { clearInterval( reconnect.interval ); }
+          reconnect.interval = setInterval(() => { 
+            if( reconnect.attempt >= 3 ) {
+              alertify.error( `Failed to connect to server. Raise your hand and call for &quot;Referee&quot; to request help from a FreeScore technician.` );
+              reconnect.cancel();
+              return;
+            }
+            reconnect.attempt++; 
+
+            alertify.message( `Re-sending ${jname} scores (attempt ${reconnect.attempt} out of 3).` );
+            let request = { type: 'division', action: 'score', judge: current.judge, score };
+            app.on.reconnect().send( request );
+
+          }, app.state.reconnect.delay );
+        };
+
+        // ===== VALIDATE SCORE
+        // Check for incomplete score
+        const category = { power: 'Power and Speed', rhythm: 'Rhythm and Timing', ki: 'Expression of Energy' };
+        let incomplete = [ 'power', 'rhythm', 'ki' ].find( field => score[ field ] == 0 );
+        if( defined( incomplete )) {
+          alertify.error( `Please provide a presentation score for the <i>${category[ incomplete ]}</i> category.` );
+          return;
+        }
+
+        // Check for perfect accuracy
+        if( score.major == 0 && score.minor == 0 ) {
+          alertify.confirm( 
+            'Perfect Accuracy?', 
+            'The accuracy score is 4.0; is this intentional? Tap <b>OK</b> to accept a 4.0 accuracy, or <b>Cancel</b> to dismiss this dialog and change your score.',
+            () => { send(); },
+            () => {}
+          );
+        } else {
+          send();
+        }
       });
 
       app.button.pan.off( 'click' ).click( ev => {
@@ -253,14 +307,23 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
       });
 
       // ===== STATE
-      app.state.current = { ring: <?= $rnum ?>, judge: <?= $jid ?>, divid: null, round: null, form: null, page: 'score', score: null };
-      app.state.cookie  = 'judge-app';
+      app.state.current   = { ring: <?= $rnum ?>, judge: <?= $jid ?>, divid: null, round: null, form: null, page: 'scoring', score: null };
+      app.state.cookie    = 'judge-app';
+      app.state.reconnect = { interval: null, attempts: 0, delay: 6500 };
 
       app.state.score = { major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 };
 
+      app.state.reconnect.cancel = () => {
+        if( app.state.reconnect.interval !== null ) {
+          clearInterval( app.state.reconnect.interval );
+        }
+        app.state.reconnect.attempt  = 0; 
+        app.state.reconnect.interval = null; 
+      };
+
       app.state.reset = () => { 
         $.removeCookie( app.state.cookie ); 
-        app.state.current = { ring: <?= $rnum ?>, judge: <?= $jid ?>, divid: null, round: null, form: null, page: 'score', score: null }; 
+        app.state.current = { ring: <?= $rnum ?>, judge: <?= $jid ?>, divid: null, round: null, form: null, page: 'scoring', score: null }; 
         app.state.score   = { major: 0, minor: 0, power: 0, rhythm: 0, ki: 0 };
       };
 
@@ -282,11 +345,11 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
         count: 2,
         num: 1,
         for : {
-          score: 1,
+          scoring: 1,
           division: 2
         },
         show : {
-          score:        () => { app.page.transition( 'score' ); },
+          scoring:      () => { app.page.transition( 'scoring' ); },
           division:     () => { app.page.transition( 'division' ); }
         },
         transition: target => { 
@@ -332,6 +395,9 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
       // Send button
       app.widget.ki.display.all.after( app.button.send );
 
+      // Return to Scoring button
+      app.widget.remote.display.all.after( app.button.scoring );
+
       app.forwardIf = {
         sbs: division => {
           let method = division.current.method();
@@ -370,6 +436,15 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
 
               app.widget.score.display.reset( division );
 
+              if( update.request.action == 'score' ) {
+                let current = app.state.current;
+                let aname   = division.current.athlete().display.name();
+                let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
+                if( update.request.judge != current.judge ) { return; }
+                app.state.reconnect.cancel(); // Cancel queued contingent reconnect/resend actions
+                alertify.success( `Server received ${jname} score for ${aname}.` ); 
+              }
+
               let current   = app.state.current;
               let different = {
                 ring:    current.ring    != <?= $rnum ?>,
@@ -383,7 +458,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
               if( different.ring || different.judge || different.divid || different.round || different.athlete || different.form ) {
                 app.state.reset();
                 app.display.reset( division );
-                app.page.show.score();
+                app.page.show.scoring();
                 app.state.division = division.data();
 
                 let current = app.state.current;
@@ -402,8 +477,8 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
               } else {
                 if( current.page in app.page.show ) { app.page.show[ current.page ](); }
                 else {
-                  alertify.error( `${current.page} is not a valid page; defaulting to 'score'` );
-                  app.page.show.score();
+                  alertify.error( `${current.page} is not a valid page; defaulting to 'scoring'` );
+                  app.page.show.scoring();
                 }
               }
             });

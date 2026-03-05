@@ -18,7 +18,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 
 		// ===== ADD STATE
 		this.state.division  = { show : null };
-		this.state.reconnect = { attempt: 0, interval: null };
+		this.state.reconnect = { attempt: 0, interval: null, delay: 6500 };
 		this.state.reconnect.cancel = () => { 
 			if( this.state.reconnect.interval !== null ) {
 				clearInterval( this.state.reconnect.interval );
@@ -224,9 +224,7 @@ FreeScore.Widget.SBSJudgePresentation = class FSWidgetSBSJudgePresentation exten
 					if( match.chung !== null ) { request.score.chung = current.score.chung; }
 					if( match.hong  !== null ) { request.score.hong  = current.score.hong; }
 					this.app.on.reconnect().send( request );
-
-
-				}, 6500 );
+				}, this.state.reconnect.delay );
 			});
 		};
 		this.refresh.score = () => {
