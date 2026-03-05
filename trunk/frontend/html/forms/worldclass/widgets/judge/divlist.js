@@ -64,7 +64,7 @@ FreeScore.Widget.DivList = class FSWidgetDivList extends FreeScore.Widget {
 				let count    = 0;
 				tr.append( `<td class="order ${current}">${i + 1}</td><td class="name ${current}">${name}</td>` );
 
-				for( let j = 0; j < count; j++ ) {
+				for( let j = 0; j < division.current.form.list().length; j++ ) {
 					let form     = score.form( j );
 					let judge    = form.judge( jid );
 					let complete = judge.score.is.complete();

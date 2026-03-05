@@ -610,8 +610,8 @@ body {
   position: absolute;
   font-size: 18pt;
   line-height: 18pt;
-  height: 144px;
-  width: 184px;
+  height: 108px;
+  width: 186px;
   color: white;
   border: 4px solid #93d;
   border-radius: 12px;
@@ -619,10 +619,9 @@ body {
   background: -webkit-linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
   background: linear-gradient(to bottom, #9560c9 0%, #8746bf 50%, #5d00a5 51%, #9736d8 100%);
   text-align: center;
-  top: 400px;
-  left: 604px;
-  padding-top: 40px;
-  margin-top: 24px;
+  bottom: 18px;
+  right: 13px;
+  padding-top: 24px;
 }
 .judge-controller .pt-page-2 .navigate {
   position: absolute;
@@ -630,18 +629,21 @@ body {
   width: 188px;
   text-align: center;
   color: white;
-  right: 8px;
+  right: 13px;
 }
 .judge-controller .pt-page-2 .navigate .btn-navigate {
   position: relative;
   font-size: 24pt;
   height: 48px;
   text-align: center;
-  line-height: 48px;
+  line-height: 24pt;
+  padding-top: 6px;
+}
+.judge-controller .pt-page-2 .navigate .btn-navigate.disabled {
+  opacity: 0.5;
 }
 .judge-controller .pt-page-2 .navigate .btn-navigate.next, .judge-controller .pt-page-2 .navigate .btn-navigate.prev {
   display: inline-block;
-  padding-top: 1px;
   width: 92px;
 }
 .judge-controller .pt-page-2 .navigate .btn-navigate.next sup, .judge-controller .pt-page-2 .navigate .btn-navigate.prev sup {
@@ -659,7 +661,7 @@ body {
   height: 32px;
   width: 188px;
   text-align: center;
-  padding-top: 8px;
+  margin-top: 8px;
 }
 .judge-controller .pt-page-2 .navigate .athlete {
   border: 4px solid blue;
@@ -688,14 +690,15 @@ body {
 }
 .judge-controller .pt-page-2 .navigate .display-mode {
   height: 56px;
-  font-size: 14pt;
+  font-size: 18pt;
+  line-height: 18pt;
   border: 4px solid gold;
   border-radius: 12px;
   background: #fceabb;
   background: -webkit-linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
   background: linear-gradient(to bottom, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
   color: black;
-  margin-top: 24px;
+  padding-top: 12px;
 }
 
 .display-config .row {

@@ -200,6 +200,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
 
       app.button.divList.off( 'click' ).click( ev => {
         app.page.show.division();
+        app.sound.next.play();
       });
 
       app.button.config.display.off( 'click' ).click( ev => {
@@ -208,6 +209,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
 
       app.button.scoring.off( 'click' ).click( ev => {
         app.page.show.scoring();
+        app.sound.prev.play();
       });
 
       // ------------------------------------------------------------
@@ -356,6 +358,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
           let pnum = app.page.for?.[ target ] ? app.page.for[ target ] : app.page.for.accuracy;
           app.page.num = pnum;
           app.state.current.page = target;
+          app.state.save();
           $( '.pt-page' ).hide();
           $( `.pt-page-${pnum}` ).show();
         }
@@ -442,6 +445,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
                 let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
                 if( update.request.judge != current.judge ) { return; }
                 app.state.reconnect.cancel(); // Cancel queued contingent reconnect/resend actions
+                app.sound.ok.play();
                 alertify.success( `Server received ${jname} score for ${aname}.` ); 
               }
 
@@ -458,7 +462,6 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
               if( different.ring || different.judge || different.divid || different.round || different.athlete || different.form ) {
                 app.state.reset();
                 app.display.reset( division );
-                app.page.show.scoring();
                 app.state.division = division.data();
 
                 let current = app.state.current;
@@ -468,7 +471,11 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
                 current.divid   = division.name();
                 current.round   = division.current.roundId();
                 current.form    = division.current.formId();
+                if( update.request.action.match( /(?:prev|next)$/ ) && update.request.judge == app.state.current.judge ) {
+                  current.page = 'division';
+                }
                 app.state.save();
+                if( current.page in app.page.show ) { app.page.show[ current.page ](); }
 
                 let jname = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
                 let aname = division.current.athlete().display.name();

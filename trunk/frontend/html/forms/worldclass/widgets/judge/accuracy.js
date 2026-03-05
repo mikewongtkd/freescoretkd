@@ -24,7 +24,8 @@ FreeScore.Widget.Accuracy = class FSWidgetAccuracy extends FreeScore.Widget {
 		this.button.removeDeduction = this.dom.find( `.${this.code}.btn-deduction-remove` );
 
 		// ===== ADD REFRESH BEHAVIOR
-		this.refresh.display = ( division = null ) => {
+		this.refresh.display = this.display.reset = ( division = null ) => {
+			let deduction = this.app.state.score[ this.code ];
 			this.display.count.html( deduction );
 		}
 
