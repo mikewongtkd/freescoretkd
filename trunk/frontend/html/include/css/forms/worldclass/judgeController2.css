@@ -480,52 +480,45 @@ body {
   top: 168px;
   right: 10px;
 }
-.judge-controller .pt-page-1 > .view, .judge-controller .pt-page-1 > .controller {
-  width: 800px;
-  top: 8px;
-}
-.judge-controller .pt-page-1 > .view {
-  height: 232px;
-}
-.judge-controller .pt-page-1 > .controller {
-  height: 360px;
-}
-.judge-controller .pt-page-1 .control-group {
-  position: relative;
-}
 .judge-controller .pt-page-1 .score {
   position: absolute;
   width: 388px;
   height: 216px;
-  border-radius: 24pt;
+  border-radius: 24px;
   top: 8px;
   left: 208px;
 }
-.judge-controller .pt-page-1 .score > .athlete {
+.judge-controller .pt-page-1 .score .judge, .judge-controller .pt-page-1 .score .athlete {
   position: absolute;
-  top: 8px;
-  height: 32px;
-  border-radius: 24pt;
+  border-radius: 24px;
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
   background: linear-gradient(to top, #45484d 0%, #000000 100%);
-  line-height: 24pt;
-  text-align: center;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  width: 340px;
-  left: 22px;
-}
-.judge-controller .pt-page-1 .score > .athlete .details {
-  color: #ccc;
-  font-size: 14pt;
-}
-.judge-controller .pt-page-1 .score > .athlete .athlete {
   color: #ddd;
   font-size: 18pt;
+  text-align: center;
+  padding: 0;
+  margin: 0;
 }
-.judge-controller .pt-page-1 .score > .accuracy, .judge-controller .pt-page-1 .score > .presentation {
+.judge-controller .pt-page-1 .score .judge {
+  top: 184px;
+  left: 112px;
+  height: 40px;
+  width: 160px;
+  line-height: 24pt;
+  border: 3px solid #333;
+}
+.judge-controller .pt-page-1 .score .athlete {
+  top: 8px;
+  left: 22px;
+  height: 32px;
+  width: 340px;
+  line-height: 24pt;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.judge-controller .pt-page-1 .score .accuracy, .judge-controller .pt-page-1 .score .presentation {
   position: absolute;
   width: 194px;
   height: 168px;
@@ -535,7 +528,7 @@ body {
   text-align: center;
   top: 0;
 }
-.judge-controller .pt-page-1 .score > .accuracy {
+.judge-controller .pt-page-1 .score .accuracy {
   border-radius: 18pt 0 0 18pt;
   background: black;
   background: -webkit-linear-gradient(to bottom, #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%);
@@ -543,22 +536,22 @@ body {
   color: white;
   left: 0;
 }
-.judge-controller .pt-page-1 .score > .accuracy span {
+.judge-controller .pt-page-1 .score .accuracy span {
   font-size: 14pt;
   line-height: 14pt;
 }
-.judge-controller .pt-page-1 .score > .presentation {
+.judge-controller .pt-page-1 .score .presentation {
   border-radius: 0 18pt 18pt 0;
   background: white;
   background: -webkit-linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
   background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
   left: 194px;
 }
-.judge-controller .pt-page-1 .score > .presentation span {
+.judge-controller .pt-page-1 .score .presentation span {
   font-size: 14pt;
   line-height: 14pt;
 }
-.judge-controller .pt-page-1 .score > .total {
+.judge-controller .pt-page-1 .score .total {
   color: skyblue;
   font-size: 56pt;
   line-height: 60pt;
@@ -573,7 +566,7 @@ body {
   text-align: center;
   padding: 12px 0 12px 0;
 }
-.judge-controller .pt-page-1 .score > .total .total-label {
+.judge-controller .pt-page-1 .score .total .total-label {
   font-size: 14pt;
   line-height: 14pt;
   color: #ccc;

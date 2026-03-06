@@ -103,46 +103,48 @@ body {
 			right: 10px;
 		}
 
-		& > .view, & > .controller { width: 800px; top: 8px; }
-		& > .view                  { height: 232px; }
-		& > .controller            { height: 360px; }
-		.control-group             { position: relative; }
-
 		.score {
 			position: absolute;
 			width: 388px;
 			height: 216px;
-			border-radius: 24pt;
+			border-radius: 24px;
 			top: 8px;
 			left: 208px;
 
-			& > .athlete {
-				position: absolute;
-				top: 8px;
-				height: 32px;
-				border-radius: 24pt;
+      .judge, .athlete {
+        position: absolute;
+				border-radius: 24px;
 				background: black;
 				background: -webkit-linear-gradient(to top, #45484d 0%,#000000 100%);
 				background: linear-gradient(to top, #45484d 0%,#000000 100%);
-				line-height: 24pt;
+        color: #ddd;
+        font-size: 18pt;
 				text-align: center;
-				list-style-type: none;
 				padding: 0;
 				margin: 0;
-				width: 340px;
+      }
+
+      .judge {
+        top: 184px;
+				left: 112px;
+				height: 40px;
+				width: 160px;
+				line-height: 24pt;
+        border: 3px solid #333;
+      }
+
+			.athlete {
+				top: 8px;
 				left: 22px;
-				.details {
-					color: #ccc;
-					font-size: 14pt;
-				}
-				.athlete {
-					color: #ddd;
-					font-size: 18pt;
-				}
+				height: 32px;
+				width: 340px;
+				line-height: 24pt;
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
 			}
 
-
-			& > .accuracy, & > .presentation {
+			.accuracy, .presentation {
 				position: absolute;
 				width: 194px;
 				height: 168px;
@@ -153,7 +155,7 @@ body {
 				top: 0;
 			}
 
-			& > .accuracy {
+			.accuracy {
 				border-radius: 18pt 0 0 18pt;
 				background: black;
 				background: -webkit-linear-gradient(to bottom, #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%);
@@ -163,7 +165,7 @@ body {
 				left: 0;
 			}
 
-			& > .presentation {
+			.presentation {
 				border-radius: 0 18pt 18pt 0;
 				background: white;
 				background: -webkit-linear-gradient(to bottom, #ffffff 0%,#f1f1f1 50%,#e1e1e1 51%,#f6f6f6 100%);
@@ -172,7 +174,7 @@ body {
 				left: 194px;
 			}
 
-			& > .total {
+			.total {
 				color: skyblue;
 				font-size: 56pt; 
 				line-height: 60pt;
