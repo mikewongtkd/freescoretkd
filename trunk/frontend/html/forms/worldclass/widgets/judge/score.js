@@ -6,7 +6,7 @@ FreeScore.Widget.Score = class FSWidgetDivInfo extends FreeScore.Widget {
 		this.dom.append( `
 
 		<div class="score">
-			<div class="judge"></div>
+			<div class="judge"><div class="ring"></div><div class="role"></div></div>
 			<div class="accuracy"></div>
 			<div class="presentation"></div>
 			<div class="athlete"></div>
@@ -16,7 +16,8 @@ FreeScore.Widget.Score = class FSWidgetDivInfo extends FreeScore.Widget {
 
 		// ===== PROVIDE ACCESS TO WIDGET DISPLAYS/INPUTS
 		this.display.athlete      = this.dom.find( '.score .athlete' );
-		this.display.judge        = this.dom.find( '.score .judge' );
+		this.display.judge        = this.dom.find( '.score .judge .role' );
+		this.display.ring         = this.dom.find( '.score .judge .ring' );
 		this.display.accuracy     = this.dom.find( '.score .accuracy' );
 		this.display.presentation = this.dom.find( '.score .presentation' );
 		this.display.total        = this.dom.find( '.score .total' );
@@ -41,9 +42,11 @@ FreeScore.Widget.Score = class FSWidgetDivInfo extends FreeScore.Widget {
 			let presentation = (power < 0.5 || rhythm < 0.5 || ki < 0.5) ? '&ndash;' : (power + rhythm + ki).toFixed( 1 );
 			let total        = isNaN( parseFloat( presentation )) ? '&ndash;' : (parseFloat( accuracy ) + parseFloat( presentation )).toFixed( 1 );
 			let judge        = app.state.current.judge == 0 ? 'Referee' : `Judge ${app.state.current.judge}`;
+			let ring         = `Ring ${app.state.current.ring}`;
 
 			this.display.athlete.html( name );
 			this.display.judge.html( judge );
+			this.display.ring.html( ring );
 			this.display.accuracy.html( `${accuracy}<br><span>Accuracy</span>` );
 			this.display.presentation.html( `${presentation}<br><span>Presentation</span>` );
 			this.display.total.html( `${total}<br><span class="total-label">Total</span>` );

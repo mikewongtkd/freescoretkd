@@ -488,8 +488,10 @@ body {
   top: 8px;
   left: 208px;
 }
-.judge-controller .pt-page-1 .score .judge, .judge-controller .pt-page-1 .score .athlete {
+.judge-controller .pt-page-1 .score .athlete {
   position: absolute;
+}
+.judge-controller .pt-page-1 .score .judge .role, .judge-controller .pt-page-1 .score .athlete {
   border-radius: 24px;
   background: black;
   background: -webkit-linear-gradient(to top, #45484d 0%, #000000 100%);
@@ -501,8 +503,16 @@ body {
   margin: 0;
 }
 .judge-controller .pt-page-1 .score .judge {
-  top: 184px;
+  position: absolute;
+  top: 176px;
   left: 112px;
+}
+.judge-controller .pt-page-1 .score .judge .ring {
+  color: #999;
+  font-size: 10pt;
+  text-align: center;
+}
+.judge-controller .pt-page-1 .score .judge .role {
   height: 40px;
   width: 160px;
   line-height: 24pt;
@@ -573,7 +583,7 @@ body {
 }
 .judge-controller .pt-page-1 .control-label {
   position: absolute;
-  top: 40%;
+  top: 254px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 24pt;
