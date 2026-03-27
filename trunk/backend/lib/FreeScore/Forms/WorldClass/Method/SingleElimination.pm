@@ -63,9 +63,9 @@ sub assign {
 	my $judges     = $div->{ judges };
 
 	my $athlete = defined $i ? $div->{ athletes }[ $i ] : { name => 'BYE' };
-	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $div->{ forms }{ $round };
+	die "Division Configuration Error ($div->{ name }): While assigning '$athlete->{ name }' to '$round', no forms designated for round $!" unless exists $div->{ forms }{ $round };
 	my $forms   = int(@{ $div->{ forms }{ $round }});
-	die "Division Configuration Error: While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
+	die "Division Configuration Error ($div->{ name }): While assigning '$athlete->{ name }' to '$round', no compulsory forms designated for round $!" unless $forms > 0;
 
 	if( defined $i ) {
 		# Do nothing if athlete is already assigned to the round
