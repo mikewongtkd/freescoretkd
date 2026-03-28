@@ -33,6 +33,17 @@ table .<?= $usatid ?> { width: 35%; padding: 4px; }
 table .cell4 { font-size: 9pt; width: 25%;   }
 table .cell3 { font-size: 9pt; width: 33.3%; }
 table .cell2 { font-size: 9pt; width: 50%;   }
+td.th {
+	padding-bottom: 2em;
+	text-align: right;
+}
+
+td.th b {
+	font-size: 11pt;
+}
+h2, h3 {
+	font-size: 22pt;
+}
 .matchnum {
 	font-size: 6pt; 
 	position: absolute; 
@@ -45,6 +56,13 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 	border-radius: 8px; 
 }
 .forms { font-size: 7pt; }
+.seed { font-size: 7pt; }
+@page {
+  counter-increment: page;
+  @bottom-right {
+    content: counter( page );
+  }
+}
 		</style>
 	</head>
 	<body>
@@ -68,8 +86,18 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 					athlete: ( division, aid, table, col, row ) => {
 						let id = `#${division.name()}-${col}-${row}`;
 						if( defined( aid )) {
-							let athlete = division.athlete( aid );
-							table.find( id ).html( athlete.name() );
+							let athlete  = division.athlete( aid );
+							let seed     = Math.floor( athlete.info( 'seed' ));
+							let form     = athlete.score( division.current.roundId()).decision.awarded();
+							let decision = form?.decision?.awarded();
+
+							seed = seed == 0 ? '' : ` <span class="seed">(${seed})</span>`;
+
+							if( decision ) {
+								table.find( id ).html( `<s>${athlete.name()}</s>${seed} (${decision.code})` );
+							} else {
+								table.find( id ).html( `${athlete.name()}${seed}` );
+							}
 
 						} else {
 							table.find( id ).html( '<i>BYE</i>' );
@@ -142,6 +170,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 						let tables  = [];
 						let n       = division.athletes.length;
 						let rounds  = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
+						let letter  = division.description.match( /group/i ) ? division.name.at( -1 ).toUpperCase() : '';
 						
 						// ============================================================
 						// SINGLE ELIMINATION BRACKET TREE
@@ -161,12 +190,14 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 							for( let i = 0; i < cols; i++ ) {
 								if( i < cols - 1 ) {
 									let round = rounds[ i ];
+									let forms = division.forms[ round.code ].length;
 									let id    = `${division.name}-${round.code}`;
-									let th    = $( `<th class="cell${cols}" id="${id}" style="padding-bottom: 2em;">${round.name}</th>` );
+									let th    = $( `<td class="cell${cols} th" id="${id}"><b>${round.name}</b><br>${forms} form${forms == 1 ? '' : 's'}</td>` );
 									tr.append( th );
 								} else {
-									let id = `${division.name}-1st-place`;
-									let th = $( `<th class="cell${cols}" id="${id}" style="padding-bottom: 2em;">First Place</th>` );
+									let place = letter ? `Winner of Group ${letter}` : 'First Place';
+									let id    = `${division.name}-1st-place`;
+									let th    = $( `<td class="cell${cols} th" id="${id}"><b>${place}</b><br></td>` );
 									tr.append( th );
 								}
 							}
@@ -214,7 +245,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 								let prev     = j === null ? null : athletes[ j ];
 								let next     = k === null ? null : athletes[ k ];
 								let num      = `${i + 1}.`;
-								let name     = athlete.name;
+								let name     = athlete.info.fullnames ? athlete.info.fullnames : athlete.name;
 								let <?= $usatid ?>   = athlete?.info?.<?= $usatid ?> ? athlete.info.<?= $usatid ?> : '';
 								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="<?= $usatid ?>">${<?= $usatid ?>}</td></tr>` );
 							});
