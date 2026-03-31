@@ -3,7 +3,7 @@
 	include( __DIR__ . '/../../../include/php/config.php' ); 
 
 	$divid   = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
-	$ring    = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
+	$ring    = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : null;
 	$usatid  = isset( $_GET[ 'pacwest' ]) ? 'school' : 'usatid';
 	$USATID  = isset( $_GET[ 'pacwest' ]) ? 'University' : 'USAT ID';
 	$USATIDS = isset( $_GET[ 'pacwest' ]) ? 'University' : 'USAT IDs';
@@ -34,7 +34,7 @@ table .cell4 { font-size: 9pt; width: 25%;   }
 table .cell3 { font-size: 9pt; width: 33.3%; }
 table .cell2 { font-size: 9pt; width: 50%;   }
 td.th {
-	padding-bottom: 2em;
+	padding-bottom: 1.8em;
 	text-align: right;
 }
 
@@ -57,6 +57,19 @@ h2, h3 {
 }
 .forms { font-size: 7pt; }
 .seed { font-size: 7pt; }
+.ring { 
+	width: 50%; 
+	display: inline-block;
+	text-align: left;
+	vertical-align: top;
+}
+.staging {
+	width: 50%;
+	display: inline-block;
+	text-align: right;
+	vertical-align: top;
+}
+
 @page {
   counter-increment: page;
   @bottom-right {
@@ -165,8 +178,8 @@ h2, h3 {
 				results : {
 					table : division => {
 						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
-						if( <?= $ring  == 'staging' ? 'false' : "division.ring != {$ring}" ?> ) { return; }
-						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
+						if( <?= $ring  == 'staging' || $ring === null ? 'false' : "division.ring != {$ring}" ?> ) { return; }
+						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>\n<div><div class="ring"><h4>Ring ${division.ring}</h4></div><div class="staging">Report Time: ${division.calltime}<br>Scheduled Start Time: ${division.starttime}</div></div>`;
 						let tables  = [];
 						let n       = division.athletes.length;
 						let rounds  = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
@@ -226,7 +239,7 @@ h2, h3 {
 						rounds.forEach( round => {
 							if( ! division.order?.[ round.code ]) { return; }
 
-							let header = $( '<h4 style="margin-top: 2em;">Participation/Call List</h4>' );
+							let header = $( '<h4>Participation/Call List</h4>' );
 							let table = $( '<table width="100%" />' );
 							let thead = $( '<thead />' );
 							let tbody = $( '<tbody />' );
