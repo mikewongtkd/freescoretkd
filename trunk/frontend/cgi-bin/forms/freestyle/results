@@ -45,7 +45,7 @@ print $cgi->header();
 print <<EOF;
 <html>
 	<head>
-		<title>Freestyle Forms Results</title>
+		<title>Freestyle Results</title>
 		<style type="text/css">
 			body {
 				font-family: Optima;
@@ -92,9 +92,10 @@ print <<EOF;
 	</head>
 	<body>
 		<h1>$tournament->{ name }</h1>
-		<h2>Freestyle Forms Results</h2>
 EOF
 foreach my $division (@divisions) {
+	my $divsum = sprintf( "%s - %s", uc( $division->{ name }), $division->{ description });
+	print "<h2>$divsum</h2>";
 	my $name   = uc $division->{ name };
 	my $judges = $division->{ judges } || 3;
 	@rounds = ( qw( finals semfin prelim )) unless @rounds;
@@ -114,22 +115,24 @@ foreach my $division (@divisions) {
 		<div class="division"><div class="description"><b>Division $name</b> &mdash; $division->{ description } </div><div class="round"><b>$rname</b></div></div>
 		<table border=0 cellpadding=0 cellspacing=0>
 			<tr>
-				<th class="number">#</th>
-				<th class="usat">USAT ID/CID</th>
+				<th>Place</th>
 				<th class="athlete">Name</th>
+				<th class="usat">USAT ID/CID</th>
 EOF
 		print "<th class=\"form\">Score</th>";
 		print <<EOF;
-				<th>Place</th>
 			</tr>
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ order }{ $round }[ $i ];
+			my $j       = $division->{ placements }{ $round }[ $i ];
 			my $athlete = $division->{ athletes }[ $j ];
 			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
 			my $sum     = 0.0;
-			print "<tr><td class=\"number\">" . ($i + 1) . ".</td><td class=\"usat\">$athlete->{ info }{ usatid }<br>$athlete->{ info }{ cid }</td><td class=\"athlete\">$athlete->{ name }</td>";
+			print "<tr>";
+			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
+			else { print "<td>&ndash;</td>"; }
+			print "<td class=\"athlete\">$athlete->{ name }</td><td class=\"usat\">$athlete->{ info }{ usatid }<br>$athlete->{ info }{ cid }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
 			if( exists $score->{ decision } ) {
 				my $codes = { disqualify => 'DQ', withdraw => 'WD' };
@@ -139,8 +142,6 @@ EOF
 			} else {
 				printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
 			}
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
-			else { print "<td>&ndash;</td>"; }
 			print "</tr>\n";
 		}
 		print <<EOF;
