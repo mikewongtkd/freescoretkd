@@ -43,6 +43,13 @@ sub changed {
 }
 
 # ============================================================
+sub count {
+# ============================================================
+	my $self = shift;
+	return int( keys %{ $self->{ pings }});
+}
+
+# ============================================================
 sub fast {
 # ============================================================
 	my $self = shift;
@@ -78,13 +85,21 @@ sub go {
 sub health {
 # ============================================================
 	my $self = shift;
-	my $dropped = int( keys %{$self->{ pings }});
+	my $dropped = $self->count();
 
 	return 'strong' if( $dropped <= 1  );
 	return 'good'   if( $dropped <= 5  );
 	return 'weak'   if( $dropped <= 10 );
 	return 'bad'    if( $dropped <= 20 );
 	return 'dead'   if( $dropped >  20 );
+}
+
+# ============================================================
+sub last {
+# ============================================================
+	my $self = shift;
+	my @keys = sort keys %{$self->{ pings }};
+	return shift @keys;
 }
 
 # ============================================================
@@ -157,6 +172,11 @@ sub start {
 	$self->{ id } = Mojo::IOLoop->recurring( $interval => sub ( $ioloop ) {
 		my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
 		$self->{ pings }{ $now } = 1;
+
+		if( $self->count() >= 25 ) {
+			my $last = $self->last();
+			delete $self->{ pings }{ $last };
+		}
 
 		my $ping = { type => 'server', action => 'ping', ring => $client->ring(), cid => $client->cid(), gid => $client->gid(), role => $client->role(), server => { timestamp => $now }};
 		$ws->send({ json => $ping });

@@ -3,7 +3,7 @@
 	include( __DIR__ . '/../../../include/php/config.php' ); 
 
 	$divid = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
-	$ring  = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ];
+	$ring  = isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : null;
 	if( ! isset( $ring )) { $ring = 'staging'; }
 ?>
 <html>
@@ -72,7 +72,6 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 						table.find( id ).html( name ).css( 'padding-left', '2em' );
 					},
 					athletes: ( division, match, table, col, row ) => {
-						console.log( division.name(), 'MATCH', match, col, row ); // MW
 						let offset = 2 ** col;
 						if( match.chung === null && match.hong === null ) {
 
@@ -159,7 +158,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 				},
 				results : {
 					table : division => {
-						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
+						if( <?= $divid === null ? 'false' : "! division.name.match( /$divid/i )" ?> ) { return; }
 						if( <?= $ring  == 'staging' ? 'false' : "division.ring != {$ring}" ?> ) { return; }
 						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>`;
 						let tables  = [];
@@ -223,7 +222,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 									tr.append( th );
 								} else {
 									let id = `${division.name}-1st-place`;
-									let th = $( `<th class="cell${cols}" id="${id}" style="padding-bottom: 2em;">First Place</th>` );
+									let th = $( `<th class="cell${cols}" id="${id}" style="padding-bottom: 2em;">${division.description.match( /group/i ) ? 'Group Winner' : 'First Place'}</th>` );
 									tr.append( th );
 								}
 							}
@@ -266,6 +265,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 										let usatid   = athlete?.info?.usatid ? athlete.info.usatid.replace( /,/g, ', ' ) : '';
 										let wins     = maxwins - (i + 1);
 										let topround = trmap[ place ];
+										topround = division.description.match( /group/i ) ? `Group Stage ${topround}` : topround;
 										tbody.append( `<tr><td>${ordinal( place )}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${wins}</td><td>${topround}</td></tr>` );
 									})
 								});
@@ -319,11 +319,17 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 										let scores   = round.code in athlete.scores ? athlete.scores[ round.code ] : { adjusted : { presentation : null, total : null }, original : null };
 										let tb1      = scores?.tb?.[ 0 ] ? scores.tb[ 0 ].toFixed( 2 ) : '';
 										let tb2      = scores?.tb?.[ 1 ] ? scores.tb[ 1 ].toFixed( 2 ) : '';
-										let decision = scores?.adjusted?.decision;
+										let decision = (scores?.forms?.find?.( x => x?.decision ))?.decision;
+										const dcode  = { disqualify: 'DSQ', withdraw: 'WDR' };
+										if( decision ) { decision = dcode[ Object.keys( decision ).join()]; }
 										if( decision ) { score = decision; } 
 										else           { score = parseFloat( scores.adjusted.total ).toFixed( 2 ); }
-										if( ! defined( match.winner )) {
-											tbody.append( `<tr>${matchnum}<td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">&ndash;</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );
+										if( match.winner === null ) {
+											if( decision ) {
+												tbody.append( `<tr>${matchnum}<td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${score}</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );
+											} else {
+												tbody.append( `<tr>${matchnum}<td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">&ndash;</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );
+											}
 										} else if( j == match.winner ) {
 											tbody.append( `<tr>${matchnum}<td class="name"><b>${name}</b></td><td class="usatid">${usatid}</td><td class="score"><b>${score}</b></td><td class="tb1"><b>${tb1}</b></td><td class="tb1"><b>${tb2}</b></td></tr>` );
 										} else {
