@@ -66,7 +66,7 @@ FreeScore.Widget.SEMatchResults = class FSWidgetSEMatchResults extends FreeScore
 					let is_competing = (div, match, contestant) => {
 						if( match[ contestant ] === null ) { return false; }
 						let athlete  = match[ contestant ];
-						let decision = athlete.score( round )?.decision?.awarded?.() ? true : false;
+						let decision = athlete?.score?.( round )?.decision?.awarded?.() ? true : false;
 						return ! decision;
 					};
 

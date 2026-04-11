@@ -1,6 +1,7 @@
 <?php 
 	include( 'session.php' );
 	include( 'include/php/config.php' ); 
+	$nocache = bin2hex( random_bytes( 16 ));
 
 	function iis( $value ) {
 		if( isset( $value )) { return $value; }
@@ -47,14 +48,14 @@
 		<script src="include/bootstrap/add-ons/bootstrap-list-filter.min.js"></script>
 		<script src="include/alertify/alertify.min.js"></script>
 		<script src="include/opt/js-cookie/js.cookie.js"></script>
-		<script src="include/js/freescore.js"></script>
-		<script src="include/js/uuid.js"></script>
-		<script src="include/js/websocket.js"></script>
-		<script src="include/js/sound.js"></script>
-		<script src="include/js/event.js"></script>
-		<script src="include/js/app.js"></script>
-		<script src="include/js/client.js"></script>
-		<script src="include/js/date.format.js"></script>
+		<script src="include/js/freescore.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/uuid.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/websocket.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/sound.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/event.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/app.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/client.js?rand=<?= $nocache ?>"></script>
+		<script src="include/js/date.format.js?rand=<?= $nocache ?>"></script>
 		<style>
 body { background-color: black; color: gold; }
 	
