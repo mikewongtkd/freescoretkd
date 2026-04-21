@@ -54,6 +54,7 @@
 			$( 'body' ).click( function() {
 				if( screenfull.enabled ) { screenfull.toggle(); }
 			});
+			setInterval(() => {  window.location.reload; }, 5000);
 		</script>
 	</body>
 </html>

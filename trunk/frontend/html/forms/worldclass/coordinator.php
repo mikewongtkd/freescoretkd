@@ -402,7 +402,7 @@
 					var round = division.current.roundId();
 					var n     = division.current.formId();
 					var forms = division.forms()[ round ];
-					var count = forms.reduce(( acc, cur, i ) => { 
+					var count = forms?.reduce(( acc, cur, i ) => { 
 						if( i == n ) { cur = '<a class="btn btn-sm btn-primary disabled">' + cur + '</a>'; } else { cur = '<a class="btn btn-sm btn-default navigate-form" data-navigate="' + i + '" data-form-name="' + cur + '">' + cur + '</a>' }
 						return acc + '&nbsp;' + cur; 
 					}, '');

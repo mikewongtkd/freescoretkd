@@ -6,7 +6,7 @@ class Client {
 		this._cid    = client.cid;
 		this._jid    = null;
 
-		if( this.client.role.match( /judge/i )) {
+		if( this.client.role.match( /judge\d+/i )) {
 			let match  = this.client.role.match( /judge(\d+)/i );
 			let jid    = parseInt( match[ 1 ]);
 			this._jid  = jid;
