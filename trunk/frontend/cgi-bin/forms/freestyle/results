@@ -3,6 +3,7 @@ use Try::Tiny;
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use JSON::XS;
+use List::Util qw( first );
 use Data::Dumper;
 
 use lib qw( /usr/local/freescore/lib );
@@ -125,20 +126,19 @@ EOF
 EOF
 		my $n = $#{$division->{ order }{ $round }};
 		foreach my $i (0 .. $n) {
-			my $j       = $division->{ placements }{ $round }[ $i ];
-			my $athlete = $division->{ athletes }[ $j ];
-			my $notes   = $athlete->{ notes } ? $athlete->{ notes } : '';
-			my $sum     = 0.0;
+			my $j        = $division->{ placements }{ $round }[ $i ];
+			my $athlete  = $division->{ athletes }[ $j ];
+			my $notes    = $athlete->{ notes } ? $athlete->{ notes } : '';
+			my $sum      = 0.0;
+			my $dcode    = { disqualify => 'DSQ', withdraw => 'WDR' };
+			my $decision = exists $athlete->{ decision } && exists $athlete->{ decision }{ $round } ? $dcode->{ $athlete->{ decision }{ $round }} : undef;
 			print "<tr>";
-			if( exists $placed->{ $j } ) { print "<td>$placed->{ $j }</td>"; }
+			if( exists $placed->{ $j } && $decision ne 'DSQ' ) { print "<td>$placed->{ $j }</td>"; }
 			else { print "<td>&ndash;</td>"; }
 			print "<td class=\"athlete\">$athlete->{ name }</td><td class=\"usat\">$athlete->{ info }{ usatid }<br>$athlete->{ info }{ cid }</td>";
 			my $score = $athlete->{ adjusted }{ $round };
-			if( exists $score->{ decision } ) {
-				my $codes = { disqualify => 'DQ', withdraw => 'WD' };
-				foreach my $decision (keys %$codes) {
-					printf( "<td class=\"score\">%s<br><span class=\"preacc\">%.2f/%.2f</span></td>", $codes->{ $decision }, $score->{ technical }, $score->{ presentation } ) if( $score->{ decision }{ $decision } );
-				}
+			if( $decision ) {
+				printf( "<td class=\"score\">%s<br><span class=\"preacc\">&ndash;/&ndash;</span></td>", $decision );
 			} else {
 				printf( "<td class=\"score\">%.2f<br><span class=\"preacc\">%.2f/%.2f</span></td>", $score->{ total }, $score->{ technical }, $score->{ presentation } ); 
 			}

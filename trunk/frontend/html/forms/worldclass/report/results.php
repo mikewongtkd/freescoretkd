@@ -165,6 +165,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 						let n       = division.athletes.length;
 						let rounds  = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
 						
+						// CUTOFF AND SINGLE ELIMINATION
 						rounds.filter( round => ! round.code.match( /^ro/ )).forEach( round => {
 							let table = $( '<table class="table table-striped" />' );
 							let thead = $( '<thead />' );
@@ -179,22 +180,25 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 
 							let placements = round.code in division.placement ? division.placement[ round.code ] : [];
 							let athletes   = placements.map( i => division.athletes[ i ]);
+							let place      = 1;
 
 							athletes.forEach(( athlete, i ) => {
 								let j        = i > 0 ? i - 1 : null;
 								let k        = i < athletes.length ? i + 1 : null;
 								let prev     = j === null ? null : athletes[ j ];
 								let next     = k === null ? null : athletes[ k ];
-								let num      = `${i + 1}.`;
+								let num      = `${place}.`;
 								let name     = athlete.name;
 								let usatid   = athlete?.info?.usatid ? athlete.info.usatid.replace( /,/g, ', ' ) : '';
 								let scores   = round.code in athlete.scores ? athlete.scores[ round.code ] : { adjusted : { presentation : null, total : null }, original : null };
 								let tb1      = scores?.tb?.[ 0 ] ? scores.tb[ 0 ].toFixed( 2 ) : '';
 								let tb2      = scores?.tb?.[ 1 ] ? scores.tb[ 1 ].toFixed( 2 ) : '';
-								let decision = scores?.adjusted?.decision;
+								let decision = (scores?.forms?.find?.( x => x?.decision ))?.decision;
 								let score    = '';
-								if( decision ) { score = decision; num = '&ndash;';} 
-								else           { score = parseFloat( scores.adjusted.total ).toFixed( 2 ); }
+								const dcode  = { disqualify: 'DSQ', withdraw: 'WDR' };
+								if( decision ) { decision = dcode[ Object.keys( decision ).join()]; }
+								if( decision ) { score = decision; if( decision == 'DSQ' ) { num = '&ndash;'; }} 
+								else           { score = parseFloat( scores.adjusted.total ).toFixed( 2 ); place++; }
 								tbody.append( `<tr><td>${num}</td><td class="name">${name}</td><td class="usatid">${usatid}</td><td class="score">${score}</td><td class="tb1">${tb1}</td><td class="tb1">${tb2}</td></tr>` );
 							});
 						});
@@ -322,7 +326,7 @@ table .cell2 { font-size: 9pt; width: 50%;   }
 										let decision = (scores?.forms?.find?.( x => x?.decision ))?.decision;
 										const dcode  = { disqualify: 'DSQ', withdraw: 'WDR' };
 										if( decision ) { decision = dcode[ Object.keys( decision ).join()]; }
-										if( decision ) { score = decision; } 
+										if( decision ) { score = decision; if( decision == 'DSQ' ) { num = '&ndash;'; }} 
 										else           { score = parseFloat( scores.adjusted.total ).toFixed( 2 ); }
 										if( match.winner === null ) {
 											if( decision ) {

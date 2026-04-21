@@ -11,6 +11,8 @@
 	$setting    = [];
 	$athletes   = [];
 
+	$wsurl = $config->webservice( 'grassroots', $ring, 'computer+operator' );
+
 	if( file_exists( $file )) {
 		$lines      = file( $file );
 		$header     = preg_grep( "/^#/", $lines );
@@ -26,7 +28,7 @@
 		$list     = join( "\n", $athletes );
 	}
 
-	if( $setting[ mode ] == 'single-elimination' ) {
+	if( $setting[ 'mode' ] == 'single-elimination' ) {
 		$mode     = 'Single Elimination';
 		$modeicon = 'fa fa-thumbs-up';
 	} else {
@@ -194,7 +196,7 @@ foreach ($setting as $key => $value) {
 				function save( division ) {
 					$.ajax({
 						type: 'POST',
-						url: 'http://' + host + ':3080/' + tournament.db + '/<?= $ring ?>/' + division.name,
+						url: `<?= $wsurl ?>/${tournament.db}/<?= $ring ?>/${division.name}`,
 						data: JSON.stringify( division ),
 						success: function( response ) {
 							if( response.status == 'saved' ) {
