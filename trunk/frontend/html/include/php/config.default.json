@@ -1,7 +1,0 @@
-{
-	"host" : "freescore.net",
-	"tournament" : [
-		"name" : "FreeScore",
-		"db"   : "test"
-	]
-}

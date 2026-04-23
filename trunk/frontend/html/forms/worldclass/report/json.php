@@ -21,7 +21,7 @@
 		<script type="text/javascript">
 			var tournament = <?= $tournament ?>;
 			var ring       = { num : 1 };
-			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` );
+			var ws         = new WebSocket( `<?= $config->websocket( 'worldclass', 1, 'computer+operator' ) ?>` );
 			var network    = { reconnect: 0 };
 			var divisions  = [];
 
@@ -68,7 +68,7 @@
 					setTimeout(() => {
 						if( network.reconnect == 0 ) { alertify.error( 'Network error. Trying to reconnect.' ); }
 						network.reconnect++;
-						ws = new WebSocket( `<?= $config->websocket( 'worldclass' ) ?>/${tournament.db}/${ring.num}/computer+operator` ); 
+						ws = new WebSocket( `<?= $config->websocket( 'worldclass', 1, 'computer+operator' ) ?>` ); 
 						
 						ws.onerror   = network.error;
 						ws.onmessage = network.message;

@@ -1,7 +1,6 @@
 <?php 
   $ring  = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
   $judge = isset( $_GET[ 'judge' ]) ? $_GET[ 'judge' ] : $_COOKIE[ 'judge' ];
-  if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: register.php' ); exit(); }
   include( "../../include/php/config.php" ); 
   include( "../../session.php" ); 
 
@@ -30,8 +29,10 @@
     <script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
     <script src="../../include/alertify/alertify.min.js"></script>
     <script src="../../include/js/freescore.js"></script>
+    <script src="../../include/js/uuid.js"></script>
     <script src="../../include/js/websocket.js"></script>
     <script src="../../include/js/sound.js"></script>
+    <script src="../../include/js/event.js"></script>
     <script src="../../include/js/app.js"></script>
   </head>
   <body>

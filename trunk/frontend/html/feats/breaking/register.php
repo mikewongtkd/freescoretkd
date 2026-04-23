@@ -11,6 +11,7 @@
 		<script src="../../include/jquery/js/jquery-ui.min.js"></script>
 		<script src="../../include/jquery/js/jquery.cookie.js"></script>
 		<script src="../../include/jquery/js/jquery.purl.js"></script>
+		<script src="../../include/jquery/js/jquery.howler.min.js"></script>
 		<script src="../../include/bootstrap/js/bootstrap.min.js"></script>
 		<script src="../../include/bootstrap/add-ons/bootbox.min.js"></script>
 		<script src="../../include/js/freescore.js"></script>

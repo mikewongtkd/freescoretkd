@@ -179,7 +179,7 @@ h2, h3 {
 					table : division => {
 						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
 						if( <?= $ring  == 'staging' || $ring === null ? 'false' : "division.ring != {$ring}" ?> ) { return; }
-						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>\n<div><div class="ring"><h4>Ring ${division.ring}</h4></div><div class="staging">Report Time: ${division.calltime}<br>Scheduled Start Time: ${division.starttime}</div></div>`;
+						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>\n<div><div class="ring"><h4>Ring ${division.ring}</h4></div><div class="staging">Report Time: ${division.time?.call}<br>Scheduled Start Time: ${division.time?.start}</div></div>`;
 						let tables  = [];
 						let n       = division.athletes.length;
 						let rounds  = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
@@ -203,9 +203,9 @@ h2, h3 {
 							for( let i = 0; i < cols; i++ ) {
 								if( i < cols - 1 ) {
 									let round = rounds[ i ];
-									let forms = division.forms[ round.code ].length;
+									let forms = { count: division.forms[ round.code ].length, label: division.forms[ round.code ].map( x => { return x.match( /^draw/i ) ? 'Draw' : x; }).join( ', ' )};
 									let id    = `${division.name}-${round.code}`;
-									let th    = $( `<td class="cell${cols} th" id="${id}"><b>${round.name}</b><br>${forms} form${forms == 1 ? '' : 's'}</td>` );
+									let th    = $( `<td class="cell${cols} th" id="${id}"><b>${round.name}</b><br>${forms.count} form${forms.count == 1 ? '' : 's'}: ${forms.label}</td>` );
 									tr.append( th );
 								} else {
 									let place = letter ? `Winner of Group ${letter}` : 'First Place';

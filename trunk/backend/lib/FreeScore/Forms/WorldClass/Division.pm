@@ -446,6 +446,7 @@ sub read {
 				elsif ( $key eq 'order'     ) { $self->{ $key } = _parse_order( $value );     }
 				elsif ( $key eq 'places'    ) { $self->{ $key } = _parse_places( $value );    }
 				elsif ( $key eq 'placement' ) { $self->{ $key } = _parse_placement( $value ); }
+				elsif ( $key eq 'time'      ) { $self->{ $key } = _parse_json( $value );      }
 				elsif ( $key eq 'tags'      ) { $self->{ $key } = _parse_json( $value );      }
 				else                          { $self->{ $key } = $value;                     }
 
@@ -918,8 +919,7 @@ sub write {
 	print FILE "# draws=" . $json->canonical->encode( $self->{ draws }) . "\n" if exists $self->{ draws } && ref $self->{ draws } eq 'HASH' && int( keys %{$self->{ draws }}) > 0;
 	print FILE "# placement=" . $json->canonical->encode( $self->{ placement }) . "\n" if exists $self->{ placement } && ref $self->{ placement } eq 'HASH' && int( keys %{$self->{ placement }}) > 0;
 	print FILE "# flight=$flight\n" if $self->is_flight();
-	print FILE "# calltime=$self->{ calltime }\n" if exists $self->{ calltime } && defined $self->{ calltime };
-	print FILE "# starttime=$self->{ starttime }\n" if exists $self->{ starttime } && defined $self->{ starttime };
+	print FILE "# time=" . $json->canonical->encode( $self->{ time } ) . "\n" if exists $self->{ time } && defined $self->{ time };
 	print FILE "# tags=" . $json->canonical->encode( $self->{ tags }) . "\n" if exists $self->{ tags } && defined $self->{ tags };
 	foreach my $round ($self->rounds()) {
 		my $order = $self->order( $round );
