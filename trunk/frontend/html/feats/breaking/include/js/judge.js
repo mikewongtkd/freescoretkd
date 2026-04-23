@@ -1,63 +1,96 @@
+app.response = {
+	division : {
+		inspection: ( request, division ) => {
+			console.log( 'INSPECTION PROVIDED', request, division.data());
+			let divid    = request.athlete.split( /\|/ )[ 0 ];
+			let aid      = parseInt( request.athlete.split( /\|/ )[ 1 ] );
+			let boards   = parseInt( request.boards );
+			$( `#page-inspection a[data-id="${divid}|${aid}"]` ).attr({ 'data-boards' : boards });
+			$( `#page-inspection a[data-id="${divid}|${aid}"] .badge` ).html( boards );
+			let current  = { divid : app.state.current.divid == divid, aid : app.state.current.aid == aid };
+			if( current.divid && current.aid ) { app.refresh.page.deductions( division ); }
+			app.response.division.read( request, division );
+			app.sound.ok.play();
+		},
+		navigate: ( request, division ) => {
+			update.division = division.data();
+			app.state.current.divid = division.name();;
+			app.state.current.aid = division.current.athleteid();
+			app.refresh.on.read( update ); 
+		},
+		read: ( request, division ) => {
+			app.state.reset();
+			app.state.current.divid = division.name();
+			app.state.current.aid   = division.current.athleteid();
+			app.refresh.page.deductions( division );
+			app.refresh.page.scoring( division );
+			app.refresh.page.help( division );
+		},
+		score: ( request, division ) => {
+			let athlete = division.current.athlete();
+			let aid     = division.current.athleteid();
+			if( aid == app.state.current.aid && request.judge == app.state.judge ) {
+				if( request.score == 'clear' ) {
+					setTimeout( () => { alertify.notify( `Score for ${athlete.name()} cleared by computer operator` ); app.sound.ok.play(); }, 500 );
+				} else {
+					setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); app.sound.ok.play(); }, 500 );
+				}
+			}
+		}
+	},
+
+	ring : {
+		update: ( request, ring, division ) => {
+			app.refresh.page.inspection( ring );
+			let update = { request: {}};
+			update.division = division.data();
+			app.response.division.read( request, division );
+		}
+	}
+};
+
+function getDivision( update ) {
+	if( update?.division ) { 
+		return new Division( update.division ); 
+	} 
+
+	let ring = update?.ring
+
+	if( ! ring?.current ) { 
+		console.log( `Current division ${ring.current} not found`, update ); 
+		return null; 
+	}
+
+	let divid = ring?.current;
+	let division = ring?.divisions?.find?.( division => { return division?.name == divid; });
+
+	if( division ) { 
+		return new Division( division ); 
+	}
+}
+
 app.network.on
 	.heard( 'division' )
-	.command( 'inspection' )
+	.command( 'update' )
 	.respond( update => {
 		let request  = update.request;
-		let divid    = request.athlete.split( /\|/ )[ 0 ];
-		let aid      = parseInt( request.athlete.split( /\|/ )[ 1 ] );
-		let boards   = parseInt( request.boards );
-		$( `#page-inspection a[data-id="${divid}|${aid}"]` ).attr({ 'data-boards' : boards });
-		$( `#page-inspection a[data-id="${divid}|${aid}"] .badge` ).html( boards );
-		let current  = { divid : app.state.current.divid == divid, aid : app.state.current.athleteid == aid };
-		let division = new Division( update.division );
-		if( current.divid && current.aid ) { app.refresh.page.deductions( division ); }
-		app.sound.ok.play();
-	})
-	.command( 'navigate' )
-	.respond( update => {
-		let divid       = update.ring.current;
-		let division    = update.ring.divisions.find( division => { return division.name == divid; });
-		update.division = division;
-		app.state.current.divid = divid;
-		app.state.current.athleteid = division.current.athleteid();
-		app.refresh.on.read( update ); 
-		return; 
-	})
-	.command( 'read' )
-	.respond( update => {
-		let division = new Division( update.division );
-		app.state.reset();
-		app.state.current.divid     = division.name();
-		app.state.current.athleteid = division.current.athleteid();
-		app.refresh.page.deductions( division );
-		app.refresh.page.scoring( division );
-		app.refresh.page.help( division );
-	})
-	.command( 'score' )
-	.respond( update => {
-		let request   = update.request
-		let division  = new Division( update.division );
-		let athlete   = division.current.athlete();
-		let athleteid = division.current.athleteid();
-		if( athleteid == app.state.current.athleteid && request.judge == app.state.judge ) {
-			if( request.score == 'clear' ) {
-				setTimeout( () => { alertify.notify( `Score for ${athlete.name()} cleared by computer operator` ); app.sound.ok.play(); }, 500 );
-			} else {
-				setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); app.sound.ok.play(); }, 500 );
-			}
+		let ring     = update?.ring ? update.ring : null;
+		let division = getDivision( update );
+
+		switch( request.action ) {
+			case 'inspection': app.response.division.inspection( request, division ); break;
+			case 'navigate':   app.response.division.navigate( request, division );   break;
+			case 'read':       app.response.division.read( request, division );       break;
+			case 'score':      app.response.division.score( request, division );      break;
 		}
 	})
 	.heard( 'ring' )
-	.command( 'read' )
+	.command( 'update' )
 	.respond( update => {
+		let request  = update.request;
 		let ring     = update.ring;
-		let division = ring.divisions.find( division => division.name == ring.current );
-		if( ! division ) { console.log( `Current division ${ring.current} not found`, update ); return; }
-		app.refresh.page.inspection( ring );
-		update.division = division;
-		update.type = update.request.type = 'division';
-		update.action = 'update';
-		app.network.handle( update );
+		let division = getDivision( update );
+		app.response.ring.update( request, ring, division );
 	});
 
 function correct_board( division ) {

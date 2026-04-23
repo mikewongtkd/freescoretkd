@@ -90,7 +90,7 @@
     app.state.judge   = <?= $judge ?>;
     app.state.reset   = () => { 
         app.state.current.divid = null; 
-        app.state.current.athleteid = null; 
+        app.state.current.aid   = null; 
         app.state.score = { 
           technical : { difficulty : 0.0, deductions : { major : 0.0, minor : 0.0 }}, 
           procedural : { deductions : 0.0 }, 

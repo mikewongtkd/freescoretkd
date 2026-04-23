@@ -17,6 +17,10 @@ class Division {
 		return this.division.athletes.map( x => new Athlete( x ));
 	}
 
+	data() {
+		return this.division;
+	}
+
 	description() { 
 		return this.division.description; 
 	}
