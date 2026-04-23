@@ -168,7 +168,6 @@
 							let ring = update.ring;
 							app.refresh.ring( ring );
 							let divid = $.cookie( 'breaking-divid' );
-							console.log( 'DIVID', divid ); // MW
 							if( defined( divid )) {
 								let division = ring.divisions.find( d => d.name == divid );
 								let current  = ring.divisions.find( d => d.name == ring.current );

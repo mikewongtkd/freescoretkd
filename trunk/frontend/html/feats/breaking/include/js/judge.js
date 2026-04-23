@@ -320,7 +320,7 @@ app.refresh.scoring = {
 		            alertify.message( `Re-sending ${jname} score for ${aname} (attempt ${reconnect.attempt} out of 3).` );
 					app.network.send({ type : 'division', action : 'score', judge : app.state.judge, score : copy });
 					app.sound.next.play();
-				});
+				}, reconnect.delay );
 			});
 		}
 	}
