@@ -147,7 +147,7 @@
 
 			app.network.on
 				.heard( 'autopilot' )
-					.command( update )
+					.command( 'update' )
 						.respond( update => {
 							let request  = update.request;
 							let division = new Division( update.division );
