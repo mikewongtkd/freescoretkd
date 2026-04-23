@@ -236,7 +236,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
             let request = { type: 'division', action: 'score', judge: current.judge, score };
             app.on.reconnect().send( request );
 
-          }, app.state.reconnect.delay );
+          }, reconnect.delay );
         };
 
         // ===== VALIDATE SCORE
@@ -444,7 +444,7 @@ $url = $config->websocket( 'worldclass', $rnum, "judge{$judge}" );
                 let aname   = division.current.athlete().display.name();
                 let jname   = current.judge == 0 ? 'Referee' : `Judge ${current.judge}`;
                 if( update.request.judge != current.judge ) { return; }
-                app.state.reconnect.cancel(); // Cancel queued contingent reconnect/resend actions
+                app.state.reconnect.cancel(); // Cancel queued precautionary reconnect/resend actions
                 app.sound.ok.play();
                 alertify.success( `Server received ${jname} score for ${aname}.` ); 
               }

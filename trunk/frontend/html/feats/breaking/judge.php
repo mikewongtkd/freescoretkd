@@ -17,6 +17,7 @@
     <link href="../../include/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" />
     <link href="../../include/alertify/css/alertify.min.css" rel="stylesheet">
     <link href="../../include/alertify/css/themes/bootstrap.min.css" rel="stylesheet">
+    <link href="../../include/fontawesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="include/css/judge.css" rel="stylesheet">
     <script src="../../include/jquery/js/jquery.js"></script>
     <script src="../../include/jquery/js/jquery-ui.min.js"></script>
@@ -45,6 +46,7 @@
 <?php endif; ?>
           <li role="presentation" <?php if( ! referee()): ?>class="active"<?php endif; ?>><a id="nav-scoring" href="#page-scoring" data-toggle="pill">Scoring</a></li>
           <li role="presentation"><a id="nav-inspection" href="#page-inspection" data-toggle="pill">Inspection</a></li>
+          <li role="presentation"><a id="nav-settings" href="#page-settings" data-toggle="pill">Settings</a></li>
           <li role="presentation"><a id="nav-help" href="#page-help" data-toggle="pill">Help</a></li>
         </ul>
       </div>
@@ -60,6 +62,9 @@
         <div role="tabpanel" class="tab-pane fade" id="page-inspection">
 <?php include( 'judge/inspection.php' ); ?>
         </div>
+        <div role="tabpanel" class="tab-pane fade" id="page-settings">
+<?php include( 'judge/settings.php' ); ?>
+		</div>
         <div role="tabpanel" class="tab-pane fade" id="page-help">
 <?php include( 'judge/help/inspection.php' ); ?>
 <?php include( 'judge/help/scoring.php' ); ?>
@@ -86,9 +91,10 @@
 
     app.on.connect( '<?= $url ?>' ).read.ring();
 
-    app.state.current = { divid : null, athleteid : null };
-    app.state.judge   = <?= $judge ?>;
-    app.state.reset   = () => { 
+    app.state.current   = { divid : null, athleteid : null };
+    app.state.judge     = <?= $judge ?>;
+	app.state.reconnect = { interval: null, attempts: 0, delay: 6500 };
+    app.state.reset     = () => { 
         app.state.current.divid = null; 
         app.state.current.aid   = null; 
         app.state.score = { 
@@ -97,6 +103,14 @@
           presentation : { technique : 0.0, rhythm : 0.0, style : 0.0, creativity : 0.0 }
         };
     };
+	app.state.reconnect.cancel = () => {
+		let reconnect = app.state.reconnect;
+		if( reconnect.interval !== null ) {
+			clearInterval( reconnect.interval );
+		}
+		reconnect.attempt  = 0;
+		reconnect.interval = null;
+	};
 
     app.state.reset();
    

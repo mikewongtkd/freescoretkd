@@ -33,6 +33,7 @@ app.response = {
 				if( request.score == 'clear' ) {
 					setTimeout( () => { alertify.notify( `Score for ${athlete.name()} cleared by computer operator` ); app.sound.ok.play(); }, 500 );
 				} else {
+					app.state.reconnect.cancel(); // Cancel queued precautionary reconnect/resend action
 					setTimeout( () => { alertify.success( `Score for ${athlete.name()} successfully received by server` ); app.sound.ok.play(); }, 500 );
 				}
 			}
@@ -162,6 +163,103 @@ function correct_board( division ) {
 	return board[ age ];
 }
 
+// ===== DISPLAY CONFIG
+app.display.config = { current: { zoom: 1.0, pan: { x: 0, y: 0 }}};
+app.display.cookie = 'judge-breaking-app-display';
+app.display.config.apply = () => {
+	let display = app.display.config.current;
+	$( '.judge-scoring-interface' ).css({ transform: `scale( ${display.zoom}) translate( ${Math.round( display.pan.x * 100 )}%, ${Math.round( display.pan.y * 100)}% )`, 'transform-origin': '0 0' });
+}
+app.display.config.reset = () => {
+	$.removeCookie( app.display.cookie );
+	app.display.config.current = { zoom: 1.0, pan: { x: 0, y: 0 }};
+	app.display.config.apply();
+};
+
+app.display.config.defaults = () => {
+	if( ! defined( $.cookie( app.display.cookie ))) { app.display.config.reset(); return; }
+	app.display.config.current = $.cookie( app.display.cookie ); 
+};
+app.display.config.save = () => {
+	$.cookie( app.display.cookie, app.display.config.current, { expires: 1 }); 
+};
+app.display.config.restore = () => {
+	let settings = $.cookie( app.display.cookie );
+	if( defined( settings )) { 
+		app.display.config.current = settings;
+		app.display.config.apply();
+	} else {
+		app.display.config.reset(); 
+	}
+};
+app.display.panzoom = delta => {
+	let display = app.display.config.current;
+	display.pan.x = parseFloat((display.pan.x + delta.x).toFixed( 2 ));
+	display.pan.y = parseFloat((display.pan.y + delta.y).toFixed( 2 ));
+	display.zoom	= parseFloat((display.zoom	+ delta.z).toFixed( 2 ));
+
+	alertify.dismissAll();
+	if( delta.z != 0 ) { alertify.notify( `Zoom: ${Math.round( display.zoom * 100 )}%` ); }
+	else               { alertify.notify( `Pan: X: ${Math.round( display.pan.x * 100 )}%, Y: ${Math.round( display.pan.y * 100 )}%` ); }
+
+	app.display.config.apply();
+}
+
+// Display Settings Buttons and Behavior
+app.button.zoom     = $( '.display-config .btn.zoom' );
+app.button.pan      = $( '.display-config .btn.pan' );
+app.button.reload   = $( '.display-config .btn.reload' );
+app.button.reboot   = $( '.display-config .btn.reboot' );
+app.button.ok       = $( '.display-config .btn-ok' );
+app.button.defaults = $( '.display-config .btn-defaults' );
+
+app.button.pan.off( 'click' ).click( ev => {
+	let target = $( ev.target );
+	if( ! target.hasClass( 'btn' )) { target = target.parent( '.btn' ); }
+
+	let display = app.display.config.current;
+	if( target.hasClass( 'btn-pan-up' ))    { app.display.panzoom({ x:  0.00, y: -0.05, z:  0.00 }); } else
+	if( target.hasClass( 'btn-pan-down' ))  { app.display.panzoom({ x:  0.00, y:  0.05, z:  0.00 }); } else
+	if( target.hasClass( 'btn-pan-left' ))  { app.display.panzoom({ x: -0.05, y:  0.00, z:  0.00 }); } else
+	if( target.hasClass( 'btn-pan-right' )) { app.display.panzoom({ x:  0.05, y:  0.00, z:  0.00 }); }
+});
+
+app.button.zoom.off( 'click' ).click( ev => {
+	let target = $( ev.target );
+	if( ! target.hasClass( 'btn' )) { target = target.parent( '.btn' ); }
+
+	let display = app.display.config.current;
+	if( target.hasClass( 'btn-zoom-in' )) {
+		app.display.panzoom({ x: 0, y: 0, z: +0.05 });
+	} else if( target.hasClass( 'btn-zoom-out' )) {
+		app.display.panzoom({ x: 0, y: 0, z: -0.05 });
+	} else {
+		document.documentElement.requestFullscreen();
+	}
+});
+
+app.button.reload.off( 'click' ).click( ev => { window.location.reload(); });
+app.button.reboot.off( 'click' ).click( ev => { 
+	app.state.reset();
+	window.location.reload(); 
+});
+
+app.button.ok.off( 'click' ).click( ev => {
+	app.display.config.save();
+	alertify.success( 'Display configuration saved.' );
+	if( app.state.judge == 0 ) {
+		$( '#nav-deductions' ).click();
+	} else {
+		$( '#nav-scoring' ).click();
+	}
+});
+
+app.button.defaults.off( 'click' ).click( ev => {
+	app.display.config.reset();
+	alertify.message( 'Display restored to defaults.' );
+});
+
+
 app.refresh.scoring = {
 	component : {
 		score : athlete => {
@@ -195,15 +293,34 @@ app.refresh.scoring = {
 			};
 
 			button.send.off( 'click' ).click( ev => { 
-				let copy = JSON.parse( JSON.stringify( app.state.score ));
+				let reconnect = app.state.reconnect;
+				let jname     = app.state.judge == 0 ? 'Referee' : `Judge ${app.state.judge}`;
+				let aname     = athlete.name();
+				let copy      = JSON.parse( JSON.stringify( app.state.score ));
+
 				// Only the referee needs to send in technical and procedural deductions
 				if( app.state.judge != 0 ) {
 					delete copy.technical.deductions;
 					delete copy.procedural;
 				}
+
 				app.network.send({ type : 'division', action : 'score', judge : app.state.judge, score : copy });
 				app.sound.next.play();
-				alertify.notify( `Sending score for ${athlete.name()}` );
+				alertify.notify( `Sending ${jname} score for ${aname}` );
+
+				if( reconnect.interval !== null ) { reconnect.cancel(); } // Clear any prior reconnect queue (i.e. user hits 'send' and then 'send' again prior to the reconnect)
+				reconnect.interval = setInterval(() => {
+					if( reconnect.attempt >= 3 ) {
+		              alertify.error( `Failed to connect to server. Raise your hand and call for &quot;Referee&quot; to request help from a FreeScore technician.` );
+						reconnect.cancel();
+						return;
+					}
+					reconnect.attempt++;
+
+		            alertify.message( `Re-sending ${jname} score for ${aname} (attempt ${reconnect.attempt} out of 3).` );
+					app.network.send({ type : 'division', action : 'score', judge : app.state.judge, score : copy });
+					app.sound.next.play();
+				});
 			});
 		}
 	}
