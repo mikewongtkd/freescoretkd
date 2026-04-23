@@ -27,12 +27,11 @@ sub init {
 	$self->{ _watching }   = {};
 	$self->{ division }    = {
 		decision           => \&handle_division_decision,
+		display            => \&handle_division_display,
 		inspection         => \&handle_division_inspection,
-		leaderboard        => \&handle_division_leaderboard,
 		navigate           => \&handle_division_navigate,
 		read               => \&handle_division_read,
 		score              => \&handle_division_score,
-		scoreboard         => \&handle_division_scoreboard,
 		time_start         => \&handle_division_time_start,
 		time_stop          => \&handle_division_time_stop,
 		time_reset         => \&handle_division_time_reset
@@ -78,6 +77,34 @@ sub handle_division_decision {
 }
 
 # ============================================================
+sub handle_division_display {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $group     = shift;
+	my $division  = $progress->current();
+
+	if( $DEBUG ) {
+		my $display = $division->is_display() ? 'scoreboard' : 'leaderboard';
+		print STDERR "Showing $display.\n";
+	}
+
+	try {
+		if ( $division->is_display() ) { $division->score(); }
+		elsif( $division->is_score() ) { $division->display(); }
+		$division->write();
+			
+		$self->broadcast_updated_division( $request, $progress, $group );
+
+	} catch {
+		my $client = $self->{ _client };
+		$client->send({ json => { error => "$_" }});
+	}
+}
+
+
+# ============================================================
 sub handle_division_inspection {
 # ============================================================
 	my $self          = shift;
@@ -116,31 +143,6 @@ sub handle_division_inspection {
 		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		$client->send({ json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_leaderboard {
-# ============================================================
-	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $group     = shift;
-	my $division  = $progress->current();
-
-	if( $DEBUG ) {
-		print STDERR "Showing leaderboard.\n";
-	}
-
-	try {
-		$division->leaderboard();
-		$division->write();
-			
-		$self->broadcast_updated_division( $request, $progress, $group );
-
-	} catch {
-		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }
@@ -227,29 +229,6 @@ sub handle_division_score {
 		$self->broadcast_updated_division( $request, $progress, $group );
 
 	} catch {
-		$client->send({ json => { error => "$_" }});
-	}
-}
-
-# ============================================================
-sub handle_division_scoreboard {
-# ============================================================
-	my $self      = shift;
-	my $request   = shift;
-	my $progress  = shift;
-	my $group     = shift;
-	my $division  = $progress->current();
-
-	print STDERR "Showing scoreboard.\n" if( $DEBUG );
-
-	try {
-		$division->scoreboard();
-		$division->write();
-			
-		$self->broadcast_updated_division( $request, $progress, $group );
-
-	} catch {
-		my $client = $self->{ _client };
 		$client->send({ json => { error => "$_" }});
 	}
 }

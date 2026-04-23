@@ -163,11 +163,12 @@
 							app.refresh.athletes( division, true );
 						})
 				.heard( 'ring' )
-					.command( 'read' )
+					.command( 'update' )
 						.respond( update => {
 							let ring = update.ring;
 							app.refresh.ring( ring );
 							let divid = $.cookie( 'breaking-divid' );
+							console.log( 'DIVID', divid ); // MW
 							if( defined( divid )) {
 								let division = ring.divisions.find( d => d.name == divid );
 								let current  = ring.divisions.find( d => d.name == ring.current );
@@ -484,7 +485,7 @@
 						administration : {
 							refresh    : () => { page.display.location.reload(); window.location.reload(); },
 							display    : () => { app.sound.next.play(); page.display = window.open( `index.php?ring=${ringid}`, '_blank' )},
-							view       : () => { app.sound.next.play(); app.network.send({ type : 'division', action : (division.scoreboard() ? 'leaderboard' : 'scoreboard') }); },
+							view       : () => { app.sound.next.play(); app.network.send({ type : 'division', action : 'display' })},
 							edit       : () => { app.sound.next.play(); page.editor  = window.open( `division/editor.php?ring=${ringid}&divid=${divid}`, '_blank' )},
 							print      : () => { app.sound.next.play(); page.print   = window.open( `report/results.php?ring=${ringid}&divid=${divid}`, '_blank' )},
 						}

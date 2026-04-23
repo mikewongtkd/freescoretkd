@@ -128,27 +128,28 @@ app.refresh.scoreboard = division => {
 
 app.refresh.time = {
 	reset : division => {
-		state.time.elapsed = 0;
+		app.state.time.elapsed = 0;
 		app.display.scoreboard.timer.removeClass( 'overtime' ); 
 		app.display.scoreboard.timer.html( '0:00' );
 	},
 	start : division => {
-		state.time.timer = setInterval( app.refresh.time.tick, 500 );
-		state.time.start = Date.now();
+		app.state.time.timer = setInterval( app.refresh.time.tick, 500 );
+		app.state.time.start = Date.now();
 	},
 	stop  : division => {
-		clearInterval( state.time.timer );
-		state.time.stop    = Date.now();
-		state.time.elapsed = Math.floor(( state.time.stop - state.time.start ) / 1000 ) + state.time.elapsed;
+		clearInterval( app.state.time.timer );
+		app.state.time.stop    = Date.now();
+		app.state.time.elapsed = Math.floor(( app.state.time.stop - app.state.time.start ) / 1000 ) + app.state.time.elapsed;
 	},
 	tick  : () => {
-		let seconds = Math.round(( Date.now() - state.time.start)/1000) + state.time.elapsed;
+		let seconds = Math.round(( Date.now() - app.state.time.start)/1000) + app.state.time.elapsed;
 		let minutes = Math.floor( seconds / 60 );
-		if( seconds > state.time.limit  ) { 
+		if( seconds > app.state.time.limit  ) { 
 			app.display.scoreboard.timer.addClass( 'overtime' ); 
 		}
 		seconds %= 60;
 
+		console.log( 'TICK', app.display.scoreboard.timer, `${minutes}:${seconds < 10 ? 0 : ''}${seconds}` ); // MW
 		app.display.scoreboard.timer.html( `${minutes}:${seconds < 10 ? 0 : ''}${seconds}` );			
 	}
 };
@@ -166,28 +167,36 @@ app.network.on
 	// ========================================
 	.heard( 'division' )
 	// ========================================
-	.command( 'decision' )    .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'leaderboard' ) .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'inspection' )  .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'navigate' )    .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'read' )        .respond( update => {
+	.command( 'update' ).respond( update => {
+		let request  = update.request;
 		let division = new Division( update.division );
-		$( '.pt-page-2' ).hide();
-		app.refresh.display( division );
-	})
-	.command( 'score' )       .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'scoreboard' )  .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'time reset' )  .respond( update => {
-		let division = new Division( update.division );
-		app.refresh.time.reset( division );
-	})
-	.command( 'time start' )  .respond( update => {
-		let division = new Division( update.division );
-		app.refresh.time.start( division );
-	})
-	.command( 'time stop' )   .respond( update => {
-		let division = new Division( update.division );
-		app.refresh.time.stop( division );
+
+		switch( request.action ) {
+			case 'decision':
+			case 'display':
+			case 'inspection':
+			case 'navigate':
+			case 'score':
+				app.refresh.display( division );
+				break;
+
+			case 'read':
+				$( '.pt-page-2' ).hide();
+				app.refresh.display( division );
+				break;
+
+			case 'time reset':
+				app.refresh.time.reset( division );
+				break;
+
+			case 'time start':
+				app.refresh.time.start( division );
+				break;
+
+			case 'time stop':
+				app.refresh.time.stop( division );
+				break;
+		}
 	})
 
 	// ========================================
