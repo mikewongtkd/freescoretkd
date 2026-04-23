@@ -158,11 +158,23 @@ app.network.on
 	// ========================================
 	.heard( 'autopilot' )
 	// ========================================
-	.command( 'decision' )    .pass()
-	.command( 'leaderboard' ) .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'next' )        .respond( update => { app.refresh.display( new Division( update.division )); })
-	.command( 'score' )       .pass()
-	.command( 'scoreboard' )  .respond( update => { app.refresh.display( new Division( update.division )); })
+	.command( 'update' ).respond( update => {
+		let request  = update.request;
+		let division = new Division( update.division );
+
+		switch( request.action ) {
+			case 'decision':
+			case 'score':
+				break;
+
+			case 'display':
+			case 'scoreboard':
+			case 'leaderboard':
+			case 'next':
+				app.refresh.display( division );
+
+		}
+	})
 
 	// ========================================
 	.heard( 'division' )

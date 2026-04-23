@@ -385,47 +385,47 @@ sub autopilot {
 	my $delay    = new Mojo::IOLoop::Delay();
 	my $pause    = { score => 9, leaderboard => 5, brief=> 4, next => 1 };
 
-	$request->{ type } = 'autopilot';
+	$request = { from => { cid => '0', role => 'autopilot' }, type => 'autopilot' };
 
 	my $show  = {
 		score => sub {
 			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
+
+			Mojo::IOLoop->timer( $pause->{ score } => $delay->begin() );
 			$request->{ action } = 'scoreboard';
 			$request->{ delay }  = $pause->{ score };
-
 			$self->broadcast_updated_division( $request, $progress, $group );
 		},
 		leaderboard => sub {
 			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			if ( $division->is_score() ) { $division->display(); }
 			$division->write();
+
+			Mojo::IOLoop->timer( $pause->{ leaderboard } => $delay->begin() );
 			$request->{ action } = 'leaderboard';
 			$request->{ delay }  = $pause->{ leaderboard };
-
 			$self->broadcast_updated_division( $request, $progress, $group );
 		},
 		next => sub {
 			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
 			if ( $division->is_display() ) { $division->score(); }
 			$division->write();
+
+			Mojo::IOLoop->timer( $pause->{ next } => $delay->begin() );
 			$request->{ action } = 'next';
 			$request->{ delay }  = $pause->{ next };
-
 			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	};
 	my $go = {
 		next => sub {
 			my $delay = shift;
-			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
 			$division->next();
 			$division->write();
 
+			Mojo::IOLoop->timer( $pause->{ brief } => $delay->begin() );
 			$self->broadcast_updated_division( $request, $progress, $group );
 		}
 	};

@@ -147,20 +147,25 @@
 
 			app.network.on
 				.heard( 'autopilot' )
-					.command( 'leaderboard' ) 
-						.respond( update => { 
-							app.refresh.autopilot( update, 'Showing Leaderboard' ); 
-						})
-					.command( 'next' )
+					.command( update )
 						.respond( update => {
-							app.refresh.autopilot( update, 'Next Athlete' );
-							app.dispatch( 'division', 'score', update );
-						})
-					.command( 'scoreboard' )
-						.respond( update => {
-							app.refresh.autopilot( update, 'Showing Score' );
+							let request  = update.request;
 							let division = new Division( update.division );
-							app.refresh.athletes( division, true );
+
+							switch( request.action ) {
+								case 'leaderboard':
+									app.refresh.autopilot( update, 'Showing Leaderboard' ); 
+									break;
+
+								case 'next':
+									app.refresh.autopilot( update, 'Next Athlete' ); 
+									break;
+
+								case 'scoreboard':
+									app.refresh.autopilot( update, 'Showing Score' );
+									app.refresh.athletes( division, true );
+									break;
+							}
 						})
 				.heard( 'ring' )
 					.command( 'update' )
@@ -207,29 +212,30 @@
 							else if( display.health == 'bad' || display.health == 'dead' )    { alertify.danger( `Display connection is ${display.health}` ); }
 						})
 				.heard( 'division' )
-					.command( 'decision' )
+					.command( 'update' )
 						.respond( update => {
 							let division = new Division( update.division );
-							app.refresh.athletes( division, true );
-						})
-					.command( 'leaderboard' )
-						.respond( update => {
-							let division = new Division( update.division );
-							app.refresh.navadmin( division );
-						})
-					.command( 'score' )
-					.respond( update => {
-						let division = new Division( update.division );
-						app.refresh.athletes( division, true );
-					})
-					.command( 'scoreboard' )
-						.respond( update => {
-							let division = new Division( update.division );
-							app.refresh.navadmin( division );
-						})
-					.command( 'time reset' ).pass()
-					.command( 'time start' ).pass()
-					.command( 'time stop'  ).pass();
+							let request  = update.request;
+							switch( request.action ) {
+								case 'decision':
+									app.refresh.athletes( division, true );
+									break;
+
+								case 'display':
+									app.refresh.navadmin( division );
+									break;
+
+								case 'score':
+									app.refresh.athletes( division, true );
+									app.refresh.judges( division );
+									break;
+
+								case 'time reset':
+								case 'time start':
+								case 'time stop':
+									break;
+							}
+						});
 
 			var page = {
 				num : 1,

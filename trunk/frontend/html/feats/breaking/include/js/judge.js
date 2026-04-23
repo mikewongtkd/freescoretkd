@@ -310,14 +310,14 @@ app.refresh.scoring = {
 
 				if( reconnect.interval !== null ) { reconnect.cancel(); } // Clear any prior reconnect queue (i.e. user hits 'send' and then 'send' again prior to the reconnect)
 				reconnect.interval = setInterval(() => {
-					if( reconnect.attempt >= 3 ) {
+					if( reconnect.attempts >= 3 ) {
 		              alertify.error( `Failed to connect to server. Raise your hand and call for &quot;Referee&quot; to request help from a FreeScore technician.` );
 						reconnect.cancel();
 						return;
 					}
-					reconnect.attempt++;
+					reconnect.attempts++;
 
-		            alertify.message( `Re-sending ${jname} score for ${aname} (attempt ${reconnect.attempt} out of 3).` );
+		            alertify.message( `Re-sending ${jname} score for ${aname} (attempt ${reconnect.attempts} out of 3).` );
 					app.network.send({ type : 'division', action : 'score', judge : app.state.judge, score : copy });
 					app.sound.next.play();
 				}, reconnect.delay );

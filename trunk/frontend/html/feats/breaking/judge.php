@@ -108,7 +108,7 @@
 		if( reconnect.interval !== null ) {
 			clearInterval( reconnect.interval );
 		}
-		reconnect.attempt  = 0;
+		reconnect.attempts = 0;
 		reconnect.interval = null;
 	};
 
