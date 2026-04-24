@@ -11,6 +11,7 @@
 	} else {
 		setcookie( 'ring', 1, 0, '/' ); 
 	}
+	$wsurl = $config->websocket( 'grassroots', $i, 'computer+operator' );
 ?>
 <html>
 	<head>
@@ -109,7 +110,7 @@
 			var judges     = { name : [ 'referee', 'j1', 'j2', 'j3', 'j4', 'j5', 'j6' ] };
 			var html       = FreeScore.html;
 			
-			var ws     = new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/${ring.num}` );
+			var ws     = new WebSocket( '<?= $wsurl ?>' );
 
 			var handle = {
 				ring: {

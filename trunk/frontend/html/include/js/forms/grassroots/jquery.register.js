@@ -232,7 +232,7 @@ $.widget( "freescore.register", {
 				role.dom.css( 'left', '200px' );
 				url = "./judge.php";
 			} else {
-				if      ( role == "computer operator" ) { url = "./coordinator.php"; }
+				if      ( role == "computer operator" ) { url = `./coordinator.php?ring=${ring.num}`; }
 				role = register.roles.add( role.capitalize(), '200px' );
 			}
 			url = url.replace( /\/\/+/g, "/" );

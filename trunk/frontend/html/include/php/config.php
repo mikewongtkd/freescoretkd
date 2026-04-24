@@ -161,6 +161,10 @@
 			$db   = $config[ 'tournament' ][ 'db' ];
       if( $service == 'freestyle' ) {
 			  $url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
+
+	  } else if( $service == 'grassroots' ) {
+			  $url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}";
+
       } else {
   			$url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
       }

@@ -1,5 +1,4 @@
 <?php 
-	if( ! isset( $_COOKIE[ 'ring' ]) || ! isset( $_COOKIE[ 'role' ] )) { header( 'Location: ../../setup/register.php?referer=../forms/grassroots/judge.php' ); exit(); }
 	include( "../../include/php/config.php" ); 
 ?>
 <html>
