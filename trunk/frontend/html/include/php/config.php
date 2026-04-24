@@ -138,7 +138,11 @@
 			}
 			$host = $config[ 'host' ];
 
-			$url = "{$http}{$host}{$port}{$path}";
+			if( $service == 'grassroots' ) {
+				$url = "{$http}{$host}{$port}";
+			} else {
+				$url = "{$http}{$host}{$port}{$path}";
+			}
 			return $url;
 		}
 

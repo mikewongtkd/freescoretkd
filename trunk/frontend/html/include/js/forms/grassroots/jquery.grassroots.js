@@ -89,7 +89,7 @@ $.widget( "freescore.grassroots", {
 			}
 		};
 
-		e.source = new EventSource( '/cgi-bin/freescore/forms/grassroots/update?tournament=' + o.tournament.db + '&ring=' + o.ring.num );
+		e.source = new EventSource( '/cgi-bin/forms/grassroots/update?tournament=' + o.tournament.db + '&ring=' + o.ring.num );
 		e.source.addEventListener( 'message', refresh, false );
 
 	}

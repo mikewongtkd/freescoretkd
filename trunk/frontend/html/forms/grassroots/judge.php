@@ -1,5 +1,6 @@
 <?php 
 	include( "../../include/php/config.php" ); 
+	$server = $config->webservice( 'grassroots' );
 ?>
 <html>
 	<head>
@@ -30,7 +31,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?= $host ?>', tournament : <?= $tournament ?> } );
+			$( '#judgeController' ).judgeController( { server : '<?= $server ?>', tournament : <?= $tournament ?> } );
 		</script>
 	</body>
 </html>

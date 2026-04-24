@@ -18,7 +18,7 @@ $.widget( "freescore.ajaxbutton", {
 		o.port        = defined( o.port ) ? o.port : '/cgi-bin/freescore/';
 		o.clickUpdate = function() {
 			return function() {
-				var url = 'http://' + o.server + o.port + o.tournament + '/' + o.ring + '/' + o.command;
+				var url = o.server + '/' + o.tournament + '/' + o.ring + '/' + o.command;
 				$.ajax( {
 					type:        'GET',
 					crossDomain: true,
