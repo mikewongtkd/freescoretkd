@@ -1,6 +1,7 @@
 <?php 
 include( "../../include/php/config.php" ); 
 $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
+$cgipath = $config->cgipath();
 ?>
 <html>
 	<head>
@@ -28,7 +29,7 @@ $ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) 
 	<body>
 		<div id="grassroots"></div>
 		<script type="text/javascript">
-			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', tournament : <?= $tournament ?>, ring : { num: <?= $ring ?> }});
+			$( '#grassroots' ).grassroots( { server : '<?= $host ?>', cgipath : '<?= $cgipath ?>', tournament : <?= $tournament ?>, ring : { num: <?= $ring ?> }});
 			var zoom       = { scale: 1.0 };
 
 			zoom.screen = function( scale ) { zoom.scale += scale; $( 'body' ).css({ 'transform' : 'scale( ' + zoom.scale.toFixed( 2 ) + ' )', 'transform-origin': '0 0' }); };

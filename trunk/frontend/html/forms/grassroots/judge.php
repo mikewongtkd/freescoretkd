@@ -1,6 +1,7 @@
 <?php 
 	include( "../../include/php/config.php" ); 
 	$server = $config->webservice( 'grassroots' );
+	$cgipath = $config->cgipath();
 ?>
 <html>
 	<head>
@@ -31,7 +32,7 @@
 	<body>
 		<div id="judgeController"></div>
 		<script type="text/javascript">
-			$( '#judgeController' ).judgeController( { server : '<?= $server ?>', tournament : <?= $tournament ?> } );
+			$( '#judgeController' ).judgeController( { server : '<?= $server ?>', cgipath : '<?= $cgipath ?>', tournament : <?= $tournament ?> } );
 		</script>
 	</body>
 </html>

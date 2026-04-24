@@ -26,6 +26,11 @@
 			die( "No configuration file found" );
 		}
 
+		public function cgipath() {
+			$config = $this->data;
+			return array_key_exists( 'cgipath', $config ) ? "/cgi-bin/{$config[ 'cgipath' ]}" : '/cgi-bin';
+		}
+
 		public function host() {
 			$config = $this->data;
 			if( ! array_key_exists( 'host', $config )) { return 'http://freescore.net'; } # Default
