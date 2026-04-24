@@ -286,9 +286,7 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				// Initialize values based on division data
 				let pool = division.form.pool();
 				if( pool ) {
-					console.log( 'POOL', pool ); // MW
 					let key = pool[ 0 ].replace( /^draw\-/, '' );
-					console.log( 'POOL', pool, key ); // MW
 					if( key in designated ) {
 						pool = designated[ key ];
 						this.button.modal.draw.select.val( key );
@@ -373,9 +371,11 @@ FreeScore.Widget.SBSDrawPoomsae = class FSWidgetSBSDrawPoomsae extends FreeScore
 				let fid   = division.current.formId();
 
 				// Form has been previously manually drawn
-				if( defined( draw[ fid ]) && forms && ! forms[ fid ].match( /^draw/i )) {
-					form = draw[ fid ];
+				if( ! defined( draw[ fid ]) && forms && ! forms[ fid ].match( /^draw/i )) {
+					form = forms[ fid ];
 					this.display.draw.empty().html( form );
+					this.display.all.hide();
+					return;
 
 				// Form has been previously systematically drawn
 				} else if( defined( draw[ fid ])) {
