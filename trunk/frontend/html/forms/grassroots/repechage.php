@@ -98,7 +98,7 @@
 			};
 
 			var sendRequest = ( request ) => {
-				var url = 'http://' + host + ':3080/' + tournament.db + '/' + ring.num + '/coordinator'
+				var url = '<?= $config->webservice( 'grassroots' ) ?>/' + tournament.db + '/' + ring.num + '/coordinator'
 				var data = JSON.stringify( request.data );
 				console.log( url, data );
 				$.post( url, data );

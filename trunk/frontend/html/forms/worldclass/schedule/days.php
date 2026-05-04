@@ -80,8 +80,8 @@ var tournament = <?= $tournament ?>;
 var sort = { alphabetically: ( x ) => { return Object.keys( x ).sort(); }, numerically: ( x ) => { return Object.keys( x ).sort(( a, b ) => { return parseInt( a ) - parseInt( b ); }); }};
 
 // ===== SERVER COMMUNICATION
-var wc = new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator/${sha1.hex( Date.now() )}` );
-var fs = new WebSocket( `ws://${host}:3082/freestyle/${tournament.db}/staging` );
+var wc = new WebSocket( '<?= $config->websocket( 'worldclass', 'staging', 'computer+operator' ) ?>' );
+var fs = new WebSocket( '<?= $config->websocket( 'freestyle',  'staging' ) ?>' );
 
 wc.onopen = function() {
 	var request;

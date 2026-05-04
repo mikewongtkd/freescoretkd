@@ -338,10 +338,10 @@ var ws = {
 			ws.sparring.send( request );
 		}
 	},
-	worldclass : new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` ),
-	grassroots : new WebSocket( `ws://${host}:3080/grassroots/${tournament.db}/staging` ),
-	freestyle  : new WebSocket( `ws://${host}:3082/freestyle/${tournament.db}/staging` ),
-	sparring   : new WebSocket( `ws://${host}:3086/sparring/${tournament.db}/staging` ),
+	worldclass : new WebSocket( '<?= $config->websocket( 'worldclass', 'staging', 'computer+operator' ) ?>' ),
+	grassroots : new WebSocket( '<?= $config->websocket( 'grassroots', 'staging' ) ?>' ),
+	freestyle  : new WebSocket( '<?= $config->websocket( 'freestyle',  'staging' ) ?>' ),
+	sparring   : new WebSocket( `ws://${host}:3086/sparring/${tournament.db}/staging` ), // TODO: sparring not in config.json
 };
 
 var registration = { male: '', female: '', usat: '' };

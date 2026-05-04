@@ -204,7 +204,7 @@ function set_wifi_form( wifi ) {
 }
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
+var ws = new WebSocket( '<?= $config->websocket( 'fswifi' ) ?>' );
 
 ws.onopen = function() {
 	var request;

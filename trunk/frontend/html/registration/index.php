@@ -61,9 +61,9 @@ var page = {
 };
 
 var ws = {
-	worldclass : new WebSocket( `ws://${host}:3088/worldclass/${tournament.db}/staging/computer+operator` ),
-	sparring   : new WebSocket( 'ws://' + host + ':3086/sparring/' + tournament.db + '/staging' ),
-	// grassroots : new WebSocket( 'ws://' + host + ':3080/grassroots/' + tournament.db + '/staging' ),
+	worldclass : new WebSocket( '<?= $config->websocket( 'worldclass', 'staging', 'computer+operator' ) ?>' ),
+	sparring   : new WebSocket( `ws://${host}:3086/sparring/${tournament.db}/staging` ), // TODO: sparring not in config.json
+	// grassroots : new WebSocket( '<?= $config->websocket( 'grassroots', 'staging' ) ?>' ),
 };
 
 ws.worldclass.onopen = () => {

@@ -110,7 +110,7 @@ $( '#updates' ).off( 'click' ).click(( ev ) => {
 });
 
 // ===== SERVER COMMUNICATION
-var ws = new WebSocket( 'ws://' + host + ':3085/setup/' + tournament.db );
+var ws = new WebSocket( '<?= $config->websocket( 'fswifi' ) ?>' );
 
 ws.onopen = function() {
 	$( '#instructions' ).append( "<p>Detecting network.</p>" );

@@ -106,9 +106,9 @@
 				$path = "/{$service}/status";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
-				$path = "/status";
-				
+				$port = '';
+				$path = "/{$service}/status";
+
 			}
 			$host = $config[ 'host' ];
 
@@ -137,17 +137,13 @@
 				$path = "/{$service}/webservice";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
-				$path = '';
-				
+				$port = '';
+				$path = "/{$service}/webservice";
+
 			}
 			$host = $config[ 'host' ];
 
-			if( $service == 'grassroots' ) {
-				$url = "{$http}{$host}{$port}";
-			} else {
-				$url = "{$http}{$host}{$port}{$path}";
-			}
+			$url = "{$http}{$host}{$port}{$path}";
 			return $url;
 		}
 
@@ -162,13 +158,16 @@
 				$path = "/{$service}/request";
 
 			} else if( array_key_exists( 'service', $config ) && array_key_exists( $service, $config[ 'service' ])) {
-				$port = ":{$config[ 'service' ][ $service ][ 'port' ]}";
-				$path = "/{$service}";
-				
+				$port = '';
+				$path = "/{$service}/request";
+
 			}
 			$host = $config[ 'host' ];
 			$db   = $config[ 'tournament' ][ 'db' ];
-      if( $service == 'freestyle' ) {
+      if( $service == 'fswifi' ) {
+			  $url = "{$ws}{$host}{$port}{$path}/{$db}";
+
+      } else if( $service == 'freestyle' ) {
 			  $url = "{$ws}{$host}{$port}{$path}/{$db}/{$ring}/{$role}";
 
 	  } else if( $service == 'grassroots' ) {
