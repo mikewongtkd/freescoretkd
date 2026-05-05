@@ -179,9 +179,11 @@ post '/:tournament/:ring/:divid' => sub {
 			$self->render( json => { division => $divid, status => 'exists' } );
 			return;
 		}
-		foreach my $key (keys %{ $data->{ header }}) { 
+		my %allowed_keys = map { $_ => 1 } qw( description judges brackets mode );
+		foreach my $key (keys %{ $data->{ header }}) {
+			next unless $allowed_keys{ $key };
 			$data->{ header }{ $key } = $json->decode( $data->{ header }{ $key } ) if( $key eq 'brackets' );
-			$division->{ $key } = $data->{ header }{ $key }; 
+			$division->{ $key } = $data->{ header }{ $key };
 		}
 		delete $division->{ mode } if( ! exists $data->{ header }{ mode } );
 		my $athletes = [];
