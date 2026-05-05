@@ -379,7 +379,7 @@ sub handle_division_judge_registration {
 	my $division = $progress->current();
 	my $id       = $request->{ id };
 	my $num      = $request->{ num };
-	my $judge    = $num == 0 ? 'Referee' : 'Judge ' + $num;
+	my $judge    = $num == 0 ? 'Referee' : 'Judge ' . $num;
 
 	print STDERR "Requesting $judge registration.\n" if $DEBUG;
 
